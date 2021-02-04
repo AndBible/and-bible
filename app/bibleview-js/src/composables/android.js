@@ -199,6 +199,14 @@ export function useAndroid({bookmarks}, config) {
         android.createNewJournalEntry(labelId, afterEntryType, afterEntryId);
     }
 
+    function deleteJournalEntry(journalId) {
+        android.deleteJournalEntry(journalId);
+    }
+
+    function removeBookmarkLabel(bookmarkId, labelId) {
+        android.removeBookmarkLabel(bookmarkId, labelId);
+    }
+
     const exposed = {
         setActionMode,
         reportInputFocus,
@@ -214,6 +222,8 @@ export function useAndroid({bookmarks}, config) {
         insertOrUpdateJournalTextEntry,
         updateJournalBookmark,
         createNewJournalEntry,
+        deleteJournalEntry,
+        removeBookmarkLabel,
     }
 
     if(config.developmentMode) return {

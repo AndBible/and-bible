@@ -16,6 +16,9 @@
   -->
 
 <template>
+  <AreYouSure ref="areYouSureDelete">
+    {{ strings.doYouWantToDeleteEntry }}
+  </AreYouSure>
   <div v-if="journalEntries.length === 0">
     {{strings.emptyJournal}}
   </div>
@@ -30,6 +33,9 @@
         </div>
         <b>{{ j.verseRange }}</b> <q v-if="j.text" class="bible-text">{{abbreviated(j.text, 40)}}</q>
       </template>
+      <div class="delete-button" @click.stop="deleteEntry(j)">
+        <FontAwesomeIcon icon="trash"/>
+      </div>
       <div class="notes">
         <EditableText :edit-directly="j.new" :text="journalText(j)" @closed="journalTextChanged(j, $event)"/>
       </div>
@@ -48,6 +54,7 @@ import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {sortBy} from "lodash";
 import EditableText from "@/components/EditableText";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import AreYouSure from "@/components/modals/AreYouSure";
 
 const JournalEntryTypes = {
   BOOKMARK: "bookmark",
@@ -68,12 +75,15 @@ function useJournal(label) {
       journalTextEntries.get(e.id).orderNumber = e.orderNumber;
     }
   }
-  return {journalTextEntries, updateJournalTextEntries, updateJournalOrdering};
+  function deleteJournal(journalId) {
+    journalTextEntries.delete(journalId)
+  }
+  return {journalTextEntries, updateJournalTextEntries, updateJournalOrdering, deleteJournal};
 }
 
 export default {
   name: "JournalDocument",
-  components: {EditableText, FontAwesomeIcon},
+  components: {AreYouSure, EditableText, FontAwesomeIcon},
   props: {
     document: {type: Object, required: true},
   },
@@ -83,7 +93,7 @@ export default {
     const journal = useJournal(label);
     provide("journal", journal);
 
-    const {journalTextEntries, updateJournalTextEntries, updateJournalOrdering} = journal;
+    const {journalTextEntries, updateJournalTextEntries, updateJournalOrdering, deleteJournal} = journal;
 
     updateJournalTextEntries(...props.document.journalTextEntries);
 
@@ -104,6 +114,10 @@ export default {
       globalBookmarks.updateBookmarkOrdering(...bookmarkToLabelsOrdered);
       updateJournalOrdering(...journalsOrdered);
       updateJournalTextEntries(journal)
+    })
+
+    setupEventBusListener(Events.DELETE_JOURNAL, journalId => {
+      deleteJournal(journalId)
     })
 
     function editNotes(b, newText) {
@@ -144,12 +158,25 @@ export default {
       android.createNewJournalEntry(label.id, entry.type, entry.id);
     }
 
+    const areYouSureDelete = ref(null);
+
+    async function deleteEntry(entry) {
+      const answer = await areYouSureDelete.value.areYouSure();
+      if (answer) {
+        if (entry.type === JournalEntryTypes.JOURNAL_TEXT)
+          android.deleteJournalEntry(entry.id);
+        else if (entry.type === JournalEntryTypes.BOOKMARK) {
+          android.removeBookmarkLabel(entry.id, label.id);
+        }
+      }
+    }
+
     return {
       journalEntries, journalText, journalTextChanged, save, editNotes,
       editBookmark, labelsFor, assignLabels, editableJournalEntry,
-      addNewEntryAfter,
-      JournalEntryTypes,
-      ...useCommon()}
+      addNewEntryAfter, deleteEntry, JournalEntryTypes, areYouSureDelete,
+      ...useCommon()
+    }
   }
 }
 </script>
@@ -177,14 +204,20 @@ export default {
 .notes {
   text-indent: 2pt;
 }
-
 .edit-button {
   position: absolute;
-  height: 20pt;
-  width: 20pt;
-  right: 5px;
+  right: 10pt;
+  z-index: 1;
   color: #939393;
 }
+
+.delete-button {
+  position: absolute;
+  right: 30pt;
+  z-index: 1;
+  color: #939393;
+}
+
 .add-entry {
   margin-left: 50%;
   font-size: 0.8em;

@@ -52,6 +52,8 @@ class JournalTextEntryAddedOrUpdatedEvent(
     val journalOrderChanged: List<BookmarkEntities.JournalTextEntry>
 )
 
+class JournalTextEntryDeleted(val journalId: Long)
+
 const val LABEL_ALL_ID = -999L
 const val LABEL_UNLABELED_ID = -998L
 
@@ -289,16 +291,33 @@ open class BookmarkControl @Inject constructor(
         dao.updateBookmarkDate(dao.bookmarkById(bookmarkId))
     }
 
-    fun journalsByLabelId(labelId: Long): List<BookmarkEntities.JournalTextEntry> = dao.journalTextEntriesByLabelId(labelId)
-
     fun getBookmarkToLabel(bookmarkId: Long, labelId: Long): BookmarkToLabel? = dao.getBookmarkToLabel(bookmarkId, labelId)
 
     fun getJournalById(journalTextEntryId: Long): BookmarkEntities.JournalTextEntry? = dao.journalTextEntryById(journalTextEntryId)
 
-    fun bookmarkToLabelsByLabelId(labelId: Long): List<BookmarkToLabel> = dao.getBookmarkToLabelsForLabel(labelId)
-
-    fun updateBookmarkToLabels(bookmarkToLabels: List<BookmarkToLabel>) = dao.updateBookmarkToLabels(bookmarkToLabels)
     fun updateJournalTextEntries(journalTextEntries: List<BookmarkEntities.JournalTextEntry>) = dao.updateJournalTextEntries(journalTextEntries)
+    fun deleteJournalEntry(journalId: Long) {
+        dao.delete(dao.journalTextEntryById(journalId)!!)
+        ABEventBus.getDefault().post(JournalTextEntryDeleted(journalId))
+    }
+
+    fun createJournalEntry(labelId: Long, entryOrderNumber: Int) {
+        val entry = BookmarkEntities.JournalTextEntry(labelId = labelId, orderNumber = entryOrderNumber + 1)
+        entry.new = true
+        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber > entryOrderNumber }.onEach {it.orderNumber++}
+        val journals = dao.journalTextEntriesByLabelId(labelId).filter { it.orderNumber > entryOrderNumber }.onEach { it.orderNumber++ }
+
+        dao.updateBookmarkToLabels(bookmarkToLabels)
+        updateJournalTextEntries(journals)
+        insertOrUpdateJournalTextEntry(entry)
+        ABEventBus.getDefault().post(JournalTextEntryAddedOrUpdatedEvent(entry, bookmarkToLabels, journals))
+    }
+
+    fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) {
+        val bookmark = dao.bookmarkById(bookmarkId)
+        val labels = labelsForBookmark(bookmark).filter { it.id != labelId }
+        setLabelsForBookmark(bookmark, labels)
+    }
 
     companion object {
         const val LABEL_IDS_EXTRA = "bookmarkLabelIds"

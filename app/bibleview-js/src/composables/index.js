@@ -22,7 +22,7 @@ import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faBookmark, faEdit, faHeadphones, faPlus, faPlusCircle} from "@fortawesome/free-solid-svg-icons";
+import {faBookmark, faEdit, faHeadphones, faPlus, faPlusCircle, faTrash} from "@fortawesome/free-solid-svg-icons";
 import Color from "color";
 
 let developmentMode = false;
@@ -207,6 +207,7 @@ export function useStrings() {
         emptyJournal: "Empty journal",
         journalModalTitle: "Edit journal entry",
         verses: "Verse %s",
+        doYouWantToDeleteEntry: "Are you sure you want to delete this journal entry?",
     }
 }
 
@@ -256,6 +257,7 @@ export function useFontAwesome() {
     library.add(faEdit)
     library.add(faBookmark)
     library.add(faPlusCircle)
+    library.add(faTrash)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {

@@ -137,17 +137,14 @@ class BibleJavascriptInterface(
             "journal" -> bookmarkControl.getJournalById(afterEntryId)!!.orderNumber
             else -> throw RuntimeException("illegal entry type")
         }
-        val entry = BookmarkEntities.JournalTextEntry(labelId = labelId, orderNumber = entryOrderNumber + 1)
-        entry.new = true
-        val bookmarkToLabels = bookmarkControl.bookmarkToLabelsByLabelId(labelId).filter { it.orderNumber > entryOrderNumber }.onEach {it.orderNumber++}
-        val journals = bookmarkControl.journalsByLabelId(labelId).filter { it.orderNumber > entryOrderNumber }.onEach { it.orderNumber++ }
-
-        bookmarkControl.updateBookmarkToLabels(bookmarkToLabels)
-        bookmarkControl.updateJournalTextEntries(journals)
-        bookmarkControl.insertOrUpdateJournalTextEntry(entry)
-        ABEventBus.getDefault().post(JournalTextEntryAddedOrUpdatedEvent(entry, bookmarkToLabels, journals))
+        bookmarkControl.createJournalEntry(labelId, entryOrderNumber)
     }
 
+    @JavascriptInterface
+    fun deleteJournalEntry(journalId: Long) = bookmarkControl.deleteJournalEntry(journalId)
+
+    @JavascriptInterface
+    fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) = bookmarkControl.removeBookmarkLabel(bookmarkId, labelId)
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

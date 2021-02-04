@@ -199,6 +199,8 @@ interface BookmarkDao {
 
     @Delete fun delete(entities: List<BookmarkToLabel>): Int
 
+    @Delete fun delete(e: BookmarkEntities.JournalTextEntry)
+
     @Insert fun insert(entities: List<BookmarkToLabel>): List<Long>
 
     @Query("SELECT * from Label WHERE name = '${SPEAK_LABEL_NAME}' LIMIT 1")
