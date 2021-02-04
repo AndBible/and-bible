@@ -27,7 +27,7 @@
       <FontAwesomeIcon icon="edit"/>
     </div>
     <div>
-      <b>{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</b> <q v-if="b.text" class="bible-text">{{abbreviated(b.text, 40)}}</q>
+      <b>{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</b> <BookmarkText :bookmark="b"/>
       <div class="notes">
         <div v-html="b.notes"/>
       </div>
@@ -43,10 +43,11 @@ import {useCommon} from "@/composables";
 import {emit, Events} from "@/eventbus";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import LabelList from "@/components/LabelList";
+import BookmarkText from "@/components/BookmarkText";
 
 export default {
   name: "MyNotesDocument",
-  components: {LabelList, FontAwesomeIcon},
+  components: {LabelList, FontAwesomeIcon, BookmarkText},
   props: {
     document: {type: Object, required: true},
   },
@@ -89,7 +90,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "~@/common.scss";
+
 .note-container {
+  position: relative;
   margin: 10pt 2pt 2pt;
   border-style: solid;
   border-color: rgba(0, 0, 0, 0.3);
@@ -108,14 +112,13 @@ export default {
 }
 
 .notes {
+  padding-top: 2pt;
   text-indent: 2pt;
 }
 
 .edit-button {
+  @extend .journal-button;
   position: absolute;
-  height: 20pt;
-  width: 20pt;
-  right: 5px;
-  color: #939393;
+  right: 10pt;
 }
 </style>

@@ -34,13 +34,7 @@
         <div class="edit-button" @click.stop="editBookmark(j)">
           <FontAwesomeIcon icon="bookmark"/>
         </div>
-        <b>{{ j.verseRange }}</b>
-        <template v-if="j.text">
-          &nbsp;
-          <q v-if="isExpanded(j)" @click.stop="toggleExpanded(j)" class="bible-text"><span v-html="j.fullText"/></q>
-          <q v-if="!isExpanded(j)" @click.stop="toggleExpanded(j)" class="bible-text">{{abbreviated(j.text, 40)}}</q>
-        </template>
-
+        <b>{{ j.verseRange }}</b> <BookmarkText :bookmark="j"/>
       </template>
       <div class="delete-button" @click.stop="deleteEntry(j)">
         <FontAwesomeIcon icon="trash"/>
@@ -64,6 +58,7 @@ import {sortBy} from "lodash";
 import EditableText from "@/components/EditableText";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import AreYouSure from "@/components/modals/AreYouSure";
+import BookmarkText from "@/components/BookmarkText";
 
 const JournalEntryTypes = {
   BOOKMARK: "bookmark",
@@ -92,7 +87,7 @@ function useJournal(label) {
 
 export default {
   name: "JournalDocument",
-  components: {AreYouSure, EditableText, FontAwesomeIcon},
+  components: {AreYouSure, EditableText, FontAwesomeIcon, BookmarkText},
   props: {
     document: {type: Object, required: true},
   },
@@ -196,25 +191,11 @@ export default {
       scrollToId(`${entry.type}-${entry.id}`, {duration: 300})
     }
 
-    const expanded = reactive(new Set());
-
-    function isExpanded(entry) {
-        return expanded.has(entry.id);
-    }
-
-    function toggleExpanded(entry) {
-      if(expanded.has(entry.id)) {
-        expanded.delete(entry.id)
-      } else {
-        expanded.add(entry.id);
-      }
-    }
-
     return {
       journalEntries, journalText, journalTextChanged, save, editNotes,
       editBookmark, labelsFor, assignLabels, editableJournalEntry,
       addNewEntryAfter, deleteEntry, JournalEntryTypes, areYouSureDelete, editOpened,
-      isExpanded, toggleExpanded,...useCommon()
+      ...useCommon()
     }
   }
 }

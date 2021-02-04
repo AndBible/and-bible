@@ -27,7 +27,7 @@
     />
     <div v-show="infoShown" class="info">
       <div class="bible-text">
-        <q v-if="bookmark.text"><i>{{ bookmark.text }}</i></q>
+        <BookmarkText expanded :bookmark="bookmark"/>
       </div>
       <div v-if="bookmark.bookName">
         <span v-html="sprintf(strings.bookmarkAccurate, originalBookLink)"/>
@@ -70,10 +70,11 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import AreYouSure from "@/components/modals/AreYouSure";
 import EditableText from "@/components/EditableText";
 import LabelList from "@/components/LabelList";
+import BookmarkText from "@/components/BookmarkText";
 
 export default {
   name: "BookmarkModal",
-  components: {LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure},
+  components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure},
   setup() {
     const showBookmark = ref(false);
     const android = inject("android");
