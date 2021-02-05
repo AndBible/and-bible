@@ -255,7 +255,7 @@ open class BookmarkControl @Inject constructor(
         val startOffset = b.startOffset ?: 0
         var startVerse = verseTexts.first()
         var endOffset = b.endOffset ?: startVerse.length
-        val start = startVerse.slice(0 until startOffset)
+        val start = startVerse.slice(0 until arrayOf(startOffset, endOffset).minOrNull()!!)
         if(verseTexts.size == 1) {
             val end = startVerse.slice(endOffset until startVerse.length)
             b.text = startVerse.slice(startOffset until endOffset)
