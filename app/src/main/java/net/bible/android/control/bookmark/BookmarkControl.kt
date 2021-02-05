@@ -101,7 +101,7 @@ open class BookmarkControl @Inject constructor(
 
         if(labels != null) {
             dao.deleteLabels(bookmark.id)
-            dao.insert(labels.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it) })
+            dao.insert(labels.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) })
         }
 
         addText(bookmark)
@@ -154,7 +154,7 @@ open class BookmarkControl @Inject constructor(
 
     fun setLabelsByIdForBookmark(bookmark: Bookmark, labelIdList: List<Long>) {
         dao.deleteLabels(bookmark)
-        dao.insert(labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it) })
+        dao.insert(labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) })
         addText(bookmark)
         bookmark.labelIds = labelIdList
         ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
@@ -307,7 +307,14 @@ open class BookmarkControl @Inject constructor(
         ABEventBus.getDefault().post(JournalTextEntryDeleted(journalId))
     }
 
+    private val sanitized = mutableSetOf<Long>()
+
     fun sanitizeOrder(label: Label) {
+        // Is not really necessary, but items might have been deleted in the middle, so count is not consequent any more.
+        // TODO: let's consider if this is needed or not before merge.
+        if(sanitized.contains(label.id)) return
+        sanitized.add(label.id)
+
         val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(label.id)
         val journals = dao.journalTextEntriesByLabelId(label.id)
         val all = ArrayList<Any>()

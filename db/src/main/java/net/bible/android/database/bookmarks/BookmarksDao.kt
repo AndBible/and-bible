@@ -208,7 +208,15 @@ interface BookmarkDao {
 
     @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId")
     fun deleteLabels(bookmarkId: Long)
-    fun deleteLabels(bookmark: BookmarkEntities.Bookmark) = deleteLabels(bookmark.id)
+    fun deleteLabels(bookmark: Bookmark) = deleteLabels(bookmark.id)
+
+    @Query("SELECT COUNT(*) FROM BookmarkToLabel WHERE labelId=:labelId")
+    fun countBookmarkEntities(labelId: Long): Int
+
+    @Query("SELECT COUNT(*) FROM JournalTextEntry WHERE labelId=:labelId")
+    fun countJournalTextEntities(labelId: Long): Int
+
+    fun countJournalEntities(labelId: Long) = countBookmarkEntities(labelId) + countJournalTextEntities(labelId)
 
     @Query("DELETE FROM Label WHERE id IN (:toList)")
     fun deleteLabelsByIds(toList: List<Long>)
