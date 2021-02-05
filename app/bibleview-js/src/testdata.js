@@ -222,7 +222,9 @@ if(process.env.NODE_ENV === "development") {
             },
         ];
     testBookmarks.forEach(b => {
-        b.verseRange = "Phil 1:2";
+        b.verseRangeAbbreviated = "Phil 1:2";
+        b.verseRange = "Philipians 1:2";
+        b.bibleUrl = "http://asdf";
         b.notes = "Bookmark notes asdf asdf asdf asdf";
     })
     testData = testData.map(
@@ -240,7 +242,7 @@ if(process.env.NODE_ENV === "development") {
         }));
     testData[2].ordinalRange = [30835, 30852];
     testData = [{
-        type: "journal",
+        type: "notes",
         label: testBookmarkLabels[0],
         bookmarks: testBookmarks,
         journalTextEntries,

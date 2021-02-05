@@ -17,8 +17,10 @@
 
 <template>
   <template v-if="bookmark.text">
-    <q v-if="isExpanded" @click.stop="isExpanded = false" class="bible-text"><span v-html="bookmark.fullText"/></q>
-    <q v-if="!isExpanded" @click.stop="isExpanded = true" class="bible-text">{{abbreviated(bookmark.text, 40)}}</q>
+    <span class="bookmark-text">
+      <q v-if="isExpanded" @click.stop="isExpanded = false" class="bible-text"><span v-html="bookmark.fullText"/></q>
+      <q v-if="!isExpanded" @click.stop="isExpanded = true" class="bible-text">{{abbreviated(bookmark.text, 40)}}</q>
+    </span>
   </template>
 </template>
 
@@ -40,5 +42,7 @@ export default {
 </script>
 
 <style scoped>
-
+.bookmark-text {
+  font-style: italic;
+}
 </style>

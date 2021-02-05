@@ -16,8 +16,23 @@
  */
 
 .journal-button {
+  z-index: 1;
   color: rgba(0, 0, 0, 0.3);
   .night & {
     color: rgba(255, 255, 255, 0.3);
   }
 }
+
+.note-container {
+  position: relative;
+  margin: 4pt 2pt 2pt;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.3);
+  .night & {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  border-width: 1pt;
+  border-radius: 5pt;
+  padding: 2pt;
+}
+

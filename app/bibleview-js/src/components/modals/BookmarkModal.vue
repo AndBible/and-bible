@@ -137,7 +137,7 @@ export default {
     }
 
     const originalBookLink = computed(() =>
-        `<a href="osis://?osis=${bookmark.value.bookInitials}:${bookmark.value.firstVerseRef}">${bookmark.value.bookName}</a>`)
+        `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName}</a>`)
 
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, editDirectly, bookmarkNotes,

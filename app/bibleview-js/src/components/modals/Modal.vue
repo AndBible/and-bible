@@ -74,7 +74,7 @@ export default {
 .modal-backdrop {
   display: block;
   position: fixed;
-  z-index: 2;
+  z-index: 10;
   padding-top: 10px;
   left: 0;
   top: 0;
@@ -86,9 +86,9 @@ export default {
 
 .modal-content {
   opacity: 0.95;
-  z-index: 1;
+  z-index: 5;
   .blocking & {
-    z-index: 3;
+    z-index: 15;
   }
   position: absolute;
   background-color: #fefefe;

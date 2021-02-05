@@ -22,29 +22,34 @@
     </template>
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
+  <h2>{{ document.label.name }}</h2>
   <div v-if="journalEntries.length === 0">
     {{strings.emptyJournal}}
   </div>
-  <div v-else>
-    <h2>{{ document.label.name }}</h2>
-  </div>
   <div v-for="j in journalEntries" :id="`${j.type}-${j.id}`" :key="`${j.type}-${j.id}`">
     <div class="note-container">
-      <template v-if="j.type===JournalEntryTypes.BOOKMARK">
-        <div class="edit-button" @click.stop="editBookmark(j)">
+      <div class="edit-buttons">
+        <div v-if="j.type===JournalEntryTypes.BOOKMARK" class="edit-button" @click.stop="editBookmark(j)">
           <FontAwesomeIcon icon="bookmark"/>
         </div>
-        <b>{{ j.verseRange }}</b> <BookmarkText :bookmark="j"/>
+        <div class="add-entry" @click.stop="addNewEntryAfter(j)">
+          <FontAwesomeIcon icon="plus-circle"/>
+        </div>
+        <div class="delete-button" @click.stop="deleteEntry(j)">
+          <FontAwesomeIcon icon="trash"/>
+        </div>
+      </div>
+      <template v-if="j.type===JournalEntryTypes.BOOKMARK">
+        <b><a :href="j.bibleUrl">{{ j.verseRangeAbbreviated }}</a></b> <BookmarkText :bookmark="j"/>
       </template>
-      <div class="delete-button" @click.stop="deleteEntry(j)">
-        <FontAwesomeIcon icon="trash"/>
-      </div>
       <div class="notes">
-        <EditableText :edit-directly="j.new" :text="journalText(j)" @opened="editOpened(j)" @closed="journalTextChanged(j, $event)"/>
+        <EditableText
+            :edit-directly="j.new"
+            :text="journalText(j)"
+            @opened="editOpened(j)"
+            @closed="journalTextChanged(j, $event)"
+        />
       </div>
-    </div>
-    <div class="add-entry" @click.stop="addNewEntryAfter(j)">
-      <FontAwesomeIcon icon="plus-circle"/>
     </div>
   </div>
 </template>
@@ -203,18 +208,7 @@ export default {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
-.note-container {
-  position: relative;
-  margin: 10pt 2pt 2pt;
-  border-style: solid;
-  border-color: rgba(0, 0, 0, 0.3);
-  .night & {
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-  border-width: 1pt;
-  border-radius: 10pt;
-  padding: 5pt;
-}
+
 .bible-text {
   margin-top: 2pt;
   text-indent: 5pt;
@@ -224,27 +218,28 @@ export default {
 
 .notes {
   text-indent: 2pt;
+  margin-top: 4pt;
 }
-
-.edit-button {
-  @extend .journal-button;
+.edit-buttons {
   position: absolute;
-  right: 10pt;
-  z-index: 1;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+.buttons {
+  @extend .journal-button;
+  margin: 2pt;
+}
+.edit-button {
+  @extend .buttons;
 }
 
 .delete-button {
-  @extend .journal-button;
-  position: absolute;
-  right: 30pt;
-  z-index: 1;
+  @extend .buttons;
 }
 
 .add-entry {
-  @extend .journal-button;
-  margin-left: 50%;
-  font-size: 0.8em;
-  height: 1em;
+  @extend .buttons;
 }
 </style>
 

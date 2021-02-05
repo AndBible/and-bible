@@ -27,7 +27,7 @@
       <FontAwesomeIcon icon="edit"/>
     </div>
     <div>
-      <b>{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</b> <BookmarkText :bookmark="b"/>
+      <b><a :href="b.bibleUrl">{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</a></b> <BookmarkText :bookmark="b"/>
       <div class="notes">
         <div v-html="b.notes"/>
       </div>
@@ -92,18 +92,6 @@ export default {
 <style scoped lang="scss">
 @import "~@/common.scss";
 
-.note-container {
-  position: relative;
-  margin: 10pt 2pt 2pt;
-  border-style: solid;
-  border-color: rgba(0, 0, 0, 0.3);
-  .night & {
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-  border-width: 1pt;
-  border-radius: 10pt;
-  padding: 5pt;
-}
 .bible-text {
   margin-top: 2pt;
   text-indent: 5pt;

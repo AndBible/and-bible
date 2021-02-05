@@ -28,7 +28,7 @@ import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {init, exec} from "pell";
 import InputText from "@/components/modals/InputText";
-import {faBible, faListOl, faListUl} from "@fortawesome/free-solid-svg-icons";
+import {faBible, faListOl, faListUl, faWindowClose} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 
@@ -38,7 +38,7 @@ export default {
   props: {
     text: {type: String, required: true}
   },
-  emits: ['changed'],
+  emits: ['changed', "close"],
   setup(props, {emit}) {
     const android = inject("android");
     const editorElement = ref(null);
@@ -58,6 +58,11 @@ export default {
       icon: icon(faListUl).html,
       title: 'Unordered List',
       result: () => exec('insertUnorderedList')
+    }
+    const close = {
+      icon: icon(faWindowClose).html,
+      title: 'Close',
+      result: () => emit('close')
     }
 
     const bibleLink = {
@@ -90,7 +95,7 @@ export default {
         element: editorElement.value,
         onChange: debounce(html => emit('changed', html), 500),
         actions: [
-          'bold', 'italic', 'underline', oList, uList, bibleLink
+          'bold', 'italic', 'underline', oList, uList, bibleLink, close
         ],
       });
       editor.value.content.innerHTML = props.text;

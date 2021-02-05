@@ -17,14 +17,11 @@
 
 <template>
   <div :style="parentStyle" class="editable-text">
-    <div class="edit-button" @click="editMode = !editMode">
-      <FontAwesomeIcon icon="edit"/>
-    </div>
     <div class="editor-container" v-if="editMode">
-      <TextEditor :text="editText || ''" @changed="textChanged"/>
+      <TextEditor :text="editText || ''" @changed="textChanged" @close="editMode = false"/>
     </div>
     <template v-else>
-      <div :class="{'notes-display': true, constraintHeight}">
+      <div :class="{'notes-display': true, constraintHeight}" @click="handleClicks">
         <div v-html="editText || ''"/>
       </div>
     </template>
@@ -34,14 +31,13 @@
 <script>
 import {ref} from "@vue/reactivity";
 import TextEditor from "@/components/TextEditor";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {watch} from "@vue/runtime-core";
 
 let cancelOpen = () => {}
 
 export default {
   name: "EditableText",
-  components: {TextEditor, FontAwesomeIcon},
+  components: {TextEditor},
   emits: ["closed", "changed", "opened"],
   props: {
     editDirectly:{type: Boolean, default: false},
@@ -71,11 +67,19 @@ export default {
     watch(() => props.text, t => {
       editText.value = t;
     })
+
     function textChanged(newText) {
       editText.value = newText
       emit("changed", newText);
     }
-    return {editMode, parentStyle, editText, textChanged}
+
+    function handleClicks(event) {
+      if(event.target.nodeName !== "A") {
+        editMode.value = true;
+      }
+    }
+
+    return {editMode, parentStyle, editText, textChanged, handleClicks}
   }
 }
 </script>

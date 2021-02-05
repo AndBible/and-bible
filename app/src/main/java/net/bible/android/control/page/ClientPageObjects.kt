@@ -199,7 +199,7 @@ data class ClientBookmark(val id: Long,
                           val lastUpdatedOn: Long,
                           val notes: String?,
                           val verseRange: String,
-                          val firstVerseRef: String,
+                          val bibleUrl: String,
                           val verseRangeOnlyNumber: String,
                           val verseRangeAbbreviated: String,
                           val text: String?,
@@ -223,7 +223,7 @@ data class ClientBookmark(val id: Long,
             verseRangeAbbreviated = bookmark.verseRange.abbreviated,
             text = bookmark.text,
             fullText = bookmark.fullText,
-            firstVerseRef = bookmark.verseRange.start.osisRef,
+            bibleUrl = getUrl(bookmark),
             indentLevel = indentLevel(bookmark, label),
             orderNumber = orderNumber(bookmark, label),
         )
@@ -234,6 +234,15 @@ data class ClientBookmark(val id: Long,
         fun indentLevel(bookmark: BookmarkEntities.Bookmark, label: BookmarkEntities.Label?): Int? {
             label?: return null
             return bookmark.bookmarkToLabels?.find { it.labelId == label.id }?.indentLevel
+        }
+        fun getUrl(bookmark: BookmarkEntities.Bookmark): String {
+            val bookRef = bookmark.book?.initials
+            val firstVerseRef = bookmark.verseRange.start.osisRef
+            val ref = if(bookRef != null) {
+                "$bookRef:$firstVerseRef"
+            } else
+                firstVerseRef
+            return "osis://?osis=$ref"
         }
         fun orderNumber(bookmark: BookmarkEntities.Bookmark, label: BookmarkEntities.Label?): Int? {
             label?: return null
