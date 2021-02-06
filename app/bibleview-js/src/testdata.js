@@ -223,29 +223,43 @@ if(process.env.NODE_ENV === "development") {
         ];
     testBookmarks.forEach(b => {
         b.verseRangeAbbreviated = "Phil 1:2";
+        b.verseRangeOnlyNumber = "2";
         b.verseRange = "Philipians 1:2";
         b.bibleUrl = "http://asdf";
         b.notes = "Bookmark notes asdf asdf asdf asdf";
     })
-    testData = testData.map(
-        v => ({
-            type: "bible",
-            osisFragments: [
-                {
-                    xml: v,
-                    key:`KJV--${count++}`,
-                    features: {},
-                }
-            ],
-            bookInitials: "KJV",
+    const mode = "notes"
+
+    if(mode === "bible") {
+        testData = testData.map(
+            v => ({
+                type: "bible",
+                osisFragments: [
+                    {
+                        xml: v,
+                        key: `KJV--${count++}`,
+                        features: {},
+                    }
+                ],
+                bookInitials: "KJV",
+                bookmarks: testBookmarks,
+            }));
+        testData[2].ordinalRange = [30835, 30852];
+    } else if(mode === "journal") {
+        testData = [{
+            type: "journal",
+            label: testBookmarkLabels[0],
             bookmarks: testBookmarks,
-        }));
-    testData[2].ordinalRange = [30835, 30852];
-    testData = [{
-        type: "notes",
-        label: testBookmarkLabels[0],
-        bookmarks: testBookmarks,
-        journalTextEntries,
-    }];
+            journalTextEntries,
+        }];
+    } else if(mode === "notes") {
+        testData = [{
+            type: "notes",
+            label: testBookmarkLabels[0],
+            bookmarks: testBookmarks,
+            journalTextEntries,
+            verseRange: "Philipians 1"
+        }];
+    }
     window.testData = testData;
 }

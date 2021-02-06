@@ -122,15 +122,17 @@ export default {
     let adding = false;
 
     setupEventBusListener(Events.ADD_OR_UPDATE_JOURNAL, async ({journal, bookmarkToLabelsOrdered, journalsOrdered}) => {
-      if(adding) {
+      if(journal && adding) {
         journal.new = true
         adding = false;
       }
       globalBookmarks.updateBookmarkOrdering(...bookmarkToLabelsOrdered);
       updateJournalOrdering(...journalsOrdered);
-      updateJournalTextEntries(journal);
+      if(journal) {
+        updateJournalTextEntries(journal);
+      }
       await nextTick();
-      if(journal.new) {
+      if(journal && journal.new) {
         scrollToId(`${journal.type}-${journal.id}`, {duration: 300})
       }
     })

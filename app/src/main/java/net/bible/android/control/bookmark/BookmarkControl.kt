@@ -47,8 +47,9 @@ class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark): BookmarkEvent()
 class BookmarksDeletedEvent(val bookmarkIds: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
 
-class JournalTextEntryAddedOrUpdatedEvent(
-    val journalTextEntry: JournalTextEntry,
+class JournalEvent(
+    val labelId: Long,
+    val newJournalTextEntry: JournalTextEntry? = null,
     val bookmarkToLabelsOrderChanged: List<BookmarkToLabel>,
     val journalOrderChanged: List<JournalTextEntry>
 )
@@ -120,18 +121,17 @@ open class BookmarkControl @Inject constructor(
 
     fun deleteBookmark(bookmark: Bookmark) {
         dao.delete(bookmark)
+        sanitizeJournalOrder(bookmark)
         ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark.id)))
     }
 
     fun deleteBookmarks(bookmarks: List<Bookmark>) {
         dao.deleteBookmarks(bookmarks)
+        bookmarks.forEach { sanitizeJournalOrder(it) }
         ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks.map { it.id }))
     }
 
-    fun deleteBookmarksById(bookmarkIds: List<Long>) {
-        dao.deleteBookmarksById(bookmarkIds)
-        ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarkIds))
-    }
+    fun deleteBookmarksById(bookmarkIds: List<Long>) = deleteBookmarks(bookmarkIds.map { dao.bookmarkById(it) })
 
     fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false): List<Bookmark> {
         val bookmarks = when {
@@ -282,7 +282,7 @@ open class BookmarkControl @Inject constructor(
 
     fun updateJournalTextEntry(entry: JournalTextEntry) {
         dao.update(entry)
-        ABEventBus.getDefault().post(JournalTextEntryAddedOrUpdatedEvent(entry, emptyList(), emptyList()))
+        ABEventBus.getDefault().post(JournalEvent(entry.labelId, entry, emptyList(), emptyList()))
     }
 
     fun updateBookmarkToLabel(bookmarkToLabel: BookmarkToLabel) {
@@ -303,18 +303,13 @@ open class BookmarkControl @Inject constructor(
 
     fun updateJournalTextEntries(journalTextEntries: List<JournalTextEntry>) = dao.updateJournalTextEntries(journalTextEntries)
     fun deleteJournalEntry(journalId: Long) {
-        dao.delete(dao.journalTextEntryById(journalId)!!)
+        val entry = dao.journalTextEntryById(journalId)!!
+        dao.delete(entry)
         ABEventBus.getDefault().post(JournalTextEntryDeleted(journalId))
+        sanitizeJournalOrder(dao.labelById(entry.labelId)!!)
     }
 
-    private val sanitized = mutableSetOf<Long>()
-
-    fun sanitizeOrder(label: Label) {
-        // Is not really necessary, but items might have been deleted in the middle, so count is not consequent any more.
-        // TODO: let's consider if this is needed or not before merge.
-        if(sanitized.contains(label.id)) return
-        sanitized.add(label.id)
-
+    private fun sanitizeJournalOrder(label: Label) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(label.id)
         val journals = dao.journalTextEntriesByLabelId(label.id)
         val all = ArrayList<Any>()
@@ -327,16 +322,38 @@ open class BookmarkControl @Inject constructor(
                 else -> 0
             }
         }
-        var count = 0;
-        all.forEach {
+        var count = 0
+        val changedBookmarkToLabels = mutableListOf<BookmarkToLabel>()
+        val changedJournalTextEntries = mutableListOf<JournalTextEntry>()
+
+        for (it in all) {
             when (it) {
-                is BookmarkToLabel -> it.orderNumber = count++
-                is JournalTextEntry -> it.orderNumber = count++
+                is BookmarkToLabel -> {
+                    if(it.orderNumber != count) {
+                        it.orderNumber = count
+                        changedBookmarkToLabels.add(it)
+                    }
+                }
+                is JournalTextEntry -> {
+                    if(it.orderNumber != count) {
+                        it.orderNumber = count
+                        changedJournalTextEntries.add(it)
+                    }
+                }
             }
+            count ++
         }
-        dao.updateBookmarkToLabels(all.filterIsInstance<BookmarkToLabel>())
-        dao.updateJournalTextEntries(all.filterIsInstance<JournalTextEntry>())
+        dao.updateBookmarkToLabels(changedBookmarkToLabels)
+        dao.updateJournalTextEntries(changedJournalTextEntries)
+        if(changedBookmarkToLabels.size > 0 || changedJournalTextEntries.size > 0)
+            ABEventBus.getDefault().post(
+                JournalEvent(
+                    label.id, null, changedBookmarkToLabels, changedJournalTextEntries
+                )
+            )
     }
+
+    private fun sanitizeJournalOrder(bookmark: Bookmark) = labelsForBookmark(bookmark).forEach { sanitizeJournalOrder(it) }
 
     fun createJournalEntry(labelId: Long, entryOrderNumber: Int) {
         val entry = JournalTextEntry(labelId = labelId, orderNumber = entryOrderNumber + 1)
@@ -347,7 +364,7 @@ open class BookmarkControl @Inject constructor(
         updateJournalTextEntries(journals)
         dao.insert(entry).also { entry.id = it }
 
-        ABEventBus.getDefault().post(JournalTextEntryAddedOrUpdatedEvent(entry, bookmarkToLabels, journals))
+        ABEventBus.getDefault().post(JournalEvent(labelId, entry, bookmarkToLabels, journals))
     }
 
     fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) {

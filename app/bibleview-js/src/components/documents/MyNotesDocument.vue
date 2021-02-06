@@ -27,7 +27,7 @@
       <FontAwesomeIcon icon="edit"/>
     </div>
     <div>
-      <b><a :href="b.bibleUrl">{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</a></b> <BookmarkText :bookmark="b"/>
+      <b><a :href="b.bibleUrl">{{ b.verseRangeOnlyNumber }}</a></b> <BookmarkText :bookmark="b"/>
       <div class="notes">
         <div v-html="b.notes"/>
       </div>

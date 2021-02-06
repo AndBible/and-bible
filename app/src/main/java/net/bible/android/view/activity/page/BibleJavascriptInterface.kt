@@ -22,7 +22,6 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.webkit.JavascriptInterface
-import net.bible.android.control.bookmark.JournalTextEntryAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.database.bookmarks.BookmarkEntities

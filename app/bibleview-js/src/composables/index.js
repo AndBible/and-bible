@@ -206,7 +206,6 @@ export function useStrings() {
         noNotes: "No My Notes for this chapter",
         emptyJournal: "Empty journal",
         journalModalTitle: "Edit journal entry",
-        verses: "Verse %s",
         doYouWantToDeleteEntry: "Are you sure you want to delete this journal entry?",
         removeJournalConfirmationTitle: "Remove journal entry?",
     }
