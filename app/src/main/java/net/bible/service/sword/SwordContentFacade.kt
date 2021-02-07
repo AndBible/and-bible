@@ -37,6 +37,7 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToCopyTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
+import org.apache.commons.text.StringEscapeUtils
 import org.crosswire.common.xml.JDOMSAXEventProvider
 import org.crosswire.common.xml.SAXEventProvider
 import org.crosswire.jsword.book.Book
@@ -51,9 +52,13 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
+import org.jdom2.Text
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
+import org.jdom2.output.support.AbstractXMLOutputProcessor
+import org.jdom2.output.support.FormatStack
 import org.xml.sax.ContentHandler
+import java.io.Writer
 import java.util.*
 import javax.inject.Inject
 
@@ -124,7 +129,17 @@ open class SwordContentFacade @Inject constructor(
         log.debug("Using standard JSword to fetch document data")
         return try {
             val data = BookData(book, key)
-            val outputter = XMLOutputter(Format.getRawFormat())
+            val format = Format.getRawFormat()
+            val processor = object: AbstractXMLOutputProcessor() {
+                override fun printText(out: Writer, fstack: FormatStack, text: Text) {
+                    // We might have html-encoded characters in OSIS text.
+                    // Let's un-encode them first, lest we will end up with double-encoded strings
+                    // such as &amp;quot;
+                    text.text = StringEscapeUtils.unescapeHtml4(text.text)
+                    super.printText(out, fstack, text)
+                }
+            }
+            val outputter = XMLOutputter(format, processor)
             outputter.outputString(data.osisFragment)
         } catch (e: Exception) {
             log.error("Parsing error", e)
