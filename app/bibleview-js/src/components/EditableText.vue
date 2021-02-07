@@ -24,6 +24,9 @@
       <div v-if="editText" :class="{'notes-display': true, constraintHeight}" @click="handleClicks">
         <div v-html="editText"/>
       </div>
+      <div class="placeholder" v-else-if="showPlaceholder" @click="handleClicks">
+        {{ strings.editTextPlaceholder }}
+      </div>
     </template>
   </div>
 </template>
@@ -32,6 +35,7 @@
 import {ref} from "@vue/reactivity";
 import TextEditor from "@/components/TextEditor";
 import {watch} from "@vue/runtime-core";
+import {useCommon} from "@/composables";
 
 let cancelOpen = () => {}
 
@@ -41,6 +45,7 @@ export default {
   emits: ["closed", "changed", "opened"],
   props: {
     editDirectly:{type: Boolean, default: false},
+    showPlaceholder:{type: Boolean, default: false},
     text:{type: String, default: null},
     maxHeight: {type: String, default: null},
     constraintHeight: {type: Boolean, default: false},
@@ -79,7 +84,7 @@ export default {
       }
     }
 
-    return {editMode, parentStyle, editText, textChanged, handleClicks}
+    return {editMode, parentStyle, editText, textChanged, handleClicks, ...useCommon()}
   }
 }
 </script>
@@ -88,6 +93,9 @@ export default {
 @import "~@/common.scss";
 .notes-display {
   width: calc(100% - 22pt);
+}
+.placeholder {
+  opacity: 0.5;
 }
 
 .constraintHeight {

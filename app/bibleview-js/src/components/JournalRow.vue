@@ -24,16 +24,16 @@
   </AreYouSure>
   <div class="note-container">
     <JournalEditButtons>
-      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click.stop="editBookmark">
+      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="editBookmark">
         <FontAwesomeIcon icon="bookmark"/>
       </div>
-      <div class="journal-button" @click.stop="addNewEntryAfter">
+      <div class="journal-button" @click="addNewEntryAfter">
         <FontAwesomeIcon icon="plus-circle"/>
       </div>
-      <div class="journal-button" @click.stop="editEntry">
+      <div class="journal-button" @click="editEntry">
         <FontAwesomeIcon icon="edit"/>
       </div>
-      <div class="journal-button" @click.stop="deleteEntry">
+      <div class="journal-button" @click="deleteEntry">
         <FontAwesomeIcon icon="trash"/>
       </div>
     </JournalEditButtons>
@@ -42,6 +42,7 @@
     </template>
     <div class="notes">
       <EditableText
+          :show-placeholder="journalEntry.type === JournalEntryTypes.JOURNAL_TEXT"
           :edit-directly="journalEntry.new"
           :text="journalText"
           @opened="$emit('edit-opened')"

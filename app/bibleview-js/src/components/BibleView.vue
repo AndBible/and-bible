@@ -143,6 +143,8 @@
     computed: {
       styleConfig({config}) {
         const textColor = Color(config.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
+        const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+
         let style = `
           max-width: ${config.marginSize.maxWidth};
           color: ${textColor.hsl().string()};
@@ -151,6 +153,7 @@
           line-spacing: ${config.lineSpacing / 10}em;
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
+          --background-color: ${backgroundColor.hsl().string()};
           `;
         if(config.marginSize.marginLeft || config.marginSize.marginRight) {
           style += `

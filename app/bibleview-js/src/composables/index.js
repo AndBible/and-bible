@@ -107,12 +107,12 @@ export function useConfig() {
         showMyNotes: true,
 
         colors: {
-            dayBackground: null,
+            dayBackground: -1,
             dayNoise: 0,
             dayTextColor: null,
             nightBackground: null,
             nightNoise: 0,
-            nightTextColor: null,
+            nightTextColor: -16777216,
         },
         bookmarks: {
             showAll: true,
@@ -191,6 +191,7 @@ export function useStrings() {
         bookmarkInfo: "Info",
         editNote: "Edit",
         editNotePlaceholder: "Edit a note for bookmark",
+        editTextPlaceholder: "Tap to edit text",
         inputPlaceholder: "Write here",
         inputReference: "Give bible reference, in OSIS format",
         removeBookmark: "Remove",

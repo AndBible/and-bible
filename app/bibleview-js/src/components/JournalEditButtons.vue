@@ -16,9 +16,9 @@
   -->
 
 <template>
-  <div :class="{'edit-buttons': expanded, 'menu': !expanded}">
+  <div @click.stop="expanded=!expanded" :class="{'edit-buttons': expanded, 'menu': !expanded}">
     <slot v-if="expanded"/>
-    <div @click.stop="expanded = !expanded" class="journal-button">
+    <div class="journal-button">
       <FontAwesomeIcon icon="ellipsis-h"/>
     </div>
   </div>
@@ -42,14 +42,13 @@ export default {
 @import "~@/common.scss";
 
 .edit-buttons {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--background-color);
   border-style: solid;
   border-color: rgba(0, 0, 0, 0.3);
   border-width: 1pt;
   border-radius: 10pt;
   .night & {
     border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(0, 0, 0, 0.8);
   }
   position: absolute;
   right: 0;

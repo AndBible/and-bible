@@ -28,7 +28,7 @@ import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {init, exec} from "pell";
 import InputText from "@/components/modals/InputText";
-import {faBible, faListOl, faListUl, faWindowClose} from "@fortawesome/free-solid-svg-icons";
+import {faBible, faIndent, faListOl, faListUl, faOutdent, faWindowClose} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 
@@ -59,6 +59,17 @@ export default {
       title: 'Unordered List',
       result: () => exec('insertUnorderedList')
     }
+    const indent = {
+      icon: icon(faIndent).html,
+      title: 'Indent',
+      result: () => exec('indent')
+    }
+    const outdent = {
+      icon: icon(faOutdent).html,
+      title: 'Indent',
+      result: () => exec('outdent')
+    }
+
     const close = {
       icon: icon(faWindowClose).html,
       title: 'Close',
@@ -95,7 +106,7 @@ export default {
         element: editorElement.value,
         onChange: debounce(html => emit('changed', html), 500),
         actions: [
-          'bold', 'italic', 'underline', oList, uList, bibleLink, close
+          'bold', 'italic', 'underline', oList, uList, outdent, indent, bibleLink, close
         ],
       });
       editor.value.content.innerHTML = props.text;

@@ -220,6 +220,14 @@ if(process.env.NODE_ENV === "development") {
                 indentLevel: 1,
                 type: "journal",
             },
+        {
+            id: 3,
+            text: "",
+            labelId: 1,
+            orderNumber: 2,
+            indentLevel: 1,
+            type: "journal",
+        },
         ];
     testBookmarks.forEach(b => {
         b.verseRangeAbbreviated = "Phil 1:2";
