@@ -374,6 +374,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 "content" -> "$type:$target"
                 "strong" -> "$type:$target"
                 "robinson" -> "$type:$target"
+                "strongMorph" -> "$type:$target"
                 else -> {
                     if(target.startsWith("sword://"))
                         target
