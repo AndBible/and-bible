@@ -293,3 +293,9 @@ export function draggableElement(element, dragHandle) {
         document.removeEventListener("touchmove", elementDrag);
     }
 }
+
+export function stripTags(str) {
+    const temp = document.createElement("div");
+    temp.innerHTML = str;
+    return temp.textContent || temp.innerText;
+}
