@@ -22,3 +22,8 @@ export const DocumentTypes = {
     MY_NOTES: "notes",
     JOURNAL: "journal",
 }
+
+export const JournalEntryTypes = {
+    BOOKMARK: "bookmark",
+    JOURNAL_TEXT: "journal",
+}

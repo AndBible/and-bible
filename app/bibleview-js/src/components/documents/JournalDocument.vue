@@ -16,41 +16,17 @@
   -->
 
 <template>
-  <AreYouSure ref="areYouSureDelete">
-    <template #title>
-      {{ strings.removeJournalConfirmationTitle }}
-    </template>
-    {{ strings.doYouWantToDeleteEntry }}
-  </AreYouSure>
   <h2>{{ document.label.name }}</h2>
   <div v-if="journalEntries.length === 0">
     {{strings.emptyJournal}}
   </div>
   <div v-for="j in journalEntries" :id="`${j.type}-${j.id}`" :key="`${j.type}-${j.id}`">
-    <div class="note-container">
-      <div class="edit-buttons">
-        <div v-if="j.type===JournalEntryTypes.BOOKMARK" class="edit-button" @click.stop="editBookmark(j)">
-          <FontAwesomeIcon icon="bookmark"/>
-        </div>
-        <div class="add-entry" @click.stop="addNewEntryAfter(j)">
-          <FontAwesomeIcon icon="plus-circle"/>
-        </div>
-        <div class="delete-button" @click.stop="deleteEntry(j)">
-          <FontAwesomeIcon icon="trash"/>
-        </div>
-      </div>
-      <template v-if="j.type===JournalEntryTypes.BOOKMARK">
-        <b><a :href="j.bibleUrl">{{ j.verseRangeAbbreviated }}</a></b> <BookmarkText :bookmark="j"/>
-      </template>
-      <div class="notes">
-        <EditableText
-            :edit-directly="j.new"
-            :text="journalText(j)"
-            @opened="editOpened(j)"
-            @closed="journalTextChanged(j, $event)"
-        />
-      </div>
-    </div>
+    <JournalRow
+        :journal-entry="j"
+        :label="document.label"
+        @add="adding=true"
+        @edit-opened="editOpened(j)"
+    />
   </div>
 </template>
 
@@ -58,17 +34,9 @@
 import {computed, ref} from "@vue/reactivity";
 import {inject, reactive, provide, nextTick} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
-import {emit, Events, setupEventBusListener} from "@/eventbus";
+import {Events, setupEventBusListener} from "@/eventbus";
 import {sortBy} from "lodash";
-import EditableText from "@/components/EditableText";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import AreYouSure from "@/components/modals/AreYouSure";
-import BookmarkText from "@/components/BookmarkText";
-
-const JournalEntryTypes = {
-  BOOKMARK: "bookmark",
-  JOURNAL_TEXT: "journal",
-}
+import JournalRow from "@/components/JournalRow";
 
 function useJournal(label) {
   const journalTextEntries = reactive(new Map());
@@ -92,7 +60,7 @@ function useJournal(label) {
 
 export default {
   name: "JournalDocument",
-  components: {AreYouSure, EditableText, FontAwesomeIcon, BookmarkText},
+  components: {JournalRow},
   props: {
     document: {type: Object, required: true},
   },
@@ -108,7 +76,6 @@ export default {
     updateJournalTextEntries(...props.document.journalTextEntries);
 
     const globalBookmarks = inject("globalBookmarks");
-    const android = inject("android");
 
     globalBookmarks.updateBookmarks(...bookmarks);
 
@@ -119,12 +86,12 @@ export default {
       entries = sortBy(entries, ['orderNumber']);
       return entries;
     });
-    let adding = false;
+    const adding = ref(false);
 
     setupEventBusListener(Events.ADD_OR_UPDATE_JOURNAL, async ({journal, bookmarkToLabelsOrdered, journalsOrdered}) => {
-      if(journal && adding) {
+      if(journal && adding.value) {
         journal.new = true
-        adding = false;
+        adding.value = false;
       }
       globalBookmarks.updateBookmarkOrdering(...bookmarkToLabelsOrdered);
       updateJournalOrdering(...journalsOrdered);
@@ -145,52 +112,10 @@ export default {
       b.notes = newText;
     }
 
-    function save(b) {
-      android.saveBookmarkNote(b.id, b.notes);
-    }
     const editableJournalEntry = ref(null);
-
-    function editBookmark(bookmark) {
-      emit(Events.BOOKMARK_FLAG_CLICKED, bookmark.id, {open: true})
-    }
 
     function labelsFor(b) {
       return b.labels.map(l => globalBookmarks.bookmarkLabels.get(l));
-    }
-
-    function assignLabels(bookmark) {
-      android.assignLabels(bookmark.id);
-    }
-
-    function journalTextChanged(entry, newText) {
-      if(entry.type === JournalEntryTypes.BOOKMARK) {
-        entry.notes = newText;
-      } else if(entry.type === JournalEntryTypes.JOURNAL_TEXT) {
-        entry.text = newText;
-        android.updateJournalTextEntry(entry);
-      }
-    }
-    function journalText(entry) {
-      if(entry.type === JournalEntryTypes.BOOKMARK) return entry.notes;
-      else if(entry.type === JournalEntryTypes.JOURNAL_TEXT) return entry.text;
-    }
-
-    function addNewEntryAfter(entry) {
-      adding = true;
-      android.createNewJournalEntry(label.id, entry.type, entry.id);
-    }
-
-    const areYouSureDelete = ref(null);
-
-    async function deleteEntry(entry) {
-      const answer = await areYouSureDelete.value.areYouSure();
-      if (answer) {
-        if (entry.type === JournalEntryTypes.JOURNAL_TEXT)
-          android.deleteJournalEntry(entry.id);
-        else if (entry.type === JournalEntryTypes.BOOKMARK) {
-          android.removeBookmarkLabel(entry.id, label.id);
-        }
-      }
     }
 
     async function editOpened(entry) {
@@ -199,9 +124,8 @@ export default {
     }
 
     return {
-      journalEntries, journalText, journalTextChanged, save, editNotes,
-      editBookmark, labelsFor, assignLabels, editableJournalEntry,
-      addNewEntryAfter, deleteEntry, JournalEntryTypes, areYouSureDelete, editOpened,
+      journalEntries, editNotes, adding,
+      labelsFor, editableJournalEntry,  editOpened,
       ...useCommon()
     }
   }
@@ -221,27 +145,6 @@ export default {
 .notes {
   text-indent: 2pt;
   margin-top: 4pt;
-}
-.edit-buttons {
-  position: absolute;
-  right: 0;
-  display: flex;
-  justify-content: flex-end;
-}
-.buttons {
-  @extend .journal-button;
-  margin: 2pt;
-}
-.edit-button {
-  @extend .buttons;
-}
-
-.delete-button {
-  @extend .buttons;
-}
-
-.add-entry {
-  @extend .buttons;
 }
 </style>
 

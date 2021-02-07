@@ -22,7 +22,14 @@ import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faBookmark, faEdit, faHeadphones, faPlus, faPlusCircle, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {
+    faBookmark,
+    faEdit,
+    faEllipsisH,
+    faHeadphones,
+    faPlusCircle,
+    faTrash
+} from "@fortawesome/free-solid-svg-icons";
 import Color from "color";
 
 let developmentMode = false;
@@ -258,6 +265,7 @@ export function useFontAwesome() {
     library.add(faBookmark)
     library.add(faPlusCircle)
     library.add(faTrash)
+    library.add(faEllipsisH)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {

@@ -21,8 +21,8 @@
       <TextEditor :text="editText || ''" @changed="textChanged" @close="editMode = false"/>
     </div>
     <template v-else>
-      <div :class="{'notes-display': true, constraintHeight}" @click="handleClicks">
-        <div v-html="editText || ''"/>
+      <div v-if="editText" :class="{'notes-display': true, constraintHeight}" @click="handleClicks">
+        <div v-html="editText"/>
       </div>
     </template>
   </div>
@@ -108,7 +108,6 @@ export default {
 }
 .editable-text {
   position: relative;
-  min-height: 1.5em;
 }
 </style>
 <style>

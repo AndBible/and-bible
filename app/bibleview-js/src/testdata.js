@@ -50,7 +50,7 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: "KJV",
             notes: null,
             text: "smaller text",
-            fullText: "Fuller text",
+            fullText: 'Fuller <span class="highlight">text</span>',
             indentLevel: 0,
             type: "bookmark",
             verseRange: "Phil 1:2",
@@ -226,9 +226,9 @@ if(process.env.NODE_ENV === "development") {
         b.verseRangeOnlyNumber = "2";
         b.verseRange = "Philipians 1:2";
         b.bibleUrl = "http://asdf";
-        b.notes = "Bookmark notes asdf asdf asdf asdf";
+        //b.notes = "Bookmark notes asdf asdf asdf asdf";
     })
-    const mode = "notes"
+    const mode = "journal"
 
     if(mode === "bible") {
         testData = testData.map(

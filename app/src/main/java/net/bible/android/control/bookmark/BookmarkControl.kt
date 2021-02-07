@@ -40,6 +40,7 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import java.lang.IndexOutOfBoundsException
 import javax.inject.Inject
+import kotlin.math.min
 
 abstract class BookmarkEvent
 
@@ -255,16 +256,16 @@ open class BookmarkControl @Inject constructor(
         val startOffset = b.startOffset ?: 0
         var startVerse = verseTexts.first()
         var endOffset = b.endOffset ?: startVerse.length
-        val start = startVerse.slice(0 until arrayOf(startOffset, startVerse.length).minOrNull()!!)
+        val start = startVerse.slice(0 until min(startOffset, startVerse.length))
         if(verseTexts.size == 1) {
             val end = startVerse.slice(endOffset until startVerse.length)
-            b.text = startVerse.slice(startOffset until endOffset)
+            b.text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
             b.fullText = """$start<span class="highlight">${b.text}</span>$end"""
         } else if(verseTexts.size > 1) {
             startVerse = startVerse.slice(startOffset until startVerse.length)
             var endVerse = verseTexts.last()
             endOffset = b.endOffset ?: endVerse.length
-            endVerse = endVerse.slice(0 until endOffset)
+            endVerse = endVerse.slice(0 until min(endVerse.length, endOffset))
             val end = endVerse.slice(endOffset until endVerse.length)
             val middleVerses = if(verseTexts.size > 2) {
                 verseTexts.slice(1 until verseTexts.size-1).joinToString(" ")
