@@ -252,7 +252,14 @@ open class CurrentPageManager @Inject constructor(
         val restoredBookCategory = try {
             DocumentCategory.valueOf(pageManagerEntity.currentCategoryName)
         } catch (e: IllegalArgumentException) {
-            BookCategory.fromString(pageManagerEntity.currentCategoryName).documentCategory
+            try {
+                BookCategory.fromString(pageManagerEntity.currentCategoryName).documentCategory
+            } catch (e: RuntimeException) {
+                val name = pageManagerEntity.currentCategoryName
+                Log.d("Error","Cannot load document category: $name")
+                e.printStackTrace()
+                DocumentCategory.GENERAL_BOOK
+            }
         }
         val settings = pageManagerEntity.textDisplaySettings
         if(workspaceDisplaySettings != null) {

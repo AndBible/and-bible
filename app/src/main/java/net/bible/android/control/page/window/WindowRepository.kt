@@ -34,6 +34,7 @@ import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
+import java.lang.RuntimeException
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.min
