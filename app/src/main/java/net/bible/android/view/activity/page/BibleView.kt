@@ -75,6 +75,7 @@ import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
 import net.bible.android.control.page.JournalDocument
+import net.bible.android.control.page.NotesDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.DecrementBusyCount
@@ -892,7 +893,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
         val document = firstDocument
         if(document !is DocumentWithBookmarks) return
-        val clientBookmark = ClientBookmark(event.bookmark, if(document is BibleDocument) document.swordBook.versification else null
+
+        val clientBookmark = ClientBookmark(event.bookmark,
+            if(document is BibleDocument) document.swordBook.versification else null
         )
         val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
         executeJavascriptOnUiThread("""

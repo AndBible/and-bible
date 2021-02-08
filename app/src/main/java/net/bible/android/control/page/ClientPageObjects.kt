@@ -128,7 +128,6 @@ class NotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
                 "type" to wrapString("notes"),
                 "bookmarks" to json.encodeToString(serializer(), bookmarks),
                 "verseRange" to wrapString(verseRange.name),
-                "ordinalRange" to json.encodeToString(serializer(), listOf(verseRange.start.ordinal, verseRange.end.ordinal))
             )
         }
 }
