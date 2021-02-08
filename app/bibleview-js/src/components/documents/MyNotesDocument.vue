@@ -23,16 +23,7 @@
     <h2>{{ document.verseRange }}</h2>
   </div>
   <div class="note-container verse" v-for="b in notes" :key="b.id" :id="`v-${b.ordinalRange[0]}`">
-    <div class="edit-button" @click.stop="editNote(b)">
-      <FontAwesomeIcon icon="edit"/>
-    </div>
-    <div>
-      <b><a :href="b.bibleUrl">{{ b.verseRangeOnlyNumber }}</a></b> <BookmarkText :bookmark="b"/>
-      <div class="notes">
-        <div v-html="b.notes"/>
-      </div>
-      <LabelList :labels="labelsFor(b)"/>
-    </div>
+    <MyNoteRow :bookmark="b"/>
   </div>
 </template>
 
@@ -40,14 +31,11 @@
 import {computed} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
-import {emit, Events} from "@/eventbus";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import LabelList from "@/components/LabelList";
-import BookmarkText from "@/components/BookmarkText";
+import MyNoteRow from "@/components/MyNoteRow";
 
 export default {
   name: "MyNotesDocument",
-  components: {LabelList, FontAwesomeIcon, BookmarkText},
+  components: {MyNoteRow},
   props: {
     document: {type: Object, required: true},
   },
@@ -72,19 +60,7 @@ export default {
       android.saveBookmarkNote(b.id, b.notes);
     }
 
-    function editNote(b) {
-      emit(Events.BOOKMARK_FLAG_CLICKED, b.id, {open: true})
-    }
-
-    function labelsFor(b) {
-      return b.labels.map(l => globalBookmarks.bookmarkLabels.get(l));
-    }
-
-    function assignLabels(bookmark) {
-      android.assignLabels(bookmark.id);
-    }
-
-    return {notes, save, editNotes, editNote, labelsFor, assignLabels, ...useCommon()}
+    return {notes, save, editNotes, ...useCommon()}
   }
 }
 </script>

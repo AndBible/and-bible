@@ -30,9 +30,6 @@
       <div class="journal-button" @click="addNewEntryAfter">
         <FontAwesomeIcon icon="plus-circle"/>
       </div>
-      <div class="journal-button" @click="editEntry">
-        <FontAwesomeIcon icon="edit"/>
-      </div>
       <div class="journal-button" @click="deleteEntry">
         <FontAwesomeIcon icon="trash"/>
       </div>
@@ -79,6 +76,7 @@ export default {
     function journalTextChanged(entry, newText) {
       if(entry.type === JournalEntryTypes.BOOKMARK) {
         entry.notes = newText;
+        android.saveBookmarkNote(entry.id, newText);
       } else if(entry.type === JournalEntryTypes.JOURNAL_TEXT) {
         entry.text = newText;
         android.updateJournalTextEntry(entry);
@@ -90,7 +88,7 @@ export default {
     });
 
     function editBookmark(bookmark) {
-      ebEmit(Events.BOOKMARK_FLAG_CLICKED, bookmark.id, {open: true})
+      ebEmit(Events.BOOKMARK_FLAG_CLICKED, bookmark.id)
     }
 
     function addNewEntryAfter() {

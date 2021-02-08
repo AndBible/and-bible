@@ -234,9 +234,10 @@ if(process.env.NODE_ENV === "development") {
         b.verseRangeOnlyNumber = "2";
         b.verseRange = "Philipians 1:2";
         b.bibleUrl = "http://asdf";
+        b.fullText = "FULL TEXT!";
         //b.notes = "Bookmark notes asdf asdf asdf asdf";
     })
-    const mode = "journal"
+    const mode = "notes"
 
     if(mode === "bible") {
         testData = testData.map(
