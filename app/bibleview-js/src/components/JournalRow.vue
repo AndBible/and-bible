@@ -73,13 +73,11 @@ export default {
     const android = inject("android");
     const areYouSureDelete = ref(null);
 
-    function journalTextChanged(entry, newText) {
-      if(entry.type === JournalEntryTypes.BOOKMARK) {
-        entry.notes = newText;
-        android.saveBookmarkNote(entry.id, newText);
-      } else if(entry.type === JournalEntryTypes.JOURNAL_TEXT) {
-        entry.text = newText;
-        android.updateJournalTextEntry(entry);
+    function journalTextChanged(newText) {
+      if(props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
+        android.saveBookmarkNote(props.journalEntry.id, newText);
+      } else if(props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) {
+        android.updateJournalTextEntry(props.journalEntry);
       }
     }
     const journalText = computed(() => {

@@ -71,7 +71,7 @@ export default {
       ebEmit(Events.BOOKMARK_FLAG_CLICKED, props.bookmark.id)
     }
 
-    function save(entry, newText) {
+    function save(newText) {
       android.saveBookmarkNote(props.bookmark.id, newText);
     }
 
