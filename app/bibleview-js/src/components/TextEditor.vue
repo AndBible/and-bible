@@ -201,10 +201,6 @@ export default {
 .edit-area {
   width: 100%;
   position: relative;
-//  .night & {
-//    background-color: black;
-//    color: white;
-//  }
 }
 
 
