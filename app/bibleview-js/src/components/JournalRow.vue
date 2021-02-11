@@ -109,16 +109,12 @@ export default {
       }
     }
 
-    function editEntry() {
-
-    }
-
     function showHelp() {
       android.toast(strings.dragHelp);
     }
 
     return {addNewEntryAfter, editBookmark, journalText,
-      journalTextChanged, deleteEntry, editEntry, areYouSureDelete, JournalEntryTypes, showHelp, ...common}
+      journalTextChanged, deleteEntry, areYouSureDelete, JournalEntryTypes, showHelp, ...common}
   }
 }
 </script>
