@@ -103,11 +103,7 @@ class CurrentGeneralBookPage internal constructor(
     override val isSearchable: Boolean
         get() = false
 
-    val journalDocument: Book get() {
-        return _journalDocument?: FakeBookFactory.createFakeRepoSwordBook("My Note", JOURNAL_DUMMY_CONF, "").apply {
-            _journalDocument = this
-        }
-    }
+    val journalDocument: Book get() = FakeBookFactory.journalDocument
 
     override fun restoreFrom(entity: WorkspaceEntities.Page?) {
         if(entity?.document == journalDocument.initials) {
@@ -123,19 +119,6 @@ class CurrentGeneralBookPage internal constructor(
     }
 
     companion object {
-        var _journalDocument: Book? = null
         private const val TAG = "CurrentGeneralBookPage"
     }
 }
-
-const val JOURNAL_DUMMY_CONF = """[Journal]
-Description=Journal
-Category=Generic Books
-ModDrv=zCom
-BlockType=CHAPTER
-Lang=en
-Encoding=UTF-8
-LCSH=Bible--Commentaries.
-DataPath=./modules/comments/zcom/journal/
-About=
-Versification="""

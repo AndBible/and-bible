@@ -17,6 +17,8 @@
  */
 package net.bible.service.download
 
+import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.activity.R
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
@@ -34,7 +36,7 @@ object FakeBookFactory {
     /** create dummy Book object for file available for download from repo
      */
     @JvmStatic
-	@Throws(IOException::class, BookException::class)
+    @Throws(IOException::class, BookException::class)
     fun createFakeRepoSwordBook(module: String?, conf: String, repo: String?): SwordBook {
         val sbmd = createRepoSBMD(module, conf)
         if (StringUtils.isNotEmpty(repo)) {
@@ -52,4 +54,49 @@ object FakeBookFactory {
         sbmd.driver = fake
         return sbmd
     }
+
+    private var _journalDocument: Book? = null
+    private var _myNotesDocument: Book? = null
+
+    val journalDocument: Book
+        get() =
+            _journalDocument ?: createFakeRepoSwordBook("Journal", JOURNAL_DUMMY_CONF, "").apply {
+                _journalDocument = this
+            }
+
+    val myNotesDocument: Book
+        get() =
+            _myNotesDocument ?: createFakeRepoSwordBook("My Note", MY_NOTE_DUMMY_CONF, "").apply {
+                _myNotesDocument = this
+            }
+
+    private val JOURNAL_DUMMY_CONF get() = """[MyJournal]
+Description=${application.getString(R.string.journal_description)}
+Abbreviation=${application.getString(R.string.journal_abbreviation)}
+Category=Generic Books
+ModDrv=zCom
+BlockType=CHAPTER
+Lang=en
+Encoding=UTF-8
+LCSH=Bible--Commentaries.
+DataPath=./modules/comments/zcom/journal/
+About=
+Versification=KJV"""
+
+    private val MY_NOTE_DUMMY_CONF get() = """[MyNote]
+Description=${application.getString(R.string.my_notes_description)}
+Abbreviation=${application.getString(R.string.my_notes_abbreviation)}
+Category=Commentaries
+ModDrv=zCom
+BlockType=CHAPTER
+Lang=en
+Encoding=UTF-8
+LCSH=Bible--Commentaries.
+DataPath=./modules/comments/zcom/mynote/
+About=
+Versification=KJV"""
+
+
+    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument)
 }
+

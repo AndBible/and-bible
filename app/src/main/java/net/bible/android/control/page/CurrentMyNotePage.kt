@@ -17,16 +17,13 @@
  */
 package net.bible.android.control.page
 
-import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.versification.Versification
-import java.io.IOException
 
 class CurrentMyNotePage internal constructor(
 	currentVerse: CurrentBibleVerse,
@@ -36,8 +33,6 @@ class CurrentMyNotePage internal constructor(
     pageManager: CurrentPageManager
 ) : CurrentCommentaryPage(currentVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage
 {
-    private var fakeMyNoteBook: Book? = null
-    private var fakeMyNoteBookVersification: Versification? = null
     override val currentPageContent: Document get() {
         val verseRange = CommonUtils.getWholeChapter(currentBibleVerse.verse, false)
         val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
@@ -52,21 +47,7 @@ class CurrentMyNotePage internal constructor(
         setKey(pageManager.currentBible.getKeyPlus(-1))
     }
 
-    override val currentDocument: Book
-		get () {
-			try {
-				if (fakeMyNoteBook == null || fakeMyNoteBookVersification == null || fakeMyNoteBookVersification != currentVersification) {
-					val v11n = currentVersification
-					fakeMyNoteBook = FakeBookFactory.createFakeRepoSwordBook("My Note", MY_NOTE_DUMMY_CONF + v11n.name, "")
-					fakeMyNoteBookVersification = v11n
-				}
-			} catch (e: IOException) {
-				Log.e(TAG, "Error creating fake MyNote book", e)
-			} catch (e: BookException) {
-				Log.e(TAG, "Error creating fake MyNote book", e)
-			}
-			return fakeMyNoteBook!!
-		}
+    override val currentDocument: Book = FakeBookFactory.myNotesDocument
 
     /** can we enable the main menu search button
      */
@@ -96,17 +77,6 @@ class CurrentMyNotePage internal constructor(
     override val isSingleKey = false
 
     companion object {
-        private const val MY_NOTE_DUMMY_CONF = """[MyNote]
-Description=My Note
-Category=OTHER
-ModDrv=zCom
-BlockType=CHAPTER
-Lang=en
-Encoding=UTF-8
-LCSH=Bible--Commentaries.
-DataPath=./modules/comments/zcom/mynote/
-About=
-Versification="""
         private const val TAG = "CurrentMyNotePage"
     }
 
