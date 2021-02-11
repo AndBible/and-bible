@@ -19,11 +19,14 @@
   <InputText ref="inputText">
     {{strings.inputReference}}
   </InputText>
-  <div class="pell edit-area" ref="editorElement"/>
+  <div class="edit-area pell">
+    <div ref="editorElement"/>
+    <div class="saved-notice" v-if="!dirty">&dash;{{strings.saved}}&dash;</div>
+  </div>
 </template>
 
 <script>
-import {inject, onMounted, onUnmounted} from "@vue/runtime-core";
+import {inject, onMounted, onUnmounted, watch} from "@vue/runtime-core";
 import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {init, exec} from "pell";
@@ -38,7 +41,7 @@ export default {
   props: {
     text: {type: String, required: true}
   },
-  emits: ['changed', "close"],
+  emits: ['save', "close"],
   setup(props, {emit}) {
     const android = inject("android");
     const editorElement = ref(null);
@@ -73,7 +76,10 @@ export default {
     const close = {
       icon: icon(faWindowClose).html,
       title: 'Close',
-      result: () => emit('close')
+      result: () => {
+        save();
+        emit('close')
+      }
     }
 
     const bibleLink = {
@@ -101,15 +107,30 @@ export default {
       }
     }
 
+    const editText = ref(props.text);
+    const dirty = ref(false);
+
+    function save() {
+      if(dirty.value) {
+        emit('save', editText.value)
+        dirty.value = false;
+      }
+    }
+
+    watch(editText, debounce(save, 2000))
+
     onMounted(() => {
       editor.value = init({
         element: editorElement.value,
-        onChange: debounce(html => emit('changed', html), 500),
+        onChange: html => {
+          editText.value = html;
+          dirty.value = true;
+        },
         actions: [
           'bold', 'italic', 'underline', oList, uList, outdent, indent, bibleLink, close
         ],
       });
-      editor.value.content.innerHTML = props.text;
+      editor.value.content.innerHTML = editText.value;
       editor.value.content.focus();
       //android.setActionMode(false);
     });
@@ -119,9 +140,7 @@ export default {
       //android.setActionMode(true);
     })
 
-    const editText = ref(props.text);
-
-    return {setFocus, editorElement, ...useCommon(), editText, inputText}
+    return {setFocus, editorElement, ...useCommon(), dirty, inputText}
   }
 }
 </script>
@@ -154,10 +173,23 @@ export default {
   }
 }
 
-</style>
-<style scoped lang="scss">
+.saved-notice {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding-inline-end: 3pt;
+  color: hsla(0, 0%, 0%, 0.2);
+  .night & {
+    color: hsla(0, 0%, 100%, 0.2);
+  }
+  background: var(--background-color);
+  opacity: 0.8;
+  font-size: small;
+}
+
 .edit-area {
   width: 100%;
+  position: relative;
 //  .night & {
 //    background-color: black;
 //    color: white;

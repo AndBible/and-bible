@@ -46,7 +46,7 @@
           :edit-directly="journalEntry.new"
           :text="journalText"
           @opened="$emit('edit-opened')"
-          @closed="journalTextChanged"
+          @save="journalTextChanged"
       />
     </div>
   </div>
@@ -89,8 +89,8 @@ export default {
       else if(props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) return props.journalEntry.text;
     });
 
-    function editBookmark(bookmark) {
-      ebEmit(Events.BOOKMARK_FLAG_CLICKED, bookmark.id)
+    function editBookmark() {
+      ebEmit(Events.BOOKMARK_FLAG_CLICKED, props.journalEntry.id)
     }
 
     function addNewEntryAfter() {

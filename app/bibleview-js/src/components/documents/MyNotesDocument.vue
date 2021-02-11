@@ -80,9 +80,4 @@ export default {
   text-indent: 2pt;
 }
 
-.edit-button {
-  @extend .journal-button;
-  position: absolute;
-  right: 10pt;
-}
 </style>

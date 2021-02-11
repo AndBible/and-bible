@@ -18,7 +18,7 @@
 <template>
   <div :style="parentStyle" class="editable-text">
     <div class="editor-container" v-if="editMode">
-      <TextEditor :text="editText || ''" @changed="textChanged" @close="editMode = false"/>
+      <TextEditor :text="editText || ''" @save="textChanged" @close="editMode = false"/>
     </div>
     <template v-else>
       <div v-if="editText" :class="{'notes-display': true, constraintHeight}" @click="handleClicks">
@@ -42,7 +42,7 @@ let cancelOpen = () => {}
 export default {
   name: "EditableText",
   components: {TextEditor},
-  emits: ["closed", "changed", "opened"],
+  emits: ["closed", "save", "opened"],
   props: {
     editDirectly:{type: Boolean, default: false},
     showPlaceholder:{type: Boolean, default: false},
@@ -75,7 +75,7 @@ export default {
 
     function textChanged(newText) {
       editText.value = newText
-      emit("changed", newText);
+      emit("save", newText);
     }
 
     function handleClicks(event) {

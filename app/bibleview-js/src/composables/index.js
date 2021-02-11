@@ -217,6 +217,7 @@ export function useStrings() {
         doYouWantToDeleteEntry: "Are you sure you want to delete this journal entry?",
         removeJournalConfirmationTitle: "Remove journal entry?",
         dragHelp: "You can drag & drop item to re-order journal",
+        saved: "saved",
     }
 }
 

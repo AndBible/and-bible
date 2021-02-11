@@ -22,7 +22,7 @@
         constraint-height
         :edit-directly="editDirectly"
         :text="bookmarkNotes || ''"
-        @changed="changeNote"
+        @save="changeNote"
         max-height="inherit"
     />
     <div v-show="infoShown" class="info">
@@ -97,6 +97,7 @@ export default {
     const bookmarkNotes = ref(null);
     let originalNotes = null;
     const editDirectly = ref(false);
+
     setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (bookmarkId_, {open = false} = {}) => {
       bookmarkId.value = bookmarkId_;
       bookmarkNotes.value = bookmark.value.notes;
@@ -134,6 +135,7 @@ export default {
 
     const changeNote = text => {
       bookmarkNotes.value = text;
+      android.saveBookmarkNote(bookmark.value.id, bookmarkNotes.value);
     }
 
     const originalBookLink = computed(() =>

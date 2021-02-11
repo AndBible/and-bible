@@ -35,7 +35,7 @@
     <div class="notes">
       <EditableText
           :text="bookmark.notes"
-          @closed="save"
+          @save="save"
       />
     </div>
   </div>
