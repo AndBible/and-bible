@@ -23,6 +23,7 @@
         :edit-directly="editDirectly"
         :text="bookmarkNotes || ''"
         @save="changeNote"
+        show-placeholder
         max-height="inherit"
     />
     <div v-show="infoShown" class="info">

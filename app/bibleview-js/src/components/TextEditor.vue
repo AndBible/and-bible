@@ -31,8 +31,15 @@ import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {init, exec} from "pell";
 import InputText from "@/components/modals/InputText";
-import {faBible, faIndent, faListOl, faListUl, faOutdent, faWindowClose} from "@fortawesome/free-solid-svg-icons";
-import {icon} from "@fortawesome/fontawesome-svg-core";
+import {
+  faBible,
+  faEdit,
+  faIndent,
+  faListOl,
+  faListUl,
+  faOutdent, faSlash,
+} from "@fortawesome/free-solid-svg-icons";
+import {icon, layer} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 
 export default {
@@ -74,7 +81,10 @@ export default {
     }
 
     const close = {
-      icon: icon(faWindowClose).html,
+      icon: layer(push => {
+        push(icon(faEdit))
+        push(icon(faSlash, {transform: {x: -2, size: 18} }))
+        }).html,
       title: 'Close',
       result: () => {
         save();
