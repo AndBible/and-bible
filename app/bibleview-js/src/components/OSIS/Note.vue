@@ -24,6 +24,9 @@
     </span>
     <Modal @close="showNote = false" v-if="showNote">
       <slot/>
+      <div class="open-all" v-if="openAllLink">
+        <a :href="openAllLink">{{strings.openAll}}</a>
+      </div>
       <template #title>
         {{isFootNote ? sprintf(strings.noteText, typeStr) : strings.crossReferenceText }}
       </template>
@@ -32,11 +35,12 @@
 </template>
 
 <script>
-import {checkUnsupportedProps, useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon, useReferenceCollector} from "@/composables";
 import Modal from "@/components/modals/Modal";
 import {get} from "lodash";
-import {ref} from "@vue/runtime-core";
+import {ref, provide} from "@vue/runtime-core";
 import {addEventFunction} from "@/utils";
+import {computed} from "@vue/reactivity";
 
 let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
@@ -85,7 +89,17 @@ export default {
       variant: strings.footnoteTypeVariant,
       alternative: strings.footnoteTypeAlternative,
     };
-    return {strings, typeStrings, showNote, noteClicked, ...common};
+
+    const referenceCollector = useReferenceCollector();
+    provide("referenceCollector", referenceCollector);
+
+    const openAllLink = computed(() => {
+        const refs = referenceCollector.references;
+        if(refs.length < 2) return null;
+        return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&")
+    });
+
+    return {strings, typeStrings, showNote, noteClicked, ...common, openAllLink};
   },
 }
 </script>
@@ -100,6 +114,10 @@ export default {
 .isCrossReference {
   @extend .note-handle-base;
   color: orange;
+}
+
+.open-all {
+  padding-top: 1em;
 }
 
 .isFootNote {

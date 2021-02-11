@@ -43,47 +43,13 @@
 
 <script>
 import {computed, ref} from "@vue/reactivity";
-import {inject, reactive, provide, nextTick} from "@vue/runtime-core";
-import {useCommon} from "@/composables";
+import {inject, provide, nextTick} from "@vue/runtime-core";
+import {useCommon, useJournal} from "@/composables";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";
 import JournalRow from "@/components/JournalRow";
 import draggable from "vuedraggable";
 import {JournalEntryTypes} from "@/constants";
-
-function useJournal(label) {
-  const journalTextEntries = reactive(new Map());
-  const bookmarkToLabels = reactive(new Map());
-
-  function updateJournalTextEntries(...entries) {
-    for(const e of entries)
-      if(e.labelId === label.id)
-        journalTextEntries.set(e.id, e);
-  }
-
-  function updateBookmarkToLabels(...entries) {
-    for(const e of entries)
-      if(e.labelId === label.id)
-        bookmarkToLabels.set(e.bookmarkId, e);
-  }
-
-  function updateJournalOrdering(...entries) {
-    for(const e of entries) {
-      journalTextEntries.get(e.id).orderNumber = e.orderNumber;
-    }
-  }
-  function deleteJournal(journalId) {
-    journalTextEntries.delete(journalId)
-  }
-  return {
-    journalTextEntries,
-    updateJournalTextEntries,
-    updateJournalOrdering,
-    updateBookmarkToLabels,
-    bookmarkToLabels,
-    deleteJournal
-  };
-}
 
 export default {
   name: "JournalDocument",

@@ -299,3 +299,10 @@ export function stripTags(str) {
     temp.innerHTML = str;
     return temp.textContent || temp.innerText;
 }
+
+export function osisToTemplateString(osis) {
+    return osis
+        .replace(/(<\/?)(\w)(\w*)([^>]*>)/g,
+            (m, tagStart, tagFirst, tagRest, tagEnd) =>
+                `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`);
+}

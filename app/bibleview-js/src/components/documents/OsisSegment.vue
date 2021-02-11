@@ -44,6 +44,7 @@ import {h} from "@vue/runtime-core";
 import Foreign from "@/components/OSIS/Foreign";
 import Figure from "@/components/OSIS/Figure";
 import A from "@/components/OSIS/A";
+import {osisToTemplateString} from "@/utils";
 
 const components = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,
@@ -62,11 +63,12 @@ function prefixComponents() {
 export default {
   name: "OsisSegment",
   props: {
-    osisTemplate: {type: String, required: true}
+    osisTemplate: {type: String, required: true},
+    convert: {type: Boolean, default: false},
   },
   render() {
     return h({
-      template: this.osisTemplate,
+      template: this.convert ? osisToTemplateString(this.osisTemplate): this.osisTemplate,
       components: prefixComponents(components),
     });
   },

@@ -117,6 +117,16 @@ class BibleDocument(
     }
 }
 
+class MultiFragmentDocument(val osisFragments: List<OsisFragment>): Document {
+    override val asHashMap: Map<String, Any>
+        get() = mapOf(
+            "id" to wrapString(randomUUID().toString()),
+            "type" to wrapString("multi"),
+            "osisFragments" to listToJson(osisFragments.map { mapToJson(it.toHashMap) }),
+        )
+}
+
+
 class NotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
                     val verseRange: VerseRange): Document, DocumentWithBookmarks
 {
@@ -153,24 +163,22 @@ class JournalDocument(
         }
 }
 
-
 class OsisFragment(
     val xml: String,
-    val key: Key?,
-    private val bookId: String
+    val key: Key,
+    private val book: Book
 ) {
-    private val keyStr: String get () = "$bookId--${key?.uniqueId ?: "error-${randomUUID()}"} }"
-    val features: Map<String, String> get () =
-        if(key is BookAndKey) {
-            val type = when {
-                key.document.hasFeature(FeatureType.HEBREW_DEFINITIONS) -> "hebrew"
-                key.document.hasFeature(FeatureType.GREEK_DEFINITIONS) -> "greek"
-                else -> null
-            }
-            if (type != null) {
-                hashMapOf("type" to type, "keyName" to key.key.name)
-            } else emptyMap()
+    private val keyStr: String get () = "${book.initials}--${key.uniqueId ?: "error-${randomUUID()}"} }"
+    val features: Map<String, String> get () {
+        val type = when {
+            book.hasFeature(FeatureType.HEBREW_DEFINITIONS) -> "hebrew"
+            book.hasFeature(FeatureType.GREEK_DEFINITIONS) -> "greek"
+            else -> null
+        }
+        return if (type != null) {
+            hashMapOf("type" to type, "keyName" to key.name)
         } else emptyMap()
+    }
 
     val toHashMap: Map<String, String> get() {
         val ordinalRangeStr = json.encodeToString(
@@ -180,6 +188,9 @@ class OsisFragment(
         return mapOf(
             "xml" to "`${xml.replace("`", "\\`")}`",
             "key" to wrapString(keyStr),
+            "keyName" to wrapString(key.name),
+            "bookInitials" to wrapString(book.initials),
+            "osisRef" to wrapString(key.osisRef),
             "features" to json.encodeToString(serializer(), features),
             "ordinalRange" to ordinalRangeStr
         )

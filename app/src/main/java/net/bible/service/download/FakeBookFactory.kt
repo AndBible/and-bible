@@ -55,8 +55,15 @@ object FakeBookFactory {
         return sbmd
     }
 
+    private var _multiDocument: Book? = null
     private var _journalDocument: Book? = null
     private var _myNotesDocument: Book? = null
+
+    val multiDocument: Book
+        get() =
+            _multiDocument ?: createFakeRepoSwordBook("Multi", MULTI_DUMMY_CONF, "").apply {
+                _multiDocument = this
+            }
 
     val journalDocument: Book
         get() =
@@ -83,6 +90,19 @@ DataPath=./modules/comments/zcom/journal/
 About=
 Versification=KJV"""
 
+    private val MULTI_DUMMY_CONF get() = """[Multi]
+Description=${application.getString(R.string.multi_description)}
+Abbreviation=${application.getString(R.string.multi_abbreviation)}
+Category=Generic Books
+ModDrv=zCom
+BlockType=CHAPTER
+Lang=en
+Encoding=UTF-8
+LCSH=Bible--Commentaries.
+DataPath=./modules/comments/zcom/journal/
+About=
+Versification=KJV"""
+
     private val MY_NOTE_DUMMY_CONF get() = """[MyNote]
 Description=${application.getString(R.string.my_notes_description)}
 Abbreviation=${application.getString(R.string.my_notes_abbreviation)}
@@ -95,7 +115,6 @@ LCSH=Bible--Commentaries.
 DataPath=./modules/comments/zcom/mynote/
 About=
 Versification=KJV"""
-
 
     val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument)
 }

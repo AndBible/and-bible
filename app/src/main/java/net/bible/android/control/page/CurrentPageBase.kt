@@ -47,24 +47,6 @@ abstract class CurrentPageBase protected constructor(
 
     override var isInhibitChangeNotifications: Boolean = false
 
-    override val currentDocumentName: String
-        get() {
-            val key = key
-            if(key is BookAndKeyList) {
-                return key.joinToString(", ") { (it as BookAndKey).document.initials }
-            }
-            return super.currentDocumentName
-        }
-
-    override val currentDocumentAbbreviation: String
-        get() {
-            val key = key
-            if(key is BookAndKeyList) {
-                return key.joinToString(", ") { (it as BookAndKey).document.abbreviation }
-            }
-            return super.currentDocumentAbbreviation
-        }
-
     override var _key: Key? = null
 
     // just pretend we are at the top of the page if error occurs
@@ -149,20 +131,12 @@ abstract class CurrentPageBase protected constructor(
                 book = currentDocument,
                 key = key,
                 osisFragments = synchronized(currentDocument) {
-                    if(key is BookAndKeyList) {
-                        key.map {
-                            if (it is BookAndKey) {
-                                OsisFragment(swordContentFacade.readOsisFragment(it.document, it), it, it.document.initials)
-                            } else throw RuntimeException("Not supported")
-                        }
-                    } else {
-                        val frag = swordContentFacade.readOsisFragment(currentDocument, key)
-                        listOf (if (frag.isEmpty()) {
-                            throw OsisError(application.getString(R.string.error_no_content))
-                        } else
-                            OsisFragment(frag, key, currentDocument.initials)
-                        )
-                    }
+                    val frag = swordContentFacade.readOsisFragment(currentDocument, key)
+                    listOf (if (frag.isEmpty()) {
+                        throw OsisError(application.getString(R.string.error_no_content))
+                    } else
+                        OsisFragment(frag, key, currentDocument)
+                    )
                 }
             )
         } catch (e: Exception) {

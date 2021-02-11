@@ -22,7 +22,8 @@
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction} from "@/utils";
-import {ref} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
+import {inject} from "@vue/runtime-core";
 
 let cancelFunc = () => {};
 
@@ -33,22 +34,34 @@ export default {
     source: {type: String, default: null},
     type: {type: String, default: null},
   },
-  computed: {
-    queryParams() {
-      if(!this.osisRef && this.$refs.content) {
-        return "content=" + encodeURI(this.$refs.content.innerText);
-      }
-      return "osis=" + encodeURI(this.osisRef)
-    },
-    link({queryParams}) {
-      return `osis://?${queryParams}`
-    }
-  },
   setup(props) {
     checkUnsupportedProps(props, "type");
     const clicked = ref(false);
     const lastClicked = ref(false);
     const {strings, ...common} = useCommon();
+    const referenceCollector = inject("referenceCollector", null);
+    const content = ref(null);
+
+    const osisRef = computed(() => {
+      if(!props.osisRef && content.value) {
+        return content.value.innerText;
+      }
+      return props.osisRef;
+    });
+
+    const queryParams = computed(() => {
+      return "osis=" + encodeURI(osisRef.value)
+
+    })
+
+    const link = computed(() => {
+      return `osis://?${queryParams.value}`
+    });
+
+    if(referenceCollector) {
+      referenceCollector.collect(osisRef);
+    }
+
     function openLink(event, url) {
       addEventFunction(event, () => {
         window.location.assign(url)
@@ -58,7 +71,7 @@ export default {
         cancelFunc = () => lastClicked.value = false;
       }, {title: strings.referenceLink});
     }
-    return {openLink, clicked, lastClicked, ...common};
+    return {openLink, clicked, lastClicked, content, link, ...common};
   },
 }
 

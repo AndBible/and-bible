@@ -77,12 +77,6 @@ open class SwordContentFacade @Inject constructor(
      */
     @Throws(ParseException::class, OsisError::class)
     fun readOsisFragment(book: Book?, key: Key?,): String {
-        var book = book
-        var key = key
-        if(key is BookAndKey) {
-            book = key.document
-            key = key.key
-        }
         val retVal = when {
             book == null || key == null -> ""
             Books.installed().getBook(book.initials) == null -> {

@@ -21,6 +21,7 @@ export const DocumentTypes = {
     ERROR_DOCUMENT: "error",
     MY_NOTES: "notes",
     JOURNAL: "journal",
+    MULTI: "multi",
 }
 
 export const JournalEntryTypes = {

@@ -24,6 +24,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RestrictionType
+import org.crosswire.jsword.passage.VerseRange
 import java.lang.UnsupportedOperationException
 
 class BookAndKey(document: Book, val key: Key): Key {
@@ -67,7 +68,13 @@ class BookAndKey(document: Book, val key: Key): Key {
     }
 
     override fun getOsisID(): String {
-        return key.osisID
+        val osisID: String
+        if(key is VerseRange)  {
+            osisID = "${key.start.osisID}-${key.end.osisID}"
+        } else {
+            osisID = key.osisID
+        }
+        return "${document.initials}:${osisID}"
     }
 
     override fun getParent(): Key? {
@@ -130,6 +137,10 @@ class BookAndKey(document: Book, val key: Key): Key {
 }
 
 class BookAndKeyList: DefaultKeyList() {
+    override fun getOsisID(): String {
+        return this.joinToString("||") { it.osisID }
+    }
+
     companion object {
         private const val serialVersionUID: Long = 1
     }

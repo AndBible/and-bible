@@ -451,6 +451,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_ERROR = "ab-error"
         const val SCHEME_W = "ab-w"
         const val SCHEME_REFERENCE = "osis"
+        const val MULTI_REFERENCE = "multi"
         const val SCHEME_MYNOTES = "my-notes"
         const val SCHEME_JOURNAL = "journal"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
@@ -480,7 +481,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 links.addAll(uri.getQueryParameters(paramName).map { BibleLink(paramName, it) })
             }
             if(links.size > 1) {
-                linkControl.loadApplicationUrl(links)
+                linkControl.openMulti(links)
             } else {
                 linkControl.loadApplicationUrl(links.first())
             }
@@ -490,6 +491,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val id = uri.getQueryParameter("id")?.toLongOrNull()
             if(id != null) {
                 linkControl.openMyNotes(id)
+            } else false
+        }
+        UriConstants.MULTI_REFERENCE -> {
+            val osisRefs = uri.getQueryParameters("osis")
+            if(osisRefs != null) {
+                linkControl.openMulti(osisRefs.map { BibleLink("osis", it) })
             } else false
         }
         UriConstants.SCHEME_JOURNAL -> {

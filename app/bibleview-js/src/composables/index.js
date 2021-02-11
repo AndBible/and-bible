@@ -218,6 +218,7 @@ export function useStrings() {
         removeJournalConfirmationTitle: "Remove journal entry?",
         dragHelp: "You can drag & drop item to re-order journal",
         saved: "saved",
+        openAll: "Show all references",
     }
 }
 
@@ -281,4 +282,46 @@ export function checkUnsupportedProps(props, attributeName, values = []) {
         const origin = inject("verseInfo", {}).osisID;
         console.warn(`${tagName}: Unsupported (ignored) attribute "${attributeName}" value "${value}", origin: ${origin}`)
     }
+}
+
+export function useJournal(label) {
+    const journalTextEntries = reactive(new Map());
+    const bookmarkToLabels = reactive(new Map());
+
+    function updateJournalTextEntries(...entries) {
+        for(const e of entries)
+            if(e.labelId === label.id)
+                journalTextEntries.set(e.id, e);
+    }
+
+    function updateBookmarkToLabels(...entries) {
+        for(const e of entries)
+            if(e.labelId === label.id)
+                bookmarkToLabels.set(e.bookmarkId, e);
+    }
+
+    function updateJournalOrdering(...entries) {
+        for(const e of entries) {
+            journalTextEntries.get(e.id).orderNumber = e.orderNumber;
+        }
+    }
+    function deleteJournal(journalId) {
+        journalTextEntries.delete(journalId)
+    }
+    return {
+        journalTextEntries,
+        updateJournalTextEntries,
+        updateJournalOrdering,
+        updateBookmarkToLabels,
+        bookmarkToLabels,
+        deleteJournal
+    };
+}
+
+export function useReferenceCollector() {
+    const references = reactive([]);
+    function collect(linkRef) {
+        references.push(linkRef);
+    }
+    return {references, collect}
 }

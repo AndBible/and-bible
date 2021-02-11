@@ -245,7 +245,7 @@ if(process.env.NODE_ENV === "development") {
             indentLevel: 1,
         }))
 
-    const mode = "journal"
+    const mode = "multi"
 
     if(mode === "bible") {
         testData = testData.map(
@@ -278,6 +278,21 @@ if(process.env.NODE_ENV === "development") {
             journalTextEntries,
             verseRange: "Philipians 1"
         }];
+    } else if(mode === "multi") {
+        testData = testData.map(
+            v => ({
+                type: "multi",
+                osisFragments: [
+                    {
+                        xml: v,
+                        keyName: "Key name",
+                        osisRef: "Gen.1.1",
+                        features: {type: "strongs", keyName: "ASDF"}
+                    }
+                ],
+                bookInitials: "KJV",
+                bookmarks: testBookmarks,
+            }));
     }
     window.testData = testData;
 }

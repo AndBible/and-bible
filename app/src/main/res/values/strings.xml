@@ -676,4 +676,6 @@
     <string name="my_notes_abbreviation">My Notes</string>
     <string name="journal_abbreviation">My Journals</string>
     <string name="journals">My Journals</string>
+    <string name="multi_description">Multiple references</string>
+    <string name="multi_abbreviation">Multiple</string>
 </resources>

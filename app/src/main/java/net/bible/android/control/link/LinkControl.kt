@@ -34,6 +34,7 @@ import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.JournalKey
@@ -48,6 +49,7 @@ import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.PassageKeyFactory
+import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import java.net.URLDecoder
 import java.util.regex.Pattern
@@ -68,14 +70,14 @@ class LinkControl @Inject constructor(
 {
     private var windowMode = WINDOW_MODE_UNDEFINED
 
-    fun loadApplicationUrl(links: List<BibleView.BibleLink>): Boolean {
+    fun openMulti(links: List<BibleView.BibleLink>): Boolean {
         val key = BookAndKeyList()
         val bookKeys = links.map { getBookAndKey(it.url) }.filterNotNull()
         for(k in bookKeys) {
             key.addAll(k)
         }
         key.name = bookKeys.map { it.key.name }.joinToString(", ")
-        showLink(bookKeys.first().document, key)
+        showLink(FakeBookFactory.multiDocument, key)
         return true
     }
 
@@ -162,8 +164,8 @@ class LinkControl @Inject constructor(
 			//TODO av11n issue.  GenBooks have no v11n and this default would be used for links from GenBooks which would only sometimes be correct
             (bible as AbstractPassageBook).versification
         }
-        // create Passage with correct source Versification
-        val key: Key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText)
+        val key: Key = VerseRangeFactory.fromString(sourceDocumentVersification, keyText)
+
         // Bible not specified so use the default Bible version
         return BookAndKey(windowControl.defaultBibleDoc, key)
     }
@@ -293,7 +295,7 @@ class LinkControl @Inject constructor(
     fun openJournal(id: Long): Boolean {
         val label = bookmarkControl.labelById(id) ?: return false
         val key = JournalKey(label)
-        showLink(currentPageManager.currentGeneralBook.journalDocument, key)
+        showLink(FakeBookFactory.journalDocument, key)
         return true
     }
 
