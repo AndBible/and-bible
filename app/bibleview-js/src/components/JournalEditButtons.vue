@@ -29,12 +29,28 @@
 <script>
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {ref} from "@vue/reactivity";
+import {watch} from "@vue/runtime-core";
+
+let cancel = () => {}
 
 export default {
   name: "JournalEditButtons",
   components: {FontAwesomeIcon},
   setup() {
     const expanded = ref(false);
+    function close() {
+      expanded.value = false
+    }
+    watch(expanded, v => {
+      if(v) {
+        cancel()
+        cancel = close
+      } else {
+        if(cancel === close) {
+          cancel = () => {}
+        }
+      }
+    })
     return {expanded};
   }
 }
