@@ -39,6 +39,7 @@ export const Events = {
     BOOKMARK_HIGHLIGHT_CLICKED: "bookmark_highlight_clicked",
     CLOSE_MODAL: "close_modal",
     ADD_OR_UPDATE_JOURNAL: "add_or_update_journal",
+    ADD_OR_UPDATE_BOOKMARK_TO_LABEL: "add_or_update_bookmark_to_label",
     DELETE_JOURNAL: "delete_journal",
     CONFIG_CHANGED: "config_changed",
 }

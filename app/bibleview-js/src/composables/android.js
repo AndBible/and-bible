@@ -221,7 +221,13 @@ export function useAndroid({bookmarks}, config) {
         if(entry.type === JournalEntryTypes.JOURNAL_TEXT) {
             android.updateJournalTextEntry(JSON.stringify(changedEntry));
         } else if(entry.type === JournalEntryTypes.BOOKMARK) {
-            android.updateJournalBookmark(JSON.stringify(changedEntry));
+            const entry = {
+                bookmarkId: changedEntry.id,
+                labelId: changedEntry.bookmarkToLabel.labelId,
+                indentLevel: changedEntry.indentLevel,
+                orderNumber: changedEntry.orderNumber,
+            }
+            android.updateBookmarkToLabel(JSON.stringify(entry));
         }
     }
 

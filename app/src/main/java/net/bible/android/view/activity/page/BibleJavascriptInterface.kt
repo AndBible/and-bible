@@ -158,12 +158,10 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun updateJournalBookmark(data: String) {
-        val entry: ClientBookmark = json.decodeFromString(serializer(), data)
-        val bookmarkToLabel = bookmarkControl.getBookmarkToLabel(entry.id, entry.journalLabelId!!)!!
-        bookmarkToLabel.indentLevel = entry.indentLevel!!
-        bookmarkControl.updateBookmarkTimestamp(entry.id)
-        bookmarkControl.updateBookmarkToLabel(bookmarkToLabel)
+    fun updateBookmarkToLabel(data: String) {
+        val entry: BookmarkEntities.BookmarkToLabel = json.decodeFromString(serializer(), data)
+        bookmarkControl.updateBookmarkTimestamp(entry.bookmarkId)
+        bookmarkControl.updateBookmarkToLabel(entry)
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

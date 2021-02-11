@@ -44,7 +44,8 @@ import kotlin.math.min
 
 abstract class BookmarkEvent
 
-class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark?, bookmarkToLabel: BookmarkToLabel?): BookmarkEvent()
+class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark): BookmarkEvent()
+class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BookmarkToLabel)
 class BookmarksDeletedEvent(val bookmarkIds: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
 
@@ -248,7 +249,6 @@ open class BookmarkControl @Inject constructor(
 
     private fun addLabels(b: Bookmark) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b.id)
-        b.bookmarkToLabels = bookmarkToLabels
         b.labelIds = bookmarkToLabels.map { it.labelId }
     }
 
@@ -290,10 +290,7 @@ open class BookmarkControl @Inject constructor(
 
     fun updateBookmarkToLabel(bookmarkToLabel: BookmarkToLabel) {
         dao.update(bookmarkToLabel)
-        val bookmark = dao.bookmarkById(bookmarkToLabel.bookmarkId)!!
-        addText(bookmark)
-        addLabels(bookmark)
-        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, bookmarkToLabel))
+        ABEventBus.getDefault().post(BookmarkToLabelAddedOrUpdatedEvent(bookmarkToLabel))
     }
 
     fun updateBookmarkTimestamp(bookmarkId: Long) {

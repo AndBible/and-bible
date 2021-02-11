@@ -53,11 +53,18 @@ import {JournalEntryTypes} from "@/constants";
 
 function useJournal(label) {
   const journalTextEntries = reactive(new Map());
+  const bookmarkToLabels = reactive(new Map());
 
   function updateJournalTextEntries(...entries) {
     for(const e of entries)
       if(e.labelId === label.id)
         journalTextEntries.set(e.id, e);
+  }
+
+  function updateBookmarkToLabels(...entries) {
+    for(const e of entries)
+      if(e.labelId === label.id)
+        bookmarkToLabels.set(e.bookmarkId, e);
   }
 
   function updateJournalOrdering(...entries) {
@@ -68,7 +75,14 @@ function useJournal(label) {
   function deleteJournal(journalId) {
     journalTextEntries.delete(journalId)
   }
-  return {journalTextEntries, updateJournalTextEntries, updateJournalOrdering, deleteJournal};
+  return {
+    journalTextEntries,
+    updateJournalTextEntries,
+    updateJournalOrdering,
+    updateBookmarkToLabels,
+    bookmarkToLabels,
+    deleteJournal
+  };
 }
 
 export default {
@@ -79,15 +93,18 @@ export default {
   },
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure
-    const {bookmarks, label} = props.document;
+    const {bookmarks, label, journalTextEntries: journalTextEntries_, bookmarkToLabels: bookmarkToLabels_} = props.document;
     const journal = useJournal(label);
     provide("journal", journal);
     const {scrollToId} = inject("scroll");
     const android = inject("android");
 
-    const {journalTextEntries, updateJournalTextEntries, updateJournalOrdering, deleteJournal} = journal;
+    const {
+      journalTextEntries, updateBookmarkToLabels, updateJournalTextEntries,
+      updateJournalOrdering, deleteJournal, bookmarkToLabels} = journal;
 
-    updateJournalTextEntries(...props.document.journalTextEntries);
+    updateJournalTextEntries(...journalTextEntries_);
+    updateBookmarkToLabels(...bookmarkToLabels_)
 
     const globalBookmarks = inject("globalBookmarks");
 
@@ -97,7 +114,15 @@ export default {
       get:
           () => {
             let entries = [];
-            entries.push(...globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id)))
+            entries.push(...globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id)).map(e => {
+              const bookmarkToLabel = bookmarkToLabels.get(e.id);
+              return {
+                ...e,
+                orderNumber: bookmarkToLabel.orderNumber,
+                indentLevel: bookmarkToLabel.indentLevel,
+                bookmarkToLabel
+              }
+            }))
             entries.push(...journalTextEntries.values())
             entries = sortBy(entries, ['orderNumber']);
             return entries;
@@ -134,6 +159,10 @@ export default {
       if(journal && journal.new) {
         scrollToId(`${journal.type}-${journal.id}`, {duration: 300})
       }
+    })
+
+    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARK_TO_LABEL, bookmarkToLabel => {
+      updateBookmarkToLabels(bookmarkToLabel);
     })
 
     setupEventBusListener(Events.DELETE_JOURNAL, journalId => {

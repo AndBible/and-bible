@@ -51,7 +51,6 @@ if(process.env.NODE_ENV === "development") {
             notes: null,
             text: "smaller text",
             fullText: 'Fuller <span class="highlight">text</span>',
-            indentLevel: 0,
             type: "bookmark",
             verseRange: "Phil 1:2",
         },
@@ -237,6 +236,15 @@ if(process.env.NODE_ENV === "development") {
         b.fullText = "FULL TEXT!";
         //b.notes = "Bookmark notes asdf asdf asdf asdf";
     })
+
+    const bookmarkToLabels = testBookmarks.map(b => (
+        {
+            bookmarkId: b.id,
+            labelId: b.labels[0],
+            orderNumber: 1,
+            indentLevel: 1,
+        }))
+
     const mode = "journal"
 
     if(mode === "bible") {
@@ -259,6 +267,7 @@ if(process.env.NODE_ENV === "development") {
             type: "journal",
             label: testBookmarkLabels[0],
             bookmarks: testBookmarks,
+            bookmarkToLabels,
             journalTextEntries,
         }];
     } else if(mode === "notes") {

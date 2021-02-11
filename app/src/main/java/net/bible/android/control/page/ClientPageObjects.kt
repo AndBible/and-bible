@@ -135,16 +135,18 @@ class NotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
 class JournalDocument(
     val label: BookmarkEntities.Label,
     val bookmarks: List<BookmarkEntities.Bookmark>,
+    val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
     val journalTextEntries: List<BookmarkEntities.JournalTextEntry>,
 ): Document, DocumentWithBookmarks {
     override val asHashMap: Map<String, Any>
         get() {
-            val bookmarks = bookmarks.map { ClientBookmark(it, label = label) }
+            val bookmarks = bookmarks.map { ClientBookmark(it) }
             val clientLabel = ClientBookmarkLabel(label)
             return mapOf(
                 "id" to wrapString("journal_${label.id}"),
                 "type" to wrapString("journal"),
                 "bookmarks" to json.encodeToString(serializer(), bookmarks),
+                "bookmarkToLabels" to json.encodeToString(serializer(), bookmarkToLabels),
                 "journalTextEntries" to json.encodeToString(serializer(), journalTextEntries),
                 "label" to json.encodeToString(serializer(), clientLabel),
             )
@@ -189,9 +191,6 @@ data class ClientBookmark(val id: Long,
                           val ordinalRange: List<Int>,
                           val offsetRange: List<Int>?,
                           val labels: List<Long>, // TODO: better to rename to labelIds
-                          val journalLabelId: Long?,
-                          val indentLevel: Int?,
-                          val orderNumber: Int?,
                           val bookInitials: String?,
                           val bookAbbreviation: String?,
                           val bookName: String?,
@@ -205,7 +204,7 @@ data class ClientBookmark(val id: Long,
                           val text: String?,
                           val fullText: String?,
 ) {
-    constructor(bookmark: BookmarkEntities.Bookmark, v11n: Versification? = null, label: BookmarkEntities.Label? = null) :
+    constructor(bookmark: BookmarkEntities.Bookmark, v11n: Versification? = null) :
         this(id = bookmark.id,
             ordinalRange = listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal),
             offsetRange = bookmark.textRange?.clientList,
@@ -224,18 +223,11 @@ data class ClientBookmark(val id: Long,
             text = bookmark.text,
             fullText = bookmark.fullText,
             bibleUrl = getUrl(bookmark),
-            journalLabelId = label?.id,
-            indentLevel = indentLevel(bookmark, label),
-            orderNumber = orderNumber(bookmark, label),
         )
 
     val type: String = "bookmark"
 
     companion object{
-        fun indentLevel(bookmark: BookmarkEntities.Bookmark, label: BookmarkEntities.Label?): Int? {
-            label?: return null
-            return bookmark.bookmarkToLabels?.find { it.labelId == label.id }?.indentLevel
-        }
         fun getUrl(bookmark: BookmarkEntities.Bookmark): String {
             val bookRef = bookmark.book?.initials
             val firstVerseRef = bookmark.verseRange.start.osisRef
@@ -244,10 +236,6 @@ data class ClientBookmark(val id: Long,
             } else
                 firstVerseRef
             return "osis://?osis=$ref"
-        }
-        fun orderNumber(bookmark: BookmarkEntities.Bookmark, label: BookmarkEntities.Label?): Int? {
-            label?: return null
-            return bookmark.bookmarkToLabels?.find { it.labelId == label.id }?.orderNumber
         }
     }
 }
