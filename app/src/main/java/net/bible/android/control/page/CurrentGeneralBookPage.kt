@@ -19,9 +19,13 @@ package net.bible.android.control.page
 
 import android.view.Menu
 import net.bible.android.activity.R
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.JournalKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
 /** Reference to current passage shown by viewer
@@ -40,6 +44,17 @@ class CurrentGeneralBookPage internal constructor(
 
     override val keyChooserActivity = ChooseGeneralBookKey::class.java
 
+    override val currentPageContent: Document
+        get() {
+            val key = key
+            return if(key is JournalKey) {
+                val bookmarks = pageManager.bookmarkControl.getBookmarksWithLabel(key.label, addData = true)
+                val journalTextEntries = pageManager.bookmarkControl.getJournalTextEntriesForLabel(key.label)
+                val bookmarkToLabels = bookmarks.map { pageManager.bookmarkControl.getBookmarkToLabel(it.id, key.label.id)!! }
+                JournalDocument(key.label, bookmarks, bookmarkToLabels, journalTextEntries)
+            } else super.currentPageContent
+        }
+
     /** set key without notification
      *
      * @param key
@@ -49,15 +64,27 @@ class CurrentGeneralBookPage internal constructor(
     }
 
     override fun next() {
-        getKeyPlus(1).let {
-			setKey(it)
-		}
+        val key = key
+        if(key is JournalKey) {
+            val nextLabel = pageManager.bookmarkControl.getNextLabel(key.label)
+            setKey(JournalKey(nextLabel))
+        } else {
+            getKeyPlus(1).let {
+                setKey(it)
+            }
+        }
     }
 
     override fun previous() {
-        getKeyPlus(-1).let {
-			setKey(it)
-		}
+        val key = key
+        if(key is JournalKey) {
+            val nextLabel = pageManager.bookmarkControl.getPrevLabel(key.label)
+            setKey(JournalKey(nextLabel))
+        } else {
+            getKeyPlus(-1).let {
+                setKey(it)
+            }
+        }
     }
 
     override fun updateOptionsMenu(menu: Menu) {
@@ -76,7 +103,39 @@ class CurrentGeneralBookPage internal constructor(
     override val isSearchable: Boolean
         get() = false
 
+    val journalDocument: Book get() {
+        return _journalDocument?: FakeBookFactory.createFakeRepoSwordBook("My Note", JOURNAL_DUMMY_CONF, "").apply {
+            _journalDocument = this
+        }
+    }
+
+    override fun restoreFrom(entity: WorkspaceEntities.Page?) {
+        if(entity?.document == journalDocument.initials) {
+            val (_, id) = entity!!.key!!.split(":")
+            val label = pageManager.bookmarkControl.labelById(id.toLong())
+            if(label != null) {
+                doSetKey(JournalKey(label))
+                localSetCurrentDocument(journalDocument)
+            }
+        } else {
+            super.restoreFrom(entity)
+        }
+    }
+
     companion object {
+        var _journalDocument: Book? = null
         private const val TAG = "CurrentGeneralBookPage"
     }
 }
+
+const val JOURNAL_DUMMY_CONF = """[Journal]
+Description=Journal
+Category=Generic Books
+ModDrv=zCom
+BlockType=CHAPTER
+Lang=en
+Encoding=UTF-8
+LCSH=Bible--Commentaries.
+DataPath=./modules/comments/zcom/journal/
+About=
+Versification="""

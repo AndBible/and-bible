@@ -70,15 +70,15 @@ a {
     color: green;
   }
   &.last-clicked {
-    color: red;
+    color: #00de00;
   }
   .night & {
     &.clicked {
-      color: #73d573;
+      color: #5faa5f;
     }
 
     &.last-clicked {
-      color: #de6e6e;
+      color: #84ff84;
     }
   }
 }

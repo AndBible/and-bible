@@ -57,7 +57,10 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
+import net.bible.android.control.bookmark.JournalOrderEvent
+import net.bible.android.control.bookmark.JournalTextEntryDeleted
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
@@ -72,6 +75,7 @@ import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
+import net.bible.android.control.page.JournalDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.DecrementBusyCount
@@ -457,6 +461,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_W = "ab-w"
         const val SCHEME_REFERENCE = "osis"
         const val SCHEME_MYNOTES = "my-notes"
+        const val SCHEME_JOURNAL = "journal"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
 
@@ -494,6 +499,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val id = uri.getQueryParameter("id")?.toLongOrNull()
             if(id != null) {
                 linkControl.openMyNotes(id)
+            } else false
+        }
+        UriConstants.SCHEME_JOURNAL -> {
+            val id = uri.getQueryParameter("id")?.toLongOrNull()
+            if(id != null) {
+                linkControl.openJournal(id)
             } else false
         }
         UriConstants.SCHEME_REFERENCE -> {
@@ -882,11 +893,40 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
         val document = firstDocument
         if(document !is DocumentWithBookmarks) return
-        val clientBookmark = ClientBookmark(event.bookmark, if(document is BibleDocument) document.swordBook.versification else null
+
+        val clientBookmark = ClientBookmark(event.bookmark,
+            if(document is BibleDocument) document.swordBook.versification else null
         )
         val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);
+        """.trimIndent())
+    }
+
+    fun onEvent(event: JournalOrderEvent) {
+        val doc = firstDocument
+        if(doc !is JournalDocument || doc.label.id != event.labelId) return
+        val journalJson = json.encodeToString(serializer(), event.newJournalTextEntry)
+        val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
+        val journals = json.encodeToString(serializer(), event.journalOrderChanged)
+        executeJavascriptOnUiThread("""
+            bibleView.emit("add_or_update_journal",  {journal: $journalJson, bookmarkToLabelsOrdered: $bookmarkToLabels, journalsOrdered: $journals});
+        """.trimIndent())
+    }
+
+    fun onEvent(event: BookmarkToLabelAddedOrUpdatedEvent) {
+        val doc = firstDocument
+        if(doc !is JournalDocument || doc.label.id != event.bookmarkToLabel.labelId) return
+        val bookmarkToLabel = json.encodeToString(serializer(), event.bookmarkToLabel)
+        executeJavascriptOnUiThread("""
+            bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabel);
+        """.trimIndent())
+    }
+
+    fun onEvent(event: JournalTextEntryDeleted) {
+        if(firstDocument !is JournalDocument) return
+        executeJavascriptOnUiThread("""
+            bibleView.emit("delete_journal", ${event.journalId});
         """.trimIndent())
     }
 

@@ -214,6 +214,7 @@ dependencies {
 
     // 3.9 contains java8 bytecode, thus staying in 3.8
     implementation 'org.apache.commons:commons-lang3:3.8.1'
+    implementation 'org.apache.commons:commons-text:1.9'
 
     implementation "com.github.AndBible:jsword:$jsword_version"
 

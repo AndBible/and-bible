@@ -76,13 +76,7 @@ enum class BookmarkStyle(val backgroundColor: Int) {
 val defaultLabelColor = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor
 
 enum class BookmarkSortOrder {
-    BIBLE_ORDER, CREATED_AT, LAST_UPDATED;
-
-    val sqlString get() = when(this) {
-        BIBLE_ORDER -> "Bookmark.kjvOrdinalStart"
-        CREATED_AT -> "Bookmark.createdAt"
-        LAST_UPDATED -> "Bookmark.lastUpdatedOn"
-    }
+    BIBLE_ORDER, CREATED_AT, LAST_UPDATED, ORDER_NUMBER;
 }
 
 interface VerseRangeUser {
@@ -199,6 +193,7 @@ class BookmarkEntities {
             }
         @Ignore var labelIds: List<Long>? = null
         @Ignore var text: String? = null
+        @Ignore var fullText: String? = null
     }
 
     @Entity(
@@ -211,10 +206,34 @@ class BookmarkEntities {
             Index("labelId")
         ]
     )
+    @Serializable
     data class BookmarkToLabel(
         val bookmarkId: Long,
-        val labelId: Long
+        val labelId: Long,
+
+        // Journal display variables
+        @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
+        @ColumnInfo(defaultValue = "0") var indentLevel: Int = 0,
     )
+
+    @Entity(
+        foreignKeys = [
+            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)
+        ],
+        indices = [
+            Index("labelId")
+        ]
+    )
+    @Serializable
+    data class JournalTextEntry(
+        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        val labelId: Long,
+        val text: String = "",
+        var orderNumber: Int,
+        var indentLevel: Int = 0,
+    ) {
+        @Ignore val type: String = "journal"
+    }
 
     @Entity
     @Serializable

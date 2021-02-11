@@ -17,7 +17,7 @@
 
 <template>
   <div class="label-list">
-    <span v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
+    <span @touchstart.stop="goToJournal($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
   </div>
 </template>
 
@@ -32,7 +32,14 @@ export default {
     function labelStyle(label) {
       return "background-color: " + adjustedColor(label.color).string() + ";";
     }
-    return {labelStyle, ...common}
+
+    function goToJournal(event, label) {
+      if(label.id <= 0) return;
+      const url = `journal://?id=${label.id}`
+      window.location.assign(url);
+    }
+
+    return {labelStyle, goToJournal, ...common}
   }
 }
 </script>

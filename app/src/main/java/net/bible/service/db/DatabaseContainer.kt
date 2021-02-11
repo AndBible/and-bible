@@ -35,7 +35,6 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
-import java.lang.Exception
 import java.sql.SQLException
 import java.util.*
 import androidx.room.migration.Migration as RoomMigration
@@ -735,6 +734,16 @@ private val BOOKMARKS_LABEL_COLOR_38_39 = object : Migration(38, 39) {
     }
 }
 
+private val JOURNAL_39_40 = object : Migration(39, 40) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS `JournalTextEntry` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `labelId` INTEGER NOT NULL, `text` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT -1, `indentLevel` INTEGER NOT NULL, FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_JournalTextEntry_labelId` ON `JournalTextEntry` (`labelId`)")
+
+        db.execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `orderNumber` INTEGER NOT NULL DEFAULT -1")
+        db.execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `indentLevel` INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -787,6 +796,7 @@ object DatabaseContainer {
                         BOOKMARKS_BOOK_36_37,
                         MIGRATION_37_38_MyNotes_To_Bookmarks,
                         BOOKMARKS_LABEL_COLOR_38_39,
+                        JOURNAL_39_40,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

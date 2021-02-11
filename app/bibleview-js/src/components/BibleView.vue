@@ -60,7 +60,9 @@
       const documents = reactive([]);
       window.bibleViewDebug.documents = documents;
       const topElement = ref(null);
-      const {scrollToVerse} = useScroll(config);
+      const scroll = useScroll(config);
+      const {scrollToId} = scroll;
+      provide("scroll", scroll);
       const globalBookmarks = useGlobalBookmarks(config);
       const android = useAndroid(globalBookmarks, config);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
@@ -79,7 +81,7 @@
       setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
         const verseBeforeConfigChange = currentVerse.value;
         await deferred.wait();
-        scrollToVerse(`v-${verseBeforeConfigChange}`, true)
+        scrollToId(`v-${verseBeforeConfigChange}`, true)
       })
 
       setupEventBusListener(Events.REPLACE_DOCUMENT, replaceDocument);
@@ -141,6 +143,8 @@
     computed: {
       styleConfig({config}) {
         const textColor = Color(config.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
+        const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+
         let style = `
           max-width: ${config.marginSize.maxWidth};
           color: ${textColor.hsl().string()};
@@ -149,6 +153,7 @@
           line-spacing: ${config.lineSpacing / 10}em;
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
+          --background-color: ${backgroundColor.hsl().string()};
           `;
         if(config.marginSize.marginLeft || config.marginSize.marginRight) {
           style += `

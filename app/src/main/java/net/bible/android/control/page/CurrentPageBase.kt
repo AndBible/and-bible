@@ -263,7 +263,7 @@ abstract class CurrentPageBase protected constructor(
             )
         }
 
-    fun restoreFrom(entity: WorkspaceEntities.Page?) {
+    open fun restoreFrom(entity: WorkspaceEntities.Page?) {
         if(entity == null) return
         val document = entity.document
         Log.d(TAG, "State document:$document")

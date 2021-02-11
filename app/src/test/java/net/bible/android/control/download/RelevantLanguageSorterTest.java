@@ -1,8 +1,7 @@
 package net.bible.android.control.download;
 
-import net.bible.service.download.FakeSwordBookFactory;
+import net.bible.service.download.FakeBookFactory;
 
-import net.bible.test.DatabaseResetter;
 import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
 import org.junit.After;
@@ -40,7 +39,7 @@ public class RelevantLanguageSorterTest {
 		Locale.setDefault(Locale.KOREAN);
 		
 		Language svInstalledLang = new Language("sv");
-		Book svInstalledBook = FakeSwordBookFactory.createFakeRepoBook("DEF", "Lang=sv", null);
+		Book svInstalledBook = FakeBookFactory.createFakeRepoSwordBook("DEF", "Lang=sv", null);
 		List<Book> books = new ArrayList<Book>();
 		books.add(svInstalledBook);
 		relevantLanguageSorter = new RelevantLanguageSorter(books);

@@ -128,10 +128,31 @@ class NotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
                 "type" to wrapString("notes"),
                 "bookmarks" to json.encodeToString(serializer(), bookmarks),
                 "verseRange" to wrapString(verseRange.name),
-                "ordinalRange" to json.encodeToString(serializer(), listOf(verseRange.start.ordinal, verseRange.end.ordinal))
             )
         }
 }
+
+class JournalDocument(
+    val label: BookmarkEntities.Label,
+    val bookmarks: List<BookmarkEntities.Bookmark>,
+    val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
+    val journalTextEntries: List<BookmarkEntities.JournalTextEntry>,
+): Document, DocumentWithBookmarks {
+    override val asHashMap: Map<String, Any>
+        get() {
+            val bookmarks = bookmarks.map { ClientBookmark(it) }
+            val clientLabel = ClientBookmarkLabel(label)
+            return mapOf(
+                "id" to wrapString("journal_${label.id}"),
+                "type" to wrapString("journal"),
+                "bookmarks" to json.encodeToString(serializer(), bookmarks),
+                "bookmarkToLabels" to json.encodeToString(serializer(), bookmarkToLabels),
+                "journalTextEntries" to json.encodeToString(serializer(), journalTextEntries),
+                "label" to json.encodeToString(serializer(), clientLabel),
+            )
+        }
+}
+
 
 class OsisFragment(
     val xml: String,
@@ -169,7 +190,7 @@ class OsisFragment(
 data class ClientBookmark(val id: Long,
                           val ordinalRange: List<Int>,
                           val offsetRange: List<Int>?,
-                          val labels: List<Long>,
+                          val labels: List<Long>, // TODO: better to rename to labelIds
                           val bookInitials: String?,
                           val bookAbbreviation: String?,
                           val bookName: String?,
@@ -177,12 +198,13 @@ data class ClientBookmark(val id: Long,
                           val lastUpdatedOn: Long,
                           val notes: String?,
                           val verseRange: String,
-                          val firstVerseRef: String,
+                          val bibleUrl: String,
                           val verseRangeOnlyNumber: String,
                           val verseRangeAbbreviated: String,
                           val text: String?,
+                          val fullText: String?,
 ) {
-    constructor(bookmark: BookmarkEntities.Bookmark, v11n: Versification?) :
+    constructor(bookmark: BookmarkEntities.Bookmark, v11n: Versification? = null) :
         this(id = bookmark.id,
             ordinalRange = listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal),
             offsetRange = bookmark.textRange?.clientList,
@@ -199,8 +221,23 @@ data class ClientBookmark(val id: Long,
             verseRangeOnlyNumber = bookmark.verseRange.onlyNumber,
             verseRangeAbbreviated = bookmark.verseRange.abbreviated,
             text = bookmark.text,
-            firstVerseRef = bookmark.verseRange.start.osisRef
+            fullText = bookmark.fullText,
+            bibleUrl = getUrl(bookmark),
         )
+
+    val type: String = "bookmark"
+
+    companion object{
+        fun getUrl(bookmark: BookmarkEntities.Bookmark): String {
+            val bookRef = bookmark.book?.initials
+            val firstVerseRef = bookmark.verseRange.start.osisRef
+            val ref = if(bookRef != null) {
+                "$bookRef:$firstVerseRef"
+            } else
+                firstVerseRef
+            return "osis://?osis=$ref"
+        }
+    }
 }
 
 @Serializable

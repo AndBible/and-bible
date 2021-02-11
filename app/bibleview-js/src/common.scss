@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
@@ -15,15 +15,27 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-export const DocumentTypes = {
-    BIBLE_DOCUMENT: "bible",
-    OSIS_DOCUMENT: "osis",
-    ERROR_DOCUMENT: "error",
-    MY_NOTES: "notes",
-    JOURNAL: "journal",
+.journal-button {
+  z-index: 1;
+  color: rgba(0, 0, 0, 0.3);
+  .night & {
+    color: rgba(255, 255, 255, 0.3);
+  }
+  margin: 2pt;
+  padding: 3pt;
 }
 
-export const JournalEntryTypes = {
-    BOOKMARK: "bookmark",
-    JOURNAL_TEXT: "journal",
+.note-container {
+  min-height: 2em;
+  position: relative;
+  margin: 4pt 2pt 2pt;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.3);
+  .night & {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  border-width: 1pt;
+  border-radius: 5pt;
+  padding: 2pt;
 }
+

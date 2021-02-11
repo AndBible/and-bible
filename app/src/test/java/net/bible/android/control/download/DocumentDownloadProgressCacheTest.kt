@@ -8,7 +8,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
 import net.bible.android.view.activity.download.DocumentListItem
-import net.bible.service.download.FakeSwordBookFactory
+import net.bible.service.download.FakeBookFactory
 import net.bible.test.DatabaseResetter
 import org.crosswire.common.progress.JobManager
 import org.crosswire.jsword.book.Book
@@ -73,7 +73,7 @@ class DocumentDownloadProgressCacheTest {
 
         init {
             try {
-                document = FakeSwordBookFactory.createFakeRepoBook(initials, "[KJV]\nDescription=My Test Book", "")
+                document = FakeBookFactory.createFakeRepoSwordBook(initials, "[KJV]\nDescription=My Test Book", "")
             } catch (e: IOException) {
                 e.printStackTrace()
             } catch (e: BookException) {

@@ -20,13 +20,15 @@
     <EditableText
         v-if="!infoShown"
         constraint-height
-        :edit-directly="editDirectly" :text="bookmarkNotes || ''"
-        @changed="changeNote"
+        :edit-directly="editDirectly"
+        :text="bookmarkNotes || ''"
+        @save="changeNote"
+        show-placeholder
         max-height="inherit"
     />
     <div v-show="infoShown" class="info">
       <div class="bible-text">
-        <q v-if="bookmark.text"><i>{{ bookmark.text }}</i></q>
+        <BookmarkText expanded :bookmark="bookmark"/>
       </div>
       <div v-if="bookmark.bookName">
         <span v-html="sprintf(strings.bookmarkAccurate, originalBookLink)"/>
@@ -68,12 +70,12 @@ import {inject} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import AreYouSure from "@/components/modals/AreYouSure";
 import EditableText from "@/components/EditableText";
-import {debounce} from "lodash";
 import LabelList from "@/components/LabelList";
+import BookmarkText from "@/components/BookmarkText";
 
 export default {
   name: "BookmarkModal",
-  components: {LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure},
+  components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure},
   setup() {
     const showBookmark = ref(false);
     const android = inject("android");
@@ -96,6 +98,7 @@ export default {
     const bookmarkNotes = ref(null);
     let originalNotes = null;
     const editDirectly = ref(false);
+
     setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (bookmarkId_, {open = false} = {}) => {
       bookmarkId.value = bookmarkId_;
       bookmarkNotes.value = bookmark.value.notes;
@@ -131,12 +134,13 @@ export default {
         return adjustedColor(label.value.color).string();
     });
 
-    const changeNote = debounce((text) => {
+    const changeNote = text => {
       bookmarkNotes.value = text;
-    }, 500)
+      android.saveBookmarkNote(bookmark.value.id, bookmarkNotes.value);
+    }
 
     const originalBookLink = computed(() =>
-        `<a href="osis://?osis=${bookmark.value.bookInitials}:${bookmark.value.firstVerseRef}">${bookmark.value.bookName}</a>`)
+        `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName}</a>`)
 
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, editDirectly, bookmarkNotes,

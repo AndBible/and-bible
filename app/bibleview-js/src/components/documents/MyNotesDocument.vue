@@ -23,16 +23,7 @@
     <h2>{{ document.verseRange }}</h2>
   </div>
   <div class="note-container verse" v-for="b in notes" :key="b.id" :id="`v-${b.ordinalRange[0]}`">
-    <div class="edit-button" @click.stop="editNote(b)">
-      <FontAwesomeIcon icon="edit"/>
-    </div>
-    <div>
-      <b>{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</b> <q v-if="b.text" class="bible-text">{{abbreviated(b.text, 40)}}</q>
-      <div class="notes">
-        <div v-html="b.notes"/>
-      </div>
-      <LabelList @click="assignLabels(b)" :labels="labelsFor(b)"/>
-    </div>
+    <MyNoteRow :bookmark="b"/>
   </div>
 </template>
 
@@ -40,13 +31,11 @@
 import {computed} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
-import {emit, Events} from "@/eventbus";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import LabelList from "@/components/LabelList";
+import MyNoteRow from "@/components/MyNoteRow";
 
 export default {
   name: "MyNotesDocument",
-  components: {LabelList, FontAwesomeIcon},
+  components: {MyNoteRow},
   props: {
     document: {type: Object, required: true},
   },
@@ -71,35 +60,14 @@ export default {
       android.saveBookmarkNote(b.id, b.notes);
     }
 
-    function editNote(b) {
-      emit(Events.BOOKMARK_FLAG_CLICKED, b.id, {open: true})
-    }
-
-    function labelsFor(b) {
-      return b.labels.map(l => globalBookmarks.bookmarkLabels.get(l));
-    }
-
-    function assignLabels(bookmark) {
-      android.assignLabels(bookmark.id);
-    }
-
-    return {notes, save, editNotes, editNote, labelsFor, assignLabels, ...useCommon()}
+    return {notes, save, editNotes, ...useCommon()}
   }
 }
 </script>
 
 <style scoped lang="scss">
-.note-container {
-  margin: 10pt 2pt 2pt;
-  border-style: solid;
-  border-color: rgba(0, 0, 0, 0.3);
-  .night & {
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-  border-width: 1pt;
-  border-radius: 10pt;
-  padding: 5pt;
-}
+@import "~@/common.scss";
+
 .bible-text {
   margin-top: 2pt;
   text-indent: 5pt;
@@ -108,14 +76,8 @@ export default {
 }
 
 .notes {
+  padding-top: 2pt;
   text-indent: 2pt;
 }
 
-.edit-button {
-  position: absolute;
-  height: 20pt;
-  width: 20pt;
-  right: 5px;
-  color: #939393;
-}
 </style>

@@ -28,18 +28,15 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.base.IntentHelper
-import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.JournalKey
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -50,7 +47,6 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
-import org.crosswire.jsword.passage.OsisParser
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.versification.Versification
 import java.net.URLDecoder
@@ -255,14 +251,10 @@ class LinkControl @Inject constructor(
     }
 
     private fun showLink(document: Book?, key: Key) { // ask window controller to open link in desired window
-        var document = document
         val currentPageManager = currentPageManager
         val defaultDocument = currentPageManager.currentBible.currentDocument!!
         if (windowMode == WINDOW_MODE_NEW) {
-            if (document == null) {
-                document = defaultDocument
-            }
-            windowControl.addNewWindow(document, key)
+            windowControl.addNewWindow(document?: defaultDocument, key)
         } else if (checkIfOpenLinksInDedicatedWindow()) {
             if (document == null) {
                 windowControl.showLinkUsingDefaultBible(key)
@@ -270,10 +262,7 @@ class LinkControl @Inject constructor(
                 windowControl.showLink(document, key)
             }
         } else { // old style - open links in current window
-            if (document == null) {
-                document = defaultDocument
-            }
-            currentPageManager.setCurrentDocumentAndKey(document, key)
+            currentPageManager.setCurrentDocumentAndKey(document ?: defaultDocument, key)
         }
     }
 
@@ -298,6 +287,13 @@ class LinkControl @Inject constructor(
         val bookmark = bookmarkControl.bookmarksByIds(listOf(id)).firstOrNull() ?: return false
         val key = bookmark.verseRange
         showLink(currentPageManager.currentMyNotePage.currentDocument, key)
+        return true
+    }
+
+    fun openJournal(id: Long): Boolean {
+        val label = bookmarkControl.labelById(id) ?: return false
+        val key = JournalKey(label)
+        showLink(currentPageManager.currentGeneralBook.journalDocument, key)
         return true
     }
 

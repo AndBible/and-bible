@@ -31,27 +31,35 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import java.util.*
 
-const val orderByString = """
+const val orderBy = """
 CASE
     WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.kjvOrdinalStart
     WHEN :orderBy = 'CREATED_AT' THEN Bookmark.createdAt
     WHEN :orderBy = 'LAST_UPDATED' THEN Bookmark.lastUpdatedOn
 END"""
 
+const val orderBy2 = """
+CASE
+    WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.kjvOrdinalStart
+    WHEN :orderBy = 'CREATED_AT' THEN Bookmark.createdAt
+    WHEN :orderBy = 'LAST_UPDATED' THEN Bookmark.lastUpdatedOn
+    WHEN :orderBy = 'ORDER_NUMBER' THEN BookmarkToLabel.orderNumber
+END"""
+
 @Dao
 interface BookmarkDao {
-    @Query("SELECT * from Bookmark ORDER BY $orderByString")
+    @Query("SELECT * from Bookmark ORDER BY $orderBy")
     fun allBookmarks(orderBy: String): List<Bookmark>
     fun allBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
         allBookmarks(orderBy.name)
 
-    @Query("SELECT * from Bookmark WHERE notes IS NOT NULL ORDER BY $orderByString")
+    @Query("SELECT * from Bookmark WHERE notes IS NOT NULL ORDER BY $orderBy")
     fun allBookmarksWithNotes(orderBy: String): List<Bookmark>
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> =
         allBookmarksWithNotes(orderBy.name)
 
     @Query("SELECT * from Bookmark where id = :bookmarkId")
-    fun bookmarkById(bookmarkId: Long): Bookmark
+    fun bookmarkById(bookmarkId: Long): Bookmark?
 
     @Query("SELECT * from Bookmark where id IN (:bookmarkIds)")
     fun bookmarksByIds(bookmarkIds: List<Long>): List<Bookmark>
@@ -98,8 +106,9 @@ interface BookmarkDao {
 
     @Update
     fun update(entity: Bookmark)
+
     fun updateBookmarkDate(entity: Bookmark): Bookmark {
-        entity.createdAt = Date(System.currentTimeMillis())
+        entity.lastUpdatedOn = Date(System.currentTimeMillis())
         update(entity)
         return entity
     }
@@ -114,7 +123,7 @@ interface BookmarkDao {
     @Query("""
         SELECT * FROM Bookmark WHERE NOT EXISTS 
             (SELECT * FROM BookmarkToLabel WHERE Bookmark.id = BookmarkToLabel.bookmarkId)
-            ORDER BY $orderByString
+            ORDER BY $orderBy
         """)
     fun unlabelledBookmarks(orderBy: String): List<Bookmark>
     fun unlabelledBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
@@ -125,11 +134,13 @@ interface BookmarkDao {
         SELECT Bookmark.* FROM Bookmark 
             JOIN BookmarkToLabel ON Bookmark.id = BookmarkToLabel.bookmarkId 
             JOIN Label ON BookmarkToLabel.labelId = Label.id
-            WHERE Label.id = :labelId ORDER BY $orderByString
+            WHERE Label.id = :labelId ORDER BY $orderBy2
         """)
     fun bookmarksWithLabel(labelId: Long, orderBy: String): List<Bookmark>
     fun bookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark>
         = bookmarksWithLabel(label.id, orderBy.name)
+    fun bookmarksWithLabel(labelId: Long, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark>
+        = bookmarksWithLabel(labelId, orderBy.name)
 
     @Query("""UPDATE Bookmark SET notes=:notes, lastUpdatedOn=:lastUpdatedOn WHERE id=:bookmarkId""")
     fun saveBookmarkNote(bookmarkId: Long, notes: String?, lastUpdatedOn: Long)
@@ -143,6 +154,16 @@ interface BookmarkDao {
     @Query("SELECT * from Label WHERE id=:id")
     fun labelById(id: Long): Label?
 
+    @Query("SELECT * from JournalTextEntry WHERE labelId=:id ORDER BY orderNumber")
+    fun journalTextEntriesByLabelId(id: Long): List<BookmarkEntities.JournalTextEntry>
+
+    @Query("SELECT * from JournalTextEntry WHERE id=:id")
+    fun journalTextEntryById(id: Long): BookmarkEntities.JournalTextEntry?
+
+    @Insert fun insert(entity: BookmarkEntities.JournalTextEntry): Long
+
+    @Update fun update(entity: BookmarkEntities.JournalTextEntry)
+
     @Insert fun insert(entity: Label): Long
 
     @Update fun update(entity: Label)
@@ -150,22 +171,35 @@ interface BookmarkDao {
     @Delete fun delete(b: Label)
 
     @Query("""
-        SELECT Label.* from Label 
+        SELECT Label.* FROM Label 
             JOIN BookmarkToLabel ON Label.id = BookmarkToLabel.labelId 
             JOIN Bookmark ON BookmarkToLabel.bookmarkId = Bookmark.id 
             WHERE Bookmark.id = :bookmarkId
     """)
     fun labelsForBookmark(bookmarkId: Long): List<Label>
 
+    @Query("""SELECT * FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId""")
+    fun getBookmarkToLabelsForBookmark(bookmarkId: Long): List<BookmarkToLabel>
+
+    @Query("""SELECT * FROM BookmarkToLabel WHERE labelId=:labelId ORDER BY orderNumber""")
+    fun getBookmarkToLabelsForLabel(labelId: Long): List<BookmarkToLabel>
+
+    @Query("""SELECT * FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId AND labelId=:labelId""")
+    fun getBookmarkToLabel(bookmarkId: Long, labelId: Long): BookmarkToLabel?
+
     @Insert fun insert(entity: BookmarkToLabel): Long
 
     @Delete fun delete(entity: BookmarkToLabel): Int
+
+    @Update fun update(entity: BookmarkToLabel)
 
     @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId")
     fun clearLabels(bookmarkId: Long)
     fun clearLabels(bookmark: Bookmark) = clearLabels(bookmark.id)
 
     @Delete fun delete(entities: List<BookmarkToLabel>): Int
+
+    @Delete fun delete(e: BookmarkEntities.JournalTextEntry)
 
     @Insert fun insert(entities: List<BookmarkToLabel>): List<Long>
 
@@ -174,8 +208,19 @@ interface BookmarkDao {
 
     @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId")
     fun deleteLabels(bookmarkId: Long)
-    fun deleteLabels(bookmark: BookmarkEntities.Bookmark) = deleteLabels(bookmark.id)
+    fun deleteLabels(bookmark: Bookmark) = deleteLabels(bookmark.id)
+
+    @Query("SELECT COUNT(*) FROM BookmarkToLabel WHERE labelId=:labelId")
+    fun countBookmarkEntities(labelId: Long): Int
+
+    @Query("SELECT COUNT(*) FROM JournalTextEntry WHERE labelId=:labelId")
+    fun countJournalTextEntities(labelId: Long): Int
+
+    fun countJournalEntities(labelId: Long) = countBookmarkEntities(labelId) + countJournalTextEntities(labelId)
 
     @Query("DELETE FROM Label WHERE id IN (:toList)")
     fun deleteLabelsByIds(toList: List<Long>)
+
+    @Update fun updateBookmarkToLabels(bookmarkToLabels: List<BookmarkToLabel>)
+    @Update fun updateJournalTextEntries(journalTextEntries: List<BookmarkEntities.JournalTextEntry>)
 }

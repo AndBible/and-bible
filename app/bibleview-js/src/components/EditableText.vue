@@ -17,15 +17,15 @@
 
 <template>
   <div :style="parentStyle" class="editable-text">
-    <div class="edit-button" @click="editMode = !editMode">
-      <FontAwesomeIcon icon="edit"/>
-    </div>
     <div class="editor-container" v-if="editMode">
-      <TextEditor :text="text || ''" @changed="$emit('changed', $event)"/>
+      <TextEditor :text="editText || ''" @save="textChanged" @close="editMode = false"/>
     </div>
     <template v-else>
-      <div :class="{'notes-display': true, constraintHeight}">
-        <div v-html="text || ''"/>
+      <div v-if="editText" :class="{'notes-display': true, constraintHeight}" @click="handleClicks">
+        <div v-html="editText"/>
+      </div>
+      <div class="placeholder" v-else-if="showPlaceholder" @click="handleClicks">
+        {{ strings.editTextPlaceholder }}
       </div>
     </template>
   </div>
@@ -34,15 +34,18 @@
 <script>
 import {ref} from "@vue/reactivity";
 import TextEditor from "@/components/TextEditor";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {watch} from "@vue/runtime-core";
+import {useCommon} from "@/composables";
+
+let cancelOpen = () => {}
 
 export default {
   name: "EditableText",
-  components: {TextEditor, FontAwesomeIcon},
-  emits: ["changed", "closed"],
+  components: {TextEditor},
+  emits: ["closed", "save", "opened"],
   props: {
     editDirectly:{type: Boolean, default: false},
+    showPlaceholder:{type: Boolean, default: false},
     text:{type: String, default: null},
     maxHeight: {type: String, default: null},
     constraintHeight: {type: Boolean, default: false},
@@ -50,18 +53,49 @@ export default {
   setup(props, {emit}) {
     const editMode = ref(props.editDirectly);
     const parentStyle = ref("");
+    const editText = ref(props.text);
     parentStyle.value = props.maxHeight ? `--max-height: ${props.maxHeight};`: "--max-height: 100pt;";
+
+    function cancelFunc() {
+      editMode.value = false;
+    }
     watch(editMode, mode => {
-      if(!mode) emit("closed");
+      if(!mode) emit("closed", editText.value);
+      else {
+        emit("opened")
+        if(cancelFunc !== cancelOpen) {
+          cancelOpen()
+        }
+        cancelOpen = cancelFunc
+      }
     })
-    return {editMode, parentStyle}
+    watch(() => props.text, t => {
+      editText.value = t;
+    })
+
+    function textChanged(newText) {
+      editText.value = newText
+      emit("save", newText);
+    }
+
+    function handleClicks(event) {
+      if(event.target.nodeName !== "A") {
+        editMode.value = true;
+      }
+    }
+
+    return {editMode, parentStyle, editText, textChanged, handleClicks, ...useCommon()}
   }
 }
 </script>
 
 <style lang="scss" scoped>
+@import "~@/common.scss";
 .notes-display {
   width: calc(100% - 22pt);
+}
+.placeholder {
+  opacity: 0.5;
 }
 
 .constraintHeight {
@@ -73,11 +107,15 @@ export default {
   max-width: calc(100% - 22pt);
 }
 .edit-button {
+  @extend .journal-button;
   position: absolute;
   height: 20pt;
   width: 20pt;
-  right: 5px;
-  color: #939393;
+  right: 0;
+  top: 0;
+}
+.editable-text {
+  position: relative;
 }
 </style>
 <style>

@@ -36,6 +36,7 @@ import java.util.*
 
 val json = Json {
     allowStructuredMapKeys = true
+    encodeDefaults = true
 }
 
 class WorkspaceEntities {

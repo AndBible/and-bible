@@ -267,7 +267,7 @@ export function getEventFunctions(event) {
 export function draggableElement(element, dragHandle) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
-    dragHandle.addEventListener("touchstart", dragMouseDown);
+    dragHandle.addEventListener("touchstart", dragMouseDown, {passive: false});
 
     function dragMouseDown(e) {
         e.preventDefault();
@@ -292,4 +292,10 @@ export function draggableElement(element, dragHandle) {
         document.removeEventListener("touchend", closeDragElement);
         document.removeEventListener("touchmove", elementDrag);
     }
+}
+
+export function stripTags(str) {
+    const temp = document.createElement("div");
+    temp.innerHTML = str;
+    return temp.textContent || temp.innerText;
 }

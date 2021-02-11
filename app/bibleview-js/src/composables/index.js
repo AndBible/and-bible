@@ -22,7 +22,14 @@ import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
+import {
+    faBookmark,
+    faEdit,
+    faEllipsisH,
+    faHeadphones, faIndent, faOutdent,
+    faPlusCircle, faSort,
+    faTrash
+} from "@fortawesome/free-solid-svg-icons";
 import Color from "color";
 
 let developmentMode = false;
@@ -100,12 +107,12 @@ export function useConfig() {
         showMyNotes: true,
 
         colors: {
-            dayBackground: null,
+            dayBackground: -1,
             dayNoise: 0,
             dayTextColor: null,
             nightBackground: null,
             nightNoise: 0,
-            nightTextColor: null,
+            nightTextColor: -16777216,
         },
         bookmarks: {
             showAll: true,
@@ -184,6 +191,7 @@ export function useStrings() {
         bookmarkInfo: "Info",
         editNote: "Edit",
         editNotePlaceholder: "Edit a note for bookmark",
+        editTextPlaceholder: "Tap to edit text",
         inputPlaceholder: "Write here",
         inputReference: "Give bible reference, in OSIS format",
         removeBookmark: "Remove",
@@ -198,12 +206,18 @@ export function useStrings() {
         createdAt: "Created: %s",
         lastUpdatedOn: "Last updated: %s",
         strongsLink: "Open strongs",
+        journalLink: "Open journal",
         externalLink: "Open external link",
         referenceLink: "Open reference link",
         openFootnote: "Open footnote",
         openBookmark: "Open bookmark (%s)",
         noNotes: "No My Notes for this chapter",
-        verses: "Verse %s",
+        emptyJournal: "Empty journal",
+        journalModalTitle: "Edit journal entry",
+        doYouWantToDeleteEntry: "Are you sure you want to delete this journal entry?",
+        removeJournalConfirmationTitle: "Remove journal entry?",
+        dragHelp: "You can drag & drop item to re-order journal",
+        saved: "saved",
     }
 }
 
@@ -252,6 +266,12 @@ export function useFontAwesome() {
     library.add(faHeadphones)
     library.add(faEdit)
     library.add(faBookmark)
+    library.add(faPlusCircle)
+    library.add(faTrash)
+    library.add(faEllipsisH)
+    library.add(faSort)
+    library.add(faIndent)
+    library.add(faOutdent)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {

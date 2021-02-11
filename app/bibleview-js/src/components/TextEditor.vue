@@ -19,7 +19,10 @@
   <InputText ref="inputText">
     {{strings.inputReference}}
   </InputText>
-  <div class="pell edit-area" ref="editorElement"/>
+  <div class="edit-area pell">
+    <div ref="editorElement"/>
+    <div class="saved-notice" v-if="!dirty">&dash;{{strings.saved}}&dash;</div>
+  </div>
 </template>
 
 <script>
@@ -28,8 +31,16 @@ import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {init, exec} from "pell";
 import InputText from "@/components/modals/InputText";
-import {faBible, faListOl, faListUl} from "@fortawesome/free-solid-svg-icons";
-import {icon} from "@fortawesome/fontawesome-svg-core";
+import {
+  faBible,
+  faEdit,
+  faIndent,
+  faListOl,
+  faListUl,
+  faOutdent, faSlash,
+} from "@fortawesome/free-solid-svg-icons";
+import {icon, layer} from "@fortawesome/fontawesome-svg-core";
+import {debounce} from "lodash";
 
 export default {
   name: "TextEditor",
@@ -37,7 +48,7 @@ export default {
   props: {
     text: {type: String, required: true}
   },
-  emits: ['changed'],
+  emits: ['save', "close"],
   setup(props, {emit}) {
     const android = inject("android");
     const editorElement = ref(null);
@@ -57,6 +68,28 @@ export default {
       icon: icon(faListUl).html,
       title: 'Unordered List',
       result: () => exec('insertUnorderedList')
+    }
+    const indent = {
+      icon: icon(faIndent).html,
+      title: 'Indent',
+      result: () => exec('indent')
+    }
+    const outdent = {
+      icon: icon(faOutdent).html,
+      title: 'Indent',
+      result: () => exec('outdent')
+    }
+
+    const close = {
+      icon: layer(push => {
+        push(icon(faEdit))
+        push(icon(faSlash, {transform: {x: -2, size: 18} }))
+        }).html,
+      title: 'Close',
+      result: () => {
+        save();
+        emit('close')
+      }
     }
 
     const bibleLink = {
@@ -84,29 +117,40 @@ export default {
       }
     }
 
+    const editText = ref(props.text);
+    const dirty = ref(false);
+
+    function save() {
+      if(dirty.value) {
+        emit('save', editText.value)
+        dirty.value = false;
+      }
+    }
+
+    watch(editText, debounce(save, 2000))
+
     onMounted(() => {
       editor.value = init({
         element: editorElement.value,
-        onChange: html => emit('changed', html),
+        onChange: html => {
+          editText.value = html;
+          dirty.value = true;
+        },
         actions: [
-          'bold', 'italic', 'underline', oList, uList, bibleLink
+          'bold', 'italic', 'underline', oList, uList, outdent, indent, bibleLink, close
         ],
       });
-      editor.value.content.innerHTML = props.text;
+      editor.value.content.innerHTML = editText.value;
       editor.value.content.focus();
-      android.setActionMode(false);
+      //android.setActionMode(false);
     });
 
     onUnmounted(() => {
-      android.setActionMode(true);
+      // TODO: remove setActionMode
+      //android.setActionMode(true);
     })
 
-    const editText = ref(props.text);
-
-    watch(editText, txt => {
-      console.log("text", txt);
-    })
-    return {setFocus, editorElement, ...useCommon(), editText, inputText}
+    return {setFocus, editorElement, ...useCommon(), dirty, inputText}
   }
 }
 </script>
@@ -117,26 +161,50 @@ export default {
   max-height: calc(var(--max-height) - #{$pell-button-height} - 2*#{$pell-content-padding});
 }
 
-.night .pell-button {
-  background-color: black;
-  color: white;
-}
-.night .pell-button-selected {
-  background-color: #7d7d7d;
-}
-.night .pell-actionbar {
-  background-color: black;
-  color: white;
+.pell-button {
+  color: inherit;
+
+  .night & {
+    color: inherit;
+  }
 }
 
-</style>
-<style scoped lang="scss">
+.pell-button-selected {
+  background-color: rgba(0, 0, 0, 0.2);
+  .night & {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.pell-actionbar {
+  background-color: inherit;
+  color: rgba(0, 0, 0, 0.6);
+  .night & {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.saved-notice {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding-inline-end: 3pt;
+  color: hsla(0, 0%, 0%, 0.2);
+  .night & {
+    color: hsla(0, 0%, 100%, 0.2);
+  }
+  background: var(--background-color);
+  opacity: 0.8;
+  font-size: small;
+}
+
 .edit-area {
   width: 100%;
-  .night & {
-    background-color: black;
-    color: white;
-  }
+  position: relative;
+//  .night & {
+//    background-color: black;
+//    color: white;
+//  }
 }
 
 
