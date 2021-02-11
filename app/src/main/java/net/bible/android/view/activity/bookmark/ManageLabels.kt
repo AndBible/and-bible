@@ -128,7 +128,7 @@ class ManageLabels : ListActivityBase() {
 
     private fun loadLabelList() {
         labels.clear()
-        labels.addAll(bookmarkControl.assignableLabels.filter { !deletedLabels.contains(it.id) })
+        labels.addAll(bookmarkControl.assignableLabels.filterNot { deletedLabels.contains(it.id) || it.isSpeakLabel })
         if(showUnassigned) {
             labels.add(bookmarkControl.labelUnlabelled)
         }

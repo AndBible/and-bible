@@ -120,6 +120,11 @@
             android:label="@string/mynotes"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
+            android:name="net.bible.android.view.activity.journal.Journals"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/journals"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"

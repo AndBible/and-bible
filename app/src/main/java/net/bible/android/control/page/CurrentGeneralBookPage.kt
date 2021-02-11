@@ -20,6 +20,7 @@ package net.bible.android.control.page
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.journal.Journals
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.JournalKey
@@ -42,7 +43,9 @@ class CurrentGeneralBookPage internal constructor(
 
     override val documentCategory = DocumentCategory.GENERAL_BOOK
 
-    override val keyChooserActivity = ChooseGeneralBookKey::class.java
+    override val keyChooserActivity get() =
+        if(currentDocument == journalDocument) Journals::class.java
+        else ChooseGeneralBookKey::class.java
 
     override val currentPageContent: Document
         get() {
@@ -107,7 +110,7 @@ class CurrentGeneralBookPage internal constructor(
 
     override fun restoreFrom(entity: WorkspaceEntities.Page?) {
         if(entity?.document == journalDocument.initials) {
-            val (_, id) = entity!!.key!!.split(":")
+            val (_, id) = entity!!.key?.split(":")?: return
             val label = pageManager.bookmarkControl.labelById(id.toLong())
             if(label != null) {
                 doSetKey(JournalKey(label))

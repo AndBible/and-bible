@@ -52,6 +52,7 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.activity.journal.Journals
 import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
@@ -143,6 +144,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
                 }
                 R.id.mynotesButton -> handlerIntent = Intent(callingActivity, MyNotes::class.java)
+                R.id.myJournalsButton -> handlerIntent = Intent(callingActivity, Journals::class.java)
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {
                         val isBible = currentPage.documentCategory == DocumentCategory.BIBLE

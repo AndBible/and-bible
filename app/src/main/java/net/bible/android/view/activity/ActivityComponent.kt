@@ -28,6 +28,7 @@ import net.bible.android.view.activity.comparetranslations.CompareTranslations
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity
+import net.bible.android.view.activity.journal.Journals
 import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.*
 import net.bible.android.view.activity.navigation.genbookmap.ChooseKeyBase
@@ -60,6 +61,7 @@ interface ActivityComponent {
 
     // don't like this but inject is called from ActivityBase and the subclasses
     fun inject(activityBase: ActivityBase)
+    fun inject(journals: Journals)
     fun inject(activity: TextDisplaySettingsActivity)
 
     fun inject(colorSettings: ColorSettingsActivity)

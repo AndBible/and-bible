@@ -675,4 +675,5 @@
     <string name="my_notes_description">User-editable notes attached to bookmarks</string>
     <string name="my_notes_abbreviation">My Notes</string>
     <string name="journal_abbreviation">My Journals</string>
+    <string name="journals">My Journals</string>
 </resources>

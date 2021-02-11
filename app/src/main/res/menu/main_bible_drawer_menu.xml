@@ -39,7 +39,9 @@
             <item android:id="@+id/mynotesButton"
                 android:title="@string/mynotes"
                 android:icon="@drawable/ic_pen_24dp"/>
-
+            <item android:id="@+id/myJournalsButton"
+                android:title="@string/journals"
+                android:icon="@drawable/ic_pen_24dp"/>
             <item android:id="@+id/dailyReadingPlanButton"
                 android:title="@string/rdg_plan_title"
                 android:icon="@drawable/ic_format_list_numbered_white_24dp"/>
