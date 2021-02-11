@@ -192,10 +192,6 @@ export function useAndroid({bookmarks}, config) {
         android.updateJournalTextEntry(entry.id, entry.labelId, entry.text, entry.indentLevel, entry.orderNum);
     }
 
-    function updateJournalBookmark(bookmark, labelId) {
-        android.updateJournalBookmark(labelId, bookmark.id, bookmark.indentLevel, bookmark.orderNum);
-    }
-
     function createNewJournalEntry(labelId, afterEntryType, afterEntryId) {
         android.createNewJournalEntry(labelId, afterEntryType, afterEntryId);
     }
@@ -225,7 +221,7 @@ export function useAndroid({bookmarks}, config) {
         if(entry.type === JournalEntryTypes.JOURNAL_TEXT) {
             android.updateJournalTextEntry(JSON.stringify(changedEntry));
         } else if(entry.type === JournalEntryTypes.BOOKMARK) {
-            android.updateBookmarkToLabel(JSON.stringify(changedEntry));
+            android.updateJournalBookmark(JSON.stringify(changedEntry));
         }
     }
 
@@ -242,7 +238,6 @@ export function useAndroid({bookmarks}, config) {
         assignLabels,
         openExternalLink,
         updateJournalTextEntry,
-        updateJournalBookmark,
         createNewJournalEntry,
         deleteJournalEntry,
         removeBookmarkLabel,

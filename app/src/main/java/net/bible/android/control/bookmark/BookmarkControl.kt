@@ -44,11 +44,11 @@ import kotlin.math.min
 
 abstract class BookmarkEvent
 
-class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark): BookmarkEvent()
+class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark?, bookmarkToLabel: BookmarkToLabel?): BookmarkEvent()
 class BookmarksDeletedEvent(val bookmarkIds: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
 
-class JournalEvent(
+class JournalOrderEvent(
     val labelId: Long,
     val newJournalTextEntry: JournalTextEntry? = null,
     val bookmarkToLabelsOrderChanged: List<BookmarkToLabel>,
@@ -285,7 +285,7 @@ open class BookmarkControl @Inject constructor(
 
     fun updateJournalTextEntry(entry: JournalTextEntry) {
         dao.update(entry)
-        ABEventBus.getDefault().post(JournalEvent(entry.labelId, entry, emptyList(), emptyList()))
+        ABEventBus.getDefault().post(JournalOrderEvent(entry.labelId, entry, emptyList(), emptyList()))
     }
 
     fun updateBookmarkToLabel(bookmarkToLabel: BookmarkToLabel) {
@@ -293,7 +293,7 @@ open class BookmarkControl @Inject constructor(
         val bookmark = dao.bookmarkById(bookmarkToLabel.bookmarkId)!!
         addText(bookmark)
         addLabels(bookmark)
-        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
+        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, bookmarkToLabel))
     }
 
     fun updateBookmarkTimestamp(bookmarkId: Long) {
@@ -350,7 +350,7 @@ open class BookmarkControl @Inject constructor(
         dao.updateJournalTextEntries(changedJournalTextEntries)
         if(changedBookmarkToLabels.size > 0 || changedJournalTextEntries.size > 0)
             ABEventBus.getDefault().post(
-                JournalEvent(
+                JournalOrderEvent(
                     label.id, null, changedBookmarkToLabels, changedJournalTextEntries
                 )
             )
@@ -367,7 +367,7 @@ open class BookmarkControl @Inject constructor(
         updateJournalTextEntries(journals)
         dao.insert(entry).also { entry.id = it }
 
-        ABEventBus.getDefault().post(JournalEvent(labelId, entry, bookmarkToLabels, journals))
+        ABEventBus.getDefault().post(JournalOrderEvent(labelId, entry, bookmarkToLabels, journals))
     }
 
     fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) {
@@ -388,10 +388,10 @@ open class BookmarkControl @Inject constructor(
         return try {allLabels[thisIndex-1]} catch (e: IndexOutOfBoundsException) {allLabels[allLabels.size - 1]}
     }
 
-    fun updateOrderNumber(labelId: Long, bookmarksToLabels: List<BookmarkToLabel>, journalTextEntries: List<JournalTextEntry>) {
+    fun updateOrderNumbers(labelId: Long, bookmarksToLabels: List<BookmarkToLabel>, journalTextEntries: List<JournalTextEntry>) {
         dao.updateJournalTextEntries(journalTextEntries)
         dao.updateBookmarkToLabels(bookmarksToLabels)
-        ABEventBus.getDefault().post(JournalEvent(labelId, null, bookmarksToLabels, journalTextEntries))
+        ABEventBus.getDefault().post(JournalOrderEvent(labelId, null, bookmarksToLabels, journalTextEntries))
     }
 
 

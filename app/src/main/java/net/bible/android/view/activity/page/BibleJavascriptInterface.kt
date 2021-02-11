@@ -121,19 +121,6 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun updateJournalBookmark(labelId: Long, bookmarkId: Long, indentLevel: Int, orderNum: Int) {
-        bookmarkControl.updateBookmarkTimestamp(bookmarkId)
-        bookmarkControl.updateBookmarkToLabel(
-            BookmarkEntities.BookmarkToLabel(
-                labelId = labelId,
-                bookmarkId = bookmarkId,
-                indentLevel = indentLevel,
-                orderNumber = orderNum
-            )
-        )
-    }
-
-    @JavascriptInterface
     fun createNewJournalEntry(labelId: Long, entryType: String, afterEntryId: Long) {
         val entryOrderNumber: Int = when (entryType) {
             "bookmark" -> bookmarkControl.getBookmarkToLabel(afterEntryId, labelId)!!.orderNumber
@@ -154,7 +141,7 @@ class BibleJavascriptInterface(
         val deserialized: Map<String, List<List<Long>>> = json.decodeFromString(serializer(), data)
         val journalTextEntries = deserialized["journals"]!!.map { bookmarkControl.getJournalById(it[0])!!.apply { orderNumber = it[1].toInt() } }
         val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(it[0], labelId)!!.apply { orderNumber = it[1].toInt() } }
-        bookmarkControl.updateOrderNumber(labelId, bookmarksToLabels, journalTextEntries)
+        bookmarkControl.updateOrderNumbers(labelId, bookmarksToLabels, journalTextEntries)
     }
 
     @JavascriptInterface
@@ -171,12 +158,11 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun updateBookmarkToLabel(data: String) {
+    fun updateJournalBookmark(data: String) {
         val entry: ClientBookmark = json.decodeFromString(serializer(), data)
-        entry.indentLevel
-        entry.journalLabelId
         val bookmarkToLabel = bookmarkControl.getBookmarkToLabel(entry.id, entry.journalLabelId!!)!!
         bookmarkToLabel.indentLevel = entry.indentLevel!!
+        bookmarkControl.updateBookmarkTimestamp(entry.id)
         bookmarkControl.updateBookmarkToLabel(bookmarkToLabel)
     }
 

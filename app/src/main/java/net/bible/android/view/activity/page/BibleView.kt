@@ -58,7 +58,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
-import net.bible.android.control.bookmark.JournalEvent
+import net.bible.android.control.bookmark.JournalOrderEvent
 import net.bible.android.control.bookmark.JournalTextEntryDeleted
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
@@ -75,7 +75,6 @@ import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
 import net.bible.android.control.page.JournalDocument
-import net.bible.android.control.page.NotesDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.DecrementBusyCount
@@ -903,7 +902,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         """.trimIndent())
     }
 
-    fun onEvent(event: JournalEvent) {
+    fun onEvent(event: JournalOrderEvent) {
         val doc = firstDocument
         if(doc !is JournalDocument || doc.label.id != event.labelId) return
         val journalJson = json.encodeToString(serializer(), event.newJournalTextEntry)
