@@ -22,10 +22,13 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.webkit.JavascriptInterface
+import kotlinx.serialization.serializer
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.service.common.CommonUtils.json
 
 
 class BibleJavascriptInterface(
@@ -144,6 +147,19 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) = bookmarkControl.removeBookmarkLabel(bookmarkId, labelId)
+
+    @JavascriptInterface
+    fun updateOrderNumber(labelId: Long, data: String) {
+        val deserialized: Map<String, List<List<Long>>> = json.decodeFromString(serializer(), data)
+        val journalTextEntries = deserialized["journals"]!!.map { bookmarkControl.getJournalById(it[0])!!.apply { orderNumber = it[1].toInt() } }
+        val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(it[0], labelId)!!.apply { orderNumber = it[1].toInt() } }
+        bookmarkControl.updateOrderNumber(labelId, bookmarksToLabels, journalTextEntries)
+    }
+
+    @JavascriptInterface
+    fun toast(text: String) {
+        ABEventBus.getDefault().post(ToastEvent(text))
+    }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

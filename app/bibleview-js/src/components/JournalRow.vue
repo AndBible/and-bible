@@ -33,6 +33,9 @@
       <div class="journal-button" @click="deleteEntry">
         <FontAwesomeIcon icon="trash"/>
       </div>
+      <div class="drag-handle journal-button" @click.stop="showHelp">
+        <FontAwesomeIcon icon="sort"/>
+      </div>
     </JournalEditButtons>
     <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
       <b><a :href="journalEntry.bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b> <BookmarkText :bookmark="journalEntry"/>
@@ -72,6 +75,7 @@ export default {
   setup(props, {emit}) {
     const android = inject("android");
     const areYouSureDelete = ref(null);
+    const {strings, ...common} = useCommon();
 
     function journalTextChanged(newText) {
       if(props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
@@ -109,8 +113,12 @@ export default {
 
     }
 
+    function showHelp() {
+      android.toast(strings.dragHelp);
+    }
+
     return {addNewEntryAfter, editBookmark, journalText,
-      journalTextChanged, deleteEntry, editEntry, areYouSureDelete, JournalEntryTypes, ...useCommon()}
+      journalTextChanged, deleteEntry, editEntry, areYouSureDelete, JournalEntryTypes, showHelp, ...common}
   }
 }
 </script>

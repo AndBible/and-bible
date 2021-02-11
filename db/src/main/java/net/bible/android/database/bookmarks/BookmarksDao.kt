@@ -59,7 +59,7 @@ interface BookmarkDao {
         allBookmarksWithNotes(orderBy.name)
 
     @Query("SELECT * from Bookmark where id = :bookmarkId")
-    fun bookmarkById(bookmarkId: Long): Bookmark
+    fun bookmarkById(bookmarkId: Long): Bookmark?
 
     @Query("SELECT * from Bookmark where id IN (:bookmarkIds)")
     fun bookmarksByIds(bookmarkIds: List<Long>): List<Bookmark>

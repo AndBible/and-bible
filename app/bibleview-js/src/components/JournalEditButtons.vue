@@ -17,7 +17,9 @@
 
 <template>
   <div @click.stop="expanded=!expanded" :class="{'edit-buttons': expanded, 'menu': !expanded}">
-    <slot v-if="expanded"/>
+    <div class="between" v-show="expanded">
+      <slot/>
+    </div>
     <div class="journal-button">
       <FontAwesomeIcon icon="ellipsis-h"/>
     </div>
@@ -41,6 +43,9 @@ export default {
 <style scoped lang="scss">
 @import "~@/common.scss";
 
+.between {
+  display: flex;
+}
 .edit-buttons {
   background: var(--background-color);
   border-style: solid;

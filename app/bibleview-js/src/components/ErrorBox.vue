@@ -64,6 +64,7 @@ export default {
 
 <style scoped lang="scss">
 .logbox {
+  z-index: 3;
   font-size: 8pt;
   color: white;
   position: fixed;

@@ -237,7 +237,7 @@ if(process.env.NODE_ENV === "development") {
         b.fullText = "FULL TEXT!";
         //b.notes = "Bookmark notes asdf asdf asdf asdf";
     })
-    const mode = "bible"
+    const mode = "journal"
 
     if(mode === "bible") {
         testData = testData.map(

@@ -27,7 +27,7 @@ import {
     faEdit,
     faEllipsisH,
     faHeadphones,
-    faPlusCircle,
+    faPlusCircle, faSort,
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import Color from "color";
@@ -216,6 +216,7 @@ export function useStrings() {
         journalModalTitle: "Edit journal entry",
         doYouWantToDeleteEntry: "Are you sure you want to delete this journal entry?",
         removeJournalConfirmationTitle: "Remove journal entry?",
+        dragHelp: "You can drag & drop item to re-order journal",
     }
 }
 
@@ -267,6 +268,7 @@ export function useFontAwesome() {
     library.add(faPlusCircle)
     library.add(faTrash)
     library.add(faEllipsisH)
+    library.add(faSort)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {

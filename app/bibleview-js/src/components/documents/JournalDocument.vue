@@ -20,14 +20,25 @@
   <div v-if="journalEntries.length === 0">
     {{strings.emptyJournal}}
   </div>
-  <div v-for="j in journalEntries" :id="`${j.type}-${j.id}`" :key="`${j.type}-${j.id}`">
-    <JournalRow
-        :journal-entry="j"
-        :label="document.label"
-        @add="adding=true"
-        @edit-opened="editOpened(j)"
-    />
-  </div>
+  <draggable
+    v-model="journalEntries"
+    handle=".drag-handle"
+    group="journal-entries"
+    ghost-class="drag-ghost"
+    chosen-class="drag-chosen"
+    :item-key="(e) => `${e.type}-${e.id}`"
+  >
+    <template #item="{element: j}">
+    <div :id="`${j.type}-${j.id}`">
+      <JournalRow
+          :journal-entry="j"
+          :label="document.label"
+          @add="adding=true"
+          @edit-opened="editOpened(j)"
+      />
+    </div>
+    </template>
+  </draggable>
 </template>
 
 <script>
@@ -35,8 +46,10 @@ import {computed, ref} from "@vue/reactivity";
 import {inject, reactive, provide, nextTick} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import {Events, setupEventBusListener} from "@/eventbus";
-import {sortBy} from "lodash";
+import {groupBy, sortBy} from "lodash";
 import JournalRow from "@/components/JournalRow";
+import draggable from "vuedraggable";
+import {JournalEntryTypes} from "@/constants";
 
 function useJournal(label) {
   const journalTextEntries = reactive(new Map());
@@ -60,7 +73,7 @@ function useJournal(label) {
 
 export default {
   name: "JournalDocument",
-  components: {JournalRow},
+  components: {JournalRow, draggable},
   props: {
     document: {type: Object, required: true},
   },
@@ -70,6 +83,7 @@ export default {
     const journal = useJournal(label);
     provide("journal", journal);
     const {scrollToId} = inject("scroll");
+    const android = inject("android");
 
     const {journalTextEntries, updateJournalTextEntries, updateJournalOrdering, deleteJournal} = journal;
 
@@ -79,12 +93,30 @@ export default {
 
     globalBookmarks.updateBookmarks(...bookmarks);
 
-    const journalEntries = computed(() => {
-      let entries = [];
-      entries.push(...globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id)))
-      entries.push(...journalTextEntries.values())
-      entries = sortBy(entries, ['orderNumber']);
-      return entries;
+    const journalEntries = computed({
+      get:
+          () => {
+            let entries = [];
+            entries.push(...globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id)))
+            entries.push(...journalTextEntries.values())
+            entries = sortBy(entries, ['orderNumber']);
+            return entries;
+          },
+      set(values) {
+        let count = 0;
+        const changed = [];
+        for(const v of values) {
+          const newOrder = count++
+          if(v.orderNumber !== newOrder) {
+              changed.push(v);
+          }
+          v.orderNumber = newOrder;
+        }
+        const grouped = groupBy(changed, "type");
+        const bookmarks = grouped[JournalEntryTypes.BOOKMARK] || [];
+        const journals = grouped[JournalEntryTypes.JOURNAL_TEXT] || [];
+        android.updateOrderNumber(label.id, bookmarks, journals);
+      }
     });
     const adding = ref(false);
 
@@ -148,8 +180,21 @@ export default {
 }
 </style>
 
-<style>
+<style lang="scss">
 .highlight {
   font-weight: bold;
+}
+.drag-ghost {
+  background: rgba(0, 0, 0, 0.2);
+  .night & {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+.drag-chosen {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 50pt;
+  .night & {
+    background: rgba(255, 255, 255, 0.2);
+  }
 }
 </style>

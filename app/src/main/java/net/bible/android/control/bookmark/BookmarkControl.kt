@@ -116,6 +116,8 @@ open class BookmarkControl @Inject constructor(
 
     fun bookmarksByIds(ids: List<Long>): List<Bookmark> = dao.bookmarksByIds(ids)
 
+    fun bookmarkById(id: Long): Bookmark? = dao.bookmarkById(id)
+
     fun hasBookmarksForVerse(verse: Verse): Boolean = dao.hasBookmarksForVerse(verse)
 
     fun firstBookmarkStartingAtVerse(key: Verse): Bookmark? = dao.bookmarksStartingAtVerse(key).firstOrNull()
@@ -132,7 +134,7 @@ open class BookmarkControl @Inject constructor(
         ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks.map { it.id }))
     }
 
-    fun deleteBookmarksById(bookmarkIds: List<Long>) = deleteBookmarks(bookmarkIds.map { dao.bookmarkById(it) })
+    fun deleteBookmarksById(bookmarkIds: List<Long>) = deleteBookmarks(dao.bookmarksByIds(bookmarkIds))
 
     fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false): List<Bookmark> {
         val bookmarks = when {
@@ -222,7 +224,7 @@ open class BookmarkControl @Inject constructor(
 
     fun saveBookmarkNote(bookmarkId: Long, note: String?) {
         dao.saveBookmarkNote(bookmarkId, note)
-        val bookmark = dao.bookmarkById(bookmarkId)
+        val bookmark = dao.bookmarkById(bookmarkId)!!
         addLabels(bookmark)
         addText(bookmark)
         ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
@@ -288,14 +290,14 @@ open class BookmarkControl @Inject constructor(
 
     fun updateBookmarkToLabel(bookmarkToLabel: BookmarkToLabel) {
         dao.update(bookmarkToLabel)
-        val bookmark = dao.bookmarkById(bookmarkToLabel.bookmarkId)
+        val bookmark = dao.bookmarkById(bookmarkToLabel.bookmarkId)!!
         addText(bookmark)
         addLabels(bookmark)
         ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
     }
 
     fun updateBookmarkTimestamp(bookmarkId: Long) {
-        dao.updateBookmarkDate(dao.bookmarkById(bookmarkId))
+        dao.updateBookmarkDate(dao.bookmarkById(bookmarkId)!!)
     }
 
     fun getBookmarkToLabel(bookmarkId: Long, labelId: Long): BookmarkToLabel? = dao.getBookmarkToLabel(bookmarkId, labelId)
@@ -369,7 +371,7 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) {
-        val bookmark = dao.bookmarkById(bookmarkId)
+        val bookmark = dao.bookmarkById(bookmarkId)!!
         val labels = labelsForBookmark(bookmark).filter { it.id != labelId }
         setLabelsForBookmark(bookmark, labels)
     }
@@ -384,6 +386,12 @@ open class BookmarkControl @Inject constructor(
         val allLabels = dao.allLabelsSortedByName().filter { !it.isSpeakLabel }
         val thisIndex = allLabels.indexOf(label)
         return try {allLabels[thisIndex-1]} catch (e: IndexOutOfBoundsException) {allLabels[allLabels.size - 1]}
+    }
+
+    fun updateOrderNumber(labelId: Long, bookmarksToLabels: List<BookmarkToLabel>, journalTextEntries: List<JournalTextEntry>) {
+        dao.updateJournalTextEntries(journalTextEntries)
+        dao.updateBookmarkToLabels(bookmarksToLabels)
+        ABEventBus.getDefault().post(JournalEvent(labelId, null, bookmarksToLabels, journalTextEntries))
     }
 
 

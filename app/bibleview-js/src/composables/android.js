@@ -207,6 +207,18 @@ export function useAndroid({bookmarks}, config) {
         android.removeBookmarkLabel(bookmarkId, labelId);
     }
 
+    function updateOrderNumber(labelId, bookmarks, journals) {
+        const orderNumberPairs = l => l.map(v=>[v.id, v.orderNumber])
+        android.updateOrderNumber(labelId, JSON.stringify(
+            {bookmarks: orderNumberPairs(bookmarks), journals: orderNumberPairs(journals)}
+            )
+        );
+    }
+
+    function toast(text) {
+        android.toast(text);
+    }
+
     const exposed = {
         setActionMode,
         reportInputFocus,
@@ -224,6 +236,8 @@ export function useAndroid({bookmarks}, config) {
         createNewJournalEntry,
         deleteJournalEntry,
         removeBookmarkLabel,
+        updateOrderNumber,
+        toast,
     }
 
     if(config.developmentMode) return {
