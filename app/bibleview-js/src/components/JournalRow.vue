@@ -24,14 +24,17 @@
   </AreYouSure>
   <div class="note-container">
     <JournalEditButtons>
-      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="editBookmark">
-        <FontAwesomeIcon icon="bookmark"/>
-      </div>
       <div class="journal-button" @click="addNewEntryAfter">
         <FontAwesomeIcon icon="plus-circle"/>
       </div>
+      <div v-if="!journalText" class="journal-button" @click="editor.editMode = true">
+        <FontAwesomeIcon icon="edit"/>
+      </div>
       <div class="journal-button" @click="deleteEntry">
         <FontAwesomeIcon icon="trash"/>
+      </div>
+      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="editBookmark">
+        <FontAwesomeIcon icon="bookmark"/>
       </div>
       <div class="drag-handle journal-button" @click.stop="showHelp">
         <FontAwesomeIcon icon="sort"/>
@@ -42,6 +45,7 @@
     </template>
     <div class="notes">
       <EditableText
+          ref="editor"
           :show-placeholder="journalEntry.type === JournalEntryTypes.JOURNAL_TEXT"
           :edit-directly="journalEntry.new"
           :text="journalText"
@@ -113,8 +117,19 @@ export default {
       android.toast(strings.dragHelp);
     }
 
-    return {addNewEntryAfter, editBookmark, journalText,
-      journalTextChanged, deleteEntry, areYouSureDelete, JournalEntryTypes, showHelp, ...common}
+    return {
+      addNewEntryAfter,
+      editBookmark,
+      journalText,
+      journalTextChanged,
+      deleteEntry,
+      areYouSureDelete,
+      JournalEntryTypes,
+      showHelp,
+      editor: ref(null),
+      strings,
+      ...common
+    }
   }
 }
 </script>

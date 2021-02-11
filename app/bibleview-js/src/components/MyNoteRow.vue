@@ -26,6 +26,9 @@
     <div class="journal-button" @click="editBookmark">
       <FontAwesomeIcon icon="bookmark"/>
     </div>
+    <div v-if="!bookmark.notes" class="journal-button" @click="editor.editMode = true">
+      <FontAwesomeIcon icon="edit"/>
+    </div>
     <div class="journal-button" @click="deleteEntry">
       <FontAwesomeIcon icon="trash"/>
     </div>
@@ -34,6 +37,7 @@
     <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b> <BookmarkText :bookmark="bookmark"/> <LabelList :labels="labels"/>
     <div class="notes">
       <EditableText
+          ref="editor"
           :text="bookmark.notes"
           @save="save"
       />
@@ -84,7 +88,7 @@ export default {
       }
     }
 
-    return {labels, save, areYouSureDelete, editBookmark, deleteEntry, ...useCommon()}
+    return {labels, save, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), ...useCommon()}
   },
 }
 </script>
