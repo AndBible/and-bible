@@ -22,7 +22,7 @@
     </template>
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
-  <div class="note-container">
+  <div :style="indentStyle" class="note-container">
     <JournalEditButtons>
       <div class="journal-button" @click="addNewEntryAfter">
         <FontAwesomeIcon icon="plus-circle"/>
@@ -30,6 +30,15 @@
       <div v-if="!journalText" class="journal-button" @click="editor.editMode = true">
         <FontAwesomeIcon icon="edit"/>
       </div>
+
+      <div v-if="journalEntry.indentLevel > 0" class="journal-button" @click="indent(-1)">
+        <FontAwesomeIcon icon="outdent"/>
+      </div>
+
+      <div v-if="journalEntry.indentLevel < 4" class="journal-button" @click="indent(1)">
+        <FontAwesomeIcon icon="indent"/>
+      </div>
+
       <div class="journal-button" @click="deleteEntry">
         <FontAwesomeIcon icon="trash"/>
       </div>
@@ -113,8 +122,17 @@ export default {
       }
     }
 
+    const indentStyle = computed(() => {
+      const margin = props.journalEntry.indentLevel * 10;
+      return `margin-left: ${margin}pt;`;
+    });
+
     function showHelp() {
       android.toast(strings.dragHelp);
+    }
+
+    function indent(change) {
+      android.updateJournalEntry(props.journalEntry, {indentLevel: props.journalEntry.indentLevel + change})
     }
 
     return {
@@ -128,6 +146,8 @@ export default {
       showHelp,
       editor: ref(null),
       strings,
+      indentStyle,
+      indent,
       ...common
     }
   }

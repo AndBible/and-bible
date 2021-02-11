@@ -20,6 +20,7 @@ import {onMounted} from "@vue/runtime-core";
 import {calculateOffsetToVerse} from "@/dom";
 import {isFunction, union} from "lodash";
 import {reactive} from "@vue/reactivity";
+import {JournalEntryTypes} from "@/constants";
 
 let callId = 0;
 
@@ -219,6 +220,15 @@ export function useAndroid({bookmarks}, config) {
         android.toast(text);
     }
 
+    function updateJournalEntry(entry, changes) {
+        const changedEntry = {...entry, ...changes}
+        if(entry.type === JournalEntryTypes.JOURNAL_TEXT) {
+            android.updateJournalTextEntry(JSON.stringify(changedEntry));
+        } else if(entry.type === JournalEntryTypes.BOOKMARK) {
+            android.updateBookmarkToLabel(JSON.stringify(changedEntry));
+        }
+    }
+
     const exposed = {
         setActionMode,
         reportInputFocus,
@@ -237,6 +247,7 @@ export function useAndroid({bookmarks}, config) {
         deleteJournalEntry,
         removeBookmarkLabel,
         updateOrderNumber,
+        updateJournalEntry,
         toast,
     }
 

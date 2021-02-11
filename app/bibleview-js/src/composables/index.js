@@ -26,7 +26,7 @@ import {
     faBookmark,
     faEdit,
     faEllipsisH,
-    faHeadphones,
+    faHeadphones, faIndent, faOutdent,
     faPlusCircle, faSort,
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
@@ -270,6 +270,8 @@ export function useFontAwesome() {
     library.add(faTrash)
     library.add(faEllipsisH)
     library.add(faSort)
+    library.add(faIndent)
+    library.add(faOutdent)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {

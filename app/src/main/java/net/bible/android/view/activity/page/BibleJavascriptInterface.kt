@@ -25,6 +25,7 @@ import android.webkit.JavascriptInterface
 import kotlinx.serialization.serializer
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
@@ -159,6 +160,24 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun toast(text: String) {
         ABEventBus.getDefault().post(ToastEvent(text))
+    }
+
+    @JavascriptInterface
+    fun updateJournalTextEntry(data: String) {
+        val entry: BookmarkEntities.JournalTextEntry = json.decodeFromString(serializer(), data)
+        val journalTextEntry = bookmarkControl.getJournalById(entry.id)!!
+        journalTextEntry.indentLevel = entry.indentLevel
+        bookmarkControl.updateJournalTextEntry(journalTextEntry)
+    }
+
+    @JavascriptInterface
+    fun updateBookmarkToLabel(data: String) {
+        val entry: ClientBookmark = json.decodeFromString(serializer(), data)
+        entry.indentLevel
+        entry.journalLabelId
+        val bookmarkToLabel = bookmarkControl.getBookmarkToLabel(entry.id, entry.journalLabelId!!)!!
+        bookmarkToLabel.indentLevel = entry.indentLevel!!
+        bookmarkControl.updateBookmarkToLabel(bookmarkToLabel)
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
