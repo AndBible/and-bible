@@ -28,7 +28,6 @@
   import OsisDocument from "@/components/documents/OsisDocument";
   import {DocumentTypes} from "@/constants";
   import BibleDocument from "@/components/documents/BibleDocument";
-  import {provide} from "@vue/runtime-core";
   import MyNotesDocument from "@/components/documents/MyNotesDocument";
   import JournalDocument from "@/components/documents/JournalDocument";
   import MultiDocument from "@/components/documents/MultiDocument";
@@ -38,13 +37,7 @@
     props: {
       document: {type: Object, required: true},
     },
-    setup(props) {
-      if([DocumentTypes.BIBLE_DOCUMENT, DocumentTypes.OSIS_DOCUMENT].includes(props.document.type)) {
-        // eslint-disable-next-line vue/no-setup-props-destructure
-        const {bookInitials, bookName, bookAbbreviation, key} = props.document;
-        provide("documentInfo", {bookInitials, bookName, bookAbbreviation, key});
-      }
-
+    setup() {
       return {DocumentTypes}
     },
   }
