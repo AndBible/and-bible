@@ -215,15 +215,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
         val initialLabels = displaySettings.bookmarks!!.assignLabels!!.toList()
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
-
-        val actionTextColor = CommonUtils.getResourceColor(R.color.snackbar_action_text)
-        runOnUiThread {
-            val currentView = mainBibleActivity.findViewById<View>(R.id.coordinatorLayout)
-            Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_LONG)
-                .setActionTextColor(actionTextColor)
-                .setAction(R.string.assign_labels) { assignLabels(bookmark.id)
-                }.show()
-        }
     }
 
     internal fun assignLabels(bookmarkId: Long) = GlobalScope.launch(Dispatchers.IO) {
