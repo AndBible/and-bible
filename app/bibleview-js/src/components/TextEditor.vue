@@ -178,6 +178,7 @@ export default {
 
 .pell-actionbar {
   background-color: inherit;
+  color: rgba(0, 0, 0, 0.6);
   .night & {
     color: rgba(255, 255, 255, 0.5);
   }
