@@ -62,12 +62,6 @@ export function useGlobalBookmarks(config) {
         }
     }
 
-    function updateBookmarkOrdering(...bookmarkLabelEntries) {
-        for(const v of bookmarkLabelEntries) {
-            bookmarks.get(v.bookmarkId).orderNumber = v.orderNumber;
-        }
-    }
-
     function clearBookmarks() {
         bookmarks.clear();
     }
@@ -100,7 +94,7 @@ export function useGlobalBookmarks(config) {
 
     return {
         bookmarkLabels, bookmarkMap: bookmarks, bookmarks: filteredBookmarks, labelsUpdated,
-        updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks, updateBookmarkOrdering,
+        updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks,
     }
 }
 

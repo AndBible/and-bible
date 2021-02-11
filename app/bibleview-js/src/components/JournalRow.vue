@@ -22,46 +22,44 @@
     </template>
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
-  <div :style="indentStyle" class="note-container">
-    <JournalEditButtons>
-      <div class="journal-button" @click="addNewEntryAfter">
-        <FontAwesomeIcon icon="plus-circle"/>
-      </div>
-      <div v-if="!journalText" class="journal-button" @click="editor.editMode = true">
-        <FontAwesomeIcon icon="edit"/>
-      </div>
-
-      <div v-if="journalEntry.indentLevel > 0" class="journal-button" @click="indent(-1)">
-        <FontAwesomeIcon icon="outdent"/>
-      </div>
-
-      <div v-if="journalEntry.indentLevel < 4" class="journal-button" @click="indent(1)">
-        <FontAwesomeIcon icon="indent"/>
-      </div>
-
-      <div class="journal-button" @click="deleteEntry">
-        <FontAwesomeIcon icon="trash"/>
-      </div>
-      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="editBookmark">
-        <FontAwesomeIcon icon="bookmark"/>
-      </div>
-      <div class="drag-handle journal-button" @click.stop="showHelp">
-        <FontAwesomeIcon icon="sort"/>
-      </div>
-    </JournalEditButtons>
-    <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
-      <b><a :href="journalEntry.bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b> <BookmarkText :bookmark="journalEntry"/>
-    </template>
-    <div class="notes">
-      <EditableText
-          ref="editor"
-          :show-placeholder="journalEntry.type === JournalEntryTypes.JOURNAL_TEXT"
-          :edit-directly="journalEntry.new"
-          :text="journalText"
-          @opened="$emit('edit-opened')"
-          @save="journalTextChanged"
-      />
+  <JournalEditButtons>
+    <div class="journal-button" @click="addNewEntryAfter">
+      <FontAwesomeIcon icon="plus-circle"/>
     </div>
+    <div v-if="!journalText" class="journal-button" @click="editor.editMode = true">
+      <FontAwesomeIcon icon="edit"/>
+    </div>
+
+    <div v-if="journalEntry.indentLevel > 0" class="journal-button" @click="indent(-1)">
+      <FontAwesomeIcon icon="outdent"/>
+    </div>
+
+    <div v-if="journalEntry.indentLevel < 4" class="journal-button" @click="indent(1)">
+      <FontAwesomeIcon icon="indent"/>
+    </div>
+
+    <div class="journal-button" @click="deleteEntry">
+      <FontAwesomeIcon icon="trash"/>
+    </div>
+    <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="editBookmark">
+      <FontAwesomeIcon icon="bookmark"/>
+    </div>
+    <div class="drag-handle journal-button" @click.stop="showHelp">
+      <FontAwesomeIcon icon="sort"/>
+    </div>
+  </JournalEditButtons>
+  <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
+    <b><a :href="journalEntry.bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b> <BookmarkText :bookmark="journalEntry"/>
+  </template>
+  <div class="notes">
+    <EditableText
+        ref="editor"
+        :show-placeholder="journalEntry.type === JournalEntryTypes.JOURNAL_TEXT"
+        :edit-directly="journalEntry.new"
+        :text="journalText"
+        @opened="$emit('edit-opened')"
+        @save="journalTextChanged"
+    />
   </div>
 </template>
 
@@ -122,11 +120,6 @@ export default {
       }
     }
 
-    const indentStyle = computed(() => {
-      const margin = props.journalEntry.indentLevel * 10;
-      return `margin-left: ${margin}pt;`;
-    });
-
     function showHelp() {
       android.toast(strings.dragHelp);
     }
@@ -146,7 +139,6 @@ export default {
       showHelp,
       editor: ref(null),
       strings,
-      indentStyle,
       indent,
       ...common
     }

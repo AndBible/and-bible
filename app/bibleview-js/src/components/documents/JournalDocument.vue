@@ -29,7 +29,7 @@
     :item-key="(e) => `${e.type}-${e.id}`"
   >
     <template #item="{element: j}">
-    <div :id="`${j.type}-${j.id}`">
+    <div class="note-container" :style="indentStyle(j)" :id="`${j.type}-${j.id}`">
       <JournalRow
           :journal-entry="j"
           :label="document.label"
@@ -150,7 +150,7 @@ export default {
         journal.new = true
         adding.value = false;
       }
-      globalBookmarks.updateBookmarkOrdering(...bookmarkToLabelsOrdered);
+      updateBookmarkToLabels(...bookmarkToLabelsOrdered);
       updateJournalOrdering(...journalsOrdered);
       if(journal) {
         updateJournalTextEntries(journal);
@@ -184,8 +184,13 @@ export default {
       scrollToId(`${entry.type}-${entry.id}`, {duration: 300})
     }
 
+    function indentStyle(entry) {
+      const margin = entry.indentLevel * 10;
+      return `margin-left: ${margin}pt;`;
+    }
+
     return {
-      journalEntries, editNotes, adding,
+      journalEntries, editNotes, adding, indentStyle,
       labelsFor, editableJournalEntry,  editOpened,
       ...useCommon()
     }
@@ -221,7 +226,6 @@ export default {
 }
 .drag-chosen {
   background: rgba(0, 0, 0, 0.2);
-  border-radius: 50pt;
   .night & {
     background: rgba(255, 255, 255, 0.2);
   }
