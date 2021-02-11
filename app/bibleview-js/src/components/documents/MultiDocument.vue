@@ -20,20 +20,18 @@
     <div class="ref-link">
       <a :href="link(fragment)">{{fragment.keyName}}</a>
     </div>
-    <OsisSegment convert :osis-template="fragment.xml"/>
-    <FeaturesLink :fragment="fragment"/>
+    <OsisFragment :fragment="fragment"/>
     <div v-if="index < osisFragments.length - 1" class="separator"/>
   </div>
 </template>
 
 <script>
-import OsisSegment from "@/components/documents/OsisSegment";
 import {useCommon} from "@/composables";
-import FeaturesLink from "@/components/FeaturesLink";
+import OsisFragment from "@/components/documents/OsisFragment";
 
 export default {
   name: "MultiDocument",
-  components: {OsisSegment, FeaturesLink},
+  components: {OsisFragment},
   props: {
     document: {type: Object, required: true},
   },

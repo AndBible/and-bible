@@ -85,24 +85,32 @@ class CurrentGeneralBookPage internal constructor(
 
     override fun next() {
         val key = key
-        if(key is JournalKey) {
-            val nextLabel = pageManager.bookmarkControl.getNextLabel(key.label)
-            setKey(JournalKey(nextLabel))
-        } else {
-            getKeyPlus(1).let {
-                setKey(it)
+        when (currentDocument) {
+            FakeBookFactory.journalDocument -> {
+                val nextLabel = pageManager.bookmarkControl.getNextLabel((key as JournalKey).label)
+                setKey(JournalKey(nextLabel))
+            }
+            FakeBookFactory.multiDocument -> {}
+            else -> {
+                getKeyPlus(1).let {
+                    setKey(it)
+                }
             }
         }
     }
 
     override fun previous() {
         val key = key
-        if(key is JournalKey) {
-            val nextLabel = pageManager.bookmarkControl.getPrevLabel(key.label)
-            setKey(JournalKey(nextLabel))
-        } else {
-            getKeyPlus(-1).let {
-                setKey(it)
+        when (currentDocument) {
+            FakeBookFactory.journalDocument -> {
+                val nextLabel = pageManager.bookmarkControl.getPrevLabel((key as JournalKey).label)
+                setKey(JournalKey(nextLabel))
+            }
+            FakeBookFactory.multiDocument -> {}
+            else -> {
+                getKeyPlus(-1).let {
+                    setKey(it)
+                }
             }
         }
     }

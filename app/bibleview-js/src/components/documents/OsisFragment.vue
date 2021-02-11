@@ -22,16 +22,20 @@
         <OsisSegment :osis-template="template" />
       </div>
     </transition-group>
+    <OpenAllLink/>
     <FeaturesLink :fragment="fragment"/>
   </div>
 </template>
 
 <script>
 import {reactive, ref} from "@vue/reactivity";
-import {useStrings} from "@/composables";
+import {provide} from "@vue/runtime-core";
+import {useReferenceCollector, useStrings} from "@/composables";
 import {AutoSleep, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment";
 import FeaturesLink from "@/components/FeaturesLink";
+import {BookCategories} from "@/constants";
+import OpenAllLink from "@/components/OpenAllLink";
 
 const parser = new DOMParser();
 
@@ -41,17 +45,25 @@ export default {
     showTransition: {type: Boolean, default: false},
     fragment: {type: Object, required: true},
   },
-  components: {FeaturesLink, OsisSegment},
+  components: {OpenAllLink, FeaturesLink, OsisSegment},
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure
     const {
       xml,
       key: fragmentKey,
+      bookCategory,
     } = props.fragment;
 
     const fragmentReady = ref(!props.showTransition);
     const strings = useStrings();
     const fragElement = ref(null);
+    provide("osisFragment", props.fragment)
+
+    const referenceCollector = useReferenceCollector();
+
+    if(bookCategory === BookCategories.COMMENTARIES) {
+      provide("referenceCollector", referenceCollector);
+    }
 
     const template = osisToTemplateString(xml)
     const templates = reactive([]);

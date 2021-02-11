@@ -189,6 +189,7 @@ class OsisFragment(
             "xml" to "`${xml.replace("`", "\\`")}`",
             "key" to wrapString(keyStr),
             "keyName" to wrapString(key.name),
+            "bookCategory" to wrapString(book.bookCategory.name),
             "bookInitials" to wrapString(book.initials),
             "osisRef" to wrapString(key.osisRef),
             "features" to json.encodeToString(serializer(), features),

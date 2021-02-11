@@ -24,9 +24,7 @@
     </span>
     <Modal @close="showNote = false" v-if="showNote">
       <slot/>
-      <div class="open-all" v-if="openAllLink">
-        <a :href="openAllLink">{{strings.openAll}}</a>
-      </div>
+      <OpenAllLink/>
       <template #title>
         {{isFootNote ? sprintf(strings.noteText, typeStr) : strings.crossReferenceText }}
       </template>
@@ -40,7 +38,7 @@ import Modal from "@/components/modals/Modal";
 import {get} from "lodash";
 import {ref, provide} from "@vue/runtime-core";
 import {addEventFunction} from "@/utils";
-import {computed} from "@vue/reactivity";
+import OpenAllLink from "@/components/OpenAllLink";
 
 let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
@@ -51,7 +49,7 @@ function runningHandle() {
 
 export default {
   name: "Note",
-  components: {Modal},
+  components: {OpenAllLink, Modal},
   noContentTag: true,
   props: {
     osisID: {type: String, default: null},
@@ -93,13 +91,7 @@ export default {
     const referenceCollector = useReferenceCollector();
     provide("referenceCollector", referenceCollector);
 
-    const openAllLink = computed(() => {
-        const refs = referenceCollector.references;
-        if(refs.length < 2) return null;
-        return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&")
-    });
-
-    return {strings, typeStrings, showNote, noteClicked, ...common, openAllLink};
+    return {strings, typeStrings, showNote, noteClicked, ...common};
   },
 }
 </script>

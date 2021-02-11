@@ -28,3 +28,8 @@ export const JournalEntryTypes = {
     BOOKMARK: "bookmark",
     JOURNAL_TEXT: "journal",
 }
+
+export const BookCategories = {
+    BIBLE: "BIBLE",
+    COMMENTARIES: "COMMENTARY",
+}

@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   -
   - This file is part of And Bible (http://github.com/AndBible/and-bible).
   -
@@ -16,27 +16,31 @@
   -->
 
 <template>
-  <p>
-    <img alt="Image" class="imageStyle" :src="`/module/${bookInitials}/${src}`"/><slot/>
-  </p>
+  <div class="open-all" v-if="openAllLink">
+    <a :href="openAllLink">{{strings.openAll}}</a>
+  </div>
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {computed} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
+import {useCommon} from "@/composables";
 
 export default {
-  name: "Figure",
-  props: {src: {type: String, required: true}},
+  name: "OpenAllLink",
   setup() {
-    const {bookInitials} = inject("osisFragment");
-    return {...useCommon(), bookInitials};
-  },
+    const referenceCollector = inject("referenceCollector", null);
+    const openAllLink = computed(() => {
+      if(referenceCollector === null) return null;
+      const refs = referenceCollector.references;
+      if(refs.length < 2) return null;
+      return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&")
+    });
+    return {openAllLink, ...useCommon()}
+  }
 }
 </script>
 
 <style scoped>
-.imageStyle {
-  max-width: 100%;
-}
+
 </style>

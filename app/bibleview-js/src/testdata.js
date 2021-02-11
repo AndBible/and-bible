@@ -256,6 +256,7 @@ if(process.env.NODE_ENV === "development") {
                         xml: v,
                         key: `KJV--${count++}`,
                         features: {},
+                        bookCategory: "BIBLE",
                     }
                 ],
                 bookInitials: "KJV",
@@ -287,7 +288,8 @@ if(process.env.NODE_ENV === "development") {
                         xml: v,
                         keyName: "Key name",
                         osisRef: "Gen.1.1",
-                        features: {type: "strongs", keyName: "ASDF"}
+                        features: {type: "strongs", keyName: "ASDF"},
+                        bookCategory: "BIBLE",
                     }
                 ],
                 bookInitials: "KJV",
