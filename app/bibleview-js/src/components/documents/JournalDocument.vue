@@ -175,10 +175,6 @@ export default {
 
     const editableJournalEntry = ref(null);
 
-    function labelsFor(b) {
-      return b.labels.map(l => globalBookmarks.bookmarkLabels.get(l));
-    }
-
     async function editOpened(entry) {
       await nextTick();
       scrollToId(`${entry.type}-${entry.id}`, {duration: 300})
@@ -191,7 +187,7 @@ export default {
 
     return {
       journalEntries, editNotes, adding, indentStyle,
-      labelsFor, editableJournalEntry,  editOpened,
+      editableJournalEntry,  editOpened,
       ...useCommon()
     }
   }
