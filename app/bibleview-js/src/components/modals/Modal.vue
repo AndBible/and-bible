@@ -84,6 +84,9 @@ export default {
   background-color: rgba(0,0,0,0.5);
 }
 
+$border-radius: 8pt;
+$border-radius2: $border-radius - 1.5pt;
+
 .modal-content {
   opacity: 0.95;
   z-index: 5;
@@ -102,6 +105,7 @@ export default {
     background-color: black;
     color: #bdbdbd;
   }
+  border-radius: $border-radius;
 }
 
 @keyframes animatetop {
@@ -114,6 +118,7 @@ export default {
   background-color: #acacac;
   color: white;
   font-weight: bold;
+  border-radius: $border-radius2 $border-radius2 0 0;
 
   .night & {
     background-color: #454545;
@@ -129,6 +134,7 @@ export default {
 }
 
 .modal-footer {
+  border-radius: 0 0 $border-radius2 $border-radius2;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
