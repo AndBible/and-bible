@@ -101,7 +101,9 @@ export default {
           if(v.orderNumber !== newOrder) {
               changed.push(v);
           }
+          v.bookmarkToLabel.orderNumber = newOrder;
           v.orderNumber = newOrder;
+
         }
         const grouped = groupBy(changed, "type");
         const bookmarks = grouped[JournalEntryTypes.BOOKMARK] || [];
