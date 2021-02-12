@@ -44,12 +44,13 @@ import {h} from "@vue/runtime-core";
 import Foreign from "@/components/OSIS/Foreign";
 import Figure from "@/components/OSIS/Figure";
 import A from "@/components/OSIS/A";
+import Abbr from "@/components/OSIS/Abbr";
 import {osisToTemplateString} from "@/utils";
 
 const components = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,
   DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
-  Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A
+  Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr
 }
 
 function prefixComponents() {

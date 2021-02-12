@@ -234,6 +234,7 @@ if(process.env.NODE_ENV === "development") {
         b.verseRange = "Philipians 1:2";
         b.bibleUrl = "http://asdf";
         b.fullText = "FULL TEXT!";
+        //b.bookmarkToLabel = {orderNumber: 1, indentLevel: 1};
         //b.notes = "Bookmark notes asdf asdf asdf asdf";
     })
 
@@ -245,7 +246,7 @@ if(process.env.NODE_ENV === "development") {
             indentLevel: 1,
         }))
 
-    const mode = "multi"
+    const mode = "journal"
 
     if(mode === "bible") {
         testData = testData.map(

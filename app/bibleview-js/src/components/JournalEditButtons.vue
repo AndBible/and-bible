@@ -77,6 +77,7 @@ export default {
   justify-content: flex-end;
   z-index: 1;
   top: 0;
+  opacity: 0.8;
 }
 
 .menu {

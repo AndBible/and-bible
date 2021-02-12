@@ -101,7 +101,9 @@ export default {
           if(v.orderNumber !== newOrder) {
               changed.push(v);
           }
-          v.bookmarkToLabel.orderNumber = newOrder;
+          if(v.type === JournalEntryTypes.BOOKMARK) {
+            v.bookmarkToLabel.orderNumber = newOrder;
+          }
           v.orderNumber = newOrder;
 
         }

@@ -16,34 +16,23 @@
   -->
 
 <template>
-  <div class="open-all" v-if="openAllLink">
-    <a :href="openAllLink">{{strings.openAll}}</a>
-  </div>
+  <span class="abbreviation"><slot/></span>
 </template>
 
 <script>
-import {computed} from "@vue/reactivity";
-import {inject} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 
 export default {
-  name: "OpenAllLink",
+  name: "Abbr",
+  props: {expansion: {type: String, required: true}},
   setup() {
-    const referenceCollector = inject("referenceCollector", null);
-    const openAllLink = computed(() => {
-      if(referenceCollector === null) return null;
-      const refs = referenceCollector.references;
-      if(refs.length < 2) return null;
-      return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&")
-    });
-    return {openAllLink, ...useCommon()}
-  }
+    return useCommon();
+  },
 }
 </script>
 
 <style scoped>
-.open-all {
-  padding-top: 1em;
-  text-align: right;
+.abbreviation {
+
 }
 </style>
