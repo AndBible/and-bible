@@ -215,6 +215,7 @@ data class ClientBookmark(val id: Long,
                           val verseRangeAbbreviated: String,
                           val text: String?,
                           val fullText: String?,
+                          val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>?
 ) {
     constructor(bookmark: BookmarkEntities.Bookmark, v11n: Versification? = null) :
         this(id = bookmark.id,
@@ -235,6 +236,7 @@ data class ClientBookmark(val id: Long,
             text = bookmark.text,
             fullText = bookmark.fullText,
             bibleUrl = getUrl(bookmark),
+            bookmarkToLabels = bookmark.bookmarkToLabels
         )
 
     val type: String = "bookmark"

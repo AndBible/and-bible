@@ -288,6 +288,14 @@ export function useJournal(label) {
     const journalTextEntries = reactive(new Map());
     const bookmarkToLabels = reactive(new Map());
 
+    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, bookmarks => {
+        for(const b of bookmarks) {
+            if(b.bookmarkToLabels) {
+                updateBookmarkToLabels(...b.bookmarkToLabels);
+            }
+        }
+    });
+
     function updateJournalTextEntries(...entries) {
         for(const e of entries)
             if(e.labelId === label.id)

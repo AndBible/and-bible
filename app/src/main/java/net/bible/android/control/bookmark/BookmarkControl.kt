@@ -249,6 +249,7 @@ open class BookmarkControl @Inject constructor(
 
     private fun addLabels(b: Bookmark) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b.id)
+        b.bookmarkToLabels = bookmarkToLabels
         b.labelIds = bookmarkToLabels.map { it.labelId }
     }
 

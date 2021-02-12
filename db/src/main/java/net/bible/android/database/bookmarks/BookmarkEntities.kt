@@ -192,6 +192,7 @@ class BookmarkEntities {
                 null
             }
         @Ignore var labelIds: List<Long>? = null
+        @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
         @Ignore var text: String? = null
         @Ignore var fullText: String? = null
     }
