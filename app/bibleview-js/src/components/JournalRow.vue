@@ -92,7 +92,7 @@ export default {
       if(props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
         android.saveBookmarkNote(props.journalEntry.id, newText);
       } else if(props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) {
-        android.updateJournalTextEntry(props.journalEntry);
+        android.updateJournalEntry(props.journalEntry, {text: newText});
       }
     }
     const journalText = computed(() => {

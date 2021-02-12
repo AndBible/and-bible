@@ -108,19 +108,6 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun updateJournalTextEntry(id: Long, labelId: Long, text: String, indentLevel: Int, orderNum: Int) {
-        bookmarkControl.updateJournalTextEntry(
-            BookmarkEntities.JournalTextEntry(
-                id = id,
-                labelId = labelId,
-                text = text,
-                indentLevel = indentLevel,
-                orderNumber = orderNum
-            )
-        )
-    }
-
-    @JavascriptInterface
     fun createNewJournalEntry(labelId: Long, entryType: String, afterEntryId: Long) {
         val entryOrderNumber: Int = when (entryType) {
             "bookmark" -> bookmarkControl.getBookmarkToLabel(afterEntryId, labelId)!!.orderNumber
@@ -152,9 +139,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun updateJournalTextEntry(data: String) {
         val entry: BookmarkEntities.JournalTextEntry = json.decodeFromString(serializer(), data)
-        val journalTextEntry = bookmarkControl.getJournalById(entry.id)!!
-        journalTextEntry.indentLevel = entry.indentLevel
-        bookmarkControl.updateJournalTextEntry(journalTextEntry)
+        bookmarkControl.updateJournalTextEntry(entry)
     }
 
     @JavascriptInterface
