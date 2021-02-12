@@ -19,6 +19,9 @@
   <div @click.stop="expanded=!expanded" :class="{'edit-buttons': expanded, 'menu': !expanded}">
     <div class="between" v-show="expanded">
       <slot/>
+      <div v-if="showDragHandle" class="drag-handle journal-button" @click.stop="showHelp" @touchend="expanded=false">
+        <FontAwesomeIcon icon="sort"/>
+      </div>
     </div>
     <div class="journal-button">
       <FontAwesomeIcon icon="ellipsis-h"/>
@@ -29,14 +32,18 @@
 <script>
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {ref} from "@vue/reactivity";
-import {watch} from "@vue/runtime-core";
+import {inject, watch} from "@vue/runtime-core";
+import {useCommon} from "@/composables";
 
 let cancel = () => {}
 
 export default {
   name: "JournalEditButtons",
+  props: {showDragHandle: {type: Boolean, default: false}},
   components: {FontAwesomeIcon},
   setup() {
+    const android = inject("android");
+    const {strings, ...common} = useCommon();
     const expanded = ref(false);
     function close() {
       expanded.value = false
@@ -51,7 +58,11 @@ export default {
         }
       }
     })
-    return {expanded};
+    function showHelp() {
+      android.toast(strings.dragHelp);
+    }
+
+    return {expanded, showHelp, strings, ...common};
   }
 }
 </script>

@@ -22,7 +22,7 @@
     </template>
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
-  <JournalEditButtons>
+  <JournalEditButtons show-drag-handle>
     <div class="journal-button" @click="addNewEntryAfter">
       <FontAwesomeIcon icon="plus-circle"/>
     </div>
@@ -43,9 +43,6 @@
     </div>
     <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="editBookmark">
       <FontAwesomeIcon icon="bookmark"/>
-    </div>
-    <div class="drag-handle journal-button" @click.stop="showHelp">
-      <FontAwesomeIcon icon="sort"/>
     </div>
   </JournalEditButtons>
   <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
@@ -120,10 +117,6 @@ export default {
       }
     }
 
-    function showHelp() {
-      android.toast(strings.dragHelp);
-    }
-
     function indent(change) {
       android.updateJournalEntry(props.journalEntry, {indentLevel: props.journalEntry.indentLevel + change})
     }
@@ -136,7 +129,6 @@ export default {
       deleteEntry,
       areYouSureDelete,
       JournalEntryTypes,
-      showHelp,
       editor: ref(null),
       strings,
       indent,
