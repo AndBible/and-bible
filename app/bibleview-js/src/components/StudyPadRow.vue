@@ -18,11 +18,11 @@
 <template>
   <AreYouSure ref="areYouSureDelete">
     <template #title>
-      {{ strings.removeJournalConfirmationTitle }}
+      {{ strings.removeStudyPadConfirmationTitle }}
     </template>
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
-  <JournalEditButtons show-drag-handle>
+  <EditButtonRow show-drag-handle>
     <div class="journal-button" @click="addNewEntryAfter">
       <FontAwesomeIcon icon="plus-circle"/>
     </div>
@@ -44,7 +44,7 @@
     <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="editBookmark">
       <FontAwesomeIcon icon="bookmark"/>
     </div>
-  </JournalEditButtons>
+  </EditButtonRow>
   <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
     <b><a :href="journalEntry.bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b> <BookmarkText :bookmark="journalEntry"/>
   </template>
@@ -63,7 +63,7 @@
 <script>
 import BookmarkText from "@/components/BookmarkText";
 import EditableText from "@/components/EditableText";
-import JournalEditButtons from "@/components/JournalEditButtons";
+import EditButtonRow from "@/components/EditButtonRow";
 import {emit as ebEmit, Events} from "@/eventbus";
 import {inject} from "@vue/runtime-core";
 import AreYouSure from "@/components/modals/AreYouSure";
@@ -73,8 +73,8 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 
 export default {
-  name: "JournalRow",
-  components: {JournalEditButtons, EditableText, BookmarkText, AreYouSure, FontAwesomeIcon},
+  name: "StudyPadRow",
+  components: {EditButtonRow, EditableText, BookmarkText, AreYouSure, FontAwesomeIcon},
   emits: ['edit-opened', 'add'],
   props: {
     journalEntry: {type: Object, required:true},

@@ -33,7 +33,7 @@
   >
     <template #item="{element: j}">
     <div class="note-container" :style="indentStyle(j)" :id="`${j.type}-${j.id}`">
-      <JournalRow
+      <StudyPadRow
           :journal-entry="j"
           :label="document.label"
           @add="adding=true"
@@ -50,14 +50,14 @@ import {inject, provide, nextTick} from "@vue/runtime-core";
 import {useCommon, useJournal} from "@/composables";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";
-import JournalRow from "@/components/JournalRow";
+import StudyPadRow from "@/components/StudyPadRow";
 import draggable from "vuedraggable";
 import {JournalEntryTypes} from "@/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 export default {
-  name: "JournalDocument",
-  components: {JournalRow, draggable, FontAwesomeIcon},
+  name: "StudyPadDocument",
+  components: {StudyPadRow, draggable, FontAwesomeIcon},
   props: {
     document: {type: Object, required: true},
   },

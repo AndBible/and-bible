@@ -38,7 +38,7 @@ import {useCommon} from "@/composables";
 let cancel = () => {}
 
 export default {
-  name: "JournalEditButtons",
+  name: "EditButtonRow",
   props: {showDragHandle: {type: Boolean, default: false}},
   components: {FontAwesomeIcon},
   setup() {

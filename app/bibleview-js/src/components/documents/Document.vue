@@ -19,7 +19,7 @@
   <BibleDocument v-else-if="document.type === DocumentTypes.BIBLE_DOCUMENT" :document="document"/>
   <ErrorDocument v-else-if="document.type === DocumentTypes.ERROR_DOCUMENT" :document="document"/>
   <MyNotesDocument v-else-if="document.type === DocumentTypes.MY_NOTES" :document="document"/>
-  <JournalDocument v-else-if="document.type === DocumentTypes.JOURNAL" :document="document"/>
+  <StudyPadDocument v-else-if="document.type === DocumentTypes.JOURNAL" :document="document"/>
   <MultiDocument v-else-if="document.type === DocumentTypes.MULTI" :document="document"/>
 </template>
 
@@ -29,11 +29,11 @@
   import {DocumentTypes} from "@/constants";
   import BibleDocument from "@/components/documents/BibleDocument";
   import MyNotesDocument from "@/components/documents/MyNotesDocument";
-  import JournalDocument from "@/components/documents/JournalDocument";
+  import StudyPadDocument from "@/components/documents/StudyPadDocument";
   import MultiDocument from "@/components/documents/MultiDocument";
   export default {
     name: "Document",
-    components: {MultiDocument, MyNotesDocument, BibleDocument, ErrorDocument, OsisDocument, JournalDocument},
+    components: {MultiDocument, MyNotesDocument, BibleDocument, ErrorDocument, OsisDocument, StudyPadDocument},
     props: {
       document: {type: Object, required: true},
     },

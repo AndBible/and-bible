@@ -22,7 +22,7 @@
     </template>
     {{ strings.removeBookmarkConfirmation }}
   </AreYouSure>
-  <JournalEditButtons>
+  <EditButtonRow>
     <div class="journal-button" @click="editBookmark">
       <FontAwesomeIcon icon="bookmark"/>
     </div>
@@ -32,7 +32,7 @@
     <div class="journal-button" @click="deleteEntry">
       <FontAwesomeIcon icon="trash"/>
     </div>
-  </JournalEditButtons>
+  </EditButtonRow>
   <div>
     <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b> <BookmarkText :bookmark="bookmark"/> <LabelList :labels="labels"/>
     <div class="notes">
@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import JournalEditButtons from "@/components/JournalEditButtons";
+import EditButtonRow from "@/components/EditButtonRow";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
@@ -59,7 +59,7 @@ import AreYouSure from "@/components/modals/AreYouSure";
 
 export default {
   name: "MyNoteRow",
-  components: {JournalEditButtons, FontAwesomeIcon, LabelList, BookmarkText, EditableText, AreYouSure},
+  components: {EditButtonRow, FontAwesomeIcon, LabelList, BookmarkText, EditableText, AreYouSure},
   props: {
     bookmark: {type: Object, required: true},
   },
