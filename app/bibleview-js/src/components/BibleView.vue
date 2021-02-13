@@ -34,7 +34,7 @@
 <script>
   import Document from "@/components/documents/Document";
   import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
-  import {useConfig, useFontAwesome, useStrings, useVerseNotifier} from "@/composables";
+  import {useConfig, useFontAwesome, useStrings, useVerseMap, useVerseNotifier} from "@/composables";
   import {testBookmarkLabels, testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/composables/infinite-scroll";
@@ -60,7 +60,9 @@
       const documents = reactive([]);
       window.bibleViewDebug.documents = documents;
       const topElement = ref(null);
-      const scroll = useScroll(config);
+      const verseMap = useVerseMap();
+      provide("verseMap", verseMap);
+      const scroll = useScroll(config, verseMap);
       const {scrollToId} = scroll;
       provide("scroll", scroll);
       const globalBookmarks = useGlobalBookmarks(config);

@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span class="highlight-transition" :class="{isHighlighted: !timeout && isInOriginalOrdinalRange}">
+  <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
     <span
         :id="`v-${ordinal}`"
         class="verse bookmarkStyle"
@@ -48,10 +48,13 @@ export default {
     verseInfo.showStack = reactive([shown]);
 
     provide("verseInfo", verseInfo);
+    const verseMap = inject("verseMap");
 
     const ordinal = computed(() => {
       return parseInt(props.verseOrdinal);
     });
+
+    verseMap.register(ordinal.value, {highlight});
 
     const book = computed(() => {
       return props.osisID.split(".")[0]
@@ -68,12 +71,23 @@ export default {
     const {originalOrdinalRange} = inject("bibleDocumentInfo", {})
 
     const timeout = ref(false);
-    sleep(3000).then(() => timeout.value = true)
 
     const isInOriginalOrdinalRange = computed(() => {
       if(!originalOrdinalRange) return false
       return ordinal.value <= originalOrdinalRange[1] && ordinal.value >= originalOrdinalRange[0];
     });
+
+    const highlighted = ref(false);
+
+    function highlight() {
+      timeout.value = false;
+      highlighted.value = true;
+      sleep(3000).then(() => timeout.value = true)
+    }
+
+    if(isInOriginalOrdinalRange.value) {
+      sleep(3000).then(() => timeout.value = true)
+    }
 
     const common = useCommon();
     return {
@@ -83,6 +97,7 @@ export default {
       chapter,
       verse,
       shown,
+      highlighted,
       isInOriginalOrdinalRange,
       ...common,
     }
@@ -94,6 +109,7 @@ export default {
 .linebreak {
   display: block;
 }
+
 .highlight-transition {
   transition: background-color 1s ease;
 }

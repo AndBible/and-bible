@@ -950,7 +950,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: ScrollSecondaryWindowEvent) {
         if (window == event.window) {
-            scrollOrJumpToVerseOnUIThread(event.verse)
+            scrollOrJumpToVerse(event.verse, window.restoreOngoing)
         }
     }
 
@@ -1052,19 +1052,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    /** move the view so the selected verse is at the top or at least visible
-     * @param verse
-     */
-    fun scrollOrJumpToVerseOnUIThread(verse: Verse) {
-        val restoreOngoing = window.restoreOngoing
-        runOnUiThread {
-            scrollOrJumpToVerse(verse, restoreOngoing)
-        }
-    }
-
-    /** move the view so the selected verse is at the top or at least visible
-     */
-    private fun scrollOrJumpToVerse(verse: Verse, restoreOngoing: Boolean = false) {
+    fun scrollOrJumpToVerse(verse: Verse, restoreOngoing: Boolean = false) {
         Log.d(TAG, "Scroll or jump to:$verse")
         var toVerse = verse;
         val v = initialVerse
@@ -1073,7 +1061,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         val jumpToId = "v-${toVerse.ordinal}"
         val now = if(!contentVisible || restoreOngoing) "true" else "false"
-        executeJavascript("bibleView.emit('scroll_to_verse', '$jumpToId', {now: $now, delta: $topOffset});")
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: $now, highlight: $now, ordinal: ${toVerse.ordinal}, delta: $topOffset});")
     }
 
     private fun executeJavascriptOnUiThread(javascript: String) {

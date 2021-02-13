@@ -18,7 +18,7 @@
 import {nextTick} from "@vue/runtime-core";
 import {Events, setupEventBusListener} from "@/eventbus";
 
-export function useScroll(config) {
+export function useScroll(config, {getVerses}) {
     let currentScrollAnimation = null;
 
     function setToolbarOffset(topOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
@@ -84,11 +84,14 @@ export function useScroll(config) {
         }
     }
 
-    function scrollToId(toId, {now = false, delta = config.topOffset, force = false, duration = 1000} = {}) {
+    function scrollToId(toId, {now = false, highlight = false, ordinal = null, delta = config.topOffset, force = false, duration = 1000} = {}) {
         console.log("scrollToId", toId, now, delta);
         stopScrolling();
         if(delta !== config.topOffset) {
             config.topOffset = delta;
+        }
+        if(highlight) {
+            getVerses(ordinal).forEach(o => o.highlight())
         }
         let toElement = document.getElementById(toId)
         if(force && toElement == null) {

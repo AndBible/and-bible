@@ -333,3 +333,19 @@ export function useReferenceCollector() {
     }
     return {references, collect}
 }
+
+export function useVerseMap() {
+    const verses = new Map();
+    function register(ordinal, obj) {
+        let array = verses.get(ordinal);
+        if(array === undefined) {
+            array = [];
+            verses.set(ordinal, array);
+        }
+        array.push(obj);
+    }
+    function getVerses(ordinal) {
+        return verses.get(ordinal) || []
+    }
+    return {register, getVerses}
+}
