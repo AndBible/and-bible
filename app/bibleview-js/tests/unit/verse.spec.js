@@ -18,10 +18,11 @@
 
 import {shallowMount} from "@vue/test-utils";
 import Verse from "@/components/OSIS/Verse";
-import {useConfig, useStrings, useVerseMap} from "@/composables";
+import {useConfig, useVerseMap} from "@/composables";
 import {ref} from "@vue/reactivity";
 import {arrayLeq, mapFrom, rangeInside, rangesOverlap, setFrom} from "@/utils";
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
+import {useStrings} from "@/composables/strings";
 
 describe("Verse.vue", () => {
     let wrapper;

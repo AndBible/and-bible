@@ -26,8 +26,11 @@ import {
     faBookmark,
     faEdit,
     faEllipsisH,
-    faHeadphones, faIndent, faOutdent,
-    faPlusCircle, faSort,
+    faHeadphones,
+    faIndent,
+    faOutdent,
+    faPlusCircle,
+    faSort,
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import Color from "color";
@@ -169,60 +172,6 @@ export function useConfig() {
     })
 
     return {config};
-}
-
-export function useStrings() {
-    return {
-        openMyNotes: "Open in My Notes window",
-        chapterNum: "— %d —",
-        verseNum: "%d ",
-        noteText: "Footnotes (%s)",
-        crossReferenceText: "Cross references",
-        findAllOccurrences: "Find all occurrences",
-        reportError: "Report an error",
-        errorTitle: "Error occurred",
-        footnoteTypeUndefined: "Undefined type",
-        footnoteTypeStudy: "Study",
-        footnoteTypeExplanation: "Explanation",
-        footnoteTypeVariant: "Variant",
-        footnoteTypeAlternative: "Alternative",
-        footnoteTypeTranslation: "Translation",
-        clearLog: "Clear error log",
-        bookmarkInfo: "Info",
-        editNote: "Edit",
-        editNotePlaceholder: "Edit a note for bookmark",
-        editTextPlaceholder: "Tap to edit text",
-        inputPlaceholder: "Write here",
-        inputReference: "Give bible reference, in OSIS format",
-        removeBookmark: "Remove",
-        assignLabels: "Labels",
-        bookmarkAccurate: "Bookmark was created in %s",
-        bookmarkInaccurate: "Bookmark book information not stored, content is displayed in %s.",
-        defaultBook: "default bible document",
-        ok: "Ok",
-        ambiguousSelection: "Which one of these do you wish to do?",
-        cancel: "Cancel",
-        removeBookmarkConfirmationTitle: "Remove bookmark?",
-        removeBookmarkConfirmation: "Are you sure you want to remove bookmark?",
-        closeModal: "Close",
-        createdAt: "Created: %s",
-        lastUpdatedOn: "Last updated: %s",
-        strongsLink: "Open strongs",
-        journalLink: "Open journal",
-        externalLink: "Open external link",
-        referenceLink: "Open reference link",
-        openFootnote: "Open footnote",
-        openBookmark: "Open bookmark (%s)",
-        noMyNotesTitle: "No My Notes for this chapter. ",
-        noMyNotesDescription: "Get started by creating bookmarks in bible document, they will appear here and you can add to them your personal notes.",
-        emptyJournal: "Empty journal. Start writing journal by adding text entries and creating bookmarks with the this bookmark label.",
-        journalModalTitle: "Edit journal entry",
-        doYouWantToDeleteEntry: "Are you sure you want to delete this journal entry?",
-        removeJournalConfirmationTitle: "Remove journal entry?",
-        dragHelp: "You can drag & drop item to re-order journal",
-        saved: "saved",
-        openAll: "Show all references",
-    }
 }
 
 export function useCommon() {

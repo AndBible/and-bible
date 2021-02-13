@@ -8,9 +8,9 @@
     "lint": "vue-cli-service lint",
     "andbible-build-old": "vue-cli-service build --target app --formats umd-min --inline-vue --name BibleView src/main.js",
     "build-debug": "cross-env NODE_ENV=debug vue-cli-service build --target app --inline-vue",
+    "build-development": "cross-env NODE_ENV=development vue-cli-service build --target app --inline-vue",
     "build-old": "vue-cli-service build",
-    "build-production": "cross-env NODE_ENV=production vue-cli-service build --target app --inline-vue",
-    "build-development": "cross-env NODE_ENV=development vue-cli-service build --target app --inline-vue"
+    "build-production": "cross-env NODE_ENV=production vue-cli-service build --target app --inline-vue"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.34",
@@ -36,13 +36,16 @@
     "cross-env": "^7.0.3",
     "eslint": "~6.7.2",
     "eslint-plugin-vue": "~7.1.0-0",
-    "npm": "^7.5.3",
+    "npm": "^7.5.4",
     "sass": "~1.29.0",
     "sass-loader": "^10.1.1",
     "stylus": "~0.54.8",
     "stylus-loader": "^4.3.3",
     "typescript": "^3.9.9",
-    "vue-jest": "^5.0.0-alpha.8"
+    "vue-cli-plugin-yaml-loader": "~1.0.0",
+    "vue-jest": "^5.0.0-alpha.8",
+    "yaml-loader": "^0.6.0",
+    "json-loader": "^0.5.7"
   },
   "eslintConfig": {
     "root": true,

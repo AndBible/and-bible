@@ -30,12 +30,13 @@
 <script>
 import {reactive, ref} from "@vue/reactivity";
 import {provide} from "@vue/runtime-core";
-import {useReferenceCollector, useStrings} from "@/composables";
+import {useReferenceCollector} from "@/composables";
 import {AutoSleep, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment";
 import FeaturesLink from "@/components/FeaturesLink";
 import {BookCategories} from "@/constants";
 import OpenAllLink from "@/components/OpenAllLink";
+import {useStrings} from "@/composables/strings";
 
 const parser = new DOMParser();
 
