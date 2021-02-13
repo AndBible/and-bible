@@ -17,7 +17,8 @@
 
 <template>
   <div v-if="notes.length === 0">
-    {{strings.noNotes}}
+    <h2>{{strings.noMyNotesTitle}}</h2>
+    <p>{{strings.noMyNotesDescription}}</p>
   </div>
   <div v-else>
     <h2>{{ document.verseRange }}</h2>
