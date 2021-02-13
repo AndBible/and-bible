@@ -17,6 +17,11 @@
 
 let cached
 
+const untranslated = {
+    chapterNum: "— %d —",
+    verseNum: "%d",
+}
+
 export function useStrings() {
     const lang = new URLSearchParams(window.location.search).get("lang");
     if(!cached) {
@@ -34,6 +39,7 @@ export function useStrings() {
                 cached[i] = defaults[i]
             }
         }
+        cached = {...cached, ...untranslated};
     }
     return cached;
 }
