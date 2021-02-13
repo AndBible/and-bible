@@ -19,7 +19,7 @@
   <InputText ref="inputText">
     {{strings.inputReference}}
   </InputText>
-  <div class="edit-area pell">
+  <div @click.stop class="edit-area pell">
     <div ref="editorElement"/>
     <div class="saved-notice" v-if="!dirty">&dash;{{strings.saved}}&dash;</div>
   </div>
