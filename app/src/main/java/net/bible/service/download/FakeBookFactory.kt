@@ -77,7 +77,7 @@ object FakeBookFactory {
                 _myNotesDocument = this
             }
 
-    private val JOURNAL_DUMMY_CONF get() = """[MyJournal]
+    private val JOURNAL_DUMMY_CONF get() = """[MyStudyPads]
 Description=${application.getString(R.string.journal_description)}
 Abbreviation=${application.getString(R.string.studypad_abbreviation)}
 Category=Generic Books

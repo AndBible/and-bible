@@ -671,7 +671,7 @@
     <string name="label_color_example">Example</string>
     <string name="select_multiple">Select multiple</string>
     <string name="mynotes_error_loading">Error in loading document</string>
-    <string name="journal_description">User-editable journals, with custom text and bookmarks</string>
+    <string name="journal_description">User-editable study pads, with custom text and bookmarks</string>
     <string name="my_notes_description">User-editable notes attached to bookmarks</string>
     <string name="my_notes_abbreviation">My Notes</string>
     <string name="studypad_abbreviation">Study Pads</string>
