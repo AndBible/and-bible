@@ -18,8 +18,14 @@
 let cached
 
 export function useStrings() {
+    const lang = new URLSearchParams(window.location.search).get("lang");
     if(!cached) {
-        cached = require("./lang/en.yaml");
+        try {
+            cached = require(`./lang/${lang}.yaml`);
+        } catch (e) {
+            console.error(`Language ${lang} not found, falling back to English!`)
+            cached = require(`./lang/en-US.yaml`);
+        }
     }
     return cached;
 }

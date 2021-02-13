@@ -413,7 +413,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // if this webview becomes (in)active then must start/stop auto-scroll
         listenEvents = true
 
-        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html")
+        val lang = Locale.getDefault().toLanguageTag()
+
+        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html?lang=$lang")
     }
 
     override fun destroy() {
