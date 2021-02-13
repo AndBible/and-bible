@@ -80,18 +80,18 @@ export default {
 <style lang="scss" scoped>
 a {
   &.clicked {
-    color: green;
+    color: #c479ff;
   }
   &.last-clicked {
-    color: #00de00;
+    color: #8b00ee;
   }
   .night & {
     &.clicked {
-      color: #5faa5f;
+      color: #8b00ee;
     }
 
     &.last-clicked {
-      color: #84ff84;
+      color: #c479ff;
     }
   }
 }
