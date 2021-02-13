@@ -115,7 +115,7 @@ export default {
 }
 
 .isHighlighted {
-  background-color: rgba(255, 230, 0, 0.2);
+  background-color: rgba(255, 230, 0, 0.4);
 }
 
 .bookmarkStyle {
