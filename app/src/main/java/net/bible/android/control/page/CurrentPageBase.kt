@@ -232,7 +232,7 @@ abstract class CurrentPageBase protected constructor(
     val pageEntity: WorkspaceEntities.Page get() {
             return WorkspaceEntities.Page(
                 currentDocument?.initials,
-                key?.osisID,
+                key?.osisRef,
                 currentYOffsetRatio
             )
         }

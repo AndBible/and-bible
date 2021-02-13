@@ -64,17 +64,11 @@ class BookAndKey(document: Book, val key: Key): Key {
     }
 
     override fun getOsisRef(): String {
-        return key.osisRef
+        return "${document.initials}:${key.osisRef}"
     }
 
     override fun getOsisID(): String {
-        val osisID: String
-        if(key is VerseRange)  {
-            osisID = "${key.start.osisID}-${key.end.osisID}"
-        } else {
-            osisID = key.osisID
-        }
-        return "${document.initials}:${osisID}"
+        return "${document.initials}:${key.osisID}"
     }
 
     override fun getParent(): Key? {
@@ -137,8 +131,8 @@ class BookAndKey(document: Book, val key: Key): Key {
 }
 
 class BookAndKeyList: DefaultKeyList() {
-    override fun getOsisID(): String {
-        return this.joinToString("||") { it.osisID }
+    override fun getOsisRef(): String {
+        return this.joinToString("||") { it.osisRef }
     }
 
     companion object {

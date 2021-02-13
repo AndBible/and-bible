@@ -36,9 +36,9 @@ export default {
   },
   setup(props) {
     // eslint-disable-next-line no-unused-vars,vue/no-setup-props-destructure
-    const {id, type, osisFragments, bookInitials, bookAbbreviation, bookName, key, bookmarks, ordinalRange} = props.document;
+    const {id, type, osisFragments, bookInitials, bookAbbreviation, bookName, key, bookmarks, ordinalRange, originalOrdinalRange} = props.document;
 
-    provide("bibleDocumentInfo", {ordinalRange})
+    provide("bibleDocumentInfo", {ordinalRange, originalOrdinalRange})
 
     const globalBookmarks = inject("globalBookmarks");
     globalBookmarks.updateBookmarks(...bookmarks);

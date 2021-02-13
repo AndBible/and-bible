@@ -75,7 +75,7 @@ class CurrentBiblePage(
             val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
             BibleDocument(
                 osisFragments = doc.osisFragments, swordBook = doc.book as SwordBook,
-                bookmarks = bookmarksForChapter, verseRange = verseRange
+                bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey
             )
         } else doc
     }
@@ -131,10 +131,11 @@ class CurrentBiblePage(
             Log.e(TAG, "Invalid verse reference:$keyText")
         }
     }
-
+    var originalKey: Key? = null
     /** set key without notification **/
 
     override fun doSetKey(key: Key?) {
+        originalKey = key
 		val verse = KeyUtil.getVerse(key)
 		//TODO av11n should this be the verse Versification or the Module/doc's Versification
 		currentBibleVerse.setVerseSelected(versification, verse)

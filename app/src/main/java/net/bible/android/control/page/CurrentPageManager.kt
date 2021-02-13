@@ -233,7 +233,7 @@ open class CurrentPageManager @Inject constructor(
             window.id,
             currentBible.entity.copy(),
             currentCommentary.entity.copy(),
-            currentDictionary.entity.copy(),
+            currentDictionary.pageEntity.copy(),
             currentGeneralBook.pageEntity.copy(),
             currentMap.pageEntity.copy(),
             currentPage.documentCategory.name,

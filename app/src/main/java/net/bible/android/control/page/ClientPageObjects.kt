@@ -30,7 +30,9 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import java.util.UUID.randomUUID
@@ -104,15 +106,22 @@ class BibleDocument(
     val bookmarks: List<BookmarkEntities.Bookmark>,
     val verseRange: VerseRange,
     osisFragments: List<OsisFragment>,
-    val swordBook: SwordBook
+    val swordBook: SwordBook,
+    val originalKey: Key?,
 ): OsisDocument(osisFragments, swordBook, verseRange), DocumentWithBookmarks {
     override val asHashMap: Map<String, String> get () {
         val bookmarks = bookmarks.map { ClientBookmark(it, swordBook.versification) }
         val vrInV11n = verseRange.toV11n(swordBook.versification)
+        // Clicked link etc. had more specific reference
+        val originalOrdinalRange = if(originalKey is RangedPassage) {
+            val originalVerseRange = VerseRangeFactory.fromString(originalKey.versification, originalKey.osisRef).toV11n(swordBook.versification)
+            json.encodeToString(serializer(), listOf(originalVerseRange.start.ordinal, originalVerseRange.end.ordinal))
+        } else "null"
         return super.asHashMap.toMutableMap().apply {
             put("bookmarks", json.encodeToString(serializer(), bookmarks))
             put("type", wrapString("bible"))
             put("ordinalRange", json.encodeToString(serializer(), listOf(vrInV11n.start.ordinal, vrInV11n.end.ordinal)))
+            put("originalOrdinalRange", originalOrdinalRange)
         }
     }
 }

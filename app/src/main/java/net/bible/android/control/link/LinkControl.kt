@@ -164,7 +164,7 @@ class LinkControl @Inject constructor(
 			//TODO av11n issue.  GenBooks have no v11n and this default would be used for links from GenBooks which would only sometimes be correct
             (bible as AbstractPassageBook).versification
         }
-        val key: Key = VerseRangeFactory.fromString(sourceDocumentVersification, keyText)
+        val key: Key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText)
 
         // Bible not specified so use the default Bible version
         return BookAndKey(windowControl.defaultBibleDoc, key)
