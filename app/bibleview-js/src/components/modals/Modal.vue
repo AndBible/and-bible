@@ -62,8 +62,8 @@ export default {
       ready.value = true;
     });
     if (!props.blocking) {
-      emit(Events.CLOSE_MODAL);
-      setupEventBusListener(Events.CLOSE_MODAL, () => $emit('close'))
+      emit(Events.BACK_CLICKED);
+      setupEventBusListener(Events.BACK_CLICKED, () => $emit('close'))
     }
     return {config, modal, header, ready, ...useCommon()}
   }

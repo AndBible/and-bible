@@ -73,7 +73,7 @@
       useInfiniteScroll(config, android, documents);
 
       async function replaceDocument(...docs) {
-        emit(Events.CLOSE_MODAL);
+        emit(Events.BACK_CLICKED);
         clearLog();
         globalBookmarks.clearBookmarks();
         documents.splice(0)
@@ -130,7 +130,7 @@
             ambiguousSelection.value = eventFunctions;
           }
         } else {
-          emit(Events.CLOSE_MODAL);
+          emit(Events.BACK_CLICKED);
         }
       }
       const mounted = ref(false);

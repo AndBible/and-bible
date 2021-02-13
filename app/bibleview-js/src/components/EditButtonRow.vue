@@ -34,6 +34,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {ref} from "@vue/reactivity";
 import {inject, watch} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
+import {eventBus, Events} from "@/eventbus";
 
 let cancel = () => {}
 
@@ -51,8 +52,10 @@ export default {
     watch(expanded, v => {
       if(v) {
         cancel()
+        eventBus.on(Events.BACK_CLICKED, close);
         cancel = close
       } else {
+        eventBus.off(Events.BACK_CLICKED, close);
         if(cancel === close) {
           cancel = () => {}
         }
@@ -61,7 +64,6 @@ export default {
     function showHelp() {
       android.toast(strings.dragHelp);
     }
-
     return {expanded, showHelp, strings, ...common};
   }
 }
