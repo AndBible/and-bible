@@ -136,8 +136,8 @@ class MultiFragmentDocument(val osisFragments: List<OsisFragment>): Document {
 }
 
 
-class NotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
-                    val verseRange: VerseRange): Document, DocumentWithBookmarks
+class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
+                      val verseRange: VerseRange): Document, DocumentWithBookmarks
 {
     override val asHashMap: Map<String, Any>
         get() {

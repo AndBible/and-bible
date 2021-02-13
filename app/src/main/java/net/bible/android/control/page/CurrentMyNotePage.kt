@@ -36,7 +36,7 @@ class CurrentMyNotePage internal constructor(
     override val currentPageContent: Document get() {
         val verseRange = CommonUtils.getWholeChapter(currentBibleVerse.verse, false)
         val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
-        return NotesDocument(bookmarksForChapter, verseRange)
+        return MyNotesDocument(bookmarksForChapter, verseRange)
     }
 
     override fun next() {
