@@ -18,7 +18,7 @@
 
 import {shallowMount} from "@vue/test-utils";
 import Verse from "@/components/OSIS/Verse";
-import {useConfig, useStrings} from "@/composables";
+import {useConfig, useStrings, useVerseMap} from "@/composables";
 import {ref} from "@vue/reactivity";
 import {arrayLeq, mapFrom, rangeInside, rangesOverlap, setFrom} from "@/utils";
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
@@ -71,6 +71,7 @@ describe("Verse.vue", () => {
             fragmentInfo,
             config,
             strings,
+            verseMap: useVerseMap(),
         }
         wrapper = shallowMount(Verse,
             {
