@@ -128,7 +128,7 @@ $border-radius2: $border-radius - 1.5pt;
 
 .modal-body {
   --max-height: calc(100vh - var(--top-offset) - var(--bottom-offset) - 80pt);
-  min-height: 60pt;
+  //min-height: 60pt;
   padding: 5px 5px;
   margin: 5pt 5pt;
 }
