@@ -45,6 +45,7 @@
     "typescript": "^3.9.9",
     "vue-cli-plugin-yaml-loader": "~1.0.0",
     "vue-jest": "^5.0.0-alpha.8",
+    "babel-jest": "^26.6.3",
     "yaml-loader": "^0.6.0"
   },
   "eslintConfig": {
