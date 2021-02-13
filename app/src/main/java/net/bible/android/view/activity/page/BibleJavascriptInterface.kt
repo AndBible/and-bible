@@ -25,7 +25,6 @@ import android.webkit.JavascriptInterface
 import kotlinx.serialization.serializer
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
-import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity

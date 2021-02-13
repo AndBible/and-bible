@@ -155,10 +155,13 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "~@/common.scss";
+
 .info {
-  margin-top: 10pt;
+  @extend .visible-scrollbar;
   font-size: 80%;
   overflow-y: auto;
+
   max-height: calc(var(--max-height) - 25pt);
 }
 .my-notes-link {

@@ -63,6 +63,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "~@/common.scss";
 .logbox {
   z-index: 3;
   font-size: 8pt;
@@ -75,9 +76,13 @@ export default {
 }
 
 .errorbox {
+  @extend .visible-scrollbar;
+  &::-webkit-scrollbar {
+    height: 5pt;
+  }
   overflow: scroll;
-  width: 100%;
-  height: calc(100vh - var(--bottom-offset) - var(--top-offset));
+  width: calc(100% - 10pt);
+  height: calc(100% - var(--bottom-offset) - var(--top-offset));
 }
 
 .logbox-button {

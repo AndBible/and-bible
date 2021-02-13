@@ -79,9 +79,6 @@ export default {
   border-color: rgba(0, 0, 0, 0.3);
   border-width: 1pt;
   border-radius: 10pt;
-  .night & {
-    border-color: rgba(255, 255, 255, 0.3);
-  }
   position: absolute;
   right: 0;
   display: flex;
@@ -89,6 +86,9 @@ export default {
   z-index: 1;
   top: 0;
   opacity: 0.8;
+  .night & {
+    border-color: rgba(255, 255, 255, 0.6);
+  }
 }
 
 .menu {

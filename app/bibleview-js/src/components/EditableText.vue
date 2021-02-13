@@ -99,6 +99,7 @@ export default {
 }
 
 .constraintHeight {
+  @extend .visible-scrollbar;
   overflow-y: auto;
   max-height: calc(var(--max-height) - 17px);
 }

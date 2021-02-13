@@ -19,7 +19,7 @@
   z-index: 1;
   color: rgba(0, 0, 0, 0.3);
   .night & {
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.6);
   }
   margin: 2pt;
   padding: 7pt;
@@ -44,4 +44,16 @@
   vertical-align: top;
   font-size: 70%;
   top: -0.5em;
+}
+
+.visible-scrollbar {
+  &::-webkit-scrollbar {
+    height: 20%;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, .3);
+    .night & {
+      background-color: rgba(255, 255, 255, .3);
+    }
+  };
 }
