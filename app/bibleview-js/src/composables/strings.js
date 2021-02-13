@@ -20,11 +20,19 @@ let cached
 export function useStrings() {
     const lang = new URLSearchParams(window.location.search).get("lang");
     if(!cached) {
+        const defaults = require(`@/lang/default.yaml`);
         try {
-            cached = require(`./lang/${lang}.yaml`);
+            cached = require(`@/lang/${lang}.yaml`);
         } catch (e) {
             console.error(`Language ${lang} not found, falling back to English!`)
-            cached = require(`./lang/en-US.yaml`);
+            cached = require(`@/lang/default.yaml`);
+        }
+
+        // Get untranslated strings from default
+        for(const i in cached) {
+            if(!cached[i]) {
+                cached[i] = defaults[i]
+            }
         }
     }
     return cached;
