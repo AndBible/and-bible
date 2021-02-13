@@ -5,20 +5,15 @@ import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
-import net.bible.android.database.bookmarks.BookmarkStyle
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter.resetDatabase
-import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
-import org.hamcrest.MatcherAssert
-import org.hamcrest.Matchers
-import org.hamcrest.collection.IsIterableContainingInOrder
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Assert
@@ -41,9 +36,10 @@ class BookmarkControlTest {
 
     @Before
     fun setUp() {
-        val mocked = Mockito.mock(SwordContentFacade::class.java)
-        Mockito.`when`(mocked.getCanonicalText(Mockito.any(), Mockito.any())).thenReturn("test")
-        bookmarkControl = BookmarkControl(Mockito.mock(WindowControl::class.java), mocked, Mockito.mock(AndroidResourceProvider::class.java))
+        val mockedSwordContentFacade = Mockito.mock(SwordContentFacade::class.java)
+        Mockito.`when`(mockedSwordContentFacade.getCanonicalText(Mockito.any(), Mockito.any())).thenReturn("test")
+        val mockedWindowControl = Mockito.mock(WindowControl::class.java)
+        bookmarkControl = BookmarkControl(mockedWindowControl, mockedSwordContentFacade, Mockito.mock(AndroidResourceProvider::class.java))
     }
 
     @After

@@ -23,7 +23,6 @@ import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.DocumentCategory
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
@@ -64,10 +63,9 @@ const val LABEL_UNLABELED_ID = -998L
 
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
-	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
-    private val swordContentFacade: SwordContentFacade,
     private val windowControl: WindowControl,
-    resourceProvider: ResourceProvider
+    private val swordContentFacade: SwordContentFacade,
+    resourceProvider: ResourceProvider,
 ) {
     // Dummy labels for all / unlabelled
     private val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
@@ -76,7 +74,7 @@ open class BookmarkControl @Inject constructor(
     private val dao get() = DatabaseContainer.db.bookmarkDao()
 
 	fun updateBookmarkPlaybackSettings(settings: PlaybackSettings) {
-        val pageManager = activeWindowPageManagerProvider.activeWindowPageManager
+        val pageManager = windowControl.activeWindowPageManager
         if (pageManager.currentPage.documentCategory == DocumentCategory.BIBLE) {
             updateBookmarkPlaybackSettings(pageManager.currentBible.singleKey, settings)
         }
