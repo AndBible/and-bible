@@ -79,7 +79,7 @@ object FakeBookFactory {
 
     private val JOURNAL_DUMMY_CONF get() = """[MyJournal]
 Description=${application.getString(R.string.journal_description)}
-Abbreviation=${application.getString(R.string.journal_abbreviation)}
+Abbreviation=${application.getString(R.string.studypad_abbreviation)}
 Category=Generic Books
 ModDrv=zCom
 BlockType=CHAPTER

@@ -18,7 +18,7 @@
 <template>
   <h2>{{ document.label.name }}</h2>
   <div v-if="journalEntries.length === 0">
-    {{strings.emptyJournal}}
+    {{strings.emptyStudyPad}}
     <span class="journal-button" @click="addNewEntry">
       <FontAwesomeIcon icon="plus-circle"/>
     </span>

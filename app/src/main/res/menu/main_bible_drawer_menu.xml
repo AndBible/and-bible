@@ -40,7 +40,7 @@
                 android:title="@string/mynotes"
                 android:icon="@drawable/ic_pen_24dp"/>
             <item android:id="@+id/myJournalsButton"
-                android:title="@string/journals"
+                android:title="@string/studypads"
                 android:icon="@drawable/ic_pen_24dp"/>
             <item android:id="@+id/dailyReadingPlanButton"
                 android:title="@string/rdg_plan_title"

@@ -33,7 +33,7 @@ import net.bible.android.view.util.widget.TwoLineListItem
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class JournalItemAdapter(
+class StudyPadItemAdapter(
     _context: Context?,
     private val resource: Int,
     _items: List<BookmarkEntities.Label?>?,

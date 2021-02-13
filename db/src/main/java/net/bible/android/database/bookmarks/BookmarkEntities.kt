@@ -218,6 +218,7 @@ class BookmarkEntities {
     )
 
     @Entity(
+        tableName = "JournalTextEntry",
         foreignKeys = [
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)
         ],
@@ -226,7 +227,7 @@ class BookmarkEntities {
         ]
     )
     @Serializable
-    data class JournalTextEntry(
+    data class StudyPadTextEntry(
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         val labelId: Long,
         val text: String = "",

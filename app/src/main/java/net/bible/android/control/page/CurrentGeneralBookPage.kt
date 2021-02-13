@@ -20,12 +20,12 @@ package net.bible.android.control.page
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.journal.Journals
+import net.bible.android.view.activity.journal.StudyPads
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
-import net.bible.service.sword.JournalKey
+import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Books
@@ -50,7 +50,7 @@ class CurrentGeneralBookPage internal constructor(
 
     override val keyChooserActivity get() =
         when (currentDocument) {
-            FakeBookFactory.journalDocument -> Journals::class.java
+            FakeBookFactory.journalDocument -> StudyPads::class.java
             FakeBookFactory.multiDocument -> null
             else -> ChooseGeneralBookKey::class.java
         }
@@ -59,11 +59,11 @@ class CurrentGeneralBookPage internal constructor(
         get() {
             val key = key
             return when(key) {
-                is JournalKey -> {
+                is StudyPadKey -> {
                     val bookmarks = pageManager.bookmarkControl.getBookmarksWithLabel(key.label, addData = true)
                     val journalTextEntries = pageManager.bookmarkControl.getJournalTextEntriesForLabel(key.label)
                     val bookmarkToLabels = bookmarks.map { pageManager.bookmarkControl.getBookmarkToLabel(it.id, key.label.id)!! }
-                    JournalDocument(key.label, bookmarks, bookmarkToLabels, journalTextEntries)
+                    StudyPadDocument(key.label, bookmarks, bookmarkToLabels, journalTextEntries)
                 }
                 is BookAndKeyList -> {
                     val frags = key.filterIsInstance<BookAndKey>().map {
@@ -87,8 +87,8 @@ class CurrentGeneralBookPage internal constructor(
         val key = key
         when (currentDocument) {
             FakeBookFactory.journalDocument -> {
-                val nextLabel = pageManager.bookmarkControl.getNextLabel((key as JournalKey).label)
-                setKey(JournalKey(nextLabel))
+                val nextLabel = pageManager.bookmarkControl.getNextLabel((key as StudyPadKey).label)
+                setKey(StudyPadKey(nextLabel))
             }
             FakeBookFactory.multiDocument -> {}
             else -> {
@@ -103,8 +103,8 @@ class CurrentGeneralBookPage internal constructor(
         val key = key
         when (currentDocument) {
             FakeBookFactory.journalDocument -> {
-                val nextLabel = pageManager.bookmarkControl.getPrevLabel((key as JournalKey).label)
-                setKey(JournalKey(nextLabel))
+                val nextLabel = pageManager.bookmarkControl.getPrevLabel((key as StudyPadKey).label)
+                setKey(StudyPadKey(nextLabel))
             }
             FakeBookFactory.multiDocument -> {}
             else -> {
@@ -137,7 +137,7 @@ class CurrentGeneralBookPage internal constructor(
                 val (_, id) = entity!!.key?.split(":") ?: return
                 val label = pageManager.bookmarkControl.labelById(id.toLong())
                 if (label != null) {
-                    doSetKey(JournalKey(label))
+                    doSetKey(StudyPadKey(label))
                     localSetCurrentDocument(FakeBookFactory.journalDocument)
                 }
             }

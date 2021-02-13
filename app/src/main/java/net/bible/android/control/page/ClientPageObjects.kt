@@ -25,7 +25,6 @@ import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.json
 import net.bible.service.common.displayName
-import net.bible.service.sword.BookAndKey
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
@@ -151,11 +150,11 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
         }
 }
 
-class JournalDocument(
+class StudyPadDocument(
     val label: BookmarkEntities.Label,
     val bookmarks: List<BookmarkEntities.Bookmark>,
     val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
-    val journalTextEntries: List<BookmarkEntities.JournalTextEntry>,
+    val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>,
 ): Document, DocumentWithBookmarks {
     override val asHashMap: Map<String, Any>
         get() {
@@ -166,7 +165,7 @@ class JournalDocument(
                 "type" to wrapString("journal"),
                 "bookmarks" to json.encodeToString(serializer(), bookmarks),
                 "bookmarkToLabels" to json.encodeToString(serializer(), bookmarkToLabels),
-                "journalTextEntries" to json.encodeToString(serializer(), journalTextEntries),
+                "journalTextEntries" to json.encodeToString(serializer(), studyPadTextEntries),
                 "label" to json.encodeToString(serializer(), clientLabel),
             )
         }

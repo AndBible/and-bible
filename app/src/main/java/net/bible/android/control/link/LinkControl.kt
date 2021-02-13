@@ -37,7 +37,7 @@ import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
-import net.bible.service.sword.JournalKey
+import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -49,7 +49,6 @@ import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.PassageKeyFactory
-import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import java.net.URLDecoder
 import java.util.regex.Pattern
@@ -294,7 +293,7 @@ class LinkControl @Inject constructor(
 
     fun openJournal(id: Long): Boolean {
         val label = bookmarkControl.labelById(id) ?: return false
-        val key = JournalKey(label)
+        val key = StudyPadKey(label)
         showLink(FakeBookFactory.journalDocument, key)
         return true
     }

@@ -138,7 +138,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun updateJournalTextEntry(data: String) {
-        val entry: BookmarkEntities.JournalTextEntry = json.decodeFromString(serializer(), data)
+        val entry: BookmarkEntities.StudyPadTextEntry = json.decodeFromString(serializer(), data)
         bookmarkControl.updateJournalTextEntry(entry)
     }
 

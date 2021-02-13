@@ -40,14 +40,14 @@ import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActiv
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.service.download.FakeBookFactory
-import net.bible.service.sword.JournalKey
+import net.bible.service.sword.StudyPadKey
 import java.util.*
 import javax.inject.Inject
 
 /**
  * Show a list of existing Bookmarks that have notes written to them
  */
-class Journals : ListActivityBase(), ActionModeActivity {
+class StudyPads : ListActivityBase(), ActionModeActivity {
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
@@ -72,11 +72,11 @@ class Journals : ListActivityBase(), ActionModeActivity {
         listView.onItemLongClickListener=
             OnItemLongClickListener {
                 parent, view, position, id ->
-                listActionModeHelper!!.startActionMode(this@Journals, position)
+                listActionModeHelper!!.startActionMode(this@StudyPads, position)
             }
 
         // prepare the document list view
-        val myNoteArrayAdapter = JournalItemAdapter(this, LIST_ITEM_TYPE, journalList, bookmarkControl)
+        val myNoteArrayAdapter = StudyPadItemAdapter(this, LIST_ITEM_TYPE, journalList, bookmarkControl)
         listAdapter = myNoteArrayAdapter
         loadJournalList()
     }
@@ -87,7 +87,7 @@ class Journals : ListActivityBase(), ActionModeActivity {
                 journalSelected(journalList[position])
 
                 // HistoryManager will create a new Activity on Back
-                val resultIntent = Intent(this, Journals::class.java)
+                val resultIntent = Intent(this, StudyPads::class.java)
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             }
@@ -163,7 +163,7 @@ class Journals : ListActivityBase(), ActionModeActivity {
     private fun journalSelected(journal: BookmarkEntities.Label) {
         Log.d(TAG, "Journal selected:" + journal.name)
         try {
-            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, JournalKey(journal))
+            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show journal", e)
             instance.showErrorMsg(R.string.error_occurred, e)

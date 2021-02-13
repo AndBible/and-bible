@@ -24,11 +24,11 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RestrictionType
 import java.lang.UnsupportedOperationException
 
-class JournalKey(@Transient val label: BookmarkEntities.Label): Key {
+class StudyPadKey(@Transient val label: BookmarkEntities.Label): Key {
     private val labelId = label.id
 
     override fun compareTo(other: Key?): Int {
-        return if(other is JournalKey) compareValues(labelId, other.labelId)
+        return if(other is StudyPadKey) compareValues(labelId, other.labelId)
         else return -1
     }
 
@@ -37,7 +37,7 @@ class JournalKey(@Transient val label: BookmarkEntities.Label): Key {
     }
 
     override fun clone(): Key {
-        return JournalKey(label)
+        return StudyPadKey(label)
     }
 
     override fun getName(): String {

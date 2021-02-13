@@ -155,14 +155,14 @@ interface BookmarkDao {
     fun labelById(id: Long): Label?
 
     @Query("SELECT * from JournalTextEntry WHERE labelId=:id ORDER BY orderNumber")
-    fun journalTextEntriesByLabelId(id: Long): List<BookmarkEntities.JournalTextEntry>
+    fun journalTextEntriesByLabelId(id: Long): List<BookmarkEntities.StudyPadTextEntry>
 
     @Query("SELECT * from JournalTextEntry WHERE id=:id")
-    fun journalTextEntryById(id: Long): BookmarkEntities.JournalTextEntry?
+    fun journalTextEntryById(id: Long): BookmarkEntities.StudyPadTextEntry?
 
-    @Insert fun insert(entity: BookmarkEntities.JournalTextEntry): Long
+    @Insert fun insert(entity: BookmarkEntities.StudyPadTextEntry): Long
 
-    @Update fun update(entity: BookmarkEntities.JournalTextEntry)
+    @Update fun update(entity: BookmarkEntities.StudyPadTextEntry)
 
     @Insert fun insert(entity: Label): Long
 
@@ -199,7 +199,7 @@ interface BookmarkDao {
 
     @Delete fun delete(entities: List<BookmarkToLabel>): Int
 
-    @Delete fun delete(e: BookmarkEntities.JournalTextEntry)
+    @Delete fun delete(e: BookmarkEntities.StudyPadTextEntry)
 
     @Insert fun insert(entities: List<BookmarkToLabel>): List<Long>
 
@@ -222,5 +222,5 @@ interface BookmarkDao {
     fun deleteLabelsByIds(toList: List<Long>)
 
     @Update fun updateBookmarkToLabels(bookmarkToLabels: List<BookmarkToLabel>)
-    @Update fun updateJournalTextEntries(journalTextEntries: List<BookmarkEntities.JournalTextEntry>)
+    @Update fun updateJournalTextEntries(studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>)
 }

@@ -132,7 +132,7 @@ class Converters {
     entities = [
         BookmarkEntities.Bookmark::class,
         BookmarkEntities.Label::class,
-        BookmarkEntities.JournalTextEntry::class,
+        BookmarkEntities.StudyPadTextEntry::class,
         BookmarkEntities.BookmarkToLabel::class,
         ReadingPlanEntities.ReadingPlan::class,
         ReadingPlanEntities.ReadingPlanStatus::class,
