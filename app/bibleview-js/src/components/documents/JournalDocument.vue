@@ -19,6 +19,9 @@
   <h2>{{ document.label.name }}</h2>
   <div v-if="journalEntries.length === 0">
     {{strings.emptyJournal}}
+    <span class="journal-button" @click="addNewEntry">
+      <FontAwesomeIcon icon="plus-circle"/>
+    </span>
   </div>
   <draggable
     v-model="journalEntries"
@@ -50,10 +53,11 @@ import {groupBy, sortBy} from "lodash";
 import JournalRow from "@/components/JournalRow";
 import draggable from "vuedraggable";
 import {JournalEntryTypes} from "@/constants";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 export default {
   name: "JournalDocument",
-  components: {JournalRow, draggable},
+  components: {JournalRow, draggable, FontAwesomeIcon},
   props: {
     document: {type: Object, required: true},
   },
@@ -155,9 +159,13 @@ export default {
       return `margin-left: ${margin}pt;`;
     }
 
+    function addNewEntry() {
+      android.createNewJournalEntry(label.id);
+    }
+
     return {
       journalEntries, editNotes, adding, indentStyle,
-      editableJournalEntry,  editOpened,
+      editableJournalEntry,  editOpened, addNewEntry,
       ...useCommon()
     }
   }

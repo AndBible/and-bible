@@ -188,7 +188,7 @@ export function useAndroid({bookmarks}, config) {
         android.setActionMode(value);
     }
 
-    function createNewJournalEntry(labelId, afterEntryType, afterEntryId) {
+    function createNewJournalEntry(labelId, afterEntryType = "none", afterEntryId = 0) {
         android.createNewJournalEntry(labelId, afterEntryType, afterEntryId);
     }
 

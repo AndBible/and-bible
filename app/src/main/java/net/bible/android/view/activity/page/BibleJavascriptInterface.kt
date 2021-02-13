@@ -112,7 +112,8 @@ class BibleJavascriptInterface(
         val entryOrderNumber: Int = when (entryType) {
             "bookmark" -> bookmarkControl.getBookmarkToLabel(afterEntryId, labelId)!!.orderNumber
             "journal" -> bookmarkControl.getJournalById(afterEntryId)!!.orderNumber
-            else -> throw RuntimeException("illegal entry type")
+            "none" -> 0
+            else -> throw RuntimeException("Illegal entry type")
         }
         bookmarkControl.createJournalEntry(labelId, entryOrderNumber)
     }
