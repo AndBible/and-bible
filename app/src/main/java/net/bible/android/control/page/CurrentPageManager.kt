@@ -62,7 +62,7 @@ val BookCategory.documentCategory: DocumentCategory get() {
         BookCategory.DICTIONARY -> DocumentCategory.DICTIONARY
         BookCategory.GENERAL_BOOK -> DocumentCategory.GENERAL_BOOK
         BookCategory.MAPS -> DocumentCategory.MAPS
-        // This should normally be there, but user that has used legacy my notes, could have this value stored in DB
+        // This should not normally be there, but user that has used legacy my notes, could have this value stored in DB
         BookCategory.OTHER -> DocumentCategory.GENERAL_BOOK
         else -> throw RuntimeException("Unsupported category")
     }
