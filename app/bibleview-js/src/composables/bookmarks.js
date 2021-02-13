@@ -350,10 +350,10 @@ export function useBookmarks(documentId,
     }
 
     function getIconElement(faIcon, iconColor) {
-        const icon = document.createElement("i")
+        const icon = document.createElement("span")
         icon.appendChild(faIcon.node[0])
         icon.style = `color: ${iconColor};`;
-        icon.classList.add("icon");
+        icon.classList.add("bookmark-marker");
         icon.classList.add("skip-offset");
         return icon;
     }
@@ -470,10 +470,7 @@ export function useBookmarks(documentId,
                 }
             });
             if(bookmarkList.length>1) {
-                const sup = document.createElement("span")
-                sup.classList.add("super-script")
-                sup.appendChild(document.createTextNode(bookmarkList.length));
-                iconElement.appendChild(sup);
+                iconElement.appendChild(document.createTextNode(`×${bookmarkList.length}`));
             }
             lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
 

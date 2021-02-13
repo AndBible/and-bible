@@ -122,7 +122,7 @@ export function useConfig() {
         textColor: "black",
         hyphenation: true,
         noiseOpacity: 50,
-        lineSpacing: 16,
+        lineSpacing: 10,
         justifyText: false,
         marginSize: {
             marginLeft: 0,

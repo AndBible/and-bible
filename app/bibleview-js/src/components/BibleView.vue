@@ -169,6 +169,7 @@
   }
 </script>
 <style lang="scss">
+@import "~@/common.scss";
 a {
   color: blue;
   .night & {
@@ -176,17 +177,10 @@ a {
   }
 }
 
-.icon {
-  position: relative;
-  top: -0.5em;
+.bookmark-marker {
+  @extend .superscript;
   font-size: 50%;
-  vertical-align: super;
-}
-.super-script {
-  position: relative;
-  top: -0.1em;
-  font-size: 100%;
-  vertical-align: super;
+  top: -0.8em;
 }
 
 .divider {
