@@ -36,10 +36,12 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import "~@/common.scss";
 .verseNumber {
+  @extend .superscript;
+  font-size: 60%;
+  margin-right: 1pt;
   color: gray;
-  vertical-align: top;
-  font-size: 70%;
 }
 </style>

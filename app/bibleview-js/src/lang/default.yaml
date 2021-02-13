@@ -1,6 +1,6 @@
 openMyNotes: "Open in My Notes window"
 chapterNum: "— %d —"
-verseNum: "%d "
+verseNum: "%d"
 noteText: "Footnotes (%s)"
 crossReferenceText: "Cross references"
 findAllOccurrences: "Find all occurrences"
