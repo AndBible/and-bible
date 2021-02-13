@@ -253,7 +253,7 @@ data class ClientBookmark(val id: Long,
     companion object{
         fun getUrl(bookmark: BookmarkEntities.Bookmark): String {
             val bookRef = bookmark.book?.initials
-            val firstVerseRef = bookmark.verseRange.start.osisRef
+            val firstVerseRef = bookmark.verseRange.osisRef
             val ref = if(bookRef != null) {
                 "$bookRef:$firstVerseRef"
             } else
