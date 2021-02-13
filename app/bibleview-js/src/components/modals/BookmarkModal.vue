@@ -33,6 +33,9 @@
       <div v-if="bookmark.bookName">
         <span v-html="sprintf(strings.bookmarkAccurate, originalBookLink)"/>
       </div>
+      <div v-else>
+        <span v-html="sprintf(strings.bookmarkInaccurate, originalBookLink)"/>
+      </div>
       {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
       {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
       <div v-if="bookmarkNotes" class="my-notes-link">
@@ -128,7 +131,7 @@ export default {
       }
     }
 
-    const {adjustedColor, ...common} = useCommon();
+    const {adjustedColor, strings, ...common} = useCommon();
 
     const labelColor = computed(() => {
         return adjustedColor(label.value.color).string();
@@ -140,12 +143,12 @@ export default {
     }
 
     const originalBookLink = computed(() =>
-        `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName}</a>`)
+        `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`)
 
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, editDirectly, bookmarkNotes,
       removeBookmark,  assignLabels,  bookmark, labelColor, changeNote, labels, originalBookLink,
-      ...common
+      strings, ...common
     };
   },
 }

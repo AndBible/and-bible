@@ -28,7 +28,6 @@
 </template>
 
 <script>
-import {computed} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import MyNoteRow from "@/components/MyNoteRow";
@@ -48,10 +47,6 @@ export default {
 
     globalBookmarks.updateBookmarks(...bookmarks);
 
-    const notes = computed(() => {
-      return globalBookmarks.bookmarks.value.filter(b => b.notes !== null)
-    });
-
     function editNotes(b, newText) {
       b.notes = newText;
     }
@@ -60,7 +55,7 @@ export default {
       android.saveBookmarkNote(b.id, b.notes);
     }
 
-    return {notes, save, editNotes, ...useCommon()}
+    return {notes: globalBookmarks.bookmarks, save, editNotes, ...useCommon()}
   }
 }
 </script>

@@ -24,6 +24,7 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -65,6 +66,7 @@ const val LABEL_UNLABELED_ID = -998L
 open class BookmarkControl @Inject constructor(
 	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
     private val swordContentFacade: SwordContentFacade,
+    private val windowControl: WindowControl,
     resourceProvider: ResourceProvider
 ) {
     // Dummy labels for all / unlabelled
@@ -241,7 +243,7 @@ open class BookmarkControl @Inject constructor(
         if(withLabels) for (b in bookmarks) {
             addLabels(b)
         }
-        if(withText) for (b in bookmarks.filter { it.book !== null }) {
+        if(withText) for (b in bookmarks) {
             addText(b)
         }
         return bookmarks
@@ -254,8 +256,8 @@ open class BookmarkControl @Inject constructor(
     }
 
     private fun addText(b: Bookmark) {
-        if(b.book == null) return
-        val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(b.book, it) }
+        val book = b.book ?: windowControl.defaultBibleDoc
+        val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(book, it) }
         val startOffset = b.startOffset ?: 0
         var startVerse = verseTexts.first()
         var endOffset = b.endOffset ?: startVerse.length

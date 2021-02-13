@@ -197,6 +197,8 @@ export function useStrings() {
         removeBookmark: "Remove",
         assignLabels: "Labels",
         bookmarkAccurate: "Bookmark was created in %s",
+        bookmarkInaccurate: "Bookmark book information not stored, content is displayed in %s.",
+        defaultBook: "default bible document",
         ok: "Ok",
         ambiguousSelection: "Which one of these do you wish to do?",
         cancel: "Cancel",
