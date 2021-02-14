@@ -32,7 +32,7 @@
     :item-key="(e) => `${e.type}-${e.id}`"
   >
     <template #item="{element: j}">
-    <div class="note-container" :style="indentStyle(j)" :id="`${j.type}-${j.id}`">
+    <div class="studypad-container" :style="indentStyle(j)" :id="`${j.type}-${j.id}`">
       <StudyPadRow
           :journal-entry="j"
           :label="document.label"
@@ -174,6 +174,11 @@ export default {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
+.studypad-container {
+  @extend .note-container;
+  border-style: dashed;
+}
 
 .bible-text {
   margin-top: 2pt;
