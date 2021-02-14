@@ -32,6 +32,8 @@
 import {inject} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import MyNoteRow from "@/components/MyNoteRow";
+import {computed} from "@vue/reactivity";
+import {sortBy} from "lodash";
 
 export default {
   name: "MyNotesDocument",
@@ -56,7 +58,11 @@ export default {
       android.saveBookmarkNote(b.id, b.notes);
     }
 
-    return {notes: globalBookmarks.bookmarks, save, editNotes, ...useCommon()}
+    const notes = computed(() => {
+      return sortBy(globalBookmarks.bookmarks.value, [o => o.ordinalRange[0], o => o.offsetRange && o.offsetRange[0]])
+    });
+
+    return {notes, save, editNotes, ...useCommon()}
   }
 }
 </script>

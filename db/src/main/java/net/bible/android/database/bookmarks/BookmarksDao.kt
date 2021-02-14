@@ -32,15 +32,17 @@ import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import java.util.*
 
 const val orderBy = """
+CASE WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.kjvOrdinalStart END,
+CASE WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.startOffset END,
 CASE
-    WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.kjvOrdinalStart
     WHEN :orderBy = 'CREATED_AT' THEN Bookmark.createdAt
     WHEN :orderBy = 'LAST_UPDATED' THEN Bookmark.lastUpdatedOn
 END"""
 
 const val orderBy2 = """
+CASE WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.kjvOrdinalStart END,
+CASE WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.startOffset END,
 CASE
-    WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.kjvOrdinalStart
     WHEN :orderBy = 'CREATED_AT' THEN Bookmark.createdAt
     WHEN :orderBy = 'LAST_UPDATED' THEN Bookmark.lastUpdatedOn
     WHEN :orderBy = 'ORDER_NUMBER' THEN BookmarkToLabel.orderNumber
@@ -69,7 +71,7 @@ interface BookmarkDao {
         kjvOrdinalEnd BETWEEN :rangeStart AND :rangeEnd OR 
         (:rangeStart BETWEEN kjvOrdinalStart AND kjvOrdinalEnd AND 
          :rangeEnd BETWEEN kjvOrdinalStart AND kjvOrdinalEnd
-        )
+        ) ORDER BY kjvOrdinalStart, startOffset
         """)
     fun bookmarksForKjvOrdinalRange(rangeStart: Int, rangeEnd: Int): List<Bookmark>
     fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> {
