@@ -17,11 +17,11 @@
 
 <template>
   <div :style="parentStyle" class="editable-text">
-    <div class="editor-container" v-if="editMode">
+    <div class="editor-container" :class="{constraintDisplayHeight}" v-if="editMode">
       <TextEditor :text="editText || ''" @save="textChanged" @close="editMode = false"/>
     </div>
     <template v-else>
-      <div v-if="editText" :class="{'notes-display': true, constraintHeight}" @click="handleClicks">
+      <div v-if="editText" class="notes-display" :class="{constraintDisplayHeight}" @click="handleClicks">
         <div v-html="editText"/>
       </div>
       <div class="placeholder" v-else-if="showPlaceholder" @click="handleClicks">
@@ -47,14 +47,14 @@ export default {
     editDirectly:{type: Boolean, default: false},
     showPlaceholder:{type: Boolean, default: false},
     text:{type: String, default: null},
-    maxHeight: {type: String, default: null},
-    constraintHeight: {type: Boolean, default: false},
+    maxEditorHeight: {type: String, default: "inherit"}, // for editor
+    constraintDisplayHeight: {type: Boolean, default: false},
   },
   setup(props, {emit}) {
     const editMode = ref(props.editDirectly);
     const parentStyle = ref("");
     const editText = ref(props.text);
-    parentStyle.value = props.maxHeight ? `--max-height: ${props.maxHeight};`: "--max-height: 100pt;";
+    parentStyle.value = `--max-height: ${props.maxEditorHeight};`
 
     function cancelFunc() {
       editMode.value = false;
@@ -90,22 +90,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '~pell/src/pell.scss';
 @import "~@/common.scss";
 .notes-display {
   width: calc(100% - 22pt);
+  padding: $pell-content-padding;
+  &.constraintDisplayHeight {
+    @extend .visible-scrollbar;
+    overflow-y: auto;
+    max-height: calc(var(--max-height) - 17px);
+  }
 }
 .placeholder {
   opacity: 0.5;
 }
 
-.constraintHeight {
-  @extend .visible-scrollbar;
-  overflow-y: auto;
-  max-height: calc(var(--max-height) - 17px);
-}
-
 .editor-container {
   max-width: calc(100% - 22pt);
+  padding-top: 8pt;
+  padding-bottom: 3pt;
+  padding-inline-start: 2pt;
+  &.constraintDisplayHeight {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 .edit-button {
   @extend .journal-button;

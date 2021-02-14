@@ -177,7 +177,6 @@ export default {
 
 .studypad-container {
   @extend .note-container;
-  border-style: dashed;
 }
 
 .bible-text {

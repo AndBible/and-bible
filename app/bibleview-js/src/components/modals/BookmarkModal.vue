@@ -19,12 +19,12 @@
   <Modal v-if="showBookmark" @close="closeBookmark">
     <EditableText
         v-if="!infoShown"
-        constraint-height
+        constraint-display-height
         :edit-directly="editDirectly"
         :text="bookmarkNotes || ''"
         @save="changeNote"
         show-placeholder
-        max-height="inherit"
+        max-editor-height="100pt"
     />
     <div v-show="infoShown" class="info">
       <div class="bible-text">
