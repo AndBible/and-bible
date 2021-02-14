@@ -34,7 +34,7 @@
     </div>
   </EditButtonRow>
   <div>
-    <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b> <BookmarkText :bookmark="bookmark"/> <LabelList :labels="labels"/>
+    <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b> <BookmarkText :bookmark="bookmark"/> <LabelList :bookmark="bookmark" :labels="labels"/>
     <div class="notes">
       <EditableText
           ref="editor"

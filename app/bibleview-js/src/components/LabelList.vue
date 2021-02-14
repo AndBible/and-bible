@@ -17,29 +17,35 @@
 
 <template>
   <div class="label-list">
-    <span @touchstart.stop="goToJournal($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
+    <span @touchstart.stop="assignLabels" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
   </div>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
+import {inject} from "@vue/runtime-core";
 
 export default {
-  props: {labels: {type: Array, required: true}},
+  props: {
+    labels: {type: Array, required: true},
+    bookmark: {type: Object, default: null},
+  },
   name: "LabelList",
-  setup() {
+  setup(props) {
     const {adjustedColor, ...common} = useCommon();
     function labelStyle(label) {
       return "background-color: " + adjustedColor(label.color).string() + ";";
     }
 
-    function goToJournal(event, label) {
-      if(label.id <= 0) return;
-      const url = `journal://?id=${label.id}`
-      window.location.assign(url);
+    const android = inject("android");
+
+    function assignLabels() {
+      if(props.bookmark) {
+        android.assignLabels(props.bookmark.id);
+      }
     }
 
-    return {labelStyle, goToJournal, ...common}
+    return {labelStyle, assignLabels, ...common}
   }
 }
 </script>
