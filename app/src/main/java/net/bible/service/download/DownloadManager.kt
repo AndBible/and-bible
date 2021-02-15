@@ -18,8 +18,11 @@
 package net.bible.service.download
 
 import net.bible.android.activity.R
+import net.bible.android.database.DocumentBackup
+import net.bible.android.database.DocumentBackupDao
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.service.common.Logger
+import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
@@ -41,6 +44,7 @@ class DownloadManager(
     private val onFailedReposChange: (() -> Unit)?
 ) {
     private val installManager: InstallManager = InstallManager()
+    private val docDao get() = DatabaseContainer.db.documentBackupDao()
     val failedRepos = TreeSet<String>()
 
     private fun markFailed(repo: String) {
@@ -116,6 +120,25 @@ class DownloadManager(
         installer.install(book)
         // reload metadata to ensure the correct location is set, otherwise maps won't show
         (book.bookMetaData as SwordBookMetaData).reload { true }
+        // update AndBible DB with books user has installed
+        updateDocsDB(book);
+    }
+
+    private fun updateDocsDB(book: Book) {
+        // if book is already installed, we remove it, else it deletes nothing
+        docDao.deleteByOsisId(book.osisID)
+
+        // insert the new book info into backup db
+        val list = listOf(
+            DocumentBackup(
+                book.osisID,
+                book.name,
+                book.abbreviation,
+                book.language.name,
+                book.getProperty(REPOSITORY_KEY)
+            )
+        )
+        docDao.insertDocuments(list)
     }
 
     /**
