@@ -744,7 +744,7 @@ private val JOURNAL_39_40 = object : Migration(39, 40) {
     }
 }
 
-private val MIGRATION_39_40_DocumentBackup = object : Migration(40, 41) {
+private val MIGRATION_40_41_DocumentBackup = object : Migration(40, 41) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
             execSQL("""CREATE TABLE IF NOT EXISTS `DocumentBackup` (`osisId` TEXT PRIMARY KEY NOT NULL, `abbreviation` TEXT NOT NULL, `name` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL);""")
@@ -805,7 +805,7 @@ object DatabaseContainer {
                         MIGRATION_37_38_MyNotes_To_Bookmarks,
                         BOOKMARKS_LABEL_COLOR_38_39,
                         JOURNAL_39_40,
-                        MIGRATION_39_40_DocumentBackup,
+                        MIGRATION_40_41_DocumentBackup,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

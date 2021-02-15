@@ -17,6 +17,7 @@
  */
 package net.bible.service.download
 
+import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.database.DocumentBackup
 import net.bible.android.database.DocumentBackupDao
@@ -127,7 +128,7 @@ class DownloadManager(
     private fun updateDocsDB(book: Book) {
         // if book is already installed, we remove it, else it deletes nothing
         docDao.deleteByOsisId(book.osisID)
-
+        Log.d(TAG, "Adding ${book.name} to document backup database")
         // insert the new book info into backup db
         val list = listOf(
             DocumentBackup(
@@ -170,6 +171,7 @@ class DownloadManager(
 
     companion object {
         const val REPOSITORY_KEY = "repository"
+        const val TAG = "DownloadManager"
         private val log = Logger(DownloadManager::class.java.name)
     }
 
