@@ -24,6 +24,7 @@ import org.robolectric.annotation.Config
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
+import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import javax.inject.Provider
@@ -42,7 +43,7 @@ class WindowTest {
         val swordContentFactory = mock(SwordContentFacade::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
 
-        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
+        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, Mockito.mock(SwordContentFacade::class.java),mock(AndroidResourceProvider::class.java))
         mockCurrentPageManagerProvider = Provider {
             CurrentPageManager(swordContentFactory, SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!)
         }

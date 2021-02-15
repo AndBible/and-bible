@@ -18,7 +18,7 @@
 import {nextTick} from "@vue/runtime-core";
 import {Events, setupEventBusListener} from "@/eventbus";
 
-export function useScroll(config) {
+export function useScroll(config, {getVerses}) {
     let currentScrollAnimation = null;
 
     function setToolbarOffset(topOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
@@ -84,13 +84,19 @@ export function useScroll(config) {
         }
     }
 
-    function scrollToVerse(toId, now, delta = config.topOffset) {
-        console.log("scrollToVerse", toId, now, delta);
+    function scrollToId(toId, {now = false, highlight = false, ordinal = null, delta = config.topOffset, force = false, duration = 1000} = {}) {
+        console.log("scrollToId", toId, now, delta);
         stopScrolling();
         if(delta !== config.topOffset) {
             config.topOffset = delta;
         }
-        const toElement = document.getElementById(toId) || document.getElementById("top");
+        if(highlight) {
+            getVerses(ordinal).forEach(o => o.highlight())
+        }
+        let toElement = document.getElementById(toId)
+        if(force && toElement == null) {
+            toElement = document.getElementById("top")
+        }
 
         if (toElement != null) {
             const diff = toElement.offsetTop - window.pageYOffset;
@@ -108,7 +114,7 @@ export function useScroll(config) {
                 window.scrollTo(0, toElement.offsetTop - delta);
             }
             else {
-                doScrolling(toElement.offsetTop - delta, 1000);
+                doScrolling(toElement.offsetTop - delta, duration);
             }
         }
     }
@@ -120,9 +126,10 @@ export function useScroll(config) {
         setToolbarOffset(topOffset, bottomOffset, {immediate: true, doNotScroll: !doScroll});
 
         await nextTick(); // Do scrolling only after view has been settled (fonts etc)
+        await nextTick(); // One more nextTick() due to 2-tick behavior of replaceDocument
 
         if (jumpToOrdinal != null) {
-            scrollToVerse(`v-${jumpToOrdinal}`, true);
+            scrollToId(`v-${jumpToOrdinal}`, {now: true, force: true});
         } else if (doScroll) {
             console.log("jumpToYOffsetRatio", jumpToYOffsetRatio);
             const
@@ -131,15 +138,15 @@ export function useScroll(config) {
             doScrolling(y, 0)
         } else {
             console.log("scrolling to beginning of document (now)");
-            scrollToVerse(null, true);
+            scrollToId(null, {now: true, force: true});
         }
 
         console.log("Content is set ready!");
     }
 
     setupEventBusListener(Events.SET_OFFSETS, setToolbarOffset)
-    setupEventBusListener(Events.SCROLL_TO_VERSE, scrollToVerse)
+    setupEventBusListener(Events.SCROLL_TO_VERSE, scrollToId)
     setupEventBusListener(Events.SETUP_CONTENT, setupContent)
-    return {scrollToVerse}
+    return {scrollToId}
 }
 

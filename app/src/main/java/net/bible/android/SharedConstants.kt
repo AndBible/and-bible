@@ -43,11 +43,6 @@ object SharedConstants {
     val MANUAL_FONT_DIR = File(MANUAL_INSTALL_DIR, FONT_SUBDIR_NAME)
     const val READINGPLAN_DIR_NAME = "readingplan"
     val MANUAL_READINGPLAN_DIR = File(MANUAL_INSTALL_DIR, READINGPLAN_DIR_NAME)
-    const val DEFAULT_STYLESHEET = "style.css"
-    const val NIGHT_MODE_STYLESHEET = "night_mode.css"
-    val MANUAL_CSS_DIR = File(MANUAL_INSTALL_DIR, CSS_SUBDIR_NAME)
-    val MANUAL_CSS_STYLESHEET = File(MANUAL_CSS_DIR, DEFAULT_STYLESHEET)
-    val MANUAL_CSS_NIGHT_MODE_STYLESHEET = File(MANUAL_CSS_DIR, NIGHT_MODE_STYLESHEET)
     val LINE_SEPARATOR = System.getProperty("line.separator")
 
     val INTERNAL_MODULE_DIR get() = File(application.filesDir, "modules")

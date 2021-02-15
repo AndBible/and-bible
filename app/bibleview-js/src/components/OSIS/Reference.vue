@@ -16,11 +16,16 @@
   -->
 
 <template>
-  <a class="reference" :href="`ab-reference://?${queryParams}`" ref="content"><slot/></a>
+  <a :class="{reference: true, clicked, 'last-clicked': lastClicked}" @click="openLink($event, link)" :href="link" ref="content"><slot/></a>
 </template>
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {addEventFunction} from "@/utils";
+import {computed, ref} from "@vue/reactivity";
+import {inject} from "@vue/runtime-core";
+
+let cancelFunc = () => {};
 
 export default {
   name: "Reference",
@@ -29,24 +34,66 @@ export default {
     source: {type: String, default: null},
     type: {type: String, default: null},
   },
-  computed: {
-    queryParams() {
-      if(!this.osisRef && this.$refs.content) {
-        return "content=" + encodeURI(this.$refs.content.innerText);
-      }
-      return "osis=" + encodeURI(this.osisRef)
-    }
-  },
   setup(props) {
     checkUnsupportedProps(props, "type");
-    return useCommon();
+    const clicked = ref(false);
+    const lastClicked = ref(false);
+    const {strings, ...common} = useCommon();
+    const referenceCollector = inject("referenceCollector", null);
+    const content = ref(null);
+
+    const osisRef = computed(() => {
+      if(!props.osisRef && content.value) {
+        return content.value.innerText;
+      }
+      return props.osisRef;
+    });
+
+    const queryParams = computed(() => {
+      return "osis=" + encodeURI(osisRef.value)
+
+    })
+
+    const link = computed(() => {
+      return `osis://?${queryParams.value}`
+    });
+
+    if(referenceCollector) {
+      referenceCollector.collect(osisRef);
+    }
+
+    function openLink(event, url) {
+      addEventFunction(event, () => {
+        window.location.assign(url)
+        cancelFunc();
+        clicked.value = true;
+        lastClicked.value = true;
+        cancelFunc = () => lastClicked.value = false;
+      }, {title: strings.referenceLink});
+    }
+    return {openLink, clicked, lastClicked, content, link, ...common};
   },
 }
 
 </script>
 
-<style scoped>
-  .reference {
-    color: red;
+<style lang="scss" scoped>
+a {
+  &.clicked {
+    color: #c479ff;
   }
+  &.last-clicked {
+    color: #8b00ee;
+  }
+  .night & {
+    &.clicked {
+      color: #8b00ee;
+    }
+
+    &.last-clicked {
+      color: #c479ff;
+    }
+  }
+}
+
 </style>

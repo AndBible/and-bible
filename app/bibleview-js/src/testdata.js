@@ -47,133 +47,255 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30850, 30850],
             offsetRange: null,
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
+            text: "smaller text",
+            fullText: 'Fuller <span class="highlight">text</span>',
+            type: "bookmark",
+            verseRange: "Phil 1:2",
         },
         {
             id: 9,
             ordinalRange: [30852, 30852],
             offsetRange: [50, 60],
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
+            text: "test",
+            type: "bookmark",
         },
         {
             id: 8,
             ordinalRange: [30852, 30852],
             offsetRange: [40, 60],
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
+            text: "test",
+            type: "bookmark",
         },
         {
             id: 7,
             ordinalRange: [30852, 30852],
             offsetRange: [30, 60],
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
+            text: "test",
+            type: "bookmark",
         },
         {
             id: 6,
             ordinalRange: [30852, 30852],
             offsetRange: [20, 60],
             labels: [1],
-            book: "KJV",
-            notes: null,
+            bookInitials: "KJV",
+            text: "test",
+            notes: "test",
+            type: "bookmark",
         },
         {
             id: 5,
             ordinalRange: [30852, 30853],
             offsetRange: [10, 50],
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
+            text: "test",
+            type: "bookmark",
         },
         {
             id: 4,
             ordinalRange: [30835, 30836],
             offsetRange: [10, 50],
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
+            text: "test",
+            type: "bookmark",
         },
         {
             id: 0,
             ordinalRange: [30839, 30842],
             offsetRange: null,
             labels: [2],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
+            type: "bookmark",
         },
         {
             id: 1,
             ordinalRange: [30843, 30843],
             labels: [3],
             offsetRange: null,
-            book: null,
+            bookInitials: null,
             notes: null,
+            text: "test",
+            type: "bookmark",
         },
         {
             id: 2,
             ordinalRange: [30842, 30846],
             labels: [3],
             offsetRange: null,
-            book: null,
+            bookInitials: null,
             notes: null,
+            text: "test",
+            type: "bookmark",
         },
         {
             id: 3,
             ordinalRange: [30838, 30838],
             offsetRange: [10, 50],
             labels: [1, 2],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: "Testinote",
+            text: "asdf asdf asdf asdf asdf asdf",
+            type: "bookmark",
         },
     ];
     testBookmarkLabels = [
         {
             id: 1,
+            name: "first",
             style: {
                 color: new Color("cyan").rgb().array() //[255, 0, 0]
             }
         },
         {
             id: 2,
+            name: "second",
             style: {
                 color: new Color("yellow").rgb().array(), //[0, 255, 0],
             }
         },
         {
             id: 3,
+            name: "third",
             style: {
                 color: new Color("magenta").rgb().array(), //[0, 0, 255],
             }
         },
         {
             id: -5,
+            name: "minusfive",
             style: {color: [255,0,0,255]}
         },
         {
             id: -1,
+            name: "minusone",
             style: {color: [255,0,0,255]}
         },
         {
             id: -2,
+            name: "minustwo",
             style: {color: [255,255,0,255]}
         },
         {
             id: -3,
+            name: "minusthree",
             style: {color: [255,0,255,255]}
         },
         {
             id: -4,
+            name: "minusfour",
             style: {color: [0,255,255,255]}
         }
     ];
+    const journalTextEntries = [
+            {
+                id: 1,
+                text: "Journal text 1",
+                labelId: 1,
+                orderNumber: 1,
+                indentLevel: 0,
+                type: "journal",
+            },
+            {
+                id: 2,
+                text: "Journal text 2",
+                labelId: 1,
+                orderNumber: 2,
+                indentLevel: 1,
+                type: "journal",
+            },
+        {
+            id: 3,
+            text: "",
+            labelId: 1,
+            orderNumber: 2,
+            indentLevel: 1,
+            type: "journal",
+        },
+        ];
+    testBookmarks.forEach(b => {
+        b.verseRangeAbbreviated = "Phil 1:2";
+        b.verseRangeOnlyNumber = "2";
+        b.verseRange = "Philipians 1:2";
+        b.bibleUrl = "http://asdf";
+        b.fullText = "FULL TEXT!";
+        //b.bookmarkToLabel = {orderNumber: 1, indentLevel: 1};
+        //b.notes = "Bookmark notes asdf asdf asdf asdf";
+    })
 
-    testData = testData.map(v => ({contents: [{xml: v, key:`KJV--${count++}`}], bookmarks: testBookmarks, bookmarkLabels: testBookmarkLabels}));
-    testData[2].contents[0].ordinalRange = [30835, 30852]
+    const bookmarkToLabels = testBookmarks.map(b => (
+        {
+            bookmarkId: b.id,
+            labelId: b.labels[0],
+            orderNumber: 1,
+            indentLevel: 1,
+        }))
+
+    const mode = "journal"
+
+    if(mode === "bible") {
+        testData = testData.map(
+            v => ({
+                type: "bible",
+                osisFragments: [
+                    {
+                        xml: v,
+                        key: `KJV--${count++}`,
+                        features: {},
+                        bookCategory: "BIBLE",
+                    }
+                ],
+                bookInitials: "KJV",
+                bookmarks: testBookmarks,
+            }));
+        testData[2].ordinalRange = [30835, 30852];
+    } else if(mode === "journal") {
+        testData = [{
+            type: "journal",
+            label: testBookmarkLabels[0],
+            bookmarks: testBookmarks,
+            bookmarkToLabels,
+            journalTextEntries,
+        }];
+    } else if(mode === "notes") {
+        testData = [{
+            type: "notes",
+            label: testBookmarkLabels[0],
+            bookmarks: testBookmarks,
+            journalTextEntries,
+            verseRange: "Philipians 1"
+        }];
+    } else if(mode === "multi") {
+        testData = testData.map(
+            v => ({
+                type: "multi",
+                osisFragments: [
+                    {
+                        xml: v,
+                        keyName: "Key name",
+                        osisRef: "Gen.1.1",
+                        features: {type: "strongs", keyName: "ASDF"},
+                        bookCategory: "BIBLE",
+                    }
+                ],
+                bookInitials: "KJV",
+                bookmarks: testBookmarks,
+            }));
+    }
     window.testData = testData;
-
 }

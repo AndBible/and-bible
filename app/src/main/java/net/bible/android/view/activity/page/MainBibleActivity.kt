@@ -50,8 +50,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
@@ -76,6 +74,7 @@ import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.navigation.NavigationControl
+import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
@@ -151,6 +150,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var navigationBarHeight = 0
     private var actionBarHeight = 0
     private var transportBarHeight = 0
+    private var windowButtonHeight = 0
 
     private var hasHwKeys: Boolean = false
 
@@ -164,27 +164,24 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
 
     // Top offset with only statusbar and toolbar
-    val topOffset2: Int get() {
-        return topOffset1 + if (!(isFullScreen && actionMode == null)) actionBarHeight else 0
-    }
+    val topOffset2 = 0
+
     // Top offset with only statusbar and toolbar taken into account always
     val topOffsetWithActionBar get() = topOffset1 + actionBarHeight
 
     // Offsets with system insets only
-    private var topOffset1 = 0
-        get() = if(isFullScreen && actionMode == null) 0 else field
-
-    private var bottomOffset1 = 0
-        get() = if(isFullScreen || (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && multiWinMode)) 0 else field
-
-    var rightOffset1 = 0
-        get() = if(isFullScreen) 0 else field
-
-    var leftOffset1 = 0
-        get() = if(isFullScreen) 0 else field
+    private val topOffset1 = 0
+    private val bottomOffset1 = 0
+    val rightOffset1 = 0
+    val leftOffset1 = 0
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
+
+    // Bottom offset with navigation bar and transport bar and window buttons
+    val bottomOffset3 get() = bottomOffset2 + if (restoreButtonsVisible) windowButtonHeight else 0
+
+    private val restoreButtonsVisible get() = CommonUtils.sharedPreferences.getBoolean("restoreButtonsVisible", false)
 
     private var isPaused = false
     /**
@@ -220,34 +217,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         backupControl.clearBackupDir()
         windowRepository.initialize()
-        var firstTime = true
 
-        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { view, insets: WindowInsetsCompat ->
-            if (!isPaused) {
-                val heightChanged =
-                    bottomOffset1 != insets.systemWindowInsetBottom || topOffset1 != insets.systemWindowInsetTop
-                val widthChanged =
-                    leftOffset1 != insets.systemWindowInsetLeft || rightOffset1 != insets.systemWindowInsetRight
-                bottomOffset1 = insets.systemWindowInsetBottom
-                topOffset1 = insets.systemWindowInsetTop
-                leftOffset1 = insets.systemWindowInsetLeft
-                rightOffset1 = insets.systemWindowInsetRight
-                Log.d(TAG, "onApplyWindowInsets $bottomOffset1 $topOffset1 $leftOffset1 $rightOffset1")
-
-                if (firstTime) {
-                    postInitialize()
-                }
-
-                if (widthChanged || heightChanged)
-                    displaySizeChanged(firstTime)
-
-                if (firstTime)
-                    firstTime = false
-            }
-
-            ViewCompat.onApplyWindowInsets(view, insets)
+        runOnUiThread {
+            postInitialize()
+            displaySizeChanged(true)
         }
-
 
         // Mainly for old devices (older than API 21)
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
@@ -266,6 +240,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         if (theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
             transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+        }
+
+        if (theme.resolveAttribute(R.attr.windowButtonHeight, tv, true)) {
+            windowButtonHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
 
         toolbar.setContentInsetsAbsolute(0, 0)
@@ -316,7 +294,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(!initialized)
             requestSdcardPermission()
 
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         speakTransport.visibility = View.GONE
 
         if(!initialized) {
@@ -483,7 +460,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             override fun onSingleTapUp(e: MotionEvent?): Boolean {
-                val intent = Intent(this@MainBibleActivity, pageControl.currentPageManager.currentPage.keyChooserActivity)
+                val chooser = pageControl.currentPageManager.currentPage.keyChooserActivity ?: return false
+                val intent = Intent(this@MainBibleActivity, chooser)
                 startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
                 return true
             }
@@ -565,7 +543,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         speakButton.setOnClickListener { speakControl.toggleSpeak() }
         speakButton.setOnLongClickListener {
-            val isBible = windowControl.activeWindowPageManager.currentPage.bookCategory == BookCategory.BIBLE
+            val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
             val intent = Intent(this, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
             startActivity(intent)
             true
@@ -935,7 +913,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val sharedActivityState = SharedActivityState.instance
 
     private fun hideSystemUI() {
-        var uiFlags = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        var uiFlags = (
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             or View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -953,12 +932,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun showSystemUI(setNavBarColor: Boolean=true) {
-        var uiFlags = (
-            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            )
-
+        var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
@@ -1168,15 +1142,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
             }
             REQUEST_PICK_FILE_FOR_BACKUP_DB -> {
+                if (data?.data == null) return // is null when user selects no file
                 mainBibleActivity.windowRepository.saveIntoDb()
                 DatabaseContainer.db.sync()
                 GlobalScope.launch(Dispatchers.IO) {
-                    backupControl.backupDatabaseToUri(data!!.data!!)
+                    backupControl.backupDatabaseToUri(data.data!!)
                 }
             }
             REQUEST_PICK_FILE_FOR_BACKUP_MODULES -> {
+                if (data?.data == null) return // is null when user selects no file
                 GlobalScope.launch(Dispatchers.IO) {
-                    backupControl.backupModulesToUri(data!!.data!!)
+                    backupControl.backupModulesToUri(data.data!!)
                 }
             }
             WORKSPACE_CHANGED -> {

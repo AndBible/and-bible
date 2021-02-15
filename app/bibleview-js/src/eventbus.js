@@ -25,7 +25,8 @@ export function emit(eventId, ...args){
 }
 
 export const Events = {
-    REPLACE_OSIS: "replace_osis",
+    UPDATE_LABELS: "update_labels",
+    REPLACE_DOCUMENT: "replace_document",
     SET_CONFIG: "set_config",
     SET_TITLE: "set_title",
     SETUP_CONTENT: "setup_content",
@@ -34,8 +35,12 @@ export const Events = {
     DELETE_BOOKMARKS: "delete_bookmarks",
     REMOVE_RANGES: "remove_ranges",
     SET_OFFSETS: "set_offsets",
-    NOTE_CLICKED: "note_clicked",
-
+    BOOKMARK_FLAG_CLICKED: "bookmark_flag_clicked",
+    BOOKMARK_HIGHLIGHT_CLICKED: "bookmark_highlight_clicked",
+    BACK_CLICKED: "back_clicked",
+    ADD_OR_UPDATE_JOURNAL: "add_or_update_journal",
+    ADD_OR_UPDATE_BOOKMARK_TO_LABEL: "add_or_update_bookmark_to_label",
+    DELETE_JOURNAL: "delete_journal",
     CONFIG_CHANGED: "config_changed",
 }
 

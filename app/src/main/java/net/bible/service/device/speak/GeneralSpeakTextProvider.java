@@ -247,7 +247,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 
 	public void pause() {}
 
-	public void stop(boolean doNotSync) {
+	public void stop() {
 		reset();
 	}
 

@@ -18,24 +18,25 @@
 <template>
   <template v-if="showStrongsSeparately">
     <template v-if="(showStrongs && lemma) && (config.showMorphology && morph)">
-      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a>-<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a></span>
+      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a>-<a class="morph" :href="formatLink(morph)" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else-if="(showStrongs && lemma) && (!config.showMorphology || !morph)">
-      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a></span>
+      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a></span>
     </template>
     <template v-else-if="(!showStrongs || !lemma) && (config.showMorphology && morph)">
-      <slot/><span class="skip-offset">&nbsp;<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a></span>
+      <slot/><span class="skip-offset">&nbsp;<a class="morph" :href="formatLink(morph)" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else><slot/></template>
   </template>
   <template v-else>
-    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)"><span class="linkstyle" @click="goToLink(formatLink(lemma, morph))"><slot/></span></span>
+    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)"><span class="linkstyle" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span></span>
     <span v-else><slot/></span>
   </template>
 </template>
 
 <script>
 import {checkUnsupportedProps, strongsModes, useCommon} from "@/composables";
+import {addEventFunction} from "@/utils";
 
 export default {
   name: "W",
@@ -77,11 +78,11 @@ export default {
       // ab-w://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.
       return "ab-w://?" + linkBodies.join("&")
     }
-    const common = useCommon();
-    function goToLink(url) {
-        window.location.assign(url);
+    const {strings, ...common} = useCommon();
+    function goToLink(event, url) {
+      addEventFunction(event, () => window.location.assign(url), {title: strings.strongsLink});
     }
-    return {formatLink, formatName, goToLink, ...common};
+    return {formatLink, formatName, goToLink, strings, ...common};
   },
   computed: {
     showStrongs() {
@@ -96,18 +97,6 @@ export default {
 
 <style scoped>
   .linkstyle {
-    color: black;
     text-decoration: underline dotted;
-  }
-
-  .strongs {
-    color: #4b9700;
-  }
-  .morph {
-    color: #8d0097;
-    /*
-    font-size: 50%;
-    vertical-align: super;
-    */
   }
 </style>

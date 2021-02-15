@@ -18,10 +18,11 @@
 
 import {shallowMount} from "@vue/test-utils";
 import Verse from "@/components/OSIS/Verse";
-import {useConfig, useStrings} from "@/composables";
+import {useConfig, useVerseMap} from "@/composables";
 import {ref} from "@vue/reactivity";
 import {arrayLeq, mapFrom, rangeInside, rangesOverlap, setFrom} from "@/utils";
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
+import {useStrings} from "@/composables/strings";
 
 describe("Verse.vue", () => {
     let wrapper;
@@ -71,6 +72,7 @@ describe("Verse.vue", () => {
             fragmentInfo,
             config,
             strings,
+            verseMap: useVerseMap(),
         }
         wrapper = shallowMount(Verse,
             {
@@ -127,12 +129,12 @@ describe ("bookmark test", () => {
         const globalBookmarks = useGlobalBookmarks();
         const {updateBookmarks, updateBookmarkLabels} = globalBookmarks;
         const {config} = useConfig()
-        const {styleRanges} = useBookmarks("frag-key-1", [0,100], globalBookmarks, "KJV",  {value: true}, config);
+        const {styleRanges} = useBookmarks("frag-key-1", [0,100], globalBookmarks, "KJV",  {value: true}, {adjustedColor: () => null}, config);
         updateBookmarkLabels(testBookmarkLabels);
         const ordinalRange = [0,1];
         updateBookmarks({
             id: 1,
-            book: "KJV",
+            bookInitials: "KJV",
             ordinalRange,
             offsetRange: [1, 2],
             labels: [0]

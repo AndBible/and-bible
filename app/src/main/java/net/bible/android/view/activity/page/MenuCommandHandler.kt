@@ -40,6 +40,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.download.DownloadControl
+import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.report.ErrorReportControl
@@ -51,6 +52,7 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.activity.journal.StudyPads
 import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
@@ -63,7 +65,6 @@ import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DATABASE_NAME
-import org.crosswire.jsword.book.BookCategory
 
 import javax.inject.Inject
 
@@ -143,9 +144,10 @@ constructor(private val callingActivity: MainBibleActivity,
                     requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
                 }
                 R.id.mynotesButton -> handlerIntent = Intent(callingActivity, MyNotes::class.java)
+                R.id.myJournalsButton -> handlerIntent = Intent(callingActivity, StudyPads::class.java)
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {
-                        val isBible = currentPage.bookCategory == BookCategory.BIBLE
+                        val isBible = currentPage.documentCategory == DocumentCategory.BIBLE
                         handlerIntent = Intent(callingActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
                     }
                 }

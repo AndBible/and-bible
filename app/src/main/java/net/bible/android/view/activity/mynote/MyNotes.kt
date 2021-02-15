@@ -41,6 +41,7 @@ import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils
+import java.lang.RuntimeException
 import java.util.*
 import javax.inject.Inject
 
@@ -49,6 +50,7 @@ val BookmarkSortOrder.description get() =
         BookmarkSortOrder.BIBLE_ORDER  -> CommonUtils.getResourceString(R.string.sort_by_bible_book)
         BookmarkSortOrder.LAST_UPDATED -> CommonUtils.getResourceString(R.string.sort_by_date)
         BookmarkSortOrder.CREATED_AT -> CommonUtils.getResourceString(R.string.sort_by_date)
+        BookmarkSortOrder.ORDER_NUMBER -> "order number"
     }
 
 /**
@@ -144,6 +146,7 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
                     BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.LAST_UPDATED
                     BookmarkSortOrder.LAST_UPDATED -> BookmarkSortOrder.BIBLE_ORDER
                     BookmarkSortOrder.CREATED_AT -> BookmarkSortOrder.BIBLE_ORDER
+                    BookmarkSortOrder.ORDER_NUMBER -> throw RuntimeException("Illegal ordering")
                 }
 
                 try {
@@ -176,8 +179,8 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
     private fun myNoteSelected(myNote: BookmarkEntities.Bookmark) {
         Log.d(TAG, "User Note selected:" + myNote.verseRange)
         try {
-            val currentDoc = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument
-            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(currentDoc, myNote.verseRange)
+            val myNotes = activeWindowPageManagerProvider.activeWindowPageManager.currentMyNotePage.currentDocument
+            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(myNotes, myNote.verseRange)
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show note", e)
             instance.showErrorMsg(R.string.error_occurred, e)

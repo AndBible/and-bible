@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="lg"/><slot/>
+  <div v-if="show" class="lg"/><slot/>
 </template>
 
 <script>
@@ -37,6 +37,9 @@ export default {
   setup() {
     return {...useCommon()};
   },
+  computed: {
+    show: ({sID}) => sID
+  }
 }
 </script>
 

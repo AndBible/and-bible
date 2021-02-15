@@ -22,22 +22,27 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.webkit.JavascriptInterface
+import kotlinx.serialization.serializer
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.service.common.CommonUtils.json
 
 
 class BibleJavascriptInterface(
 	private val bibleView: BibleView
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
+    val bookmarkControl get() = bibleView.bookmarkControl
 
     var notificationsEnabled = false
 
     @JavascriptInterface
     fun scrolledToVerse(verseOrdinal: Int) {
-        if (currentPageManager.isBibleShown) {
-            currentPageManager.currentBible.currentVerseOrdinal = verseOrdinal
+        if (currentPageManager.isBibleShown || currentPageManager.isMyNotesShown) {
+            currentPageManager.currentBible.setCurrentVerseOrdinal(verseOrdinal, bibleView.initialVerse?.versification)
         }
     }
 
@@ -48,25 +53,25 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun requestMoreTextAtTop(callId: Long) {
+    fun requestPreviousChapter(callId: Long) {
         Log.d(TAG, "Request more text at top")
-        bibleView.requestMoreTextAtTop(callId)
+        bibleView.requestPreviousChapter(callId)
     }
 
     @JavascriptInterface
-    fun requestMoreTextAtEnd(callId: Long) {
+    fun requestNextChapter(callId: Long) {
         Log.d(TAG, "Request more text at end")
-        bibleView.requestMoreTextAtEnd(callId)
+        bibleView.requestNextChapter(callId)
     }
 
     @JavascriptInterface
     fun saveBookmarkNote(bookmarkId: Long, note: String?) {
-        bibleView.bookmarkControl.saveBookmarkNote(bookmarkId, note)
+        bookmarkControl.saveBookmarkNote(bookmarkId, if(note?.trim()?.isEmpty() == true) null else note)
     }
 
     @JavascriptInterface
     fun removeBookmark(bookmarkId: Long) {
-        bibleView.bookmarkControl.deleteBookmarksById(listOf(bookmarkId))
+        bookmarkControl.deleteBookmarksById(listOf(bookmarkId))
     }
 
     @JavascriptInterface
@@ -94,6 +99,54 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openExternalLink(link: String) {
         mainBibleActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+    }
+
+    @JavascriptInterface
+    fun setActionMode(enabled: Boolean) {
+        bibleView.actionModeEnabled = enabled
+    }
+
+    @JavascriptInterface
+    fun createNewJournalEntry(labelId: Long, entryType: String, afterEntryId: Long) {
+        val entryOrderNumber: Int = when (entryType) {
+            "bookmark" -> bookmarkControl.getBookmarkToLabel(afterEntryId, labelId)!!.orderNumber
+            "journal" -> bookmarkControl.getJournalById(afterEntryId)!!.orderNumber
+            "none" -> 0
+            else -> throw RuntimeException("Illegal entry type")
+        }
+        bookmarkControl.createJournalEntry(labelId, entryOrderNumber)
+    }
+
+    @JavascriptInterface
+    fun deleteJournalEntry(journalId: Long) = bookmarkControl.deleteJournalEntry(journalId)
+
+    @JavascriptInterface
+    fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) = bookmarkControl.removeBookmarkLabel(bookmarkId, labelId)
+
+    @JavascriptInterface
+    fun updateOrderNumber(labelId: Long, data: String) {
+        val deserialized: Map<String, List<List<Long>>> = json.decodeFromString(serializer(), data)
+        val journalTextEntries = deserialized["journals"]!!.map { bookmarkControl.getJournalById(it[0])!!.apply { orderNumber = it[1].toInt() } }
+        val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(it[0], labelId)!!.apply { orderNumber = it[1].toInt() } }
+        bookmarkControl.updateOrderNumbers(labelId, bookmarksToLabels, journalTextEntries)
+    }
+
+    @JavascriptInterface
+    fun toast(text: String) {
+        ABEventBus.getDefault().post(ToastEvent(text))
+    }
+
+    @JavascriptInterface
+    fun updateJournalTextEntry(data: String) {
+        val entry: BookmarkEntities.StudyPadTextEntry = json.decodeFromString(serializer(), data)
+        bookmarkControl.updateJournalTextEntry(entry)
+    }
+
+    @JavascriptInterface
+    fun updateBookmarkToLabel(data: String) {
+        val entry: BookmarkEntities.BookmarkToLabel = json.decodeFromString(serializer(), data)
+        bookmarkControl.updateBookmarkTimestamp(entry.bookmarkId)
+        bookmarkControl.updateBookmarkToLabel(entry)
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

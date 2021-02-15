@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <td><slot/></td>
+  <td :colspan="cols"><slot/></td>
 </template>
 
 <script>
@@ -24,7 +24,10 @@ import {checkUnsupportedProps, useCommon} from "@/composables";
 
 export default {
   name: "Cell",
-  props: {role: {type: String, default: null}},
+  props: {
+    role: {type: String, default: null},
+    cols: {type: String, default: null},
+  },
   setup(props) {
     checkUnsupportedProps(props, "role")
     return useCommon();

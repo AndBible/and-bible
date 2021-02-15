@@ -18,6 +18,7 @@
 import {onBeforeUnmount, onMounted, onUnmounted} from "@vue/runtime-core";
 import Color from "color";
 import {rybColorMixer} from "@/lib/ryb-color-mixer";
+import {get} from "lodash";
 
 export function setupWindowEventListener(eventType, handler, options) {
     onMounted(() => window.addEventListener(eventType, handler, options))
@@ -242,4 +243,66 @@ export function colorLightness(color) {
     const rgb = color.rgb().color;
     const yiq = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
     return yiq / 255;
+}
+
+export function addEventFunction(event, callback, options) {
+    if(!event.eventFunctions)
+        event.eventFunctions = {};
+    const priority = get(options, "priority", 0);
+    let array = event.eventFunctions[priority];
+    if(!array) {
+        array = [];
+        event.eventFunctions[priority] = array;
+    }
+    array.push({callback, options});
+}
+
+export function getEventFunctions(event) {
+    if(!event.eventFunctions) return [];
+    const priorities = Object.keys(event.eventFunctions);
+    priorities.sort();
+    return event.eventFunctions[priorities[priorities.length -1]];
+}
+
+export function draggableElement(element, dragHandle) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+    dragHandle.addEventListener("touchstart", dragMouseDown, {passive: false});
+
+    function dragMouseDown(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+        document.addEventListener("touchend", closeDragElement);
+        document.addEventListener("touchmove", elementDrag);
+    }
+
+    function elementDrag(e) {
+        const touch = e.touches[0];
+        pos1 = pos3 - touch.clientX;
+        pos2 = pos4 - touch.clientY;
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+        element.style.top = (element.offsetTop - pos2) + "px";
+        element.style.left = (element.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.removeEventListener("touchend", closeDragElement);
+        document.removeEventListener("touchmove", elementDrag);
+    }
+}
+
+export function stripTags(str) {
+    const temp = document.createElement("div");
+    temp.innerHTML = str;
+    return temp.textContent || temp.innerText;
+}
+
+export function osisToTemplateString(osis) {
+    return osis
+        .replace(/(<\/?)(\w)(\w*)([^>]*>)/g,
+            (m, tagStart, tagFirst, tagRest, tagEnd) =>
+                `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`);
 }

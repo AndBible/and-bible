@@ -16,113 +16,147 @@
   -->
 
 <template>
-  <div :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
+  <div @click="clicked" :class="{night: config.nightMode}" :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
     <div :style="`height:${config.topOffset}px`"/>
-    <div id="notes"/>
-    <BookmarkModal/>
+    <div id="modals"/>
+    <template v-if="mounted">
+      <BookmarkModal/>
+      <AmbiguousSelection v-if="ambiguousSelection" :selections="ambiguousSelection" @close="ambiguousSelection = null"/>
+    </template>
     <ErrorBox/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div id="top" ref="topElement" :style="styleConfig">
-      <div v-for="({contents, showTransition}, index) in osisFragments" :key="index">
-        <template v-for="(data, idx) in contents" :key="data.key">
-          <div :id="`f-${data.key}`" class="fragment">
-            <OsisFragment :show-transition="showTransition" :data="data"/>
-          </div>
-          <div v-if="contents.length > 1 && idx < contents.length" class="divider" />
-        </template>
-      </div>
+      <Document v-for="document in documents" :key="document.id" :document="document"/>
     </div>
     <div id="bottom"/>
   </div>
 </template>
 <script>
-  import OsisFragment from "@/components/OsisFragment";
-  import {provide, reactive, watch} from "@vue/runtime-core";
-  import {useConfig, useFontAwesome, useStrings, useVerseNotifier} from "@/composables";
-  import {testData} from "@/testdata";
+  import Document from "@/components/documents/Document";
+  import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
+  import {useConfig, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
+  import {testBookmarkLabels, testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/composables/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
-  import {Events, setupEventBusListener} from "@/eventbus";
+  import {emit, Events, setupEventBusListener} from "@/eventbus";
   import {useScroll} from "@/composables/scroll";
   import {clearLog, useAndroid} from "@/composables/android";
-  import {setupWindowEventListener} from "@/utils";
+  import {getEventFunctions, setupWindowEventListener} from "@/utils";
   import ErrorBox from "@/components/ErrorBox";
-  import BookmarkModal from "@/components/BookmarkModal";
+  import BookmarkModal from "@/components/modals/BookmarkModal";
   import DevelopmentMode from "@/components/DevelopmentMode";
+  import Color from "color";
+  import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
+  import {useStrings} from "@/composables/strings";
 
   export default {
     name: "BibleView",
-    components: {OsisFragment, ErrorBox, BookmarkModal, DevelopmentMode},
+    components: {Document, ErrorBox, BookmarkModal, DevelopmentMode, AmbiguousSelection},
     setup() {
       useFontAwesome();
 
       const {config} = useConfig();
       const strings = useStrings();
-      const osisFragments = reactive([]);
-      window.bibleViewDebug.osisFragments = osisFragments;
+      const documents = reactive([]);
+      window.bibleViewDebug.documents = documents;
       const topElement = ref(null);
-      const {scrollToVerse} = useScroll(config);
+      const verseMap = useVerseMap();
+      provide("verseMap", verseMap);
+      const scroll = useScroll(config, verseMap);
+      const {scrollToId} = scroll;
+      provide("scroll", scroll);
       const globalBookmarks = useGlobalBookmarks(config);
       const android = useAndroid(globalBookmarks, config);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
-      useInfiniteScroll(config, android, osisFragments);
 
-      watch(() => osisFragments, () => {
-        for(const frag of osisFragments) {
-            globalBookmarks.updateBookmarkLabels(...frag.bookmarkLabels);
-            globalBookmarks.updateBookmarks(...frag.bookmarks);
-        }
-      }, {deep: true});
+      useInfiniteScroll(config, android, documents);
 
-      function replaceOsis(...s) {
+      async function replaceDocument(...docs) {
+        emit(Events.BACK_CLICKED);
         clearLog();
-        osisFragments.splice(0)
-        osisFragments.push(...s)
+        globalBookmarks.clearBookmarks();
+        documents.splice(0)
+        await nextTick()
+        documents.push(...docs)
       }
 
       setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
         const verseBeforeConfigChange = currentVerse.value;
         await deferred.wait();
-        scrollToVerse(`v-${verseBeforeConfigChange}`, true)
+        scrollToId(`v-${verseBeforeConfigChange}`, true)
       })
 
-      setupEventBusListener(Events.REPLACE_OSIS, replaceOsis);
+      setupEventBusListener(Events.REPLACE_DOCUMENT, replaceDocument);
       setupWindowEventListener("error", (e) => {
         console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
       });
 
       if(config.developmentMode) {
         console.log("populating test data");
-        replaceOsis(...testData)
+        globalBookmarks.updateBookmarkLabels(...testBookmarkLabels)
+        replaceDocument(...testData)
       }
 
+      let titlePrefix = ""
       setupEventBusListener(Events.SET_TITLE, (title) => {
-        const key = osisFragments[0].contents[0].key
-        document.title = `${title}/${key} (${process.env.NODE_ENV})`
+        titlePrefix = title;
       });
+
+      watch(documents, () => {
+        if(documents.length > 0) {
+          const id = documents[0].id;
+          const type = documents[0].type;
+          document.title = `${titlePrefix}/${type}/${id} (${process.env.NODE_ENV})`
+        }
+      })
 
       provide("globalBookmarks", globalBookmarks);
       provide("config", config);
       provide("strings", strings);
       provide("android", android);
 
+      setupEventBusListener(Events.BOOKMARK_HIGHLIGHT_CLICKED, ({event, url, bookmarks}) => {
+        console.log("clicked", {event, url, bookmarks});
+      })
+
+      const ambiguousSelection = ref(null);
+
+      function clicked(event) {
+        const eventFunctions = getEventFunctions(event);
+        if(eventFunctions.length > 0) {
+          if(eventFunctions.length === 1) eventFunctions[0].callback();
+          else {
+            ambiguousSelection.value = eventFunctions;
+          }
+        } else {
+          emit(Events.BACK_CLICKED);
+        }
+      }
+      const mounted = ref(false);
+      onMounted(() => mounted.value = true)
+      onUnmounted(() => mounted.value = false)
+
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
-        updateBookmarks: globalBookmarks.updateBookmarks,
-        config, strings, osisFragments, topElement, currentVerse
+        updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
+        config, strings, documents, topElement, currentVerse, clicked, mounted
       };
     },
     computed: {
       styleConfig({config}) {
+        const textColor = Color(config.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
+        const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+
         let style = `
           max-width: ${config.marginSize.maxWidth};
-          color: ${config.textColor};
+          color: ${textColor.hsl().string()};
           hyphens: ${config.hyphenation ? "auto": "none"};
           noise-opacity: ${config.noiseOpacity/100};
           line-spacing: ${config.lineSpacing / 10}em;
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
+          --background-color: ${backgroundColor.hsl().string()};
           `;
         if(config.marginSize.marginLeft || config.marginSize.marginRight) {
           style += `
@@ -136,17 +170,18 @@
   }
 </script>
 <style lang="scss">
-
-.icon {
-  width: 0.7em;
-  height: 0.7em;
-  font-size: 80%;
-  padding: 1pt;
-  vertical-align: super;
+@import "~@/common.scss";
+a {
+  color: blue;
+  .night & {
+    color: #7b7bff;
+  }
 }
 
-.inlineDiv {
-  display: inline;
+.bookmark-marker {
+  @extend .superscript;
+  font-size: 50%;
+  top: -0.8em;
 }
 
 .divider {
@@ -158,7 +193,21 @@
 }
 
 .button {
+  font-size: 90%;
   background-color: #717171;
+  + .toggled {
+    background-color: #474747;
+    &.light {
+      background-color: #d5d5d5;
+    }
+  }
+  &.light {
+    background-color: #bdbdbd;
+    color: black;
+  }
+  &.right {
+    align-self: end;
+  }
   border: none;
   color: white;
   padding: 5pt 5pt;

@@ -22,23 +22,22 @@ import android.os.Bundle
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.base.IntentHelper
-import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -49,7 +48,6 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
-import org.crosswire.jsword.passage.OsisParser
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.versification.Versification
 import java.net.URLDecoder
@@ -63,21 +61,22 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class LinkControl @Inject constructor(
-	private val windowControl: WindowControl,
+    private val windowControl: WindowControl,
+	private val bookmarkControl: BookmarkControl,
 	private val searchControl: SearchControl,
 	private val swordDocumentFacade: SwordDocumentFacade,
 	private val errorReportControl: ErrorReportControl)
 {
     private var windowMode = WINDOW_MODE_UNDEFINED
 
-    fun loadApplicationUrl(links: List<BibleView.BibleLink>): Boolean {
+    fun openMulti(links: List<BibleView.BibleLink>): Boolean {
         val key = BookAndKeyList()
         val bookKeys = links.map { getBookAndKey(it.url) }.filterNotNull()
         for(k in bookKeys) {
             key.addAll(k)
         }
         key.name = bookKeys.map { it.key.name }.joinToString(", ")
-        showLink(bookKeys.first().document, key)
+        showLink(FakeBookFactory.multiDocument, key)
         return true
     }
 
@@ -106,7 +105,7 @@ class LinkControl @Inject constructor(
     }
 
     private fun loadApplicationUrl(uriStr: String): Boolean {
-        val bookAndKey = getBookAndKey(uriStr) ?: return false
+        val bookAndKey = try {getBookAndKey(uriStr)} catch (e: NoSuchKeyException) {return false} ?: return false
         showLink(bookAndKey.document, bookAndKey.key)
         return true
 	}
@@ -164,8 +163,8 @@ class LinkControl @Inject constructor(
 			//TODO av11n issue.  GenBooks have no v11n and this default would be used for links from GenBooks which would only sometimes be correct
             (bible as AbstractPassageBook).versification
         }
-        // create Passage with correct source Versification
         val key: Key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText)
+
         // Bible not specified so use the default Bible version
         return BookAndKey(windowControl.defaultBibleDoc, key)
     }
@@ -253,14 +252,10 @@ class LinkControl @Inject constructor(
     }
 
     private fun showLink(document: Book?, key: Key) { // ask window controller to open link in desired window
-        var document = document
         val currentPageManager = currentPageManager
         val defaultDocument = currentPageManager.currentBible.currentDocument!!
         if (windowMode == WINDOW_MODE_NEW) {
-            if (document == null) {
-                document = defaultDocument
-            }
-            windowControl.addNewWindow(document, key)
+            windowControl.addNewWindow(document?: defaultDocument, key)
         } else if (checkIfOpenLinksInDedicatedWindow()) {
             if (document == null) {
                 windowControl.showLinkUsingDefaultBible(key)
@@ -268,10 +263,7 @@ class LinkControl @Inject constructor(
                 windowControl.showLink(document, key)
             }
         } else { // old style - open links in current window
-            if (document == null) {
-                document = defaultDocument
-            }
-            currentPageManager.setCurrentDocumentAndKey(document, key)
+            currentPageManager.setCurrentDocumentAndKey(document ?: defaultDocument, key)
         }
     }
 
@@ -290,6 +282,20 @@ class LinkControl @Inject constructor(
 
     fun setWindowMode(windowMode: String) {
         this.windowMode = windowMode
+    }
+
+    fun openMyNotes(id: Long): Boolean {
+        val bookmark = bookmarkControl.bookmarksByIds(listOf(id)).firstOrNull() ?: return false
+        val key = bookmark.verseRange
+        showLink(currentPageManager.currentMyNotePage.currentDocument, key)
+        return true
+    }
+
+    fun openJournal(id: Long): Boolean {
+        val label = bookmarkControl.labelById(id) ?: return false
+        val key = StudyPadKey(label)
+        showLink(FakeBookFactory.journalDocument, key)
+        return true
     }
 
     companion object {

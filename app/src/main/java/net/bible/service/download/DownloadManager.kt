@@ -135,7 +135,7 @@ class DownloadManager(
                 book.name,
                 book.abbreviation,
                 book.language.name,
-                book.getProperty(REPOSITORY_KEY)
+                book.getProperty(REPOSITORY_KEY) ?: ""
             )
         )
         docDao.insertDocuments(list)

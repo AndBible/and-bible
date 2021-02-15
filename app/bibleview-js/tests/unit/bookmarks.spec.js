@@ -33,6 +33,7 @@ describe("useBookmark tests", () => {
             gb,
             "KJV",
             fragmentReady,
+            {adjustedColor: () => null},
             config
         );
     });
@@ -43,7 +44,7 @@ describe("useBookmark tests", () => {
             ordinalRange,
             offsetRange,
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
         });
     }

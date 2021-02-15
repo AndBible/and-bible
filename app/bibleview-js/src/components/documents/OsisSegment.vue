@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   -
   - This file is part of And Bible (http://github.com/AndBible/and-bible).
   -
@@ -44,11 +44,13 @@ import {h} from "@vue/runtime-core";
 import Foreign from "@/components/OSIS/Foreign";
 import Figure from "@/components/OSIS/Figure";
 import A from "@/components/OSIS/A";
+import Abbr from "@/components/OSIS/Abbr";
+import {osisToTemplateString} from "@/utils";
 
 const components = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,
   DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
-  Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A
+  Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr
 }
 
 function prefixComponents() {
@@ -62,11 +64,12 @@ function prefixComponents() {
 export default {
   name: "OsisSegment",
   props: {
-    osisTemplate: {type: String, required: true}
+    osisTemplate: {type: String, required: true},
+    convert: {type: Boolean, default: false},
   },
   render() {
     return h({
-      template: this.osisTemplate,
+      template: this.convert ? osisToTemplateString(this.osisTemplate): this.osisTemplate,
       components: prefixComponents(components),
     });
   },

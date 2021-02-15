@@ -94,7 +94,7 @@ open class WindowControl @Inject constructor(
         showLink(defaultBibleDoc, key)
     }
 
-    val defaultBibleDoc: Book get() {
+    open val defaultBibleDoc: Book get() {
         val linksWindow = windowRepository.dedicatedLinksWindow
         val currentBiblePage = linksWindow.pageManager.currentBible
 

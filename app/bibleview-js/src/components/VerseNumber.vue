@@ -15,10 +15,13 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}</span></template>
+<template><span v-if="show" class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}</span></template>
 
 <script>
 import {useCommon} from "@/composables";
+import {inject} from "@vue/runtime-core";
+import {BookCategories} from "@/constants";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "VerseNumber",
@@ -26,15 +29,19 @@ export default {
     verseNum: {type: Number, required: true}
   },
   setup() {
-    return useCommon();
+    const fragment = inject("osisFragment");
+    const show = computed(() => fragment.bookCategory === BookCategories.BIBLE)
+    return {show, ...useCommon()};
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import "~@/common.scss";
 .verseNumber {
+  @extend .superscript;
+  font-size: 60%;
+  margin-right: 1pt;
   color: gray;
-  vertical-align: top;
-  font-size: 0.7em;
 }
 </style>

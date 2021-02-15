@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="500"
-    android:versionName="3.3.500">
+    android:versionCode="503"
+    android:versionName="3.3.503">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -107,7 +107,6 @@
         <activity
             android:name="net.bible.android.view.activity.bookmark.ManageLabels"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:label="@string/manage_labels"
             android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks" />
         <activity
@@ -119,6 +118,11 @@
             android:name="net.bible.android.view.activity.mynote.MyNotes"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/mynotes"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.journal.StudyPads"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/studypads"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"

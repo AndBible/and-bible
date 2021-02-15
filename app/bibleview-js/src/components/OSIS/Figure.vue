@@ -17,7 +17,7 @@
 
 <template>
   <p>
-    <img alt="Image" class="imageStyle" :src="`/module/${book}/${src}`"/><slot/>
+    <img alt="Image" class="imageStyle" :src="`/module/${bookInitials}/${src}`"/><slot/>
   </p>
 </template>
 
@@ -29,8 +29,8 @@ export default {
   name: "Figure",
   props: {src: {type: String, required: true}},
   setup() {
-    const {book} = inject("fragmentInfo");
-    return {...useCommon(), book};
+    const {bookInitials} = inject("osisFragment");
+    return {...useCommon(), bookInitials};
   },
 }
 </script>

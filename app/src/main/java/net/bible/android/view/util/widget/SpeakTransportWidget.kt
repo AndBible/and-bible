@@ -31,6 +31,7 @@ import kotlinx.android.synthetic.main.speak_transport_widget.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
@@ -45,7 +46,6 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
-import org.crosswire.jsword.book.BookCategory
 import javax.inject.Inject
 
 class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): LinearLayout(context, attributeSet) {
@@ -63,7 +63,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         nextButton.setOnClickListener { onButtonClick(it) }
         stopButton.setOnClickListener { onButtonClick(it) }
         configButton.setOnClickListener {
-            val isBible = windowControl.activeWindowPageManager.currentPage.bookCategory == BookCategory.BIBLE
+            val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
             val intent = Intent(context, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
             context.startActivity(intent)
         }

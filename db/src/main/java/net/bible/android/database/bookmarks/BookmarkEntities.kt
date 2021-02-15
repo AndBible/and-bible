@@ -32,6 +32,7 @@ import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
 import android.graphics.Color
 import androidx.room.ColumnInfo
+import androidx.room.Ignore
 import kotlinx.serialization.Serializable
 import java.util.*
 
@@ -57,14 +58,14 @@ fun intToColorArray(colorInt: Int): ArrayList<Int> {
 }
 
 enum class BookmarkStyle(val backgroundColor: Int) {
-    YELLOW_STAR(Color.argb((255*0.33).toInt(), 255, 255, 0)),
-    RED_HIGHLIGHT(Color.argb((255 * 0.28).toInt(), 213, 0, 0)),
-    YELLOW_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 255, 255, 0)),
-    GREEN_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 0, 255, 0)),
-    BLUE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 145, 167, 255)),
-    ORANGE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 255, 165, 0)),
-    PURPLE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 128, 0, 128)),
-    UNDERLINE(Color.argb((255 * 0.33).toInt(), 128, 99, 128)),
+    YELLOW_STAR(Color.argb(255, 255, 255, 0)),
+    RED_HIGHLIGHT(Color.argb(255, 213, 0, 0)),
+    YELLOW_HIGHLIGHT(Color.argb(255, 255, 255, 0)),
+    GREEN_HIGHLIGHT(Color.argb(255, 0, 255, 0)),
+    BLUE_HIGHLIGHT(Color.argb(255, 145, 167, 255)),
+    ORANGE_HIGHLIGHT(Color.argb(255, 255, 165, 0)),
+    PURPLE_HIGHLIGHT(Color.argb(255, 128, 0, 128)),
+    UNDERLINE(Color.argb(255, 128, 99, 128)),
 
     // Special hard-coded style for Speak bookmarks. This must be last one here.
     // This is removed from the style lists.
@@ -75,13 +76,7 @@ enum class BookmarkStyle(val backgroundColor: Int) {
 val defaultLabelColor = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor
 
 enum class BookmarkSortOrder {
-    BIBLE_ORDER, CREATED_AT, LAST_UPDATED;
-
-    val sqlString get() = when(this) {
-        BIBLE_ORDER -> "Bookmark.kjvOrdinalStart"
-        CREATED_AT -> "Bookmark.createdAt"
-        LAST_UPDATED -> "Bookmark.lastUpdatedOn"
-    }
+    BIBLE_ORDER, CREATED_AT, LAST_UPDATED, ORDER_NUMBER;
 }
 
 interface VerseRangeUser {
@@ -125,7 +120,6 @@ class BookmarkEntities {
 
         @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
-
         ): VerseRangeUser {
         constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: Book? = null): this(
             converter.convert(verseRange.start, KJVA).ordinal,
@@ -197,6 +191,10 @@ class BookmarkEntities {
             } else {
                 null
             }
+        @Ignore var labelIds: List<Long>? = null
+        @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
+        @Ignore var text: String? = null
+        @Ignore var fullText: String? = null
     }
 
     @Entity(
@@ -209,10 +207,35 @@ class BookmarkEntities {
             Index("labelId")
         ]
     )
+    @Serializable
     data class BookmarkToLabel(
         val bookmarkId: Long,
-        val labelId: Long
+        val labelId: Long,
+
+        // Journal display variables
+        @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
+        @ColumnInfo(defaultValue = "0") var indentLevel: Int = 0,
     )
+
+    @Entity(
+        tableName = "JournalTextEntry",
+        foreignKeys = [
+            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)
+        ],
+        indices = [
+            Index("labelId")
+        ]
+    )
+    @Serializable
+    data class StudyPadTextEntry(
+        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        val labelId: Long,
+        val text: String = "",
+        var orderNumber: Int,
+        var indentLevel: Int = 0,
+    ) {
+        @Ignore val type: String = "journal"
+    }
 
     @Entity
     @Serializable

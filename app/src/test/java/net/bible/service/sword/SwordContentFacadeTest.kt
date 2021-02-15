@@ -5,8 +5,6 @@ import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.page.OsisFragment
 import net.bible.service.common.ParseException
 import net.bible.test.DatabaseResetter
 
@@ -40,7 +38,7 @@ class SwordContentFacadeTest {
     fun setUp() {
         val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
         val windowControl = Mockito.mock(WindowControl::class.java)
-        val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(AndroidResourceProvider::class.java))
+        val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(SwordContentFacade::class.java),Mockito.mock(AndroidResourceProvider::class.java))
         swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
     }
 
@@ -102,8 +100,8 @@ class SwordContentFacadeTest {
 
         val html = try {
             swordContentFacade.readOsisFragment(esv, verse)
-        } catch (e: ParseException) {
-            "broken"
+        } catch (e: Exception) {
+            if(e is OsisError) "fixed" else "broken"
         }
         assertThat(html, not(equalTo("broken")))
     }
@@ -118,8 +116,8 @@ class SwordContentFacadeTest {
 
             val html = try {
                 swordContentFacade.readOsisFragment(esv, verse)
-            } catch (e: ParseException) {
-                "broken"
+            } catch (e: Exception) {
+                if(e is OsisError) "fixed" else "broken"
             }
             assertThat(html, not(equalTo("broken")))
         }

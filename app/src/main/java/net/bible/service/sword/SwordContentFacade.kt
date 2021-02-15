@@ -32,12 +32,12 @@ import net.bible.service.common.Logger
 import net.bible.service.common.ParseException
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
-import net.bible.service.format.OsisMessageFormatter.Companion.format
 import net.bible.service.format.Note
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToCopyTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
+import org.apache.commons.text.StringEscapeUtils
 import org.crosswire.common.xml.JDOMSAXEventProvider
 import org.crosswire.common.xml.SAXEventProvider
 import org.crosswire.jsword.book.Book
@@ -52,11 +52,17 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
+import org.jdom2.Text
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
+import org.jdom2.output.support.AbstractXMLOutputProcessor
+import org.jdom2.output.support.FormatStack
 import org.xml.sax.ContentHandler
+import java.io.Writer
 import java.util.*
 import javax.inject.Inject
+
+class OsisError(message: String): Exception(message)
 
 /** JSword facade
  *
@@ -69,24 +75,17 @@ open class SwordContentFacade @Inject constructor(
 
     /** top level method to fetch html from the raw document data
      */
-    @Throws(ParseException::class)
+    @Throws(ParseException::class, OsisError::class)
     fun readOsisFragment(book: Book?, key: Key?,): String {
-        var book = book
-        var key = key
-        if(key is BookAndKey) {
-            book = key.document
-            key = key.key
-        }
         val retVal = when {
             book == null || key == null -> ""
             Books.installed().getBook(book.initials) == null -> {
                 Log.w(TAG, "Book may have been uninstalled:$book")
-                val errorMsg = application.getString(R.string.document_not_installed, book.initials)
-                format(errorMsg)
+                throw OsisError(application.getString(R.string.document_not_installed, book.initials))
             }
             !bookContainsAnyOf(book, key) -> {
                 Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
-                format(R.string.error_key_not_in_document)
+                throw OsisError(application.getString(R.string.error_key_not_in_document))
             }
             else -> {
                 readXmlTextStandardJSwordMethod(book, key)
@@ -124,7 +123,17 @@ open class SwordContentFacade @Inject constructor(
         log.debug("Using standard JSword to fetch document data")
         return try {
             val data = BookData(book, key)
-            val outputter = XMLOutputter(Format.getRawFormat())
+            val format = Format.getRawFormat()
+            val processor = object: AbstractXMLOutputProcessor() {
+                override fun printText(out: Writer, fstack: FormatStack, text: Text) {
+                    // We might have html-encoded characters in OSIS text.
+                    // Let's un-encode them first, lest we will end up with double-encoded strings
+                    // such as &amp;quot;
+                    text.text = StringEscapeUtils.unescapeHtml4(text.text)
+                    super.printText(out, fstack, text)
+                }
+            }
+            val outputter = XMLOutputter(format, processor)
             outputter.outputString(data.osisFragment)
         } catch (e: Exception) {
             log.error("Parsing error", e)
@@ -142,7 +151,7 @@ open class SwordContentFacade @Inject constructor(
      * a reference, appropriate for the book, of one or more entries
      */
     @Throws(NoSuchKeyException::class, BookException::class, ParseException::class)
-    fun getCanonicalText(book: Book?, key: Key?): String {
+    open fun getCanonicalText(book: Book?, key: Key?): String {
         return try {
             val data = BookData(book, key)
             val osissep = data.saxEventProvider

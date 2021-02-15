@@ -99,6 +99,8 @@ class LockableHorizontalScrollView(context: Context, attributeSet: AttributeSet)
     }
 }
 
+class RestoreButtonsVisibilityChanged
+
 @SuppressLint("ViewConstructor")
 class SplitBibleArea(
 ): FrameLayout(mainBibleActivity) {
@@ -575,10 +577,14 @@ class SplitBibleArea(
     private var restoreButtonsVisible = CommonUtils.sharedPreferences.getBoolean("restoreButtonsVisible", true)
         set(value) {
             CommonUtils.sharedPreferences.edit().putBoolean("restoreButtonsVisible", value).apply()
+            ABEventBus.getDefault().post(RestoreButtonsVisibilityChanged())
             field = value
         }
 
     private fun updateBibleReferenceOverlay(_show: Boolean) {
+        val isSettingDisabled = CommonUtils.sharedPreferences.getBoolean("hide_bible_reference_overlay", false)
+        if (isSettingDisabled) return
+
         val show = mainBibleActivity.fullScreen && _show
         if(show) {
             bibleReferenceOverlay.visibility = View.VISIBLE
@@ -617,16 +623,9 @@ class SplitBibleArea(
     /**
      * Get the first initial of the doc in the window to show in the minimise restore button
      */
-    private fun getDocumentAbbreviation(window: Window): String {
-        return try {
-            val abbrv = window.pageManager.currentPage.currentDocumentAbbreviation
-            return abbrv ?: ""
-            //abbrv?.substring(0, 1) ?: ""
-        } catch (e: Exception) {
-            " "
-        }
-
-    }
+    private fun getDocumentAbbreviation(window: Window): String = try {
+        window.pageManager.currentPage.currentDocumentAbbreviation
+    } catch (e: Exception) {" "}
 
     private fun handlePrefItem(window: Window, item: MenuItem) {
         val itemOptions = getItemOptions(window, item)

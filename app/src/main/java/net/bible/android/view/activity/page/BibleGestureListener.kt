@@ -40,24 +40,11 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
     private val autoFullScreen: Boolean get() = CommonUtils.sharedPreferences.getBoolean("auto_fullscreen_pref", false)
     private var lastFullScreenByDoubleTap = false
 
-    private var disableSingleTapOnce = false
-
     private var verseSelectionMode = false
 
     private lateinit var scrollEv: MotionEvent
     private lateinit var flingEv: MotionEvent
     private var lastDirection = false
-
-    fun setDisableSingleTapOnce(disableSingleTapOnce: Boolean) {
-        this.disableSingleTapOnce = disableSingleTapOnce
-    }
-
-    fun setVerseSelectionMode(verseSelectionMode: Boolean) {
-        this.verseSelectionMode = verseSelectionMode
-        if (!verseSelectionMode) {
-            disableSingleTapOnce = true
-        }
-    }
 
     init {
         scaledMinimumDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP)
@@ -101,10 +88,6 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
             }
         }
         return false
-    }
-
-    fun onEvent(event: CurrentWindowChangedEvent) {
-        disableSingleTapOnce = true
     }
 
 	fun onEvent(event: MainBibleActivity.FullScreenEvent) {
@@ -163,22 +146,6 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
 			lastFullScreenByDoubleTap = true
         }
         return true
-    }
-
-    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        if (verseSelectionMode) {
-            return false
-        }
-        if (disableSingleTapOnce) {
-            disableSingleTapOnce = false
-            return false
-        }
-
-        if (mainBibleActivity.fullScreen) {
-            mainBibleActivity.fullScreen = false
-            return true
-        }
-        return false
     }
 
     companion object {

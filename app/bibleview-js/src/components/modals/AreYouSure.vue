@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   -
   - This file is part of And Bible (http://github.com/AndBible/and-bible).
   -
@@ -16,7 +16,10 @@
   -->
 
 <template>
-  <Modal v-if="show" @close="show=false">
+  <Modal v-if="show" @close="show=false" blocking>
+    <template #title>
+      <slot name="title"/>
+    </template>
     <slot/>
     <template #footer>
       <button class="button" @click="ok">{{strings.ok}}</button>
@@ -26,12 +29,12 @@
 </template>
 
 <script>
-import Modal from "@/components/Modal";
+import Modal from "@/components/modals/Modal";
 import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {Deferred} from "@/utils";
 export default {
-  name: "AreYouSure.vue",
+  name: "AreYouSure",
   components: {Modal},
   setup() {
     const show = ref(false);

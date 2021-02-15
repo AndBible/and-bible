@@ -35,6 +35,11 @@
 			android:summary="@string/hide_window_buttons_summary"
 			android:defaultValue="false"
 			/>
+		<SwitchPreferenceCompat android:key="hide_bible_reference_overlay"
+			android:title="@string/hide_bible_reference_overlay_title"
+			android:summary="@string/hide_bible_reference_overlay_summary"
+			android:defaultValue="false"
+			/>
 		<ListPreference android:key="night_mode_pref3"
 			android:title="@string/prefs_night_mode_title"
 			android:summary="@string/prefs_night_mode_summary"

@@ -27,7 +27,6 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse as JswordVerse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
@@ -36,15 +35,10 @@ import java.util.*
 
 val json = Json {
     allowStructuredMapKeys = true
+    encodeDefaults = true
 }
 
 class WorkspaceEntities {
-    data class DictionaryPage(
-        val document: String?,
-        val key: Key?,
-        val currentYOffsetRatio: Float?
-    )
-
     data class Page(
         val document: String?,
         val key: String?,
@@ -93,7 +87,7 @@ class WorkspaceEntities {
         @PrimaryKey var windowId: Long,
         @Embedded(prefix="bible_") val biblePage: BiblePage,
         @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage?,
-        @Embedded(prefix="dictionary_") val dictionaryPage: DictionaryPage?,
+        @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
         @Embedded(prefix="general_book_") val generalBookPage: Page?,
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,
@@ -240,13 +234,15 @@ class WorkspaceEntities {
             fun fromJson(jsonString: String): TextDisplaySettings {
                 return json.decodeFromString(serializer(), jsonString)
             }
+            const val white = -1
+            const val black = -16777216
 
             val default get() = TextDisplaySettings(
                 colors = Colors(
-                    dayBackground = null,
-                    dayTextColor = null,
-                    nightBackground = null,
-                    nightTextColor = null,
+                    dayBackground = white,
+                    dayTextColor = black,
+                    nightBackground = black,
+                    nightTextColor = white,
                     nightNoise = 0,
                     dayNoise = 0
                 ),

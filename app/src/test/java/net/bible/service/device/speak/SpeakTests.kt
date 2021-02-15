@@ -218,6 +218,7 @@ open class AbstractSpeakTests {
     @Before
     open fun setup() {
         ShadowLog.stream = System.out
+        Mockito.`when`(mockedSwordContentFacade.getCanonicalText(Mockito.any(), Mockito.any())).thenReturn("test")
         book = Books.installed().getBook("FinRK") as SwordBook
     }
 
@@ -252,7 +253,8 @@ open class AbstractSpeakTests {
         val windowControl = mock(WindowControl::class.java)
         val windowRepository = mock(WindowRepository::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
-        val bookmarkControl = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java))
+        val mockedSwordContentFacade = Mockito.mock(SwordContentFacade::class.java)
+        val bookmarkControl = BookmarkControl(windowControl, mockedSwordContentFacade ,mock(AndroidResourceProvider::class.java))
         val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
         val swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
     }
@@ -554,7 +556,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         text = nextText()
-        provider.stop(false)
+        provider.stop()
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
     }
 
@@ -588,7 +590,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         text = nextText()
-        provider.stop(false) // does not remove bookmark as it was already there
+        provider.stop() // does not remove bookmark as it was already there
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(0))
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
     }
@@ -759,7 +761,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         text = nextText()
-        provider.stop(false)
+        provider.stop()
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
         assertThat(dto.playbackSettings, nullValue())
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
@@ -787,7 +789,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         text = nextText()
-        provider.stop(false)
+        provider.stop()
         assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(1)) // new bookmark with same label has been created
     }
 
@@ -814,7 +816,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         val bmark = bookmarkControl.getBookmarksWithLabel(label).first()
         bookmarkControl.deleteBookmark(bmark);
         assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(0))
-        provider.stop(false)
+        provider.stop()
         assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(0))
     }
 
@@ -823,7 +825,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, getVerse("Ps.14.2"))
         provider.prepareForStartSpeaking()
         text = nextText()
-        provider.stop(false);
+        provider.stop();
         val label = bookmarkControl.speakLabel
         val bookmark = bookmarkControl.getBookmarksWithLabel(label).get(0)
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.2"))

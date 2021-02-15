@@ -16,21 +16,23 @@
   -->
 
 <template>
-  <div
-      :id="`v-${ordinal}`"
-      class="verse bookmarkStyle"
-      :class="{noLineBreak: !config.showVersePerLine}"
-  >
-    <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/>
-    <slot/><span class="skip-offset">&nbsp;</span>
-  </div>
+  <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
+    <span
+        :id="`v-${ordinal}`"
+        class="verse bookmarkStyle"
+        :class="{linebreak: config.showVersePerLine}"
+    >
+      <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
+    </span>
+  </span>
 </template>
 
 <script>
-import {provide, reactive, ref} from "@vue/runtime-core";
+import {inject, provide, reactive, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
-import {getVerseInfo} from "@/utils";
+import {getVerseInfo, sleep} from "@/utils";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "Verse",
@@ -46,33 +48,74 @@ export default {
     verseInfo.showStack = reactive([shown]);
 
     provide("verseInfo", verseInfo);
+    const verseMap = inject("verseMap");
+
+    const ordinal = computed(() => {
+      return parseInt(props.verseOrdinal);
+    });
+
+    verseMap.register(ordinal.value, {highlight});
+
+    const book = computed(() => {
+      return props.osisID.split(".")[0]
+    });
+
+    const chapter = computed(() => {
+      return parseInt(props.osisID.split(".")[1])
+    });
+
+    const verse = computed(() => {
+      return parseInt(props.osisID.split(".")[2])
+    });
+
+    const {originalOrdinalRange} = inject("bibleDocumentInfo", {})
+
+    const timeout = ref(false);
+
+    const isInOriginalOrdinalRange = computed(() => {
+      if(!originalOrdinalRange) return false
+      return ordinal.value <= originalOrdinalRange[1] && ordinal.value >= originalOrdinalRange[0];
+    });
+
+    const highlighted = ref(false);
+
+    function highlight() {
+      timeout.value = false;
+      highlighted.value = true;
+      sleep(3000).then(() => timeout.value = true)
+    }
+
+    if(isInOriginalOrdinalRange.value) {
+      sleep(3000).then(() => timeout.value = true)
+    }
 
     const common = useCommon();
     return {
+      timeout,
+      ordinal,
+      book,
+      chapter,
+      verse,
       shown,
+      highlighted,
+      isInOriginalOrdinalRange,
       ...common,
     }
-  },
-  computed: {
-    ordinal() {
-      return parseInt(this.verseOrdinal);
-    },
-    book() {
-      return this.osisID.split(".")[0]
-    },
-    chapter() {
-      return parseInt(this.osisID.split(".")[1])
-    },
-    verse() {
-      return parseInt(this.osisID.split(".")[2])
-    },
   },
 }
 </script>
 
 <style scoped>
-.noLineBreak {
-  display: inline;
+.linebreak {
+  display: block;
+}
+
+.highlight-transition {
+  transition: background-color 1s ease;
+}
+
+.isHighlighted {
+  background-color: rgba(255, 230, 0, 0.4);
 }
 
 .bookmarkStyle {

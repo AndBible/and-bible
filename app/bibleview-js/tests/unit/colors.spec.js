@@ -35,4 +35,6 @@ describe("myMixColors test", () => {
     it("test5", () => expect(mixColors(y, y, y, r).hex()).toEqual("#FFB100"));
     it("colorDarkness 1", () => expect(colorLightness(Color("white"))).toEqual(1));
     it("colorDarkness 2", () => expect(colorLightness(Color("black"))).toEqual(0));
+    it("White color as int", () => expect(Color("white").rgbNumber()).toEqual(16777215));
+    it("Black color as int", () => expect(Color("black").rgbNumber()).toEqual(0));
 });

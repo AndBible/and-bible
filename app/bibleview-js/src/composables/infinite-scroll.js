@@ -24,7 +24,7 @@
 import {nextTick, onMounted} from "@vue/runtime-core";
 import {setupWindowEventListener} from "@/utils";
 
-export function useInfiniteScroll(config, {requestMoreTextAtTop, requestMoreTextAtEnd}, osisFragments) {
+export function useInfiniteScroll(config, {requestPreviousChapter, requestNextChapter}, documents) {
     let
         currentPos,
         lastAddMoreTime = 0,
@@ -39,8 +39,8 @@ export function useInfiniteScroll(config, {requestMoreTextAtTop, requestMoreText
         bodyHeight = () => document.body.scrollHeight,
         scrollPosition = () => window.pageYOffset,
         setScrollPosition = offset => window.scrollTo(0, offset),
-        loadTextAtTop = async () => insertThisTextAtTop(await requestMoreTextAtTop()),
-        loadTextAtEnd = async () => insertThisTextAtEnd(await requestMoreTextAtEnd()),
+        loadTextAtTop = async () => insertThisTextAtTop(await requestPreviousChapter()),
+        loadTextAtEnd = async () => insertThisTextAtEnd(await requestNextChapter()),
         addMoreAtEnd = () => loadTextAtEnd(),
         addMoreAtTop = () => {
             if (touchDown) {
@@ -64,14 +64,14 @@ export function useInfiniteScroll(config, {requestMoreTextAtTop, requestMoreText
         }
     }
 
-    async function insertThisTextAtTop(osisFragment) {
+    async function insertThisTextAtTop(document) {
         if (touchDown) {
-            textToBeInsertedAtTop = osisFragment;
+            textToBeInsertedAtTop = document;
         } else {
             const priorHeight = bodyHeight();
             const origPosition = scrollPosition();
 
-            if(osisFragment) osisFragments.unshift({...osisFragment, showTransition: false});
+            if(document) documents.unshift({...document, showTransition: false});
             await nextTick();
 
             // do no try to get scrollPosition here because it has not settled
@@ -80,8 +80,8 @@ export function useInfiniteScroll(config, {requestMoreTextAtTop, requestMoreText
         }
     }
 
-    function insertThisTextAtEnd(osisFragment) {
-        if(osisFragment) osisFragments.push({...osisFragment});
+    function insertThisTextAtEnd(document) {
+        if(document) documents.push({...document});
     }
 
     function scrollHandler() {

@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   -
   - This file is part of And Bible (http://github.com/AndBible/and-bible).
   -
@@ -14,68 +14,59 @@
   - You should have received a copy of the GNU General Public License along with And Bible.
   - If not, see http://www.gnu.org/licenses/.
   -->
+
 <template>
   <div ref="fragElement">
     <transition-group name="fade">
-      <div class="inlineDiv" v-for="{key, template} in templates" :key="key">
+      <div v-for="{key, template} in templates" :key="key">
         <OsisSegment :osis-template="template" />
       </div>
     </transition-group>
-    <div class="features-link" v-if="featuresLink">
-      <a :href="featuresLink">{{strings.findAllOccurrences}}</a>
-    </div>
+    <OpenAllLink/>
+    <FeaturesLink :fragment="fragment"/>
   </div>
 </template>
 
 <script>
-import {inject, provide} from "@vue/runtime-core";
-import {useBookmarks} from "@/composables/bookmarks";
 import {reactive, ref} from "@vue/reactivity";
-import OsisSegment from "@/components/OsisSegment";
-import {AutoSleep} from "@/utils";
-import {usePoetic, useStrings} from "@/composables";
+import {provide} from "@vue/runtime-core";
+import {useReferenceCollector} from "@/composables";
+import {AutoSleep, osisToTemplateString} from "@/utils";
+import OsisSegment from "@/components/documents/OsisSegment";
+import FeaturesLink from "@/components/FeaturesLink";
+import {BookCategories} from "@/constants";
+import OpenAllLink from "@/components/OpenAllLink";
+import {useStrings} from "@/composables/strings";
 
 const parser = new DOMParser();
 
 export default {
   name: "OsisFragment",
-  components: {OsisSegment},
   props: {
-    data: {type: Object, required: true},
     showTransition: {type: Boolean, default: false},
+    fragment: {type: Object, required: true},
   },
+  components: {OpenAllLink, FeaturesLink, OsisSegment},
   setup(props) {
-    // Props for this component is considered to be read-only.
     // eslint-disable-next-line vue/no-setup-props-destructure
     const {
       xml,
       key: fragmentKey,
-      ordinalRange = null,
-      features: {type: featureType = null, keyName: featureKeyName = null} = {}} = props.data;
+      bookCategory,
+    } = props.fragment;
+
     const fragmentReady = ref(!props.showTransition);
     const strings = useStrings();
     const fragElement = ref(null);
+    provide("osisFragment", props.fragment)
 
-    // TODO: check if these are used
-    const [book, osisID] = fragmentKey.split("--");
+    const referenceCollector = useReferenceCollector();
 
-    const globalBookmarks = inject("globalBookmarks");
-    const config = inject("config");
-
-    // Disable bookmarks for non-bible documents
-    if(ordinalRange) {
-      // To remove verse 0 from ordinalRange (is always included)
-      const realOrdinalRange = ordinalRange ? [ordinalRange[0]+1, ordinalRange[1]]: null;
-      useBookmarks(fragmentKey, realOrdinalRange, globalBookmarks, book, fragmentReady, config);
+    if(bookCategory === BookCategories.COMMENTARIES) {
+      provide("referenceCollector", referenceCollector);
     }
-    usePoetic(fragElement, fragmentReady);
-    provide("fragmentInfo", {fragmentKey, book, osisID});
 
-    const template = xml
-        .replace(/(<\/?)(\w)(\w*)([^>]*>)/g,
-            (m, tagStart, tagFirst, tagRest, tagEnd) =>
-                `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`);
-
+    const template = osisToTemplateString(xml)
     const templates = reactive([]);
 
     async function populate() {
@@ -96,8 +87,7 @@ export default {
     } else {
       templates.push({template, key: `${fragmentKey}-0`})
     }
-    const featuresLink = featureType ?`ab-find-all://?type=${featureType}&name=${featureKeyName}`: null;
-    return {templates, featuresLink, strings, fragElement}
+    return {templates, strings, fragElement}
   }
 }
 </script>
@@ -108,9 +98,5 @@ export default {
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0
-}
-.features-link {
-  padding-top: 1em;
-  text-align: right;
 }
 </style>

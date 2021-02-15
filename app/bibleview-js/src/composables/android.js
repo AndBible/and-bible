@@ -20,6 +20,7 @@ import {onMounted} from "@vue/runtime-core";
 import {calculateOffsetToVerse} from "@/dom";
 import {isFunction, union} from "lodash";
 import {reactive} from "@vue/reactivity";
+import {JournalEntryTypes} from "@/constants";
 
 let callId = 0;
 
@@ -102,16 +103,19 @@ export function useAndroid({bookmarks}, config) {
         const selection = window.getSelection();
         if (selection.rangeCount < 1 || selection.collapsed) return null;
         const range = selection.getRangeAt(0);
+        const documentElem = range.startContainer.parentElement.closest(".bible-document");
+        if(!documentElem) return null
+
+        const bookInitials = documentElem.dataset.bookInitials;
+
         const {ordinal: startOrdinal, offset: startOffset} =
             calculateOffsetToVerse(range.startContainer, range.startOffset, true);
         const {ordinal: endOrdinal, offset: endOffset} =
             calculateOffsetToVerse(range.endContainer, range.endOffset);
-        const fragmentId = range.startContainer.parentElement.closest(".fragment").id;
-        const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
 
         function bookmarkRange(b) {
             const offsetRange = b.offsetRange || [0, null]
-            if(b.book !== bookInitials) {
+            if(b.bookInitials !== bookInitials) {
                 offsetRange[0] = 0;
                 offsetRange[1] = null;
             }
@@ -144,12 +148,12 @@ export function useAndroid({bookmarks}, config) {
         return returnValue
     }
 
-    async function requestMoreTextAtTop() {
-        return await deferredCall((callId) => android.requestMoreTextAtTop(callId));
+    async function requestPreviousChapter() {
+        return await deferredCall((callId) => android.requestPreviousChapter(callId));
     }
 
-    async function requestMoreTextAtEnd() {
-        return await deferredCall((callId) => android.requestMoreTextAtEnd(callId));
+    async function requestNextChapter() {
+        return await deferredCall((callId) => android.requestNextChapter(callId));
     }
 
     function scrolledToVerse(ordinal) {
@@ -180,17 +184,67 @@ export function useAndroid({bookmarks}, config) {
         android.openExternalLink(link);
     }
 
+    function setActionMode(value) {
+        android.setActionMode(value);
+    }
+
+    function createNewJournalEntry(labelId, afterEntryType = "none", afterEntryId = 0) {
+        android.createNewJournalEntry(labelId, afterEntryType, afterEntryId);
+    }
+
+    function deleteJournalEntry(journalId) {
+        android.deleteJournalEntry(journalId);
+    }
+
+    function removeBookmarkLabel(bookmarkId, labelId) {
+        android.removeBookmarkLabel(bookmarkId, labelId);
+    }
+
+    function updateOrderNumber(labelId, bookmarks, journals) {
+        const orderNumberPairs = l => l.map(v=>[v.id, v.orderNumber])
+        android.updateOrderNumber(labelId, JSON.stringify(
+            {bookmarks: orderNumberPairs(bookmarks), journals: orderNumberPairs(journals)}
+            )
+        );
+    }
+
+    function toast(text) {
+        android.toast(text);
+    }
+
+    function updateJournalEntry(entry, changes) {
+        const changedEntry = {...entry, ...changes}
+        if(entry.type === JournalEntryTypes.JOURNAL_TEXT) {
+            android.updateJournalTextEntry(JSON.stringify(changedEntry));
+        } else if(entry.type === JournalEntryTypes.BOOKMARK) {
+            const entry = {
+                bookmarkId: changedEntry.id,
+                labelId: changedEntry.bookmarkToLabel.labelId,
+                indentLevel: changedEntry.indentLevel,
+                orderNumber: changedEntry.orderNumber,
+            }
+            android.updateBookmarkToLabel(JSON.stringify(entry));
+        }
+    }
+
     const exposed = {
+        setActionMode,
         reportInputFocus,
         saveBookmarkNote,
-        requestMoreTextAtTop,
-        requestMoreTextAtEnd,
+        requestPreviousChapter,
+        requestNextChapter,
         scrolledToVerse,
         setClientReady,
         querySelection,
         removeBookmark,
         assignLabels,
         openExternalLink,
+        createNewJournalEntry,
+        deleteJournalEntry,
+        removeBookmarkLabel,
+        updateOrderNumber,
+        updateJournalEntry,
+        toast,
     }
 
     if(config.developmentMode) return {

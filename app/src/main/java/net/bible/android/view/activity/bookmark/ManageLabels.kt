@@ -20,16 +20,20 @@ package net.bible.android.view.activity.bookmark
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ListView
+import kotlinx.android.synthetic.main.manage_labels.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.service.common.CommonUtils
 import java.util.*
 import javax.inject.Inject
+import kotlin.random.Random.Default.nextInt
 
 /**
  * Choose a bible or commentary to use
@@ -39,10 +43,12 @@ import javax.inject.Inject
 class ManageLabels : ListActivityBase() {
     private val labels: MutableList<BookmarkEntities.Label> = ArrayList()
     @Inject lateinit var bookmarkControl: BookmarkControl
-    private var labelDialogs: LabelDialogs? = null
+    @Inject lateinit var labelDialogs: LabelDialogs
+
     var showUnassigned = false
     var showCheckboxes = false
-    val deletedLabels = mutableSetOf<Long>()
+    var selectMultiple = false
+    private val deletedLabels = mutableSetOf<Long>()
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +63,12 @@ class ManageLabels : ListActivityBase() {
 
         showUnassigned = intent.getBooleanExtra("showUnassigned", false)
         val title = intent.getStringExtra("title")
+        selectMultiple = checkedLabels.size > 1 || CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
+        selectMultipleSwitch.isChecked = selectMultiple
+        selectMultipleSwitch.setOnCheckedChangeListener { _, isChecked ->
+            selectMultiple = isChecked
+            CommonUtils.sharedPreferences.edit().putBoolean("assignLabelsSelectMultiple", selectMultiple).apply()
+        }
         if(title!=null) setTitle(title)
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
         loadLabelList()
@@ -65,16 +77,29 @@ class ManageLabels : ListActivityBase() {
 
     private val checkedLabels = mutableSetOf<Long>()
 
-    fun delete(label: BookmarkEntities.Label?) {
-        deletedLabels.add(label!!.id)
+    fun delete(label: BookmarkEntities.Label) {
+        deletedLabels.add(label.id)
         checkedLabels.remove(label.id)
         loadLabelList()
     }
 
+    fun setEnabled(label: BookmarkEntities.Label, enabled: Boolean) {
+        if (enabled) {
+            if(!selectMultiple) {
+                checkedLabels.clear()
+            }
+            checkedLabels.add(label.id)
+        } else checkedLabels.remove(label.id)
+        notifyDataSetChanged()
+    }
+
+    private fun randomColor(): Int = Color.argb(255, nextInt(0, 255), nextInt(0, 255), nextInt(0, 255))
+
     fun onNewLabel(v: View?) {
         Log.i(TAG, "New label clicked")
         val newLabel = BookmarkEntities.Label()
-        labelDialogs!!.createLabel(this, newLabel) {
+        newLabel.color = randomColor()
+        labelDialogs.createLabel(this, newLabel) {
             loadLabelList()
             checkedLabels.add(newLabel.id)
             notifyDataSetChanged()
@@ -83,7 +108,7 @@ class ManageLabels : ListActivityBase() {
 
     fun editLabel(label: BookmarkEntities.Label?) {
         Log.i(TAG, "Edit label clicked")
-        labelDialogs!!.editLabel(this, label!!) { loadLabelList() }
+        labelDialogs.editLabel(this, label!!) { loadLabelList() }
     }
 
     fun onOkay(v: View?) {
@@ -103,16 +128,11 @@ class ManageLabels : ListActivityBase() {
 
     private fun loadLabelList() {
         labels.clear()
-        labels.addAll(bookmarkControl.assignableLabels.filter { !deletedLabels.contains(it.id) })
+        labels.addAll(bookmarkControl.assignableLabels.filterNot { deletedLabels.contains(it.id) || it.isSpeakLabel })
         if(showUnassigned) {
             labels.add(bookmarkControl.labelUnlabelled)
         }
         notifyDataSetChanged()
-    }
-
-    @Inject
-    fun setLabelDialogs(labelDialogs: LabelDialogs?) {
-        this.labelDialogs = labelDialogs
     }
 
     companion object {

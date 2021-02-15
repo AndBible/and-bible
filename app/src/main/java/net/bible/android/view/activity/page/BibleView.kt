@@ -45,9 +45,6 @@ import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
 import androidx.webkit.WebViewAssetLoader
-import androidx.webkit.WebViewCompat
-import androidx.webkit.WebViewFeature
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -59,8 +56,10 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
-import net.bible.android.control.bookmark.LABEL_UNLABELED_ID
+import net.bible.android.control.bookmark.StudyPadOrderEvent
+import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
@@ -68,7 +67,14 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
+import net.bible.android.control.page.BibleDocument
+import net.bible.android.control.page.ClientBookmark
+import net.bible.android.control.page.ClientBookmarkLabel
 import net.bible.android.control.page.CurrentBiblePage
+import net.bible.android.control.page.Document
+import net.bible.android.control.page.DocumentCategory
+import net.bible.android.control.page.DocumentWithBookmarks
+import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.DecrementBusyCount
@@ -78,84 +84,29 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.bookmarks.BookmarkStyle
-import net.bible.android.database.bookmarks.intToColorArray
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
+import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import net.bible.service.sword.BookAndKey
-import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import org.crosswire.jsword.versification.Versification
 import java.io.File
 import java.lang.ref.WeakReference
 import java.net.URLConnection
+import java.util.*
 import kotlin.math.min
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
-
-class OsisFragment(val xml: String, val key: Key?, val bookId: String) {
-    val ordinalRangeJson: String get () {
-        val key = key;
-        return if(key is VerseRange) {
-            "[${key.start.ordinal}, ${key.end.ordinal}]"
-        } else "null"
-    }
-    val keyStr: String get () {
-        val osisId = if (key is VerseRange) {
-            "${key.start.ordinal}_${key.end.ordinal}"
-        } else {
-            key?.osisID?.replace(".", "-")
-        }
-        return "$bookId--${osisId ?: "error"}"
-    }
-    val features: String get () {
-        return if(key is BookAndKey) {
-            val type = when {
-                key.document.hasFeature(FeatureType.HEBREW_DEFINITIONS) -> "hebrew"
-                key.document.hasFeature(FeatureType.GREEK_DEFINITIONS) -> "greek"
-                else -> null
-            }
-            if (type != null) {
-                "{type: '${type}', keyName: '${key.key.name}'}"
-            } else "undefined"
-        } else "undefined"
-    }
-}
-
-@Serializable
-data class ClientBookmark(val id: Long, val ordinalRange: List<Int>, val offsetRange: List<Int>?,
-                          val labels: List<Long>, val book: String?, val createdAt: Long, val lastUpdatedOn: Long,
-                          val notes: String?) {
-    constructor(bookmark: BookmarkEntities.Bookmark, labels: List<Long>, v11n: Versification) :
-        this(bookmark.id,
-            listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal),
-            bookmark.textRange?.clientList,
-            labels.toMutableList().also { if(it.isEmpty()) it.add(LABEL_UNLABELED_ID) }, bookmark.book?.initials,
-            bookmark.createdAt.time, bookmark.lastUpdatedOn.time, bookmark.notes
-        )
-}
-
-@Serializable
-data class ClientBookmarkStyle(val color: List<Int>)
-
-@Serializable
-data class ClientBookmarkLabel(val id: Long, val style: ClientBookmarkStyle)
-
 
 /** The WebView component that shows the bible and other documents */
 @SuppressLint("ViewConstructor")
@@ -196,9 +147,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
 
     private var toBeDestroyed = false
-    private var latestOsisObjStr: String? = null
-    private var needsOsisContent: Boolean = false
-    private var htmlLoadingOngoing: Boolean = true
+
+    @Volatile private var latestDocumentStr: String? = null
+    @Volatile private var needsDocument: Boolean = false
+    @Volatile private var htmlLoadingOngoing: Boolean = true
         set(value) {
             if(value != field) {
                 ABEventBus.getDefault().post(if(value) IncrementBusyCount() else DecrementBusyCount())
@@ -262,15 +214,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
         val initialLabels = displaySettings.bookmarks!!.assignLabels!!.toList()
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
-
-        val actionTextColor = CommonUtils.getResourceColor(R.color.snackbar_action_text)
-        runOnUiThread {
-            val currentView = mainBibleActivity.findViewById<View>(R.id.coordinatorLayout)
-            Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_LONG)
-                .setActionTextColor(actionTextColor)
-                .setAction(R.string.assign_labels) { assignLabels(bookmark.id)
-                }.show()
-        }
     }
 
     internal fun assignLabels(bookmarkId: Long) = GlobalScope.launch(Dispatchers.IO) {
@@ -301,10 +244,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var currentSelection: Selection? = null
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
-        if(bookCategory != BookCategory.BIBLE) return false
-        mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
-
+        Log.d(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
         if(menuPrepared) {
+            mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
             // For some reason, these do not seem to be correct from XML, even though specified there
             menu.findItem(R.id.add_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.remove_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
@@ -325,17 +267,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val sel = json.decodeFromString(serializer<Selection?>(), result)
                 if(sel !== null) {
                     currentSelection = sel
-                }
+                    menuPrepared = true
 
-                menuPrepared = true
-                withContext(Dispatchers.Main) {
-                    menu.clear()
-                    mode.invalidate()
+                    withContext(Dispatchers.Main) {
+                        menu.clear()
+                        mode.invalidate()
+                    }
                 }
             }
             return false
         }
     }
+
+    var actionModeEnabled: Boolean = true
 
     fun stopSelection(removeRanges: Boolean = false) {
         currentSelection = null
@@ -352,6 +296,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            if(!actionModeEnabled) return true
             val wasUpdated2 = callback.onPrepareActionMode(mode, menu)
             val wasUpdated1 = onPrepareActionMenu(mode, menu)
             return wasUpdated1 || wasUpdated2
@@ -370,9 +315,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         override fun onGetContentRect(mode: ActionMode, view: View, outRect: Rect) {
             if(callback is ActionMode.Callback2) {
-                return callback.onGetContentRect(mode, view, outRect)
+                callback.onGetContentRect(mode, view, outRect)
             } else {
-                return super.onGetContentRect(mode, view, outRect)
+                super.onGetContentRect(mode, view, outRect)
             }
         }
     }
@@ -397,6 +342,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            if(!actionModeEnabled) return true
             val wasUpdated1 = callback.onPrepareActionMode(mode, menu)
             val wasUpdated2 = onPrepareActionMenu(mode, menu)
             return wasUpdated1 || wasUpdated2
@@ -422,6 +368,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 "content" -> "$type:$target"
                 "strong" -> "$type:$target"
                 "robinson" -> "$type:$target"
+                "strongMorph" -> "$type:$target"
                 else -> {
                     if(target.startsWith("sword://"))
                         target
@@ -466,7 +413,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // if this webview becomes (in)active then must start/stop auto-scroll
         listenEvents = true
 
-        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html")
+        val lang = Locale.getDefault().toLanguageTag()
+
+        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html?lang=$lang")
     }
 
     override fun destroy() {
@@ -503,7 +452,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     object UriConstants {
         const val SCHEME_ERROR = "ab-error"
         const val SCHEME_W = "ab-w"
-        const val SCHEME_REFERENCE = "ab-reference"
+        const val SCHEME_REFERENCE = "osis"
+        const val MULTI_REFERENCE = "multi"
+        const val SCHEME_MYNOTES = "my-notes"
+        const val SCHEME_JOURNAL = "journal"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
 
@@ -531,11 +483,29 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 links.addAll(uri.getQueryParameters(paramName).map { BibleLink(paramName, it) })
             }
             if(links.size > 1) {
-                linkControl.loadApplicationUrl(links)
+                linkControl.openMulti(links)
             } else {
                 linkControl.loadApplicationUrl(links.first())
             }
             true
+        }
+        UriConstants.SCHEME_MYNOTES -> {
+            val id = uri.getQueryParameter("id")?.toLongOrNull()
+            if(id != null) {
+                linkControl.openMyNotes(id)
+            } else false
+        }
+        UriConstants.MULTI_REFERENCE -> {
+            val osisRefs = uri.getQueryParameters("osis")
+            if(osisRefs != null) {
+                linkControl.openMulti(osisRefs.map { BibleLink("osis", it) })
+            } else false
+        }
+        UriConstants.SCHEME_JOURNAL -> {
+            val id = uri.getQueryParameter("id")?.toLongOrNull()
+            if(id != null) {
+                linkControl.openJournal(id)
+            } else false
         }
         UriConstants.SCHEME_REFERENCE -> {
             val osisRef = uri.getQueryParameter("osis")
@@ -564,29 +534,34 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private inner class BibleViewClient: WebViewClient() {
+        override fun onLoadResource(view: WebView, url: String) {
+            Log.d(TAG, "onLoadResource:$url")
+            super.onLoadResource(view, url)
+        }
+
+        override fun shouldOverrideUrlLoading(view: WebView?, url: String): Boolean {
+            return if(openLink(Uri.parse(url))) {
+                true
+            } else {
+                super.shouldOverrideUrlLoading(view, url)
+            }
+        }
         override fun shouldOverrideUrlLoading(view: WebView, req: WebResourceRequest): Boolean {
             return if(openLink(req.url)) {
-                gestureListener.setDisableSingleTapOnce(true)
-                super.shouldOverrideUrlLoading(view, req)
                 true
             } else {
                 super.shouldOverrideUrlLoading(view, req)
             }
         }
 
-        override fun onLoadResource(view: WebView, url: String) {
-            Log.d(TAG, "onLoadResource:$url")
-            super.onLoadResource(view, url)
-        }
 
         override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
             super.onReceivedError(view, errorCode, description, failingUrl)
             Log.e(TAG, description)
         }
 
-        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
-            return assetLoader.shouldInterceptRequest(request.getUrl())
-        }
+        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
+            assetLoader.shouldInterceptRequest(request.url)
     }
 
     private var contextMenuInfo: BibleViewContextMenuInfo? = null
@@ -670,16 +645,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     var lastUpdated = 0L
-    var latestBookmarks: List<BookmarkEntities.Bookmark> = emptyList()
     var bookmarkLabels: List<BookmarkEntities.Label> = emptyList()
-    var bookCategory: BookCategory? = null
-    var book: Book? = null
 
-    suspend fun show(osisFrags: List<OsisFragment>,
-                     bookmarks: List<BookmarkEntities.Bookmark>,
-                     updateLocation: Boolean = false,
-                     verse: Verse? = null,
-                     yOffsetRatio: Float? = null)
+    var firstDocument: Document? = null
+
+    suspend fun loadDocument(document: Document,
+                             updateLocation: Boolean = false,
+                             verse: Verse? = null,
+                             yOffsetRatio: Float? = null)
     {
         val currentPage = window.pageManager.currentPage
         bookmarkLabels = bookmarkControl.allLabels
@@ -688,8 +661,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         var jumpToYOffsetRatio = yOffsetRatio
 
         if (lastUpdated == 0L || updateLocation) {
-            if (currentPage is CurrentBiblePage) {
-                initialVerse = KeyUtil.getVerse(window.pageManager.currentBible.currentBibleVerse.verse)
+            if (listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
+                initialVerse = KeyUtil.getVerse(window.pageManager.currentBibleVerse.verse)
             } else {
                 jumpToYOffsetRatio = currentPage.currentYOffsetRatio
             }
@@ -703,12 +676,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
-
-        book = Books.installed().getBook(osisFrags.first().bookId)
-        bookCategory = book?.bookCategory
-
-        latestBookmarks = bookmarks
-        latestOsisObjStr = getOsisObjStr(osisFrags)
+        this.firstDocument = document
+        synchronized(this) {
+            latestDocumentStr = document.asJson
+            needsDocument = true
+        }
 
         withContext(Dispatchers.Main) {
             updateBackgroundColor()
@@ -718,11 +690,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         if(!htmlLoadingOngoing) {
             withContext(Dispatchers.Main) {
-                replaceOsis()
-            }
-        } else {
-            synchronized(this) {
-                needsOsisContent = true
+                replaceDocument()
             }
         }
     }
@@ -735,28 +703,38 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private var initialVerse: Verse? = null
+    internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
 
     fun updateTextDisplaySettings() {
         Log.d(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
         applyFontSize()
-        executeJavascriptOnUiThread("bibleView.emit('set_config', {config: ${displaySettings.toJson()}});")
+        executeJavascriptOnUiThread("bibleView.emit('set_config', {config: ${displaySettings.toJson()}, nightMode: $nightMode});")
     }
 
-    private fun replaceOsis() {
-        val osisObjStr = latestOsisObjStr
+    val nightMode get() = mainBibleActivity.currentNightMode
+
+    var labelsUploaded = false
+
+    private fun replaceDocument() {
+        val documentStr = latestDocumentStr
         synchronized(this) {
-            needsOsisContent = false
+            needsDocument = false
             contentVisible = true
             minChapter = initialVerse?.chapter ?: -1
             maxChapter = initialVerse?.chapter ?: -1
         }
 
+        if(!labelsUploaded) {
+            val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map { ClientBookmarkLabel(it) })
+            executeJavascriptOnUiThread("""bibleView.emit("update_labels", ${bookmarkLabels})""")
+            labelsUploaded = true
+       }
+
         executeJavascriptOnUiThread("""
-            bibleView.emit("set_config", {config: ${displaySettings.toJson()}, initial:true});
-            bibleView.emit("replace_osis", $osisObjStr);
+            bibleView.emit("set_config", {config: ${displaySettings.toJson()}, nightMode: $nightMode, initial:true});
+            bibleView.emit("replace_document", $documentStr);
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
                 jumpToYOffsetRatio: null,
@@ -913,29 +891,52 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
-        val book = book
-        if(book !is SwordBook) return
-        val clientBookmark = ClientBookmark(event.bookmark, event.labels, book.versification)
+        val document = firstDocument
+        if(document !is DocumentWithBookmarks) return
+
+        val clientBookmark = ClientBookmark(event.bookmark,
+            if(document is BibleDocument) document.swordBook.versification else null
+        )
         val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
         executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_bookmarks",  {bookmarks: [$bookmarkStr], labels: []});
+            bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);
+        """.trimIndent())
+    }
+
+    fun onEvent(event: StudyPadOrderEvent) {
+        val doc = firstDocument
+        if(doc !is StudyPadDocument || doc.label.id != event.labelId) return
+        val journalJson = json.encodeToString(serializer(), event.newStudyPadTextEntry)
+        val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
+        val journals = json.encodeToString(serializer(), event.studyPadOrderChanged)
+        executeJavascriptOnUiThread("""
+            bibleView.emit("add_or_update_journal",  {journal: $journalJson, bookmarkToLabelsOrdered: $bookmarkToLabels, journalsOrdered: $journals});
+        """.trimIndent())
+    }
+
+    fun onEvent(event: BookmarkToLabelAddedOrUpdatedEvent) {
+        val doc = firstDocument
+        if(doc !is StudyPadDocument || doc.label.id != event.bookmarkToLabel.labelId) return
+        val bookmarkToLabel = json.encodeToString(serializer(), event.bookmarkToLabel)
+        executeJavascriptOnUiThread("""
+            bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabel);
+        """.trimIndent())
+    }
+
+    fun onEvent(event: StudyPadTextEntryDeleted) {
+        if(firstDocument !is StudyPadDocument) return
+        executeJavascriptOnUiThread("""
+            bibleView.emit("delete_journal", ${event.journalId});
         """.trimIndent())
     }
 
     fun onEvent(event: LabelAddedOrUpdatedEvent) {
-        val labelStr = json.encodeToString(serializer(),
-            ClientBookmarkLabel(event.label.id, event.label.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) }))
-        executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_bookmarks", 
-            { bookmarks:[],
-              labels: [$labelStr]
-            })
-            
-        """.trimIndent())
+        val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(event.label))
+        executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
     }
 
     fun onEvent(event: BookmarksDeletedEvent) {
-        val bookmarkIds = json.encodeToString(serializer(), event.bookmarks)
+        val bookmarkIds = json.encodeToString(serializer(), event.bookmarkIds)
         executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
     }
 
@@ -951,7 +952,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: ScrollSecondaryWindowEvent) {
         if (window == event.window) {
-            scrollOrJumpToVerseOnUIThread(event.verse)
+            scrollOrJumpToVerse(event.verse, window.restoreOngoing)
         }
     }
 
@@ -967,7 +968,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
-        if(isTopWindow && contentVisible && window.isVisible)
+        if((isTopWindow || isBottomWindow) && contentVisible && window.isVisible)
+            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset);")
+    }
+
+    fun onEvent(event: RestoreButtonsVisibilityChanged) {
+        if(isBottomWindow && contentVisible && window.isVisible)
             executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset);")
     }
 
@@ -991,7 +997,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     val bottomOffset
         get() =
             if(isBottomWindow && !SharedActivityState.instance.isFullScreen)
-                (mainBibleActivity.bottomOffset2
+                (mainBibleActivity.bottomOffset3
                     / mainBibleActivity.resources.displayMetrics.density)
             else 0F
 
@@ -1015,7 +1021,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun doCheckWindows(force: Boolean = false) {
         if(checkWindows || force) {
             executeJavascript("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});")
-            if (window.pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
+            if (window.pageManager.currentPage.documentCategory == DocumentCategory.BIBLE) {
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
             }
             checkWindows = false
@@ -1048,19 +1054,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    /** move the view so the selected verse is at the top or at least visible
-     * @param verse
-     */
-    fun scrollOrJumpToVerseOnUIThread(verse: Verse) {
-        val restoreOngoing = window.restoreOngoing
-        runOnUiThread {
-            scrollOrJumpToVerse(verse, restoreOngoing)
-        }
-    }
-
-    /** move the view so the selected verse is at the top or at least visible
-     */
-    private fun scrollOrJumpToVerse(verse: Verse, restoreOngoing: Boolean = false) {
+    fun scrollOrJumpToVerse(verse: Verse, restoreOngoing: Boolean = false) {
         Log.d(TAG, "Scroll or jump to:$verse")
         var toVerse = verse;
         val v = initialVerse
@@ -1069,10 +1063,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         val jumpToId = "v-${toVerse.ordinal}"
         val now = if(!contentVisible || restoreOngoing) "true" else "false"
-        executeJavascript("bibleView.emit('scroll_to_verse', '$jumpToId', $now, $topOffset);")
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: $now, highlight: $now, ordinal: ${toVerse.ordinal}, delta: $topOffset});")
     }
 
-    internal fun executeJavascriptOnUiThread(javascript: String) {
+    private fun executeJavascriptOnUiThread(javascript: String) {
         runOnUiThread { executeJavascript(javascript) }
     }
 
@@ -1100,36 +1094,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return result.await()
     }
 
-    private fun getOsisObjStr(frags: List<OsisFragment>): String {
-        val defaultStyle = ClientBookmarkStyle(BookmarkStyle.YELLOW_STAR.colorArray)
-        val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
-            ClientBookmarkLabel(it.id, it.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) } ?: defaultStyle)
-        })
-        val book = book
-        val bookmarks = if(book is SwordBook)
-            json.encodeToString(serializer(), latestBookmarks.map { it ->
-                val labels = bookmarkControl.labelsForBookmark(it).toMutableList()
-                ClientBookmark(it, labels.map { lbl -> lbl.id }, book.versification)
-            })
-        else "[]"
-
-        val xmlList = frags.joinToString(",")  { """
-            |{
-            |   xml: `${it.xml.replace("`", "\\`")}`, 
-            |   key:'${it.keyStr}', 
-            |   features:${it.features}, 
-            |   ordinalRange: ${it.ordinalRangeJson}
-            |}""".trimMargin()
-        }
-        return """{
-            contents: [$xmlList],
-            bookmarks: $bookmarks,
-            bookmarkLabels: $bookmarkLabels,
-        }"""
-
-    }
-
-    fun requestMoreTextAtTop(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
+    fun requestPreviousChapter(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
         Log.d(TAG, "requestMoreTextAtTop")
         val currentPage = window.pageManager.currentPage
         if (currentPage is CurrentBiblePage) {
@@ -1137,13 +1102,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
             if(newChap < 1) return@launch
 
-            val fragment = currentPage.getFragmentForChapter(newChap)
+            val doc = currentPage.getDocumentForChapter(newChap)
             addChapter(newChap)
-            executeJavascriptOnUiThread("bibleView.response($callId, ${getOsisObjStr(fragment)});")
+            executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
         }
     }
 
-    fun requestMoreTextAtEnd(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
+    fun requestNextChapter(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
         Log.d(TAG, "requestMoreTextAtEnd")
         val currentPage = window.pageManager.currentPage
         if (currentPage is CurrentBiblePage) {
@@ -1152,20 +1117,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val lastChap = verse.versification.getLastChapter(verse.book)
 
             if(newChap > lastChap) return@launch
-            val fragment = currentPage.getFragmentForChapter(newChap)
+            val doc = currentPage.getDocumentForChapter(newChap)
             addChapter(newChap)
-            executeJavascriptOnUiThread("bibleView.response($callId, ${getOsisObjStr(fragment)});")
+            executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
         }
     }
 
     fun hasChapterLoaded(chapter: Int) = chapter in minChapter..maxChapter
 
     fun setClientReady() {
-        synchronized(this) {
-            htmlLoadingOngoing = false;
-            if(latestOsisObjStr != null) {
-                replaceOsis()
-            }
+        htmlLoadingOngoing = false;
+        if(latestDocumentStr != null && needsDocument) {
+            replaceDocument()
         }
     }
 

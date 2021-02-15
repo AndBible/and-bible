@@ -17,7 +17,7 @@
 
 <template>
   <div class="chapter-number" v-if="config.showChapterNumbers && startTag">{{sprintf(strings.chapterNum, chapterNum)}}</div>
-  <div class="inlineDiv"><slot/></div>
+  <slot/>
 </template>
 
 <script>
@@ -46,7 +46,7 @@ export default {
 <style scoped>
 .chapter-number {
   color: Gray;
-  font-size: 0.7em;
+  font-size: 70%;
 	margin-top: 1em;
 	margin-bottom: 0.5em;
 	text-align: center;

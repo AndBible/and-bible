@@ -22,6 +22,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.toV11n
@@ -64,8 +65,8 @@ class DocumentControl @Inject constructor(
     /**
      * Are we currently in Bible, Commentary, Dict, or Gen Book mode
      */
-    val currentCategory: BookCategory
-        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.bookCategory
+    val currentCategory: DocumentCategory
+        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.documentCategory
 
     /**
      * Suggest an alternative bible to view or return null
@@ -87,7 +88,12 @@ class DocumentControl @Inject constructor(
         get () = swordDocumentFacade.bibles.sortedBy { it -> bookFilter.test(it) }
 
     val commentariesForVerse: List<Book>
-        get () = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).sortedBy { it -> commentaryFilter.test(it) }
+        get () {
+            val myNotesDoc = currentPage.currentMyNotePage.currentDocument
+            val docs = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).sortedBy { commentaryFilter.test(it) }.toMutableList()
+            docs.add(myNotesDoc)
+            return docs
+        }
 
     val isBibleBook: Boolean
         get () = currentDocument?.bookCategory == BookCategory.BIBLE

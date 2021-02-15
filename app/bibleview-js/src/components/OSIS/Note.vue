@@ -15,26 +15,29 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
-  <div
+  <Modal @close="showNote = false" v-if="showNote">
+    <slot/>
+    <OpenAllLink/>
+    <template #title>
+      {{isFootNote ? sprintf(strings.noteText, typeStr) : strings.crossReferenceText }}
+    </template>
+  </Modal>
+  <span
       v-if="(config.showCrossReferences && isCrossReference) || (config.showFootNotes && isFootNote)"
-      class="inlineDiv skip-offset"
-  >
-    <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">
+      class="skip-offset">
+    <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="noteClicked">
       {{handle}}
     </span>
-    <Modal @close="showNote = false" v-if="showNote">
-      <slot/>
-      <template #title>
-        {{isFootNote ? sprintf(strings.noteText, typeStr) : strings.crossReferenceText }}
-      </template>
-    </Modal>
-  </div>
+  </span>
 </template>
 
 <script>
-import {checkUnsupportedProps, useCommon} from "@/composables";
-import Modal from "@/components/Modal";
+import {checkUnsupportedProps, useCommon, useReferenceCollector} from "@/composables";
+import Modal from "@/components/modals/Modal";
 import {get} from "lodash";
+import {ref, provide} from "@vue/runtime-core";
+import {addEventFunction} from "@/utils";
+import OpenAllLink from "@/components/OpenAllLink";
 
 let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
@@ -45,7 +48,7 @@ function runningHandle() {
 
 export default {
   name: "Note",
-  components: {Modal},
+  components: {OpenAllLink, Modal},
   noContentTag: true,
   props: {
     osisID: {type: String, default: null},
@@ -56,11 +59,6 @@ export default {
     n: {type: String, default: null},
     resp: {type: String, default: null},
   },
-  data() {
-    return {
-      showNote: false
-    }
-  },
   computed: {
     handle: ({n}) => n || runningHandle(),
     isFootNote: ({type}) => ["explanation", "translation", "study", "variant", "alternative"].includes(type),
@@ -69,12 +67,18 @@ export default {
   },
   setup(props) {
     checkUnsupportedProps(props, "resp");
-    checkUnsupportedProps(props, "placement");
+    checkUnsupportedProps(props, "placement", ['foot']);
     checkUnsupportedProps(props, "type",
         ["explanation", "translation", "crossReference", "variant", "alternative", "study"]);
     checkUnsupportedProps(props, "subType",
         ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
     const {strings, ...common} = useCommon();
+    const showNote = ref(false);
+    function noteClicked(event) {
+      addEventFunction(event,
+          () => {showNote.value = !showNote.value},
+          {title: strings.openFootnote, priority: 10});
+    }
     const typeStrings = {
       explanation: strings.footnoteTypeExplanation,
       translation: strings.footnoteTypeTranslation,
@@ -82,21 +86,29 @@ export default {
       variant: strings.footnoteTypeVariant,
       alternative: strings.footnoteTypeAlternative,
     };
-    return {strings, typeStrings, ...common};
+
+    const referenceCollector = useReferenceCollector();
+    provide("referenceCollector", referenceCollector);
+
+    return {strings, typeStrings, showNote, noteClicked, ...common};
   },
 }
 </script>
 
 <style scoped lang="scss">
+@import "~@/common.scss";
 .note-handle-base {
-  vertical-align: top;
-  font-size: 0.7em;
-  padding: 0.5em;
+  @extend .superscript;
+  padding: 0.2em;
 }
 
 .isCrossReference {
   @extend .note-handle-base;
   color: orange;
+}
+
+.open-all {
+  padding-top: 1em;
 }
 
 .isFootNote {

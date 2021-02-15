@@ -22,7 +22,18 @@ import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import {
+    faBookmark,
+    faEdit,
+    faEllipsisH,
+    faHeadphones,
+    faIndent,
+    faOutdent,
+    faPlusCircle,
+    faSort,
+    faTrash
+} from "@fortawesome/free-solid-svg-icons";
+import Color from "color";
 
 let developmentMode = false;
 let testMode = false;
@@ -96,15 +107,15 @@ export function useConfig() {
             fontSize: 16,
         },
         showBookmarks: true,
-        showMyNotes: false,
+        showMyNotes: true,
 
         colors: {
-            dayBackground: null,
+            dayBackground: -1,
             dayNoise: 0,
             dayTextColor: null,
             nightBackground: null,
             nightNoise: 0,
-            nightTextColor: null,
+            nightTextColor: -16777216,
         },
         bookmarks: {
             showAll: true,
@@ -114,7 +125,7 @@ export function useConfig() {
         textColor: "black",
         hyphenation: true,
         noiseOpacity: 50,
-        lineSpacing: 16,
+        lineSpacing: 10,
         justifyText: false,
         marginSize: {
             marginLeft: 0,
@@ -125,6 +136,7 @@ export function useConfig() {
         topOffset: 100,
         bottomOffset: 100,
         infiniteScroll: true,
+        nightMode: false,
 
         developmentMode,
         testMode,
@@ -134,7 +146,7 @@ export function useConfig() {
         window.bibleViewDebug.config = config;
     }
 
-    setupEventBusListener(Events.SET_CONFIG, async ({config: c, initial}) => {
+    setupEventBusListener(Events.SET_CONFIG, async ({config: c, initial = false, nightMode = false} = {}) => {
         const defer = new Deferred();
         if(!initial) emit(Events.CONFIG_CHANGED, defer)
         const oldValue = config.showBookmarks;
@@ -147,6 +159,7 @@ export function useConfig() {
                 console.error("Unknown setting", i, c[i]);
             }
         }
+        config.nightMode = nightMode;
         if(c.showBookmarks === undefined) {
             // eslint-disable-next-line require-atomic-updates
             config.showBookmarks = oldValue;
@@ -159,36 +172,6 @@ export function useConfig() {
     })
 
     return {config};
-}
-
-export function useStrings() {
-    return {
-        chapterNum: "— %d —",
-        verseNum: "%d ",
-        noteText: "Footnotes (%s)",
-        crossReferenceText: "Cross references",
-        findAllOccurrences: "Find all occurrences",
-        reportError: "Report an error",
-        footnoteTypeUndefined: "Undefined type",
-        footnoteTypeStudy: "Study",
-        footnoteTypeExplanation: "Explanation",
-        footnoteTypeVariant: "Variant",
-        footnoteTypeAlternative: "Alternative",
-        footnoteTypeTranslation: "Translation",
-        clearLog: "Clear error log",
-        bookmarkNote: "Note on bookmark",
-        editNote: "Edit",
-        editNotePlaceholder: "Edit a note for bookmark",
-        removeBookmark: "Remove bookmark",
-        assignLabels: "Assign labels",
-        bookmarkAccurate: "Bookmark was create in %s",
-        ok: "Ok",
-        cancel: "Cancel",
-        removeBookmarkConfirmation: "Are you sure you want to remove bookmark?",
-        closeModal: "Close",
-        createdAt: "Created: %s",
-        lastUpdatedOn: "Last updated: %s",
-    }
 }
 
 export function useCommon() {
@@ -210,19 +193,38 @@ export function useCommon() {
         return new Date(timestamp).toLocaleString()
     }
 
-    return {config, strings, sprintf, split, formatTimestamp}
-}
+    function adjustedColor(color) {
+        let col = Color(color);
+        if(config.nightMode) {
+            col = col.darken(0.2);
+        } else {
+            col = col.darken(0.2);
+        }
+        return col.hsl();
+    }
 
-export function usePoetic(fragmentReady, fragElement) {
-    /* TODO: implement.
-        Need to find elements within fragElement with poetic class in them.
-        Then make ranges of matching sID & eID.
-        Then use dom-highlight-range to alter text-indent.
-     */
+    function abbreviated(str, n, useWordBoundary = true) {
+        if(!str) return ""
+        if (str.length <= n) { return str; }
+        const subString = str.substr(0, n-1); // the original check
+        return (useWordBoundary
+            ? subString.substr(0, subString.lastIndexOf(" "))
+            : subString) + "...";
+    }
+
+    return {config, strings, sprintf, split, adjustedColor, formatTimestamp, abbreviated}
 }
 
 export function useFontAwesome() {
+    library.add(faHeadphones)
     library.add(faEdit)
+    library.add(faBookmark)
+    library.add(faPlusCircle)
+    library.add(faTrash)
+    library.add(faEllipsisH)
+    library.add(faSort)
+    library.add(faIndent)
+    library.add(faOutdent)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
@@ -232,4 +234,70 @@ export function checkUnsupportedProps(props, attributeName, values = []) {
         const origin = inject("verseInfo", {}).osisID;
         console.warn(`${tagName}: Unsupported (ignored) attribute "${attributeName}" value "${value}", origin: ${origin}`)
     }
+}
+
+export function useJournal(label) {
+    const journalTextEntries = reactive(new Map());
+    const bookmarkToLabels = reactive(new Map());
+
+    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, bookmarks => {
+        for(const b of bookmarks) {
+            if(b.bookmarkToLabels) {
+                updateBookmarkToLabels(...b.bookmarkToLabels);
+            }
+        }
+    });
+
+    function updateJournalTextEntries(...entries) {
+        for(const e of entries)
+            if(e.labelId === label.id)
+                journalTextEntries.set(e.id, e);
+    }
+
+    function updateBookmarkToLabels(...entries) {
+        for(const e of entries)
+            if(e.labelId === label.id)
+                bookmarkToLabels.set(e.bookmarkId, e);
+    }
+
+    function updateJournalOrdering(...entries) {
+        for(const e of entries) {
+            journalTextEntries.get(e.id).orderNumber = e.orderNumber;
+        }
+    }
+    function deleteJournal(journalId) {
+        journalTextEntries.delete(journalId)
+    }
+    return {
+        journalTextEntries,
+        updateJournalTextEntries,
+        updateJournalOrdering,
+        updateBookmarkToLabels,
+        bookmarkToLabels,
+        deleteJournal
+    };
+}
+
+export function useReferenceCollector() {
+    const references = reactive([]);
+    function collect(linkRef) {
+        references.push(linkRef);
+    }
+    return {references, collect}
+}
+
+export function useVerseMap() {
+    const verses = new Map();
+    function register(ordinal, obj) {
+        let array = verses.get(ordinal);
+        if(array === undefined) {
+            array = [];
+            verses.set(ordinal, array);
+        }
+        array.push(obj);
+    }
+    function getVerses(ordinal) {
+        return verses.get(ordinal) || []
+    }
+    return {register, getVerses}
 }

@@ -51,12 +51,10 @@ class ManageLabelItemAdapter(context: Context?,
         val name = rowView.findViewById<View>(R.id.labelName) as TextView
         name.text = label!!.displayName
         val checkbox = rowView.findViewById<View>(R.id.checkbox) as CheckBox
-        name.setOnClickListener { checkbox.isChecked = !checkbox.isChecked }
         if(showCheckboxes) {
+            name.setOnClickListener { checkbox.isChecked = !checkbox.isChecked }
+            checkbox.setOnCheckedChangeListener { _, isChecked -> manageLabels.setEnabled(label, isChecked)}
             checkbox.isChecked = checkedLabels.contains(label.id)
-            checkbox.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) checkedLabels.add(label.id) else checkedLabels.remove(label.id)
-            }
         } else {
             checkbox.visibility = View.GONE
         }

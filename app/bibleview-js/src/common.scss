@@ -1,0 +1,59 @@
+/*!
+ * Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ *
+ * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ *
+ * And Bible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with And Bible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+.journal-button {
+  z-index: 1;
+  color: rgba(0, 0, 0, 0.3);
+  .night & {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  margin: 2pt;
+  padding: 7pt;
+}
+
+.note-container {
+  min-height: 2em;
+  position: relative;
+  margin: 4pt 2pt 2pt;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.1);
+  .night & {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  border-width: 1pt;
+  border-radius: 5pt;
+  padding: 2pt;
+}
+
+.superscript {
+  position: relative;
+  vertical-align: top;
+  font-size: 70%;
+  top: -0.3em;
+}
+
+.visible-scrollbar {
+  &::-webkit-scrollbar {
+    height: 20%;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, .3);
+    .night & {
+      background-color: rgba(255, 255, 255, .3);
+    }
+  };
+}

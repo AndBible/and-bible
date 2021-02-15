@@ -63,25 +63,31 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "~@/common.scss";
 .logbox {
+  z-index: 3;
   font-size: 8pt;
   color: white;
   position: fixed;
   width: 100%;
   top: var(--top-offset);
   bottom: var(--bottom-offset);
-  background-color: rgba(88, 57, 57, 0.9);
+  background-color: rgba(87, 56, 56, 0.9);
 }
 
 .errorbox {
+  @extend .visible-scrollbar;
+  &::-webkit-scrollbar {
+    height: 5pt;
+  }
   overflow: scroll;
-  width: 100%;
-  height: calc(100vh - var(--bottom-offset) - var(--top-offset));
+  width: calc(100% - 10pt);
+  height: calc(100% - var(--bottom-offset) - var(--top-offset));
 }
 
 .logbox-button {
   border-radius: 5pt;
-  bottom: calc(2*var(--bottom-offset));
+  bottom: var(--bottom-offset);
   position: fixed;
   padding: 0.5em;
   color: white;
@@ -104,7 +110,7 @@ export default {
 }
 
 .error-ERROR {
-  color: #ff0000;
+  color: #ff7f7f;
 }
 
 .error-WARN {
@@ -113,7 +119,7 @@ export default {
 
 .error-link {
   font-size: 200%;
-  color: red;
+  color: #ff7f7f;
   padding-left: 1.5em;
 }
 

@@ -16,19 +16,24 @@
   -->
 
 <template>
-  <a href="#link" @click="openExternalLink(href)"><slot/></a>
+  <a href="#link" @click.prevent="openLink(href)"><slot/></a>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
+import {addEventFunction} from "@/utils";
 
 export default {
   name: "A",
   props: {href: {type: String, required: true}},
   setup() {
     const {openExternalLink} = inject("android");
-    return {openExternalLink, ...useCommon()};
+    const {strings, ...common} = useCommon()
+    function openLink(event, url) {
+      addEventFunction(event, () => openExternalLink(url), {title: strings.externalLink});
+    }
+    return {openLink, ...common};
   },
 }
 </script>

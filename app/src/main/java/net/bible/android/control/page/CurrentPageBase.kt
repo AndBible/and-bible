@@ -19,15 +19,14 @@ package net.bible.android.control.page
 
 import android.util.Log
 import android.view.Menu
-import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.page.OsisFragment
 import net.bible.service.common.CommonUtils
-import net.bible.service.format.OsisMessageFormatter.Companion.format
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.activate.Activator
@@ -47,24 +46,6 @@ abstract class CurrentPageBase protected constructor(
 ) : CurrentPage {
 
     override var isInhibitChangeNotifications: Boolean = false
-
-    override val currentDocumentName: String
-        get() {
-            val key = key
-            if(key is BookAndKeyList) {
-                return key.joinToString(", ") { (it as BookAndKey).document.initials }
-            }
-            return super.currentDocumentName
-        }
-
-    override val currentDocumentAbbreviation: String
-        get() {
-            val key = key
-            if(key is BookAndKeyList) {
-                return key.joinToString(", ") { (it as BookAndKey).document.abbreviation }
-            }
-            return super.currentDocumentName
-        }
 
     override var _key: Key? = null
 
@@ -138,36 +119,34 @@ abstract class CurrentPageBase protected constructor(
 
     override val isSingleKey: Boolean = false
 
-    override val currentPageContent: List<OsisFragment> get() = getPageContent(key)
+    override val currentPageContent: Document get() {
+        val key = key
+        return if(key == null) errorDocument else getPageContent(key)
+    }
 
-    protected fun getPageContent(key: Key?): List<OsisFragment> {
+    override fun getPageContent(key: Key): Document {
+        val currentDocument = currentDocument!!
         return try {
-            val currentDocument = currentDocument!!
-            synchronized(currentDocument) {
-                if(key is BookAndKeyList) {
-                    key.map {
-                        if (it is BookAndKey) {
-                            OsisFragment(swordContentFacade.readOsisFragment(it.document, it), it, it.document.initials)
-                        } else throw RuntimeException("Not supported")
-                    }
-                } else {
+            OsisDocument(
+                book = currentDocument,
+                key = key,
+                osisFragments = synchronized(currentDocument) {
                     val frag = swordContentFacade.readOsisFragment(currentDocument, key)
                     listOf (if (frag.isEmpty()) {
-                        OsisFragment(format(R.string.error_no_content), key, currentDocument.initials)
+                        throw OsisError(application.getString(R.string.error_no_content))
                     } else
-                        OsisFragment(frag, key, currentDocument.initials)
+                        OsisFragment(frag, key, currentDocument)
                     )
                 }
-            }
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Error getting bible text", e)
-            val app = BibleApplication.application
-            val reportBug = app.getString(R.string.send_bug_report_title)
-            val link = "<a href='report://'>${reportBug}</a>."
-            val string = BibleApplication.application.getString(R.string.error_occurred_with_link, link)
-            listOf(OsisFragment(format(string), key, currentDocument?.initials?: "error"))
+            if(e is OsisError) ErrorDocument(e.message) else errorDocument
         }
     }
+
+    private val errorDocument: ErrorDocument get() =
+        ErrorDocument(application.getString(R.string.error_occurred))
 
     override fun checkCurrentDocumentStillInstalled(): Boolean {
         if (_currentDocument != null) {
@@ -191,10 +170,10 @@ abstract class CurrentPageBase protected constructor(
     private fun getDefaultBook(): Book? {
         // see net.bible.android.view.activity.page.MainBibleActivity.setCurrentDocument
         val savedDefaultBook = swordDocumentFacade.getDocumentByInitials(
-            CommonUtils.sharedPreferences.getString("default-${bookCategory.name}", ""))
+            CommonUtils.sharedPreferences.getString("default-${documentCategory.bookCategory.name}", ""))
 
         return savedDefaultBook ?: {
-            val books = swordDocumentFacade.getBooks(bookCategory)
+            val books = swordDocumentFacade.getBooks(documentCategory.bookCategory)
             if (books.size > 0) books[0] else null
         }()
     }
@@ -253,12 +232,12 @@ abstract class CurrentPageBase protected constructor(
     val pageEntity: WorkspaceEntities.Page get() {
             return WorkspaceEntities.Page(
                 currentDocument?.initials,
-                key?.osisID,
+                key?.osisRef,
                 currentYOffsetRatio
             )
         }
 
-    fun restoreFrom(entity: WorkspaceEntities.Page?) {
+    open fun restoreFrom(entity: WorkspaceEntities.Page?) {
         if(entity == null) return
         val document = entity.document
         Log.d(TAG, "State document:$document")
