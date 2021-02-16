@@ -19,7 +19,7 @@
   <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
     <span
         :id="`v-${ordinal}`"
-        class="verse bookmarkStyle"
+        class="verse"
         :class="{linebreak: config.showVersePerLine}"
     >
       <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
@@ -116,9 +116,5 @@ export default {
 
 .isHighlighted {
   background-color: rgba(255, 230, 0, 0.4);
-}
-
-.bookmarkStyle {
-  border-radius: 0.2em;
 }
 </style>
