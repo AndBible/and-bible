@@ -20,7 +20,6 @@
     <EditableText
         v-if="!infoShown"
         constraint-display-height
-        :edit-directly="editDirectly"
         :text="bookmarkNotes || ''"
         @save="changeNote"
         show-placeholder
@@ -100,13 +99,11 @@ export default {
     const label = computed(() => labels.value[0]);
     const bookmarkNotes = ref(null);
     let originalNotes = null;
-    const editDirectly = ref(false);
 
     setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (bookmarkId_, {open = false} = {}) => {
       bookmarkId.value = bookmarkId_;
       bookmarkNotes.value = bookmark.value.notes;
       originalNotes = bookmark.value.notes;
-      editDirectly.value = open || !bookmark.value.notes;
       if(!showBookmark.value) infoShown.value = false;
       showBookmark.value = true;
     });
@@ -146,7 +143,7 @@ export default {
         `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`)
 
     return {
-      showBookmark, closeBookmark, areYouSure, infoShown, editDirectly, bookmarkNotes,
+      showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,
       removeBookmark,  assignLabels,  bookmark, labelColor, changeNote, labels, originalBookLink,
       strings, ...common
     };
