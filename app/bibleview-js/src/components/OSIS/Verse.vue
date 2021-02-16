@@ -16,15 +16,15 @@
   -->
 
 <template>
-  <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
     <span
         :id="`v-${ordinal}`"
         class="verse"
         :class="{linebreak: config.showVersePerLine}"
     >
-      <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
+      <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
+        <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
+      </span>
     </span>
-  </span>
 </template>
 
 <script>
