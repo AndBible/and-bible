@@ -25,7 +25,9 @@
         <div v-html="editText"/>
       </div>
       <div class="placeholder" v-else-if="showPlaceholder" @click="handleClicks">
-        {{ strings.editTextPlaceholder }}
+        <slot>
+          {{ strings.editTextPlaceholder }}
+        </slot>
       </div>
     </template>
   </div>

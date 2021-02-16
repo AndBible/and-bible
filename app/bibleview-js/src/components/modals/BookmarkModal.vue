@@ -24,7 +24,9 @@
         @save="changeNote"
         show-placeholder
         max-editor-height="100pt"
-    />
+    >
+      {{ strings.editBookmarkPlaceholder }}
+    </EditableText>
     <div v-show="infoShown" class="info">
       <div class="bible-text">
         <BookmarkText expanded :bookmark="bookmark"/>
