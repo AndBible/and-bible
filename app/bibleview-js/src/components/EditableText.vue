@@ -96,7 +96,7 @@ export default {
 @import "~@/common.scss";
 .notes-display {
   width: calc(100% - 22pt);
-  padding: $pell-content-padding;
+  padding: $pell-content-padding $pell-content-padding 2pt;
   &.constraintDisplayHeight {
     @extend .visible-scrollbar;
     overflow-y: auto;
@@ -129,10 +129,15 @@ export default {
   position: relative;
 }
 </style>
-<style>
+<style lang="scss">
 .editable-text ul {
   margin-top: 5pt;
   margin-bottom: 5pt;
   padding-left: 15pt;
+
+  & ul {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
 }
 </style>

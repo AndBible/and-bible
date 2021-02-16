@@ -205,7 +205,7 @@ if(process.env.NODE_ENV === "development") {
     const journalTextEntries = [
             {
                 id: 1,
-                text: "Journal text 1",
+                text: "<div>Journal text 1<ul><li>test1</li><li>test2</li></ul></div>",
                 labelId: 1,
                 orderNumber: 1,
                 indentLevel: 0,
