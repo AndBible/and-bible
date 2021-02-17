@@ -283,7 +283,10 @@ export function useReferenceCollector() {
     function collect(linkRef) {
         references.push(linkRef);
     }
-    return {references, collect}
+    function clear() {
+        references.splice(0);
+    }
+    return {references, collect, clear}
 }
 
 export function useVerseMap() {

@@ -76,7 +76,10 @@ export default {
     const showNote = ref(false);
     function noteClicked(event) {
       addEventFunction(event,
-          () => {showNote.value = !showNote.value},
+          () => {
+            referenceCollector.clear();
+            showNote.value = true;
+          },
           {title: strings.openFootnote, priority: 10});
     }
     const typeStrings = {
