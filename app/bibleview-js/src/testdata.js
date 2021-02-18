@@ -246,7 +246,7 @@ if(process.env.NODE_ENV === "development") {
             indentLevel: 1,
         }))
 
-    const mode = "journal"
+    const mode = "bible"
 
     if(mode === "bible") {
         testData = testData.map(
@@ -262,6 +262,7 @@ if(process.env.NODE_ENV === "development") {
                 ],
                 bookInitials: "KJV",
                 bookmarks: testBookmarks,
+                ordinalRange: null,
             }));
         testData[2].ordinalRange = [30835, 30852];
     } else if(mode === "journal") {

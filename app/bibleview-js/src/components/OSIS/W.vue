@@ -29,7 +29,7 @@
     <template v-else><slot/></template>
   </template>
   <template v-else>
-    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)"><span class="linkstyle" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span></span>
+    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)"><span class="link-style" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span></span>
     <span v-else><slot/></span>
   </template>
 </template>
@@ -96,7 +96,7 @@ export default {
 </script>
 
 <style scoped>
-  .linkstyle {
+  .link-style {
     text-decoration: underline dotted;
   }
 </style>

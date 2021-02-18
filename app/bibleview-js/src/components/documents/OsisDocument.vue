@@ -24,6 +24,7 @@
 
 <script>
 import OsisFragment from "@/components/documents/OsisFragment";
+import {inject, onMounted, onUnmounted} from "@vue/runtime-core";
 
 export default {
   name: "OsisDocument",
@@ -34,6 +35,15 @@ export default {
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
     const {id, type, osisFragments, bookInitials, bookName, key} = props.document;
+
+    const {addCss, removeCss} = inject("customCss");
+    onMounted(() => {
+      addCss(bookInitials);
+    });
+    onUnmounted(() => {
+      removeCss(bookInitials);
+    });
+
     return {osisFragments};
   }
 }

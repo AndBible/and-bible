@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import {inject, provide} from "@vue/runtime-core";
+import {inject, onBeforeMount, onUnmounted, provide} from "@vue/runtime-core";
 import {useBookmarks} from "@/composables/bookmarks";
 import {ref} from "@vue/reactivity";
 import OsisFragment from "@/components/documents/OsisFragment";
@@ -42,6 +42,14 @@ export default {
 
     const globalBookmarks = inject("globalBookmarks");
     globalBookmarks.updateBookmarks(...bookmarks);
+    const {addCss, removeCss} = inject("customCss");
+    onBeforeMount(() => {
+      addCss(bookInitials);
+    });
+
+    onUnmounted(() => {
+      removeCss(bookInitials);
+    });
 
     const config = inject("config");
     const common = useCommon();

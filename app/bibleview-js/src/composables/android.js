@@ -128,9 +128,7 @@ export function useAndroid({bookmarks}, config) {
 
         const deleteBookmarks = union(filteredBookmarks.map(b => b.id));
 
-        const result = {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks: deleteBookmarks};
-        console.log("querySelection", result);
-        return result;
+        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks: deleteBookmarks};
     }
 
     window.bibleView.response = response;

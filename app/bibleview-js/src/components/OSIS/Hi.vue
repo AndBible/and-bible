@@ -21,18 +21,16 @@
 
 <script>
 import {useCommon} from "@/composables";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "Hi",
   props: {
     type: {type: String, default: null}
   },
-  setup() {
-    return useCommon();
-  },
-  computed: {
-    hiStyle: ({type}) => {
-      switch (type) {
+  setup(props) {
+    const hiStyle = computed(() => {
+      switch (props.type) {
         case "italic":
           return "italic-style"
         case "bold":
@@ -40,10 +38,12 @@ export default {
         case "super":
           return "super-style"
         default:
-          console.warn("Unhandled hi style type", type);
+          return `hi_${props.type}`
       }
-    }
-  }
+    });
+
+    return {hiStyle, ...useCommon()};
+  },
 }
 </script>
 

@@ -304,3 +304,34 @@ export function useVerseMap() {
     }
     return {register, getVerses}
 }
+
+export function useCustomCss() {
+    const cssNodes = new Map();
+    const count = new Map();
+    function addCss(bookInitials) {
+        const c = count.get(bookInitials) || 0;
+        if (!c) {
+            const link = document.createElement("link");
+            link.href = `/module/${bookInitials}/and-bible/style.css`;
+            link.type = "text/css";
+            link.rel = "stylesheet";
+            cssNodes.set(bookInitials, link);
+            document.getElementsByTagName("head")[0].appendChild(link);
+            console.log("added css", bookInitials);
+        }
+        count.set(bookInitials, c + 1);
+    }
+
+    function removeCss(bookInitials) {
+        const c = count.get(bookInitials);
+        if(c > 1) {
+            count.set(bookInitials, c-1);
+        } else {
+            count.delete(bookInitials);
+            cssNodes.get(bookInitials).remove();
+            cssNodes.delete(bookInitials);
+        }
+    }
+
+    return {addCss, removeCss}
+}

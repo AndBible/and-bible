@@ -435,7 +435,6 @@ export function useBookmarks(documentId,
                 const icon = b.notes ? "edit" : "bookmark"
                 const color = adjustedColor(bookmarkLabel.color).string();
                 const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
-                console.log("b", b);
                 const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
 
                 iconElement.addEventListener("click", event => addEventFunction(event,

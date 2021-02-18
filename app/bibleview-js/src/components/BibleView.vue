@@ -34,7 +34,7 @@
 <script>
   import Document from "@/components/documents/Document";
   import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
-  import {useConfig, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
+  import {useConfig, useCustomCss, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
   import {testBookmarkLabels, testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/composables/infinite-scroll";
@@ -42,7 +42,7 @@
   import {emit, Events, setupEventBusListener} from "@/eventbus";
   import {useScroll} from "@/composables/scroll";
   import {clearLog, useAndroid} from "@/composables/android";
-  import {getEventFunctions, setupWindowEventListener} from "@/utils";
+  import {setupWindowEventListener} from "@/utils";
   import ErrorBox from "@/components/ErrorBox";
   import BookmarkModal from "@/components/modals/BookmarkModal";
   import DevelopmentMode from "@/components/DevelopmentMode";
@@ -69,6 +69,8 @@
       const globalBookmarks = useGlobalBookmarks(config);
       const android = useAndroid(globalBookmarks, config);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
+      const customCss = useCustomCss();
+      provide("customCss", customCss);
 
       useInfiniteScroll(config, android, documents);
 

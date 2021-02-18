@@ -76,6 +76,7 @@ import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
 import net.bible.android.control.page.MyNotesDocument
+import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
@@ -463,15 +464,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     class ModuleAssetHandler: WebViewAssetLoader.PathHandler {
         override fun handle(path: String): WebResourceResponse? {
-            val (bookName, resourcePath) = path.split("/", limit=2)
+            val parts = path.split("/", limit=2);
+            if(parts.size != 2) return null;
+            val (bookName, resourcePath) = parts
             val location = File(Books.installed().getBook(bookName).bookMetaData.location)
             val f = File(location, resourcePath)
             return if(f.isFile && f.exists()) {
                 WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
             } else null
         }
-
     }
+
     val assetLoader = WebViewAssetLoader.Builder()
         .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
         .addPathHandler("/module/", ModuleAssetHandler())
