@@ -16,12 +16,12 @@
   -->
 
 <template>
-  <a :class="{reference: true, clicked, 'last-clicked': lastClicked}" @click="openLink($event, link)" :href="link" ref="content"><slot/></a>
+  <a class="reference" :class="{clicked, 'last-clicked': lastClicked}" @click="openLink($event, link)" :href="link" ref="content"><slot/></a>
 </template>
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {addEventFunction} from "@/utils";
+import {addEventFunction, sleep} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
 
@@ -69,6 +69,7 @@ export default {
         clicked.value = true;
         lastClicked.value = true;
         cancelFunc = () => lastClicked.value = false;
+        sleep(3000).then(cancelFunc);
       }, {title: strings.referenceLink});
     }
     return {openLink, clicked, lastClicked, content, link, ...common};
@@ -78,12 +79,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.reference {
+  transition: background-color 1s ease;
+  border-radius: 5pt;
+}
 a {
   &.clicked {
-    color: #c479ff;
+    color: #8b00ee;
   }
   &.last-clicked {
-    color: #8b00ee;
+    background-color: rgba(196, 121, 255, 0.2);
   }
   .night & {
     &.clicked {
@@ -91,7 +96,7 @@ a {
     }
 
     &.last-clicked {
-      color: #c479ff;
+      background-color: rgba(196, 121, 255, 0.4);
     }
   }
 }

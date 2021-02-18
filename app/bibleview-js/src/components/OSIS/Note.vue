@@ -15,9 +15,12 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
+  <AmbiguousSelection ref="ambiguousSelection"/>
   <Modal @close="showNote = false" v-if="showNote">
-    <slot/>
-    <OpenAllLink/>
+    <div @click="ambiguousSelection.handle">
+      <slot/>
+      <OpenAllLink/>
+    </div>
     <template #title>
       {{isFootNote ? sprintf(strings.noteText, typeStr) : strings.crossReferenceText }}
     </template>
@@ -38,6 +41,7 @@ import {get} from "lodash";
 import {ref, provide} from "@vue/runtime-core";
 import {addEventFunction} from "@/utils";
 import OpenAllLink from "@/components/OpenAllLink";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 
 let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
@@ -48,7 +52,7 @@ function runningHandle() {
 
 export default {
   name: "Note",
-  components: {OpenAllLink, Modal},
+  components: {AmbiguousSelection, OpenAllLink, Modal},
   noContentTag: true,
   props: {
     osisID: {type: String, default: null},
@@ -66,6 +70,7 @@ export default {
     isCrossReference: ({type}) => type === "crossReference"
   },
   setup(props) {
+    const ambiguousSelection = ref(null);
     checkUnsupportedProps(props, "resp");
     checkUnsupportedProps(props, "placement", ['foot']);
     checkUnsupportedProps(props, "type",
@@ -93,7 +98,7 @@ export default {
     const referenceCollector = useReferenceCollector();
     provide("referenceCollector", referenceCollector);
 
-    return {strings, typeStrings, showNote, noteClicked, ...common};
+    return {strings, typeStrings, showNote, noteClicked, ambiguousSelection, ...common};
   },
 }
 </script>

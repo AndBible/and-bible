@@ -16,16 +16,16 @@
   -->
 
 <template>
-  <Modal v-if="selections" @close="$emit('close')">
+  <Modal v-if="showModal" @close="cancelled">
     <template v-for="(s, index) of selections" :key="index">
-      <button class="button light" @click="s.callback(); $emit('close')">
+      <button class="button light" @click.stop="selected(s)">
         <span :style="`color: ${s.options.color}`"><FontAwesomeIcon v-if="s.options.icon" :icon="s.options.icon"/></span> {{s.options.title}}</button>
     </template>
     <template #title>
       {{ strings.ambiguousSelection }}
     </template>
     <template #footer>
-      <button class="button" @click="$emit('close')">{{strings.cancel}}</button>
+      <button class="button" @click="cancelled">{{strings.cancel}}</button>
     </template>
   </Modal>
 </template>
@@ -34,14 +34,54 @@
 import Modal from "@/components/modals/Modal";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {ref} from "@vue/runtime-core";
+import {Deferred, getEventFunctions} from "@/utils";
 
 export default {
   name: "AmbiguousSelection",
-  emits: ["close"],
+  emits: ["back-clicked"],
   components: {Modal, FontAwesomeIcon},
-  props: {selections: {type: Array, required: false}},
-  setup() {
-    return useCommon();
+  setup(props, {emit}) {
+    const showModal = ref(false);
+    const selections = ref(null);
+    let deferred = null;
+
+    async function select(sel) {
+      selections.value = sel;
+      showModal.value = true;
+      deferred = new Deferred();
+      return await deferred.wait();
+    }
+
+    function selected(s) {
+      deferred.resolve(s);
+      showModal.value = false;
+    }
+
+    function cancelled() {
+      console.log("canceled");
+      if(deferred) {
+        deferred.resolve(null);
+      }
+      showModal.value = false;
+    }
+
+    async function handle(event) {
+      console.log("handle");
+      const eventFunctions = getEventFunctions(event);
+      if(eventFunctions.length > 0) {
+        if(eventFunctions.length === 1) eventFunctions[0].callback();
+        else {
+          const s = await select(eventFunctions);
+          if(s) s.callback();
+        }
+      } else {
+        console.log("emitting");
+        emit("back-clicked")
+      }
+    }
+
+    return {selected, handle, cancelled, showModal, selections, ...useCommon()};
   }
 }
 </script>

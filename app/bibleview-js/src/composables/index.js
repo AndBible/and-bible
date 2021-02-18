@@ -212,7 +212,7 @@ export function useCommon() {
             : subString) + "...";
     }
 
-    return {config, strings, sprintf, split, adjustedColor, formatTimestamp, abbreviated}
+    return {config, strings, sprintf, split, adjustedColor, formatTimestamp, abbreviated, emit, Events}
 }
 
 export function useFontAwesome() {

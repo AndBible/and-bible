@@ -111,6 +111,7 @@ export default {
 }
 
 .highlight-transition {
+  border-radius: 5pt;
   transition: background-color 1s ease;
 }
 

@@ -16,12 +16,12 @@
   -->
 
 <template>
-  <div @click="clicked" :class="{night: config.nightMode}" :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
+  <div @click="ambiguousSelection.handle" :class="{night: config.nightMode}" :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
     <div :style="`height:${config.topOffset}px`"/>
     <div id="modals"/>
     <template v-if="mounted">
       <BookmarkModal/>
-      <AmbiguousSelection v-if="ambiguousSelection" :selections="ambiguousSelection" @close="ambiguousSelection = null"/>
+      <AmbiguousSelection ref="ambiguousSelection" @back-clicked="emit(Events.CLOSE_MODALS)"/>
     </template>
     <ErrorBox/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
@@ -73,7 +73,7 @@
       useInfiniteScroll(config, android, documents);
 
       async function replaceDocument(...docs) {
-        emit(Events.BACK_CLICKED);
+        emit(Events.CLOSE_MODALS);
         clearLog();
         globalBookmarks.clearBookmarks();
         documents.splice(0)
@@ -122,17 +122,6 @@
 
       const ambiguousSelection = ref(null);
 
-      function clicked(event) {
-        const eventFunctions = getEventFunctions(event);
-        if(eventFunctions.length > 0) {
-          if(eventFunctions.length === 1) eventFunctions[0].callback();
-          else {
-            ambiguousSelection.value = eventFunctions;
-          }
-        } else {
-          emit(Events.BACK_CLICKED);
-        }
-      }
       const mounted = ref(false);
       onMounted(() => mounted.value = true)
       onUnmounted(() => mounted.value = false)
@@ -140,7 +129,7 @@
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
-        config, strings, documents, topElement, currentVerse, clicked, mounted
+        config, strings, documents, topElement, currentVerse, mounted, emit, Events
       };
     },
     computed: {
