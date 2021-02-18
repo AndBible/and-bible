@@ -29,7 +29,7 @@
 import {inject, onMounted, onUnmounted, watch} from "@vue/runtime-core";
 import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
-import {init, exec} from "pell";
+import {init, exec} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText";
 import {
   faBible,
@@ -72,7 +72,10 @@ export default {
     const indent = {
       icon: icon(faIndent).html,
       title: 'Indent',
-      result: () => exec('indent')
+      result: () => {
+        console.log("asdf");
+        exec('indent');
+      }
     }
     const outdent = {
       icon: icon(faOutdent).html,
@@ -155,7 +158,7 @@ export default {
 }
 </script>
 <style lang="scss">
-@import '~pell/src/pell.scss';
+@import '~@/lib/pell/pell.scss';
 @import '~@/common.scss';
 
 .pell-content {

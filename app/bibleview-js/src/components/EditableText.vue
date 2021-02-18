@@ -92,7 +92,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '~pell/src/pell.scss';
+@import '~@/lib/pell/pell.scss';
 @import "~@/common.scss";
 .notes-display {
   width: calc(100% - 22pt);
