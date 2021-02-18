@@ -79,7 +79,7 @@ class StepRepo : RepoBase() {
     override val repoName: String get() = REPOSITORY
 
     companion object {
-        private const val REPOSITORY = "STEP (Tyndale)"
+        private const val REPOSITORY = "STEP Bible (Tyndale)"
         private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
     }
 }
