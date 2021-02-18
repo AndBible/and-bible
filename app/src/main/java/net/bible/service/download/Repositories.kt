@@ -18,6 +18,7 @@
 
 package net.bible.service.download
 
+import net.bible.service.common.CommonUtils
 import net.bible.service.sword.AcceptableBookTypeFilter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookFilter
@@ -99,6 +100,7 @@ class BetaRepo : RepoBase() {
             // just Calvin Commentaries for now to see how we go
             //
             // Cannot include Jasher, Jub, EEnochCharles because they are displayed as page per verse for some reason which looks awful.
+            if(CommonUtils.isBeta) return true
             return super.test(book) &&
                 book.initials == "CalvinCommentaries"
         }

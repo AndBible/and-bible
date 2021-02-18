@@ -59,6 +59,7 @@ import org.crosswire.jsword.passage.VerseRange
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
+import kotlin.coroutines.resume
 
 val BookmarkEntities.Label.displayName get() =
     if(isSpeakLabel) application.getString(R.string.speak) else name
@@ -96,6 +97,13 @@ object CommonUtils {
 
             return "$versionName#$GitHash (built $BuildDate)"
         }
+
+    val isBeta: Boolean get() {
+        val verFull = applicationVersionName
+        val ver = verFull.split("#")[0]
+        return ver.endsWith("-beta")
+    }
+
     val applicationVersionNumber: Int
         get() {
             // TODO we have to change this to Long if we one day will have very long version numbers.
