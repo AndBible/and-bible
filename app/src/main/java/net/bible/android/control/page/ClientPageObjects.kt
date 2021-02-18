@@ -23,6 +23,7 @@ import kotlinx.serialization.serializer
 import net.bible.android.control.bookmark.LABEL_UNLABELED_ID
 import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
 import net.bible.service.common.displayName
 import org.crosswire.jsword.book.Book
@@ -140,7 +141,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
 {
     override val asHashMap: Map<String, Any>
         get() {
-            val bookmarks = bookmarks.map { ClientBookmark(it, verseRange.versification) }
+            val bookmarks = bookmarks.map { ClientBookmark(it, KJVA) }
             return mapOf(
                 "id" to wrapString(verseRange.uniqueId),
                 "type" to wrapString("notes"),

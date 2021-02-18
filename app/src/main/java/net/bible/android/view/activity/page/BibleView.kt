@@ -74,6 +74,7 @@ import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
+import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
@@ -84,6 +85,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
@@ -895,7 +897,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(document !is DocumentWithBookmarks) return
 
         val clientBookmark = ClientBookmark(event.bookmark,
-            if(document is BibleDocument) document.swordBook.versification else null
+            when(document) {
+                is BibleDocument -> document.swordBook.versification
+                is MyNotesDocument -> KJVA
+                else -> null
+            }
         )
         val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
         executeJavascriptOnUiThread("""

@@ -25,8 +25,11 @@ import android.webkit.JavascriptInterface
 import kotlinx.serialization.serializer
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils.json
 
@@ -41,8 +44,14 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun scrolledToVerse(verseOrdinal: Int) {
-        if (currentPageManager.isBibleShown || currentPageManager.isMyNotesShown) {
-            currentPageManager.currentBible.setCurrentVerseOrdinal(verseOrdinal, bibleView.initialVerse?.versification)
+        val doc = bibleView.firstDocument
+        if (doc is BibleDocument || doc is MyNotesDocument) {
+            currentPageManager.currentBible.setCurrentVerseOrdinal(verseOrdinal,
+                when (doc) {
+                    is BibleDocument -> bibleView.initialVerse?.versification
+                    is MyNotesDocument -> KJVA
+                    else -> throw RuntimeException("Unsupported doc")
+                })
         }
     }
 
