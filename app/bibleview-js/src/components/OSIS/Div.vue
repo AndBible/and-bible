@@ -18,7 +18,7 @@
 <template>
   <span class="paragraphBreak" v-if="isParagraph"/>
   <VerseNumber v-else-if="isPreVerse && shown" :verse-num="verseInfo.verse"/>
-  <template v-else-if="isCanonical || (!isCanonical && config.showNonCanonical)"><slot/></template>
+  <span :class="{'skip-offset': !isCanonical}" v-else-if="isCanonical || (!isCanonical && config.showNonCanonical)"><slot/></span>
 </template>
 
 <script>

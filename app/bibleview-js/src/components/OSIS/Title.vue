@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <h3 :class="{isSubTitle, titleStyle: true}" v-show="show"><slot/></h3>
+  <h3 class="titleStyle" :class="{'skip-offset': !isCanonical, isSubTitle}" v-show="show"><slot/></h3>
 </template>
 
 <script>

@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span v-if="show" :class="{nonCanonical: config.makeNonCanonicalItalic && isNonCanonical}"><slot/></span>
+  <span v-if="show" :class="{nonCanonical: config.makeNonCanonicalItalic && isNonCanonical, 'skip-offset': isNonCanonical}"><slot/></span>
 </template>
 
 <script>
