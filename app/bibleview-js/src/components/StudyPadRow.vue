@@ -34,7 +34,7 @@
       <FontAwesomeIcon icon="outdent"/>
     </div>
 
-    <div v-if="journalEntry.indentLevel < 4" class="journal-button" @click.stop="indent(1)">
+    <div v-if="journalEntry.indentLevel < 2" class="journal-button" @click.stop="indent(1)">
       <FontAwesomeIcon icon="indent"/>
     </div>
 

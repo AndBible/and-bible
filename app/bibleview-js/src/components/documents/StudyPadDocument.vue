@@ -155,8 +155,8 @@ export default {
     }
 
     function indentStyle(entry) {
-      const margin = entry.indentLevel * 10;
-      return `margin-left: ${margin}pt;`;
+      const margin = entry.indentLevel * 20;
+      return `margin-left: ${margin}px;`;
     }
 
     function addNewEntry() {
