@@ -116,10 +116,6 @@
       provide("strings", strings);
       provide("android", android);
 
-      setupEventBusListener(Events.BOOKMARK_HIGHLIGHT_CLICKED, ({event, url, bookmarks}) => {
-        console.log("clicked", {event, url, bookmarks});
-      })
-
       const ambiguousSelection = ref(null);
 
       const mounted = ref(false);
