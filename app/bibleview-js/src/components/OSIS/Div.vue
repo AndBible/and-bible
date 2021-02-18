@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="paragraphBreak" v-if="isParagraph"/>
+  <span class="paragraphBreak" v-if="isParagraph"/>
   <VerseNumber v-else-if="isPreVerse && shown" :verse-num="verseInfo.verse"/>
   <template v-else-if="isCanonical || (!isCanonical && config.showNonCanonical)"><slot/></template>
 </template>
@@ -72,6 +72,7 @@ export default {
 
 <style scoped>
   .paragraphBreak {
+    display: block;
     height: 0.5em;
   }
 </style>
