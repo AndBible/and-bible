@@ -103,6 +103,7 @@ export default {
     max-height: calc(var(--max-height) - 17px);
   }
 }
+
 .placeholder {
   opacity: 0.5;
 }

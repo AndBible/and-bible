@@ -156,8 +156,10 @@ export default {
 </script>
 <style lang="scss">
 @import '~pell/src/pell.scss';
+@import '~@/common.scss';
 
 .pell-content {
+  @extend .visible-scrollbar;
   max-height: calc(var(--max-height) - #{$pell-button-height} - 2*#{$pell-content-padding});
   height: inherit;
 }
