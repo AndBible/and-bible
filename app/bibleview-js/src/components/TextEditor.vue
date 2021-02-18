@@ -29,7 +29,7 @@
 import {inject, onMounted, onUnmounted, watch} from "@vue/runtime-core";
 import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
-import {init, exec} from "@/lib/pell/pell";
+import {init, exec, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText";
 import {
   faBible,
@@ -62,20 +62,21 @@ export default {
     const oList = {
       icon: icon(faListOl).html,
       title: 'Ordered List',
+      state: () => queryCommandState('insertOrderedList'),
       result: () => exec('insertOrderedList')
     };
+
     const uList = {
       icon: icon(faListUl).html,
       title: 'Unordered List',
+      state: () => queryCommandState('insertUnorderedList'),
       result: () => exec('insertUnorderedList')
     }
+
     const indent = {
       icon: icon(faIndent).html,
       title: 'Indent',
-      result: () => {
-        console.log("asdf");
-        exec('indent');
-      }
+      result: () => exec('indent')
     }
     const outdent = {
       icon: icon(faOutdent).html,
@@ -132,6 +133,8 @@ export default {
 
     watch(editText, debounce(save, 2000))
 
+    const divider = {divider: true};
+
     onMounted(() => {
       editor.value = init({
         element: editorElement.value,
@@ -140,7 +143,7 @@ export default {
           dirty.value = true;
         },
         actions: [
-          'bold', 'italic', 'underline', oList, uList, outdent, indent, bibleLink, close
+          'bold', 'italic', 'underline', divider, oList, uList, divider, outdent, indent, divider, bibleLink, divider, close
         ],
       });
       editor.value.content.innerHTML = editText.value;
@@ -169,7 +172,7 @@ export default {
 
 .pell-button {
   color: inherit;
-
+  width: $pell-button-width *0.9;
   .night & {
     color: inherit;
   }
@@ -202,6 +205,13 @@ export default {
   background: var(--background-color);
   opacity: 0.8;
   font-size: small;
+}
+
+.pell-divider {
+  background-color: hsla(0, 0%, 0%, 0.2);
+  .night & {
+    background-color: hsla(0, 0%, 100%, 0.2);
+  }
 }
 
 .edit-area {

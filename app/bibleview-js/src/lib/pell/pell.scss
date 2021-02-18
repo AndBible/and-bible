@@ -21,6 +21,15 @@ $pell-content-padding: 10px !default;
   padding: $pell-content-padding;
 }
 
+.pell-divider {
+  display: inline-block;
+  width: 2px;
+  margin-left: 0.5px;
+  margin-right: 0.5px;
+  height: $pell-button-height * 0.75;
+  background: black;
+}
+
 .pell-actionbar {
   background-color: $pell-actionbar-color;
   border-bottom: $pell-border-width $pell-border-style $pell-border-color;

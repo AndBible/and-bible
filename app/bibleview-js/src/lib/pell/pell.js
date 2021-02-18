@@ -1,10 +1,10 @@
 const defaultParagraphSeparatorString = 'defaultParagraphSeparator'
-const formatBlock = 'formatBlock'
+export const formatBlock = 'formatBlock'
 const addEventListener = (parent, type, listener) => parent.addEventListener(type, listener)
 const appendChild = (parent, child) => parent.appendChild(child)
 const createElement = tag => document.createElement(tag)
-const queryCommandState = command => document.queryCommandState(command)
-const queryCommandValue = command => document.queryCommandValue(command)
+export const queryCommandState = command => document.queryCommandState(command)
+export const queryCommandValue = command => document.queryCommandValue(command)
 
 export const exec = (command, value = null) => document.execCommand(command, false, value)
 
@@ -121,8 +121,6 @@ export const init = settings => {
   content.contentEditable = true
   content.className = classes.content
   content.oninput = ({ target: { firstChild } }) => {
-    if (firstChild && firstChild.nodeType === 3) exec(formatBlock, `<${defaultParagraphSeparator}>`)
-    else if (content.innerHTML === '<br>') content.innerHTML = ''
     settings.onChange(content.innerHTML)
   }
   content.onkeydown = event => {
@@ -133,6 +131,12 @@ export const init = settings => {
   appendChild(settings.element, content)
 
   actions.forEach(action => {
+    if(action.divider) {
+      const divider = createElement('div')
+      divider.className = "pell-divider";
+      appendChild(actionbar, divider)
+      return;
+    }
     const button = createElement('button')
     button.className = classes.button
     button.innerHTML = action.icon
