@@ -59,7 +59,6 @@ export default {
     }
 
     function cancelled() {
-      console.log("canceled");
       if(deferred) {
         deferred.resolve(null);
       }
@@ -67,7 +66,6 @@ export default {
     }
 
     async function handle(event) {
-      console.log("handle");
       const eventFunctions = getEventFunctions(event);
       if(eventFunctions.length > 0) {
         if(eventFunctions.length === 1) eventFunctions[0].callback();
@@ -76,7 +74,6 @@ export default {
           if(s) s.callback();
         }
       } else {
-        console.log("emitting");
         emit("back-clicked")
       }
     }
