@@ -31,7 +31,7 @@ class RepoFactory(val downloadManager: DownloadManager) {
         defaultRepo, CrosswireRepo(), EBibleRepo(), LockmanRepo(), WycliffeRepo(), AndBibleExtraRepo(), IBTRepo()
     )
 
-    val betaRepositories = listOf(BetaRepo())
+    val betaRepositories = listOf(CrosswireBetaRepo(), AndBibleBetaRepo())
 
     val repositories = normalRepositories + betaRepositories
 

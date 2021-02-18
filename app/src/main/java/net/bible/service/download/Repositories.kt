@@ -84,8 +84,28 @@ class AndBibleExtraRepo : RepoBase() {
     }
 }
 
+class AndBibleBetaRepo : RepoBase() {
+    override fun getRepoBooks(refresh: Boolean): List<Book> {
+        val books: List<Book> = getBookList(SUPPORTED_DOCUMENTS, refresh)
+        storeRepoNameInMetaData(books)
+        return books
+    }
 
-class BetaRepo : RepoBase() {
+    override val repoName: String
+        get() = REPONAME
+
+    private class BetaBookFilter : AcceptableBookTypeFilter() {
+        override fun test(book: Book): Boolean = CommonUtils.isBeta
+    }
+
+    companion object {
+        const val REPONAME = "AndBible Beta"
+        private val SUPPORTED_DOCUMENTS: BookFilter = BetaBookFilter()
+    }
+}
+
+
+class CrosswireBetaRepo : RepoBase() {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books: List<Book> = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
