@@ -69,6 +69,21 @@ class AndBibleRepo : RepoBase() {
     }
 }
 
+class StepRepo : RepoBase() {
+    override fun getRepoBooks(refresh: Boolean): List<Book> {
+        val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
+        storeRepoNameInMetaData(bookList)
+        return bookList
+    }
+
+    override val repoName: String get() = REPOSITORY
+
+    companion object {
+        private const val REPOSITORY = "STEP (Tyndale)"
+        private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
+    }
+}
+
 class AndBibleExtraRepo : RepoBase() {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
