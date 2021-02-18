@@ -26,9 +26,9 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.bookmark_list_item.view.*
 import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.control.versification.toV11n
 import net.bible.android.view.util.widget.BookmarkListItem
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.sword.SwordContentFacade

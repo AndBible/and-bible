@@ -20,11 +20,11 @@ package net.bible.android.control.comparetranslations
 import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.control.versification.toV11n
 import net.bible.service.common.CommonUtils.getKeyDescription
 import net.bible.service.font.FontControl
 import net.bible.service.sword.SwordContentFacade

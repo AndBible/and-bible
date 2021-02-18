@@ -20,8 +20,8 @@ package net.bible.android.control.page
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
+import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.LABEL_UNLABELED_ID
-import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json

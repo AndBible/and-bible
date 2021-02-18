@@ -23,11 +23,11 @@ import android.util.Log
 import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
+import net.bible.android.common.toV11n
 import net.bible.android.database.AppDatabase
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
-import net.bible.android.database.bookmarks.converter
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
@@ -595,7 +595,7 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
                         c.getString(v11nIdx) ?: Versifications.DEFAULT_V11N
                     )
                     verseRange = VerseRangeFactory.fromString(v11n, key)
-                    verseRangeInKjv = converter.convert(verseRange, KJVA)
+                    verseRangeInKjv = verseRange.toV11n(KJVA)
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to migrate bookmark: v11n:$v11n verseRange:$verseRange verseRangeInKjv:$verseRangeInKjv", e)
                     c.moveToNext()
@@ -682,7 +682,7 @@ private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
                         c.getString(v11nIdx) ?: Versifications.DEFAULT_V11N
                     )
                     verseRange = VerseRangeFactory.fromString(v11n, key)
-                    verseRangeInKjv = converter.convert(verseRange, KJVA)
+                    verseRangeInKjv = verseRange.toV11n(KJVA)
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to migrate bookmark: v11n:$v11n verseRange:$verseRange verseRangeInKjv:$verseRangeInKjv", e)
                     c.moveToNext()

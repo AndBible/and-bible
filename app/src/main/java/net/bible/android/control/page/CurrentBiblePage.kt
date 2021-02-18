@@ -19,8 +19,8 @@ package net.bible.android.control.page
 
 import android.app.Activity
 import android.util.Log
+import net.bible.android.common.toV11n
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.control.versification.toV11n
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils.getWholeChapter

@@ -86,7 +86,7 @@ BlockType=CHAPTER
 Lang=en
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
-DataPath=./modules/comments/zcom/journal/
+DataPath=./modules/comments/zcom/studypads/
 About=
 Versification=KJV"""
 
@@ -114,7 +114,7 @@ Encoding=UTF-8
 LCSH=Bible--Commentaries.
 DataPath=./modules/comments/zcom/mynote/
 About=
-Versification=KJV"""
+Versification=KJVA"""
 
     val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument)
 }

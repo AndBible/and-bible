@@ -17,9 +17,9 @@
  */
 package net.bible.android.control.page
 
+import net.bible.android.common.entity
+import net.bible.android.common.toV11n
 import net.bible.android.control.versification.chapterVerse
-import net.bible.android.control.versification.entity
-import net.bible.android.control.versification.toV11n
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook

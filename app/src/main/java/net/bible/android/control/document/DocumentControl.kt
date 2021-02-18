@@ -19,13 +19,13 @@
 package net.bible.android.control.document
 
 import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.versification.toV11n
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordDocumentFacade
