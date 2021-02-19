@@ -170,7 +170,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     class BibleViewTouched(val onlyTouch: Boolean = false)
 
     init {
-        if (0 != BibleApplication.application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
+        if ((0 != BibleApplication.application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) || CommonUtils.isBeta) {
             setWebContentsDebuggingEnabled(true)
         }
         gestureDetector = GestureDetectorCompat(context, gestureListener)
