@@ -66,6 +66,7 @@ open class OsisToCanonicalTextSaxHandler: OsisSaxHandler() {
      * Encountered while parsing the Current XML File. The AttributeList Parameter has
      * the list of all Attributes declared for the Current Element in the XML File.
     */
+    var insideVerse = false;
     override fun startElement(namespaceURI: String?,
                           sName: String?,  // simple name
                           qName: String,  // qualified name
@@ -81,6 +82,7 @@ open class OsisToCanonicalTextSaxHandler: OsisSaxHandler() {
                 currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
             }
             writeContentStack.push(CONTENT_STATE.WRITE)
+            insideVerse = true
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
             writeContentStack.push(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
@@ -98,6 +100,9 @@ open class OsisToCanonicalTextSaxHandler: OsisSaxHandler() {
             // unknown tags rely on parent tag to determine if content is canonical e.g. the italic tag in the middle of canonical text
             writeContentStack.push(writeContentStack.peek())
         }
+        if(insideVerse) {
+            spaceJustWritten = false
+        }
     }
 
     /*
@@ -114,10 +119,14 @@ open class OsisToCanonicalTextSaxHandler: OsisSaxHandler() {
             // A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other
             // which looks bad and confuses TTS
             write(" ")
+            insideVerse = false
         }
 
         // now this tag has ended pop the write/ignore state for the parent tag
         writeContentStack.pop()
+        if(insideVerse) {
+            spaceJustWritten = false
+        }
     }
 
     /*
