@@ -160,7 +160,7 @@ open class BookmarkControl @Inject constructor(
         dao.deleteLabels(bookmark)
         dao.insert(labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) })
         addText(bookmark)
-        bookmark.labelIds = labelIdList
+        addLabels(bookmark)
         ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
     }
 
