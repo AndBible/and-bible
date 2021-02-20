@@ -20,12 +20,15 @@ package net.bible.service.common
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
+import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.sword.AndBibleAddonFilter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import java.io.File
 
+
+class ReloadAddonsEvent
 
 @Serializable
 data class ProvidesJson(val fonts: List<String>, val features: List<String>)
@@ -73,6 +76,7 @@ object AndBibleAddons {
     fun clearCaches() {
         _provides = null
         _addons =null
+        ABEventBus.getDefault().post(ReloadAddonsEvent())
     }
 
     val fontModuleNames: List<String> get() =

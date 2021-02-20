@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {getCurrentInstance, inject, nextTick, reactive, ref, watch} from "@vue/runtime-core";
+import {getCurrentInstance, inject, nextTick, onBeforeMount, reactive, ref, watch} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
 import {Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
@@ -335,14 +335,31 @@ export function useCustomCss() {
     return {addCss, removeCss}
 }
 
-export function loadAddonFonts() {
-    const fontModuleNames = new URLSearchParams(window.location.search).get("fontModuleNames");
-    if(!fontModuleNames) return
-    for(const modName of fontModuleNames.split(",")) {
-        const link = document.createElement("link");
-        link.href = `/module/${modName}/and-bible/fonts.css`;
-        link.type = "text/css";
-        link.rel = "stylesheet";
-        document.getElementsByTagName("head")[0].appendChild(link)
+export function useAddonFonts() {
+    const elements = [];
+
+    setupEventBusListener(Events.RELOAD_ADDONS, ({fontModuleNames}) => {
+        reloadFonts(fontModuleNames)
+    })
+
+    function reloadFonts(fontModuleNames) {
+        for(const e of elements) {
+            e.remove();
+        }
+        elements.splice(0);
+        for (const modName of fontModuleNames) {
+            const link = document.createElement("link");
+            link.href = `/module/${modName}/and-bible/fonts.css`;
+            link.type = "text/css";
+            link.rel = "stylesheet";
+            document.getElementsByTagName("head")[0].appendChild(link)
+            elements.push(link);
+        }
     }
+
+    onBeforeMount(() => {
+        const fontModuleNames = new URLSearchParams(window.location.search).get("fontModuleNames");
+        if (!fontModuleNames) return
+        reloadFonts(fontModuleNames.split(","));
+    })
 }

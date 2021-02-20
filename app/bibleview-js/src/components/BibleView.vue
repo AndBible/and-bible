@@ -34,7 +34,7 @@
 <script>
   import Document from "@/components/documents/Document";
   import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
-  import {loadAddonFonts, useConfig, useCustomCss, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
+  import {useAddonFonts, useConfig, useCustomCss, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
   import {testBookmarkLabels, testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/composables/infinite-scroll";
@@ -54,7 +54,7 @@
     name: "BibleView",
     components: {Document, ErrorBox, BookmarkModal, DevelopmentMode, AmbiguousSelection},
     setup() {
-      loadAddonFonts();
+      useAddonFonts();
       useFontAwesome();
       const {config} = useConfig();
       const strings = useStrings();

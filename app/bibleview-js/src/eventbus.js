@@ -41,6 +41,7 @@ export const Events = {
     ADD_OR_UPDATE_BOOKMARK_TO_LABEL: "add_or_update_bookmark_to_label",
     DELETE_JOURNAL: "delete_journal",
     CONFIG_CHANGED: "config_changed",
+    RELOAD_ADDONS: "reload_addons",
 }
 
 export function setupEventBusListener(eventId, callback) {

@@ -76,7 +76,6 @@ import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
 import net.bible.android.control.page.MyNotesDocument
-import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
@@ -98,6 +97,7 @@ import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
@@ -421,6 +421,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val fontModuleNames = AndBibleAddons.fontModuleNames.joinToString(",")
         loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html?lang=$lang&fontModuleNames=$fontModuleNames")
+    }
+
+     fun onEvent(e: ReloadAddonsEvent) {
+        val fontModuleNames = json.encodeToString(serializer(), AndBibleAddons.fontModuleNames)
+        executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames});")
     }
 
     override fun destroy() {
