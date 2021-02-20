@@ -49,6 +49,6 @@ class OsisToCanonicalTextSaxHandlerTest {
         osisToCanonicalTextSaxHandler!!.endElement(null, null, "verse")
 
         // the last verse tag just add an extra space at the end but that is required to separate verses and is easier to leave.
-        Assert.assertThat(osisToCanonicalTextSaxHandler!!.writer.html, CoreMatchers.equalTo("Be exalted, O God "))
+        Assert.assertThat(osisToCanonicalTextSaxHandler!!.writer.html, CoreMatchers.equalTo(" Be exalted, O God "))
     }
 }
