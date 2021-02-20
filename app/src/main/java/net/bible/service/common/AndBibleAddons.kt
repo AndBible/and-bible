@@ -70,6 +70,11 @@ object AndBibleAddons {
         return rv
     }
 
+    fun clearCaches() {
+        _provides = null
+        _addons =null
+    }
+
     val fontModuleNames: List<String> get() =
         provides.keys.filter { !provides[it]?.fonts.isNullOrEmpty() }
 }
