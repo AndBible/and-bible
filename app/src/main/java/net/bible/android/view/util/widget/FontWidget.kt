@@ -33,25 +33,29 @@ import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.text_size_widget.view.*
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.common.AndBibleAddons
 
 
-val availableFonts = arrayOf(
-    "sans-serif-thin",
-    "sans-serif-light",
-    "sans-serif",
-    "sans-serif-medium",
-    "sans-serif-black",
-    "sans-serif-condensed-light",
-    "sans-serif-condensed",
-    "sans-serif-condensed-medium",
-    "sans-serif-condensed",
-    "serif",
-    "monospace",
-    "serif-monospace",
-    "casual",
-    "cursive",
-    "sans-serif-smallcaps"
-)
+val availableFonts:Array<String> get() {
+    val standard = arrayOf (
+        "sans-serif-thin",
+        "sans-serif-light",
+        "sans-serif",
+        "sans-serif-medium",
+        "sans-serif-black",
+        "sans-serif-condensed-light",
+        "sans-serif-condensed",
+        "sans-serif-condensed-medium",
+        "sans-serif-condensed",
+        "serif",
+        "monospace",
+        "serif-monospace",
+        "casual",
+        "cursive",
+        "sans-serif-smallcaps"
+    )
+    return AndBibleAddons.providedFonts.toTypedArray() + standard
+}
 
 
 class FontAdapter(context: Context, resource: Int, private val fontTypes: Array<String>) :

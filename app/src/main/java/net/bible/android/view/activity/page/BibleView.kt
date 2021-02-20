@@ -96,6 +96,7 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
+import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.Books
@@ -418,7 +419,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val lang = Locale.getDefault().toLanguageTag()
 
-        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html?lang=$lang")
+        val fontModuleNames = AndBibleAddons.fontModuleNames.joinToString(",")
+        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html?lang=$lang&fontModuleNames=$fontModuleNames")
     }
 
     override fun destroy() {

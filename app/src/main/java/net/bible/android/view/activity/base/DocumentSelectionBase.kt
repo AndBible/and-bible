@@ -54,6 +54,7 @@ import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
+import net.bible.service.sword.AndBibleAddonFilter
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.Version
@@ -81,7 +82,8 @@ data class RecommendedDocuments(
     val commentaries: Map<String, List<String>>,
     val dictionaries: Map<String, List<String>>,
     val books: Map<String, List<String>>,
-    val maps: Map<String, List<String>>
+    val maps: Map<String, List<String>>,
+    val addons: Map<String, List<String>> = emptyMap(),
 ) {
     fun getForBookCategory(c: BookCategory): Map<String, List<String>> {
         return when(c) {
@@ -90,6 +92,7 @@ data class RecommendedDocuments(
             BookCategory.GENERAL_BOOK -> books
             BookCategory.MAPS -> maps
             BookCategory.DICTIONARY -> dictionaries
+            BookCategory.AND_BIBLE -> addons
             else -> emptyMap()
         }
     }
@@ -160,20 +163,21 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             imm.hideSoftInputFromWindow(languageSpinner.windowToken, 0)
         }
 
-        languageSpinner.addTextChangedListener( object: TextWatcher {
+        languageSpinner.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val langString = s.toString()
-                if(langString.isEmpty()) {
+                if (langString.isEmpty()) {
                     selectedLanguageNo = -1
                     filterDocuments()
                 } else {
-                    val langIdx = languageList.indexOfFirst {it.name == langString}
-                    if(langIdx != -1) {
+                    val langIdx = languageList.indexOfFirst { it.name == langString }
+                    if (langIdx != -1) {
                         selectedLanguageNo = langIdx
                         filterDocuments()
                     }
                 }
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
@@ -186,10 +190,11 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 freeTextSearch.setText("")
             }
         }
-        freeTextSearch.addTextChangedListener(object: TextWatcher {
+        freeTextSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 filterDocuments()
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
@@ -326,7 +331,10 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     allDocuments.addAll(newDocs)
                 }
                 dao.clear()
-                dao.insertDocuments(allDocuments.map { Document(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "") })
+                dao.insertDocuments(allDocuments.map {
+                    Document(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)
+                        ?: "")
+                })
 
                 Log.i(TAG, "Number of documents:" + allDocuments.size)
             } catch (e: Exception) {
@@ -371,18 +379,21 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                         }
 
                         displayedDocuments.sortWith(
-                            compareBy (
+                            compareBy(
                                 { swordDocumentFacade.getDocumentByInitials(it.initials) == null },
-                                { if(lang != null) !it.isRecommended(recommendedDocuments) else false },
-                                {when(it.bookCategory) {
-                                    BookCategory.BIBLE -> 0
-                                    BookCategory.COMMENTARY -> 1
-                                    BookCategory.DICTIONARY -> 2
-                                    BookCategory.GENERAL_BOOK -> 4
-                                    BookCategory.MAPS -> 5
-                                    else -> 6
-                                } },
-                                {it.abbreviation.toLowerCase(Locale(it.language.code))}
+                                { if (lang != null) !it.isRecommended(recommendedDocuments) else false },
+                                {
+                                    when (it.bookCategory) {
+                                        BookCategory.BIBLE -> 0
+                                        BookCategory.COMMENTARY -> 1
+                                        BookCategory.DICTIONARY -> 2
+                                        BookCategory.GENERAL_BOOK -> 4
+                                        BookCategory.MAPS -> 5
+                                        BookCategory.AND_BIBLE -> 6
+                                        else -> 6
+                                    }
+                                },
+                                { it.abbreviation.toLowerCase(Locale(it.language.code)) }
                             )
                         )
                     }
@@ -572,7 +583,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
         val versionMessageLatest = if(versionLatest != null)
             getString((
-                if(inDownloadScreen)
+                if (inDownloadScreen)
                     R.string.module_about_latest_version
                 else
                     R.string.module_about_installed_version),
@@ -659,7 +670,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             BookFilters.getCommentaries(),
             BookFilters.getDictionaries(),
             BookFilters.getGeneralBooks(),
-            BookFilters.getMaps()
+            BookFilters.getMaps(),
+            AndBibleAddonFilter()
         )
         private var lastSelectedLanguage // allow sticky language selection
             : Language? = null

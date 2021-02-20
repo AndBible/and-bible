@@ -37,7 +37,20 @@ open class AcceptableBookTypeFilter : BookFilter {
         return if (book.isLocked) {
             false
         } else {
-            bookCategory == BookCategory.BIBLE || bookCategory == BookCategory.COMMENTARY || bookCategory == BookCategory.DICTIONARY || bookCategory == BookCategory.GENERAL_BOOK || bookCategory == BookCategory.MAPS
+            bookCategory == BookCategory.BIBLE || bookCategory == BookCategory.COMMENTARY || bookCategory == BookCategory.DICTIONARY || bookCategory == BookCategory.GENERAL_BOOK || bookCategory == BookCategory.MAPS || bookCategory == BookCategory.AND_BIBLE
         }
+    }
+}
+
+class AndBibleAddonFilter : BookFilter {
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.crosswire.jsword.book.BookFilter#test(org.crosswire.jsword.book
+     * .Book)
+     */
+    override fun test(book: Book): Boolean {
+        return book.bookCategory == BookCategory.AND_BIBLE
     }
 }

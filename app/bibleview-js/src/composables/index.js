@@ -317,7 +317,6 @@ export function useCustomCss() {
             link.rel = "stylesheet";
             cssNodes.set(bookInitials, link);
             document.getElementsByTagName("head")[0].appendChild(link);
-            console.log("added css", bookInitials);
         }
         count.set(bookInitials, c + 1);
     }
@@ -334,4 +333,16 @@ export function useCustomCss() {
     }
 
     return {addCss, removeCss}
+}
+
+export function loadAddonFonts() {
+    const fontModuleNames = new URLSearchParams(window.location.search).get("fontModuleNames");
+    if(!fontModuleNames) return
+    for(const modName of fontModuleNames.split(",")) {
+        const link = document.createElement("link");
+        link.href = `/module/${modName}/and-bible/fonts.css`;
+        link.type = "text/css";
+        link.rel = "stylesheet";
+        document.getElementsByTagName("head")[0].appendChild(link)
+    }
 }
