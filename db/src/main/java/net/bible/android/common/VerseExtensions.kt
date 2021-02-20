@@ -23,6 +23,7 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.VersificationConverter
+import kotlin.math.max
 
 val converter = VersificationConverter()
 
@@ -31,14 +32,9 @@ fun Verse.isConvertibleTo(v11n: Versification): Boolean = converter.isConvertibl
 fun Verse.toV11n(v11n: Versification): Verse = converter.convert(this, v11n)
 fun VerseRange.toV11n(v11n: Versification?): VerseRange {
     return if(v11n != null) {
-        var startVerse = start
-        var endVerse = end
-        if(startVerse.verse == 0) {
-            startVerse = Verse(start.versification, start.book, start.chapter, 1)
-        }
-        if(endVerse.verse == 0) {
-            endVerse = Verse(end.versification, end.book, end.chapter, 1)
-        }
+        val startVerse = Verse(start.versification, start.book, max(start.chapter, 1), max(start.verse, 1))
+        val endVerse = Verse(end.versification, end.book, max(end.chapter, 1), max(end.verse, 1))
+
         VerseRange(v11n, startVerse.toV11n(v11n), endVerse.toV11n(v11n))
     } else this
 }

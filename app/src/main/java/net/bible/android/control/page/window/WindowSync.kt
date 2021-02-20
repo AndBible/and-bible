@@ -20,7 +20,6 @@ package net.bible.android.control.page.window
 
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
-import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPage
 import net.bible.android.control.page.DocumentCategory
 import net.bible.service.device.ScreenSettings

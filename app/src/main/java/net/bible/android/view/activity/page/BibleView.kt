@@ -638,7 +638,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val oldFontSize = settings.defaultFontSize
         val fontFamily = window.pageManager.actualTextDisplaySettings.font!!.fontFamily!!
         settings.defaultFontSize = fontSize
-        settings.standardFontFamily = fontFamily
+        if(!htmlLoadingOngoing) {
+            executeJavascriptOnUiThread("bibleView.emit('set_font_family', '$fontFamily');")
+        } else {
+            settings.standardFontFamily = fontFamily
+        }
         if(oldFontSize != fontSize) {
             doCheckWindows()
         }
@@ -1142,7 +1146,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun hasChapterLoaded(chapter: Int) = chapter in minChapter..maxChapter
 
     fun setClientReady() {
-        htmlLoadingOngoing = false;
+        htmlLoadingOngoing = false
         if(latestDocumentStr != null && needsDocument) {
             replaceDocument()
         }

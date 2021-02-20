@@ -36,7 +36,7 @@
   import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
   import {useAddonFonts, useConfig, useCustomCss, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
   import {testBookmarkLabels, testData} from "@/testdata";
-  import {ref} from "@vue/reactivity";
+  import {computed, ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/composables/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
   import {emit, Events, setupEventBusListener} from "@/eventbus";
@@ -89,6 +89,11 @@
         scrollToId(`v-${verseBeforeConfigChange}`, true)
       })
 
+      const fontFamily = ref(null);
+      setupEventBusListener(Events.SET_FONT_FAMILY, value => {
+        fontFamily.value = value;
+      })
+
       setupEventBusListener(Events.REPLACE_DOCUMENT, replaceDocument);
       setupWindowEventListener("error", (e) => {
         console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
@@ -124,18 +129,11 @@
       onMounted(() => mounted.value = true)
       onUnmounted(() => mounted.value = false)
 
-      return {
-        makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
-        updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
-        config, strings, documents, topElement, currentVerse, mounted, emit, Events
-      };
-    },
-    computed: {
-      styleConfig({config}) {
-        const textColor = Color(config.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
-        const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+      const styleConfig = computed(() => {
+          const textColor = Color(config.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
+          const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
 
-        let style = `
+          let style = `
           max-width: ${config.marginSize.maxWidth};
           color: ${textColor.hsl().string()};
           hyphens: ${config.hyphenation ? "auto": "none"};
@@ -145,14 +143,24 @@
           text-align: ${config.justifyText ? "justify" : "start"};
           --background-color: ${backgroundColor.hsl().string()};
           `;
-        if(config.marginSize.marginLeft || config.marginSize.marginRight) {
-          style += `
+          if(config.marginSize.marginLeft || config.marginSize.marginRight) {
+            style += `
             margin-left: ${config.marginSize.marginLeft}mm;
             margin-right: ${config.marginSize.marginRight}mm;
           `;
-        }
-        return style;
-      }
+          }
+          if(fontFamily.value) {
+            style += `font-family: ${fontFamily.value};`
+          }
+
+          return style;
+      });
+
+      return {
+        makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
+        updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
+        config, strings, documents, topElement, currentVerse, mounted, emit, Events, styleConfig,
+      };
     },
   }
 </script>

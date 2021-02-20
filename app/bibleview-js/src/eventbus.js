@@ -42,6 +42,7 @@ export const Events = {
     DELETE_JOURNAL: "delete_journal",
     CONFIG_CHANGED: "config_changed",
     RELOAD_ADDONS: "reload_addons",
+    SET_FONT_FAMILY: "set_font_family",
 }
 
 export function setupEventBusListener(eventId, callback) {
