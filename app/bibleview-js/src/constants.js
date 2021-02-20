@@ -33,3 +33,5 @@ export const BookCategories = {
     BIBLE: "BIBLE",
     COMMENTARIES: "COMMENTARY",
 }
+
+export const fadeReferenceDelay = 15000;

@@ -33,6 +33,7 @@ import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
 import {getVerseInfo, sleep} from "@/utils";
 import {computed} from "@vue/reactivity";
+import {fadeReferenceDelay} from "@/constants";
 
 export default {
   name: "Verse",
@@ -82,11 +83,11 @@ export default {
     function highlight() {
       timeout.value = false;
       highlighted.value = true;
-      sleep(3000).then(() => timeout.value = true)
+      sleep(fadeReferenceDelay).then(() => timeout.value = true)
     }
 
     if(isInOriginalOrdinalRange.value) {
-      sleep(3000).then(() => timeout.value = true)
+      sleep(fadeReferenceDelay).then(() => timeout.value = true)
     }
 
     const common = useCommon();

@@ -24,6 +24,7 @@ import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, sleep} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
+import {fadeReferenceDelay} from "@/constants";
 
 let cancelFunc = () => {};
 
@@ -69,7 +70,7 @@ export default {
         clicked.value = true;
         lastClicked.value = true;
         cancelFunc = () => lastClicked.value = false;
-        sleep(3000).then(cancelFunc);
+        sleep(fadeReferenceDelay).then(() => cancelFunc());
       }, {title: strings.referenceLink});
     }
     return {openLink, clicked, lastClicked, content, link, ...common};
