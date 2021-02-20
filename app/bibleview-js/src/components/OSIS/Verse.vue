@@ -22,7 +22,7 @@
         :class="{linebreak: config.showVersePerLine}"
     >
       <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
-        <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
+        <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/>
       </span>
     </span>
 </template>
