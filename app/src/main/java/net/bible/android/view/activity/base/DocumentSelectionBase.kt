@@ -373,7 +373,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
                         for (doc in allDocuments) {
                             val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
-                            if (filter.test(doc) && (lang == null || doc.language == lang) && (osisIds == null || osisIds.contains(doc.osisID))) {
+                            if (filter.test(doc) && (lang == null || doc.language == lang || doc.bookCategory == BookCategory.AND_BIBLE) && (osisIds == null || osisIds.contains(doc.osisID))) {
                                 displayedDocuments.add(doc)
                             }
                         }
