@@ -204,7 +204,7 @@ export default {
   }
   background: var(--background-color);
   opacity: 0.8;
-  font-size: small;
+  font-size: 70%;
 }
 
 .pell-divider {

@@ -54,7 +54,7 @@ export default {
 .label {
   font-weight: bold;
   color: #e8e8e8;
-  font-size: small;
+  font-size: 70%;
   border-radius: 6pt;
   padding-left: 4pt;
   padding-right: 4pt;

@@ -167,7 +167,7 @@ export default {
   padding-top: 10pt;
   padding-bottom: 5pt;
 
-  font-size: smaller;
+  font-size: 50%;
 }
 .bible-text {
   text-indent: 5pt;

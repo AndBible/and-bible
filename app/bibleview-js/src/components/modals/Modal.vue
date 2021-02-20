@@ -19,7 +19,7 @@
   <teleport to="#modals">
     <div v-if="blocking" @click.stop="$emit('close')" class="modal-backdrop"/>
     <div :class="{blocking}">
-      <div ref="modal" @click.stop :class="{'modal-content': true, blocking}"
+      <div ref="modal" @click.stop class="modal-content" :class="{blocking}"
       >
         <div ref="header" class="modal-header">
           <span class="title">
@@ -88,6 +88,8 @@ $border-radius: 8pt;
 $border-radius2: $border-radius - 1.5pt;
 
 .modal-content {
+  font-family: sans-serif;
+  font-size: 12pt;
   opacity: 0.95;
   z-index: 5;
   .blocking & {
