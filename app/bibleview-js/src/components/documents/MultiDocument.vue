@@ -18,7 +18,7 @@
 <template>
   <div v-for="(fragment, index) in osisFragments" :key="index">
     <div class="ref-link">
-      <a :href="link(fragment)">{{fragment.keyName}}</a>
+      <a :href="link(fragment)">{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookInitials)}}</a>
     </div>
     <OsisFragment :fragment="fragment"/>
     <div v-if="index < osisFragments.length - 1" class="separator"/>

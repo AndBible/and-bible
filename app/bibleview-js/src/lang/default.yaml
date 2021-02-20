@@ -46,4 +46,5 @@ dragHelp: "You can drag & drop item to re-order study pad"
 saved: "saved"
 openAll: "Show all references"
 editBookmarkPlaceholder: "Tap to edit My Notes for this bookmark"
+multiDocumentLink: "%s (%s)"
 
