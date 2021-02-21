@@ -25,7 +25,8 @@
     </template>
     <ErrorBox/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
-    <div id="top" ref="topElement" :style="styleConfig">
+    <div id="top"/>
+    <div id="content" ref="topElement" :style="styleConfig">
       <Document v-for="document in documents" :key="document.id" :document="document"/>
     </div>
     <div id="bottom"/>
