@@ -24,6 +24,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookFilters
@@ -58,8 +59,12 @@ open class CurrentCommentaryPage internal constructor(
 
             return if(currentDocument == FakeBookFactory.compareDocument && origKey != null) {
                 val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
-                    OsisFragment(swordContentFacade.readOsisFragment(it, origKey), origKey, it)
-                }
+                    try {
+                        OsisFragment(swordContentFacade.readOsisFragment(it, origKey), origKey, it)
+                    } catch (e: OsisError) {
+                        null
+                    }
+                }.filterNotNull()
                 MultiFragmentDocument(frags)
             } else super.currentPageContent
         }
