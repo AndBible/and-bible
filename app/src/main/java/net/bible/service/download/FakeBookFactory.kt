@@ -95,7 +95,7 @@ Encoding=UTF-8
 LCSH=Bible--Commentaries.
 DataPath=./modules/comments/zcom/studypads/
 About=
-Versification=KJV"""
+Versification=KJVA"""
 
     private val COMPARE_DUMMY_CONF get() = """[Compare]
 Description=${application.getString(R.string.compare_description)}
@@ -108,7 +108,7 @@ Encoding=UTF-8
 LCSH=Bible--Commentaries.
 DataPath=./modules/comments/zcom/compare/
 About=
-Versification=KJV"""
+Versification=KJVA"""
 
 
     private val MULTI_DUMMY_CONF get() = """[Multi]
@@ -122,7 +122,7 @@ Encoding=UTF-8
 LCSH=Bible--Commentaries.
 DataPath=./modules/comments/zcom/journal/
 About=
-Versification=KJV"""
+Versification=KJVA"""
 
     private val MY_NOTE_DUMMY_CONF get() = """[MyNote]
 Description=${application.getString(R.string.my_notes_description)}

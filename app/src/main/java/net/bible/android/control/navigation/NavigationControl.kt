@@ -28,6 +28,8 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import net.bible.android.control.versification.Scripture
 import org.crosswire.jsword.versification.Versification
 import net.bible.android.activity.R
+import net.bible.android.database.bookmarks.KJVA
+import net.bible.service.download.FakeBookFactory
 import java.util.*
 
 /**
@@ -46,7 +48,9 @@ class NavigationControl @Inject constructor(
     fun getBibleBooks(isScriptureRequired: Boolean): List<BibleBook> {
         var books: MutableList<BibleBook> = ArrayList()
         val currentPassageDocument: AbstractPassageBook = currentPassageDocument
-        val documentBookList = documentBibleBooksFactory.getBooksFor(currentPassageDocument)
+        val documentBookList = if(currentPassageDocument == FakeBookFactory.compareDocument) {
+            KJVA.bookIterator.asSequence().toList()
+        } else documentBibleBooksFactory.getBooksFor(currentPassageDocument)
         for (bibleBook in documentBookList) {
             if (isScriptureRequired == Scripture.isScripture(bibleBook)) {
                 books.add(bibleBook)
