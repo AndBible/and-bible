@@ -255,7 +255,7 @@ open class BookmarkControl @Inject constructor(
 
     private fun addText(b: Bookmark) {
         val book = b.book ?: windowControl.defaultBibleDoc
-        val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(book, it) }
+        val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(book, it, true) }
         val startOffset = b.startOffset ?: 0
         var startVerse = verseTexts.first()
         var endOffset = b.endOffset ?: startVerse.length
