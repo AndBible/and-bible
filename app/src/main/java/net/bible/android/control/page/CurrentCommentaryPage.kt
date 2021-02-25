@@ -18,6 +18,7 @@
 package net.bible.android.control.page
 
 import android.util.Log
+import net.bible.android.common.toV11n
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.database.WorkspaceEntities
@@ -33,6 +34,7 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 
 /** Reference to current passage shown by viewer
@@ -57,10 +59,16 @@ open class CurrentCommentaryPage internal constructor(
         get() {
             val origKey = originalKey ?: singleKey
 
+            val key: VerseRange = when(origKey) {
+                is VerseRange -> origKey
+                is Verse -> VerseRange(origKey.versification, origKey, origKey)
+                else -> throw RuntimeException("Invalid type")
+            }
+
             return if(currentDocument == FakeBookFactory.compareDocument && origKey != null) {
                 val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
                     try {
-                        OsisFragment(swordContentFacade.readOsisFragment(it, origKey), origKey, it)
+                        OsisFragment(swordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification)), origKey, it)
                     } catch (e: OsisError) {
                         null
                     }

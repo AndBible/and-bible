@@ -177,7 +177,7 @@ class OsisFragment(
     val key: Key,
     private val book: Book
 ) {
-    private val keyStr: String get () = "${book.initials}--${key.uniqueId} }"
+    private val keyStr: String get () = "${book.initials}--${key.uniqueId}"
     val features: Map<String, String> get () {
         val type = when {
             book.hasFeature(FeatureType.HEBREW_DEFINITIONS) -> "hebrew"
