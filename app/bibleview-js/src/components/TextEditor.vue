@@ -78,6 +78,7 @@ export default {
       title: 'Indent',
       result: () => exec('indent')
     }
+
     const outdent = {
       icon: icon(faOutdent).html,
       title: 'Indent',

@@ -131,10 +131,11 @@ export default {
 }
 </style>
 <style lang="scss">
-.editable-text ul,ol {
+.editable-text ul,ol,blockquote {
   margin-top: 5pt;
   margin-bottom: 5pt;
-  padding-left: 15pt;
+  margin-left: 0!important;
+  padding-left: 15pt!important;
 
   & ul,ol {
     margin-top: 0;
