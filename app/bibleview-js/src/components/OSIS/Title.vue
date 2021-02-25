@@ -41,8 +41,8 @@ export default {
     isSubTitle: ({type}) => type === "sub",
   },
   setup(props) {
-    checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter"]);
-    checkUnsupportedProps(props, "subType", ["x-Chapter"]);
+    checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
+    checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
     checkUnsupportedProps(props, "canonical", ["true", "false"]);
     return useCommon();
   },

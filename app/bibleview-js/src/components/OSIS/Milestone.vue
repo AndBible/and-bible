@@ -32,8 +32,8 @@ export default {
   },
   setup(props) {
     checkUnsupportedProps(props, "resp");
-    checkUnsupportedProps(props, "type", ["x-strongsMarkup"]);
-    checkUnsupportedProps(props, "subType");
+    checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
+    checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
     return useCommon();
   },
 }
