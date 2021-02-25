@@ -19,12 +19,12 @@
     <span
         :id="`v-${ordinal}`"
         class="verse"
-        :class="{linebreak: config.showVersePerLine}"
     >
       <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
         <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/>
       </span>
     </span>
+  <span :class="{linebreak: config.showVersePerLine}"/>
 </template>
 
 <script>
