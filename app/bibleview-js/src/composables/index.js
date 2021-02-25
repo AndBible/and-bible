@@ -138,7 +138,7 @@ export function useConfig() {
         marginSize: {
             marginLeft: 0,
             marginRight: 0,
-            maxWidth: 170,
+            maxWidth: 300,
         },
 
         topOffset: 100,

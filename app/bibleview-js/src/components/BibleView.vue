@@ -135,7 +135,7 @@
           const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
 
           let style = `
-          max-width: ${config.marginSize.maxWidth}px;
+          max-width: ${config.marginSize.maxWidth}mm;
           margin-left: auto;
           margin-right: auto;
           color: ${textColor.hsl().string()};
