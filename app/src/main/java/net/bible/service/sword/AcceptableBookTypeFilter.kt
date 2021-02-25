@@ -17,6 +17,7 @@
  */
 package net.bible.service.sword
 
+import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookFilter
@@ -51,6 +52,7 @@ class AndBibleAddonFilter : BookFilter {
      * .Book)
      */
     override fun test(book: Book): Boolean {
-        return book.bookCategory == BookCategory.AND_BIBLE
+        return book.bookCategory == BookCategory.AND_BIBLE &&
+            (book.bookMetaData.getProperty("MinimumAndBibleVersion") ?: "0").toLong() <= CommonUtils.applicationVersionNumber
     }
 }
