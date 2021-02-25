@@ -101,7 +101,7 @@ object CommonUtils {
     val isBeta: Boolean get() {
         val verFull = applicationVersionName
         val ver = verFull.split("#")[0]
-        return ver.endsWith("-beta")
+        return ver.endsWith("-beta") or ver.endsWith("-alpha")
     }
 
     val applicationVersionNumber: Int
