@@ -185,11 +185,16 @@ export function calculateOffsetToParent(node, parent, offset, {forceFromEnd = fa
     return offsetNow
 }
 
+export class ReachedRootError extends Error {}
+
 export function findPreviousSiblingWithClass(node, cls) {
     let candidate = node;
     if(candidate.nodeType === Node.TEXT_NODE) {
         node = node.parentNode;
         candidate = node;
+    }
+    if(candidate.nodeType === Node.DOCUMENT_NODE) {
+        throw new ReachedRootError();
     }
     const siblings = [];
     // TODO: SIMPLIFY
