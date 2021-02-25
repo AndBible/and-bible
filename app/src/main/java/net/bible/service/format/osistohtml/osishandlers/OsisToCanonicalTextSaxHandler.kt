@@ -83,6 +83,7 @@ open class OsisToCanonicalTextSaxHandler(val compatibleOffsets: Boolean = false)
             }
             writeContentStack.push(CONTENT_STATE.WRITE)
             insideVerse = true
+            spaceJustWritten = true
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
             writeContentStack.push(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
@@ -93,14 +94,15 @@ open class OsisToCanonicalTextSaxHandler(val compatibleOffsets: Boolean = false)
         } else if (name == OSISUtil.OSIS_ELEMENT_L || name == OSISUtil.OSIS_ELEMENT_LB || name == OSISUtil.OSIS_ELEMENT_P) {
             // these occur in Psalms to separate different paragraphs.  
             // A space is needed for TTS not to be confused by punctuation with a missing space like 'toward us,and the'
-            write(" ")
+            if(!compatibleOffsets) write(" ")
             //if writing then continue.  Also if ignoring then continue
             writeContentStack.push(writeContentStack.peek())
         } else {
             // unknown tags rely on parent tag to determine if content is canonical e.g. the italic tag in the middle of canonical text
             writeContentStack.push(writeContentStack.peek())
         }
-        if(insideVerse && compatibleOffsets) {
+
+        if(name !== OSISUtil.OSIS_ELEMENT_VERSE && insideVerse && compatibleOffsets) {
             spaceJustWritten = false
         }
     }
