@@ -28,6 +28,7 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
 
@@ -87,9 +88,8 @@ class DocumentControl @Inject constructor(
 
     val commentariesForVerse: List<Book>
         get () {
-            val myNotesDoc = currentPage.currentMyNotePage.currentDocument
             val docs = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).sortedBy { commentaryFilter.test(it) }.toMutableList()
-            docs.add(myNotesDoc)
+            docs.addAll(FakeBookFactory.pseudoDocuments.filter { it.bookCategory == BookCategory.COMMENTARY })
             return docs
         }
 

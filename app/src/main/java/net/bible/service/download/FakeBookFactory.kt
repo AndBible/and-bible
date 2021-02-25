@@ -88,26 +88,14 @@ object FakeBookFactory {
 Description=${application.getString(R.string.journal_description)}
 Abbreviation=${application.getString(R.string.studypad_abbreviation)}
 Category=Generic Books
-ModDrv=zCom
-BlockType=CHAPTER
-Lang=en
-Encoding=UTF-8
 LCSH=Bible--Commentaries.
-DataPath=./modules/comments/zcom/studypads/
-About=
 Versification=KJVA"""
 
     private val COMPARE_DUMMY_CONF get() = """[Compare]
 Description=${application.getString(R.string.compare_description)}
 Abbreviation=${application.getString(R.string.compare_abbreviation)}
 Category=Commentaries
-ModDrv=zCom
-BlockType=CHAPTER
-Lang=en
-Encoding=UTF-8
 LCSH=Bible--Commentaries.
-DataPath=./modules/comments/zcom/compare/
-About=
 Versification=KJVA"""
 
 
@@ -115,28 +103,16 @@ Versification=KJVA"""
 Description=${application.getString(R.string.multi_description)}
 Abbreviation=${application.getString(R.string.multi_abbreviation)}
 Category=Generic Books
-ModDrv=zCom
-BlockType=CHAPTER
-Lang=en
-Encoding=UTF-8
 LCSH=Bible--Commentaries.
-DataPath=./modules/comments/zcom/journal/
-About=
 Versification=KJVA"""
 
     private val MY_NOTE_DUMMY_CONF get() = """[MyNote]
 Description=${application.getString(R.string.my_notes_description)}
 Abbreviation=${application.getString(R.string.my_notes_abbreviation)}
 Category=Commentaries
-ModDrv=zCom
-BlockType=CHAPTER
-Lang=en
-Encoding=UTF-8
 LCSH=Bible--Commentaries.
-DataPath=./modules/comments/zcom/mynote/
-About=
 Versification=KJVA"""
 
-    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument)
+    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
 }
 
