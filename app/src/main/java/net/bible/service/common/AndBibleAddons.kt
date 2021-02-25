@@ -21,6 +21,7 @@ package net.bible.service.common
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.control.event.ABEventBus
+import net.bible.service.common.CommonUtils.applicationVersionNumber
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.sword.AndBibleAddonFilter
 import org.crosswire.jsword.book.Book
@@ -31,7 +32,11 @@ import java.io.File
 class ReloadAddonsEvent
 
 @Serializable
-data class ProvidesJson(val fonts: List<String>, val features: List<String>)
+data class ProvidesJson(
+    val fonts: List<String>,
+    val features: List<String>,
+    val minVersion: Long = 0,
+)
 
 object AndBibleAddons {
     private var _addons: List<Book>? = null
@@ -57,7 +62,9 @@ object AndBibleAddons {
             val providesJsonFile = File(abFolder, "provides.json")
             val providesJson = providesJsonFile.readBytes().decodeToString()
             val provides: ProvidesJson = json.decodeFromString(serializer(), providesJson)
-            map[it.initials] = provides
+            if(provides.minVersion <= applicationVersionNumber) {
+                map[it.initials] = provides
+            }
         }
         return map
     }
