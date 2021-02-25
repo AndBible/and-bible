@@ -252,14 +252,14 @@ if(process.env.NODE_ENV === "development") {
         testData = testData.map(
             v => ({
                 type: "bible",
-                osisFragments: [
+                osisFragment:
                     {
                         xml: v,
                         key: `KJV--${count++}`,
                         features: {},
                         bookCategory: "BIBLE",
                     }
-                ],
+                ,
                 bookInitials: "KJV",
                 bookmarks: testBookmarks,
                 ordinalRange: null,

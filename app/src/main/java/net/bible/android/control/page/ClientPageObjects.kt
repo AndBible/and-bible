@@ -87,14 +87,14 @@ class ErrorDocument(private val errorMessage: String?): Document {
 }
 
 open class OsisDocument(
-    val osisFragments: List<OsisFragment>,
+    val osisFragment: OsisFragment,
     val book: Book,
     val key: Key,
 ): Document {
     override val asHashMap: Map<String, String> get () = mapOf(
         "id" to wrapString("${book.initials}-${key.uniqueId}"),
         "type" to wrapString("osis"),
-        "osisFragments" to listToJson(osisFragments.map { mapToJson(it.toHashMap) }),
+        "osisFragment" to mapToJson(osisFragment.toHashMap),
         "bookInitials" to wrapString(book.initials),
         "bookAbbreviation" to wrapString(book.abbreviation),
         "bookName" to wrapString(book.name),
@@ -105,10 +105,10 @@ open class OsisDocument(
 class BibleDocument(
     val bookmarks: List<BookmarkEntities.Bookmark>,
     val verseRange: VerseRange,
-    osisFragments: List<OsisFragment>,
+    osisFragment: OsisFragment,
     val swordBook: SwordBook,
     val originalKey: Key?,
-): OsisDocument(osisFragments, swordBook, verseRange), DocumentWithBookmarks {
+): OsisDocument(osisFragment, swordBook, verseRange), DocumentWithBookmarks {
     override val asHashMap: Map<String, String> get () {
         val bookmarks = bookmarks.map { ClientBookmark(it, swordBook.versification) }
         val vrInV11n = verseRange.toV11n(swordBook.versification)

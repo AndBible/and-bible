@@ -130,13 +130,10 @@ abstract class CurrentPageBase protected constructor(
             OsisDocument(
                 book = currentDocument,
                 key = key,
-                osisFragments = synchronized(currentDocument) {
+                osisFragment = synchronized(currentDocument) {
                     val frag = swordContentFacade.readOsisFragment(currentDocument, key)
-                    listOf (if (frag.isEmpty()) {
-                        throw OsisError(application.getString(R.string.error_no_content))
-                    } else
-                        OsisFragment(frag, key, currentDocument)
-                    )
+                    if (frag.isEmpty()) throw OsisError(application.getString(R.string.error_no_content))
+                    else OsisFragment(frag, key, currentDocument)
                 }
             )
         } catch (e: Exception) {

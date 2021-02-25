@@ -17,7 +17,7 @@
 
 <template>
   <div :id="`doc-${document.id}`" class="bible-document" :data-book-initials="bookInitials">
-    <OsisFragment :fragment="document.osisFragments[0]" :show-transition="document.showTransition"/>
+    <OsisFragment :fragment="document.osisFragment" :show-transition="document.showTransition"/>
   </div>
 </template>
 
@@ -36,7 +36,7 @@ export default {
   },
   setup(props) {
     // eslint-disable-next-line no-unused-vars,vue/no-setup-props-destructure
-    const {id, type, osisFragments, bookInitials, bookAbbreviation, bookName, key, bookmarks, ordinalRange, originalOrdinalRange} = props.document;
+    const {id, type, osisFragment, bookInitials, bookAbbreviation, bookName, key, bookmarks, ordinalRange, originalOrdinalRange} = props.document;
 
     provide("bibleDocumentInfo", {ordinalRange, originalOrdinalRange})
 
