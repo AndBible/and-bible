@@ -16,7 +16,9 @@
   -->
 
 <template>
-  <OsisFragment :fragment="osisFragment" :show-transition="document.showTransition"/>
+  <div :lang="document.language" :dir="document.direction">
+    <OsisFragment :fragment="osisFragment" :show-transition="document.showTransition"/>
+  </div>
 </template>
 
 <script>
@@ -31,7 +33,7 @@ export default {
   },
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
-    const {id, type, osisFragment, bookInitials, bookName, key} = props.document;
+    const {id, type, osisFragment, bookInitials, bookName, key, language, direction} = props.document;
 
     const {addCss, removeCss} = inject("customCss");
     onMounted(() => {

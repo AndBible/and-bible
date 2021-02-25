@@ -98,6 +98,8 @@ open class OsisDocument(
         "bookInitials" to wrapString(book.initials),
         "bookAbbreviation" to wrapString(book.abbreviation),
         "bookName" to wrapString(book.name),
+        "language" to wrapString(book.language.code),
+        "direction" to wrapString(if(book.isLeftToRight) "ltr" else "rtl"),
         "key" to wrapString(key.uniqueId),
     )
 }
