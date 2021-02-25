@@ -22,13 +22,17 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookFilters
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRangeFactory
 
 /** Reference to current passage shown by viewer
  *
@@ -50,7 +54,8 @@ open class CurrentCommentaryPage internal constructor(
 
     override val currentPageContent: Document
         get() {
-            val origKey = originalKey
+            val origKey = originalKey ?: singleKey
+
             return if(currentDocument == FakeBookFactory.compareDocument && origKey != null) {
                 val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
                     OsisFragment(swordContentFacade.readOsisFragment(it, origKey), origKey, it)
@@ -142,7 +147,10 @@ open class CurrentCommentaryPage internal constructor(
     fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
         if(entity == null) return
         val document = entity.document
-        val book = swordDocumentFacade.getDocumentByInitials(document)
+        val book = when(document) {
+            FakeBookFactory.compareDocument.initials -> FakeBookFactory.compareDocument
+            else -> swordDocumentFacade.getDocumentByInitials(document)
+        }
         if(book != null) {
             Log.d(TAG, "Restored document:" + book.name)
             // bypass setter to avoid automatic notifications.
