@@ -685,4 +685,5 @@
     <string name="http_forbidden">Forbidden</string>
     <string name="http_not_found">Not found</string>
     <string name="http_unknown">Other error</string>
+    <string name="compare">Compare</string>
 </resources>

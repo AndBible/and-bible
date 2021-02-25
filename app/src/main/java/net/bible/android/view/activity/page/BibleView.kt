@@ -272,9 +272,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             // For some reason, these do not seem to be correct from XML, even though specified there
             menu.findItem(R.id.add_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.remove_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             if(currentSelection == null) {
-                val item = menu.findItem(R.id.add_bookmark)
-                item.isVisible = false
+                menu.findItem(R.id.add_bookmark).isVisible = false
+                menu.findItem(R.id.compare).isVisible = false
             }
             if ((currentSelection?.bookmarks ?: emptyList()).isEmpty()) {
                 val item = menu.findItem(R.id.remove_bookmark)
