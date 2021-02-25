@@ -24,7 +24,6 @@ import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
-import net.bible.android.view.activity.comparetranslations.CompareTranslations
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity
@@ -92,7 +91,6 @@ interface ActivityComponent {
     fun inject(w: SpeakTransportWidget)
     fun inject(search: Search)
     fun inject(searchResults: SearchResults)
-    fun inject(compareTranslations: CompareTranslations)
     fun inject(footnoteAndRefActivity: FootnoteAndRefActivity)
     fun inject(myNotes: MyNotes)
     fun inject(history: History)
