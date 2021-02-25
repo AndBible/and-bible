@@ -118,6 +118,12 @@ export function useBookmarks(documentId,
         && rangesOverlap(b.ordinalRange, ordinalRange, {addRange: true, inclusive: true})
     };
 
+    const checkOrdinalEnd = (b) => {
+        if(b.ordinalRange == null && ordinalRange == null) return false
+        const bOrdinalRange = [b.ordinalRange[1], b.ordinalRange[1]]
+        return rangesOverlap(bOrdinalRange, ordinalRange, {addRange: true, inclusive: true})
+    };
+
     const documentBookmarks = computed(() => {
         if(!documentReady.value) return [];
         return bookmarks.value.filter(b => (noOrdinalNeeded(b) || checkOrdinal(b)))
@@ -217,7 +223,7 @@ export function useBookmarks(documentId,
     }
 
     const highlightBookmarks = computed(() => documentBookmarks.value.filter(b => showHighlight(b)))
-    const markerBookmarks = computed(() => documentBookmarks.value.filter(b => !showHighlight(b)))
+    const markerBookmarks = computed(() => documentBookmarks.value.filter(b => !showHighlight(b) && checkOrdinalEnd(b)))
 
     const styleRanges = computed(() => {
         isMounted.value;
@@ -471,6 +477,7 @@ export function useBookmarks(documentId,
             if(bookmarkList.length>1) {
                 iconElement.appendChild(document.createTextNode(`×${bookmarkList.length}`));
             }
+            console.log("asdf", documentId, lastOrdinal);
             lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
 
             undoHighlights.push(() => iconElement.remove());
