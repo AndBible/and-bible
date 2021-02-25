@@ -15,7 +15,16 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {getCurrentInstance, inject, nextTick, onBeforeMount, reactive, ref, watch} from "@vue/runtime-core";
+import {
+    getCurrentInstance,
+    inject,
+    nextTick,
+    onBeforeMount,
+    onUnmounted,
+    reactive,
+    ref,
+    watch
+} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
 import {Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
@@ -332,7 +341,17 @@ export function useCustomCss() {
         }
     }
 
-    return {addCss, removeCss}
+    function registerBook(bookInitials) {
+        onBeforeMount(() => {
+            addCss(bookInitials);
+        });
+
+        onUnmounted(() => {
+            removeCss(bookInitials);
+        });
+    }
+
+    return {registerBook}
 }
 
 export function useAddonFonts() {

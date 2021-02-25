@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div ref="fragElement">
+  <div :class="`sword-${fragment.bookInitials}`" :lang="fragment.language" :dir="fragment.direction" >
     <transition-group name="fade">
       <div v-for="{key, template} in templates" :key="key">
         <OsisSegment :osis-template="template" />
@@ -29,7 +29,7 @@
 
 <script>
 import {reactive, ref} from "@vue/reactivity";
-import {provide} from "@vue/runtime-core";
+import {inject, provide} from "@vue/runtime-core";
 import {useReferenceCollector} from "@/composables";
 import {AutoSleep, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment";
@@ -53,12 +53,14 @@ export default {
       xml,
       key: fragmentKey,
       bookCategory,
+      bookInitials,
     } = props.fragment;
 
     const fragmentReady = ref(!props.showTransition);
     const strings = useStrings();
-    const fragElement = ref(null);
     provide("osisFragment", props.fragment)
+    const {registerBook} = inject("customCss");
+    registerBook(bookInitials);
 
     const referenceCollector = useReferenceCollector();
 
@@ -87,7 +89,7 @@ export default {
     } else {
       templates.push({template, key: `${fragmentKey}-0`})
     }
-    return {templates, strings, fragElement}
+    return {templates, strings}
   }
 }
 </script>

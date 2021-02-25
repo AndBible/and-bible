@@ -19,14 +19,13 @@
   <div :id="`doc-${document.id}`"
        class="bible-document"
        :data-book-initials="bookInitials"
-       :lang="document.language"
-       :dir="document.direction">
+  >
     <OsisFragment :fragment="document.osisFragment" :show-transition="document.showTransition"/>
   </div>
 </template>
 
 <script>
-import {inject, onBeforeMount, onUnmounted, provide} from "@vue/runtime-core";
+import {inject, provide} from "@vue/runtime-core";
 import {useBookmarks} from "@/composables/bookmarks";
 import {ref} from "@vue/reactivity";
 import OsisFragment from "@/components/documents/OsisFragment";
@@ -40,20 +39,12 @@ export default {
   },
   setup(props) {
     // eslint-disable-next-line no-unused-vars,vue/no-setup-props-destructure
-    const {id, type, osisFragment, bookInitials, bookAbbreviation, bookName, key, bookmarks, ordinalRange, originalOrdinalRange, language, direction} = props.document;
+    const {id, bookInitials, bookmarks, ordinalRange, originalOrdinalRange} = props.document;
 
     provide("bibleDocumentInfo", {ordinalRange, originalOrdinalRange})
 
     const globalBookmarks = inject("globalBookmarks");
     globalBookmarks.updateBookmarks(...bookmarks);
-    const {addCss, removeCss} = inject("customCss");
-    onBeforeMount(() => {
-      addCss(bookInitials);
-    });
-
-    onUnmounted(() => {
-      removeCss(bookInitials);
-    });
 
     const config = inject("config");
     const common = useCommon();

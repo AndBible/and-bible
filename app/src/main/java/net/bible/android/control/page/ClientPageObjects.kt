@@ -98,8 +98,6 @@ open class OsisDocument(
         "bookInitials" to wrapString(book.initials),
         "bookAbbreviation" to wrapString(book.abbreviation),
         "bookName" to wrapString(book.name),
-        "language" to wrapString(book.language.code),
-        "direction" to wrapString(if(book.isLeftToRight) "ltr" else "rtl"),
         "key" to wrapString(key.uniqueId),
     )
 }
@@ -204,7 +202,9 @@ class OsisFragment(
             "bookInitials" to wrapString(book.initials),
             "osisRef" to wrapString(key.osisRef),
             "features" to json.encodeToString(serializer(), features),
-            "ordinalRange" to ordinalRangeStr
+            "ordinalRange" to ordinalRangeStr,
+            "language" to wrapString(book.language.code),
+            "direction" to wrapString(if(book.isLeftToRight) "ltr" else "rtl"),
         )
     }
 }
