@@ -18,7 +18,6 @@
 
 package net.bible.service.common
 
-import kotlinx.serialization.Serializable
 import net.bible.android.control.event.ABEventBus
 import net.bible.service.sword.AndBibleAddonFilter
 import org.crosswire.jsword.book.Book
@@ -26,11 +25,6 @@ import org.crosswire.jsword.book.Books
 
 class ReloadAddonsEvent
 
-@Serializable
-data class ProvidesJson(
-    val fonts: List<String>,
-    val features: List<String>,
-)
 
 object AndBibleAddons {
     private var _addons: List<Book>? = null
@@ -40,8 +34,6 @@ object AndBibleAddons {
                 _addons = this
             }
     }
-
-    private var _provides: Map<String, ProvidesJson>? = null
 
     val providedFonts: List<String> get() {
         val rv = mutableListOf<String>()
@@ -54,7 +46,6 @@ object AndBibleAddons {
     }
 
     fun clearCaches() {
-        _provides = null
         _addons =null
         ABEventBus.getDefault().post(ReloadAddonsEvent())
     }
