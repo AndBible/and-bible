@@ -104,8 +104,9 @@ export function useScroll(config, {getVerses}) {
                 now = true;
             }
             console.log("Scrolling to", toElement, attributesToString(toElement), toElement.offsetTop - delta);
-            const lineHeight = parseFloat(window.getComputedStyle(toElement).getPropertyValue('line-height'));
-            const fontSize = parseFloat(window.getComputedStyle(toElement).getPropertyValue('font-size'));
+            const style = window.getComputedStyle(toElement);
+            const lineHeight = parseFloat(style.getPropertyValue('line-height'));
+            const fontSize = parseFloat(style.getComputedStyle(toElement).getPropertyValue('font-size'));
             delta += 0.5*(lineHeight - fontSize);
             if(now===true) {
                 window.scrollTo(0, toElement.offsetTop - delta);
