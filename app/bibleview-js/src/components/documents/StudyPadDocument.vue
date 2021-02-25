@@ -37,7 +37,6 @@
           :journal-entry="j"
           :label="document.label"
           @add="adding=true"
-          @edit-opened="editOpened(j)"
       />
     </div>
     </template>
@@ -149,11 +148,6 @@ export default {
 
     const editableJournalEntry = ref(null);
 
-    async function editOpened(entry) {
-      await nextTick();
-      scrollToId(`${entry.type}-${entry.id}`, {duration: 300})
-    }
-
     function indentStyle(entry) {
       const margin = entry.indentLevel * 20;
       return `margin-left: ${margin}px;`;
@@ -165,7 +159,7 @@ export default {
 
     return {
       journalEntries, editNotes, adding, indentStyle,
-      editableJournalEntry,  editOpened, addNewEntry,
+      editableJournalEntry,  addNewEntry,
       ...useCommon()
     }
   }
