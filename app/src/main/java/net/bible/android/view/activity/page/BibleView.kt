@@ -1096,7 +1096,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.d(TAG, "Scroll or jump to:$verse")
         var toVerse = verse;
         val v = initialVerse
-        if(v != null) {
+        if(firstDocument is MyNotesDocument) {
+            toVerse = verse.toV11n(KJVA)
+        } else if(v != null) {
             toVerse = verse.toV11n(v.versification)
         }
         val jumpToId = "v-${toVerse.ordinal}"
