@@ -113,7 +113,7 @@ class OsisToCopyTextSaxHandlerTest {
         osisToCopyTextSaxHandlerVerseNumbersOn.characters("When therefore the Lord knew...".toCharArray(), 0, 31)
         osisToCopyTextSaxHandlerVerseNumbersOn.endElement(null, null, "verse")
 
-        assertThat(osisToCopyTextSaxHandlerVerseNumbersOn.writer.html, equalTo("36.  He that believeth on the Son hath everlasting life: and he that believeth not the Son shall not see life; but the wrath of God abideth on him. 4:1. When therefore the Lord knew... "))
+        assertThat(osisToCopyTextSaxHandlerVerseNumbersOn.writer.html, equalTo("36. He that believeth on the Son hath everlasting life: and he that believeth not the Son shall not see life; but the wrath of God abideth on him. 4:1. When therefore the Lord knew... "))
     }
 
 }
