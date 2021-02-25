@@ -477,7 +477,6 @@ export function useBookmarks(documentId,
             if(bookmarkList.length>1) {
                 iconElement.appendChild(document.createTextNode(`×${bookmarkList.length}`));
             }
-            console.log("asdf", documentId, lastOrdinal);
             lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
 
             undoHighlights.push(() => iconElement.remove());
