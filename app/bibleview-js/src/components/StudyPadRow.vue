@@ -107,12 +107,23 @@ export default {
     }
 
     async function deleteEntry() {
-      const answer = await areYouSureDelete.value.areYouSure();
-      if (answer) {
-        if (props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT)
-          android.deleteJournalEntry(props.journalEntry.id);
-        else if (props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
+      if (props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) {
+        const answer = await areYouSureDelete.value.areYouSure();
+        if (answer) android.deleteJournalEntry(props.journalEntry.id);
+      }
+      else if (props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
+        const buttons = [{
+          title: strings.onlyLabel,
+          result: "only_label",
+        }, {
+          title: strings.wholeBookmark,
+          result: "bookmark",
+        }];
+        const answer = await areYouSureDelete.value.areYouSure(buttons);
+        if(answer === "only_label") {
           android.removeBookmarkLabel(props.journalEntry.id, props.label.id);
+        } else if(answer === "bookmark") {
+          android.removeBookmark(props.journalEntry.id);
         }
       }
     }

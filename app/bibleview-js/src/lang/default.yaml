@@ -47,4 +47,6 @@ saved: "saved"
 openAll: "Show all references"
 editBookmarkPlaceholder: "Tap to edit My Notes for this bookmark"
 multiDocumentLink: "%s (%s)"
+onlyLabel: "Only label"
+wholeBookmark: "Whole bookmark"
 

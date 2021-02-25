@@ -22,7 +22,7 @@
     </template>
     <slot/>
     <template #footer>
-      <button class="button" @click="ok">{{strings.ok}}</button>
+      <button v-for="b in buttons" :key="b.result" class="button" @click="buttonClicked(b.result)">{{b.title}}</button>
       <button class="button" @click="cancel">{{strings.cancel}}</button>
     </template>
   </Modal>
@@ -39,20 +39,30 @@ export default {
   setup() {
     const show = ref(false);
     let promise = null;
-    async function areYouSure() {
+    const {strings, ...common} = useCommon();
+
+    const okButton = {
+      title: strings.ok,
+      result: true
+    }
+
+    const buttons = ref(null);
+
+    async function areYouSure(btns = [okButton]) {
+      buttons.value = btns;
       show.value = true;
       promise = new Deferred();
       const result = await promise.wait()
       show.value = false;
       return result;
     }
-    function ok() {
-      promise.resolve(true);
+    function buttonClicked(result) {
+      promise.resolve(result);
     }
     function cancel() {
       promise.resolve(false);
     }
-    return {show, areYouSure, ok, cancel, ...useCommon()};
+    return {show, areYouSure, buttonClicked, cancel, strings, common, buttons};
   }
 }
 </script>
