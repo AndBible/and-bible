@@ -75,7 +75,7 @@ open class OsisToCanonicalTextSaxHandler(val compatibleOffsets: Boolean = false)
         debug(name, attrs, true)
 
         // if encountering either a verse tag or if the current tag is marked as being canonical then turn on writing
-        if (isAttrValue(attrs, "canonical", "true")) {
+        if (!compatibleOffsets && isAttrValue(attrs, "canonical", "true")) {
             writeContentStack.push(CONTENT_STATE.WRITE)
         } else if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
             if (attrs != null) {
