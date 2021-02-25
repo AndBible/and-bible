@@ -39,7 +39,7 @@ import java.lang.Exception
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentGeneralBookPage internal constructor(
-    val swordContentFacade: SwordContentFacade,
+    swordContentFacade: SwordContentFacade,
     swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
 ) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade, pageManager),

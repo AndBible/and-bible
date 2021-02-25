@@ -80,7 +80,7 @@ abstract class CurrentPageBase protected constructor(
     // all bibles and commentaries share the same key
     override var isShareKeyBetweenDocs: Boolean = false
 
-    private val swordContentFacade: SwordContentFacade
+    val swordContentFacade: SwordContentFacade
     val swordDocumentFacade: SwordDocumentFacade
 
     /** notify mediator that page has changed and a lot of things need to update themselves

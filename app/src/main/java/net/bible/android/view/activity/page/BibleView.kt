@@ -199,6 +199,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 }
                 return true;
             }
+            R.id.compare -> {
+                compareSelection()
+                mode.finish()
+                return true
+            }
             else -> false
         }
     }
@@ -218,6 +223,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
         val initialLabels = displaySettings.bookmarks!!.assignLabels!!.toList()
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
+    }
+
+    private fun compareSelection() {
+        val selection = currentSelection?: return
+        Log.d(TAG, "makeBookmark")
+        val book = Books.installed().getBook(selection.bookInitials)
+        if(book !is SwordBook) {
+            return
+        }
+
+        val v11n = book.versification
+        val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
+        linkControl.openCompare(verseRange)
     }
 
     internal fun assignLabels(bookmarkId: Long) = GlobalScope.launch(Dispatchers.IO) {

@@ -17,7 +17,6 @@
  */
 package net.bible.android.control.page
 
-import android.app.Activity
 import android.util.Log
 import net.bible.android.common.toV11n
 import net.bible.android.control.versification.BibleTraverser
@@ -26,7 +25,6 @@ import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil

@@ -680,6 +680,8 @@
     <string name="studypads">Study Pads</string>
     <string name="multi_description">Multiple references</string>
     <string name="multi_abbreviation">Multiple</string>
+    <string name="compare_description">Compare translations</string>
+    <string name="compare_abbreviation">Compare</string>
     <string name="http_forbidden">Forbidden</string>
     <string name="http_not_found">Not found</string>
     <string name="http_unknown">Other error</string>

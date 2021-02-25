@@ -21,9 +21,11 @@ import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.BookFilters
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
@@ -45,6 +47,17 @@ open class CurrentCommentaryPage internal constructor(
     override val documentCategory = DocumentCategory.COMMENTARY
 
     override val keyChooserActivity = GridChoosePassageBook::class.java
+
+    override val currentPageContent: Document
+        get() {
+            val origKey = originalKey
+            return if(currentDocument == FakeBookFactory.compareDocument && origKey != null) {
+                val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
+                    OsisFragment(swordContentFacade.readOsisFragment(it, origKey), origKey, it)
+                }
+                MultiFragmentDocument(frags)
+            } else super.currentPageContent
+        }
 
     /* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#next()
@@ -100,7 +113,12 @@ open class CurrentCommentaryPage internal constructor(
      *
      * @param key
      */
+
+
+    var originalKey: Key? = null
+
     override fun doSetKey(key: Key?) {
+        originalKey = key
         if(key != null) {
             val verse = KeyUtil.getVerse(key)
             currentBibleVerse.setVerseSelected(versification, verse)

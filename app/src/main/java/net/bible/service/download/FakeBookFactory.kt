@@ -55,6 +55,7 @@ object FakeBookFactory {
         return sbmd
     }
 
+    private var _compareDocument: Book? = null
     private var _multiDocument: Book? = null
     private var _journalDocument: Book? = null
     private var _myNotesDocument: Book? = null
@@ -63,6 +64,12 @@ object FakeBookFactory {
         get() =
             _multiDocument ?: createFakeRepoSwordBook("Multi", MULTI_DUMMY_CONF, "").apply {
                 _multiDocument = this
+            }
+
+    val compareDocument: Book
+        get() =
+            _compareDocument ?: createFakeRepoSwordBook("Compare", COMPARE_DUMMY_CONF, "").apply {
+                _compareDocument = this
             }
 
     val journalDocument: Book
@@ -89,6 +96,20 @@ LCSH=Bible--Commentaries.
 DataPath=./modules/comments/zcom/studypads/
 About=
 Versification=KJV"""
+
+    private val COMPARE_DUMMY_CONF get() = """[Compare]
+Description=${application.getString(R.string.compare_description)}
+Abbreviation=${application.getString(R.string.compare_abbreviation)}
+Category=Commentaries
+ModDrv=zCom
+BlockType=CHAPTER
+Lang=en
+Encoding=UTF-8
+LCSH=Bible--Commentaries.
+DataPath=./modules/comments/zcom/compare/
+About=
+Versification=KJV"""
+
 
     private val MULTI_DUMMY_CONF get() = """[Multi]
 Description=${application.getString(R.string.multi_description)}
