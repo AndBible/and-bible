@@ -68,7 +68,7 @@ open class CurrentCommentaryPage internal constructor(
             return if(currentDocument == FakeBookFactory.compareDocument && origKey != null) {
                 val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
                     try {
-                        OsisFragment(swordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification)), origKey, it)
+                        OsisFragment(swordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification)), key, it)
                     } catch (e: OsisError) {
                         null
                     }
