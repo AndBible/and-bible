@@ -16,9 +16,15 @@
   -->
 
 <template>
-  <span class="paragraphBreak" v-if="isParagraph"/>
+  <template v-if="isParagraph">
+    <span v-if="verseInfo" class="paragraphBreak"/>
+    <div v-else class="paragraphBreak"/>
+  </template>
   <VerseNumber v-else-if="isPreVerse && shown" :verse-num="verseInfo.verse"/>
-  <span :class="{'skip-offset': !isCanonical}" v-else-if="isCanonical || (!isCanonical && config.showNonCanonical)"><slot/></span>
+  <template v-else-if="isCanonical || (!isCanonical && config.showNonCanonical)">
+    <span v-if="verseInfo" :class="{'skip-offset': !isCanonical}"><slot/></span>
+    <div v-else :class="{'skip-offset': !isCanonical}"><slot/></div>
+  </template>
 </template>
 
 <script>
