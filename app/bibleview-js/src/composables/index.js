@@ -320,7 +320,7 @@ export function useCustomCss() {
         const c = count.get(bookInitials) || 0;
         if (!c) {
             const link = document.createElement("link");
-            link.href = `/module/${bookInitials}/and-bible/style.css`;
+            link.href = `/module-style/${bookInitials}/style.css`;
             link.type = "text/css";
             link.rel = "stylesheet";
             cssNodes.set(bookInitials, link);

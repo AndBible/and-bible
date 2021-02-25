@@ -501,9 +501,30 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    class ModuleStylesAssetHandler: WebViewAssetLoader.PathHandler {
+        override fun handle(path: String): WebResourceResponse? {
+            val parts = path.split("/", limit=2);
+            if(parts.size != 2) return null;
+            val (bookName, resourcePath) = parts
+            val book = Books.installed().getBook(bookName) ?: return null
+            val styleFile = book.bookMetaData.getProperty("PreferredCSSXHTML") ?: return null
+
+            val location = File(book.bookMetaData.location)
+            var f = File(location, styleFile)
+            if(resourcePath != "style.css") {
+                f = File(f.parent, resourcePath)
+            }
+
+            return if (f.isFile && f.exists()) {
+                WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
+            } else null
+        }
+    }
+
     val assetLoader = WebViewAssetLoader.Builder()
         .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
         .addPathHandler("/module/", ModuleAssetHandler())
+        .addPathHandler("/module-style/", ModuleStylesAssetHandler())
         .build()
 
 
