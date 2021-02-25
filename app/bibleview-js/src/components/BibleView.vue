@@ -135,7 +135,9 @@
           const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
 
           let style = `
-          max-width: ${config.marginSize.maxWidth};
+          max-width: ${config.marginSize.maxWidth}px;
+          margin-left: auto;
+          margin-right: auto;
           color: ${textColor.hsl().string()};
           hyphens: ${config.hyphenation ? "auto": "none"};
           noise-opacity: ${config.noiseOpacity/100};

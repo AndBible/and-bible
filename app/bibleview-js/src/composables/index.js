@@ -130,7 +130,6 @@ export function useConfig() {
             showAll: true,
             showLabels: []
         },
-        maxWidth: 170,
         textColor: "black",
         hyphenation: true,
         noiseOpacity: 50,
@@ -139,7 +138,7 @@ export function useConfig() {
         marginSize: {
             marginLeft: 0,
             marginRight: 0,
-            marginWidth: 170,
+            maxWidth: 170,
         },
 
         topOffset: 100,
