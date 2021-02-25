@@ -19,14 +19,10 @@
 package net.bible.service.common
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.serializer
 import net.bible.android.control.event.ABEventBus
-import net.bible.service.common.CommonUtils.json
 import net.bible.service.sword.AndBibleAddonFilter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
-import java.io.File
-
 
 class ReloadAddonsEvent
 
@@ -38,8 +34,7 @@ data class ProvidesJson(
 
 object AndBibleAddons {
     private var _addons: List<Book>? = null
-
-    val addons: List<Book> get() {
+    private val addons: List<Book> get() {
         return _addons ?:
             Books.installed().getBooks(AndBibleAddonFilter()).apply {
                 _addons = this
@@ -48,28 +43,10 @@ object AndBibleAddons {
 
     private var _provides: Map<String, ProvidesJson>? = null
 
-    val provides: Map<String, ProvidesJson> get() = _provides ?: readProvides.apply {
-        _provides = this
-    }
-
-    private val readProvides: Map<String, ProvidesJson> get() {
-        val map = HashMap<String, ProvidesJson>()
-        addons.forEach {
-            val modFolder = File(it.bookMetaData.location)
-            val abFolder = File(modFolder, "and-bible")
-            val providesJsonFile = File(abFolder, "provides.json")
-            val providesJson = providesJsonFile.readBytes().decodeToString()
-            val provides: ProvidesJson = json.decodeFromString(serializer(), providesJson)
-            map[it.initials] = provides
-        }
-        return map
-    }
-
     val providedFonts: List<String> get() {
         val rv = mutableListOf<String>()
-
-        provides.values.forEach {
-            it.fonts.forEach {
+        addons.forEach {
+            it.bookMetaData.getValues("ProvidesAndBibleFont")?.forEach {
                 rv.add(it)
             }
         }
@@ -83,6 +60,6 @@ object AndBibleAddons {
     }
 
     val fontModuleNames: List<String> get() =
-        provides.keys.filter { !provides[it]?.fonts.isNullOrEmpty() }
+        addons.filter { it.bookMetaData.getValues("ProvidesAndBibleFont") !== null }.map { it.initials }
 }
 
