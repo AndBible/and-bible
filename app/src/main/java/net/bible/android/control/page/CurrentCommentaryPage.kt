@@ -65,7 +65,7 @@ open class CurrentCommentaryPage internal constructor(
                 else -> throw RuntimeException("Invalid type")
             }
 
-            return if(currentDocument == FakeBookFactory.compareDocument && origKey != null) {
+            return if(currentDocument == FakeBookFactory.compareDocument) {
                 val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
                     try {
                         OsisFragment(swordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification)), key, it)
