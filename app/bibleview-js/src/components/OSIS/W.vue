@@ -44,10 +44,12 @@ export default {
     lemma: {type: String, default: null}, // strong:H8064
     morph: {type: String, default: null}, // strongMorph:TH8792
     src: {type: String, default: null},
+    n: {type: String, default: null},
     type: {type: String, default: null},
     subType: {type: String, default: null},
   },
   setup(props) {
+    checkUnsupportedProps(props, "n")
     checkUnsupportedProps(props, "src")
     checkUnsupportedProps(props, "type", ["x-split"])
     checkUnsupportedProps(props, "subType")
