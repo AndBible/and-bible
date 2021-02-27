@@ -22,10 +22,13 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.service.sword.AndBibleAddonFilter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
+import java.io.File
 
 class ReloadAddonsEvent
 
-class ProvidedFont(val book: Book, val name: String, val path: String)
+class ProvidedFont(val book: Book, val name: String, val path: String) {
+    val file: File get() = File(File(book.bookMetaData.location), path)
+}
 
 object AndBibleAddons {
     private var _addons: List<Book>? = null

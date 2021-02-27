@@ -34,9 +34,19 @@ import kotlinx.android.synthetic.main.text_size_widget.view.*
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.AndBibleAddons
+import net.bible.service.common.ProvidedFont
 
+class FontDefinition(val providedFont: ProvidedFont? = null, val fontFamily: String? = null){
+    val name: String get() {
+        return fontFamily?: providedFont!!.name
+    }
 
-val availableFonts:Array<String> get() {
+    override fun toString(): String {
+        return name
+    }
+}
+
+val availableFonts:Array<FontDefinition> get() {
     val standard = arrayOf (
         "sans-serif-thin",
         "sans-serif-light",
@@ -54,23 +64,32 @@ val availableFonts:Array<String> get() {
         "cursive",
         "sans-serif-smallcaps"
     )
-    return AndBibleAddons.providedFonts.values.map { it.name }.toTypedArray() + standard
+    return AndBibleAddons.providedFonts.values.map { FontDefinition(providedFont = it) }.toTypedArray() + standard.map { FontDefinition(fontFamily = it) }
 }
 
+fun getTypeFace(fontDefinition: FontDefinition): Typeface {
+    val def = fontDefinition
+    return when {
+        def.fontFamily != null -> Typeface.create(def.fontFamily, Typeface.NORMAL)
+        def.providedFont != null -> Typeface.createFromFile(def.providedFont.file)
+        else -> throw RuntimeException("Illegal value")
+    }
+}
 
-class FontAdapter(context: Context, resource: Int, private val fontTypes: Array<String>) :
-    ArrayAdapter<String>(context, resource, fontTypes) {
+class FontAdapter(context: Context, resource: Int, private val fontTypes: Array<FontDefinition>) :
+    ArrayAdapter<FontDefinition>(context, resource, fontTypes) {
+
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent) as TextView
-        val tf = Typeface.create(fontTypes[position], Typeface.NORMAL)
+        val tf = getTypeFace(fontTypes[position])
         view.typeface = tf
         return view
     }
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getDropDownView(position, convertView, parent) as TextView
-        val tf = Typeface.create(fontTypes[position], Typeface.NORMAL)
+        val tf = getTypeFace(fontTypes[position])
         view.typeface = tf
         return view
 
@@ -94,7 +113,7 @@ class FontWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(co
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                value.fontFamily = availableFonts[position]
+                value.fontFamily = availableFonts[position].name
                 updateValue()
             }
         }
