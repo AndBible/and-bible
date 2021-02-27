@@ -53,6 +53,6 @@ class AndBibleAddonFilter : BookFilter {
      */
     override fun test(book: Book): Boolean {
         return book.bookCategory == BookCategory.AND_BIBLE &&
-            (book.bookMetaData.getProperty("MinimumAndBibleVersion") ?: "0").toLong() <= CommonUtils.applicationVersionNumber
+            (book.bookMetaData.getProperty("AndBibleMinimumVersion") ?: "0").toLong() <= CommonUtils.applicationVersionNumber
     }
 }
