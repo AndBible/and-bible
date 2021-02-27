@@ -508,7 +508,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(parts.size != 2) return null;
             val (bookName, resourcePath) = parts
             val book = Books.installed().getBook(bookName) ?: return null
-            val styleFile = book.bookMetaData.getProperty("PreferredCSSXHTML") ?: return null
+            val styleFile = book.bookMetaData.getProperty("AndBibleCSS") ?: return null
 
             val location = File(book.bookMetaData.location)
             var f = File(location, styleFile)

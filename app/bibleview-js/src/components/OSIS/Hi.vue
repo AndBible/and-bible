@@ -29,32 +29,20 @@ export default {
     type: {type: String, default: null}
   },
   setup(props) {
-    const hiStyle = computed(() => {
-      switch (props.type) {
-        case "italic":
-          return "italic-style"
-        case "bold":
-          return "bold-style"
-        case "super":
-          return "super-style"
-        default:
-          return `hi_${props.type}`
-      }
-    });
-
+    const hiStyle = computed(() => `hi-${props.type}`);
     return {hiStyle, ...useCommon()};
   },
 }
 </script>
 
 <style scoped>
-.italic-style {
+.hi-italic {
   font-style: italic;
 }
-.bold-style {
+.hi-bold {
   font-weight: bold;
 }
-.super-style {
+.hi-super {
   vertical-align: super;
 }
 
