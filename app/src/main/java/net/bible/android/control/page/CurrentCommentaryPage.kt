@@ -23,8 +23,6 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.download.FakeBookFactory
-import net.bible.service.sword.BookAndKey
-import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -35,7 +33,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import org.crosswire.jsword.passage.VerseRangeFactory
 
 /** Reference to current passage shown by viewer
  *
