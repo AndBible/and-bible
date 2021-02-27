@@ -367,7 +367,7 @@ export function useAddonFonts() {
         elements.splice(0);
         for (const modName of fontModuleNames) {
             const link = document.createElement("link");
-            link.href = `/module/${modName}/and-bible/fonts.css`;
+            link.href = `/fonts/${modName}/fonts.css`;
             link.type = "text/css";
             link.rel = "stylesheet";
             document.getElementsByTagName("head")[0].appendChild(link)

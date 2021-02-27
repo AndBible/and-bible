@@ -96,6 +96,7 @@ import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChang
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.AndBibleAddons
+import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
@@ -521,9 +522,39 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    class FontsAssetHandler: WebViewAssetLoader.PathHandler {
+        override fun handle(path: String): WebResourceResponse? {
+            val parts = path.split("/", limit=2);
+            if(parts.size != 2) return null;
+            val (bookName, resourcePath) = parts
+            val book = Books.installed().getBook(bookName) ?: return null
+            if(resourcePath == "fonts.css") {
+                val fontCss = StringBuilder()
+                val fonts = fontsByModule[book.initials] ?: return null
+                for(font in fonts) {
+                    fontCss.append("""@font-face {
+                        |font-family: '${font.name}';
+                        |src: url('${font.path}') format('truetype');
+                        |}
+                        |""".trimMargin())
+                }
+                return WebResourceResponse("text/css", null, fontCss.toString().byteInputStream())
+            }
+            else {
+                val location = File(book.bookMetaData.location)
+                val f = File(location, resourcePath)
+                return if (f.isFile && f.exists()) {
+                    WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
+                } else null
+            }
+        }
+    }
+
+
     val assetLoader = WebViewAssetLoader.Builder()
         .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
         .addPathHandler("/module/", ModuleAssetHandler())
+        .addPathHandler("/fonts/", FontsAssetHandler())
         .addPathHandler("/module-style/", ModuleStylesAssetHandler())
         .build()
 

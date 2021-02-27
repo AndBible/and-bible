@@ -25,6 +25,7 @@ import org.crosswire.jsword.book.Books
 
 class ReloadAddonsEvent
 
+class ProvidedFont(val book: Book, val name: String, val path: String)
 
 object AndBibleAddons {
     private var _addons: List<Book>? = null
@@ -35,14 +36,27 @@ object AndBibleAddons {
             }
     }
 
-    val providedFonts: List<String> get() {
-        val rv = mutableListOf<String>()
-        addons.forEach {
-            it.bookMetaData.getValues("ProvidesAndBibleFont")?.forEach {
-                rv.add(it)
+    val providedFonts: Map<String, ProvidedFont> get() {
+        val fontsByName = mutableMapOf<String, ProvidedFont>()
+        addons.forEach { book ->
+            book.bookMetaData.getValues("AndBibleProvidesFont")?.forEach {
+                val values = it.split(";")
+                val name = values[0]
+                val filename = values[1]
+                fontsByName[name] = ProvidedFont(book, name, filename)
             }
         }
-        return rv
+        return fontsByName
+    }
+
+    val fontsByModule: Map<String, List<ProvidedFont>> get() {
+        val fontsByModule = mutableMapOf<String, MutableList<ProvidedFont>>()
+        providedFonts.values.forEach {
+            val fonts = fontsByModule[it.book.initials] ?: mutableListOf<ProvidedFont>()
+                .apply {fontsByModule[it.book.initials] = this}
+            fonts.add(it)
+        }
+        return fontsByModule
     }
 
     fun clearCaches() {
@@ -51,6 +65,6 @@ object AndBibleAddons {
     }
 
     val fontModuleNames: List<String> get() =
-        addons.filter { it.bookMetaData.getValues("ProvidesAndBibleFont") !== null }.map { it.initials }
+        addons.filter { it.bookMetaData.getValues("AndBibleProvidesFont") !== null }.map { it.initials }
 }
 

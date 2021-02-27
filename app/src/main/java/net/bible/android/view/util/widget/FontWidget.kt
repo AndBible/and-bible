@@ -54,7 +54,7 @@ val availableFonts:Array<String> get() {
         "cursive",
         "sans-serif-smallcaps"
     )
-    return AndBibleAddons.providedFonts.toTypedArray() + standard
+    return AndBibleAddons.providedFonts.values.map { it.name }.toTypedArray() + standard
 }
 
 
