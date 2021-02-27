@@ -35,11 +35,11 @@ import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.ProvidedFont
+import java.util.*
 
 class FontDefinition(val providedFont: ProvidedFont? = null, val fontFamily: String? = null){
-    val name: String get() {
-        return fontFamily?: providedFont!!.name
-    }
+    val realFontFamily: String get() = fontFamily?: providedFont!!.name
+    val name: String get() = fontFamily?.replace("-", " ")?.capitalize(Locale.getDefault()) ?: providedFont!!.name
 
     override fun toString(): String {
         return name
@@ -68,10 +68,9 @@ val availableFonts:Array<FontDefinition> get() {
 }
 
 fun getTypeFace(fontDefinition: FontDefinition): Typeface {
-    val def = fontDefinition
     return when {
-        def.fontFamily != null -> Typeface.create(def.fontFamily, Typeface.NORMAL)
-        def.providedFont != null -> Typeface.createFromFile(def.providedFont.file)
+        fontDefinition.fontFamily != null -> Typeface.create(fontDefinition.fontFamily, Typeface.NORMAL)
+        fontDefinition.providedFont != null -> Typeface.createFromFile(fontDefinition.providedFont.file)
         else -> throw RuntimeException("Illegal value")
     }
 }
@@ -82,15 +81,13 @@ class FontAdapter(context: Context, resource: Int, private val fontTypes: Array<
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent) as TextView
-        val tf = getTypeFace(fontTypes[position])
-        view.typeface = tf
+        view.typeface = getTypeFace(fontTypes[position])
         return view
     }
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getDropDownView(position, convertView, parent) as TextView
-        val tf = getTypeFace(fontTypes[position])
-        view.typeface = tf
+        view.typeface = getTypeFace(fontTypes[position])
         return view
 
     }
@@ -113,7 +110,7 @@ class FontWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(co
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                value.fontFamily = availableFonts[position].name
+                value.fontFamily = availableFonts[position].realFontFamily
                 updateValue()
             }
         }
@@ -133,15 +130,15 @@ class FontWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(co
     }
     
     fun updateValue() {
+        val availableFonts = availableFonts
         val fontSize = value.fontSize!!
         val fontFamilyVal = value.fontFamily!!
         dialogMessage.textSize = fontSize.toFloat()
         fontSizeValue.text = context.getString(R.string.font_size_pt, fontSize)
-        val tf = Typeface.create(fontFamilyVal, Typeface.NORMAL)
-        dialogMessage.typeface = tf
+        val fontDefinition = availableFonts.find { it.realFontFamily == fontFamilyVal }?:return
+        dialogMessage.typeface = getTypeFace(fontDefinition)
         fontSizeSlider.progress = fontSize
-        fontFamily.setSelection(availableFonts.indexOf(fontFamilyVal))
-
+        fontFamily.setSelection(availableFonts.indexOf(fontDefinition))
     }
     
     companion object {
