@@ -24,8 +24,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import kotlinx.android.synthetic.main.settings_dialog.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.ActivityScope
@@ -61,6 +61,8 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
 
 @ActivityScope
 class ColorSettingsActivity: ActivityBase() {
+    private lateinit var binding: SettingsDialogBinding
+
     private lateinit var settingsBundle: SettingsBundle
     internal lateinit var colors: WorkspaceEntities.Colors
     private var dirty = false
@@ -71,7 +73,8 @@ class ColorSettingsActivity: ActivityBase() {
         colors = settingsBundle.actualSettings.colors?: WorkspaceEntities.TextDisplaySettings.default.colors!!
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_dialog)
+        binding = SettingsDialogBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         super.buildActivityComponent().inject(this)
         dirty = false
         reset = false
@@ -86,13 +89,13 @@ class ColorSettingsActivity: ActivityBase() {
         } else {
             title = getString(R.string.workspace_color_settings_title)
         }
-        okButton.setOnClickListener {finish()}
-        cancelButton.setOnClickListener {
+        binding.okButton.setOnClickListener {finish()}
+        binding.cancelButton.setOnClickListener {
             dirty = false
             setResult()
             finish()
         }
-        resetButton.setOnClickListener {
+        binding.resetButton.setOnClickListener {
             AlertDialog.Builder(this)
                 .setPositiveButton(R.string.yes) {_, _ ->
                     reset = true
