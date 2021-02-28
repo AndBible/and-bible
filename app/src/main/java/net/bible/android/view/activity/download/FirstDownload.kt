@@ -67,7 +67,7 @@ class FirstDownload : DownloadActivity() {
 
     init {
         // Normal document screen but with an added OK button to facilitate forward like flow to main screen
-        setLayoutResource(R.layout.document_selection_with_ok)
+        setShowOkButtonBar(visible = true)
         downloadCompletionListener = object : WorkListener {
             override fun workProgressed(workEvent: WorkEvent) {
                 if (workEvent.job.isFinished) {

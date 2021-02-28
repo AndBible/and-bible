@@ -90,4 +90,37 @@
 		android:layout_height="wrap_content"
 		app:layout_constraintBottom_toBottomOf="parent"
 		/>
+
+	<!-- Button bar with OK button -->
+	<LinearLayout android:id="@+id/ok_button_panel"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="0"
+		android:background="@color/actionbar_background_day"
+		android:orientation="horizontal"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintBottom_toBottomOf="parent"
+		android:visibility="gone"
+		tools:visibility="visible">
+		<!-- Left spacer -->
+		<View
+			android:layout_width="0dip"
+			android:layout_height="fill_parent"
+			android:layout_weight="1"/>
+
+		<Button android:id="@+id/okayButton"
+			android:text="@string/okay"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="2"
+			android:onClick="onOkay"/>
+
+		<!-- Right spacer -->
+		<View
+			android:layout_width="0dip"
+			android:layout_height="fill_parent"
+			android:layout_weight="1"
+			/>
+	</LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
