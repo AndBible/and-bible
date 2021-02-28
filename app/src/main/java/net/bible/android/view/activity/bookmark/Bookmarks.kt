@@ -31,12 +31,12 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
-import kotlinx.android.synthetic.main.bookmarks.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.BookmarksBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.SpeakControl
@@ -65,6 +65,9 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class Bookmarks : ListActivityBase(), ActionModeActivity {
+
+    private lateinit var binding: BookmarksBinding
+
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var swordContentFacade: SwordContentFacade
@@ -81,7 +84,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, true)
-        setContentView(R.layout.bookmarks)
+        binding = BookmarksBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         sharedPreferences.edit().putLong("bookmarks-last-used", System.currentTimeMillis()).apply()
         buildActivityComponent().inject(this)
 
@@ -109,9 +113,9 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
         // check for pre-selected label e.g. when returning via History using Back button
         if (selectedLabelNo >= 0 && selectedLabelNo < labelList.size) {
-            labelSpinner.setSelection(selectedLabelNo)
+            binding.labelSpinner.setSelection(selectedLabelNo)
         }
-        labelSpinner.onItemSelectedListener = object : OnItemSelectedListener {
+        binding.labelSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedLabelNo = position
                 loadBookmarkList()
@@ -181,7 +185,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         labelList.addAll(bookmarkControl.allLabels)
         val labelArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, labelList.map { it.displayName })
         labelArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        labelSpinner.adapter = labelArrayAdapter
+        binding.labelSpinner.adapter = labelArrayAdapter
     }
 
     /** a spinner has changed so refilter the doc list
