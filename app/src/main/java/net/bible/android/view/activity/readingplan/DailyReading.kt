@@ -31,10 +31,10 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.TextView
-import kotlinx.android.synthetic.main.reading_plan_one_day.*
 import net.bible.android.BibleApplication
 
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ReadingPlanOneDayBinding
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
@@ -55,6 +55,8 @@ import javax.inject.Inject
  */
 class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
+    private lateinit var binding: ReadingPlanOneDayBinding
+
     private var imageTickList: MutableList<ImageView> = ArrayList()
 
     private var dayLoaded: Int = 0
@@ -69,7 +71,8 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying one day reading plan")
-        setContentView(R.layout.reading_plan_one_day)
+        binding = ReadingPlanOneDayBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         super.buildActivityComponent().inject(this)
         super.setActionBarManager(readingPlanActionBarManager)
@@ -89,11 +92,11 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             readingsDto = readingPlanControl.getDaysReading(dayLoaded)
 
             // Populate view
-            description.text = readingsDto.readingPlanInfo.planName
+            binding.description.text = readingsDto.readingPlanInfo.planName
 
             // date display
-            day.text = readingsDto.dayDesc
-            date.text = readingsDto.readingDateString
+            binding.day.text = readingsDto.dayDesc
+            binding.date.text = readingsDto.readingDateString
 
             val layout = findViewById<View>(R.id.reading_container) as TableLayout
 
@@ -282,7 +285,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             }
         }
 
-        doneButton.isEnabled = status.isAllRead
+        binding.doneButton.isEnabled = status.isAllRead
     }
 
 
@@ -366,8 +369,8 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                     readingsDto = readingPlanControl.getDaysReading(dayLoaded)
 
                     // update date and day no
-                    date.text = readingsDto.readingDateString
-                    day.text = readingsDto.dayDesc
+                    binding.date.text = readingsDto.readingDateString
+                    binding.day.text = readingsDto.dayDesc
                 }, yearSet, monthSet, daySet)
                 datePicker.datePicker.maxDate = nowTime.timeInMillis
                 datePicker.show()
