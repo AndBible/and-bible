@@ -28,12 +28,12 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ListView
-import kotlinx.android.synthetic.main.choose_dictionary_page.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ChooseDictionaryPageBinding
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActivityBase
@@ -47,6 +47,9 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ChooseDictionaryWord : ListActivityBase() {
+
+    private lateinit var binding: ChooseDictionaryPageBinding
+
     private var mDictionaryGlobalList: List<Key>? = null
     private lateinit var mMatchingKeyList: MutableList<Key>
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
@@ -54,7 +57,8 @@ class ChooseDictionaryWord : ListActivityBase() {
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.choose_dictionary_page)
+        binding = ChooseDictionaryPageBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         buildActivityComponent().inject(this)
 
         // ensure there is actually a dictionary
@@ -67,7 +71,7 @@ class ChooseDictionaryWord : ListActivityBase() {
             return
         }
         initialise()
-        searchText.addTextChangedListener(object : TextWatcher {
+        binding.searchText.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(searchText: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
                 showPossibleDictionaryKeys(searchText.toString())
             }
@@ -75,7 +79,7 @@ class ChooseDictionaryWord : ListActivityBase() {
             override fun afterTextChanged(searchText: Editable) {}
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
         })
-        searchText.requestFocus()
+        binding.searchText.requestFocus()
     }
 
     /**
@@ -92,7 +96,7 @@ class ChooseDictionaryWord : ListActivityBase() {
 
         GlobalScope.launch {
             withContext(Dispatchers.Main) {
-                loadingIndicator.visibility = View.VISIBLE
+                binding.loadingIndicator.visibility = View.VISIBLE
             }
             try {
                 // getting all dictionary keys is slow so do in another thread in order to show hourglass
@@ -109,7 +113,7 @@ class ChooseDictionaryWord : ListActivityBase() {
                 instance.showErrorMsg(R.string.error_occurred, e)
             } finally {
                 withContext(Dispatchers.Main) {
-                    loadingIndicator.visibility = View.GONE
+                    binding.loadingIndicator.visibility = View.GONE
                 }
             }
         }
