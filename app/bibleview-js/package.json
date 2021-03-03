@@ -22,10 +22,10 @@
     "mitt": "^2.1.0",
     "sprintf-js": "~1.1.2",
     "vue": "^3.0.5",
-    "vue-cli-plugin-webpack-bundle-analyzer": "^4.0.0",
     "vuedraggable": "^4.0.1"
   },
   "devDependencies": {
+    "vue-cli-plugin-webpack-bundle-analyzer": "^4.0.0",
     "@vue/cli-plugin-babel": "^4.5.11",
     "@vue/cli-plugin-eslint": "^4.5.11",
     "@vue/cli-plugin-unit-jest": "^4.5.11",
