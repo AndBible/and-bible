@@ -160,7 +160,7 @@ class FontControl private constructor() {
 
     /** find font in manual or default font dir
      */
-    fun getFontFile(font: String?): File? {
+    private fun getFontFile(font: String?): File? {
         var retVal: File? = null
         val autoFont = File(SharedConstants.FONT_DIR, font)
         if (autoFont.exists()) {

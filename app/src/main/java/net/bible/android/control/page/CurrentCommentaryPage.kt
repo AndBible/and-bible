@@ -54,15 +54,13 @@ open class CurrentCommentaryPage internal constructor(
 
     override val currentPageContent: Document
         get() {
-            val origKey = originalKey ?: singleKey
-
-            val key: VerseRange = when(origKey) {
-                is VerseRange -> origKey
-                is Verse -> VerseRange(origKey.versification, origKey, origKey)
-                else -> throw RuntimeException("Invalid type")
-            }
-
             return if(currentDocument == FakeBookFactory.compareDocument) {
+                val key: VerseRange = when(val origKey = originalKey ?: singleKey) {
+                    is VerseRange -> origKey
+                    is Verse -> VerseRange(origKey.versification, origKey, origKey)
+                    else -> throw RuntimeException("Invalid type")
+                }
+
                 val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
                     try {
                         OsisFragment(swordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification)), key, it)
