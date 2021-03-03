@@ -58,10 +58,10 @@ task vuecli(type: Exec, dependsOn: npmInstall) {
     inputs.dir "$jsDir/public"
     outputs.dir "$jsDir/dist"
 
-    // TODO!!! Get build type somehow here.
-    def buildType = "debug"
+    def isDebug = gradle.startParameter.taskNames.contains(":app:assembleDebug")
     def buildCmd
-    if(buildType == "release") {
+
+    if(!isDebug) {
         buildCmd = "build-production"
     } else {
         buildCmd = "build-debug"
