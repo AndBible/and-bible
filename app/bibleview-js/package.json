@@ -25,7 +25,6 @@
     "vuedraggable": "^4.0.1"
   },
   "devDependencies": {
-    "vue-cli-plugin-webpack-bundle-analyzer": "^4.0.0",
     "@vue/cli-plugin-babel": "^4.5.11",
     "@vue/cli-plugin-eslint": "^4.5.11",
     "@vue/cli-plugin-unit-jest": "^4.5.11",
@@ -44,6 +43,7 @@
     "stylus": "~0.54.8",
     "stylus-loader": "^4.3.3",
     "typescript": "^3.9.9",
+    "vue-cli-plugin-webpack-bundle-analyzer": "^4.0.0",
     "vue-cli-plugin-yaml-loader": "~1.0.0",
     "vue-jest": "^5.0.0-alpha.8",
     "yaml-loader": "^0.6.0"

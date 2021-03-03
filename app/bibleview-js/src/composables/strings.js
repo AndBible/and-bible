@@ -27,6 +27,8 @@ let stringsLoaded = false;
 
 async function loadStrings() {
     const lang = new URLSearchParams(window.location.search).get("lang");
+    if(lang === "en-US") return;
+    console.log(`Loading lang ${lang}`)
     let translations;
     try {
         translations = await import(`@/lang/${lang}.yaml`);
