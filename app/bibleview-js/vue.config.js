@@ -5,11 +5,11 @@ let config = {
   runtimeCompiler: true,
   transpileDependencies: ["dom-highlight-range"],
   publicPath: "",
-  pluginOptions: {
-    webpackBundleAnalyzer: {
-      openAnalyzer: false
-    }
-  },
+//  pluginOptions: {
+//    webpackBundleAnalyzer: {
+//      openAnalyzer: false
+//    }
+//  },
 }
 
 if(isProduction) {
