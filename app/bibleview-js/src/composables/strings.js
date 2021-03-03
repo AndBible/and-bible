@@ -15,31 +15,36 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-let cached
+import {reactive} from "@vue/runtime-core";
 
 const untranslated = {
     chapterNum: "— %d —",
     verseNum: "%d",
 }
 
-export function useStrings() {
-    const lang = new URLSearchParams(window.location.search).get("lang");
-    if(!cached) {
-        const defaults = require(`@/lang/default.yaml`);
-        try {
-            cached = require(`@/lang/${lang}.yaml`);
-        } catch (e) {
-            console.error(`Language ${lang} not found, falling back to English!`)
-            cached = require(`@/lang/default.yaml`);
-        }
+let strings = reactive({...require(`@/lang/default.yaml`), ...untranslated});
+let stringsLoaded = false;
 
-        // Get untranslated strings from default
-        for(const i in cached) {
-            if(!cached[i]) {
-                cached[i] = defaults[i]
-            }
-        }
-        cached = {...cached, ...untranslated};
+async function loadStrings() {
+    const lang = new URLSearchParams(window.location.search).get("lang");
+    let translations;
+    try {
+        translations = await import(`@/lang/${lang}.yaml`);
+    } catch (e) {
+        console.error(`Language ${lang} not found, falling back to English!`)
+        return;
     }
-    return cached;
+    for(const i in translations) {
+        if(translations[i]) {
+            strings[i] = translations[i]
+        }
+    }
+}
+
+export function useStrings() {
+    if(!stringsLoaded) {
+        loadStrings();
+        stringsLoaded = true;
+    }
+    return strings;
 }
