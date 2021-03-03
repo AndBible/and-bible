@@ -14,7 +14,7 @@ let config = {
 }
 
 if(isProduction) {
-  config.productionSourceMap = true;
+  config.productionSourceMap = false;
 } else {
   config = {
     ...config,
