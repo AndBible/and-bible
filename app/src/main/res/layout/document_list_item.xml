@@ -54,6 +54,15 @@
 				app:layout_constraintTop_toTopOf="parent"
 				app:srcCompat="@drawable/ic_star_black_24dp"
 				app:tint="@color/yellow_600" />
+			<ImageView android:id="@+id/lockedIcon"
+				android:layout_width="15dp"
+				android:layout_height="15dp"
+				android:duplicateParentState="true"
+				android:layout_centerVertical="true"
+				app:layout_constraintStart_toEndOf="@id/documentTypeIcon"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:srcCompat="@drawable/ic_baseline_lock_24"
+				app:tint="@color/red" />
 		</androidx.constraintlayout.widget.ConstraintLayout>
 		<TextView android:id="@+id/documentAbbreviation"
 			android:layout_width="0dp"

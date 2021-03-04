@@ -18,7 +18,6 @@
 package net.bible.service.sword
 
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -58,7 +57,7 @@ class SwordDocumentFacade @Inject constructor() {
 
     fun getBooks(bookCategory: BookCategory): List<Book> {
         log.debug("Getting books of type " + bookCategory.getName())
-        val documents = Books.installed().getBooks { book -> book.bookCategory == bookCategory && !book.isLocked }
+        val documents = Books.installed().getBooks { book -> book.bookCategory == bookCategory }
         log.debug("Got books, Num=" + documents.size)
         return documents
     }

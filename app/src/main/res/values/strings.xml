@@ -686,4 +686,8 @@
     <string name="http_not_found">Not found</string>
     <string name="http_unknown">Other error</string>
     <string name="compare">Compare</string>
+    <string name="give_passphrase_for_module">Document %s is encrypted and needs passphrase to be unlocked</string>
+    <string name="unlocking_failed">Unlocking failed, invalid passphrase</string>
+    <string name="unlock_module">Set module passphrase</string>
+    <string name="unlock_info">Encrypted module unlocking info</string>
 </resources>

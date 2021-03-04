@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.download
 
 import android.content.Context
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
@@ -81,6 +82,9 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
 
         val isRecommended = document.isRecommended(recommendedDocuments)
         recommendedIcon.visibility = if(isRecommended) View.VISIBLE else View.INVISIBLE
+        lockedIcon.visibility = if(document.isEnciphered) View.VISIBLE else View.INVISIBLE
+        lockedIcon.setImageResource(if(document.isLocked) R.drawable.ic_baseline_lock_24 else  R.drawable.ic_baseline_lock_open_24)
+        lockedIcon.setColorFilter(if(document.isLocked) Color.rgb(255, 0, 0) else Color.rgb(0, 255, 0))
         recommendedString.visibility = if(isRecommended) View.VISIBLE else View.GONE
         documentLanguage.text = document.language.name
         documentSource.text = document.getProperty(DownloadManager.REPOSITORY_KEY)

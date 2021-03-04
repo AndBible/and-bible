@@ -30,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus
@@ -39,7 +38,6 @@ import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.NO_OPTIONS_MENU
 import net.bible.android.view.activity.base.RecommendedDocuments
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.download.DownloadManager
@@ -213,8 +211,8 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
      *
      * @param selectedDocument
      */
-    override fun handleDocumentSelection(selectedDocument: Book?) {
-        Log.d(TAG, "Document selected:" + selectedDocument!!.initials)
+    override fun handleDocumentSelection(selectedDocument: Book) {
+        Log.d(TAG, "Document selected:" + selectedDocument.initials)
         try {
             manageDownload(selectedDocument)
         } catch (e: Exception) {

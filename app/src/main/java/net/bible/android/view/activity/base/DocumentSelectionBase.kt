@@ -61,6 +61,7 @@ import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
+import org.crosswire.jsword.book.BookFilter
 import org.crosswire.jsword.book.BookFilters
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
@@ -113,7 +114,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     open val recommendedDocuments: RecommendedDocuments? = null
 
     private var allDocuments = ArrayList<Book>()
-    private var displayedDocuments = ArrayList<Book>()
+    var displayedDocuments = ArrayList<Book>()
 
     @Inject lateinit var documentControl: DocumentControl
 
@@ -123,7 +124,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     /** ask subclass for documents to be displayed
      */
     protected abstract suspend fun getDocumentsFromSource(refresh: Boolean): List<Book>
-    protected abstract fun handleDocumentSelection(selectedDocument: Book?)
+    protected abstract fun handleDocumentSelection(selectedDocument: Book)
     protected abstract fun sortLanguages(languages: Collection<Language>?): List<Language>
 
     /** Called when the activity is first created.  */
@@ -135,7 +136,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     protected fun initialiseView() {
         listAdapter = documentItemAdapter
         // prepare action mode
-        listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId)
+        listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId, true)
+        //listView.choiceMode = AbsListView.CHOICE_MODE_SINGLE
         // trigger action mode on long press
         listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id -> listActionModeHelper.startActionMode(this@DocumentSelectionBase, position) }
         languageList.clear()
@@ -533,15 +535,12 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private fun showAbout(document: Book) {
 
         //get about text
-        var about = document.bookMetaData.getProperty("About")
-        if (about != null) {
-            // either process the odd formatting chars in about
-            about = about.replace("\\pard", "")
-            about = about.replace("\\par", "\n")
-        } else {
-            // or default to name if there is no About
-            about = document.name
-        }
+
+        var about = "<b>${document.name}</b>\n\n"
+        about += document.bookMetaData.getProperty("About") ?: ""
+        // either process the odd formatting chars in about
+        about = about.replace("\\pard", "")
+        about = about.replace("\\par", "\n")
 
         val shortPromo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_PROMO)
 
@@ -553,6 +552,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         val shortCopyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_COPYRIGHT)
         val copyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_COPYRIGHT)
         val distributionLicense = document.bookMetaData.getProperty(SwordBookMetaData.KEY_DISTRIBUTION_LICENSE)
+        val unlockInfo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_UNLOCK_INFO)
         var copyrightMerged = ""
         if (StringUtils.isNotBlank(shortCopyright)) {
             copyrightMerged += shortCopyright
@@ -565,6 +565,9 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         if (StringUtils.isNotBlank(copyrightMerged)) {
             val copyrightMsg = getString(R.string.module_about_copyright, copyrightMerged)
             about += "\n\n" + copyrightMsg
+        }
+        if(unlockInfo != null) {
+            about += "\n\n<b>${getString(R.string.unlock_info)}</b>\n\n$unlockInfo"
         }
 
         // add version
@@ -666,12 +669,12 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     companion object {
         private val DOCUMENT_TYPE_SPINNER_FILTERS = arrayOf(
             BookFilters.getAll(),
-            BookFilters.getBibles(),
-            BookFilters.getCommentaries(),
-            BookFilters.getDictionaries(),
-            BookFilters.getGeneralBooks(),
-            BookFilters.getMaps(),
-            AndBibleAddonFilter()
+            BookFilter { it.bookCategory == BookCategory.BIBLE },
+            BookFilter { it.bookCategory == BookCategory.COMMENTARY },
+            BookFilter { it.bookCategory == BookCategory.DICTIONARY },
+            BookFilter { it.bookCategory == BookCategory.GENERAL_BOOK },
+            BookFilter { it.bookCategory == BookCategory.MAPS },
+            AndBibleAddonFilter(),
         )
         private var lastSelectedLanguage // allow sticky language selection
             : Language? = null

@@ -35,11 +35,7 @@ open class AcceptableBookTypeFilter : BookFilter {
      */
     override fun test(book: Book): Boolean {
         val bookCategory = book.bookCategory
-        return if (book.isLocked) {
-            false
-        } else {
-            bookCategory == BookCategory.BIBLE || bookCategory == BookCategory.COMMENTARY || bookCategory == BookCategory.DICTIONARY || bookCategory == BookCategory.GENERAL_BOOK || bookCategory == BookCategory.MAPS || bookCategory == BookCategory.AND_BIBLE
-        }
+        return bookCategory == BookCategory.BIBLE || bookCategory == BookCategory.COMMENTARY || bookCategory == BookCategory.DICTIONARY || bookCategory == BookCategory.GENERAL_BOOK || bookCategory == BookCategory.MAPS || bookCategory == BookCategory.AND_BIBLE
     }
 }
 
