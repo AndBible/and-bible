@@ -136,6 +136,6 @@ export default {
 
 .isOther {
   @extend .note-handle-base;
-  color: #3afd7b;
+  color: #209546;
 }
 </style>
