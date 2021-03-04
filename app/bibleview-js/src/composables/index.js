@@ -150,9 +150,7 @@ export function useConfig() {
         testMode,
     })
 
-    if(developmentMode) {
-        window.bibleViewDebug.config = config;
-    }
+    window.bibleViewDebug.config = config;
 
     setupEventBusListener(Events.SET_CONFIG, async ({config: c, initial = false, nightMode = false} = {}) => {
         const defer = new Deferred();
