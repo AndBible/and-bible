@@ -23,6 +23,7 @@ import {ref} from "@vue/reactivity";
 import {arrayLeq, mapFrom, rangeInside, rangesOverlap, setFrom} from "@/utils";
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
 import {useStrings} from "@/composables/strings";
+window.bibleViewDebug = {}
 
 describe("Verse.vue", () => {
     let wrapper;
