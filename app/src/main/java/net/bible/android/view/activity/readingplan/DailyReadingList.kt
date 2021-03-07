@@ -27,6 +27,7 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
@@ -39,6 +40,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DailyReadingList : ListActivityBase() {
+    private lateinit var binding: ListBinding
 
     @Inject lateinit var readingPlanControl: ReadingPlanControl
 
@@ -50,7 +52,9 @@ class DailyReadingList : ListActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying General Book Key chooser")
-        setContentView(R.layout.list)
+        binding = ListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buildActivityComponent().inject(this)
 
