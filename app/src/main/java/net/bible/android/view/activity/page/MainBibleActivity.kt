@@ -52,7 +52,6 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
-import kotlinx.android.synthetic.main.main_bible_view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -60,6 +59,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.MainBibleViewBinding
 import net.bible.android.control.BibleContentManager
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkControl
@@ -127,6 +127,8 @@ import kotlin.math.roundToInt
  */
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
+    private lateinit var binding: MainBibleViewBinding
+
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
@@ -200,7 +202,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState, true)
 
-        setContentView(R.layout.main_bible_view)
+        binding = MainBibleViewBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         DaggerMainBibleActivityComponent.builder()
             .applicationComponent(BibleApplication.application.applicationComponent)
             .mainBibleActivityModule(MainBibleActivityModule(this))
@@ -228,7 +231,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             navigationBarHeight = resources.getDimensionPixelSize(navBarId)
         }
 
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
 
         val tv = TypedValue()
         if (theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
@@ -243,16 +246,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             windowButtonHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
 
-        toolbar.setContentInsetsAbsolute(0, 0)
+        binding.toolbar.setContentInsetsAbsolute(0, 0)
 
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            drawerLayout.closeDrawers()
+        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
+            binding.drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)
         }
 
         var currentSliderOffset = 0.0F
 
-        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {
                 when(newState) {
                     DrawerLayout.STATE_SETTLING -> {
@@ -291,7 +294,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(!initialized)
             requestSdcardPermission()
 
-        speakTransport.visibility = View.GONE
+        binding.speakTransport.visibility = View.GONE
 
         if(!initialized) {
             GlobalScope.launch(Dispatchers.Main) {
@@ -439,7 +442,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         }
         val gestureDetector = GestureDetectorCompat(this, gestureListener)
-        pageTitleContainer.setOnTouchListener { v, event ->
+        binding.pageTitleContainer.setOnTouchListener { v, event ->
             gestureDetector.onTouchEvent(event)
             true
         }
@@ -455,8 +458,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onBackPressed() {
         val lastBackPressed = lastBackPressed
-        if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
-            drawerLayout.closeDrawers()
+        if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
+            binding.drawerLayout.closeDrawers()
         } else {
             if (!historyTraversal.goBack()) {
                 if(lastBackPressed == null || lastBackPressed < System.currentTimeMillis() - 1000) {
@@ -473,7 +476,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent): Boolean {
-        if (drawerLayout.isDrawerVisible(GravityCompat.START) && keyCode == KeyEvent.KEYCODE_BACK) {
+        if (binding.drawerLayout.isDrawerVisible(GravityCompat.START) && keyCode == KeyEvent.KEYCODE_BACK) {
             return true
         }
 
@@ -491,36 +494,38 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun setupToolbarButtons() {
-        homeButton.setOnClickListener {
-            if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
-                drawerLayout.closeDrawers()
-            } else {
-                drawerLayout.openDrawer(GravityCompat.START)
+        binding.apply {
+            homeButton.setOnClickListener {
+                if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
+                    drawerLayout.closeDrawers()
+                } else {
+                    drawerLayout.openDrawer(GravityCompat.START)
+                }
             }
-        }
 
-        strongsButton.setOnClickListener {
-            val prefOptions = dummyStrongsPrefOption
-            prefOptions.value = (prefOptions.value as Int + 1) % 3
-            prefOptions.handle()
-            invalidateOptionsMenu()
-            updateStrongsButton()
-        }
+            strongsButton.setOnClickListener {
+                val prefOptions = dummyStrongsPrefOption
+                prefOptions.value = (prefOptions.value as Int + 1) % 3
+                prefOptions.handle()
+                invalidateOptionsMenu()
+                updateStrongsButton()
+            }
 
-        strongsButton.setOnLongClickListener {
-            startActivityForResult(Intent(this, ChooseDictionaryWord::class.java), ActivityBase.STD_REQUEST_CODE)
-            true
-        }
+            strongsButton.setOnLongClickListener {
+                startActivityForResult(Intent(this@MainBibleActivity, ChooseDictionaryWord::class.java), ActivityBase.STD_REQUEST_CODE)
+                true
+            }
 
-        speakButton.setOnClickListener { speakControl.toggleSpeak() }
-        speakButton.setOnLongClickListener {
-            val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
-            val intent = Intent(this, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
-            startActivity(intent)
-            true
+            speakButton.setOnClickListener { speakControl.toggleSpeak() }
+            speakButton.setOnLongClickListener {
+                val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
+                val intent = Intent(this@MainBibleActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE) }
+            bookmarkButton.setOnClickListener { startActivityForResult(Intent(this@MainBibleActivity, Bookmarks::class.java), STD_REQUEST_CODE) }
         }
-        searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE) }
-        bookmarkButton.setOnClickListener { startActivityForResult(Intent(this, Bookmarks::class.java), STD_REQUEST_CODE) }
     }
 
     private val dummyStrongsPrefOption
@@ -699,33 +704,33 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateTitle() {
         try {
-            pageTitle.text = pageTitleText
-            val layout = pageTitle.layout
+            binding.pageTitle.text = pageTitleText
+            val layout = binding.pageTitle.layout
             if(layout!= null && layout.lineCount > 0 && layout.getEllipsisCount(0) > 0) {
                 synchronized(BookName::class) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
-                    pageTitle.text = pageTitleText
+                    binding.pageTitle.text = pageTitleText
                     BookName.setFullBookName(oldValue)
                 }
             }
         } catch (e: KeyIsNull) {
             Log.e(TAG, "Key is null, not updating", e)
         }
-        documentTitle.text = documentTitleText
+        binding.documentTitle.text = documentTitleText
         updateStrongsButton()
     }
 
     private fun updateStrongsButton() {
         if(documentControl.isNewTestament) {
-            strongsButton.setImageResource(R.drawable.ic_strongs_greek)
+            binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek)
         } else {
-            strongsButton.setImageResource(R.drawable.ic_strongs_hebrew)
+            binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew)
         }
         if(dummyStrongsPrefOption.value == 0) {
-            strongsButton.alpha = 0.7F
+            binding.strongsButton.alpha = 0.7F
         } else
-            strongsButton.alpha = 1.0F
+            binding.strongsButton.alpha = 1.0F
     }
 
     private val currentDocument get() = windowControl.activeWindow.pageManager.currentPage.currentDocument
@@ -742,76 +747,78 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val maxButtons: Int = (maxWidth / approximateSize).toInt()
         val showSearch = documentControl.isBibleBook || documentControl.isCommentary
 
-        bibleButton.visibility = if (visibleButtonCount < maxButtons && biblesForVerse.isNotEmpty()) {
-            bibleButton.setOnClickListener { menuForDocs(it, biblesForVerse) }
-            bibleButton.setOnLongClickListener {
-                val intent = Intent(this, ChooseDocument::class.java)
-                intent.putExtra("type", "BIBLE")
-                startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
-                true
+        binding.apply {
+            bibleButton.visibility = if (visibleButtonCount < maxButtons && biblesForVerse.isNotEmpty()) {
+                bibleButton.setOnClickListener { menuForDocs(it, biblesForVerse) }
+                bibleButton.setOnLongClickListener {
+                    val intent = Intent(this@MainBibleActivity, ChooseDocument::class.java)
+                    intent.putExtra("type", "BIBLE")
+                    startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+                    true
+                }
+                visibleButtonCount += 1
+                View.VISIBLE
+            } else View.GONE
+
+            commentaryButton.visibility = if (commentariesForVerse.isNotEmpty() && visibleButtonCount < maxButtons) {
+                commentaryButton.setOnClickListener { menuForDocs(it, commentariesForVerse) }
+                commentaryButton.setOnLongClickListener {
+                    val intent = Intent(this@MainBibleActivity, ChooseDocument::class.java)
+                    intent.putExtra("type", "COMMENTARY")
+                    startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+                    true
+                }
+                visibleButtonCount += 1
+                View.VISIBLE
+            } else View.GONE
+
+            strongsButton.visibility = if (visibleButtonCount < maxButtons && documentControl.isStrongsInBook) {
+                visibleButtonCount += 1
+
+                View.VISIBLE
+            } else View.GONE
+
+
+            fun addSearch() {
+                searchButton.visibility = if (visibleButtonCount < maxButtons && showSearch)
+                {
+                    visibleButtonCount += 1
+                    View.VISIBLE
+                } else View.GONE
             }
-            visibleButtonCount += 1
-            View.VISIBLE
-        } else View.GONE
-
-        commentaryButton.visibility = if (commentariesForVerse.isNotEmpty() && visibleButtonCount < maxButtons) {
-            commentaryButton.setOnClickListener { menuForDocs(it, commentariesForVerse) }
-            commentaryButton.setOnLongClickListener {
-                val intent = Intent(this, ChooseDocument::class.java)
-                intent.putExtra("type", "COMMENTARY")
-                startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
-                true
+            fun addSpeak() {
+                speakButton.visibility = if (visibleButtonCount < maxButtons && speakControl.isStopped)
+                {
+                    visibleButtonCount += 1
+                    View.VISIBLE
+                } else View.GONE
             }
-            visibleButtonCount += 1
-            View.VISIBLE
-        } else View.GONE
 
-        strongsButton.visibility = if (visibleButtonCount < maxButtons && documentControl.isStrongsInBook) {
-            visibleButtonCount += 1
+            fun addBookmarks() {
+                bookmarkButton.visibility = if (visibleButtonCount < maxButtons) {
+                    visibleButtonCount += 1
+                    View.VISIBLE
+                } else View.GONE
+            }
 
-            View.VISIBLE
-        } else View.GONE
+            val speakLastUsed = preferences.getLong("speak-last-used", 0)
+            val searchLastUsed = preferences.getLong("search-last-used", 0)
+            val bookmarksLastUsed = preferences.getLong("bookmarks-last-used", 0)
 
+            val funs = arrayListOf(Pair(speakLastUsed, {addSpeak()}),
+                Pair(searchLastUsed, {addSearch()}),
+                Pair(bookmarksLastUsed, {addBookmarks()}))
+            funs.sortBy { -it.first }
 
-        fun addSearch() {
-            searchButton.visibility = if (visibleButtonCount < maxButtons && showSearch)
-            {
-                visibleButtonCount += 1
-                View.VISIBLE
-            } else View.GONE
+            for(p in funs) {
+                p.second()
+            }
+
+            invalidateOptionsMenu()
+
+            val btn = navigationView.menu.findItem(R.id.searchButton)
+            btn.isEnabled = showSearch
         }
-        fun addSpeak() {
-            speakButton.visibility = if (visibleButtonCount < maxButtons && speakControl.isStopped)
-            {
-                visibleButtonCount += 1
-                View.VISIBLE
-            } else View.GONE
-        }
-
-        fun addBookmarks() {
-            bookmarkButton.visibility = if (visibleButtonCount < maxButtons) {
-                visibleButtonCount += 1
-                View.VISIBLE
-            } else View.GONE
-        }
-
-        val speakLastUsed = preferences.getLong("speak-last-used", 0)
-        val searchLastUsed = preferences.getLong("search-last-used", 0)
-        val bookmarksLastUsed = preferences.getLong("bookmarks-last-used", 0)
-
-        val funs = arrayListOf(Pair(speakLastUsed, {addSpeak()}),
-            Pair(searchLastUsed, {addSearch()}),
-            Pair(bookmarksLastUsed, {addBookmarks()}))
-        funs.sortBy { -it.first }
-
-        for(p in funs) {
-            p.second()
-        }
-
-        invalidateOptionsMenu()
-
-        val btn = navigationView.menu.findItem(R.id.searchButton)
-        btn.isEnabled = showSearch
     }
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
@@ -918,7 +925,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 typedValue.data
             }
             window.navigationBarColor = color
-            speakTransport.setBackgroundColor(color)
+            binding.speakTransport.setBackgroundColor(color)
         }
         window.decorView.systemUiVisibility = uiFlags
     }
@@ -927,15 +934,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         Log.d(TAG, "updateBottomBars")
         if(isFullScreen || speakControl.isStopped) {
             transportBarVisible = false
-            speakTransport.animate()
-                .translationY(speakTransport.height.toFloat())
+            binding.speakTransport.animate()
+                .translationY(binding.speakTransport.height.toFloat())
                 .setInterpolator(AccelerateInterpolator())
-                .withEndAction { speakTransport.visibility = View.GONE }
+                .withEndAction { binding.speakTransport.visibility = View.GONE }
                 .start()
         } else {
             transportBarVisible = true
-            speakTransport.visibility = View.VISIBLE
-            speakTransport.animate()
+            binding.speakTransport.visibility = View.VISIBLE
+            binding.speakTransport.animate()
                 .translationY(-bottomOffset1.toFloat())
                 .setInterpolator(DecelerateInterpolator())
                 .start()
@@ -1034,27 +1041,29 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun updateToolbar() {
-        toolbar.setPadding(leftOffset1, 0, rightOffset1, 0)
-        setActionModeToolbarPadding()
-        navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
-        speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
-        if(isFullScreen) {
-            hideSystemUI()
-            Log.d(TAG, "Fullscreen on")
-            toolbar.animate().translationY(-toolbar.height.toFloat())
-                .setInterpolator(AccelerateInterpolator())
-                .withEndAction { supportActionBar?.hide() }
-                .start()
-        }
-        else {
-            showSystemUI()
-            Log.d(TAG, "Fullscreen off")
-            toolbar.translationY = -toolbar.height.toFloat()
-            supportActionBar?.show()
-            toolbar.animate().translationY(topOffset1.toFloat())
-                .setInterpolator(DecelerateInterpolator())
-                .start()
-            updateActions()
+        binding.apply {
+            toolbar.setPadding(leftOffset1, 0, rightOffset1, 0)
+            setActionModeToolbarPadding()
+            navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
+            speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
+            if(isFullScreen) {
+                hideSystemUI()
+                Log.d(TAG, "Fullscreen on")
+                toolbar.animate().translationY(-toolbar.height.toFloat())
+                    .setInterpolator(AccelerateInterpolator())
+                    .withEndAction { supportActionBar?.hide() }
+                    .start()
+            }
+            else {
+                showSystemUI()
+                Log.d(TAG, "Fullscreen off")
+                toolbar.translationY = -toolbar.height.toFloat()
+                supportActionBar?.show()
+                toolbar.animate().translationY(topOffset1.toFloat())
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+                updateActions()
+            }
         }
     }
 
