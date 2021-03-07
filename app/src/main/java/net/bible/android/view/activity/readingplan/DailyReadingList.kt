@@ -56,7 +56,7 @@ class DailyReadingList : ListActivityBase() {
 
 		readingsList = readingPlanControl.currentPlansReadingList
 
-        adapter = DailyReadingItemAdapter(this, android.R.layout.simple_list_item_2, readingsList)
+        adapter = DailyReadingItemAdapter(this, R.layout.two_line_list_item, readingsList)
         listAdapter = adapter
 
         listView.isFastScrollEnabled = true
