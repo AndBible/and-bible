@@ -25,8 +25,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ListView
-import kotlinx.android.synthetic.main.manage_labels.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.ListActivityBase
@@ -41,6 +41,7 @@ import kotlin.random.Random.Default.nextInt
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ManageLabels : ListActivityBase() {
+    private lateinit var binding: ManageLabelsBinding
     private val labels: MutableList<BookmarkEntities.Label> = ArrayList()
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var labelDialogs: LabelDialogs
@@ -53,7 +54,8 @@ class ManageLabels : ListActivityBase() {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, false)
-        setContentView(R.layout.manage_labels)
+        binding = ManageLabelsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         super.buildActivityComponent().inject(this)
         val selectedLabelIds = intent.getLongArrayExtra(BookmarkControl.LABEL_IDS_EXTRA)
         if(selectedLabelIds != null) {
@@ -64,8 +66,8 @@ class ManageLabels : ListActivityBase() {
         showUnassigned = intent.getBooleanExtra("showUnassigned", false)
         val title = intent.getStringExtra("title")
         selectMultiple = checkedLabels.size > 1 || CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
-        selectMultipleSwitch.isChecked = selectMultiple
-        selectMultipleSwitch.setOnCheckedChangeListener { _, isChecked ->
+        binding.selectMultipleSwitch.isChecked = selectMultiple
+        binding.selectMultipleSwitch.setOnCheckedChangeListener { _, isChecked ->
             selectMultiple = isChecked
             CommonUtils.sharedPreferences.edit().putBoolean("assignLabelsSelectMultiple", selectMultiple).apply()
         }
