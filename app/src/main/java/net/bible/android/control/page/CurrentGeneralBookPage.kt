@@ -20,6 +20,7 @@ package net.bible.android.control.page
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.journal.StudyPads
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.service.download.FakeBookFactory

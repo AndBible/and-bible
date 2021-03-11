@@ -18,6 +18,7 @@
 <template>
   <template v-if="bookmark.text">
     <span class="bookmark-text">
+      <OsisFragment v-if="expanded" @click.stop="$emit('change-expanded', false)" :fragment="bookmark.osisFragment"/>
       <q v-if="expanded" @click.stop="$emit('change-expanded', false)" class="bible-text"><span v-html="bookmark.fullText"/></q>
       <q v-if="!expanded" @click.stop="$emit('change-expanded', true)" class="bible-text">{{abbreviated(bookmark.text, 80)}}</q>
     </span>
@@ -26,9 +27,11 @@
 
 <script>
 import {useCommon} from "@/composables";
+import OsisFragment from "@/components/documents/OsisFragment";
 
 export default {
   name: "BookmarkText",
+  components: {OsisFragment},
   emits: ["change-expanded"],
   props: {
     bookmark: {type: Object, required: true},

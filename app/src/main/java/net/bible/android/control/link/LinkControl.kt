@@ -41,6 +41,7 @@ import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook

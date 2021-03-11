@@ -25,9 +25,11 @@ import net.bible.android.control.bookmark.LABEL_UNLABELED_ID
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
+import net.bible.android.misc.OsisFragment
+import net.bible.android.misc.uniqueId
+import net.bible.android.misc.wrapString
 import net.bible.service.common.displayName
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
@@ -42,21 +44,11 @@ import java.util.UUID.randomUUID
  */
 
 
-// Unique identifier that can be used as ID in DOM
-val Key.uniqueId: String get() {
-    return if (this is VerseRange) {
-        "ordinal-${start.ordinal}-${end.ordinal}"
-    } else {
-        this.osisID.replace(".", "-")
-    }
-}
-
 fun mapToJson(map: Map<String, String>) =
     map.map {(key, value) -> "'$key': $value"}
        .joinToString(",", "{", "}")
 
 fun listToJson(list: List<String>) = list.joinToString(",", "[", "]")
-fun wrapString(str: String): String = "\"$str\""
 val VerseRange.onlyNumber: String get() = if(cardinality > 1) "${start.verse}-${end.verse}" else "${start.verse}"
 val VerseRange.abbreviated: String get() {
     synchronized(BookName::class) {
@@ -172,43 +164,6 @@ class StudyPadDocument(
         }
 }
 
-class OsisFragment(
-    val xml: String,
-    val key: Key,
-    private val book: Book
-) {
-    private val keyStr: String get () = "${book.initials}--${key.uniqueId}"
-    val features: Map<String, String> get () {
-        val type = when {
-            book.hasFeature(FeatureType.HEBREW_DEFINITIONS) -> "hebrew"
-            book.hasFeature(FeatureType.GREEK_DEFINITIONS) -> "greek"
-            else -> null
-        }
-        return if (type != null) {
-            hashMapOf("type" to type, "keyName" to key.name)
-        } else emptyMap()
-    }
-
-    val toHashMap: Map<String, String> get() {
-        val ordinalRangeStr = json.encodeToString(
-            serializer(),
-            if(key is VerseRange) listOf(key.start.ordinal, key.end.ordinal) else null
-        )
-        return mapOf(
-            "xml" to "`${xml.replace("`", "\\`")}`",
-            "key" to wrapString(keyStr),
-            "keyName" to wrapString(key.name),
-            "bookCategory" to wrapString(book.bookCategory.name),
-            "bookInitials" to wrapString(book.initials),
-            "osisRef" to wrapString(key.osisRef),
-            "features" to json.encodeToString(serializer(), features),
-            "ordinalRange" to ordinalRangeStr,
-            "language" to wrapString(book.language.code),
-            "direction" to wrapString(if(book.isLeftToRight) "ltr" else "rtl"),
-        )
-    }
-}
-
 @Serializable
 data class ClientBookmark(val id: Long,
                           val ordinalRange: List<Int>,
@@ -226,6 +181,7 @@ data class ClientBookmark(val id: Long,
                           val verseRangeAbbreviated: String,
                           val text: String?,
                           val fullText: String?,
+                          val osisFragment: Map<String, String>?,
                           val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>?
 ) {
     constructor(bookmark: BookmarkEntities.Bookmark, v11n: Versification? = null) :
@@ -247,7 +203,8 @@ data class ClientBookmark(val id: Long,
             text = bookmark.text,
             fullText = bookmark.fullText,
             bibleUrl = getUrl(bookmark),
-            bookmarkToLabels = bookmark.bookmarkToLabels
+            bookmarkToLabels = bookmark.bookmarkToLabels,
+            osisFragment = bookmark.osisFragment?.toHashMap
         )
 
     val type: String = "bookmark"

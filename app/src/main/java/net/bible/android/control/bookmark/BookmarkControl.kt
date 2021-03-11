@@ -32,6 +32,7 @@ import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.android.misc.OsisFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordContentFacade
@@ -255,6 +256,7 @@ open class BookmarkControl @Inject constructor(
 
     private fun addText(b: Bookmark) {
         val book = b.book ?: windowControl.defaultBibleDoc
+        b.osisFragment = OsisFragment(swordContentFacade.readOsisFragment(book, b.verseRange), b.verseRange, book)
         val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(book, it, true) }
         val startOffset = b.startOffset ?: 0
         var startVerse = verseTexts.first()

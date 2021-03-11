@@ -23,6 +23,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.misc.OsisFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList

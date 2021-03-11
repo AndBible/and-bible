@@ -35,6 +35,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Ignore
 import kotlinx.serialization.Serializable
 import net.bible.android.common.toV11n
+import net.bible.android.misc.OsisFragment
 import java.util.*
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
@@ -195,6 +196,7 @@ class BookmarkEntities {
         @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
         @Ignore var text: String? = null
         @Ignore var fullText: String? = null
+        @Ignore var osisFragment: OsisFragment? = null
     }
 
     @Entity(

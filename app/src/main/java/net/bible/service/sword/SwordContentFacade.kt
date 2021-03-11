@@ -32,7 +32,6 @@ import net.bible.service.common.Logger
 import net.bible.service.common.ParseException
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
-import net.bible.service.format.Note
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToCopyTextSaxHandler
@@ -92,30 +91,6 @@ open class SwordContentFacade @Inject constructor(
             }
         }
         return retVal
-    }
-
-    /** Get Footnotes and references from specified document page
-     */
-    @Throws(ParseException::class)
-    fun readFootnotesAndReferences(book: Book?, key: Key?, textDisplaySettings: TextDisplaySettings): List<Note> {
-        var retVal: List<Note> = ArrayList()
-        return try { // based on standard JSword SAX handling method because few performance gains would be gained for the extra complexity of Streaming
-            val data = BookData(book, key)
-            val osissep = data.saxEventProvider
-            if (osissep != null) {
-                retVal = emptyList()
-                // TODO! Not sure if this is still needed though...
-                //val osisToHtml = getSaxHandler(book!!, key!!, true, textDisplaySettings)
-                //osissep.provideSAXEvents(osisToHtml)
-                //retVal = osisToHtml.notesList
-            } else {
-                Log.e(TAG, "No osis SEP returned")
-            }
-            retVal
-        } catch (e: Exception) {
-            log.error("Parsing error", e)
-            throw ParseException("Parsing error", e)
-        }
     }
 
     @Throws(ParseException::class)

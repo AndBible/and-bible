@@ -84,6 +84,7 @@ import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
+import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
@@ -104,6 +105,8 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.RangedPassage
+import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import java.io.File
@@ -1150,13 +1153,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.d(TAG, "Scroll or jump to:$key")
         var toVerse: Verse
         var endVerse: Verse? = null
-        if(key is VerseRange) {
-            toVerse = key.start
-            endVerse = key.end
-        } else if(key is Verse) {
-            toVerse = key
-        } else {
-            throw RuntimeException("illegal type")
+        when (key) {
+            is VerseRange -> {
+                toVerse = key.start
+                endVerse = key.end
+            }
+            is Verse -> toVerse = key
+            is RangedPassage -> {
+                val range = key.toVerseRange
+                toVerse = range.start
+                endVerse = range.end
+            }
+            else -> throw RuntimeException("illegal type")
         }
         val v = initialVerse
         if(firstDocument is MyNotesDocument) {
