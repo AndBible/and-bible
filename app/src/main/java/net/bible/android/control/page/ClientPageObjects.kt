@@ -44,9 +44,8 @@ import java.util.UUID.randomUUID
  */
 
 
-fun mapToJson(map: Map<String, String>) =
-    map.map {(key, value) -> "'$key': $value"}
-       .joinToString(",", "{", "}")
+fun mapToJson(map: Map<String, String>?): String =
+    map?.map {(key, value) -> "'$key': $value"}?.joinToString(",", "{", "}")?:"null"
 
 fun listToJson(list: List<String>) = list.joinToString(",", "[", "]")
 val VerseRange.onlyNumber: String get() = if(cardinality > 1) "${start.verse}-${end.verse}" else "${start.verse}"
@@ -102,7 +101,7 @@ class BibleDocument(
     val originalKey: Key?,
 ): OsisDocument(osisFragment, swordBook, verseRange), DocumentWithBookmarks {
     override val asHashMap: Map<String, String> get () {
-        val bookmarks = bookmarks.map { ClientBookmark(it, swordBook.versification) }
+        val bookmarks = bookmarks.map { ClientBookmark(it, swordBook.versification).asJson }
         val vrInV11n = verseRange.toV11n(swordBook.versification)
         // Clicked link etc. had more specific reference
         val originalOrdinalRange = if(originalKey is RangedPassage) {
@@ -110,7 +109,7 @@ class BibleDocument(
             json.encodeToString(serializer(), listOf(originalVerseRange.start.ordinal, originalVerseRange.end.ordinal))
         } else "null"
         return super.asHashMap.toMutableMap().apply {
-            put("bookmarks", json.encodeToString(serializer(), bookmarks))
+            put("bookmarks", listToJson(bookmarks))
             put("type", wrapString("bible"))
             put("ordinalRange", json.encodeToString(serializer(), listOf(vrInV11n.start.ordinal, vrInV11n.end.ordinal)))
             put("originalOrdinalRange", originalOrdinalRange)
@@ -133,11 +132,11 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
 {
     override val asHashMap: Map<String, Any>
         get() {
-            val bookmarks = bookmarks.map { ClientBookmark(it, KJVA) }
+            val bookmarks = bookmarks.map { ClientBookmark(it, KJVA).asJson }
             return mapOf(
                 "id" to wrapString(verseRange.uniqueId),
                 "type" to wrapString("notes"),
-                "bookmarks" to json.encodeToString(serializer(), bookmarks),
+                "bookmarks" to listToJson(bookmarks),
                 "verseRange" to wrapString(verseRange.name),
             )
         }
@@ -151,12 +150,12 @@ class StudyPadDocument(
 ): Document, DocumentWithBookmarks {
     override val asHashMap: Map<String, Any>
         get() {
-            val bookmarks = bookmarks.map { ClientBookmark(it) }
+            val bookmarks = bookmarks.map { ClientBookmark(it).asJson }
             val clientLabel = ClientBookmarkLabel(label)
             return mapOf(
                 "id" to wrapString("journal_${label.id}"),
                 "type" to wrapString("journal"),
-                "bookmarks" to json.encodeToString(serializer(), bookmarks),
+                "bookmarks" to listToJson(bookmarks),
                 "bookmarkToLabels" to json.encodeToString(serializer(), bookmarkToLabels),
                 "journalTextEntries" to json.encodeToString(serializer(), studyPadTextEntries),
                 "label" to json.encodeToString(serializer(), clientLabel),
@@ -164,50 +163,30 @@ class StudyPadDocument(
         }
 }
 
-@Serializable
-data class ClientBookmark(val id: Long,
-                          val ordinalRange: List<Int>,
-                          val offsetRange: List<Int>?,
-                          val labels: List<Long>, // TODO: better to rename to labelIds
-                          val bookInitials: String?,
-                          val bookAbbreviation: String?,
-                          val bookName: String?,
-                          val createdAt: Long,
-                          val lastUpdatedOn: Long,
-                          val notes: String?,
-                          val verseRange: String,
-                          val bibleUrl: String,
-                          val verseRangeOnlyNumber: String,
-                          val verseRangeAbbreviated: String,
-                          val text: String?,
-                          val fullText: String?,
-                          val osisFragment: Map<String, String>?,
-                          val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>?
-) {
-    constructor(bookmark: BookmarkEntities.Bookmark, v11n: Versification? = null) :
-        this(id = bookmark.id,
-            ordinalRange = listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal),
-            offsetRange = bookmark.textRange?.clientList,
-            labels = bookmark.labelIds!!.toMutableList().also {
-                if(it.isEmpty()) it.add(LABEL_UNLABELED_ID)
-            },
-            bookInitials = bookmark.book?.initials,
-            bookName = bookmark.book?.name,
-            bookAbbreviation = bookmark.book?.abbreviation,
-            createdAt = bookmark.createdAt.time,
-            lastUpdatedOn = bookmark.lastUpdatedOn.time,
-            notes = if(bookmark.notes?.trim()?.isEmpty() == true) null else bookmark.notes,
-            verseRange = bookmark.verseRange.name,
-            verseRangeOnlyNumber = bookmark.verseRange.onlyNumber,
-            verseRangeAbbreviated = bookmark.verseRange.abbreviated,
-            text = bookmark.text,
-            fullText = bookmark.fullText,
-            bibleUrl = getUrl(bookmark),
-            bookmarkToLabels = bookmark.bookmarkToLabels,
-            osisFragment = bookmark.osisFragment?.toHashMap
-        )
-
-    val type: String = "bookmark"
+class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versification? = null): Document {
+    override val asHashMap: Map<String, String> get() = mapOf(
+        "id" to bookmark.id.toString(),
+        "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal)),
+        "offsetRange" to json.encodeToString(serializer(), bookmark.textRange?.clientList),
+        "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
+            if(it.isEmpty()) it.add(LABEL_UNLABELED_ID)
+        }),
+        "bookInitials" to wrapString(bookmark.book?.initials),
+        "bookName" to wrapString(bookmark.book?.name),
+        "bookAbbreviation" to wrapString(bookmark.book?.abbreviation),
+        "createdAt" to bookmark.createdAt.time.toString(),
+        "lastUpdatedOn" to bookmark.lastUpdatedOn.time.toString(),
+        "notes" to if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes),
+        "verseRange" to wrapString(bookmark.verseRange.name),
+        "verseRangeOnlyNumber" to wrapString(bookmark.verseRange.onlyNumber),
+        "verseRangeAbbreviated" to wrapString(bookmark.verseRange.abbreviated),
+        "text" to wrapString(bookmark.text),
+        "fullText" to wrapString(bookmark.fullText),
+        "bibleUrl" to wrapString(getUrl(bookmark)),
+        "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
+        "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
+        "type" to wrapString("bookmark")
+    )
 
     companion object{
         fun getUrl(bookmark: BookmarkEntities.Bookmark): String {

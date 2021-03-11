@@ -992,7 +992,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 else -> null
             }
         )
-        val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
+        val bookmarkStr = clientBookmark.asJson
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);
         """.trimIndent())

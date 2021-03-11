@@ -34,7 +34,7 @@ val Key.uniqueId: String get() {
     }
 }
 
-fun wrapString(str: String): String = "\"$str\""
+fun wrapString(str: String?): String = if(str == null) "null" else "`${str.replace("`", "\\`")}`"
 
 class OsisFragment(
     val xml: String,
@@ -59,7 +59,7 @@ class OsisFragment(
             if(key is VerseRange) listOf(key.start.ordinal, key.end.ordinal) else null
         )
         return mapOf(
-            "xml" to "`${xml.replace("`", "\\`")}`",
+            "xml" to wrapString(xml),
             "key" to wrapString(keyStr),
             "keyName" to wrapString(key.name),
             "bookCategory" to wrapString(book.bookCategory.name),
