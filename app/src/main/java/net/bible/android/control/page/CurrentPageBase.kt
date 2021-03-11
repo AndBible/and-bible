@@ -80,7 +80,7 @@ abstract class CurrentPageBase protected constructor(
     // all bibles and commentaries share the same key
     override var isShareKeyBetweenDocs: Boolean = false
 
-    private val swordContentFacade: SwordContentFacade
+    val swordContentFacade: SwordContentFacade
     val swordDocumentFacade: SwordDocumentFacade
 
     /** notify mediator that page has changed and a lot of things need to update themselves
@@ -130,13 +130,10 @@ abstract class CurrentPageBase protected constructor(
             OsisDocument(
                 book = currentDocument,
                 key = key,
-                osisFragments = synchronized(currentDocument) {
+                osisFragment = synchronized(currentDocument) {
                     val frag = swordContentFacade.readOsisFragment(currentDocument, key)
-                    listOf (if (frag.isEmpty()) {
-                        throw OsisError(application.getString(R.string.error_no_content))
-                    } else
-                        OsisFragment(frag, key, currentDocument)
-                    )
+                    if (frag.isEmpty()) throw OsisError(application.getString(R.string.error_no_content))
+                    else OsisFragment(frag, key, currentDocument)
                 }
             )
         } catch (e: Exception) {

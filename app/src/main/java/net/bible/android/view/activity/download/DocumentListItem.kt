@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.download
 
 import android.content.Context
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
@@ -35,13 +36,14 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 
 val Book.imageResource: Int
     get() = when(bookCategory) {
-            BookCategory.BIBLE -> R.drawable.ic_bible
-            BookCategory.COMMENTARY -> R.drawable.ic_commentary
-            BookCategory.DICTIONARY -> R.drawable.ic_dictionary
-            BookCategory.MAPS -> R.drawable.ic_map_black_24dp
-            BookCategory.GENERAL_BOOK -> R.drawable.ic_book
-            else -> R.drawable.ic_book
-        }
+        BookCategory.BIBLE -> R.drawable.ic_bible
+        BookCategory.COMMENTARY -> R.drawable.ic_commentary
+        BookCategory.DICTIONARY -> R.drawable.ic_dictionary
+        BookCategory.MAPS -> R.drawable.ic_map_black_24dp
+        BookCategory.GENERAL_BOOK -> R.drawable.ic_book
+        BookCategory.AND_BIBLE -> R.drawable.ic_baseline_star_24
+        else -> R.drawable.ic_book
+    }
 
 fun Book.isRecommended(recommendedDocuments: RecommendedDocuments?): Boolean
 {
@@ -80,6 +82,9 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
 
         val isRecommended = document.isRecommended(recommendedDocuments)
         recommendedIcon.visibility = if(isRecommended) View.VISIBLE else View.INVISIBLE
+        lockedIcon.visibility = if(document.isEnciphered) View.VISIBLE else View.INVISIBLE
+        lockedIcon.setImageResource(if(document.isLocked) R.drawable.ic_baseline_lock_24 else  R.drawable.ic_baseline_lock_open_24)
+        lockedIcon.setColorFilter(if(document.isLocked) Color.rgb(255, 0, 0) else Color.rgb(0, 255, 0))
         recommendedString.visibility = if(isRecommended) View.VISIBLE else View.GONE
         documentLanguage.text = document.language.name
         documentSource.text = document.getProperty(DownloadManager.REPOSITORY_KEY)

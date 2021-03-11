@@ -385,7 +385,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val verFull = CommonUtils.applicationVersionName
         val ver = verFull.split("#")[0]
 
-        if(!ver.endsWith("-beta")) {
+        if(!CommonUtils.isBeta) {
             it.resume(false)
             return@suspendCoroutine
         }

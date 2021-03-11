@@ -19,15 +19,16 @@
 package net.bible.android.control.document
 
 import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.versification.toV11n
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
@@ -89,9 +90,8 @@ class DocumentControl @Inject constructor(
 
     val commentariesForVerse: List<Book>
         get () {
-            val myNotesDoc = currentPage.currentMyNotePage.currentDocument
             val docs = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).sortedBy { commentaryFilter.test(it) }.toMutableList()
-            docs.add(myNotesDoc)
+            docs.addAll(FakeBookFactory.pseudoDocuments.filter { it.bookCategory == BookCategory.COMMENTARY })
             return docs
         }
 
@@ -160,6 +160,7 @@ class DocumentControl @Inject constructor(
     @Throws(BookException::class)
     fun deleteDocument(document: Book) {
         swordDocumentFacade.deleteDocument(document)
+        if(document.bookCategory == BookCategory.AND_BIBLE) return
         documentBackupDao.deleteByOsisId(document.osisID)
         val currentPage = activeWindowPageManagerProvider.activeWindowPageManager.getBookPage(document)
         currentPage?.checkCurrentDocumentStillInstalled()

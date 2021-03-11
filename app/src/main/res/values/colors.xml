@@ -123,4 +123,5 @@
 	<color name="links_button_icon_color">#7088FF</color>
 
 	<color name="navigation_bar">@color/white</color>
+    <color name="red">#ff0000</color>
 </resources>

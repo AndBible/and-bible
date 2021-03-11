@@ -20,9 +20,10 @@ package net.bible.android.control.page
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
+import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.LABEL_UNLABELED_ID
-import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
 import net.bible.service.common.displayName
 import org.crosswire.jsword.book.Book
@@ -86,14 +87,14 @@ class ErrorDocument(private val errorMessage: String?): Document {
 }
 
 open class OsisDocument(
-    val osisFragments: List<OsisFragment>,
+    val osisFragment: OsisFragment,
     val book: Book,
     val key: Key,
 ): Document {
     override val asHashMap: Map<String, String> get () = mapOf(
         "id" to wrapString("${book.initials}-${key.uniqueId}"),
         "type" to wrapString("osis"),
-        "osisFragments" to listToJson(osisFragments.map { mapToJson(it.toHashMap) }),
+        "osisFragment" to mapToJson(osisFragment.toHashMap),
         "bookInitials" to wrapString(book.initials),
         "bookAbbreviation" to wrapString(book.abbreviation),
         "bookName" to wrapString(book.name),
@@ -104,10 +105,10 @@ open class OsisDocument(
 class BibleDocument(
     val bookmarks: List<BookmarkEntities.Bookmark>,
     val verseRange: VerseRange,
-    osisFragments: List<OsisFragment>,
+    osisFragment: OsisFragment,
     val swordBook: SwordBook,
     val originalKey: Key?,
-): OsisDocument(osisFragments, swordBook, verseRange), DocumentWithBookmarks {
+): OsisDocument(osisFragment, swordBook, verseRange), DocumentWithBookmarks {
     override val asHashMap: Map<String, String> get () {
         val bookmarks = bookmarks.map { ClientBookmark(it, swordBook.versification) }
         val vrInV11n = verseRange.toV11n(swordBook.versification)
@@ -140,7 +141,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
 {
     override val asHashMap: Map<String, Any>
         get() {
-            val bookmarks = bookmarks.map { ClientBookmark(it, verseRange.versification) }
+            val bookmarks = bookmarks.map { ClientBookmark(it, KJVA) }
             return mapOf(
                 "id" to wrapString(verseRange.uniqueId),
                 "type" to wrapString("notes"),
@@ -176,7 +177,7 @@ class OsisFragment(
     val key: Key,
     private val book: Book
 ) {
-    private val keyStr: String get () = "${book.initials}--${key.uniqueId ?: "error-${randomUUID()}"} }"
+    private val keyStr: String get () = "${book.initials}--${key.uniqueId}"
     val features: Map<String, String> get () {
         val type = when {
             book.hasFeature(FeatureType.HEBREW_DEFINITIONS) -> "hebrew"
@@ -201,7 +202,9 @@ class OsisFragment(
             "bookInitials" to wrapString(book.initials),
             "osisRef" to wrapString(key.osisRef),
             "features" to json.encodeToString(serializer(), features),
-            "ordinalRange" to ordinalRangeStr
+            "ordinalRange" to ordinalRangeStr,
+            "language" to wrapString(book.language.code),
+            "direction" to wrapString(if(book.isLeftToRight) "ltr" else "rtl"),
         )
     }
 }

@@ -23,6 +23,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import net.bible.android.common.toV11n
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
@@ -75,7 +76,7 @@ interface BookmarkDao {
         """)
     fun bookmarksForKjvOrdinalRange(rangeStart: Int, rangeEnd: Int): List<Bookmark>
     fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> {
-        val v = converter.convert(verseRange, KJVA)
+        val v = verseRange.toV11n(KJVA)
         return bookmarksForKjvOrdinalRange(v.start.ordinal, v.end.ordinal)
     }
     fun bookmarksInBook(book: BibleBook): List<Bookmark> = bookmarksForVerseRange(KJVA.allVerses)
@@ -83,16 +84,16 @@ interface BookmarkDao {
     @Query("SELECT * from Bookmark where kjvOrdinalStart <= :verseId AND :verseId <= kjvOrdinalEnd")
     fun bookmarksForKjvOrdinal(verseId: Int): List<Bookmark>
     fun bookmarksForVerse(verse: Verse): List<Bookmark> =
-        bookmarksForKjvOrdinal(converter.convert(verse, KJVA).ordinal)
+        bookmarksForKjvOrdinal(verse.toV11n(KJVA).ordinal)
 
     @Query("""SELECT * from Bookmark where kjvOrdinalStart = :start""")
     fun bookmarksForKjvOrdinalStart(start: Int): List<Bookmark>
     fun bookmarksStartingAtVerse(verse: Verse): List<Bookmark> =
-        bookmarksForKjvOrdinalStart(converter.convert(verse, KJVA).ordinal)
+        bookmarksForKjvOrdinalStart(verse.toV11n(KJVA).ordinal)
 
     @Query("SELECT count(*) > 0 from Bookmark where kjvOrdinalStart <= :verseOrdinal AND :verseOrdinal <= kjvOrdinalEnd LIMIT 1")
     fun hasBookmarksForVerse(verseOrdinal: Int): Boolean
-    fun hasBookmarksForVerse(verse: Verse): Boolean = hasBookmarksForVerse(converter.convert(verse, KJVA).ordinal)
+    fun hasBookmarksForVerse(verse: Verse): Boolean = hasBookmarksForVerse(verse.toV11n(KJVA).ordinal)
 
     @Query("""
         SELECT Bookmark.* FROM Bookmark 
@@ -102,7 +103,7 @@ interface BookmarkDao {
         """)
     fun bookmarksForVerseStartWithLabel(labelId: Long, startOrdinal: Int): List<Bookmark>
     fun bookmarksForVerseStartWithLabel(verse: Verse, label: Label): List<Bookmark> =
-        bookmarksForVerseStartWithLabel(label.id, converter.convert(verse, KJVA).ordinal)
+        bookmarksForVerseStartWithLabel(label.id, verse.toV11n(KJVA).ordinal)
 
     @Insert fun insert(entity: Bookmark): Long
 

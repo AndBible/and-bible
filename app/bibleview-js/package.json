@@ -20,7 +20,6 @@
     "core-js": "~3.6.5",
     "lodash": "~4.17.20",
     "mitt": "^2.1.0",
-    "pell": "^1.0.6",
     "sprintf-js": "~1.1.2",
     "vue": "^3.0.5",
     "vuedraggable": "^4.0.1"
@@ -38,12 +37,13 @@
     "eslint": "~6.7.2",
     "eslint-plugin-vue": "~7.1.0-0",
     "json-loader": "^0.5.7",
-    "npm": "^7.5.4",
+    "npm": "^7.6.0",
     "sass": "~1.29.0",
     "sass-loader": "^10.1.1",
     "stylus": "~0.54.8",
     "stylus-loader": "^4.3.3",
     "typescript": "^3.9.9",
+    "vue-cli-plugin-webpack-bundle-analyzer": "^4.0.0",
     "vue-cli-plugin-yaml-loader": "~1.0.0",
     "vue-jest": "^5.0.0-alpha.8",
     "yaml-loader": "^0.6.0"

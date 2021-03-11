@@ -19,11 +19,12 @@ import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
 import {useConfig} from "@/composables";
 import {ref} from "@vue/reactivity";
 
+window.bibleViewDebug = {}
+
 describe("useBookmark tests", () => {
     let gb, b;
     let startOrd, startOff, endOrd, endOff;
     beforeEach(() => {
-        window.bibleViewDebug = {}
         const {config} = useConfig();
         gb = useGlobalBookmarks(config);
         const fragmentReady = ref(true);

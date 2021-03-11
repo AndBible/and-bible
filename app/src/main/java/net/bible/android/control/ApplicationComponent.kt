@@ -20,7 +20,6 @@ package net.bible.android.control
 import dagger.Component
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.comparetranslations.CompareTranslationsControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.footnoteandref.FootnoteAndRefControl
@@ -81,7 +80,6 @@ interface ApplicationComponent {
     fun readingPlanControl(): ReadingPlanControl
     fun readingPlanRepo(): ReadingPlanRepository
     fun searchControl(): SearchControl
-    fun compareTranslationsControl(): CompareTranslationsControl
     fun footnoteAndRefControl(): FootnoteAndRefControl
 
     fun speakControl(): SpeakControl

@@ -54,6 +54,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
@@ -74,6 +75,7 @@ import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
+import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
@@ -82,8 +84,8 @@ import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
-import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
@@ -93,7 +95,10 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
+import net.bible.service.common.AndBibleAddons
+import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
@@ -167,7 +172,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     class BibleViewTouched(val onlyTouch: Boolean = false)
 
     init {
-        if (0 != BibleApplication.application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
+        if ((0 != BibleApplication.application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) || CommonUtils.isBeta) {
             setWebContentsDebuggingEnabled(true)
         }
         gestureDetector = GestureDetectorCompat(context, gestureListener)
@@ -195,6 +200,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 }
                 return true;
             }
+            R.id.compare -> {
+                compareSelection()
+                mode.finish()
+                return true
+            }
             else -> false
         }
     }
@@ -214,6 +224,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
         val initialLabels = displaySettings.bookmarks!!.assignLabels!!.toList()
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
+    }
+
+    private fun compareSelection() {
+        val selection = currentSelection?: return
+        Log.d(TAG, "makeBookmark")
+        val book = Books.installed().getBook(selection.bookInitials)
+        if(book !is SwordBook) {
+            return
+        }
+
+        val v11n = book.versification
+        val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
+        linkControl.openCompare(verseRange)
     }
 
     internal fun assignLabels(bookmarkId: Long) = GlobalScope.launch(Dispatchers.IO) {
@@ -250,9 +273,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             // For some reason, these do not seem to be correct from XML, even though specified there
             menu.findItem(R.id.add_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.remove_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             if(currentSelection == null) {
-                val item = menu.findItem(R.id.add_bookmark)
-                item.isVisible = false
+                menu.findItem(R.id.add_bookmark).isVisible = false
+                menu.findItem(R.id.compare).isVisible = false
             }
             if ((currentSelection?.bookmarks ?: emptyList()).isEmpty()) {
                 val item = menu.findItem(R.id.remove_bookmark)
@@ -415,7 +439,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val lang = Locale.getDefault().toLanguageTag()
 
-        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html?lang=$lang")
+        val fontModuleNames = AndBibleAddons.fontModuleNames.joinToString(",")
+        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html?lang=$lang&fontModuleNames=$fontModuleNames")
+    }
+
+     fun onEvent(e: ReloadAddonsEvent) {
+        val fontModuleNames = json.encodeToString(serializer(), AndBibleAddons.fontModuleNames)
+        executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames});")
     }
 
     override fun destroy() {
@@ -461,18 +491,71 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     class ModuleAssetHandler: WebViewAssetLoader.PathHandler {
         override fun handle(path: String): WebResourceResponse? {
-            val (bookName, resourcePath) = path.split("/", limit=2)
+            val parts = path.split("/", limit=2);
+            if(parts.size != 2) return null;
+            val (bookName, resourcePath) = parts
             val location = File(Books.installed().getBook(bookName).bookMetaData.location)
             val f = File(location, resourcePath)
             return if(f.isFile && f.exists()) {
                 WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
             } else null
         }
-
     }
+
+    class ModuleStylesAssetHandler: WebViewAssetLoader.PathHandler {
+        override fun handle(path: String): WebResourceResponse? {
+            val parts = path.split("/", limit=2);
+            if(parts.size != 2) return null;
+            val (bookName, resourcePath) = parts
+            val book = Books.installed().getBook(bookName) ?: return null
+            val styleFile = book.bookMetaData.getProperty("AndBibleCSS") ?: return null
+
+            val location = File(book.bookMetaData.location)
+            var f = File(location, styleFile)
+            if(resourcePath != "style.css") {
+                f = File(f.parent, resourcePath)
+            }
+
+            return if (f.isFile && f.exists()) {
+                WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
+            } else null
+        }
+    }
+
+    class FontsAssetHandler: WebViewAssetLoader.PathHandler {
+        override fun handle(path: String): WebResourceResponse? {
+            val parts = path.split("/", limit=2);
+            if(parts.size != 2) return null;
+            val (bookName, resourcePath) = parts
+            val book = Books.installed().getBook(bookName) ?: return null
+            if(resourcePath == "fonts.css") {
+                val fontCss = StringBuilder()
+                val fonts = fontsByModule[book.initials] ?: return null
+                for(font in fonts) {
+                    fontCss.append("""@font-face {
+                        |font-family: '${font.name}';
+                        |src: url('${font.path}') format('truetype');
+                        |}
+                        |""".trimMargin())
+                }
+                return WebResourceResponse("text/css", null, fontCss.toString().byteInputStream())
+            }
+            else {
+                val location = File(book.bookMetaData.location)
+                val f = File(location, resourcePath)
+                return if (f.isFile && f.exists()) {
+                    WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
+                } else null
+            }
+        }
+    }
+
+
     val assetLoader = WebViewAssetLoader.Builder()
         .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
         .addPathHandler("/module/", ModuleAssetHandler())
+        .addPathHandler("/fonts/", FontsAssetHandler())
+        .addPathHandler("/module-style/", ModuleStylesAssetHandler())
         .build()
 
 
@@ -626,7 +709,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val oldFontSize = settings.defaultFontSize
         val fontFamily = window.pageManager.actualTextDisplaySettings.font!!.fontFamily!!
         settings.defaultFontSize = fontSize
-        settings.standardFontFamily = fontFamily
+        if(!htmlLoadingOngoing) {
+            executeJavascriptOnUiThread("bibleView.emit('set_font_family', '$fontFamily');")
+        } else {
+            settings.standardFontFamily = fontFamily
+        }
         if(oldFontSize != fontSize) {
             doCheckWindows()
         }
@@ -895,7 +982,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(document !is DocumentWithBookmarks) return
 
         val clientBookmark = ClientBookmark(event.bookmark,
-            if(document is BibleDocument) document.swordBook.versification else null
+            when(document) {
+                is BibleDocument -> document.swordBook.versification
+                is MyNotesDocument -> KJVA
+                else -> null
+            }
         )
         val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
         executeJavascriptOnUiThread("""
@@ -1058,7 +1149,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.d(TAG, "Scroll or jump to:$verse")
         var toVerse = verse;
         val v = initialVerse
-        if(v != null) {
+        if(firstDocument is MyNotesDocument) {
+            toVerse = verse.toV11n(KJVA)
+        } else if(v != null) {
             toVerse = verse.toV11n(v.versification)
         }
         val jumpToId = "v-${toVerse.ordinal}"
@@ -1126,7 +1219,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun hasChapterLoaded(chapter: Int) = chapter in minChapter..maxChapter
 
     fun setClientReady() {
-        htmlLoadingOngoing = false;
+        htmlLoadingOngoing = false
         if(latestDocumentStr != null && needsDocument) {
             replaceDocument()
         }

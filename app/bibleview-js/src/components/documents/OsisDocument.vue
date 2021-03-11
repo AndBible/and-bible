@@ -16,10 +16,9 @@
   -->
 
 <template>
-    <template v-for="(fragment,idx) in osisFragments" :key="fragment.key">
-      <OsisFragment :fragment="fragment" :show-transition="document.showTransition"/>
-      <div v-if="osisFragments.length > 1 && idx < osisFragments.length" class="divider" />
-    </template>
+  <div>
+    <OsisFragment :fragment="osisFragment" :show-transition="document.showTransition"/>
+  </div>
 </template>
 
 <script>
@@ -33,8 +32,8 @@ export default {
   },
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
-    const {id, type, osisFragments, bookInitials, bookName, key} = props.document;
-    return {osisFragments};
+    const {osisFragment} = props.document;
+    return {osisFragment};
   }
 }
 </script>

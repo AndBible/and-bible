@@ -15,7 +15,16 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {getCurrentInstance, inject, nextTick, reactive, ref, watch} from "@vue/runtime-core";
+import {
+    getCurrentInstance,
+    inject,
+    nextTick,
+    onBeforeMount,
+    onUnmounted,
+    reactive,
+    ref,
+    watch
+} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
 import {Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
@@ -121,7 +130,6 @@ export function useConfig() {
             showAll: true,
             showLabels: []
         },
-        maxWidth: 170,
         textColor: "black",
         hyphenation: true,
         noiseOpacity: 50,
@@ -130,7 +138,7 @@ export function useConfig() {
         marginSize: {
             marginLeft: 0,
             marginRight: 0,
-            marginWidth: 170,
+            maxWidth: 300,
         },
 
         topOffset: 100,
@@ -142,9 +150,7 @@ export function useConfig() {
         testMode,
     })
 
-    if(developmentMode) {
-        window.bibleViewDebug.config = config;
-    }
+    window.bibleViewDebug.config = config;
 
     setupEventBusListener(Events.SET_CONFIG, async ({config: c, initial = false, nightMode = false} = {}) => {
         const defer = new Deferred();
@@ -212,7 +218,7 @@ export function useCommon() {
             : subString) + "...";
     }
 
-    return {config, strings, sprintf, split, adjustedColor, formatTimestamp, abbreviated}
+    return {config, strings, sprintf, split, adjustedColor, formatTimestamp, abbreviated, emit, Events}
 }
 
 export function useFontAwesome() {
@@ -283,7 +289,10 @@ export function useReferenceCollector() {
     function collect(linkRef) {
         references.push(linkRef);
     }
-    return {references, collect}
+    function clear() {
+        references.splice(0);
+    }
+    return {references, collect, clear}
 }
 
 export function useVerseMap() {
@@ -300,4 +309,73 @@ export function useVerseMap() {
         return verses.get(ordinal) || []
     }
     return {register, getVerses}
+}
+
+export function useCustomCss() {
+    const cssNodes = new Map();
+    const count = new Map();
+    function addCss(bookInitials) {
+        const c = count.get(bookInitials) || 0;
+        if (!c) {
+            const link = document.createElement("link");
+            link.href = `/module-style/${bookInitials}/style.css`;
+            link.type = "text/css";
+            link.rel = "stylesheet";
+            cssNodes.set(bookInitials, link);
+            document.getElementsByTagName("head")[0].appendChild(link);
+        }
+        count.set(bookInitials, c + 1);
+    }
+
+    function removeCss(bookInitials) {
+        const c = count.get(bookInitials);
+        if(c > 1) {
+            count.set(bookInitials, c-1);
+        } else {
+            count.delete(bookInitials);
+            cssNodes.get(bookInitials).remove();
+            cssNodes.delete(bookInitials);
+        }
+    }
+
+    function registerBook(bookInitials) {
+        onBeforeMount(() => {
+            addCss(bookInitials);
+        });
+
+        onUnmounted(() => {
+            removeCss(bookInitials);
+        });
+    }
+
+    return {registerBook}
+}
+
+export function useAddonFonts() {
+    const elements = [];
+
+    setupEventBusListener(Events.RELOAD_ADDONS, ({fontModuleNames}) => {
+        reloadFonts(fontModuleNames)
+    })
+
+    function reloadFonts(fontModuleNames) {
+        for(const e of elements) {
+            e.remove();
+        }
+        elements.splice(0);
+        for (const modName of fontModuleNames) {
+            const link = document.createElement("link");
+            link.href = `/fonts/${modName}/fonts.css`;
+            link.type = "text/css";
+            link.rel = "stylesheet";
+            document.getElementsByTagName("head")[0].appendChild(link)
+            elements.push(link);
+        }
+    }
+
+    onBeforeMount(() => {
+        const fontModuleNames = new URLSearchParams(window.location.search).get("fontModuleNames");
+        if (!fontModuleNames) return
+        reloadFonts(fontModuleNames.split(","));
+    })
 }

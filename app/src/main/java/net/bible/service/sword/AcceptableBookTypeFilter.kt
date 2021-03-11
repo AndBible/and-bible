@@ -17,6 +17,7 @@
  */
 package net.bible.service.sword
 
+import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookFilter
@@ -34,10 +35,20 @@ open class AcceptableBookTypeFilter : BookFilter {
      */
     override fun test(book: Book): Boolean {
         val bookCategory = book.bookCategory
-        return if (book.isLocked) {
-            false
-        } else {
-            bookCategory == BookCategory.BIBLE || bookCategory == BookCategory.COMMENTARY || bookCategory == BookCategory.DICTIONARY || bookCategory == BookCategory.GENERAL_BOOK || bookCategory == BookCategory.MAPS
-        }
+        return bookCategory == BookCategory.BIBLE || bookCategory == BookCategory.COMMENTARY || bookCategory == BookCategory.DICTIONARY || bookCategory == BookCategory.GENERAL_BOOK || bookCategory == BookCategory.MAPS || bookCategory == BookCategory.AND_BIBLE
+    }
+}
+
+class AndBibleAddonFilter : BookFilter {
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.crosswire.jsword.book.BookFilter#test(org.crosswire.jsword.book
+     * .Book)
+     */
+    override fun test(book: Book): Boolean {
+        return book.bookCategory == BookCategory.AND_BIBLE &&
+            (book.bookMetaData.getProperty("AndBibleMinimumVersion") ?: "0").toLong() <= CommonUtils.applicationVersionNumber
     }
 }

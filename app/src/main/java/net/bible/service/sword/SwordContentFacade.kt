@@ -20,9 +20,9 @@ package net.bible.service.sword
 import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -151,11 +151,11 @@ open class SwordContentFacade @Inject constructor(
      * a reference, appropriate for the book, of one or more entries
      */
     @Throws(NoSuchKeyException::class, BookException::class, ParseException::class)
-    open fun getCanonicalText(book: Book?, key: Key?): String {
+    open fun getCanonicalText(book: Book?, key: Key?, compatibleOffsets: Boolean = false): String {
         return try {
             val data = BookData(book, key)
             val osissep = data.saxEventProvider
-            val osisHandler: ContentHandler = OsisToCanonicalTextSaxHandler()
+            val osisHandler: ContentHandler = OsisToCanonicalTextSaxHandler(compatibleOffsets)
             osissep.provideSAXEvents(osisHandler)
             osisHandler.toString()
         } catch (e: Exception) {

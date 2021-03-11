@@ -31,7 +31,7 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-open class OsisToCanonicalTextSaxHandler: OsisSaxHandler() {
+open class OsisToCanonicalTextSaxHandler(val compatibleOffsets: Boolean = false): OsisSaxHandler() {
     private var currentVerseNo = 0
     protected var writeContentStack = Stack<CONTENT_STATE>()
 
@@ -66,6 +66,7 @@ open class OsisToCanonicalTextSaxHandler: OsisSaxHandler() {
      * Encountered while parsing the Current XML File. The AttributeList Parameter has
      * the list of all Attributes declared for the Current Element in the XML File.
     */
+    var insideVerse = false;
     override fun startElement(namespaceURI: String?,
                           sName: String?,  // simple name
                           qName: String,  // qualified name
@@ -74,13 +75,15 @@ open class OsisToCanonicalTextSaxHandler: OsisSaxHandler() {
         debug(name, attrs, true)
 
         // if encountering either a verse tag or if the current tag is marked as being canonical then turn on writing
-        if (isAttrValue(attrs, "canonical", "true")) {
+        if (!compatibleOffsets && isAttrValue(attrs, "canonical", "true")) {
             writeContentStack.push(CONTENT_STATE.WRITE)
         } else if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
             if (attrs != null) {
                 currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
             }
             writeContentStack.push(CONTENT_STATE.WRITE)
+            insideVerse = true
+            spaceJustWritten = true
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
             writeContentStack.push(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
@@ -91,12 +94,16 @@ open class OsisToCanonicalTextSaxHandler: OsisSaxHandler() {
         } else if (name == OSISUtil.OSIS_ELEMENT_L || name == OSISUtil.OSIS_ELEMENT_LB || name == OSISUtil.OSIS_ELEMENT_P) {
             // these occur in Psalms to separate different paragraphs.  
             // A space is needed for TTS not to be confused by punctuation with a missing space like 'toward us,and the'
-            write(" ")
+            if(!compatibleOffsets) write(" ")
             //if writing then continue.  Also if ignoring then continue
             writeContentStack.push(writeContentStack.peek())
         } else {
             // unknown tags rely on parent tag to determine if content is canonical e.g. the italic tag in the middle of canonical text
             writeContentStack.push(writeContentStack.peek())
+        }
+
+        if(name !== OSISUtil.OSIS_ELEMENT_VERSE && insideVerse && compatibleOffsets) {
+            spaceJustWritten = false
         }
     }
 
@@ -114,10 +121,15 @@ open class OsisToCanonicalTextSaxHandler: OsisSaxHandler() {
             // A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other
             // which looks bad and confuses TTS
             write(" ")
+            if(compatibleOffsets)
+                insideVerse = false
         }
 
         // now this tag has ended pop the write/ignore state for the parent tag
         writeContentStack.pop()
+        if(insideVerse && compatibleOffsets) {
+            spaceJustWritten = false
+        }
     }
 
     /*

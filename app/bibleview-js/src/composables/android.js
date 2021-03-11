@@ -17,7 +17,7 @@
 import {emit} from "@/eventbus";
 import {Deferred, rangeInside, setupDocumentEventListener, sleep, stubsFor} from "@/utils";
 import {onMounted} from "@vue/runtime-core";
-import {calculateOffsetToVerse} from "@/dom";
+import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
 import {reactive} from "@vue/reactivity";
 import {JournalEntryTypes} from "@/constants";
@@ -107,11 +107,22 @@ export function useAndroid({bookmarks}, config) {
         if(!documentElem) return null
 
         const bookInitials = documentElem.dataset.bookInitials;
+        let startOrdinal, startOffset, endOrdinal, endOffset;
 
-        const {ordinal: startOrdinal, offset: startOffset} =
-            calculateOffsetToVerse(range.startContainer, range.startOffset, true);
-        const {ordinal: endOrdinal, offset: endOffset} =
-            calculateOffsetToVerse(range.endContainer, range.endOffset);
+        try {
+            ({ordinal: startOrdinal, offset: startOffset} =
+                calculateOffsetToVerse(range.startContainer, range.startOffset));
+
+            ({ordinal: endOrdinal, offset: endOffset} =
+                calculateOffsetToVerse(range.endContainer, range.endOffset));
+
+        } catch (e) {
+            if(e instanceof ReachedRootError) {
+                return null;
+            } else {
+                throw e;
+            }
+        }
 
         function bookmarkRange(b) {
             const offsetRange = b.offsetRange || [0, null]
@@ -128,9 +139,7 @@ export function useAndroid({bookmarks}, config) {
 
         const deleteBookmarks = union(filteredBookmarks.map(b => b.id));
 
-        const result = {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks: deleteBookmarks};
-        console.log("querySelection", result);
-        return result;
+        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks: deleteBookmarks};
     }
 
     window.bibleView.response = response;

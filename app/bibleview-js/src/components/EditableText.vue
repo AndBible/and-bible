@@ -25,7 +25,9 @@
         <div v-html="editText"/>
       </div>
       <div class="placeholder" v-else-if="showPlaceholder" @click="handleClicks">
-        {{ strings.editTextPlaceholder }}
+        <slot>
+          {{ strings.editTextPlaceholder }}
+        </slot>
       </div>
     </template>
   </div>
@@ -90,17 +92,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '~pell/src/pell.scss';
+@import '~@/lib/pell/pell.scss';
 @import "~@/common.scss";
 .notes-display {
   width: calc(100% - 22pt);
-  padding: $pell-content-padding;
+  padding: $pell-content-padding $pell-content-padding 2pt;
   &.constraintDisplayHeight {
     @extend .visible-scrollbar;
     overflow-y: auto;
     max-height: calc(var(--max-height) - 17px);
   }
 }
+
 .placeholder {
   opacity: 0.5;
 }
@@ -127,10 +130,16 @@ export default {
   position: relative;
 }
 </style>
-<style>
-.editable-text ul {
+<style lang="scss">
+.editable-text ul,ol,blockquote {
   margin-top: 5pt;
   margin-bottom: 5pt;
-  padding-left: 15pt;
+  margin-left: 0!important;
+  padding-left: 15pt!important;
+
+  & ul,ol {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
 }
 </style>

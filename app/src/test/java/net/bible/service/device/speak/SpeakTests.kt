@@ -218,7 +218,7 @@ open class AbstractSpeakTests {
     @Before
     open fun setup() {
         ShadowLog.stream = System.out
-        Mockito.`when`(mockedSwordContentFacade.getCanonicalText(Mockito.any(), Mockito.any())).thenReturn("test")
+        Mockito.`when`(mockedSwordContentFacade.getCanonicalText(Mockito.any(), Mockito.any(), Mockito.anyBoolean())).thenReturn("test")
         book = Books.installed().getBook("FinRK") as SwordBook
     }
 

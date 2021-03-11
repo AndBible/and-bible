@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <h3 :class="{isSubTitle, titleStyle: true}" v-show="show"><slot/></h3>
+  <h3 class="titleStyle" :class="{'skip-offset': !isCanonical, isSubTitle}" v-show="show"><slot/></h3>
 </template>
 
 <script>
@@ -41,8 +41,8 @@ export default {
     isSubTitle: ({type}) => type === "sub",
   },
   setup(props) {
-    checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter"]);
-    checkUnsupportedProps(props, "subType", ["x-Chapter"]);
+    checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
+    checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
     checkUnsupportedProps(props, "canonical", ["true", "false"]);
     return useCommon();
   },

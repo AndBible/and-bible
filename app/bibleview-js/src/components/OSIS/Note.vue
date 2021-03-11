@@ -15,17 +15,29 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
+  <AmbiguousSelection ref="ambiguousSelection"/>
   <Modal @close="showNote = false" v-if="showNote">
-    <slot/>
-    <OpenAllLink/>
+    <div @click="ambiguousSelection.handle">
+      <slot/>
+      <OpenAllLink/>
+    </div>
     <template #title>
-      {{isFootNote ? sprintf(strings.noteText, typeStr) : strings.crossReferenceText }}
+      <template v-if="isFootNote">
+        {{ sprintf(strings.noteText, typeStr) }}
+
+      </template>
+      <template v-else-if="isCrossReference">
+        {{ strings.crossReferenceText }}
+      </template>
+      <template v-else>
+        {{ strings.otherNoteText }}
+      </template>
     </template>
   </Modal>
   <span
-      v-if="(config.showCrossReferences && isCrossReference) || (config.showFootNotes && isFootNote)"
+      v-if="(config.showCrossReferences && isCrossReference) || (config.showFootNotes && isFootNote) || isOther"
       class="skip-offset">
-    <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="noteClicked">
+    <span :class="{noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
       {{handle}}
     </span>
   </span>
@@ -38,6 +50,7 @@ import {get} from "lodash";
 import {ref, provide} from "@vue/runtime-core";
 import {addEventFunction} from "@/utils";
 import OpenAllLink from "@/components/OpenAllLink";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 
 let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
@@ -48,7 +61,7 @@ function runningHandle() {
 
 export default {
   name: "Note",
-  components: {OpenAllLink, Modal},
+  components: {AmbiguousSelection, OpenAllLink, Modal},
   noContentTag: true,
   props: {
     osisID: {type: String, default: null},
@@ -61,22 +74,27 @@ export default {
   },
   computed: {
     handle: ({n}) => n || runningHandle(),
-    isFootNote: ({type}) => ["explanation", "translation", "study", "variant", "alternative"].includes(type),
+    isFootNote: ({type}) => ["explanation", "translation", "study", "variant", "alternative", "x-editor-correction"].includes(type),
     typeStr: ({type, typeStrings, strings}) => get(typeStrings, type, strings.footnoteTypeUndefined),
-    isCrossReference: ({type}) => type === "crossReference"
+    isCrossReference: ({type}) => type === "crossReference",
+    isOther: ({isCrossReference, isFootNote}) => !isCrossReference && !isFootNote
   },
   setup(props) {
+    const ambiguousSelection = ref(null);
     checkUnsupportedProps(props, "resp");
     checkUnsupportedProps(props, "placement", ['foot']);
     checkUnsupportedProps(props, "type",
-        ["explanation", "translation", "crossReference", "variant", "alternative", "study"]);
+        ["explanation", "translation", "crossReference", "variant", "alternative", "study", "x-editor-correction"]);
     checkUnsupportedProps(props, "subType",
         ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
     const {strings, ...common} = useCommon();
     const showNote = ref(false);
     function noteClicked(event) {
       addEventFunction(event,
-          () => {showNote.value = !showNote.value},
+          () => {
+            referenceCollector.clear();
+            showNote.value = true;
+          },
           {title: strings.openFootnote, priority: 10});
     }
     const typeStrings = {
@@ -90,7 +108,7 @@ export default {
     const referenceCollector = useReferenceCollector();
     provide("referenceCollector", referenceCollector);
 
-    return {strings, typeStrings, showNote, noteClicked, ...common};
+    return {strings, typeStrings, showNote, noteClicked, ambiguousSelection, ...common};
   },
 }
 </script>
@@ -114,5 +132,10 @@ export default {
 .isFootNote {
   @extend .note-handle-base;
   color: #b63afd;
+}
+
+.isOther {
+  @extend .note-handle-base;
+  color: #209546;
 }
 </style>

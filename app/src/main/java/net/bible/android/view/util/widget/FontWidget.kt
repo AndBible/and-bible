@@ -33,41 +33,61 @@ import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.text_size_widget.view.*
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.common.AndBibleAddons
+import net.bible.service.common.ProvidedFont
+import java.util.*
 
+class FontDefinition(val providedFont: ProvidedFont? = null, val fontFamily: String? = null){
+    val realFontFamily: String get() = fontFamily?: providedFont!!.name
+    val name: String get() = fontFamily?.replace("-", " ")?.capitalize(Locale.getDefault()) ?: providedFont!!.name
 
-val availableFonts = arrayOf(
-    "sans-serif-thin",
-    "sans-serif-light",
-    "sans-serif",
-    "sans-serif-medium",
-    "sans-serif-black",
-    "sans-serif-condensed-light",
-    "sans-serif-condensed",
-    "sans-serif-condensed-medium",
-    "sans-serif-condensed",
-    "serif",
-    "monospace",
-    "serif-monospace",
-    "casual",
-    "cursive",
-    "sans-serif-smallcaps"
-)
+    override fun toString(): String {
+        return name
+    }
+}
 
+val availableFonts:Array<FontDefinition> get() {
+    val standard = arrayOf (
+        "sans-serif-thin",
+        "sans-serif-light",
+        "sans-serif",
+        "sans-serif-medium",
+        "sans-serif-black",
+        "sans-serif-condensed-light",
+        "sans-serif-condensed",
+        "sans-serif-condensed-medium",
+        "sans-serif-condensed",
+        "serif",
+        "monospace",
+        "serif-monospace",
+        "casual",
+        "cursive",
+        "sans-serif-smallcaps"
+    )
+    return AndBibleAddons.providedFonts.values.map { FontDefinition(providedFont = it) }.toTypedArray() + standard.map { FontDefinition(fontFamily = it) }
+}
 
-class FontAdapter(context: Context, resource: Int, private val fontTypes: Array<String>) :
-    ArrayAdapter<String>(context, resource, fontTypes) {
+fun getTypeFace(fontDefinition: FontDefinition): Typeface {
+    return when {
+        fontDefinition.fontFamily != null -> Typeface.create(fontDefinition.fontFamily, Typeface.NORMAL)
+        fontDefinition.providedFont != null -> Typeface.createFromFile(fontDefinition.providedFont.file)
+        else -> throw RuntimeException("Illegal value")
+    }
+}
+
+class FontAdapter(context: Context, resource: Int, private val fontTypes: Array<FontDefinition>) :
+    ArrayAdapter<FontDefinition>(context, resource, fontTypes) {
+
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent) as TextView
-        val tf = Typeface.create(fontTypes[position], Typeface.NORMAL)
-        view.typeface = tf
+        view.typeface = getTypeFace(fontTypes[position])
         return view
     }
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getDropDownView(position, convertView, parent) as TextView
-        val tf = Typeface.create(fontTypes[position], Typeface.NORMAL)
-        view.typeface = tf
+        view.typeface = getTypeFace(fontTypes[position])
         return view
 
     }
@@ -90,7 +110,7 @@ class FontWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(co
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                value.fontFamily = availableFonts[position]
+                value.fontFamily = availableFonts[position].realFontFamily
                 updateValue()
             }
         }
@@ -110,15 +130,15 @@ class FontWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(co
     }
     
     fun updateValue() {
+        val availableFonts = availableFonts
         val fontSize = value.fontSize!!
         val fontFamilyVal = value.fontFamily!!
         dialogMessage.textSize = fontSize.toFloat()
         fontSizeValue.text = context.getString(R.string.font_size_pt, fontSize)
-        val tf = Typeface.create(fontFamilyVal, Typeface.NORMAL)
-        dialogMessage.typeface = tf
+        val fontDefinition = availableFonts.find { it.realFontFamily == fontFamilyVal }?:return
+        dialogMessage.typeface = getTypeFace(fontDefinition)
         fontSizeSlider.progress = fontSize
-        fontFamily.setSelection(availableFonts.indexOf(fontFamilyVal))
-
+        fontFamily.setSelection(availableFonts.indexOf(fontDefinition))
     }
     
     companion object {

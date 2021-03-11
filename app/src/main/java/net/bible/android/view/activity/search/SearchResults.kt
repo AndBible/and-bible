@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.list.*
@@ -78,13 +79,13 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
             withContext(Dispatchers.Main) {
                 mKeyArrayAdapter = SearchItemAdapter(this@SearchResults, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl)
-                listAdapter = mKeyArrayAdapter
+                listAdapter = mKeyArrayAdapter as ListAdapter
                 populateViewResultsAdapter()
             }
         }
         withContext(Dispatchers.Main) {
             loadingIndicator.visibility = View.GONE
-            if(listAdapter.isEmpty) {
+            if(listAdapter?.isEmpty == true) {
                 empty.visibility = View.VISIBLE
             }
         }

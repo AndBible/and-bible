@@ -16,8 +16,11 @@
   -->
 
 <template>
-  <div :id="`doc-${document.id}`" class="bible-document" :data-book-initials="bookInitials">
-    <OsisFragment :fragment="document.osisFragments[0]" :show-transition="document.showTransition"/>
+  <div :id="`doc-${document.id}`"
+       class="bible-document"
+       :data-book-initials="bookInitials"
+  >
+    <OsisFragment :fragment="document.osisFragment" :show-transition="document.showTransition"/>
   </div>
 </template>
 
@@ -36,7 +39,7 @@ export default {
   },
   setup(props) {
     // eslint-disable-next-line no-unused-vars,vue/no-setup-props-destructure
-    const {id, type, osisFragments, bookInitials, bookAbbreviation, bookName, key, bookmarks, ordinalRange, originalOrdinalRange} = props.document;
+    const {id, bookInitials, bookmarks, ordinalRange, originalOrdinalRange} = props.document;
 
     provide("bibleDocumentInfo", {ordinalRange, originalOrdinalRange})
 
@@ -45,9 +48,8 @@ export default {
 
     const config = inject("config");
     const common = useCommon();
-      // To remove verse 0 from ordinalRange (is always included)
-    const realOrdinalRange = ordinalRange ? [ordinalRange[0]+1, ordinalRange[1]]: null;
-    useBookmarks(id, realOrdinalRange, globalBookmarks, bookInitials, ref(true), common, config);
+
+    useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common, config);
 
     return {bookInitials, ...common}
   }

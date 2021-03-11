@@ -52,10 +52,10 @@ export default {
     watch(expanded, v => {
       if(v) {
         cancel()
-        eventBus.on(Events.BACK_CLICKED, close);
+        eventBus.on(Events.CLOSE_MODALS, close);
         cancel = close
       } else {
-        eventBus.off(Events.BACK_CLICKED, close);
+        eventBus.off(Events.CLOSE_MODALS, close);
         if(cancel === close) {
           cancel = () => {}
         }

@@ -20,12 +20,13 @@
     <EditableText
         v-if="!infoShown"
         constraint-display-height
-        :edit-directly="editDirectly"
         :text="bookmarkNotes || ''"
         @save="changeNote"
         show-placeholder
         max-editor-height="100pt"
-    />
+    >
+      {{ strings.editBookmarkPlaceholder }}
+    </EditableText>
     <div v-show="infoShown" class="info">
       <div class="bible-text">
         <BookmarkText expanded :bookmark="bookmark"/>
@@ -100,13 +101,11 @@ export default {
     const label = computed(() => labels.value[0]);
     const bookmarkNotes = ref(null);
     let originalNotes = null;
-    const editDirectly = ref(false);
 
     setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (bookmarkId_, {open = false} = {}) => {
       bookmarkId.value = bookmarkId_;
       bookmarkNotes.value = bookmark.value.notes;
       originalNotes = bookmark.value.notes;
-      editDirectly.value = open || !bookmark.value.notes;
       if(!showBookmark.value) infoShown.value = false;
       showBookmark.value = true;
     });
@@ -146,7 +145,7 @@ export default {
         `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`)
 
     return {
-      showBookmark, closeBookmark, areYouSure, infoShown, editDirectly, bookmarkNotes,
+      showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,
       removeBookmark,  assignLabels,  bookmark, labelColor, changeNote, labels, originalBookLink,
       strings, ...common
     };
@@ -168,7 +167,7 @@ export default {
   padding-top: 10pt;
   padding-bottom: 5pt;
 
-  font-size: smaller;
+  font-size: 50%;
 }
 .bible-text {
   text-indent: 5pt;

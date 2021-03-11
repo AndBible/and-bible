@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="503"
-    android:versionName="3.3.503">
+    android:versionCode="507"
+    android:versionName="3.3.507-alpha">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -109,11 +109,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/manage_labels"
             android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks" />
-        <activity
-            android:name="net.bible.android.view.activity.comparetranslations.CompareTranslations"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/compare_translations"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.mynote.MyNotes"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

@@ -49,6 +49,7 @@ import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.PassageKeyFactory
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import java.net.URLDecoder
 import java.util.regex.Pattern
@@ -77,6 +78,11 @@ class LinkControl @Inject constructor(
         }
         key.name = bookKeys.map { it.key.name }.joinToString(", ")
         showLink(FakeBookFactory.multiDocument, key)
+        return true
+    }
+
+    fun openCompare(verseRange: VerseRange): Boolean {
+        showLink(FakeBookFactory.compareDocument, verseRange)
         return true
     }
 

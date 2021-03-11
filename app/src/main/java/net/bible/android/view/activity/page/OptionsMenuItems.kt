@@ -319,10 +319,15 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         MarginSizeWidget.dialog(activity, value as WorkspaceEntities.MarginSize,
-            if(settings.windowId != null) {onReset} else null) {
-            value = it
-            onChanged?.invoke(it)
-        }
+            {
+                setNonSpecific()
+                onReset?.invoke()
+            },
+            {
+                value = it
+                onChanged?.invoke(it)
+            })
+
         return true
     }
 }

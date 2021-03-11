@@ -32,5 +32,10 @@
 			app:showAsAction="always"
 			android:icon="@drawable/ic_baseline_remove_24"
 			/>
+		<item android:id="@+id/compare"
+			android:title="@string/compare"
+			android:orderInCategory="2"
+			app:showAsAction="always"
+			/>
 	</group>
 </menu>

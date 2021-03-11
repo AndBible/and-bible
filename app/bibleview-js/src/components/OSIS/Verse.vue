@@ -16,15 +16,15 @@
   -->
 
 <template>
-  <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
     <span
         :id="`v-${ordinal}`"
-        class="verse bookmarkStyle"
-        :class="{linebreak: config.showVersePerLine}"
+        class="verse"
     >
-      <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
+      <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
+        <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
+      </span>
     </span>
-  </span>
+  <span :class="{linebreak: config.showVersePerLine}"/>
 </template>
 
 <script>
@@ -33,6 +33,7 @@ import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
 import {getVerseInfo, sleep} from "@/utils";
 import {computed} from "@vue/reactivity";
+import {fadeReferenceDelay} from "@/constants";
 
 export default {
   name: "Verse",
@@ -82,11 +83,11 @@ export default {
     function highlight() {
       timeout.value = false;
       highlighted.value = true;
-      sleep(3000).then(() => timeout.value = true)
+      sleep(fadeReferenceDelay).then(() => timeout.value = true)
     }
 
     if(isInOriginalOrdinalRange.value) {
-      sleep(3000).then(() => timeout.value = true)
+      sleep(fadeReferenceDelay).then(() => timeout.value = true)
     }
 
     const common = useCommon();
@@ -111,14 +112,11 @@ export default {
 }
 
 .highlight-transition {
+  border-radius: 5pt;
   transition: background-color 1s ease;
 }
 
 .isHighlighted {
   background-color: rgba(255, 230, 0, 0.4);
-}
-
-.bookmarkStyle {
-  border-radius: 0.2em;
 }
 </style>

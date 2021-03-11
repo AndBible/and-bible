@@ -207,11 +207,12 @@
     <string name="download">Download Documents</string>
     <string name="redownload">Redownload Documents</string>
     <string name="download_confirmation">Download a Bible from the Internet?</string>
-    <string name="download_source_message">Documents are downloaded from:\n https://crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
+    <string name="download_source_message">Documents are downloaded from:\n https://crosswire.org,\n https://ibtrussia.org,\n https://ebible.org,\n https://public.modules.stepbible.org and\n https://andbible.github.io</string>
     <string name="download_document_confirm_prefix">Download</string>
     <string name="download_refreshing_book_list">Refreshing list of available documents</string>
     <string name="download_refresh_book_list_menu_item">Refresh</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
+    <string name="error_downloading_status">Repository server gave error when downloading %s due to %s (%d).</string>
     <string name="storage_space_warning">Insufficient local storage space.</string>
     <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
     <string name="document_not_installed">Please download \'%s\'</string>
@@ -523,6 +524,7 @@
     <string name="doc_type_dictionary">Dictionary</string>
     <string name="doc_type_book">Book</string>
     <string name="doc_type_map">Map</string>
+    <string name="doc_type_addons">Add-ons</string>
     
     <!-- Languages -->
     <string name="lang_default">Default</string>
@@ -685,11 +687,21 @@
     <string name="download_dialog_message">The following books could not be downloaded:</string>
     <string name="select_multiple">Select multiple</string>
     <string name="mynotes_error_loading">Error in loading document</string>
-    <string name="journal_description">User-editable study pads, with custom text and bookmarks</string>
-    <string name="my_notes_description">User-editable notes attached to bookmarks</string>
+    <string name="journal_description">User-editable study pads, with custom text and bookmarks (pseudo document)</string>
+    <string name="my_notes_description">User-editable notes attached to bookmarks (pseudo document)</string>
     <string name="my_notes_abbreviation">My Notes</string>
     <string name="studypad_abbreviation">Study Pads</string>
     <string name="studypads">Study Pads</string>
-    <string name="multi_description">Multiple references</string>
+    <string name="multi_description">Multiple references (pseudo document)</string>
     <string name="multi_abbreviation">Multiple</string>
+    <string name="compare_description">Compare translations (pseudo document)</string>
+    <string name="compare_abbreviation">Compare</string>
+    <string name="http_forbidden">Forbidden</string>
+    <string name="http_not_found">Not found</string>
+    <string name="http_unknown">Other error</string>
+    <string name="compare">Compare</string>
+    <string name="give_passphrase_for_module">Document %s is encrypted and needs passphrase to be unlocked</string>
+    <string name="unlocking_failed">Unlocking failed, invalid passphrase</string>
+    <string name="unlock_module">Set module passphrase</string>
+    <string name="unlock_info">Encrypted module unlocking info</string>
 </resources>

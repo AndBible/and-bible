@@ -18,15 +18,21 @@
 package net.bible.android.control.page
 
 import android.util.Log
+import net.bible.android.common.toV11n
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.BookFilters
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 /** Reference to current passage shown by viewer
  *
@@ -45,6 +51,26 @@ open class CurrentCommentaryPage internal constructor(
     override val documentCategory = DocumentCategory.COMMENTARY
 
     override val keyChooserActivity = GridChoosePassageBook::class.java
+
+    override val currentPageContent: Document
+        get() {
+            return if(currentDocument == FakeBookFactory.compareDocument) {
+                val key: VerseRange = when(val origKey = originalKey ?: singleKey) {
+                    is VerseRange -> origKey
+                    is Verse -> VerseRange(origKey.versification, origKey, origKey)
+                    else -> throw RuntimeException("Invalid type")
+                }
+
+                val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
+                    try {
+                        OsisFragment(swordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification)), key, it)
+                    } catch (e: OsisError) {
+                        null
+                    }
+                }.filterNotNull()
+                MultiFragmentDocument(frags)
+            } else super.currentPageContent
+        }
 
     /* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#next()
@@ -100,7 +126,12 @@ open class CurrentCommentaryPage internal constructor(
      *
      * @param key
      */
+
+
+    var originalKey: Key? = null
+
     override fun doSetKey(key: Key?) {
+        originalKey = key
         if(key != null) {
             val verse = KeyUtil.getVerse(key)
             currentBibleVerse.setVerseSelected(versification, verse)
@@ -124,7 +155,10 @@ open class CurrentCommentaryPage internal constructor(
     fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
         if(entity == null) return
         val document = entity.document
-        val book = swordDocumentFacade.getDocumentByInitials(document)
+        val book = when(document) {
+            FakeBookFactory.compareDocument.initials -> FakeBookFactory.compareDocument
+            else -> swordDocumentFacade.getDocumentByInitials(document)
+        }
         if(book != null) {
             Log.d(TAG, "Restored document:" + book.name)
             // bypass setter to avoid automatic notifications.

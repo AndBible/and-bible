@@ -34,10 +34,10 @@ import android.graphics.Color
 import androidx.room.ColumnInfo
 import androidx.room.Ignore
 import kotlinx.serialization.Serializable
+import net.bible.android.common.toV11n
 import java.util.*
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
-val converter = VersificationConverter()
 
 const val SPEAK_LABEL_NAME = "__SPEAK_LABEL__"
 
@@ -122,8 +122,8 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         ): VerseRangeUser {
         constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: Book? = null): this(
-            converter.convert(verseRange.start, KJVA).ordinal,
-            converter.convert(verseRange.end, KJVA).ordinal,
+            verseRange.toV11n(KJVA).start.ordinal,
+            verseRange.toV11n(KJVA).end.ordinal,
             verseRange.start.ordinal,
             verseRange.end.ordinal,
             verseRange.versification,
@@ -134,8 +134,8 @@ class BookmarkEntities {
         )
 
         constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, book: Book?, playbackSettings: PlaybackSettings?): this(
-            converter.convert(verseRange.start, KJVA).ordinal,
-            converter.convert(verseRange.end, KJVA).ordinal,
+            verseRange.toV11n(KJVA).start.ordinal,
+            verseRange.toV11n(KJVA).end.ordinal,
             verseRange.start.ordinal,
             verseRange.end.ordinal,
             verseRange.versification,
@@ -181,8 +181,8 @@ class BookmarkEntities {
                 return VerseRange(KJVA, begin, end)
             }
             private set(value) {
-                kjvOrdinalStart = converter.convert(value.start, KJVA).ordinal
-                kjvOrdinalEnd = converter.convert(value.end, KJVA).ordinal
+                kjvOrdinalStart = value.toV11n(KJVA).start.ordinal
+                kjvOrdinalEnd = value.toV11n(KJVA).end.ordinal
             }
 
         val speakBook: Book?

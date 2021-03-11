@@ -55,6 +55,7 @@ object FakeBookFactory {
         return sbmd
     }
 
+    private var _compareDocument: Book? = null
     private var _multiDocument: Book? = null
     private var _journalDocument: Book? = null
     private var _myNotesDocument: Book? = null
@@ -63,6 +64,12 @@ object FakeBookFactory {
         get() =
             _multiDocument ?: createFakeRepoSwordBook("Multi", MULTI_DUMMY_CONF, "").apply {
                 _multiDocument = this
+            }
+
+    val compareDocument: Book
+        get() =
+            _compareDocument ?: createFakeRepoSwordBook("Compare", COMPARE_DUMMY_CONF, "").apply {
+                _compareDocument = this
             }
 
     val journalDocument: Book
@@ -81,41 +88,31 @@ object FakeBookFactory {
 Description=${application.getString(R.string.journal_description)}
 Abbreviation=${application.getString(R.string.studypad_abbreviation)}
 Category=Generic Books
-ModDrv=zCom
-BlockType=CHAPTER
-Lang=en
-Encoding=UTF-8
 LCSH=Bible--Commentaries.
-DataPath=./modules/comments/zcom/journal/
-About=
-Versification=KJV"""
+Versification=KJVA"""
+
+    private val COMPARE_DUMMY_CONF get() = """[Compare]
+Description=${application.getString(R.string.compare_description)}
+Abbreviation=${application.getString(R.string.compare_abbreviation)}
+Category=Commentaries
+LCSH=Bible--Commentaries.
+Versification=KJVA"""
+
 
     private val MULTI_DUMMY_CONF get() = """[Multi]
 Description=${application.getString(R.string.multi_description)}
 Abbreviation=${application.getString(R.string.multi_abbreviation)}
 Category=Generic Books
-ModDrv=zCom
-BlockType=CHAPTER
-Lang=en
-Encoding=UTF-8
 LCSH=Bible--Commentaries.
-DataPath=./modules/comments/zcom/journal/
-About=
-Versification=KJV"""
+Versification=KJVA"""
 
     private val MY_NOTE_DUMMY_CONF get() = """[MyNote]
 Description=${application.getString(R.string.my_notes_description)}
 Abbreviation=${application.getString(R.string.my_notes_abbreviation)}
 Category=Commentaries
-ModDrv=zCom
-BlockType=CHAPTER
-Lang=en
-Encoding=UTF-8
 LCSH=Bible--Commentaries.
-DataPath=./modules/comments/zcom/mynote/
-About=
-Versification=KJV"""
+Versification=KJVA"""
 
-    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument)
+    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
 }
 

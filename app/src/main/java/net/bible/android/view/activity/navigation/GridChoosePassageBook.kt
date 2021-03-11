@@ -148,7 +148,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
 
         setActionBarManager(bibleBookActionBarManager)
 
-        isCurrentlyShowingScripture = navigationControl.isCurrentDefaultScripture
+        isCurrentlyShowingScripture = pageControl.isCurrentPageScripture
         bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture)
 
         buttonGrid = ButtonGrid(this)

@@ -19,6 +19,7 @@
 		<item>@string/doc_type_dictionary</item>
 		<item>@string/doc_type_book</item>
 		<item>@string/doc_type_map</item>
+		<item>@string/doc_type_addons</item>
 	</string-array>
 
 	<!-- Screen colors: automatic night mode, day, night -->

@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div v-if="show" class="lg"/><slot/>
+  <span v-if="show" class="lg"/><slot/>
 </template>
 
 <script>
@@ -46,5 +46,6 @@ export default {
 <style scoped>
 .lg {
   height: 0.3em;
+  display: block;
 }
 </style>

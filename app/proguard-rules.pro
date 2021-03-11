@@ -105,11 +105,11 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
--keep,includedescriptorclasses class net.bible.android.**$$serializer { *; } # <-- change package name to your app's
--keepclassmembers class net.bible.android.** { # <-- change package name to your app's
+-keep,includedescriptorclasses class net.bible.**$$serializer { *; } # <-- change package name to your app's
+-keepclassmembers class net.bible.** { # <-- change package name to your app's
     *** Companion;
 }
--keepclasseswithmembers class net.bible.android.** { # <-- change package name to your app's
+-keepclasseswithmembers class net.bible.** { # <-- change package name to your app's
     kotlinx.serialization.KSerializer serializer(...);
 }
 -keepattributes *Annotation*, InnerClasses

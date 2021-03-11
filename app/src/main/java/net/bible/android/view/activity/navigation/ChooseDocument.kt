@@ -17,15 +17,23 @@
  */
 package net.bible.android.view.activity.navigation
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
+import androidx.appcompat.view.ActionMode
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.download.DownloadControl
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.IntentHelper
@@ -35,6 +43,8 @@ import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import java.util.*
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Choose a bible or commentary to use
@@ -51,6 +61,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         buildActivityComponent().inject(this)
         documentItemAdapter = DocumentItemAdapter(this)
         initialiseView()
+
         GlobalScope.launch {
             populateMasterDocumentList(false)
         }
@@ -91,18 +102,62 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         return languageList
     }
 
-    override fun handleDocumentSelection(selectedDocument: Book?) {
-        Log.d(TAG, "Book selected:" + selectedDocument!!.initials)
-        try {
-            documentControl.changeDocument(selectedDocument)
+    private suspend fun unlockDocument(book: Book): Boolean {
+        val passphrase: String? = suspendCoroutine {
+            val name = EditText(this@ChooseDocument)
+            name.text = SpannableStringBuilder(book.unlockKey?: "")
+            name.selectAll()
+            name.requestFocus()
+            AlertDialog.Builder(this@ChooseDocument)
+                .setPositiveButton(R.string.okay) {d,_ ->
+                    it.resume(name.text.toString())
+                }
+                .setView(name)
+                .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null)}
+                .setTitle(getString(R.string.give_passphrase_for_module, book.initials))
+                .create()
+                .show()
+        }
+        if(passphrase != null) {
+            val success = book.unlock(passphrase)
+            if(!success) {
+                ABEventBus.getDefault().post(ToastEvent(getString(R.string.unlocking_failed)))
+                return false
+            }
+            return true
+        }
+        return false
+    }
 
-            // if key is valid then the new doc will have been shown already
-            returnToPreviousScreen()
-        } catch (e: Exception) {
-            Log.e(TAG, "error on select of bible book", e)
+    override fun handleDocumentSelection(selectedDocument: Book) {
+        GlobalScope.launch(Dispatchers.Main) {
+            if(selectedDocument.isLocked && !unlockDocument(selectedDocument)) return@launch
+            Log.d(TAG, "Book selected:" + selectedDocument.initials)
+            try {
+                documentControl.changeDocument(selectedDocument)
+                // if key is valid then the new doc will have been shown already
+                returnToPreviousScreen()
+            } catch (e: Exception) {
+                Log.e(TAG, "error on select of bible book", e)
+            }
         }
     }
 
+    override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
+        if(selectedItemPositions.isNotEmpty()) {
+            menu.findItem(R.id.unlock).isVisible = displayedDocuments[selectedItemPositions[0]].isEnciphered
+        }
+        return super.onPrepareActionMode(mode, menu, selectedItemPositions)
+    }
+
+    override fun onActionItemClicked(item: MenuItem, selectedItemPositions: List<Int>): Boolean {
+        when(item.itemId) {
+            R.id.unlock -> GlobalScope.launch(Dispatchers.Main) {
+                unlockDocument(displayedDocuments[selectedItemPositions[0]])
+            }
+        }
+        return super.onActionItemClicked(item, selectedItemPositions)
+    }
     /**
      * on Click handlers
      */

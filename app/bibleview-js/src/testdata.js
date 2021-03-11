@@ -205,7 +205,7 @@ if(process.env.NODE_ENV === "development") {
     const journalTextEntries = [
             {
                 id: 1,
-                text: "Journal text 1",
+                text: "<div>Journal text 1<ul><li>test1</li><li>test2</li></ul></div>",
                 labelId: 1,
                 orderNumber: 1,
                 indentLevel: 0,
@@ -246,22 +246,23 @@ if(process.env.NODE_ENV === "development") {
             indentLevel: 1,
         }))
 
-    const mode = "journal"
+    const mode = "bible"
 
     if(mode === "bible") {
         testData = testData.map(
             v => ({
                 type: "bible",
-                osisFragments: [
+                osisFragment:
                     {
                         xml: v,
                         key: `KJV--${count++}`,
                         features: {},
                         bookCategory: "BIBLE",
                     }
-                ],
+                ,
                 bookInitials: "KJV",
                 bookmarks: testBookmarks,
+                ordinalRange: null,
             }));
         testData[2].ordinalRange = [30835, 30852];
     } else if(mode === "journal") {

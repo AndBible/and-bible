@@ -18,17 +18,7 @@
 package net.bible.android.control.versification
 
 import net.bible.android.control.page.ChapterVerse
-import net.bible.android.database.WorkspaceEntities
-import net.bible.android.database.bookmarks.converter
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseRange
-import org.crosswire.jsword.versification.Versification
 
-fun Verse.isConvertibleTo(v11n: Versification): Boolean = converter.isConvertibleTo(this, v11n)
-fun Verse.toV11n(v11n: Versification): Verse = converter.convert(this, v11n)
-val Verse.entity get() = WorkspaceEntities.Verse(versification.name, book.ordinal, chapter, verse)
 val Verse.chapterVerse: ChapterVerse get() = ChapterVerse(chapter, verse)
-
-fun VerseRange.toV11n(v11n: Versification?): VerseRange = if(v11n != null) VerseRange(v11n, start.toV11n(v11n), end.toV11n(v11n)) else this
-fun VerseRange.isConvertibleTo(v11n: Versification): Boolean = start.isConvertibleTo(v11n) && end.isConvertibleTo(v11n)
 

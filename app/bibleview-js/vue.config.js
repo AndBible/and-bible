@@ -1,15 +1,20 @@
 // vue.config.js
-const isProduction = process.env.NODE_ENV !== "production";
-
+const isProduction = process.env.NODE_ENV === "production";
 let config = {
   lintOnSave: false,
   runtimeCompiler: true,
   transpileDependencies: ["dom-highlight-range"],
   publicPath: "",
+  pluginOptions: {
+    webpackBundleAnalyzer: {
+      openAnalyzer: false,
+      analyzerMode: "disabled",
+    }
+  },
 }
 
 if(isProduction) {
-  config.productionSourceMap = true;
+  config.productionSourceMap = false;
 } else {
   config = {
     ...config,

@@ -21,40 +21,28 @@
 
 <script>
 import {useCommon} from "@/composables";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "Hi",
   props: {
     type: {type: String, default: null}
   },
-  setup() {
-    return useCommon();
+  setup(props) {
+    const hiStyle = computed(() => `hi-${props.type}`);
+    return {hiStyle, ...useCommon()};
   },
-  computed: {
-    hiStyle: ({type}) => {
-      switch (type) {
-        case "italic":
-          return "italic-style"
-        case "bold":
-          return "bold-style"
-        case "super":
-          return "super-style"
-        default:
-          console.warn("Unhandled hi style type", type);
-      }
-    }
-  }
 }
 </script>
 
 <style scoped>
-.italic-style {
+.hi-italic {
   font-style: italic;
 }
-.bold-style {
+.hi-bold {
   font-weight: bold;
 }
-.super-style {
+.hi-super {
   vertical-align: super;
 }
 

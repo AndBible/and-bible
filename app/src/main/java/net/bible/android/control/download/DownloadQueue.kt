@@ -17,6 +17,7 @@
  */
 package net.bible.android.control.download
 
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
@@ -24,6 +25,7 @@ import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.service.common.Logger
 import net.bible.service.download.RepoBase
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.install.DownloadException
 import org.crosswire.jsword.book.install.InstallException
 import java.lang.Exception
 import java.util.*
@@ -39,6 +41,15 @@ class DownloadQueue(private val executorService: ExecutorService) {
     private val downloadError = Collections.synchronizedSet(HashSet<String>())
     private val log = Logger(this.javaClass.simpleName)
 
+    private fun httpError(code: Int): String {
+        val httpErrors = mapOf(
+            403 to R.string.http_forbidden,
+            404 to R.string.http_not_found,
+        )
+        val msgId = httpErrors[code] ?: R.string.http_unknown
+        return application.getString(msgId)
+    }
+
     fun addDocumentToDownloadQueue(document: Book, repo: RepoBase) {
         if (!beingQueued.contains(document.initials)) {
             beingQueued.add(document.initials)
@@ -49,6 +60,14 @@ class DownloadQueue(private val executorService: ExecutorService) {
                     repo.downloadDocument(document)
                     ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials,
                         DocumentStatus.DocumentInstallStatus.INSTALLED, 100))
+                } catch (e: DownloadException) {
+                    log.error("Error downloading $document", e)
+                    ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials,
+                        DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
+                    downloadError.add(document.initials)
+                    val downloadStatusStr = httpError(e.statusCode)
+                    val errorMessage = application.getString(R.string.error_downloading_status, e.uri.toString(), downloadStatusStr, e.statusCode)
+                    instance.showErrorMsg(errorMessage)
                 } catch (e: InstallException) {
                     log.error("Error downloading $document", e)
                     ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials,

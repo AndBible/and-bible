@@ -29,7 +29,7 @@
     <template v-else><slot/></template>
   </template>
   <template v-else>
-    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)"><span class="linkstyle" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span></span>
+    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)" class="link-style" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span>
     <span v-else><slot/></span>
   </template>
 </template>
@@ -44,10 +44,12 @@ export default {
     lemma: {type: String, default: null}, // strong:H8064
     morph: {type: String, default: null}, // strongMorph:TH8792
     src: {type: String, default: null},
+    n: {type: String, default: null},
     type: {type: String, default: null},
     subType: {type: String, default: null},
   },
   setup(props) {
+    checkUnsupportedProps(props, "n")
     checkUnsupportedProps(props, "src")
     checkUnsupportedProps(props, "type", ["x-split"])
     checkUnsupportedProps(props, "subType")
@@ -96,7 +98,7 @@ export default {
 </script>
 
 <style scoped>
-  .linkstyle {
+  .link-style {
     text-decoration: underline dotted;
   }
 </style>
