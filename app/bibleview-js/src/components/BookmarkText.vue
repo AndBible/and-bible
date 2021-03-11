@@ -18,27 +18,24 @@
 <template>
   <template v-if="bookmark.text">
     <span class="bookmark-text">
-      <q v-if="isExpanded" @click.stop="isExpanded = false" class="bible-text"><span v-html="bookmark.fullText"/></q>
-      <q v-if="!isExpanded" @click.stop="isExpanded = true" class="bible-text">{{abbreviated(bookmark.text, 80)}}</q>
+      <q v-if="expanded" @click.stop="$emit('change-expanded', false)" class="bible-text"><span v-html="bookmark.fullText"/></q>
+      <q v-if="!expanded" @click.stop="$emit('change-expanded', true)" class="bible-text">{{abbreviated(bookmark.text, 80)}}</q>
     </span>
   </template>
 </template>
 
 <script>
-import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
-import {stripTags} from "@/utils";
 
 export default {
   name: "BookmarkText",
+  emits: ["change-expanded"],
   props: {
     bookmark: {type: Object, required: true},
     expanded: {type: Boolean, default: false},
   },
-  setup(props) {
-    const isLong = stripTags(props.bookmark.fullText).length > 80;
-    const isExpanded = ref(props.expanded || !isLong);
-    return {isExpanded, ...useCommon()};
+  setup() {
+    return {...useCommon()};
   }
 }
 </script>

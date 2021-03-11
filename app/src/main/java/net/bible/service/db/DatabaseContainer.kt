@@ -762,6 +762,16 @@ private val MIGRATION_41_42_cipherKey = object : Migration(41, 42) {
     }
 }
 
+
+private val MIGRATION_42_43_expandContent = object : Migration(42, 43) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `expandContent` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -817,6 +827,7 @@ object DatabaseContainer {
                         JOURNAL_39_40,
                         MIGRATION_40_41_DocumentBackup,
                         MIGRATION_41_42_cipherKey,
+                        MIGRATION_42_43_expandContent,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

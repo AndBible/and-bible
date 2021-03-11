@@ -231,6 +231,7 @@ export function useAndroid({bookmarks}, config) {
                 labelId: changedEntry.bookmarkToLabel.labelId,
                 indentLevel: changedEntry.indentLevel,
                 orderNumber: changedEntry.orderNumber,
+                expandContent: changedEntry.expandContent,
             }
             android.updateBookmarkToLabel(JSON.stringify(entry));
         }

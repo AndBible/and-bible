@@ -89,6 +89,7 @@ export default {
                 ...e,
                 orderNumber: bookmarkToLabel.orderNumber,
                 indentLevel: bookmarkToLabel.indentLevel,
+                expandContent: bookmarkToLabel.expandContent,
                 bookmarkToLabel
               }
             }))
