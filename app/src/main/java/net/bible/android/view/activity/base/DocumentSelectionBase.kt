@@ -247,6 +247,12 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         checkSpinnerIndexesValid()
     }
 
+    protected fun findBookByOsisID(osisId: String) : Book? {
+        return allDocuments.find {
+            it.osisID == osisId
+        }
+    }
+
     // get the current language code
 
     // create the JSword Language for current lang

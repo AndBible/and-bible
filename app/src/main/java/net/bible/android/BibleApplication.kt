@@ -121,7 +121,6 @@ open class BibleApplication : Application() {
         ProgressNotificationManager.instance.initialise()
 
         // various initialisations required every time at app startup
-        applicationComponent.warmUp().warmUpSwordEventually()
 
         localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
 

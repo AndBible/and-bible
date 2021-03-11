@@ -24,6 +24,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ArrayAdapter
+import android.widget.ListView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +42,7 @@ import net.bible.android.view.activity.base.NO_OPTIONS_MENU
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.RepoFactory
@@ -77,6 +80,9 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
     private val hasErrors get() = genericFileDownloader.errors.isNotEmpty() || downloadManager.failedRepos.isNotEmpty()
 
     private val repoFactory = RepoFactory(downloadManager)
+    private var booksToDownload: ArrayList<String>? = null
+    private val booksNotFound = ArrayList<String>()
+    private val docDao get() = DatabaseContainer.db.documentBackupDao()
 
     private suspend fun loadRecommendedDocuments() = withContext(Dispatchers.IO) {
         val source = URI("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
@@ -161,7 +167,58 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
                 withContext(Dispatchers.Main) {
                     isRefreshing = false
                     invalidateOptionsMenu()
+                    booksToDownload = intent.extras?.getStringArrayList(DOCUMENT_IDS_EXTRA)
+                    if (booksToDownload != null) {
+                        downloadRequestedBooks(booksToDownload!!)
+
+                        if (booksNotFound.size > 0) {
+                            warnUserBooksNotDownloaded()
+                        }
+                    }
                 }
+            }
+        }
+    }
+
+    /**
+     * Shows a dialog explaining that some books were not downloaded
+     */
+    private fun warnUserBooksNotDownloaded() {
+        val books = booksNotFound!!.toTypedArray()
+        // books here is a list of osisIds
+        // look up their full names in the local database
+        GlobalScope.launch {
+            val notInstalled: Array<String> = books.map {
+                docDao.getBook(it).name
+            }.toTypedArray()
+            withContext(Dispatchers.Main) {
+                val inflater = this@DownloadActivity.layoutInflater
+                val v = inflater.inflate(R.layout.books_not_downloaded_dialog, null)
+
+                // set up list view adapter
+                val adapter = ArrayAdapter(this@DownloadActivity, R.layout.books_not_downloaded_list_item, notInstalled)
+                val list = v.findViewById<ListView>(R.id.bookListView)
+                list.adapter = adapter
+
+                AlertDialog.Builder(this@DownloadActivity)
+                    .setView(v)
+                    .setPositiveButton(R.string.okay, null)
+                    .show()
+            }
+        }
+    }
+
+    /**
+     * Downloads the requested books, given a list of osisIds
+     */
+    private fun downloadRequestedBooks(osisIds: ArrayList<String>) {
+        osisIds.forEach {
+            Log.i(TAG, "User request to redownload $it")
+            val book: Book? = findBookByOsisID(it)
+            if (book != null) {
+                doDownload(book)
+            } else {
+                booksNotFound.add(it)
             }
         }
     }
@@ -332,6 +389,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
         private const val REPO_REFRESH_DATE = "repoRefreshDate"
         private const val REPO_LIST_STALE_AFTER_DAYS: Long = 10
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
+        const val DOCUMENT_IDS_EXTRA = "documentIds"
         const val DOWNLOAD_FINISH = 1
         private const val TAG = "Download"
     }

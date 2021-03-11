@@ -57,7 +57,6 @@ import net.bible.service.sword.SwordDocumentFacade
 interface ApplicationComponent {
 
     //Exposed to sub-graphs.
-    fun warmUp(): WarmUp
     fun errorReportControl(): ErrorReportControl
 
     fun swordDocumentFacade(): SwordDocumentFacade
