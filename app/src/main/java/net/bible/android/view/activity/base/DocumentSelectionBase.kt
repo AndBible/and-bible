@@ -311,7 +311,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
     }
 
-    private fun reloadDocuments() = GlobalScope.launch {
+    internal fun reloadDocuments() = GlobalScope.launch {
         populateMasterDocumentList(false)
     }
 
@@ -451,7 +451,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 documents.add(displayedDocuments[posn])
             }
         }
-        if (!documents.isEmpty()) {
+        if (documents.isNotEmpty()) {
             when (item.itemId) {
                 R.id.about -> {
                     handleAbout(documents)
@@ -507,6 +507,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     .setNegativeButton(R.string.no, null)
                     .create()
                     .show()
+            } else {
+                ABEventBus.getDefault().post(ToastEvent(R.string.cant_delete_last_bible))
             }
         }
     }

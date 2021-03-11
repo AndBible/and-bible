@@ -20,6 +20,7 @@ package net.bible.service.common
 
 import android.app.Activity
 import android.app.AlarmManager
+import android.app.AlertDialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -31,7 +32,9 @@ import android.content.res.Resources
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
+import android.text.SpannableStringBuilder
 import android.util.Log
+import android.widget.EditText
 import androidx.preference.PreferenceManager
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -41,6 +44,8 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.BuildConfig.BuildDate
 import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkStyle
@@ -50,9 +55,11 @@ import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.service.db.DatabaseContainer
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateUtils
 import org.crosswire.common.util.IOUtil
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -60,6 +67,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.util.*
 import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 val BookmarkEntities.Label.displayName get() =
     if(isSpeakLabel) application.getString(R.string.speak) else name
@@ -468,6 +476,52 @@ object CommonUtils {
         }
         lastTypes.add(0, type)
         sharedPreferences.edit().putString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson()).apply()
+    }
+
+    private val docDao get() = DatabaseContainer.db.documentBackupDao()
+
+    suspend fun unlockDocument(context: Context, book: Book): Boolean {
+        var repeat = true
+        while(repeat) {
+            val passphrase: String? = suspendCoroutine {
+                val name = EditText(context)
+                name.text = SpannableStringBuilder(book.unlockKey ?: "")
+                name.selectAll()
+                name.requestFocus()
+                AlertDialog.Builder(context)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.okay) { d, _ ->
+                        it.resume(name.text.toString())
+                    }
+                    .setView(name)
+                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
+                    .setTitle(application.getString(R.string.give_passphrase_for_module, book.initials))
+                    .create()
+                    .show()
+            }
+            if (passphrase != null) {
+                val success = book.unlock(passphrase)
+                if (success) {
+                    docDao.getBook(book.initials)?.apply {
+                        cipherKey = passphrase
+                        docDao.update(this)
+                    }
+                    return true
+                }
+            }
+            repeat = suspendCoroutine {
+                AlertDialog.Builder(context)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.yes) { d, _ ->
+                        it.resume(true)
+                    }
+                    .setNegativeButton(R.string.no) { _, _ -> it.resume(false) }
+                    .setTitle(application.getString(R.string.try_again_passphrase))
+                    .create()
+                    .show()
+            }
+        }
+        return false
     }
 }
 

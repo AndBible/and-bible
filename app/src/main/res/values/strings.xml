@@ -704,4 +704,6 @@
     <string name="unlocking_failed">Unlocking failed, invalid passphrase</string>
     <string name="unlock_module">Set module passphrase</string>
     <string name="unlock_info">Encrypted module unlocking info</string>
+    <string name="try_again_passphrase">Passphrase did not work, try again?</string>
+    <string name="cant_delete_last_bible">Can\'t remove last bible document</string>
 </resources>

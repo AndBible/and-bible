@@ -30,7 +30,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
-import org.crosswire.jsword.book.BookFilters
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.Defaults
 import org.crosswire.jsword.book.FeatureType
@@ -50,7 +49,7 @@ class SwordDocumentFacade @Inject constructor() {
     val bibles: List<Book>
         get() {
             log.debug("Getting bibles")
-            val documents = Books.installed().getBooks(BookFilters.getBibles())
+            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }
             log.debug("Got bibles, Num=" + documents.size)
             return documents
         }
