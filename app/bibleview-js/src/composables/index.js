@@ -54,7 +54,7 @@ if(process.env.NODE_ENV === "test") {
     testMode = true;
 }
 
-export function useVerseNotifier(config, {scrolledToVerse}, topElement) {
+export function useVerseNotifier(config, {scrolledToVerse}, topElement, {isScrolling}) {
     const currentVerse = ref(null);
     watch(() => currentVerse.value,  value => scrolledToVerse(value));
 
@@ -63,6 +63,7 @@ export function useVerseNotifier(config, {scrolledToVerse}, topElement) {
     );
 
     const onScroll = throttle(() => {
+        if(isScrolling.value) return;
         const y = config.topOffset + lineHeight.value*0.8;
 
         // Find element, starting from right

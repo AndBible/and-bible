@@ -17,9 +17,11 @@
 
 import {nextTick} from "@vue/runtime-core";
 import {Events, setupEventBusListener} from "@/eventbus";
+import {computed, ref} from "@vue/reactivity";
 
 export function useScroll(config, {getVerses}) {
-    let currentScrollAnimation = null;
+    let currentScrollAnimation = ref(null);
+    const isScrolling = computed(() => currentScrollAnimation.value != null)
 
     function setToolbarOffset(topOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
         console.log("setToolbarOffset", topOffset, bottomOffset, doNotScroll, immediate);
@@ -34,9 +36,9 @@ export function useScroll(config, {getVerses}) {
     }
 
     function stopScrolling() {
-        if(currentScrollAnimation != null) {
-            window.cancelAnimationFrame(currentScrollAnimation);
-            currentScrollAnimation = null;
+        if(currentScrollAnimation.value != null) {
+            window.cancelAnimationFrame(currentScrollAnimation.value);
+            currentScrollAnimation.value = null;
             console.log("Animation ends");
         }
     }
@@ -55,7 +57,7 @@ export function useScroll(config, {getVerses}) {
 
         // Bootstrap our animation - it will get called right before next frame shall be rendered.
         console.log("Animation starts");
-        currentScrollAnimation = window.requestAnimationFrame(function step(timestamp) {
+        currentScrollAnimation.value = window.requestAnimationFrame(function step(timestamp) {
             if (!start) start = timestamp;
             // Elapsed milliseconds since start of scrolling.
             const time = timestamp - start;
@@ -66,7 +68,7 @@ export function useScroll(config, {getVerses}) {
 
             // Proceed with animation as long as we wanted it to.
             if (time < duration) {
-                currentScrollAnimation = window.requestAnimationFrame(step);
+                currentScrollAnimation.value = window.requestAnimationFrame(step);
             }
         })
     }
@@ -145,6 +147,6 @@ export function useScroll(config, {getVerses}) {
     setupEventBusListener(Events.SET_OFFSETS, setToolbarOffset)
     setupEventBusListener(Events.SCROLL_TO_VERSE, scrollToId)
     setupEventBusListener(Events.SETUP_CONTENT, setupContent)
-    return {scrollToId}
+    return {scrollToId, isScrolling}
 }
 

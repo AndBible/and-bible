@@ -69,7 +69,7 @@
       provide("scroll", scroll);
       const globalBookmarks = useGlobalBookmarks(config);
       const android = useAndroid(globalBookmarks, config);
-      const {currentVerse} = useVerseNotifier(config, android, topElement);
+      const {currentVerse} = useVerseNotifier(config, android, topElement, scroll);
       const customCss = useCustomCss();
       provide("customCss", customCss);
 
