@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div :class="`sword-${fragment.bookInitials}`" :lang="fragment.language" :dir="fragment.direction" >
+  <div :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language" :dir="fragment.direction" >
     <transition-group name="fade">
       <div v-for="{key, template} in templates" :key="key">
         <OsisSegment :osis-template="template" />
@@ -28,10 +28,10 @@
 </template>
 
 <script>
-import {reactive, ref} from "@vue/reactivity";
-import {inject, provide} from "@vue/runtime-core";
-import {useReferenceCollector} from "@/composables";
-import {AutoSleep, osisToTemplateString} from "@/utils";
+import {computed, reactive, ref} from "@vue/reactivity";
+import {inject, onMounted, provide} from "@vue/runtime-core";
+import {useCommon, useReferenceCollector} from "@/composables";
+import {AutoSleep, highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment";
 import FeaturesLink from "@/components/FeaturesLink";
 import {BookCategories} from "@/constants";
@@ -45,6 +45,9 @@ export default {
   props: {
     showTransition: {type: Boolean, default: false},
     fragment: {type: Object, required: true},
+    highlightOrdinalRange: {type: Array, default: null},
+    highlightOffsetRange: {type: Array, default: null},
+    hideTitles: {type: Boolean, default: false}
   },
   components: {OpenAllLink, FeaturesLink, OsisSegment},
   setup(props) {
@@ -55,6 +58,16 @@ export default {
       bookCategory,
       bookInitials,
     } = props.fragment;
+    const uniqueId = ref(Date.now().toString());
+    const {config} = useCommon()
+    const customConfig = computed(() => {
+      const changes = {};
+      if(props.hideTitles) {
+        changes.showSectionTitles = false;
+      }
+      return {...config, ...changes};
+    });
+    provide("config", customConfig);
 
     const fragmentReady = ref(!props.showTransition);
     const strings = useStrings();
@@ -67,6 +80,15 @@ export default {
     if(bookCategory === BookCategories.COMMENTARIES) {
       provide("referenceCollector", referenceCollector);
     }
+    onMounted(() => {
+      if(props.highlightOrdinalRange) {
+        try {
+          highlightVerseRange(`#frag-${uniqueId.value}`, props.highlightOrdinalRange, props.highlightOffsetRange);
+        } catch (e) {
+          console.error("Highlight failed!");
+        }
+      }
+    });
 
     const template = osisToTemplateString(xml)
     const templates = reactive([]);
@@ -89,7 +111,7 @@ export default {
     } else {
       templates.push({template, key: `${fragmentKey}-0`})
     }
-    return {templates, strings}
+    return {templates, strings, uniqueId}
   }
 }
 </script>
@@ -100,5 +122,13 @@ export default {
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0
+}
+</style>
+<style lang="scss">
+.highlight {
+  background-color: rgba(130, 130, 130, 0.2);
+  .night & {
+    background-color: rgba(168, 165, 165, 0.7);
+  }
 }
 </style>

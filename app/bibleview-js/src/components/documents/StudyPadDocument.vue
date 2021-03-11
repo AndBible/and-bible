@@ -188,9 +188,6 @@ export default {
 </style>
 
 <style lang="scss">
-.highlight {
-  font-weight: bold;
-}
 .drag-ghost {
   background: rgba(0, 0, 0, 0.2);
   .night & {

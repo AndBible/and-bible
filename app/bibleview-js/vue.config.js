@@ -1,5 +1,8 @@
 // vue.config.js
 const isProduction = process.env.NODE_ENV === "production";
+
+console.log("vue.config.js - isProduction: ", isProduction);
+
 let config = {
   lintOnSave: false,
   runtimeCompiler: true,
@@ -18,6 +21,7 @@ if(isProduction) {
 } else {
   config = {
     ...config,
+    productionSourceMap: true,
     configureWebpack: {
       devtool: 'inline-source-map'
     }

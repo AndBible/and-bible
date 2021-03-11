@@ -37,6 +37,7 @@ function findNodeAtOffsetRecursive(elem, startOffset) {
         }
         elem = elem.nextSibling
     } while(elem)
+    return [null, null]
 }
 
 export function findNodeAtOffset(elem, startOffset) {

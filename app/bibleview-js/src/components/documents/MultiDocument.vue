@@ -20,7 +20,7 @@
     <div class="ref-link">
       <a :href="link(fragment)">{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookInitials)}}</a>
     </div>
-    <OsisFragment :fragment="fragment"/>
+    <OsisFragment hide-titles :fragment="fragment"/>
     <div v-if="index < osisFragments.length - 1" class="separator"/>
   </div>
 </template>

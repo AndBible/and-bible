@@ -17,8 +17,16 @@
 
 <template>
   <template v-if="bookmark.text">
+    <div @click.stop="$emit('change-expanded', false)">
+      <OsisFragment
+          v-if="expanded"
+          :highlight-ordinal-range="bookmark.ordinalRange"
+          :highlight-offset-range="bookmark.offsetRange"
+          :fragment="bookmark.osisFragment"
+          hide-titles
+      />
+    </div>
     <span class="bookmark-text">
-      <OsisFragment v-if="expanded" @click.stop="$emit('change-expanded', false)" :fragment="bookmark.osisFragment"/>
       <q v-if="!expanded" @click.stop="$emit('change-expanded', true)" class="bible-text">{{abbreviated(bookmark.text, 80)}}</q>
     </span>
   </template>

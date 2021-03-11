@@ -19,6 +19,8 @@ import {onBeforeUnmount, onMounted, onUnmounted} from "@vue/runtime-core";
 import Color from "color";
 import {rybColorMixer} from "@/lib/ryb-color-mixer";
 import {get} from "lodash";
+import {highlightRange} from "@/lib/highlight-range";
+import {findNodeAtOffset, lastTextNode} from "@/dom";
 
 export function setupWindowEventListener(eventType, handler, options) {
     onMounted(() => window.addEventListener(eventType, handler, options))
@@ -316,4 +318,38 @@ export function osisToTemplateString(osis) {
         .replace(/(<\/?)(\w)(\w*)([^>]*>)/g,
             (m, tagStart, tagFirst, tagRest, tagEnd) =>
                 `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`);
+}
+
+export function findNodeAtOffsetWithNullOffset(elem, offset) {
+    let node, off;
+    if (offset === null) {
+        node = lastTextNode(elem, true);
+        off = node.length;
+    } else {
+        [node, off] = findNodeAtOffset(elem, offset);
+    }
+    return [node, off];
+}
+
+// Bit generalized version from bookmarks:highlightStyleRange
+export function highlightVerseRange(selectorPrefix, [startOrdinal, endOrdinal], [startOff, endOff] = [0, null]) {
+    const firstElem = document.querySelector(`${selectorPrefix} #v-${startOrdinal}`);
+    const secondElem = document.querySelector(`${selectorPrefix} #v-${endOrdinal}`);
+    if (firstElem === null || secondElem === null) {
+        console.error("Element is not found!", {selectorPrefix, startOrdinal, endOrdinal});
+        return;
+    }
+    const [first, startOff1] = findNodeAtOffsetWithNullOffset(firstElem, startOff);
+    const [second, endOff1] = findNodeAtOffsetWithNullOffset(secondElem, endOff);
+
+    const range = new Range();
+    range.setStart(first, startOff1);
+    range.setEnd(second, endOff1);
+    const highlightResult = highlightRange(range, 'span', {class: "highlight"});
+    if (highlightResult) {
+        const {undo, highlightElements} = highlightResult;
+        return undo;
+    } else {
+        console.error("Highlight range failed!", {first,second,firstElem,secondElem,startOff,endOff,startOff1,endOff1})
+    }
 }

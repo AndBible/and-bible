@@ -17,7 +17,15 @@
 
 import {inject, onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
 import {cloneDeep, sortBy, uniqWith} from "lodash";
-import {addEventFunction, arrayEq, colorLightness, intersection, mixColors, rangesOverlap} from "@/utils";
+import {
+    addEventFunction,
+    arrayEq,
+    colorLightness,
+    findNodeAtOffsetWithNullOffset,
+    intersection,
+    mixColors,
+    rangesOverlap
+} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {findNodeAtOffset, lastTextNode} from "@/dom";
 import {Events, setupEventBusListener, emit} from "@/eventbus";
@@ -343,17 +351,6 @@ export function useBookmarks(documentId,
     }
 
     const undoHighlights = [];
-
-    function findNodeAtOffsetWithNullOffset(elem, offset) {
-        let node, off;
-        if (offset === null) {
-            node = lastTextNode(elem, true);
-            off = node.length;
-        } else {
-            [node, off] = findNodeAtOffset(elem, offset);
-        }
-        return [node, off];
-    }
 
     function getIconElement(faIcon, iconColor) {
         const icon = document.createElement("span")
