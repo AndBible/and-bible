@@ -242,14 +242,17 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         Log.i(TAG, "Going to MainBibleActivity")
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
         GlobalScope.launch(Dispatchers.Main) {
-            for (it in swordDocumentFacade.bibles.filter { it.isLocked }) {
-                CommonUtils.unlockDocument(this@StartupActivity, it)
-            }
             if(swordDocumentFacade.bibles.filter { !it.isLocked }.isEmpty()) {
-                showFirstLayout()
-                return@launch
+                for (it in swordDocumentFacade.bibles.filter { it.isLocked }) {
+                    CommonUtils.unlockDocument(this@StartupActivity, it)
+                }
+                if (swordDocumentFacade.bibles.filter { !it.isLocked }.isEmpty()) {
+                    showFirstLayout()
+                    return@launch
+                }
             }
 
+            pageControl.setFirstUseDefaultVerse()
             startActivity(handlerIntent)
             finish()
         }
@@ -268,7 +271,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 Log.i(TAG, "Bibles now exist so go to main bible view")
                 // select appropriate default verse e.g. John 3.16 if NT only
                 GlobalScope.launch(Dispatchers.Main) {
-                    pageControl.setFirstUseDefaultVerse()
                     gotoMainBibleActivity()
                 }
 

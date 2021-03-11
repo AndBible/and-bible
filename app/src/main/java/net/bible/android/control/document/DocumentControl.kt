@@ -86,11 +86,11 @@ class DocumentControl @Inject constructor(
     }
 
     val biblesForVerse : List<Book>
-        get () = swordDocumentFacade.bibles.sortedBy { it -> bookFilter.test(it) }
+        get () = swordDocumentFacade.unlockedBibles.sortedBy { bookFilter.test(it) }
 
     val commentariesForVerse: List<Book>
         get () {
-            val docs = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).sortedBy { commentaryFilter.test(it) }.toMutableList()
+            val docs = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked }.sortedBy { commentaryFilter.test(it) }.toMutableList()
             docs.addAll(FakeBookFactory.pseudoDocuments.filter { it.bookCategory == BookCategory.COMMENTARY })
             return docs
         }

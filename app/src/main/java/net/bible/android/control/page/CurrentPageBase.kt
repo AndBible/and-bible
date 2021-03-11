@@ -170,8 +170,8 @@ abstract class CurrentPageBase protected constructor(
             CommonUtils.sharedPreferences.getString("default-${documentCategory.bookCategory.name}", ""))
 
         return savedDefaultBook ?: {
-            val books = swordDocumentFacade.getBooks(documentCategory.bookCategory)
-            if (books.size > 0) books[0] else null
+            val books = swordDocumentFacade.getBooks(documentCategory.bookCategory).filter { !it.isLocked }
+            if (books.isNotEmpty()) books[0] else null
         }()
     }
 

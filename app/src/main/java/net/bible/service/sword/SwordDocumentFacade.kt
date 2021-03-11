@@ -54,9 +54,17 @@ class SwordDocumentFacade @Inject constructor() {
             return documents
         }
 
+    val unlockedBibles: List<Book>
+        get() {
+            log.debug("Getting bibles")
+            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE  && !it.isLocked}
+            log.debug("Got bibles, Num=" + documents.size)
+            return documents
+        }
+
     fun getBooks(bookCategory: BookCategory): List<Book> {
         log.debug("Getting books of type " + bookCategory.getName())
-        val documents = Books.installed().getBooks { book -> book.bookCategory == bookCategory }
+        val documents = Books.installed().getBooks { it.bookCategory == bookCategory }
         log.debug("Got books, Num=" + documents.size)
         return documents
     }
