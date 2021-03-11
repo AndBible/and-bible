@@ -4,26 +4,36 @@ import androidx.room.*
 
 @Entity
 data class DocumentBackup(
-    @PrimaryKey
-    var osisId: String,
+    // TODO osisId -> initials in DB
+    @PrimaryKey @ColumnInfo(name = "osisId") var initials: String,
     var name: String,
     var abbreviation: String,
     var language: String,
-    var repository: String
+    var repository: String,
+    var cipherKey: String? = null,
 )
 
 @Dao
 interface DocumentBackupDao {
     @Insert
-    fun insertDocuments(documents: List<DocumentBackup>)
+    fun insert(documents: List<DocumentBackup>)
 
-    @Query("""SELECT * FROM DocumentBackup WHERE osisId = :osisId""")
-    fun getBook(osisId: String): DocumentBackup
+    @Insert
+    fun insert(documents: DocumentBackup)
+
+    @Update
+    fun update(doc: DocumentBackup)
+
+    @Query("""SELECT * FROM DocumentBackup WHERE osisId = :initials""")
+    fun getBook(initials: String): DocumentBackup?
 
     @Query("""SELECT * from DocumentBackup""")
     fun getKnownInstalled(): List<DocumentBackup>
 
-    @Query("""DELETE FROM DocumentBackup WHERE osisId = :osisId""")
-    fun deleteByOsisId(osisId: String)
+    @Query("""SELECT * from DocumentBackup WHERE cipherKey IS NOT NULL""")
+    fun getUnlocked(): List<DocumentBackup>
+
+    @Query("""DELETE FROM DocumentBackup WHERE osisId = :initials""")
+    fun deleteByOsisId(initials: String)
 
 }

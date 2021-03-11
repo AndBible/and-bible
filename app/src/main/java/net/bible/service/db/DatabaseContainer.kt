@@ -752,6 +752,16 @@ private val MIGRATION_40_41_DocumentBackup = object : Migration(40, 41) {
     }
 }
 
+private val MIGRATION_41_42_cipherKey = object : Migration(41, 42) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `DocumentBackup` ADD COLUMN `cipherKey` TEXT DEFAULT NULL")
+            // Let's empty the db as we changed from book.osisId -> book.initials
+            execSQL("DELETE FROM DocumentBackup")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -806,6 +816,7 @@ object DatabaseContainer {
                         BOOKMARKS_LABEL_COLOR_38_39,
                         JOURNAL_39_40,
                         MIGRATION_40_41_DocumentBackup,
+                        MIGRATION_41_42_cipherKey,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

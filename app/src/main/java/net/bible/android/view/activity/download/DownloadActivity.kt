@@ -184,13 +184,13 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
      * Shows a dialog explaining that some books were not downloaded
      */
     private fun warnUserBooksNotDownloaded() {
-        val books = booksNotFound!!.toTypedArray()
+        val books = booksNotFound.toTypedArray()
         // books here is a list of osisIds
         // look up their full names in the local database
         GlobalScope.launch {
             val notInstalled: Array<String> = books.map {
-                docDao.getBook(it).name
-            }.toTypedArray()
+                docDao.getBook(it)?.name
+            }.filterNotNull().toTypedArray()
             withContext(Dispatchers.Main) {
                 val inflater = this@DownloadActivity.layoutInflater
                 val v = inflater.inflate(R.layout.books_not_downloaded_dialog, null)

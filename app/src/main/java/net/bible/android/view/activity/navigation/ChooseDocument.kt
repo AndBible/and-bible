@@ -38,6 +38,7 @@ import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.FakeBookFactory
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
@@ -54,6 +55,7 @@ import kotlin.coroutines.suspendCoroutine
 class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu.document_context_menu) {
     @Inject lateinit var downloadControl: DownloadControl
     @Inject lateinit var backupControl: BackupControl
+    private val docDao get() = DatabaseContainer.db.documentBackupDao()
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -120,7 +122,12 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         }
         if(passphrase != null) {
             val success = book.unlock(passphrase)
-            if(!success) {
+            if(success) {
+                docDao.getBook(book.initials)?.apply {
+                    cipherKey = passphrase
+                    docDao.update(this)
+                }
+            } else {
                 ABEventBus.getDefault().post(ToastEvent(getString(R.string.unlocking_failed)))
                 return false
             }

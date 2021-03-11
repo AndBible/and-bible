@@ -301,11 +301,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 showBetaNotice()
                 showFirstTimeHelp()
             }
+            GlobalScope.launch {
+                checkDocBackupDBInSync()
+            }
         }
         initialized = true
-        GlobalScope.launch {
-            checkDocBackupDBInSync()
-        }
     }
 
     /**
@@ -316,14 +316,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * available books if moving to a new device.
      */
     private fun checkDocBackupDBInSync() {
-        val docs = swordDocumentFacade.documents;
+        val docs = swordDocumentFacade.documents
         val knownInstalled = docDao.getKnownInstalled()
         if (knownInstalled.isEmpty()) {
             Log.i(TAG, "There is at least one Bible, but Bible Backup DB is empty, populate with first time books");
             val allDocs = docs.map {
-                DocumentBackup(it.osisID, it.name, it.abbreviation, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "")
+                DocumentBackup(it.initials, it.name, it.abbreviation, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "")
             }
-            docDao.insertDocuments(allDocs);
+            docDao.insert(allDocs)
         } else {
             knownInstalled.map {
                 Log.d(TAG, "The ${it.name} is installed")

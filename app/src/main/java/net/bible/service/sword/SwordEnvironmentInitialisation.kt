@@ -29,7 +29,7 @@ import net.bible.service.common.CommonUtils.ensureDirExists
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.isAndroid
 import net.bible.service.common.Logger
-import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.db.DatabaseContainer
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.CWProject
 import org.crosswire.common.util.Reporter
@@ -37,6 +37,7 @@ import org.crosswire.common.util.ReporterEvent
 import org.crosswire.common.util.ReporterListener
 import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.BookException
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.index.lucene.LuceneIndexManager
@@ -52,6 +53,7 @@ import java.io.File
 object SwordEnvironmentInitialisation {
     private var isSwordLoaded = false
     private val log = Logger(SwordDocumentFacade::class.java.name)
+    private val docDao get() = DatabaseContainer.db.documentBackupDao()
     fun initialiseJSwordFolders() {
         try {
             if (isAndroid && !isSwordLoaded) { // ensure required module directories exist and register them with jsword
@@ -84,6 +86,10 @@ object SwordEnvironmentInitialisation {
                 // because the above line causes initialisation set the is initialised flag here
                 isSwordLoaded = true
                 VersificationMappingInitializer().startListening()
+                docDao.getUnlocked().forEach {
+                   val book = Books.installed().getBook(it.initials)
+                   book.unlock(it.cipherKey)
+                }
             }
         } catch (e: Exception) {
             log.error("Error initialising", e)

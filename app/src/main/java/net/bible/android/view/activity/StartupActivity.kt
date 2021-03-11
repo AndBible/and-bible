@@ -28,7 +28,6 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -83,7 +82,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 val checkedItems = bookNames.map { true }.toBooleanArray()
                 val dialog = AlertDialog.Builder(context)
                     .setPositiveButton(R.string.okay) { d, _ ->
-                        val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }.map{ it.osisId }
+                        val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }.map{ it.initials }
                         if(selectedBooks.isEmpty()) {
                             it.resume(null)
                         } else {
@@ -185,7 +184,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         // if a previous list of books is available to be installed,
         // allow the user to requickly redownload them all.
-        var redownloadButton = findViewById<Button>(R.id.redownloadButton)
+        val redownloadButton = findViewById<Button>(R.id.redownloadButton)
         val redownloadTextView = findViewById<TextView>(R.id.redownloadMessage)
         if (previousInstallDetected) {
             // do something
@@ -194,7 +193,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             redownloadTextView.visibility = View.VISIBLE
             redownloadButton?.setOnClickListener {
                 GlobalScope.launch(Dispatchers.Main)  {
-                    var books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
+                    val books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
                     if (books != null) {
                         val intentHandler = Intent(this@StartupActivity, FirstDownload::class.java);
                         intentHandler.putExtra(DownloadActivity.DOCUMENT_IDS_EXTRA, ArrayList(books));
