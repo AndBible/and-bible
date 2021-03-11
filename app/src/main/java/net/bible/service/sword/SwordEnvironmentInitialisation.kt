@@ -23,7 +23,7 @@ import androidx.core.content.ContextCompat
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
-import net.bible.android.control.versification.VersificationMappingInitializer
+import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils.ensureDirExists
 import net.bible.service.common.CommonUtils.getResourceString
@@ -85,7 +85,7 @@ object SwordEnvironmentInitialisation {
                 WebResource.setTimeout(20000)
                 // because the above line causes initialisation set the is initialised flag here
                 isSwordLoaded = true
-                VersificationMappingInitializer().startListening()
+                BookInstallWatcher().startListening()
                 docDao.getUnlocked().forEach {
                    val book = Books.installed().getBook(it.initials)
                    book.unlock(it.cipherKey)

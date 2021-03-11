@@ -44,7 +44,6 @@ class DownloadManager(
     private val onFailedReposChange: (() -> Unit)?
 ) {
     private val installManager: InstallManager = InstallManager()
-    private val docDao get() = DatabaseContainer.db.documentBackupDao()
     val failedRepos = TreeSet<String>()
 
     private fun markFailed(repo: String) {
@@ -120,22 +119,6 @@ class DownloadManager(
         installer.install(book)
         // reload metadata to ensure the correct location is set, otherwise maps won't show
         (book.bookMetaData as SwordBookMetaData).reload { true }
-        // update AndBible DB with books user has installed
-        updateDocsDB(book);
-    }
-
-    private fun updateDocsDB(book: Book) {
-        // if book is already installed, we remove it, else it deletes nothing
-        docDao.deleteByOsisId(book.initials)
-        Log.d(TAG, "Adding ${book.name} to document backup database")
-        // insert the new book info into backup db
-        docDao.insert(DocumentBackup(
-            book.initials,
-            book.name,
-            book.abbreviation,
-            book.language.name,
-            book.getProperty(REPOSITORY_KEY) ?: ""
-        ))
     }
 
     /**
