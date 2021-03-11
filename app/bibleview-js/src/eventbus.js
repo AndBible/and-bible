@@ -43,6 +43,7 @@ export const Events = {
     CONFIG_CHANGED: "config_changed",
     RELOAD_ADDONS: "reload_addons",
     SET_FONT_FAMILY: "set_font_family",
+    CLEAR_HIGHLIGHTS: "clear_highlights",
 }
 
 export function setupEventBusListener(eventId, callback) {

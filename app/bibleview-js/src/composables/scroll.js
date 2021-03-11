@@ -16,7 +16,7 @@
  */
 
 import {nextTick} from "@vue/runtime-core";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 
 export function useScroll(config, {getVerses}) {
@@ -69,6 +69,8 @@ export function useScroll(config, {getVerses}) {
             // Proceed with animation as long as we wanted it to.
             if (time < duration) {
                 currentScrollAnimation.value = window.requestAnimationFrame(step);
+            } else {
+                stopScrolling();
             }
         })
     }
@@ -86,14 +88,20 @@ export function useScroll(config, {getVerses}) {
         }
     }
 
-    function scrollToId(toId, {now = false, highlight = false, ordinal = null, delta = config.topOffset, force = false, duration = 1000} = {}) {
+    function scrollToId(toId, {now = false, highlight = false, ordinalStart = null, ordinalEnd = null, delta = config.topOffset, force = false, duration = 1000} = {}) {
         console.log("scrollToId", toId, now, delta);
         stopScrolling();
         if(delta !== config.topOffset) {
             config.topOffset = delta;
         }
-        if(highlight) {
-            getVerses(ordinal).forEach(o => o.highlight())
+        if(highlight && ordinalStart) {
+            emit(Events.CLEAR_HIGHLIGHTS)
+            if(!ordinalEnd) {
+                ordinalEnd = ordinalStart;
+            }
+            for(let ordinal = ordinalStart; ordinal <= ordinalEnd; ordinal ++) {
+                getVerses(ordinalStart).forEach(o => o.highlight())
+            }
         }
         let toElement = document.getElementById(toId)
         if(force && toElement == null) {

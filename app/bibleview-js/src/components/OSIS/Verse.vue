@@ -31,9 +31,10 @@
 import {inject, provide, reactive, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
-import {getVerseInfo, sleep} from "@/utils";
+import {cancellableTimer, getVerseInfo, sleep} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {fadeReferenceDelay} from "@/constants";
+import {Events, setupEventBusListener} from "@/eventbus";
 
 export default {
   name: "Verse",
@@ -72,6 +73,18 @@ export default {
     const {originalOrdinalRange} = inject("bibleDocumentInfo", {})
 
     const timeout = ref(false);
+    const cancelFuncs = [];
+
+    function endHighlight() {
+      cancelFuncs.forEach(f => f());
+      cancelFuncs.splice(0);
+      timeout.value = false;
+      highlighted.value = false;
+    }
+
+    setupEventBusListener(Events.CLEAR_HIGHLIGHTS, () => {
+      endHighlight();
+    })
 
     const isInOriginalOrdinalRange = computed(() => {
       if(!originalOrdinalRange) return false
@@ -80,14 +93,21 @@ export default {
 
     const highlighted = ref(false);
 
+    function setupEndHighlight() {
+      const [promise, cancel] = cancellableTimer(fadeReferenceDelay);
+      promise.then(() => timeout.value = true)
+      cancelFuncs.push(cancel);
+    }
+
     function highlight() {
+      endHighlight();
       timeout.value = false;
       highlighted.value = true;
-      sleep(fadeReferenceDelay).then(() => timeout.value = true)
+      setupEndHighlight();
     }
 
     if(isInOriginalOrdinalRange.value) {
-      sleep(fadeReferenceDelay).then(() => timeout.value = true)
+      setupEndHighlight();
     }
 
     const common = useCommon();

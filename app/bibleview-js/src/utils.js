@@ -232,6 +232,17 @@ export async function sleep(ms) {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export function cancellableTimer(ms) {
+    let cancel = false;
+    const promise = new Promise(resolve => setTimeout(() => {
+        if(!cancel) {
+            resolve()
+        }
+    }, ms));
+    return [promise, () => cancel = true];
+
+}
+
 export function mixColors(...colors) {
     const hexColors = colors.map(v=>v.rgb().hex());
     const mixed = rybColorMixer.mix(...hexColors, {result: "ryb", hex: true});

@@ -492,9 +492,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun clearNotificationAndWidgetTitles() {
         // Clear title and text from widget and notification.
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, verseRange,
+        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse,
                 TextCommand("", type=TextCommand.TextType.TITLE)))
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, verseRange,
+        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse,
                 TextCommand("", type=TextCommand.TextType.NORMAL)))
     }
 
@@ -532,7 +532,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startVerse
             }
-            ABEventBus.getDefault().post(SpeakProgressEvent(state.book, verseRange, state.command!!))
+            ABEventBus.getDefault().post(SpeakProgressEvent(state.book, VerseRange(state.startVerse.versification, state.startVerse, state.endVerse), state.command!!))
         }
     }
 

@@ -102,6 +102,7 @@ import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -1145,18 +1146,34 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun scrollOrJumpToVerse(verse: Verse, restoreOngoing: Boolean = false) {
-        Log.d(TAG, "Scroll or jump to:$verse")
-        var toVerse = verse;
+    fun scrollOrJumpToVerse(key: Key, restoreOngoing: Boolean = false) {
+        Log.d(TAG, "Scroll or jump to:$key")
+        var toVerse: Verse
+        var endVerse: Verse? = null
+        if(key is VerseRange) {
+            toVerse = key.start
+            endVerse = key.end
+        } else if(key is Verse) {
+            toVerse = key
+        } else {
+            throw RuntimeException("illegal type")
+        }
         val v = initialVerse
         if(firstDocument is MyNotesDocument) {
-            toVerse = verse.toV11n(KJVA)
+            toVerse = toVerse.toV11n(KJVA)
+            endVerse = endVerse?.toV11n(KJVA)
         } else if(v != null) {
-            toVerse = verse.toV11n(v.versification)
+            toVerse = toVerse.toV11n(v.versification)
+            endVerse = endVerse?.toV11n(v.versification)
         }
         val jumpToId = "v-${toVerse.ordinal}"
-        val now = if(!contentVisible || restoreOngoing) "true" else "false"
-        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: $now, highlight: $now, ordinal: ${toVerse.ordinal}, delta: $topOffset});")
+        val now = !contentVisible || restoreOngoing
+        val highlight = now || endVerse != null
+        fun boolString(value: Boolean?): String {
+            if(value == null) return "null"
+            return if(value) "true" else "false"
+        }
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}, delta: $topOffset});")
     }
 
     private fun executeJavascriptOnUiThread(javascript: String) {

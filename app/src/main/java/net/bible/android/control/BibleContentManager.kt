@@ -56,7 +56,8 @@ constructor(private val windowControl: WindowControl) {
             && window.hasChapterLoaded(verse.chapter)
         )
         {
-            window.bibleView?.scrollOrJumpToVerse(verse, window.restoreOngoing)
+            val originalKey = window.pageManager.currentBible.originalKey
+            window.bibleView?.scrollOrJumpToVerse(originalKey ?: verse, window.restoreOngoing)
             PassageChangeMediator.getInstance().contentChangeFinished()
         }
         else {
