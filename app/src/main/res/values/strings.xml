@@ -706,4 +706,5 @@
     <string name="unlock_info">Encrypted module unlocking info</string>
     <string name="try_again_passphrase">Passphrase did not work, try again?</string>
     <string name="cant_delete_last_bible">Can\'t remove last bible document</string>
+    <string name="show_unlock_info">Module &amp; unlock info</string>
 </resources>

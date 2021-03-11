@@ -32,10 +32,16 @@ import android.content.res.Resources
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
+import android.text.Html
 import android.text.SpannableStringBuilder
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.widget.EditText
+import android.widget.TextView
 import androidx.preference.PreferenceManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -53,13 +59,20 @@ import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.download.DownloadManager
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateUtils
 import org.crosswire.common.util.IOUtil
+import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordBookMetaData
+import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_UNLOCK_INFO
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -67,6 +80,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.util.*
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 val BookmarkEntities.Label.displayName get() =
@@ -481,9 +495,10 @@ object CommonUtils {
     private val docDao get() = DatabaseContainer.db.documentBackupDao()
 
     suspend fun unlockDocument(context: Context, book: Book): Boolean {
+        class ShowAgain: Exception()
         var repeat = true
         while(repeat) {
-            val passphrase: String? = suspendCoroutine {
+            val passphrase: String? = try {suspendCoroutine {
                 val name = EditText(context)
                 name.text = SpannableStringBuilder(book.unlockKey ?: "")
                 name.selectAll()
@@ -495,9 +510,15 @@ object CommonUtils {
                     }
                     .setView(name)
                     .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
+                    .setNeutralButton(R.string.show_unlock_info) { _, _ -> GlobalScope.launch(Dispatchers.Main) {
+                        showAbout(context, book)
+                        it.resumeWithException(ShowAgain())
+                    } }
                     .setTitle(application.getString(R.string.give_passphrase_for_module, book.initials))
                     .create()
                     .show()
+            } } catch (e: ShowAgain) {
+                continue
             }
             if (passphrase != null) {
                 val success = book.unlock(passphrase)
@@ -522,6 +543,116 @@ object CommonUtils {
             }
         }
         return false
+    }
+
+    /** about display is generic so handle it here
+     */
+    suspend fun showAbout(context: Context, document: Book) {
+        var about = "<b>${document.name}</b>\n\n"
+        about += document.bookMetaData.getProperty("About") ?: ""
+        // either process the odd formatting chars in about
+        about = about.replace("\\pard", "")
+        about = about.replace("\\par", "\n")
+
+        val shortPromo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_PROMO)
+
+        if(shortPromo != null) {
+            about += "\n\n${shortPromo}"
+        }
+
+        // Copyright and distribution information
+        val shortCopyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_COPYRIGHT)
+        val copyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_COPYRIGHT)
+        val distributionLicense = document.bookMetaData.getProperty(SwordBookMetaData.KEY_DISTRIBUTION_LICENSE)
+        val unlockInfo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_UNLOCK_INFO)
+        var copyrightMerged = ""
+        if (StringUtils.isNotBlank(shortCopyright)) {
+            copyrightMerged += shortCopyright
+        } else if (StringUtils.isNotBlank(copyright)) {
+            copyrightMerged += "\n\n" + copyright
+        }
+        if (StringUtils.isNotBlank(distributionLicense)) {
+            copyrightMerged += "\n\n" +distributionLicense
+        }
+        if (StringUtils.isNotBlank(copyrightMerged)) {
+            val copyrightMsg = application.getString(R.string.module_about_copyright, copyrightMerged)
+            about += "\n\n" + copyrightMsg
+        }
+        if(unlockInfo != null) {
+            about += "\n\n<b>${application.getString(R.string.unlock_info)}</b>\n\n$unlockInfo"
+        }
+
+        // add version
+        val existingDocument = Books.installed().getBook(document.initials)
+        val existingVersion = existingDocument?.bookMetaData?.getProperty("Version")
+        val existingVersionDate = existingDocument?.bookMetaData?.getProperty("SwordVersionDate") ?: "-"
+
+        val inDownloadScreen = context is DownloadActivity
+
+        val versionLatest = document.bookMetaData.getProperty("Version")
+        val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
+
+        val versionMessageInstalled = if(existingVersion != null)
+            application.getString(R.string.module_about_installed_version, Version(existingVersion).toString(), existingVersionDate)
+        else null
+
+        val versionMessageLatest = if(versionLatest != null)
+            application.getString((
+                if (existingDocument != null)
+                    R.string.module_about_latest_version
+                else
+                    R.string.module_about_installed_version),
+                Version(versionLatest).toString(), versionLatestDate)
+        else null
+
+        if(versionMessageLatest != null) {
+            about += "\n\n" + versionMessageLatest
+            if(versionMessageInstalled != null && inDownloadScreen)
+                about += "\n" + versionMessageInstalled
+        }
+
+        val history = document.bookMetaData.getValues("History")
+        if(history != null) {
+            about += "\n\n" + application.getString(R.string.about_version_history, "\n" +
+                history.reversed().joinToString("\n"))
+        }
+
+        // add versification
+        if (document is SwordBook) {
+            val versification = document.versification
+            val versificationMsg = application.getString(R.string.module_about_versification, versification.name)
+            about += "\n\n" + versificationMsg
+        }
+
+        // add id
+        if (document is SwordBook) {
+            val repoName = document.getProperty(DownloadManager.REPOSITORY_KEY)
+            val repoMessage = if(repoName != null) application.getString(R.string.module_about_repository, repoName) else ""
+            val osisIdMessage = application.getString(R.string.module_about_osisId, document.initials)
+            about += """
+
+
+                $osisIdMessage
+                
+                $repoMessage
+                """.trimIndent()
+        }
+        about = about.replace("\n", "<br>")
+        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(about, Html.FROM_HTML_MODE_LEGACY)
+        } else {
+            Html.fromHtml(about)
+        }
+        suspendCoroutine<Any?> {
+            val d = AlertDialog.Builder(context)
+                .setMessage(spanned)
+                .setCancelable(false)
+                .setPositiveButton(R.string.okay) { dialog, buttonId ->
+                    it.resume(null)
+                }.create()
+            d.show()
+            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        }
     }
 }
 
