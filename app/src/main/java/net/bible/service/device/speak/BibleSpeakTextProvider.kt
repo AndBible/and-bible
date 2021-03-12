@@ -106,11 +106,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private var readList = SpeakCommandArray()
     internal var settings = SpeakSettings.load()
 
-    private val currentState: State
-        get() {
-            return utteranceState[currentUtteranceId] ?: State(book, startVerse, endVerse, currentVerse)
-        }
-
+    private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startVerse, endVerse, currentVerse)
 
     override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {
         this.settings = speakSettingsChangedEvent.speakSettings
@@ -311,7 +307,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return currentState.command.toString()
     }
 
-    val verseRange: VerseRange = VerseRange(currentState.book.versification, currentState.startVerse, currentState.endVerse)
+    val verseRange: VerseRange get() = VerseRange(currentState.book.versification, currentState.startVerse, currentState.endVerse)
 
     private fun getSpeakCommandsForVerse(verse: Verse, book: SwordBook? = null): SpeakCommandArray {
         val book_ = book ?: this.book
@@ -532,7 +528,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startVerse
             }
-            ABEventBus.getDefault().post(SpeakProgressEvent(state.book, VerseRange(state.startVerse.versification, state.startVerse, state.endVerse), state.command!!))
+            ABEventBus.getDefault().post(SpeakProgressEvent(state.book, VerseRange(state.book.versification, state.startVerse, state.endVerse), state.command!!))
         }
     }
 
