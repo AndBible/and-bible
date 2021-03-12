@@ -255,7 +255,7 @@ open class BookmarkControl @Inject constructor(
     }
 
     private fun addText(b: Bookmark) {
-        val book = b.book ?: windowControl.defaultBibleDoc
+        val book = b.book ?: windowControl.defaultBibleDoc ?: return // last ?: return is needed for tests
         b.osisFragment = OsisFragment(swordContentFacade.readOsisFragment(book, b.verseRange), b.verseRange, book)
         val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(book, it, true) }
         val startOffset = b.startOffset ?: 0
