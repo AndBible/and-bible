@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -138,6 +139,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     /** Called when the activity is first created.  */
+    @SuppressLint("ApplySharedPref")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // do not show an actionBar/title on the splash screen
@@ -148,7 +150,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
         GlobalScope.launch {
             if (crashed) {
-                CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", false).commit()
+                CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", false).commit() // Yes, we want this to be flushed to file immediately
                 val msg = getString(R.string.error_occurred_crash_last_time)
                 errorReportControl.showErrorDialog(this@StartupActivity, msg)
             }
