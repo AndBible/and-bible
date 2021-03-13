@@ -106,7 +106,6 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.RangedPassage
-import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
@@ -393,9 +392,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         addJavascriptInterface(bibleJavascriptInterface, "android")
     }
 
-    class BibleLink(val type: String, val target: String, val v11nString: String? = null) {
+    class BibleLink(val type: String, val target: String, private val v11nName: String? = null) {
         val versification: Versification get() =
-            Versifications.instance().getVersification(v11nString?: SystemKJVA.V11N_NAME)
+            Versifications.instance().getVersification(v11nName?: SystemKJVA.V11N_NAME)
         val url: String get() {
             return when(type) {
                 "content" -> "$type:$target"
