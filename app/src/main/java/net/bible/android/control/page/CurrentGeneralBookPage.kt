@@ -17,6 +17,7 @@
  */
 package net.bible.android.control.page
 
+import android.util.Log
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
@@ -26,6 +27,7 @@ import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKe
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.OsisError
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -68,8 +70,13 @@ class CurrentGeneralBookPage internal constructor(
                 }
                 is BookAndKeyList -> {
                     val frags = key.filterIsInstance<BookAndKey>().map {
-                        OsisFragment(swordContentFacade.readOsisFragment(it.document, it.key), it.key, it.document)
-                    }
+                        try {
+                            OsisFragment(swordContentFacade.readOsisFragment(it.document, it.key), it.key, it.document)
+                        } catch (e: OsisError) {
+                            Log.e(TAG, "Fragment could not be read")
+                            null
+                        }
+                    }.filterNotNull()
                     MultiFragmentDocument(frags)
                 }
                 else -> super.currentPageContent
