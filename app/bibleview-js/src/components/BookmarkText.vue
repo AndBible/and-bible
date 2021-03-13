@@ -17,7 +17,8 @@
 
 <template>
   <template v-if="bookmark.text">
-    <div v-if="expanded" @click.stop="$emit('change-expanded', false)">
+    <AmbiguousSelection ref="ambiguousSelection" @back-clicked="$emit('change-expanded', false)"/>
+    <div v-if="expanded" @click.stop="ambiguousSelection.handle">
       <OsisFragment
           :highlight-ordinal-range="bookmark.originalOrdinalRange"
           :highlight-offset-range="bookmark.offsetRange"
@@ -34,17 +35,20 @@
 <script>
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
+import {ref} from "@vue/reactivity";
 
 export default {
   name: "BookmarkText",
-  components: {OsisFragment},
+  components: {OsisFragment, AmbiguousSelection},
   emits: ["change-expanded"],
   props: {
     bookmark: {type: Object, required: true},
     expanded: {type: Boolean, default: false},
   },
   setup() {
-    return {...useCommon()};
+    const ambiguousSelection = ref(null);
+    return {ambiguousSelection, ...useCommon()};
   }
 }
 </script>
