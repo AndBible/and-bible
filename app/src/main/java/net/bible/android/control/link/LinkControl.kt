@@ -73,7 +73,7 @@ class LinkControl @Inject constructor(
 
     fun openMulti(links: List<BibleView.BibleLink>): Boolean {
         val key = BookAndKeyList()
-        val bookKeys = links.map { getBookAndKey(it.url) }.filterNotNull()
+        val bookKeys = links.map { getBookAndKey(it.url, it.versification) }.filterNotNull()
         for(k in bookKeys) {
             key.addAll(k)
         }
@@ -88,40 +88,40 @@ class LinkControl @Inject constructor(
     }
 
     fun loadApplicationUrl(link: BibleView.BibleLink): Boolean {
-        return loadApplicationUrl(link.url)
+        return loadApplicationUrl(link.url, link.versification)
     }
 
     fun errorLink() {
         errorReportControl.sendErrorReportEmail(Exception("Error in webview-js"))
     }
 
-    private fun getBookAndKey(uriStr: String): BookAndKey? {
+    private fun getBookAndKey(uriStr: String, versification: Versification): BookAndKey? {
         Log.d(TAG, "Loading: $uriStr")
         val uriAnalyzer = UriAnalyzer()
         if (uriAnalyzer.analyze(uriStr)) {
             return when (uriAnalyzer.docType) {
-                UriAnalyzer.DocType.BIBLE -> getBibleKey(uriAnalyzer.key)
+                UriAnalyzer.DocType.BIBLE -> getBibleKey(uriAnalyzer.key, versification)
                 UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key)
                 UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key)
                 UriAnalyzer.DocType.ROBINSON -> getRobinsonMorphologyKey(uriAnalyzer.key)
-                UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key)
+                UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification)
                 else -> null
             }
         }
         return null
     }
 
-    private fun loadApplicationUrl(uriStr: String): Boolean {
-        val bookAndKey = try {getBookAndKey(uriStr)} catch (e: NoSuchKeyException) {return false} ?: return false
+    private fun loadApplicationUrl(uriStr: String, versification: Versification): Boolean {
+        val bookAndKey = try {getBookAndKey(uriStr, versification)} catch (e: NoSuchKeyException) {return false} ?: return false
         showLink(bookAndKey.document, bookAndKey.key)
         return true
 	}
 
     @Throws(NoSuchKeyException::class)
-    private fun getSpecificDocRefKey(initials: String?, ref: String): BookAndKey? {
+    private fun getSpecificDocRefKey(initials: String?, ref: String, versification: Versification): BookAndKey? {
         var ref = ref
         if (StringUtils.isEmpty(initials)) {
-            return getBibleKey(ref)
+            return getBibleKey(ref, versification)
         } else {
             val document = swordDocumentFacade.getDocumentByInitials(initials)
             if (document == null) { // tell user to install book
@@ -158,21 +158,8 @@ class LinkControl @Inject constructor(
     /** user has selected a Bible verse link
      */
     @Throws(NoSuchKeyException::class)
-    private fun getBibleKey(keyText: String): BookAndKey {
-        val pageManager = currentPageManager
-        val bible = pageManager.currentBible.currentDocument!!
-        // get source versification
-        val sourceDocumentVersification: Versification
-        val currentDoc = pageManager.currentPage.currentDocument
-        sourceDocumentVersification = if (currentDoc is AbstractPassageBook) {
-            currentDoc.versification
-        } else { // default to v11n of current Bible.
-			//TODO av11n issue.  GenBooks have no v11n and this default would be used for links from GenBooks which would only sometimes be correct
-            (bible as AbstractPassageBook).versification
-        }
-        val key: Key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText)
-
-        // Bible not specified so use the default Bible version
+    private fun getBibleKey(keyText: String, versification: Versification): BookAndKey {
+        val key: Key = PassageKeyFactory.instance().getKey(versification, keyText)
         return BookAndKey(windowControl.defaultBibleDoc, key)
     }
 

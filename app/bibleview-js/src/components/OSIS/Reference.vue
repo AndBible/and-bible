@@ -42,6 +42,7 @@ export default {
     const {strings, ...common} = useCommon();
     const referenceCollector = inject("referenceCollector", null);
     const content = ref(null);
+    const osisFragment = inject("osisFragment");
 
     const osisRef = computed(() => {
       if(!props.osisRef && content.value) {
@@ -51,8 +52,11 @@ export default {
     });
 
     const queryParams = computed(() => {
-      return "osis=" + encodeURI(osisRef.value)
-
+      let paramString = "osis=" + encodeURI(osisRef.value)
+      if(osisFragment.v11n) {
+        paramString += "&v11n=" + encodeURI(osisFragment.v11n)
+      }
+      return paramString
     })
 
     const link = computed(() => {

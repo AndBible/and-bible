@@ -30,11 +30,12 @@ export default {
   name: "OpenAllLink",
   setup() {
     const referenceCollector = inject("referenceCollector", null);
+    const osisFragment = inject("osisFragment");
     const openAllLink = computed(() => {
       if(referenceCollector === null) return null;
       const refs = referenceCollector.references;
       if(refs.length < 2) return null;
-      return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&")
+      return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&") + "&v11n=" + encodeURI(osisFragment.v11n)
     });
     return {openAllLink, ...useCommon()}
   }

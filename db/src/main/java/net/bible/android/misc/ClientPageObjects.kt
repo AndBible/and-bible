@@ -22,6 +22,7 @@ import kotlinx.serialization.serializer
 import net.bible.android.database.json
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.FeatureType
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
 
@@ -62,6 +63,7 @@ class OsisFragment(
             "xml" to wrapString(xml),
             "key" to wrapString(keyStr),
             "keyName" to wrapString(key.name),
+            "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
             "bookCategory" to wrapString(book.bookCategory.name),
             "bookInitials" to wrapString(book.initials),
             "osisRef" to wrapString(key.osisRef),

@@ -109,6 +109,9 @@ import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.SystemKJVA
+import org.crosswire.jsword.versification.system.Versifications
 import java.io.File
 import java.lang.ref.WeakReference
 import java.net.URLConnection
@@ -390,7 +393,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         addJavascriptInterface(bibleJavascriptInterface, "android")
     }
 
-    class BibleLink(val type: String, val target: String) {
+    class BibleLink(val type: String, val target: String, val v11nString: String? = null) {
+        val versification: Versification get() =
+            Versifications.instance().getVersification(v11nString?: SystemKJVA.V11N_NAME)
         val url: String get() {
             return when(type) {
                 "content" -> "$type:$target"
@@ -584,8 +589,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         UriConstants.MULTI_REFERENCE -> {
             val osisRefs = uri.getQueryParameters("osis")
+            val v11n = uri.getQueryParameter("v11n")
             if(osisRefs != null) {
-                linkControl.openMulti(osisRefs.map { BibleLink("osis", it) })
+                linkControl.openMulti(osisRefs.map { BibleLink("osis", it, v11n) })
             } else false
         }
         UriConstants.SCHEME_JOURNAL -> {
@@ -596,11 +602,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         UriConstants.SCHEME_REFERENCE -> {
             val osisRef = uri.getQueryParameter("osis")
+            val v11n = uri.getQueryParameter("v11n")
             if(osisRef != null) {
-                linkControl.loadApplicationUrl(BibleLink("osis", osisRef))
+                linkControl.loadApplicationUrl(BibleLink("osis", osisRef, v11n))
             } else {
                 val contentRef = uri.getQueryParameter("content")!!
-                linkControl.loadApplicationUrl(BibleLink("content", contentRef))
+                linkControl.loadApplicationUrl(BibleLink("content", contentRef, v11n))
             }
             true
         }
