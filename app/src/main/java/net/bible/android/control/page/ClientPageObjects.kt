@@ -167,6 +167,7 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
     override val asHashMap: Map<String, String> get() = mapOf(
         "id" to bookmark.id.toString(),
         "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal)),
+        "originalOrdinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.start.ordinal, bookmark.verseRange.end.ordinal)),
         "offsetRange" to json.encodeToString(serializer(), bookmark.textRange?.clientList),
         "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
             if(it.isEmpty()) it.add(LABEL_UNLABELED_ID)

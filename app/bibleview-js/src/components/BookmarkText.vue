@@ -17,10 +17,9 @@
 
 <template>
   <template v-if="bookmark.text">
-    <div @click.stop="$emit('change-expanded', false)">
+    <div v-if="expanded" @click.stop="$emit('change-expanded', false)">
       <OsisFragment
-          v-if="expanded"
-          :highlight-ordinal-range="bookmark.ordinalRange"
+          :highlight-ordinal-range="bookmark.originalOrdinalRange"
           :highlight-offset-range="bookmark.offsetRange"
           :fragment="bookmark.osisFragment"
           hide-titles
