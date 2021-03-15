@@ -569,7 +569,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun openLink(uri: Uri): Boolean = when(uri.scheme) {
         UriConstants.SCHEME_W -> {
-            throw RuntimeException("blah")
             val links = mutableListOf<BibleLink>()
             for(paramName in uri.queryParameterNames) {
                 links.addAll(uri.getQueryParameters(paramName).map { BibleLink(paramName, it) })
