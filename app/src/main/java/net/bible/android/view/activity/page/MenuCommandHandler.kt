@@ -43,7 +43,7 @@ import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
-import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.control.report.BugReport
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.ActivityBase
@@ -80,7 +80,6 @@ constructor(private val callingActivity: MainBibleActivity,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
             private val backupControl: BackupControl,
-            private val errorReportControl: ErrorReportControl
 ) {
 
     /**
@@ -238,7 +237,7 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.bugReport -> {
                     GlobalScope.launch {
-                        errorReportControl.reportBug(callingActivity)
+                        BugReport.reportBug(callingActivity)
                     }
                     isHandled = true
                 }

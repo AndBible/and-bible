@@ -23,7 +23,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.content.FileProvider
@@ -58,10 +57,42 @@ import kotlin.coroutines.suspendCoroutine
 class ErrorReportControl @Inject constructor() {
     fun sendErrorReportEmail(e: Throwable? = null) {
         GlobalScope.launch {
-            reportBug(exception = e)
+            BugReport.reportBug(exception = e)
         }
     }
 
+    enum class AlertDialogResult {CANCEL, OKAY, REPORT}
+    suspend fun showErrorDialog(context: ActivityBase, msg: String, isCancelable: Boolean = false, report: Boolean = true) {
+        Log.d(TAG, "showErrorMesage message:$msg")
+        withContext(Dispatchers.Main) {
+            val result = suspendCoroutine<AlertDialogResult> {
+                val dlgBuilder = AlertDialog.Builder(context)
+                    .setMessage(msg)
+                    .setCancelable(isCancelable)
+                    .setOnCancelListener { _ -> it.resume(AlertDialogResult.CANCEL) }
+                    .setPositiveButton(R.string.okay) { _, _ -> it.resume(AlertDialogResult.OKAY) }
+
+                if (isCancelable && !report) {
+                    dlgBuilder.setNegativeButton(R.string.cancel) { _, _ ->
+                        it.resume(AlertDialogResult.CANCEL)
+                    }
+                }
+                if (report) {
+                    dlgBuilder.setPositiveButton(R.string.report_error) { _, _ -> it.resume(AlertDialogResult.REPORT) }
+                    dlgBuilder.setNeutralButton(R.string.error_skip) { _, _ -> it.resume(AlertDialogResult.CANCEL) }
+                }
+                dlgBuilder.show()
+            }
+            when(result) {
+                AlertDialogResult.OKAY -> null
+                AlertDialogResult.REPORT -> BugReport.reportBug(context, useSaved = true)
+                AlertDialogResult.CANCEL -> null
+            }
+        }
+    }
+}
+
+object BugReport {
     private fun createErrorText(exception: Throwable?) = try {
         val text = StringBuilder()
         text.append("And Bible version: ").append(applicationVersionName).append("\n")
@@ -109,20 +140,26 @@ class ErrorReportControl @Inject constructor() {
         return returnedBitmap
     }
 
-    suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, takeScreenshot: Boolean = true) {
+    fun saveScreenshot() {
+        val activity = CurrentActivityHolder.getInstance().currentActivity?: return
+        val dir = File(activity.filesDir, "/log")
+        val screenshotFile = File(dir, "screenshot.jpg")
+        val screenShot = getScreenShot(activity)?: return
+        val screenshotOutputStream = FileOutputStream(screenshotFile)
+        screenShot.compress(Bitmap.CompressFormat.JPEG, 0, screenshotOutputStream)
+        screenshotOutputStream.flush()
+        screenshotOutputStream.close()
+    }
+
+    suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, useSaved: Boolean = false) {
         val context = context_ ?: CurrentActivityHolder.getInstance().currentActivity
         val dir = File(context.filesDir, "/log")
         val f = File(dir, "logcat.txt.gz")
-        val screenshotFile = File(dir, "screenshot.png")
-        var screenShot: Bitmap? = null
+        val screenshotFile = File(dir, "screenshot.jpg")
 
         val hourglass = Hourglass(context)
         hourglass.show()
         withContext(Dispatchers.IO) {
-            if(takeScreenshot) {
-                delay(1000)
-                screenShot = getScreenShot(context_)
-            }
             val log = StringBuilder()
             try {
                 val process = Runtime.getRuntime().exec("logcat -d -v threadtime")
@@ -144,12 +181,9 @@ class ErrorReportControl @Inject constructor() {
             osw.write(log.toString().toByteArray());
             osw.flush()
             osw.close()
-
-            screenShot?.also {
-                val screenshotOutputStream = FileOutputStream(screenshotFile)
-                it.compress(Bitmap.CompressFormat.JPEG, 0, screenshotOutputStream)
-                screenshotOutputStream.flush()
-                screenshotOutputStream.close()
+            if(!useSaved) {
+                delay(1000)
+                saveScreenshot()
             }
         }
 
@@ -159,10 +193,11 @@ class ErrorReportControl @Inject constructor() {
             val subject = context.getString(R.string.report_bug_email_subject_2, CommonUtils.applicationNameMedium, getSubject(exception))
             val message = "\n\n" + context.getString(R.string.report_bug_email_message, createErrorText(exception))
 
-            val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", f)
-            val pngUri = screenShot?.run { FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", screenshotFile) }
+            val uris = ArrayList(listOf(f, screenshotFile).filter { it.canRead() }.map {
+                FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", it)
+            })
             val email = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-                putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(listOfNotNull(uri, pngUri)))
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
                 putExtra(Intent.EXTRA_SUBJECT, subject)
                 putExtra(Intent.EXTRA_TEXT, message)
                 putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
@@ -178,35 +213,6 @@ class ErrorReportControl @Inject constructor() {
         }
     }
 
-    enum class AlertDialogResult {CANCEL, OKAY, REPORT}
-    suspend fun showErrorDialog(context: ActivityBase, msg: String, isCancelable: Boolean = false, report: Boolean = true) {
-        Log.d(TAG, "showErrorMesage message:$msg")
-        withContext(Dispatchers.Main) {
-            val result = suspendCoroutine<AlertDialogResult> {
-                val dlgBuilder = AlertDialog.Builder(context)
-                    .setMessage(msg)
-                    .setCancelable(isCancelable)
-                    .setOnCancelListener { _ -> it.resume(AlertDialogResult.CANCEL) }
-                    .setPositiveButton(R.string.okay) { _, _ -> it.resume(AlertDialogResult.OKAY) }
-
-                if (isCancelable && !report) {
-                    dlgBuilder.setNegativeButton(R.string.cancel) { _, _ ->
-                        it.resume(AlertDialogResult.CANCEL)
-                    }
-                }
-                if (report) {
-                    dlgBuilder.setPositiveButton(R.string.report_error) { _, _ -> it.resume(AlertDialogResult.REPORT) }
-                    dlgBuilder.setNeutralButton(R.string.error_skip) { _, _ -> it.resume(AlertDialogResult.CANCEL) }
-                }
-                dlgBuilder.show()
-            }
-            when(result) {
-                AlertDialogResult.OKAY -> null
-                AlertDialogResult.REPORT -> reportBug(context, takeScreenshot = false)
-                AlertDialogResult.CANCEL -> null
-            }
-        }
-    }
 }
 
 const val TAG = "ErrorReportControl"
