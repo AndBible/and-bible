@@ -17,14 +17,19 @@
  */
 package net.bible.android.control.report
 
+import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.BuildConfig
@@ -45,8 +50,9 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.zip.GZIPOutputStream
 import javax.inject.Inject
-import kotlin.coroutines.suspendCoroutine
 import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+
 
 @ApplicationScope
 class ErrorReportControl @Inject constructor() {
@@ -92,13 +98,31 @@ class ErrorReportControl @Inject constructor() {
         return e.message
     }
 
-    suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null) {
+    private fun getScreenShot(activity: Activity?): Bitmap? {
+        val view = activity?.window?.decorView?.rootView?: return null
+        val returnedBitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(returnedBitmap)
+        val bgDrawable = view.background
+        if (bgDrawable != null) bgDrawable.draw(canvas)
+        else canvas.drawColor(Color.WHITE)
+        view.draw(canvas)
+        return returnedBitmap
+    }
+
+    suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, takeScreenshot: Boolean = true) {
         val context = context_ ?: CurrentActivityHolder.getInstance().currentActivity
         val dir = File(context.filesDir, "/log")
         val f = File(dir, "logcat.txt.gz")
+        val screenshotFile = File(dir, "screenshot.png")
+        var screenShot: Bitmap? = null
+
         val hourglass = Hourglass(context)
         hourglass.show()
         withContext(Dispatchers.IO) {
+            if(takeScreenshot) {
+                delay(1000)
+                screenShot = getScreenShot(context_)
+            }
             val log = StringBuilder()
             try {
                 val process = Runtime.getRuntime().exec("logcat -d -v threadtime")
@@ -120,7 +144,15 @@ class ErrorReportControl @Inject constructor() {
             osw.write(log.toString().toByteArray());
             osw.flush()
             osw.close()
+
+            screenShot?.also {
+                val screenshotOutputStream = FileOutputStream(screenshotFile)
+                it.compress(Bitmap.CompressFormat.JPEG, 0, screenshotOutputStream)
+                screenshotOutputStream.flush()
+                screenshotOutputStream.close()
+            }
         }
+
         hourglass.dismiss()
 
         withContext(Dispatchers.Main) {
@@ -128,12 +160,13 @@ class ErrorReportControl @Inject constructor() {
             val message = "\n\n" + context.getString(R.string.report_bug_email_message, createErrorText(exception))
 
             val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", f)
-            val email = Intent(Intent.ACTION_SEND).apply {
-                putExtra(Intent.EXTRA_STREAM, uri)
+            val pngUri = screenShot?.run { FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", screenshotFile) }
+            val email = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(listOfNotNull(uri, pngUri)))
                 putExtra(Intent.EXTRA_SUBJECT, subject)
                 putExtra(Intent.EXTRA_TEXT, message)
                 putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
-                type = "application/x-gzip"
+                type = "text/plain"
             }
             val chooserIntent = Intent.createChooser(email, context.getString(R.string.send_bug_report_title))
             chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -169,7 +202,7 @@ class ErrorReportControl @Inject constructor() {
             }
             when(result) {
                 AlertDialogResult.OKAY -> null
-                AlertDialogResult.REPORT -> reportBug(context)
+                AlertDialogResult.REPORT -> reportBug(context, takeScreenshot = false)
                 AlertDialogResult.CANCEL -> null
             }
         }
