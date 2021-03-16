@@ -144,11 +144,18 @@ object BugReport {
         val activity = CurrentActivityHolder.getInstance().currentActivity?: return
         val dir = File(activity.filesDir, "/log")
         val screenshotFile = File(dir, "screenshot.jpg")
-        val screenShot = getScreenShot(activity)?: return
-        val screenshotOutputStream = FileOutputStream(screenshotFile)
-        screenShot.compress(Bitmap.CompressFormat.JPEG, 0, screenshotOutputStream)
-        screenshotOutputStream.flush()
-        screenshotOutputStream.close()
+        try {
+            val screenShot = getScreenShot(activity) ?: return
+            val screenshotOutputStream = FileOutputStream(screenshotFile)
+            screenShot.compress(Bitmap.CompressFormat.JPEG, 10, screenshotOutputStream)
+            screenshotOutputStream.flush()
+            screenshotOutputStream.close()
+        } catch (e: Exception) {
+            Log.e(TAG, "Saving screenshot failed to exception", e)
+            // Delete earlier stored screenshot file, so we don't send unrelated screenshot.
+            screenshotFile.delete()
+            return
+        }
     }
 
     suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, useSaved: Boolean = false) {
