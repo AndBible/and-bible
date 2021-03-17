@@ -147,7 +147,7 @@ object BugReport {
         try {
             val screenShot = getScreenShot(activity) ?: return
             val screenshotOutputStream = FileOutputStream(screenshotFile)
-            screenShot.compress(Bitmap.CompressFormat.JPEG, 10, screenshotOutputStream)
+            screenShot.compress(Bitmap.CompressFormat.JPEG, 2, screenshotOutputStream)
             screenshotOutputStream.flush()
             screenshotOutputStream.close()
         } catch (e: Exception) {
