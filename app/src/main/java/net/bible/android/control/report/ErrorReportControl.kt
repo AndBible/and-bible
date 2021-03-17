@@ -92,6 +92,8 @@ class ErrorReportControl @Inject constructor() {
     }
 }
 
+const val SCREENSHOT_FILE = "screenshot.webp"
+
 object BugReport {
     private fun createErrorText(exception: Throwable?) = try {
         val text = StringBuilder()
@@ -143,11 +145,11 @@ object BugReport {
     fun saveScreenshot() {
         val activity = CurrentActivityHolder.getInstance().currentActivity?: return
         val dir = File(activity.filesDir, "/log")
-        val screenshotFile = File(dir, "screenshot.jpg")
+        val screenshotFile = File(dir, SCREENSHOT_FILE)
         try {
             val screenShot = getScreenShot(activity) ?: return
             val screenshotOutputStream = FileOutputStream(screenshotFile)
-            screenShot.compress(Bitmap.CompressFormat.JPEG, 2, screenshotOutputStream)
+            screenShot.compress(Bitmap.CompressFormat.WEBP, 0, screenshotOutputStream)
             screenshotOutputStream.flush()
             screenshotOutputStream.close()
         } catch (e: Exception) {
@@ -162,7 +164,7 @@ object BugReport {
         val context = context_ ?: CurrentActivityHolder.getInstance().currentActivity
         val dir = File(context.filesDir, "/log")
         val f = File(dir, "logcat.txt.gz")
-        val screenshotFile = File(dir, "screenshot.jpg")
+        val screenshotFile = File(dir, SCREENSHOT_FILE)
 
         val hourglass = Hourglass(context)
         hourglass.show()
