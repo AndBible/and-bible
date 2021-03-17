@@ -237,7 +237,7 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.bugReport -> {
                     GlobalScope.launch {
-                        BugReport.reportBug(callingActivity)
+                        BugReport.reportBug(callingActivity, source = "manual")
                     }
                     isHandled = true
                 }

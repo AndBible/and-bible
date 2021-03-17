@@ -55,9 +55,9 @@ import kotlin.coroutines.suspendCoroutine
 
 @ApplicationScope
 class ErrorReportControl @Inject constructor() {
-    fun sendErrorReportEmail(e: Throwable? = null) {
+    fun sendErrorReportEmail(e: Throwable? = null, source: String) {
         GlobalScope.launch {
-            BugReport.reportBug(exception = e)
+            BugReport.reportBug(exception = e, source = source)
         }
     }
 
@@ -85,7 +85,7 @@ class ErrorReportControl @Inject constructor() {
             }
             when(result) {
                 AlertDialogResult.OKAY -> null
-                AlertDialogResult.REPORT -> BugReport.reportBug(context, useSaved = true)
+                AlertDialogResult.REPORT -> BugReport.reportBug(context, useSaved = true, source = "after crash")
                 AlertDialogResult.CANCEL -> null
             }
         }
@@ -158,7 +158,7 @@ object BugReport {
         }
     }
 
-    suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, useSaved: Boolean = false) {
+    suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, useSaved: Boolean = false, source: String) {
         val context = context_ ?: CurrentActivityHolder.getInstance().currentActivity
         val dir = File(context.filesDir, "/log")
         val f = File(dir, "logcat.txt.gz")
@@ -197,7 +197,7 @@ object BugReport {
         hourglass.dismiss()
 
         withContext(Dispatchers.Main) {
-            val subject = context.getString(R.string.report_bug_email_subject_2, CommonUtils.applicationNameMedium, getSubject(exception))
+            val subject = context.getString(R.string.report_bug_email_subject_3, source, CommonUtils.applicationNameMedium, getSubject(exception))
             val message = "\n\n" + context.getString(R.string.report_bug_email_message, createErrorText(exception))
 
             val uris = ArrayList(listOf(f, screenshotFile).filter { it.canRead() }.map {

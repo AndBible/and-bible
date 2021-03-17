@@ -92,7 +92,7 @@ class LinkControl @Inject constructor(
     }
 
     fun errorLink() {
-        errorReportControl.sendErrorReportEmail(Exception("Error in webview-js"))
+        errorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
     }
 
     private fun getBookAndKey(uriStr: String, versification: Versification): BookAndKey? {

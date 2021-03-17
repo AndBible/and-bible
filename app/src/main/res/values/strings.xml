@@ -499,7 +499,7 @@
 
     <!-- Bug reporting -->
     <string name="send_bug_report_title">Report a bug</string>
-    <string name="report_bug_email_subject_2">Bug report for %s %s</string>
+    <string name="report_bug_email_subject_3">[%s] Bug report for %s %s</string>
     <string name="report_bug_email_message">
         --- WRITE BUG REPORT ABOVE THIS LINE ---\n
         Instructions:\n

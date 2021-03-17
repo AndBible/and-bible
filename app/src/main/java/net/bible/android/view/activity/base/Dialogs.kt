@@ -78,7 +78,7 @@ class Dialogs private constructor() {
      * Show error message and allow reporting of exception via e-mail to and-bible
      */
     fun showErrorMsg(message: String?, e: Exception?) {
-        val reportCallback = Callback { errorReportControl.sendErrorReportEmail(e) }
+        val reportCallback = Callback { errorReportControl.sendErrorReportEmail(e, source = "error message") }
         showMsg(message, false, doNothingCallback, reportCallback)
     }
 
