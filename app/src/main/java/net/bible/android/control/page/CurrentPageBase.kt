@@ -126,8 +126,8 @@ abstract class CurrentPageBase protected constructor(
     }
 
     override fun getPageContent(key: Key): Document {
-        val currentDocument = currentDocument!!
         return try {
+            val currentDocument = currentDocument!!
             OsisDocument(
                 book = currentDocument,
                 key = key,

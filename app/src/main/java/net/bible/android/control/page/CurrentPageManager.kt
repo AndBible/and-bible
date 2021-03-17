@@ -265,7 +265,7 @@ open class CurrentPageManager @Inject constructor(
             textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
         }
         currentPage = getBookPage(restoredBookCategory)
-        if(currentPage.key == null) {
+        if(currentPage.key == null || currentPage.currentDocument == null) {
             currentPage = currentBible
         }
     }
