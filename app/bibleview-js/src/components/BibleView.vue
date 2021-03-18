@@ -141,8 +141,8 @@
           text-align: ${config.justifyText ? "justify" : "start"};
           font-family: ${config.fontFamily};
           background-color: ${backgroundColor.hsl().string()};
-          font-size: ${config.fontSize}pt;
-          --font-size: ${config.fontSize}pt;
+          font-size: ${config.fontSize}px;
+          --font-size: ${config.fontSize}px;
           --background-color: ${backgroundColor.hsl().string()};
           `;
           if(config.marginSize.marginLeft || config.marginSize.marginRight) {
