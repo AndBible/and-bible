@@ -28,10 +28,9 @@
 <script>
 import {computed, reactive, ref} from "@vue/reactivity";
 import {inject, onMounted, provide} from "@vue/runtime-core";
-import {useCommon, useReferenceCollector} from "@/composables";
+import {useCommon} from "@/composables";
 import {AutoSleep, highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment";
-import {BookCategories} from "@/constants";
 import {useStrings} from "@/composables/strings";
 
 const parser = new DOMParser();

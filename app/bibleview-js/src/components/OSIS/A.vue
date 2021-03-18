@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <a href="#link" @click.prevent="openLink(href)"><slot/></a>
+  <a href="#link" @click.prevent="openLink($event, href)"><slot/></a>
 </template>
 
 <script>
