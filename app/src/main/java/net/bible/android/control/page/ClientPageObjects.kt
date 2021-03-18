@@ -31,12 +31,14 @@ import net.bible.android.misc.wrapString
 import net.bible.service.common.displayName
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_SOURCE_TYPE
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
+import java.util.*
 import java.util.UUID.randomUUID
 
 /*
@@ -112,6 +114,8 @@ class BibleDocument(
             put("bookmarks", listToJson(bookmarks))
             put("type", wrapString("bible"))
             put("ordinalRange", json.encodeToString(serializer(), listOf(vrInV11n.start.ordinal, vrInV11n.end.ordinal)))
+            put("addChapter", json.encodeToString(serializer(), swordBook.getProperty(KEY_SOURCE_TYPE).toString().toLowerCase(Locale.getDefault()) == "gbf"))
+            put("chapterNumber", json.encodeToString(serializer(), verseRange.start.chapter))
             put("originalOrdinalRange", originalOrdinalRange)
         }
     }

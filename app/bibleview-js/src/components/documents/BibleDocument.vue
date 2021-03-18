@@ -20,6 +20,7 @@
        class="bible-document"
        :data-book-initials="bookInitials"
   >
+    <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment" :show-transition="document.showTransition"/>
   </div>
 </template>
@@ -30,10 +31,11 @@ import {useBookmarks} from "@/composables/bookmarks";
 import {ref} from "@vue/reactivity";
 import OsisFragment from "@/components/documents/OsisFragment";
 import {useCommon} from "@/composables";
+import Chapter from "@/components/OSIS/Chapter";
 
 export default {
   name: "BibleDocument",
-  components: {OsisFragment},
+  components: {OsisFragment, Chapter},
   props: {
     document: {type: Object, required: true},
   },

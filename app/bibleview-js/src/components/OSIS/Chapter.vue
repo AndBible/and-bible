@@ -38,7 +38,7 @@ export default {
   },
   computed: {
     startTag: ({eID}) => eID === null,
-    chapterNum: ({osisID}) => osisID.split(".")[1]
+    chapterNum: ({n, osisID}) => n || osisID.split(".")[1]
   }
 }
 </script>
