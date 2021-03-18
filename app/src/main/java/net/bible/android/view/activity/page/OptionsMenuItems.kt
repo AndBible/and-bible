@@ -32,8 +32,9 @@ import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_C
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.settings.BookmarkSettingsActivity
 import net.bible.android.view.activity.settings.ColorSettingsActivity
+import net.bible.android.view.util.widget.FontFamilyWidget
 import net.bible.android.view.util.widget.MarginSizeWidget
-import net.bible.android.view.util.widget.FontWidget
+import net.bible.android.view.util.widget.FontSizeWidget
 import net.bible.android.view.util.widget.LineSpacingWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -177,7 +178,8 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.COLORS -> R.string.prefs_text_colors_menutitle
                 TextDisplaySettings.Types.JUSTIFY -> R.string.prefs_justify_title
                 TextDisplaySettings.Types.HYPHENATION -> R.string.prefs_hyphenation_title
-                TextDisplaySettings.Types.FONT -> R.string.prefs_text_size_title
+                TextDisplaySettings.Types.FONTSIZE -> R.string.font_size_title
+                TextDisplaySettings.Types.FONTFAMILY -> R.string.pref_font_family_label
                 TextDisplaySettings.Types.MARGINSIZE -> R.string.prefs_margin_size_title
                 TextDisplaySettings.Types.LINE_SPACING -> R.string.line_spacing_title
                 TextDisplaySettings.Types.BOOKMARK_SETTINGS -> R.string.bookmark_settings_title
@@ -268,11 +270,26 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
         }
 }
 
-class FontPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONT) {
-    override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_title)
+class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTSIZE) {
+    override val title: String get() = mainBibleActivity.getString(R.string.font_size_title)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        FontWidget.dialog(activity, value as WorkspaceEntities.Font, {
+        FontSizeWidget.dialog(activity, settings.actualSettings.fontFamily!!, value as Int, {
+            setNonSpecific()
+            onReset?.invoke()
+        }) {
+            value = it
+            onChanged?.invoke(it)
+        }
+        return true
+    }
+}
+
+class FontFamilyPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTFAMILY) {
+    override val title: String get() = mainBibleActivity.getString(R.string.pref_font_family_label)
+    override val visible = true
+    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        FontFamilyWidget.dialog(activity, settings.actualSettings.fontSize!!, value as String, {
             setNonSpecific()
             onReset?.invoke()
         }) {

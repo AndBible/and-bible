@@ -77,9 +77,15 @@
             />
 
         <Preference
-            android:key="FONT"
-            android:title="@string/prefs_text_size_title"
-            android:summary="@string/prefs_text_size_summary"
+            android:key="FONTSIZE"
+            android:title="@string/font_size_title"
+            android:summary="@string/prefs_font_text_size_summary"
+            />
+
+        <Preference
+            android:key="FONTFAMILY"
+            android:title="@string/pref_font_family_label"
+            android:summary="@string/prefs_font_family_summary"
             />
 
         <Preference

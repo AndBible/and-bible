@@ -90,11 +90,6 @@
         scrollToId(`v-${verseBeforeConfigChange}`, true)
       })
 
-      const fontFamily = ref(null);
-      setupEventBusListener(Events.SET_FONT_FAMILY, value => {
-        fontFamily.value = value;
-      })
-
       setupEventBusListener(Events.REPLACE_DOCUMENT, replaceDocument);
       setupWindowEventListener("error", (e) => {
         console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
@@ -144,6 +139,10 @@
           line-spacing: ${config.lineSpacing / 10}em;
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
+          font-family: ${config.fontFamily};
+          background-color: ${backgroundColor.hsl().string()};
+          font-size: ${config.fontSize}pt;
+          --font-size: ${config.fontSize}pt;
           --background-color: ${backgroundColor.hsl().string()};
           `;
           if(config.marginSize.marginLeft || config.marginSize.marginRight) {
@@ -152,10 +151,6 @@
             margin-right: ${config.marginSize.marginRight}mm;
           `;
           }
-          if(fontFamily.value) {
-            style += `font-family: ${fontFamily.value};`
-          }
-
           return style;
       });
 

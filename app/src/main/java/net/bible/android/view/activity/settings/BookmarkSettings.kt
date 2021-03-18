@@ -70,7 +70,7 @@ class BookmarkSettingsActivity: ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
-        bookmarks = settingsBundle.actualSettings.bookmarks?: WorkspaceEntities.TextDisplaySettings.default.bookmarks!!
+        bookmarks = settingsBundle.actualSettings.bookmarks!!
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_dialog)

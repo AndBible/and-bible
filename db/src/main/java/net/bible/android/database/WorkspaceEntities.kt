@@ -107,12 +107,6 @@ class WorkspaceEntities {
     )
 
     @Serializable
-    data class Font(
-        @ColumnInfo(defaultValue = "NULL") var fontSize: Int?,
-        @ColumnInfo(defaultValue = "NULL") var fontFamily: String?
-    )
-
-    @Serializable
     data class BookmarkDisplaySettings(
         @ColumnInfo(defaultValue = "NULL") var showAll: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showLabels: List<Long>? = null,
@@ -153,12 +147,14 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var hyphenation: Boolean? = null,
-        @Embedded(prefix="font_") var font: Font? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "font_fontSize") var fontSize: Int? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "font_fontFamily") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
         @Embedded(prefix="bookmarks_") var bookmarks: BookmarkDisplaySettings? = null,
     ) {
         enum class Types {
-            FONT,
+            FONTSIZE,
+            FONTFAMILY,
             COLORS,
             MARGINSIZE,
             JUSTIFY,
@@ -191,7 +187,8 @@ class WorkspaceEntities {
             Types.JUSTIFY -> justifyText
             Types.HYPHENATION -> hyphenation
             Types.LINE_SPACING -> lineSpacing
-            Types.FONT -> font?.copy()
+            Types.FONTSIZE -> fontSize
+            Types.FONTFAMILY -> fontFamily
             Types.BOOKMARK_SETTINGS -> bookmarks
         }
 
@@ -210,7 +207,8 @@ class WorkspaceEntities {
                 Types.COLORS -> colors = value as Colors?
                 Types.JUSTIFY -> justifyText = value as Boolean?
                 Types.HYPHENATION -> hyphenation = value as Boolean?
-                Types.FONT -> font = value as Font?
+                Types.FONTSIZE -> fontSize = value as Int?
+                Types.FONTFAMILY -> fontFamily = value as String?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
                 Types.BOOKMARK_SETTINGS -> bookmarks = value as BookmarkDisplaySettings?
             }
@@ -251,10 +249,8 @@ class WorkspaceEntities {
                     marginRight = 0,
                     maxWidth = 170
                 ),
-                font = Font(
-                    fontSize = 16,
-                    fontFamily = "sans-serif"
-                ),
+                fontSize = 16,
+                fontFamily = "sans-serif",
                 strongsMode = 0,
                 showMorphology = false,
                 showFootNotes = false,
@@ -389,7 +385,7 @@ data class SettingsBundle (
     val windowId: Long? = null
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() {
-        return if(windowId == null) workspaceSettings else WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
+        return if(windowId == null) WorkspaceEntities.TextDisplaySettings.actual(null, workspaceSettings) else WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
     }
 
     fun toJson(): String {

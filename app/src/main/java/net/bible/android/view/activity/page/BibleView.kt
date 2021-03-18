@@ -437,8 +437,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         settings.javaScriptEnabled = true
 
-        applyPreferenceSettings()
-
         pageTiltScroller = PageTiltScroller(this, pageTiltScrollControl)
         pageTiltScroller.enableTiltScroll(true)
 
@@ -706,36 +704,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    /** apply settings set by the user using Preferences
-     */
-    override fun applyPreferenceSettings() {
-        Log.d(TAG, "applyPreferenceSettings")
-        applyFontSize()
-    }
-
-    private fun applyFontSize() {
-        Log.d(TAG, "applyFontSize")
-        val fontSize = pageControl.getDocumentFontSize(window)
-        val oldFontSize = settings.defaultFontSize
-        val fontFamily = window.pageManager.actualTextDisplaySettings.font!!.fontFamily!!
-        settings.defaultFontSize = fontSize
-        if(!htmlLoadingOngoing) {
-            executeJavascriptOnUiThread("bibleView.emit('set_font_family', '$fontFamily');")
-        } else {
-            settings.standardFontFamily = fontFamily
-        }
-        if(oldFontSize != fontSize) {
-            doCheckWindows()
-        }
-    }
-
-    /** may need updating depending on environmental brightness
-     */
-    override fun updateBackgroundColor() {
-        Log.d(TAG, "updateBackgroundColor")
-        setBackgroundColor(backgroundColor)
-    }
-
     val backgroundColor: Int get() {
         val colors = window.pageManager.actualTextDisplaySettings.colors
         return (if(ScreenSettings.nightMode) colors?.nightBackground else colors?.dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
@@ -780,8 +748,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         withContext(Dispatchers.Main) {
-            updateBackgroundColor()
-            applyFontSize()
             enableZoomForMap(pageControl.currentPageManager.isMapShown)
         }
 
@@ -806,8 +772,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun updateTextDisplaySettings() {
         Log.d(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
-        applyFontSize()
         executeJavascriptOnUiThread("bibleView.emit('set_config', {config: ${displaySettings.toJson()}, nightMode: $nightMode});")
+    }
+
+    fun updateBackgroundColor() {
+        Log.d(TAG, "updateBackgroundColor")
+        setBackgroundColor(backgroundColor)
     }
 
     val nightMode get() = mainBibleActivity.currentNightMode

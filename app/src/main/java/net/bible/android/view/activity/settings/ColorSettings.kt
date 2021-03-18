@@ -68,7 +68,7 @@ class ColorSettingsActivity: ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
-        colors = settingsBundle.actualSettings.colors?: WorkspaceEntities.TextDisplaySettings.default.colors!!
+        colors = settingsBundle.actualSettings.colors!!
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_dialog)
