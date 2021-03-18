@@ -61,7 +61,7 @@ abstract class VersePage protected constructor(
 
     override fun localSetCurrentDocument(doc: Book?) { // update current verse possibly remapped to v11n of new bible
         doc ?: return
-        val newDocVersification = (currentDocument as AbstractPassageBook).versification
+        val newDocVersification = (doc as AbstractPassageBook).versification
         val newVerse = currentBibleVerse.getVerseSelected(newDocVersification)
         super.localSetCurrentDocument(doc)
         doSetKey(newVerse)

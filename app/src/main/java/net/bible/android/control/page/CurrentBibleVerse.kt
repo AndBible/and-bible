@@ -41,9 +41,7 @@ class CurrentBibleVerse {
     val currentBibleBook: BibleBook
         get() = verse.book
 
-    fun getVerseSelected(versification: Versification): Verse {
-        return verse.toV11n(versification)
-    }
+    fun getVerseSelected(versification: Versification): Verse = verse.toV11n(versification)
 
     fun setVerseSelected(versification: Versification, verseSelected: Verse) {
         verse = verseSelected.toV11n(versification)
