@@ -127,9 +127,12 @@ export default {
 </style>
 <style lang="scss">
 .highlight {
+  font-weight: bold;
+  /*
   background-color: rgba(130, 130, 130, 0.2);
   .night & {
     background-color: rgba(168, 165, 165, 0.7);
   }
+   */
 }
 </style>

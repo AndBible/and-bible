@@ -21,7 +21,7 @@
     <div v-if="expanded" @click.stop="ambiguousSelection.handle">
       <OsisFragment
           :highlight-ordinal-range="bookmark.originalOrdinalRange"
-          :highlight-offset-range="bookmark.offsetRange"
+          :highlight-offset-range="highlightOffset"
           :fragment="bookmark.osisFragment"
           hide-titles
       />
@@ -36,7 +36,7 @@
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
-import {ref} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
 
 export default {
   name: "BookmarkText",
@@ -46,9 +46,14 @@ export default {
     bookmark: {type: Object, required: true},
     expanded: {type: Boolean, default: false},
   },
-  setup() {
+  setup(props) {
     const ambiguousSelection = ref(null);
-    return {ambiguousSelection, ...useCommon()};
+
+    const highlightOffset = computed(() => {
+      if(props.bookmark.text.length > props.bookmark.fullText.length - 3) return null
+      return props.bookmark.offsetRange
+    });
+    return {ambiguousSelection, highlightOffset, ...useCommon()};
   }
 }
 </script>

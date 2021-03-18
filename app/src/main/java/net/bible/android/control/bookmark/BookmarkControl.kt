@@ -265,7 +265,7 @@ open class BookmarkControl @Inject constructor(
         if(verseTexts.size == 1) {
             val end = startVerse.slice(endOffset until startVerse.length)
             b.text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
-            b.fullText = """$start<span class="highlight">${b.text}</span>$end"""
+            b.fullText = """$start${b.text}$end"""
         } else if(verseTexts.size > 1) {
             startVerse = startVerse.slice(startOffset until startVerse.length)
             val lastVerse = verseTexts.last()
@@ -276,7 +276,7 @@ open class BookmarkControl @Inject constructor(
                 verseTexts.slice(1 until verseTexts.size-1).joinToString(" ")
             } else ""
             b.text = "$startVerse$middleVerses$endVerse"
-            b.fullText = """$start<span class="highlight">${b.text}</span>$end"""
+            b.fullText = """$start${b.text}$end"""
         }
     }
 
