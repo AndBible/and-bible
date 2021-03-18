@@ -57,6 +57,7 @@ export default {
       key: fragmentKey,
       bookCategory,
       bookInitials,
+      osisRef,
     } = props.fragment;
     const uniqueId = ref(Date.now().toString());
     const {config} = useCommon()
@@ -81,11 +82,11 @@ export default {
       provide("referenceCollector", referenceCollector);
     }
     onMounted(() => {
-      if(props.highlightOrdinalRange) {
+      if(props.highlightOrdinalRange && props.highlightOffsetRange) {
         try {
           highlightVerseRange(`#frag-${uniqueId.value}`, props.highlightOrdinalRange, props.highlightOffsetRange);
         } catch (e) {
-          console.error("Highlight failed!");
+          console.error("Highlight failed for ", osisRef);
         }
       }
     });
