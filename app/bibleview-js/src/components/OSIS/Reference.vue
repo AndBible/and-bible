@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <a class="reference" :class="{clicked, 'last-clicked': lastClicked}" @click="openLink($event, link)" :href="link" ref="content"><slot/></a>
+  <a class="reference" :class="{clicked, 'last-clicked': lastClicked}" @click.prevent="openLink($event, link)" :href="link" ref="content"><slot/></a>
 </template>
 
 <script>

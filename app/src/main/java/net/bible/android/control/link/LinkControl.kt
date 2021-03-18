@@ -87,9 +87,7 @@ class LinkControl @Inject constructor(
         return true
     }
 
-    fun loadApplicationUrl(link: BibleView.BibleLink): Boolean {
-        return loadApplicationUrl(link.url, link.versification)
-    }
+    fun loadApplicationUrl(link: BibleView.BibleLink): Boolean = loadApplicationUrl(link.url, link.versification)
 
     fun errorLink() {
         errorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
