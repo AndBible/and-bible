@@ -1,4 +1,5 @@
 openMyNotes: "Open in My Notes window"
+openStudyPad: "Open in Study Pad window (%s)"
 noteText: "Footnotes (%s)"
 crossReferenceText: "Cross references"
 findAllOccurrences: "Find all occurrences"

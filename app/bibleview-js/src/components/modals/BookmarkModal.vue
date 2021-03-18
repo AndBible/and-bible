@@ -39,8 +39,13 @@
       </div>
       {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
       {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
-      <div v-if="bookmarkNotes" class="my-notes-link">
-        <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
+      <div class="links">
+        <div>
+          <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
+        </div>
+        <div v-for="label in labels.filter(l => l.id > 0)" :key="label.id">
+          <a :href="`journal://?id=${label.id}&bookmarkId=${bookmark.id}`">{{ sprintf(strings.openStudyPad, label.name) }}</a>
+        </div>
       </div>
     </div>
     <template #title>
@@ -163,11 +168,11 @@ export default {
 
   max-height: calc(var(--max-height) - 25pt);
 }
-.my-notes-link {
+.links {
   padding-top: 10pt;
   padding-bottom: 5pt;
 
-  font-size: 50%;
+  font-size: 70%;
 }
 .bible-text {
   text-indent: 5pt;
