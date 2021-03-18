@@ -89,9 +89,11 @@ open class OsisDocument(
         "type" to wrapString("osis"),
         "osisFragment" to mapToJson(osisFragment.toHashMap),
         "bookInitials" to wrapString(book.initials),
+        "bookCategory" to wrapString(book.bookCategory.getName()),
         "bookAbbreviation" to wrapString(book.abbreviation),
         "bookName" to wrapString(book.name),
         "key" to wrapString(key.uniqueId),
+        "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
     )
 }
 
@@ -117,6 +119,7 @@ class BibleDocument(
             put("addChapter", json.encodeToString(serializer(), swordBook.getProperty(KEY_SOURCE_TYPE).toString().toLowerCase(Locale.getDefault()) == "gbf"))
             put("chapterNumber", json.encodeToString(serializer(), verseRange.start.chapter))
             put("originalOrdinalRange", originalOrdinalRange)
+            put("v11n", wrapString(swordBook.versification.name))
         }
     }
 }

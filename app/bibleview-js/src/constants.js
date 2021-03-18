@@ -32,6 +32,7 @@ export const JournalEntryTypes = {
 export const BookCategories = {
     BIBLE: "BIBLE",
     COMMENTARIES: "COMMENTARY",
+    GENERAL_BOOK: "GENERAL_BOOK",
 }
 
 export const fadeReferenceDelay = 15000;

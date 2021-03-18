@@ -28,14 +28,16 @@ import {useCommon} from "@/composables";
 
 export default {
   name: "OpenAllLink",
-  setup() {
+  props: {
+    v11n: {type: String, default: null},
+  },
+  setup(props) {
     const referenceCollector = inject("referenceCollector", null);
-    const osisFragment = inject("osisFragment");
     const openAllLink = computed(() => {
       if(referenceCollector === null) return null;
       const refs = referenceCollector.references;
       if(refs.length < 2) return null;
-      return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&") + "&v11n=" + encodeURI(osisFragment.v11n)
+      return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&") + (props.v11n ? "&v11n=" + encodeURI(props.v11n): "")
     });
     return {openAllLink, ...useCommon()}
   }

@@ -22,8 +22,6 @@
         <OsisSegment :osis-template="template" />
       </div>
     </transition-group>
-    <OpenAllLink/>
-    <FeaturesLink :fragment="fragment"/>
   </div>
 </template>
 
@@ -33,9 +31,7 @@ import {inject, onMounted, provide} from "@vue/runtime-core";
 import {useCommon, useReferenceCollector} from "@/composables";
 import {AutoSleep, highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment";
-import FeaturesLink from "@/components/FeaturesLink";
 import {BookCategories} from "@/constants";
-import OpenAllLink from "@/components/OpenAllLink";
 import {useStrings} from "@/composables/strings";
 
 const parser = new DOMParser();
@@ -49,13 +45,12 @@ export default {
     highlightOffsetRange: {type: Array, default: null},
     hideTitles: {type: Boolean, default: false}
   },
-  components: {OpenAllLink, FeaturesLink, OsisSegment},
+  components: {OsisSegment},
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure
     const {
       xml,
       key: fragmentKey,
-      bookCategory,
       bookInitials,
       osisRef,
     } = props.fragment;
@@ -76,11 +71,6 @@ export default {
     const {registerBook} = inject("customCss");
     registerBook(bookInitials);
 
-    const referenceCollector = useReferenceCollector();
-
-    if(bookCategory === BookCategories.COMMENTARIES) {
-      provide("referenceCollector", referenceCollector);
-    }
     onMounted(() => {
       if(props.highlightOrdinalRange && props.highlightOffsetRange) {
         try {
