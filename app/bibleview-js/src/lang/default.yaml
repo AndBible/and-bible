@@ -51,4 +51,6 @@ multiDocumentLink: "%s (%s)"
 onlyLabel: "Only label"
 wholeBookmark: "Whole bookmark"
 otherNoteText: "Other note"
+assignLabelsMenuEntry: "Assing labels"
+jumpToStudyPad: "Jump to study pad"
 
