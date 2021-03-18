@@ -124,6 +124,10 @@ class BookAndKey(document: Book, val key: Key): Key {
         throw UnsupportedOperationException()
     }
 
+    override fun blur(by: Int, restrict: RestrictionType?, blurDown: Boolean, blurUp: Boolean) {
+        throw UnsupportedOperationException()
+    }
+
     companion object {
         private const val serialVersionUID: Long = 1
     }
