@@ -173,7 +173,6 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.SECTIONTITLES -> R.string.prefs_section_title_title
                 TextDisplaySettings.Types.VERSENUMBERS -> R.string.prefs_show_verseno_title
                 TextDisplaySettings.Types.VERSEPERLINE -> R.string.prefs_verse_per_line_title
-                TextDisplaySettings.Types.BOOKMARKS -> R.string.prefs_show_bookmarks_title
                 TextDisplaySettings.Types.MYNOTES -> R.string.prefs_show_mynotes_title
                 TextDisplaySettings.Types.COLORS -> R.string.prefs_text_colors_menutitle
                 TextDisplaySettings.Types.JUSTIFY -> R.string.prefs_justify_title
@@ -182,7 +181,10 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.FONTFAMILY -> R.string.pref_font_family_label
                 TextDisplaySettings.Types.MARGINSIZE -> R.string.prefs_margin_size_title
                 TextDisplaySettings.Types.LINE_SPACING -> R.string.line_spacing_title
-                TextDisplaySettings.Types.BOOKMARK_SETTINGS -> R.string.bookmark_settings_title
+                TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.string.prefs_show_bookmarks_title
+                TextDisplaySettings.Types.BOOKMARKS_SHOWALLLABELS -> R.string.bookmark_settings_show_all_title
+                TextDisplaySettings.Types.BOOKMARKS_ASSINGLABELS -> R.string.assign_labels
+                TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_show_labels_title
             }
             return mainBibleActivity.getString(id)
         }

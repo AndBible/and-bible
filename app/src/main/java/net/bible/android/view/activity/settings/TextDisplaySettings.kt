@@ -93,7 +93,7 @@ fun getPrefItem(settings: SettingsBundle, key: String): OptionsMenuItemInterface
 
 fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface =
     when(type) {
-        Types.BOOKMARKS -> ItemPreference(settings, Types.BOOKMARKS)
+        Types.BOOKMARKS_SHOW -> ItemPreference(settings, Types.BOOKMARKS_SHOW)
         Types.REDLETTERS -> ItemPreference(settings, Types.REDLETTERS)
         Types.SECTIONTITLES -> ItemPreference(settings, Types.SECTIONTITLES)
         Types.VERSENUMBERS -> ItemPreference(settings, Types.VERSENUMBERS)

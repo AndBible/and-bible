@@ -107,13 +107,6 @@ class WorkspaceEntities {
     )
 
     @Serializable
-    data class BookmarkDisplaySettings(
-        @ColumnInfo(defaultValue = "NULL") var showAll: Boolean? = null,
-        @ColumnInfo(defaultValue = "NULL") var showLabels: List<Long>? = null,
-        @ColumnInfo(defaultValue = "NULL") var assignLabels: List<Long>? = null,
-    )
-
-    @Serializable
     data class Colors(
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
@@ -150,7 +143,9 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL", name = "font_fontSize") var fontSize: Int? = null,
         @ColumnInfo(defaultValue = "NULL", name = "font_fontFamily") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
-        @Embedded(prefix="bookmarks_") var bookmarks: BookmarkDisplaySettings? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showAll") var bookmarksShowAllLabels: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showLabels") var bookmarksHideLabels: List<Long>? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_assignLabels") var bookmarksAssignLabels: List<Long>? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -167,9 +162,11 @@ class WorkspaceEntities {
             SECTIONTITLES,
             VERSENUMBERS,
             VERSEPERLINE,
-            BOOKMARKS,
+            BOOKMARKS_SHOW,
+            BOOKMARKS_SHOWALLLABELS,
+            BOOKMARKS_HIDELABELS,
+            BOOKMARKS_ASSINGLABELS,
             MYNOTES,
-            BOOKMARK_SETTINGS,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -180,7 +177,6 @@ class WorkspaceEntities {
             Types.SECTIONTITLES -> showSectionTitles
             Types.VERSENUMBERS -> showVerseNumbers
             Types.VERSEPERLINE -> showVersePerLine
-            Types.BOOKMARKS -> showBookmarks
             Types.MYNOTES -> showMyNotes
             Types.MARGINSIZE -> marginSize?.copy()
             Types.COLORS -> colors?.copy()
@@ -189,7 +185,10 @@ class WorkspaceEntities {
             Types.LINE_SPACING -> lineSpacing
             Types.FONTSIZE -> fontSize
             Types.FONTFAMILY -> fontFamily
-            Types.BOOKMARK_SETTINGS -> bookmarks
+            Types.BOOKMARKS_SHOW -> showBookmarks
+            Types.BOOKMARKS_SHOWALLLABELS -> bookmarksShowAllLabels
+            Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
+            Types.BOOKMARKS_ASSINGLABELS -> bookmarksAssignLabels
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -201,7 +200,6 @@ class WorkspaceEntities {
                 Types.SECTIONTITLES -> showSectionTitles = value as Boolean?
                 Types.VERSENUMBERS -> showVerseNumbers = value as Boolean?
                 Types.VERSEPERLINE -> showVersePerLine = value as Boolean?
-                Types.BOOKMARKS -> showBookmarks = value as Boolean?
                 Types.MYNOTES -> showMyNotes = value as Boolean?
                 Types.MARGINSIZE -> marginSize = value as MarginSize?
                 Types.COLORS -> colors = value as Colors?
@@ -210,7 +208,10 @@ class WorkspaceEntities {
                 Types.FONTSIZE -> fontSize = value as Int?
                 Types.FONTFAMILY -> fontFamily = value as String?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
-                Types.BOOKMARK_SETTINGS -> bookmarks = value as BookmarkDisplaySettings?
+                Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
+                Types.BOOKMARKS_SHOWALLLABELS -> bookmarksShowAllLabels = value as Boolean?
+                Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<Long>?
+                Types.BOOKMARKS_ASSINGLABELS -> bookmarksHideLabels = value as List<Long>?
             }
         }
 
@@ -258,16 +259,14 @@ class WorkspaceEntities {
                 showSectionTitles = true,
                 showVerseNumbers = true,
                 showVersePerLine = false,
-                showBookmarks = true,
                 showMyNotes = true,
                 justifyText = true,
                 hyphenation = true,
                 lineSpacing = 16,
-                bookmarks = BookmarkDisplaySettings(
-                    showAll = true,
-                    showLabels = emptyList(),
-                    assignLabels = emptyList(),
-                ),
+                showBookmarks = true,
+                bookmarksShowAllLabels = true,
+                bookmarksHideLabels = emptyList(),
+                bookmarksAssignLabels = emptyList(),
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
