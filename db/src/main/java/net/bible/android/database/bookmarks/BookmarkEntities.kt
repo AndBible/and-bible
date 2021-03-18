@@ -36,6 +36,8 @@ import androidx.room.Ignore
 import kotlinx.serialization.Serializable
 import net.bible.android.common.toV11n
 import net.bible.android.misc.OsisFragment
+import org.crosswire.jsword.book.basic.AbstractPassageBook
+import org.crosswire.jsword.book.sword.SwordBook
 import java.util.*
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
@@ -114,7 +116,7 @@ class BookmarkEntities {
 
         var createdAt: Date = Date(System.currentTimeMillis()),
 
-        var book: Book? = null,
+        var book: AbstractPassageBook? = null,
 
         var startOffset: Int?,
         var endOffset: Int?,
@@ -122,7 +124,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         ): VerseRangeUser {
-        constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: Book? = null): this(
+        constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: AbstractPassageBook? = null): this(
             verseRange.toV11n(KJVA).start.ordinal,
             verseRange.toV11n(KJVA).end.ordinal,
             verseRange.start.ordinal,
@@ -134,7 +136,7 @@ class BookmarkEntities {
             endOffset = textRange?.end,
         )
 
-        constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, book: Book?, playbackSettings: PlaybackSettings?): this(
+        constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, book: AbstractPassageBook?, playbackSettings: PlaybackSettings?): this(
             verseRange.toV11n(KJVA).start.ordinal,
             verseRange.toV11n(KJVA).end.ordinal,
             verseRange.start.ordinal,

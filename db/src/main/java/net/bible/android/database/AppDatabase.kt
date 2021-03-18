@@ -31,6 +31,7 @@ import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
@@ -79,10 +80,13 @@ class Converters {
     }
 
     @TypeConverter
-    fun bookToStr(v: Book?): String? = v?.initials
+    fun bookToStr(v: AbstractPassageBook?): String? = v?.initials
 
     @TypeConverter
-    fun strToBook(s: String?): Book? = s?.let { Books.installed().getBook(s) }
+    fun strToBook(s: String?): AbstractPassageBook? = s?.let {
+        val book = Books.installed().getBook(s)
+        if(book is AbstractPassageBook) book else null
+    }
 
     @TypeConverter
     fun playbackSettingsToStr(p: PlaybackSettings?): String? {
