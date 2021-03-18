@@ -69,12 +69,12 @@ export function useVerseNotifier(config, {scrolledToVerse}, topElement, {isScrol
         // Find element, starting from right
         const step = 10;
         let element;
-        for(let x = window.innerWidth - step; x > 0; x-=step) {
+        for(let x = step; x < window.innerWidth - step; x+=step) {
             element = document.elementFromPoint(x, y)
             if(element) {
-                element = element.closest(".verse");
+                element = element.closest(".ordinal");
                 if(element) {
-                    currentVerse.value = parseInt(element.id.slice(2))
+                    currentVerse.value = parseInt(element.dataset.ordinal)
                     break;
                 }
             }

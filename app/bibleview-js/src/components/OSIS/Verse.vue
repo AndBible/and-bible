@@ -18,7 +18,8 @@
 <template>
     <span
         :id="`v-${ordinal}`"
-        class="verse"
+        class="verse ordinal"
+        :data-ordinal="ordinal"
     >
       <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
         <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
@@ -31,7 +32,7 @@
 import {inject, provide, reactive, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
-import {cancellableTimer, getVerseInfo, sleep} from "@/utils";
+import {cancellableTimer, getVerseInfo} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {fadeReferenceDelay} from "@/constants";
 import {Events, setupEventBusListener} from "@/eventbus";

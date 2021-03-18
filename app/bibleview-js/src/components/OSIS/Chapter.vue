@@ -16,12 +16,14 @@
   -->
 
 <template>
-  <div class="chapter-number" v-if="config.showChapterNumbers && startTag">{{sprintf(strings.chapterNum, chapterNum)}}</div>
+  <div class="chapter-number ordinal" :data-ordinal="ordinal" v-if="config.showChapterNumbers && startTag">{{sprintf(strings.chapterNum, chapterNum)}}</div>
   <slot/>
 </template>
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {inject} from "@vue/runtime-core";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "Chapter",
@@ -34,7 +36,13 @@ export default {
   },
   setup(props) {
     checkUnsupportedProps(props, "chapterTitle")
-    return useCommon();
+    const bibleDocumentInfo = inject("bibleDocumentInfo");
+    const ordinal = computed(() => {
+      const ordinalRange = bibleDocumentInfo.originalOrdinalRange || bibleDocumentInfo.ordinalRange;
+      return ordinalRange[0];
+    });
+
+    return {ordinal, ...useCommon()};
   },
   computed: {
     startTag: ({eID}) => eID === null,
