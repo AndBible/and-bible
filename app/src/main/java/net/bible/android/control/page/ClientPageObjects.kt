@@ -89,7 +89,7 @@ open class OsisDocument(
         "type" to wrapString("osis"),
         "osisFragment" to mapToJson(osisFragment.toHashMap),
         "bookInitials" to wrapString(book.initials),
-        "bookCategory" to wrapString(book.bookCategory.getName()),
+        "bookCategory" to wrapString(book.bookCategory.name),
         "bookAbbreviation" to wrapString(book.abbreviation),
         "bookName" to wrapString(book.name),
         "key" to wrapString(key.uniqueId),
