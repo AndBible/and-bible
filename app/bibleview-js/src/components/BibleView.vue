@@ -87,7 +87,7 @@
       setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
         const verseBeforeConfigChange = currentVerse.value;
         await deferred.wait();
-        scrollToId(`v-${verseBeforeConfigChange}`, true)
+        scrollToId(`v-${verseBeforeConfigChange}`, {now: true})
       })
 
       setupEventBusListener(Events.REPLACE_DOCUMENT, replaceDocument);

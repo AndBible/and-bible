@@ -21,7 +21,7 @@
         class="verse ordinal"
         :data-ordinal="ordinal"
     >
-      <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
+      <span class="highlight-transition" :class="{timeout, isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
         <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
       </span>
     </span>
@@ -127,17 +127,20 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .linebreak {
   display: block;
 }
 
 .highlight-transition {
-  border-radius: 5pt;
-  transition: background-color 1s ease;
+  transition: background-color 0.5s ease;
+  &.timeout {
+    transition: background-color 5s ease;
+  }
 }
 
 .isHighlighted {
+  border-radius: 5pt;
   background-color: rgba(255, 230, 0, 0.4);
 }
 </style>
