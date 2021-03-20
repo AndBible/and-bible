@@ -102,7 +102,6 @@ export default {
 
     function highlight() {
       endHighlight();
-      timeout.value = false;
       highlighted.value = true;
       setupEndHighlight();
     }

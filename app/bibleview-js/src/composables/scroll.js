@@ -89,7 +89,7 @@ export function useScroll(config, {getVerses}) {
     }
 
     function scrollToId(toId, {now = false, highlight = false, ordinalStart = null, ordinalEnd = null, delta = config.topOffset, force = false, duration = 1000} = {}) {
-        console.log("scrollToId", toId, now, delta);
+        console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd, delta});
         stopScrolling();
         if(delta !== config.topOffset) {
             config.topOffset = delta;
@@ -100,7 +100,7 @@ export function useScroll(config, {getVerses}) {
                 ordinalEnd = ordinalStart;
             }
             for(let ordinal = ordinalStart; ordinal <= ordinalEnd; ordinal ++) {
-                getVerses(ordinalStart).forEach(o => o.highlight())
+                getVerses(ordinal).forEach(o => o.highlight())
             }
         }
         let toElement = document.getElementById(toId)
