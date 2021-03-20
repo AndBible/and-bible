@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<!-- Application text
+<?xml version="1.0" encoding="utf-8" standalone="no"?><!-- Application text
 
  @author Martin Denham [mjdenham at gmail dot com]
 -->
@@ -326,7 +325,7 @@
     <string name="sort_by_date">Date order</string>
     <string name="sort_by_bible_book">Biblical order</string>
     <string name="sort_by_alphabetical">Alphabetical order</string>
-    
+
     <!-- Dictionary -->
     <string name="dictionary">Dictionary</string>
     <string name="search_dictionary_hint">Search dictionary</string>
@@ -429,9 +428,9 @@
     <string-array name="speak_divinename_original">
         <item>Lord</item>
         <item>God</item>
-        <item/>
-        <item/>
-        <item/>
+        <item />
+        <item />
+        <item />
     </string-array>
     <!-- List of (max 5) words that we will replace those words listed in divinename_original.
 
@@ -441,9 +440,9 @@
     <string-array name="speak_divinename_replace">
         <item>Yahweh</item>
         <item>Yahweh</item>
-        <item/>
-        <item/>
-        <item/>
+        <item />
+        <item />
+        <item />
     </string-array>
 
     <string name="speak_book_changed">Book changed.</string>
@@ -525,7 +524,7 @@
     <string name="doc_type_book">Book</string>
     <string name="doc_type_map">Map</string>
     <string name="doc_type_addons">Add-ons</string>
-    
+
     <!-- Languages -->
     <string name="lang_default">Default</string>
 
@@ -709,4 +708,11 @@
     <string name="show_unlock_info">Module &amp; unlock info</string>
     <string name="prefs_font_text_size_summary">Adjust font size</string>
     <string name="prefs_font_family_summary">Adjust font family</string>
+    <string name="title_activity_main">MainActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 </resources>
