@@ -23,7 +23,7 @@
       <BookmarkModal/>
       <AmbiguousSelection ref="ambiguousSelection" @back-clicked="emit(Events.CLOSE_MODALS)"/>
     </template>
-    <ErrorBox/>
+    <ErrorBox v-if="config.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div id="top"/>
     <div id="content" ref="topElement" :style="styleConfig">

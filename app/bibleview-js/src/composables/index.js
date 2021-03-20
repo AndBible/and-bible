@@ -143,6 +143,7 @@ export function useConfig() {
         bottomOffset: 100,
         infiniteScroll: true,
         nightMode: false,
+        errorBox: false,
 
         developmentMode,
         testMode,
@@ -233,6 +234,8 @@ export function useFontAwesome() {
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
     const value = props[attributeName];
+    const config = inject("config", {});
+    if(!config.errorBox) return;
     if(value && !values.includes(value)) {
         const tagName = getCurrentInstance().type.name
         const origin = inject("verseInfo", {}).osisID;
