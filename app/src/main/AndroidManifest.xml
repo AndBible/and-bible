@@ -43,7 +43,11 @@
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
-
+        <activity
+            android:name=".MainActivity2"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="About">
+        </activity>
         <activity
             android:name=".StartupActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

@@ -17,6 +17,7 @@ android {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+        missingDimensionStrategy 'react-native-camera', 'general'
     }
 
     buildTypes {

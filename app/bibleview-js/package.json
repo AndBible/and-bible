@@ -37,7 +37,7 @@
     "eslint": "~6.7.2",
     "eslint-plugin-vue": "~7.1.0-0",
     "json-loader": "^0.5.7",
-    "npm": "^7.6.0",
+    "npm": "^7.6.3",
     "sass": "~1.29.0",
     "sass-loader": "^10.1.1",
     "stylus": "~0.54.8",
