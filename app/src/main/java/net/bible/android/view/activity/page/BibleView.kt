@@ -769,10 +769,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
 
-    fun updateTextDisplaySettings() {
+    fun updateTextDisplaySettings(onAttach: Boolean = false) {
         Log.d(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
-        executeJavascriptOnUiThread("bibleView.emit('set_config', {config: ${displaySettings.toJson()}, nightMode: $nightMode});")
+        executeJavascriptOnUiThread("bibleView.emit('set_config', {config: ${displaySettings.toJson()}, nightMode: $nightMode, initial: $onAttach});")
     }
 
     fun updateBackgroundColor() {
@@ -1121,7 +1121,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             resumeTiltScroll()
         }
         if(contentVisible) {
-            updateTextDisplaySettings()
+            updateTextDisplaySettings(true)
         }
     }
 
