@@ -69,7 +69,7 @@ export function useVerseNotifier(config, {scrolledToVerse}, topElement, {isScrol
         // Find element, starting from right
         const step = 10;
         let element;
-        for(let x = step; x < window.innerWidth - step; x+=step) {
+        for(let x = window.innerWidth - step; x > 0; x-=step) {
             element = document.elementFromPoint(x, y)
             if(element) {
                 element = element.closest(".ordinal");
