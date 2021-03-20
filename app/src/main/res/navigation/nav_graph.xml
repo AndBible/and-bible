@@ -14,6 +14,9 @@
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
+        <argument
+            android:name="book_to_load"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -25,4 +28,13 @@
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="net.bible.android.activity.MainActivity"
+        android:label="activity_main"
+        tools:layout="@layout/activity_main" >
+        <action
+            android:id="@+id/action_mainActivity_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </activity>
 </navigation>
