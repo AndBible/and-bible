@@ -772,7 +772,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun updateTextDisplaySettings(onAttach: Boolean = false) {
         Log.d(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
-        executeJavascriptOnUiThread("bibleView.emit('set_config', {config: ${displaySettings.toJson()}, nightMode: $nightMode, initial: $onAttach});")
+        updateConfig(onAttach)
+    }
+
+    private fun updateConfig(initial: Boolean = false) {
+        executeJavascriptOnUiThread("bibleView.emit('set_config', {config: ${displaySettings.toJson()}, nightMode: $nightMode, initial: $initial});")
     }
 
     fun updateBackgroundColor() {
@@ -799,8 +803,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             labelsUploaded = true
        }
 
+        updateConfig(true)
         executeJavascriptOnUiThread("""
-            bibleView.emit("set_config", {config: ${displaySettings.toJson()}, nightMode: $nightMode, initial:true});
             bibleView.emit("replace_document", $documentStr);
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
