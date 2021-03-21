@@ -16,7 +16,7 @@
  */
 
 import {inject, onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
-import {cloneDeep, sortBy, uniqWith} from "lodash";
+import {sortBy, uniqWith} from "lodash";
 import {
     addEventFunction,
     arrayEq,
@@ -27,7 +27,6 @@ import {
     rangesOverlap
 } from "@/utils";
 import {computed, ref} from "@vue/reactivity";
-import {findNodeAtOffset, lastTextNode} from "@/dom";
 import {Events, setupEventBusListener, emit} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
 import {faEdit, faBookmark, faHeadphones} from "@fortawesome/free-solid-svg-icons";
@@ -138,7 +137,7 @@ export function useBookmarks(documentId,
     });
 
     function truncateToOrdinalRange(bookmark) {
-        const b = cloneDeep(bookmark);
+        const b = {...bookmark};
         b.offsetRange = b.offsetRange || [0, null]
         if(b.ordinalRange[0] < ordinalRange[0]) {
             b.ordinalRange[0] = ordinalRange[0];
