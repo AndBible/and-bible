@@ -57,6 +57,7 @@ import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.StudyPadOrderEvent
@@ -975,6 +976,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmarkStr = clientBookmark.asJson
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);
+        """.trimIndent())
+    }
+
+    fun onEvent(event: BookmarkNoteModifiedEvent) {
+        executeJavascriptOnUiThread("""
+            bibleView.emit("bookmark_note_modified", {id: ${event.bookmarkId}, notes: ${json.encodeToString(serializer(), event.notes)}});
         """.trimIndent())
     }
 

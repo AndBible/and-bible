@@ -85,6 +85,11 @@ export function useGlobalBookmarks(config) {
         updateBookmarks(...bookmarks)
     });
 
+    setupEventBusListener(Events.BOOKMARK_NOTE_MODIFIED, ({id, notes}) => {
+        const b = bookmarks.get(id);
+        if(b) b.notes = notes;
+    });
+
     setupEventBusListener(Events.UPDATE_LABELS, labels => updateBookmarkLabels(...labels))
 
     const filteredBookmarks = computed(() => {
