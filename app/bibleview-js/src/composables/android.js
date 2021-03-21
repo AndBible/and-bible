@@ -21,6 +21,7 @@ import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
 import {reactive} from "@vue/reactivity";
 import {JournalEntryTypes} from "@/constants";
+import {currentConfig} from "@/composables/index";
 
 let callId = 0;
 
@@ -64,21 +65,25 @@ export function patchAndroidConsole() {
             return `${s} ${printableArgs}`
         },
         flog(s, ...args) {
-            if(enableAndroidLogging) android.console('flog', this._msg(s, args))
+            if(enableAndroidLogging && currentConfig.errorBox) android.console('flog', this._msg(s, args))
             origConsole.log(this._msg(s, args))
         },
         log(s, ...args) {
-            if(enableAndroidLogging) android.console('log', this._msg(s, args))
+            if(enableAndroidLogging && currentConfig.errorBox) android.console('log', this._msg(s, args))
             origConsole.log(s, ...args)
         },
         error(s, ...args) {
-            addLog({type: "ERROR", msg: this._msg(s, args)});
-            if(enableAndroidLogging) android.console('error', this._msg(s, args))
+            if(currentConfig.errorBox) {
+                addLog({type: "ERROR", msg: this._msg(s, args)});
+                if (enableAndroidLogging) android.console('error', this._msg(s, args))
+            }
             origConsole.error(s, ...args)
         },
         warn(s, ...args) {
-            addLog({type: "WARN", msg: this._msg(s, args)});
-            if(enableAndroidLogging) android.console('warn', this._msg(s, args))
+            if(currentConfig.errorBox) {
+                addLog({type: "WARN", msg: this._msg(s, args)});
+                if (enableAndroidLogging) android.console('warn', this._msg(s, args))
+            }
             origConsole.warn(s, ...args)
         }
     }

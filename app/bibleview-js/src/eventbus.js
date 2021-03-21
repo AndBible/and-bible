@@ -16,7 +16,7 @@
  */
 
 import mitt from "mitt";
-import {onMounted, onUnmounted} from "@vue/runtime-core";
+import {inject, onMounted, onUnmounted} from "@vue/runtime-core";
 
 export const eventBus = mitt()
 

@@ -232,8 +232,9 @@ export function useBookmarks(documentId,
     const highlightBookmarks = computed(() => documentBookmarks.value.filter(b => showHighlight(b)))
     const markerBookmarks = computed(() => documentBookmarks.value.filter(b => !showHighlight(b) && checkOrdinalEnd(b)))
 
-    const styleRanges = computed(() => {
+    const styleRanges = computed(function styleRanges() {
         isMounted.value;
+        if(!isMounted.value) return [];
         labelsUpdated.value;
 
         let splitPoints = [];

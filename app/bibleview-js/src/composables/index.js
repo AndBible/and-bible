@@ -96,6 +96,8 @@ export const strongsModes = {
     links: 2,
 }
 
+export let currentConfig = {};
+
 export function useConfig() {
     const config = reactive({
         bookmarkingMode: bookmarkingModes.verticalColorBars,
@@ -148,6 +150,7 @@ export function useConfig() {
         developmentMode,
         testMode,
     })
+    currentConfig = config;
 
     window.bibleViewDebug.config = config;
 
