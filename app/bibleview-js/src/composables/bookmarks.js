@@ -150,7 +150,7 @@ export function useBookmarks(documentId,
     });
 
     function truncateToOrdinalRange(bookmark) {
-        const b = {...bookmark};
+        const b = {ordinalRange: bookmark.ordinalRange, offsetRange: bookmark.offsetRange};
         b.offsetRange = b.offsetRange || [0, null]
         if(b.ordinalRange[0] < ordinalRange[0]) {
             b.ordinalRange[0] = ordinalRange[0];
@@ -164,12 +164,12 @@ export function useBookmarks(documentId,
     }
 
     function combinedRange(b) {
-        b = truncateToOrdinalRange(b);
+        const r = truncateToOrdinalRange(b);
         if(b.bookInitials !== bookInitials) {
-            b.offsetRange[0] = 0;
-            b.offsetRange[1] = null;
+            r.offsetRange[0] = 0;
+            r.offsetRange[1] = null;
         }
-        return [[b.ordinalRange[0], b.offsetRange[0]], [b.ordinalRange[1], b.offsetRange[1]]]
+        return [[r.ordinalRange[0], r.offsetRange[0]], [r.ordinalRange[1], r.offsetRange[1]]]
     }
 
     function removeZeroLengthRanges(splitPoints) {
