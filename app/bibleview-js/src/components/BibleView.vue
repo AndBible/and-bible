@@ -75,11 +75,8 @@
 
       useInfiniteScroll(config, android, documents);
 
+      // TODO: rename
       async function replaceDocument(...docs) {
-        emit(Events.CLOSE_MODALS);
-        clearLog();
-        globalBookmarks.clearBookmarks();
-        documents.splice(0)
         await nextTick()
         documents.push(...docs)
       }
@@ -89,6 +86,13 @@
         await deferred.wait();
         scrollToId(`v-${verseBeforeConfigChange}`, {now: true})
       })
+
+      setupEventBusListener(Events.CLEAR_DOCUMENT, function clearDocument() {
+        emit(Events.CLOSE_MODALS);
+        clearLog();
+        globalBookmarks.clearBookmarks();
+        documents.splice(0)
+      });
 
       setupEventBusListener(Events.REPLACE_DOCUMENT, replaceDocument);
       setupWindowEventListener("error", (e) => {

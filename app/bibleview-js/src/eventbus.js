@@ -26,6 +26,7 @@ export function emit(eventId, ...args){
 
 export const Events = {
     UPDATE_LABELS: "update_labels",
+    CLEAR_DOCUMENT: "clear_document",
     REPLACE_DOCUMENT: "replace_document",
     SET_CONFIG: "set_config",
     SET_TITLE: "set_title",
