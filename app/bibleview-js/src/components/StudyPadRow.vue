@@ -85,6 +85,7 @@ export default {
     const android = inject("android");
     const areYouSureDelete = ref(null);
     const {strings, ...common} = useCommon();
+    const {bookmarksNotes} = inject("globalBookmarks");
 
     function journalTextChanged(newText) {
       if(props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
@@ -94,7 +95,7 @@ export default {
       }
     }
     const journalText = computed(() => {
-      if(props.journalEntry.type === JournalEntryTypes.BOOKMARK) return props.journalEntry.notes;
+      if(props.journalEntry.type === JournalEntryTypes.BOOKMARK) return bookmarksNotes.get(props.journalEntry.id);
       else if(props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) return props.journalEntry.text;
     });
 
