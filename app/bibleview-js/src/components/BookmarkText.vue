@@ -50,7 +50,9 @@ export default {
     const ambiguousSelection = ref(null);
 
     const highlightOffset = computed(() => {
-      if(props.bookmark.text.length > props.bookmark.fullText.length - 3) return null
+      const highlightedLength = props.bookmark.text.length;
+      const fullLength = props.bookmark.fullText.length;
+      if(highlightedLength > 0.5*fullLength || highlightedLength > fullLength - 5) return null
       return props.bookmark.offsetRange
     });
     return {ambiguousSelection, highlightOffset, ...useCommon()};
