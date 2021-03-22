@@ -45,7 +45,7 @@ import {
 import Color from "color";
 
 let developmentMode = false;
-let testMode = false;
+export let testMode = false;
 
 if(process.env.NODE_ENV === "development") {
     developmentMode = true;

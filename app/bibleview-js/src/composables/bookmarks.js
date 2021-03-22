@@ -32,7 +32,7 @@ import {highlightRange} from "@/lib/highlight-range";
 import {faEdit, faBookmark, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
-import {bookmarkingModes} from "@/composables/index";
+import {bookmarkingModes, testMode} from "@/composables/index";
 import {sprintf} from "sprintf-js";
 
 const speakIcon = icon(faHeadphones);
@@ -241,7 +241,7 @@ export function useBookmarks(documentId,
 
     const styleRanges = computed(function styleRanges() {
         isMounted.value;
-        if(!isMounted.value) return [];
+        if(!testMode && !isMounted.value) return [];
         labelsUpdated.value;
 
         let splitPoints = [];
