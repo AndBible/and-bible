@@ -27,31 +27,32 @@
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div id="top"/>
     <div id="content" ref="topElement" :style="styleConfig">
+      <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
       <Document v-for="document in documents" :key="document.id" :document="document"/>
     </div>
     <div id="bottom"/>
   </div>
 </template>
 <script>
-  import Document from "@/components/documents/Document";
-  import {onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
-  import {useAddonFonts, useConfig, useCustomCss, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
-  import {testBookmarkLabels, testData} from "@/testdata";
-  import {computed, ref} from "@vue/reactivity";
-  import {useInfiniteScroll} from "@/composables/infinite-scroll";
-  import {useGlobalBookmarks} from "@/composables/bookmarks";
-  import {emit, Events, setupEventBusListener} from "@/eventbus";
-  import {useScroll} from "@/composables/scroll";
-  import {clearLog, useAndroid} from "@/composables/android";
-  import {setupWindowEventListener} from "@/utils";
-  import ErrorBox from "@/components/ErrorBox";
-  import BookmarkModal from "@/components/modals/BookmarkModal";
-  import DevelopmentMode from "@/components/DevelopmentMode";
-  import Color from "color";
-  import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
-  import {useStrings} from "@/composables/strings";
+import Document from "@/components/documents/Document";
+import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
+import {useAddonFonts, useConfig, useCustomCss, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
+import {testBookmarkLabels, testData} from "@/testdata";
+import {computed, ref} from "@vue/reactivity";
+import {useInfiniteScroll} from "@/composables/infinite-scroll";
+import {useGlobalBookmarks} from "@/composables/bookmarks";
+import {emit, Events, setupEventBusListener} from "@/eventbus";
+import {useScroll} from "@/composables/scroll";
+import {clearLog, useAndroid} from "@/composables/android";
+import {setupWindowEventListener} from "@/utils";
+import ErrorBox from "@/components/ErrorBox";
+import BookmarkModal from "@/components/modals/BookmarkModal";
+import DevelopmentMode from "@/components/DevelopmentMode";
+import Color from "color";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
+import {useStrings} from "@/composables/strings";
 
-  export default {
+export default {
     name: "BibleView",
     components: {Document, ErrorBox, BookmarkModal, DevelopmentMode, AmbiguousSelection},
     setup() {
@@ -62,9 +63,10 @@
       const documents = reactive([]);
       window.bibleViewDebug.documents = documents;
       const topElement = ref(null);
+      const documentPromise = ref(null);
       const verseMap = useVerseMap();
       provide("verseMap", verseMap);
-      const scroll = useScroll(config, verseMap);
+      const scroll = useScroll(config, verseMap, documentPromise);
       const {scrollToId} = scroll;
       provide("scroll", scroll);
       const globalBookmarks = useGlobalBookmarks(config);
@@ -75,8 +77,10 @@
 
       useInfiniteScroll(config, android, documents);
 
-      async function addDocuments(...docs) {
-        documents.push(...docs)
+      function addDocuments(...docs) {
+        documentPromise.value = document.fonts.ready
+            .then(() => nextTick())
+            .then(() => documents.push(...docs));
       }
 
       setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {

@@ -19,7 +19,7 @@ import {nextTick} from "@vue/runtime-core";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 
-export function useScroll(config, {getVerses}) {
+export function useScroll(config, {getVerses}, documentPromise) {
     let currentScrollAnimation = ref(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
@@ -128,6 +128,7 @@ export function useScroll(config, {getVerses}) {
     }
 
     async function setupContent({jumpToOrdinal = null, jumpToYOffsetRatio = null, topOffset, bottomOffset}  = {}) {
+        await documentPromise.value;
         console.log(`setupContent`, jumpToOrdinal, jumpToYOffsetRatio, topOffset);
 
         const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
