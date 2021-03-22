@@ -92,7 +92,7 @@ export default {
     const infoShown = ref(false);
     const bookmarkId = ref(null);
 
-    const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
+    const {bookmarkMap, bookmarkLabels, bookmarksNotes} = inject("globalBookmarks");
 
     const bookmark = computed(() => {
       return bookmarkMap.get(bookmarkId.value);
@@ -109,8 +109,8 @@ export default {
 
     setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (bookmarkId_, {open = false} = {}) => {
       bookmarkId.value = bookmarkId_;
-      bookmarkNotes.value = bookmark.value.notes;
-      originalNotes = bookmark.value.notes;
+      bookmarkNotes.value = bookmarksNotes.get(bookmarkId_);
+      originalNotes = bookmarkNotes.value;
       if(!showBookmark.value) infoShown.value = false;
       showBookmark.value = true;
     });

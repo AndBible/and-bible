@@ -51,6 +51,7 @@ const allStyleRanges = computed(() => {
 export function useGlobalBookmarks(config) {
     const bookmarkLabels = reactive(new Map());
     const bookmarks = reactive(new Map());
+    const bookmarksNotes = reactive(new Map());
     let count = 1;
 
     const labelsUpdated = ref(0);
@@ -66,6 +67,7 @@ export function useGlobalBookmarks(config) {
     function updateBookmarks(...inputData) {
         for(const v of inputData) {
             bookmarks.set(v.id, v)
+            bookmarksNotes.set(v.id, v.notes);
         }
     }
 
@@ -86,8 +88,8 @@ export function useGlobalBookmarks(config) {
     });
 
     setupEventBusListener(Events.BOOKMARK_NOTE_MODIFIED, ({id, notes}) => {
-        const b = bookmarks.get(id);
-        if(b) b.notes = notes;
+        const b = bookmarksNotes.get(id);
+        if(b) bookmarksNotes.set(id, notes);
     });
 
     setupEventBusListener(Events.UPDATE_LABELS, labels => updateBookmarkLabels(...labels))
@@ -106,13 +108,13 @@ export function useGlobalBookmarks(config) {
 
     return {
         bookmarkLabels, bookmarkMap: bookmarks, bookmarks: filteredBookmarks, labelsUpdated,
-        updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks,
+        updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks, bookmarksNotes
     }
 }
 
 export function useBookmarks(documentId,
                              ordinalRange,
-                             {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated},
+                             {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated, bookmarksNotes},
                              bookInitials,
                              documentReady,
                              {adjustedColor, abbreviated},
@@ -377,7 +379,7 @@ export function useBookmarks(documentId,
             for (const b of bookmarks) {
                 const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l)).filter(l => !l.noHighlight);
                 const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
-                const icon = b.notes ? "edit" : "bookmark"
+                const icon = bookmarksNotes.get(b.id) ? "edit" : "bookmark"
                 const color = adjustedColor(bookmarkLabels_[0].color).string();
                 addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {icon, color, title});
             }
@@ -438,11 +440,11 @@ export function useBookmarks(documentId,
             }
         }
         if(config.showMyNotes) {
-            for (const b of bookmarks.filter(b => b.notes && arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
+            for (const b of bookmarks.filter(b => bookmarksNotes.get(b.id) && arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
                 const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
-                const icon = b.notes ? "edit" : "bookmark"
+                const icon = "edit";
                 const color = adjustedColor(bookmarkLabel.color).string();
-                const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
+                const iconElement = getIconElement(editIcon, color);
                 const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
@@ -470,7 +472,7 @@ export function useBookmarks(documentId,
                 for(const b of bookmarkList) {
                     const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
                     const color = adjustedColor(bookmarkLabel.color).string();
-                    const icon = b.notes ? "edit" : "bookmark"
+                    const icon = bookmarksNotes.get(b.id) ? "edit" : "bookmark";
                     const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
                     addEventFunction(event,
                         () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {title, icon, color});

@@ -46,23 +46,14 @@ export default {
     const {bookmarks} = props.document;
 
     const globalBookmarks = inject("globalBookmarks");
-    const android = inject("android");
 
     globalBookmarks.updateBookmarks(...bookmarks);
-
-    function editNotes(b, newText) {
-      b.notes = newText;
-    }
-
-    function save(b) {
-      android.saveBookmarkNote(b.id, b.notes);
-    }
 
     const notes = computed(() => {
       return sortBy(globalBookmarks.bookmarks.value, [o => o.ordinalRange[0], o => o.offsetRange && o.offsetRange[0]])
     });
 
-    return {notes, save, editNotes, ...useCommon()}
+    return {notes, ...useCommon()}
   }
 }
 </script>

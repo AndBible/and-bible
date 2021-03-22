@@ -26,7 +26,7 @@
     <div class="journal-button" @click="editBookmark">
       <FontAwesomeIcon icon="bookmark"/>
     </div>
-    <div v-if="!bookmark.notes" class="journal-button" @click="editor.editMode = true">
+    <div v-if="!bookmarkNotes" class="journal-button" @click="editor.editMode = true">
       <FontAwesomeIcon icon="edit"/>
     </div>
     <div class="journal-button" @click="deleteEntry">
@@ -39,7 +39,7 @@
     <div class="notes">
       <EditableText
           ref="editor"
-          :text="bookmark.notes"
+          :text="bookmarkNotes"
           @save="save"
       />
     </div>
@@ -89,7 +89,9 @@ export default {
       }
     }
 
-    return {labels, save, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), expanded, ...useCommon()}
+    const bookmarkNotes = computed(() => globalBookmarks.bookmarksNotes.get(props.bookmark.id));
+
+    return {labels, save, areYouSureDelete, editBookmark, deleteEntry, bookmarkNotes, editor: ref(null), expanded, ...useCommon()}
   },
 }
 </script>
