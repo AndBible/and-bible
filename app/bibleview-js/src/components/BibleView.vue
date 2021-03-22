@@ -34,7 +34,7 @@
 </template>
 <script>
   import Document from "@/components/documents/Document";
-  import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
+  import {onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
   import {useAddonFonts, useConfig, useCustomCss, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
   import {testBookmarkLabels, testData} from "@/testdata";
   import {computed, ref} from "@vue/reactivity";

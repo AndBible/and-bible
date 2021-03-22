@@ -58,8 +58,10 @@ export function useVerseNotifier(config, {scrolledToVerse}, topElement, {isScrol
     const currentVerse = ref(null);
     watch(() => currentVerse.value,  value => scrolledToVerse(value));
 
-    const lineHeight = computed(() =>
-        parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'))
+    const lineHeight = computed(() => {
+        config; // Update also when font settings etc are changed
+        return parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
+        }
     );
 
     const onScroll = throttle(() => {
