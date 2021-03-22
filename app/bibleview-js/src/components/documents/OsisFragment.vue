@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language" :dir="fragment.direction" >
+  <div v-if="cssLoaded" :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language" :dir="fragment.direction" >
     <transition-group name="fade">
       <div v-for="{key, template} in templates" :key="key">
         <OsisSegment :osis-template="template" />
@@ -67,8 +67,16 @@ export default {
     const fragmentReady = ref(!props.showTransition);
     const strings = useStrings();
     provide("osisFragment", props.fragment)
-    const {registerBook} = inject("customCss");
+    const {registerBook, customCssPromises} = inject("customCss");
     registerBook(bookInitials);
+
+    const cssLoaded = ref(false);
+
+    Promise.all(customCssPromises)
+        .then(() => document.fonts.ready)
+        .then(() => {
+          cssLoaded.value = true;
+        });
 
     onMounted(() => {
       if(props.highlightOrdinalRange && props.highlightOffsetRange) {
@@ -101,7 +109,7 @@ export default {
     } else {
       templates.push({template, key: `${fragmentKey}-0`})
     }
-    return {templates, strings, uniqueId}
+    return {templates, strings, uniqueId, cssLoaded}
   }
 }
 </script>

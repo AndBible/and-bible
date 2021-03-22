@@ -78,7 +78,7 @@ export default {
       useInfiniteScroll(config, android, documents);
 
       function addDocuments(...docs) {
-        documentPromise.value = document.fonts.ready
+        documentPromise.value = Promise.all([document.fonts.ready, ...customCss.customCssPromises])
             .then(() => nextTick())
             .then(() => documents.push(...docs));
       }

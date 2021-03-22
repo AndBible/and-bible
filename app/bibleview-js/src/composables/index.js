@@ -320,13 +320,23 @@ export function useVerseMap() {
 export function useCustomCss() {
     const cssNodes = new Map();
     const count = new Map();
+    const customCssPromises = [];
     function addCss(bookInitials) {
         const c = count.get(bookInitials) || 0;
         if (!c) {
             const link = document.createElement("link");
+            const onLoadDefer = new Deferred();
+            const promise = onLoadDefer.wait();
+            customCssPromises.push(promise);
             link.href = `/module-style/${bookInitials}/style.css`;
             link.type = "text/css";
             link.rel = "stylesheet";
+            const cssReady = () => {
+                onLoadDefer.resolve();
+                customCssPromises.splice(customCssPromises.findIndex(v => v === promise), 1);
+            }
+            link.onload = cssReady;
+            link.onerror = cssReady;
             cssNodes.set(bookInitials, link);
             document.getElementsByTagName("head")[0].appendChild(link);
         }
@@ -345,16 +355,13 @@ export function useCustomCss() {
     }
 
     function registerBook(bookInitials) {
-        onBeforeMount(() => {
-            addCss(bookInitials);
-        });
-
+        addCss(bookInitials);
         onUnmounted(() => {
             removeCss(bookInitials);
         });
     }
 
-    return {registerBook}
+    return {registerBook, customCssPromises}
 }
 
 export function useAddonFonts() {
