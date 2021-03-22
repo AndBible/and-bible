@@ -88,8 +88,12 @@ export function useGlobalBookmarks(config) {
     });
 
     setupEventBusListener(Events.BOOKMARK_NOTE_MODIFIED, ({id, notes}) => {
-        const b = bookmarksNotes.get(id);
-        if(b) bookmarksNotes.set(id, notes);
+        const oldNote = bookmarksNotes.get(id);
+        bookmarksNotes.set(id, notes);
+        // If existence of note is changed, then need to update also bookmark so that marker is updated
+        if(!!oldNote !== !!notes) {
+            bookmarks.get(id).notes = notes;
+        }
     });
 
     setupEventBusListener(Events.UPDATE_LABELS, labels => updateBookmarkLabels(...labels))
