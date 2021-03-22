@@ -75,9 +75,7 @@
 
       useInfiniteScroll(config, android, documents);
 
-      // TODO: rename
-      async function replaceDocument(...docs) {
-        await nextTick()
+      async function addDocuments(...docs) {
         documents.push(...docs)
       }
 
@@ -94,7 +92,7 @@
         documents.splice(0)
       });
 
-      setupEventBusListener(Events.REPLACE_DOCUMENT, replaceDocument);
+      setupEventBusListener(Events.ADD_DOCUMENTS, addDocuments);
       setupWindowEventListener("error", (e) => {
         console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
       });
@@ -102,7 +100,7 @@
       if(config.developmentMode) {
         console.log("populating test data");
         globalBookmarks.updateBookmarkLabels(...testBookmarkLabels)
-        replaceDocument(...testData)
+        addDocuments(...testData)
       }
 
       let titlePrefix = ""

@@ -811,7 +811,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("""
             bibleView.emit("clear_document");
             ${getUpdateConfigCommand(true)}
-            bibleView.emit("replace_document", $documentStr);
+            bibleView.emit("add_documents", $documentStr);
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
                 jumpToYOffsetRatio: null,
