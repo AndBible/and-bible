@@ -124,12 +124,13 @@ class BibleDocument(
     }
 }
 
-class MultiFragmentDocument(val osisFragments: List<OsisFragment>): Document {
+class MultiFragmentDocument(private val osisFragments: List<OsisFragment>, private val compare: Boolean=false): Document {
     override val asHashMap: Map<String, Any>
         get() = mapOf(
             "id" to wrapString(randomUUID().toString()),
             "type" to wrapString("multi"),
             "osisFragments" to listToJson(osisFragments.map { mapToJson(it.toHashMap) }),
+            "compare" to json.encodeToString(serializer(), compare),
         )
 }
 

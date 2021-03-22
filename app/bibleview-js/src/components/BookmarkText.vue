@@ -27,7 +27,7 @@
       />
     </div>
     <span class="bookmark-text">
-      <q v-if="!expanded" @click.stop="$emit('change-expanded', true)" class="bible-text">{{abbreviated(bookmark.text, 80)}}</q>
+      <q v-if="!expanded" @click.stop="$emit('change-expanded', true)" class="bible-text">{{abbreviated(bookmark.text, 50)}}</q>
     </span>
   </template>
 </template>
