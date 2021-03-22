@@ -102,7 +102,7 @@
       }
 
       let titlePrefix = ""
-      setupEventBusListener(Events.SET_TITLE, (title) => {
+      setupEventBusListener(Events.SET_TITLE, function setTitle(title) {
         titlePrefix = title;
       });
 

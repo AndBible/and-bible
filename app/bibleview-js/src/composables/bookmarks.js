@@ -75,28 +75,30 @@ export function useGlobalBookmarks(config) {
         bookmarks.clear();
     }
 
-    setupEventBusListener(Events.REMOVE_RANGES, () => {
+    setupEventBusListener(Events.REMOVE_RANGES, function removeRanges() {
         window.getSelection().removeAllRanges();
     })
 
-    setupEventBusListener(Events.DELETE_BOOKMARKS, bookmarkIds => {
-        for(const bId of bookmarkIds) bookmarks.delete(bId)
+    setupEventBusListener(Events.DELETE_BOOKMARKS, function deleteBookmarks(bookmarkIds) {
+        for (const bId of bookmarkIds) bookmarks.delete(bId)
     });
 
-    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, bookmarks => {
+    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, function addOrUpdateBookmarks(bookmarks) {
         updateBookmarks(...bookmarks)
     });
 
-    setupEventBusListener(Events.BOOKMARK_NOTE_MODIFIED, ({id, notes}) => {
+    setupEventBusListener(Events.BOOKMARK_NOTE_MODIFIED, function bookmarkNoteModified({id, notes}) {
         const oldNote = bookmarksNotes.get(id);
         bookmarksNotes.set(id, notes);
         // If existence of note is changed, then need to update also bookmark so that marker is updated
-        if(!!oldNote !== !!notes) {
+        if (!!oldNote !== !!notes) {
             bookmarks.get(id).notes = notes;
         }
     });
 
-    setupEventBusListener(Events.UPDATE_LABELS, labels => updateBookmarkLabels(...labels))
+    setupEventBusListener(Events.UPDATE_LABELS, function updateLabels(labels) {
+        return updateBookmarkLabels(...labels);
+    })
 
     const filteredBookmarks = computed(() => {
         if(!config.showBookmarks) return [];

@@ -154,9 +154,9 @@ export function useConfig() {
 
     window.bibleViewDebug.config = config;
 
-    setupEventBusListener(Events.SET_CONFIG, async ({config: c, initial = false, nightMode = false} = {}) => {
+    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, initial = false, nightMode = false} = {}) {
         const defer = new Deferred();
-        if(!initial) emit(Events.CONFIG_CHANGED, defer)
+        if (!initial) emit(Events.CONFIG_CHANGED, defer)
         const oldValue = config.showBookmarks;
         config.showBookmarks = false
         await nextTick();
@@ -168,12 +168,12 @@ export function useConfig() {
             }
         }
         config.nightMode = nightMode;
-        if(c.showBookmarks === undefined) {
+        if (c.showBookmarks === undefined) {
             // eslint-disable-next-line require-atomic-updates
             config.showBookmarks = oldValue;
         }
         config.showChapterNumbers = config.showVerseNumbers;
-        if(!initial) {
+        if (!initial) {
             await nextTick();
         }
         defer.resolve()
