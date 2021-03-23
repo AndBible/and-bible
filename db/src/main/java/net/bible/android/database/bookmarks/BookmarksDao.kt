@@ -226,4 +226,15 @@ interface BookmarkDao {
 
     @Update fun updateBookmarkToLabels(bookmarkToLabels: List<BookmarkToLabel>)
     @Update fun updateJournalTextEntries(studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>)
+
+    @Query("UPDATE BookmarkToLabel SET orderNumber=orderNumber + 1 WHERE labelId=:labelId AND orderNumber >= :startPosition")
+    fun makeSpaceBookmarkToLabels(labelId: Long, startPosition: Int)
+
+    @Query("UPDATE JournalTextEntry SET orderNumber=orderNumber + 1 WHERE labelId=:labelId AND orderNumber >= :startPosition")
+    fun makeSpaceTextEntries(labelId: Long, startPosition: Int)
+
+    fun makeSpace(id: Long, editPosition: Int) {
+        makeSpaceBookmarkToLabels(id, editPosition)
+        makeSpaceTextEntries(id, editPosition)
+    }
 }

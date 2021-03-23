@@ -774,7 +774,8 @@ private val MIGRATION_42_43_expandContent = object : Migration(42, 43) {
 private val MIGRATION_43_44_journal_edit_position = object : Migration(43, 44) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
-            execSQL("ALTER TABLE `Label` ADD COLUMN `editPosition` INTEGER NOT NULL DEFAULT -1")
+            execSQL("ALTER TABLE `Label` ADD COLUMN `editPosition` INTEGER NOT NULL DEFAULT 0")
+            execSQL("UPDATE `Label` SET editPosition=(SELECT count(*) from BookmarkToLabel WHERE labelId=id) + (SELECT count(*) from JournalTextEntry WHERE labelId=id)")
         }
     }
 }

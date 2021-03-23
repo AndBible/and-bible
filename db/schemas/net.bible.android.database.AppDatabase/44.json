@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 44,
-    "identityHash": "9613c32276b973b147c9f3d4113cfbac",
+    "identityHash": "ca1f440d0414be9037344ca88b6e83ce",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -117,7 +117,7 @@
       },
       {
         "tableName": "Label",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `bookmarkStyle` TEXT, `color` INTEGER NOT NULL DEFAULT 0, `editPosition` INTEGER NOT NULL DEFAULT -1)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `bookmarkStyle` TEXT, `color` INTEGER NOT NULL DEFAULT 0, `editPosition` INTEGER NOT NULL DEFAULT 0)",
         "fields": [
           {
             "fieldPath": "id",
@@ -149,7 +149,7 @@
             "columnName": "editPosition",
             "affinity": "INTEGER",
             "notNull": true,
-            "defaultValue": "-1"
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -1252,7 +1252,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9613c32276b973b147c9f3d4113cfbac')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ca1f440d0414be9037344ca88b6e83ce')"
     ]
   }
 }
