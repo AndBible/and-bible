@@ -771,6 +771,13 @@ private val MIGRATION_42_43_expandContent = object : Migration(42, 43) {
     }
 }
 
+private val MIGRATION_43_44_journal_edit_position = object : Migration(43, 44) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Label` ADD COLUMN `editPosition` INTEGER NOT NULL DEFAULT -1")
+        }
+    }
+}
 
 object DatabaseContainer {
     private var instance: AppDatabase? = null
@@ -828,6 +835,7 @@ object DatabaseContainer {
                         MIGRATION_40_41_DocumentBackup,
                         MIGRATION_41_42_cipherKey,
                         MIGRATION_42_43_expandContent,
+                        MIGRATION_43_44_journal_edit_position,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
