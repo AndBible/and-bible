@@ -18,7 +18,7 @@
 <template>
   <div @click="ambiguousSelection.handle" :class="{night: config.nightMode}" :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
     <div :style="`height:${config.topOffset}px`"/>
-    <div id="modals"/>
+    <div :style="`--font-size:${config.fontSize}px; --font-family:${config.fontFamily};`" id="modals"/>
     <template v-if="mounted">
       <BookmarkModal/>
       <AmbiguousSelection ref="ambiguousSelection" @back-clicked="emit(Events.CLOSE_MODALS)"/>
