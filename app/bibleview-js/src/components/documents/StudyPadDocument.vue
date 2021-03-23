@@ -143,6 +143,10 @@ export default {
       deleteJournal(journalId)
     })
 
+    function editNotes(b, newText) {
+      b.notes = newText;
+    }
+
     const editableJournalEntry = ref(null);
 
     function indentStyle(entry) {
@@ -155,7 +159,7 @@ export default {
     }
 
     return {
-      journalEntries, adding, indentStyle,
+      journalEntries, editNotes, adding, indentStyle,
       editableJournalEntry,  addNewEntry,
       ...useCommon()
     }
