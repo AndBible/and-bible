@@ -168,8 +168,6 @@ export default {
 .links {
   padding-top: 10pt;
   padding-bottom: 5pt;
-
-  font-size: 70%;
 }
 .bible-text {
   text-indent: 5pt;
