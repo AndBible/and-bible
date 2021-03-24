@@ -43,7 +43,8 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.BookmarkSettingsPreference
 import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
-import net.bible.android.view.activity.page.FontPreference
+import net.bible.android.view.activity.page.FontFamilyPreference
+import net.bible.android.view.activity.page.FontSizePreference
 import net.bible.android.view.activity.page.LineSpacingPreference
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BOOKMARK_SETTINGS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
@@ -102,7 +103,8 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
 
         Types.STRONGS -> StrongsPreference(settings)
         Types.MORPH -> MorphologyPreference(settings)
-        Types.FONT -> FontPreference(settings)
+        Types.FONTSIZE -> FontSizePreference(settings)
+        Types.FONTFAMILY -> FontFamilyPreference(settings)
         Types.MARGINSIZE -> MarginSizePreference(settings)
         Types.COLORS -> ColorPreference(settings)
         Types.JUSTIFY -> ItemPreference(settings, Types.JUSTIFY)

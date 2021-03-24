@@ -24,7 +24,6 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RestrictionType
-import org.crosswire.jsword.passage.VerseRange
 import java.lang.UnsupportedOperationException
 
 class BookAndKey(document: Book, val key: Key): Key {
@@ -52,7 +51,7 @@ class BookAndKey(document: Book, val key: Key): Key {
     }
 
     override fun getName(): String {
-        return "${document.name}:${key.name}"
+        return "${document.abbreviation}: ${key.name}"
     }
 
     override fun getName(base: Key?): String {
@@ -122,6 +121,10 @@ class BookAndKey(document: Book, val key: Key): Key {
     }
 
     override fun blur(by: Int, restrict: RestrictionType?) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun blur(by: Int, restrict: RestrictionType?, blurDown: Boolean, blurUp: Boolean) {
         throw UnsupportedOperationException()
     }
 

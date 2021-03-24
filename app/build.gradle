@@ -63,8 +63,10 @@ task vuecli(type: Exec, dependsOn: npmInstall) {
     def buildCmd
 
     if(!isDebug) {
+        println("Building for production")
         buildCmd = "build-production"
     } else {
+        println("Building for debug")
         buildCmd = "build-debug"
     }
     workingDir jsDir

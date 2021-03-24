@@ -17,9 +17,12 @@
  */
 package net.bible.service.download
 
+import android.util.Log
 import net.bible.android.activity.R
+import net.bible.android.database.DocumentBackup
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.service.common.Logger
+import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
@@ -147,6 +150,7 @@ class DownloadManager(
 
     companion object {
         const val REPOSITORY_KEY = "repository"
+        const val TAG = "DownloadManager"
         private val log = Logger(DownloadManager::class.java.name)
     }
 

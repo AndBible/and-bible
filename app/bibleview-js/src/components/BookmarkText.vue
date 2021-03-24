@@ -17,28 +17,45 @@
 
 <template>
   <template v-if="bookmark.text">
+    <AmbiguousSelection ref="ambiguousSelection" @back-clicked="$emit('change-expanded', false)"/>
+    <div v-if="expanded" @click.stop="ambiguousSelection.handle">
+      <OsisFragment
+          :highlight-ordinal-range="bookmark.originalOrdinalRange"
+          :highlight-offset-range="highlightOffset"
+          :fragment="bookmark.osisFragment"
+          hide-titles
+      />
+    </div>
     <span class="bookmark-text">
-      <q v-if="isExpanded" @click.stop="isExpanded = false" class="bible-text"><span v-html="bookmark.fullText"/></q>
-      <q v-if="!isExpanded" @click.stop="isExpanded = true" class="bible-text">{{abbreviated(bookmark.text, 80)}}</q>
+      <q v-if="!expanded" @click.stop="$emit('change-expanded', true)" class="bible-text">{{abbreviated(bookmark.text, 50)}}</q>
     </span>
   </template>
 </template>
 
 <script>
-import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
-import {stripTags} from "@/utils";
+import OsisFragment from "@/components/documents/OsisFragment";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
+import {computed, ref} from "@vue/reactivity";
 
 export default {
   name: "BookmarkText",
+  components: {OsisFragment, AmbiguousSelection},
+  emits: ["change-expanded"],
   props: {
     bookmark: {type: Object, required: true},
     expanded: {type: Boolean, default: false},
   },
   setup(props) {
-    const isLong = stripTags(props.bookmark.fullText).length > 80;
-    const isExpanded = ref(props.expanded || !isLong);
-    return {isExpanded, ...useCommon()};
+    const ambiguousSelection = ref(null);
+
+    const highlightOffset = computed(() => {
+      const highlightedLength = props.bookmark.text.length;
+      const fullLength = props.bookmark.fullText.length;
+      if(highlightedLength > 0.5*fullLength || highlightedLength > fullLength - 5) return null
+      return props.bookmark.offsetRange
+    });
+    return {ambiguousSelection, highlightOffset, ...useCommon()};
   }
 }
 </script>

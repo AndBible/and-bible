@@ -22,8 +22,6 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.footnoteandref.FootnoteAndRefControl
-import net.bible.android.control.footnoteandref.NoteDetailCreator
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.PageControl
@@ -57,7 +55,6 @@ import net.bible.service.sword.SwordDocumentFacade
 interface ApplicationComponent {
 
     //Exposed to sub-graphs.
-    fun warmUp(): WarmUp
     fun errorReportControl(): ErrorReportControl
 
     fun swordDocumentFacade(): SwordDocumentFacade
@@ -75,13 +72,11 @@ interface ApplicationComponent {
     fun documentControl(): DocumentControl
     fun backupControl(): BackupControl
     fun bookmarkControl(): BookmarkControl
-    fun noteDetailCreator(): NoteDetailCreator
     fun downloadControl(): DownloadControl
     fun pageControl(): PageControl
     fun readingPlanControl(): ReadingPlanControl
     fun readingPlanRepo(): ReadingPlanRepository
     fun searchControl(): SearchControl
-    fun footnoteAndRefControl(): FootnoteAndRefControl
 
     fun speakControl(): SpeakControl
 

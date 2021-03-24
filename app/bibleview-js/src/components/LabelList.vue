@@ -16,23 +16,29 @@
   -->
 
 <template>
+  <AmbiguousSelection blocking ref="ambiguousSelection"/>
   <div class="label-list">
-    <span @touchstart.stop="assignLabels" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
+    <span @click.stop @touchstart.stop="labelClicked($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
   </div>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
+import {ref} from "@vue/reactivity";
+import {addEventFunction} from "@/utils";
 
 export default {
+  components: {AmbiguousSelection},
   props: {
     labels: {type: Array, required: true},
     bookmark: {type: Object, default: null},
   },
   name: "LabelList",
   setup(props) {
-    const {adjustedColor, ...common} = useCommon();
+    const {adjustedColor, strings, ...common} = useCommon();
+    const ambiguousSelection = ref(null);
     function labelStyle(label) {
       return "background-color: " + adjustedColor(label.color).string() + ";";
     }
@@ -45,7 +51,15 @@ export default {
       }
     }
 
-    return {labelStyle, assignLabels, ...common}
+    function labelClicked(event, label) {
+      addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
+      addEventFunction(event, () => {
+        window.location.assign(`journal://?id=${label.id}`);
+      }, {title: strings.jumpToStudyPad});
+      ambiguousSelection.value.handle(event);
+    }
+
+    return {labelStyle, assignLabels, ambiguousSelection, labelClicked, ...common}
   }
 }
 </script>

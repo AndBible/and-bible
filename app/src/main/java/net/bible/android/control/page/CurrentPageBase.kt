@@ -23,6 +23,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.misc.OsisFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
@@ -125,8 +126,8 @@ abstract class CurrentPageBase protected constructor(
     }
 
     override fun getPageContent(key: Key): Document {
-        val currentDocument = currentDocument!!
         return try {
+            val currentDocument = currentDocument!!
             OsisDocument(
                 book = currentDocument,
                 key = key,
@@ -170,8 +171,8 @@ abstract class CurrentPageBase protected constructor(
             CommonUtils.sharedPreferences.getString("default-${documentCategory.bookCategory.name}", ""))
 
         return savedDefaultBook ?: {
-            val books = swordDocumentFacade.getBooks(documentCategory.bookCategory)
-            if (books.size > 0) books[0] else null
+            val books = swordDocumentFacade.getBooks(documentCategory.bookCategory).filter { !it.isLocked }
+            if (books.isNotEmpty()) books[0] else null
         }()
     }
 

@@ -18,9 +18,10 @@
 <template>
     <span
         :id="`v-${ordinal}`"
-        class="verse"
+        class="verse ordinal"
+        :data-ordinal="ordinal"
     >
-      <span class="highlight-transition" :class="{isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
+      <span class="highlight-transition" :class="{timeout, isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
         <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
       </span>
     </span>
@@ -31,9 +32,10 @@
 import {inject, provide, reactive, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
-import {getVerseInfo, sleep} from "@/utils";
+import {cancellableTimer, getVerseInfo} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {fadeReferenceDelay} from "@/constants";
+import {Events, setupEventBusListener} from "@/eventbus";
 
 export default {
   name: "Verse",
@@ -72,6 +74,18 @@ export default {
     const {originalOrdinalRange} = inject("bibleDocumentInfo", {})
 
     const timeout = ref(false);
+    const cancelFuncs = [];
+
+    function endHighlight() {
+      cancelFuncs.forEach(f => f());
+      cancelFuncs.splice(0);
+      timeout.value = false;
+      highlighted.value = false;
+    }
+
+    setupEventBusListener(Events.CLEAR_HIGHLIGHTS, () => {
+      endHighlight();
+    })
 
     const isInOriginalOrdinalRange = computed(() => {
       if(!originalOrdinalRange) return false
@@ -80,14 +94,20 @@ export default {
 
     const highlighted = ref(false);
 
+    function setupEndHighlight() {
+      const [promise, cancel] = cancellableTimer(fadeReferenceDelay);
+      promise.then(() => timeout.value = true)
+      cancelFuncs.push(cancel);
+    }
+
     function highlight() {
-      timeout.value = false;
+      endHighlight();
       highlighted.value = true;
-      sleep(fadeReferenceDelay).then(() => timeout.value = true)
+      setupEndHighlight();
     }
 
     if(isInOriginalOrdinalRange.value) {
-      sleep(fadeReferenceDelay).then(() => timeout.value = true)
+      setupEndHighlight();
     }
 
     const common = useCommon();
@@ -106,17 +126,20 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .linebreak {
   display: block;
 }
 
 .highlight-transition {
-  border-radius: 5pt;
-  transition: background-color 1s ease;
+  transition: background-color 0.5s ease;
+  &.timeout {
+    transition: background-color 5s ease;
+  }
 }
 
 .isHighlighted {
+  border-radius: 5pt;
   background-color: rgba(255, 230, 0, 0.4);
 }
 </style>

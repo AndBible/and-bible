@@ -18,7 +18,10 @@
 package net.bible.android.control.versification
 
 import net.bible.android.control.page.ChapterVerse
+import org.crosswire.jsword.passage.RangedPassage
+import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 val Verse.chapterVerse: ChapterVerse get() = ChapterVerse(chapter, verse)
-
+val RangedPassage.toVerseRange: VerseRange get() = getRangeAt(0, RestrictionType.NONE)

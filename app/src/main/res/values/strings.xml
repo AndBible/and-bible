@@ -205,6 +205,7 @@
 
     <!-- Module download -->
     <string name="download">Download Documents</string>
+    <string name="redownload">Redownload Documents</string>
     <string name="download_confirmation">Download a Bible from the Internet?</string>
     <string name="download_source_message">Documents are downloaded from:\n https://crosswire.org,\n https://ibtrussia.org,\n https://ebible.org,\n https://public.modules.stepbible.org and\n https://andbible.github.io</string>
     <string name="download_document_confirm_prefix">Download</string>
@@ -466,6 +467,7 @@
     <string name="backup_modules">Backup Documents to…</string>
     <string name="backup_app_database">Backup application database to…</string>
     <string name="restore_app_database">Restore application database from…</string>
+    <string name="restore_database">Restore Database File</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces?</string>
     <string name="restore_success">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces restored successfully</string>
     <string name="loading_backup">Loading database from backup…</string>
@@ -497,7 +499,7 @@
 
     <!-- Bug reporting -->
     <string name="send_bug_report_title">Report a bug</string>
-    <string name="report_bug_email_subject_2">Bug report for %s %s</string>
+    <string name="report_bug_email_subject_3">[%s] Bug report for %s %s</string>
     <string name="report_bug_email_message">
         --- WRITE BUG REPORT ABOVE THIS LINE ---\n
         Instructions:\n
@@ -651,6 +653,17 @@
         other extra material when you study bible.
     </string>
 
+    <!-- Welcome text -->
+    <string name="redownload_documents">Quick Redownload</string>
+    <string name="welcome_message">Thank you for downloading Bible Study app by And Bible Open Source
+        Project. There are currently no Bibles or documents installed. To continue, please install
+        at least 1 document by downloading from the internet, or by loading from a zip file document
+        backup.
+    </string>
+    <string name="redownload_message">
+        A list of previous books/documents was found. Click below to easily download them again.
+    </string>
+
     <!-- Uncategorized -->
     <string name="close">Close</string>
     <string name="something_with_parenthesis">%s (%s)</string>
@@ -671,6 +684,7 @@
     <string name="assign_labels_new_bookmark">Assign labels to new bookmark</string>
     <string name="label_color">Label color</string>
     <string name="label_color_example">Example</string>
+    <string name="download_dialog_message">The following books could not be downloaded:</string>
     <string name="select_multiple">Select multiple</string>
     <string name="mynotes_error_loading">Error in loading document</string>
     <string name="journal_description">User-editable study pads, with custom text and bookmarks (pseudo document)</string>
@@ -690,4 +704,9 @@
     <string name="unlocking_failed">Unlocking failed, invalid passphrase</string>
     <string name="unlock_module">Set module passphrase</string>
     <string name="unlock_info">Encrypted module unlocking info</string>
+    <string name="try_again_passphrase">Passphrase did not work, try again?</string>
+    <string name="cant_delete_last_bible">Can\'t remove last bible document</string>
+    <string name="show_unlock_info">Module &amp; unlock info</string>
+    <string name="prefs_font_text_size_summary">Adjust font size</string>
+    <string name="prefs_font_family_summary">Adjust font family</string>
 </resources>

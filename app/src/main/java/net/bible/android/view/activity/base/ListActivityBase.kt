@@ -162,8 +162,8 @@ open class ListActivityBase : CustomTitlebarActivityBase {
     /**
      * Provide the cursor for the list view.
      */
-    var listAdapter: ListAdapter
-        get() = mAdapter!!
+    var listAdapter: ListAdapter?
+        get() = mAdapter
         set(adapter) {
             synchronized(this) {
                 ensureList()

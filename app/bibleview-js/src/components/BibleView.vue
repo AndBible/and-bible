@@ -18,40 +18,41 @@
 <template>
   <div @click="ambiguousSelection.handle" :class="{night: config.nightMode}" :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
     <div :style="`height:${config.topOffset}px`"/>
-    <div id="modals"/>
+    <div :style="`--font-size:${config.fontSize}px; --font-family:${config.fontFamily};`" id="modals"/>
     <template v-if="mounted">
       <BookmarkModal/>
       <AmbiguousSelection ref="ambiguousSelection" @back-clicked="emit(Events.CLOSE_MODALS)"/>
     </template>
-    <ErrorBox/>
+    <ErrorBox v-if="config.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div id="top"/>
     <div id="content" ref="topElement" :style="styleConfig">
+      <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
       <Document v-for="document in documents" :key="document.id" :document="document"/>
     </div>
     <div id="bottom"/>
   </div>
 </template>
 <script>
-  import Document from "@/components/documents/Document";
-  import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
-  import {useAddonFonts, useConfig, useCustomCss, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
-  import {testBookmarkLabels, testData} from "@/testdata";
-  import {computed, ref} from "@vue/reactivity";
-  import {useInfiniteScroll} from "@/composables/infinite-scroll";
-  import {useGlobalBookmarks} from "@/composables/bookmarks";
-  import {emit, Events, setupEventBusListener} from "@/eventbus";
-  import {useScroll} from "@/composables/scroll";
-  import {clearLog, useAndroid} from "@/composables/android";
-  import {setupWindowEventListener} from "@/utils";
-  import ErrorBox from "@/components/ErrorBox";
-  import BookmarkModal from "@/components/modals/BookmarkModal";
-  import DevelopmentMode from "@/components/DevelopmentMode";
-  import Color from "color";
-  import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
-  import {useStrings} from "@/composables/strings";
+import Document from "@/components/documents/Document";
+import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
+import {useAddonFonts, useConfig, useCustomCss, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
+import {testBookmarkLabels, testData} from "@/testdata";
+import {computed, ref} from "@vue/reactivity";
+import {useInfiniteScroll} from "@/composables/infinite-scroll";
+import {useGlobalBookmarks} from "@/composables/bookmarks";
+import {emit, Events, setupEventBusListener} from "@/eventbus";
+import {useScroll} from "@/composables/scroll";
+import {clearLog, useAndroid} from "@/composables/android";
+import {setupWindowEventListener} from "@/utils";
+import ErrorBox from "@/components/ErrorBox";
+import BookmarkModal from "@/components/modals/BookmarkModal";
+import DevelopmentMode from "@/components/DevelopmentMode";
+import Color from "color";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
+import {useStrings} from "@/composables/strings";
 
-  export default {
+export default {
     name: "BibleView",
     components: {Document, ErrorBox, BookmarkModal, DevelopmentMode, AmbiguousSelection},
     setup() {
@@ -62,40 +63,40 @@
       const documents = reactive([]);
       window.bibleViewDebug.documents = documents;
       const topElement = ref(null);
+      const documentPromise = ref(null);
       const verseMap = useVerseMap();
       provide("verseMap", verseMap);
-      const scroll = useScroll(config, verseMap);
+      const scroll = useScroll(config, verseMap, documentPromise);
       const {scrollToId} = scroll;
       provide("scroll", scroll);
       const globalBookmarks = useGlobalBookmarks(config);
       const android = useAndroid(globalBookmarks, config);
-      const {currentVerse} = useVerseNotifier(config, android, topElement);
+      const {currentVerse} = useVerseNotifier(config, android, topElement, scroll);
       const customCss = useCustomCss();
       provide("customCss", customCss);
 
       useInfiniteScroll(config, android, documents);
 
-      async function replaceDocument(...docs) {
-        emit(Events.CLOSE_MODALS);
-        clearLog();
-        globalBookmarks.clearBookmarks();
-        documents.splice(0)
-        await nextTick()
-        documents.push(...docs)
+      function addDocuments(...docs) {
+        documentPromise.value = document.fonts.ready
+            .then(() => nextTick())
+            .then(() => documents.push(...docs));
       }
 
       setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
         const verseBeforeConfigChange = currentVerse.value;
         await deferred.wait();
-        scrollToId(`v-${verseBeforeConfigChange}`, true)
+        scrollToId(`v-${verseBeforeConfigChange}`, {now: true})
       })
 
-      const fontFamily = ref(null);
-      setupEventBusListener(Events.SET_FONT_FAMILY, value => {
-        fontFamily.value = value;
-      })
+      setupEventBusListener(Events.CLEAR_DOCUMENT, function clearDocument() {
+        emit(Events.CLOSE_MODALS);
+        clearLog();
+        globalBookmarks.clearBookmarks();
+        documents.splice(0)
+      });
 
-      setupEventBusListener(Events.REPLACE_DOCUMENT, replaceDocument);
+      setupEventBusListener(Events.ADD_DOCUMENTS, addDocuments);
       setupWindowEventListener("error", (e) => {
         console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
       });
@@ -103,11 +104,11 @@
       if(config.developmentMode) {
         console.log("populating test data");
         globalBookmarks.updateBookmarkLabels(...testBookmarkLabels)
-        replaceDocument(...testData)
+        addDocuments(...testData)
       }
 
       let titlePrefix = ""
-      setupEventBusListener(Events.SET_TITLE, (title) => {
+      setupEventBusListener(Events.SET_TITLE, function setTitle(title) {
         titlePrefix = title;
       });
 
@@ -144,6 +145,10 @@
           line-spacing: ${config.lineSpacing / 10}em;
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
+          font-family: ${config.fontFamily};
+          background-color: ${backgroundColor.hsl().string()};
+          font-size: ${config.fontSize}px;
+          --font-size: ${config.fontSize}px;
           --background-color: ${backgroundColor.hsl().string()};
           `;
           if(config.marginSize.marginLeft || config.marginSize.marginRight) {
@@ -152,10 +157,6 @@
             margin-right: ${config.marginSize.marginRight}mm;
           `;
           }
-          if(fontFamily.value) {
-            style += `font-family: ${fontFamily.value};`
-          }
-
           return style;
       });
 

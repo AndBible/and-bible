@@ -45,7 +45,7 @@ import {
 import Color from "color";
 
 let developmentMode = false;
-let testMode = false;
+export let testMode = false;
 
 if(process.env.NODE_ENV === "development") {
     developmentMode = true;
@@ -54,15 +54,18 @@ if(process.env.NODE_ENV === "test") {
     testMode = true;
 }
 
-export function useVerseNotifier(config, {scrolledToVerse}, topElement) {
+export function useVerseNotifier(config, {scrolledToVerse}, topElement, {isScrolling}) {
     const currentVerse = ref(null);
     watch(() => currentVerse.value,  value => scrolledToVerse(value));
 
-    const lineHeight = computed(() =>
-        parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'))
+    const lineHeight = computed(() => {
+        config; // Update also when font settings etc are changed
+        return parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
+        }
     );
 
     const onScroll = throttle(() => {
+        if(isScrolling.value) return;
         const y = config.topOffset + lineHeight.value*0.8;
 
         // Find element, starting from right
@@ -71,9 +74,9 @@ export function useVerseNotifier(config, {scrolledToVerse}, topElement) {
         for(let x = window.innerWidth - step; x > 0; x-=step) {
             element = document.elementFromPoint(x, y)
             if(element) {
-                element = element.closest(".verse");
+                element = element.closest(".ordinal");
                 if(element) {
-                    currentVerse.value = parseInt(element.id.slice(2))
+                    currentVerse.value = parseInt(element.dataset.ordinal)
                     break;
                 }
             }
@@ -95,6 +98,8 @@ export const strongsModes = {
     links: 2,
 }
 
+export let currentConfig = {};
+
 export function useConfig() {
     const config = reactive({
         bookmarkingMode: bookmarkingModes.verticalColorBars,
@@ -111,10 +116,8 @@ export function useConfig() {
         showStrongsSeparately: false,
         showCrossReferences: true,
         showFootNotes: true,
-        font: {
-            fontFamily: "sans-serif",
-            fontSize: 16,
-        },
+        fontFamily: "sans-serif",
+        fontSize: 16,
         showBookmarks: true,
         showMyNotes: true,
 
@@ -130,7 +133,6 @@ export function useConfig() {
             showAll: true,
             showLabels: []
         },
-        textColor: "black",
         hyphenation: true,
         noiseOpacity: 50,
         lineSpacing: 10,
@@ -145,16 +147,18 @@ export function useConfig() {
         bottomOffset: 100,
         infiniteScroll: true,
         nightMode: false,
+        errorBox: false,
 
         developmentMode,
         testMode,
     })
+    currentConfig = config;
 
     window.bibleViewDebug.config = config;
 
-    setupEventBusListener(Events.SET_CONFIG, async ({config: c, initial = false, nightMode = false} = {}) => {
+    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, initial = false, nightMode = false} = {}) {
         const defer = new Deferred();
-        if(!initial) emit(Events.CONFIG_CHANGED, defer)
+        if (!initial) emit(Events.CONFIG_CHANGED, defer)
         const oldValue = config.showBookmarks;
         config.showBookmarks = false
         await nextTick();
@@ -166,12 +170,12 @@ export function useConfig() {
             }
         }
         config.nightMode = nightMode;
-        if(c.showBookmarks === undefined) {
+        if (c.showBookmarks === undefined) {
             // eslint-disable-next-line require-atomic-updates
             config.showBookmarks = oldValue;
         }
         config.showChapterNumbers = config.showVerseNumbers;
-        if(!initial) {
+        if (!initial) {
             await nextTick();
         }
         defer.resolve()
@@ -235,6 +239,8 @@ export function useFontAwesome() {
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
     const value = props[attributeName];
+    const config = inject("config", {});
+    if(!config.errorBox) return;
     if(value && !values.includes(value)) {
         const tagName = getCurrentInstance().type.name
         const origin = inject("verseInfo", {}).osisID;
@@ -314,13 +320,23 @@ export function useVerseMap() {
 export function useCustomCss() {
     const cssNodes = new Map();
     const count = new Map();
+    const customCssPromises = [];
     function addCss(bookInitials) {
         const c = count.get(bookInitials) || 0;
         if (!c) {
             const link = document.createElement("link");
+            const onLoadDefer = new Deferred();
+            const promise = onLoadDefer.wait();
+            customCssPromises.push(promise);
             link.href = `/module-style/${bookInitials}/style.css`;
             link.type = "text/css";
             link.rel = "stylesheet";
+            const cssReady = () => {
+                onLoadDefer.resolve();
+                customCssPromises.splice(customCssPromises.findIndex(v => v === promise), 1);
+            }
+            link.onload = cssReady;
+            link.onerror = cssReady;
             cssNodes.set(bookInitials, link);
             document.getElementsByTagName("head")[0].appendChild(link);
         }
@@ -339,16 +355,13 @@ export function useCustomCss() {
     }
 
     function registerBook(bookInitials) {
-        onBeforeMount(() => {
-            addCss(bookInitials);
-        });
-
+        addCss(bookInitials);
         onUnmounted(() => {
             removeCss(bookInitials);
         });
     }
 
-    return {registerBook}
+    return {registerBook, customCssPromises}
 }
 
 export function useAddonFonts() {

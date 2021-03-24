@@ -46,7 +46,8 @@
     </div>
   </EditButtonRow>
   <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
-    <b><a :href="journalEntry.bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b> <BookmarkText :bookmark="journalEntry"/>
+    <b><a :href="journalEntry.bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
+    <BookmarkText :expanded="journalEntry.expandContent" @change-expanded="changeExpanded" :bookmark="journalEntry"/>
   </template>
   <div class="notes">
     <EditableText
@@ -132,6 +133,10 @@ export default {
       android.updateJournalEntry(props.journalEntry, {indentLevel: props.journalEntry.indentLevel + change})
     }
 
+    function changeExpanded(newValue) {
+      android.updateJournalEntry(props.journalEntry, {expandContent: newValue})
+    }
+
     return {
       addNewEntryAfter,
       editBookmark,
@@ -143,6 +148,7 @@ export default {
       editor: ref(null),
       strings,
       indent,
+      changeExpanded,
       ...common
     }
   }

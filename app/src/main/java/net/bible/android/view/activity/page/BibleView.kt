@@ -57,6 +57,7 @@ import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.StudyPadOrderEvent
@@ -84,6 +85,7 @@ import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
+import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
@@ -102,9 +104,14 @@ import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.SystemKJVA
+import org.crosswire.jsword.versification.system.Versifications
 import java.io.File
 import java.lang.ref.WeakReference
 import java.net.URLConnection
@@ -386,7 +393,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         addJavascriptInterface(bibleJavascriptInterface, "android")
     }
 
-    class BibleLink(val type: String, val target: String) {
+    class BibleLink(val type: String, val target: String, private val v11nName: String? = null) {
+        val versification: Versification get() =
+            Versifications.instance().getVersification(v11nName?: SystemKJVA.V11N_NAME)
         val url: String get() {
             return when(type) {
                 "content" -> "$type:$target"
@@ -428,8 +437,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         settings.javaScriptEnabled = true
-
-        applyPreferenceSettings()
 
         pageTiltScroller = PageTiltScroller(this, pageTiltScrollControl)
         pageTiltScroller.enableTiltScroll(true)
@@ -580,8 +587,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         UriConstants.MULTI_REFERENCE -> {
             val osisRefs = uri.getQueryParameters("osis")
+            val v11n = uri.getQueryParameter("v11n")
             if(osisRefs != null) {
-                linkControl.openMulti(osisRefs.map { BibleLink("osis", it) })
+                linkControl.openMulti(osisRefs.map { BibleLink("osis", it, v11n) })
             } else false
         }
         UriConstants.SCHEME_JOURNAL -> {
@@ -592,11 +600,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         UriConstants.SCHEME_REFERENCE -> {
             val osisRef = uri.getQueryParameter("osis")
+            val v11n = uri.getQueryParameter("v11n")
             if(osisRef != null) {
-                linkControl.loadApplicationUrl(BibleLink("osis", osisRef))
+                linkControl.loadApplicationUrl(BibleLink("osis", osisRef, v11n))
             } else {
                 val contentRef = uri.getQueryParameter("content")!!
-                linkControl.loadApplicationUrl(BibleLink("content", contentRef))
+                linkControl.loadApplicationUrl(BibleLink("content", contentRef, v11n))
             }
             true
         }
@@ -696,36 +705,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    /** apply settings set by the user using Preferences
-     */
-    override fun applyPreferenceSettings() {
-        Log.d(TAG, "applyPreferenceSettings")
-        applyFontSize()
-    }
-
-    private fun applyFontSize() {
-        Log.d(TAG, "applyFontSize")
-        val fontSize = pageControl.getDocumentFontSize(window)
-        val oldFontSize = settings.defaultFontSize
-        val fontFamily = window.pageManager.actualTextDisplaySettings.font!!.fontFamily!!
-        settings.defaultFontSize = fontSize
-        if(!htmlLoadingOngoing) {
-            executeJavascriptOnUiThread("bibleView.emit('set_font_family', '$fontFamily');")
-        } else {
-            settings.standardFontFamily = fontFamily
-        }
-        if(oldFontSize != fontSize) {
-            doCheckWindows()
-        }
-    }
-
-    /** may need updating depending on environmental brightness
-     */
-    override fun updateBackgroundColor() {
-        Log.d(TAG, "updateBackgroundColor")
-        setBackgroundColor(backgroundColor)
-    }
-
     val backgroundColor: Int get() {
         val colors = window.pageManager.actualTextDisplaySettings.colors
         return (if(ScreenSettings.nightMode) colors?.nightBackground else colors?.dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
@@ -770,8 +749,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         withContext(Dispatchers.Main) {
-            updateBackgroundColor()
-            applyFontSize()
             enableZoomForMap(pageControl.currentPageManager.isMapShown)
         }
 
@@ -793,11 +770,23 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
 
-    fun updateTextDisplaySettings() {
+    fun updateTextDisplaySettings(onAttach: Boolean = false) {
         Log.d(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
-        applyFontSize()
-        executeJavascriptOnUiThread("bibleView.emit('set_config', {config: ${displaySettings.toJson()}, nightMode: $nightMode});")
+        updateConfig(onAttach)
+    }
+
+    private fun getUpdateConfigCommand(initial: Boolean) = """
+            bibleView.emit('set_config', {config: ${displaySettings.toJson()}, nightMode: $nightMode, initial: $initial});
+            """.trimIndent()
+
+    private fun updateConfig(initial: Boolean = false) {
+        executeJavascriptOnUiThread(getUpdateConfigCommand(initial))
+    }
+
+    fun updateBackgroundColor() {
+        Log.d(TAG, "updateBackgroundColor")
+        setBackgroundColor(backgroundColor)
     }
 
     val nightMode get() = mainBibleActivity.currentNightMode
@@ -820,8 +809,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
        }
 
         executeJavascriptOnUiThread("""
-            bibleView.emit("set_config", {config: ${displaySettings.toJson()}, nightMode: $nightMode, initial:true});
-            bibleView.emit("replace_document", $documentStr);
+            bibleView.emit("clear_document");
+            ${getUpdateConfigCommand(true)}
+            bibleView.emit("add_documents", $documentStr);
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
                 jumpToYOffsetRatio: null,
@@ -988,9 +978,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 else -> null
             }
         )
-        val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
+        val bookmarkStr = clientBookmark.asJson
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);
+        """.trimIndent())
+    }
+
+    fun onEvent(event: BookmarkNoteModifiedEvent) {
+        executeJavascriptOnUiThread("""
+            bibleView.emit("bookmark_note_modified", {id: ${event.bookmarkId}, notes: ${json.encodeToString(serializer(), event.notes)}});
         """.trimIndent())
     }
 
@@ -1111,7 +1107,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun doCheckWindows(force: Boolean = false) {
         if(checkWindows || force) {
-            executeJavascript("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});")
+            if(!htmlLoadingOngoing) executeJavascript("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});")
             if (window.pageManager.currentPage.documentCategory == DocumentCategory.BIBLE) {
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
             }
@@ -1141,22 +1137,43 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             resumeTiltScroll()
         }
         if(contentVisible) {
-            updateTextDisplaySettings()
+            updateTextDisplaySettings(true)
         }
     }
 
-    fun scrollOrJumpToVerse(verse: Verse, restoreOngoing: Boolean = false) {
-        Log.d(TAG, "Scroll or jump to:$verse")
-        var toVerse = verse;
+    fun scrollOrJumpToVerse(key: Key, restoreOngoing: Boolean = false) {
+        Log.d(TAG, "Scroll or jump to:$key")
+        var toVerse: Verse
+        var endVerse: Verse? = null
+        when (key) {
+            is VerseRange -> {
+                toVerse = key.start
+                endVerse = key.end
+            }
+            is Verse -> toVerse = key
+            is RangedPassage -> {
+                val range = key.toVerseRange
+                toVerse = range.start
+                endVerse = range.end
+            }
+            else -> throw RuntimeException("illegal type")
+        }
         val v = initialVerse
         if(firstDocument is MyNotesDocument) {
-            toVerse = verse.toV11n(KJVA)
+            toVerse = toVerse.toV11n(KJVA)
+            endVerse = endVerse?.toV11n(KJVA)
         } else if(v != null) {
-            toVerse = verse.toV11n(v.versification)
+            toVerse = toVerse.toV11n(v.versification)
+            endVerse = endVerse?.toV11n(v.versification)
         }
         val jumpToId = "v-${toVerse.ordinal}"
-        val now = if(!contentVisible || restoreOngoing) "true" else "false"
-        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: $now, highlight: $now, ordinal: ${toVerse.ordinal}, delta: $topOffset});")
+        val now = !contentVisible || restoreOngoing
+        val highlight = now || endVerse != null
+        fun boolString(value: Boolean?): String {
+            if(value == null) return "null"
+            return if(value) "true" else "false"
+        }
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}, delta: $topOffset});")
     }
 
     private fun executeJavascriptOnUiThread(javascript: String) {

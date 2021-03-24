@@ -34,7 +34,8 @@
     </div>
   </EditButtonRow>
   <div>
-    <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b> <BookmarkText :bookmark="bookmark"/> <LabelList :bookmark="bookmark" :labels="labels"/>
+    <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b>&nbsp;
+    <BookmarkText :bookmark="bookmark" :expanded="expanded" @change-expanded="expanded = $event"/> <LabelList :bookmark="bookmark" :labels="labels"/>
     <div class="notes">
       <EditableText
           ref="editor"
@@ -66,7 +67,7 @@ export default {
   setup(props) {
     const globalBookmarks = inject("globalBookmarks");
     const android = inject("android");
-
+    const expanded = ref(false);
     const labels = computed(() => {
       return props.bookmark.labels.map(l => globalBookmarks.bookmarkLabels.get(l));
     });
@@ -88,7 +89,7 @@ export default {
       }
     }
 
-    return {labels, save, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), ...useCommon()}
+    return {labels, save, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), expanded, ...useCommon()}
   },
 }
 </script>

@@ -85,7 +85,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         }
         withContext(Dispatchers.Main) {
             loadingIndicator.visibility = View.GONE
-            if(listAdapter.isEmpty) {
+            if(listAdapter?.isEmpty == true) {
                 empty.visibility = View.VISIBLE
             }
         }

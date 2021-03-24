@@ -18,11 +18,9 @@
 
 package net.bible.android.control
 
-import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
-import net.bible.android.view.activity.page.screen.DocumentViewManager
 
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.VerseRange
@@ -58,7 +56,8 @@ constructor(private val windowControl: WindowControl) {
             && window.hasChapterLoaded(verse.chapter)
         )
         {
-            window.bibleView?.scrollOrJumpToVerse(verse, window.restoreOngoing)
+            val originalKey = window.pageManager.currentBible.originalKey
+            window.bibleView?.scrollOrJumpToVerse(originalKey ?: verse, window.restoreOngoing)
             PassageChangeMediator.getInstance().contentChangeFinished()
         }
         else {

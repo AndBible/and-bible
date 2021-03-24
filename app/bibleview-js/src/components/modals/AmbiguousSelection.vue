@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal v-if="showModal" @close="cancelled">
+  <Modal :blocking="blocking" v-if="showModal" @close="cancelled">
     <template v-for="(s, index) of selections" :key="index">
       <button class="button light" @click.stop="selected(s)">
         <span :style="`color: ${s.options.color}`"><FontAwesomeIcon v-if="s.options.icon" :icon="s.options.icon"/></span> {{s.options.title}}</button>
@@ -40,6 +40,9 @@ import {Deferred, getEventFunctions} from "@/utils";
 export default {
   name: "AmbiguousSelection",
   emits: ["back-clicked"],
+  props: {
+    blocking: {type: Boolean, default: false}
+  },
   components: {Modal, FontAwesomeIcon},
   setup(props, {emit}) {
     const showModal = ref(false);

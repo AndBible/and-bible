@@ -39,8 +39,13 @@
       </div>
       {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
       {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
-      <div v-if="bookmarkNotes" class="my-notes-link">
-        <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
+      <div class="links">
+        <div>
+          <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
+        </div>
+        <div v-for="label in labels.filter(l => l.id > 0)" :key="label.id">
+          <a :href="`journal://?id=${label.id}&bookmarkId=${bookmark.id}`">{{ sprintf(strings.openStudyPad, label.name) }}</a>
+        </div>
       </div>
     </div>
     <template #title>
@@ -99,13 +104,12 @@ export default {
     });
 
     const label = computed(() => labels.value[0]);
-    const bookmarkNotes = ref(null);
+    const bookmarkNotes = computed(() => bookmark.value.notes);
     let originalNotes = null;
 
     setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (bookmarkId_, {open = false} = {}) => {
       bookmarkId.value = bookmarkId_;
-      bookmarkNotes.value = bookmark.value.notes;
-      originalNotes = bookmark.value.notes;
+      originalNotes = bookmarkNotes.value;
       if(!showBookmark.value) infoShown.value = false;
       showBookmark.value = true;
     });
@@ -115,7 +119,6 @@ export default {
       if(originalNotes !== bookmarkNotes.value)
         android.saveBookmarkNote(bookmark.value.id, bookmarkNotes.value);
 
-      bookmarkNotes.value = null;
       originalNotes = null;
     }
 
@@ -137,8 +140,7 @@ export default {
     });
 
     const changeNote = text => {
-      bookmarkNotes.value = text;
-      android.saveBookmarkNote(bookmark.value.id, bookmarkNotes.value);
+      android.saveBookmarkNote(bookmark.value.id, text);
     }
 
     const originalBookLink = computed(() =>
@@ -163,11 +165,9 @@ export default {
 
   max-height: calc(var(--max-height) - 25pt);
 }
-.my-notes-link {
+.links {
   padding-top: 10pt;
   padding-bottom: 5pt;
-
-  font-size: 50%;
 }
 .bible-text {
   text-indent: 5pt;

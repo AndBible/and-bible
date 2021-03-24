@@ -30,7 +30,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
-import org.crosswire.jsword.book.BookFilters
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.Defaults
 import org.crosswire.jsword.book.FeatureType
@@ -50,14 +49,22 @@ class SwordDocumentFacade @Inject constructor() {
     val bibles: List<Book>
         get() {
             log.debug("Getting bibles")
-            val documents = Books.installed().getBooks(BookFilters.getBibles())
+            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }
+            log.debug("Got bibles, Num=" + documents.size)
+            return documents
+        }
+
+    val unlockedBibles: List<Book>
+        get() {
+            log.debug("Getting bibles")
+            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE  && !it.isLocked}
             log.debug("Got bibles, Num=" + documents.size)
             return documents
         }
 
     fun getBooks(bookCategory: BookCategory): List<Book> {
         log.debug("Getting books of type " + bookCategory.getName())
-        val documents = Books.installed().getBooks { book -> book.bookCategory == bookCategory }
+        val documents = Books.installed().getBooks { it.bookCategory == bookCategory }
         log.debug("Got books, Num=" + documents.size)
         return documents
     }

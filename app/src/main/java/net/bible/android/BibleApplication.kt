@@ -33,6 +33,8 @@ import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.DaggerApplicationComponent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.report.BugReport
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
@@ -86,6 +88,7 @@ open class BibleApplication : Application() {
         super.onCreate()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
+            BugReport.saveScreenshot()
             CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", true).commit()
             defaultExceptionHandler.uncaughtException(t, e)
         }
@@ -121,7 +124,6 @@ open class BibleApplication : Application() {
         ProgressNotificationManager.instance.initialise()
 
         // various initialisations required every time at app startup
-        applicationComponent.warmUp().warmUpSwordEventually()
 
         localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
 

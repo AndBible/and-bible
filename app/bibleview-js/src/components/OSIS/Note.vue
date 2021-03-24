@@ -19,7 +19,7 @@
   <Modal @close="showNote = false" v-if="showNote">
     <div @click="ambiguousSelection.handle">
       <slot/>
-      <OpenAllLink/>
+      <OpenAllLink :v11n="v11n"/>
     </div>
     <template #title>
       <template v-if="isFootNote">
@@ -47,7 +47,7 @@
 import {checkUnsupportedProps, useCommon, useReferenceCollector} from "@/composables";
 import Modal from "@/components/modals/Modal";
 import {get} from "lodash";
-import {ref, provide} from "@vue/runtime-core";
+import {ref, provide, inject} from "@vue/runtime-core";
 import {addEventFunction} from "@/utils";
 import OpenAllLink from "@/components/OpenAllLink";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
@@ -104,11 +104,11 @@ export default {
       variant: strings.footnoteTypeVariant,
       alternative: strings.footnoteTypeAlternative,
     };
-
+    const {v11n} = inject("osisFragment", {})
     const referenceCollector = useReferenceCollector();
     provide("referenceCollector", referenceCollector);
 
-    return {strings, typeStrings, showNote, noteClicked, ambiguousSelection, ...common};
+    return {strings, typeStrings, showNote, noteClicked, ambiguousSelection, v11n, ...common};
   },
 }
 </script>
