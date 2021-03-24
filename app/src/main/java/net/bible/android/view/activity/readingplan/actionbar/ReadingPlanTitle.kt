@@ -185,14 +185,12 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
         val readingPlanActivity = activity
         val docHandlerIntent = Intent(readingPlanActivity, ReadingPlanSelectorList::class.java)
         readingPlanActivity.startActivityForResult(docHandlerIntent, 1)
-        readingPlanActivity.finish()
     }
 
     private fun onPageTitleClick() {
         val currentActivity = activity
         val pageHandlerIntent = Intent(currentActivity, DailyReadingList::class.java)
         currentActivity.startActivityForResult(pageHandlerIntent, 1)
-        currentActivity.finish()
     }
 
     companion object {

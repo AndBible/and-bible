@@ -57,7 +57,6 @@ class ReadingPlanSelectorList : ListActivityBase() {
         Log.i(TAG, "Displaying Reading Plan List")
         val binding = ListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buildActivityComponent().inject(this)
         try {

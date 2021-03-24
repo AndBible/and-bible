@@ -54,7 +54,6 @@ class DailyReadingList : ListActivityBase() {
         Log.i(TAG, "Displaying General Book Key chooser")
         binding = ListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buildActivityComponent().inject(this)
 
