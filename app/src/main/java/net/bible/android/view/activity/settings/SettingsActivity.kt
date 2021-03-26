@@ -71,6 +71,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     nightModePref.isVisible = false
                 }
             }
+
+            preferenceScreen.findPreference<ListPreference>("toolbar_button_actions")?.apply {
+                if (value.isNullOrBlank())
+                    value = "default"
+            }
             // if locale is overridden then have to force title to be translated here
         } catch (e: Exception) {
             Log.e(TAG, "Error preparing preference screen", e)

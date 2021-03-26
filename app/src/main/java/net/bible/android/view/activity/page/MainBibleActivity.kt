@@ -183,7 +183,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Bottom offset with navigation bar and transport bar and window buttons
     val bottomOffset3 get() = bottomOffset2 + if (restoreButtonsVisible) windowButtonHeight else 0
 
-    private val restoreButtonsVisible get() = CommonUtils.sharedPreferences.getBoolean("restoreButtonsVisible", false)
+    private val preferences = CommonUtils.sharedPreferences
+    private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
     private var isPaused = false
     /**
@@ -628,8 +629,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    private val preferences = CommonUtils.sharedPreferences
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
 
@@ -763,11 +762,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private val currentDocument get() = windowControl.activeWindow.pageManager.currentPage.currentDocument
+    private val toolbarButtonSetting get() = preferences.getString("toolbar_button_actions", "default")
 
     override fun updateActions() {
         updateTitle()
         val biblesForVerse = documentControl.biblesForVerse.filter {currentDocument != it}
         val commentariesForVerse = documentControl.commentariesForVerse.filter {currentDocument != it}
+
+        val suggestedBible = documentControl.suggestedBible
+        val suggestedCommentary = documentControl.suggestedCommentary
 
         var visibleButtonCount = 0
         val screenWidth = resources.displayMetrics.widthPixels
@@ -776,27 +779,59 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val maxButtons: Int = (maxWidth / approximateSize).toInt()
         val showSearch = documentControl.isBibleBook || documentControl.isCommentary
 
+        fun shouldShowBibleButton(): Boolean =
+            toolbarButtonSetting?.let {
+                (it.contains("swap-") && suggestedBible != null) ||
+                    (!it.contains("swap-") && biblesForVerse.isNotEmpty())
+            } ?: false
+
+
+        fun shouldShowCommentaryButton(): Boolean =
+            toolbarButtonSetting?.let {
+                (it.contains("swap-") && suggestedCommentary != null) ||
+                    (!it.contains("swap-") && commentariesForVerse.isNotEmpty())
+            } ?: false
+
+        fun bibleClick(view: View) {
+            if (toolbarButtonSetting?.contains("swap-") == true)
+                setCurrentDocument(documentControl.suggestedBible);
+            else
+                menuForDocs(view, biblesForVerse)
+        }
+
+        fun commentaryClick(view: View) {
+            if (toolbarButtonSetting?.contains("swap-") == true)
+                setCurrentDocument(documentControl.suggestedCommentary);
+            else
+                menuForDocs(view, commentariesForVerse)
+        }
+
+        fun bibleLongPress(view: View) {
+            if (toolbarButtonSetting?.contains("swap-menu") == true)
+                menuForDocs(view, biblesForVerse)
+            else {
+                startDocumentChooser("BIBLE")
+            }
+        }
+
+        fun commentaryLongPress(view: View) {
+            if (toolbarButtonSetting?.contains("swap-menu") == true)
+                menuForDocs(view, commentariesForVerse)
+            else
+                startDocumentChooser("COMMENTARY")
+        }
+
         binding.apply {
-            bibleButton.visibility = if (visibleButtonCount < maxButtons && biblesForVerse.isNotEmpty()) {
-                bibleButton.setOnClickListener { menuForDocs(it, biblesForVerse) }
-                bibleButton.setOnLongClickListener {
-                    val intent = Intent(this@MainBibleActivity, ChooseDocument::class.java)
-                    intent.putExtra("type", "BIBLE")
-                    startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
-                    true
-                }
+            bibleButton.visibility = if (visibleButtonCount < maxButtons && shouldShowBibleButton()) {
+                bibleButton.setOnClickListener { bibleClick(it) }
+                bibleButton.setOnLongClickListener { bibleLongPress(it); true }
                 visibleButtonCount += 1
                 View.VISIBLE
             } else View.GONE
 
-            commentaryButton.visibility = if (commentariesForVerse.isNotEmpty() && visibleButtonCount < maxButtons) {
-                commentaryButton.setOnClickListener { menuForDocs(it, commentariesForVerse) }
-                commentaryButton.setOnLongClickListener {
-                    val intent = Intent(this@MainBibleActivity, ChooseDocument::class.java)
-                    intent.putExtra("type", "COMMENTARY")
-                    startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
-                    true
-                }
+            commentaryButton.visibility = if (shouldShowCommentaryButton() && visibleButtonCount < maxButtons) {
+                commentaryButton.setOnClickListener { commentaryClick(it) }
+                commentaryButton.setOnLongClickListener { commentaryLongPress(it); true }
                 visibleButtonCount += 1
                 View.VISIBLE
             } else View.GONE
@@ -848,6 +883,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             val btn = navigationView.menu.findItem(R.id.searchButton)
             btn.isEnabled = showSearch
         }
+    }
+
+    /** @param type can be BIBLE or COMMENTARY */
+    private fun startDocumentChooser(type: String) {
+        val intent = Intent(this, ChooseDocument::class.java)
+        intent.putExtra("type", type)
+        startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
     }
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {

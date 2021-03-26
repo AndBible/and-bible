@@ -40,6 +40,13 @@
 			android:summary="@string/hide_bible_reference_overlay_summary"
 			android:defaultValue="false"
 			/>
+
+		<ListPreference android:key="toolbar_button_actions"
+			android:title="@string/prefs_toolbar_button_action_title"
+			android:summary="@string/prefs_toolbar_button_action_summary"
+			android:entries="@array/prefs_toolbar_button_action_descriptions"
+			android:entryValues="@array/prefs_toolbar_button_action_values" />
+
 		<ListPreference android:key="night_mode_pref3"
 			android:title="@string/prefs_night_mode_title"
 			android:summary="@string/prefs_night_mode_summary"

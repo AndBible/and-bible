@@ -107,6 +107,29 @@ class DocumentControl @Inject constructor(
     val currentDocument: Book?
         get () = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
 
+    val suggestedBible: Book?
+        get() {
+            val currentPageManager = activeWindowPageManagerProvider.activeWindowPageManager
+            val currentBible = currentPageManager.currentBible.currentDocument
+
+            return getSuggestedBook(swordDocumentFacade.bibles, currentBible, bookFilter, currentPageManager.isBibleShown)
+        }
+
+    /** Suggest an alternative commentary to view or return null
+     */
+    // only show commentaries that contain verse - extra checks for TDavid because it always returns true
+    // book claims to contain the verse but
+    // TDavid has a flawed index and incorrectly claims to contain contents for all books of the
+    // bible so only return true if !TDavid or is Psalms
+    val suggestedCommentary: Book?
+        get() {
+            val currentPageManager = activeWindowPageManagerProvider.activeWindowPageManager
+            val currentCommentary = currentPageManager.currentCommentary.currentDocument
+
+            return getSuggestedBook(swordDocumentFacade.getBooks(BookCategory.COMMENTARY),
+                    currentCommentary, commentaryFilter, currentPageManager.isCommentaryShown)
+        }
+
     /**
      * Possible books will often not include the current verse but most will include chap 1 verse 1
      */
