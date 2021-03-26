@@ -22,6 +22,19 @@
 		<item>@string/doc_type_addons</item>
 	</string-array>
 
+	<!-- Bible/commentary toolbar button press actions -->
+	<string-array name="prefs_toolbar_button_action_descriptions">
+		<item>@string/prefs_toolbar_button_action_default</item>
+		<item>@string/prefs_toolbar_button_action_swap_menu</item>
+		<item>@string/prefs_toolbar_button_action_swap_activity</item>
+	</string-array>
+	<string-array name="prefs_toolbar_button_action_values">
+		<item>default</item>
+		<item>swap-menu</item>
+		<item>swap-activity</item>
+	</string-array>
+	<!-- Bible/commentary toolbar button press actions -->
+
 	<!-- Screen colors: automatic night mode, day, night -->
 	<string-array name="prefs_night_mode_descriptions">
 		<item>@string/prefs_night_mode_manual</item>

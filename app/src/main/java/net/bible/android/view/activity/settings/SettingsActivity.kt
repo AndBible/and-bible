@@ -102,6 +102,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val dictCategory = preferenceScreen.findPreference<PreferenceCategory>("dictionaries_category") as PreferenceCategory
         dictCategory.isVisible = showDictionaries
 
+        preferenceScreen.findPreference<ListPreference>("toolbar_button_actions")?.apply {
+                if (value.isNullOrBlank())
+                    value = "default"
+            }
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val pref = preferenceScreen.findPreference<ListPreference>("request_sdcard_permission_pref") as Preference
             pref.isVisible = false

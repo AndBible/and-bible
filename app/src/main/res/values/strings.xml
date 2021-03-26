@@ -89,6 +89,13 @@
     <string name="prefs_section_title_title">Section titles</string>
     <string name="prefs_red_letter_title">Red Letter</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
+
+    <string name="prefs_toolbar_button_action_title">Action for toolbar button press</string>
+    <string name="prefs_toolbar_button_action_summary">Action to take when pressing/long-pressing Bible or Commentary toolbar buttons</string>
+    <string name="prefs_toolbar_button_action_default">Press to open menu, long press for documents screen (default)</string>
+    <string name="prefs_toolbar_button_action_swap_menu">Press to open next document, long press to open menu</string>
+    <string name="prefs_toolbar_button_action_swap_activity">Press to open next document, long press for documents screen</string>
+
     <string name="prefs_night_mode_title">Night mode switching</string>
     <string name="prefs_night_mode_summary">Whether to switch to night mode automatically (if device supports), manually or via system setting (Android 10+).</string>
     <string name="prefs_night_mode_manual">Manual</string>
