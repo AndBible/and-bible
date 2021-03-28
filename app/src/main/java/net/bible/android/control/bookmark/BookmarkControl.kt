@@ -20,6 +20,7 @@ package net.bible.android.control.bookmark
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
+import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.DocumentCategory
@@ -35,7 +36,9 @@ import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.misc.OsisFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
@@ -256,8 +259,15 @@ open class BookmarkControl @Inject constructor(
     }
 
     private fun addText(b: Bookmark) {
-        val book = b.book ?: windowControl.defaultBibleDoc ?: return // last ?: return is needed for tests
-        b.osisFragment = OsisFragment(swordContentFacade.readOsisFragment(book, b.verseRange), b.verseRange, book)
+        val book = b.book ?: windowControl.defaultBibleDoc as SwordBook? ?: return // last ?: return is needed for tests
+        b.osisFragment =
+            try {
+                OsisFragment(swordContentFacade.readOsisFragment(book, b.verseRange.toV11n(book.versification)), b.verseRange, book)
+            }
+            catch (e: OsisError) {
+                Log.e(TAG, "Error in getting content from $book for ${b.verseRange}")
+                null
+            }
         val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(book, it, true) }
         val startOffset = b.startOffset ?: 0
         var startVerse = verseTexts.first()
