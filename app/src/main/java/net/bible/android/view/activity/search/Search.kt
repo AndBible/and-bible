@@ -104,24 +104,14 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
 
         title = getString(R.string.search_in, documentToSearch!!.abbreviation)
-        searchText.setOnEditorActionListener {v, actionId, event ->
+        searchText.setOnEditorActionListener {_, actionId, _ ->
             return@setOnEditorActionListener when (actionId) {
-                EditorInfo.IME_ACTION_SEARCH -> {
+                EditorInfo.IME_ACTION_SEARCH, EditorInfo.IME_ACTION_UNSPECIFIED -> {
                     onSearch(null)
                     true
                 }
                 else -> false
         }}
-
-        //searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
-        //    // If the event is a key-down event on the "enter" button
-        //    if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-        //        // Perform action on key press
-        //        onSearch(null)
-        //        return@OnKeyListener true
-        //    }
-        //    false
-        //})
 
         // pre-load search string if passed in
         val extras = intent.extras
