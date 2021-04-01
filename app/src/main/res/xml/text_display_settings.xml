@@ -95,6 +95,12 @@
             />
 
         <Preference
+            android:key="TOPMARGIN"
+            android:title="@string/prefs_top_margin_title"
+            android:summary="@string/prefs_top_margin_summary"
+            />
+
+        <Preference
             android:key="LINE_SPACING"
             android:title="@string/line_spacing_title"
             android:summary="@string/line_spacing_summary"

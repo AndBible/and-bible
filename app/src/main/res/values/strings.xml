@@ -107,6 +107,7 @@
     <string name="prefs_interface_locale_title">Application language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
     <string name="reset_fontsize">Reset</string>
+    <string name="reset_generic">Reset</string>
 
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
     <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword/sword folder on internal storage</string>
@@ -119,6 +120,7 @@
     <string name="add_ellipsis">%s…</string>
 
     <string name="font_size_pt">%d pt</string>
+    <string name="value_mm">%d mm</string>
     <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text. Tip: you can always also switch to full screen by doubletapping screen.</string>
     <string name="prefs_margin_size_title">Change margin size</string>
     <string name="prefs_margin_size_mm_title">Margin size (%d/%d/%d mm)</string>
@@ -143,6 +145,8 @@
     <string name="pref_maximum_width_of_text_label_mm">Maximum width of text (%d mm)</string>
     <string name="prefs_line_spacing_pt">Line spacing %1.1fx</string>
     <string name="pref_font_family_label">Font family</string>
+    <string name="prefs_top_margin_title">Top margin</string>
+    <string name="prefs_top_margin_summary">Add margin (with visual indication) to top of the window. Text will be scrolled to the margin.</string>
     <string name="prefs_hyphenation_title">Hyphenation</string>
     <string name="prefs_hyphenation_summary">Automatically hyphenate words, if language is supported</string>
     <string name="prefs_line_spacing_pt_title">Line spacing (%1.1fx)</string>

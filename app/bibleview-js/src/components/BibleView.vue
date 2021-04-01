@@ -26,7 +26,7 @@
     </template>
     <ErrorBox v-if="config.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
-    <div class="top-margin" :style="`top: ${config.topOffset}px;`"/>
+    <div v-if="config.topMargin > 0" class="top-margin" :style="`top: ${config.topOffset}px;`"/>
     <div id="top"/>
     <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>

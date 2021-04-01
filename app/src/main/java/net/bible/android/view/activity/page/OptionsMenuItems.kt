@@ -36,6 +36,7 @@ import net.bible.android.view.util.widget.FontFamilyWidget
 import net.bible.android.view.util.widget.MarginSizeWidget
 import net.bible.android.view.util.widget.FontSizeWidget
 import net.bible.android.view.util.widget.LineSpacingWidget
+import net.bible.android.view.util.widget.TopMarginWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 
@@ -178,6 +179,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.COLORS -> R.string.prefs_text_colors_menutitle
                 TextDisplaySettings.Types.JUSTIFY -> R.string.prefs_justify_title
                 TextDisplaySettings.Types.HYPHENATION -> R.string.prefs_hyphenation_title
+                TextDisplaySettings.Types.TOPMARGIN -> R.string.prefs_top_margin_title
                 TextDisplaySettings.Types.FONTSIZE -> R.string.font_size_title
                 TextDisplaySettings.Types.FONTFAMILY -> R.string.pref_font_family_label
                 TextDisplaySettings.Types.MARGINSIZE -> R.string.prefs_margin_size_title
@@ -271,10 +273,25 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
 }
 
 class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTSIZE) {
-    override val title: String get() = mainBibleActivity.getString(R.string.font_size_title)
+    //override val title: String get() = mainBibleActivity.getString(R.string.font_size_title)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         FontSizeWidget.dialog(activity, settings.actualSettings.fontFamily!!, value as Int, {
+            setNonSpecific()
+            onReset?.invoke()
+        }) {
+            value = it
+            onChanged?.invoke(it)
+        }
+        return true
+    }
+}
+
+class TopMarginPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.TOPMARGIN) {
+    //override val title: String get() = mainBibleActivity.getString(R.string.prefs_top_margin_title)
+    override val visible = true
+    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        TopMarginWidget.dialog(activity, value as Int, {
             setNonSpecific()
             onReset?.invoke()
         }) {
