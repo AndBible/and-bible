@@ -141,5 +141,8 @@ export default {
 .isHighlighted {
   border-radius: 5pt;
   background-color: rgba(255, 230, 0, 0.4);
+  .night & {
+    background-color: rgba(255, 230, 0, 0.6);
+  }
 }
 </style>

@@ -93,15 +93,14 @@ a {
     color: #8b00ee;
   }
   &.last-clicked {
-    background-color: rgba(196, 121, 255, 0.2);
+    background-color: rgba(255, 230, 0, 0.4);
   }
   .night & {
     &.clicked {
       color: #8b00ee;
     }
-
     &.last-clicked {
-      background-color: rgba(196, 121, 255, 0.4);
+      background-color: rgba(255, 230, 0, 0.6);
     }
   }
 }
