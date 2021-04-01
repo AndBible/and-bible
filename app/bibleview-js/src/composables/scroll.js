@@ -19,26 +19,15 @@ import {nextTick} from "@vue/runtime-core";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 
-export function useScroll(config, {getVerses}, documentPromise) {
+export function useScroll(config, appSettings, calculatedConfig, {getVerses}, documentPromise) {
     let currentScrollAnimation = ref(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
-    function calcMmInPx() {
-        const el = document.createElement('div');
-        el.style = "width: 1mm;"
-        document.body.appendChild(el);
-        const pixels = el.offsetWidth;
-        document.body.removeChild(el);
-        return pixels
-    }
-    const mmInPx = calcMmInPx();
-
     function setToolbarOffset(topOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
-        const realTopOffset = topOffset + config.topMargin*mmInPx;
-        console.log("setToolbarOffset", {realTopOffset, topOffset, bottomOffset, doNotScroll, immediate});
-        const diff = config.topOffset - realTopOffset;
-        config.topOffset = realTopOffset;
-        config.bottomOffset = bottomOffset;
+        console.log("setToolbarOffset", {topOffset, bottomOffset, doNotScroll, immediate});
+        const diff = appSettings.topOffset - topOffset;
+        appSettings.topOffset = topOffset;
+        appSettings.bottomOffset = bottomOffset;
         const delay = immediate ? 0 : 500;
 
         if(diff !== 0 && !doNotScroll) {
@@ -102,7 +91,7 @@ export function useScroll(config, {getVerses}, documentPromise) {
     function scrollToId(toId, {now = false, highlight = false, ordinalStart = null, ordinalEnd = null, force = false, duration = 1000} = {}) {
         console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd});
         stopScrolling();
-        let delta = config.topOffset;
+        let delta = calculatedConfig.value.topOffset;
         if(highlight && ordinalStart) {
             emit(Events.CLEAR_HIGHLIGHTS)
             if(!ordinalEnd) {

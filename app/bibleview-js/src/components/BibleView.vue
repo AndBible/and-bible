@@ -16,9 +16,9 @@
   -->
 
 <template>
-  <div @click="ambiguousSelection.handle" :class="{night: config.nightMode}" :style="topStyle">
+  <div @click="ambiguousSelection.handle" :class="{night: appSettings.nightMode}" :style="topStyle">
     <div class="background" :style="backgroundStyle"/>
-    <div :style="`height:${config.topOffset}px`"/>
+    <div :style="`height:${calculatedConfig.topOffset}px`"/>
     <div :style="modalStyle" id="modals"/>
     <template v-if="mounted">
       <BookmarkModal/>
@@ -26,7 +26,7 @@
     </template>
     <ErrorBox v-if="config.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
-    <div v-if="config.topMargin > 0" class="top-margin" :style="`top: ${config.topOffset}px;`"/>
+    <div v-if="config.topMargin > 0" class="top-margin" :style="`top: ${calculatedConfig.topOffset}px;`"/>
     <div id="top"/>
     <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
@@ -60,7 +60,7 @@ export default {
     setup() {
       useAddonFonts();
       useFontAwesome();
-      const {config} = useConfig();
+      const {config, appSettings, calculatedConfig} = useConfig();
       const strings = useStrings();
       const documents = reactive([]);
       window.bibleViewDebug.documents = documents;
@@ -68,16 +68,16 @@ export default {
       const documentPromise = ref(null);
       const verseMap = useVerseMap();
       provide("verseMap", verseMap);
-      const scroll = useScroll(config, verseMap, documentPromise);
+      const scroll = useScroll(config, appSettings, calculatedConfig, verseMap, documentPromise);
       const {scrollToId} = scroll;
       provide("scroll", scroll);
       const globalBookmarks = useGlobalBookmarks(config);
       const android = useAndroid(globalBookmarks, config);
-      const {currentVerse} = useVerseNotifier(config, android, topElement, scroll);
+      const {currentVerse} = useVerseNotifier(config, calculatedConfig, android, topElement, scroll);
       const customCss = useCustomCss();
       provide("customCss", customCss);
 
-      useInfiniteScroll(config, android, documents);
+      useInfiniteScroll(android, documents);
 
       function addDocuments(...docs) {
         documentPromise.value = document.fonts.ready
@@ -124,6 +124,9 @@ export default {
 
       provide("globalBookmarks", globalBookmarks);
       provide("config", config);
+      provide("appSettings", appSettings);
+      provide("calculatedConfig", calculatedConfig);
+
       provide("strings", strings);
       provide("android", android);
 
@@ -134,15 +137,15 @@ export default {
       onUnmounted(() => mounted.value = false)
 
       const backgroundStyle = computed(() => {
-        const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+        const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
         return `
             background-color: ${backgroundColor.hsl().string()};
         `;
       });
 
       const contentStyle = computed(() => {
-        const textColor = Color(config.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
-        const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+        const textColor = Color(appSettings.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
+        const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
 
         let style = `
           max-width: ${config.marginSize.maxWidth}mm;
@@ -170,23 +173,24 @@ export default {
       
       const modalStyle = computed(() => {
         return `
-          --bottom-offset: ${config.bottomOffset}px;
-          --top-offset: calc(${config.topOffset}px-${config.topMargin}mm);
+          --bottom-offset: ${appSettings.bottomOffset}px;
+          --top-offset: ${calculatedConfig.value.topOffset}px;
           --font-size:${config.fontSize}px;
           --font-family:${config.fontFamily};`
       });
 
       const topStyle = computed(() => {
         return `
-          --bottom-offset: ${config.bottomOffset}px;
-          --top-offset: ${config.topOffset}px;
+          --bottom-offset: ${appSettings.bottomOffset}px;
+          --top-offset: ${appSettings.topOffset}px;
           `;
       });
 
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
-        config, strings, documents, topElement, currentVerse, mounted, emit, Events, contentStyle, backgroundStyle, modalStyle, topStyle
+        config, strings, documents, topElement, currentVerse, mounted, emit, Events,
+        contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings,
       };
     },
   }

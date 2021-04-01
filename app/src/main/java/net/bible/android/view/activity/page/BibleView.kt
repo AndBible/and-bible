@@ -777,7 +777,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun getUpdateConfigCommand(initial: Boolean) = """
-            bibleView.emit('set_config', {config: ${displaySettings.toJson()}, nightMode: $nightMode, initial: $initial});
+            bibleView.emit('set_config', {config: ${displaySettings.toJson()}, appSettings: {nightMode: $nightMode}, initial: $initial});
             """.trimIndent()
 
     private fun updateConfig(initial: Boolean = false) {
