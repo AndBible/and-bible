@@ -69,7 +69,7 @@ open class CurrentCommentaryPage internal constructor(
                         null
                     }
                 }.filterNotNull()
-                MultiFragmentDocument(frags)
+                MultiFragmentDocument(frags, compare=true)
             } else super.currentPageContent
         }
 

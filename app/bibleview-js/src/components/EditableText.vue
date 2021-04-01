@@ -54,9 +54,8 @@ export default {
   },
   setup(props, {emit}) {
     const editMode = ref(props.editDirectly);
-    const parentStyle = ref("");
+    const parentStyle = ref(`--max-height: ${props.maxEditorHeight}; font-family: var(--font-family); font-size: var(--font-size);`);
     const editText = ref(props.text);
-    parentStyle.value = `--max-height: ${props.maxEditorHeight};`
 
     function cancelFunc() {
       editMode.value = false;

@@ -53,6 +53,7 @@ import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.MorphologyPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.StrongsPreference
+import net.bible.android.view.activity.page.TopMarginPreference
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 
@@ -109,6 +110,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.COLORS -> ColorPreference(settings)
         Types.JUSTIFY -> ItemPreference(settings, Types.JUSTIFY)
         Types.HYPHENATION -> ItemPreference(settings, Types.HYPHENATION)
+        Types.TOPMARGIN -> TopMarginPreference(settings)
         Types.LINE_SPACING -> LineSpacingPreference(settings)
         Types.BOOKMARK_SETTINGS -> BookmarkSettingsPreference(settings)
     }

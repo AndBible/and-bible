@@ -48,10 +48,9 @@ export default {
     const globalBookmarks = inject("globalBookmarks");
     globalBookmarks.updateBookmarks(...bookmarks);
 
-    const config = inject("config");
-    const common = useCommon();
+    const {config, appSettings, ...common} = useCommon();
 
-    useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common, config);
+    useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common, config, appSettings);
 
     return {bookInitials, ...common}
   }

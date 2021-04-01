@@ -57,6 +57,7 @@ import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.StudyPadOrderEvent
@@ -769,10 +770,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
 
-    fun updateTextDisplaySettings() {
+    fun updateTextDisplaySettings(onAttach: Boolean = false) {
         Log.d(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
-        executeJavascriptOnUiThread("bibleView.emit('set_config', {config: ${displaySettings.toJson()}, nightMode: $nightMode});")
+        updateConfig(onAttach)
+    }
+
+    private fun getUpdateConfigCommand(initial: Boolean) = """
+            bibleView.emit('set_config', {config: ${displaySettings.toJson()}, appSettings: {nightMode: $nightMode}, initial: $initial});
+            """.trimIndent()
+
+    private fun updateConfig(initial: Boolean = false) {
+        executeJavascriptOnUiThread(getUpdateConfigCommand(initial))
     }
 
     fun updateBackgroundColor() {
@@ -800,8 +809,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
        }
 
         executeJavascriptOnUiThread("""
-            bibleView.emit("set_config", {config: ${displaySettings.toJson()}, nightMode: $nightMode, initial:true});
-            bibleView.emit("replace_document", $documentStr);
+            bibleView.emit("clear_document");
+            ${getUpdateConfigCommand(true)}
+            bibleView.emit("add_documents", $documentStr);
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
                 jumpToYOffsetRatio: null,
@@ -974,6 +984,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         """.trimIndent())
     }
 
+    fun onEvent(event: BookmarkNoteModifiedEvent) {
+        executeJavascriptOnUiThread("""
+            bibleView.emit("bookmark_note_modified", {id: ${event.bookmarkId}, notes: ${json.encodeToString(serializer(), event.notes)}});
+        """.trimIndent())
+    }
+
     fun onEvent(event: StudyPadOrderEvent) {
         val doc = firstDocument
         if(doc !is StudyPadDocument || doc.label.id != event.labelId) return
@@ -1121,7 +1137,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             resumeTiltScroll()
         }
         if(contentVisible) {
-            updateTextDisplaySettings()
+            updateTextDisplaySettings(true)
         }
     }
 
@@ -1157,7 +1173,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(value == null) return "null"
             return if(value) "true" else "false"
         }
-        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}, delta: $topOffset});")
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
     }
 
     private fun executeJavascriptOnUiThread(javascript: String) {

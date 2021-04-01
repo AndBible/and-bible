@@ -104,7 +104,7 @@ export default {
       variant: strings.footnoteTypeVariant,
       alternative: strings.footnoteTypeAlternative,
     };
-    const {v11n} = inject("bibleDocumentInfo", {})
+    const {v11n} = inject("osisFragment", {})
     const referenceCollector = useReferenceCollector();
     provide("referenceCollector", referenceCollector);
 

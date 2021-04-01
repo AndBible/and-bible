@@ -27,7 +27,7 @@
       />
     </div>
     <span class="bookmark-text">
-      <q v-if="!expanded" @click.stop="$emit('change-expanded', true)" class="bible-text">{{abbreviated(bookmark.text, 80)}}</q>
+      <q v-if="!expanded" @click.stop="$emit('change-expanded', true)" class="bible-text">{{abbreviated(bookmark.text, 50)}}</q>
     </span>
   </template>
 </template>
@@ -50,7 +50,9 @@ export default {
     const ambiguousSelection = ref(null);
 
     const highlightOffset = computed(() => {
-      if(props.bookmark.text.length > props.bookmark.fullText.length - 3) return null
+      const highlightedLength = props.bookmark.text.length;
+      const fullLength = props.bookmark.fullText.length;
+      if(highlightedLength > 0.5*fullLength || highlightedLength > fullLength - 5) return null
       return props.bookmark.offsetRange
     });
     return {ambiguousSelection, highlightOffset, ...useCommon()};

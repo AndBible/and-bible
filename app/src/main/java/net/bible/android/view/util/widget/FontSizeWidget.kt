@@ -33,6 +33,7 @@ import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.font_family_widget.view.*
 import kotlinx.android.synthetic.main.text_size_widget.view.*
 import kotlinx.android.synthetic.main.text_size_widget.view.dialogMessage
+import kotlinx.android.synthetic.main.value_slider_widget.view.*
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.AndBibleAddons
@@ -144,6 +145,60 @@ class FontSizeWidget(context: Context, attributeSet: AttributeSet?): LinearLayou
                 }
                 if(resetCallback != null) {
                     setNeutralButton(R.string.reset_fontsize) { _, _ -> resetCallback.invoke() }
+                }
+                setNegativeButton(R.string.cancel) { dialog, which ->
+                    dialog.cancel()
+                }
+                create().show()
+            }
+
+        }
+    }
+}
+
+
+class TopMarginWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(context, attributeSet)
+{
+    var value = WorkspaceEntities.TextDisplaySettings.default.topMargin!!
+    init {
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        inflater.inflate(R.layout.value_slider_widget, this, true)
+
+        valueSlider.max = 60
+        valueSlider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                value = progress
+                if(fromUser) updateValue()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+
+        })
+    }
+
+    fun updateValue() {
+        val newValue = value
+        valueString.text = context.getString(R.string.value_mm, newValue)
+        valueSlider.progress = newValue
+    }
+
+    companion object {
+        fun dialog(context: Context, value: Int, resetCallback: (() -> Unit)? = null, callback: (value: Int) -> Unit) {
+            AlertDialog.Builder(context).apply{
+                val layout = TopMarginWidget(context, null)
+                layout.value = value
+                layout.updateValue()
+                setTitle(R.string.prefs_top_margin_title)
+                setView(layout)
+                setPositiveButton(R.string.okay) { dialog, which ->
+                    dialog.dismiss()
+                    callback(layout.value)
+                }
+                if(resetCallback != null) {
+                    setNeutralButton(R.string.reset_generic) { _, _ -> resetCallback.invoke() }
                 }
                 setNegativeButton(R.string.cancel) { dialog, which ->
                     dialog.cancel()

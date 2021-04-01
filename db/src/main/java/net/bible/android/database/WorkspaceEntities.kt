@@ -140,6 +140,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var hyphenation: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var topMargin: Int? = null,
         @ColumnInfo(defaultValue = "NULL", name = "font_fontSize") var fontSize: Int? = null,
         @ColumnInfo(defaultValue = "NULL", name = "font_fontFamily") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
@@ -154,6 +155,7 @@ class WorkspaceEntities {
             MARGINSIZE,
             JUSTIFY,
             HYPHENATION,
+            TOPMARGIN,
             LINE_SPACING,
             STRONGS,
             MORPH,
@@ -182,6 +184,7 @@ class WorkspaceEntities {
             Types.COLORS -> colors?.copy()
             Types.JUSTIFY -> justifyText
             Types.HYPHENATION -> hyphenation
+            Types.TOPMARGIN -> topMargin
             Types.LINE_SPACING -> lineSpacing
             Types.FONTSIZE -> fontSize
             Types.FONTFAMILY -> fontFamily
@@ -205,6 +208,7 @@ class WorkspaceEntities {
                 Types.COLORS -> colors = value as Colors?
                 Types.JUSTIFY -> justifyText = value as Boolean?
                 Types.HYPHENATION -> hyphenation = value as Boolean?
+                Types.TOPMARGIN -> topMargin = value as Int?
                 Types.FONTSIZE -> fontSize = value as Int?
                 Types.FONTFAMILY -> fontFamily = value as String?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
@@ -262,6 +266,7 @@ class WorkspaceEntities {
                 showMyNotes = true,
                 justifyText = true,
                 hyphenation = true,
+                topMargin = 0,
                 lineSpacing = 16,
                 showBookmarks = true,
                 bookmarksShowAllLabels = true,

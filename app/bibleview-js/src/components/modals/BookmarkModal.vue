@@ -104,13 +104,12 @@ export default {
     });
 
     const label = computed(() => labels.value[0]);
-    const bookmarkNotes = ref(null);
+    const bookmarkNotes = computed(() => bookmark.value.notes);
     let originalNotes = null;
 
     setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (bookmarkId_, {open = false} = {}) => {
       bookmarkId.value = bookmarkId_;
-      bookmarkNotes.value = bookmark.value.notes;
-      originalNotes = bookmark.value.notes;
+      originalNotes = bookmarkNotes.value;
       if(!showBookmark.value) infoShown.value = false;
       showBookmark.value = true;
     });
@@ -120,7 +119,6 @@ export default {
       if(originalNotes !== bookmarkNotes.value)
         android.saveBookmarkNote(bookmark.value.id, bookmarkNotes.value);
 
-      bookmarkNotes.value = null;
       originalNotes = null;
     }
 
@@ -142,8 +140,7 @@ export default {
     });
 
     const changeNote = text => {
-      bookmarkNotes.value = text;
-      android.saveBookmarkNote(bookmark.value.id, bookmarkNotes.value);
+      android.saveBookmarkNote(bookmark.value.id, text);
     }
 
     const originalBookLink = computed(() =>
@@ -171,8 +168,6 @@ export default {
 .links {
   padding-top: 10pt;
   padding-bottom: 5pt;
-
-  font-size: 70%;
 }
 .bible-text {
   text-indent: 5pt;

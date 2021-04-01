@@ -45,7 +45,7 @@ import {
 import Color from "color";
 
 let developmentMode = false;
-let testMode = false;
+export let testMode = false;
 
 if(process.env.NODE_ENV === "development") {
     developmentMode = true;
@@ -54,28 +54,54 @@ if(process.env.NODE_ENV === "test") {
     testMode = true;
 }
 
-export function useVerseNotifier(config, {scrolledToVerse}, topElement, {isScrolling}) {
+export function useVerseNotifier(config, calculatedConfig, {scrolledToVerse}, topElement, {isScrolling}) {
     const currentVerse = ref(null);
     watch(() => currentVerse.value,  value => scrolledToVerse(value));
 
-    const lineHeight = computed(() =>
-        parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'))
+    const lineHeight = computed(() => {
+        config; // Update also when font settings etc are changed
+        return parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
+        }
     );
+
+    let lastDirection = "ltr";
+    const step = 10;
+
+    function *iterate(direction = "ltr") {
+        if(direction === "ltr") {
+            for (let x = window.innerWidth - step; x > 0; x -= step) {
+                yield x;
+            }
+        } else {
+            for (let x = step; x < window.innerWidth; x += step) {
+                yield x;
+            }
+        }
+    }
 
     const onScroll = throttle(() => {
         if(isScrolling.value) return;
-        const y = config.topOffset + lineHeight.value*0.8;
+        const y = calculatedConfig.value.topOffset + lineHeight.value*0.8;
 
         // Find element, starting from right
-        const step = 10;
         let element;
-        for(let x = step; x < window.innerWidth - step; x+=step) {
-            element = document.elementFromPoint(x, y)
-            if(element) {
-                element = element.closest(".ordinal");
-                if(element) {
-                    currentVerse.value = parseInt(element.dataset.ordinal)
-                    break;
+        let directionChanged = true;
+        while(directionChanged) {
+            directionChanged = false;
+            for(const x of iterate(lastDirection)) {
+                element = document.elementFromPoint(x, y)
+                if (element) {
+                    element = element.closest(".ordinal");
+                    if (element) {
+                        const direction = window.getComputedStyle(element).getPropertyValue("direction");
+                        if(direction !== lastDirection) {
+                            directionChanged = true;
+                            lastDirection = direction;
+                            break;
+                        }
+                        currentVerse.value = parseInt(element.dataset.ordinal)
+                        break;
+                    }
                 }
             }
         }
@@ -96,9 +122,16 @@ export const strongsModes = {
     links: 2,
 }
 
+export let currentConfig = {};
+
 export function useConfig() {
+    // text display settings only here. TODO: rename
     const config = reactive({
         bookmarkingMode: bookmarkingModes.verticalColorBars,
+        developmentMode,
+        testMode,
+        errorBox: false,
+
         showAnnotations: true,
         showChapterNumbers: true,
         showVerseNumbers: true,
@@ -138,21 +171,37 @@ export function useConfig() {
             marginRight: 0,
             maxWidth: 300,
         },
+        topMargin: 0,
+    });
 
-        topOffset: 100,
+    const appSettings = reactive({
+        topOffset: 0,
         bottomOffset: 100,
-        infiniteScroll: true,
         nightMode: false,
+    });
 
-        developmentMode,
-        testMode,
-    })
+    function calcMmInPx() {
+        const el = document.createElement('div');
+        el.style = "width: 1mm;"
+        document.body.appendChild(el);
+        const pixels = el.offsetWidth;
+        document.body.removeChild(el);
+        return pixels
+    }
+    const mmInPx = calcMmInPx();
 
+    const calculatedConfig = computed(() => {
+        return {
+            topOffset: appSettings.topOffset + config.topMargin * mmInPx
+        };
+    });
+
+    currentConfig = config;
     window.bibleViewDebug.config = config;
 
-    setupEventBusListener(Events.SET_CONFIG, async ({config: c, initial = false, nightMode = false} = {}) => {
+    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {nightMode}, initial = false} = {}) {
         const defer = new Deferred();
-        if(!initial) emit(Events.CONFIG_CHANGED, defer)
+        if (!initial) emit(Events.CONFIG_CHANGED, defer)
         const oldValue = config.showBookmarks;
         config.showBookmarks = false
         await nextTick();
@@ -163,25 +212,28 @@ export function useConfig() {
                 console.error("Unknown setting", i, c[i]);
             }
         }
-        config.nightMode = nightMode;
-        if(c.showBookmarks === undefined) {
+        appSettings.nightMode = nightMode;
+        if (c.showBookmarks === undefined) {
             // eslint-disable-next-line require-atomic-updates
             config.showBookmarks = oldValue;
         }
         config.showChapterNumbers = config.showVerseNumbers;
-        if(!initial) {
+        if (!initial) {
             await nextTick();
         }
         defer.resolve()
     })
 
-    return {config};
+    return {config, appSettings, calculatedConfig};
 }
 
 export function useCommon() {
     const currentInstance = getCurrentInstance();
 
     const config = inject("config");
+    const appSettings = inject("appSettings");
+    const calculatedConfig = inject("calculatedConfig");
+
     const strings = inject("strings");
 
     const unusedAttrs = Object.keys(currentInstance.attrs).filter(v => !v.startsWith("__") && v !== "onClose");
@@ -210,13 +262,14 @@ export function useCommon() {
     function abbreviated(str, n, useWordBoundary = true) {
         if(!str) return ""
         if (str.length <= n) { return str; }
-        const subString = str.substr(0, n-1); // the original check
+        const lastSpaceIdx = str.lastIndexOf(" ");
+        const subString = str.substr(0, Math.max(n-1, lastSpaceIdx)); // the original check
         return (useWordBoundary
-            ? subString.substr(0, subString.lastIndexOf(" "))
+            ? subString.substr(0, lastSpaceIdx)
             : subString) + "...";
     }
 
-    return {config, strings, sprintf, split, adjustedColor, formatTimestamp, abbreviated, emit, Events}
+    return {config, appSettings, calculatedConfig, strings, sprintf, split, adjustedColor, formatTimestamp, abbreviated, emit, Events}
 }
 
 export function useFontAwesome() {
@@ -233,6 +286,8 @@ export function useFontAwesome() {
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
     const value = props[attributeName];
+    const config = inject("config", {});
+    if(!config.errorBox) return;
     if(value && !values.includes(value)) {
         const tagName = getCurrentInstance().type.name
         const origin = inject("verseInfo", {}).osisID;
@@ -312,13 +367,23 @@ export function useVerseMap() {
 export function useCustomCss() {
     const cssNodes = new Map();
     const count = new Map();
+    const customCssPromises = [];
     function addCss(bookInitials) {
         const c = count.get(bookInitials) || 0;
         if (!c) {
             const link = document.createElement("link");
+            const onLoadDefer = new Deferred();
+            const promise = onLoadDefer.wait();
+            customCssPromises.push(promise);
             link.href = `/module-style/${bookInitials}/style.css`;
             link.type = "text/css";
             link.rel = "stylesheet";
+            const cssReady = () => {
+                onLoadDefer.resolve();
+                customCssPromises.splice(customCssPromises.findIndex(v => v === promise), 1);
+            }
+            link.onload = cssReady;
+            link.onerror = cssReady;
             cssNodes.set(bookInitials, link);
             document.getElementsByTagName("head")[0].appendChild(link);
         }
@@ -337,16 +402,13 @@ export function useCustomCss() {
     }
 
     function registerBook(bookInitials) {
-        onBeforeMount(() => {
-            addCss(bookInitials);
-        });
-
+        addCss(bookInitials);
         onUnmounted(() => {
             removeCss(bookInitials);
         });
     }
 
-    return {registerBook}
+    return {registerBook, customCssPromises}
 }
 
 export function useAddonFonts() {
