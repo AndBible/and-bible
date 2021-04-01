@@ -64,20 +64,44 @@ export function useVerseNotifier(config, {scrolledToVerse}, topElement, {isScrol
         }
     );
 
+    let lastDirection = "ltr";
+    const step = 10;
+
+    function *iterate(direction = "ltr") {
+        if(direction === "ltr") {
+            for (let x = window.innerWidth - step; x > 0; x -= step) {
+                yield x;
+            }
+        } else {
+            for (let x = step; x < window.innerWidth; x += step) {
+                yield x;
+            }
+        }
+    }
+
     const onScroll = throttle(() => {
         if(isScrolling.value) return;
         const y = config.topOffset + lineHeight.value*0.8;
 
         // Find element, starting from right
-        const step = 10;
         let element;
-        for(let x = window.innerWidth - step; x > 0; x-=step) {
-            element = document.elementFromPoint(x, y)
-            if(element) {
-                element = element.closest(".ordinal");
-                if(element) {
-                    currentVerse.value = parseInt(element.dataset.ordinal)
-                    break;
+        let directionChanged = true;
+        while(directionChanged) {
+            directionChanged = false;
+            for(const x of iterate(lastDirection)) {
+                element = document.elementFromPoint(x, y)
+                if (element) {
+                    element = element.closest(".ordinal");
+                    const direction = window.getComputedStyle(element).getPropertyValue("direction");
+                    if(direction !== lastDirection) {
+                        directionChanged = true;
+                        lastDirection = direction;
+                        break;
+                    }
+                    if (element) {
+                        currentVerse.value = parseInt(element.dataset.ordinal)
+                        break;
+                    }
                 }
             }
         }
