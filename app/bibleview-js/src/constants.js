@@ -35,4 +35,4 @@ export const BookCategories = {
     GENERAL_BOOK: "GENERAL_BOOK",
 }
 
-export const fadeReferenceDelay = 60000;
+export const fadeReferenceDelay = -1;
