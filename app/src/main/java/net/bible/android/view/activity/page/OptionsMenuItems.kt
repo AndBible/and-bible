@@ -369,15 +369,6 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
     }
 }
 
-class BookmarkSettingsPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.BOOKMARK_SETTINGS) {
-    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val intent = Intent(activity, BookmarkSettingsActivity::class.java)
-        intent.putExtra("settingsBundle", settings.toJson())
-        activity.startActivityForResult(intent, BOOKMARK_SETTINGS_CHANGED)
-        return true
-    }
-}
-
 class SplitModePreference :
     GeneralPreference() {
     private val wsBehaviorSettings = mainBibleActivity.windowRepository.windowBehaviorSettings
