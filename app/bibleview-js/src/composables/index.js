@@ -92,13 +92,13 @@ export function useVerseNotifier(config, {scrolledToVerse}, topElement, {isScrol
                 element = document.elementFromPoint(x, y)
                 if (element) {
                     element = element.closest(".ordinal");
-                    const direction = window.getComputedStyle(element).getPropertyValue("direction");
-                    if(direction !== lastDirection) {
-                        directionChanged = true;
-                        lastDirection = direction;
-                        break;
-                    }
                     if (element) {
+                        const direction = window.getComputedStyle(element).getPropertyValue("direction");
+                        if(direction !== lastDirection) {
+                            directionChanged = true;
+                            lastDirection = direction;
+                            break;
+                        }
                         currentVerse.value = parseInt(element.dataset.ordinal)
                         break;
                     }
@@ -168,6 +168,7 @@ export function useConfig() {
         },
 
         topOffset: 100,
+        topMargin: 100,
         bottomOffset: 100,
         infiniteScroll: true,
         nightMode: false,
