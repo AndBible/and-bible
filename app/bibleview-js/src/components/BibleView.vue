@@ -16,17 +16,19 @@
   -->
 
 <template>
-  <div @click="ambiguousSelection.handle" :class="{night: config.nightMode}" :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
+  <div @click="ambiguousSelection.handle" :class="{night: config.nightMode}" :style="topStyle">
+    <div class="background" :style="backgroundStyle"/>
     <div :style="`height:${config.topOffset}px`"/>
-    <div :style="`--font-size:${config.fontSize}px; --font-family:${config.fontFamily};`" id="modals"/>
+    <div :style="modalStyle" id="modals"/>
     <template v-if="mounted">
       <BookmarkModal/>
       <AmbiguousSelection ref="ambiguousSelection" @back-clicked="emit(Events.CLOSE_MODALS)"/>
     </template>
     <ErrorBox v-if="config.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
+    <div class="top-margin" :style="`top: ${config.topOffset}px;`"/>
     <div id="top"/>
-    <div id="content" ref="topElement" :style="styleConfig">
+    <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
       <Document v-for="document in documents" :key="document.id" :document="document"/>
     </div>
@@ -131,11 +133,18 @@ export default {
       onMounted(() => mounted.value = true)
       onUnmounted(() => mounted.value = false)
 
-      const styleConfig = computed(() => {
-          const textColor = Color(config.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
-          const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+      const backgroundStyle = computed(() => {
+        const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+        return `
+            background-color: ${backgroundColor.hsl().string()};
+        `;
+      });
 
-          let style = `
+      const contentStyle = computed(() => {
+        const textColor = Color(config.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
+        const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+
+        let style = `
           max-width: ${config.marginSize.maxWidth}mm;
           margin-left: auto;
           margin-right: auto;
@@ -146,28 +155,66 @@ export default {
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
           font-family: ${config.fontFamily};
-          background-color: ${backgroundColor.hsl().string()};
           font-size: ${config.fontSize}px;
           --font-size: ${config.fontSize}px;
           --background-color: ${backgroundColor.hsl().string()};
           `;
-          if(config.marginSize.marginLeft || config.marginSize.marginRight) {
-            style += `
+        if(config.marginSize.marginLeft || config.marginSize.marginRight) {
+          style += `
             margin-left: ${config.marginSize.marginLeft}mm;
             margin-right: ${config.marginSize.marginRight}mm;
           `;
-          }
-          return style;
+        }
+        return style;
+      });
+      
+      const modalStyle = computed(() => {
+        return `
+          --bottom-offset: ${config.bottomOffset}px;
+          --top-offset: calc(${config.topOffset}px-${config.topMargin}mm);
+          --font-size:${config.fontSize}px;
+          --font-family:${config.fontFamily};`
+      });
+
+      const topStyle = computed(() => {
+        return `
+          --bottom-offset: ${config.bottomOffset}px;
+          --top-offset: ${config.topOffset}px;
+          `;
       });
 
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
-        config, strings, documents, topElement, currentVerse, mounted, emit, Events, styleConfig,
+        config, strings, documents, topElement, currentVerse, mounted, emit, Events, contentStyle, backgroundStyle, modalStyle, topStyle
       };
     },
   }
 </script>
+<style lang="scss" scoped>
+.background {
+  z-index: -2;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+.top-margin {
+  position: fixed;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border-color: #c9c9c9;
+  .night & {
+    border-color: #747474;
+  }
+  border-style: dashed none none none;
+  border-width: 1px;
+}
+
+</style>
 <style lang="scss">
 @import "~@/common.scss";
 a {

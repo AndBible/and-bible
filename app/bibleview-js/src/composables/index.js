@@ -167,8 +167,8 @@ export function useConfig() {
             maxWidth: 300,
         },
 
-        topOffset: 100,
-        topMargin: 100,
+        topOffset: 0,
+        topMargin: 10,
         bottomOffset: 100,
         infiniteScroll: true,
         nightMode: false,

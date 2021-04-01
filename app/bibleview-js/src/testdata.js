@@ -262,7 +262,7 @@ if(process.env.NODE_ENV === "development") {
                 ,
                 bookInitials: "KJV",
                 bookmarks: testBookmarks,
-                ordinalRange: null,
+                ordinalRange: [0, 1000],
             }));
         testData[2].ordinalRange = [30835, 30852];
     } else if(mode === "journal") {

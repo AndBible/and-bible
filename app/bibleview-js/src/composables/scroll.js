@@ -23,10 +23,21 @@ export function useScroll(config, {getVerses}, documentPromise) {
     let currentScrollAnimation = ref(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
+    function calcMmInPx() {
+        const el = document.createElement('div');
+        el.style = "width: 1mm;"
+        document.body.appendChild(el);
+        const pixels = el.offsetWidth;
+        document.body.removeChild(el);
+        return pixels
+    }
+    const mmInPx = calcMmInPx();
+
     function setToolbarOffset(topOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
-        console.log("setToolbarOffset", topOffset, bottomOffset, doNotScroll, immediate);
-        const diff = config.topOffset - topOffset;
-        config.topOffset = topOffset;
+        const realTopOffset = topOffset + config.topMargin*mmInPx;
+        console.log("setToolbarOffset", {realTopOffset, topOffset, bottomOffset, doNotScroll, immediate});
+        const diff = config.topOffset - realTopOffset;
+        config.topOffset = realTopOffset;
         config.bottomOffset = bottomOffset;
         const delay = immediate ? 0 : 500;
 
@@ -88,12 +99,10 @@ export function useScroll(config, {getVerses}, documentPromise) {
         }
     }
 
-    function scrollToId(toId, {now = false, highlight = false, ordinalStart = null, ordinalEnd = null, delta = config.topOffset, force = false, duration = 1000} = {}) {
-        console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd, delta});
+    function scrollToId(toId, {now = false, highlight = false, ordinalStart = null, ordinalEnd = null, force = false, duration = 1000} = {}) {
+        console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd});
         stopScrolling();
-        if(delta !== config.topOffset) {
-            config.topOffset = delta;
-        }
+        let delta = config.topOffset;
         if(highlight && ordinalStart) {
             emit(Events.CLEAR_HIGHLIGHTS)
             if(!ordinalEnd) {
