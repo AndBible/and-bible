@@ -113,6 +113,8 @@ open class Preference(val settings: SettingsBundle,
                       var type: TextDisplaySettings.Types,
                       onlyBibles: Boolean = false,
 ) : GeneralPreference(onlyBibles) {
+    protected val valueInt get() = (value as Int)
+    protected val valueString get() = (value as String)
     private val actualTextSettings get() = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings)
     private val pageManagerSettings = settings.pageManagerSettings
     private val workspaceSettings = settings.workspaceSettings
@@ -273,7 +275,7 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
 }
 
 class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTSIZE) {
-    //override val title: String get() = mainBibleActivity.getString(R.string.font_size_title)
+    override val title: String get() = mainBibleActivity.getString(R.string.font_size_title_pt, valueInt)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         FontSizeWidget.dialog(activity, settings.actualSettings.fontFamily!!, value as Int, {
@@ -288,7 +290,7 @@ class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDis
 }
 
 class TopMarginPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.TOPMARGIN) {
-    //override val title: String get() = mainBibleActivity.getString(R.string.prefs_top_margin_title)
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_top_margin_title_mm, valueInt)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         TopMarginWidget.dialog(activity, value as Int, {
@@ -303,7 +305,7 @@ class TopMarginPreference(settings: SettingsBundle): Preference(settings, TextDi
 }
 
 class FontFamilyPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTFAMILY) {
-    override val title: String get() = mainBibleActivity.getString(R.string.pref_font_family_label)
+    override val title: String get() = mainBibleActivity.getString(R.string.pref_font_family_label_name, valueString)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         FontFamilyWidget.dialog(activity, settings.actualSettings.fontSize!!, value as String, {
@@ -318,7 +320,6 @@ class FontFamilyPreference(settings: SettingsBundle): Preference(settings, TextD
 }
 
 class LineSpacingPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.LINE_SPACING) {
-    private val valueInt get() = (value as Int)
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_line_spacing_pt_title, valueInt.toFloat() / 10)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {

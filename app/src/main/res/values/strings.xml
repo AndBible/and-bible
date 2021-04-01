@@ -713,4 +713,7 @@
     <string name="show_unlock_info">Module &amp; unlock info</string>
     <string name="prefs_font_text_size_summary">Adjust font size</string>
     <string name="prefs_font_family_summary">Adjust font family</string>
+    <string name="prefs_top_margin_title_mm">Top margin (%d mm)</string>
+    <string name="font_size_title_pt">Font size (%d pt)</string>
+    <string name="pref_font_family_label_name">Font family (%s)</string>
 </resources>
