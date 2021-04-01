@@ -216,9 +216,10 @@ export function useCommon() {
     function abbreviated(str, n, useWordBoundary = true) {
         if(!str) return ""
         if (str.length <= n) { return str; }
-        const subString = str.substr(0, n-1); // the original check
+        const lastSpaceIdx = str.lastIndexOf(" ");
+        const subString = str.substr(0, Math.max(n-1, lastSpaceIdx)); // the original check
         return (useWordBoundary
-            ? subString.substr(0, subString.lastIndexOf(" "))
+            ? subString.substr(0, lastSpaceIdx)
             : subString) + "...";
     }
 
