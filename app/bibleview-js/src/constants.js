@@ -22,6 +22,7 @@ export const DocumentTypes = {
     MY_NOTES: "notes",
     JOURNAL: "journal",
     MULTI: "multi",
+    NONE: "none",
 }
 
 export const JournalEntryTypes = {

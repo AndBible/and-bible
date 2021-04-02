@@ -338,7 +338,7 @@ export function useBookmarks(documentId,
         let colors = [];
         for(const {label: s, id} of bookmarkLabels) {
             let c = new Color(s.color)
-            c = c.alpha(appSettings.nightMode? 0.8 : 0.3)
+            c = c.alpha(appSettings.nightMode? 0.4 : 0.3)
             for(let i = 0; i<labelCount.get(id)-1; i++) {
                 c = c.opaquer(0.3).darken(0.2);
             }

@@ -26,7 +26,7 @@
     </template>
     <ErrorBox v-if="config.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
-    <div v-if="config.topMargin > 0" class="top-margin" :style="`top: ${calculatedConfig.topOffset}px;`"/>
+    <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
     <div id="top"/>
     <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
@@ -53,6 +53,7 @@ import DevelopmentMode from "@/components/DevelopmentMode";
 import Color from "color";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 import {useStrings} from "@/composables/strings";
+import {DocumentTypes} from "@/constants";
 
 export default {
     name: "BibleView",
@@ -60,9 +61,15 @@ export default {
     setup() {
       useAddonFonts();
       useFontAwesome();
-      const {config, appSettings, calculatedConfig} = useConfig();
-      const strings = useStrings();
       const documents = reactive([]);
+      const documentType = computed(() => {
+          if(documents.length < 1) {
+              return DocumentTypes.NONE;
+          }
+          return documents[0].type;
+      });
+      const {config, appSettings, calculatedConfig} = useConfig(documentType);
+      const strings = useStrings();
       window.bibleViewDebug.documents = documents;
       const topElement = ref(null);
       const documentPromise = ref(null);
@@ -73,7 +80,12 @@ export default {
       provide("scroll", scroll);
       const globalBookmarks = useGlobalBookmarks(config);
       const android = useAndroid(globalBookmarks, config);
-      const {currentVerse} = useVerseNotifier(config, calculatedConfig, android, topElement, scroll);
+
+      const mounted = ref(false);
+      onMounted(() => mounted.value = true)
+      onUnmounted(() => mounted.value = false)
+
+      const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll);
       const customCss = useCustomCss();
       provide("customCss", customCss);
 
@@ -131,10 +143,6 @@ export default {
       provide("android", android);
 
       const ambiguousSelection = ref(null);
-
-      const mounted = ref(false);
-      onMounted(() => mounted.value = true)
-      onUnmounted(() => mounted.value = false)
 
       const backgroundStyle = computed(() => {
         const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
@@ -207,15 +215,13 @@ export default {
 .top-margin {
   position: fixed;
   z-index: -1;
+  top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  border-color: #c9c9c9;
   .night & {
-    border-color: #747474;
+    background-color: rgba(255, 255, 255, 0.2);
   }
-  border-style: dashed none none none;
-  border-width: 1px;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 </style>
