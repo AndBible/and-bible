@@ -25,9 +25,7 @@ import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.service.common.CommonUtils.megabytesFree
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoFactory
-import net.bible.service.font.FontControl
 import net.bible.service.sword.SwordDocumentFacade
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.LucidException
 import org.crosswire.common.util.Version
@@ -42,7 +40,6 @@ import java.util.*
  */
 class DownloadControl(
     private val downloadQueue: DownloadQueue,
-    private val fontControl: FontControl,
     private val swordDocumentFacade: SwordDocumentFacade)
 {
     private val documentDownloadProgressCache: DocumentDownloadProgressCache = DocumentDownloadProgressCache()
@@ -90,7 +87,6 @@ class DownloadControl(
 
         // get fonts.properties at the same time as repo list, or if not yet downloaded
         // the download happens in another thread
-        fontControl.checkFontPropertiesFile(refresh)
         availableDocs.sort()
         availableDocs
     } catch (e: Exception) {
@@ -125,13 +121,6 @@ class DownloadControl(
             // the download happens in another thread
             val repo = repoFactory.getRepoForBook(document)
             downloadQueue.addDocumentToDownloadQueue(document, repo)
-
-            // if a font is required then download that too
-            val font = fontControl.getFontForBook(document)
-            if (!StringUtils.isEmpty(font) && !fontControl.exists(font)) {
-                // the download happens in another thread
-                fontControl.downloadFont(font!!)
-            }
         }
     }
 

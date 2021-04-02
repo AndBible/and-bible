@@ -31,8 +31,6 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils.sharedPreferences
-import net.bible.service.font.FontControl
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
@@ -123,17 +121,6 @@ open class PageControl @Inject constructor(
 
     open val currentBibleVerse: Verse
         get() = currentPageManager.currentBible.singleKey
-
-    /** font size may be adjusted for certain fonts e.g. SBLGNT
-     */
-    fun getDocumentFontSize(window: Window): Int { // get base font size
-        val fontSize = window.pageManager.actualTextDisplaySettings.fontSize!!
-        // if book has a special font it may require an adjusted font size
-        val book = window.pageManager.currentPage.currentDocument
-        val font = FontControl.instance.getFontForBook(book)
-        val fontSizeAdjustment = FontControl.instance.getFontSizeAdjustment(font, book)
-        return fontSize + fontSizeAdjustment
-    }
 
     /**
      * Return false if current page is not scripture, but only if the page is valid

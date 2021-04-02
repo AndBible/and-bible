@@ -27,8 +27,6 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.EventManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
-import net.bible.service.download.RepoFactory
-import net.bible.service.font.FontControl.Companion.instance
 import net.bible.service.sword.SwordDocumentFacade
 import java.util.concurrent.Executors
 
@@ -43,7 +41,7 @@ class ApplicationModule {
     @Provides
     @ApplicationScope
     fun provideDownloadControl(swordDocumentFacade: SwordDocumentFacade): DownloadControl {
-        return DownloadControl(DownloadQueue(Executors.newSingleThreadExecutor()), instance, swordDocumentFacade)
+        return DownloadControl(DownloadQueue(Executors.newSingleThreadExecutor()), swordDocumentFacade)
     }
 
     @Provides
