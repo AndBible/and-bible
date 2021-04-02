@@ -154,12 +154,6 @@
             android:label="@string/workspace_selector_title"
             />
         <activity
-            android:name="net.bible.android.view.activity.settings.BookmarkSettingsActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/bookmark_settings_title"
-            android:parentActivityName="net.bible.android.view.activity.settings.TextDisplaySettingsActivity" />
-        <activity
             android:name="net.bible.android.view.activity.settings.ColorSettingsActivity"
             android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
