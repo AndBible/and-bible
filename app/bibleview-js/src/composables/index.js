@@ -179,6 +179,7 @@ export function useConfig(documentType) {
         bottomOffset: 100,
         nightMode: false,
         errorBox: false,
+        activeWindow: false,
     });
 
     function calcMmInPx() {
@@ -203,7 +204,11 @@ export function useConfig(documentType) {
 
     window.bibleViewDebug.config = config;
 
-    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {nightMode, errorBox: errorBoxVal}, initial = false} = {}) {
+    setupEventBusListener(Events.SET_ACTIVE, newActive => {
+        appSettings.activeWindow = newActive;
+    });
+
+    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {activeWindow, nightMode, errorBox: errorBoxVal}, initial = false} = {}) {
         const defer = new Deferred();
         if (!initial) emit(Events.CONFIG_CHANGED, defer)
         const oldValue = config.showBookmarks;
@@ -217,6 +222,7 @@ export function useConfig(documentType) {
             }
         }
         appSettings.nightMode = nightMode;
+        appSettings.activeWindow = activeWindow;
         appSettings.errorBox = errorBoxVal;
         errorBox = errorBoxVal;
         if (c.showBookmarks === undefined) {

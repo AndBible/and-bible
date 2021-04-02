@@ -80,6 +80,7 @@ import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
+import net.bible.android.control.page.window.ActiveWindowChanged
 import net.bible.android.control.page.window.DecrementBusyCount
 import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
@@ -776,12 +777,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         updateConfig(onAttach)
     }
 
+    private val isActive get() = windowControl.activeWindow.id == window.id
+
+    fun onEvent(event: ActiveWindowChanged) {
+        executeJavascriptOnUiThread("""bibleView.emit('set_active', $isActive)""")
+    }
+
     private fun getUpdateConfigCommand(initial: Boolean): String {
         val showErrorBox = if(CommonUtils.isBeta) CommonUtils.sharedPreferences.getBoolean("show_errorbox", false) else false
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
-                    appSettings: {nightMode: $nightMode, errorBox: $showErrorBox}, 
+                    appSettings: {activeWindow: $isActive, nightMode: $nightMode, errorBox: $showErrorBox}, 
                     initial: $initial
                     });
                 """.trimIndent()

@@ -27,6 +27,12 @@
     <ErrorBox v-if="appSettings.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
+    <div v-show="appSettings.activeWindow">
+      <div class="top-left-corner"/>
+      <div class="top-right-corner"/>
+      <div class="bottom-left-corner"/>
+      <div class="bottom-right-corner"/>
+    </div>
     <div id="top"/>
     <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
@@ -205,23 +211,84 @@ export default {
 </script>
 <style lang="scss" scoped>
 .background {
-  z-index: -2;
+  z-index: -3;
   position: fixed;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
 }
-.top-margin {
+
+$dayAlpha: 0.07;
+$nightAlpha: 0.3;
+$borderDistance: 0;
+
+.active-window-corner {
+  position: fixed;
+  z-index: -1;
+  height: 15px;
+  width: 15px;
+  border-width: 4px;
+  .night & {
+    border-color: rgba(196, 196, 255, 0.8);
+  }
+  border-color: rgba(0, 0, 255, 0.6);
+}
+
+.top-left-corner {
+  @extend .active-window-corner;
+  top: $borderDistance;
+  left: $borderDistance;
+  border-top-style: solid;
+  border-left-style: solid;
+}
+.top-right-corner {
+  @extend .active-window-corner;
+  top: $borderDistance;
+  right: $borderDistance;
+  border-top-style: solid;
+  border-right-style: solid;
+}
+.bottom-right-corner {
+  @extend .active-window-corner;
+  bottom: $borderDistance;
+  right: $borderDistance;
+  border-bottom-style: solid;
+  border-right-style: solid;
+}
+.bottom-left-corner {
+  @extend .active-window-corner;
+  bottom: $borderDistance;
+  left: $borderDistance;
+  border-bottom-style: solid;
+  border-left-style: solid;
+}
+
+.active-window-indicator {
   position: fixed;
   z-index: -1;
   top: 0;
   left: 0;
   right: 0;
+  bottom: 0;
+  border-style: solid;
+  border-width: 15px;
   .night & {
-    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, $nightAlpha);
   }
-  background-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, $dayAlpha);
+}
+
+.top-margin {
+  position: fixed;
+  z-index: -2;
+  top: 0;
+  left: 0;
+  right: 0;
+  .night & {
+    background-color: rgba(255, 255, 255, $nightAlpha);
+  }
+  background-color: rgba(0, 0, 0, $dayAlpha);
 }
 
 </style>

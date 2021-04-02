@@ -29,6 +29,7 @@ export const Events = {
     CLEAR_DOCUMENT: "clear_document",
     ADD_DOCUMENTS: "add_documents",
     SET_CONFIG: "set_config",
+    SET_ACTIVE: "set_active",
     SET_TITLE: "set_title",
     SETUP_CONTENT: "setup_content",
     SCROLL_TO_VERSE: "scroll_to_verse",
