@@ -1175,7 +1175,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         val jumpToId = "v-${toVerse.ordinal}"
         val now = !contentVisible || restoreOngoing
-        val highlight = now || endVerse != null
+        val highlight = !contentVisible || endVerse != null
         fun boolString(value: Boolean?): String {
             if(value == null) return "null"
             return if(value) "true" else "false"
