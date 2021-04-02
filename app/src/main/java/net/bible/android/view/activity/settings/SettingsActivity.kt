@@ -25,6 +25,7 @@ import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.device.ScreenSettings.systemModeAvailable
 
@@ -71,7 +72,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     nightModePref.isVisible = false
                 }
             }
-            // if locale is overridden then have to force title to be translated here
+            val showErrorBox = preferenceScreen.findPreference<ListPreference>("show_errorbox") as Preference
+            showErrorBox.isVisible = CommonUtils.isBeta
+
+        // if locale is overridden then have to force title to be translated here
         } catch (e: Exception) {
             Log.e(TAG, "Error preparing preference screen", e)
             Dialogs.instance.showErrorMsg(R.string.error_occurred, e)

@@ -776,9 +776,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         updateConfig(onAttach)
     }
 
-    private fun getUpdateConfigCommand(initial: Boolean) = """
-            bibleView.emit('set_config', {config: ${displaySettings.toJson()}, appSettings: {nightMode: $nightMode}, initial: $initial});
-            """.trimIndent()
+    private fun getUpdateConfigCommand(initial: Boolean): String {
+        val showErrorBox = if(CommonUtils.isBeta) CommonUtils.sharedPreferences.getBoolean("show_errorbox", false) else false
+        return """
+                bibleView.emit('set_config', {
+                    config: ${displaySettings.toJson()}, 
+                    appSettings: {nightMode: $nightMode, errorBox: $showErrorBox}, 
+                    initial: $initial
+                    });
+                """.trimIndent()
+    }
 
     private fun updateConfig(initial: Boolean = false) {
         executeJavascriptOnUiThread(getUpdateConfigCommand(initial))

@@ -24,7 +24,7 @@
       <BookmarkModal/>
       <AmbiguousSelection ref="ambiguousSelection" @back-clicked="emit(Events.CLOSE_MODALS)"/>
     </template>
-    <ErrorBox v-if="config.errorBox"/>
+    <ErrorBox v-if="appSettings.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
     <div id="top"/>

@@ -716,4 +716,6 @@
     <string name="font_size_title_pt">Font size (%d pt)</string>
     <string name="pref_font_family_label_name">Font family (%s)</string>
     <string name="prefs_text_bookmarks_title">Bookmarking &amp; My Notes settings</string>
+    <string name="prefs_show_error_box_title">Show Javascript error box</string>
+    <string name="prefs_show_error_box_summary">Useful for debugging Bibleview errors. This will make app slower.</string>
 </resources>

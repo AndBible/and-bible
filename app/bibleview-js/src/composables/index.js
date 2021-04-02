@@ -126,7 +126,7 @@ export const strongsModes = {
     links: 2,
 }
 
-export let currentConfig = {};
+export let errorBox = false;
 
 export function useConfig(documentType) {
     // text display settings only here. TODO: rename
@@ -134,7 +134,6 @@ export function useConfig(documentType) {
         bookmarkingMode: bookmarkingModes.verticalColorBars,
         developmentMode,
         testMode,
-        errorBox: false,
 
         showAnnotations: true,
         showChapterNumbers: true,
@@ -181,6 +180,7 @@ export function useConfig(documentType) {
         topOffset: 0,
         bottomOffset: 100,
         nightMode: false,
+        errorBox: false,
     });
 
     function calcMmInPx() {
@@ -203,10 +203,9 @@ export function useConfig(documentType) {
         return {topOffset, topMargin};
     });
 
-    currentConfig = config;
     window.bibleViewDebug.config = config;
 
-    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {nightMode}, initial = false} = {}) {
+    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {nightMode, errorBox: errorBoxVal}, initial = false} = {}) {
         const defer = new Deferred();
         if (!initial) emit(Events.CONFIG_CHANGED, defer)
         const oldValue = config.showBookmarks;
@@ -215,11 +214,13 @@ export function useConfig(documentType) {
         for (const i in c) {
             if (config[i] !== undefined) {
                 config[i] = c[i];
-            } else {
+            } else if(!i.startsWith("deprecated")) {
                 console.error("Unknown setting", i, c[i]);
             }
         }
         appSettings.nightMode = nightMode;
+        appSettings.errorBox = errorBoxVal;
+        errorBox = errorBoxVal;
         if (c.showBookmarks === undefined) {
             // eslint-disable-next-line require-atomic-updates
             config.showBookmarks = oldValue;
@@ -293,8 +294,8 @@ export function useFontAwesome() {
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
     const value = props[attributeName];
-    const config = inject("config", {});
-    if(!config.errorBox) return;
+    const appSettings = inject("appSettings", {});
+    if(!appSettings.errorBox) return;
     if(value && !values.includes(value)) {
         const tagName = getCurrentInstance().type.name
         const origin = inject("verseInfo", {}).osisID;
