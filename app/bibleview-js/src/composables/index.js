@@ -62,9 +62,7 @@ export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToV
     const lineHeight = computed(() => {
         config; // Update also when font settings etc are changed
         if(!mounted.value || !topElement.value) return 1;
-        const lineHeight = parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
-        console.log("line height", lineHeight);
-        return lineHeight;
+        return parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
         }
     );
 
