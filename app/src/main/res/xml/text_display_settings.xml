@@ -49,23 +49,6 @@
             android:title="@string/prefs_show_verseno_title"
             android:summary="@string/prefs_show_verseno_summary"
             />
-
-        <SwitchPreferenceCompat
-            android:key="BOOKMARKS"
-            android:title="@string/prefs_show_bookmarks_title"
-            android:summary="@string/prefs_show_bookmarks_summary"
-            />
-
-        <SwitchPreferenceCompat
-            android:key="MYNOTES"
-            android:title="@string/prefs_show_mynotes_title"
-            android:summary="@string/prefs_show_mynotes_summary"
-            />
-        <Preference
-            android:key="BOOKMARK_SETTINGS"
-            android:title="@string/bookmark_settings_title"
-            android:summary="@string/prefs_bookmark_settings_summary"
-            />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/prefs_text_appearance_title"
@@ -126,6 +109,30 @@
             android:key="HYPHENATION"
             android:title="@string/prefs_hyphenation_title"
             android:summary="@string/prefs_hyphenation_summary"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/prefs_text_bookmarks_title"
+        >
+        <SwitchPreferenceCompat
+            android:key="BOOKMARKS_SHOW"
+            android:title="@string/prefs_show_bookmarks_title"
+            android:summary="@string/prefs_show_bookmarks_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="MYNOTES"
+            android:title="@string/prefs_show_mynotes_title"
+            android:summary="@string/prefs_show_mynotes_summary"
+            />
+        <Preference
+            android:key="BOOKMARKS_HIDELABELS"
+            android:title="@string/bookmark_settings_hide_labels_title"
+            android:summary="@string/bookmark_settings_hide_labels_summary"
+            />
+        <Preference
+            android:key="BOOKMARKS_ASSINGNLABELS"
+            android:title="@string/bookmark_settings_assign_labels_title"
+            android:summary="@string/bookmark_settings_assign_labels_summary"
             />
     </PreferenceCategory>
 </PreferenceScreen>

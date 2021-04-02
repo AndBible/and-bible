@@ -1197,34 +1197,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 resetSystemUi()
                 invalidateOptionsMenu()
             }
-            BOOKMARK_SETTINGS_CHANGED -> {
-                val extras = data?.extras!!
-                val edited = extras.getBoolean("edited")
-                val reset = extras.getBoolean("reset")
-                val windowId = extras.getLong("windowId")
-                val bookmarksStr = extras.getString("bookmarks")
-
-                if(!edited && !reset) return
-
-                val bookmarks = if(reset)
-                    if(windowId != 0L) {
-                        null
-                    } else TextDisplaySettings.default.bookmarks
-                else
-                    json.decodeFromString(serializer<WorkspaceEntities.BookmarkDisplaySettings>(), bookmarksStr!!)
-
-                if(windowId != 0L) {
-                    val window = windowRepository.getWindow(windowId)!!
-                    window.pageManager.textDisplaySettings.bookmarks = bookmarks
-                    window.bibleView?.updateTextDisplaySettings()
-                } else {
-                    windowRepository.textDisplaySettings.bookmarks = bookmarks
-                    windowRepository.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.BOOKMARK_SETTINGS), windowRepository.textDisplaySettings)
-                    windowRepository.updateAllWindowsTextDisplaySettings()
-                }
-                resetSystemUi()
-                invalidateOptionsMenu()
-            }
             TEXT_DISPLAY_SETTINGS_CHANGED -> {
                 val extras = data?.extras!!
 
@@ -1426,7 +1398,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         const val WORKSPACE_CHANGED = 94
         const val REQUEST_PICK_FILE_FOR_BACKUP_DB = 95
         const val REQUEST_PICK_FILE_FOR_BACKUP_MODULES = 96
-        const val BOOKMARK_SETTINGS_CHANGED = 97
 
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"

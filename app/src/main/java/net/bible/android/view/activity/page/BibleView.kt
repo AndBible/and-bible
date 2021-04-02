@@ -229,7 +229,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
         val textRange = BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
-        val initialLabels = displaySettings.bookmarks!!.assignLabels!!.toList()
+        val initialLabels = displaySettings.bookmarksAssignLabels!!.toList()
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
     }
 

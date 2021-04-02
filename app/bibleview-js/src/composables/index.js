@@ -153,6 +153,8 @@ export function useConfig(documentType) {
         fontSize: 16,
         showBookmarks: true,
         showMyNotes: true,
+        bookmarksHideLabels: [],
+        bookmarksAssignLabels: [],
 
         colors: {
             dayBackground: -1,
@@ -162,10 +164,7 @@ export function useConfig(documentType) {
             nightNoise: 0,
             nightTextColor: -16777216,
         },
-        bookmarks: {
-            showAll: true,
-            showLabels: []
-        },
+
         hyphenation: true,
         noiseOpacity: 50,
         lineSpacing: 10,
