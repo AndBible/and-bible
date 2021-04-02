@@ -43,6 +43,7 @@ import {
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import Color from "color";
+import {DocumentTypes} from "@/constants";
 
 let developmentMode = false;
 export let testMode = false;
@@ -54,13 +55,16 @@ if(process.env.NODE_ENV === "test") {
     testMode = true;
 }
 
-export function useVerseNotifier(config, calculatedConfig, {scrolledToVerse}, topElement, {isScrolling}) {
+export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToVerse}, topElement, {isScrolling}) {
     const currentVerse = ref(null);
     watch(() => currentVerse.value,  value => scrolledToVerse(value));
 
     const lineHeight = computed(() => {
         config; // Update also when font settings etc are changed
-        return parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
+        if(!mounted.value || !topElement.value) return 1;
+        const lineHeight = parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
+        console.log("line height", lineHeight);
+        return lineHeight;
         }
     );
 
@@ -124,7 +128,7 @@ export const strongsModes = {
 
 export let currentConfig = {};
 
-export function useConfig() {
+export function useConfig(documentType) {
     // text display settings only here. TODO: rename
     const config = reactive({
         bookmarkingMode: bookmarkingModes.verticalColorBars,
@@ -191,9 +195,13 @@ export function useConfig() {
     const mmInPx = calcMmInPx();
 
     const calculatedConfig = computed(() => {
-        return {
-            topOffset: appSettings.topOffset + config.topMargin * mmInPx
-        };
+        let topOffset = appSettings.topOffset;
+        let topMargin = 0;
+        if(documentType.value === DocumentTypes.BIBLE_DOCUMENT) {
+            topMargin = config.topMargin * mmInPx;
+            topOffset += topMargin;
+        }
+        return {topOffset, topMargin};
     });
 
     currentConfig = config;
