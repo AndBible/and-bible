@@ -144,7 +144,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL", name = "font_fontSize") var fontSize: Int? = null,
         @ColumnInfo(defaultValue = "NULL", name = "font_fontFamily") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showAll") var bookmarksShowAllLabels: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showAll") var deprecatedBookmarksShowAllLabels: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showLabels") var bookmarksHideLabels: List<Long>? = null,
         @ColumnInfo(defaultValue = "NULL", name = "bookmarks_assignLabels") var bookmarksAssignLabels: List<Long>? = null,
     ) {
@@ -165,9 +165,8 @@ class WorkspaceEntities {
             VERSENUMBERS,
             VERSEPERLINE,
             BOOKMARKS_SHOW,
-            BOOKMARKS_SHOWALLLABELS,
             BOOKMARKS_HIDELABELS,
-            BOOKMARKS_ASSINGLABELS,
+            BOOKMARKS_ASSINGNLABELS,
             MYNOTES,
         }
 
@@ -189,9 +188,8 @@ class WorkspaceEntities {
             Types.FONTSIZE -> fontSize
             Types.FONTFAMILY -> fontFamily
             Types.BOOKMARKS_SHOW -> showBookmarks
-            Types.BOOKMARKS_SHOWALLLABELS -> bookmarksShowAllLabels
             Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
-            Types.BOOKMARKS_ASSINGLABELS -> bookmarksAssignLabels
+            Types.BOOKMARKS_ASSINGNLABELS -> bookmarksAssignLabels
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -213,9 +211,8 @@ class WorkspaceEntities {
                 Types.FONTFAMILY -> fontFamily = value as String?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
-                Types.BOOKMARKS_SHOWALLLABELS -> bookmarksShowAllLabels = value as Boolean?
                 Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<Long>?
-                Types.BOOKMARKS_ASSINGLABELS -> bookmarksHideLabels = value as List<Long>?
+                Types.BOOKMARKS_ASSINGNLABELS -> bookmarksAssignLabels = value as List<Long>?
             }
         }
 
@@ -269,7 +266,6 @@ class WorkspaceEntities {
                 topMargin = 0,
                 lineSpacing = 16,
                 showBookmarks = true,
-                bookmarksShowAllLabels = true,
                 bookmarksHideLabels = emptyList(),
                 bookmarksAssignLabels = emptyList(),
             )
