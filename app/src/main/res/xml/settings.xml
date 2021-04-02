@@ -40,6 +40,11 @@
 			android:summary="@string/hide_bible_reference_overlay_summary"
 			android:defaultValue="false"
 			/>
+		<SwitchPreferenceCompat android:key="show_active_window_indicator"
+			android:title="@string/active_window_indicator_title"
+			android:summary="@string/active_window_indicator_summary"
+			android:defaultValue="true"
+			/>
 		<ListPreference android:key="night_mode_pref3"
 			android:title="@string/prefs_night_mode_title"
 			android:summary="@string/prefs_night_mode_summary"

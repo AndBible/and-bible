@@ -777,7 +777,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         updateConfig(onAttach)
     }
 
-    private val isActive get() = windowControl.activeWindow.id == window.id
+    private val isActive get() =
+        CommonUtils.sharedPreferences.getBoolean("show_active_window_indicator", true)
+            && windowControl.activeWindow.id == window.id
 
     fun onEvent(event: ActiveWindowChanged) {
         executeJavascriptOnUiThread("""bibleView.emit('set_active', $isActive)""")

@@ -718,4 +718,6 @@
     <string name="prefs_text_bookmarks_title">Bookmarking &amp; My Notes settings</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for debugging Bibleview errors. This will make app slower.</string>
+    <string name="active_window_indicator_title">Show active window indicator</string>
+    <string name="active_window_indicator_summary">Highlight window corners to help recognising which window is active</string>
 </resources>
