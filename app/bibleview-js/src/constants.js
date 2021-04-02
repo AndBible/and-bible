@@ -22,6 +22,7 @@ export const DocumentTypes = {
     MY_NOTES: "notes",
     JOURNAL: "journal",
     MULTI: "multi",
+    NONE: "none",
 }
 
 export const JournalEntryTypes = {
@@ -35,4 +36,4 @@ export const BookCategories = {
     GENERAL_BOOK: "GENERAL_BOOK",
 }
 
-export const fadeReferenceDelay = 15000;
+export const fadeReferenceDelay = -1;

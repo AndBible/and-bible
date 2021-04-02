@@ -48,6 +48,7 @@ class ManageLabels : ListActivityBase() {
     var showUnassigned = false
     var showCheckboxes = false
     var selectMultiple = false
+    var hasResetButton = false
     private val deletedLabels = mutableSetOf<Long>()
 
     @SuppressLint("MissingSuperCall")
@@ -61,6 +62,8 @@ class ManageLabels : ListActivityBase() {
             checkedLabels.addAll(selectedLabelIds.toList())
         }
 
+        hasResetButton = intent.getBooleanExtra("resetButton", false)
+        resetButton.visibility = if(hasResetButton) View.VISIBLE else View.GONE
         showUnassigned = intent.getBooleanExtra("showUnassigned", false)
         val title = intent.getStringExtra("title")
         selectMultiple = checkedLabels.size > 1 || CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
@@ -119,6 +122,13 @@ class ManageLabels : ListActivityBase() {
         result.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labelIds)
         setResult(Activity.RESULT_OK, result)
         finish()
+    }
+
+    fun onReset(v: View?) {
+        val result = Intent()
+        result.putExtra("reset", true)
+        setResult(Activity.RESULT_CANCELED, result)
+        finish();
     }
 
     fun onCancel(v: View?) {

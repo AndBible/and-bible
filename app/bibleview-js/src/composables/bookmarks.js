@@ -20,9 +20,8 @@ import {sortBy, uniqWith} from "lodash";
 import {
     addEventFunction,
     arrayEq,
-    colorLightness,
+    colorLightness, difference,
     findNodeAtOffsetWithNullOffset,
-    intersection,
     mixColors,
     rangesOverlap
 } from "@/utils";
@@ -100,9 +99,9 @@ export function useGlobalBookmarks(config) {
     const filteredBookmarks = computed(() => {
         if(!config.showBookmarks) return [];
         const allBookmarks = Array.from(bookmarks.values());
-        if(config.bookmarks.showAll) return allBookmarks;
-        const configLabels = new Set(config.bookmarks.showLabels);
-        return allBookmarks.filter(v => intersection(new Set(v.labels), configLabels).size > 0)
+        if(config.bookmarksHideLabels.length === 0) return allBookmarks;
+        const hideLabels = new Set(config.bookmarksHideLabels);
+        return allBookmarks.filter(v => difference(new Set(v.labels), hideLabels).size > 0)
     })
 
     window.bibleViewDebug.bookmarks = bookmarks;
@@ -121,7 +120,7 @@ export function useBookmarks(documentId,
                              bookInitials,
                              documentReady,
                              {adjustedColor, abbreviated},
-                             config) {
+                             config, appSettings) {
 
     const isMounted = ref(0);
     const strings = inject("strings");
@@ -263,8 +262,8 @@ export function useBookmarks(documentId,
         const styleRanges = [];
 
         function filterLabels(labels) {
-            if(config.bookmarks.showAll) return labels;
-            return Array.from(intersection(new Set(config.bookmarks.showLabels), new Set(labels)));
+            if(config.bookmarksHideLabels.length === 0) return labels;
+            return Array.from(difference(new Set(labels), new Set(config.bookmarksHideLabels)));
         }
 
         for(let i = 0; i < splitPoints.length-1; i++) {
@@ -338,7 +337,7 @@ export function useBookmarks(documentId,
         let colors = [];
         for(const {label: s, id} of bookmarkLabels) {
             let c = new Color(s.color)
-            c = c.alpha(config.nightMode? 0.8 : 0.3)
+            c = c.alpha(appSettings.nightMode? 0.4 : 0.3)
             for(let i = 0; i<labelCount.get(id)-1; i++) {
                 c = c.opaquer(0.3).darken(0.2);
             }

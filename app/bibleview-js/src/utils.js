@@ -175,6 +175,14 @@ export function intersection(setA, setB) {
     return _intersection
 }
 
+export function difference(setA, setB) {
+    let _difference = new Set(setA)
+    for (let elem of setB) {
+        _difference.delete(elem)
+    }
+    return _difference
+}
+
 export class Deferred {
     constructor() {
         this.promise = null;
@@ -231,10 +239,12 @@ export class Deferred {
 }
 
 export async function sleep(ms) {
+    if(ms < 0) return new Promise(() => {});
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export function cancellableTimer(ms) {
+    if(ms < 0) return [new Promise(() => {}), () => {}];
     let cancel = false;
     const promise = new Promise(resolve => setTimeout(() => {
         if(!cancel) {

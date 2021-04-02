@@ -19,15 +19,15 @@ import {nextTick} from "@vue/runtime-core";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 
-export function useScroll(config, {getVerses}, documentPromise) {
+export function useScroll(config, appSettings, calculatedConfig, {getVerses}, documentPromise) {
     let currentScrollAnimation = ref(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
     function setToolbarOffset(topOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
-        console.log("setToolbarOffset", topOffset, bottomOffset, doNotScroll, immediate);
-        const diff = config.topOffset - topOffset;
-        config.topOffset = topOffset;
-        config.bottomOffset = bottomOffset;
+        console.log("setToolbarOffset", {topOffset, bottomOffset, doNotScroll, immediate});
+        const diff = appSettings.topOffset - topOffset;
+        appSettings.topOffset = topOffset;
+        appSettings.bottomOffset = bottomOffset;
         const delay = immediate ? 0 : 500;
 
         if(diff !== 0 && !doNotScroll) {
@@ -88,12 +88,10 @@ export function useScroll(config, {getVerses}, documentPromise) {
         }
     }
 
-    function scrollToId(toId, {now = false, highlight = false, ordinalStart = null, ordinalEnd = null, delta = config.topOffset, force = false, duration = 1000} = {}) {
-        console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd, delta});
+    function scrollToId(toId, {now = false, highlight = false, ordinalStart = null, ordinalEnd = null, force = false, duration = 1000} = {}) {
+        console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd});
         stopScrolling();
-        if(delta !== config.topOffset) {
-            config.topOffset = delta;
-        }
+        let delta = calculatedConfig.value.topOffset;
         if(highlight && ordinalStart) {
             emit(Events.CLEAR_HIGHLIGHTS)
             if(!ordinalEnd) {

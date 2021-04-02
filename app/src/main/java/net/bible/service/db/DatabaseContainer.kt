@@ -771,7 +771,16 @@ private val MIGRATION_42_43_expandContent = object : Migration(42, 43) {
     }
 }
 
-private val MIGRATION_43_44_journal_edit_position = object : Migration(43, 44) {
+private val MIGRATION_43_44_topMargin = object : Migration(43, 44) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_topMargin` INTEGER DEFAULT NULL")
+            db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_topMargin` INTEGER DEFAULT NULL")
+        }
+    }
+}
+
+private val MIGRATION_44_45_journal_edit_position = object : Migration(44, 45) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
             execSQL("ALTER TABLE `Label` ADD COLUMN `editPosition` INTEGER NOT NULL DEFAULT 0")
@@ -836,7 +845,8 @@ object DatabaseContainer {
                         MIGRATION_40_41_DocumentBackup,
                         MIGRATION_41_42_cipherKey,
                         MIGRATION_42_43_expandContent,
-                        MIGRATION_43_44_journal_edit_position,
+                        MIGRATION_43_44_topMargin,
+                        MIGRATION_44_45_journal_edit_position,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

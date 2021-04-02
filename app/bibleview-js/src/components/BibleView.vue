@@ -16,17 +16,19 @@
   -->
 
 <template>
-  <div @click="ambiguousSelection.handle" :class="{night: config.nightMode}" :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
-    <div :style="`height:${config.topOffset}px`"/>
-    <div :style="`--font-size:${config.fontSize}px; --font-family:${config.fontFamily};`" id="modals"/>
+  <div @click="ambiguousSelection.handle" :class="{night: appSettings.nightMode}" :style="topStyle">
+    <div class="background" :style="backgroundStyle"/>
+    <div :style="`height:${calculatedConfig.topOffset}px`"/>
+    <div :style="modalStyle" id="modals"/>
     <template v-if="mounted">
       <BookmarkModal/>
       <AmbiguousSelection ref="ambiguousSelection" @back-clicked="emit(Events.CLOSE_MODALS)"/>
     </template>
     <ErrorBox v-if="config.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
+    <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
     <div id="top"/>
-    <div id="content" ref="topElement" :style="styleConfig">
+    <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
       <Document v-for="document in documents" :key="document.id" :document="document"/>
     </div>
@@ -51,6 +53,7 @@ import DevelopmentMode from "@/components/DevelopmentMode";
 import Color from "color";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 import {useStrings} from "@/composables/strings";
+import {DocumentTypes} from "@/constants";
 
 export default {
     name: "BibleView",
@@ -58,24 +61,35 @@ export default {
     setup() {
       useAddonFonts();
       useFontAwesome();
-      const {config} = useConfig();
-      const strings = useStrings();
       const documents = reactive([]);
+      const documentType = computed(() => {
+          if(documents.length < 1) {
+              return DocumentTypes.NONE;
+          }
+          return documents[0].type;
+      });
+      const {config, appSettings, calculatedConfig} = useConfig(documentType);
+      const strings = useStrings();
       window.bibleViewDebug.documents = documents;
       const topElement = ref(null);
       const documentPromise = ref(null);
       const verseMap = useVerseMap();
       provide("verseMap", verseMap);
-      const scroll = useScroll(config, verseMap, documentPromise);
+      const scroll = useScroll(config, appSettings, calculatedConfig, verseMap, documentPromise);
       const {scrollToId} = scroll;
       provide("scroll", scroll);
       const globalBookmarks = useGlobalBookmarks(config);
       const android = useAndroid(globalBookmarks, config);
-      const {currentVerse} = useVerseNotifier(config, android, topElement, scroll);
+
+      const mounted = ref(false);
+      onMounted(() => mounted.value = true)
+      onUnmounted(() => mounted.value = false)
+
+      const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll);
       const customCss = useCustomCss();
       provide("customCss", customCss);
 
-      useInfiniteScroll(config, android, documents);
+      useInfiniteScroll(android, documents);
 
       function addDocuments(...docs) {
         documentPromise.value = document.fonts.ready
@@ -122,20 +136,26 @@ export default {
 
       provide("globalBookmarks", globalBookmarks);
       provide("config", config);
+      provide("appSettings", appSettings);
+      provide("calculatedConfig", calculatedConfig);
+
       provide("strings", strings);
       provide("android", android);
 
       const ambiguousSelection = ref(null);
 
-      const mounted = ref(false);
-      onMounted(() => mounted.value = true)
-      onUnmounted(() => mounted.value = false)
+      const backgroundStyle = computed(() => {
+        const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+        return `
+            background-color: ${backgroundColor.hsl().string()};
+        `;
+      });
 
-      const styleConfig = computed(() => {
-          const textColor = Color(config.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
-          const backgroundColor = Color(config.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+      const contentStyle = computed(() => {
+        const textColor = Color(appSettings.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
+        const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
 
-          let style = `
+        let style = `
           max-width: ${config.marginSize.maxWidth}mm;
           margin-left: auto;
           margin-right: auto;
@@ -146,28 +166,65 @@ export default {
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
           font-family: ${config.fontFamily};
-          background-color: ${backgroundColor.hsl().string()};
           font-size: ${config.fontSize}px;
           --font-size: ${config.fontSize}px;
           --background-color: ${backgroundColor.hsl().string()};
           `;
-          if(config.marginSize.marginLeft || config.marginSize.marginRight) {
-            style += `
+        if(config.marginSize.marginLeft || config.marginSize.marginRight) {
+          style += `
             margin-left: ${config.marginSize.marginLeft}mm;
             margin-right: ${config.marginSize.marginRight}mm;
           `;
-          }
-          return style;
+        }
+        return style;
+      });
+      
+      const modalStyle = computed(() => {
+        return `
+          --bottom-offset: ${appSettings.bottomOffset}px;
+          --top-offset: ${calculatedConfig.value.topOffset}px;
+          --font-size:${config.fontSize}px;
+          --font-family:${config.fontFamily};`
+      });
+
+      const topStyle = computed(() => {
+        return `
+          --bottom-offset: ${appSettings.bottomOffset}px;
+          --top-offset: ${appSettings.topOffset}px;
+          `;
       });
 
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
-        config, strings, documents, topElement, currentVerse, mounted, emit, Events, styleConfig,
+        config, strings, documents, topElement, currentVerse, mounted, emit, Events,
+        contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings,
       };
     },
   }
 </script>
+<style lang="scss" scoped>
+.background {
+  z-index: -2;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+.top-margin {
+  position: fixed;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  .night & {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+</style>
 <style lang="scss">
 @import "~@/common.scss";
 a {

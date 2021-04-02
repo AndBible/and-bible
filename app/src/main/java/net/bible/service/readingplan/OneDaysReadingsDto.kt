@@ -18,16 +18,18 @@
 
 package net.bible.service.readingplan
 
-import android.annotation.SuppressLint
+import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 
 import org.crosswire.jsword.passage.Key
 
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -35,8 +37,8 @@ import java.util.Date
 class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val readingPlanInfo: ReadingPlanInfoDto)
     : Comparable<OneDaysReadingsDto>
 {
-    @SuppressLint("SimpleDateFormat")
-    private val dateBasedFormatWithYear = SimpleDateFormat("MMM-d/yyyy")
+    private val dateBasedWithYearUsaFormat = SimpleDateFormat("MMM-d/yyyy", Locale.US)
+    private val dateBasedWithYear = SimpleDateFormat("MMM-d/yyyy", Locale.getDefault())
 
     private var readingKeys: List<Key>? = null
     /** reading date for date-based plan, else null
@@ -139,6 +141,16 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
      */
     private fun dateFormatterPlanStringToDate(dateString: String): Date {
         val calYear = Calendar.getInstance().get(Calendar.YEAR)
-        return dateBasedFormatWithYear.parse("$dateString/$calYear")
+        return try {
+            dateBasedWithYearUsaFormat.parse("$dateString/$calYear")
+                ?: dateBasedWithYear.parse("$dateString/$calYear")
+        }  catch (e: ParseException) {
+            Log.w(TAG, "Unable to parse date ($dateString) in US format. Trying with default locale", e)
+            dateBasedWithYear.parse("$dateString/$calYear")!!
+        }
+    }
+
+    companion object {
+        private const val TAG = "OneDaysReadingDto"
     }
 }

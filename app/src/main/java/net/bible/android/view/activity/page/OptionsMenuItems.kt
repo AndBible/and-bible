@@ -21,21 +21,25 @@ package net.bible.android.view.activity.page
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.activity.R
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.BOOKMARK_SETTINGS_CHANGED
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
-import net.bible.android.view.activity.settings.BookmarkSettingsActivity
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.util.widget.FontFamilyWidget
 import net.bible.android.view.util.widget.MarginSizeWidget
 import net.bible.android.view.util.widget.FontSizeWidget
 import net.bible.android.view.util.widget.LineSpacingWidget
+import net.bible.android.view.util.widget.TopMarginWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 
@@ -47,7 +51,7 @@ interface OptionsMenuItemInterface {
     val isBoolean: Boolean
     val opensDialog: Boolean
     fun handle()
-    fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)? = null, onReset: (() -> Unit)? = null): Boolean = false
+    fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)? = null, onReset: (() -> Unit)? = null): Boolean = false
     fun setNonSpecific() {}
 
     val title: String?
@@ -112,6 +116,8 @@ open class Preference(val settings: SettingsBundle,
                       var type: TextDisplaySettings.Types,
                       onlyBibles: Boolean = false,
 ) : GeneralPreference(onlyBibles) {
+    protected val valueInt get() = (value as Int)
+    protected val valueString get() = (value as String)
     private val actualTextSettings get() = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings)
     private val pageManagerSettings = settings.pageManagerSettings
     private val workspaceSettings = settings.workspaceSettings
@@ -173,16 +179,18 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.SECTIONTITLES -> R.string.prefs_section_title_title
                 TextDisplaySettings.Types.VERSENUMBERS -> R.string.prefs_show_verseno_title
                 TextDisplaySettings.Types.VERSEPERLINE -> R.string.prefs_verse_per_line_title
-                TextDisplaySettings.Types.BOOKMARKS -> R.string.prefs_show_bookmarks_title
                 TextDisplaySettings.Types.MYNOTES -> R.string.prefs_show_mynotes_title
                 TextDisplaySettings.Types.COLORS -> R.string.prefs_text_colors_menutitle
                 TextDisplaySettings.Types.JUSTIFY -> R.string.prefs_justify_title
                 TextDisplaySettings.Types.HYPHENATION -> R.string.prefs_hyphenation_title
+                TextDisplaySettings.Types.TOPMARGIN -> R.string.prefs_top_margin_title
                 TextDisplaySettings.Types.FONTSIZE -> R.string.font_size_title
                 TextDisplaySettings.Types.FONTFAMILY -> R.string.pref_font_family_label
                 TextDisplaySettings.Types.MARGINSIZE -> R.string.prefs_margin_size_title
                 TextDisplaySettings.Types.LINE_SPACING -> R.string.line_spacing_title
-                TextDisplaySettings.Types.BOOKMARK_SETTINGS -> R.string.bookmark_settings_title
+                TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.string.prefs_show_bookmarks_title
+                TextDisplaySettings.Types.BOOKMARKS_ASSINGNLABELS -> R.string.assign_labels
+                TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_hide_labels_title
             }
             return mainBibleActivity.getString(id)
         }
@@ -213,7 +221,7 @@ class CommandPreference(
     override fun handle() {
         handle?.invoke()
     }
-    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         launch?.invoke(activity, onChanged, onReset)
         return true
     }
@@ -240,7 +248,7 @@ class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDi
             super.value = value
         }
 
-    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val items = activity.resources.getStringArray(R.array.strongsModeEntries)
         var newChoice = value
         val dialog = AlertDialog.Builder(activity)
@@ -271,9 +279,9 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
 }
 
 class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTSIZE) {
-    override val title: String get() = mainBibleActivity.getString(R.string.font_size_title)
+    override val title: String get() = mainBibleActivity.getString(R.string.font_size_title_pt, valueInt)
     override val visible = true
-    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         FontSizeWidget.dialog(activity, settings.actualSettings.fontFamily!!, value as Int, {
             setNonSpecific()
             onReset?.invoke()
@@ -285,10 +293,25 @@ class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDis
     }
 }
 
-class FontFamilyPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTFAMILY) {
-    override val title: String get() = mainBibleActivity.getString(R.string.pref_font_family_label)
+class TopMarginPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.TOPMARGIN) {
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_top_margin_title_mm, valueInt)
     override val visible = true
-    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        TopMarginWidget.dialog(activity, value as Int, {
+            setNonSpecific()
+            onReset?.invoke()
+        }) {
+            value = it
+            onChanged?.invoke(it)
+        }
+        return true
+    }
+}
+
+class FontFamilyPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTFAMILY) {
+    override val title: String get() = mainBibleActivity.getString(R.string.pref_font_family_label_name, valueString)
+    override val visible = true
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         FontFamilyWidget.dialog(activity, settings.actualSettings.fontSize!!, value as String, {
             setNonSpecific()
             onReset?.invoke()
@@ -301,10 +324,9 @@ class FontFamilyPreference(settings: SettingsBundle): Preference(settings, TextD
 }
 
 class LineSpacingPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.LINE_SPACING) {
-    private val valueInt get() = (value as Int)
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_line_spacing_pt_title, valueInt.toFloat() / 10)
     override val visible = true
-    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         LineSpacingWidget.dialog(activity, valueInt, {
             setNonSpecific()
             onReset?.invoke()
@@ -318,10 +340,33 @@ class LineSpacingPreference(settings: SettingsBundle): Preference(settings, Text
 
 class ColorPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.COLORS) {
     override val visible = true
-    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ColorSettingsActivity::class.java)
         intent.putExtra("settingsBundle", settings.toJson())
         activity.startActivityForResult(intent, COLORS_CHANGED)
+        return true
+    }
+}
+
+class LabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types): Preference(settings, type) {
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        val intent = Intent(activity, ManageLabels::class.java)
+        val originalValues = (value as List<Long>).toLongArray()
+        intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, originalValues)
+        intent.putExtra("resetButton", true)
+        intent.putExtra("title", title)
+        GlobalScope.launch {
+            val result = activity.awaitIntent(intent)
+            val labels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
+            if(labels != null) {
+                value = labels
+                value
+                onChanged?.invoke(labels)
+            } else if(result?.resultData?.extras?.getBoolean("reset") == true) {
+                setNonSpecific()
+                onReset?.invoke()
+            }
+        }
         return true
     }
 }
@@ -334,7 +379,7 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
     private val defaultVal = TextDisplaySettings.default.marginSize!!
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal, maxWidth)
     override val visible = true
-    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         MarginSizeWidget.dialog(activity, value as WorkspaceEntities.MarginSize,
             {
                 setNonSpecific()
@@ -345,15 +390,6 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
                 onChanged?.invoke(it)
             })
 
-        return true
-    }
-}
-
-class BookmarkSettingsPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.BOOKMARK_SETTINGS) {
-    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val intent = Intent(activity, BookmarkSettingsActivity::class.java)
-        intent.putExtra("settingsBundle", settings.toJson())
-        activity.startActivityForResult(intent, BOOKMARK_SETTINGS_CHANGED)
         return true
     }
 }

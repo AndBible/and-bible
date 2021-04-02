@@ -24,7 +24,7 @@
 import {nextTick, onMounted} from "@vue/runtime-core";
 import {setupWindowEventListener} from "@/utils";
 
-export function useInfiniteScroll(config, {requestPreviousChapter, requestNextChapter}, documents) {
+export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}, documents) {
     let
         currentPos,
         lastAddMoreTime = 0,
