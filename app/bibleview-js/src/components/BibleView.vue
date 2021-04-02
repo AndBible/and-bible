@@ -26,7 +26,7 @@
     </template>
     <ErrorBox v-if="config.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
-    <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`top: ${calculatedConfig.topOffset}px;`"/>
+    <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
     <div id="top"/>
     <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
@@ -215,15 +215,13 @@ export default {
 .top-margin {
   position: fixed;
   z-index: -1;
+  top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  border-color: #c9c9c9;
   .night & {
-    border-color: #747474;
+    background-color: rgba(255, 255, 255, 0.05);
   }
-  border-style: dashed none none none;
-  border-width: 1px;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 </style>
