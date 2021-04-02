@@ -219,7 +219,7 @@ export default {
   left: 0;
   right: 0;
   .night & {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.2);
   }
   background-color: rgba(0, 0, 0, 0.05);
 }
