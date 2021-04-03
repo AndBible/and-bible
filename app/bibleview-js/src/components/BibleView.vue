@@ -226,9 +226,9 @@ $borderDistance: 0;
 .active-window-corner {
   position: fixed;
   z-index: -1;
-  height: 15px;
-  width: 15px;
-  border-width: 4px;
+  height: 20px;
+  width: 20px;
+  border-width: 2.5px;
   .night & {
     border-color: rgba(196, 196, 255, 0.8);
   }
