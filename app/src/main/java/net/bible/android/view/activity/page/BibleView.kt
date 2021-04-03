@@ -779,11 +779,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val isActive get() =
         CommonUtils.sharedPreferences.getBoolean("show_active_window_indicator", true)
-            && windowControl.activeWindow.id == window.id
+            && windowControl.activeWindow.id == window.id && windowControl.windowRepository.visibleWindows.size > 1
 
-    fun onEvent(event: ActiveWindowChanged) {
-        executeJavascriptOnUiThread("""bibleView.emit('set_active', $isActive)""")
-    }
+    fun onEvent(event: ActiveWindowChanged) = updateActive()
+    private fun updateActive() = executeJavascriptOnUiThread("""bibleView.emit('set_active', $isActive)""")
 
     private fun getUpdateConfigCommand(initial: Boolean): String {
         val showErrorBox = if(CommonUtils.isBeta) CommonUtils.sharedPreferences.getBoolean("show_errorbox", false) else false
@@ -1066,8 +1065,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
-        if(window.isVisible)
+        if(window.isVisible) {
             executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: true});")
+            updateActive()
+        }
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
