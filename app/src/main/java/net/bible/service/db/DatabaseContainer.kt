@@ -780,6 +780,15 @@ private val MIGRATION_43_44_topMargin = object : Migration(43, 44) {
     }
 }
 
+private val MIGRATION_44_45_journal_edit_position = object : Migration(44, 45) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Label` ADD COLUMN `editPosition` INTEGER NOT NULL DEFAULT 0")
+            execSQL("UPDATE `Label` SET editPosition=(SELECT count(*) from BookmarkToLabel WHERE labelId=id) + (SELECT count(*) from JournalTextEntry WHERE labelId=id)")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -837,6 +846,7 @@ object DatabaseContainer {
                         MIGRATION_41_42_cipherKey,
                         MIGRATION_42_43_expandContent,
                         MIGRATION_43_44_topMargin,
+                        MIGRATION_44_45_journal_edit_position,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

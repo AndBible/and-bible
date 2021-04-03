@@ -100,16 +100,20 @@ open class BookmarkControl @Inject constructor(
 
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> = dao.allBookmarksWithNotes(orderBy)
 
-    fun addOrUpdateBookmark(bookmark: Bookmark, labels: List<Long>?=null): Bookmark {
+    fun addOrUpdateBookmark(bookmark: Bookmark, labelIds: List<Long>?=null): Bookmark {
         if(bookmark.id != 0L) {
             dao.update(bookmark)
         } else {
             bookmark.id = dao.insert(bookmark)
         }
 
-        if(labels != null) {
+        if(labelIds != null) {
             dao.deleteLabels(bookmark.id)
-            dao.insert(labels.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) })
+            val labels = labelIds.filter { it > 0 }.mapNotNull { dao.labelById(it) }
+            for (it in labels) {
+                dao.makeSpace(it.id, it.editPosition)
+                dao.insert(BookmarkToLabel(bookmark.id, it.id, orderNumber = it.editPosition))
+            }
         }
 
         addText(bookmark)
