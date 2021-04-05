@@ -106,6 +106,9 @@ class FontSizeWidget(context: Context, attributeSet: AttributeSet?): LinearLayou
         dialogMessage.setText(R.string.prefs_text_size_sample_text)
 
         fontSizeSlider.max = 60
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            fontSizeSlider.min = 1
+        }
         fontSizeSlider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 value = progress
