@@ -16,7 +16,7 @@
  */
 
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
-import {useConfig} from "@/composables";
+import {abbreviated, useConfig} from "@/composables";
 import {ref} from "@vue/reactivity";
 
 window.bibleViewDebug = {}
@@ -241,4 +241,12 @@ describe("useBookmark tests", () => {
 
     });
 
+});
+
+describe("abbreviate tests", () => {
+    it("test 1", () => {
+        expect(abbreviated("turhanpäiväisissä ajatuksissaan", 15)).toBe("turhanpäiväisi...")
+        expect(abbreviated("höpö turhanpäiväisissä ajatuksissaan", 15)).toBe("höpö...")
+        expect(abbreviated("höpö höpö turhanpäiväisissä ajatuksissaan", 15)).toBe("höpö höpö...")
+    });
 });

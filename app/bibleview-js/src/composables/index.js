@@ -239,6 +239,19 @@ export function useConfig(documentType) {
     return {config, appSettings, calculatedConfig};
 }
 
+export function abbreviated(str, n, useWordBoundary = true) {
+    if(!str) return ""
+    if (str.length <= n) { return str; }
+    let subString = str.substr(0, n-1); // the original check
+    let splitPoint = subString.lastIndexOf(" ");
+    if(splitPoint <= 0) {
+        splitPoint = n-1;
+    }
+    return (useWordBoundary
+        ? subString.substr(0, splitPoint)
+        : subString) + "...";
+}
+
 export function useCommon() {
     const currentInstance = getCurrentInstance();
 
@@ -269,15 +282,6 @@ export function useCommon() {
             col = col.darken(0.2);
         }
         return col.hsl();
-    }
-
-    function abbreviated(str, n, useWordBoundary = true) {
-        if(!str) return ""
-        if (str.length <= n) { return str; }
-        let subString = str.substr(0, n-1); // the original check
-        return (useWordBoundary
-            ? subString.substr(0, subString.lastIndexOf(" "))
-            : subString) + "...";
     }
 
     return {config, appSettings, calculatedConfig, strings, sprintf, split, adjustedColor, formatTimestamp, abbreviated, emit, Events}
