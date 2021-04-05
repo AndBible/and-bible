@@ -98,9 +98,9 @@ export function useGlobalBookmarks(config, documentType) {
     })
 
     const filteredBookmarks = computed(() => {
-        if(documentType === DocumentTypes.BIBLE_DOCUMENT && !config.showBookmarks) return [];
+        if(documentType.value === DocumentTypes.BIBLE_DOCUMENT && !config.showBookmarks) return [];
         const allBookmarks = Array.from(bookmarks.values());
-        if(documentType === DocumentTypes.JOURNAL || config.bookmarksHideLabels.length === 0) return allBookmarks;
+        if(documentType.value === DocumentTypes.JOURNAL || config.bookmarksHideLabels.length === 0) return allBookmarks;
         const hideLabels = new Set(config.bookmarksHideLabels);
         return allBookmarks.filter(v => intersection(new Set(v.labels), hideLabels).size === 0)
     })
