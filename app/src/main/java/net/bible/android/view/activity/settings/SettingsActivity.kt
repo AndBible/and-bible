@@ -28,6 +28,8 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.device.ScreenSettings.systemModeAvailable
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.FeatureType
 
 class SettingsActivity: ActivityBase() {
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,6 +76,29 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             val showErrorBox = preferenceScreen.findPreference<ListPreference>("show_errorbox") as Preference
             showErrorBox.isVisible = CommonUtils.isBeta
+
+            val greekStrongs = preferenceScreen.findPreference<ListPreference>("strongs_greek_dictionary") as ListPreference
+            val hebrewStrongs = preferenceScreen.findPreference<ListPreference>("strongs_hebrew_dictionary") as ListPreference
+            val greekDicts = Books.installed().books.filter { it.hasFeature(FeatureType.GREEK_DEFINITIONS) }
+
+            if(greekDicts.isEmpty()) {
+                greekStrongs.isVisible = false
+            } else {
+                val greekNames = greekDicts.map { it.name }.toTypedArray()
+                val greekInitials = greekDicts.map { it.initials }.toTypedArray()
+                greekStrongs.entries = greekNames
+                greekStrongs.entryValues = greekInitials
+            }
+
+            val hebrewDicts = Books.installed().books.filter { it.hasFeature(FeatureType.HEBREW_DEFINITIONS) }
+            if(hebrewDicts.isEmpty()) {
+                hebrewStrongs.isVisible = false
+            } else {
+                val hebrewNames = hebrewDicts.map { it.name }.toTypedArray()
+                val hebrewInitials = hebrewDicts.map { it.initials }.toTypedArray()
+                hebrewStrongs.entries = hebrewNames
+                hebrewStrongs.entryValues = hebrewInitials
+            }
 
         // if locale is overridden then have to force title to be translated here
         } catch (e: Exception) {
