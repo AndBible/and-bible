@@ -80,7 +80,6 @@ import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
-import net.bible.android.control.page.window.ActiveWindowChanged
 import net.bible.android.control.page.window.DecrementBusyCount
 import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
@@ -781,7 +780,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         CommonUtils.sharedPreferences.getBoolean("show_active_window_indicator", true)
             && windowControl.activeWindow.id == window.id && windowControl.windowRepository.visibleWindows.size > 1
 
-    fun onEvent(event: ActiveWindowChanged) = updateActive()
     private fun updateActive() = executeJavascriptOnUiThread("""bibleView.emit('set_active', $isActive)""")
 
     private fun getUpdateConfigCommand(initial: Boolean): String {
@@ -1050,6 +1048,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             bibleJavascriptInterface.notificationsEnabled = false
             pauseTiltScroll()
         }
+        updateActive()
     }
 
     fun onEvent(event: ScrollSecondaryWindowEvent) {

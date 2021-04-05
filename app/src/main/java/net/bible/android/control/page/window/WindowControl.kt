@@ -46,7 +46,6 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class ActiveWindowChanged(val window: Window)
 
 /**
  * Central control of windows especially synchronization
@@ -73,7 +72,6 @@ open class WindowControl @Inject constructor(
         get() = windowRepository.activeWindow
         set(currentActiveWindow) {
             windowRepository.activeWindow = currentActiveWindow
-            ABEventBus.getDefault().post(ActiveWindowChanged(currentActiveWindow))
         }
 
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
