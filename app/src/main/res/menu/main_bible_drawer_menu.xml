@@ -76,28 +76,31 @@
         </menu>
     </item>
     <item
-        android:title="@string/help">
+        android:title="@string/information">
         <menu>
             <item android:id="@+id/helpButton"
                 android:title="@string/help_and_tips"
                 android:icon="@drawable/ic_help_white_24dp"/>
 
+            <item android:id="@+id/appLicence"
+                android:title="@string/app_licence_title"
+                android:icon="@drawable/ic_baseline_copyright_24"/>
         </menu>
     </item>
     <item
-        android:title="@string/other">
+        android:title="@string/contact">
         <menu>
-            <item android:id="@+id/rateButton"
-                android:title="@string/rate_application"
-                android:icon="@drawable/ic_rate_review_white_24dp"/>
+            <item android:id="@+id/giveFeedback"
+                android:title="@string/give_feedback_title"
+                android:icon="@drawable/ic_baseline_feedback_24"/>
 
             <item android:id="@+id/bugReport"
                 android:title="@string/send_bug_report_title"
                 android:icon="@drawable/ic_bug_report_white_24dp"/>
 
-            <item android:id="@+id/appLicence"
-                android:title="@string/app_licence_title"
-                android:icon="@drawable/ic_baseline_copyright_24"/>
+            <item android:id="@+id/rateButton"
+                android:title="@string/rate_application"
+                android:icon="@drawable/ic_rate_review_white_24dp"/>
         </menu>
     </item>
 </menu>

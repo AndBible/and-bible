@@ -95,7 +95,7 @@ class ErrorReportControl @Inject constructor() {
 const val SCREENSHOT_FILE = "screenshot.webp"
 
 object BugReport {
-    private fun createErrorText(exception: Throwable?) = try {
+    fun createErrorText(exception: Throwable? = null) = try {
         val text = StringBuilder()
         text.append("And Bible version: ").append(applicationVersionName).append("\n")
         text.append("Android version: ").append(Build.VERSION.RELEASE).append("\n")

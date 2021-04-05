@@ -20,11 +20,11 @@
     <string name="history">History</string>
     <string name="speak">Speak</string>
     <string name="help">Help</string>
+    <string name="information">Information</string>
     <string name="other">Other</string>
+    <string name="contact">Contact</string>
     <string name="help_and_tips">Help &amp; tips</string>
-
     <string name="administration">Administration</string>
-
     <string name="rate_application">Rate &amp; Review in Google Play</string>
     <string name="chooce_document">Choose Document</string>
 
@@ -504,6 +504,12 @@
     <!-- Bug reporting -->
     <string name="send_bug_report_title">Report a bug</string>
     <string name="report_bug_email_subject_3">[%s] Bug report for %s %s</string>
+    <string name="feedback_message">
+        --- WRITE YOUR FEEDBACK ABOVE THIS LINE ---\n
+        Please write feedback (constructive criticism, ideas etc) to us.\n
+        \n
+        Device info: \n
+        %s</string>
     <string name="report_bug_email_message">
         --- WRITE BUG REPORT ABOVE THIS LINE ---\n
         Instructions:\n
@@ -721,4 +727,6 @@
     <string name="active_window_indicator_title">Show active window indicator</string>
     <string name="active_window_indicator_summary">Highlight window corners to help recognising which window is active</string>
     <string name="app_licence_title">Open Source License</string>
+    <string name="give_feedback_title">Give us feedback</string>
+    <string name="feedback_subject">Feedback to And Bible Open Source development team</string>
 </resources>

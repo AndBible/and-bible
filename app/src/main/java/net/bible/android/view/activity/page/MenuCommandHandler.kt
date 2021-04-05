@@ -261,6 +261,20 @@ constructor(private val callingActivity: MainBibleActivity,
                     }
                     isHandled = true
                 }
+                R.id.giveFeedback -> {
+                    val subject = callingActivity.getString(R.string.feedback_subject)
+                    val message = callingActivity.getString(R.string.feedback_message, BugReport.createErrorText())
+
+                    val emailIntent = Intent(Intent.ACTION_SEND).apply {
+                        putExtra(Intent.EXTRA_SUBJECT, subject)
+                        putExtra(Intent.EXTRA_TEXT, message)
+                        putExtra(Intent.EXTRA_EMAIL, arrayOf("help.andbible@gmail.com"))
+                        type = "message/rfc822"
+                    }
+                    val chooserIntent = Intent.createChooser(emailIntent, callingActivity.getString(R.string.give_feedback_title))
+                    callingActivity.startActivity(chooserIntent)
+                    isHandled = true
+                }
                 R.id.restore_modules -> {
                     handlerIntent = Intent(callingActivity, InstallZip::class.java)
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
