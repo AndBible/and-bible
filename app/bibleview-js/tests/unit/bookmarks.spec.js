@@ -248,5 +248,8 @@ describe("abbreviate tests", () => {
         expect(abbreviated("turhanpäiväisissä ajatuksissaan", 15)).toBe("turhanpäiväisi...")
         expect(abbreviated("höpö turhanpäiväisissä ajatuksissaan", 15)).toBe("höpö...")
         expect(abbreviated("höpö höpö turhanpäiväisissä ajatuksissaan", 15)).toBe("höpö höpö...")
+        expect(abbreviated("höpö höpö", 15)).toBe("höpö höpö")
+        expect(abbreviated("höpö höpö höpö", 15)).toBe("höpö höpö höpö")
+        expect(abbreviated("höpö höpö höpö höpö", 15)).toBe("höpö höpö...")
     });
 });
