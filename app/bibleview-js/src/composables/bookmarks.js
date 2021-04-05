@@ -21,7 +21,7 @@ import {
     addEventFunction,
     arrayEq,
     colorLightness, difference,
-    findNodeAtOffsetWithNullOffset,
+    findNodeAtOffsetWithNullOffset, intersection,
     mixColors,
     rangesOverlap
 } from "@/utils";
@@ -101,7 +101,7 @@ export function useGlobalBookmarks(config) {
         const allBookmarks = Array.from(bookmarks.values());
         if(config.bookmarksHideLabels.length === 0) return allBookmarks;
         const hideLabels = new Set(config.bookmarksHideLabels);
-        return allBookmarks.filter(v => difference(new Set(v.labels), hideLabels).size > 0)
+        return allBookmarks.filter(v => intersection(new Set(v.labels), hideLabels).size === 0)
     })
 
     window.bibleViewDebug.bookmarks = bookmarks;

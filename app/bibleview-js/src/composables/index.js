@@ -275,7 +275,7 @@ export function useCommon() {
         if(!str) return ""
         if (str.length <= n) { return str; }
         const lastSpaceIdx = str.lastIndexOf(" ");
-        const subString = str.substr(0, Math.max(n-1, lastSpaceIdx)); // the original check
+        const subString = str.substr(0, Math.min(n-1, lastSpaceIdx)); // the original check
         return (useWordBoundary
             ? subString.substr(0, lastSpaceIdx)
             : subString) + "...";

@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal v-if="showBookmark" @close="closeBookmark">
+  <Modal v-if="showBookmark && bookmark" @close="closeBookmark">
     <EditableText
         v-if="!infoShown"
         constraint-display-height

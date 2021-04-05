@@ -113,14 +113,19 @@ export default {
         if (answer) android.deleteJournalEntry(props.journalEntry.id);
       }
       else if (props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
-        const buttons = [{
-          title: strings.onlyLabel,
-          result: "only_label",
-        }, {
-          title: strings.wholeBookmark,
-          result: "bookmark",
-        }];
-        const answer = await areYouSureDelete.value.areYouSure(buttons);
+        let answer;
+        if(props.journalEntry.labels.length > 1) {
+          const buttons = [{
+            title: strings.onlyLabel,
+            result: "only_label",
+          }, {
+            title: strings.wholeBookmark,
+            result: "bookmark",
+          }];
+          answer = await areYouSureDelete.value.areYouSure(buttons);
+        } else if(await areYouSureDelete.value.areYouSure()) {
+          answer = "bookmark"
+        }
         if(answer === "only_label") {
           android.removeBookmarkLabel(props.journalEntry.id, props.label.id);
         } else if(answer === "bookmark") {
