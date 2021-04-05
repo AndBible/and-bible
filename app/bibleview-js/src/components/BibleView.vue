@@ -151,9 +151,11 @@ export default {
       const ambiguousSelection = ref(null);
 
       const backgroundStyle = computed(() => {
-        const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+        const colorInt = appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground;
+        if(colorInt === null) return "";
+        const backgroundColor = Color(colorInt).hsl().string();
         return `
-            background-color: ${backgroundColor.hsl().string()};
+            background-color: ${backgroundColor};
         `;
       });
 

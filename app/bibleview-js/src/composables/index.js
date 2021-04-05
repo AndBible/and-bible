@@ -154,7 +154,7 @@ export function useConfig(documentType) {
         bookmarksAssignLabels: [],
 
         colors: {
-            dayBackground: -1,
+            dayBackground: null,
             dayNoise: 0,
             dayTextColor: null,
             nightBackground: null,
