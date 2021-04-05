@@ -678,8 +678,8 @@
     <string name="bookmark_settings_title">Bookmarking settings</string>
     <string name="window_bookmark_settings_title">Window bookmark settings</string>
     <string name="workspace_bookmark_settings_title">Workspace bookmark settings</string>
-    <string name="bookmark_settings_hide_labels_title">Hide bookmark labels</string>
-    <string name="bookmark_settings_hide_labels_summary">Hide specified labels from the view</string>
+    <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
+    <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
     <string name="bookmark_settings_assign_labels_title">Assign labels to new bookmarks</string>
     <string name="prefs_bookmark_settings_summary">Bookmark settings summary</string>
     <string name="bookmark_settings_assign_labels_summary">Automatically assign labels to new bookmarks</string>
