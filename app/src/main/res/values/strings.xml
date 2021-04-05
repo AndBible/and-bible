@@ -733,5 +733,10 @@
     <string name="choose_strongs_greek_dictionary_summary">Choose Strongs dictionary for Greek word words</string>
     <string name="choose_strongs_hebrew_dictionary_title">Hebrew dictionary</string>
     <string name="choose_strongs_hebrew_dictionary_summary">Choose Strongs dictionary for Hebrew word definitions</string>
+    <string name="choose_strongs_hebrew_morphology_title">Hebrew morphology</string>
+    <string name="choose_strongs_hebrew_morphology_summary">Choose dictionary for Hebrew morphology definitions</string>
+    <string name="choose_strongs_greek_morphology_title">Greek morphology</string>
+    <string name="choose_strongs_greek_morphology_summary">Choose dictionary for Greek morphology definitions</string>
+
     <string name="prefs_dictionaries_cat">Dictionaries</string>
 </resources>

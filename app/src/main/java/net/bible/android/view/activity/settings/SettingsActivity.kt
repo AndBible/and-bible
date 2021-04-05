@@ -52,59 +52,51 @@ class SettingsFragment : PreferenceFragmentCompat() {
         super.onDisplayPreferenceDialog(preference)
 	}
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        try {
-            setPreferencesFromResource(R.xml.settings, rootKey)
+    private fun setupDictionary(pref: ListPreference, type: FeatureType) {
+        val dicts = Books.installed().books.filter { it.hasFeature(type) }
 
-			//If no light sensor exists switch to old boolean check box
-			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
-            val nightModePref = preferenceScreen.findPreference<ListPreference>("night_mode_pref3") as ListPreference
-            if (systemModeAvailable) {
-                if (autoModeAvailable) {
-                    nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_auto_manual)
-                    nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_auto_manual)
-                    nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
-                } else {
-                    nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_manual)
-                    nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
-                    nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
-                }
-            } else {
-                if (!autoModeAvailable) {
-                    nightModePref.isVisible = false
-                }
-            }
-            val showErrorBox = preferenceScreen.findPreference<ListPreference>("show_errorbox") as Preference
-            showErrorBox.isVisible = CommonUtils.isBeta
-
-            val greekStrongs = preferenceScreen.findPreference<ListPreference>("strongs_greek_dictionary") as ListPreference
-            val hebrewStrongs = preferenceScreen.findPreference<ListPreference>("strongs_hebrew_dictionary") as ListPreference
-            val greekDicts = Books.installed().books.filter { it.hasFeature(FeatureType.GREEK_DEFINITIONS) }
-
-            if(greekDicts.isEmpty()) {
-                greekStrongs.isVisible = false
-            } else {
-                val greekNames = greekDicts.map { it.name }.toTypedArray()
-                val greekInitials = greekDicts.map { it.initials }.toTypedArray()
-                greekStrongs.entries = greekNames
-                greekStrongs.entryValues = greekInitials
-            }
-
-            val hebrewDicts = Books.installed().books.filter { it.hasFeature(FeatureType.HEBREW_DEFINITIONS) }
-            if(hebrewDicts.isEmpty()) {
-                hebrewStrongs.isVisible = false
-            } else {
-                val hebrewNames = hebrewDicts.map { it.name }.toTypedArray()
-                val hebrewInitials = hebrewDicts.map { it.initials }.toTypedArray()
-                hebrewStrongs.entries = hebrewNames
-                hebrewStrongs.entryValues = hebrewInitials
-            }
-
-        // if locale is overridden then have to force title to be translated here
-        } catch (e: Exception) {
-            Log.e(TAG, "Error preparing preference screen", e)
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+        if(dicts.isEmpty()) {
+            pref.isVisible = false
+        } else {
+            val names = dicts.map { it.name }.toTypedArray()
+            val initials = dicts.map { it.initials }.toTypedArray()
+            pref.entries = names
+            pref.entryValues = initials
         }
+    }
+
+	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        setPreferencesFromResource(R.xml.settings, rootKey)
+
+        //If no light sensor exists switch to old boolean check box
+        // see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
+        val nightModePref = preferenceScreen.findPreference<ListPreference>("night_mode_pref3") as ListPreference
+        if (systemModeAvailable) {
+            if (autoModeAvailable) {
+                nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_auto_manual)
+                nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_auto_manual)
+                nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
+            } else {
+                nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_manual)
+                nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
+                nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
+            }
+        } else {
+            if (!autoModeAvailable) {
+                nightModePref.isVisible = false
+            }
+        }
+        val showErrorBox = preferenceScreen.findPreference<ListPreference>("show_errorbox") as Preference
+        showErrorBox.isVisible = CommonUtils.isBeta
+
+        val greekStrongs = preferenceScreen.findPreference<ListPreference>("strongs_greek_dictionary") as ListPreference
+        setupDictionary(greekStrongs, FeatureType.GREEK_DEFINITIONS)
+        val hebrewStrongs = preferenceScreen.findPreference<ListPreference>("strongs_hebrew_dictionary") as ListPreference
+        setupDictionary(hebrewStrongs, FeatureType.HEBREW_DEFINITIONS)
+        val greekMorph = preferenceScreen.findPreference<ListPreference>("greek_morphology") as ListPreference
+        setupDictionary(greekMorph, FeatureType.GREEK_PARSE)
+        val hebrewMorph = preferenceScreen.findPreference<ListPreference>("hebrew_morphology") as ListPreference
+        setupDictionary(hebrewMorph, FeatureType.HEBREW_PARSE)
     }
 
     companion object {

@@ -82,6 +82,28 @@ class SwordDocumentFacade @Inject constructor() {
             return allDocuments
         }
 
+    val defaultGreekMorphology: Book?
+        get() {
+            val bookInitials = CommonUtils.sharedPreferences.getString("greek_morphology", null)
+            if(bookInitials != null) {
+                val book = Books.installed().getBook(bookInitials)
+                if(book != null) return book
+            }
+
+            return Defaults.getGreekParse()
+        }
+
+    val defaultHebrewMorphology: Book?
+        get() {
+            val bookInitials = CommonUtils.sharedPreferences.getString("hebrew_morphology", null)
+            if(bookInitials != null) {
+                val book = Books.installed().getBook(bookInitials)
+                if(book != null) return book
+            }
+
+            return Defaults.getHebrewParse()
+        }
+
     val defaultStrongsGreekDictionary: Book?
         get() {
             val bookInitials = CommonUtils.sharedPreferences.getString("strongs_greek_dictionary", null)

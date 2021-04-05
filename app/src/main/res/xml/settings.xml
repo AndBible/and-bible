@@ -6,6 +6,25 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	android:key="bible_display_pref">
 	<PreferenceCategory
+		android:title="@string/prefs_dictionaries_cat">
+		<ListPreference android:key="strongs_greek_dictionary"
+			android:title="@string/choose_strongs_greek_dictionary_title"
+			android:summary="@string/choose_strongs_greek_dictionary_summary"
+			/>
+		<ListPreference android:key="strongs_hebrew_dictionary"
+			android:title="@string/choose_strongs_hebrew_dictionary_title"
+			android:summary="@string/choose_strongs_hebrew_dictionary_summary"
+			/>
+		<ListPreference android:key="greek_morphology"
+			android:title="@string/choose_strongs_greek_morphology_title"
+			android:summary="@string/choose_strongs_greek_morphology_summary"
+			/>
+		<ListPreference android:key="hebrew_morphology"
+			android:title="@string/choose_strongs_hebrew_morphology_title"
+			android:summary="@string/choose_strongs_hebrew_morphology_summary"
+			/>
+	</PreferenceCategory>
+	<PreferenceCategory
 		android:title="@string/prefs_behavior_customization_cat"
 		>
 		<SwitchPreferenceCompat android:key="navigate_to_verse_pref"
@@ -51,17 +70,6 @@
 			android:entries="@array/prefs_night_mode_descriptions"
 			android:entryValues="@array/prefs_night_mode_values"
 			android:defaultValue="@string/prefs_night_mode_manual"/>
-	</PreferenceCategory>
-	<PreferenceCategory
-		android:title="@string/prefs_dictionaries_cat">
-		<ListPreference android:key="strongs_greek_dictionary"
-			android:title="@string/choose_strongs_greek_dictionary_title"
-			android:summary="@string/choose_strongs_greek_dictionary_summary"
-			/>
-		<ListPreference android:key="strongs_hebrew_dictionary"
-			android:title="@string/choose_strongs_hebrew_dictionary_title"
-			android:summary="@string/choose_strongs_hebrew_dictionary_summary"
-			/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/prefs_display_customization_cat">
