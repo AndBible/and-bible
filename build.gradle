@@ -3,7 +3,7 @@
 buildscript {
     ext.kotlin_version = '1.4.30'
     ext.room_version = '2.2.6'
-    ext.jsword_version = '2.3.28'
+    ext.jsword_version = '2.3.29'
     ext.kotlinx_serialization_version = '1.1.0'
 
     repositories {
