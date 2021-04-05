@@ -94,6 +94,10 @@
             <item android:id="@+id/bugReport"
                 android:title="@string/send_bug_report_title"
                 android:icon="@drawable/ic_bug_report_white_24dp"/>
+
+            <item android:id="@+id/appLicence"
+                android:title="@string/app_licence_title"
+                android:icon="@drawable/ic_baseline_copyright_24"/>
         </menu>
     </item>
 </menu>

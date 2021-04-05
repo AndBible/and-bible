@@ -34,7 +34,6 @@ import net.bible.android.control.DaggerApplicationComponent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager

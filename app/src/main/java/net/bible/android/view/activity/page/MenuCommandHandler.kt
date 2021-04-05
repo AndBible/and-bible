@@ -210,6 +210,24 @@ constructor(private val callingActivity: MainBibleActivity,
                     d.show()
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
                 }
+                R.id.appLicence -> {
+                    val messageHtml = callingActivity.resources.openRawResource(R.raw.license).readBytes().decodeToString()
+
+                    val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        Html.fromHtml(messageHtml, Html.FROM_HTML_MODE_LEGACY)
+                    } else {
+                        Html.fromHtml(messageHtml)
+                    }
+
+                    val d = AlertDialog.Builder(callingActivity)
+                        .setTitle(R.string.app_licence_title)
+                        .setMessage(spanned)
+                        .setPositiveButton(android.R.string.ok) { _, _ ->  }
+                        .create()
+
+                    d.show()
+                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                }
                 R.id.backup_app_database -> {
                     AlertDialog.Builder(callingActivity)
                         .setTitle(callingActivity.getString(R.string.backup_backup_title))
