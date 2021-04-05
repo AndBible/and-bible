@@ -22,6 +22,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.LABEL_UNLABELED_ID
+import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
@@ -109,7 +110,7 @@ class BibleDocument(
         val vrInV11n = verseRange.toV11n(swordBook.versification)
         // Clicked link etc. had more specific reference
         val originalOrdinalRange = if(originalKey is RangedPassage) {
-            val originalVerseRange = VerseRangeFactory.fromString(originalKey.versification, originalKey.osisRef).toV11n(swordBook.versification)
+            val originalVerseRange = originalKey.toVerseRange.toV11n(swordBook.versification)
             json.encodeToString(serializer(), listOf(originalVerseRange.start.ordinal, originalVerseRange.end.ordinal))
         } else "null"
         return super.asHashMap.toMutableMap().apply {

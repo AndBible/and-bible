@@ -47,7 +47,9 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.PassageKeyFactory
+import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import java.net.URLDecoder
@@ -109,7 +111,16 @@ class LinkControl @Inject constructor(
 
     private fun loadApplicationUrl(uriStr: String, versification: Versification): Boolean {
         val bookAndKey = try {getBookAndKey(uriStr, versification)} catch (e: NoSuchKeyException) {return false} ?: return false
-        showLink(bookAndKey.document, bookAndKey.key)
+        val key = bookAndKey.key
+        if(key is Passage && key.countRanges(RestrictionType.NONE) > 1) {
+            val keyList = BookAndKeyList()
+            for( range in (0 until key.countRanges(RestrictionType.NONE)).map { key.getRangeAt(it, RestrictionType.NONE) }) {
+                keyList.addAll(BookAndKey(bookAndKey.document, range))
+            }
+            showLink(FakeBookFactory.multiDocument, keyList)
+        } else {
+            showLink(bookAndKey.document, bookAndKey.key)
+        }
         return true
 	}
 
@@ -155,7 +166,7 @@ class LinkControl @Inject constructor(
      */
     @Throws(NoSuchKeyException::class)
     private fun getBibleKey(keyText: String, versification: Versification): BookAndKey {
-        val key: Key = PassageKeyFactory.instance().getKey(versification, keyText)
+        val key: Passage = PassageKeyFactory.instance().getKey(versification, keyText)
         return BookAndKey(windowControl.defaultBibleDoc, key)
     }
 
