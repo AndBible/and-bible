@@ -33,6 +33,7 @@ import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
 import {bookmarkingModes, testMode} from "@/composables/index";
 import {sprintf} from "sprintf-js";
+import {DocumentTypes} from "@/constants";
 
 const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
@@ -47,7 +48,7 @@ const allStyleRanges = computed(() => {
     return allStyles;
 });
 
-export function useGlobalBookmarks(config) {
+export function useGlobalBookmarks(config, documentType) {
     const bookmarkLabels = reactive(new Map());
     const bookmarks = reactive(new Map());
     let count = 1;
@@ -97,9 +98,9 @@ export function useGlobalBookmarks(config) {
     })
 
     const filteredBookmarks = computed(() => {
-        if(!config.showBookmarks) return [];
+        if(documentType === DocumentTypes.BIBLE_DOCUMENT && !config.showBookmarks) return [];
         const allBookmarks = Array.from(bookmarks.values());
-        if(config.bookmarksHideLabels.length === 0) return allBookmarks;
+        if(documentType === DocumentTypes.JOURNAL || config.bookmarksHideLabels.length === 0) return allBookmarks;
         const hideLabels = new Set(config.bookmarksHideLabels);
         return allBookmarks.filter(v => intersection(new Set(v.labels), hideLabels).size === 0)
     })

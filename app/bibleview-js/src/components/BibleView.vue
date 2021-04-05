@@ -84,7 +84,7 @@ export default {
       const scroll = useScroll(config, appSettings, calculatedConfig, verseMap, documentPromise);
       const {scrollToId} = scroll;
       provide("scroll", scroll);
-      const globalBookmarks = useGlobalBookmarks(config);
+      const globalBookmarks = useGlobalBookmarks(config, documentType);
       const android = useAndroid(globalBookmarks, config);
 
       const mounted = ref(false);
