@@ -209,6 +209,7 @@ constructor(private val callingActivity: MainBibleActivity,
 
                     d.show()
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                    isHandled = true
                 }
                 R.id.appLicence -> {
                     val messageHtml = callingActivity.resources.openRawResource(R.raw.license).readBytes().decodeToString()
@@ -227,6 +228,7 @@ constructor(private val callingActivity: MainBibleActivity,
 
                     d.show()
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                    isHandled = true
                 }
                 R.id.backup_app_database -> {
                     AlertDialog.Builder(callingActivity)
