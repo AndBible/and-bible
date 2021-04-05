@@ -26,7 +26,7 @@ describe("useBookmark tests", () => {
     let startOrd, startOff, endOrd, endOff;
     beforeEach(() => {
         const {config} = useConfig();
-        gb = useGlobalBookmarks(config);
+        gb = useGlobalBookmarks(config, {value: "bible"});
         const fragmentReady = ref(true);
         b = useBookmarks(
             "fragKey",
