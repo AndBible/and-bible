@@ -18,7 +18,7 @@
 package net.bible.android.control.versification
 
 import android.util.Log
-import net.bible.android.database.DocumentBackup
+import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
@@ -54,7 +54,7 @@ class BookInstallWatcher {
         docDao.deleteByOsisId(book.initials)
         Log.d(DownloadManager.TAG, "Adding ${book.name} to document backup database")
         // insert the new book info into backup db
-        docDao.insert(DocumentBackup(
+        docDao.insert(SwordDocumentInfo(
             book.initials,
             book.name,
             book.abbreviation,

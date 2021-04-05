@@ -143,8 +143,8 @@ class Converters {
         WorkspaceEntities.Window::class,
         WorkspaceEntities.HistoryItem::class,
         WorkspaceEntities.PageManager::class,
-        Document::class,
-        DocumentBackup::class
+        DocumentSearch::class,
+        SwordDocumentInfo::class
     ],
     version = DATABASE_VERSION
 )
@@ -153,7 +153,7 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun readingPlanDao(): ReadingPlanDao
     abstract fun workspaceDao(): WorkspaceDao
     abstract fun bookmarkDao(): BookmarkDao
-    abstract fun documentDao(): DocumentDao
+    abstract fun documentDao(): DocumentSearchDao
     abstract fun documentBackupDao(): DocumentBackupDao
 
     fun sync() { // Sync all data so far into database file

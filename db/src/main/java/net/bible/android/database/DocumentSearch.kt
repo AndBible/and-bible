@@ -26,8 +26,8 @@ import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 
-@Entity @Fts4
-data class Document(
+@Entity(tableName = "Document") @Fts4
+data class DocumentSearch(
     var osisId: String,
     var abbreviation: String,
     var name: String,
@@ -40,9 +40,9 @@ data class Document(
 )
 
 @Dao
-interface DocumentDao {
+interface DocumentSearchDao {
     @Insert
-    fun insertDocuments(documents: List<Document>)
+    fun insertDocuments(documentSearches: List<DocumentSearch>)
 
     @Query("""SELECT osisId from Document WHERE Document MATCH :search""")
     fun search(search: String): List<String>

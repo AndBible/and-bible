@@ -2,8 +2,8 @@ package net.bible.android.database
 
 import androidx.room.*
 
-@Entity
-data class DocumentBackup(
+@Entity(tableName = "DocumentBackup")
+data class SwordDocumentInfo(
     // TODO osisId -> initials in DB
     @PrimaryKey @ColumnInfo(name = "osisId") var initials: String,
     var name: String,
@@ -16,22 +16,22 @@ data class DocumentBackup(
 @Dao
 interface DocumentBackupDao {
     @Insert
-    fun insert(documents: List<DocumentBackup>)
+    fun insert(documents: List<SwordDocumentInfo>)
 
     @Insert
-    fun insert(documents: DocumentBackup)
+    fun insert(documents: SwordDocumentInfo)
 
     @Update
-    fun update(doc: DocumentBackup)
+    fun update(doc: SwordDocumentInfo)
 
     @Query("""SELECT * FROM DocumentBackup WHERE osisId = :initials""")
-    fun getBook(initials: String): DocumentBackup?
+    fun getBook(initials: String): SwordDocumentInfo?
 
     @Query("""SELECT * from DocumentBackup""")
-    fun getKnownInstalled(): List<DocumentBackup>
+    fun getKnownInstalled(): List<SwordDocumentInfo>
 
     @Query("""SELECT * from DocumentBackup WHERE cipherKey IS NOT NULL""")
-    fun getUnlocked(): List<DocumentBackup>
+    fun getUnlocked(): List<SwordDocumentInfo>
 
     @Query("""DELETE FROM DocumentBackup WHERE osisId = :initials""")
     fun deleteByOsisId(initials: String)

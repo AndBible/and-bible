@@ -18,12 +18,9 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
-import android.os.Build
 import android.os.Bundle
 import android.text.Editable
-import android.text.Html
 import android.text.TextWatcher
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -33,7 +30,6 @@ import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
@@ -47,24 +43,20 @@ import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
-import net.bible.android.database.Document
+import net.bible.android.database.DocumentSearch
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
-import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.AndBibleAddonFilter
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.Language
-import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
 import org.crosswire.jsword.book.BookFilters
-import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
 import javax.inject.Inject
@@ -341,7 +333,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 }
                 dao.clear()
                 dao.insertDocuments(allDocuments.map {
-                    Document(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)
+                    DocumentSearch(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)
                         ?: "")
                 })
 
