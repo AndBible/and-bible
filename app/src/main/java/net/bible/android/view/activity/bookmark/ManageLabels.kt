@@ -112,7 +112,7 @@ class ManageLabels : ListActivityBase() {
         var isHandled = false
         when(item.itemId){
             R.id.help -> {
-                CommonUtils.showHelp(this, listOf(R.string.help_studypads_title))
+                CommonUtils.showHelp(this, listOf(R.string.help_studypads_title, R.string.help_bookmarks_title))
             }
         }
         if (!isHandled) {
