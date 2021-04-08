@@ -104,11 +104,6 @@
             android:label="@string/manage_labels"
             android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks" />
         <activity
-            android:name="net.bible.android.view.activity.journal.StudyPads"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/studypads"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"

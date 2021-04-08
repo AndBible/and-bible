@@ -18,6 +18,8 @@
 package net.bible.android.control.page
 
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.view.Menu
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
@@ -32,7 +34,8 @@ interface CurrentPage {
     val documentCategory: DocumentCategory
     val pageManager: CurrentPageManager
 
-    val keyChooserActivity: Class<out Activity?>?
+    fun getKeyChooserIntent(context: Context): Intent?
+
     operator fun next()
     fun previous()
     /** get incremented key according to the type of page displayed - verse, chapter, ...

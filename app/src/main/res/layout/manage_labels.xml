@@ -54,7 +54,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:onClick="onNewLabel"
-			android:text="@string/new_label" />
+			android:text="@string/new_item" />
 
 		<Space
 			android:layout_width="wrap_content"

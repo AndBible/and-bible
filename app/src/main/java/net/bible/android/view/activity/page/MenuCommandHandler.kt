@@ -52,7 +52,6 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.journal.StudyPads
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_DB
@@ -141,7 +140,12 @@ constructor(private val callingActivity: MainBibleActivity,
                     handlerIntent = Intent(callingActivity, ManageLabels::class.java)
                     requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
                 }
-                R.id.myJournalsButton -> handlerIntent = Intent(callingActivity, StudyPads::class.java)
+                R.id.myJournalsButton -> {
+                    handlerIntent = Intent(callingActivity, ManageLabels::class.java)
+                    handlerIntent.putExtra("studyPadMode", true)
+
+                    //handlerIntent = Intent(callingActivity, StudyPads::class.java)
+                }
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {
                         val isBible = currentPage.documentCategory == DocumentCategory.BIBLE

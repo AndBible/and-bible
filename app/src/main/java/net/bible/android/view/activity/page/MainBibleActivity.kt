@@ -457,9 +457,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             override fun onSingleTapUp(e: MotionEvent?): Boolean {
-                val chooser = pageControl.currentPageManager.currentPage.keyChooserActivity ?: return false
-                val intent = Intent(this@MainBibleActivity, chooser)
-                startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                val intent = pageControl.currentPageManager.currentPage.getKeyChooserIntent(this@MainBibleActivity) ?: return false
+                startActivityForResult(intent, STD_REQUEST_CODE)
                 return true
             }
 

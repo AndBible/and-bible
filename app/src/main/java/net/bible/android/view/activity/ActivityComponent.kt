@@ -26,7 +26,6 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.ProgressStatus
-import net.bible.android.view.activity.journal.StudyPads
 import net.bible.android.view.activity.navigation.*
 import net.bible.android.view.activity.navigation.genbookmap.ChooseKeyBase
 import net.bible.android.view.activity.readingplan.DailyReading
@@ -57,7 +56,6 @@ interface ActivityComponent {
 
     // don't like this but inject is called from ActivityBase and the subclasses
     fun inject(activityBase: ActivityBase)
-    fun inject(studyPads: StudyPads)
     fun inject(activity: TextDisplaySettingsActivity)
 
     fun inject(colorSettings: ColorSettingsActivity)

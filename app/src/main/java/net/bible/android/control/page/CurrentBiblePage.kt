@@ -17,6 +17,8 @@
  */
 package net.bible.android.control.page
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import net.bible.android.common.toV11n
 import net.bible.android.control.versification.BibleTraverser
@@ -48,7 +50,7 @@ class CurrentBiblePage(
 
     override val documentCategory = DocumentCategory.BIBLE
 
-    override val keyChooserActivity = GridChoosePassageBook::class.java
+    override fun getKeyChooserIntent(context: Context): Intent = Intent(context, GridChoosePassageBook::class.java)
 
     override fun next() {
         Log.d(TAG, "Next")
