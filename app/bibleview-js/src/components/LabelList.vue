@@ -25,12 +25,10 @@
 <script>
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
-import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 import {ref} from "@vue/reactivity";
 import {addEventFunction} from "@/utils";
 
 export default {
-  components: {AmbiguousSelection},
   props: {
     labels: {type: Array, required: true},
     bookmark: {type: Object, default: null},

@@ -19,7 +19,9 @@
   <Modal :blocking="blocking" v-if="showModal" @close="cancelled">
     <template v-for="(s, index) of selections" :key="index">
       <button class="button light" @click.stop="selected(s)">
-        <span :style="`color: ${s.options.color}`"><FontAwesomeIcon v-if="s.options.icon" :icon="s.options.icon"/></span> {{s.options.title}}</button>
+        <span :style="`color: ${s.options.color}`"><FontAwesomeIcon v-if="s.options.icon" :icon="s.options.icon"/></span>
+        {{s.options.title}} <LabelList v-if="s.options.bookmark" :bookmark="s.options.bookmark" :labels="getLabels(s.options.bookmark)"/>
+      </button>
     </template>
     <template #title>
       {{ strings.ambiguousSelection }}
@@ -34,8 +36,9 @@
 import Modal from "@/components/modals/Modal";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {ref} from "@vue/runtime-core";
+import {inject, ref} from "@vue/runtime-core";
 import {Deferred, getEventFunctions} from "@/utils";
+import LabelList from "@/components/LabelList";
 
 export default {
   name: "AmbiguousSelection",
@@ -43,7 +46,7 @@ export default {
   props: {
     blocking: {type: Boolean, default: false}
   },
-  components: {Modal, FontAwesomeIcon},
+  components: {LabelList, Modal, FontAwesomeIcon},
   setup(props, {emit}) {
     const showModal = ref(false);
     const selections = ref(null);
@@ -81,7 +84,13 @@ export default {
       }
     }
 
-    return {selected, handle, cancelled, showModal, selections, ...useCommon()};
+    const {bookmarkLabels} = inject("globalBookmarks")
+
+    function getLabels(bookmark) {
+        return bookmark.labels.map(labelId => bookmarkLabels.get(labelId))
+    }
+
+    return {selected, handle, cancelled, showModal, selections, getLabels, ...useCommon()};
   }
 }
 </script>

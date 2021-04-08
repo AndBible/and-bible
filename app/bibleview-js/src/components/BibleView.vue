@@ -57,13 +57,12 @@ import ErrorBox from "@/components/ErrorBox";
 import BookmarkModal from "@/components/modals/BookmarkModal";
 import DevelopmentMode from "@/components/DevelopmentMode";
 import Color from "color";
-import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 import {useStrings} from "@/composables/strings";
 import {DocumentTypes} from "@/constants";
 
 export default {
     name: "BibleView",
-    components: {Document, ErrorBox, BookmarkModal, DevelopmentMode, AmbiguousSelection},
+    components: {Document, ErrorBox, BookmarkModal, DevelopmentMode},
     setup() {
       useAddonFonts();
       useFontAwesome();
@@ -186,7 +185,7 @@ export default {
         }
         return style;
       });
-      
+
       const modalStyle = computed(() => {
         return `
           --bottom-offset: ${appSettings.bottomOffset}px;

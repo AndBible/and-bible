@@ -50,7 +50,6 @@ import {get} from "lodash";
 import {ref, provide, inject} from "@vue/runtime-core";
 import {addEventFunction} from "@/utils";
 import OpenAllLink from "@/components/OpenAllLink";
-import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 
 let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
@@ -61,7 +60,7 @@ function runningHandle() {
 
 export default {
   name: "Note",
-  components: {AmbiguousSelection, OpenAllLink, Modal},
+  components: {OpenAllLink, Modal},
   noContentTag: true,
   props: {
     osisID: {type: String, default: null},

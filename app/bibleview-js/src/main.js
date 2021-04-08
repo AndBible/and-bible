@@ -26,6 +26,9 @@ patchAndroidConsole();
 import { createApp } from 'vue'
 
 import BibleView from "@/components/BibleView";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
+
 const app = createApp(BibleView);
+app.component("AmbiguousSelection", AmbiguousSelection);
 app.mount('#app')
 

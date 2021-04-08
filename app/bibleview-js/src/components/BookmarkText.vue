@@ -35,12 +35,11 @@
 <script>
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment";
-import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 import {computed, ref} from "@vue/reactivity";
 
 export default {
   name: "BookmarkText",
-  components: {OsisFragment, AmbiguousSelection},
+  components: {OsisFragment},
   emits: ["change-expanded"],
   props: {
     bookmark: {type: Object, required: true},
