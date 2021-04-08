@@ -95,7 +95,7 @@
         <activity
             android:name="net.bible.android.view.activity.bookmark.Bookmarks"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/bookmarks"
+            android:label="@string/bookmarks_and_mynotes_title"
             android:launchMode="singleTop"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
@@ -103,11 +103,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/manage_labels"
             android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks" />
-        <activity
-            android:name="net.bible.android.view.activity.mynote.MyNotes"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/mynotes"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.journal.StudyPads"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

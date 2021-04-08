@@ -18,12 +18,16 @@
 package net.bible.android.view.activity.bookmark
 
 import android.content.Context
+import android.os.Build
+import android.text.Html
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
+import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.bookmark_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
@@ -49,8 +53,7 @@ class BookmarkItemAdapter(
         val item = getItem(position)!!
 
         // Pick up the TwoLineListItem defined in the xml file
-        val view: BookmarkListItem
-        view = if (convertView == null) {
+        val view: BookmarkListItem = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             inflater.inflate(R.layout.bookmark_list_item, parent, false) as BookmarkListItem
         } else {
@@ -63,8 +66,13 @@ class BookmarkItemAdapter(
         } else {
             view.speakIcon.visibility = View.GONE
         }
-        labels.firstOrNull()?.color?.also {
-            view.verseContentText.setBackgroundColor(it)
+        view.bookmarkIcons.removeAllViews()
+        for (it in labels) {
+            val v = ImageView(view.bookmarkIcons.context)
+            v.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            v.setImageResource(R.drawable.ic_bookmark_24dp)
+            v.setColorFilter(it.color)
+            view.bookmarkIcons.addView(v)
         }
 
         // Set value for the first text field
@@ -75,6 +83,23 @@ class BookmarkItemAdapter(
             view.verseText.text = context.getString(R.string.something_with_parenthesis, verseName, book.abbreviation)
         } else {
             view.verseText.text = verseName
+        }
+        if(item.notes !== null) {
+            view.notesText.visibility = View.VISIBLE
+            try {
+                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Html.fromHtml(item.notes, Html.FROM_HTML_MODE_LEGACY)
+                } else {
+                    Html.fromHtml(item.notes)
+                }
+
+                view.notesText.text = spanned
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading label verse text", e)
+                view.notesText.visibility = View.GONE
+            }
+        } else {
+            view.notesText.visibility = View.GONE
         }
 
         // Set value for the date text field

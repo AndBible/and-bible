@@ -90,7 +90,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.Bookmarks
-import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -1224,10 +1223,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     }
                     windowControl.activeWindowPageManager.currentPage.setKey(verse)
                     return
-                }
-                if(className == MyNotes::class.java.name) {
-                    invalidateOptionsMenu()
-                    documentViewManager.buildView()
                 }
             }
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {

@@ -48,13 +48,20 @@ import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
-import net.bible.android.view.activity.mynote.description
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.sword.SwordContentFacade
 import java.lang.IllegalArgumentException
 import java.util.*
 import javax.inject.Inject
+
+val BookmarkSortOrder.description get() =
+    when(this) {
+        BookmarkSortOrder.BIBLE_ORDER  -> CommonUtils.getResourceString(R.string.sort_by_bible_book)
+        BookmarkSortOrder.LAST_UPDATED -> CommonUtils.getResourceString(R.string.sort_by_date)
+        BookmarkSortOrder.CREATED_AT -> CommonUtils.getResourceString(R.string.sort_by_date)
+        BookmarkSortOrder.ORDER_NUMBER -> "order number"
+    }
 
 /**
  * Choose Document (Book) to download

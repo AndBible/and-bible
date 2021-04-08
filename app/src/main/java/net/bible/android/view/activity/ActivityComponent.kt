@@ -27,7 +27,6 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.journal.StudyPads
-import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.*
 import net.bible.android.view.activity.navigation.genbookmap.ChooseKeyBase
 import net.bible.android.view.activity.readingplan.DailyReading
@@ -89,7 +88,6 @@ interface ActivityComponent {
     fun inject(w: SpeakTransportWidget)
     fun inject(search: Search)
     fun inject(searchResults: SearchResults)
-    fun inject(myNotes: MyNotes)
     fun inject(history: History)
 
     // Services

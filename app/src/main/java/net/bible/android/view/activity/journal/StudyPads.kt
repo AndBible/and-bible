@@ -122,13 +122,6 @@ class StudyPads : ListActivityBase(), ActionModeActivity {
         return selectedNotes
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        super.onCreateOptionsMenu(menu)
-        val inflater = menuInflater
-        inflater.inflate(R.menu.mynote_actionbar_menu, menu)
-        return true
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isHandled = false
         when(item.itemId){
