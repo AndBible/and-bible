@@ -17,6 +17,7 @@
  */
 package net.bible.android.view.activity.settings
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.preference.ListPreference
@@ -95,6 +96,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setupDictionary(hebrewStrongs, FeatureType.HEBREW_DEFINITIONS)
         val greekMorph = preferenceScreen.findPreference<ListPreference>("robinson_greek_morphology") as ListPreference
         setupDictionary(greekMorph, FeatureType.GREEK_PARSE)
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val pref = preferenceScreen.findPreference<ListPreference>("request_sdcard_permission_pref") as Preference
+            pref.isVisible = false
+        }
     }
 
     companion object {
