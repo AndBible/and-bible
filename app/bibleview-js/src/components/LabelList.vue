@@ -18,7 +18,7 @@
 <template>
   <AmbiguousSelection blocking ref="ambiguousSelection"/>
   <div class="label-list">
-    <span @click.stop="labelClicked($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
+    <span @touchstart="labelClicked($event, label)" @click="labelClicked($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
   </div>
 </template>
 
@@ -31,6 +31,7 @@ import {addEventFunction} from "@/utils";
 export default {
   props: {
     bookmarkId: {type: Number, required: true},
+    handleTouch: {type: Boolean, default: false},
   },
   name: "LabelList",
   setup(props) {
@@ -56,6 +57,13 @@ export default {
     }
 
     function labelClicked(event, label) {
+      if(event.type === "touchstart" && !props.handleTouch) {
+        return;
+      }
+      if(event.type === "click" && props.handleTouch) {
+        return
+      }
+      event.stopPropagation();
       addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
       if(label.id > -1) {
         addEventFunction(event, () => {
