@@ -76,7 +76,7 @@ class StudyPads : ListActivityBase(), ActionModeActivity {
             }
 
         // prepare the document list view
-        val myNoteArrayAdapter = StudyPadItemAdapter(this, LIST_ITEM_TYPE, journalList, bookmarkControl)
+        val myNoteArrayAdapter = StudyPadItemAdapter(this, R.layout.studypad_list_item, journalList, bookmarkControl)
         listAdapter = myNoteArrayAdapter
         loadJournalList()
     }
@@ -164,7 +164,6 @@ class StudyPads : ListActivityBase(), ActionModeActivity {
     }
 
     companion object {
-        private const val LIST_ITEM_TYPE = R.layout.list_item_2_highlighted
         private const val TAG = "Journals"
     }
 }
