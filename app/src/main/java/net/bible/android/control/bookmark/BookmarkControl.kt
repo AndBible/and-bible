@@ -33,6 +33,7 @@ import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -64,7 +65,6 @@ class StudyPadOrderEvent(
 class StudyPadTextEntryDeleted(val journalId: Long)
 
 const val LABEL_ALL_ID = -999L
-const val LABEL_UNLABELED_ID = -998L
 
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
@@ -74,7 +74,6 @@ open class BookmarkControl @Inject constructor(
 ) {
     // Dummy labels for all / unlabelled
     private val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
-    val labelUnlabelled = Label(LABEL_UNLABELED_ID, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled", color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
 
     private val dao get() = DatabaseContainer.db.bookmarkDao()
 
@@ -213,6 +212,25 @@ open class BookmarkControl @Inject constructor(
                 id = dao.insert(this)
                 CommonUtils.sharedPreferences.edit().putLong("speak_label_id", id).apply()
                 _speakLabel = this
+            }
+    }
+
+    private var _unlabeledLabel: Label? = null
+    val labelUnlabelled: Label get() {
+        return _unlabeledLabel
+            ?: dao.labelById(CommonUtils.sharedPreferences.getLong("unlabeled_label_id", -1))
+                ?.also {
+                    _unlabeledLabel = it
+                }
+            ?: dao.unlabeledLabelByName()
+                ?.also {
+                    CommonUtils.sharedPreferences.edit().putLong("unlabeled_label_id", it.id).apply()
+                    _unlabeledLabel = it
+                }
+            ?: Label(name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor).apply {
+                id = dao.insert(this)
+                CommonUtils.sharedPreferences.edit().putLong("unlabeled_label_id", id).apply()
+                _unlabeledLabel = this
             }
     }
 

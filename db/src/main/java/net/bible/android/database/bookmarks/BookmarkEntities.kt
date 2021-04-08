@@ -27,7 +27,6 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
-import org.crosswire.jsword.versification.VersificationConverter
 import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
 import android.graphics.Color
@@ -37,12 +36,12 @@ import kotlinx.serialization.Serializable
 import net.bible.android.common.toV11n
 import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.basic.AbstractPassageBook
-import org.crosswire.jsword.book.sword.SwordBook
 import java.util.*
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
 
 const val SPEAK_LABEL_NAME = "__SPEAK_LABEL__"
+const val UNLABELED_NAME = "__UNLABELED__"
 
 /**
  * How to represent bookmarks
@@ -252,5 +251,6 @@ class BookmarkEntities {
     ) {
         override fun toString() = name
         val isSpeakLabel get() = name == SPEAK_LABEL_NAME
+        val isUnlabeledLabel get() = name == UNLABELED_NAME
     }
 }

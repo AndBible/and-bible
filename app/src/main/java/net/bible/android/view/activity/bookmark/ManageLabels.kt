@@ -220,7 +220,7 @@ class ManageLabels : ListActivityBase() {
 
     private fun loadLabelList() {
         labels.clear()
-        labels.addAll(bookmarkControl.assignableLabels.filterNot { deletedLabels.contains(it.id) || it.isSpeakLabel })
+        labels.addAll(bookmarkControl.assignableLabels.filterNot { deletedLabels.contains(it.id) || it.isSpeakLabel || it.isUnlabeledLabel })
         if(showUnassigned) {
             labels.add(bookmarkControl.labelUnlabelled)
         }

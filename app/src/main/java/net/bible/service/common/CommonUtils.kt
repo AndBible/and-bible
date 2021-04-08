@@ -50,11 +50,8 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.BuildConfig.BuildDate
 import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
@@ -72,7 +69,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_UNLOCK_INFO
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -84,7 +80,11 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 val BookmarkEntities.Label.displayName get() =
-    if(isSpeakLabel) application.getString(R.string.speak) else name
+    when {
+        isSpeakLabel -> application.getString(R.string.speak)
+        isUnlabeledLabel -> application.getString(R.string.label_unlabelled)
+        else -> name
+    }
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

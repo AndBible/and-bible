@@ -138,6 +138,7 @@ constructor(private val callingActivity: MainBibleActivity,
                 R.id.bookmarksButton -> handlerIntent = Intent(callingActivity, Bookmarks::class.java)
                 R.id.manageLabels -> {
                     handlerIntent = Intent(callingActivity, ManageLabels::class.java)
+                    handlerIntent.putExtra("showUnassigned", true)
                     requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
                 }
                 R.id.myJournalsButton -> {

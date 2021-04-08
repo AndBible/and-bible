@@ -21,7 +21,7 @@ package net.bible.android.control.page
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
-import net.bible.android.control.bookmark.LABEL_UNLABELED_ID
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
@@ -29,6 +29,7 @@ import net.bible.android.database.json
 import net.bible.android.misc.OsisFragment
 import net.bible.android.misc.uniqueId
 import net.bible.android.misc.wrapString
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
@@ -41,6 +42,7 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import java.util.*
 import java.util.UUID.randomUUID
+import javax.inject.Inject
 
 /*
  * Serializable classes and utils that are used when transferring stuff to JS side
@@ -173,13 +175,19 @@ class StudyPadDocument(
 }
 
 class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versification? = null): Document {
+    @Inject lateinit var bookmarkControl: BookmarkControl
+
+    init {
+        CommonUtils.buildActivityComponent().inject(this)
+    }
+
     override val asHashMap: Map<String, String> get() = mapOf(
         "id" to bookmark.id.toString(),
         "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal)),
         "originalOrdinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.start.ordinal, bookmark.verseRange.end.ordinal)),
         "offsetRange" to json.encodeToString(serializer(), bookmark.textRange?.clientList),
         "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
-            if(it.isEmpty()) it.add(LABEL_UNLABELED_ID)
+            if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)
         }),
         "bookInitials" to wrapString(bookmark.book?.initials),
         "bookName" to wrapString(bookmark.book?.name),
@@ -214,9 +222,7 @@ data class ClientBookmarkStyle(val color: Int, val icon: String?, val noHighligh
 data class ClientBookmarkLabel(val id: Long, val name: String, val style: ClientBookmarkStyle) {
     constructor(label: BookmarkEntities.Label): this(
         label.id, label.displayName,
-        label.color.let {v ->
-            ClientBookmarkStyle(v, if(label.isSpeakLabel) "headphones" else null, label.isSpeakLabel)
-        }
+        ClientBookmarkStyle(label.color, if(label.isSpeakLabel) "headphones" else null, label.isSpeakLabel)
     )
 }
 

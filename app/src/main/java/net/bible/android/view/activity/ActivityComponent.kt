@@ -20,6 +20,7 @@ package net.bible.android.view.activity
 import dagger.Component
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
+import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.Bookmarks
@@ -95,4 +96,5 @@ interface ActivityComponent {
     // progress status screens
     fun inject(searchIndexProgressStatus: SearchIndexProgressStatus)
     fun inject(progressStatus: ProgressStatus)
+    fun inject(clientBookmark: ClientBookmark)
 }
