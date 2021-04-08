@@ -622,15 +622,23 @@
         Long press a bookmark in bookmarks listing to add labels or delete bookmark.
         Long press links to choose if you want to open them in current window, new window or special links window.
     </string>
-    <string name="help_mynote_title">My Note</string>
-    <string name="help_mynote_text">Notes can be added via the My Note menu item on the verse context menu.
-        The list of existing notes can be accessed via the main menu.</string>
-
-    <string name="help_bookmarks_title">Bookmarks</string>
-    <string name="help_bookmarks_text">Bookmarks can be added via the verse context menu.
-        The Bookmark Manager is accessed via the main menu.
-        The Bookmark Manager context menu allows bookmarks to be grouped using labels.
+    <string name="help_bookmarks_title">Bookmarks &amp; My Notes</string>
+    <string name="help_bookmarks_text">Text can be highlighted by selecting the text and choosing "Bookmark" from
+        selection context menu. You can add your custom remarks to the created highlights by tapping the created
+        highlighted text in bible view. There is also "My Notes" special document in commentaries that allows you
+        to view your notes.
     </string>
+    <string name="help_studypads_title">Study Pads</string>
+    <string name="help_studypads_text">
+        Study pads are designed to allow writing notes during sermon. It can serve well for preparing sermons and
+        doing custom bible studies as well. Each bible study is associated with a Bookmark Label.
+        To work with a study pad, create a bookmark label,
+        open it via Main Menu -> Study Pads. You can then start writing your notes and all bookmarks with the
+        same label will be displayed automatically in study pad document.
+        Tip: Use Workspace menu -> All Text Options -> Assign Labels to automatically assign all created bookmarks to
+        the Study Pad.
+    </string>
+
     <string name="help_search_title">Search</string>
     <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
         (see "Apache Lucene - Query Parser Syntax" for more details)
