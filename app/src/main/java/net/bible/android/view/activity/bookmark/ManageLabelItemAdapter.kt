@@ -35,7 +35,6 @@ class ManageLabelItemAdapter(context: Context?,
                              private val resource: Int, items: List<BookmarkEntities.Label?>?,
                              private val manageLabels: ManageLabels,
                              private val checkedLabels: MutableSet<Long>,
-                             private val showCheckboxes: Boolean
                              ) : ArrayAdapter<BookmarkEntities.Label?>(context!!, resource, items!!)
 {
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
@@ -50,12 +49,15 @@ class ManageLabelItemAdapter(context: Context?,
         val name = rowView.findViewById<View>(R.id.labelName) as TextView
         name.text = label!!.displayName
         val checkbox = rowView.findViewById<View>(R.id.checkbox) as CheckBox
-        if(showCheckboxes) {
+        if(manageLabels.showCheckboxes) {
             name.setOnClickListener { checkbox.isChecked = !checkbox.isChecked }
             checkbox.setOnCheckedChangeListener { _, isChecked -> manageLabels.setEnabled(label, isChecked)}
             checkbox.isChecked = checkedLabels.contains(label.id)
         } else {
             checkbox.visibility = View.GONE
+        }
+        if(manageLabels.studyPadMode) {
+            rowView.labelIcon.setImageResource(R.drawable.ic_pen_24dp)
         }
         bookmarkStyleAdapterHelper.styleView(name, label, context, false, false)
         rowView.editLabel.setOnClickListener { manageLabels.editLabel(label) }

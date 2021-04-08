@@ -661,10 +661,6 @@ private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
         db.apply {
             execSQL("ALTER TABLE `Bookmark` ADD COLUMN `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0")
             execSQL("UPDATE Bookmark SET lastUpdatedOn=createdAt")
-            val labelValues = ContentValues().apply {
-                put("name", BibleApplication.application.getString(R.string.migrated_my_notes))
-            }
-            val labelId = db.insert("Label", CONFLICT_FAIL, labelValues)
 
             val c = db.query("SELECT * from mynote")
             val idIdx = c.getColumnIndex("_id")
@@ -675,6 +671,15 @@ private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
             val createdOnIdx = c.getColumnIndex("created_on")
 
             c.moveToFirst()
+
+            var labelId = -1L
+            if(!c.isAfterLast) {
+                val labelValues = ContentValues().apply {
+                    put("name", BibleApplication.application.getString(R.string.migrated_my_notes))
+                }
+                labelId = db.insert("Label", CONFLICT_FAIL, labelValues)
+            }
+
             while(!c.isAfterLast) {
                 val id = c.getLong(idIdx)
                 val key = c.getString(keyIdx)

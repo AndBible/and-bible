@@ -100,7 +100,7 @@ class ManageLabels : ListActivityBase() {
 
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
         loadLabelList()
-        listAdapter = ManageLabelItemAdapter(this, LIST_ITEM_TYPE, labels, this, checkedLabels, showCheckboxes)
+        listAdapter = ManageLabelItemAdapter(this, LIST_ITEM_TYPE, labels, this, checkedLabels)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
