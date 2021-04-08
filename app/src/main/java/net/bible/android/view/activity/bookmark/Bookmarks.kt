@@ -186,6 +186,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 }
                 loadBookmarkList()
             }
+            .setNegativeButton(R.string.cancel, null)
             .setCancelable(true)
             .show()
     }

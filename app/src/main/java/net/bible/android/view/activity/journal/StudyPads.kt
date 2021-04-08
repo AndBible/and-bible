@@ -22,6 +22,7 @@ package net.bible.android.view.activity.journal
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -142,8 +143,15 @@ class StudyPads : ListActivityBase(), ActionModeActivity {
     }
 
     private fun delete(journals: List<BookmarkEntities.Label>) {
-        bookmarkControl.deleteLabels(journals.map { it.id })
-        loadJournalList()
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.confirm_delete_study_pads, journals.size))
+            .setPositiveButton(R.string.yes) { _, _ ->
+                bookmarkControl.deleteLabels(journals.map { it.id })
+                loadJournalList()
+            }
+            .setCancelable(true)
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun loadJournalList() {

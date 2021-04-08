@@ -749,4 +749,5 @@
     <string name="prefs_dictionaries_cat">Dictionaries</string>
     <string name="how_to_contribute">How to contribute?</string>
     <string name="confirm_delete_bookmarks">Do you want to remove %d bookmarks and their notes?</string>
+    <string name="confirm_delete_study_pads">Do you want to remove %d study pads / bookmark labels? Also all bookmarks and study pad notes associated with these labels will be removed.</string>
 </resources>
