@@ -239,9 +239,9 @@ class InstallZip : ActivityBase() {
         super.buildActivityComponent().inject(this)
         when(intent?.action) {
             Intent.ACTION_VIEW -> installZip(intent!!.data!!)
-            Intent.ACTION_SEND -> installZip(intent.getParcelableExtra(Intent.EXTRA_STREAM))
+            Intent.ACTION_SEND -> installZip(intent.getParcelableExtra(Intent.EXTRA_STREAM)!!)
             Intent.ACTION_SEND_MULTIPLE -> {
-                for (uri in intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)) {
+                for (uri in intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)!!) {
                     installZip(uri)
                 }
             }
