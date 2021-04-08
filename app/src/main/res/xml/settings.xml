@@ -15,13 +15,9 @@
 			android:title="@string/choose_strongs_hebrew_dictionary_title"
 			android:summary="@string/choose_strongs_hebrew_dictionary_summary"
 			/>
-		<ListPreference android:key="greek_morphology"
+		<ListPreference android:key="robinson_greek_morphology"
 			android:title="@string/choose_strongs_greek_morphology_title"
 			android:summary="@string/choose_strongs_greek_morphology_summary"
-			/>
-		<ListPreference android:key="hebrew_morphology"
-			android:title="@string/choose_strongs_hebrew_morphology_title"
-			android:summary="@string/choose_strongs_hebrew_morphology_summary"
 			/>
 	</PreferenceCategory>
 	<PreferenceCategory

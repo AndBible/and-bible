@@ -188,12 +188,9 @@ class LinkControl @Inject constructor(
     private fun sanitizeStrongsKey(key: String): String? =
         Regex("^([0-9]+).*").find(key)?.groups?.get(1)?.value?.padStart(5, '0')
 
-    /** user has selected a morphology link so show morphology page for key in link
-     */
     @Throws(NoSuchKeyException::class)
     private fun getRobinsonMorphologyKey(key: String): BookAndKey? {
-        val robinson = swordDocumentFacade.getDocumentByInitials("robinson")
-        // valid Strongs uri but Strongs refs not installed
+        val robinson = swordDocumentFacade.defaultRobinsonGreekMorphology
         if (robinson == null) {
             Dialogs.instance.showErrorMsg(R.string.morph_robinson_not_installed)
             // this uri request was handled by showing an error message

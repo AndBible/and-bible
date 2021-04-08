@@ -93,10 +93,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setupDictionary(greekStrongs, FeatureType.GREEK_DEFINITIONS)
         val hebrewStrongs = preferenceScreen.findPreference<ListPreference>("strongs_hebrew_dictionary") as ListPreference
         setupDictionary(hebrewStrongs, FeatureType.HEBREW_DEFINITIONS)
-        val greekMorph = preferenceScreen.findPreference<ListPreference>("greek_morphology") as ListPreference
+        val greekMorph = preferenceScreen.findPreference<ListPreference>("robinson_greek_morphology") as ListPreference
         setupDictionary(greekMorph, FeatureType.GREEK_PARSE)
-        val hebrewMorph = preferenceScreen.findPreference<ListPreference>("hebrew_morphology") as ListPreference
-        setupDictionary(hebrewMorph, FeatureType.HEBREW_PARSE)
     }
 
     companion object {
