@@ -387,7 +387,7 @@ export function useBookmarks(documentId,
                 const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
                 const icon = b.notes ? "edit" : "bookmark"
                 const color = adjustedColor(bookmarkLabels_[0].color).string();
-                addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {icon, color, title, bookmark: b, labels: bookmarkLabels_});
+                addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {icon, color, title, bookmark: b});
             }
         }
 

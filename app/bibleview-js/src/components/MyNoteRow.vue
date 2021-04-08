@@ -35,7 +35,7 @@
   </EditButtonRow>
   <div>
     <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b>&nbsp;
-    <BookmarkText :bookmark="bookmark" :expanded="expanded" @change-expanded="expanded = $event"/> <LabelList :bookmark="bookmark" :labels="labels"/>
+    <BookmarkText :bookmark="bookmark" :expanded="expanded" @change-expanded="expanded = $event"/> <LabelList :bookmark-id="bookmark.id"/>
     <div class="notes">
       <EditableText
           ref="editor"
@@ -53,7 +53,7 @@ import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
 import {useCommon} from "@/composables";
 import {emit as ebEmit, Events} from "@/eventbus";
-import {computed, ref} from "@vue/reactivity";
+import {ref} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
 import EditableText from "@/components/EditableText";
 import AreYouSure from "@/components/modals/AreYouSure";
@@ -65,12 +65,8 @@ export default {
     bookmark: {type: Object, required: true},
   },
   setup(props) {
-    const globalBookmarks = inject("globalBookmarks");
     const android = inject("android");
     const expanded = ref(false);
-    const labels = computed(() => {
-      return props.bookmark.labels.map(l => globalBookmarks.bookmarkLabels.get(l));
-    });
 
     function editBookmark() {
       ebEmit(Events.BOOKMARK_FLAG_CLICKED, props.bookmark.id)
@@ -89,7 +85,7 @@ export default {
       }
     }
 
-    return {labels, save, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), expanded, ...useCommon()}
+    return {save, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), expanded, ...useCommon()}
   },
 }
 </script>

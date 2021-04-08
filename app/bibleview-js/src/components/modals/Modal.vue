@@ -17,7 +17,7 @@
 
 <template>
   <teleport to="#modals">
-    <div v-if="blocking" @click.stop="$emit('close')" class="modal-backdrop"/>
+    <div v-if="blocking" @click.stop="backdropClick" class="modal-backdrop"/>
     <div :class="{blocking}">
       <div ref="modal" @click.stop class="modal-content" :class="{blocking}"
       >
@@ -66,7 +66,12 @@ export default {
       setupEventBusListener(Events.CLOSE_MODALS, () => $emit('close'))
     }
 
-    return {config, modal, header, ready, ...useCommon()}
+    function backdropClick(event) {
+      console.log("backdrop clicked", event);
+      $emit("close");
+    }
+
+    return {config, modal, header, ready, backdropClick, ...useCommon()}
   }
 }
 </script>

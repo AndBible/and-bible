@@ -16,11 +16,12 @@
  */
 
 import mitt from "mitt";
-import {inject, onMounted, onUnmounted} from "@vue/runtime-core";
+import {onMounted, onUnmounted} from "@vue/runtime-core";
 
 export const eventBus = mitt()
 
 export function emit(eventId, ...args){
+    console.log(`Emitting ${eventId}`);
     eventBus.emit(eventId, args)
 }
 

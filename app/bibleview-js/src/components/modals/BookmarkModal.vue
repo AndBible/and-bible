@@ -53,7 +53,7 @@
         <FontAwesomeIcon v-if="bookmarkNotes" icon="edit"/>
         <FontAwesomeIcon v-else icon="bookmark"/>
       </span>
-      {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 15)}}</i></q> <LabelList :bookmark="bookmark" :labels="labels"/>
+      {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 15)}}</i></q> <LabelList :bookmark-id="bookmark.id"/>
     </template>
     <template #footer>
       <button class="button" @click="removeBookmark">{{strings.removeBookmark}}</button>

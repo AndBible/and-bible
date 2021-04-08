@@ -18,20 +18,19 @@
 <template>
   <AmbiguousSelection blocking ref="ambiguousSelection"/>
   <div class="label-list">
-    <span @click.stop @touchstart.stop="labelClicked($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
+    <span @click.stop="labelClicked($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
   </div>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
-import {ref} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
 import {addEventFunction} from "@/utils";
 
 export default {
   props: {
-    labels: {type: Array, required: true},
-    bookmark: {type: Object, default: null},
+    bookmarkId: {type: Number, required: true},
   },
   name: "LabelList",
   setup(props) {
@@ -41,23 +40,32 @@ export default {
       return "background-color: " + adjustedColor(label.color).string() + ";";
     }
 
+    const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
+    const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
+
+    const labels = computed(() => {
+      return bookmark.value.labels.map(labelId => bookmarkLabels.get(labelId));
+    });
+
     const android = inject("android");
 
     function assignLabels() {
-      if(props.bookmark) {
-        android.assignLabels(props.bookmark.id);
+      if(bookmark.value) {
+        android.assignLabels(bookmark.value.id);
       }
     }
 
     function labelClicked(event, label) {
       addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
-      addEventFunction(event, () => {
-        window.location.assign(`journal://?id=${label.id}`);
-      }, {title: strings.jumpToStudyPad});
+      if(label.id > -1) {
+        addEventFunction(event, () => {
+          window.location.assign(`journal://?id=${label.id}`);
+        }, {title: strings.jumpToStudyPad});
+      }
       ambiguousSelection.value.handle(event);
     }
 
-    return {labelStyle, assignLabels, ambiguousSelection, labelClicked, ...common}
+    return {labelStyle, assignLabels, ambiguousSelection, labelClicked, labels, ...common}
   }
 }
 </script>
