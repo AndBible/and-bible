@@ -633,7 +633,7 @@
     <string name="help_studypads_text">
         Study pads are designed to allow writing notes during sermon. It can serve well for preparing sermons and
         doing custom bible studies as well. Each bible study is associated with a Bookmark Label.
-        To work with a study pad, create a bookmark label,
+        To work with a study pad, first you have to create a bookmark label and then
         open it via Main Menu -> Study Pads. You can then start writing your notes and all bookmarks with the
         same label will be displayed automatically in study pad document.
         Tip: Use Workspace menu -> All Text Options -> Assign Labels to automatically assign all created bookmarks to
@@ -750,4 +750,5 @@
     <string name="how_to_contribute">How to contribute?</string>
     <string name="confirm_delete_bookmarks">Do you want to remove %d bookmarks and their notes?</string>
     <string name="confirm_delete_study_pads">Do you want to remove %d study pads / bookmark labels? Also all bookmarks and study pad notes associated with these labels will be removed.</string>
+    <string name="toast_deletion_cancel">You can still undo delete by pressing cancel button.</string>
 </resources>

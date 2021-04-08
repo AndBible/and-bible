@@ -40,6 +40,7 @@ import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
 import java.util.*
@@ -129,6 +130,9 @@ class StudyPads : ListActivityBase(), ActionModeActivity {
             R.id.manage -> {
                 startActivityForResult(Intent(this, ManageLabels::class.java), STD_REQUEST_CODE)
                 isHandled = true
+            }
+            R.id.help -> {
+                CommonUtils.showHelp(this, listOf(R.string.help_studypads_title))
             }
         }
         if (!isHandled) {

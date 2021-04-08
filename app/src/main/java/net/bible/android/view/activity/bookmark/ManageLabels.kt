@@ -28,6 +28,8 @@ import android.widget.ListView
 import kotlinx.android.synthetic.main.manage_labels.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils
@@ -81,6 +83,7 @@ class ManageLabels : ListActivityBase() {
     private val checkedLabels = mutableSetOf<Long>()
 
     fun delete(label: BookmarkEntities.Label) {
+        ABEventBus.getDefault().post(ToastEvent(R.string.toast_deletion_cancel))
         deletedLabels.add(label.id)
         checkedLabels.remove(label.id)
         loadLabelList()

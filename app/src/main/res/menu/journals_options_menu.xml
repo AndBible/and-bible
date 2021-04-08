@@ -24,4 +24,9 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_label_multiple_24dp"
         />
+    <item android:id="@+id/help"
+        android:title="@string/help"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_help_white_24dp"
+        />
 </menu>

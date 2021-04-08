@@ -654,6 +654,57 @@ object CommonUtils {
             d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
         }
     }
+
+    fun showHelp(callingActivity: Activity, filterItems: List<Int>? = null, showVersion: Boolean = false) {
+        val app = application
+        val versionMsg = app.getString(R.string.version_text, CommonUtils.applicationVersionName)
+
+        data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null)
+
+        val help = listOf(
+            HelpItem(R.string.help_nav_title, R.string.help_nav_text),
+            HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
+            HelpItem(R.string.help_window_pinning_title,R.string.help_window_pinning_text,"https://youtu.be/27b1g-D3ibA"),
+            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text),
+            HelpItem(R.string.help_studypads_title, R.string.help_studypads_text),
+            HelpItem(R.string.help_search_title,R.string.help_search_text),
+            HelpItem(R.string.help_workspaces_title,R.string.help_workspaces_text, "https://youtu.be/rz0zyEK9qBk"),
+            HelpItem(R.string.help_hidden_features_title,R.string.help_hidden_features_text)
+        ).run {
+            if(filterItems != null) {
+                filter { filterItems.contains(it.title) }
+            } else this
+        }
+
+        var htmlMessage = ""
+
+        for(helpItem in help) {
+            val videoMessage =
+                if(helpItem.videoLink != null) {
+                    "<i><a href=\"${helpItem.videoLink}\">${app.getString(R.string.watch_tutorial_video)}</a></i><br>"
+                } else ""
+
+            val helpText = app.getString(helpItem.text).replace("\n", "<br>")
+            htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$videoMessage$helpText<br><br>"
+        }
+        if(showVersion)
+            htmlMessage += "<i>$versionMsg</i>"
+
+        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
+        } else {
+            Html.fromHtml(htmlMessage)
+        }
+
+        val d = androidx.appcompat.app.AlertDialog.Builder(callingActivity)
+            .setTitle(R.string.help)
+            .setMessage(spanned)
+            .setPositiveButton(android.R.string.ok) { _, _ ->  }
+            .create()
+
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
 }
 
 @Serializable
