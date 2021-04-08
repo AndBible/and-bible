@@ -6,6 +6,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	android:key="bible_display_pref">
 	<PreferenceCategory
+		android:key="dictionaries_category"
 		android:title="@string/prefs_dictionaries_cat">
 		<ListPreference android:key="strongs_greek_dictionary"
 			android:title="@string/choose_strongs_greek_dictionary_title"
