@@ -317,6 +317,7 @@
 
     <!-- Bookmarks -->
     <string name="bookmarks_and_mynotes_title">Bookmarks &amp; My Notes</string>
+    <string name="migrated_my_notes">Migrated My Notes</string>
     <string name="bookmarks">Bookmarks</string>
     <string name="bookmark_added">Bookmark added</string>
     <string name="manage_labels">Manage Labels</string>

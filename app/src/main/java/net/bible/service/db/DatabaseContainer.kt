@@ -19,10 +19,12 @@ package net.bible.service.db
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
+import android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE
 import android.util.Log
 import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.database.AppDatabase
 import net.bible.android.database.bookmarks.BookmarkStyle
@@ -36,7 +38,6 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import java.sql.SQLException
-import java.util.*
 import androidx.room.migration.Migration as RoomMigration
 
 
@@ -660,6 +661,10 @@ private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
         db.apply {
             execSQL("ALTER TABLE `Bookmark` ADD COLUMN `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0")
             execSQL("UPDATE Bookmark SET lastUpdatedOn=createdAt")
+            val labelValues = ContentValues().apply {
+                put("name", BibleApplication.application.getString(R.string.migrated_my_notes))
+            }
+            val labelId = db.insert("Label", CONFLICT_FAIL, labelValues)
 
             val c = db.query("SELECT * from mynote")
             val idIdx = c.getColumnIndex("_id")
@@ -703,7 +708,13 @@ private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
                     put("lastUpdatedOn", lastUpdatedOn)
                     put("notes", myNote)
                 }
-                db.insert("Bookmark", CONFLICT_FAIL, newValues)
+                val bookmarkId = db.insert("Bookmark", CONFLICT_FAIL, newValues)
+
+                val bookmarkLabelValues = ContentValues().apply {
+                    put("bookmarkId", bookmarkId)
+                    put("labelId", labelId)
+                }
+                db.insert("BookmarkToLabel", CONFLICT_FAIL, bookmarkLabelValues)
                 c.moveToNext()
             }
             execSQL("DROP TABLE mynote;")
