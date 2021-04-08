@@ -633,7 +633,7 @@
     <string name="help_studypads_title">Study Pads</string>
     <string name="help_studypads_text">
         Study pads are designed to make it easy to writing sermon notes, preparing sermons or just
-        write down personal bible study notes. Each Study Pad is associated with one Bookmark Label.
+        write down personal bible study notes that have multiple bible references. Each Study Pad is associated with one Bookmark Label.
         All Bookmarks that have been created with respective Label, appear automatically in Study Pad document.
         In addition to Bookmarks, there can be custom text entries in Study Pad.
         Tip: Use Workspace menu -> All Text Options -> Assign Labels to automatically assign all created
