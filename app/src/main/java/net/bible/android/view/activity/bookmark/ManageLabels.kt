@@ -105,6 +105,7 @@ class ManageLabels : ListActivityBase() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.journals_options_menu, menu)
+        menu.findItem(R.id.help).isVisible = !showCheckboxes
         return true
     }
 
