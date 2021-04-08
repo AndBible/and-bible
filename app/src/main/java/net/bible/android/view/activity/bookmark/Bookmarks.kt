@@ -19,6 +19,7 @@ package net.bible.android.view.activity.bookmark
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -177,10 +178,16 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     }
 
     private fun delete(bookmarks: List<Bookmark>) {
-        for (bookmark in bookmarks) {
-            bookmarkControl.deleteBookmark(bookmark)
-        }
-        loadBookmarkList()
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.confirm_delete_bookmarks, bookmarks.size))
+            .setPositiveButton(R.string.yes) { _, _ ->
+                for (bookmark in bookmarks) {
+                    bookmarkControl.deleteBookmark(bookmark)
+                }
+                loadBookmarkList()
+            }
+            .setCancelable(true)
+            .show()
     }
 
     private fun loadLabelList() {

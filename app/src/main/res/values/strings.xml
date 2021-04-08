@@ -748,4 +748,5 @@
 
     <string name="prefs_dictionaries_cat">Dictionaries</string>
     <string name="how_to_contribute">How to contribute?</string>
+    <string name="confirm_delete_bookmarks">Do you want to remove %d bookmarks and their notes?</string>
 </resources>
