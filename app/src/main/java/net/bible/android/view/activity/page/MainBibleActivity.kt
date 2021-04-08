@@ -1122,13 +1122,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
                             if (backupControl.restoreDatabaseViaIntent(inputStream!!)) {
                                 Log.d(TAG, "Restored database successfully")
-                                bookmarkControl.reset();
-                                windowControl.windowSync.setResyncRequired()
-                                windowControl.windowSync.reloadAllWindows()
-
                                 withContext(Dispatchers.Main) {
-                                    Dialogs.instance.showMsg(R.string.restore_success)
+                                    bookmarkControl.reset()
                                     documentViewManager.clearBibleViewFactory()
+                                    windowControl.windowSync.setResyncRequired()
+                                    Dialogs.instance.showMsg(R.string.restore_success)
                                     currentWorkspaceId = 0
                                 }
                             }
