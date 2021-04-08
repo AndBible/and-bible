@@ -275,6 +275,11 @@ constructor(private val callingActivity: MainBibleActivity,
                     callingActivity.startActivity(chooserIntent)
                     isHandled = true
                 }
+                R.id.howToContribute -> {
+                   callingActivity.startActivity(Intent(Intent.ACTION_VIEW,
+                       Uri.parse("https://github.com/AndBible/and-bible/wiki/How-to-contribute")))
+                   isHandled = true
+                }
                 R.id.restore_modules -> {
                     handlerIntent = Intent(callingActivity, InstallZip::class.java)
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
