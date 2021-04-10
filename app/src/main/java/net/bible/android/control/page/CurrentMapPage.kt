@@ -18,6 +18,8 @@
 package net.bible.android.control.page
 
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
@@ -40,7 +42,7 @@ class CurrentMapPage internal constructor(
 
     override val documentCategory = DocumentCategory.MAPS
 
-    override val keyChooserActivity = ChooseMapKey::class.java
+    override fun getKeyChooserIntent(context: Context): Intent = Intent(context, ChooseMapKey::class.java)
 
     /** set key without notification
      *

@@ -16,16 +16,18 @@
  */
 
 import {nextTick} from "@vue/runtime-core";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {emit, Events, setupEventBusListener} from "@/eventbus";
+import {computed, ref} from "@vue/reactivity";
 
-export function useScroll(config, {getVerses}) {
-    let currentScrollAnimation = null;
+export function useScroll(config, appSettings, calculatedConfig, {getVerses}, documentPromise) {
+    let currentScrollAnimation = ref(null);
+    const isScrolling = computed(() => currentScrollAnimation.value != null)
 
     function setToolbarOffset(topOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
-        console.log("setToolbarOffset", topOffset, bottomOffset, doNotScroll, immediate);
-        const diff = config.topOffset - topOffset;
-        config.topOffset = topOffset;
-        config.bottomOffset = bottomOffset;
+        console.log("setToolbarOffset", {topOffset, bottomOffset, doNotScroll, immediate});
+        const diff = appSettings.topOffset - topOffset;
+        appSettings.topOffset = topOffset;
+        appSettings.bottomOffset = bottomOffset;
         const delay = immediate ? 0 : 500;
 
         if(diff !== 0 && !doNotScroll) {
@@ -34,9 +36,9 @@ export function useScroll(config, {getVerses}) {
     }
 
     function stopScrolling() {
-        if(currentScrollAnimation != null) {
-            window.cancelAnimationFrame(currentScrollAnimation);
-            currentScrollAnimation = null;
+        if(currentScrollAnimation.value != null) {
+            window.cancelAnimationFrame(currentScrollAnimation.value);
+            currentScrollAnimation.value = null;
             console.log("Animation ends");
         }
     }
@@ -55,7 +57,7 @@ export function useScroll(config, {getVerses}) {
 
         // Bootstrap our animation - it will get called right before next frame shall be rendered.
         console.log("Animation starts");
-        currentScrollAnimation = window.requestAnimationFrame(function step(timestamp) {
+        currentScrollAnimation.value = window.requestAnimationFrame(function step(timestamp) {
             if (!start) start = timestamp;
             // Elapsed milliseconds since start of scrolling.
             const time = timestamp - start;
@@ -66,7 +68,9 @@ export function useScroll(config, {getVerses}) {
 
             // Proceed with animation as long as we wanted it to.
             if (time < duration) {
-                currentScrollAnimation = window.requestAnimationFrame(step);
+                currentScrollAnimation.value = window.requestAnimationFrame(step);
+            } else {
+                stopScrolling();
             }
         })
     }
@@ -84,14 +88,18 @@ export function useScroll(config, {getVerses}) {
         }
     }
 
-    function scrollToId(toId, {now = false, highlight = false, ordinal = null, delta = config.topOffset, force = false, duration = 1000} = {}) {
-        console.log("scrollToId", toId, now, delta);
+    function scrollToId(toId, {now = false, highlight = false, ordinalStart = null, ordinalEnd = null, force = false, duration = 1000} = {}) {
+        console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd});
         stopScrolling();
-        if(delta !== config.topOffset) {
-            config.topOffset = delta;
-        }
-        if(highlight) {
-            getVerses(ordinal).forEach(o => o.highlight())
+        let delta = calculatedConfig.value.topOffset;
+        if(highlight && ordinalStart) {
+            emit(Events.CLEAR_HIGHLIGHTS)
+            if(!ordinalEnd) {
+                ordinalEnd = ordinalStart;
+            }
+            for(let ordinal = ordinalStart; ordinal <= ordinalEnd; ordinal ++) {
+                getVerses(ordinal).forEach(o => o.highlight())
+            }
         }
         let toElement = document.getElementById(toId)
         if(force && toElement == null) {
@@ -118,13 +126,13 @@ export function useScroll(config, {getVerses}) {
     }
 
     async function setupContent({jumpToOrdinal = null, jumpToYOffsetRatio = null, topOffset, bottomOffset}  = {}) {
+        await documentPromise.value;
         console.log(`setupContent`, jumpToOrdinal, jumpToYOffsetRatio, topOffset);
 
         const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
         setToolbarOffset(topOffset, bottomOffset, {immediate: true, doNotScroll: !doScroll});
 
         await nextTick(); // Do scrolling only after view has been settled (fonts etc)
-        await nextTick(); // One more nextTick() due to 2-tick behavior of replaceDocument
 
         if (jumpToOrdinal != null) {
             scrollToId(`v-${jumpToOrdinal}`, {now: true, force: true});
@@ -145,6 +153,6 @@ export function useScroll(config, {getVerses}) {
     setupEventBusListener(Events.SET_OFFSETS, setToolbarOffset)
     setupEventBusListener(Events.SCROLL_TO_VERSE, scrollToId)
     setupEventBusListener(Events.SETUP_CONTENT, setupContent)
-    return {scrollToId}
+    return {scrollToId, isScrolling}
 }
 

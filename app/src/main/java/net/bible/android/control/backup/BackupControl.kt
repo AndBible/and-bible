@@ -24,11 +24,8 @@ import android.content.Context
 import android.util.Log
 
 import net.bible.android.BibleApplication
-import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.FileManager
 

@@ -43,7 +43,7 @@ import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
-import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.control.report.BugReport
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.ActivityBase
@@ -52,8 +52,6 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.journal.StudyPads
-import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_DB
@@ -80,7 +78,6 @@ constructor(private val callingActivity: MainBibleActivity,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
             private val backupControl: BackupControl,
-            private val errorReportControl: ErrorReportControl
 ) {
 
     /**
@@ -141,10 +138,15 @@ constructor(private val callingActivity: MainBibleActivity,
                 R.id.bookmarksButton -> handlerIntent = Intent(callingActivity, Bookmarks::class.java)
                 R.id.manageLabels -> {
                     handlerIntent = Intent(callingActivity, ManageLabels::class.java)
+                    handlerIntent.putExtra("showUnassigned", true)
                     requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
                 }
-                R.id.mynotesButton -> handlerIntent = Intent(callingActivity, MyNotes::class.java)
-                R.id.myJournalsButton -> handlerIntent = Intent(callingActivity, StudyPads::class.java)
+                R.id.myJournalsButton -> {
+                    handlerIntent = Intent(callingActivity, ManageLabels::class.java)
+                    handlerIntent.putExtra("studyPadMode", true)
+
+                    //handlerIntent = Intent(callingActivity, StudyPads::class.java)
+                }
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {
                         val isBible = currentPage.documentCategory == DocumentCategory.BIBLE
@@ -167,49 +169,27 @@ constructor(private val callingActivity: MainBibleActivity,
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
                 R.id.helpButton -> {
-                    val app = BibleApplication.application
-                    val versionMsg = app.getString(R.string.version_text, CommonUtils.applicationVersionName)
-
-                    data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null)
-
-                    val help = arrayOf(
-                        HelpItem(R.string.help_nav_title, R.string.help_nav_text),
-                        HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
-                        HelpItem(R.string.help_window_pinning_title,R.string.help_window_pinning_text,"https://youtu.be/27b1g-D3ibA"),
-                        HelpItem(R.string.help_mynote_title,R.string.help_mynote_text),
-                        HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text),
-                        HelpItem(R.string.help_search_title,R.string.help_search_text),
-                        HelpItem(R.string.help_workspaces_title,R.string.help_workspaces_text, "https://youtu.be/rz0zyEK9qBk"),
-                        HelpItem(R.string.help_hidden_features_title,R.string.help_hidden_features_text)
-                    )
-
-                    var htmlMessage = ""
-
-                    for(helpItem in help) {
-                        val videoMessage =
-                            if(helpItem.videoLink != null) {
-                                "<i><a href=\"${helpItem.videoLink}\">${app.getString(R.string.watch_tutorial_video)}</a></i><br>"
-                            } else ""
-
-                        val helpText = app.getString(helpItem.text).replace("\n", "<br>")
-                        htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$videoMessage$helpText<br><br>"
-                    }
-                    htmlMessage += "<i>$versionMsg</i>"
+                    CommonUtils.showHelp(callingActivity, showVersion = true)
+                    isHandled = true
+                }
+                R.id.appLicence -> {
+                    val messageHtml = callingActivity.resources.openRawResource(R.raw.license).readBytes().decodeToString()
 
                     val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
+                        Html.fromHtml(messageHtml, Html.FROM_HTML_MODE_LEGACY)
                     } else {
-                        Html.fromHtml(htmlMessage)
+                        Html.fromHtml(messageHtml)
                     }
 
                     val d = AlertDialog.Builder(callingActivity)
-                            .setTitle(R.string.help)
-                            .setMessage(spanned)
-                            .setPositiveButton(android.R.string.ok) { _, _ ->  }
-                            .create()
+                        .setTitle(R.string.app_licence_title)
+                        .setMessage(spanned)
+                        .setPositiveButton(android.R.string.ok) { _, _ ->  }
+                        .create()
 
                     d.show()
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                    isHandled = true
                 }
                 R.id.backup_app_database -> {
                     AlertDialog.Builder(callingActivity)
@@ -238,9 +218,28 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.bugReport -> {
                     GlobalScope.launch {
-                        errorReportControl.reportBug(callingActivity)
+                        BugReport.reportBug(callingActivity, source = "manual")
                     }
                     isHandled = true
+                }
+                R.id.giveFeedback -> {
+                    val subject = callingActivity.getString(R.string.feedback_subject)
+                    val message = callingActivity.getString(R.string.feedback_message, BugReport.createErrorText())
+
+                    val emailIntent = Intent(Intent.ACTION_SEND).apply {
+                        putExtra(Intent.EXTRA_SUBJECT, subject)
+                        putExtra(Intent.EXTRA_TEXT, message)
+                        putExtra(Intent.EXTRA_EMAIL, arrayOf("help.andbible@gmail.com"))
+                        type = "message/rfc822"
+                    }
+                    val chooserIntent = Intent.createChooser(emailIntent, callingActivity.getString(R.string.give_feedback_title))
+                    callingActivity.startActivity(chooserIntent)
+                    isHandled = true
+                }
+                R.id.howToContribute -> {
+                   callingActivity.startActivity(Intent(Intent.ACTION_VIEW,
+                       Uri.parse("https://github.com/AndBible/and-bible/wiki/How-to-contribute")))
+                   isHandled = true
                 }
                 R.id.restore_modules -> {
                     handlerIntent = Intent(callingActivity, InstallZip::class.java)

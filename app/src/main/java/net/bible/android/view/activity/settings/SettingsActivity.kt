@@ -17,16 +17,21 @@
  */
 package net.bible.android.view.activity.settings
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.preference.ListPreference
 import androidx.preference.Preference
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.device.ScreenSettings.systemModeAvailable
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.FeatureType
 
 class SettingsActivity: ActivityBase() {
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,32 +54,57 @@ class SettingsFragment : PreferenceFragmentCompat() {
         super.onDisplayPreferenceDialog(preference)
 	}
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        try {
-            setPreferencesFromResource(R.xml.settings, rootKey)
+    private fun setupDictionary(pref: ListPreference, type: FeatureType): Boolean {
+        val dicts = Books.installed().books.filter { it.hasFeature(type) }
 
-			//If no light sensor exists switch to old boolean check box
-			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
-            val nightModePref = preferenceScreen.findPreference<ListPreference>("night_mode_pref3") as ListPreference
-            if (systemModeAvailable) {
-                if (autoModeAvailable) {
-                    nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_auto_manual)
-                    nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_auto_manual)
-                    nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
-                } else {
-                    nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_manual)
-                    nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
-                    nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
-                }
+        if(dicts.isEmpty()) {
+            pref.isVisible = false
+            return false
+        } else {
+            val names = dicts.map { it.name }.toTypedArray()
+            val initials = dicts.map { it.initials }.toTypedArray()
+            pref.entries = names
+            pref.entryValues = initials
+            return true
+        }
+    }
+
+	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        setPreferencesFromResource(R.xml.settings, rootKey)
+
+        //If no light sensor exists switch to old boolean check box
+        // see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
+        val nightModePref = preferenceScreen.findPreference<ListPreference>("night_mode_pref3") as ListPreference
+        if (systemModeAvailable) {
+            if (autoModeAvailable) {
+                nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_auto_manual)
+                nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_auto_manual)
+                nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
             } else {
-                if (!autoModeAvailable) {
-                    nightModePref.isVisible = false
-                }
+                nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_manual)
+                nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
+                nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
             }
-            // if locale is overridden then have to force title to be translated here
-        } catch (e: Exception) {
-            Log.e(TAG, "Error preparing preference screen", e)
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+        } else {
+            if (!autoModeAvailable) {
+                nightModePref.isVisible = false
+            }
+        }
+        val showErrorBox = preferenceScreen.findPreference<ListPreference>("show_errorbox") as Preference
+        showErrorBox.isVisible = CommonUtils.isBeta
+        var showDictionaries = false
+        val greekStrongs = preferenceScreen.findPreference<ListPreference>("strongs_greek_dictionary") as ListPreference
+        showDictionaries = showDictionaries || setupDictionary(greekStrongs, FeatureType.GREEK_DEFINITIONS)
+        val hebrewStrongs = preferenceScreen.findPreference<ListPreference>("strongs_hebrew_dictionary") as ListPreference
+        showDictionaries = showDictionaries || setupDictionary(hebrewStrongs, FeatureType.HEBREW_DEFINITIONS)
+        val greekMorph = preferenceScreen.findPreference<ListPreference>("robinson_greek_morphology") as ListPreference
+        showDictionaries = showDictionaries || setupDictionary(greekMorph, FeatureType.GREEK_PARSE)
+        val dictCategory = preferenceScreen.findPreference<PreferenceCategory>("dictionaries_category") as PreferenceCategory
+        dictCategory.isVisible = showDictionaries
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val pref = preferenceScreen.findPreference<ListPreference>("request_sdcard_permission_pref") as Preference
+            pref.isVisible = false
         }
     }
 

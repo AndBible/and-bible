@@ -19,6 +19,7 @@ package net.bible.android.view.activity.bookmark
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -48,13 +49,20 @@ import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
-import net.bible.android.view.activity.mynote.description
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.sword.SwordContentFacade
 import java.lang.IllegalArgumentException
 import java.util.*
 import javax.inject.Inject
+
+val BookmarkSortOrder.description get() =
+    when(this) {
+        BookmarkSortOrder.BIBLE_ORDER  -> CommonUtils.getResourceString(R.string.sort_by_bible_book)
+        BookmarkSortOrder.LAST_UPDATED -> CommonUtils.getResourceString(R.string.sort_by_date)
+        BookmarkSortOrder.CREATED_AT -> CommonUtils.getResourceString(R.string.sort_by_date)
+        BookmarkSortOrder.ORDER_NUMBER -> "order number"
+    }
 
 /**
  * Choose Document (Book) to download
@@ -174,10 +182,17 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     }
 
     private fun delete(bookmarks: List<Bookmark>) {
-        for (bookmark in bookmarks) {
-            bookmarkControl.deleteBookmark(bookmark)
-        }
-        loadBookmarkList()
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.confirm_delete_bookmarks, bookmarks.size))
+            .setPositiveButton(R.string.yes) { _, _ ->
+                for (bookmark in bookmarks) {
+                    bookmarkControl.deleteBookmark(bookmark)
+                }
+                loadBookmarkList()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .setCancelable(true)
+            .show()
     }
 
     private fun loadLabelList() {

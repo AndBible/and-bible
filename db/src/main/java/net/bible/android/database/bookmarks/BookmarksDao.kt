@@ -209,6 +209,9 @@ interface BookmarkDao {
     @Query("SELECT * from Label WHERE name = '${SPEAK_LABEL_NAME}' LIMIT 1")
     fun speakLabelByName(): Label?
 
+    @Query("SELECT * from Label WHERE name = '${UNLABELED_NAME}' LIMIT 1")
+    fun unlabeledLabelByName(): Label?
+
     @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId")
     fun deleteLabels(bookmarkId: Long)
     fun deleteLabels(bookmark: Bookmark) = deleteLabels(bookmark.id)

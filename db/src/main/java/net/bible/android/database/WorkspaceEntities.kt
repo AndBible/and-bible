@@ -107,19 +107,6 @@ class WorkspaceEntities {
     )
 
     @Serializable
-    data class Font(
-        @ColumnInfo(defaultValue = "NULL") var fontSize: Int?,
-        @ColumnInfo(defaultValue = "NULL") var fontFamily: String?
-    )
-
-    @Serializable
-    data class BookmarkDisplaySettings(
-        @ColumnInfo(defaultValue = "NULL") var showAll: Boolean? = null,
-        @ColumnInfo(defaultValue = "NULL") var showLabels: List<Long>? = null,
-        @ColumnInfo(defaultValue = "NULL") var assignLabels: List<Long>? = null,
-    )
-
-    @Serializable
     data class Colors(
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
@@ -153,16 +140,22 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var hyphenation: Boolean? = null,
-        @Embedded(prefix="font_") var font: Font? = null,
+        @ColumnInfo(defaultValue = "NULL") var topMargin: Int? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "font_fontSize") var fontSize: Int? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "font_fontFamily") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
-        @Embedded(prefix="bookmarks_") var bookmarks: BookmarkDisplaySettings? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showAll") var deprecatedBookmarksShowAllLabels: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showLabels") var bookmarksHideLabels: List<Long>? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_assignLabels") var bookmarksAssignLabels: List<Long>? = null,
     ) {
         enum class Types {
-            FONT,
+            FONTSIZE,
+            FONTFAMILY,
             COLORS,
             MARGINSIZE,
             JUSTIFY,
             HYPHENATION,
+            TOPMARGIN,
             LINE_SPACING,
             STRONGS,
             MORPH,
@@ -171,9 +164,10 @@ class WorkspaceEntities {
             SECTIONTITLES,
             VERSENUMBERS,
             VERSEPERLINE,
-            BOOKMARKS,
+            BOOKMARKS_SHOW,
+            BOOKMARKS_HIDELABELS,
+            BOOKMARKS_ASSINGNLABELS,
             MYNOTES,
-            BOOKMARK_SETTINGS,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -184,15 +178,18 @@ class WorkspaceEntities {
             Types.SECTIONTITLES -> showSectionTitles
             Types.VERSENUMBERS -> showVerseNumbers
             Types.VERSEPERLINE -> showVersePerLine
-            Types.BOOKMARKS -> showBookmarks
             Types.MYNOTES -> showMyNotes
             Types.MARGINSIZE -> marginSize?.copy()
             Types.COLORS -> colors?.copy()
             Types.JUSTIFY -> justifyText
             Types.HYPHENATION -> hyphenation
+            Types.TOPMARGIN -> topMargin
             Types.LINE_SPACING -> lineSpacing
-            Types.FONT -> font?.copy()
-            Types.BOOKMARK_SETTINGS -> bookmarks
+            Types.FONTSIZE -> fontSize
+            Types.FONTFAMILY -> fontFamily
+            Types.BOOKMARKS_SHOW -> showBookmarks
+            Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
+            Types.BOOKMARKS_ASSINGNLABELS -> bookmarksAssignLabels
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -204,15 +201,18 @@ class WorkspaceEntities {
                 Types.SECTIONTITLES -> showSectionTitles = value as Boolean?
                 Types.VERSENUMBERS -> showVerseNumbers = value as Boolean?
                 Types.VERSEPERLINE -> showVersePerLine = value as Boolean?
-                Types.BOOKMARKS -> showBookmarks = value as Boolean?
                 Types.MYNOTES -> showMyNotes = value as Boolean?
                 Types.MARGINSIZE -> marginSize = value as MarginSize?
                 Types.COLORS -> colors = value as Colors?
                 Types.JUSTIFY -> justifyText = value as Boolean?
                 Types.HYPHENATION -> hyphenation = value as Boolean?
-                Types.FONT -> font = value as Font?
+                Types.TOPMARGIN -> topMargin = value as Int?
+                Types.FONTSIZE -> fontSize = value as Int?
+                Types.FONTFAMILY -> fontFamily = value as String?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
-                Types.BOOKMARK_SETTINGS -> bookmarks = value as BookmarkDisplaySettings?
+                Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
+                Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<Long>?
+                Types.BOOKMARKS_ASSINGNLABELS -> bookmarksAssignLabels = value as List<Long>?
             }
         }
 
@@ -251,10 +251,8 @@ class WorkspaceEntities {
                     marginRight = 0,
                     maxWidth = 170
                 ),
-                font = Font(
-                    fontSize = 16,
-                    fontFamily = "sans-serif"
-                ),
+                fontSize = 16,
+                fontFamily = "sans-serif",
                 strongsMode = 0,
                 showMorphology = false,
                 showFootNotes = false,
@@ -262,16 +260,14 @@ class WorkspaceEntities {
                 showSectionTitles = true,
                 showVerseNumbers = true,
                 showVersePerLine = false,
-                showBookmarks = true,
                 showMyNotes = true,
                 justifyText = true,
                 hyphenation = true,
+                topMargin = 0,
                 lineSpacing = 16,
-                bookmarks = BookmarkDisplaySettings(
-                    showAll = true,
-                    showLabels = emptyList(),
-                    assignLabels = emptyList(),
-                ),
+                showBookmarks = true,
+                bookmarksHideLabels = emptyList(),
+                bookmarksAssignLabels = emptyList(),
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
@@ -389,7 +385,7 @@ data class SettingsBundle (
     val windowId: Long? = null
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() {
-        return if(windowId == null) workspaceSettings else WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
+        return if(windowId == null) WorkspaceEntities.TextDisplaySettings.actual(null, workspaceSettings) else WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
     }
 
     fun toJson(): String {

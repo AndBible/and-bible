@@ -22,6 +22,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import net.bible.android.control.ApplicationScope
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
@@ -30,7 +31,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
-import org.crosswire.jsword.book.BookFilters
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.Defaults
 import org.crosswire.jsword.book.FeatureType
@@ -50,14 +50,22 @@ class SwordDocumentFacade @Inject constructor() {
     val bibles: List<Book>
         get() {
             log.debug("Getting bibles")
-            val documents = Books.installed().getBooks(BookFilters.getBibles())
+            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }
+            log.debug("Got bibles, Num=" + documents.size)
+            return documents
+        }
+
+    val unlockedBibles: List<Book>
+        get() {
+            log.debug("Getting bibles")
+            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE  && !it.isLocked}
             log.debug("Got bibles, Num=" + documents.size)
             return documents
         }
 
     fun getBooks(bookCategory: BookCategory): List<Book> {
         log.debug("Getting books of type " + bookCategory.getName())
-        val documents = Books.installed().getBooks { book -> book.bookCategory == bookCategory }
+        val documents = Books.installed().getBooks { it.bookCategory == bookCategory }
         log.debug("Got books, Num=" + documents.size)
         return documents
     }
@@ -72,13 +80,35 @@ class SwordDocumentFacade @Inject constructor() {
             val allDocuments = Books.installed().getBooks(SUPPORTED_DOCUMENT_TYPES)
             log.debug("Got books, Num=" + allDocuments.size)
             return allDocuments
-        }// default to StrongsRealGreek or StrongsGreek
+        }
 
-    /** prefer the Real alternatives to the default versions because they contain the native Greek Hebrew words
-     */
+    val defaultRobinsonGreekMorphology: Book?
+        get() {
+            val bookInitials = CommonUtils.sharedPreferences.getString("robinson_greek_morphology", null)
+            if(bookInitials != null) {
+                val book = Books.installed().getBook(bookInitials)
+                if(book != null) return book
+            }
+            val preferredBooks = arrayOf("robinson")
+            for (prefBook in preferredBooks) {
+                val strongs = Books.installed().getBook(prefBook)
+                if (strongs != null) {
+                    return strongs
+                }
+            }
+            return Defaults.getGreekParse()
+        }
+
     val defaultStrongsGreekDictionary: Book?
-        get() { // default to StrongsRealGreek or StrongsGreek
+        get() {
+            val bookInitials = CommonUtils.sharedPreferences.getString("strongs_greek_dictionary", null)
+            if(bookInitials != null) {
+                val book = Books.installed().getBook(bookInitials)
+                if(book != null) return book
+            }
+
             val preferredBooks = arrayOf("StrongsRealGreek", "StrongsGreek")
+
             for (prefBook in preferredBooks) {
                 val strongs = Books.installed().getBook(prefBook)
                 if (strongs != null) {
@@ -88,9 +118,14 @@ class SwordDocumentFacade @Inject constructor() {
             return Defaults.getGreekDefinitions()
         }
 
-    // default to StrongsRealHebrew or StrongsHebrew
     val defaultStrongsHebrewDictionary: Book?
-        get() { // default to StrongsRealHebrew or StrongsHebrew
+        get() {
+            val bookInitials = CommonUtils.sharedPreferences.getString("strongs_hebrew_dictionary", null)
+            if(bookInitials != null) {
+                val book = Books.installed().getBook(bookInitials)
+                if(book != null) return book
+            }
+
             val preferredBooks = arrayOf("StrongsRealHebrew", "StrongsHebrew")
             for (prefBook in preferredBooks) {
                 val strongs = Books.installed().getBook(prefBook)

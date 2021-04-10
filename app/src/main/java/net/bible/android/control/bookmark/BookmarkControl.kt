@@ -20,6 +20,7 @@ package net.bible.android.control.bookmark
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
+import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.DocumentCategory
@@ -32,9 +33,13 @@ import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.android.database.bookmarks.UNLABELED_NAME
+import net.bible.android.misc.OsisFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
@@ -48,6 +53,7 @@ class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark): BookmarkEvent()
 class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BookmarkToLabel)
 class BookmarksDeletedEvent(val bookmarkIds: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
+class BookmarkNoteModifiedEvent(val bookmarkId: Long, val notes: String?): BookmarkEvent()
 
 class StudyPadOrderEvent(
     val labelId: Long,
@@ -59,7 +65,6 @@ class StudyPadOrderEvent(
 class StudyPadTextEntryDeleted(val journalId: Long)
 
 const val LABEL_ALL_ID = -999L
-const val LABEL_UNLABELED_ID = -998L
 
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
@@ -69,7 +74,6 @@ open class BookmarkControl @Inject constructor(
 ) {
     // Dummy labels for all / unlabelled
     private val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
-    val labelUnlabelled = Label(LABEL_UNLABELED_ID, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled", color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
 
     private val dao get() = DatabaseContainer.db.bookmarkDao()
 
@@ -211,6 +215,25 @@ open class BookmarkControl @Inject constructor(
             }
     }
 
+    private var _unlabeledLabel: Label? = null
+    val labelUnlabelled: Label get() {
+        return _unlabeledLabel
+            ?: dao.labelById(CommonUtils.sharedPreferences.getLong("unlabeled_label_id", -1))
+                ?.also {
+                    _unlabeledLabel = it
+                }
+            ?: dao.unlabeledLabelByName()
+                ?.also {
+                    CommonUtils.sharedPreferences.edit().putLong("unlabeled_label_id", it.id).apply()
+                    _unlabeledLabel = it
+                }
+            ?: Label(name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor).apply {
+                id = dao.insert(this)
+                CommonUtils.sharedPreferences.edit().putLong("unlabeled_label_id", id).apply()
+                _unlabeledLabel = this
+            }
+    }
+
     fun reset() {
         _speakLabel = null
     }
@@ -228,7 +251,7 @@ open class BookmarkControl @Inject constructor(
         val bookmark = dao.bookmarkById(bookmarkId)!!
         addLabels(bookmark)
         addText(bookmark)
-        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
+        ABEventBus.getDefault().post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes))
     }
 
     fun deleteLabels(toList: List<Long>) {
@@ -254,7 +277,15 @@ open class BookmarkControl @Inject constructor(
     }
 
     private fun addText(b: Bookmark) {
-        val book = b.book ?: windowControl.defaultBibleDoc
+        val book = b.book ?: windowControl.defaultBibleDoc as SwordBook? ?: return // last ?: return is needed for tests
+        b.osisFragment =
+            try {
+                OsisFragment(swordContentFacade.readOsisFragment(book, b.verseRange.toV11n(book.versification)), b.verseRange, book)
+            }
+            catch (e: OsisError) {
+                Log.e(TAG, "Error in getting content from $book for ${b.verseRange}")
+                null
+            }
         val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(book, it, true) }
         val startOffset = b.startOffset ?: 0
         var startVerse = verseTexts.first()
@@ -263,7 +294,7 @@ open class BookmarkControl @Inject constructor(
         if(verseTexts.size == 1) {
             val end = startVerse.slice(endOffset until startVerse.length)
             b.text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
-            b.fullText = """$start<span class="highlight">${b.text}</span>$end"""
+            b.fullText = """$start${b.text}$end"""
         } else if(verseTexts.size > 1) {
             startVerse = startVerse.slice(startOffset until startVerse.length)
             val lastVerse = verseTexts.last()
@@ -274,7 +305,7 @@ open class BookmarkControl @Inject constructor(
                 verseTexts.slice(1 until verseTexts.size-1).joinToString(" ")
             } else ""
             b.text = "$startVerse$middleVerses$endVerse"
-            b.fullText = """$start<span class="highlight">${b.text}</span>$end"""
+            b.fullText = """$start${b.text}$end"""
         }
     }
 

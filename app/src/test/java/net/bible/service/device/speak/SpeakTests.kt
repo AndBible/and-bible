@@ -233,7 +233,7 @@ open class AbstractSpeakTests {
     }
 
     protected fun range(): String? {
-        return provider.getVerseRange().osisRef
+        return provider.verseRange.osisRef
     }
 
     protected fun nextText(): String {

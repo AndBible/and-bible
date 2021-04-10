@@ -29,6 +29,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
 
@@ -52,6 +53,7 @@ class DocumentControl @Inject constructor(
         private val swordDocumentFacade: SwordDocumentFacade,
         private val windowControl: WindowControl)
 {
+    private val documentBackupDao get() = DatabaseContainer.db.documentBackupDao()
 
     val isNewTestament get() = activeWindowPageManagerProvider.activeWindowPageManager.currentVersePage.currentBibleVerse.currentBibleBook.ordinal >= BibleBook.MATT.ordinal
 
@@ -84,11 +86,11 @@ class DocumentControl @Inject constructor(
     }
 
     val biblesForVerse : List<Book>
-        get () = swordDocumentFacade.bibles.sortedBy { it -> bookFilter.test(it) }
+        get () = swordDocumentFacade.unlockedBibles.sortedBy { bookFilter.test(it) }
 
     val commentariesForVerse: List<Book>
         get () {
-            val docs = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).sortedBy { commentaryFilter.test(it) }.toMutableList()
+            val docs = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked }.sortedBy { commentaryFilter.test(it) }.toMutableList()
             docs.addAll(FakeBookFactory.pseudoDocuments.filter { it.bookCategory == BookCategory.COMMENTARY })
             return docs
         }
@@ -159,6 +161,7 @@ class DocumentControl @Inject constructor(
     fun deleteDocument(document: Book) {
         swordDocumentFacade.deleteDocument(document)
         if(document.bookCategory == BookCategory.AND_BIBLE) return
+        documentBackupDao.deleteByOsisId(document.initials)
         val currentPage = activeWindowPageManagerProvider.activeWindowPageManager.getBookPage(document)
         currentPage?.checkCurrentDocumentStillInstalled()
     }

@@ -18,12 +18,9 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
-import android.os.Build
 import android.os.Bundle
 import android.text.Editable
-import android.text.Html
 import android.text.TextWatcher
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -33,7 +30,6 @@ import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.TextView
 import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -47,23 +43,20 @@ import net.bible.android.activity.databinding.DocumentSelectionBinding
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
-import net.bible.android.database.Document
+import net.bible.android.database.DocumentSearch
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
-import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.isRecommended
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.AndBibleAddonFilter
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.Language
-import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
 import org.crosswire.jsword.book.BookFilters
-import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
 import javax.inject.Inject
@@ -257,6 +250,12 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         checkSpinnerIndexesValid()
     }
 
+    protected fun findBookByOsisID(osisId: String) : Book? {
+        return allDocuments.find {
+            it.osisID == osisId
+        }
+    }
+
     // get the current language code
 
     // create the JSword Language for current lang
@@ -315,7 +314,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
     }
 
-    private fun reloadDocuments() = GlobalScope.launch {
+    internal fun reloadDocuments() = GlobalScope.launch {
         populateMasterDocumentList(false)
     }
 
@@ -344,7 +343,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 }
                 dao.clear()
                 dao.insertDocuments(allDocuments.map {
-                    Document(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)
+                    DocumentSearch(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)
                         ?: "")
                 })
 
@@ -455,7 +454,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 documents.add(displayedDocuments[posn])
             }
         }
-        if (!documents.isEmpty()) {
+        if (documents.isNotEmpty()) {
             when (item.itemId) {
                 R.id.about -> {
                     handleAbout(documents)
@@ -482,7 +481,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             val repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY)
             sbmd.reload()
             sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey)
-            showAbout(document)
+            GlobalScope.launch(Dispatchers.Main) {CommonUtils.showAbout(this@DocumentSelectionBase, document) }
         } catch (e: BookException) {
             Log.e(TAG, "Error expanding SwordBookMetaData for $document", e)
             instance.showErrorMsg(R.string.error_occurred, e)
@@ -511,6 +510,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     .setNegativeButton(R.string.no, null)
                     .create()
                     .show()
+            } else {
+                ABEventBus.getDefault().post(ToastEvent(R.string.cant_delete_last_bible))
             }
         }
     }
@@ -538,118 +539,6 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     override fun isItemChecked(position: Int): Boolean {
         return listView.isItemChecked(position)
-    }
-
-    /** about display is generic so handle it here
-     */
-    private fun showAbout(document: Book) {
-
-        //get about text
-
-        var about = "<b>${document.name}</b>\n\n"
-        about += document.bookMetaData.getProperty("About") ?: ""
-        // either process the odd formatting chars in about
-        about = about.replace("\\pard", "")
-        about = about.replace("\\par", "\n")
-
-        val shortPromo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_PROMO)
-
-        if(shortPromo != null) {
-            about += "\n\n${shortPromo}"
-        }
-
-        // Copyright and distribution information
-        val shortCopyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_COPYRIGHT)
-        val copyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_COPYRIGHT)
-        val distributionLicense = document.bookMetaData.getProperty(SwordBookMetaData.KEY_DISTRIBUTION_LICENSE)
-        val unlockInfo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_UNLOCK_INFO)
-        var copyrightMerged = ""
-        if (StringUtils.isNotBlank(shortCopyright)) {
-            copyrightMerged += shortCopyright
-        } else if (StringUtils.isNotBlank(copyright)) {
-            copyrightMerged += "\n\n" + copyright
-        }
-        if (StringUtils.isNotBlank(distributionLicense)) {
-            copyrightMerged += "\n\n" +distributionLicense
-        }
-        if (StringUtils.isNotBlank(copyrightMerged)) {
-            val copyrightMsg = getString(R.string.module_about_copyright, copyrightMerged)
-            about += "\n\n" + copyrightMsg
-        }
-        if(unlockInfo != null) {
-            about += "\n\n<b>${getString(R.string.unlock_info)}</b>\n\n$unlockInfo"
-        }
-
-        // add version
-        val existingDocument = swordDocumentFacade.getDocumentByInitials(document.initials)
-        val existingVersion = existingDocument?.bookMetaData?.getProperty("Version")
-        val existingVersionDate = existingDocument?.bookMetaData?.getProperty("SwordVersionDate") ?: "-"
-
-        val inDownloadScreen = this is DownloadActivity
-
-        val versionLatest = document.bookMetaData.getProperty("Version")
-        val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
-
-        val versionMessageInstalled = if(existingVersion != null)
-            getString(R.string.module_about_installed_version, Version(existingVersion).toString(), existingVersionDate)
-        else null
-
-        val versionMessageLatest = if(versionLatest != null)
-            getString((
-                if (inDownloadScreen)
-                    R.string.module_about_latest_version
-                else
-                    R.string.module_about_installed_version),
-                Version(versionLatest).toString(), versionLatestDate)
-        else null
-
-        if(versionMessageLatest != null) {
-            about += "\n\n" + versionMessageLatest
-            if(versionMessageInstalled != null && inDownloadScreen)
-                about += "\n" + versionMessageInstalled
-        }
-
-        val history = document.bookMetaData.getValues("History")
-        if(history != null) {
-            about += "\n\n" + getString(R.string.about_version_history, "\n" +
-                history.reversed().joinToString("\n"))
-        }
-
-        // add versification
-        if (document is SwordBook) {
-            val versification = document.versification
-            val versificationMsg = getString(R.string.module_about_versification, versification.name)
-            about += "\n\n" + versificationMsg
-        }
-
-        // add id
-        if (document is SwordBook) {
-            val repoName = document.getProperty(DownloadManager.REPOSITORY_KEY)
-            val repoMessage = if(repoName != null) getString(R.string.module_about_repository, repoName) else ""
-            val osisIdMessage = getString(R.string.module_about_osisId, document.initials)
-            about += """
-
-
-                $osisIdMessage
-                
-                $repoMessage
-                """.trimIndent()
-        }
-        about = about.replace("\n", "<br>")
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(about, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(about)
-        }
-
-        val d = AlertDialog.Builder(this)
-            .setMessage(spanned)
-            .setCancelable(false)
-            .setPositiveButton(R.string.okay) { dialog, buttonId ->
-                //do nothing
-            }.create()
-        d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     /**

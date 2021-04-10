@@ -16,7 +16,7 @@
  */
 
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
-import {useConfig} from "@/composables";
+import {abbreviated, useConfig} from "@/composables";
 import {ref} from "@vue/reactivity";
 
 window.bibleViewDebug = {}
@@ -26,7 +26,7 @@ describe("useBookmark tests", () => {
     let startOrd, startOff, endOrd, endOff;
     beforeEach(() => {
         const {config} = useConfig();
-        gb = useGlobalBookmarks(config);
+        gb = useGlobalBookmarks(config, {value: "bible"});
         const fragmentReady = ref(true);
         b = useBookmarks(
             "fragKey",
@@ -241,4 +241,15 @@ describe("useBookmark tests", () => {
 
     });
 
+});
+
+describe("abbreviate tests", () => {
+    it("test 1", () => {
+        expect(abbreviated("turhanpäiväisissä ajatuksissaan", 15)).toBe("turhanpäiväisi...")
+        expect(abbreviated("höpö turhanpäiväisissä ajatuksissaan", 15)).toBe("höpö...")
+        expect(abbreviated("höpö höpö turhanpäiväisissä ajatuksissaan", 15)).toBe("höpö höpö...")
+        expect(abbreviated("höpö höpö", 15)).toBe("höpö höpö")
+        expect(abbreviated("höpö höpö höpö", 15)).toBe("höpö höpö höpö")
+        expect(abbreviated("höpö höpö höpö höpö", 15)).toBe("höpö höpö...")
+    });
 });

@@ -21,13 +21,16 @@ import {onMounted, onUnmounted} from "@vue/runtime-core";
 export const eventBus = mitt()
 
 export function emit(eventId, ...args){
+    console.log(`Emitting ${eventId}`);
     eventBus.emit(eventId, args)
 }
 
 export const Events = {
     UPDATE_LABELS: "update_labels",
-    REPLACE_DOCUMENT: "replace_document",
+    CLEAR_DOCUMENT: "clear_document",
+    ADD_DOCUMENTS: "add_documents",
     SET_CONFIG: "set_config",
+    SET_ACTIVE: "set_active",
     SET_TITLE: "set_title",
     SETUP_CONTENT: "setup_content",
     SCROLL_TO_VERSE: "scroll_to_verse",
@@ -42,7 +45,8 @@ export const Events = {
     DELETE_JOURNAL: "delete_journal",
     CONFIG_CHANGED: "config_changed",
     RELOAD_ADDONS: "reload_addons",
-    SET_FONT_FAMILY: "set_font_family",
+    CLEAR_HIGHLIGHTS: "clear_highlights",
+    BOOKMARK_NOTE_MODIFIED: "bookmark_note_modified",
 }
 
 export function setupEventBusListener(eventId, callback) {

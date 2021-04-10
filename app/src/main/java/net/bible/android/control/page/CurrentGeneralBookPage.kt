@@ -17,14 +17,19 @@
  */
 package net.bible.android.control.page
 
+import android.content.Context
+import android.content.Intent
+import android.util.Log
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.journal.StudyPads
+import net.bible.android.misc.OsisFragment
+import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.OsisError
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -48,12 +53,13 @@ class CurrentGeneralBookPage internal constructor(
 
     override val documentCategory = DocumentCategory.GENERAL_BOOK
 
-    override val keyChooserActivity get() =
-        when (currentDocument) {
-            FakeBookFactory.journalDocument -> StudyPads::class.java
-            FakeBookFactory.multiDocument -> null
-            else -> ChooseGeneralBookKey::class.java
+    override fun getKeyChooserIntent(context: Context): Intent? = when (currentDocument) {
+        FakeBookFactory.journalDocument -> {
+            Intent(context, ManageLabels::class.java).putExtra("studyPadMode", true)
         }
+        FakeBookFactory.multiDocument -> null
+        else -> Intent(context, ChooseGeneralBookKey::class.java)
+    }
 
     override val currentPageContent: Document
         get() {
@@ -67,8 +73,13 @@ class CurrentGeneralBookPage internal constructor(
                 }
                 is BookAndKeyList -> {
                     val frags = key.filterIsInstance<BookAndKey>().map {
-                        OsisFragment(swordContentFacade.readOsisFragment(it.document, it.key), it.key, it.document)
-                    }
+                        try {
+                            OsisFragment(swordContentFacade.readOsisFragment(it.document, it.key), it.key, it.document)
+                        } catch (e: OsisError) {
+                            Log.e(TAG, "Fragment could not be read")
+                            null
+                        }
+                    }.filterNotNull()
                     MultiFragmentDocument(frags)
                 }
                 else -> super.currentPageContent

@@ -147,6 +147,7 @@ class DownloadManager(
 
     companion object {
         const val REPOSITORY_KEY = "repository"
+        const val TAG = "DownloadManager"
         private val log = Logger(DownloadManager::class.java.name)
     }
 

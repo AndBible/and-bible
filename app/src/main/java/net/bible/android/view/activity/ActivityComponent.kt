@@ -20,15 +20,13 @@ package net.bible.android.view.activity
 import dagger.Component
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
+import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.ProgressStatus
-import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity
-import net.bible.android.view.activity.journal.StudyPads
-import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.*
 import net.bible.android.view.activity.navigation.genbookmap.ChooseKeyBase
 import net.bible.android.view.activity.readingplan.DailyReading
@@ -38,7 +36,6 @@ import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchIndexProgressStatus
 import net.bible.android.view.activity.search.SearchResults
-import net.bible.android.view.activity.settings.BookmarkSettingsFragment
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
@@ -60,7 +57,6 @@ interface ActivityComponent {
 
     // don't like this but inject is called from ActivityBase and the subclasses
     fun inject(activityBase: ActivityBase)
-    fun inject(studyPads: StudyPads)
     fun inject(activity: TextDisplaySettingsActivity)
 
     fun inject(colorSettings: ColorSettingsActivity)
@@ -91,17 +87,14 @@ interface ActivityComponent {
     fun inject(w: SpeakTransportWidget)
     fun inject(search: Search)
     fun inject(searchResults: SearchResults)
-    fun inject(footnoteAndRefActivity: FootnoteAndRefActivity)
-    fun inject(myNotes: MyNotes)
     fun inject(history: History)
 
     // Services
     fun inject(m: TextToSpeechNotificationManager)
     fun inject(w: SpeakWidgetManager)
 
-    fun inject(w: BookmarkSettingsFragment)
-
     // progress status screens
     fun inject(searchIndexProgressStatus: SearchIndexProgressStatus)
     fun inject(progressStatus: ProgressStatus)
+    fun inject(clientBookmark: ClientBookmark)
 }

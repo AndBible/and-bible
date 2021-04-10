@@ -19,12 +19,10 @@
 package net.bible.android.control.page.window
 
 import android.app.AlertDialog
-import android.util.Log
 import android.widget.Button
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
@@ -47,6 +45,7 @@ import org.crosswire.jsword.passage.Key
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
 
 /**
  * Central control of windows especially synchronization

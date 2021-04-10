@@ -18,7 +18,10 @@
 package net.bible.android.control.versification
 
 import android.util.Log
+import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.common.AndBibleAddons
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.download.DownloadManager
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.BooksEvent
@@ -29,19 +32,39 @@ import org.crosswire.jsword.versification.VersificationsMapper
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class VersificationMappingInitializer {
+class BookInstallWatcher {
+    private val docDao get() = DatabaseContainer.db.documentBackupDao()
     fun startListening() {
         Books.installed().addBooksListener(object : BooksListener {
             override fun bookAdded(ev: BooksEvent) {
                 val book = ev.book
                 initialiseRequiredMapping(book)
+                addBookToDb(book)
                 AndBibleAddons.clearCaches()
             }
 
             override fun bookRemoved(ev: BooksEvent) {
                 AndBibleAddons.clearCaches()
+                removeBookFromDb(ev.book)
             }
         })
+    }
+    private fun addBookToDb(book: Book) {
+        // if book is already installed, we remove it, else it deletes nothing
+        docDao.deleteByOsisId(book.initials)
+        Log.d(DownloadManager.TAG, "Adding ${book.name} to document backup database")
+        // insert the new book info into backup db
+        docDao.insert(SwordDocumentInfo(
+            book.initials,
+            book.name,
+            book.abbreviation,
+            book.language.name,
+            book.getProperty(DownloadManager.REPOSITORY_KEY) ?: ""
+        ))
+    }
+
+    private fun removeBookFromDb(book: Book) {
+        docDao.deleteByOsisId(book.initials)
     }
 
     /**

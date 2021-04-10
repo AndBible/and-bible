@@ -20,6 +20,7 @@
        class="bible-document"
        :data-book-initials="bookInitials"
   >
+    <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment" :show-transition="document.showTransition"/>
   </div>
 </template>
@@ -30,26 +31,26 @@ import {useBookmarks} from "@/composables/bookmarks";
 import {ref} from "@vue/reactivity";
 import OsisFragment from "@/components/documents/OsisFragment";
 import {useCommon} from "@/composables";
+import Chapter from "@/components/OSIS/Chapter";
 
 export default {
   name: "BibleDocument",
-  components: {OsisFragment},
+  components: {OsisFragment, Chapter},
   props: {
     document: {type: Object, required: true},
   },
   setup(props) {
     // eslint-disable-next-line no-unused-vars,vue/no-setup-props-destructure
-    const {id, bookInitials, bookmarks, ordinalRange, originalOrdinalRange} = props.document;
+    const {id, bookInitials, bookmarks, ordinalRange, originalOrdinalRange, v11n} = props.document;
 
-    provide("bibleDocumentInfo", {ordinalRange, originalOrdinalRange})
+    provide("bibleDocumentInfo", {ordinalRange, originalOrdinalRange, v11n})
 
     const globalBookmarks = inject("globalBookmarks");
     globalBookmarks.updateBookmarks(...bookmarks);
 
-    const config = inject("config");
-    const common = useCommon();
+    const {config, appSettings, ...common} = useCommon();
 
-    useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common, config);
+    useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common, config, appSettings);
 
     return {bookInitials, ...common}
   }

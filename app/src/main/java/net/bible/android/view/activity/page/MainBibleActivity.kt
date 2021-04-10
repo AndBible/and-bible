@@ -56,7 +56,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.MainBibleViewBinding
@@ -78,6 +77,7 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
@@ -90,7 +90,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.Bookmarks
-import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -106,10 +105,10 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.json
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
+import net.bible.service.download.DownloadManager
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.NoSuchVerseException
@@ -157,6 +156,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var transportBarVisible = false
 
     val dao get() = DatabaseContainer.db.workspaceDao()
+    val docDao get() = DatabaseContainer.db.documentBackupDao()
 
     val multiWinMode
         get() =
@@ -301,8 +301,34 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 showBetaNotice()
                 showFirstTimeHelp()
             }
+            GlobalScope.launch {
+                checkDocBackupDBInSync()
+            }
         }
         initialized = true
+    }
+
+    /**
+     * Checks if the list of documents installed matches the list of
+     * books in the backup database.
+     *
+     * Backup database is used to allow user to quickly reinstall all
+     * available books if moving to a new device.
+     */
+    private fun checkDocBackupDBInSync() {
+        val docs = swordDocumentFacade.documents
+        val knownInstalled = docDao.getKnownInstalled()
+        if (knownInstalled.isEmpty()) {
+            Log.i(TAG, "There is at least one Bible, but Bible Backup DB is empty, populate with first time books");
+            val allDocs = docs.map {
+                SwordDocumentInfo(it.initials, it.name, it.abbreviation, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "")
+            }
+            docDao.insert(allDocs)
+        } else {
+            knownInstalled.map {
+                Log.d(TAG, "The ${it.name} is installed")
+            }
+        }
     }
 
     private fun postInitialize() {
@@ -434,9 +460,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             override fun onSingleTapUp(e: MotionEvent?): Boolean {
-                val chooser = pageControl.currentPageManager.currentPage.keyChooserActivity ?: return false
-                val intent = Intent(this@MainBibleActivity, chooser)
-                startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                val intent = pageControl.currentPageManager.currentPage.getKeyChooserIntent(this@MainBibleActivity) ?: return false
+                startActivityForResult(intent, STD_REQUEST_CODE)
                 return true
             }
 
@@ -1106,13 +1131,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
                             if (backupControl.restoreDatabaseViaIntent(inputStream!!)) {
                                 Log.d(TAG, "Restored database successfully")
-                                bookmarkControl.reset();
-                                windowControl.windowSync.setResyncRequired()
-                                windowControl.windowSync.reloadAllWindows()
-
                                 withContext(Dispatchers.Main) {
-                                    Dialogs.instance.showMsg(R.string.restore_success)
+                                    bookmarkControl.reset()
                                     documentViewManager.clearBibleViewFactory()
+                                    windowControl.windowSync.setResyncRequired()
+                                    Dialogs.instance.showMsg(R.string.restore_success)
                                     currentWorkspaceId = 0
                                 }
                             }
@@ -1177,34 +1200,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 resetSystemUi()
                 invalidateOptionsMenu()
             }
-            BOOKMARK_SETTINGS_CHANGED -> {
-                val extras = data?.extras!!
-                val edited = extras.getBoolean("edited")
-                val reset = extras.getBoolean("reset")
-                val windowId = extras.getLong("windowId")
-                val bookmarksStr = extras.getString("bookmarks")
-
-                if(!edited && !reset) return
-
-                val bookmarks = if(reset)
-                    if(windowId != 0L) {
-                        null
-                    } else TextDisplaySettings.default.bookmarks
-                else
-                    json.decodeFromString(serializer<WorkspaceEntities.BookmarkDisplaySettings>(), bookmarksStr!!)
-
-                if(windowId != 0L) {
-                    val window = windowRepository.getWindow(windowId)!!
-                    window.pageManager.textDisplaySettings.bookmarks = bookmarks
-                    window.bibleView?.updateTextDisplaySettings()
-                } else {
-                    windowRepository.textDisplaySettings.bookmarks = bookmarks
-                    windowRepository.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.BOOKMARK_SETTINGS), windowRepository.textDisplaySettings)
-                    windowRepository.updateAllWindowsTextDisplaySettings()
-                }
-                resetSystemUi()
-                invalidateOptionsMenu()
-            }
             TEXT_DISPLAY_SETTINGS_CHANGED -> {
                 val extras = data?.extras!!
 
@@ -1234,10 +1229,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     }
                     windowControl.activeWindowPageManager.currentPage.setKey(verse)
                     return
-                }
-                if(className == MyNotes::class.java.name) {
-                    invalidateOptionsMenu()
-                    documentViewManager.buildView()
                 }
             }
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {
@@ -1406,7 +1397,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         const val WORKSPACE_CHANGED = 94
         const val REQUEST_PICK_FILE_FOR_BACKUP_DB = 95
         const val REQUEST_PICK_FILE_FOR_BACKUP_MODULES = 96
-        const val BOOKMARK_SETTINGS_CHANGED = 97
 
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"

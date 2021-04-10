@@ -51,6 +51,9 @@ class LabelDialogs @Inject constructor(private val bookmarkControl: BookmarkCont
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.bookmark_label_edit, null)
         val labelName = view.findViewById<View>(R.id.labelName) as EditText
+        if(label.isUnlabeledLabel) {
+            labelName.isEnabled = false
+        }
         val colorExample = view.findViewById<View>(R.id.labelColorExample) as TextView
         labelName.setText(label.displayName)
         val color = view.findViewById<View>(R.id.colorPicker) as ColorPickerView
@@ -63,8 +66,10 @@ class LabelDialogs @Inject constructor(private val bookmarkControl: BookmarkCont
             .setTitle(titleId)
             .setView(view)
             .setPositiveButton(R.string.okay) { _, _ ->
-                val name = labelName.text.toString()
-                label.name = name
+                if(!label.isUnlabeledLabel) {
+                    val name = labelName.text.toString()
+                    label.name = name
+                }
                 // let's remove alpha
                 label.color = color.color or (255 shl 24)
                 bookmarkControl.insertOrUpdateLabel(label)

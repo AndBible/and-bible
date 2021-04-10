@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="507"
-    android:versionName="3.3.507-alpha">
+    android:versionCode="512"
+    android:versionName="3.3.512-alpha">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="android.permission.READ_PHONE_STATE"
@@ -93,15 +93,9 @@
             android:label="@string/search_index"
             />
         <activity
-            android:name="net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            android:label="@string/notes" />
-        <activity
             android:name="net.bible.android.view.activity.bookmark.Bookmarks"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/bookmarks"
+            android:label="@string/bookmarks_and_mynotes_title"
             android:launchMode="singleTop"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
@@ -109,16 +103,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/manage_labels"
             android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks" />
-        <activity
-            android:name="net.bible.android.view.activity.mynote.MyNotes"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/mynotes"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.journal.StudyPads"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/studypads"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -161,12 +145,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/workspace_selector_title"
             />
-        <activity
-            android:name="net.bible.android.view.activity.settings.BookmarkSettingsActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/bookmark_settings_title"
-            android:parentActivityName="net.bible.android.view.activity.settings.TextDisplaySettingsActivity" />
         <activity
             android:name="net.bible.android.view.activity.settings.ColorSettingsActivity"
             android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"

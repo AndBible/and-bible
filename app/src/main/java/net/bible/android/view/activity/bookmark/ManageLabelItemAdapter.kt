@@ -25,8 +25,8 @@ import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.CheckBox
-import android.widget.ImageView
 import android.widget.TextView
+import kotlinx.android.synthetic.main.manage_labels_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.displayName
@@ -35,14 +35,12 @@ class ManageLabelItemAdapter(context: Context?,
                              private val resource: Int, items: List<BookmarkEntities.Label?>?,
                              private val manageLabels: ManageLabels,
                              private val checkedLabels: MutableSet<Long>,
-                             private val showCheckboxes: Boolean
                              ) : ArrayAdapter<BookmarkEntities.Label?>(context!!, resource, items!!)
 {
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val label = getItem(position)
-        val rowView: View
-        rowView = if (convertView == null) {
+        val rowView: View = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             inflater.inflate(resource, parent, false)
         } else {
@@ -51,31 +49,28 @@ class ManageLabelItemAdapter(context: Context?,
         val name = rowView.findViewById<View>(R.id.labelName) as TextView
         name.text = label!!.displayName
         val checkbox = rowView.findViewById<View>(R.id.checkbox) as CheckBox
-        if(showCheckboxes) {
+        if(manageLabels.showCheckboxes) {
             name.setOnClickListener { checkbox.isChecked = !checkbox.isChecked }
             checkbox.setOnCheckedChangeListener { _, isChecked -> manageLabels.setEnabled(label, isChecked)}
             checkbox.isChecked = checkedLabels.contains(label.id)
         } else {
             checkbox.visibility = View.GONE
         }
-        bookmarkStyleAdapterHelper.styleView(name, label, context, false, false)
-        val editButton = rowView.findViewById<View>(R.id.editLabel) as ImageView
-        editButton.setOnClickListener { manageLabels.editLabel(label) }
-        val deleteButton = rowView.findViewById<View>(R.id.deleteLabel) as ImageView
-        deleteButton.setOnClickListener { manageLabels.delete(label) }
-        if (label.isSpeakLabel) {
-            editButton.visibility = View.GONE
-            deleteButton.visibility = View.GONE
-        } else {
-            editButton.visibility = View.VISIBLE
-            deleteButton.visibility = View.VISIBLE
+        if(manageLabels.studyPadMode) {
+            rowView.labelIcon.setImageResource(R.drawable.ic_pen_24dp)
         }
+        bookmarkStyleAdapterHelper.styleView(name, label, context, false, false)
+        rowView.editLabel.setOnClickListener { manageLabels.editLabel(label) }
+        rowView.deleteLabel.setOnClickListener { manageLabels.delete(label) }
+        rowView.editLabel.visibility = if(label.isSpeakLabel) View.INVISIBLE else View.VISIBLE
+        rowView.deleteLabel.visibility = if (label.isSpeakLabel || label.isUnlabeledLabel) View.INVISIBLE else View.VISIBLE
+        rowView.labelIcon.setColorFilter(label.color)
         if (nightMode) {
-            editButton.setImageResource(R.drawable.ic_pen_24dp)
-            deleteButton.setImageResource(R.drawable.ic_delete_24dp)
+            rowView.editLabel.setImageResource(R.drawable.ic_pen_24dp)
+            rowView.deleteLabel.setImageResource(R.drawable.ic_delete_24dp)
         } else {
-            editButton.setImageResource(R.drawable.ic_pen_24dp_black)
-            deleteButton.setImageResource(R.drawable.ic_delete_24dp_black)
+            rowView.editLabel.setImageResource(R.drawable.ic_pen_24dp_black)
+            rowView.deleteLabel.setImageResource(R.drawable.ic_delete_24dp_black)
         }
         return rowView
     }

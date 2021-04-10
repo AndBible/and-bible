@@ -18,16 +18,12 @@
 package net.bible.android.view.util.widget
 
 import android.content.Context
-import android.graphics.Color
 import android.text.SpannableString
 import android.text.style.ImageSpan
-import android.text.style.UnderlineSpan
 import android.view.Gravity
 import android.widget.TextView
 import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.bookmarks.BookmarkStyle
-import net.bible.android.view.util.UiUtils.getThemeBackgroundColour
 import net.bible.android.view.util.UiUtils.getThemeTextColour
 import net.bible.service.common.CommonUtils.convertDipsToPx
 import net.bible.service.common.CommonUtils.getResourceString
@@ -65,18 +61,14 @@ class BookmarkStyleAdapterHelper {
         if (emphasize) {
             baseText = "⤇ $baseText ⤆"
         }
-        var backgroundColor = Color.WHITE
         val imgText: CharSequence
         if (label.isSpeakLabel) {
-            backgroundColor = getThemeBackgroundColour(context)
             view.setTextColor(getThemeTextColour(context))
             imgText = addImageAtStart("* $baseText", R.drawable.hearing, context)
             view.setText(imgText, TextView.BufferType.SPANNABLE)
         } else {
-            backgroundColor = label.color
             view.text = baseText
         }
-        view.setBackgroundColor(backgroundColor)
         view.height = convertDipsToPx(30)
         if (centreText) {
             view.gravity = Gravity.CENTER

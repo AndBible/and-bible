@@ -17,11 +17,14 @@
  */
 package net.bible.android.control.page
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import net.bible.android.common.toV11n
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.misc.OsisFragment
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
@@ -50,7 +53,7 @@ open class CurrentCommentaryPage internal constructor(
 
     override val documentCategory = DocumentCategory.COMMENTARY
 
-    override val keyChooserActivity = GridChoosePassageBook::class.java
+    override fun getKeyChooserIntent(context: Context): Intent? = Intent(context, GridChoosePassageBook::class.java)
 
     override val currentPageContent: Document
         get() {
@@ -68,7 +71,7 @@ open class CurrentCommentaryPage internal constructor(
                         null
                     }
                 }.filterNotNull()
-                MultiFragmentDocument(frags)
+                MultiFragmentDocument(frags, compare=true)
             } else super.currentPageContent
         }
 

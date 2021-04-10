@@ -10,10 +10,16 @@
 		android:layout_height="wrap_content"/>
 	<CheckBox
 		android:id="@+id/checkbox"
-		android:paddingStart="10dp"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content">
-	</CheckBox>
+		android:layout_height="wrap_content"/>
+	<Space
+		android:layout_width="10dp"
+		android:layout_height="wrap_content"/>
+	<ImageView android:id="@+id/labelIcon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:src="@drawable/ic_label_24dp"
+		/>
 	<TextView
 		android:id="@+id/labelName"
 		android:layout_height="wrap_content"

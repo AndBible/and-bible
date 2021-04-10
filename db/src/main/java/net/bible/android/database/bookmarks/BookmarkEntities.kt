@@ -27,7 +27,6 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
-import org.crosswire.jsword.versification.VersificationConverter
 import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
 import android.graphics.Color
@@ -35,11 +34,14 @@ import androidx.room.ColumnInfo
 import androidx.room.Ignore
 import kotlinx.serialization.Serializable
 import net.bible.android.common.toV11n
+import net.bible.android.misc.OsisFragment
+import org.crosswire.jsword.book.basic.AbstractPassageBook
 import java.util.*
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
 
 const val SPEAK_LABEL_NAME = "__SPEAK_LABEL__"
+const val UNLABELED_NAME = "__UNLABELED__"
 
 /**
  * How to represent bookmarks
@@ -113,7 +115,7 @@ class BookmarkEntities {
 
         var createdAt: Date = Date(System.currentTimeMillis()),
 
-        var book: Book? = null,
+        var book: AbstractPassageBook? = null,
 
         var startOffset: Int?,
         var endOffset: Int?,
@@ -121,7 +123,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         ): VerseRangeUser {
-        constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: Book? = null): this(
+        constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: AbstractPassageBook? = null): this(
             verseRange.toV11n(KJVA).start.ordinal,
             verseRange.toV11n(KJVA).end.ordinal,
             verseRange.start.ordinal,
@@ -133,7 +135,7 @@ class BookmarkEntities {
             endOffset = textRange?.end,
         )
 
-        constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, book: Book?, playbackSettings: PlaybackSettings?): this(
+        constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, book: AbstractPassageBook?, playbackSettings: PlaybackSettings?): this(
             verseRange.toV11n(KJVA).start.ordinal,
             verseRange.toV11n(KJVA).end.ordinal,
             verseRange.start.ordinal,
@@ -195,6 +197,7 @@ class BookmarkEntities {
         @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
         @Ignore var text: String? = null
         @Ignore var fullText: String? = null
+        @Ignore var osisFragment: OsisFragment? = null
     }
 
     @Entity(
@@ -215,6 +218,7 @@ class BookmarkEntities {
         // Journal display variables
         @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
         @ColumnInfo(defaultValue = "0") var indentLevel: Int = 0,
+        @ColumnInfo(defaultValue = "0") var expandContent: Boolean = false,
     )
 
     @Entity(
@@ -247,5 +251,6 @@ class BookmarkEntities {
     ) {
         override fun toString() = name
         val isSpeakLabel get() = name == SPEAK_LABEL_NAME
+        val isUnlabeledLabel get() = name == UNLABELED_NAME
     }
 }

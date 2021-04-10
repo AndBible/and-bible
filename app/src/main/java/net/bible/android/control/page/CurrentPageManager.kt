@@ -162,9 +162,8 @@ open class CurrentPageManager @Inject constructor(
             } else {
                 val context = CurrentActivityHolder.getInstance().currentActivity
                 // pop up a key selection screen
-                val chooser = nextPage.keyChooserActivity
-                if(chooser != null) {
-                    val intent = Intent(context, chooser)
+                val intent = nextPage.getKeyChooserIntent(context)
+                if(intent != null) {
                     context.startActivity(intent)
                 }
             }
@@ -265,7 +264,7 @@ open class CurrentPageManager @Inject constructor(
             textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
         }
         currentPage = getBookPage(restoredBookCategory)
-        if(currentPage.key == null) {
+        if(currentPage.key == null || currentPage.currentDocument == null) {
             currentPage = currentBible
         }
     }

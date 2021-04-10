@@ -20,8 +20,6 @@ package net.bible.android.control.page
 import android.util.Log
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
@@ -62,7 +60,8 @@ abstract class VersePage protected constructor(
     val currentPassageBook get() = currentDocument as AbstractPassageBook
 
     override fun localSetCurrentDocument(doc: Book?) { // update current verse possibly remapped to v11n of new bible
-        val newDocVersification = (currentDocument as AbstractPassageBook).versification
+        doc ?: return
+        val newDocVersification = (doc as AbstractPassageBook).versification
         val newVerse = currentBibleVerse.getVerseSelected(newDocVersification)
         super.localSetCurrentDocument(doc)
         doSetKey(newVerse)

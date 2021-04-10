@@ -16,36 +16,64 @@
   -->
 
 <template>
+  <AmbiguousSelection blocking ref="ambiguousSelection"/>
   <div class="label-list">
-    <span @touchstart.stop="assignLabels" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
+    <span @touchstart="labelClicked($event, label)" @click="labelClicked($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
   </div>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
+import {computed, ref} from "@vue/reactivity";
+import {addEventFunction} from "@/utils";
 
 export default {
   props: {
-    labels: {type: Array, required: true},
-    bookmark: {type: Object, default: null},
+    bookmarkId: {type: Number, required: true},
+    handleTouch: {type: Boolean, default: false},
   },
   name: "LabelList",
   setup(props) {
-    const {adjustedColor, ...common} = useCommon();
+    const {adjustedColor, strings, ...common} = useCommon();
+    const ambiguousSelection = ref(null);
     function labelStyle(label) {
       return "background-color: " + adjustedColor(label.color).string() + ";";
     }
 
+    const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
+    const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
+
+    const labels = computed(() => {
+      return bookmark.value.labels.map(labelId => bookmarkLabels.get(labelId));
+    });
+
     const android = inject("android");
 
     function assignLabels() {
-      if(props.bookmark) {
-        android.assignLabels(props.bookmark.id);
+      if(bookmark.value) {
+        android.assignLabels(bookmark.value.id);
       }
     }
 
-    return {labelStyle, assignLabels, ...common}
+    function labelClicked(event, label) {
+      if(event.type === "touchstart" && !props.handleTouch) {
+        return;
+      }
+      if(event.type === "click" && props.handleTouch) {
+        return
+      }
+      event.stopPropagation();
+      addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
+      if(label.id > -1) {
+        addEventFunction(event, () => {
+          window.location.assign(`journal://?id=${label.id}`);
+        }, {title: strings.jumpToStudyPad});
+      }
+      ambiguousSelection.value.handle(event);
+    }
+
+    return {labelStyle, assignLabels, ambiguousSelection, labelClicked, labels, ...common}
   }
 }
 </script>

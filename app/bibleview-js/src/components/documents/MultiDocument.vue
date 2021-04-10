@@ -16,11 +16,15 @@
   -->
 
 <template>
+  <h2 v-if="document.compare">{{osisFragments[0].keyName}}</h2>
   <div v-for="(fragment, index) in osisFragments" :key="fragment.key">
     <div class="ref-link">
-      <a :href="link(fragment)">{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookInitials)}}</a>
+      <a :href="link(fragment)">
+        <template v-if="document.compare">{{fragment.bookInitials}}</template>
+        <template v-else>{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookInitials)}}</template>
+      </a>
     </div>
-    <OsisFragment :fragment="fragment"/>
+    <OsisFragment hide-titles :fragment="fragment"/>
     <div v-if="index < osisFragments.length - 1" class="separator"/>
   </div>
 </template>
@@ -49,7 +53,7 @@ export default {
 
 <style scoped>
 .ref-link {
-  padding-bottom: 1em;
+  padding-bottom: 0.5em;
   font-weight: bold;
 }
 .separator {

@@ -19,10 +19,12 @@ package net.bible.service.db
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
+import android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE
 import android.util.Log
 import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.database.AppDatabase
 import net.bible.android.database.bookmarks.BookmarkStyle
@@ -36,7 +38,6 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import java.sql.SQLException
-import java.util.*
 import androidx.room.migration.Migration as RoomMigration
 
 
@@ -670,6 +671,15 @@ private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
             val createdOnIdx = c.getColumnIndex("created_on")
 
             c.moveToFirst()
+
+            var labelId = -1L
+            if(!c.isAfterLast) {
+                val labelValues = ContentValues().apply {
+                    put("name", BibleApplication.application.getString(R.string.migrated_my_notes))
+                }
+                labelId = db.insert("Label", CONFLICT_FAIL, labelValues)
+            }
+
             while(!c.isAfterLast) {
                 val id = c.getLong(idIdx)
                 val key = c.getString(keyIdx)
@@ -703,7 +713,13 @@ private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
                     put("lastUpdatedOn", lastUpdatedOn)
                     put("notes", myNote)
                 }
-                db.insert("Bookmark", CONFLICT_FAIL, newValues)
+                val bookmarkId = db.insert("Bookmark", CONFLICT_FAIL, newValues)
+
+                val bookmarkLabelValues = ContentValues().apply {
+                    put("bookmarkId", bookmarkId)
+                    put("labelId", labelId)
+                }
+                db.insert("BookmarkToLabel", CONFLICT_FAIL, bookmarkLabelValues)
                 c.moveToNext()
             }
             execSQL("DROP TABLE mynote;")
@@ -741,6 +757,42 @@ private val JOURNAL_39_40 = object : Migration(39, 40) {
 
         db.execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `orderNumber` INTEGER NOT NULL DEFAULT -1")
         db.execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `indentLevel` INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+private val MIGRATION_40_41_DocumentBackup = object : Migration(40, 41) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("""CREATE TABLE IF NOT EXISTS `DocumentBackup` (`osisId` TEXT PRIMARY KEY NOT NULL, `abbreviation` TEXT NOT NULL, `name` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL);""")
+        }
+    }
+}
+
+private val MIGRATION_41_42_cipherKey = object : Migration(41, 42) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `DocumentBackup` ADD COLUMN `cipherKey` TEXT DEFAULT NULL")
+            // Let's empty the db as we changed from book.osisId -> book.initials
+            execSQL("DELETE FROM DocumentBackup")
+        }
+    }
+}
+
+
+private val MIGRATION_42_43_expandContent = object : Migration(42, 43) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `expandContent` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+
+private val MIGRATION_43_44_topMargin = object : Migration(43, 44) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_topMargin` INTEGER DEFAULT NULL")
+            db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_topMargin` INTEGER DEFAULT NULL")
+        }
     }
 }
 
@@ -797,6 +849,10 @@ object DatabaseContainer {
                         MIGRATION_37_38_MyNotes_To_Bookmarks,
                         BOOKMARKS_LABEL_COLOR_38_39,
                         JOURNAL_39_40,
+                        MIGRATION_40_41_DocumentBackup,
+                        MIGRATION_41_42_cipherKey,
+                        MIGRATION_42_43_expandContent,
+                        MIGRATION_43_44_topMargin,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
