@@ -67,10 +67,10 @@ class BookmarkItemAdapter(
             view.speakIcon.visibility = View.GONE
         }
         view.bookmarkIcons.removeAllViews()
-        for (it in labels) {
+        for (it in labels.filterNot { it.isSpeakLabel }) {
             val v = ImageView(view.bookmarkIcons.context)
             v.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            v.setImageResource(R.drawable.ic_bookmark_24dp)
+            v.setImageResource(R.drawable.ic_label_24dp)
             v.setColorFilter(it.color)
             view.bookmarkIcons.addView(v)
         }
