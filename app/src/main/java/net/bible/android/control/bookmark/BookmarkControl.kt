@@ -406,13 +406,13 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun getNextLabel(label: Label): Label {
-        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpeakLabel }
+        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpeakLabel && !it.isUnlabeledLabel }
         val thisIndex = allLabels.indexOf(label)
         return try {allLabels[thisIndex+1]} catch (e: IndexOutOfBoundsException) {allLabels[0]}
     }
 
     fun getPrevLabel(label: Label): Label {
-        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpeakLabel }
+        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpeakLabel && !it.isUnlabeledLabel }
         val thisIndex = allLabels.indexOf(label)
         return try {allLabels[thisIndex-1]} catch (e: IndexOutOfBoundsException) {allLabels[allLabels.size - 1]}
     }

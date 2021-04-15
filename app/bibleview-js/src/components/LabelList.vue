@@ -65,7 +65,7 @@ export default {
       }
       event.stopPropagation();
       addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
-      if(label.id > -1) {
+      if(label.isRealLabel) {
         addEventFunction(event, () => {
           window.location.assign(`journal://?id=${label.id}`);
         }, {title: strings.jumpToStudyPad});

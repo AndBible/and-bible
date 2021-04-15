@@ -68,7 +68,7 @@ class CurrentGeneralBookPage internal constructor(
                 is StudyPadKey -> {
                     val bookmarks = pageManager.bookmarkControl.getBookmarksWithLabel(key.label, addData = true)
                     val journalTextEntries = pageManager.bookmarkControl.getJournalTextEntriesForLabel(key.label)
-                    val bookmarkToLabels = bookmarks.map { pageManager.bookmarkControl.getBookmarkToLabel(it.id, key.label.id)!! }
+                    val bookmarkToLabels = bookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it.id, key.label.id) }
                     StudyPadDocument(key.label, bookmarks, bookmarkToLabels, journalTextEntries)
                 }
                 is BookAndKeyList -> {

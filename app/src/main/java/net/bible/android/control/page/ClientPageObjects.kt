@@ -219,10 +219,17 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
 data class ClientBookmarkStyle(val color: Int, val icon: String?, val noHighlight: Boolean)
 
 @Serializable
-data class ClientBookmarkLabel(val id: Long, val name: String, val style: ClientBookmarkStyle) {
+data class ClientBookmarkLabel(
+    val id: Long,
+    val name: String,
+    val style: ClientBookmarkStyle,
+    val isRealLabel: Boolean
+) {
     constructor(label: BookmarkEntities.Label): this(
-        label.id, label.displayName,
-        ClientBookmarkStyle(label.color, if(label.isSpeakLabel) "headphones" else null, label.isSpeakLabel)
+        label.id,
+        label.displayName,
+        ClientBookmarkStyle(label.color, if(label.isSpeakLabel) "headphones" else null, label.isSpeakLabel),
+        !label.isUnlabeledLabel && !label.isSpeakLabel && label.id > 0
     )
 }
 
