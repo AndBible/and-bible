@@ -28,9 +28,9 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
-import kotlinx.android.synthetic.main.settings_dialog.*
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
@@ -211,12 +211,15 @@ class TextDisplaySettingsActivity: ActivityBase() {
     private val dirtyTypes = mutableSetOf<Types>()
 
     internal lateinit var settingsBundle: SettingsBundle
+    private lateinit var binding: SettingsDialogBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_dialog)
+
+        binding = SettingsDialogBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         super.buildActivityComponent().inject(this)
         dirtyTypes.clear()
         requiresReload = false
@@ -235,13 +238,13 @@ class TextDisplaySettingsActivity: ActivityBase() {
             .replace(R.id.settings_container, fragment)
             .commit()
         this.fragment = fragment
-        okButton.setOnClickListener {finish()}
-        cancelButton.setOnClickListener {
+        binding.okButton.setOnClickListener {finish()}
+        binding.cancelButton.setOnClickListener {
             dirtyTypes.clear()
             setResult()
             finish()
         }
-        resetButton.setOnClickListener {
+        binding.resetButton.setOnClickListener {
             AlertDialog.Builder(this)
                 .setPositiveButton(R.string.yes) {_, _ ->
                     reset = true
