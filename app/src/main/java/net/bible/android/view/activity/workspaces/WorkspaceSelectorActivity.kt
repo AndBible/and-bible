@@ -42,8 +42,8 @@ import androidx.recyclerview.widget.ItemTouchHelper.DOWN
 import androidx.recyclerview.widget.ItemTouchHelper.UP
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.workspace_selector.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.WorkspaceSelectorBinding
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
@@ -52,7 +52,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.db.DatabaseContainer
-import org.w3c.dom.Text
 import javax.inject.Inject
 
 
@@ -153,15 +152,19 @@ class WorkspaceSelectorActivity: ActivityBase() {
     fun setDirty() {
         isDirty = true
         resultIntent.putExtra("changed", true)
-        save.isEnabled = true
+        binding.save.isEnabled = true
     }
+
+    private lateinit var binding: WorkspaceSelectorBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         super.buildActivityComponent().inject(this)
         windowControl.windowRepository.saveIntoDb()
         resultIntent = Intent(this, this::class.java)
-        setContentView(R.layout.workspace_selector)
+        binding = WorkspaceSelectorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         workspaceAdapter = WorkspaceAdapter(this).apply {
             setHasStableIds(true)
             registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
@@ -192,51 +195,51 @@ class WorkspaceSelectorActivity: ActivityBase() {
         dataSet = DatabaseContainer.db.workspaceDao().allWorkspaces().toMutableList()
 
         val workspace = dataSet.find { it.id == windowControl.windowRepository.id }!!
-        val currentPosition = dataSet.indexOf(workspace)
 
         val llm = LinearLayoutManager(this)
+        binding.run {
+            recyclerView.apply {
+                layoutManager = llm
+                setHasFixedSize(true)
+            }
+            itemTouchHelper.attachToRecyclerView(recyclerView)
 
-        recyclerView.apply {
-            layoutManager = llm
-            setHasFixedSize(true)
-        }
-        itemTouchHelper.attachToRecyclerView(recyclerView)
-
-        newWorkspace.setOnClickListener {
-            val name = EditText(this)
-            name.text = SpannableStringBuilder(getString(R.string.workspace_number, dataSet.size + 1))
-            name.selectAll()
-            name.requestFocus()
-            AlertDialog.Builder(this)
-                .setPositiveButton(R.string.okay) {d,_ ->
-                    val windowRepository = windowControl.windowRepository
-                    val newWorkspaceEntity = WorkspaceEntities.Workspace(
-                        name.text.toString(), null, 0,
-                        windowRepository.orderNumber,
-                        windowRepository.textDisplaySettings,
-                        windowRepository.windowBehaviorSettings
-                    ).apply {
-                        id = dao.insertWorkspace(this)
+            newWorkspace.setOnClickListener {
+                val name = EditText(this@WorkspaceSelectorActivity)
+                name.text = SpannableStringBuilder(getString(R.string.workspace_number, dataSet.size + 1))
+                name.selectAll()
+                name.requestFocus()
+                AlertDialog.Builder(this@WorkspaceSelectorActivity)
+                    .setPositiveButton(R.string.okay) { d, _ ->
+                        val windowRepository = windowControl.windowRepository
+                        val newWorkspaceEntity = WorkspaceEntities.Workspace(
+                            name.text.toString(), null, 0,
+                            windowRepository.orderNumber,
+                            windowRepository.textDisplaySettings,
+                            windowRepository.windowBehaviorSettings
+                        ).apply {
+                            id = dao.insertWorkspace(this)
+                        }
+                        goToWorkspace(newWorkspaceEntity.id)
                     }
-                    goToWorkspace(newWorkspaceEntity.id)
-                }
-                .setView(name)
-                .setNegativeButton(R.string.cancel, null)
-                .setTitle(getString(R.string.give_name_workspace))
-                .create()
-                .show()
-        }
+                    .setView(name)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setTitle(getString(R.string.give_name_workspace))
+                    .create()
+                    .show()
+            }
 
-        cancel.setOnClickListener {
-            cancelChanges()
-            finishCanceled()
-        }
+            cancel.setOnClickListener {
+                cancelChanges()
+                finishCanceled()
+            }
 
-        save.setOnClickListener {
-            applyChanges()
-            finishOk()
+            save.setOnClickListener {
+                applyChanges()
+                finishOk()
+            }
+            recyclerView.adapter = workspaceAdapter
         }
-        recyclerView.adapter = workspaceAdapter
     }
 
     private fun finishOk() {
