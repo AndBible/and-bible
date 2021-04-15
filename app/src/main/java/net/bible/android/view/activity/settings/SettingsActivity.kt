@@ -57,15 +57,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun setupDictionary(pref: ListPreference, type: FeatureType): Boolean {
         val dicts = Books.installed().books.filter { it.hasFeature(type) }
 
-        if(dicts.isEmpty()) {
+        return if(dicts.isEmpty()) {
             pref.isVisible = false
-            return false
+            false
         } else {
             val names = dicts.map { it.name }.toTypedArray()
             val initials = dicts.map { it.initials }.toTypedArray()
             pref.entries = names
             pref.entryValues = initials
-            return true
+            true
         }
     }
 
@@ -92,15 +92,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         val showErrorBox = preferenceScreen.findPreference<ListPreference>("show_errorbox") as Preference
         showErrorBox.isVisible = CommonUtils.isBeta
-        var showDictionaries = false
         val greekStrongs = preferenceScreen.findPreference<ListPreference>("strongs_greek_dictionary") as ListPreference
-        showDictionaries = showDictionaries || setupDictionary(greekStrongs, FeatureType.GREEK_DEFINITIONS)
+        val showGreek = setupDictionary(greekStrongs, FeatureType.GREEK_DEFINITIONS)
         val hebrewStrongs = preferenceScreen.findPreference<ListPreference>("strongs_hebrew_dictionary") as ListPreference
-        showDictionaries = showDictionaries || setupDictionary(hebrewStrongs, FeatureType.HEBREW_DEFINITIONS)
+        val showHebrew = setupDictionary(hebrewStrongs, FeatureType.HEBREW_DEFINITIONS)
         val greekMorph = preferenceScreen.findPreference<ListPreference>("robinson_greek_morphology") as ListPreference
-        showDictionaries = showDictionaries || setupDictionary(greekMorph, FeatureType.GREEK_PARSE)
+        val showGreekMorph = setupDictionary(greekMorph, FeatureType.GREEK_PARSE)
         val dictCategory = preferenceScreen.findPreference<PreferenceCategory>("dictionaries_category") as PreferenceCategory
-        dictCategory.isVisible = showDictionaries
+        dictCategory.isVisible = showGreek || showHebrew || showGreekMorph
 
         preferenceScreen.findPreference<ListPreference>("toolbar_button_actions")?.apply {
                 if (value.isNullOrBlank())
