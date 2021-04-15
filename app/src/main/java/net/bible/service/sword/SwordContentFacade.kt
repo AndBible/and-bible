@@ -18,14 +18,18 @@
 package net.bible.service.sword
 
 import android.util.Log
+import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.misc.OsisFragment
+import net.bible.android.view.activity.page.BibleView
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Logger
@@ -58,8 +62,10 @@ import org.jdom2.output.support.AbstractXMLOutputProcessor
 import org.jdom2.output.support.FormatStack
 import org.xml.sax.ContentHandler
 import java.io.Writer
+import java.lang.RuntimeException
 import java.util.*
 import javax.inject.Inject
+import kotlin.math.min
 
 class OsisError(message: String): Exception(message)
 
@@ -137,6 +143,61 @@ open class SwordContentFacade @Inject constructor(
             Log.e(TAG, "Error getting text from book", e)
             application.getString(R.string.error_occurred)
         }
+    }
+
+    fun getSelectionText(selection: BibleView.Selection,
+                         showVerseNumbers: Boolean,
+                         showFull: Boolean,
+                         showReference: Boolean,
+                         advertiseApp: Boolean,
+    ): String {
+
+        class VerseAndText(val verse: Verse, val text: String)
+
+        val book = selection.book
+        val verseTexts = selection.verseRange.map {
+            VerseAndText(it as Verse, getCanonicalText(book, it, true))
+        }
+        val startOffset = selection.startOffset
+        var startVerse = verseTexts.first().text
+        var endOffset = selection.endOffset
+        val start = startVerse.slice(0 until min(startOffset, startVerse.length))
+
+        var startVerseNumber = ""
+        if(showVerseNumbers) {
+            startVerseNumber = "${selection.verseRange.start.verse}. "
+            if (!showFull && startOffset > 0) {
+                startVerseNumber = "$startVerseNumber ..."
+            }
+        }
+
+        val reference = if(showReference) " (${selection.verseRange.name}, ${selection.book.abbreviation})" else ""
+        val advertise = if(advertiseApp) "\n\n${application.getString(R.string.verse_share_advertise, application.getString(R.string.app_name_long))} (https://andbible.github.io)" else ""
+        return when {
+            verseTexts.size == 1 -> {
+                val end = startVerse.slice(endOffset until startVerse.length)
+                val text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
+                val post = if(!showFull && end.isNotEmpty()) "..." else ""
+                if(showFull) """“$startVerseNumber$start${text}$end”""" else "“$startVerseNumber$text$post”"
+            }
+            verseTexts.size > 1 -> {
+                startVerse = startVerse.slice(startOffset until startVerse.length)
+                val lastVerse = verseTexts.last()
+                endOffset = selection.endOffset
+                val endVerse = lastVerse.text.slice(0 until min(lastVerse.text.length, endOffset))
+                val end = lastVerse.text.slice(endOffset until lastVerse.text.length)
+                val middleVerses = if(verseTexts.size > 2) {
+                    verseTexts.slice(1 until verseTexts.size-1).joinToString(" ") {
+                        if(showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
+                    }
+                } else ""
+                val text = "“$startVerse$middleVerses$endVerse"
+                val post = if(!showFull && end.isNotEmpty()) "..." else ""
+
+                if(showFull) """“$startVerseNumber$start${text}$end”""" else "“$startVerseNumber$text$post”"
+            }
+            else -> throw RuntimeException("what")
+        } + reference + advertise
     }
 
     @Throws(NoSuchKeyException::class, BookException::class, ParseException::class)

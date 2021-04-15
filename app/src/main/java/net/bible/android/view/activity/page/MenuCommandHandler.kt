@@ -246,7 +246,7 @@ constructor(private val callingActivity: MainBibleActivity,
                         putExtra(Intent.EXTRA_TEXT, message)
                         type = "text/plain"
                     }
-                    val chooserIntent = Intent.createChooser(emailIntent, callingActivity.getString(R.string.give_feedback_title))
+                    val chooserIntent = Intent.createChooser(emailIntent, callingActivity.getString(R.string.tell_friend_title))
                     callingActivity.startActivity(chooserIntent)
                     isHandled = true
                 }

@@ -314,6 +314,7 @@
     <!-- Verse context menu -->
     <string name="notes">Footnotes and references</string>
     <string name="share_verse">Share…</string>
+    <string name="share_verse_widget_title">Share selection</string>
     <string name="share_verse_subject_2">A Bible verse has been shared with you using %s.</string>
     <string name="compare_translations">Compare translations</string>
 
@@ -765,4 +766,11 @@
         \n\nInstall it from Play Store: %s
         \nRead more &amp; more install options: %s.
     </string>
+    <string name="share_verse_ok">Share / Copy</string>
+    <string name="share_verse_menu_title">Share / copy…</string>
+    <string name="show_versenumbers">Show verse numbers</string>
+    <string name="show_full_verses">Show full verses</string>
+    <string name="show_reference">Show reference</string>
+    <string name="advertise_app">Advertise app</string>
+    <string name="verse_share_advertise">Shared using %s".</string>
 </resources>

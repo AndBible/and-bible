@@ -37,5 +37,10 @@
 			android:orderInCategory="2"
 			app:showAsAction="always"
 			/>
+		<item android:id="@+id/share_verses"
+			android:title="@string/share_verse_menu_title"
+			android:orderInCategory="2"
+			app:showAsAction="always"
+			/>
 	</group>
 </menu>

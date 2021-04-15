@@ -42,6 +42,7 @@ import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
+import net.bible.android.view.util.widget.ShareWidget
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 
@@ -74,6 +75,7 @@ interface ActivityComponent {
     fun inject(chooseKeyBase: ChooseKeyBase)
 
     fun inject(chooseDocument: ChooseDocument)
+    fun inject(chooseDocument: ShareWidget)
     fun inject(download: DownloadActivity)
 
     fun inject(speak: GeneralSpeakActivity)

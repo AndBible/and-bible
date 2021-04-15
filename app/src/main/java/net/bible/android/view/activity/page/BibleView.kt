@@ -100,11 +100,13 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
+import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
@@ -215,6 +217,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 mode.finish()
                 return true
             }
+            R.id.share_verses -> {
+                val sel = currentSelection
+                if(sel != null)
+                    ShareWidget.dialog(mainBibleActivity, sel)
+                return true
+            }
             else -> false
         }
     }
@@ -266,11 +274,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     class Selection(val bookInitials: String, val startOrdinal: Int,
                     val startOffset: Int, val endOrdinal: Int, val endOffset: Int, val bookmarks: List<Long>)
     {
+        val book: Book get() = (Books.installed().getBook(bookInitials) as SwordBook)
         val verseRange: VerseRange get() {
             val v11n = (Books.installed().getBook(bookInitials) as SwordBook).versification
             return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
         }
-
     }
 
     var menuPrepared = false
@@ -284,9 +292,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             menu.findItem(R.id.add_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.remove_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            menu.findItem(R.id.share_verses).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             if(currentSelection == null) {
                 menu.findItem(R.id.add_bookmark).isVisible = false
                 menu.findItem(R.id.compare).isVisible = false
+                menu.findItem(R.id.share_verses).isVisible = false
             }
             if ((currentSelection?.bookmarks ?: emptyList()).isEmpty()) {
                 val item = menu.findItem(R.id.remove_bookmark)
