@@ -173,13 +173,14 @@ export function useConfig(documentType) {
         },
         topMargin: 0,
     });
-
+    const rtl = new URLSearchParams(window.location.search).get("rtl");
     const appSettings = reactive({
         topOffset: 0,
         bottomOffset: 100,
         nightMode: false,
         errorBox: false,
         activeWindow: false,
+        rightToLeft: rtl
     });
 
     function calcMmInPx() {
@@ -203,6 +204,7 @@ export function useConfig(documentType) {
     });
 
     window.bibleViewDebug.config = config;
+    window.bibleViewDebug.appSettings = appSettings;
 
     setupEventBusListener(Events.SET_ACTIVE, newActive => {
         appSettings.activeWindow = newActive;

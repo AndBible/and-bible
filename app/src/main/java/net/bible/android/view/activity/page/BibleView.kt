@@ -25,6 +25,8 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Looper
+import android.text.TextUtils
+import android.util.LayoutDirection
 import android.util.Log
 import android.view.ActionMode
 import android.view.ContextMenu
@@ -43,6 +45,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
+import androidx.core.text.layoutDirection
 import androidx.core.view.GestureDetectorCompat
 import androidx.webkit.WebViewAssetLoader
 import kotlinx.coroutines.CompletableDeferred
@@ -448,10 +451,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // if this webview becomes (in)active then must start/stop auto-scroll
         listenEvents = true
 
-        val lang = Locale.getDefault().toLanguageTag()
+        val locale = Locale.getDefault()
+        val isRtl = TextUtils.getLayoutDirectionFromLocale(locale) == LayoutDirection.RTL
+        val lang = locale.toLanguageTag()
 
         val fontModuleNames = AndBibleAddons.fontModuleNames.joinToString(",")
-        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html?lang=$lang&fontModuleNames=$fontModuleNames")
+        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html?lang=$lang&fontModuleNames=$fontModuleNames&rtl=$isRtl")
     }
 
      fun onEvent(e: ReloadAddonsEvent) {
