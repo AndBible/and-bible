@@ -276,7 +276,7 @@ open class BookmarkControl @Inject constructor(
         b.labelIds = bookmarkToLabels.map { it.labelId }
     }
 
-    private fun addText(b: Bookmark) {
+    internal fun addText(b: Bookmark) {
         val book = b.book ?: windowControl.defaultBibleDoc(false) as SwordBook? ?: return // last ?: return is needed for tests
         b.osisFragment =
             try {
@@ -294,6 +294,8 @@ open class BookmarkControl @Inject constructor(
         if(verseTexts.size == 1) {
             val end = startVerse.slice(endOffset until startVerse.length)
             b.text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
+            b.startText = start
+            b.endText = end
             b.fullText = """$start${b.text}$end"""
         } else if(verseTexts.size > 1) {
             startVerse = startVerse.slice(startOffset until startVerse.length)
@@ -304,6 +306,8 @@ open class BookmarkControl @Inject constructor(
             val middleVerses = if(verseTexts.size > 2) {
                 verseTexts.slice(1 until verseTexts.size-1).joinToString(" ")
             } else ""
+            b.startText = start
+            b.endText = end
             b.text = "$startVerse$middleVerses$endVerse"
             b.fullText = """$start${b.text}$end"""
         }

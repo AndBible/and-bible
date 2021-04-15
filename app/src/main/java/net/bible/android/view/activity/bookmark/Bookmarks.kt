@@ -78,7 +78,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var swordContentFacade: SwordContentFacade
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     private val labelList: MutableList<Label> = ArrayList()
@@ -134,7 +133,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
         // prepare the document list view
         val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(
-            this, bookmarkList, bookmarkControl, swordContentFacade, activeWindowPageManagerProvider
+            this, bookmarkList, bookmarkControl, activeWindowPageManagerProvider
         )
         listAdapter = bookmarkArrayAdapter
         loadBookmarkList()
@@ -205,21 +204,35 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     /** a spinner has changed so refilter the doc list
      */
-    private fun loadBookmarkList() {
+    private fun loadBookmarkList() = GlobalScope.launch(Dispatchers.IO) {
+        withContext(Dispatchers.Main) {
+            binding.empty.visibility = View.GONE
+            binding.list.visibility = View.GONE
+            binding.loadingIndicator.visibility = View.VISIBLE
+        }
         try {
             if (selectedLabelNo > -1 && selectedLabelNo < labelList.size) {
                 Log.i(TAG, "filtering bookmarks")
                 val selectedLabel = labelList[selectedLabelNo]
                 bookmarkList.clear()
                 bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder))
-                notifyDataSetChanged()
+                withContext(Dispatchers.Main) {
+                    notifyDataSetChanged()
 
-                // if in action mode then must exit because the data has changed, invalidating selections
-                listActionModeHelper!!.exitActionMode()
+                    // if in action mode then must exit because the data has changed, invalidating selections
+                    listActionModeHelper!!.exitActionMode()
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error initialising view", e)
-            Toast.makeText(this, getString(R.string.error) + " " + e.message, Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@Bookmarks, getString(R.string.error) + " " + e.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+        withContext(Dispatchers.Main) {
+            binding.loadingIndicator.visibility = View.GONE
+            binding.list.visibility = View.VISIBLE
+            binding.empty.visibility = View.VISIBLE
         }
     }
 

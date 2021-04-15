@@ -196,6 +196,14 @@ class BookmarkEntities {
         @Ignore var labelIds: List<Long>? = null
         @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
         @Ignore var text: String? = null
+
+        val highlightedText: String get() {
+            return "$startText<b>$text</b>$endText"
+        }
+
+        @Ignore var startText: String? = null
+        @Ignore var endText: String? = null
+
         @Ignore var fullText: String? = null
         @Ignore var osisFragment: OsisFragment? = null
     }

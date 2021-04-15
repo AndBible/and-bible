@@ -34,7 +34,6 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
-import net.bible.service.sword.SwordContentFacade
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -45,13 +44,15 @@ class BookmarkItemAdapter(
     context: Context,
     items: List<Bookmark>,
     private val bookmarkControl: BookmarkControl,
-    private val swordContentFacade: SwordContentFacade,
     private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 ) : ArrayAdapter<Bookmark>(context, R.layout.bookmark_list_item, items) {
     private lateinit var bindings: BookmarkListItemBinding
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val item = getItem(position)!!
+        if(item.text == null) {
+            bookmarkControl.addText(item)
+        }
 
         val bindings = when(convertView) {
             null -> {
@@ -108,14 +109,12 @@ class BookmarkItemAdapter(
         val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
         bindings.dateText.text = sDt
 
-        // set value for the second text field
-        try {
-            val verseText = swordContentFacade.getBookmarkVerseText(item)
-            bindings.verseContentText.text = verseText
-        } catch (e: Exception) {
-            Log.e(TAG, "Error loading label verse text", e)
-            bindings.verseContentText.text = ""
+        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(item.highlightedText, Html.FROM_HTML_MODE_LEGACY)
+        } else {
+            Html.fromHtml(item.highlightedText)
         }
+        bindings.verseContentText.text = spanned
         return convertView ?: bindings.root
     }
 
