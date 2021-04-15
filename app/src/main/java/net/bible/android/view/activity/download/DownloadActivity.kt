@@ -27,7 +27,6 @@ import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
-import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -137,7 +136,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
                         this@DownloadActivity, downloadControl, recommendedDocuments)
                     initialiseView()
                     // in the basic flow we force the user to download a bible
-                    documentTypeSpinner.isEnabled = true
+                    binding.documentTypeSpinner.isEnabled = true
                 }
                 val firstTime = swordDocumentFacade.bibles.isEmpty()
                 // if first time
@@ -341,7 +340,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
                 isRefreshing = true
                 invalidateOptionsMenu()
 
-                freeTextSearch.setText("")
+                binding.freeTextSearch.setText("")
 
                 Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
 

@@ -26,12 +26,12 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.Toast
-import kotlinx.android.synthetic.main.list.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchResultsDto
@@ -49,6 +49,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class SearchResults : ListActivityBase(R.menu.empty_menu) {
+    private lateinit var binding: ListBinding
     private var mSearchResultsHolder: SearchResultsDto? = null
     private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
     private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
@@ -61,7 +62,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search results view")
-        setContentView(R.layout.list)
+        binding = ListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         buildActivityComponent().inject(this)
         searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
         setActionBarManager(searchResultsActionBarManager)
@@ -73,8 +75,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
 
     private suspend fun prepareResults() {
         withContext(Dispatchers.Main) {
-            loadingIndicator.visibility = View.VISIBLE
-            empty.visibility = View.GONE
+            binding.loadingIndicator.visibility = View.VISIBLE
+            binding.empty.visibility = View.GONE
         }
         if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
             withContext(Dispatchers.Main) {
@@ -84,9 +86,9 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             }
         }
         withContext(Dispatchers.Main) {
-            loadingIndicator.visibility = View.GONE
+            binding.loadingIndicator.visibility = View.GONE
             if(listAdapter?.isEmpty == true) {
-                empty.visibility = View.VISIBLE
+                binding.empty.visibility = View.VISIBLE
             }
         }
     }

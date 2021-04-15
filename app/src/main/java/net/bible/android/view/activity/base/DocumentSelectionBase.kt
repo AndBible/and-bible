@@ -94,7 +94,7 @@ data class RecommendedDocuments(
 
 abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
 
-    private lateinit var binding: DocumentSelectionBinding
+    protected lateinit var binding: DocumentSelectionBinding
 
     protected lateinit var documentItemAdapter: ArrayAdapter<Book>
     protected var selectedDocumentFilterNo = 0
