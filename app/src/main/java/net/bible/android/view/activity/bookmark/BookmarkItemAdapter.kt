@@ -28,12 +28,11 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.LinearLayout
-import kotlinx.android.synthetic.main.bookmark_list_item.view.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.BookmarkListItemBinding
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.view.util.widget.BookmarkListItem
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.sword.SwordContentFacade
 
@@ -49,30 +48,33 @@ class BookmarkItemAdapter(
     private val swordContentFacade: SwordContentFacade,
     private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 ) : ArrayAdapter<Bookmark>(context, R.layout.bookmark_list_item, items) {
+    private lateinit var bindings: BookmarkListItemBinding
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val item = getItem(position)!!
 
-        // Pick up the TwoLineListItem defined in the xml file
-        val view: BookmarkListItem = if (convertView == null) {
-            val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            inflater.inflate(R.layout.bookmark_list_item, parent, false) as BookmarkListItem
-        } else {
-            convertView as BookmarkListItem
+        val bindings = when(convertView) {
+            null -> {
+                val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                BookmarkListItemBinding.inflate(inflater, parent, false)
+            }
+            else -> BookmarkListItemBinding.bind(convertView)
         }
+
         val labels = bookmarkControl.labelsForBookmark(item)
         val isSpeak = labels.contains(bookmarkControl.speakLabel)
         if (isSpeak) {
-            view.speakIcon.visibility = View.VISIBLE
+            bindings.speakIcon.visibility = View.VISIBLE
         } else {
-            view.speakIcon.visibility = View.GONE
+            bindings.speakIcon.visibility = View.GONE
         }
-        view.bookmarkIcons.removeAllViews()
+        bindings.bookmarkIcons.removeAllViews()
         for (it in labels.filterNot { it.isSpeakLabel }) {
-            val v = ImageView(view.bookmarkIcons.context)
+            val v = ImageView(bindings.bookmarkIcons.context)
             v.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             v.setImageResource(R.drawable.ic_label_24dp)
             v.setColorFilter(it.color)
-            view.bookmarkIcons.addView(v)
+            bindings.bookmarkIcons.addView(v)
         }
 
         // Set value for the first text field
@@ -80,12 +82,12 @@ class BookmarkItemAdapter(
         val verseName = item.verseRange.toV11n(versification).name
         val book = item.speakBook
         if (isSpeak && book != null) {
-            view.verseText.text = context.getString(R.string.something_with_parenthesis, verseName, book.abbreviation)
+            bindings.verseText.text = context.getString(R.string.something_with_parenthesis, verseName, book.abbreviation)
         } else {
-            view.verseText.text = verseName
+            bindings.verseText.text = verseName
         }
         if(item.notes !== null) {
-            view.notesText.visibility = View.VISIBLE
+            bindings.notesText.visibility = View.VISIBLE
             try {
                 val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Html.fromHtml(item.notes, Html.FROM_HTML_MODE_LEGACY)
@@ -93,28 +95,28 @@ class BookmarkItemAdapter(
                     Html.fromHtml(item.notes)
                 }
 
-                view.notesText.text = spanned
+                bindings.notesText.text = spanned
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading label verse text", e)
-                view.notesText.visibility = View.GONE
+                bindings.notesText.visibility = View.GONE
             }
         } else {
-            view.notesText.visibility = View.GONE
+            bindings.notesText.visibility = View.GONE
         }
 
         // Set value for the date text field
         val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
-        view.dateText.text = sDt
+        bindings.dateText.text = sDt
 
         // set value for the second text field
         try {
             val verseText = swordContentFacade.getBookmarkVerseText(item)
-            view.verseContentText.text = verseText
+            bindings.verseContentText.text = verseText
         } catch (e: Exception) {
             Log.e(TAG, "Error loading label verse text", e)
-            view.verseContentText.text = ""
+            bindings.verseContentText.text = ""
         }
-        return view
+        return convertView ?: bindings.root
     }
 
     companion object {

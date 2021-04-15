@@ -24,31 +24,33 @@ import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.CheckBox
-import android.widget.TextView
-import kotlinx.android.synthetic.main.manage_labels_list_item.view.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ManageLabelsListItemBinding
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.displayName
 
 class ManageLabelItemAdapter(context: Context?,
-                             private val resource: Int, items: List<BookmarkEntities.Label?>?,
+                             items: List<BookmarkEntities.Label?>?,
                              private val manageLabels: ManageLabels,
                              private val checkedLabels: MutableSet<Long>,
-                             ) : ArrayAdapter<BookmarkEntities.Label?>(context!!, resource, items!!)
+                             ) : ArrayAdapter<BookmarkEntities.Label?>(context!!, R.layout.manage_labels_list_item, items!!)
 {
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
+    private lateinit var bindings: ManageLabelsListItemBinding
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val label = getItem(position)
-        val rowView: View = if (convertView == null) {
+
+        bindings = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            inflater.inflate(resource, parent, false)
+            ManageLabelsListItemBinding.inflate(inflater, parent, false)
         } else {
-            convertView
-        }
-        val name = rowView.findViewById<View>(R.id.labelName) as TextView
+            ManageLabelsListItemBinding.bind(convertView)
+        }        
+
+        val name = bindings.labelName
+        
         name.text = label!!.displayName
-        val checkbox = rowView.findViewById<View>(R.id.checkbox) as CheckBox
+        val checkbox = bindings.checkbox
         if(manageLabels.showCheckboxes) {
             name.setOnClickListener { checkbox.isChecked = !checkbox.isChecked }
             checkbox.setOnCheckedChangeListener { _, isChecked -> manageLabels.setEnabled(label, isChecked)}
@@ -57,22 +59,22 @@ class ManageLabelItemAdapter(context: Context?,
             checkbox.visibility = View.GONE
         }
         if(manageLabels.studyPadMode) {
-            rowView.labelIcon.setImageResource(R.drawable.ic_pen_24dp)
+            bindings.labelIcon.setImageResource(R.drawable.ic_pen_24dp)
         }
         bookmarkStyleAdapterHelper.styleView(name, label, context, false, false)
-        rowView.editLabel.setOnClickListener { manageLabels.editLabel(label) }
-        rowView.deleteLabel.setOnClickListener { manageLabels.delete(label) }
-        rowView.editLabel.visibility = if(label.isSpeakLabel) View.INVISIBLE else View.VISIBLE
-        rowView.deleteLabel.visibility = if (label.isSpeakLabel || label.isUnlabeledLabel) View.INVISIBLE else View.VISIBLE
-        rowView.labelIcon.setColorFilter(label.color)
+        bindings.editLabel.setOnClickListener { manageLabels.editLabel(label) }
+        bindings.deleteLabel.setOnClickListener { manageLabels.delete(label) }
+        bindings.editLabel.visibility = if(label.isSpeakLabel) View.INVISIBLE else View.VISIBLE
+        bindings.deleteLabel.visibility = if (label.isSpeakLabel || label.isUnlabeledLabel) View.INVISIBLE else View.VISIBLE
+        bindings.labelIcon.setColorFilter(label.color)
         if (nightMode) {
-            rowView.editLabel.setImageResource(R.drawable.ic_pen_24dp)
-            rowView.deleteLabel.setImageResource(R.drawable.ic_delete_24dp)
+            bindings.editLabel.setImageResource(R.drawable.ic_pen_24dp)
+            bindings.deleteLabel.setImageResource(R.drawable.ic_delete_24dp)
         } else {
-            rowView.editLabel.setImageResource(R.drawable.ic_pen_24dp_black)
-            rowView.deleteLabel.setImageResource(R.drawable.ic_delete_24dp_black)
+            bindings.editLabel.setImageResource(R.drawable.ic_pen_24dp_black)
+            bindings.deleteLabel.setImageResource(R.drawable.ic_delete_24dp_black)
         }
-        return rowView
+        return convertView?: bindings.root
     }
 
     companion object {

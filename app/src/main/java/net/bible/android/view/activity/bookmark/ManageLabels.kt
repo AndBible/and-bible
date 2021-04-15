@@ -28,8 +28,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ListView
-import kotlinx.android.synthetic.main.manage_labels.*
-import kotlinx.android.synthetic.main.manage_labels_list_item.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -103,7 +101,7 @@ class ManageLabels : ListActivityBase() {
 
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
         loadLabelList()
-        listAdapter = ManageLabelItemAdapter(this, LIST_ITEM_TYPE, labels, this, checkedLabels)
+        listAdapter = ManageLabelItemAdapter(this, labels, this, checkedLabels)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
@@ -233,6 +231,5 @@ class ManageLabels : ListActivityBase() {
 
     companion object {
         private const val TAG = "BookmarkLabels"
-        private const val LIST_ITEM_TYPE = R.layout.manage_labels_list_item
     }
 }

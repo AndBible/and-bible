@@ -30,11 +30,10 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import kotlinx.android.synthetic.main.font_family_widget.view.*
-import kotlinx.android.synthetic.main.text_size_widget.view.*
-import kotlinx.android.synthetic.main.text_size_widget.view.dialogMessage
-import kotlinx.android.synthetic.main.value_slider_widget.view.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.FontFamilyWidgetBinding
+import net.bible.android.activity.databinding.TextSizeWidgetBinding
+import net.bible.android.activity.databinding.ValueSliderWidgetBinding
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.ProvidedFont
@@ -100,35 +99,37 @@ class FontSizeWidget(context: Context, attributeSet: AttributeSet?): LinearLayou
 {
     var value = WorkspaceEntities.TextDisplaySettings.default.fontSize!!
     var fontFamily: String = ""
+    private val bindings =  TextSizeWidgetBinding.inflate(context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater, this, true)
     init {
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        inflater.inflate(R.layout.text_size_widget, this, true)
-        dialogMessage.setText(R.string.prefs_text_size_sample_text)
+        bindings.apply {
+            dialogMessage.setText(R.string.prefs_text_size_sample_text)
 
-        fontSizeSlider.max = 60
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            fontSizeSlider.min = 1
+            fontSizeSlider.max = 60
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                fontSizeSlider.min = 1
+            }
+            fontSizeSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    value = progress
+                    if (fromUser) updateValue()
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                }
+
+            })
         }
-        fontSizeSlider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                value = progress
-                if(fromUser) updateValue()
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
-
-        })
     }
     
-    fun updateValue() {
+    fun updateValue() = bindings.apply {
         val availableFonts = availableFonts
         val fontSize = value
         dialogMessage.textSize = fontSize.toFloat()
         fontSizeValue.text = context.getString(R.string.font_size_pt, fontSize)
-        val fontDefinition = availableFonts.find { it.realFontFamily == fontFamily }?:return
+        val fontDefinition = availableFonts.find { it.realFontFamily == fontFamily }?:return@apply
         dialogMessage.typeface = getTypeFace(fontDefinition)
         fontSizeSlider.progress = fontSize
     }
@@ -163,12 +164,12 @@ class FontSizeWidget(context: Context, attributeSet: AttributeSet?): LinearLayou
 class TopMarginWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(context, attributeSet)
 {
     var value = WorkspaceEntities.TextDisplaySettings.default.topMargin!!
+    val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    var bindings = ValueSliderWidgetBinding.inflate(inflater, this, true)
     init {
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        inflater.inflate(R.layout.value_slider_widget, this, true)
 
-        valueSlider.max = 60
-        valueSlider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+        bindings.valueSlider.max = 60
+        bindings.valueSlider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 value = progress
                 if(fromUser) updateValue()
@@ -184,8 +185,8 @@ class TopMarginWidget(context: Context, attributeSet: AttributeSet?): LinearLayo
 
     fun updateValue() {
         val newValue = value
-        valueString.text = context.getString(R.string.value_mm, newValue)
-        valueSlider.progress = newValue
+        bindings.valueString.text = context.getString(R.string.value_mm, newValue)
+        bindings.valueSlider.progress = newValue
     }
 
     companion object {
@@ -217,18 +218,18 @@ class TopMarginWidget(context: Context, attributeSet: AttributeSet?): LinearLayo
 class FontFamilyWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(context, attributeSet)
 {
     var value = WorkspaceEntities.TextDisplaySettings.default.fontFamily!!
+    val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    val bindings = FontFamilyWidgetBinding.inflate(inflater, this, true)
     var fontSize: Int = 16
     init {
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        inflater.inflate(R.layout.font_family_widget, this, true)
-        dialogMessage.setText(R.string.prefs_text_size_sample_text)
+        bindings.dialogMessage.setText(R.string.prefs_text_size_sample_text)
 
         val adapter = FontAdapter(context, R.layout.fontfamily_list_item, availableFonts)
-        fontFamily.adapter = adapter
+        bindings.fontFamily.adapter = adapter
 
-        fontFamily.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+        bindings.fontFamily.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                fontFamily.setSelection(0)
+                bindings.fontFamily.setSelection(0)
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -241,10 +242,12 @@ class FontFamilyWidget(context: Context, attributeSet: AttributeSet?): LinearLay
     fun updateValue() {
         val availableFonts = availableFonts
         val fontFamilyVal = value
-        dialogMessage.textSize = fontSize.toFloat()
-        val fontDefinition = availableFonts.find { it.realFontFamily == fontFamilyVal }?:return
-        dialogMessage.typeface = getTypeFace(fontDefinition)
-        fontFamily.setSelection(availableFonts.indexOf(fontDefinition))
+        bindings.apply {
+            dialogMessage.textSize = fontSize.toFloat()
+            val fontDefinition = availableFonts.find { it.realFontFamily == fontFamilyVal } ?: return
+            dialogMessage.typeface = getTypeFace(fontDefinition)
+            fontFamily.setSelection(availableFonts.indexOf(fontDefinition))
+        }
     }
 
     companion object {
