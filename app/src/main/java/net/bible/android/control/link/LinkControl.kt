@@ -167,7 +167,7 @@ class LinkControl @Inject constructor(
     @Throws(NoSuchKeyException::class)
     private fun getBibleKey(keyText: String, versification: Versification): BookAndKey {
         val key: Passage = PassageKeyFactory.instance().getKey(versification, keyText)
-        return BookAndKey(windowControl.defaultBibleDoc, key)
+        return BookAndKey(windowControl.defaultBibleDoc(true), key)
     }
 
     /** user has selected a Strong's Number link so show Strong's page for key in link

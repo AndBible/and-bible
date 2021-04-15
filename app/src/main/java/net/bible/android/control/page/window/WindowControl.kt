@@ -90,10 +90,10 @@ open class WindowControl @Inject constructor(
      * Show link using whatever is the current Bible in the Links window
      */
     fun showLinkUsingDefaultBible(key: Key) {
-        showLink(defaultBibleDoc, key)
+        showLink(defaultBibleDoc(), key)
     }
 
-    open val defaultBibleDoc: Book get() {
+    open fun defaultBibleDoc(useLinks: Boolean  = true): Book {
         val linksWindow = windowRepository.dedicatedLinksWindow
         val currentBiblePage = linksWindow.pageManager.currentBible
 
@@ -101,7 +101,7 @@ open class WindowControl @Inject constructor(
         val bibleDoc = windowRepository.activeWindow.pageManager.currentBible.currentDocument
 
         // default either to links window bible or if closed then active window bible
-        val defaultBible = if (currentBiblePage.isCurrentDocumentSet) {
+        val defaultBible = if (useLinks && currentBiblePage.isCurrentDocumentSet) {
             currentBiblePage.currentDocument
         } else {
             windowRepository.activeWindow.pageManager.currentBible.currentDocument
