@@ -22,8 +22,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import kotlinx.android.synthetic.main.document_list_item.view.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.android.view.activity.download.DocumentListItem
 import org.crosswire.jsword.book.Book
@@ -39,41 +39,37 @@ import org.crosswire.jsword.versification.system.SystemKJV
 class DocumentItemAdapter(
     context: Context,
     private val recommendedDocuments: RecommendedDocuments? = null
-) : ArrayAdapter<Book>(context, R.layout.list_item_2_highlighted, ArrayList<Book>()) {
+) : ArrayAdapter<Book>(context, R.layout.document_list_item, ArrayList<Book>()) {
+    private lateinit var bindings: DocumentListItemBinding
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val document = getItem(position)!!
-
-        // Pick up the TwoLineListItem defined in the xml file
-        val view: DocumentListItem
-        view = if (convertView == null) {
+        bindings = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            inflater.inflate(R.layout.document_list_item, parent, false) as DocumentListItem
+            DocumentListItemBinding.inflate(inflater, parent, false)
         } else {
-            convertView as DocumentListItem
+            DocumentListItemBinding.bind(convertView)
         }
+        val view = (convertView?: bindings.root) as DocumentListItem
+        view.bindings = bindings
+
         view.document = document
         view.recommendedDocuments = recommendedDocuments
         view.setIcons()
 
         // Set value for the first text field
-        if (view.documentAbbreviation != null) {
-            // eBible repo uses abbreviation for initials and initials now contains the repo name!!!
-            // but helpfully JSword uses initials if abbreviation does not exist, as will be the case for all other repos.
-            view.documentAbbreviation.text = document.abbreviation
-        }
+        bindings.documentAbbreviation.text = document.abbreviation
 
         // set value for the second text field
-        if (view.documentName != null) {
-            var name = document.name
-            if (document is AbstractPassageBook) {
-                val bible = document
-                // display v11n name if not KJV
-                if (SystemKJV.V11N_NAME != bible.versification.name) {
-                    name += " (" + bible.versification.name + ")"
-                }
+        var name = document.name
+        if (document is AbstractPassageBook) {
+            val bible = document
+            // display v11n name if not KJV
+            if (SystemKJV.V11N_NAME != bible.versification.name) {
+                name += " (" + bible.versification.name + ")"
             }
-            view.documentName.text = name
         }
+        bindings.documentName.text = name
         return view
     }
 }

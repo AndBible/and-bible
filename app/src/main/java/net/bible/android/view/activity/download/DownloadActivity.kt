@@ -134,7 +134,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
                 loadRecommendedDocuments()
                 withContext(Dispatchers.Main) {
                     documentItemAdapter = DocumentDownloadItemAdapter(
-                        this@DownloadActivity, downloadControl, LIST_ITEM_TYPE, recommendedDocuments)
+                        this@DownloadActivity, downloadControl, recommendedDocuments)
                     initialiseView()
                     // in the basic flow we force the user to download a bible
                     documentTypeSpinner.isEnabled = true
@@ -385,7 +385,6 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
     }
 
     companion object {
-        private const val LIST_ITEM_TYPE = R.layout.document_list_item
         private const val REPO_REFRESH_DATE = "repoRefreshDate"
         private const val REPO_LIST_STALE_AFTER_DAYS: Long = 10
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()

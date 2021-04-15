@@ -20,10 +20,11 @@ package net.bible.android.view.activity.download
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
-import kotlinx.android.synthetic.main.document_list_item.view.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.android.control.event.ABEventBus
@@ -56,10 +57,11 @@ fun Book.isRecommended(recommendedDocuments: RecommendedDocuments?): Boolean
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(context, attrs) {
+    lateinit var bindings: DocumentListItemBinding // Injected from adapter!
+
     var recommendedDocuments: RecommendedDocuments? = null
 
     lateinit var document: Book
-
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         ensureRegisteredForDownloadEvents()
@@ -76,7 +78,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
         }
     }
 
-    fun setIcons(downloadScreen: Boolean = false) {
+    fun setIcons(downloadScreen: Boolean = false) = bindings.apply {
         val docImage = document.imageResource
         documentTypeIcon.setImageResource(docImage)
 
@@ -93,13 +95,13 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
 
         if(downloadScreen && moduleSize != null) {
             val moduleSizeMb = (moduleSize.toDoubleOrNull() ?: 0.0) / 1e6
-            installSize.text = "%.1f MB".format(moduleSizeMb)
+            installSize.text = context.getString(R.string.module_size_megabytes).format(moduleSizeMb)
         } else {
             installSize.visibility = View.GONE
         }
     }
 
-    fun updateControlState(documentStatus: DocumentStatus) {
+    fun updateControlState(documentStatus: DocumentStatus) = bindings.apply {
         when (documentStatus.documentInstallStatus) {
             DocumentInstallStatus.INSTALLED -> {
                 downloadStatusIcon.setImageResource(R.drawable.ic_check_green_24dp)
@@ -129,7 +131,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
      * Should not need to check the initials but other items were being updated and I don't know why
      */
     private fun setProgressPercent(percentDone: Int) {
-        progressBar.progress = percentDone
+        bindings.progressBar.progress = percentDone
     }
 
     /**
