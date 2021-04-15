@@ -21,7 +21,7 @@
         class="verse ordinal"
         :data-ordinal="ordinal"
     >
-      <span class="highlight-transition" :class="{timeout, isHighlighted: !timeout && (highlighted || isInOriginalOrdinalRange)}">
+      <span class="highlight-transition" :class="{timeout, isHighlighted: !timeout && highlighted}">
         <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
       </span>
     </span>
@@ -87,11 +87,6 @@ export default {
       endHighlight();
     })
 
-    const isInOriginalOrdinalRange = computed(() => {
-      if(!originalOrdinalRange) return false
-      return ordinal.value <= originalOrdinalRange[1] && ordinal.value >= originalOrdinalRange[0];
-    });
-
     const highlighted = ref(false);
 
     function setupEndHighlight() {
@@ -106,9 +101,10 @@ export default {
       setupEndHighlight();
     }
 
-    if(isInOriginalOrdinalRange.value) {
-      setupEndHighlight();
-    }
+    if(originalOrdinalRange &&
+        ordinal.value <= originalOrdinalRange[1] &&
+        ordinal.value >= originalOrdinalRange[0])
+      highlight()
 
     const common = useCommon();
     return {
@@ -119,7 +115,6 @@ export default {
       verse,
       shown,
       highlighted,
-      isInOriginalOrdinalRange,
       ...common,
     }
   },
