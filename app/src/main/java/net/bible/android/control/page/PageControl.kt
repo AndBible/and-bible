@@ -47,52 +47,8 @@ import javax.inject.Inject
 @ApplicationScope
 open class PageControl @Inject constructor(
 	private val swordDocumentFacade: SwordDocumentFacade,
-	private val swordContentFacade: SwordContentFacade,
-	private val documentControl: DocumentControl,
 	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 ) {
-    /** Paste the current verse to the system clipboard
-     */
-    fun copyToClipboard(verseRange: VerseRange) {
-        try {
-            val book = currentPageManager.currentPage.currentDocument
-            val clipboard = application.getSystemService(Activity.CLIPBOARD_SERVICE) as ClipboardManager
-            clipboard.setPrimaryClip(ClipData.newPlainText("verseText", getCopyShareText(book, verseRange)))
-        } catch (e: Exception) {
-            Log.e(TAG, "Error pasting to clipboard", e)
-            Dialogs.instance.showErrorMsg("Error copying to clipboard")
-        }
-    }
-
-    /** send the current verse via social applications installed on user's device
-     */
-    fun shareVerse(verseRange: VerseRange) {
-        try {
-            val book = currentPageManager.currentPage.currentDocument
-            val sendIntent = Intent(Intent.ACTION_SEND)
-            sendIntent.type = "text/plain"
-            sendIntent.putExtra(Intent.EXTRA_TEXT, getCopyShareText(book, verseRange))
-            // subject is used when user chooses to send verse via e-mail
-            val appName = application.getText(R.string.app_name_long)
-            sendIntent.putExtra(Intent.EXTRA_SUBJECT, application.getString(R.string.share_verse_subject_2, appName))
-            val activity = CurrentActivityHolder.getInstance().currentActivity
-            activity.startActivity(Intent.createChooser(sendIntent, activity.getString(R.string.share_verse)))
-        } catch (e: Exception) {
-            Log.e(TAG, "Error sharing verse", e)
-            Dialogs.instance.showErrorMsg("Error sharing verse")
-        }
-    }
-
-    private fun getCopyShareText(book: Book?, verseRange: VerseRange): String? {
- 		if(book == null) return null
-        return try {
-            val referenceName = verseRange.getNameInLocale(null, Locale(book.language.code))
-            referenceName + "\n" + "\n" + swordContentFacade.getTextWithVerseNumbers(book, verseRange)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error converting verse from OSIS to text.", e)
-            null
-        }
-    }
 
     /** This is only called after the very first bible download to attempt to ensure the first page is not 'Verse not found'
      * go through a list of default verses until one is found in the first/only book installed

@@ -175,7 +175,7 @@ open class SwordContentFacade @Inject constructor(
             val verseRangeName = selection.verseRange.getNameInLocale(null, Locale(selection.book.language.code))
             " ($verseRangeName, ${selection.book.abbreviation})"
         }
-        else 
+        else
             ""
 
         val advertise = if(advertiseApp) "\n\n${application.getString(R.string.verse_share_advertise, application.getString(R.string.app_name_long))} (https://andbible.github.io)" else ""
