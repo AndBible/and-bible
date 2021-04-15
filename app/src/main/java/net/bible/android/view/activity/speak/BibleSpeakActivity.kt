@@ -56,7 +56,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
     @Inject lateinit var navigationControl: NavigationControl
 
-    private lateinit var binding: SpeakBibleBinding
+    lateinit var binding: SpeakBibleBinding
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {

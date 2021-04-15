@@ -3,7 +3,6 @@ package net.bible.android.control.download
 import android.app.Activity
 import android.view.LayoutInflater
 import android.widget.ProgressBar
-import kotlinx.android.synthetic.main.document_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
@@ -84,7 +83,7 @@ class DocumentDownloadProgressCacheTest {
             val activity = Robolectric.buildActivity(Activity::class.java).create().get()
             documentDownloadListItem = LayoutInflater.from(activity).inflate(R.layout.document_list_item, null) as DocumentListItem
             documentDownloadListItem!!.document = document!!
-            progressBar = documentDownloadListItem!!.progressBar
+            progressBar = documentDownloadListItem!!.binding.progressBar
         }
     }
 }

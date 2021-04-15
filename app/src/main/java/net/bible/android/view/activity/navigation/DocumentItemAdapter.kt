@@ -51,7 +51,7 @@ class DocumentItemAdapter(
             DocumentListItemBinding.bind(convertView)
         }
         val view = (convertView?: bindings.root) as DocumentListItem
-        view.bindings = bindings
+        view.binding = bindings
 
         view.document = document
         view.recommendedDocuments = recommendedDocuments

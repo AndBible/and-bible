@@ -20,7 +20,6 @@ package net.bible.android.view.activity.download
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import net.bible.android.activity.R
@@ -57,7 +56,7 @@ fun Book.isRecommended(recommendedDocuments: RecommendedDocuments?): Boolean
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(context, attrs) {
-    lateinit var bindings: DocumentListItemBinding // Injected from adapter!
+    lateinit var binding: DocumentListItemBinding // Injected from adapter!
 
     var recommendedDocuments: RecommendedDocuments? = null
 
@@ -78,7 +77,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
         }
     }
 
-    fun setIcons(downloadScreen: Boolean = false) = bindings.apply {
+    fun setIcons(downloadScreen: Boolean = false) = binding.apply {
         val docImage = document.imageResource
         documentTypeIcon.setImageResource(docImage)
 
@@ -101,7 +100,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
         }
     }
 
-    fun updateControlState(documentStatus: DocumentStatus) = bindings.apply {
+    fun updateControlState(documentStatus: DocumentStatus) = binding.apply {
         when (documentStatus.documentInstallStatus) {
             DocumentInstallStatus.INSTALLED -> {
                 downloadStatusIcon.setImageResource(R.drawable.ic_check_green_24dp)
@@ -131,7 +130,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
      * Should not need to check the initials but other items were being updated and I don't know why
      */
     private fun setProgressPercent(percentDone: Int) {
-        bindings.progressBar.progress = percentDone
+        binding.progressBar.progress = percentDone
     }
 
     /**

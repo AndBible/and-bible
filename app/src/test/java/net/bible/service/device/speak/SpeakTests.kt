@@ -1,9 +1,9 @@
 package net.bible.service.device.speak
 
-import kotlinx.android.synthetic.main.speak_bible.*
-import kotlinx.android.synthetic.main.speak_settings.*
 import net.bible.android.BibleApplication
 import net.bible.android.TestBibleApplication
+import net.bible.android.activity.databinding.SpeakBibleBinding
+import net.bible.android.activity.databinding.SpeakSettingsBinding
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
@@ -83,10 +83,10 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
         var s = SpeakSettings(synchronize = true)
         s.save()
         val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
-        assertThat(settingsActivity.synchronize.isChecked, equalTo(true))
+        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(true))
         s = SpeakSettings(synchronize = false)
         s.save()
-        assertThat(settingsActivity.synchronize.isChecked, equalTo(false))
+        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(false))
     }
 
     @Test
@@ -94,10 +94,10 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
         var s = SpeakSettings(synchronize = true)
         s.save()
         val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
-        assertThat(settingsActivity.synchronize.isChecked, equalTo(true))
-        settingsActivity.synchronize.performClick()
+        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(true))
+        settingsActivity.binding.synchronize.performClick()
 
-        assertThat(settingsActivity.synchronize.isChecked, equalTo(false))
+        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(false))
         s = SpeakSettings.load()
         assertThat(s.synchronize, equalTo(false))
     }
@@ -138,7 +138,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
 
     fun changeSpeed(speed: Int) {
         val settingsActivity = bibleSpeakActivityController.visible().get()
-        settingsActivity.speakSpeed.setProgress(speed)
+        settingsActivity.binding.speakSpeed.setProgress(speed)
         settingsActivity.updateSettings()
     }
 

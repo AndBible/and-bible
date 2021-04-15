@@ -38,7 +38,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         const val TAG = "SpeakSettingsActivity"
     }
 
-    private lateinit var binding: SpeakSettingsBinding
+    lateinit var binding: SpeakSettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -54,7 +54,7 @@ class DocumentDownloadItemAdapter(
         }
 
         val view = (convertView?: bindings.root) as DocumentListItem
-        view.bindings = bindings
+        view.binding = bindings
 
         // remember which item is being shown
         view.document = document
