@@ -109,7 +109,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     try {
                         callingActivity.startActivity(intent)
                     } catch (e: ActivityNotFoundException) {
-                        val httpUri = Uri.parse("http://play.google.com/store/apps/details?id=" + callingActivity.packageName)
+                        val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + callingActivity.packageName)
                         callingActivity.startActivity(Intent(Intent.ACTION_VIEW, httpUri))
                     }
                 }
@@ -231,6 +231,20 @@ constructor(private val callingActivity: MainBibleActivity,
                         putExtra(Intent.EXTRA_TEXT, message)
                         putExtra(Intent.EXTRA_EMAIL, arrayOf("help.andbible@gmail.com"))
                         type = "message/rfc822"
+                    }
+                    val chooserIntent = Intent.createChooser(emailIntent, callingActivity.getString(R.string.give_feedback_title))
+                    callingActivity.startActivity(chooserIntent)
+                    isHandled = true
+                }
+                R.id.tellFriend -> {
+                    val homepage = Uri.parse("https://andbible.github.io")
+                    val playstore = Uri.parse("https://play.google.com/store/apps/details?id=" + callingActivity.packageName)
+
+                    val message = callingActivity.getString(R.string.tell_friend_message, playstore, homepage)
+
+                    val emailIntent = Intent(Intent.ACTION_SEND).apply {
+                        putExtra(Intent.EXTRA_TEXT, message)
+                        type = "text/plain"
                     }
                     val chooserIntent = Intent.createChooser(emailIntent, callingActivity.getString(R.string.give_feedback_title))
                     callingActivity.startActivity(chooserIntent)

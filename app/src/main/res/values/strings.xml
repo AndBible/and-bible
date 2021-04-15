@@ -759,4 +759,10 @@
     <string name="confirm_delete_study_pads">Do you want to remove %d Bookmark Labels / Study Pads? Also all associated bookmarks and Study Pad notes labels will be removed.</string>
     <string name="toast_deletion_cancel">You can still undo delete by pressing cancel button.</string>
     <string name="module_size_megabytes">%.1f MB</string>
+    <string name="tell_friend_title">Invite friend</string>
+    <string name="tell_friend_message">I would like to recommend you Bible Study app by And Bible Open Source Project.
+        It is a powerful, yet easy to use, offline Bible study application for Android.
+        \n\nInstall it from Play Store: %s
+        \nRead more &amp; more install options: %s.
+    </string>
 </resources>

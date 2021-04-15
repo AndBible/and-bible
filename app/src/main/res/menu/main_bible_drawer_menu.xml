@@ -102,6 +102,11 @@
             <item android:id="@+id/rateButton"
                 android:title="@string/rate_application"
                 android:icon="@drawable/ic_rate_review_white_24dp"/>
+
+            <item android:id="@+id/tellFriend"
+                android:title="@string/tell_friend_title"
+                android:icon="@drawable/ic_baseline_people_24"/>
+
         </menu>
     </item>
 </menu>
