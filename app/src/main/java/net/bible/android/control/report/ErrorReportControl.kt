@@ -145,6 +145,7 @@ object BugReport {
     fun saveScreenshot() {
         val activity = CurrentActivityHolder.getInstance().currentActivity?: return
         val dir = File(activity.filesDir, "/log")
+        dir.mkdirs()
         val screenshotFile = File(dir, SCREENSHOT_FILE)
         try {
             val screenShot = getScreenShot(activity) ?: return
