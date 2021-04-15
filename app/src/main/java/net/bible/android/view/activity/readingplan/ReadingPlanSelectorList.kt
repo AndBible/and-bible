@@ -31,6 +31,7 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
@@ -54,7 +55,8 @@ class ReadingPlanSelectorList : ListActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Reading Plan List")
-        setContentView(R.layout.list)
+        val binding = ListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         buildActivityComponent().inject(this)
         try {

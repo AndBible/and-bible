@@ -25,8 +25,8 @@ import android.text.method.LinkMovementMethod
 import androidx.appcompat.app.AlertDialog
 import android.view.View
 import android.widget.TextView
-import kotlinx.android.synthetic.main.speak_settings.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SpeakSettingsBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.SpeakSettings
@@ -38,9 +38,12 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         const val TAG = "SpeakSettingsActivity"
     }
 
+    private lateinit var binding: SpeakSettingsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.speak_settings)
+        binding = SpeakSettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         super.buildActivityComponent().inject(this)
         ABEventBus.getDefault().register(this)
@@ -53,17 +56,18 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
     }
 
     override fun resetView(settings: SpeakSettings) {
-        synchronize.isChecked = settings.synchronize
-        replaceDivineName.isChecked = settings.replaceDivineName
-        restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
+        binding.apply {
+            synchronize.isChecked = settings.synchronize
+            replaceDivineName.isChecked = settings.replaceDivineName
+            restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
 
-        autoBookmark.isChecked = settings.autoBookmark
-        if(!autoBookmark.isChecked) {
-            restoreSettingsFromBookmarks.isChecked = false
-            restoreSettingsFromBookmarks.isEnabled = false
-        }
-        else {
-            restoreSettingsFromBookmarks.isEnabled = true
+            autoBookmark.isChecked = settings.autoBookmark
+            if (!autoBookmark.isChecked) {
+                restoreSettingsFromBookmarks.isChecked = false
+                restoreSettingsFromBookmarks.isEnabled = false
+            } else {
+                restoreSettingsFromBookmarks.isEnabled = true
+            }
         }
     }
 
@@ -79,10 +83,12 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
             sleepTimer = currentSettings.sleepTimer
             lastSleepTimer = currentSettings.lastSleepTimer
         }
-        settings.synchronize = synchronize.isChecked
-        settings.autoBookmark = autoBookmark.isChecked
-        settings.replaceDivineName = replaceDivineName.isChecked
-        settings.restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
+        binding.apply {
+            settings.synchronize = synchronize.isChecked
+            settings.autoBookmark = autoBookmark.isChecked
+            settings.replaceDivineName = replaceDivineName.isChecked
+            settings.restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
+        }
         settings.save(updateBookmark = true)
     }
 

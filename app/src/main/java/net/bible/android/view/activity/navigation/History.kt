@@ -27,8 +27,9 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
 import android.text.format.DateFormat.format
-import kotlinx.android.synthetic.main.history_list_item.view.*
+import android.widget.TextView
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.HistoryBinding
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActivityBase
@@ -42,6 +43,9 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class History : ListActivityBase() {
+
+    private lateinit var binding: HistoryBinding
+
     private var mHistoryItemList: List<HistoryItem>? = null
     @Inject lateinit var historyManager: HistoryManager
     @Inject lateinit var windowControl: WindowControl
@@ -52,7 +56,8 @@ class History : ListActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying History view")
-        setContentView(R.layout.history)
+        binding = HistoryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         buildActivityComponent().inject(this)
         listAdapter = createAdapter()
         val name = currentWorkspaceName
@@ -66,20 +71,22 @@ class History : ListActivityBase() {
      */
     protected fun createAdapter(): ListAdapter {
         mHistoryItemList = historyManager.history
-        return object:ArrayAdapter<HistoryItem>(this,
+        return object : ArrayAdapter<HistoryItem>(
+            this,
             LIST_ITEM_TYPE,
-            R.id.titleText,mHistoryItemList!!){
+            R.id.titleText, mHistoryItemList!!
+        ) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
                 val view = super.getView(position, convertView, parent)
-                view.titleText.text = mHistoryItemList!![position].description.toString()
+                view.findViewById<TextView>(R.id.titleText).text = mHistoryItemList!![position].description.toString()
                 val formattedDate = format("yyyy-MM-dd HH:mm", mHistoryItemList!![position].createdAt).toString()
-                view.dateText.text = formattedDate
+                view.findViewById<TextView>(R.id.dateText).text = formattedDate
 
                 return view
 
             }
-    }
+        }
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {

@@ -25,11 +25,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TwoLineListItem
+import net.bible.android.activity.databinding.TwoLineListItemBinding
 import java.text.SimpleDateFormat
 
 /**
- * Retain similar style to TwoLineListView but for single TextView on each line
- *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DailyReadingItemAdapter(_context: Context, private val resource: Int, _items: List<OneDaysReadingsDto>) :
@@ -39,30 +38,22 @@ class DailyReadingItemAdapter(_context: Context, private val resource: Int, _ite
 
         val item = getItem(position)
 
-        // Pick up the TwoLineListItem defined in the xml file
-        val view = when (convertView) {
-            null -> {
-                val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                inflater.inflate(resource, parent, false) as TwoLineListItem
-            }
-            else -> convertView as TwoLineListItem
-        }
+        val binding = if (convertView == null)
+            TwoLineListItemBinding.inflate(context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater, parent, false)
+        else TwoLineListItemBinding.bind(convertView)
+        val view = convertView ?: binding.root
         item ?: return view
 
         // Set value for the first text field
-        if (view.text1 != null) {
-            view.text1.text = if (item.isDateBasedPlan) {
-                SimpleDateFormat.getDateInstance().format(item.readingDate)
-            } else {
-                item.dayDesc
-            }
+        binding.text1.text = if (item.isDateBasedPlan && item.readingDate != null) {
+            SimpleDateFormat.getDateInstance().format(item.readingDate!!)
+        } else {
+            item.dayDesc
         }
 
         // set value for the second text field
-        if (view.text2 != null) {
-            val line2 = item.readingsDesc
-            view.text2.text = line2
-        }
+        val line2 = item.readingsDesc
+        binding.text2.text = line2
 
         return view
     }

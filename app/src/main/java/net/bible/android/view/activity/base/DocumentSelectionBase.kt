@@ -31,7 +31,6 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
-import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -40,6 +39,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.DocumentSelectionBinding
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -93,6 +93,9 @@ data class RecommendedDocuments(
 }
 
 abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
+
+    private lateinit var binding: DocumentSelectionBinding
+
     protected lateinit var documentItemAdapter: ArrayAdapter<Book>
     protected var selectedDocumentFilterNo = 0
     private val filterMutex = Mutex()
@@ -112,7 +115,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     @Inject lateinit var documentControl: DocumentControl
 
     private lateinit var listActionModeHelper: ListActionModeHelper
-    private var layoutResource = R.layout.document_selection
+    private var showOkButton: Boolean = false
 
     /** ask subclass for documents to be displayed
      */
@@ -123,7 +126,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(layoutResource)
+        binding = DocumentSelectionBinding.inflate(layoutInflater)
+        setContentView(binding.root)
     }
 
     protected fun initialiseView() {
@@ -138,90 +142,96 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
         //prepare the documentType spinner
         setInitialDocumentType()
-        documentTypeSpinner.setSelection(selectedDocumentFilterNo)
-        documentTypeSpinner.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedDocumentFilterNo = position
-                filterDocuments()
+
+        binding.apply {
+            okButtonPanel.visibility = if (showOkButton) View.VISIBLE else View.GONE
+
+            documentTypeSpinner.setSelection(selectedDocumentFilterNo)
+            documentTypeSpinner.onItemSelectedListener = object : OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    selectedDocumentFilterNo = position
+                    filterDocuments()
+                }
+
+                override fun onNothingSelected(arg0: AdapterView<*>?) {}
             }
 
-            override fun onNothingSelected(arg0: AdapterView<*>?) {}
-        }
+            languageSpinner.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+                val lang = parent.adapter.getItem(position) as Language
+                lastSelectedLanguage = lang
+                selectedLanguageNo = languageList.indexOf(lang)
+                filterDocuments()
+                languageSpinner.clearFocus()
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(languageSpinner.windowToken, 0)
+            }
 
-        languageSpinner.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-            val lang = parent.adapter.getItem(position) as Language
-            lastSelectedLanguage = lang
-            selectedLanguageNo = languageList.indexOf(lang)
-            filterDocuments()
-            languageSpinner.clearFocus()
-            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(languageSpinner.windowToken, 0)
-        }
-
-        languageSpinner.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                val langString = s.toString()
-                if (langString.isEmpty()) {
-                    selectedLanguageNo = -1
-                    filterDocuments()
-                } else {
-                    val langIdx = languageList.indexOfFirst { it.name == langString }
-                    if (langIdx != -1) {
-                        selectedLanguageNo = langIdx
+            languageSpinner.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    val langString = s.toString()
+                    if (langString.isEmpty()) {
+                        selectedLanguageNo = -1
                         filterDocuments()
+                    } else {
+                        val langIdx = languageList.indexOfFirst { it.name == langString }
+                        if (langIdx != -1) {
+                            selectedLanguageNo = langIdx
+                            filterDocuments()
+                        }
                     }
+                }
+
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
+            freeTextSearch.setOnClickListener {
+                languageSpinner.setText("")
+            }
+            freeTextSearch.setOnFocusChangeListener { i, hasFocus ->
+                if (hasFocus) {
+                    languageSpinner.setText("")
+                    freeTextSearch.setText("")
+                }
+            }
+            freeTextSearch.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    filterDocuments()
+                }
+
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
+
+            languageSpinner.setOnClickListener {
+                languageSpinner.setText("")
+                languageSpinner.showDropDown()
+            }
+
+            languageSpinner.setOnFocusChangeListener { i, hasFocus ->
+                if (hasFocus) {
+                    languageSpinner.setText("")
                 }
             }
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-        freeTextSearch.setOnClickListener {
-            languageSpinner.setText("")
+            // Note: on Android 8 (API 26 and lower), it looks like languageList does not
+            // remain the source data set after filtering. If changes to dataset are made
+            // (in populate), they need to be made to adapter too, otherwise in
+            // ArrayAdapter's publishResult they will be overwritten.
+
+            langArrayAdapter = ArrayAdapter(
+                this@DocumentSelectionBase,
+                android.R.layout.simple_spinner_dropdown_item,
+                languageList
+            )
+
+            languageSpinner.setAdapter(langArrayAdapter)
+            list.requestFocus()
         }
-        freeTextSearch.setOnFocusChangeListener { i, hasFocus ->
-            if(hasFocus) {
-                languageSpinner.setText("")
-                freeTextSearch.setText("")
-            }
-        }
-        freeTextSearch.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                filterDocuments()
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-
-        languageSpinner.setOnClickListener {
-            languageSpinner.setText("")
-            languageSpinner.showDropDown()
-        }
-
-        languageSpinner.setOnFocusChangeListener { i, hasFocus ->
-            if(hasFocus) {
-                languageSpinner.setText("")
-            }
-        }
-
-        // Note: on Android 8 (API 26 and lower), it looks like languageList does not
-        // remain the source data set after filtering. If changes to dataset are made
-        // (in populate), they need to be made to adapter too, otherwise in
-        // ArrayAdapter's publishResult they will be overwritten.
-
-        langArrayAdapter = ArrayAdapter(this,
-            android.R.layout.simple_spinner_dropdown_item,
-            languageList
-        )
-
-        languageSpinner.setAdapter(langArrayAdapter)
-        list.requestFocus()
         Log.d(TAG, "Initialize finished")
     }
 
     open fun setDefaultLanguage() {
-        if (selectedLanguageNo == -1 && freeTextSearch.text.isEmpty()) {
+        if (selectedLanguageNo == -1 && binding.freeTextSearch.text.isEmpty()) {
             val lang: Language?
             // make selected language sticky
             val lastSelectedLanguage = lastSelectedLanguage
@@ -232,7 +242,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 defaultLanguage
             }
             selectedLanguageNo = languageList.indexOf(lang)
-            languageSpinner.setText(lang.name)
+            binding.languageSpinner.setText(lang.name)
             Log.d(TAG, "Default language set to ${lang}")
         }
 
@@ -317,7 +327,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         Log.d(TAG, "populate Master Document List")
 
         withContext(Dispatchers.Main) {
-            loadingIndicator.visibility = View.VISIBLE
+            binding.loadingIndicator.visibility = View.VISIBLE
             showPreLoadMessage()
             filterMutex.withLock {
                 documentItemAdapter.clear()
@@ -350,7 +360,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 isPopulated = true
                 filterDocuments()
             } finally {
-                loadingIndicator.visibility = View.GONE
+                binding.loadingIndicator.visibility = View.GONE
             }
         }
     }
@@ -369,7 +379,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                         Log.d(TAG, "filtering documents")
                         displayedDocuments.clear()
                         val lang = selectedLanguage
-                        val searchString = "${freeTextSearch.text}*"
+                        val searchString = "${binding.freeTextSearch.text}*"
                         val osisIds = if(searchString.length < 3) null else dao.search(searchString).toSet()
 
                         for (doc in allDocuments) {
@@ -408,7 +418,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 withContext(Dispatchers.Main) {
                     documentItemAdapter.clear()
                     documentItemAdapter.addAll(displayedDocuments)
-                    resultCount.text = getString(R.string.document_filter_results, displayedDocuments.size)
+                    binding.resultCount.text = getString(R.string.document_filter_results, displayedDocuments.size)
                 }
             }
         }
@@ -551,8 +561,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         selectedDocumentFilterNo = 0
     }
 
-    fun setLayoutResource(layoutResource: Int) {
-        this.layoutResource = layoutResource
+    fun setShowOkButtonBar(visible: Boolean) {
+        showOkButton = visible
     }
 
     companion object {

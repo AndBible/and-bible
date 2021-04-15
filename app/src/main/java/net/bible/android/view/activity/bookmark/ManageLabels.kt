@@ -34,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -56,6 +57,7 @@ import kotlin.random.Random.Default.nextInt
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ManageLabels : ListActivityBase() {
+    private lateinit var binding: ManageLabelsBinding
     private val labels: MutableList<BookmarkEntities.Label> = ArrayList()
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var labelDialogs: LabelDialogs
@@ -71,7 +73,8 @@ class ManageLabels : ListActivityBase() {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, false)
-        setContentView(R.layout.manage_labels)
+        binding = ManageLabelsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         super.buildActivityComponent().inject(this)
         val selectedLabelIds = intent.getLongArrayExtra(BookmarkControl.LABEL_IDS_EXTRA)
         if(selectedLabelIds != null) {
@@ -81,13 +84,13 @@ class ManageLabels : ListActivityBase() {
 
         studyPadMode = intent.getBooleanExtra("studyPadMode", false)
         hasResetButton = intent.getBooleanExtra("resetButton", false)
-        resetButton.visibility = if(hasResetButton) View.VISIBLE else View.GONE
+        binding.resetButton.visibility = if(hasResetButton) View.VISIBLE else View.GONE
         showUnassigned = intent.getBooleanExtra("showUnassigned", false)
         val title = intent.getStringExtra("title")
         selectMultiple = checkedLabels.size > 1 || CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
-        selectMultipleSwitch.isChecked = selectMultiple
-        selectMultipleSwitch.visibility = if(showCheckboxes) View.VISIBLE else View.GONE
-        selectMultipleSwitch.setOnCheckedChangeListener { _, isChecked ->
+        binding.selectMultipleSwitch.isChecked = selectMultiple
+        binding.selectMultipleSwitch.visibility = if(showCheckboxes) View.VISIBLE else View.GONE
+        binding.selectMultipleSwitch.setOnCheckedChangeListener { _, isChecked ->
             selectMultiple = isChecked
             CommonUtils.sharedPreferences.edit().putBoolean("assignLabelsSelectMultiple", selectMultiple).apply()
         }

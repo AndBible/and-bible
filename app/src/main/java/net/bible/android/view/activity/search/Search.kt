@@ -28,9 +28,9 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import kotlinx.android.synthetic.main.search.*
 
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SearchBinding
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
@@ -48,6 +48,9 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
+
+    private lateinit var binding: SearchBinding
+
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
     private lateinit var currentBookName: String
@@ -95,7 +98,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search view")
-        setContentView(R.layout.search)
+        binding = SearchBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         CommonUtils.sharedPreferences.edit().putLong("search-last-used", System.currentTimeMillis()).apply()
         buildActivityComponent().inject(this)
 
@@ -104,7 +108,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
 
         title = getString(R.string.search_in, documentToSearch!!.abbreviation)
-        searchText.setOnEditorActionListener {v, actionId, event ->
+        binding.searchText.setOnEditorActionListener {v, actionId, event ->
             return@setOnEditorActionListener when (actionId) {
                 EditorInfo.IME_ACTION_SEARCH -> {
                     onSearch(null)
@@ -128,7 +132,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         if (extras != null) {
             val text = extras.getString(SEARCH_TEXT_SAVE)
             if (StringUtils.isNotEmpty(text)) {
-                searchText.setText(text)
+                binding.searchText.setText(text)
             }
         }
 
@@ -178,7 +182,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     override fun onResume() {
         super.onResume()
-        searchText.requestFocus()
+        binding.searchText.requestFocus()
     }
 
 
@@ -191,7 +195,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     fun onSearch(v: View?) {
         Log.i(TAG, "CLICKED")
-        var text = searchText.text.toString()
+        var text = binding.searchText.text.toString()
         if (!StringUtils.isEmpty(text)) {
 
             // update current intent so search is restored if we return here via history/back
