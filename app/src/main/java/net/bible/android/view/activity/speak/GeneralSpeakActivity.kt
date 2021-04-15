@@ -23,8 +23,8 @@ import android.util.Log
 import android.view.View
 import android.widget.RadioButton
 import android.widget.SeekBar
-import kotlinx.android.synthetic.main.speak_general.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SpeakGeneralBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.NumPagesToSpeakDefinition
 import net.bible.android.control.speak.save
@@ -39,13 +39,14 @@ import net.bible.service.device.speak.event.SpeakEvent
  */
 class GeneralSpeakActivity : AbstractSpeakActivity() {
     private lateinit var numPagesToSpeakDefinitions: Array<NumPagesToSpeakDefinition>
-
+    private lateinit var binding: SpeakGeneralBinding
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Speak view")
 
-        setContentView(R.layout.speak_general)
+        binding = SpeakGeneralBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         super.buildActivityComponent().inject(this)
 
@@ -58,26 +59,28 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
             numChaptersCheckBox.text = it.getPrompt()
         }
 
-        // set defaults for Queue and Repeat
-        when(currentSettings.numPagesToSpeakId) {
-            0 -> numChapters1.isChecked = true
-            1 -> numChapters2.isChecked = true
-            2 -> numChapters3.isChecked = true
-            3 -> numChapters4.isChecked = true
-        }
-        queue.isChecked = currentSettings.queue
-        repeat.isChecked = currentSettings.repeat
-        speakSpeed.progress = currentSettings.playbackSettings.speed
-        speedStatus.text = "${currentSettings.playbackSettings.speed} %"
-        speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                speedStatus.text = "$progress %"
-                currentSettings.playbackSettings.speed = progress
-                currentSettings.save()
+        binding.run {
+            // set defaults for Queue and Repeat
+            when (currentSettings.numPagesToSpeakId) {
+                0 -> numChapters1.isChecked = true
+                1 -> numChapters2.isChecked = true
+                2 -> numChapters3.isChecked = true
+                3 -> numChapters4.isChecked = true
             }
-        })
+            queue.isChecked = currentSettings.queue
+            repeat.isChecked = currentSettings.repeat
+            speakSpeed.progress = currentSettings.playbackSettings.speed
+            speedStatus.text = "${currentSettings.playbackSettings.speed} %"
+            speakSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    speedStatus.text = "$progress %"
+                    currentSettings.playbackSettings.speed = progress
+                    currentSettings.save()
+                }
+            })
+        }
         resetView(this.currentSettings)
         ABEventBus.getDefault().register(this)
 
@@ -90,7 +93,7 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
     }
 
     fun onEventMainThread(ev: SpeakEvent) {
-        speakPauseButton.setImageResource(
+        binding.speakPauseButton.setImageResource(
                 if(ev.isSpeaking)
                     android.R.drawable.ic_media_pause
                 else
@@ -98,14 +101,14 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
         )
     }
 
-    fun updateSettings(b: View) {
+    fun updateSettings(b: View) = binding.run {
         currentSettings.queue = queue.isChecked
         currentSettings.repeat = repeat.isChecked
         currentSettings.numPagesToSpeakId = if(numChapters1.isChecked) 0 else if (numChapters2.isChecked) 1 else if(numChapters3.isChecked) 2 else 3
         currentSettings.save()
     }
 
-    fun onButtonClick(button: View) {
+    fun onButtonClick(button: View) = binding.run {
         try {
             when (button) {
                 rewindButton -> speakControl.rewind()
@@ -123,7 +126,7 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
         }
     }
 
-    override fun resetView(settings: SpeakSettings) {
+    override fun resetView(settings: SpeakSettings) = binding.run {
         sleepTimer.isChecked = settings.sleepTimer > 0
         sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_set, settings.sleepTimer) else getString(R.string.conf_speak_sleep_timer)
         speakPauseButton.setImageResource(
