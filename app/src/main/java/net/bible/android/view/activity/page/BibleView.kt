@@ -431,7 +431,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
-                // Console logging is handled in js interface so we don't want anything from here anymore.
+                // If errorBox is enabled, console logging is handled in js interface so we don't want anything
+                // from here anymore.
+                if (!showErrorBox) {
+                    Log.d(TAG, "bibleview-js: $consoleMessage")
+                }
                 return true
             }
         }
@@ -782,8 +786,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun updateActive() = executeJavascriptOnUiThread("""bibleView.emit('set_active', $isActive)""")
 
+    private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.sharedPreferences.getBoolean("show_errorbox", false) else false
+
     private fun getUpdateConfigCommand(initial: Boolean): String {
-        val showErrorBox = if(CommonUtils.isBeta) CommonUtils.sharedPreferences.getBoolean("show_errorbox", false) else false
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
