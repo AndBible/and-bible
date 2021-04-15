@@ -777,33 +777,33 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         fun shouldShowBibleButton(): Boolean =
             toolbarButtonSetting?.let {
-                (it.contains("swap-") && suggestedBible != null) ||
-                    (!it.contains("swap-") && biblesForVerse.isNotEmpty())
+                (it.startsWith("swap-") && suggestedBible != null) ||
+                    (!it.startsWith("swap-") && biblesForVerse.isNotEmpty())
             } ?: false
 
 
         fun shouldShowCommentaryButton(): Boolean =
             toolbarButtonSetting?.let {
-                (it.contains("swap-") && suggestedCommentary != null) ||
-                    (!it.contains("swap-") && commentariesForVerse.isNotEmpty())
+                (it.startsWith("swap-") && suggestedCommentary != null) ||
+                    (!it.startsWith("swap-") && commentariesForVerse.isNotEmpty())
             } ?: false
 
         fun bibleClick(view: View) {
-            if (toolbarButtonSetting?.contains("swap-") == true)
+            if (toolbarButtonSetting?.startsWith("swap-") == true)
                 setCurrentDocument(documentControl.suggestedBible);
             else
                 menuForDocs(view, biblesForVerse)
         }
 
         fun commentaryClick(view: View) {
-            if (toolbarButtonSetting?.contains("swap-") == true)
+            if (toolbarButtonSetting?.startsWith("swap-") == true)
                 setCurrentDocument(documentControl.suggestedCommentary);
             else
                 menuForDocs(view, commentariesForVerse)
         }
 
         fun bibleLongPress(view: View) {
-            if (toolbarButtonSetting?.contains("swap-menu") == true)
+            if (toolbarButtonSetting == "swap-menu")
                 menuForDocs(view, biblesForVerse)
             else {
                 startDocumentChooser("BIBLE")
@@ -811,7 +811,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         fun commentaryLongPress(view: View) {
-            if (toolbarButtonSetting?.contains("swap-menu") == true)
+            if (toolbarButtonSetting == "swap-menu")
                 menuForDocs(view, commentariesForVerse)
             else
                 startDocumentChooser("COMMENTARY")
