@@ -165,11 +165,11 @@ open class SwordContentFacade @Inject constructor(
         val start = startVerse.slice(0 until min(startOffset, startVerse.length))
 
         var startVerseNumber = ""
-        if(showVerseNumbers) {
+        if(showVerseNumbers && verseTexts.size > 1) {
             startVerseNumber = "${selection.verseRange.start.verse}. "
-            if (!showFull && startOffset > 0) {
-                startVerseNumber = "$startVerseNumber ..."
-            }
+        }
+        if (!showFull && startOffset > 0) {
+            startVerseNumber = "$startVerseNumber..."
         }
 
         val reference = if(showReference) {
@@ -196,6 +196,7 @@ open class SwordContentFacade @Inject constructor(
                 startVerse = startVerse.slice(startOffset until startVerse.length)
                 val lastVerse = verseTexts.last()
                 endOffset = selection.endOffset
+                val endVerseNum = if(showVerseNumbers) "${lastVerse.verse.verse}. " else ""
                 val endVerse = lastVerse.text.slice(0 until min(lastVerse.text.length, endOffset))
                 val end = lastVerse.text.slice(endOffset until lastVerse.text.length)
                 val middleVerses = if(verseTexts.size > 2) {
@@ -203,10 +204,10 @@ open class SwordContentFacade @Inject constructor(
                         if(showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
                     }
                 } else ""
-                val text = "“$startVerse$middleVerses$endVerse"
+                val text = "$startVerse$middleVerses $endVerseNum$endVerse"
                 val post = if(!showFull && end.isNotEmpty()) "..." else ""
 
-                if(showFull) """“$startVerseNumber$start${text}$end”""" else "“$startVerseNumber$text$post”"
+                if(showFull) """“$startVerseNumber$start${text}$end$post”""" else "“$startVerseNumber$text$post”"
             }
             else -> throw RuntimeException("what")
         } + reference + advertise
