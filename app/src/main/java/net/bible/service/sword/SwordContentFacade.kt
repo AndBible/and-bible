@@ -151,6 +151,7 @@ open class SwordContentFacade @Inject constructor(
                          showFull: Boolean,
                          advertiseApp: Boolean,
                          showReference: Boolean = true,
+                         abbreviateReference: Boolean = true,
     ): String {
 
         class VerseAndText(val verse: Verse, val text: String)
@@ -173,11 +174,16 @@ open class SwordContentFacade @Inject constructor(
         }
 
         val reference = if(showReference) {
-            synchronized(BookName::class) {
-                val oldValue = BookName.isFullBookName()
-                BookName.setFullBookName(false)
+            if(abbreviateReference) {
+                synchronized(BookName::class) {
+                    val oldValue = BookName.isFullBookName()
+                    BookName.setFullBookName(false)
+                    val verseRangeName = selection.verseRange.getNameInLocale(null, Locale(selection.book.language.code))
+                    BookName.setFullBookName(oldValue)
+                    " ($verseRangeName, ${selection.book.abbreviation})"
+                }
+            } else {
                 val verseRangeName = selection.verseRange.getNameInLocale(null, Locale(selection.book.language.code))
-                BookName.setFullBookName(oldValue)
                 " ($verseRangeName, ${selection.book.abbreviation})"
             }
         }

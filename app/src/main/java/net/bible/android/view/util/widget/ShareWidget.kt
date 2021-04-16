@@ -21,6 +21,7 @@ package net.bible.android.view.util.widget
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.text.method.ScrollingMovementMethod
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
@@ -42,13 +43,13 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
         bindings.run {
             toggleFullVerses.isChecked = CommonUtils.sharedPreferences.getBoolean("share_toggle_full", false)
             toggleVersenumbers.isChecked = CommonUtils.sharedPreferences.getBoolean("share_verse_numbers", true)
-            toggleReference.isChecked = CommonUtils.sharedPreferences.getBoolean("share_show_ref", true)
             advertise.isChecked = CommonUtils.sharedPreferences.getBoolean("share_show_add", true)
+            abbreviateReference.isChecked = CommonUtils.sharedPreferences.getBoolean("share_abbreviate_reference", true)
 
             toggleFullVerses.setOnClickListener { updateText()}
             toggleVersenumbers.setOnClickListener { updateText()}
-            toggleReference.setOnClickListener { updateText()}
             advertise.setOnClickListener { updateText()}
+            abbreviateReference.setOnClickListener { updateText()}
         }
         updateText()
     }
@@ -57,15 +58,15 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
         val text = swordContentFacade.getSelectionText(selection,
             showVerseNumbers = bindings.toggleVersenumbers.isChecked,
             showFull = bindings.toggleFullVerses.isChecked,
-            showReference = bindings.toggleReference.isChecked,
-            advertiseApp = bindings.advertise.isChecked
+            advertiseApp = bindings.advertise.isChecked,
+            abbreviateReference = bindings.abbreviateReference.isChecked
         )
         bindings.preview.text = text
         CommonUtils.sharedPreferences.edit()
             .putBoolean("share_toggle_full", bindings.toggleFullVerses.isChecked)
             .putBoolean("share_verse_numbers", bindings.toggleVersenumbers.isChecked)
-            .putBoolean("share_show_ref", bindings.toggleReference.isChecked)
             .putBoolean("share_show_add", bindings.advertise.isChecked)
+            .putBoolean("share_abbreviate_reference", bindings.abbreviateReference.isChecked)
             .apply()
     }
 
