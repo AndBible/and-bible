@@ -53,6 +53,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
 import org.jdom2.Text
@@ -148,15 +149,15 @@ open class SwordContentFacade @Inject constructor(
     fun getSelectionText(selection: BibleView.Selection,
                          showVerseNumbers: Boolean,
                          showFull: Boolean,
-                         showReference: Boolean,
                          advertiseApp: Boolean,
+                         showReference: Boolean = true,
     ): String {
 
         class VerseAndText(val verse: Verse, val text: String)
 
         val book = selection.book
         val verseTexts = selection.verseRange.map {
-            VerseAndText(it as Verse, getCanonicalText(book, it, true))
+            VerseAndText(it as Verse, getCanonicalText(book, it, true).trimEnd())
         }
         val startOffset = selection.startOffset
         var startVerse = verseTexts.first().text
@@ -172,8 +173,13 @@ open class SwordContentFacade @Inject constructor(
         }
 
         val reference = if(showReference) {
-            val verseRangeName = selection.verseRange.getNameInLocale(null, Locale(selection.book.language.code))
-            " ($verseRangeName, ${selection.book.abbreviation})"
+            synchronized(BookName::class) {
+                val oldValue = BookName.isFullBookName()
+                BookName.setFullBookName(false)
+                val verseRangeName = selection.verseRange.getNameInLocale(null, Locale(selection.book.language.code))
+                BookName.setFullBookName(oldValue)
+                " ($verseRangeName, ${selection.book.abbreviation})"
+            }
         }
         else
             ""
@@ -204,22 +210,6 @@ open class SwordContentFacade @Inject constructor(
             }
             else -> throw RuntimeException("what")
         } + reference + advertise
-    }
-
-    @Throws(NoSuchKeyException::class, BookException::class, ParseException::class)
-    fun getTextWithVerseNumbers(book: Book?, verseRange: VerseRange): String {
-        return try {
-            val data = BookData(book, verseRange)
-            val osissep = data.saxEventProvider
-            val showVerseNumbers = verseRange.toVerseArray().size > 1 &&
-                sharedPreferences.getBoolean("show_verseno_pref", true)
-            val osisHandler: ContentHandler = OsisToCopyTextSaxHandler(showVerseNumbers)
-            osissep.provideSAXEvents(osisHandler)
-            osisHandler.toString()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting text from book", e)
-            application.getString(R.string.error_occurred)
-        }
     }
 
     private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> = try {

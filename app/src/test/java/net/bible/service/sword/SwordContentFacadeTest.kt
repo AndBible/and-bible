@@ -175,6 +175,31 @@ class TestShare {
     }
 
     @Test
+    fun testShare1a()  =
+        testShare("ESV2011", "Ps.83.1", 7..30, true, false,
+            "“...do not keep silence; do...” (Psa 83:1, ESV2011)"
+        )
+
+    @Test
+    fun testShare2a()  =
+        testShare("ESV2011", "Ps.83.1", 7..30, false, false,
+            "“...do not keep silence; do...” (Psa 83:1, ESV2011)"
+        )
+
+    @Test
+    fun testShare3a()  =
+        testShare("ESV2011", "Ps.83.1", 7..30, true, true,
+            "“O God, do not keep silence; do not hold your peace or be still, O God!” (Psa 83:1, ESV2011)"
+        )
+
+    @Test
+    fun testShare4a()  =
+        testShare("ESV2011", "Ps.83.1", 7..30, false, true,
+            "“O God, do not keep silence; do not hold your peace or be still, O God!” (Psa 83:1, ESV2011)"
+        )
+
+
+    @Test
     fun testShare1()  =
         testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, false,
             "“1. ...do not keep silence; do not hold your peace or be still, O God! 2. For behold, " +
@@ -192,14 +217,14 @@ class TestShare {
     fun testShare3()  =
         testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, true,
             "“1. O God, do not keep silence; do not hold your peace or be still, O God! 2. For behold, your " +
-                "enemies make an uproar; those who hate you have raised their heads. ” (Psa 83:1-2, ESV2011)"
+                "enemies make an uproar; those who hate you have raised their heads.” (Psa 83:1-2, ESV2011)"
         )
 
     @Test
     fun testShare4()  =
         testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, false, true,
             "“O God, do not keep silence; do not hold your peace or be still, O God! For behold, your " +
-                "enemies make an uproar; those who hate you have raised their heads. ” (Psa 83:1-2, ESV2011)"
+                "enemies make an uproar; those who hate you have raised their heads.” (Psa 83:1-2, ESV2011)"
         )
 
     @Test
@@ -207,7 +232,7 @@ class TestShare {
         testShare("ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, true,
             "“23. And he went and lived in a city called Nazareth, so that what was spoken " +
                 "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
-                "John the Baptist came preaching in the wilderness of Judea,Repent, for the kingdom " +
+                "John the Baptist came preaching in the wilderness of Judea, 2. Repent, for the kingdom " +
                 "of heaven is at hand.” (Mat 2:23-3:2, ESV2011)"
         )
 
@@ -216,8 +241,6 @@ class TestShare {
         testShare("ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, false,
             "“23. ...went and lived in a city called Nazareth, so that what was spoken " +
                 "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
-                "John the Baptist came preaching in the wilderness of Judea,Repent, for...” (Mat 2:23-3:2, ESV2011)"
+                "John the Baptist came preaching in the wilderness of Judea, 2. Repent, for...” (Mat 2:23-3:2, ESV2011)"
         )
-
-
 }
