@@ -5,6 +5,7 @@ import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.view.activity.page.BibleView
 import net.bible.service.common.ParseException
 import net.bible.test.DatabaseResetter
 
@@ -133,4 +134,90 @@ class SwordContentFacadeTest {
         println("Looking for $initials")
         return Books.installed().getBook(initials)
     }
+}
+
+
+class TestShare {
+    private lateinit var swordContentFacade: SwordContentFacade
+
+    @Before
+    @Throws(Exception::class)
+    fun setUp() {
+        val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
+        swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
+    }
+
+    private fun testShare(initials: String, verseRangeStr: String, offsetRange: IntRange,
+                          showVerseNumbers: Boolean, showFull: Boolean,
+                          compareText: String,
+    ) {
+
+        val book = Books.installed().getBook(initials) as SwordBook
+        val v11n = book.versification
+        val verseRange = VerseRangeFactory.fromString(v11n, verseRangeStr)
+
+
+        val sel = BibleView.Selection(initials,
+            verseRange.start.ordinal,
+            offsetRange.first,
+            verseRange.end.ordinal,
+            offsetRange.last,
+            emptyList())
+
+        val text = swordContentFacade.getSelectionText(sel,
+            showVerseNumbers = showVerseNumbers,
+            showFull = showFull,
+            showReference = true,
+            advertiseApp = false
+        )
+
+        assertThat(text, equalTo(compareText))
+    }
+
+    @Test
+    fun testShare1()  =
+        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, false,
+            "“1. ...do not keep silence; do not hold your peace or be still, O God! 2. For behold, " +
+                "your enemies make ...” (Psa 83:1-2, ESV2011)"
+        )
+
+    @Test
+    fun testShare2()  =
+        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, false, false,
+            "“...do not keep silence; do not hold your peace or be still, O God! For behold, " +
+                "your enemies make ...” (Psa 83:1-2, ESV2011)"
+        )
+
+    @Test
+    fun testShare3()  =
+        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, true,
+            "“1. O God, do not keep silence; do not hold your peace or be still, O God! 2. For behold, your " +
+                "enemies make an uproar; those who hate you have raised their heads. ” (Psa 83:1-2, ESV2011)"
+        )
+
+    @Test
+    fun testShare4()  =
+        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, false, true,
+            "“O God, do not keep silence; do not hold your peace or be still, O God! For behold, your " +
+                "enemies make an uproar; those who hate you have raised their heads. ” (Psa 83:1-2, ESV2011)"
+        )
+
+    @Test
+    fun testShare5()  =
+        testShare("ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, true,
+            "“23. And he went and lived in a city called Nazareth, so that what was spoken " +
+                "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
+                "John the Baptist came preaching in the wilderness of Judea,Repent, for the kingdom " +
+                "of heaven is at hand.” (Mat 2:23-3:2, ESV2011)"
+        )
+
+    @Test
+    fun testShare6()  =
+        testShare("ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, false,
+            "“23. ...went and lived in a city called Nazareth, so that what was spoken " +
+                "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
+                "John the Baptist came preaching in the wilderness of Judea,Repent, for...” (Mat 2:23-3:2, ESV2011)"
+        )
+
+
 }
