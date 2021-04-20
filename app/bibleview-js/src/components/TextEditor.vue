@@ -101,18 +101,42 @@ export default {
       title: 'Insert bible reference',
       result: async () => {
         const originalRange = document.getSelection().getRangeAt(0);
+        //Get the active languages and create a bible reference parser for each language
+        const languages = android.getActiveLanguages()
+        var parsers = []
+        languages.forEach(async (lang) => {
+            const bcv_parser = await import(`bible-passage-reference-parser/js/${lang}_bcv_parser`)
+                .then((module) => {
+                    return new module.bcv_parser
+                });
+            parsers.push(bcv_parser)
+        })
 
         if(originalRange) {
-          const text = await inputText.value.inputText();
+          var text = "";
+          var parsed = "";
+          //Keep trying to get a bible reference until either
+          //    * It is successfully parsed (parsed != "") or
+          //    * The user cancels (text === null)
+          while (parsed == "" && text !== null) {
+            text = await inputText.value.inputText();
+            if (text !== null) {
+              //Try each of the parsers until one succeeds
+              parsers.some(bcv_parser => {
+                  parsed = bcv_parser.parse(text).osis();
+                  if (parsed != "") return true
+              })
+            }
+          }
           if(text !== null) {
             document.getSelection().removeAllRanges();
             if(originalRange) {
               document.getSelection().addRange(originalRange);
             }
             if(!originalRange || originalRange.collapsed) {
-              exec('insertHTML', `<a href="osis://?osis=${text}">${text}</a>`);
+              exec('insertHTML', `<a href="osis://?osis=${parsed}">${text}</a>`);
             } else {
-              exec('createLink', `osis://?osis=${text}`)
+              exec('createLink', `osis://?osis=${parsed}`)
             }
           }
           editor.value.content.focus();

@@ -150,6 +150,13 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun getActiveLanguages(): String {
+        //Get the languages for each of the installed bibles and return the language codes as a json list.
+        val languages = bibleView.mainBibleActivity.swordDocumentFacade.bibles.map { "\"" + it.bookMetaData.language.code + "\""}
+        return "[" + languages.distinct().joinToString(",") + "]"
+    }
+
+    @JavascriptInterface
     fun toast(text: String) {
         ABEventBus.getDefault().post(ToastEvent(text))
     }

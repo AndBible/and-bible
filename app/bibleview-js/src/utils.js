@@ -40,8 +40,15 @@ export function setupElementEventListener(elementRef, eventType, handler, option
 export function stubsFor(object) {
     const stubs = {};
     for(const key in object) {
-        stubs[key] = (...args) => {
-            console.log(`Stub for ${key}(${args}) called`)
+        //Implement a separate stub for getActiveLanguages, since it needs to return data
+        if (key == "getActiveLanguages") {
+            stubs[key] = () => {
+                return ["he","nl","en"]
+            }
+        } else {
+            stubs[key] = (...args) => {
+                console.log(`Stub for ${key}(${args}) called`)
+            }
         }
     }
     return stubs;
