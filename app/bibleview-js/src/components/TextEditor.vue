@@ -103,13 +103,21 @@ export default {
         const originalRange = document.getSelection().getRangeAt(0);
         //Get the active languages and create a bible reference parser for each language
         const languages = android.getActiveLanguages()
+        //Always add the "en" language, so at least the english parser always exists.
+        if (!languages.includes("en")) {
+            languages.push("en")
+        }
         var parsers = []
         languages.forEach(async (lang) => {
-            const bcv_parser = await import(`bible-passage-reference-parser/js/${lang}_bcv_parser`)
-                .then((module) => {
-                    return new module.bcv_parser
-                });
-            parsers.push(bcv_parser)
+            try {
+                const bcv_parser = await import(`bible-passage-reference-parser/js/${lang}_bcv_parser`)
+                    .then((module) => {
+                        return new module.bcv_parser
+                    });
+                parsers.push(bcv_parser)
+            } catch (error) {
+                console.log(`No parser exists for language: ${lang}`)
+            }
         })
 
         if(originalRange) {
