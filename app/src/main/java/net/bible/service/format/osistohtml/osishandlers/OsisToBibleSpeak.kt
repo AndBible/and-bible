@@ -152,6 +152,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         s = s.replace("`", "'")
         s = s.replace("´", "'")
         s = s.replace("’", "'")
+        s = handleAAccent(s)
         s = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Html.fromHtml(s, 0).toString()
         }
@@ -178,6 +179,17 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
                 speakCommands.add(TextCommand(s))
             }
         }
+    }
+
+    /**
+     * Speech in spanish says "a con asento" (a with accent). Letter is also used in other languages.
+     * Only replace when letter stands alone, never replace in a word.
+     */
+    private fun handleAAccent(s: String): String {
+        val firstLetter = Regex("^[Áá](?:[\\s])")
+        val lastLetter = Regex("(?:[\\s])[Áá]$")
+        val wordAlone = Regex("(?:[\\s])[Áá](?:[\\s])")
+        return s.replace(firstLetter, "a").replace(lastLetter, "a").replace(wordAlone, "a")
     }
 }
 
