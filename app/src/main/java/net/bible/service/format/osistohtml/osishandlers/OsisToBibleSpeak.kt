@@ -152,6 +152,8 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         s = s.replace("`", "'")
         s = s.replace("´", "'")
         s = s.replace("’", "'")
+        s = s.replace("(", "")
+        s = s.replace(")", "")
         s = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Html.fromHtml(s, 0).toString()
         }
