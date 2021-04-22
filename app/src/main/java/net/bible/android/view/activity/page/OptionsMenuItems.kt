@@ -21,6 +21,7 @@ package net.bible.android.view.activity.page
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
@@ -355,7 +356,7 @@ class LabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types
         intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, originalValues)
         intent.putExtra("resetButton", true)
         intent.putExtra("title", title)
-        GlobalScope.launch {
+        GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
             val labels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
             if(labels != null) {
