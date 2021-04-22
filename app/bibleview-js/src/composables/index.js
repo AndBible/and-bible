@@ -381,6 +381,26 @@ export function useVerseMap() {
     return {register, getVerses}
 }
 
+export function useCustomFeatures() {
+    const features = {}
+    async function reloadFeatures(featureModuleNames) {
+        if(featureModuleNames.includes("RefParser")) {
+            const url = "/features/RefParser/en_bcv_parser.js"
+            const content = await (await fetch(url)).text();
+            features.refParser = Function(content);
+            console.log("Module loaded", {content, features});
+        }
+    }
+
+    onBeforeMount(() => {
+        const featureModuleNames = new URLSearchParams(window.location.search).get("featureModuleNames");
+        if (!featureModuleNames) return
+        reloadFeatures(featureModuleNames.split(","));
+    })
+
+    return features;
+}
+
 export function useCustomCss() {
     const cssNodes = new Map();
     const count = new Map();

@@ -211,6 +211,11 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3'
 
+    implementation 'com.madgag.spongycastle:core:1.58.0.0'
+    //implementation 'com.madgag.spongycastle:prov:1.58.0.0'
+    //implementation 'com.madgag.spongycastle:pkix:1.58.0.0'
+    //implementation 'com.madgag.spongycastle:pg:1.58.0.0'
+
     implementation 'com.google.dagger:dagger:2.34'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.34'
     kapt 'com.google.dagger:dagger-compiler:2.34'

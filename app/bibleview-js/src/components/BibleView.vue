@@ -44,7 +44,15 @@
 <script>
 import Document from "@/components/documents/Document";
 import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
-import {useAddonFonts, useConfig, useCustomCss, useFontAwesome, useVerseMap, useVerseNotifier} from "@/composables";
+import {
+  useAddonFonts,
+  useConfig,
+  useCustomCss,
+  useCustomFeatures,
+  useFontAwesome,
+  useVerseMap,
+  useVerseNotifier
+} from "@/composables";
 import {testBookmarkLabels, testData} from "@/testdata";
 import {computed, ref} from "@vue/reactivity";
 import {useInfiniteScroll} from "@/composables/infinite-scroll";
@@ -93,6 +101,8 @@ export default {
       const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll);
       const customCss = useCustomCss();
       provide("customCss", customCss);
+      const customFeatures = useCustomFeatures();
+      provide("customFeatures", customFeatures);
 
       useInfiniteScroll(android, documents);
 

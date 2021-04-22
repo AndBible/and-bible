@@ -466,7 +466,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val lang = locale.toLanguageTag()
 
         val fontModuleNames = AndBibleAddons.fontModuleNames.joinToString(",")
-        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html?lang=$lang&fontModuleNames=$fontModuleNames&rtl=$isRtl")
+        val featureModuleNames = AndBibleAddons.featureModuleNames.joinToString(",")
+        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html" +
+            "?lang=$lang&fontModuleNames=$fontModuleNames&featureModuleNames=$featureModuleNames&rtl=$isRtl")
     }
 
      fun onEvent(e: ReloadAddonsEvent) {
@@ -552,8 +554,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         override fun handle(path: String): WebResourceResponse? {
             val parts = path.split("/", limit=2);
             if(parts.size != 2) return null;
-            val (bookName, resourcePath) = parts
-            val book = Books.installed().getBook(bookName) ?: return null
+            val (moduleName, resourcePath) = parts
+            val book = Books.installed().getBook(moduleName) ?: return null
             if(resourcePath == "fonts.css") {
                 val fontCss = StringBuilder()
                 val fonts = fontsByModule[book.initials] ?: return null
@@ -576,11 +578,30 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    class FeatureAssetHandler: WebViewAssetLoader.PathHandler {
+        override fun handle(path: String): WebResourceResponse? {
+            val parts = path.split("/", limit=2);
+            if(parts.size != 2) return null;
+            val (moduleName, resourcePath) = parts
+            val book = Books.installed().getBook(moduleName) ?: return null
+            val location = File(book.bookMetaData.location)
+            val f = File(location, resourcePath)
+            return if (f.isFile && f.exists() && checkSignature(f)) {
+                WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
+            } else null
+        }
+
+        private fun checkSignature(file: File): Boolean {
+            val signatureFile = File(file.path + ".sign")
+            return CommonUtils.verifySignature(file, signatureFile)
+        }
+    }
 
     val assetLoader = WebViewAssetLoader.Builder()
         .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
         .addPathHandler("/module/", ModuleAssetHandler())
         .addPathHandler("/fonts/", FontsAssetHandler())
+        .addPathHandler("/features/", FeatureAssetHandler())
         .addPathHandler("/module-style/", ModuleStylesAssetHandler())
         .build()
 
