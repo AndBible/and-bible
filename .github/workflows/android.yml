@@ -17,6 +17,9 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
+
+        asldfkjasldfkj should crash if it uses this android.yml
+
     - uses: actions/checkout@v2
       with:
         fetch-depth: 10 # so that recent tags can be found
