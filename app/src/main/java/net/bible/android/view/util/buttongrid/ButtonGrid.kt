@@ -107,6 +107,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                         button.setTypeface(Typeface.DEFAULT_BOLD)
                         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
                         button.paintFlags = button.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+                        button.isPressed = true
                     } else {
                         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
                     }
