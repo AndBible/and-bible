@@ -383,22 +383,33 @@ export function useVerseMap() {
 
 export function useCustomFeatures() {
     const features = {}
+
+    const defer = new Deferred();
+    const featuresLoaded = ref(false);
+    const featuresLoadedPromise = ref(defer.wait());
+
     async function reloadFeatures(featureModuleNames) {
-        if(featureModuleNames.includes("RefParser")) {
+        /*
+         TODO: implement loading and usage properly in #981
+         if(featureModuleNames.includes("RefParser")) {
             const url = "/features/RefParser/en_bcv_parser.js"
             const content = await (await fetch(url)).text();
             features.refParser = Function(content);
-            console.log("Module loaded", {content, features});
         }
+        */
     }
 
     onBeforeMount(() => {
         const featureModuleNames = new URLSearchParams(window.location.search).get("featureModuleNames");
         if (!featureModuleNames) return
-        reloadFeatures(featureModuleNames.split(","));
+        reloadFeatures(featureModuleNames.split(","))
+            .then(() => {
+                defer.resolve()
+                featuresLoaded.value = true;
+            });
     })
 
-    return features;
+    return {features, featuresLoadedPromise, featuresLoaded};
 }
 
 export function useCustomCss() {
