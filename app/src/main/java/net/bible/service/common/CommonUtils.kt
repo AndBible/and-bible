@@ -718,6 +718,7 @@ object CommonUtils {
     }
 
     fun verifySignature(file: File, signatureFile: File): Boolean {
+        // Adapted from https://stackoverflow.com/questions/34066949/verify-digital-signature-on-android
         val reader = PemReader(InputStreamReader(application.resources.openRawResource(R.raw.publickey)))
         val data = file.inputStream()
         val signatureData = signatureFile.inputStream()
