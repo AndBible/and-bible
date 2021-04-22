@@ -476,10 +476,13 @@
     <string name="mynotes">My Notes</string>
 
     <!-- Backup and restore -->
-    <string name="backup_and_restore">Backup &amp; Restore</string>
-    <string name="backup_modules">Backup Documents to…</string>
-    <string name="backup_app_database">Backup application database to…</string>
-    <string name="restore_app_database">Restore application database from…</string>
+    <string name="backup_and_restore">Share, Backup &amp; Restore data</string>
+    <string name="backup_modules">Share or Backup Documents to…</string>
+    <string name="backup_app_database">Share or Backup app database to…</string>
+
+    <string name="backup_app">Share or Backup app (.apk file) to …</string>
+
+    <string name="restore_app_database">Restore app database from…</string>
     <string name="restore_database">Restore Database File</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces?</string>
     <string name="restore_success">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces restored successfully</string>

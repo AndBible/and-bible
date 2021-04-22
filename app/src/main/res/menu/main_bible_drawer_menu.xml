@@ -68,7 +68,7 @@
 
 			<item android:id="@+id/backupMainMenu"
 				  android:title="@string/backup_and_restore"
-				  android:icon="@drawable/ic_save_white_24dp"/>
+				  android:icon="@drawable/ic_baseline_share_24"/>
 
         </menu>
     </item>

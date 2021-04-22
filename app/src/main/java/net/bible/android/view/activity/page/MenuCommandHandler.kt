@@ -216,6 +216,12 @@ constructor(private val callingActivity: MainBibleActivity,
                     }
                     isHandled = true
                 }
+                R.id.backup_app -> {
+                    GlobalScope.launch(Dispatchers.Main) {
+                        backupControl.backupApp(callingActivity)
+                    }
+                    isHandled = true
+                }
                 R.id.bugReport -> {
                     GlobalScope.launch {
                         BugReport.reportBug(callingActivity, source = "manual")

@@ -21,28 +21,27 @@ package net.bible.android.control.backup
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
-import android.util.Log
-
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.FileManager
-
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
+import android.util.Log
 import android.widget.Button
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig
+import net.bible.android.activity.R
+import net.bible.android.control.ApplicationScope
 import net.bible.android.database.DATABASE_VERSION
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
-
+import net.bible.service.common.FileManager
 import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.db
@@ -59,8 +58,8 @@ import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
-import kotlin.coroutines.suspendCoroutine
 import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 /**
@@ -73,9 +72,9 @@ class BackupControl @Inject constructor() {
 
     /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
      */
-    suspend fun backupDatabaseToUri( uri: Uri)  {
+    suspend fun backupDatabaseToUri(uri: Uri)  {
         val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
-        val filename = DATABASE_NAME;
+        val filename = DATABASE_NAME
         val f = File(internalDbDir, filename);
         val inputStream = FileInputStream(f)
 
@@ -194,7 +193,7 @@ class BackupControl @Inject constructor() {
                     }
                     .setNeutralButton(R.string.select_all) { _, _ -> it.resume(null) }
                     .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
-                    .setOnCancelListener {_ -> it.resume(null)}
+                    .setOnCancelListener { _ -> it.resume(null)}
                     .setTitle(getString(R.string.backup_modules_title))
                     .create()
 
@@ -225,7 +224,7 @@ class BackupControl @Inject constructor() {
         }
 
         fun addFile(outFile: ZipOutputStream, rootDir: File, configFile: File) {
-            FileInputStream(configFile).use {inFile ->
+            FileInputStream(configFile).use { inFile ->
                 BufferedInputStream(inFile).use { origin ->
                     val entry = ZipEntry(relativeFileName(rootDir, configFile))
                     outFile.putNextEntry(entry)
@@ -235,7 +234,7 @@ class BackupControl @Inject constructor() {
         }
 
         withContext(Dispatchers.IO) {
-            ZipOutputStream(FileOutputStream(zipFile)).use {outFile ->
+            ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
                 for(b in books) {
                     val bmd = b.bookMetaData as SwordBookMetaData
                     val configFile = bmd.configFile
@@ -332,6 +331,27 @@ class BackupControl @Inject constructor() {
 
     }
 
+    suspend fun backupApp(callingActivity: MainBibleActivity) {
+        internalDbBackupDir.mkdirs()
+
+        val app: ApplicationInfo = callingActivity.applicationContext.applicationInfo
+        val intent = Intent(Intent.ACTION_SEND)
+
+        // MIME of .apk is "application/vnd.android.package-archive".
+        // but Bluetooth does not accept this. Let's use "*/*" instead.
+        intent.type = "*/*"
+        val tempFile = File(internalDbBackupDir, "and-bible.apk")
+        withContext(Dispatchers.IO) {
+            File(app.sourceDir).copyTo(tempFile)
+        }
+
+        intent.putExtra(Intent.EXTRA_STREAM,
+            FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", tempFile))
+
+        withContext(Dispatchers.Main) {
+            callingActivity.startActivity(Intent.createChooser(intent, callingActivity.getString(R.string.backup_app)))
+        }
+    }
 
     companion object {
 
@@ -341,9 +361,10 @@ class BackupControl @Inject constructor() {
         private const val MODULE_BACKUP_NAME = "modules.zip"
         fun setupDirs(context: Context) {
             internalDbDir = File(context.getDatabasePath(DATABASE_NAME).parent!!)
-            internalDbBackupDir = File(context.filesDir,  "/backup")
+            internalDbBackupDir = File(context.filesDir, "/backup")
         }
 
         private val TAG = "BackupControl"
     }
 }
+
