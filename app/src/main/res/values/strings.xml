@@ -614,6 +614,7 @@
     </string>
     <string name="beta_notice_content_3">If you are programmer, please consider contributing bug
         fixes via %s yourself. :-)</string>
+    <string name="beta_notice_content_4">Please see video featuring new features of this release (%s)!</string>
     <string name="beta_notice_github_issues">Github issues</string>
     <string name="beta_notice_github">Github</string>
     <string name="beta_notice_dismiss">Dismiss</string>

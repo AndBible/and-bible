@@ -131,6 +131,12 @@ object CommonUtils {
             return "$versionName#$GitHash (built $BuildDate)"
         }
 
+    val mainVersion: String get() {
+        val verFull = applicationVersionName
+        val numbers = verFull.split(".")
+        return "${numbers[0]}.${numbers[1]}"
+    }
+
     val isBeta: Boolean get() {
         val verFull = applicationVersionName
         val ver = verFull.split("#")[0]

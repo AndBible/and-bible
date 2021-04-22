@@ -395,6 +395,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         if(displayedVer != ver) {
 
+            val videoUrl = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // For 3.4 beta intro
+
+            val videoMessage = getString(R.string.beta_notice_content_4, CommonUtils.mainVersion)
+            val videoMessageLink = "<a href=\"$videoUrl\"><b>$videoMessage</b></a>"
+
             val par1 = getString(R.string.beta_notice_content_1)
             val par2 = getString(R.string.beta_notice_content_2,
                  " <a href=\"https://github.com/AndBible/and-bible/issues\">"
@@ -405,7 +410,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     + "${getString(R.string.beta_notice_github)}</a>"
 
             )
-            val htmlMessage = "$par1<br><br> $par2<br><br> $par3 <br><br> <i>Version: $verFull</i>"
+            val htmlMessage = "$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>Version: $verFull</i>"
 
             val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
