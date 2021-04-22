@@ -95,6 +95,8 @@ class ManageLabels : ListActivityBase() {
 
         if(studyPadMode) {
             setTitle(getString(R.string.studypads))
+            binding.okButton.visibility = View.GONE
+            binding.spacer.visibility = View.GONE
         }
 
         if(title!=null) setTitle(title)
