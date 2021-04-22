@@ -20,6 +20,7 @@ import {reactive} from "@vue/runtime-core";
 const untranslated = {
     chapterNum: "— %d —",
     verseNum: "%d",
+    multiDocumentLink: "%s (%s)"
 }
 
 let strings = reactive({...require(`@/lang/default.yaml`), ...untranslated});

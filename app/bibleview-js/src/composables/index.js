@@ -286,7 +286,9 @@ export function useCommon() {
         return col.hsl();
     }
 
-    return {config, appSettings, calculatedConfig, strings, sprintf, split, adjustedColor, formatTimestamp, abbreviated, emit, Events}
+    return {config, appSettings, calculatedConfig, strings, sprintf, split,
+        adjustedColor, formatTimestamp, abbreviated, emit, Events
+    }
 }
 
 export function useFontAwesome() {
