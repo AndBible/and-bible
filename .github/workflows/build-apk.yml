@@ -2,19 +2,15 @@ name: Android CI
 
 on:
   push:
-    branches: 
-      - develop
-      - 'current-stable'
-      - 'release/*'
-    tags: 
+    tags:
       - 'build-*'
       - 'alpha-*'
       - 'beta-*'
       - 'production-*'
-  pull_request:
 
 jobs:
   build:
+    environment: And Bible Builds
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
