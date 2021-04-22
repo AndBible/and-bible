@@ -3,6 +3,7 @@ TMP:=$(shell mktemp -d)
 # Pushing source files to transifex:
 # tx push -s -r andbible.play-store-main-description
 # tx push -s -r andbible.and-bible-stringsxml
+# tx push -s -r andbible.bibleview-js
 
 tx-pull:
 	tx pull --force --all
