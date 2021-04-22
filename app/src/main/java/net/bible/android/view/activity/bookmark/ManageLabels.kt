@@ -50,9 +50,8 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt
 
 /**
- * Choose a bible or commentary to use
  *
- * @author Martin Denham [mjdenham at gmail dot com]
+ * ManageLabels serves for bookmark label management, selections (in several contexts) and StudyPad selection.
  */
 class ManageLabels : ListActivityBase() {
     private lateinit var binding: ManageLabelsBinding
