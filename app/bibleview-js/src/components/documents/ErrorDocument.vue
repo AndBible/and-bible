@@ -17,24 +17,33 @@
 
 <template>
   <div>
-    <h2>{{strings.errorTitle}}</h2>
+    <h2 v-if="severity === ErrorSeverity.ERROR">{{strings.errorTitle}}</h2>
+    <h2 v-if="severity === ErrorSeverity.WARNING">{{strings.warningTitle}}</h2>
     <p>
       {{document.errorMessage}}
     </p>
-    <a href="ab-error://">{{strings.reportError}}</a>
+    <a v-if="severity > ErrorSeverity.NORMAL" href="ab-error://">{{strings.reportError}}</a>
   </div>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
+import {computed} from "@vue/reactivity";
+
+const ErrorSeverity = {
+  NORMAL: 1,
+  WARNING: 2,
+  ERROR: 3,
+}
 
 export default {
   name: "ErrorDocument",
   props: {
     document: {type: Object, required: true},
   },
-  setup() {
-    return useCommon()
+  setup(props) {
+    const severity = computed(() => ErrorSeverity[props.document.severity]);
+    return {severity, ...useCommon(), ErrorSeverity}
   }
 }
 </script>

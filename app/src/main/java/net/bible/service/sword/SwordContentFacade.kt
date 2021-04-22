@@ -18,27 +18,21 @@
 package net.bible.service.sword
 
 import android.util.Log
-import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.page.BibleView
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Logger
 import net.bible.service.common.ParseException
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
-import net.bible.service.format.osistohtml.osishandlers.OsisToCopyTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
 import org.apache.commons.text.StringEscapeUtils
 import org.crosswire.common.xml.JDOMSAXEventProvider
@@ -52,7 +46,6 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
@@ -68,7 +61,8 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.math.min
 
-class OsisError(message: String): Exception(message)
+open class OsisError(message: String): Exception(message)
+class DocumentNotFound(message: String): OsisError(message)
 
 /** JSword facade
  *
@@ -82,22 +76,19 @@ open class SwordContentFacade @Inject constructor(
     /** top level method to fetch html from the raw document data
      */
     @Throws(ParseException::class, OsisError::class)
-    fun readOsisFragment(book: Book?, key: Key?,): String {
-        val retVal = when {
-            book == null || key == null -> ""
-            Books.installed().getBook(book.initials) == null -> {
-                Log.w(TAG, "Book may have been uninstalled:$book")
-                throw OsisError(application.getString(R.string.document_not_installed, book.initials))
-            }
-            !bookContainsAnyOf(book, key) -> {
-                Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
-                throw OsisError(application.getString(R.string.error_key_not_in_document))
-            }
-            else -> {
-                readXmlTextStandardJSwordMethod(book, key)
-            }
+    fun readOsisFragment(book: Book?, key: Key?,): String = when {
+        book == null || key == null -> ""
+        Books.installed().getBook(book.initials) == null -> {
+            Log.w(TAG, "Book may have been uninstalled:$book")
+            throw OsisError(application.getString(R.string.document_not_installed, book.initials))
         }
-        return retVal
+        !bookContainsAnyOf(book, key) -> {
+            Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
+            throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
+        }
+        else -> {
+            readXmlTextStandardJSwordMethod(book, key)
+        }
     }
 
     @Throws(ParseException::class)

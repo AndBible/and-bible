@@ -27,6 +27,7 @@ import net.bible.android.misc.OsisFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -139,12 +140,16 @@ abstract class CurrentPageBase protected constructor(
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error getting bible text", e)
-            if(e is OsisError) ErrorDocument(e.message) else errorDocument
+            when (e) {
+                is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
+                is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
+                else -> errorDocument
+            }
         }
     }
 
     private val errorDocument: ErrorDocument get() =
-        ErrorDocument(application.getString(R.string.error_occurred))
+        ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.ERROR)
 
     override fun checkCurrentDocumentStillInstalled(): Boolean {
         if (_currentDocument != null) {

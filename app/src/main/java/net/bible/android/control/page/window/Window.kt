@@ -33,6 +33,7 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
+import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
@@ -222,7 +223,7 @@ open class Window (
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()
-            ErrorDocument(BibleApplication.application.resources.getString(R.string.error_page_too_large))
+            ErrorDocument(BibleApplication.application.resources.getString(R.string.error_page_too_large), ErrorSeverity.ERROR)
         }
     }
 

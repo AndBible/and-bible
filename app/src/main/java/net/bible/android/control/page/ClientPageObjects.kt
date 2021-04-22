@@ -73,12 +73,17 @@ interface Document {
     val asHashMap: Map<String, Any>
 }
 
-class ErrorDocument(private val errorMessage: String?): Document {
+enum class ErrorSeverity {
+    NORMAL, WARNING, ERROR
+}
+
+class ErrorDocument(private val errorMessage: String?, private val severity: ErrorSeverity): Document {
     override val asHashMap: Map<String, String> get() =
         mapOf(
             "id" to wrapString(randomUUID().toString()),
             "type" to wrapString("error"),
-            "errorMessage" to wrapString(errorMessage?:"")
+            "errorMessage" to wrapString(errorMessage?:""),
+            "severity" to wrapString(severity.name)
         )
 }
 
