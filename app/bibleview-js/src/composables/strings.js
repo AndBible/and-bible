@@ -16,6 +16,7 @@
  */
 
 import {reactive} from "@vue/runtime-core";
+import {testMode} from "@/composables/index";
 
 const untranslated = {
     chapterNum: "— %d —",
@@ -23,7 +24,14 @@ const untranslated = {
     multiDocumentLink: "%s (%s)"
 }
 
-let strings = reactive({...require(`@/lang/default.yaml`), ...untranslated});
+let strings;
+
+if(testMode) {
+    strings = {}
+} else {
+    strings = reactive({...require(`@/lang/default.yaml`), ...untranslated});
+}
+
 let stringsLoaded = false;
 
 async function loadStrings() {
