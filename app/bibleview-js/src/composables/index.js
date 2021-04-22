@@ -381,6 +381,37 @@ export function useVerseMap() {
     return {register, getVerses}
 }
 
+export function useCustomFeatures() {
+    const features = {}
+
+    const defer = new Deferred();
+    const featuresLoaded = ref(false);
+    const featuresLoadedPromise = ref(defer.wait());
+
+    async function reloadFeatures(featureModuleNames) {
+        /*
+         TODO: implement loading and usage properly in #981
+         if(featureModuleNames.includes("RefParser")) {
+            const url = "/features/RefParser/en_bcv_parser.js"
+            const content = await (await fetch(url)).text();
+            features.refParser = Function(content);
+        }
+        */
+    }
+
+    onBeforeMount(() => {
+        const featureModuleNames = new URLSearchParams(window.location.search).get("featureModuleNames");
+        if (!featureModuleNames) return
+        reloadFeatures(featureModuleNames.split(","))
+            .then(() => {
+                defer.resolve()
+                featuresLoaded.value = true;
+            });
+    })
+
+    return {features, featuresLoadedPromise, featuresLoaded};
+}
+
 export function useCustomCss() {
     const cssNodes = new Map();
     const count = new Map();

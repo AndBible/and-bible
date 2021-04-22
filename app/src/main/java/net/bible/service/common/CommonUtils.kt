@@ -72,12 +72,23 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.spongycastle.util.io.pem.PemReader
 import java.io.File
 import java.io.FileInputStream
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.security.KeyFactory
+import java.security.PublicKey
+import java.security.Signature
+import java.security.cert.CertificateFactory
 import java.util.*
+import java.security.cert.X509Certificate
+import java.security.interfaces.RSAPublicKey
+import java.security.spec.X509EncodedKeySpec
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+
 
 val BookmarkEntities.Label.displayName get() =
     when {
@@ -664,12 +675,12 @@ object CommonUtils {
         val help = listOf(
             HelpItem(R.string.help_nav_title, R.string.help_nav_text),
             HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
-            HelpItem(R.string.help_window_pinning_title,R.string.help_window_pinning_text,"https://youtu.be/27b1g-D3ibA"),
+            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, "https://youtu.be/27b1g-D3ibA"),
             HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text),
             HelpItem(R.string.help_studypads_title, R.string.help_studypads_text),
-            HelpItem(R.string.help_search_title,R.string.help_search_text),
-            HelpItem(R.string.help_workspaces_title,R.string.help_workspaces_text, "https://youtu.be/rz0zyEK9qBk"),
-            HelpItem(R.string.help_hidden_features_title,R.string.help_hidden_features_text)
+            HelpItem(R.string.help_search_title, R.string.help_search_text),
+            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, "https://youtu.be/rz0zyEK9qBk"),
+            HelpItem(R.string.help_hidden_features_title, R.string.help_hidden_features_text)
         ).run {
             if(filterItems != null) {
                 filter { filterItems.contains(it.title) }
@@ -704,6 +715,29 @@ object CommonUtils {
 
         d.show()
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    fun verifySignature(file: File, signatureFile: File): Boolean {
+        // Adapted from https://stackoverflow.com/questions/34066949/verify-digital-signature-on-android
+        val reader = PemReader(InputStreamReader(application.resources.openRawResource(R.raw.publickey)))
+        val data = file.inputStream()
+        val signatureData = signatureFile.inputStream()
+
+        val publicKeyPem = reader.readPemObject()
+        val publicKeyBytes: ByteArray = publicKeyPem.content
+        val keyFactory = KeyFactory.getInstance("RSA")
+        val publicKeySpec = X509EncodedKeySpec(publicKeyBytes)
+        val publicKey = keyFactory.generatePublic(publicKeySpec) as RSAPublicKey
+        val signature = Signature.getInstance("SHA1withRSA")
+        signature.initVerify(publicKey)
+        val buffy = ByteArray(16 * 1024)
+        var read = -1
+        while (data.read(buffy).also { read = it } != -1) {
+            signature.update(buffy, 0, read)
+        }
+        val signatureBytes = ByteArray(publicKey.modulus.bitLength() / 8)
+        signatureData.read(signatureBytes)
+        return signature.verify(signatureBytes)
     }
 }
 
