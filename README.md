@@ -1,4 +1,4 @@
-[![Android CI](https://github.com/AndBible/and-bible/workflows/Run%20tests/badge.svg?branch=develop)](https://github.com/AndBible/and-bible/actions?query=workflow%3A%22Run+tests)
+[![Android CI](https://github.com/AndBible/and-bible/workflows/Run%20tests/badge.svg?branch=develop)](https://github.com/AndBible/and-bible/actions/workflows/run-tests.yml)
 [![Licence](https://img.shields.io/badge/licence-GPL-blue.svg)](https://github.com/tuomas2/automate/blob/master/LICENSE.txt)
    
 # Bible Study app by And Bible Open Source Project
