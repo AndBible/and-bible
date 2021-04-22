@@ -17,8 +17,9 @@
 
 <template>
   <div>
-    <h2 v-if="severity === ErrorSeverity.ERROR">{{strings.errorTitle}}</h2>
-    <h2 v-if="severity === ErrorSeverity.WARNING">{{strings.warningTitle}}</h2>
+    <h3 v-if="severity === ErrorSeverity.ERROR">{{strings.errorTitle}}</h3>
+    <h3 v-if="severity === ErrorSeverity.WARNING">{{strings.warningTitle}}</h3>
+    <h3 v-if="severity === ErrorSeverity.NORMAL">{{strings.normalTitle}}</h3>
     <p>
       {{document.errorMessage}}
     </p>

@@ -6,6 +6,7 @@ findAllOccurrences: Find all occurrences
 reportError: Report an error
 errorTitle: Error occurred
 warningTitle: Warning
+normalTitle: Please note
 footnoteTypeUndefined: Undefined type
 footnoteTypeStudy: Study
 footnoteTypeExplanation: Explanation
