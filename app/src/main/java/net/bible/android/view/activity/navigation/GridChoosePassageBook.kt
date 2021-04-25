@@ -47,12 +47,14 @@ import java.util.ArrayList
 
 import javax.inject.Inject
 
+private val NEW_TESTAMENT_TINT = Color.parseColor("#FF505050")
+
 /**
  * Choose a bible book e.g. Psalms
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_book_menu), OnButtonGridActionListener {
+class GridChoosePassageBook : CustomTitlebarActivityBase(), OnButtonGridActionListener {
 
     private lateinit var buttonGrid: ButtonGrid
 
@@ -77,6 +79,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                     buttonInfo.name = getShortBookName(book, isShortBookNamesAvailable)
                     buttonInfo.description = versification.getLongName(book)
                     buttonInfo.textColor = getBookTextColor(book.ordinal)
+                    buttonInfo.tintColor = if (book.ordinal < BibleBook.MATT.ordinal) Color.DKGRAY else NEW_TESTAMENT_TINT
                     buttonInfo.highlight = book == currentBibleBook
                 } catch (nsve: NoSuchVerseException) {
                     buttonInfo.name = "ERR"
@@ -153,9 +156,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture)
 
         buttonGrid = ButtonGrid(this)
-
         buttonGrid.setOnButtonGridActionListener(this)
-
         buttonGrid.addButtons(bibleBookButtonInfo)
 
         setContentView(buttonGrid)

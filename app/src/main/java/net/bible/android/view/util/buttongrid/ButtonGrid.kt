@@ -18,6 +18,7 @@
 package net.bible.android.view.util.buttongrid
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
@@ -42,6 +43,7 @@ class ButtonInfo (
     var name: String? = null,
     var description: String? = null,
     var textColor: Int = Color.WHITE,
+    var tintColor: Int = Color.DKGRAY,
     var highlight: Boolean = false,
 
     var top: Int = 0,
@@ -103,6 +105,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                     val button = Button(context)
                     button.text = buttonInfo.name
                     button.setTextColor(buttonInfo.textColor)
+                    button.backgroundTintList = ColorStateList.valueOf(buttonInfo.tintColor)
                     if (buttonInfo.highlight) {
                         button.setTypeface(Typeface.DEFAULT_BOLD)
                         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
