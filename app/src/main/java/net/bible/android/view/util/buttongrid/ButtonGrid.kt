@@ -40,6 +40,7 @@ import net.bible.android.view.util.buttongrid.LayoutDesigner.RowColLayout
 class ButtonInfo (
     var id: Int = 0,
     var name: String? = null,
+    var description: String? = null,
     var textColor: Int = Color.WHITE,
     var highlight: Boolean = false,
 
@@ -95,13 +96,12 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
             val row = TableRow(context)
             addView(row, rowInTableLp)
             for (iCol in 0 until rowColLayout.cols) {
-                val buttonInfoIndex = getButtonInfoIndex(iRow, iCol)
+                val buttonInfoIndex = iRow * rowColLayout.cols + iCol
                 if (buttonInfoIndex < numButtons) {
                     // create a graphical Button View object to show on the screen and link it to the ButtonInfo object
                     val buttonInfo = buttonInfoList[buttonInfoIndex]
                     val button = Button(context)
                     button.text = buttonInfo.name
-                    button.setBackgroundResource(R.drawable.buttongrid_button_background)
                     button.setTextColor(buttonInfo.textColor)
                     if (buttonInfo.highlight) {
                         button.setTypeface(Typeface.DEFAULT_BOLD)
@@ -134,20 +134,6 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
         previewText!!.setCompoundDrawables(null, null, null, null)
         val scale = context.resources.displayMetrics.density
         previewHeight = (PREVIEW_HEIGHT_DIP * scale).toInt()
-    }
-
-    /** Ensure longer runs by populating in longest direction ie columns if portrait and rows if landscape
-     *
-     * @param row
-     * @param col
-     * @return
-     */
-    private fun getButtonInfoIndex(row: Int, col: Int): Int {
-        return if (rowColLayout!!.columnOrder) {
-            col * rowColLayout!!.rows + row
-        } else {
-            row * rowColLayout!!.cols + col
-        }
     }
 
     /* (non-Javadoc)
@@ -218,11 +204,10 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
 
     private fun showPreview(buttonInfo: ButtonInfo) {
         try {
-            val button = buttonInfo.button
             if (buttonInfo != currentPreview) {
-                Log.d(TAG, "Previewing " + buttonInfo.name)
+                Log.d(TAG, "Previewing " + buttonInfo.description)
                 currentPreview = buttonInfo
-                previewText!!.text = buttonInfo.name
+                previewText!!.text = buttonInfo.description
                 val popupHeight = previewHeight
                 previewText!!.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
                 val popupWidth = Math.max(previewText!!.measuredWidth, buttonInfo.button!!.width + previewText!!.paddingLeft + previewText!!.paddingRight)

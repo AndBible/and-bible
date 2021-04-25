@@ -75,6 +75,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                 try {
                     buttonInfo.id = book.ordinal
                     buttonInfo.name = getShortBookName(book, isShortBookNamesAvailable)
+                    buttonInfo.description = versification.getLongName(book)
                     buttonInfo.textColor = getBookTextColor(book.ordinal)
                     buttonInfo.highlight = book == currentBibleBook
                 } catch (nsve: NoSuchVerseException) {

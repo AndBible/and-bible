@@ -103,6 +103,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
             // this is used for preview
             buttonInfo.id = i
             buttonInfo.name = Integer.toString(i)
+            buttonInfo.description = Integer.toString(i)
             if (currentBibleBook == book && i == currentBibleChapter) {
                 buttonInfo.textColor = Color.YELLOW
                 buttonInfo.highlight = true
