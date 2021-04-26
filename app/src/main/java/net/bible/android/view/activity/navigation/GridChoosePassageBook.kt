@@ -24,6 +24,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View.OnClickListener
 
 import net.bible.android.activity.R
@@ -151,6 +152,8 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         isCurrentlyShowingScripture = pageControl.isCurrentPageScripture
         bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture)
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         buttonGrid = ButtonGrid(this)
 
         buttonGrid.setOnButtonGridActionListener(this)
@@ -158,6 +161,16 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         buttonGrid.addButtons(bibleBookButtonInfo)
 
         setContentView(buttonGrid)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun buttonPressed(buttonInfo: ButtonInfo) {
