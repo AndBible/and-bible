@@ -125,6 +125,8 @@ export const strongsModes = {
 }
 
 export let errorBox = false;
+const white = -1;
+const black = -16777216;
 
 export function useConfig(documentType) {
     // text display settings only here. TODO: rename
@@ -154,12 +156,12 @@ export function useConfig(documentType) {
         bookmarksAssignLabels: [],
 
         colors: {
-            dayBackground: null,
+            dayBackground: white,
             dayNoise: 0,
-            dayTextColor: null,
-            nightBackground: null,
+            dayTextColor: black,
+            nightBackground: black,
             nightNoise: 0,
-            nightTextColor: -16777216,
+            nightTextColor: white,
         },
 
         hyphenation: true,
