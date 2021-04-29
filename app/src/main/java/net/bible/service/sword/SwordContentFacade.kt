@@ -19,7 +19,10 @@ package net.bible.service.sword
 
 import android.os.Build
 import android.text.Html
+import android.text.TextUtils
+import android.util.LayoutDirection
 import android.util.Log
+import androidx.core.text.layoutDirection
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
@@ -167,18 +170,20 @@ open class SwordContentFacade @Inject constructor(
         if (!showFull && startOffset > 0) {
             startVerseNumber = "$startVerseNumber..."
         }
+        val bookLocale = Locale(selection.book.language.code)
+        val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
 
         val reference = if(showReference) {
             if(abbreviateReference) {
                 synchronized(BookName::class) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
-                    val verseRangeName = selection.verseRange.getNameInLocale(null, Locale(selection.book.language.code))
+                    val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
                     BookName.setFullBookName(oldValue)
                     " ($verseRangeName, ${selection.book.abbreviation})"
                 }
             } else {
-                val verseRangeName = selection.verseRange.getNameInLocale(null, Locale(selection.book.language.code))
+                val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
                 " ($verseRangeName, ${selection.book.abbreviation})"
             }
         }
