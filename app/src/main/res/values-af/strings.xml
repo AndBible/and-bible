@@ -54,7 +54,6 @@
   <string name="search_current_book">Huidige boek</string>
   <string name="error_executing_search">Ongeldige soektog</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Wys vers nommers</string>
   <string name="prefs_verse_per_line_summary">Wys elke vers op \'n ander lyn</string>
   <string name="prefs_show_bookmarks_summary">Onmerk om alle boekmerke te verberg</string>
   <string name="prefs_show_mynotes_summary">Wys ikoon in verse met My nota</string>
@@ -64,11 +63,8 @@
   <string name="prefs_section_title_summary">Wys nie-kanonieke seksietitels</string>
   <string name="prefs_red_letter_summary">Wys woorde van Christus in rooi</string>
   <string name="prefs_text_size_title">Skrif voorkeure</string>
-  <string name="prefs_show_verseno_title">Vers nommers</string>
   <string name="prefs_verse_per_line_title">Een vers per lyn</string>
   <string name="prefs_show_bookmarks_title">Wys Boekmerke</string>
-  <string name="prefs_default_bookmark_style_title">Standaard boekmerk styl</string>
-  <string name="prefs_default_bookmark_style_summary">Hoogtepunt kleur of simbool</string>
   <string name="prefs_show_mynotes_title">Wys My Nota ikone</string>
   <string name="prefs_show_notes_title">Voetnotas en kruis-verwysings</string>
   <string name="prefs_show_strongs_title">Strong\'s getalle</string>
@@ -86,7 +82,6 @@
   <string name="prefs_navigate_to_verse_summary">Kies vers (en hoofstuk) wanneer \'n teks gekies word</string>
   <string name="prefs_open_links_in_special_window_title">Maak skakels in \'n spesiale venster</string>
   <string name="prefs_open_links_in_special_window_summary">Vir vinniger vertoon van die kruis-verwysings en Strongs</string>
-  <string name="prefs_text_size_summary">Pas skrif familie en skrif grootte aan</string>
   <string name="prefs_text_size_sample_text">Teks voorbeeld</string>
   <string name="prefs_screen_keep_on_title">Hou skerm aan</string>
   <string name="prefs_screen_keep_on_summary">Voorkom dat skerm gaan slaap tydens die gebruik van hierdie program</string>
@@ -129,13 +124,11 @@ Woordafbreking</string>
   <string name="line_spacing_title">Lyn spasiëring</string>
   <string name="line_spacing_summary">Stel die spasie tussen lyne</string>
   <string name="select_none">Kies geen</string>
-  <string name="reset_are_you_sure">Is jy seker dat jy alle waardes wil terugstel?</string>
   <string name="window_pinning_menutitle">Venster vasgespeld</string>
   <string name="hide_window_buttons_title">Versteek venster knoppies</string>
-  <string name="hide_window_buttons_summary">Venster knoppies wat aan die regterkant van die Bybel -aansigte vertoon word, is versteek. Venster navigasie balk aan die onderkant word nog steeds vertoon en u kan die opspringkieslys van die venster oopmaak deur lank daarop te klik.</string>
-  <string name="font_size_title">Skrif grootte</string>
   <string name="full_screen_hide_buttons_pref_title">Versteek venster knoppiebalk in volskerm</string>
   <string name="full_screen_hide_buttons_pref_summary">Wanneer na volskerm modus oorskakel, verberg outomaties die venster knoppiebalk wat aan die onderkant van die skerm is</string>
+  <string name="font_size_title">Skrif grootte</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleur instellings</string>
   <string name="window_color_settings_title">Venster kleur instellings</string>
@@ -171,37 +164,23 @@ Woordafbreking</string>
   <string name="next">Volgende</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Laai asseblief Strong\'s Hebreeuse en Griekse woordeboeke af</string>
-  <string name="all_greek_occurrences">Vind alle gebeurtenisse</string>
-  <string name="all_hebrew_occurrences">Vind alle gebeurtenisse</string>
   <string name="no_indexed_bible_with_strongs_ref">Jy moet \'n Bybel met die Strong\'s nommers aflaai, en dan, laai sy indeks volgens Soek funksie af</string>
   <string name="morph_robinson_not_installed">Laai asseblief \'Robinson se morfologiese analise Kodes\' woordeboek af</string>
   <!--Module download-->
   <string name="download">Laai Dokumente af</string>
   <string name="download_confirmation">Laai \'n Bybel van die internet af?</string>
-  <string name="download_source_message">Dokumente word afgelaai vanaf:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Laai af</string>
-  <string name="download_refreshing_book_list">Herlaai lys van die beskikbare dokumente?</string>
   <string name="download_refresh_book_list_menu_item">Hernu</string>
-  <string name="error_downloading">\'n Fout met aflaai. Gaan asseblief jou internet konneksie na.</string>
   <string name="storage_space_warning">Onvoldoende lokale stoorplek.</string>
-  <string name="too_many_jobs">Te veel take oop. Wag vir \'n paar om te voltooi en probeer dan weer.</string>
   <string name="document_not_installed">Laai \'%s\' asseblief af</string>
   <string name="free_text_search_documents">Soek</string>
   <string name="chooce_language_hint">Taal</string>
-  <string name="one_more_back_press">Nog een druk op die terug knoppie sal die toep sluit</string>
   <string name="document_filter_results">%ddocumente</string>
   <string name="download_question_title">Wil u voortgaan om dokumente af te laai?</string>
-  <string name="download_question_message">As u in \'n vervolgde land woon,
-moet jy miskien versigtig wees met die aflaai van Christelike materiaal via die internet.
-In plaas daarvan wil u miskien \'n zip-lêer van die module veiliger bekom en installeer
-via \"Laai dokumente vanaf zip\". Is jy seker dat jy wil voortgaan met die aflaai?
-Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
   <string name="do_not_ask_again">Ja, moenie meer vra nie</string>
   <string name="recommended_document">Aanbeveel!</string>
   <string name="about_version_history">Weergawe geskiedenis:%s</string>
-  <string name="download_failed">Kon nie aflaai nie %s</string>
   <string name="download_errors">Fout met aflaai</string>
-  <string name="failed_repositories_message">Kon nie na die volgende dokument bewaarplekke toe skakel nie: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Die volgende lêers kon nie afgelaai word nie:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Laai dokument van Zip </string>
@@ -210,7 +189,6 @@ Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
   <string name="extracting_zip_file">Haal uit inligting  van zip lêer nou...</string>
   <string name="checking_zip_file">Kontroleer die gegewe lêer ...</string>
   <string name="invalid_module">Lêer nie \'n geldige SWORD module nie</string>
-  <string name="module_already_installed">Lêer bevat \'n module wat reeds geïnstalleer is</string>
   <string name="install_zip_title">Wag asseblief. Besig om zip-lêer te laai.</string>
   <string name="overwrite_files">Volgende lêers bestaan reeds%s Oorskryf?</string>
   <string name="overwrite_files_title">Oorskryf lêers?</string>
@@ -267,7 +245,6 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="delete_search_index_doc">Skrap indeks van %s?</string>
   <!--Verse context menu-->
   <string name="notes">Voetnotas en verwysings</string>
-  <string name="verse_action_copy">Kopieër</string>
   <string name="share_verse">Deel...</string>
   <string name="share_verse_subject_2">\'n Bybel vers is gedeel met wat jy gebruik %s.</string>
   <string name="compare_translations">Vergelyk vertalings</string>
@@ -277,18 +254,11 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="open_link_in_special_window">Maak skakel oop in spesiale venster</string>
   <!--Bookmarks-->
   <string name="bookmarks">Boekmerke</string>
-  <string name="add_bookmark">Voeg boekmerk by</string>
-  <string name="delete_bookmark">Verwyder Boekmerk</string>
   <string name="bookmark_added">Boekmerk bygevoeg</string>
-  <string name="bookmark_date_updated">Boekmerk date opgedateer</string>
-  <string name="bookmark_deleted">Boekmerk is verwyder</string>
-  <string name="bookmark_labels">Boekmerk etikette</string>
-  <string name="manage_labels">Bestuur Bookmark Byskrifte</string>
   <string name="assign_labels">Ken etikette toe</string>
   <string name="new_label">Nuwe etiket</string>
   <string name="label_name_prompt">Naam</string>
   <string name="label_unlabelled">Die etiket is verwyder</string>
-  <string name="style">Styl</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datum volgorde</string>
   <string name="sort_by_bible_book">Bybelse volgorde</string>
@@ -399,28 +369,15 @@ Herhaalde gedeelte mode was outomaties gedeaktiveer omdat
 praat buite die omskrewe versreeks begin het.</string>
   <!--User Notes-->
   <string name="mynotes">My Notas</string>
-  <string name="mynote_add">Voeg My Nota by</string>
-  <string name="mynote_saved">My Nota is geberg</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Rugsteun &amp; herstel</string>
-  <string name="backup_modules">Rugsteun dokumente na ...</string>
-  <string name="backup_app_database">Rugsteun toepassings databasis na ...</string>
-  <string name="restore_app_database">Herstel toepassings databasis vanaf ...</string>
-  <string name="restore_confirmation">Ooskryf My Aantekeninge, Boekmerke, Lees Planne en Werkruimtes?</string>
-  <string name="restore_success">My Aantekeninge, Boekmerke, Lees Planne en Werkruimtes is suksesvol herstel</string>
   <string name="loading_backup">Laai databasis vanaf rugsteun ...</string>
-  <string name="backup_success">My notas, boekmerke, leesplanne en werkruimtes is suksesvol gerugsteun na %s.</string>
-  <string name="error_no_backup_file">Rugsteun lêer is nie gevind nie</string>
   <string name="backup_modules_email_subject_2">%s modules rugsteun</string>
   <string name="backup_modules_email_message_2">Aangeheg is jou %s rugsteun van modules, wat die volgende modules bevat:%s</string>
   <string name="backup_email_subject_2">%s databasis rugsteun</string>
   <string name="backup_email_message_2">Jou %s databasis met boekmerke, notas, leesplanne en werkruimtes is aangeheg</string>
   <string name="restore_unsuccessfull">Die herstel van die databasis was onsuksesvol. Miskien het jy \'n ongeldige databasis lêer gegee.
  </string>
-  <string name="backup_restore_title">Herstel van waar af?</string>
-  <string name="backup_restore_message">Herstel van die foon berging of kies die rugsteun lêer handmatig (jy kan ook kies vanaf Google Drive ens.)?</string>
   <string name="backup_phone_storage">Foon berging</string>
-  <string name="backup_manually">Kies lêer</string>
   <string name="backup_backup_title">Rugsteun na waar?</string>
   <string name="backup_backup_message">Rugsteun na foon of elders via die deel-funksie (e-pos, Google Drive, ens.)?</string>
   <string name="backup_share">Deel</string>
@@ -433,27 +390,8 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="module_about_installed_version">Geïnstalleerde weergawe:%s(%s)</string>
   <string name="module_about_latest_version">Nuutste weergawe:%s (%s)</string>
   <string name="module_about_versification">Verifiëring:%s</string>
-  <string name="module_about_repository">Verspreidings bewaarplek:%s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Rapporteer \'n fout</string>
-  <string name="report_bug_email_subject_2">Fout verslag vir %s %s</string>
-  <string name="report_bug_email_message">
---- SKRYF FOUT VERSLAG BO HIERDIE LYN --- \ n
-Instruksies: \ n
-Vertel kortliks wat jy gedoen het / wat tydens die gebruik
-  gebeur het. Voorbeeld: \ n
-\n
-1. Toep oopegemaak \ n
- 2. Klik op die venstermenu \ n
--&gt; ongeluk\n
-\n
-Soms is \'n skermkiekie ook voordelig in die oplossing van probleme.
-  Gebruik hierdie funksie om verslag te doen sodra jy agtergekom het dat dit plaasvind.
-Jy kan ook hierdie funksie gebruik nadat jy die toep oopgemaak het, nadat die ongeluk plaasgevind het.
-\n\n
-Toestel inligting: \n
-%s</string>
   <!--Document types-->
   <string name="doc_type_all">Alle tipes</string>
   <string name="doc_type_bible">Bybel</string>
@@ -471,7 +409,6 @@ Toestel inligting: \n
   <string name="error">Fout</string>
   <string name="please_wait">Wag Asseblief...</string>
   <string name="all">Alles</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">Wysig</string>
   <string name="watch_tutorial_video">Kyk tutoriaal video (Engels)</string>
   <string name="verse_not_found">Vers nie gevind</string>
@@ -528,10 +465,6 @@ Beta-gebruikers word aangemoedig om foute te rapporteer via Google Play of
   <string name="history_for">Geskiedenis (%s:Venster %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigasie</string>
-  <string name="help_nav_text">Gaan na die volgende of vorige hoofstuk deur die skerm met jou vinger te vee.
- Dubbel druk  op Bybelteks om oor te skakel na die volledige skerm modus 
- Verdeelte skerms (ook vensters genoem) het die lys knoppie in die regter boonste hoek,
-waarmee jy verskillende venster-spesifieke funksies kan gebruik en vensteruitkyk en -gedrag kan aanpas.</string>
   <string name="help_contextmenus_title">Konteks Kieslys</string>
   <string name="help_contextmenus_text">
 Lang druk, in oopgemaakte konteks lys of aksie modus in verskillende aansigte
@@ -539,14 +472,6 @@ Lang druk op die Bybel aansig om die aksie modus te open vir aksies wat die huid
 Lang druk lank op \'n dokument item in die lys aansig van Kies dokument of laai af om dokument- of inligtinginligting te verwyder.
 Lang druk lank op \'n boekmerk in boekmerke lyste om etikette by te voeg of om die boekmerk te verwyder.
 Lang druk die skakels om te kies of u dit in die huidige venster, nuwe venster of spesiale venster wil oopmaak.</string>
-  <string name="help_mynote_title">My Nota</string>
-  <string name="help_mynote_text">Notas kan bygevoeg word via die My Note kieslys item in die vers konteks kieslys.
-Die lys met bestaande aantekeninge is via die hoofkieslys verkrygbaar.</string>
-  <string name="help_bookmarks_title">Boekmerke</string>
-  <string name="help_bookmarks_text">Boekmerke kan bygevoeg word via die vers konteks kieslys.
-
-Die boekmerkbestuurder word via die hoofkieslys verkry.
-Die konteks kieslys van Bookmark Manager laat boekmerke saam met etikette gegroepeer word.</string>
   <string name="help_search_title">Soek</string>
   <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
 (sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
@@ -566,14 +491,7 @@ Lang druk die vers plek se titel op die werkbalk om na die dokumente keurder te 
 Lang druk op die Terug knoppie om toegang tot die geskiedenis lys te kry.
  </string>
   <string name="help_window_pinning_title">Venster vaspen</string>
-  <string name="help_window_pinning_text">
-Jy  kan die venster vaspen vanaf die keuse lys (drie kolletjies, regs bo).
-As venster vasgespen ontsper is, kan jy baie vasgespende vensters in die Bybel aansig toon,
-maar slegs een nie-vasgespende vester.  Vasgespende vensters, word eerste vertoon en daarna
-on-gespende vensters. Jy wil miskien Bybeldokumente oopmaak as vasgespelde vensters, en
- kommentaar en kaarte, ens. as vensters wat nie vasgespeld is nie. Dan kan jy maklik
-Bybeldokumente altyd oop laat wees, en wissel vinnig tussen kommentaar en
-ander ekstra materiaal as jy die Bybel bestudeer.</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Eindig</string>
   <string name="something_with_parenthesis">%s (%s)</string>

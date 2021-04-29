@@ -54,7 +54,6 @@
   <string name="search_current_book">Libro attuale</string>
   <string name="error_executing_search">Ricerca invalida</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Mostra i numeri dei versetti</string>
   <string name="prefs_verse_per_line_summary">Mostra ogni versetto su una linea diversa</string>
   <string name="prefs_show_bookmarks_summary">Deseleziona per nascondere tutti i segnalibri</string>
   <string name="prefs_show_mynotes_summary">Mostra l\'icona nei versetti con Le mie note</string>
@@ -64,11 +63,8 @@
   <string name="prefs_section_title_summary">Mostra i titoli delle sezioni non canoniche</string>
   <string name="prefs_red_letter_summary">Mostra le parole di Cristo in rosso</string>
   <string name="prefs_text_size_title">Preferenze di carattere</string>
-  <string name="prefs_show_verseno_title">Numeri dei versi</string>
   <string name="prefs_verse_per_line_title">Un verso per riga</string>
   <string name="prefs_show_bookmarks_title">Mostra le icone del segnalibro</string>
-  <string name="prefs_default_bookmark_style_title">Stile di segnalibro predefinito</string>
-  <string name="prefs_default_bookmark_style_summary">Evidenzia il colore o l\'icona</string>
   <string name="prefs_show_mynotes_title">Mostra le icone dei miei appunti</string>
   <string name="prefs_show_notes_title">Note e x-referenze</string>
   <string name="prefs_show_strongs_title">Numeri di Strong</string>
@@ -86,7 +82,6 @@
   <string name="prefs_navigate_to_verse_summary">Scegli il verso (e il capitolo) quando selezioni un passaggio</string>
   <string name="prefs_open_links_in_special_window_title">Apri i link in una finestra speciale</string>
   <string name="prefs_open_links_in_special_window_summary">Per una visualizzazione più rapida di riferimenti incrociati e Strong numeri</string>
-  <string name="prefs_text_size_summary">Sistema la famiglia e la dimensione del carattere</string>
   <string name="prefs_text_size_sample_text">Testo campione</string>
   <string name="prefs_screen_keep_on_title">Tieni lo schermo acceso</string>
   <string name="prefs_screen_keep_on_summary">Impedisci la sospensione dello schermo durante l\'utilizzo di questa app</string>
@@ -129,13 +124,11 @@ regolare la larghezza massima del testo.
   <string name="line_spacing_title">Interlinea</string>
   <string name="line_spacing_summary">Imposta lo spazio tra le linee</string>
   <string name="select_none">Seleziona niente</string>
-  <string name="reset_are_you_sure">Sei sicuro di voler ripristinare tutti i valori?</string>
   <string name="window_pinning_menutitle">Finestra inchiodamento</string>
   <string name="hide_window_buttons_title">Nascondi i pulsanti della finestra</string>
-  <string name="hide_window_buttons_summary">I pulsanti della finestra visualizzati sul lato destro delle viste della Bibbia sono nascosti. La barra di navigazione della finestra in basso è ancora visualizzata e puoi aprire il menu a comparsa della finestra facendo clic a lungo.</string>
-  <string name="font_size_title">Dimensione del carattere</string>
   <string name="full_screen_hide_buttons_pref_title">Nascondi la barra dei pulsanti della finestra a schermo intero</string>
   <string name="full_screen_hide_buttons_pref_summary">Quando si passa alla modalità a schermo intero, nascondere automaticamente la barra dei pulsanti della finestra che si trova nella parte inferiore dello schermo</string>
+  <string name="font_size_title">Dimensione del carattere</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Impostazioni colore</string>
   <string name="window_color_settings_title">Impostazioni del colore della finestra</string>
@@ -170,37 +163,23 @@ regolare la larghezza massima del testo.
   <string name="next">Successivo</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Scarica il dizionario ebraico e greco di Strong </string>
-  <string name="all_greek_occurrences">Trova tutte le occorrenze</string>
-  <string name="all_hebrew_occurrences">Trova tutte le occorrenze</string>
   <string name="no_indexed_bible_with_strongs_ref">Devi scaricare una Bibbia che contiene i numeri di Strong e scaricarne l\'indice attraverso \'Cerca\'</string>
   <string name="morph_robinson_not_installed">scarica il dizionario dei codici di analisi morfologica di Robinson</string>
   <!--Module download-->
   <string name="download">Scarica i documenti</string>
   <string name="download_confirmation">Scarica una Bibbia da Internet?</string>
-  <string name="download_source_message">I documenti vengono scaricati da:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Scarica</string>
-  <string name="download_refreshing_book_list">Rinfresca la lista dei documenti disponibili</string>
   <string name="download_refresh_book_list_menu_item">Rinfresca</string>
-  <string name="error_downloading">Trovato un errore in seguito allo scaricamento. Controlla la connessione ad Internet.</string>
   <string name="storage_space_warning">Non hai abbastanza spazio di memoria locale.</string>
-  <string name="too_many_jobs">Troppe operazioni in corso. Aspetta e prova di nuovo.</string>
   <string name="document_not_installed">Scarica \'%s\'</string>
   <string name="free_text_search_documents">Ricerca</string>
   <string name="chooce_language_hint">Lingua</string>
-  <string name="one_more_back_press">Un\'ulteriore pressione del pulsante Indietro chiuderà l\'app</string>
   <string name="document_filter_results">%d documenti</string>
   <string name="download_question_title">Vuoi procedere con il scaricamento dei documenti?</string>
-  <string name="download_question_message">Se vivi in un paese perseguitato,
-potresti aver bisogno di stare attento a scaricare materiale cristiano via Internet.
-Invece, potresti voler ottenere i file zip del modulo in modo più sicuro e installarli
-tramite \"Carica documenti da zip\". Sei sicuro di voler procedere con il scaricamento?
-Tutti i scaricamenti dai depositi di moduli sono crittografati (HTTPS).</string>
   <string name="do_not_ask_again">Sì, non chiedere più</string>
   <string name="recommended_document">Consigliato!</string>
   <string name="about_version_history">Cronologia delle versioni: %s</string>
-  <string name="download_failed">Scaricamento non riuscito %s</string>
   <string name="download_errors">Errori di scaricamento</string>
-  <string name="failed_repositories_message">Impossibile connettersi ai seguenti depositi di documenti: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Non è stato possibile scaricare i seguenti file:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Carica documento da zip</string>
@@ -209,7 +188,6 @@ Tutti i scaricamenti dai depositi di moduli sono crittografati (HTTPS).</string>
   <string name="extracting_zip_file">Estrazione del file Zip ora...</string>
   <string name="checking_zip_file">Verifica file specificato...</string>
   <string name="invalid_module">Il file non contiene un modulo SWORD valido</string>
-  <string name="module_already_installed">Il file contiene un modulo che è già installato</string>
   <string name="install_zip_title">Attendi. Caricamento del file zip.</string>
   <string name="overwrite_files">Esistono già i seguenti file: %s Sovrascrivi?</string>
   <string name="overwrite_files_title">Sovrascrivi file?</string>
@@ -266,7 +244,6 @@ Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, auto
   <string name="delete_search_index_doc">Cancella l\'indice di %s?</string>
   <!--Verse context menu-->
   <string name="notes">Note e referenze</string>
-  <string name="verse_action_copy">Copia</string>
   <string name="share_verse">Condividere…</string>
   <string name="share_verse_subject_2">Un versetto della Bibbia è stato condiviso con te usando %s.</string>
   <string name="compare_translations">Confronta le traduzioni</string>
@@ -276,18 +253,11 @@ Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, auto
   <string name="open_link_in_special_window">Apri il link in una finestra speciale</string>
   <!--Bookmarks-->
   <string name="bookmarks">Segnalibri</string>
-  <string name="add_bookmark">Aggiungi segnalibri</string>
-  <string name="delete_bookmark">Cancella segnalibri</string>
   <string name="bookmark_added">Segnalibri aggiunti</string>
-  <string name="bookmark_date_updated">Data del segnalibro aggiornata</string>
-  <string name="bookmark_deleted">Segnalibri cancellati</string>
-  <string name="bookmark_labels">Le etichette dei segnalibri</string>
-  <string name="manage_labels">Gestisci etichette dei segnalibri</string>
   <string name="assign_labels">Assegna le etichette</string>
   <string name="new_label">Etichetta nuova</string>
   <string name="label_name_prompt">Nome</string>
   <string name="label_unlabelled">Senza etichetta</string>
-  <string name="style">Stile</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordine di data</string>
   <string name="sort_by_bible_book">Ordine biblico</string>
@@ -409,27 +379,14 @@ quando queste impostazioni vengono salvate nei segnalibri corrispondenti.</strin
 </string>
   <!--User Notes-->
   <string name="mynotes">I miei appunti</string>
-  <string name="mynote_add">Aggiungi il mio appunto</string>
-  <string name="mynote_saved">Il mio appunto salvato</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Backup &amp; Ristabilire</string>
-  <string name="backup_modules">Backup dei documenti su...</string>
-  <string name="backup_app_database">Backup della banca dati dell\'applicazione su...</string>
-  <string name="restore_app_database">Ripristina il banca dati dell\'applicazione da...</string>
-  <string name="restore_confirmation">Sovrascrivi i miei appunti, segnalibri, piani di lettura e spazi di lavoro?</string>
-  <string name="restore_success">Le miei Note, segnalibri, piani di lettura e spazi di lavoro ripristinati correttamente</string>
   <string name="loading_backup">Caricamento dalla banca dati dal backup ...</string>
-  <string name="backup_success">Le mie note, i segnalibri, i piani di lettura e gli spazi di lavoro sono stati sottoposti a backup correttamente da %s.</string>
-  <string name="error_no_backup_file">Il file di backup non è stato trovato</string>
   <string name="backup_modules_email_subject_2">%s moduli salvati</string>
   <string name="backup_modules_email_message_2">In allegato è il backup dei moduli %s, che contiene i seguenti moduli: %s</string>
   <string name="backup_email_subject_2">%sbanca dati salvato</string>
   <string name="backup_email_message_2">La tua  banca dati %s contenente segnalibri, note, piani di lettura e spazi di lavoro è allegato</string>
   <string name="restore_unsuccessfull">Il ripristino della banca dati non ha avuto esito positivo. Forse hai fornito un file di banca dati non valido.</string>
-  <string name="backup_restore_title">Ripristinare da dove?</string>
-  <string name="backup_restore_message">Ripristina dalla memoria del telefono o scegli manualmente il file di backup (puoi scegliere anche da Google Drive ecc.)?</string>
   <string name="backup_phone_storage">Memoria del telefono</string>
-  <string name="backup_manually">Scegli il file</string>
   <string name="backup_backup_title">Dove salvare?</string>
   <string name="backup_backup_message">Eseguire il backup sul telefono o altrove tramite la funzione Condividi (e-mail, Google Drive ecc.)?</string>
   <string name="backup_share">Condivida</string>
@@ -442,26 +399,8 @@ quando queste impostazioni vengono salvate nei segnalibri corrispondenti.</strin
   <string name="module_about_installed_version">Versione installata: %s (%s)</string>
   <string name="module_about_latest_version">Versione ultima: %s (%s)</string>
   <string name="module_about_versification">Versificazione: %s</string>
-  <string name="module_about_repository">Deposito di distribuzione: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Segnalare un bug</string>
-  <string name="report_bug_email_subject_2">Segnalazione di bug per %s %s</string>
-  <string name="report_bug_email_message">--- SCRIVI IL RAPPORTO DI ERRORI SOPRA QUESTA LINEA ---\n
-Istruzioni:\n
-Dicci brevemente cosa hai fatto / cosa è successo quando si
-è verificato il problema. Esempio:\n
-\n
-1. App aperta \n
-2. Menu della finestra cliccato \n
--&gt; Crash \n
-\n
-A volte anche lo screenshot è utile per risolvere i problemi.
-Utilizzare questa funzione per segnalare non appena si è notato che si sta verificando.
-Puoi anche utilizzare questa funzione dopo aver aperto l\'app, dopo che si è verificato un arresto anomalo.
-\n\n
-Informazioni sul dispositivo:\n
-%s</string>
   <!--Document types-->
   <string name="doc_type_all">Tutti i tipi</string>
   <string name="doc_type_bible">La Bibbia</string>
@@ -479,7 +418,6 @@ Informazioni sul dispositivo:\n
   <string name="error">Errore </string>
   <string name="please_wait">Attendi…</string>
   <string name="all">Tutto</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">Modifica</string>
   <string name="watch_tutorial_video">Guarda il video tutorial (inglese)</string>
   <string name="verse_not_found">Versetto non trovato</string>
@@ -535,11 +473,6 @@ correzioni tramite %s te stesso. :-)</string>
   <string name="history_for">Cronologia (%s: Finestra %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigazione</string>
-  <string name="help_nav_text">Vai al capitolo successivo o precedente facendo scorrere lo schermo con un dito.
-   Tocca due volte il testo della Bibbia per attivare la modalità a schermo intero.
-   Le schermate divise (chiamate anche finestre) hanno il pulsante menu nell\'angolo in alto a destra,
-   che consente di utilizzare diverse funzioni specifiche della finestra e personalizzare le prospettive e il comportamento della finestra.
-</string>
   <string name="help_contextmenus_title">Menu contestuali</string>
   <string name="help_contextmenus_text">
 Premendo a lungo si apre il menu di scelta rapida o la modalità di azione in diverse viste.
@@ -547,13 +480,6 @@ Premi a lungo sulla vista della Bibbia per aprire la modalità di azione per le 
 Premere a lungo su un elemento del documento nella visualizzazione elenco di Scegli documento o Scarica per eliminare il documento o visualizzare le informazioni.
 Premere a lungo un segnalibro nell\'elenco dei segnalibri per aggiungere etichette o eliminare un segnalibro.
 Premere a lungo i collegamenti per scegliere se si desidera aprirli nella finestra corrente, in una nuova finestra o nella finestra dei collegamenti speciali.</string>
-  <string name="help_mynote_title">I miei appunti</string>
-  <string name="help_mynote_text">Le note possono essere aggiunte tramite il menu Le mie note nel menu contestuale del versetto.
-L\'elenco delle note esistenti è accessibile tramite il menu principale.</string>
-  <string name="help_bookmarks_title">Segnalibri</string>
-  <string name="help_bookmarks_text">I segnalibri possono essere aggiunti tramite il menu contestuale del versetto.
-È possibile accedere al Gestore di segnalibri tramite il menu principale.
-Il menu di scelta rapida Gestore di segnalibri consente di raggruppare i segnalibri utilizzando le etichette.</string>
   <string name="help_search_title">Ricerca</string>
   <string name="help_search_text">Il testo di ricerca può includere caratteri speciali come *,?, AND, OR, NOT
   (vedi \"Apache Lucene - Sintassi del parser di query\" per maggiori dettagli)
@@ -574,15 +500,7 @@ quello di scorrere verso il basso dalla barra degli strumenti. Puoi anche usare 
   Premi a lungo il pulsante Indietro per accedere all\'elenco Cronologia.
 </string>
   <string name="help_window_pinning_title">Finestra inchiodamento</string>
-  <string name="help_window_pinning_text">
-È possibile abilitare il inchiodamento della finestra dal menu delle opzioni (tre punti, angolo in alto a destra).
-Se il blocco delle finestre è abilitato, puoi mostrare molte finestre inchiodate nella vista biblica,
-ma solo una finestra non inchiodata. Le finestre inchiodate vengono visualizzate per prime, quindi
-finestre non stuccate. Potresti voler aprire documenti biblici come finestre inchiodate e
-commenti e mappe ecc. come finestre non inchiodate. Quindi puoi facilmente
-avere documenti biblici sempre aperti, e passare rapidamente da un commento ad
-altro materiale quando studi la Bibbia.
-</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Chiudi</string>
   <string name="something_with_parenthesis">%s (%s)</string>

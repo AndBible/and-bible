@@ -54,7 +54,6 @@
   <string name="search_current_book">Қазіргі кітап</string>
   <string name="error_executing_search">Іздеу сауалы қате</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Аят санын көрсету</string>
   <string name="prefs_verse_per_line_summary">Әр аятты әр түрлі жолда көрсету</string>
   <string name="prefs_show_bookmarks_summary">Бар кітап белгілерін жасыру үшін таңдауды алыңыз</string>
   <string name="prefs_show_mynotes_summary">Менің нұсқауларымен бірге аяттарда белгішені көрсету</string>
@@ -64,11 +63,8 @@
   <string name="prefs_section_title_summary">Канон ережелеріне жатпайтын бөлмінің тақырыптарын көрсету</string>
   <string name="prefs_red_letter_summary">Мәсіхтің сөздерін қызыл түсімен көрсету</string>
   <string name="prefs_text_size_title">Шрифт қалаулары</string>
-  <string name="prefs_show_verseno_title">Аят нөмірлері</string>
   <string name="prefs_verse_per_line_title">Әр жолға бір аят</string>
   <string name="prefs_show_bookmarks_title">Кітап белгілерін көрсету</string>
-  <string name="prefs_default_bookmark_style_title">Кітап белгі стилінің дефолт күйі</string>
-  <string name="prefs_default_bookmark_style_summary">Түсті немесе белгішені таңдап бояу</string>
   <string name="prefs_show_mynotes_title">Менің Ескертпелерімнің белгішесін көрсету</string>
   <string name="prefs_show_notes_title">Ескертпелер мен айқасқан сілтемелер</string>
   <string name="prefs_show_strongs_title">Стронг сандары</string>
@@ -86,7 +82,6 @@
   <string name="prefs_navigate_to_verse_summary">Үзіндіні таңдап белгілегенде аятты (әрі тарауды) таңдаңыз</string>
   <string name="prefs_open_links_in_special_window_title">Линктерді айрықша арнайы терезеде ашу</string>
   <string name="prefs_open_links_in_special_window_summary">Айқасқан және Стронг сілтемелерін шапшаң көрсету үшін</string>
-  <string name="prefs_text_size_summary">Шрифт тобы мен өлшемін келтіру </string>
   <string name="prefs_text_size_sample_text">Мысалы мәтін</string>
   <string name="prefs_screen_keep_on_title">Экранды қосулы сақтау</string>
   <string name="prefs_screen_keep_on_summary">Осы қолданбаны пайдаланып отырғанда, экранды өшіп қалудан сақтау. </string>
@@ -128,13 +123,11 @@
   <string name="line_spacing_title">Жол арасын кеңейту</string>
   <string name="line_spacing_summary">Жол арасындағы бос орынды орнатыңыз</string>
   <string name="select_none">Ешқайсысын таңдамау</string>
-  <string name="reset_are_you_sure">Барлық параметрлерді қайта қалпына келтіргіңіз келетініне сенімдісіз бе?</string>
   <string name="window_pinning_menutitle">Терезені бекіту</string>
   <string name="hide_window_buttons_title">Терезе түймелерін жасырыңыз</string>
-  <string name="hide_window_buttons_summary">Киелі Кітап көріністерінің оң жағында көрсетілетін терезе түймелері жасырылған. Төмендегі терезенің навигация жолағы әлі де көрсетіледі және ұзақ басып ұстап тұру арқылы терезенің кенеттен шығатын мәзірді аша аласыз.</string>
-  <string name="font_size_title">Шрифт көлемі</string>
   <string name="full_screen_hide_buttons_pref_title">Толық бейнеде терезенің батырма түймесін жасыру</string>
   <string name="full_screen_hide_buttons_pref_summary">Толық бейне режиміне ауысқан кезде, бейненің төмендегі терезенің батырма жолағын автоматты түрде жасырыңыз</string>
+  <string name="font_size_title">Шрифт көлемі</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Түстердің параметрлері</string>
   <string name="window_color_settings_title">Терезе түсінің параметрлері</string>
@@ -170,37 +163,23 @@
   <string name="next">Келесі</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Стронгтің Еврей мен Грек сөздігін жүктеңіз</string>
-  <string name="all_greek_occurrences">Барлық жағдайларды табу</string>
-  <string name="all_hebrew_occurrences">Барлық жағдайларды табу</string>
   <string name="no_indexed_bible_with_strongs_ref">Іздеу арқылы Стронг нөмірлерін қамтитын Киелі Кітапты және оның индексін жүктеу үшін сіз жүктеуге міндеттісіз</string>
   <string name="morph_robinson_not_installed">\'Робинсонның Морфологиялық Анализ Кодтар\' сөздігін жүктеңіз</string>
   <!--Module download-->
   <string name="download">Құжаттарды Жүктеу</string>
   <string name="download_confirmation">Интернеттен Киелі Кітапты жүктеу керек пе?</string>
-  <string name="download_source_message">Құжаттар мына жерден жүктелген:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io </string>
   <string name="download_document_confirm_prefix">Жүктеу</string>
-  <string name="download_refreshing_book_list">Қол жетімді құжаттардың тізімін жаңарту</string>
   <string name="download_refresh_book_list_menu_item">Жаңарту</string>
-  <string name="error_downloading">Жүктеу кезінде қате пайда болды. Интернет байланысын тексеріңіз.</string>
   <string name="storage_space_warning">Компьютердің жергілікті жадының жеткіліксіздігі. </string>
-  <string name="too_many_jobs">Тым көп тапсырма орындалуда. Кейбіреулері біткенше күтіңіз және жаңадан тырысып көріңіз. </string>
   <string name="document_not_installed">Жүктеңіз \'%s\'</string>
   <string name="free_text_search_documents">Іздеу</string>
   <string name="chooce_language_hint">Тіл</string>
-  <string name="one_more_back_press">Артқы түймесін тағы бір басуы қолданбаны жабады</string>
   <string name="document_filter_results">%dқұжаттар</string>
   <string name="download_question_title">Құжаттарды жүктеуді жалғастырғыңыз келе ме?</string>
-  <string name="download_question_message">Егер сіз қудаланатын елде тұрсаңыз,
-Интернет арқылы мәсіхшілердің материалдарын жүктегенде сізге абай болу керек.
-Оның орнына, қауіпсіз жолды қалап, модульдік zip файлдарын сұратып әрі оларды \"Құжаттарды Жүктеу Zip орнынан \" арқылы орнатыңыз.
-Жүктеуді жалғастырғыңыз келе ме?
-Модуль репозиторий қоймаларынан барлық жүктеулер шифрланған (HTTPS).</string>
   <string name="do_not_ask_again">Иә, басқа сұрамаңыз </string>
   <string name="recommended_document">Ұсынылады!</string>
   <string name="about_version_history">Тарих нұсқасы:%s</string>
-  <string name="download_failed">Жүктеу сәтсіз%s</string>
   <string name="download_errors">Жүктеу қателері</string>
-  <string name="failed_repositories_message">Келесі құжат репозиторий қоймаларына қосыла алмады: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Келесі файлдар жүктеле алмады:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Zip файлдан жүктеу</string>
@@ -209,7 +188,6 @@
   <string name="extracting_zip_file">Zip файлын қазір шығару ...</string>
   <string name="checking_zip_file">Берілген файл тексерілуде ...</string>
   <string name="invalid_module">Файлдың мазмұнында жарамды SWORD модулі жоқ</string>
-  <string name="module_already_installed">Файлдың мазмұнында орнатылып қойылған модуль бар</string>
   <string name="install_zip_title">Күте тұрыңыз. Zip файл жүктелуде.</string>
   <string name="overwrite_files">Келесі файлдар бұрыннан бар:%s Қайта үстінен жазу керек пе?</string>
   <string name="overwrite_files_title">Файлдарды қайта үстінен жазу керек пе?</string>
@@ -260,7 +238,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="delete_search_index_doc">%s? индексін жою</string>
   <!--Verse context menu-->
   <string name="notes">Ескертпелер мен сілтемелер</string>
-  <string name="verse_action_copy">Көшіріңіз</string>
   <string name="share_verse">Бөлісу...</string>
   <string name="share_verse_subject_2">Киелі Кітап аяты %s пайдаланып сізбен бөлісілді</string>
   <string name="compare_translations">Аудармаларды салыстыру</string>
@@ -270,18 +247,11 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="open_link_in_special_window">Линкті айрықша арнайы терезеде ашу</string>
   <!--Bookmarks-->
   <string name="bookmarks">Кітап белгілері</string>
-  <string name="add_bookmark">Кітап белгісін қосу</string>
-  <string name="delete_bookmark">Кітап белгісін жою</string>
   <string name="bookmark_added">Кітап белгісі қосылды</string>
-  <string name="bookmark_date_updated">Кітап белгісінің күні жаңартылған</string>
-  <string name="bookmark_deleted">Кітап белгісі жойылған</string>
-  <string name="bookmark_labels">Кітап белгісінің Таңбалары</string>
-  <string name="manage_labels">Кітап белгі таңбаларын басқару</string>
   <string name="assign_labels">Таңбаларды белгілеу</string>
   <string name="new_label">Жаңа таңба</string>
   <string name="label_name_prompt">Атауы</string>
   <string name="label_unlabelled">Таңбаланбаған</string>
-  <string name="style">Стилі</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Күн реті</string>
   <string name="sort_by_bible_book">Киелі Кітап реті</string>
@@ -388,27 +358,14 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 Үзіндіні қайталау  режимі автоматты түрде өшірілді, өйткені анықталған аят диапазон аясынан тыс жерде сөйлеу басталды.</string>
   <!--User Notes-->
   <string name="mynotes">Менің Ескертпелерім</string>
-  <string name="mynote_add">Менің Ескертпелерімді Қосу</string>
-  <string name="mynote_saved">Менің Ескертпелерім сақталды</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Сақтық көшіру мен Қалпына келтіру</string>
-  <string name="backup_modules">Құжаттардың Сақтық көшірмесін жасау</string>
-  <string name="backup_app_database">Қолданбаның деректер базасына сақтық көшірмесін жасау</string>
-  <string name="restore_app_database">Келесіден қолданбаның деректер базасын қалпына келітіру....</string>
-  <string name="restore_confirmation">Менің Ескертпелерімнің, Кітап белгілерімнің, Оқу Жоспарымның және Жұмыс кеңістітерімнің үстінен қайта жазу керек пе?</string>
-  <string name="restore_success">Менің Ескертпелерім, Кітап белгілерім, Оқу Жоспарым және Жұмыс кеңістіктерім сәтті қалпына келтірілді</string>
   <string name="loading_backup">Деректер базасы сақтық көшірмеден жүктелуде…</string>
-  <string name="backup_success">Менің Ескертпелерім, Кітап белгілерім, Оқу Жоспарым және Жұмыс кеңістіктерім %sға резервке сақталып сәтті көшірілді</string>
-  <string name="error_no_backup_file">Сақтықтағы файл көшірмесі табылмады</string>
   <string name="backup_modules_email_subject_2">%s модульдерді сақтыққа көшіру</string>
   <string name="backup_modules_email_message_2">Қосылып бекітілген сіздің %s модульдердің сақтық көшірмесі, онда келесі модульдер бар:%s</string>
   <string name="backup_email_subject_2">%s мәліметтер базасын сақтыққа көшіру</string>
   <string name="backup_email_message_2">Сіздің мәліметтер базасында қамтылған кітап белгілердің, ескертпелердің, оқу жоспарлардың және жұмыс кеңістіктердің %s жүктеліп қосылған</string>
   <string name="restore_unsuccessfull">Деректер базасын қалпына келтіру сәтсіз аяқталды. Мүмкін сіз жарамсыз дерекқор файлын берген шығарсыз.</string>
-  <string name="backup_restore_title">Қай жерден қалпына келтіру керек?</string>
-  <string name="backup_restore_message">Телефон сақ қоймасынан қалпына келтіру немесе сақталған көшірме файлын қолмен таңдау керек пе (Google Drive ішінен де таңдауға болады т.б.с.с)?</string>
   <string name="backup_phone_storage">Телефон жад қоймасы</string>
-  <string name="backup_manually">Файл таңдаңыз</string>
   <string name="backup_backup_title">Сақтық көшірме қайда жасау керек?</string>
   <string name="backup_backup_message">Бөлісу функциясы арқылы (электрондық пошта, Google Drive т.б.с.с.) телефонға немесе басқа жерге сақтық көшірме жасау керек пе?</string>
   <string name="backup_share">Бөлісу</string>
@@ -421,26 +378,8 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="module_about_installed_version">Орнатылған версия: %s (%s)</string>
   <string name="module_about_latest_version">Соңғы версия: %s (%s)</string>
   <string name="module_about_versification">Аятты растау: %s</string>
-  <string name="module_about_repository">Тарату  қоймасы:%s</string>
   <string name="module_about_osisId">OSIS Идентификациясы:%s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Қате туралы хабарлау</string>
-  <string name="report_bug_email_subject_2">%s%sүшін қате туралы есеп</string>
-  <string name="report_bug_email_message">
---- ОСЫ ЖОЛ СЫЗЫҚТАН ЖОҒАРЫ ҚАТЕ ТУРАЛЫ ЕСЕП ЖАЗЫҢЫЗ ---\n
-Instructions:\n
-Бізге не істегеніңізді қысқаша айтыңыз / мәселе туындап орын алған кезде не болды. Мысалы: \n
-\n
-1. Ашылған қолданба\n
-2. Басылған терезе мәзірі\n
--&gt; Қирату\n
-\n
-Мәселелерді шешуде, экраннан түсірілген фото, кейде пайдалы.
-Мәселе орын алған кезде тез арада хабарлау үшін осы функцияны қолданыңыз.
-Қолданбаны ашқаннан кейін қирау орын алғаннан кейін де осы функцияны қолдана аласыз.
-\n\n
- Құрылғының ақпараты: \n
-%s</string>
   <!--Document types-->
   <string name="doc_type_all">Барлық түрлері</string>
   <string name="doc_type_bible">Киелі Кітап</string>
@@ -458,7 +397,6 @@ Instructions:\n
   <string name="error">Қате</string>
   <string name="please_wait">Өтінеміз күтіңіз...</string>
   <string name="all">Бәрі</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">Редакциялау</string>
   <string name="watch_tutorial_video">Үйрету видеосын көріңіз (Ағылшын тілінде)</string>
   <string name="verse_not_found">Аят табылмады</string>
@@ -509,10 +447,6 @@ Instructions:\n
   <string name="history_for">Тарих (%s: Терезе%d)</string>
   <!--Help-->
   <string name="help_nav_title">Навигация</string>
-  <string name="help_nav_text">Келесі не алдыңғы тарауға өту үшін, бармақпен бейнені сілтеңіз.
-Бейнені толықтай ашу үшін, Киелі Кітаптің мәтінің екі қайтара басыңыз.
-Бөлінген бейнелердің (әрі терезелер деп аталған) жоғары-оң бұрышында мәзір түймесі бар,
-ол сізге бірнеше терезеге арнайы функцияларды пайдалануға мүмкіндік береді және терезенің көрінісі мен әрекетін арнайлап келтіреді.</string>
   <string name="help_contextmenus_title">Мәтінмәндік Мәзірлер</string>
   <string name="help_contextmenus_text">
 Ұзақ басуы контекстік мәзірді ашады немесе бір неше көріністегі әрекет режимі.
@@ -520,14 +454,6 @@ Instructions:\n
 Құжатты Таңдау тармағының тізім көрінісіндегі құжат элементін ұзақ басыңыз, не құжатты жою үшін Жүктеңіз немесе ақпаратты қараңыз.
 Таңбаларды қосу не кітап белгілерін жою үшін, кітап белгілер тізіміндегі кітап белгісін ұзақ басыңыз.
 Егер сіз байланысты линктерді қазіргі терезеде, жаңа терезеде немесе айрықша арнайы линктер терезесінде ашып таңдағыңыз келсе, ол үшін линктерді ұзақ басыңыз.</string>
-  <string name="help_mynote_title">Нұсқауым</string>
-  <string name="help_mynote_text">Ескертпелерді Менің Нұсқауларым мәзірі арқылы аят мәтінмәндік мәзірінде қосуға болады.
-Бар нұсқалар тізіміне негізгі мәзір арқылы қол жеткізуге болады.</string>
-  <string name="help_bookmarks_title">Кітап белгілері</string>
-  <string name="help_bookmarks_text">Кітап белгілерін аят мәтінмәндік мәзірі арқылы қосуға болады.
-Кітап белгі Бақылауына негізгі мәзір арқылы қол жеткізе аласыз.
-Кітап белгі Бақылау мәтінмәндік мәзірі - түсті таңбаларды пайдаланып кітап белгілерді топтауға мүмкіндік береді.
- </string>
   <string name="help_search_title">Іздеу</string>
   <string name="help_search_text">Текст іздеу - осындай сияқты *, ?, ЖӘНЕ, НЕМЕСЕ, ЕМЕС арнайы таңбаларды қамтуы мүмкін
 (толығырақ мәліметтер үшін  \"Apache Lucene - Query Parser Syntax\" көріңіз)</string>
@@ -544,10 +470,7 @@ Instructions:\n
 Құжат таңдауына секіру үшін, құралдар тақтасында аят оранласқан атауын ұзақ басыңыз.
 Тарих тізіміне кіру үшін Артқа деген түймесін ұзақ басыңыз.</string>
   <string name="help_window_pinning_title">Терезені бекіту</string>
-  <string name="help_window_pinning_text">
-Параметрлер мәзірінен терезе бекітуді қоса аласыз (жоғарғы оң бұрыштағы, үш нүкте). Егер терезені бекіту іске қосылса, Киелі Кітап көрінісінде көптеген бекітілген терезелерді көрсете аласыз, бірақ бекітілмеген терезелерден біреуін ғана көрсете аласыз.
-Алдымен бекітілген терезелер дисплей бейнеде көрсетіледі, содан кейін бекітілмеген терезелер. Сіз Киелі Кітап құжаттарды бекітілген терезелер түрінде және түсініктеме мен карталарды және т.с.с. бекітілмеген терезелер түрінде ашқыңыз келуі мүмкін.
-Содан кейін, сіз жеңілдікпен Киелі Кітап құжаттарын, және пікір түсініктемелер арасында тез ауысып, әрі Киелі Кітап зерттегенде басқада қосымша материалдарды әр-қашанда ашық ұстай аласыз.</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Жабу</string>
   <string name="something_with_parenthesis">%s(%s)</string>

@@ -54,7 +54,6 @@
   <string name="search_current_book">वर्तमान पुस्तक</string>
   <string name="error_executing_search">खोज वाक्य में गलती</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">छंद के संख्या दिखाएं</string>
   <string name="prefs_verse_per_line_summary"> प्रत्येक छंद को एक अलग लाइन पर दिखाएं</string>
   <string name="prefs_show_bookmarks_summary">सभी बुकमार्क छिपाने के लिए अनचाहा करे</string>
   <string name="prefs_show_mynotes_summary">मेरे नोट के साथ छंद में आइकन दिखाएं</string>
@@ -64,11 +63,8 @@
   <string name="prefs_section_title_summary">गैर-विहित अनुभाग शीर्षक दिखाएं</string>
   <string name="prefs_red_letter_summary">मसीह के शब्द लाल रंग में दिखाए</string>
   <string name="prefs_text_size_title"> फोंट के वरीयता</string>
-  <string name="prefs_show_verseno_title">छंद संख्या</string>
   <string name="prefs_verse_per_line_title">हर छंद, नई पंक्ति में</string>
   <string name="prefs_show_bookmarks_title">बुकमार्क दिखाएँ</string>
-  <string name="prefs_default_bookmark_style_title"> डिफ़ॉल्ट बुकमार्क शैली</string>
-  <string name="prefs_default_bookmark_style_summary">रंग या आइकन हाइलाइट करें</string>
   <string name="prefs_show_mynotes_title">मेरे टिप्पणी-चित्र दिखाना</string>
   <string name="prefs_show_notes_title">पाद टिप्पणी और संबंधित संदर्भ</string>
   <string name="prefs_show_strongs_title"> स्ट्रॉन्ग के संख्याएं</string>
@@ -86,7 +82,6 @@
   <string name="prefs_navigate_to_verse_summary">पुस्तक मे अध्याय और छंद चुनें</string>
   <string name="prefs_open_links_in_special_window_title">विशेष विंडो में लिंक खोले</string>
   <string name="prefs_open_links_in_special_window_summary"> क्रॉस-रेफरेंस और स्ट्रॉन्ग के तेज प्रदर्शन के लिए</string>
-  <string name="prefs_text_size_summary"> फ़ॉन्ट परिवार और फ़ॉन्ट आकार समायोजित करें</string>
   <string name="prefs_text_size_sample_text">नमूना वाक्य</string>
   <string name="prefs_screen_keep_on_title">स्क्रीन ऑन रखे</string>
   <string name="prefs_screen_keep_on_summary"> इस एप्लिकेशन का उपयोग करते समय स्क्रीन को बन्द होने से रोके</string>
@@ -129,13 +124,11 @@
   <string name="line_spacing_title">पंक्ति रिक्ति</string>
   <string name="line_spacing_summary">लाइनों के बीच की जगह निर्धारित करें</string>
   <string name="select_none"> किसी का चयन न करें</string>
-  <string name="reset_are_you_sure"> क्या आप वाकई सभी मूल्यों को रीसेट करना चाहते हैं?</string>
   <string name="window_pinning_menutitle"> विंडो पिनिंग</string>
   <string name="hide_window_buttons_title"> विंडो बटन छिपाएं</string>
-  <string name="hide_window_buttons_summary"> बाईबल दृश्य के दाईं ओर प्रदर्शित विंडो बटन छिपे हुए हैं। विंडो नेविगेशन बार अभी भी सबसे नीचे प्रदर्शित है और आप इसे लंबे समय तक क्लिक करके विंडो पॉपअप मेनू खोल सकते हैं।</string>
-  <string name="font_size_title">फ़ॉन्ट आकार</string>
   <string name="full_screen_hide_buttons_pref_title">फुलस्क्रीन में विंडो बटन बार छिपाएं</string>
   <string name="full_screen_hide_buttons_pref_summary"> फ़ुलस्क्रीन मोड पर स्विच करते समय, स्वचालित रूप से विंडो बटन बार को छिपाएं जो स्क्रीन के निचले भाग पर है</string>
+  <string name="font_size_title">फ़ॉन्ट आकार</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle"> रंग के सेटिंग्स</string>
   <string name="window_color_settings_title">  विंडो का रंगी के सेटिंग्स</string>
@@ -171,33 +164,23 @@
   <string name="next">अगला</string>
   <!--Strongs-->
   <string name="strongs_not_installed">\"र्स्टो्न्ग\" की यहूदी और यूनानी शब्दकोश डाउनलोड करें</string>
-  <string name="all_greek_occurrences">सभी घटना खोजें</string>
-  <string name="all_hebrew_occurrences">सभी मिसाल खोजें</string>
   <string name="no_indexed_bible_with_strongs_ref">\"र्स्टो्न्ग\" संख्या वाले बाइबिल डाउनलोड करें, फिर खोज सूचकांक डाउनलोड करें</string>
   <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\' शब्दकोश, डाउनलोड करें</string>
   <!--Module download-->
   <string name="download">अन्य किताबें डाउनलोड करें</string>
   <string name="download_confirmation">इंटरनेट से एक बाइबिल डाउनलोड करें?</string>
-  <string name="download_source_message">किताबे यहां से डाउनलोड किए गए हैं:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">डाउनलोड</string>
-  <string name="download_refreshing_book_list">किताब-सूची फ़िर से भरा जा रहा है</string>
   <string name="download_refresh_book_list_menu_item">रिफ़्रेश करे</string>
-  <string name="error_downloading">डाउनलोड में त्रुटि. इंटरनेट चेक करें</string>
   <string name="storage_space_warning">किताब के लिए जगह कम है</string>
-  <string name="too_many_jobs">कई कार्य क्रियान्वित।  कृपया प्रतीक्षा करें।</string>
   <string name="document_not_installed">कृपया डाउनलोड करें \'%s\'</string>
   <string name="free_text_search_documents">खोजे</string>
   <string name="chooce_language_hint">भाषा</string>
-  <string name="one_more_back_press"> बैक बटन के एक और दबाने से ऐप बंद हो जाएगा</string>
   <string name="document_filter_results">%d किताबे</string>
   <string name="download_question_title"> क्या आप किताबों को डाउनलोड करने के लिए आगे बढ़ना चाहते हैं?</string>
-  <string name="download_question_message"> यदि आप उत्पीड़ित देश में रहते हैं, तो आपको इंटरनेट के माध्यम से ईसाई सामग्री को डाउनलोड करने के बारे में सावधान रहने की आवश्यकता हो सकती है। इसके बजाय, आप मॉड्यूल जिप फ़ाइलों को अधिक सुरक्षित रूप से प्राप्त करना और उन्हें \"ज़िप से दस्तावेज़ लोड करें\" के माध्यम से इंस्टॉल करना चाह सकते है। क्या आप वाकई डाउनलोड करने हेतु आगे बढ़ना चाहते हैं? मॉड्यूल रिपॉजिटरी से सभी दस्तावेजों को एन्क्रिप्ट किया गया है (HTTPS)।</string>
   <string name="do_not_ask_again">हां, और मत पूछो</string>
   <string name="recommended_document">अनुमोदित!</string>
   <string name="about_version_history">संस्करण इतिहास: %s</string>
-  <string name="download_failed"> डाउनलोड करने में विफल %s</string>
   <string name="download_errors">डाउनलोड त्रुटियाँ</string>
-  <string name="failed_repositories_message">निम्नलिखित दस्तावेज़ रिपॉजिटरी से कनेक्ट नहीं हो सका: \n \ n%s\ n \ n</string>
   <string name="failed_downloads_message">निम्न फ़ाइलों को डाउनलोड नहीं किया जा सका: \ n \ n%s \ n \ n</string>
   <!--Install zip file-->
   <string name="install_zip"> ज़िप से दस्तावेज़ लोड करें</string>
@@ -206,7 +189,6 @@
   <string name="extracting_zip_file">अब ज़िप फ़ाइल एक् एक्स्ट्रैक्ट हो रहा है ...</string>
   <string name="checking_zip_file">दी गई फ़ाइल की जाँच हो रही है ...</string>
   <string name="invalid_module"> फ़ाइल में एक मान्य SWORD मॉड्यूल नहीं है</string>
-  <string name="module_already_installed">फ़ाइल में एक मॉड्यूल है जो पहले से इंस्टॉल्ड है</string>
   <string name="install_zip_title"> कृपया प्रतीक्षा कीजिये। ज़िप फ़ाइल लोड हो रही है।</string>
   <string name="overwrite_files">निम्न फ़ाइलें पहले से मौजूद हैं: %s ओवरराइट करे?</string>
   <string name="overwrite_files_title">फाइल्स ओवरराइट करे?</string>
@@ -263,7 +245,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="delete_search_index_doc">%s किताब की खोज सूचकांक मिटाओ</string>
   <!--Verse context menu-->
   <string name="notes">पाद टिप्पणी और संबंधित संदर्भ</string>
-  <string name="verse_action_copy"> कॉपी</string>
   <string name="share_verse">शेयर</string>
   <string name="share_verse_subject_2">%s के माध्यम से आपके साथ एक बाइबिल की छंद साझा की गई है।</string>
   <string name="compare_translations">अन्य अनुवादों से तुलना</string>
@@ -273,18 +254,11 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="open_link_in_special_window"> विशेष विंडो में लिंक खोले</string>
   <!--Bookmarks-->
   <string name="bookmarks"> बुकमार्क</string>
-  <string name="add_bookmark"> बुकमार्क जोड़ें</string>
-  <string name="delete_bookmark">बुकमार्क हटाएं</string>
   <string name="bookmark_added"> बुकमार्क जोड़ा गया</string>
-  <string name="bookmark_date_updated">बुकमार्क की तारीख अपडेट की गई</string>
-  <string name="bookmark_deleted"> बुकमार्क हटा दिया गया</string>
-  <string name="bookmark_labels"> बुकमार्क लेबल</string>
-  <string name="manage_labels">बुकमार्क लेबल मैनेज करें</string>
   <string name="assign_labels">लेबल लिखना/देना</string>
   <string name="new_label">नया लेबल</string>
   <string name="label_name_prompt">नाम</string>
   <string name="label_unlabelled">कोई लेबल नही</string>
-  <string name="style">अंदाज</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">दिनांक अनुक्रम</string>
   <string name="sort_by_bible_book">बाइबिल का अनुक्रम</string>
@@ -405,27 +379,14 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 </string>
   <!--User Notes-->
   <string name="mynotes">मेरे टिप्पणीयां</string>
-  <string name="mynote_add">टिप्पणी लिखो</string>
-  <string name="mynote_saved">टिप्पणी सेव हो चुकी हैं</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore"> बैकअप &amp; रिस्टोर</string>
-  <string name="backup_modules">पुस्तक बैकअप करे...</string>
-  <string name="backup_app_database">एप्लिकेशन डेटाबेस बैकअप करे...</string>
-  <string name="restore_app_database">एप्लिकेशन डेटाबेस रिस्टोर करे...</string>
-  <string name="restore_confirmation">मेरी टिप्पणियाँ, बुकमार्क, पढ़ने की योजना और कार्यक्षेत्र ओवरराइट करे?</string>
-  <string name="restore_success"> मेरी टिप्पणियाँ, बुकमार्क, पढ़ने की योजना और कार्यक्षेत्र सफलतापूर्वक रिस्टोर किए गए</string>
   <string name="loading_backup">डेटाबेस को बैकअप से लोड किया जा रहा हैं...</string>
-  <string name="backup_success"> मेरी टिप्पणियाँ, बुकमार्क, पढ़ने की योजना और कार्यक्षेत्र सफलतापूर्वक %s में बैकअप किए गए.</string>
-  <string name="error_no_backup_file">बैकअप फ़ाइल नहीं मिली</string>
   <string name="backup_modules_email_subject_2">%s मॉड्यूल बैकअप</string>
   <string name="backup_modules_email_message_2">आपका %s मॉड्यूल बैकअप जुड़ा हुआ है, जिसमें निम्नलिखित मॉड्यूल शामिल हैं: %s</string>
   <string name="backup_email_subject_2">%s डेटाबेस बैकअप</string>
   <string name="backup_email_message_2">आपका %s डेटाबेस, जिसमें बुकमार्क्स,  टिप्पणियां, पढ़ने की योजना और कार्यक्षेत्र है, जुड़ा हुआ है</string>
   <string name="restore_unsuccessfull">डेटाबेस रिस्टोर करना असफल रहा। शायद आपने गलत डेटाबेस फाइल चुना।</string>
-  <string name="backup_restore_title">कहां से रिस्टोर करे?</string>
-  <string name="backup_restore_message">फोन स्टोरेज से रिस्टोर करे या मैन्युअल रूप से बैकअप चुनें (आप गूगल ड्राइव आदि से भी चुन सकते हैं)? </string>
   <string name="backup_phone_storage">फोन स्टोरेज</string>
-  <string name="backup_manually"> फ़ाइल चुने</string>
   <string name="backup_backup_title">कहां बैकअप करे?</string>
   <string name="backup_backup_message">फोन में बैकअप करें या कहीं औरा (ईमेल, गूगल ड्राइव आदि) शेयर फंक्शन के द्वारा?</string>
   <string name="backup_share">शेयर</string>
@@ -438,27 +399,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="module_about_installed_version">इंस्टॉल्ड संस्करण: %s(%s) </string>
   <string name="module_about_latest_version">नवीनतम संस्करण: %s (%s)</string>
   <string name="module_about_versification">छंद रचना: %s</string>
-  <string name="module_about_repository">वितरण भंडार: %s</string>
   <string name="module_about_osisId">OSIS IS: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">गलती सूचित करें</string>
-  <string name="report_bug_email_subject_2">%s %s के लिए बग रिपोर्ट</string>
-  <string name="report_bug_email_message">
----इस लाइन के ऊपर बग रिपोर्ट लिखें --- \n
-निर्देश:\n
-हमें संक्षेप में बताएं कि आपने क्या किया / क्या हुआ जब समस्या हुई?
-उदाहरण के लिए: \n
-\n
-1. जब ऐप खोला \n
-2. जब विंडो मेन्यू क्लिक किया\n
--&gt; क्रैश\n
-\n
-कभी-कभी स्क्रीनशॉट भी मुद्दों को हल करने में फायदेमंद होता है।
-कृपया इस फ़ंक्शन का उपयोग रिपोर्ट करने के लिए करें जैसे ही आपने देखा कि यह हो रहा है।
-ऐप खोलने के बाद, क्रैश होने के बाद भी आप इस फ़ंक्शन \nqq का उपयोग कर सकते हैं।
-\n\n
-यंत्र की जानकारी: \n
-%s</string>
   <!--Document types-->
   <string name="doc_type_all">सभी प्रकार के</string>
   <string name="doc_type_bible"> बाइबिल</string>
@@ -476,7 +418,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="error">त्रुटि</string>
   <string name="please_wait">कृपया प्रतीक्षा कीजिये</string>
   <string name="all">संपूर्ण</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit"> संपादित करें</string>
   <string name="watch_tutorial_video"> ट्यूटोरियल वीडियो देखें (अंग्रेजी में)</string>
   <string name="verse_not_found"> छंद नहीं मिला</string>
@@ -532,11 +473,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="history_for">इतिहास (%s:  विंडो %d)</string>
   <!--Help-->
   <string name="help_nav_title">नेविगेशन</string>
-  <string name="help_nav_text">अपनी उंगली से स्क्रीन को स्वाइप करके अगले या पिछले अध्याय पर जाएं।
-फुलस्क्रीन मोड को चालू करने के लिए बाइबिल के पाठ को दो बार दबाइए। 
-स्प्लिट स्क्रीन (जिसे विंडोज़ भी कहा जाता है)म के ऊपरी कोने पर मेन्यू बटन होता है,
-जो आपको कई विंडो-विशिष्ट कार्यों का उपयोग करने और विंडो के दृष्टिकोण और व्यवहार को अनुकूलित करने में सक्षम बनाता है।
-</string>
   <string name="help_contextmenus_title"> संदर्भ मेनू</string>
   <string name="help_contextmenus_text">
 लंबे समय तक दबाने से कई दृश्यों में संदर्भ मेनू या एक्शन मोड खुल जाता है।
@@ -544,14 +480,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 पुस्तक को देखने के लिए किसी पुस्तक आइटम को लंबे समय तक दबाए या पुस्तक को देखने के लिए डाउनलोड करें या जानकारी को देखने के लिए डाउनलोड करें।
 लेबल जोड़ने या बुकमार्क हटाने के लिए बुकमार्क सूची में एक बुकमार्क को लंबे समय तक दबाएं।
 यदि आप उन्हें वर्तमान विंडो, नई विंडो या विशेष लिंक विंडो में खोलना चाहते हैं, तो चुनने के लिए लिंक को लंबे समय तक दबाए।
-</string>
-  <string name="help_mynote_title">मेरी टिप्पणियाँ</string>
-  <string name="help_mynote_text">टिप्पणियों को छंद संदर्भ मेनू प्रर मेरी टिप्पणियां मेनू आइटम के माध्यम से जोड़ा जा सकता है।
-मौजूदा टिप्पणियों की सूची को मुख्य मेनू के माध्यम से एक्सेस किया जा सकता है।</string>
-  <string name="help_bookmarks_title">बुकमार्क</string>
-  <string name="help_bookmarks_text">बुकमार्क को छंद संदर्भ मेनू के माध्यम से जोड़ा जा सकता है।
-बुकमार्क  मैनेजर को मुख्य मेनू के माध्यम से एक्सेस किया जाता है।
-बुकमार्क मैनेजर संदर्भ मेनू बुकमार्क को लेबल का उपयोग करके समूहीकृत करने की अनुमति देता है।
 </string>
   <string name="help_search_title"> खोज</string>
   <string name="help_search_text"> खोज पाठ में *,?,AND,OR,NOT जैसे विशेष वर्ण शामिल हो सकते हैं
@@ -572,14 +500,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 इतिहास सूची तक पहुँचने के लिए पीछे जाने का बटन को लंबे समय तक दबाएं।
 </string>
   <string name="help_window_pinning_title">विंडो पिनिंग</string>
-  <string name="help_window_pinning_text">
-आप विकल्प मेनू से विंडो पिनिंग सक्षम कर सकते हैं (ऊपरी कोने में तीन डॉट्स)।
-यदि विंडो पिनिंग सक्षम है, तो आप बाईबल दृश्य पर कई पिन की गई विंडो दिखा सकते है
-लेकिन केवल एक बिना -पिन वाली विंडो। पिन की गईं विंडो पहले प्रदर्शित की जाती हैं, और फिर अनपिन किए गए विंडो।
-आप बाइबल की किताबों को पिन वाली विंडो के रूप में खोलना चाह सकते हैं, और
- बिना -पिन वाली विंडो के रूप में कमेंटरी और नक्शे आदि। ततब आपके पास आसानी से खोले जाने वाले बाइबिल के पुस्तक हो सकते हैं, और जब आप बाइबल का अध्ययन करते हैं तो कमेंट्री और 
-अन्य अतिरिक्त सामग्री के बीच जल्दी से स्विच कर सकते हैं।
-</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">बंद करे</string>
   <string name="something_with_parenthesis">%s (%s)</string>

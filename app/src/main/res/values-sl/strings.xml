@@ -54,7 +54,6 @@
   <string name="search_current_book">Trenutna knjiga</string>
   <string name="error_executing_search">Napačna iskalna poizvedba</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Prikaži številke vrstic.</string>
   <string name="prefs_verse_per_line_summary">Vsako vrstico prikaži v drugi vrsti.</string>
   <string name="prefs_show_bookmarks_summary">Odznači, da se skrijejo vsi zaznamki.</string>
   <string name="prefs_show_mynotes_summary">V vrsticah prikaži ikono z mojimi opombami.</string>
@@ -64,11 +63,8 @@
   <string name="prefs_section_title_summary">Prikaži nekanonične naslove poglavij.</string>
   <string name="prefs_red_letter_summary">Jezusove besede prikaži v rdeči barvi.</string>
   <string name="prefs_text_size_title">Nastavitve pisave</string>
-  <string name="prefs_show_verseno_title">Številke vrstic</string>
   <string name="prefs_verse_per_line_title">Vsaka vrstica v svojo vrsto</string>
   <string name="prefs_show_bookmarks_title">Prikaži zaznamke</string>
-  <string name="prefs_default_bookmark_style_title">Privzet stil zaznamkov...</string>
-  <string name="prefs_default_bookmark_style_summary">Poudari barvo ali ikono.</string>
   <string name="prefs_show_mynotes_title">Prikaži ikone mojih opomb</string>
   <string name="prefs_show_notes_title">Zaznamki in sklici</string>
   <string name="prefs_show_strongs_title">Strong-ova števila</string>
@@ -86,7 +82,6 @@
   <string name="prefs_navigate_to_verse_summary">Za izbiro odlomka izberi vrstico in poglavje.</string>
   <string name="prefs_open_links_in_special_window_title">Povezave v posebnem oknu</string>
   <string name="prefs_open_links_in_special_window_summary">Za hitrejši prikaz sklicev in Strong-ovih števil.</string>
-  <string name="prefs_text_size_summary">Nastavi vrsto pisave in velikost pisave.</string>
   <string name="prefs_text_size_sample_text">Primer besedila</string>
   <string name="prefs_screen_keep_on_title">Ohrani prižgan zaslon</string>
   <string name="prefs_screen_keep_on_summary">Prepreči ugašanje ekrana med uporabo te aplikacije.</string>
@@ -129,13 +124,11 @@
   <string name="line_spacing_title">Razmik med vrsticami</string>
   <string name="line_spacing_summary">Nastavi razmik med vrsticami.</string>
   <string name="select_none">Ne izberi ničesar</string>
-  <string name="reset_are_you_sure">Ali ste prepričani, da želite ponastaviti vse vrednosti?</string>
   <string name="window_pinning_menutitle">Pripenjanje oken</string>
   <string name="hide_window_buttons_title">Skrij gumbe oken</string>
-  <string name="hide_window_buttons_summary">Gumbi oken, ki so prikazani na desni strani pogledov biblije, so skriti. Okna za krmarjenje po oknu, na dnu desno, so še vedno prikazana in pojavni meni okna lahko odprete z dolgim pritiskom na ikono.</string>
-  <string name="font_size_title">Velikost besedila</string>
   <string name="full_screen_hide_buttons_pref_title">Skrij gumbe oken v celozaslonskem prikazu</string>
   <string name="full_screen_hide_buttons_pref_summary">Ko preklopite v celozaslonski način, samodejno skrijte vrstico gumbov z okni, ki je na dnu zaslona</string>
+  <string name="font_size_title">Velikost besedila</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Nastavitve barv</string>
   <string name="window_color_settings_title">Nastavitve barv okna</string>
@@ -171,37 +164,23 @@
   <string name="next">Naslednji</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Prosim prenesi Strong-ove hebrejske in grške slovarje</string>
-  <string name="all_greek_occurrences">Najdi vse pojavitve</string>
-  <string name="all_hebrew_occurrences">Najdi vse pojavitve</string>
   <string name="no_indexed_bible_with_strongs_ref">Potreben je prenos biblije, ki vsebuje Strong-ove številke in prenos njegovega indeksa preko Iskanja</string>
   <string name="morph_robinson_not_installed">Prenesite slovar \'Robinson\ove analize oblikoslovnih kod\'</string>
   <!--Module download-->
   <string name="download">Prenos dokumentov</string>
   <string name="download_confirmation">Prenos Biblije iz interneta?</string>
-  <string name="download_source_message">Dokumenti se prenesejo iz:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Prenos</string>
-  <string name="download_refreshing_book_list">Osvežitev seznama razpoložljivih dokumentov</string>
   <string name="download_refresh_book_list_menu_item">Osveži</string>
-  <string name="error_downloading">Pri prenosu se je zgodila napaka.  Prosim preverite vašo povezavo z internetom.</string>
   <string name="storage_space_warning">Premalo lokalnega prostora za shranjevanje.</string>
-  <string name="too_many_jobs">Izvaja se preveč opravil.  Prosim počakajte, da se jih nekaj dokonča in ponovno poskusite.</string>
   <string name="document_not_installed">Prosim prenesite \'%s\'</string>
   <string name="free_text_search_documents">Iskanje</string>
   <string name="chooce_language_hint">Jezik</string>
-  <string name="one_more_back_press">Z enim pritiskom gumba nazaj se aplikacija zapre</string>
   <string name="document_filter_results">%d dokumentov</string>
   <string name="download_question_title">Ali želite nadaljevati s prenosom dokumentov?</string>
-  <string name="download_question_message">Če živite v preganjani državi,
-        boste morda morali biti previdni pri prenosu krščanskega gradiva prek interneta.
-        Namesto tega boste morda želeli varneje pridobiti zip datoteke modula in jih namestiti
-        prek \"Naloži dokumente iz Zip\". Ali ste prepričani, da želite nadaljevati s prenosom?
-        Vsi prenosi iz skladišča modulov so šifrirani (HTTPS).</string>
   <string name="do_not_ask_again">Da, ne sprašujte več</string>
   <string name="recommended_document">Priporočljivo!</string>
   <string name="about_version_history">Zgodovina verzij: %s</string>
-  <string name="download_failed">Prenos ni uspel %s</string>
   <string name="download_errors">Napake pri prenosu</string>
-  <string name="failed_repositories_message">Ni se mogoče povezati z naslednjimi skladišči dokumentov: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Naslednjih datotek ni bilo mogoče prenesti:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Dokumente naloži iz zip datoteke.</string>
@@ -210,7 +189,6 @@
   <string name="extracting_zip_file">Odpakiranje zip datoteke...</string>
   <string name="checking_zip_file">Preverjanje datoteke...</string>
   <string name="invalid_module">Datoteka ne vsebuje veljavnega SWORD modula</string>
-  <string name="module_already_installed">Datoteke vsebuje modul, ki je že nameščen</string>
   <string name="install_zip_title">Prosim počakajte. Nalaga se ZIP datoteka.</string>
   <string name="overwrite_files">Naslednje datoteke že obstajajo: %s Jih prepišem?</string>
   <string name="overwrite_files_title">Prepišem datoteke?</string>
@@ -266,7 +244,6 @@
   <string name="delete_search_index_doc">Izbriše indeks %s?</string>
   <!--Verse context menu-->
   <string name="notes">Opombe pod črto in sklici</string>
-  <string name="verse_action_copy">Kopiraj</string>
   <string name="share_verse">Deli...</string>
   <string name="share_verse_subject_2"> 88% match 
 Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
@@ -277,18 +254,11 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="open_link_in_special_window">Povezavo odpri v posebnem oknu</string>
   <!--Bookmarks-->
   <string name="bookmarks">Zaznamki</string>
-  <string name="add_bookmark">Dodaj zaznamek</string>
-  <string name="delete_bookmark">Zaznamek izbriši</string>
   <string name="bookmark_added">Zaznamek dodan</string>
-  <string name="bookmark_date_updated">Zaznamek osvežen</string>
-  <string name="bookmark_deleted">Zaznamek pobrisan</string>
-  <string name="bookmark_labels">Oznake zaznamkov</string>
-  <string name="manage_labels">Upravljaj oznake zaznamkov</string>
   <string name="assign_labels">Dodaj oznake</string>
   <string name="new_label">Nova oznaka</string>
   <string name="label_name_prompt">Poimenuj</string>
   <string name="label_unlabelled">Neoznačeni</string>
-  <string name="style">Stil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Urejeno po datumu</string>
   <string name="sort_by_bible_book">Urejeno po bibliji</string>
@@ -410,27 +380,14 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
     </string>
   <!--User Notes-->
   <string name="mynotes">Moje opombe</string>
-  <string name="mynote_add">Dodaj Mojo opombo</string>
-  <string name="mynote_saved">Moja opomba je shranjena</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Varnostna kopija &amp; Obnova</string>
-  <string name="backup_modules">Varnostno kopiranje dokumentov v… </string>
-  <string name="backup_app_database">Varnostno kopiranje baze v…</string>
-  <string name="restore_app_database">Obnovitev baze iz…</string>
-  <string name="restore_confirmation">Želite prepisati moje opombe, zaznamke, načrte za branje in delovne prostore?</string>
-  <string name="restore_success">Moji zapiski, zaznamki, načrti branja in delovni prostori so uspešno obnovljeni</string>
   <string name="loading_backup">Nalaganje baze podatkov iz varnostne kopije...</string>
-  <string name="backup_success">Moji zapiski, zaznamki, načrti branja in delovni prostori so uspešno obnovljeni v %s.</string>
-  <string name="error_no_backup_file">Arhivske datoteke ni mogoče najti</string>
   <string name="backup_modules_email_subject_2">%s modulov je bilo varnostno kopiranih</string>
   <string name="backup_modules_email_message_2">Priložena je vaša %s varnostna kopija modulov, ki vsebuje naslednje module: %s</string>
   <string name="backup_email_subject_2">%s varnostno kopiranje</string>
   <string name="backup_email_message_2">Vaša %s baza podatkov, ki vsebuje zaznamke, opombe, načrte za branje in delovne prostore, je pripeta</string>
   <string name="restore_unsuccessfull">Obnovitev baze podatkov ni bila uspešna. Morda ste navedli neveljavno datoteko baze podatkov.</string>
-  <string name="backup_restore_title">Obnovi iz kje…</string>
-  <string name="backup_restore_message">Ali želite obnoviti iz pomnilnika telefona ali ročno izbrati varnostno kopijo (lahko izberete tudi iz Google Drive itd.)?</string>
   <string name="backup_phone_storage">Pomnilnik telefona</string>
-  <string name="backup_manually">Izberi datoteko</string>
   <string name="backup_backup_title">Kam varnostno kopiram?</string>
   <string name="backup_backup_message">Ali želite varnostno kopirati v telefon ali kam drugam s funkcijo skupne rabe (e-pošta, Google Drive itd.)?</string>
   <string name="backup_share">Deli</string>
@@ -443,27 +400,8 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="module_about_installed_version">Nameščena verzija: %s (%s)</string>
   <string name="module_about_latest_version">Zadnja verzija: %s (%s)</string>
   <string name="module_about_versification">Verzifikacija: %s</string>
-  <string name="module_about_repository">Porazdelitev skladišč: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Prijavite napako</string>
-  <string name="report_bug_email_subject_2">Poročilo o napaki za %s %s</string>
-  <string name="report_bug_email_message">
-        --- POROČILO O HROŠČU NAPIŠITE NAD TO VRSTICO --- \ n
-        Navodila: \ n
-        Na kratko nam povejte, kaj ste storili / kaj se je ob napaki zgodilo.
-        Primer: \ n
-        \ n
-        1. Odprta je bila aplikacija \ n
-        2. Kliknil sem na meni okna \ n
-        Nesreča \ n
-        \ n
-        Dodate lahko posnetek zaslona, ki je koristen pri reševanju težav.
-        Uporabite to funkcijo, da prijavite napako takoj, ko opazite napako.
-        To funkcijo lahko uporabite tudi po odpiranju aplikacije, potem ko se je zrušila.
-         \ n \ n
-         Informacije o napravi: \ n
-         %s</string>
   <!--Document types-->
   <string name="doc_type_all">Vse vrste</string>
   <string name="doc_type_bible">Biblija</string>
@@ -481,7 +419,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="error">Napaka</string>
   <string name="please_wait">Prosimo počakajte…</string>
   <string name="all">Vsi</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">Uredi</string>
   <string name="watch_tutorial_video">Ogled video navodil (Angleščina)</string>
   <string name="verse_not_found">Vrstice ni mogoče najti</string>
@@ -536,11 +473,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="history_for">Zgodovina (%s: Okno %d)</string>
   <!--Help-->
   <string name="help_nav_title">Krmarjenje</string>
-  <string name="help_nav_text">Za naslednje ali prejšnje poglavje s prstom povlečete po zaslonu levo ali desno.
-        Če želite preklopiti celozaslonski način, dvakrat tapnite besedilo.
-        Razdeljeni zasloni (imenovani tudi okna) imajo v zgornjem desnem kotu gumb z menijem,
-        ki omogoča uporabo več funkcij, ki so značilne za okno in prilagodite obris in vedenje okna.
-    </string>
   <string name="help_contextmenus_title">Kontekstni meni</string>
   <string name="help_contextmenus_text">
         Dolg pritisk v več pogledih odpre kontekstni meni ali način delovanja.
@@ -548,12 +480,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
         Če želite izbrisati dokument ali si ogledati informacije, na seznamu dolgo pritisnite element dokumenta na seznamu.
         Dolg pritisk na zaznamek v seznamu zaznamkov, če želite dodati nalepke ali izbrisati zaznamek.
         Dolg pritisk na povezave, če jih želite odpreti v trenutnem oknu, novem oknu ali posebnem oknu povezav.</string>
-  <string name="help_mynote_title">Moja opomba</string>
-  <string name="help_mynote_text">Opombe se lahko dodajajo preko menija Moja Opomba v vrstici s številkami poglavij.
-        Do seznama obstoječih opomb se lahko dostopa prek glavnega menija.</string>
-  <string name="help_bookmarks_title">Zaznamki</string>
-  <string name="help_bookmarks_text">Zaznamki se lahko dodajajo v vrstici s številkami poglavij.
-        Do upravljalnika zaznamkov se dostopa preko glavnega menija.</string>
   <string name="help_search_title">Iskanje</string>
   <string name="help_search_text">
 Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
@@ -571,13 +497,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
         Dolgo pritisnite gumb Nazaj za dostop do seznama Zgodovina.
     </string>
   <string name="help_window_pinning_title">Pripenjanje oken</string>
-  <string name="help_window_pinning_text">
-        V meniju z možnostmi lahko omogočite pripenjanje oken (tri pike, desni zgornji kot).
-        Če je omogočeno pripenjanje oken, lahko na prikazu Biblije prikažete veliko pripetih oken,
-        vendar samo eno nezapeto okno. Najprej se prikažejo pripeta okna in nato
-        odklenjena okna. Morda boste želeli odpreti dokumente iz Biblije kot pripeta okna, 
-        komentarje in zemljevide itd. pa kot neoznačena okna. Potem so vedno odprti dokumenti iz Biblije in hitro preklapljajte med komentarji in
-        drugim dodatnim gradivom, ko preučujete Biblijo.</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Zapri</string>
   <string name="something_with_parenthesis">%s (%s)</string>

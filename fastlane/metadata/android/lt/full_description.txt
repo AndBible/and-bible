@@ -1,32 +1,43 @@
-And Bible yra atvirojo kodo, autonominė, visiškai nemokama Biblijos programėlė be jokių reklamų, skirta leisti kaip įmanoma daugiau žmonių visose šalyse skaityti, klausytis ir nagrinėti Šventąjį Raštą kuo lengviau ir su kuo didesniu asmeniniu palaiminimu.
+<b>Galingas Biblijos studijavimo įrankis</b>
 
-* Biblijos, komentarai, teologiniai žodynai, žemėlapiai ir krikščioniškos knygos daugiau kaip 700 kalbų
-* Po pradinio atsisiuntimo, viskas veikia be interneto: paieška, pastabos, komentarai ir t.t.
-* Programėlės sąsaja įvairiomis kalbomis
-* Įvairūs Biblijos skaitymo planai
-* Visiškai nemokamai, be jokių reklamų ar el. laiškų
-* Virš 40 Biblijų anglų kalba, įskaitant KJV ir NET (čia buvo ir ESV ir mes bandome ją sugrąžinti, žiūrėkite DUK: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
-* 29 Biblijos komentarai
-* Išplėstinė žodynų ir krikščioniškų knygų kolekcija
-* Visi dokumentai yra platinami teisėtai (štai kodėl nėra prieinami tokie dokumentai kaip NKJV ir NIV)
-* Strongo integracija leidžia nagrinėti graikiškus ir hebrajiškus žodžius
-* Kelios darbo sritys su padalintu ekranu
-* Galimybė rašyti asmenines pastabas
-* Lanksti paieška
-* Žymės
-* Biblinių kraštų žemėlapiai
-* Galimybė klausytis garsiai bet kurį dokumentą
-* Automatinis slinkimas, automatinė dienos/nakties veiksena
-* Galimybė lyginti visus Biblijos vertimus viename ekrane
-* Viena iš greičiausių Biblijos programėlių Android platformoje
-* Atvirojo kodo - jei norite, keiskite ar tobulinkite programinį kodą
-* Naudoja galingą JSword modulį iš CrossWire
+Biblijos Studijų programėlė, sukurta And Bible Open Source projekto - tai galinga, bet tuo pačiu metu lengva naudoti „Android“ Biblijos studijų programėlė, kuri nereikalauja interneto. Ši programėlė nesiekia būti paprasta Biblijos skaitytuve, bet verčiau yra sutelkta į tai, kad būtų išplėstiniu įrankiu, kuris yra skirtas išsamiai asmeniškai nagrinėti Bibliją.
 
-Mes visi esame savanoriai; mes nesiunčiame neduodančių ramybės el. laiškų; nerodome erzinančių reklamų; niekada neprašome ir negauname paaukojimų; neprašome registruotis; And Bible nerenka iš jūsų mobiliojo telefono jokių duomenų.
+Šią programėlę Biblijos skaitytojams sukūrė Biblijos skaitytojai. Jos tikslas - padėti jums patogiai, išsamiai ir linksmai nagrinėti Bibliją. Geriausia, kas yra šiame nekomerciniame bendruomenės projekte yra tai, jog jis yra atvirojo kodo, visiškai nemokamas ir be jokių reklamų. Kadangi ši programėlė nuo pat pradžių buvo kuriama „Android“ sistemai, ji yra mažo dydžio ir todėl, labai efektyvi bei išskirtinai greita.
 
-Visų dokumentų kilmė yra kruopščiai nagrinėjama, kad būtų užtikrinta, jog visi dokumentai gali būti teisiškai platinami, arba, jog yra suteiktas autorių teisių turėtojo leidimas. Tai taip pat yra viena iš priežasčių, kodėl And Bible programėlėje nėra tokių dokumentų kaip NIV ir NKJV.
+Kelios populiarios Biblijos versijos (iš daugelio prieinamų) yra NRSV, KJV, NASB, NET bei taip pat populiarūs Biblijos komentarai, tokie kaip Matthew Henry ir John Gill.
 
-<b>Pastabos</b>
-* Spauskite "Patinka" And Bible Facebook puslapyje: https://www.facebook.com/AndBible/
-* And Bible DUK galite rasti čia: https://github.com/AndBible/and-bible/wiki/FAQ
-* Projekto puslapis Github svetainėje: https://github.com/AndBible/and-bible
+<b>Galingos Šventojo Rašto studijavimo ypatybės</b>
+
+Programėlėje yra daug sumanių, išskirtinių ypatybių, kurios sudėtingą ir gilų Biblijos studijavimą paverčia ypatingai sklandžiu. Svarbiausios ypatybės yra šios:
+
+ * Padalinto teksto rodiniai, kurie leidžia palyginti vertimus ir ieškoti informacijos komentaruose
+ * Darbo sritys leidžia turėti kelias Biblijos studijų sąrankas su savo atskirais nustatymais
+ * Strongo integracija leidžia nagrinėti graikiškus ir hebrajiškus žodžius
+ * Susijusios kryžminės nuorodos, išnašos bei dokumentai; pereikite prie kryžminių nuorodų ar išnašų, tiesiog, baksteldami ant nuorodos; atlikite nuodugnų Šventojo Rašto nagrinėjimą naudodami saitais susietus komentarus (Gill, Matthew Henry ir t.t.), kryžminių nuorodų kolekcijas (Treasure of Scripture Knowledge, TSKe) bei kitus išteklius.
+ * Išplėstinis garsinio teksto atkūrimas su šnekamosiomis žymėmis, leidžiantis sklandžiai klausytis Biblijos teksto
+ * Lanksti paieška
+ * Žymės su pasirinktinės spalvos žymių grupėmis
+ * Asmeninės pastabos: pridėkite bet kuriai Biblijos eilutei savo asmenines nagrinėjimo pastabas
+ * Skaitymo planai: nusistatykite Biblijos skaitymo tikslus
+ * Didelė dokumentų biblioteka: Biblijos vertimai, teologiniai komentarai, žodynai, žemėlapiai bei krikščioniškos knygos, iš viso virš 1500 dokumentų, daugiau nei 700 kalbų, kuriuos teisėtai platina Crosswire ir kitos SWORD saugyklos.
+ * Visų dokumentų kilmė yra nagrinėjama, kad būtų užtikrinta, jog visi dokumentai gali būti teisėtai platinami, arba, jog yra suteiktas autorių teisių turėtojo leidimas. Tai taip pat yra viena iš priežasčių, kodėl šioje programėlėje nėra tokių dokumentų kaip ESV, NIV ir NKJV.
+ * Nereikalauja interneto: interneto reikia tik vienintelį kartą, atsisiunčiant dokumentus.
+
+<b>Sukurkime geriausią Biblijos programėlę kartu!</b>
+
+And Bible yra atvirojo kodo bendruomenės projektas. Praktiškai, tai reiškia, kad kiekvienas žmogus su tinkamais įgūdžiai gali, ir yra skatinamas, talkinti projektui:
+
+ * plėtojant naujas ypatybes,
+ * išbandant kol kas neišleistas ypatybes,
+ * palaikant naudotojo sąsają išverstą į savo kalbą bei
+ * padedant išplėsti modulių biblioteką gaunant leidimus iš autorių teisių turėtojo arba konvertuojant dokumentus į „SWORD“ formatą.
+
+Jei esate profesionalus programinės įrangos specialistas ar testuotojas, apsvarstykite galimybę prisidėti prie projekto. Išsamesnei informacijai apie tai kaip talkinti, žiūrėkite https://git.io/JUnaj.
+
+<b>Nuorodos</b>
+
+ * Pagrindinis puslapis: https://andbible.github.io
+ * Spauskite „Patinka“ And Bible „Facebook“ puslapyje: https://www.facebook.com/AndBible/
+ * Mūsų „Youtube“ kanalas: https://www.youtube.com/c/AndBible
+ * Dažnai užduodami klausimai: https://git.io/JJm8E
+ * Projekto puslapis „Github“ svetainėje: https://github.com/AndBible/and-bible

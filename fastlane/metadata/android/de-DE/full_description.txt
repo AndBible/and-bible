@@ -1,32 +1,43 @@
-Bibel+ (ehemals And Bibel) ist eine freie, Open Source, offline Bibelsoftware ohne jede Werbung. Das Ziel ist, so viele Menschen wie möglich auf aller Welt zu befähigen, die Heilige Schrift zu lesen, zu hören und zu studieren, um größtmöglichen persönlichen Segen zu bekommen.
+<b>Ein mächtiges Werkzeug für das Bibelstudium</b>
 
-* Bibeln, Kommentare, theologische Wörterbücher, Landkarten und christliche Bücher in über 700 Sprachen
-* Nach dem Herunterladen der benötigten Module absolut offline, inklusive allen Suchfunktionen, Notizen, Kommentaren etc.
-Benutzeroberfläche in vielen Sprachen
-* verschiedenste Bibellesepläne
-* Absolut frei, keine Werbung, keine E-Mails
-* Über 40 englische Bibelübersetzungen, inklusive KJV und NET (ESV war dabei, und wir bemühen uns, sie wieder zu bekommen, siehe die FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong), über 15 deutsche Bibelübersetzungen
-* 29 Bibelkommentare
-* Große Sammlung an Wörterbüchern und christlicher Literatur
-* Alle Dokumente sind legal erhältlich (darum sind Übersetzungen wie die NIV  oder die LUT84 nicht enthalten)
-* Die Integration des Strong Wörterbuches erlaubt das Nachschlagen von griechischen und hebräischen Wörtern
-Mehrere Arbeitsbereiche mit aufgeteilten Fenstern
-* Erstelle persönliche Notizen
-* Flexible Suchfunktion
-* Lesezeichen
-* Landkarten der biblischen Länder
-* Lass dir jedes Dokument laut vorlesen
-* automatischer Bildvorlauf, automatischer Tag/Nacht Modus
-* Vergleiche alle Bibelübersetzungen auf einem Bildschirm
-* Eine der schnellsten Bibel - Apps auf Android
-* Open Source - verbessere oder verändere den Source Code wie du willst
-* Verwendet die mächtige JSword Engine von CrossWire
+Bibel+ von der And Bible Open Source Community ist ein umfangreiches und trotzdem einfach zu bedienendes  Programm für das Bibelstudium - auch ohne Internet. Diese App ist nicht nur ein einfaches Bibelleseprogramm, sondern will ein Werkzeug für fortgeschrittenes, in die Tiefe gehendes Bibelstudium sein.
 
-* Alle Mitarbeiter sind Freiwillige; wir versenden keine lästigen E-Mails; blenden keine störenden Werbungen ein; fragen nie nach finanzieller Unterstützung; verlangen keine Registrierung; And Bible sammelt keine Daten von deinem Telefon
+Dieses Programm wird von Bibellesern für Bibelleser entwickelt. Es zielt darauf ab, dein Bibelstudium einfach, bedeutsam und unterhaltsam zu machen. Das Beste an diesem Non-Profit Projekt ist, dass es Open Source ist - völlig kostenlos und ohne Werbung. Dadurch, dass es von Anfang an für Android entwickelt wurde, ist es platzsparend, effizient und schnell.
 
-Die Herkunft aller Dokumente wird sorgfältig untersucht, damit sichergestellt werden kann, dass alle Dokumente legal verbreitet werden können bzw. die Erlaubnis des Rechteinhabers eingeholt wurde. Das ist auch der Grund, warum Übersetzungen wie die neue Luther Übersetzung oder die Neue Genfer Übersetzung nicht enthalten sind.
+Einige der erhältlichen beliebten Bibelversionen sind Schlachter 1955, NeUE, Luther 1912, sowie englische Kommentare wie Matthew Henry und John Gill.
 
-<b>Notizen</b>
-* Klicke "Gefällt mir" auf Facebook: https://www.facebook.com/AndBible/
-* The And Bible FAQ befindet sich hier: https://github.com/AndBible/and-bible/wiki/FAQ
-* Projektseite auf Github: https://github.com/AndBible/and-bible
+<b>Umfangreiche Funktionen für das Bibelstudium</b>
+
+Das Programm hat viele originelle und aufschlussreiche Funktionen, die ein komplexes und tiefgehendes Bibelstudium einfacher als je machen. Die herausragendsten Funktionen sind:
+
+ * Geteilte Textansicht zum Vergleichen von Übersetzungen und Anzeigen von Kommentaren
+ * Arbeitsbereiche erlauben mehrere Konfigurationen für Bibelstudien mit jeweils eigenen Einstellungen
+ * Die Integration der Strong-Codes erlaubt das Nachschlagen und Analysieren von griechischen und hebräischen Vokabeln
+ * Verknüpfte Querverweise, Fußnoten und andere Dokumente; einfach antipppen um dahin zu springen; tiefergehende Studien ausführen durch den Gebrauch verknüpfter Kommentare (Gill, Matthew Henry, etc.), Sammlungen von Querverweisen (Treasure of Scripture Knowledge, TSKe) und anderer Resourcen.
+ * Fortgeschrittene Sprachausgabe von Text mit Lesezeichen, für ein reibungsfreies Hörerlebnis
+ * Flexible Suche
+ * Lesezeichen, mit konfigurierbaren farbigen Gruppierungen
+ * Persönliche Notizen: notiere deine eigenen Gedanken zu jedem beliebigen Vers der Bibel
+ * Bibellesepläne: setze dir Ziele für deine Bibellese
+ * Große Sammlung von Dokumenten: Bibelübersetzungen, theologische Kommentare, Wörterbücher, Landkarten und christliche Bücher, insgesamt über  1500 Dokumente in über 700 Sprachen, gesetzeskonform zur Verfügung gestellt von Crosswire und anderen SWORD Quellen.
+ * Die Herkunft aller Dokumente wird überprüft um sicherzustellen, dass sie gesetzeskonform verbreitet werden können bzw. dass die Erlaubnis dazu vom Rechteinhaber erteilt worden ist. Das ist auch der Grund warum Dokumente wie ESV, NIV, NKJV, LUT84, NGÜ etc. nicht enthalten sind.
+ * Offline: das Internet wird nur für das Herunterladen der gewünschten Dokumente benötigt.
+
+<b>Lasst uns gemeinsam die beste Bibelleseapp entwickeln!</b>
+
+And Bible ist ein Open-Source Community Projekt. Das bedeutet in der Praxis, dass jeder, der die entsprechenden Fähigkeiten mitbringt eingeladen ist, zu dem Projekt beizutragen, durch:
+
+ * Entwickeln neuer Funktionen,
+ * Testen noch nicht freigegebener Funktionen,
+ * Aktuell Halten der Übersetzungen der Benutzeroberflächen, und
+ * Hilfe beim Erweitern der Dokumentbibliothek durch das Beschaffen von Genehmigungen bei den Rechteinhabern, oder durch das Konvertieren freier Dokumente in das SWORD Format.
+
+Wenn du professioneller Softwareingenieur oder -tester bist, überlege dir bitte, ob du zu dem Projekt beitragen willst. Für mehr Informationen dazu, bitte lies https://git.io/JUnaj.
+
+<b>Links</b>
+
+ * Homepage: https://andbible.github.io
+ * Like And Bible on Facebook: https://www.facebook.com/AndBible/
+ * Unser Youtube Kanal: https://www.youtube.com/c/AndBible
+ * Häufig gestellte Fragen: https://git.io/JJm8E
+ * Projektseite auf Github: https://github.com/AndBible/and-bible

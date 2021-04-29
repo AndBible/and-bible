@@ -1,5 +1,5 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "Proučevanje Biblije, And Bible Open Source Project"
+title: "Proučevanje Biblije, And Bible odprtokodni projekt"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Berite Biblijo, komentarje, slovarje ali knjige v načinu brez povezave."
 # Main (first) subtitle of the Play Store main (long) description text.
@@ -35,10 +35,12 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Ogromna knjižnica dokumentov: prevodi Biblije, komentarji, slovarji, zemljevidi in krščanske knjige, skupaj več kot {{total_documents}} dokumentov v več {{total_languages}} jezikih, ki jih zakonito distribuira Crosswire in druge SWORD shrambe.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  Izvor vseh dokumentov se prouči, da se zagotovi zakonita distribucija vseh dokumentov, oziroma distribucija z dovoljenjem imetnika avtorskih pravic. To je tudi razlog, da ta aplikacija ne vključuje dokumentov, kot so {{unavailable_documents}}.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-feature_11: >
-  Izvor vseh dokumentov se prouči, da se zagotovi zakonita distribucija vseh dokumentov, oziroma distribucija z dovoljenjem imetnika avtorskih pravic. To je tudi razlog, da ta aplikacija ne vključuje dokumentov, kot sta NIV in NKJV.
+unavailable_documents: "ESV, NIV in NKJV"
 feature_12: >
   Brez internetne povezave: internet se potrebujete le za enkraten prenos dokumentov.
 subtitle_3: Skupaj naredimo najboljšo biblijsko aplikacijo!
@@ -47,7 +49,7 @@ paragraph_3_1: >
 contr_1: "razvojem novih funkcij,"
 contr_2: "testiranjem še neobjavljenih funkcij,"
 contr_3: posodabljanjem prevodov uporabniškega vmesnika in
-contr_4: pomočjo pri razširitvi knjižnice modulov.
+contr_4: pomoč pri razširitvi knjižnice modulov s pridobivanjem dovoljenj imetnikov avtorskih pravic ali s pretvorbo dokumentov v SWORD obliko.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 paragraph_4_1: "Če ste poklicni inženir ali preizkuševalec programske opreme, razmislite o sodelovanju pri projektu. Za več informacij o prispevanju glejte {{how_to_contribute_url}}."
 subtitle_4: Povezave

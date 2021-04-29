@@ -54,7 +54,6 @@
   <string name="search_current_book">Derzeitiges Buch</string>
   <string name="error_executing_search">Ungültige Suchabfrage</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Versnummern anzeigen</string>
   <string name="prefs_verse_per_line_summary">Jeden Vers in einer neuen Zeile anzeigen</string>
   <string name="prefs_show_bookmarks_summary">Anklicken um alle Lesezeichen zu verbergen</string>
   <string name="prefs_show_mynotes_summary">Symbol in Versen mit eigenen Notizen anzeigen</string>
@@ -64,11 +63,8 @@
   <string name="prefs_section_title_summary">Außerkanonische Abschnittstitel anzeigen</string>
   <string name="prefs_red_letter_summary">Zeige Worte Christi in roter Farbe</string>
   <string name="prefs_text_size_title">Schriftarteinstellungen</string>
-  <string name="prefs_show_verseno_title">Versnummer</string>
   <string name="prefs_verse_per_line_title">Zeilenumbruch nach Vers</string>
   <string name="prefs_show_bookmarks_title">Lesezeichen anzeigen</string>
-  <string name="prefs_default_bookmark_style_title">Voreingestellter Lesezeichenstil</string>
-  <string name="prefs_default_bookmark_style_summary">Farbe oder Symbol für Hervorhebung</string>
   <string name="prefs_show_mynotes_title">Eigene Notizen</string>
   <string name="prefs_show_notes_title">Fußnoten &amp; Querverweise</string>
   <string name="prefs_show_strongs_title">Strong\'s numbers</string>
@@ -86,7 +82,6 @@
   <string name="prefs_navigate_to_verse_summary">Bis zu einem bestimmten Vers navigieren</string>
   <string name="prefs_open_links_in_special_window_title">Verknüpfungen in eigenem Fenster öffnen</string>
   <string name="prefs_open_links_in_special_window_summary">Für die schnellere Anzeige von Querverweisen und Lexikoneinträgen</string>
-  <string name="prefs_text_size_summary">Schriftart und -größe anpassen</string>
   <string name="prefs_text_size_sample_text">Beispieltext</string>
   <string name="prefs_screen_keep_on_title">Bildschirm nicht ausschalten</string>
   <string name="prefs_screen_keep_on_summary">Ruhemodus während dem Gebrauch dieser Anwendung verhindern</string>
@@ -127,13 +122,11 @@
   <string name="line_spacing_title">Zeilenabstand</string>
   <string name="line_spacing_summary">Den Abstand zwischen Textzeilen einstellen</string>
   <string name="select_none">Nichts auswählen</string>
-  <string name="reset_are_you_sure">Sind Sie sicher, dass Sie alle Einstellungen zurücksetzen wollen?</string>
   <string name="window_pinning_menutitle">Fensterverankerung</string>
   <string name="hide_window_buttons_title">Fenstersymbole verbergen</string>
-  <string name="hide_window_buttons_summary">Die Fenstersymbole, die auf der rechten Seite der Bibeltexte angezeigt werden, werden verborgen. Die Navigationsleiste am unteren Bildschirmrand wird immer noch angezeigt, und das Fenstermenü kann durch langes Drücken angezeigt werden.</string>
-  <string name="font_size_title">Schriftgröße</string>
   <string name="full_screen_hide_buttons_pref_title">Fensterschaltleiste im Vollbildmodus verbergen</string>
   <string name="full_screen_hide_buttons_pref_summary">Dadurch wird im Vollbildmodus automatisch die Fensterschaltleiste am unteren Bildschirmrand ausgeblendet</string>
+  <string name="font_size_title">Schriftgröße</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Farbeinstellungen</string>
   <string name="window_color_settings_title">Fensterfarben</string>
@@ -169,36 +162,23 @@
   <string name="next">Vorwärts</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Bitte laden Sie die Strong\'s Wörterbücher für Griechisch und Hebräisch herunter</string>
-  <string name="all_greek_occurrences">Alle Ergebnisse anzeigen</string>
-  <string name="all_hebrew_occurrences">Alle Ergebnisse anzeigen</string>
   <string name="no_indexed_bible_with_strongs_ref">Sie müssen zuerst ein Bibelmodul mit Strongs Nummer sowie den Suchindex dazu herunterladen</string>
   <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
   <!--Module download-->
   <string name="download">Module herunterladen</string>
   <string name="download_confirmation">Soll eine Bibel aus dem Internet heruntergeladen werden?</string>
-  <string name="download_source_message">Dokumente werden von:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io heruntergeladen</string>
   <string name="download_document_confirm_prefix">Download</string>
-  <string name="download_refreshing_book_list">Liste wird aktualisiert</string>
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>
-  <string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
-  <string name="too_many_jobs">Zu viele aktive Aufgaben. Bitte warten Sie...</string>
   <string name="document_not_installed">Bitte \'%s\' herunterladen</string>
   <string name="free_text_search_documents">Suche</string>
   <string name="chooce_language_hint">Sprache</string>
-  <string name="one_more_back_press">Durch nochmaliges Drücken des Zurück-Knopfes wird das Programm geschlossen</string>
   <string name="document_filter_results">%d Dokument(e)</string>
   <string name="download_question_title">Möchten Sie mit dem Herunterladen der Dokumente fortfahren?</string>
-  <string name="download_question_message">Wenn Sie in einem Land mit Verfolgung leben,
-sollten Sie evtl. vorsichtig mit dem Herunterladen christlichen Materials aus dem Internet sein.
-Evtl. sollten Sie sich komprimierte Module über sicherere Wege verschaffen und dann über \"Installiere Modul aus Zip-Datei\" installieren. Sind Sie sicher, dass Sie mit dem Download fortfahren wollen?
-Alle Downloads aus den Quellen sind verschlüsselt (HTTPS).</string>
   <string name="do_not_ask_again">Ja, nicht mehr nachfragen</string>
   <string name="recommended_document">Empfohlen!</string>
   <string name="about_version_history">Versionschronik: %s</string>
-  <string name="download_failed">Herunterladen von  %s fehlgeschlagen </string>
   <string name="download_errors">Downloadfehler</string>
-  <string name="failed_repositories_message">Konnte folgende Dokumentquellen nicht erreichen: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Die folgenden Dateien konnten nicht heruntergeladen werden:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Lade Dokument aus Zip-Datei</string>
@@ -207,7 +187,6 @@ Alle Downloads aus den Quellen sind verschlüsselt (HTTPS).</string>
   <string name="extracting_zip_file">Das Zip-Archiv wird entpackt...</string>
   <string name="checking_zip_file">Die angegebene Datei wird überprüft...</string>
   <string name="invalid_module">Datei enthält kein SWORD Modul</string>
-  <string name="module_already_installed">Datei enthält ein bereits installiertes Modul</string>
   <string name="install_zip_title">Bitte warten, Zip-Datei wird geladen.</string>
   <string name="overwrite_files">Die folgende Datei existiert bereits: %s Überschreiben?</string>
   <string name="overwrite_files_title">Dateien überschreiben?</string>
@@ -251,7 +230,6 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="delete_search_index_doc">Index von %s löschen?</string>
   <!--Verse context menu-->
   <string name="notes">Fußnoten und Querverweise</string>
-  <string name="verse_action_copy">Kopieren</string>
   <string name="share_verse">Teilen...</string>
   <string name="share_verse_subject_2">Ein Bibelvers wurde mit Ihnen über %s geteilt.</string>
   <string name="compare_translations">Vergleiche Übersetzungen</string>
@@ -261,18 +239,11 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="open_link_in_special_window">Verknüpfung in temporären Fenster öffnen</string>
   <!--Bookmarks-->
   <string name="bookmarks">Lesezeichen</string>
-  <string name="add_bookmark">Lesezeichen hinzufügen</string>
-  <string name="delete_bookmark">Lösche Lesezeichen</string>
   <string name="bookmark_added">Lesezeichen hinzugefügt</string>
-  <string name="bookmark_date_updated">Datum des Lesezeichens wurde aktualisiert</string>
-  <string name="bookmark_deleted">Lesezeichen gelöscht</string>
-  <string name="bookmark_labels">Gruppen</string>
-  <string name="manage_labels">Lesezeichengruppen verwalten</string>
   <string name="assign_labels">Gruppennamen auswählen</string>
   <string name="new_label">Neue Gruppe</string>
   <string name="label_name_prompt">Name</string>
   <string name="label_unlabelled">Nicht kategorisiert</string>
-  <string name="style">Stil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Sortieren nach Datum</string>
   <string name="sort_by_bible_book">Sortieren nach Buch</string>
@@ -381,27 +352,14 @@ Sind sowohl Genesis als auch Römer als Sprachlesezeichen gespeichert, aber Gene
 Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb der markierten Verse gestartet wurde.</string>
   <!--User Notes-->
   <string name="mynotes">Eigene Notizen</string>
-  <string name="mynote_add">Notiz hinzufügen</string>
-  <string name="mynote_saved">Notiz gespeichert</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Sicherung &amp; Wiederherstellung</string>
-  <string name="backup_modules">Dokumente sichern nach...</string>
-  <string name="backup_app_database">Sicherungsdatenbank sichern nach...</string>
-  <string name="restore_app_database">Sicherungsdatenbank wiederherstellen von...</string>
-  <string name="restore_confirmation">Alle persönlichen Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche überschreiben?</string>
-  <string name="restore_success">Persönliche Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche erfolgreich wiederhergestellt</string>
   <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
-  <string name="backup_success">Eigene Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche wurden erfolgreich nach %s gesichert.</string>
-  <string name="error_no_backup_file">Sicherungskopie wurde nicht gefunden</string>
   <string name="backup_modules_email_subject_2">%s Modulbackup</string>
   <string name="backup_modules_email_message_2">Angehängt finden Sie ihr %s Modulbackup, das folgende Module enthält: %s</string>
   <string name="backup_email_subject_2">%s Datenbanksicherung</string>
   <string name="backup_email_message_2">Ihre %s Datenbank mit Lesezeichen, Notizen, Leseplänen und Arbeitsbereichen ist angehängt.</string>
   <string name="restore_unsuccessfull">Die Wiederherstellung der Datenbank ist fehlgeschlagen. Evtl. wurde eine falsche Datei angegeben.</string>
-  <string name="backup_restore_title">Wiederherstellen von wo?</string>
-  <string name="backup_restore_message">Vom Handyspeicher wiederherstellen oder die Sicherungsdatei händisch auswählen (Sie können auch von Google Drive etc. auswählen)?</string>
   <string name="backup_phone_storage">Handyspeicher</string>
-  <string name="backup_manually">Datei auswählen</string>
   <string name="backup_backup_title">Wohin speichern?</string>
   <string name="backup_backup_message">Auf dem Handy speichern oder über die Teilen-Funktion woandershin (E-Mail, Google Drive, etc.)?</string>
   <string name="backup_share">Teilen</string>
@@ -414,26 +372,8 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="module_about_installed_version">Installierte Version: %s (%s)</string>
   <string name="module_about_latest_version">Neueste Version: %s (%s)</string>
   <string name="module_about_versification">Versnummerierung: %s</string>
-  <string name="module_about_repository">Quellverzeichnis: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Fehlermeldung</string>
-  <string name="report_bug_email_subject_2">Fehlerbericht für %s %s</string>
-  <string name="report_bug_email_message">
-        --- DIE FEHLERMELDUNG OBERHALB DIESER LINIE EINFÜGEN ---\n
-        Anleitung:\n
-        Sagen Sie uns kurz, was sie machten/ was passierte, als der Fehler auftrat. Z.B.: \n
-        \n
-        1. Anwendung geöffnet\n
-        2. Fenstermenü angeklickt\n
-         -&gt; Absturz\n
-        \n
-        Manchmal ist ein Bildschirmfoto hilfreich um Probleme zu lösen.
-        Bitte verwenden Sie diese Funktion um Fehler zu melden, sobald Sie sie bemerken.
-        Sie können diese Funktion auch verwenden, wenn Sie die Anwendung nach einem Absturz wieder neu öffnen.
-        \n\n
-        Device info: \n
-        %s</string>
   <!--Document types-->
   <string name="doc_type_all">Alle Dokumentarten</string>
   <string name="doc_type_bible">Bibel</string>
@@ -451,7 +391,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="error">Fehler</string>
   <string name="please_wait">Bitte warten...</string>
   <string name="all">Alles</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">Bearbeiten</string>
   <string name="watch_tutorial_video">Tutorial ansehen (auf Englisch)</string>
   <string name="verse_not_found">Vers wurde nicht gefunden</string>
@@ -503,9 +442,6 @@ Benutzer der Beta-Version werden gebeten, Fehler über Google Play oder (bevorzu
   <string name="history_for">Chronik (%s: Fenster %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigation</string>
-  <string name="help_nav_text">Gehe zum nächsten oder vorhergehenden Kapitel durch Wischen mit dem Finger.
-Doppeltes Tippen schaltet den Vollbildschirmmodus an und aus.
-Geteilite Bildschirme (auch \"Fenster\" genannt) haben ihr jeweiliges Menü in der rechten oberen Ecke. Dort sind fensterspezifische Funktionen und Anpassungen verfügbar.</string>
   <string name="help_contextmenus_title">Kontextmenüs</string>
   <string name="help_contextmenus_text">
 Langes Drücken öffnet das Kontextmenü oder Aktionsmenüs in den verschiedensten Ansichten.
@@ -513,10 +449,6 @@ Langes Drücken in der Bibelansicht öffnet ein Aktionsmenü für den aktuellen 
 Langes Drücken auf ein Dokument in der Dokumentenauswahl oder dem Download ermöglicht das Löschen oder Einsehen zusätzlicher Informationen.
 Langes Drücken auf ein Lesezeichen ermöglicht das Hinzufügen zu Gruppen oder das Löschen des Lesezeichens.
 Langes Drücken auf Verweise ermöglicht die Auswahl, den Verweis im gleichen Fenster, einem neuen Fenster oder einem Spezialfenster für Verweise zu öffnen.</string>
-  <string name="help_mynote_title">Eigene Notiz</string>
-  <string name="help_mynote_text">Notizen können über das \"Eigene Notiz\" Menü innerhalb des Kontextmenüs hinzugefügt werden. Die Liste der vorhandenen Notizen kann über das Hauptmenü angezeigt werden.</string>
-  <string name="help_bookmarks_title">Lesezeichen</string>
-  <string name="help_bookmarks_text">Lesezeichen können über das Kontextmenü hinzugefügt werden. Die Lesezeichenverwaltung wird über das Hauptmenü aktiviert. Die Lesezeichenverwaltung erlaubt das Gruppieren von Lesezeichen über Labels.</string>
   <string name="help_search_title">Suche</string>
   <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
   <string name="help_workspaces_title">Arbeitsbereich</string>
@@ -531,9 +463,7 @@ Langes Drücken des Vorleseknopfes führt zu den Vorleseeinstellungen.
 Langes Drücken der Versauswahl führt zur Dokumentauswahl.
 Langes Drücken des Rückwärtsknopfes führt zur Chronikliste.</string>
   <string name="help_window_pinning_title">Fensterverankerung</string>
-  <string name="help_window_pinning_text">
-Man kann die Fensterverankerung im Optionenmenü aktivieren (drei Punkte rechts oben).
-Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster angezeigt werden, aber nur ein nicht verankertes. Verankerte Fenster werden zuerst angezeigt, dann nicht verankerte. Es wäre z.B. eine Idee, Bibeldokumente zu verankern und Kommentare und Karten etc. nicht zu verankern. Dann ist es leichter möglich, Bibeldokumente immer geöffnet zu haben und schnell zwischen Kommentaren und anderem Zusatzmaterial zu wechseln.</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Schließen</string>
   <string name="something_with_parenthesis">%s (%s)</string>
