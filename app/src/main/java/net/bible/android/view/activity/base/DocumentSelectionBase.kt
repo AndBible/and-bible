@@ -318,7 +318,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         populateMasterDocumentList(false)
     }
 
-    protected open fun showPreLoadMessage() {
+    protected open fun showPreLoadMessage(refresh: Boolean) {
         // default to no message
     }
 
@@ -328,7 +328,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
         withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.VISIBLE
-            showPreLoadMessage()
+            showPreLoadMessage(refresh)
             filterMutex.withLock {
                 documentItemAdapter.clear()
                 displayedDocuments.clear()

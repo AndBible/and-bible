@@ -216,9 +216,10 @@
     <string name="download">Download Documents</string>
     <string name="redownload">Redownload Documents</string>
     <string name="download_confirmation">Download a Bible from the Internet?</string>
-    <string name="download_source_message">Documents are downloaded from:\n https://crosswire.org,\n https://ibtrussia.org,\n https://ebible.org,\n https://public.modules.stepbible.org and\n https://andbible.github.io</string>
+    <string name="download_source_last_updated">Document lists last updated: %s.</string>
+    <string name="download_refreshing_book_list">Refreshing list of available documents from document servers…</string>
+    <string name="download_source_message1">Documents are downloaded from the following sources:</string>
     <string name="download_document_confirm_prefix">Download</string>
-    <string name="download_refreshing_book_list">Refreshing list of available documents</string>
     <string name="download_refresh_book_list_menu_item">Refresh</string>
     <string name="error_downloading">An error occurred while downloading.  Please check your internet connection.</string>
     <string name="error_downloading_status">The server which hosts %s returned an error due to %s (%d).</string>
@@ -234,13 +235,13 @@
         you might need to be careful about downloading christian material via Internet.
         Instead, you might want to obtain module zip files more securely and install them
         via "Load Documents From Zip". Are you sure you want to proceed with downloading?
-        All downloads from module repositories are encrypted (HTTPS).
+        All downloads from module servers are encrypted (HTTPS).
     </string>
     <string name="do_not_ask_again">Yes, do not ask any more</string>
     <string name="recommended_document">Recommended!</string>
     <string name="about_version_history">Version history: %s</string>
     <string name="download_errors">Download errors</string>
-    <string name="failed_repositories_message">Could not connect to the following document repositories: \n\n%s\n\n</string>
+    <string name="failed_repositories_message">Could not connect to the following document server: \n\n%s\n\n</string>
     <string name="failed_downloads_message">The following files could not be downloaded:\n\n%s\n\n</string>
 
     <!--  Install zip file -->
@@ -510,7 +511,7 @@
     <string name="module_about_installed_version">Installed version: %s (%s)</string>
     <string name="module_about_latest_version">Latest version: %s (%s)</string>
     <string name="module_about_versification">Versification: %s</string>
-    <string name="module_about_repository">Distribution repository: %s</string>
+    <string name="module_about_repository">Distribution server: %s</string>
     <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
