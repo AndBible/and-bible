@@ -514,30 +514,25 @@
     <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-    <string name="send_bug_report_title">Report a bug</string>
+    <string name="send_bug_report_title">Feedback &amp; bug report</string>
     <string name="report_bug_email_subject_3">[%s] Bug report for %s %s</string>
-    <string name="feedback_message">
-        --- WRITE YOUR FEEDBACK ABOVE THIS LINE ---\n
-        Please write feedback (constructive criticism, ideas etc) to us.\n
-        \n
-        Device info: \n
-        %s</string>
-    <string name="report_bug_email_message">
-        --- WRITE BUG REPORT ABOVE THIS LINE ---\n
-        Instructions:\n
-        Tell us briefly what did you do / what happened when issue
-        took place. Example: \n
-        \n
-        1. Opened app\n
-        2. Clicked window menu\n
-         -> Crash\n
-        \n
-        Sometimes screenshot also is beneficial in resolving issues.
-        Please use this function to report as soon as you have noticed it taking place.
-        You can also use this function after opening app, after crash has taken place.
-        \n\n
-        Device info: \n
-        %s</string>
+
+    <string name="report_bug_big_heading">PLEASE WRITE YOUR FEEDBACK OR BUG REPORT ABOVE THIS LINE</string>
+    <string name="report_bug_heading1">Instructions:</string>
+    <string name="report_bug_line_1">Tell us briefly what did you do / what happened when issue took place.</string>
+    <string name="report_bug_heading2">For example:</string>
+    <string name="report_bug_instructions1">1. Opened app</string>
+    <string name="report_bug_instructions2">2. Clicked window menu</string>
+    <string name="report_bug_instructions3">-> Crash</string>
+    <string name="report_bug_line_2">Sometimes manually taken screenshots also are beneficial in resolving issues.</string>
+    <string name="report_bug_line_3">Please use this function to report as soon as you have noticed it taking place.</string>
+    <string name="report_bug_line_4">You can also use this function after opening app, after crash has taken place.
+    </string>
+    <string name="report_bug_heading_3">Attachments:</string>
+    <string name="bug_report_logcat">logcat.txt.gz: Log file produced by this app. It does not contain information about any other apps.</string>
+    <string name="bug_report_screenshot">screenshot.webp: Screenshot of app when crash took place, or when bug report was created.</string>
+    <string name="bug_report_attachment_line_1">Having these files attached helps app developers a lot in fixing the reported bug.</string>
+    <string name="report_bug_heading_4">Device info:</string>
 
     <!-- Document types -->
     <string name="doc_type_all">All types</string>

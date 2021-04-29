@@ -206,6 +206,50 @@ object BugReport {
         }
     }
 
+    private fun getBugReportMessage(context: Context, exception: Throwable?): String =
+        context.run {
+            val bigHeading = getString(R.string.report_bug_big_heading)
+            val heading1 = getString(R.string.report_bug_heading1)
+            val heading2 = getString(R.string.report_bug_heading2)
+            val heading3 = getString(R.string.report_bug_heading_3)
+            val heading4 = getString(R.string.report_bug_heading_4)
+            val instruction1 = getString(R.string.report_bug_instructions1)
+            val instruction2 = getString(R.string.report_bug_instructions2)
+            val instruction3 = getString(R.string.report_bug_instructions3)
+            val line1 = getString(R.string.report_bug_line_1)
+            val line2 = getString(R.string.report_bug_line_2)
+            val line3 = getString(R.string.report_bug_line_3)
+            val line4 = getString(R.string.report_bug_line_4)
+            val line5 = getString(R.string.bug_report_attachment_line_1)
+            val logcat = getString(R.string.bug_report_logcat)
+            val screenShot = getString(R.string.bug_report_screenshot)
+
+            "\n\n" +
+            """
+            --- $bigHeading ---
+            
+            $heading1
+            $line1
+            
+            $heading2
+              $instruction1
+              $instruction2
+              $instruction3
+              
+            $line3 $line4
+            
+            $heading3
+              - $logcat
+              - $screenShot
+            
+            $line5 $line2
+            
+            $heading4
+            
+            """.trimIndent() +
+                createErrorText(exception)
+        }
+
     suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, useSaved: Boolean = false, source: String) {
         val context = context_ ?: CurrentActivityHolder.getInstance().currentActivity
         val dir = File(context.filesDir, "/log")
@@ -246,7 +290,7 @@ object BugReport {
 
         withContext(Dispatchers.Main) {
             val subject = context.getString(R.string.report_bug_email_subject_3, source, CommonUtils.applicationNameMedium, getSubject(exception))
-            val message = "\n\n" + context.getString(R.string.report_bug_email_message, createErrorText(exception))
+            val message = getBugReportMessage(context, exception)
 
             val uris = ArrayList(listOf(f, screenshotFile).filter { it.canRead() }.map {
                 FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", it)
