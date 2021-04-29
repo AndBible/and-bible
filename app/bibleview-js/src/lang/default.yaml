@@ -18,17 +18,17 @@ editNote: Edit
 editNotePlaceholder: Edit a note for bookmark
 editTextPlaceholder: Tap to edit text
 inputPlaceholder: Write here
-inputReference: Give bible reference
+inputReference: Enter Bible reference
 assignLabels: Labels
 bookmarkAccurate: Bookmark was created in %s
 bookmarkInaccurate: Bookmark book information not stored, content is displayed in %s.
-defaultBook: default bible document
+defaultBook: default Bible document
 ok: OK
 yes: Yes
-ambiguousSelection: Which one of these do you wish to do?
+ambiguousSelection: Which action do you wish to take?
 cancel: Cancel
 removeBookmarkConfirmationTitle: Remove bookmark?
-removeBookmarkConfirmation: Are you sure you want to remove bookmark?
+removeBookmarkConfirmation: Are you sure you want to remove this bookmark?
 closeModal: Close
 createdAt: "Created: %s"
 lastUpdatedOn: "Last updated: %s"
@@ -40,11 +40,11 @@ openFootnote: Open footnote
 openBookmark: Open bookmark (%s)
 noMyNotesTitle: No My Notes for this chapter.
 noMyNotesDescription: >
-  Get started by creating bookmarks in bible document,
-  they will appear here and you can add to them your personal notes.
+  Get started by creating bookmarks in a Bible document.
+  The bookmarks will then appear here and you can add your personal notes to them.
 emptyStudyPad: >
-  Empty study pad. Start writing study pad by adding text entries
-  and creating bookmarks with this bookmark label.
+  Empty study pad. Start adding to this study pad by creating text entries here
+  or by creating bookmarks with this bookmark label.
 studyPadModalTitle: Edit study pad entry
 doYouWantToDeleteEntry: Are you sure you want to delete this study pad entry?
 removeStudyPadConfirmationTitle: Remove study pad entry?
