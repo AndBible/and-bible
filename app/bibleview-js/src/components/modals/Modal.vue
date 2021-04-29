@@ -47,7 +47,7 @@ import {inject, onMounted} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import {Events, emit, setupEventBusListener} from "@/eventbus";
 import {ref} from "@vue/reactivity";
-import {draggableElement} from "@/utils";
+import {draggableElement, setupWindowEventListener} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 export default {
@@ -60,9 +60,16 @@ export default {
     const modal = ref(null);
     const header = ref(null);
     const ready = ref(false);
-    onMounted(async () => {
+
+    function resetPosition() {
       modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + 10pt)`;
       modal.value.style.left = `calc((100% - 80%) / 2)`;
+    }
+
+    setupWindowEventListener("resize", resetPosition)
+
+    onMounted(async () => {
+      resetPosition()
       draggableElement(modal.value, header.value);
       ready.value = true;
     });
