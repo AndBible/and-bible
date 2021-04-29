@@ -137,6 +137,10 @@ object CommonUtils {
         return "${numbers[0]}.${numbers[1]}"
     }
 
+    val mainVersionFloat: Float get() {
+        return mainVersion.toFloat()
+    }
+
     val isBeta: Boolean get() {
         val verFull = applicationVersionName
         val ver = verFull.split("#")[0]
