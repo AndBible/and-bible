@@ -552,12 +552,12 @@
     <string name="report_bug_instructions2">2. Clicked window menu</string>
     <string name="report_bug_instructions3">-> Crash</string>
     <string name="report_bug_line_2">Sometimes manually taken screenshots also are beneficial in resolving issues.</string>
-    <string name="report_bug_line_3">Please use this function to report as soon as you have noticed it taking place.</string>
+    <string name="report_bug_line_3">Please use this function to report as soon as you have noticed issue taking place.</string>
     <string name="report_bug_line_4">You can also use this function after opening app, after crash has taken place.
     </string>
     <string name="report_bug_heading_3">Attachments:</string>
-    <string name="bug_report_logcat">logcat.txt.gz: Log file produced by this app. It does not contain information about any other apps.</string>
-    <string name="bug_report_screenshot">screenshot.webp: Screenshot of app when crash took place, or when bug report was created.</string>
+    <string name="bug_report_logcat">Log file produced by this app. It does not contain information about any other apps.</string>
+    <string name="bug_report_screenshot">Screenshot of app when crash took place, or when bug report was created.</string>
     <string name="bug_report_attachment_line_1">Having these files attached helps app developers a lot in fixing the reported bug.</string>
     <string name="report_bug_heading_4">Device info:</string>
 

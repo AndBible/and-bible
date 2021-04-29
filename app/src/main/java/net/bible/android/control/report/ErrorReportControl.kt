@@ -239,8 +239,8 @@ object BugReport {
             $line3 $line4
             
             $heading3
-              - $logcat
-              - $screenShot
+              - logcat.txt.gz: $logcat
+              - screenshot.webp: $screenShot
             
             $line5 $line2
             
