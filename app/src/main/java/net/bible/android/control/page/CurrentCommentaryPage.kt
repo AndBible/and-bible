@@ -55,6 +55,8 @@ open class CurrentCommentaryPage internal constructor(
 
     override fun getKeyChooserIntent(context: Context): Intent? = Intent(context, GridChoosePassageBook::class.java)
 
+    private val isSpecialDoc: Boolean get() = currentDocument == FakeBookFactory.compareDocument
+
     override val currentPageContent: Document
         get() {
             return if(currentDocument == FakeBookFactory.compareDocument) {
@@ -124,12 +126,7 @@ open class CurrentCommentaryPage internal constructor(
             currVer
         }
     }
-
-    /** set key without notification
-     *
-     * @param key
-     */
-
+    override val isSpeakable: Boolean get() = !isSpecialDoc
 
     var originalKey: Key? = null
 
