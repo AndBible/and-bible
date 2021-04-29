@@ -515,7 +515,7 @@
     <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-    <string name="send_bug_report_title">Feedback &amp; bug report</string>
+    <string name="send_bug_report_title">Feedback / bug report</string>
     <string name="report_bug_email_subject_3">[%s] Bug report for %s %s</string>
 
     <string name="report_bug_big_heading">PLEASE WRITE YOUR FEEDBACK OR BUG REPORT ABOVE THIS LINE</string>
@@ -779,4 +779,6 @@
     <string name="abbreviate_reference">Abbreviate reference</string>
     <string name="backup_button">Backup</string>
     <string name="back_button">Back</string>
+    <string name="upgrading_database">Upgrading database. Please wait…</string>
+    <string name="initializing_app">Initializing application…</string>
 </resources>
