@@ -938,17 +938,19 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             if (!ScreenSettings.nightMode) {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             }
-            val color = if(setNavBarColor) {
-                val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
-                val color = if(ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
-                color?: UiUtils.bibleViewDefaultBackgroundColor
-            } else {
-                val typedValue = TypedValue()
-                theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
-                typedValue.data
+            if(windowRepository.visibleWindows.isNotEmpty()) {
+                val color = if (setNavBarColor) {
+                    val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
+                    val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
+                    color ?: UiUtils.bibleViewDefaultBackgroundColor
+                } else {
+                    val typedValue = TypedValue()
+                    theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
+                    typedValue.data
+                }
+                window.navigationBarColor = color
+                speakTransport.setBackgroundColor(color)
             }
-            window.navigationBarColor = color
-            speakTransport.setBackgroundColor(color)
         }
         window.decorView.systemUiVisibility = uiFlags
     }
