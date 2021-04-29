@@ -18,11 +18,11 @@ editNote: Edit
 editNotePlaceholder: Edit a note for bookmark
 editTextPlaceholder: Tap to edit text
 inputPlaceholder: Write here
-inputReference: Give bible reference
+inputReference: Give Bible reference
 assignLabels: Labels
 bookmarkAccurate: Bookmark was created in %s
 bookmarkInaccurate: Bookmark book information not stored, content is displayed in %s.
-defaultBook: default bible document
+defaultBook: default Bible document
 ok: OK
 yes: Yes
 ambiguousSelection: Which one of these do you wish to do?
@@ -40,7 +40,7 @@ openFootnote: Open footnote
 openBookmark: Open bookmark (%s)
 noMyNotesTitle: No My Notes for this chapter.
 noMyNotesDescription: >
-  Get started by creating bookmarks in bible document,
+  Get started by creating bookmarks in Bible document,
   they will appear here and you can add to them your personal notes.
 emptyStudyPad: >
   Empty study pad. Start writing study pad by adding text entries
