@@ -31,6 +31,7 @@ import android.widget.Button
 import android.widget.TextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
@@ -39,6 +40,9 @@ import kotlin.coroutines.suspendCoroutine
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.MainBibleViewBinding
+import net.bible.android.activity.databinding.SpinnerBinding
+import net.bible.android.activity.databinding.StartupViewBinding
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -66,6 +70,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     @Inject lateinit var errorReportControl: ErrorReportControl
     @Inject lateinit var backupControl: BackupControl
+    private lateinit var spinnerBinding: SpinnerBinding
+    private lateinit var startupViewBinding: StartupViewBinding
 
     val docs get() = DatabaseContainer.db.documentBackupDao()
     private val previousInstallDetected: Boolean get() = docs.getKnownInstalled().isNotEmpty();
@@ -142,11 +148,14 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     @SuppressLint("ApplySharedPref")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        spinnerBinding = SpinnerBinding.inflate(layoutInflater)
+        startupViewBinding = StartupViewBinding.inflate(layoutInflater)
+        setContentView(spinnerBinding.root)
         // do not show an actionBar/title on the splash screen
         buildActivityComponent().inject(this)
-        setContentView(R.layout.spinner)
         supportActionBar!!.hide()
         if (!checkForExternalStorage()) return;
+        BackupControl.setupDirs(this)
         val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
         GlobalScope.launch {
             if (crashed) {
@@ -159,8 +168,15 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 postBasicInitialisationControl()
             }
         }
+    }
 
-        BackupControl.setupDirs(this)
+    private suspend fun initializeDatabase() {
+        val oldText = spinnerBinding.progressText.text
+        spinnerBinding.progressText.text = getString(R.string.upgrading_database)
+        withContext(Dispatchers.IO) {
+            DatabaseContainer.db
+        }
+        spinnerBinding.progressText.text = oldText
     }
 
 
@@ -171,29 +187,29 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             showFirstLayout()
         } else {
             Log.i(TAG, "Going to main bible view")
+            initializeDatabase()
             gotoMainBibleActivity()
+            spinnerBinding.progressText.text =getString(R.string.initializing_app)
         }
     }
 
     private fun showFirstLayout() {
+        setContentView(startupViewBinding.root)
 
-        setContentView(R.layout.startup_view)
-
-        val versionTextView = findViewById<TextView>(R.id.versionText)
         val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.applicationVersionName)
-        versionTextView.text = versionMsg
+        startupViewBinding.versionText.text = versionMsg
 
 
         // if a previous list of books is available to be installed,
         // allow the user to requickly redownload them all.
-        val redownloadButton = findViewById<Button>(R.id.redownloadButton)
-        val redownloadTextView = findViewById<TextView>(R.id.redownloadMessage)
+        val redownloadButton = startupViewBinding.redownloadButton
+        val redownloadTextView = startupViewBinding.redownloadMessage
         if (previousInstallDetected) {
             // do something
             Log.d(TAG, "A previous install was detected")
             redownloadTextView.text = getString(R.string.redownload_message)
             redownloadTextView.visibility = View.VISIBLE
-            redownloadButton?.setOnClickListener {
+            redownloadButton.setOnClickListener {
                 GlobalScope.launch(Dispatchers.Main)  {
                     val books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
                     if (books != null) {

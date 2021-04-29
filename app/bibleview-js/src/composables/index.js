@@ -36,10 +36,11 @@ import {
     faEdit,
     faEllipsisH,
     faHeadphones,
-    faIndent,
+    faIndent, faInfo,
     faOutdent,
     faPlusCircle,
-    faSort,
+    faShareAlt,
+    faSort, faTimes,
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import Color from "color";
@@ -125,6 +126,8 @@ export const strongsModes = {
 }
 
 export let errorBox = false;
+const white = -1;
+const black = -16777216;
 
 export function useConfig(documentType) {
     // text display settings only here. TODO: rename
@@ -154,12 +157,12 @@ export function useConfig(documentType) {
         bookmarksAssignLabels: [],
 
         colors: {
-            dayBackground: null,
+            dayBackground: white,
             dayNoise: 0,
-            dayTextColor: null,
-            nightBackground: null,
+            dayTextColor: black,
+            nightBackground: black,
             nightNoise: 0,
-            nightTextColor: -16777216,
+            nightTextColor: white,
         },
 
         hyphenation: true,
@@ -292,11 +295,14 @@ export function useCommon() {
 }
 
 export function useFontAwesome() {
+    library.add(faShareAlt)
     library.add(faHeadphones)
     library.add(faEdit)
     library.add(faBookmark)
     library.add(faPlusCircle)
     library.add(faTrash)
+    library.add(faInfo)
+    library.add(faTimes)
     library.add(faEllipsisH)
     library.add(faSort)
     library.add(faIndent)
@@ -380,7 +386,19 @@ export function useVerseMap() {
     function getVerses(ordinal) {
         return verses.get(ordinal) || []
     }
-    return {register, getVerses}
+
+    const highlights = [];
+
+    function registerEndHighlight(fn) {
+        highlights.push(fn);
+    }
+
+    function resetHighlights() {
+        highlights.forEach(f => f())
+        highlights.splice(0);
+    }
+
+    return {register, getVerses, registerEndHighlight, resetHighlights}
 }
 
 export function useCustomFeatures() {

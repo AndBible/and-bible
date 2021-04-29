@@ -17,7 +17,12 @@
  */
 package net.bible.service.sword
 
+import android.os.Build
+import android.text.Html
+import android.text.TextUtils
+import android.util.LayoutDirection
 import android.util.Log
+import androidx.core.text.layoutDirection
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
@@ -143,6 +148,7 @@ open class SwordContentFacade @Inject constructor(
                          advertiseApp: Boolean,
                          showReference: Boolean = true,
                          abbreviateReference: Boolean = true,
+                         showNotes: Boolean = true,
     ): String {
 
         class VerseAndText(val verse: Verse, val text: String)
@@ -151,9 +157,10 @@ open class SwordContentFacade @Inject constructor(
         val verseTexts = selection.verseRange.map {
             VerseAndText(it as Verse, getCanonicalText(book, it, true).trimEnd())
         }
-        val startOffset = selection.startOffset
+        val startOffset = selection.startOffset ?: 0
         var startVerse = verseTexts.first().text
-        var endOffset = selection.endOffset
+        val endOffset = selection.endOffset ?: verseTexts.last().text.length
+
         val start = startVerse.slice(0 until min(startOffset, startVerse.length))
 
         var startVerseNumber = ""
@@ -163,18 +170,20 @@ open class SwordContentFacade @Inject constructor(
         if (!showFull && startOffset > 0) {
             startVerseNumber = "$startVerseNumber..."
         }
+        val bookLocale = Locale(selection.book.language.code)
+        val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
 
         val reference = if(showReference) {
             if(abbreviateReference) {
                 synchronized(BookName::class) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
-                    val verseRangeName = selection.verseRange.getNameInLocale(null, Locale(selection.book.language.code))
+                    val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
                     BookName.setFullBookName(oldValue)
                     " ($verseRangeName, ${selection.book.abbreviation})"
                 }
             } else {
-                val verseRangeName = selection.verseRange.getNameInLocale(null, Locale(selection.book.language.code))
+                val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
                 " ($verseRangeName, ${selection.book.abbreviation})"
             }
         }
@@ -182,6 +191,17 @@ open class SwordContentFacade @Inject constructor(
             ""
 
         val advertise = if(advertiseApp) "\n\n${application.getString(R.string.verse_share_advertise, application.getString(R.string.app_name_long))} (https://andbible.github.io)" else ""
+        val notesOrig = selection.notes
+        val notes =
+            if(showNotes && notesOrig != null)
+                "\n\n" + if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Html.fromHtml(notesOrig, Html.FROM_HTML_MODE_LEGACY)
+                } else {
+                    Html.fromHtml(notesOrig)
+                }.toString()
+            else
+                ""
+
         return when {
             verseTexts.size == 1 -> {
                 val end = startVerse.slice(endOffset until startVerse.length)
@@ -192,7 +212,6 @@ open class SwordContentFacade @Inject constructor(
             verseTexts.size > 1 -> {
                 startVerse = startVerse.slice(startOffset until startVerse.length)
                 val lastVerse = verseTexts.last()
-                endOffset = selection.endOffset
                 val endVerseNum = if(showVerseNumbers) "${lastVerse.verse.verse}. " else ""
                 val endVerse = lastVerse.text.slice(0 until min(lastVerse.text.length, endOffset))
                 val end = lastVerse.text.slice(endOffset until lastVerse.text.length)
@@ -207,7 +226,7 @@ open class SwordContentFacade @Inject constructor(
                 if(showFull) """“$startVerseNumber$start${text}$end$post”""" else "“$startVerseNumber$text$post”"
             }
             else -> throw RuntimeException("what")
-        } + reference + advertise
+        } + reference + notes + advertise
     }
 
     private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> = try {

@@ -50,6 +50,7 @@ import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import java.io.File
 import java.net.URI
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -238,8 +239,25 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
         sharedPreferences.edit().putLong(REPO_REFRESH_DATE, today.time).apply()
     }
 
-    override fun showPreLoadMessage() {
-        Toast.makeText(this, R.string.download_source_message, Toast.LENGTH_LONG).show()
+    override fun showPreLoadMessage(refresh: Boolean) {
+        val repositories = """
+                https://crosswire.org
+                https://ibtrussia.org
+                https://ebible.org
+                https://public.modules.stepbible.org
+                https://andbible.github.io
+                """.trimIndent()
+
+        val repoRefreshDate = sharedPreferences.getLong(REPO_REFRESH_DATE, 0)
+        val date = SimpleDateFormat.getDateInstance().format(Date(repoRefreshDate))
+
+        val message = (
+            if(refresh) getString(R.string.download_refreshing_book_list)
+            else getString(R.string.download_source_last_updated, date)
+            ) +
+            "\n\n" + getString(R.string.download_source_message1) + repositories
+
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {

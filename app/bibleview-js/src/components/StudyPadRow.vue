@@ -22,29 +22,31 @@
     </template>
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
-  <EditButtonRow show-drag-handle>
-    <div class="journal-button" @click="addNewEntryAfter">
-      <FontAwesomeIcon icon="plus-circle"/>
-    </div>
-    <div v-if="!journalText" class="journal-button" @click="editor.editMode = true">
-      <FontAwesomeIcon icon="edit"/>
-    </div>
+  <div class="menu">
+    <ButtonRow show-drag-handle>
+      <div class="journal-button" @click="addNewEntryAfter">
+        <FontAwesomeIcon icon="plus-circle"/>
+      </div>
+      <div v-if="!journalText" class="journal-button" @click="editor.editMode = true">
+        <FontAwesomeIcon icon="edit"/>
+      </div>
 
-    <div v-if="journalEntry.indentLevel > 0" class="journal-button" @click.stop="indent(-1)">
-      <FontAwesomeIcon icon="outdent"/>
-    </div>
+      <div v-if="journalEntry.indentLevel > 0" class="journal-button" @click.stop="indent(-1)">
+        <FontAwesomeIcon icon="outdent"/>
+      </div>
 
-    <div v-if="journalEntry.indentLevel < 2" class="journal-button" @click.stop="indent(1)">
-      <FontAwesomeIcon icon="indent"/>
-    </div>
+      <div v-if="journalEntry.indentLevel < 2" class="journal-button" @click.stop="indent(1)">
+        <FontAwesomeIcon icon="indent"/>
+      </div>
 
-    <div class="journal-button" @click="deleteEntry">
-      <FontAwesomeIcon icon="trash"/>
-    </div>
-    <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="editBookmark">
-      <FontAwesomeIcon icon="bookmark"/>
-    </div>
-  </EditButtonRow>
+      <div class="journal-button" @click="deleteEntry">
+        <FontAwesomeIcon icon="trash"/>
+      </div>
+      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="editBookmark">
+        <FontAwesomeIcon icon="bookmark"/>
+      </div>
+    </ButtonRow>
+  </div>
   <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
     <b><a :href="journalEntry.bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
     <BookmarkText :expanded="journalEntry.expandContent" @change-expanded="changeExpanded" :bookmark="journalEntry"/>
@@ -64,7 +66,7 @@
 <script>
 import BookmarkText from "@/components/BookmarkText";
 import EditableText from "@/components/EditableText";
-import EditButtonRow from "@/components/EditButtonRow";
+import ButtonRow from "@/components/ButtonRow";
 import {emit as ebEmit, Events} from "@/eventbus";
 import {inject} from "@vue/runtime-core";
 import AreYouSure from "@/components/modals/AreYouSure";
@@ -75,7 +77,7 @@ import {useCommon} from "@/composables";
 
 export default {
   name: "StudyPadRow",
-  components: {EditButtonRow, EditableText, BookmarkText, AreYouSure, FontAwesomeIcon},
+  components: {ButtonRow, EditableText, BookmarkText, AreYouSure, FontAwesomeIcon},
   emits: ['edit-opened', 'add'],
   props: {
     journalEntry: {type: Object, required:true},
@@ -99,7 +101,7 @@ export default {
     });
 
     function editBookmark() {
-      ebEmit(Events.BOOKMARK_FLAG_CLICKED, props.journalEntry.id)
+      ebEmit(Events.BOOKMARK_CLICKED, props.journalEntry.id)
     }
 
     function addNewEntryAfter() {
@@ -118,9 +120,11 @@ export default {
           const buttons = [{
             title: strings.onlyLabel,
             result: "only_label",
+            class: "warning",
           }, {
             title: strings.wholeBookmark,
             result: "bookmark",
+            class: "warning",
           }];
           answer = await areYouSureDelete.value.areYouSure(buttons);
         } else if(await areYouSureDelete.value.areYouSure()) {

@@ -78,7 +78,9 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import "~@/common.scss";
+
 .label {
   font-weight: bold;
   color: #e8e8e8;
@@ -89,7 +91,8 @@ export default {
   margin-right: 2pt;
 }
 .label-list {
-  vertical-align: super;
+  @extend .superscript;
+  font-size: 100%;
   line-height: 1.1em;
   display: inline-flex;
   flex-direction: row;

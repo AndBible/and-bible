@@ -22,6 +22,7 @@ import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.readingplan.ReadingStatus
+import net.bible.android.control.report.BackupView
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
@@ -80,6 +81,7 @@ interface ActivityComponent {
 
     fun inject(speak: GeneralSpeakActivity)
     fun inject(speakBible: BibleSpeakActivity)
+    fun inject(backupView: BackupView)
     fun inject(speakSettings: SpeakSettingsActivity)
     fun inject(dailyReading: DailyReading)
     fun inject(dailyReadingList: DailyReadingList)

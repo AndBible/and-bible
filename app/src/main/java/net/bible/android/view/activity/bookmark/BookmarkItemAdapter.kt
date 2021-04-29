@@ -62,13 +62,14 @@ class BookmarkItemAdapter(
             else -> BookmarkListItemBinding.bind(convertView)
         }
 
-        val labels = bookmarkControl.labelsForBookmark(item)
+        var labels = bookmarkControl.labelsForBookmark(item)
         val isSpeak = labels.contains(bookmarkControl.speakLabel)
         if (isSpeak) {
             bindings.speakIcon.visibility = View.VISIBLE
         } else {
             bindings.speakIcon.visibility = View.GONE
         }
+        if(labels.isEmpty()) labels = listOf(bookmarkControl.labelUnlabelled)
         bindings.bookmarkIcons.removeAllViews()
         for (it in labels.filterNot { it.isSpeakLabel }) {
             val v = ImageView(bindings.bookmarkIcons.context)

@@ -796,6 +796,38 @@ private val MIGRATION_43_44_topMargin = object : Migration(43, 44) {
     }
 }
 
+
+private val MIGRATION_44_45_nullColors = object : Migration(44, 45) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        val white = -1
+        val black = -16777216
+        db.apply {
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_dayTextColor=${black} WHERE text_display_settings_colors_dayTextColor IS NULL");
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_nightTextColor=${white} WHERE text_display_settings_colors_nightTextColor IS NULL");
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_nightBackground=${black} WHERE text_display_settings_colors_nightBackground IS NULL");
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_dayBackground=${white} WHERE text_display_settings_colors_dayBackground IS NULL");
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_dayNoise=0 WHERE text_display_settings_colors_dayNoise IS NULL");
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_nightNoise=0 WHERE text_display_settings_colors_nightNoise IS NULL");
+
+            val isSpecific = """ (
+                text_display_settings_colors_dayTextColor IS NOT NULL
+                 OR text_display_settings_colors_nightTextColor IS NOT NULL
+                 OR text_display_settings_colors_nightBackground IS NOT NULL
+                 OR text_display_settings_colors_dayBackground IS NOT NULL
+                 OR text_display_settings_colors_dayNoise IS NOT NULL
+                 OR text_display_settings_colors_nightNoise IS NOT NULL
+                )"""
+
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_dayTextColor=${black} WHERE text_display_settings_colors_dayTextColor IS NULL AND $isSpecific")
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_nightTextColor=${white} WHERE text_display_settings_colors_nightTextColor IS NULL AND $isSpecific");
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_nightBackground=${black} WHERE text_display_settings_colors_nightBackground IS NULL AND $isSpecific");
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_dayBackground=${white} WHERE text_display_settings_colors_dayBackground IS NULL AND $isSpecific");
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_dayNoise=0 WHERE text_display_settings_colors_dayNoise IS NULL AND $isSpecific");
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_nightNoise=0 WHERE text_display_settings_colors_nightNoise IS NULL AND $isSpecific");
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -853,6 +885,7 @@ object DatabaseContainer {
                         MIGRATION_41_42_cipherKey,
                         MIGRATION_42_43_expandContent,
                         MIGRATION_43_44_topMargin,
+                        MIGRATION_44_45_nullColors,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

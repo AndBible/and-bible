@@ -14,18 +14,17 @@ footnoteTypeVariant: Variant
 footnoteTypeAlternative: Alternative
 footnoteTypeTranslation: Translation
 clearLog: Clear error log
-bookmarkInfo: Info
 editNote: Edit
 editNotePlaceholder: Edit a note for bookmark
 editTextPlaceholder: Tap to edit text
 inputPlaceholder: Write here
 inputReference: Give bible reference
-removeBookmark: Remove
 assignLabels: Labels
 bookmarkAccurate: Bookmark was created in %s
 bookmarkInaccurate: Bookmark book information not stored, content is displayed in %s.
 defaultBook: default bible document
 ok: OK
+yes: Yes
 ambiguousSelection: Which one of these do you wish to do?
 cancel: Cancel
 removeBookmarkConfirmationTitle: Remove bookmark?

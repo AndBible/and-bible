@@ -22,7 +22,7 @@
     <div :style="modalStyle" id="modals"/>
     <template v-if="mounted">
       <BookmarkModal/>
-      <AmbiguousSelection ref="ambiguousSelection" @back-clicked="emit(Events.CLOSE_MODALS)"/>
+      <AmbiguousSelection ref="ambiguousSelection" @back-clicked="backClicked"/>
     </template>
     <ErrorBox v-if="appSettings.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
@@ -197,11 +197,13 @@ export default {
       });
 
       const modalStyle = computed(() => {
+        const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
         return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${calculatedConfig.value.topOffset}px;
           --font-size:${config.fontSize}px;
-          --font-family:${config.fontFamily};`
+          --font-family:${config.fontFamily};
+          --background-color: ${backgroundColor.hsl().string()}`
       });
 
       const topStyle = computed(() => {
@@ -211,11 +213,20 @@ export default {
           `;
       });
 
+      setupEventBusListener(Events.BOOKMARK_CLICKED, () => {
+        verseMap.resetHighlights();
+      })
+
+      function backClicked() {
+        emit(Events.CLOSE_MODALS)
+        verseMap.resetHighlights();
+      }
+
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
         config, strings, documents, topElement, currentVerse, mounted, emit, Events,
-        contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings,
+        contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings, backClicked,
       };
     },
   }
@@ -299,7 +310,7 @@ $borderDistance: 0;
   .night & {
     background-color: rgba(255, 255, 255, $nightAlpha);
   }
-  background-color: rgba(0, 0, 0, $dayAlpha);
+  background-color: rgba(0, 0, 0, 0.15);
 }
 
 </style>
@@ -324,6 +335,29 @@ a {
 
 #bottom {
   padding-bottom: 100vh;
+}
+
+.modal-action-button {
+  font-size: 90%;
+  + .toggled {
+    background-color: #474747;
+    &.light {
+      background-color: #d5d5d5;
+    }
+  }
+
+  &.right {
+    align-self: flex-end;
+  }
+  background-color: inherit;
+  border: none;
+  color: white;
+  border-radius: 5pt;
+  padding: 5pt 5pt;
+  margin: 2pt 2pt;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .button {

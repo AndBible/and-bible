@@ -22,8 +22,8 @@
     </template>
     <slot/>
     <template #footer>
-      <button v-for="b in buttons" :key="b.result" class="button" @click="buttonClicked(b.result)">{{b.title}}</button>
       <button class="button" @click="cancel">{{strings.cancel}}</button>
+      <button v-for="b in buttons" :key="b.result" class="button" :class="b.class" @click="buttonClicked(b.result)">{{b.title}}</button>
     </template>
   </Modal>
 </template>
@@ -42,7 +42,8 @@ export default {
     const {strings, ...common} = useCommon();
 
     const okButton = {
-      title: strings.ok,
+      title: strings.yes,
+      class: "warning",
       result: true
     }
 
@@ -68,5 +69,12 @@ export default {
 </script>
 
 <style scoped>
+.warning {
+  background: rgba(255, 0, 0, 0.5);
+  color: black;
+  border-style: solid;
+  border-width:1px;
+  border-color: black;
+}
 
 </style>

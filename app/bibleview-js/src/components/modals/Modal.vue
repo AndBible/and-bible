@@ -22,17 +22,20 @@
       <div ref="modal" @click.stop class="modal-content" :class="{blocking}"
       >
         <div ref="header" class="modal-header">
-          <span class="title">
+          <div class="title">
             <slot name="title"/>
-          </span>
+          </div>
+          <slot name="buttons">
+            <button class="modal-action-button right" @touchstart.stop="$emit('close')">
+              <FontAwesomeIcon icon="times"/>
+            </button>
+          </slot>
         </div>
         <div v-if="ready" class="modal-body">
           <slot/>
         </div>
         <div class="modal-footer">
-          <slot name="footer">
-            <button class="button" @click="$emit('close')">{{strings.closeModal}}</button>
-          </slot>
+          <slot name="footer"/>
         </div>
       </div>
     </div>
@@ -44,20 +47,29 @@ import {inject, onMounted} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import {Events, emit, setupEventBusListener} from "@/eventbus";
 import {ref} from "@vue/reactivity";
-import {draggableElement} from "@/utils";
+import {draggableElement, setupWindowEventListener} from "@/utils";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 export default {
   name: "Modal",
   emits: ["close"],
   props: {blocking: {type: Boolean, default: false}},
+  components: {FontAwesomeIcon},
   setup: function (props, {emit: $emit}) {
     const config = inject("config");
     const modal = ref(null);
     const header = ref(null);
     const ready = ref(false);
-    onMounted(async () => {
+
+    function resetPosition() {
       modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + 10pt)`;
       modal.value.style.left = `calc((100% - 80%) / 2)`;
+    }
+
+    setupWindowEventListener("resize", resetPosition)
+
+    onMounted(async () => {
+      resetPosition()
       draggableElement(modal.value, header.value);
       ready.value = true;
     });
@@ -120,8 +132,15 @@ $border-radius2: $border-radius - 1.5pt;
   to {opacity:1}
 }
 
+.title {
+  padding-top: 5pt;
+  margin-top: 2pt;
+}
 .modal-header {
-  padding: 0.5em;
+  display:flex;
+  justify-content: space-between;
+  padding: 0.1em;
+  padding-left: 0.5em;
   background-color: #acacac;
   color: white;
   font-weight: bold;

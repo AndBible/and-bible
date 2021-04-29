@@ -36,6 +36,7 @@ import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.database.DATABASE_VERSION
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
@@ -102,9 +103,11 @@ class BackupControl @Inject constructor() {
 
     /** backup database to custom target (email, drive etc.) via ACTION_SEND intent
      */
-    fun backupDatabaseViaSendIntent(callingActivity: Activity) {
-        mainBibleActivity.windowRepository.saveIntoDb()
-        db.sync()
+    fun backupDatabaseViaSendIntent(callingActivity: Activity, save: Boolean = true) {
+        if(save) {
+            mainBibleActivity.windowRepository.saveIntoDb()
+            db.sync()
+        }
         val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
         FileManager.copyFile(fileName, internalDbDir, internalDbBackupDir)
@@ -331,7 +334,7 @@ class BackupControl @Inject constructor() {
 
     }
 
-    suspend fun backupApp(callingActivity: MainBibleActivity) {
+    suspend fun backupApp(callingActivity: Activity) {
         internalDbBackupDir.mkdirs()
 
         val app: ApplicationInfo = callingActivity.applicationContext.applicationInfo

@@ -300,6 +300,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(!initialized) {
             GlobalScope.launch(Dispatchers.Main) {
                 showBetaNotice()
+                showStableNotice()
                 showFirstTimeHelp()
             }
             GlobalScope.launch {
@@ -354,7 +355,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private suspend fun showFirstTimeHelp()  {
         val pinningHelpShown = preferences.getBoolean("pinning-help-shown", false)
         if(!pinningHelpShown) {
-            val save = CommonUtils.isFirstInstall || suspendCoroutine<Boolean> {
+            val save = CommonUtils.isFirstInstall || CommonUtils.mainVersionFloat >= 3.4 || suspendCoroutine<Boolean> {
                 val pinningTitle = getString(R.string.help_window_pinning_title)
                 var pinningText = getString(R.string.help_window_pinning_text)
 
@@ -382,22 +383,62 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    private suspend fun showBetaNotice() = suspendCoroutine<Boolean> {
-        val verFull = CommonUtils.applicationVersionName
-        val ver = verFull.split("#")[0]
+    private suspend fun showStableNotice() = suspendCoroutine<Boolean> {
+        if(CommonUtils.isBeta) {
+            it.resume(false)
+            return@suspendCoroutine
+        }
 
+        val ver = CommonUtils.mainVersion
+
+        val displayedVer = preferences.getString("stable-notice-displayed", "")
+
+        if(displayedVer != ver) {
+            val videoUrl = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // For 3.4 beta intro
+            val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
+            val videoMessageLink = "<a href=\"$videoUrl\"><b>$videoMessage</b></a>"
+            val appName = getString(R.string.app_name_long)
+            val par1 = getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
+
+            val htmlMessage = "$par1<br><br>$videoMessageLink"
+
+            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
+            } else {
+                Html.fromHtml(htmlMessage)
+            }
+
+            val d = AlertDialog.Builder(this)
+                .setTitle(getString(R.string.stable_notice_title))
+                .setMessage(spanned)
+                .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
+                .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
+                    preferences.edit().putString("stable-notice-displayed", ver).apply()
+                    it.resume(true)
+                }
+                .setOnCancelListener {_ -> it.resume(false)}
+                .create()
+            d.show()
+            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        } else {
+            it.resume(false)
+        }
+    }
+
+    private suspend fun showBetaNotice() = suspendCoroutine<Boolean> {
         if(!CommonUtils.isBeta) {
             it.resume(false)
             return@suspendCoroutine
         }
 
+        val verFull = CommonUtils.applicationVersionName
+        val ver = verFull.split("#")[0]
+
         val displayedVer = preferences.getString("beta-notice-displayed", "")
 
         if(displayedVer != ver) {
-
             val videoUrl = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // For 3.4 beta intro
-
-            val videoMessage = getString(R.string.beta_notice_content_4, CommonUtils.mainVersion)
+            val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
             val videoMessageLink = "<a href=\"$videoUrl\"><b>$videoMessage</b></a>"
 
             val par1 = getString(R.string.beta_notice_content_1)
@@ -430,6 +471,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .create()
             d.show()
             d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        } else {
+            it.resume(false)
         }
     }
 
@@ -987,17 +1030,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if (!ScreenSettings.nightMode) {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             }
-            val color = if(setNavBarColor) {
-                val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
-                val color = if(ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
-                color?: UiUtils.bibleViewDefaultBackgroundColor
-            } else {
-                val typedValue = TypedValue()
-                theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
-                typedValue.data
+            if(windowRepository.visibleWindows.isNotEmpty()) {
+                val color = if (setNavBarColor) {
+                    val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
+                    val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
+                    color ?: UiUtils.bibleViewDefaultBackgroundColor
+                } else {
+                    val typedValue = TypedValue()
+                    theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
+                    typedValue.data
+                }
+                window.navigationBarColor = color
+                binding.speakTransport.setBackgroundColor(color)
             }
-            window.navigationBarColor = color
-            binding.speakTransport.setBackgroundColor(color)
         }
         window.decorView.systemUiVisibility = uiFlags
     }
@@ -1274,7 +1319,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         ABEventBus.getDefault().post(ToastEvent(getString(R.string.verse_not_found)))
                         return
                     }
-                    windowControl.activeWindowPageManager.currentPage.setKey(verse)
+                    val pageManager = windowControl.activeWindowPageManager
+                    if(!pageManager.isBibleShown) {
+                        pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
+                    } else
+                        pageManager.currentPage.setKey( verse)
                     return
                 }
             }
