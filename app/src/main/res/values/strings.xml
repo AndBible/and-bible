@@ -711,8 +711,7 @@
 
     <!-- Welcome text -->
     <string name="redownload_documents">Quick Redownload</string>
-    <string name="welcome_message">Thank you for downloading Bible Study app by And Bible Open Source
-        Project. There are currently no Bibles or documents installed. To continue, please install
+    <string name="welcome_message">Thank you for downloading %s. There are currently no Bibles or documents installed. To continue, please install
         at least 1 document by downloading from the internet, or by loading from a zip file document
         backup.
     </string>

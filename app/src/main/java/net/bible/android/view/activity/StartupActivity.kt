@@ -195,6 +195,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     private fun showFirstLayout() {
         setContentView(startupViewBinding.root)
+        startupViewBinding.welcomeMessage.text = getString(R.string.welcome_message, getString(R.string.app_name_long))
 
         val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.applicationVersionName)
         startupViewBinding.versionText.text = versionMsg
