@@ -73,7 +73,7 @@ class LinkControl @Inject constructor(
 
     fun openMulti(links: List<BibleView.BibleLink>): Boolean {
         val key = BookAndKeyList()
-        val bookKeys = links.map { getBookAndKey(it.url, it.versification) }.filterNotNull()
+        val bookKeys = links.map { try {getBookAndKey(it.url, it.versification)} catch (e: NoSuchKeyException) {null} }.filterNotNull()
         for(k in bookKeys) {
             key.addAll(k)
         }
