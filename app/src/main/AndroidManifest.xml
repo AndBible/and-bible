@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="517"
-    android:versionName="3.4.517-beta">
+    android:versionCode="518"
+    android:versionName="3.4.518-beta">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -65,12 +65,14 @@
             android:name="net.bible.android.view.activity.navigation.GridChoosePassageChapter"
             android:configChanges="keyboardHidden|locale"
             android:label="@string/choosePassageChapterName"
-            android:theme="@style/GridChoosePassageTheme" />
+            android:theme="@style/GridChoosePassageTheme"
+            android:parentActivityName="net.bible.android.view.activity.navigation.GridChoosePassageBook" />
         <activity
             android:name="net.bible.android.view.activity.navigation.GridChoosePassageVerse"
             android:configChanges="keyboardHidden|locale"
             android:label="@string/choosePassageVerseName"
-            android:theme="@style/GridChoosePassageTheme" />
+            android:theme="@style/GridChoosePassageTheme"
+            android:parentActivityName="net.bible.android.view.activity.navigation.GridChoosePassageChapter" />
         <activity
             android:name="net.bible.android.view.activity.search.Search"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

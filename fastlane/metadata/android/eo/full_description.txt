@@ -6,9 +6,9 @@ Tiu ĉi aplikaĵo estas evoluigata de legantoj de Biblio kaj por legantoj de Bib
 
 Esperanta Londona Biblio.
 
-<b>Eblaĵo de la aplikaĵo</b>
+<b>Potencaj ebloj de la aplikaĵo</b>
 
-La aplikaĵo distingiĝas per pluraj sagaj, originalaj eblaĵoj, kiuj plifaciligas profundan studadon de Biblio. La plej gravaj trajtoj estas:
+La aplikaĵo distingiĝas per pluraj sagaj, originalaj ebloj, kiuj plifaciligas profundan studadon de Biblio. La plej gravaj trajtoj estas:
 
  * dividi vidon de teksto por kompari tradukojn kaj legi komentarojn
  * laborspacoj ebligantaj havi plurajn mediojn por studi Biblion, ĉiu kun propraj agordoj
@@ -27,8 +27,8 @@ La aplikaĵo distingiĝas per pluraj sagaj, originalaj eblaĵoj, kiuj plifacilig
 
 And Biblio estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun necesaj scipovoj) povas kaj estas instigata por kontribui al la projekto per:
 
- * programi novajn eblaĵojn;
- * testi beta-eblaĵojn;
+ * programi novajn eblojn;
+ * testi beta-eblojn;
  * traduki la programon; kaj per
  * helpi plivastigi la bibliotekon de moduloj per ricevi permesojn de kopirajt‑posedantoj aŭ konverti dokumentojn al la formo SWORD.
 

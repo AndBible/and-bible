@@ -1,4 +1,116 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Main menu-->
+  <!--Passage navigation-->
+  <!--Search-->
+  <!--Tasks-->
+  <!--Search-->
+  <!--Preferences-->
+  <string name="auto_fullscreen_summary">Switch automatically to full screen when scrolling text. Tip: you can always also switch to full screen by double tapping screen.</string>
+  <string name="prefs_margin_size_summary">Adjust left and right margin of the text view. You can also
+        adjust the maximum width of the text.
+    </string>
+  <string name="full_screen_hide_buttons_pref_summary">When switching to fullscreen mode, hide window button bar that is on the bottom of the screen automatically</string>
+  <!--Colors preferences-->
+  <!--Window-->
+  <!--Notes screen-->
+  <!--Strongs-->
+  <!--Module download-->
+  <string name="do_not_ask_again">Yes, do not ask again</string>
+  <!--Install zip file-->
+  <string name="overwrite_files">Following files already exist: %s Overwrite?</string>
+  <!--Daily Reading Plan-->
+  <!--Document context menu-->
+  <!--Verse context menu-->
+  <!--Link context menu-->
+  <!--Bookmarks-->
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <!--Dictionary-->
+  <!--General Book-->
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <!--Speak - Commentary-->
+  <!--Speak - Dictionary and other-->
+  <!--Speak - Common-->
+  <!--Speak - Bible-->
+  <string name="speak_help_auto_bookmark">
+        A Speak bookmark will be automatically added when Speak is paused or stopped.
+        Automatically generated bookmarks are labelled with the special Speak label.
+        If you start at a Speak bookmark the bookmark will be moved to the verse you
+        stop or pause next time. Only Speak labels will be moved, any other labels
+        will be left alone.
+    </string>
+  <string name="speak_help_playback_settings">
+        Special playback settings (under \"Playback Settings\" on the Speak screen)
+        are saved to Speak bookmarks when this setting is selected.
+        When you restart speaking from a Speak bookmark, the saved playback settings
+        are loaded from the bookmark.
+    </string>
+  <string name="speak_help_playback_settings_example">
+        For example if you are listening to Genesis and Romans and
+        wish to listen to Genesis spoken quickly without chapter change notifications,
+        but to Romans more slowly with audible earcon sounds on chapter changes, then
+        you can have different playback settings for these books,
+        when these settings are saved to the corresponding bookmarks.
+    </string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string name="verse_range_mode_disabled">
+        Repeat passage mode was disabled automatically because
+        speaking was started outside of defined verse range.
+    </string>
+  <!--User Notes-->
+  <!--Backup and restore-->
+  <string name="backup_modules_email_message_2">Attached is your %s module backup, which contains the following modules: %s</string>
+  <!--About-->
+  <!--Bug reporting-->
+  <!--Document types-->
+  <!--Languages-->
+  <!--General-->
+  <!--Errors-->
+  <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
+  <string name="beta_notice_content_1">
+        In the beta version, there are new features that are not yet properly tested,
+        and thus using beta might introduce unexpected behavior, i.e. bugs.
+        It is recommended that ordinary Bible readers use stable versions instead.
+    </string>
+  <!--History-->
+  <!--Help-->
+  <string name="help_contextmenus_text">
+        Long pressing opens the context menu or action mode in several views.
+        Long press on the Bible view to open the action mode for actions affecting the current verse.
+        Long press on a document item in list view of Choose Document or Download to delete document or view information.
+        Long press a bookmark in bookmarks listing to add labels or delete bookmark.
+        Long press links to choose if you want to open them in the current window, new window or special links window.
+    </string>
+  <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
+        (see \"Apache Lucene - Query Parser Syntax\" for more details)
+    </string>
+  <string name="help_workspaces_text">
+        Workspaces allow having multiple context-dependent working environments. Workspace functions
+        can be accessed via the Workspaces item in the options menu (top-right corner). Quick way to access workspaces is
+        by a swipe-down gesture from the toolbar. You may also use swipe-left and swipe-right gestures over toolbar to
+        switch to previous / next workspace.
+    </string>
+  <string name="help_hidden_features_text">
+        Swipe down from the toolbar to show the workspace selector.
+        Long press the window button to quickly minimize.
+        Long press speak toolbar button to quickly go to speak settings.
+        Long press verse location title in toolbar to jump to document selector.
+        Long press the Back button to access the History list.
+    </string>
+  <!--Welcome text-->
+  <!--Uncategorized-->
 </resources>

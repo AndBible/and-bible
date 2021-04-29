@@ -1,0 +1,66 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: Bibel+ (And Bible Open Source)
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Bibeln, Kommentare, Wörterbücher und Bücher, auch ohne Internet."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Ein mächtiges Werkzeug für das Bibelstudium
+paragraph_1_1: >
+  Bibel+ von der And Bible Open Source Community ist ein umfangreiches und trotzdem einfach zu bedienendes  Programm für das Bibelstudium - auch ohne Internet. Diese App ist nicht nur ein einfaches Bibelleseprogramm, sondern will ein Werkzeug für fortgeschrittenes, in die Tiefe gehendes Bibelstudium sein.
+paragraph_1_2: >
+  Dieses Programm wird von Bibellesern für Bibelleser entwickelt. Es zielt darauf ab, dein Bibelstudium einfach, bedeutsam und unterhaltsam zu machen. Das Beste an diesem Non-Profit Projekt ist, dass es Open Source ist - völlig kostenlos und ohne Werbung. Dadurch, dass es von Anfang an für Android entwickelt wurde, ist es platzsparend, effizient und schnell.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Einige der erhältlichen beliebten Bibelversionen sind Schlachter 1955, NeUE, Luther 1912, sowie englische Kommentare wie Matthew Henry und John Gill.
+subtitle_2: Umfangreiche Funktionen für das Bibelstudium
+paragraph_2_1: >
+  Das Programm hat viele originelle und aufschlussreiche Funktionen, die ein komplexes und tiefgehendes Bibelstudium einfacher als je machen. Die herausragendsten Funktionen sind:
+feature_01: Geteilte Textansicht zum Vergleichen von Übersetzungen und Anzeigen von Kommentaren
+feature_02: Arbeitsbereiche erlauben mehrere Konfigurationen für Bibelstudien mit jeweils eigenen Einstellungen
+feature_03: Die Integration der Strong-Codes erlaubt das Nachschlagen und Analysieren von griechischen und hebräischen Vokabeln
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Verknüpfte Querverweise, Fußnoten und andere Dokumente; einfach antipppen um dahin zu springen; tiefergehende Studien ausführen durch den Gebrauch verknüpfter Kommentare ({{commentary_examples}}), Sammlungen von Querverweisen ({{cross_reference_examples}}) und anderer Resourcen.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry, etc. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Fortgeschrittene Sprachausgabe von Text mit Lesezeichen, für ein reibungsfreies Hörerlebnis"
+feature_06: Flexible Suche
+feature_07: "Lesezeichen, mit konfigurierbaren farbigen Gruppierungen"
+feature_08: >
+  Persönliche Notizen: notiere deine eigenen Gedanken zu jedem beliebigen Vers der Bibel
+feature_09: >
+  Bibellesepläne: setze dir Ziele für deine Bibellese
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Große Sammlung von Dokumenten: Bibelübersetzungen, theologische Kommentare, Wörterbücher, Landkarten und christliche Bücher, insgesamt über  {{total_documents}} Dokumente in über {{total_languages}} Sprachen, gesetzeskonform zur Verfügung gestellt von Crosswire und anderen SWORD Quellen. 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  Die Herkunft aller Dokumente wird überprüft um sicherzustellen, dass sie gesetzeskonform verbreitet werden können bzw. dass die Erlaubnis dazu vom Rechteinhaber erteilt worden ist. Das ist auch der Grund warum Dokumente wie {{unavailable_documents}} nicht enthalten sind.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV, NKJV, LUT84, NGÜ etc."
+feature_12: >
+  Offline: das Internet wird nur für das Herunterladen der gewünschten Dokumente benötigt.
+subtitle_3: Lasst uns gemeinsam die beste Bibelleseapp entwickeln!
+paragraph_3_1: >
+  And Bible ist ein Open-Source Community Projekt. Das bedeutet in der Praxis, dass jeder, der die entsprechenden Fähigkeiten mitbringt eingeladen ist, zu dem Projekt beizutragen, durch:
+contr_1: "Entwickeln neuer Funktionen,"
+contr_2: "Testen noch nicht freigegebener Funktionen,"
+contr_3: "Aktuell Halten der Übersetzungen der Benutzeroberflächen, und"
+contr_4: "Hilfe beim Erweitern der Dokumentbibliothek durch das Beschaffen von Genehmigungen bei den Rechteinhabern, oder durch das Konvertieren freier Dokumente in das SWORD Format."
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Wenn du professioneller Softwareingenieur oder -tester bist, überlege dir bitte, ob du zu dem Projekt beitragen willst. Für mehr Informationen dazu, bitte lies {{how_to_contribute_url}}."
+subtitle_4: Links
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Homepage: {{homepage_url}}
+link_2: >
+  Like And Bible on Facebook: {{facebook_url}}
+link_3: >
+  Unser Youtube Kanal: {{youtube_url}}
+link_4: >
+  Häufig gestellte Fragen: {{faq_url}}
+link_5: >
+  Projektseite auf Github: {{github_url}}

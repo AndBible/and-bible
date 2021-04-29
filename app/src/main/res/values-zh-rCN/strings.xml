@@ -54,7 +54,6 @@
   <string name="search_current_book">本书卷</string>
   <string name="error_executing_search">搜寻项目无效</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">显示节数</string>
   <string name="prefs_verse_per_line_summary">在不同行显示每一节</string>
   <string name="prefs_show_bookmarks_summary">取消剔选以隐藏所有书签</string>
   <string name="prefs_show_mynotes_summary">在经文中显示我的笔记的图示</string>
@@ -64,11 +63,8 @@
   <string name="prefs_section_title_summary">显示非正典章节标题</string>
   <string name="prefs_red_letter_summary">以红字显示基督的话</string>
   <string name="prefs_text_size_title">字型偏好</string>
-  <string name="prefs_show_verseno_title">显示节数</string>
   <string name="prefs_verse_per_line_title">每行一节</string>
   <string name="prefs_show_bookmarks_title">显示书签图示</string>
-  <string name="prefs_default_bookmark_style_title">预设书签样式</string>
-  <string name="prefs_default_bookmark_style_summary">书签突出显示颜色或图示</string>
   <string name="prefs_show_mynotes_title">显示笔记图示</string>
   <string name="prefs_show_notes_title">注脚和交叉对照</string>
   <string name="prefs_show_strongs_title">Strong\'s原文编号</string>
@@ -86,7 +82,6 @@
   <string name="prefs_navigate_to_verse_summary">选择圣经段落时挑选经文章节</string>
   <string name="prefs_open_links_in_special_window_title">在特殊视窗打开连结</string>
   <string name="prefs_open_links_in_special_window_summary">更快地显示交叉对照和Strong\'s原文编号</string>
-  <string name="prefs_text_size_summary">调整字型及大小</string>
   <string name="prefs_text_size_sample_text">示范文字</string>
   <string name="prefs_screen_keep_on_title">保持萤幕开启</string>
   <string name="prefs_screen_keep_on_summary">使用此应用程式时防止萤幕睡眠</string>
@@ -129,13 +124,11 @@
   <string name="line_spacing_title">行距</string>
   <string name="line_spacing_summary">设定每行之间距离</string>
   <string name="select_none">全不选</string>
-  <string name="reset_are_you_sure">确定重设所有数值吗？</string>
   <string name="window_pinning_menutitle">视窗钉选</string>
   <string name="hide_window_buttons_title">隐藏视窗按键</string>
-  <string name="hide_window_buttons_summary">隐藏在圣经检视右方的视窗按键。下方的视窗导航则继续显示，而你可以长按它们以打开视窗弹出选单。</string>
-  <string name="font_size_title">字型大小</string>
   <string name="full_screen_hide_buttons_pref_title">在全萤幕中隐藏视窗按键</string>
   <string name="full_screen_hide_buttons_pref_summary">当切换至全萤幕模式时，自动隐藏下方的视窗按键列</string>
+  <string name="font_size_title">字型大小</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">颜色设定</string>
   <string name="window_color_settings_title">视窗颜色设定</string>
@@ -171,38 +164,23 @@
   <string name="next">下一页</string>
   <!--Strongs-->
   <string name="strongs_not_installed">请下载Strong\'s希伯来文和希腊文字典</string>
-  <string name="all_greek_occurrences">查找所有包含此希腊文字符的经文</string>
-  <string name="all_hebrew_occurrences">查找所有包含此希伯来文字符的经文</string>
   <string name="no_indexed_bible_with_strongs_ref">需要下载包含Strong\'s原文编号的圣经，并于搜寻下载相应的索引</string>
   <string name="morph_robinson_not_installed">请下载罗氏词形分析码的字典</string>
   <!--Module download-->
   <string name="download">下载文件</string>
   <string name="download_confirmation">从互联网上下载圣经吗？</string>
-  <string name="download_source_message">文件来源为\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">下载</string>
-  <string name="download_refreshing_book_list">正在更新可用的文件列表</string>
   <string name="download_refresh_book_list_menu_item">更新</string>
-  <string name="error_downloading">下载时发生错误。请检查您的互联网连接。</string>
   <string name="storage_space_warning">SD卡储存空间不足</string>
-  <string name="too_many_jobs">正执行太多任务。 请等候一些任务完成后再试。</string>
   <string name="document_not_installed">请下载 \"%s\"</string>
   <string name="free_text_search_documents">搜寻</string>
   <string name="chooce_language_hint">语言</string>
-  <string name="one_more_back_press">再按返回键关闭程式</string>
   <string name="document_filter_results">%d文件</string>
   <string name="download_question_title">你想继续下载文件吗？</string>
-  <string name="download_question_message">如果你身处有逼迫的国家，
-你或许需留意是否下载基督教教材。
-取以代之，你或许想透过更安全的途径取得模组的zip
-及以「从Zip载入文件」安装它们。你是否确定继续进行下载？
-所有下载是加密的 (HTTPS)
-</string>
   <string name="do_not_ask_again">确定。不要再询问</string>
   <string name="recommended_document">建议的！</string>
   <string name="about_version_history">版本历史: %s</string>
-  <string name="download_failed">下载失败 %s</string>
   <string name="download_errors">下载错误</string>
-  <string name="failed_repositories_message">未能连接以下的文件库: \n\n%s\n\n</string>
   <string name="failed_downloads_message">未能下载以下档案:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">从Zip载入文件</string>
@@ -211,7 +189,6 @@
   <string name="extracting_zip_file">正在解压缩Zip档案...</string>
   <string name="checking_zip_file">正在检查所选文件...</string>
   <string name="invalid_module">档案不包含兼容的SWORD模组</string>
-  <string name="module_already_installed">档案包含已安装的模组</string>
   <string name="install_zip_title">请稍等。正在载入Zip档案。</string>
   <string name="overwrite_files">以下文件已经存在: %s 覆写吗？</string>
   <string name="overwrite_files_title">覆写档案？</string>
@@ -242,7 +219,6 @@ http://www.heartlight.org 准予使用
   <string name="delete_search_index_doc">删除 %s 的索引</string>
   <!--Verse context menu-->
   <string name="notes">注脚及参考</string>
-  <string name="verse_action_copy">复制</string>
   <string name="share_verse">分享...</string>
   <string name="share_verse_subject_2">透过 %s 和你分享圣经经文</string>
   <string name="compare_translations">译本比较</string>
@@ -252,18 +228,11 @@ http://www.heartlight.org 准予使用
   <string name="open_link_in_special_window">在特殊视窗开启连结</string>
   <!--Bookmarks-->
   <string name="bookmarks">书签</string>
-  <string name="add_bookmark">添加书签</string>
-  <string name="delete_bookmark">删除书签</string>
   <string name="bookmark_added">书签已保存</string>
-  <string name="bookmark_date_updated">书签日期已更新</string>
-  <string name="bookmark_deleted">书签已删除</string>
-  <string name="bookmark_labels">书签标签</string>
-  <string name="manage_labels">管理书签标签</string>
   <string name="assign_labels">分配标签</string>
   <string name="new_label">新标签</string>
   <string name="label_name_prompt">标签名称</string>
   <string name="label_unlabelled">未有标签</string>
-  <string name="style">格式</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">日期顺序</string>
   <string name="sort_by_bible_book">圣经书序</string>
@@ -383,25 +352,13 @@ http://www.heartlight.org 准予使用
 因为经节从定义范围外开始</string>
   <!--User Notes-->
   <string name="mynotes">笔记列表</string>
-  <string name="mynote_add">添加笔记</string>
-  <string name="mynote_saved">我的笔记已储存</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">备份及回复</string>
-  <string name="backup_modules">备份文件</string>
-  <string name="backup_app_database">备份程式资料库</string>
-  <string name="restore_app_database">回复程式资料库</string>
-  <string name="restore_confirmation">覆写我的笔记、书签、阅读计划及工作检视吗？</string>
-  <string name="restore_success">成功回复我的笔记、书签、阅读计划及工作检视</string>
   <string name="loading_backup">正在从备份载入资料库</string>
-  <string name="backup_success">成功备份我的笔记、书签、阅读计划及工作检视至%s。</string>
-  <string name="error_no_backup_file">找不到备份档案</string>
   <string name="backup_modules_email_subject_2">%s 模组备份</string>
   <string name="backup_modules_email_message_2">此附你的 %s 模组备份，包含了以下模组: %s</string>
   <string name="backup_email_subject_2">%s 资料库备份</string>
   <string name="restore_unsuccessfull">未能回复资料库。或许你的资料库档案无效。</string>
-  <string name="backup_restore_title">回复来源</string>
   <string name="backup_phone_storage">手机容量</string>
-  <string name="backup_manually">选择档案</string>
   <string name="backup_backup_title">备份目的地</string>
   <string name="backup_backup_message">以分享功能备份至手机或其他目的地 (电邮、Google Drive等)？</string>
   <string name="backup_share">分享</string>
@@ -414,11 +371,8 @@ http://www.heartlight.org 准予使用
   <string name="module_about_installed_version">安装版本: %s (%s)</string>
   <string name="module_about_latest_version">最新版本: %s (%s)</string>
   <string name="module_about_versification">章节化: %s</string>
-  <string name="module_about_repository">分发文件库: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">回报程式错误</string>
-  <string name="report_bug_email_subject_2">回报问题 %s %s</string>
   <!--Document types-->
   <string name="doc_type_all">所有类型</string>
   <string name="doc_type_bible">圣经</string>
@@ -436,7 +390,6 @@ http://www.heartlight.org 准予使用
   <string name="error">错误</string>
   <string name="please_wait">请稍候...</string>
   <string name="all">全部</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">编辑</string>
   <string name="watch_tutorial_video">观看示范影片 (英文)</string>
   <string name="verse_not_found">找不到节</string>
@@ -484,24 +437,14 @@ Beta用家请透过Google Play或 %s (更佳) 回报错误。</string>
   <string name="history_for">历史 (%s: 视窗 %d)</string>
   <!--Help-->
   <string name="help_nav_title">导航</string>
-  <string name="help_nav_text">滑动萤幕以翻阅至上一章或下一章。
-双点经文文字以切换至全萤幕。
-萤幕分割(又称视窗) 于右上方有选单按钮，
-点选可让你更改视窗功能、自订外观及行为。</string>
   <string name="help_contextmenus_title">内文选单</string>
-  <string name="help_mynote_title">我的笔记</string>
-  <string name="help_mynote_text">透过经节的选单中我的笔记，可以加入笔记。
-主选单中可以找到所有笔记。</string>
-  <string name="help_bookmarks_title">书签</string>
-  <string name="help_bookmarks_text">透过经节的选单可以加入书签
-主选单中可以管理书签标签
-书签管理选单中可以加入标签将书签分组</string>
   <string name="help_search_title">搜寻</string>
   <string name="help_search_text">搜寻字词可以加入特殊字符如 * , ?, AND, OR, NOT
 (有关详细信息请参「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_workspaces_title">工作检视</string>
   <string name="help_hidden_features_title">隐藏捷径</string>
   <string name="help_window_pinning_title">视窗钉选</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">关闭</string>
   <string name="something_with_parenthesis">%s (%s)</string>

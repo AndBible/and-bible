@@ -255,7 +255,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
             if(refresh) getString(R.string.download_refreshing_book_list)
             else getString(R.string.download_source_last_updated, date)
             ) +
-            "\n\n" + getString(R.string.download_source_message1) + repositories
+            "\n\n" + getString(R.string.download_source_message1) + "\n" + repositories
 
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }

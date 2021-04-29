@@ -54,7 +54,6 @@
   <string name="search_current_book">Поточна книга</string>
   <string name="error_executing_search">Неприпустимий запит пошуку</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Показати номери віршів</string>
   <string name="prefs_verse_per_line_summary">Показати один вірш на рядок</string>
   <string name="prefs_show_bookmarks_summary">Зніміть прапорець, щоб сховати всі закладки</string>
   <string name="prefs_show_mynotes_summary">Показати піктограму у віршах з Моєю Заміткою</string>
@@ -64,11 +63,8 @@
   <string name="prefs_section_title_summary">Показати неканонічні назви розділів</string>
   <string name="prefs_red_letter_summary">Показати слова Христа червоним кольором</string>
   <string name="prefs_text_size_title">Налаштування шрифту</string>
-  <string name="prefs_show_verseno_title">Номери віршів</string>
   <string name="prefs_verse_per_line_title">Один вірш на рядок</string>
   <string name="prefs_show_bookmarks_title">Показати піктограми закладок</string>
-  <string name="prefs_default_bookmark_style_title">Стиль закладки за замовчуванням</string>
-  <string name="prefs_default_bookmark_style_summary">Колір виділення чи піктограми</string>
   <string name="prefs_show_mynotes_title">Показати піктограми приміток</string>
   <string name="prefs_show_notes_title">Виноски і ссилки</string>
   <string name="prefs_show_strongs_title">Відобразити номери Стронга</string>
@@ -86,7 +82,6 @@
   <string name="prefs_navigate_to_verse_summary">Вибір вірша (і розділу) при виборі місця з Біблії</string>
   <string name="prefs_open_links_in_special_window_title">Відкрити посилання в окремому вікні</string>
   <string name="prefs_open_links_in_special_window_summary">Для швидкого відображення взаємних посилань і номерів Стронга</string>
-  <string name="prefs_text_size_summary">Налаштування групи шрифтів та розміру шрифту</string>
   <string name="prefs_text_size_sample_text">Зразок тексту</string>
   <string name="prefs_screen_keep_on_title">Не виключати екран</string>
   <string name="prefs_screen_keep_on_summary">Запобігти засипанню екрана під час користування додатком</string>
@@ -128,13 +123,11 @@
   <string name="line_spacing_title">Міжрядковий інтервал</string>
   <string name="line_spacing_summary">Встановлення простору між лініями</string>
   <string name="select_none">Не вибирати</string>
-  <string name="reset_are_you_sure">Ви впевнені, що хочете скинути всі значення?</string>
   <string name="window_pinning_menutitle">Закріплення вікон</string>
   <string name="hide_window_buttons_title">Сховати кнопки вікна</string>
-  <string name="hide_window_buttons_summary">Кнопки вікна, які відображаються праворуч від зображень Біблії, приховані. Вікно навігаційної панелі внизу все ще відображається, і ви можете відкрити спливаюче вікно, натиснувши їх довгим клацанням.</string>
-  <string name="font_size_title">Розмір шрифту</string>
   <string name="full_screen_hide_buttons_pref_title">Сховати панель кнопок вікна y повноекранному режимі</string>
   <string name="full_screen_hide_buttons_pref_summary">При переході в повноекранний режим, автоматично сховати панель кнопок вікна, що знаходиться внизу екрана</string>
+  <string name="font_size_title">Розмір шрифту</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Налаштування кольору</string>
   <string name="window_color_settings_title">Налаштування кольору вікон</string>
@@ -170,37 +163,23 @@
   <string name="next">Наступний</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Завантажте єврейський і грецький словники Стронга</string>
-  <string name="all_greek_occurrences">Знайти всі повторення</string>
-  <string name="all_hebrew_occurrences">Знайти всі повторення</string>
   <string name="no_indexed_bible_with_strongs_ref">Ви повинні завантажити Біблію, що містить номера Стронга і завантажити її індекс за допомогою пошуку</string>
   <string name="morph_robinson_not_installed">Завантажте словник Робінсона з кодами морфологічного аналізу</string>
   <!--Module download-->
   <string name="download">Завантажити модулі</string>
   <string name="download_confirmation">Завантажити Біблію з інтернету?</string>
-  <string name="download_source_message">Документи завантажуються з:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, і\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Завантажити</string>
-  <string name="download_refreshing_book_list">Оновлення списку наявних модулів</string>
   <string name="download_refresh_book_list_menu_item">Оновити</string>
-  <string name="error_downloading">Сталася помилка при завантаженні. Будь ласка, перевірте ваше інтернет-з\'єднання.</string>
   <string name="storage_space_warning">Недостатньо місця на пристрої.</string>
-  <string name="too_many_jobs">Занадто багато завдань виконується. Зачекайте щоб деякі із них закінчились і спробуйте ще раз.</string>
   <string name="document_not_installed">Завантажте \'%s\'</string>
   <string name="free_text_search_documents">Пошук</string>
   <string name="chooce_language_hint">Мова</string>
-  <string name="one_more_back_press">Ще одне натискання кнопки \"назад\" закриє додаток</string>
   <string name="document_filter_results">%d модулів</string>
   <string name="download_question_title">Ви хочете продовжити завантаження модулів?</string>
-  <string name="download_question_message">Якщо ви живете в країні, де переслідування,
-можливо, вам доведеться бути обережними щодо завантаження християнських матеріалів через Інтернет.
-Натомість, можна більш надійно отримати модульні zip-файли та встановити їх
- через \"Завантажити документи з Zip\". Ви впевнені, що хочете продовжити завантаження?
-Усі завантаження із сховищ модулів шифруються (HTTPS).</string>
   <string name="do_not_ask_again">Так, більше не питати</string>
   <string name="recommended_document">Рекомендовано!</string>
   <string name="about_version_history">Журнал версій: %s</string>
-  <string name="download_failed">Не вдалося завантажити %s</string>
   <string name="download_errors">Помилки завантаження</string>
-  <string name="failed_repositories_message">Не вдалося підключитися до наступних сховищ модулів/документів: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Не вдалося завантажити файли:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Завантажити модуль із zip-архіва</string>
@@ -209,7 +188,6 @@
   <string name="extracting_zip_file">Витягування Zip-файлу…</string>
   <string name="checking_zip_file">Перевірка заданого файлу…</string>
   <string name="invalid_module">Файл не містить дійсний SWORD-модуль</string>
-  <string name="module_already_installed">Файл містить модуль, який вже встановленний</string>
   <string name="install_zip_title">Зачекайте. Zip-файл завантажується.</string>
   <string name="overwrite_files">Наступні файли вже існують: %s Перезаписати?</string>
   <string name="overwrite_files_title">Перезаписати файли?</string>
@@ -267,7 +245,6 @@
   <string name="delete_search_index_doc">Видалити індекс %s?</string>
   <!--Verse context menu-->
   <string name="notes">Виноски та посилання</string>
-  <string name="verse_action_copy">Скопіювати</string>
   <string name="share_verse">Поділитися...</string>
   <string name="share_verse_subject_2">З вами поділилися біблійним віршем, використовуючи %s.</string>
   <string name="compare_translations">Порівняти переклади</string>
@@ -277,18 +254,11 @@
   <string name="open_link_in_special_window">Відкрити посилання в окремому вікні</string>
   <!--Bookmarks-->
   <string name="bookmarks">Закладки</string>
-  <string name="add_bookmark">Додати закладку</string>
-  <string name="delete_bookmark">Видалити закладку</string>
   <string name="bookmark_added">Закладка добавлена</string>
-  <string name="bookmark_date_updated">Дату закладки оновлено</string>
-  <string name="bookmark_deleted">Закладка видалена</string>
-  <string name="bookmark_labels">Етикетки закладки</string>
-  <string name="manage_labels">Керування мітками закладок</string>
   <string name="assign_labels">Призначення етикетки</string>
   <string name="new_label">Нова мітка</string>
   <string name="label_name_prompt">Назва</string>
   <string name="label_unlabelled">Без мітки</string>
-  <string name="style">Стиль</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Сортувати за датою</string>
   <string name="sort_by_bible_book">Сортувати у біблійному порядку</string>
@@ -407,27 +377,14 @@
 прослуховування почалось поза визначеними межами віршів.</string>
   <!--User Notes-->
   <string name="mynotes">Мої примітки</string>
-  <string name="mynote_add">Додати примітку</string>
-  <string name="mynote_saved">Примітка збережена</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Резервне копіювання та відновлення</string>
-  <string name="backup_modules">Резервне копіювання документів у…</string>
-  <string name="backup_app_database">Резервне копіювання бази даних у…</string>
-  <string name="restore_app_database">Відновити базу даних додатку з…</string>
-  <string name="restore_confirmation">Перезаписати Мої Нотатки, Закладки, Плани Читання та Робочі Області?</string>
-  <string name="restore_success">Мої Нотатки, Закладки, Плани Читання та Робочі Області успішно відновлені</string>
   <string name="loading_backup">Завантаження бази даних із резервної копії…</string>
-  <string name="backup_success">Резервна копія Моїх Нотаток, Закладок, Плану Читання та Робочих Областей створена успішно в %s.</string>
-  <string name="error_no_backup_file">Файл резервної копії не знайдено</string>
   <string name="backup_modules_email_subject_2">%s резервне копіювання модулів</string>
   <string name="backup_modules_email_message_2">Вкладено %s резервну копію ваших модулів, яка містить наступні модулі: %s</string>
   <string name="backup_email_subject_2">%s резервне копіювання бази даних</string>
   <string name="backup_email_message_2">Ваша %s база даних, що містить закладки, примітки, плани читання та робочі місця додана</string>
   <string name="restore_unsuccessfull">Відновити базу даних не вдалося. Можливо, ви дали недійсний файл бази даних.</string>
-  <string name="backup_restore_title">Відновити звідки?</string>
-  <string name="backup_restore_message">Відновити з пам’яті телефону або вибрати файл резервного копіювання вручну (ви також можете вибрати з Google Drive тощо)?</string>
   <string name="backup_phone_storage">Пам\'ять телефону</string>
-  <string name="backup_manually">Вибрати файл</string>
   <string name="backup_backup_title">Резервне копіювання куди?</string>
   <string name="backup_backup_message">Резервне копіювання на телефон або в інше місці за допомогою функції Поділитись (електронна пошта, Google Drive тощо)?</string>
   <string name="backup_share">Поділитись</string>
@@ -440,27 +397,8 @@
   <string name="module_about_installed_version">Встановлена версія: %s (%s)</string>
   <string name="module_about_latest_version">Остання версія: %s (%s)</string>
   <string name="module_about_versification">Версія: %s</string>
-  <string name="module_about_repository">Сховише розповсюдження: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Повідомити про помилку</string>
-  <string name="report_bug_email_subject_2">Звіт про помилку для %s %s</string>
-  <string name="report_bug_email_message">
-        --- НАПИШІТЬ ЗВІТ ПРО ПОМИЛКУ НАД ЦИМ РЯДКОМ ---\n
-        Інструкція:\n
-        Розкажіть нам коротко, що ви робили / що сталося коли виникла помилка.
-        Наприклад: \n
-        \n
-        1. Відкривши пристрій\n
-        2. Клацнувши віконне меню\n
-         -&gt; Збій\n
-        \n
-        Іноді скріншот також корисний для вирішення проблем.
-        Будь ласка, використовуйте цю функцію, щоб повідомити, як тільки ви помітили, що це відбувається.
-        Ви також можете використовувати цю функцію після відкриття програми, після того, як відбувся збій.
-        \n\n
-        Інформація про пристрій: \n
-        %s</string>
   <!--Document types-->
   <string name="doc_type_all">Усі види</string>
   <string name="doc_type_bible">Біблія</string>
@@ -478,7 +416,6 @@
   <string name="error">Помилка</string>
   <string name="please_wait">Будь ласка, зачекайте...</string>
   <string name="all">Всі</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">Змінити</string>
   <string name="watch_tutorial_video">Дивитись навчальне відео (на англ.)</string>
   <string name="verse_not_found">Вірш не знайдено</string>
@@ -534,11 +471,6 @@
   <string name="history_for">Журнал (%s: Вікно %d)</string>
   <!--Help-->
   <string name="help_nav_title">Навігація</string>
-  <string name="help_nav_text">Перейти до наступного чи попередньго розділу, проведіть пальцем по екрану.
-Двічі торкніться тексту біблії, щоб увімкнути повноекранний режим.
-Розділені екрани (звані також вікнами) мають у верхньому правому куті кнопку меню,
-що дає змогу використовувати декілька функцій, орієнтованих на вікно, та налаштовувати зовнішній вигляд та поведінку.
-    </string>
   <string name="help_contextmenus_title">Контекстні меню</string>
   <string name="help_contextmenus_text">
 Тривале натискання відкриває контекстне меню або режим дії в декількох режимах перегляду.
@@ -546,13 +478,6 @@
 Довго натискайте на елемент документа у списку \"Вибрати модуль\" або \"Завантажити\", щоб видалити документ або переглянути інформацію.
 Довго натискайте закладку в списку закладок, щоб додати мітки або видалити закладку.
 Довго натискайте посилання, щоб вибрати, чи відкрити їх у поточному вікні, новому вікні чи вікні спеціальних посилань.</string>
-  <string name="help_mynote_title">Моя примітка</string>
-  <string name="help_mynote_text">Примітки можуть бути додані через меню \"Мої примітки\" в контекстному меню вірша. 
-Список існуючих приміток доступний через головне меню.</string>
-  <string name="help_bookmarks_title">Закладки</string>
-  <string name="help_bookmarks_text">Закладки можна добавити через контекстне меню вірша.
-Менеджер Закладок доступний через головне меню.
-Контекстне меню Менеджера Закладок позволяє групувати закладки по темах, етикетках.</string>
   <string name="help_search_title">Пошук</string>
   <string name="help_search_text">Текст пошуку може містити спеціальні символи, такі як *, ?, AND, OR, NOT
 (див. \"Apache Lucene - Query Parser Syntax\" для більш детальнішої інформації)</string>
@@ -570,14 +495,7 @@
          Довго натискайте назву місця вірша на панелі інструментів, щоб перейти до вибору молуля / документа.
          Довго натискайте кнопку Назад, щоб отримати доступ до списку журналу / історії.</string>
   <string name="help_window_pinning_title">Закріплення вікон</string>
-  <string name="help_window_pinning_text">
-Ви можете ввімкнути закріплення вікон в меню параметрів (три крапки, правий верхній кут).
-Якщо закріплення вікон увімкнено, ви можете відображати багато закріплених вікон переглядаючи Біблію,
- але лише одне незакріплене вікно. Спочатку відображаються закріплені вікна, а потім
-незакріплені вікна. Ви можете відкрити біблійні модулі як закріплені вікна, а
-коментарі та карти тощо як незакріплені вікна. Тоді можна легко
-мати завжди відкриті біблійні модулі та швидко перемикатися між коментарями та
-іншим зайвим матеріалом, коли ви вивчаєте Біблію.</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Закрити</string>
   <string name="something_with_parenthesis">%s (%s)</string>

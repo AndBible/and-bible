@@ -54,7 +54,6 @@
   <string name="search_current_book">obecnej księdze</string>
   <string name="error_executing_search">Niepoprawne zapytanie</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Wyświetl numery wersetów</string>
   <string name="prefs_verse_per_line_summary">Wyświetl każdy werset w osobnej linii</string>
   <string name="prefs_show_bookmarks_summary">Odznacz, aby ukryć wszystkie zakładki</string>
   <string name="prefs_show_mynotes_summary">Wersety z moich notatek oznacz ikoną</string>
@@ -64,11 +63,8 @@
   <string name="prefs_section_title_summary">Wyświetl niekanoniczne tytuły sekcji</string>
   <string name="prefs_red_letter_summary">Wyświetl słowa Chrystusa na czerwono</string>
   <string name="prefs_text_size_title">Ustawienia czcionek</string>
-  <string name="prefs_show_verseno_title">Numer wersetu</string>
   <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
   <string name="prefs_show_bookmarks_title">Pokaż zakładki</string>
-  <string name="prefs_default_bookmark_style_title">Domyślny styl zakładek</string>
-  <string name="prefs_default_bookmark_style_summary">Kolor zaznaczenia lub ikona</string>
   <string name="prefs_show_mynotes_title">Pokaż ikony notatek</string>
   <string name="prefs_show_notes_title">Przypisy i odsyłacze</string>
   <string name="prefs_show_strongs_title">Numeracja Stronga</string>
@@ -86,7 +82,6 @@
   <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
   <string name="prefs_open_links_in_special_window_title">Otwórz link w specjalnym oknie</string>
   <string name="prefs_open_links_in_special_window_summary">Szybsze wyświetlanie odnośników</string>
-  <string name="prefs_text_size_summary">Ustaw krój i rozmiar czcionki</string>
   <string name="prefs_text_size_sample_text">Zwykły tekst</string>
   <string name="prefs_screen_keep_on_title">Trzymaj ekran włączony</string>
   <string name="prefs_screen_keep_on_summary">Nie wyłączaj ekranu podczas korzystania z aplikacji</string>
@@ -127,13 +122,11 @@
   <string name="line_spacing_title">Interlinia</string>
   <string name="line_spacing_summary">Dostosuj odstęp między liniami tekstu</string>
   <string name="select_none">Wybierz nic</string>
-  <string name="reset_are_you_sure">Czy na pewno chcesz zresetować wszystkie ustawienia do wartości domyślnych?</string>
   <string name="window_pinning_menutitle">Przypinanie okien</string>
   <string name="hide_window_buttons_title">Ukryj przyciski okien</string>
-  <string name="hide_window_buttons_summary">Przyciski okna wyświetlane po prawej stronie widoku Biblii zostały ukryte. Pasek nawigacji na dole jest wciąż wyświetlany i możesz wywołać menu okna poprzez naciśnięcie i przytrzymanie okna.</string>
-  <string name="font_size_title">Rozmiar czcionki</string>
   <string name="full_screen_hide_buttons_pref_title">Ukryj pasek okna przy pełnym ekranie</string>
   <string name="full_screen_hide_buttons_pref_summary">Po przełączeniu w trym pełnego ekranu, automatycznie ukrywaj pasek przycisków okna na dole ekranu</string>
+  <string name="font_size_title">Rozmiar czcionki</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Ustawienia kolorów</string>
   <string name="window_color_settings_title">Kolor okien</string>
@@ -169,34 +162,23 @@
   <string name="next">Następny</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Pobierz hebrajski i grecki słownik Stronga</string>
-  <string name="all_greek_occurrences">Pokaż wszystkie</string>
-  <string name="all_hebrew_occurrences">Pokaż wszystkie</string>
   <string name="no_indexed_bible_with_strongs_ref">Należy pobrać Biblię zawierającą numery Stronga i następnie pobierać ich spis poprzez „wyszukiwanie”</string>
   <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
   <!--Module download-->
   <string name="download">Pobierz moduł</string>
   <string name="download_confirmation">Czy pobrać dokumentu z Internetu?</string>
-  <string name="download_source_message">Pobieranie dokumentów z:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, i\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Pobieranie</string>
-  <string name="download_refreshing_book_list">Odśwież listę dostępnych dokumentów</string>
   <string name="download_refresh_book_list_menu_item">Odśwież</string>
-  <string name="error_downloading">Wystąpił błąd podczas pobierania. Sprawdź połączenie z Internetem.</string>
   <string name="storage_space_warning">Niewystarczająca ilość zasobów pamięci</string>
-  <string name="too_many_jobs">Zbyt dużo zadań wykonywanych jednocześnie. Proszę czekać na ich ukończenie.</string>
   <string name="document_not_installed">Proszę pobrać \'%s\'</string>
   <string name="free_text_search_documents">Szukaj</string>
   <string name="chooce_language_hint">Język</string>
-  <string name="one_more_back_press">Naciśnij ponownie przycisk wstecz, aby zamknąć aplikację</string>
   <string name="document_filter_results">%d dokumentów</string>
   <string name="download_question_title">Czy na prawdę chcesz pobrać dokumenty?</string>
-  <string name="download_question_message">Jeżeli mieszkasz w opresyjnym państwie, powinieneś być ostrożny podczas pobierania chrześcijańskich materiałów z Internetu. Zamiast tego, możesz pobrać moduł zip w bardziej bezpieczny sposób, a następnie zainstalować go poprzez funkcję „załaduj dokument z pliku zip”. Czy chcesz kontynuować pobieranie?
- Wszystkie pobierania z repozytorium są szyfrowane (HTTPS)?</string>
   <string name="do_not_ask_again">Tak, nie pytaj ponownie</string>
   <string name="recommended_document">Zalecany!</string>
   <string name="about_version_history">Historia wersji: %s</string>
-  <string name="download_failed">Błąd pobierania %s</string>
   <string name="download_errors">Błędy pobierania</string>
-  <string name="failed_repositories_message">Nie udało się połączyć z następującymi repozytoriami dokumentów:\n\n%s\n\n</string>
   <string name="failed_downloads_message">Nie udało się pobrać następujących plików:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Załaduj dokument z pliku zip</string>
@@ -205,7 +187,6 @@
   <string name="extracting_zip_file">Rozpakowywanie pliku zip…</string>
   <string name="checking_zip_file">Sprawdzanie pliku…</string>
   <string name="invalid_module">Plik nie zawiera poprawnego modułu SWORD</string>
-  <string name="module_already_installed">Plik zawiera moduł, który już został zainstalowany</string>
   <string name="install_zip_title">Proszę czkać. Ładowanie pliku .zip.</string>
   <string name="overwrite_files">Następujące pliki jeż istnieją: %s. Czy nadpisać je?</string>
   <string name="overwrite_files_title">Czy nadpisać pliki?</string>
@@ -250,7 +231,6 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="delete_search_index_doc">Czy usunąć indeks dla %s?</string>
   <!--Verse context menu-->
   <string name="notes">Przypisy i odnośniki</string>
-  <string name="verse_action_copy">Kopiuj</string>
   <string name="share_verse">Udostępnij…</string>
   <string name="share_verse_subject_2">Werset z Biblii przesłany z aplikacji %s.</string>
   <string name="compare_translations">Porównaj tłumaczenia</string>
@@ -260,18 +240,11 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="open_link_in_special_window">Otwórz odnośnik w oknie specjalnym</string>
   <!--Bookmarks-->
   <string name="bookmarks">Zakładki</string>
-  <string name="add_bookmark">Dodaj do zakładek</string>
-  <string name="delete_bookmark">Usuń z zakładek</string>
   <string name="bookmark_added">Dodano zakładkę</string>
-  <string name="bookmark_date_updated">Odświeżono dane zakładek</string>
-  <string name="bookmark_deleted">Usunięto zakładkę</string>
-  <string name="bookmark_labels">Etykiety</string>
-  <string name="manage_labels">Zarządzaj etykietami zakładek</string>
   <string name="assign_labels">Przypisz etykiety</string>
   <string name="new_label">Nowa etykieta</string>
   <string name="label_name_prompt">Nazwa</string>
   <string name="label_unlabelled">Nieoznaczony</string>
-  <string name="style">Styl</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Porządek chronologiczny</string>
   <string name="sort_by_bible_book">Porządek biblijny</string>
@@ -380,27 +353,14 @@ Przykład: słuchasz Księgi Rodzaju i Listu do Rzymian, chcesz szybko odsłucha
 Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpoczęto odtwarzanie poza zdefiniowanym zakresem wersów.</string>
   <!--User Notes-->
   <string name="mynotes">Moje notatki</string>
-  <string name="mynote_add">Dodaj notatkę</string>
-  <string name="mynote_saved">Moja notatka zapisana</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Kopia zapasowa</string>
-  <string name="backup_modules">Utwórz kopię zapasową dokumentów…</string>
-  <string name="backup_app_database">Utwórz kopię zapasową bazy danych aplikacji…</string>
-  <string name="restore_app_database">Przywróć kopię zapasową bazy danych aplikacji…</string>
-  <string name="restore_confirmation">Czy chcesz nadpisać swoje notatki, zakładki, plany czytania i obszary robocze?</string>
-  <string name="restore_success">Pomyślnie przywrócono notatki, zakładki, plany czytania i obszary robocze</string>
   <string name="loading_backup">Wczytywanie bazy danych z kopii zapasowej…</string>
-  <string name="backup_success">Pomyślnie utworzono kopię zapasową notatek, zakładek, planów czytania i obszarów roboczych do %s.</string>
-  <string name="error_no_backup_file">Nie znaleziono pliku kopii zapasowej</string>
   <string name="backup_modules_email_subject_2">%s: kopia zapasowa modułów</string>
   <string name="backup_modules_email_message_2">W załączniku znajduje się kopia zapasowa następujących modułów aplikacji %s: %s</string>
   <string name="backup_email_subject_2">%s: kopia zapasowa bazy danych</string>
   <string name="backup_email_message_2">W załączniku znajduje się kopia zapasowa bazy danych aplikacji %s zawierająca Twoje zakładki, notatki, plany czytania i obszary robocze</string>
   <string name="restore_unsuccessfull">Nie udało się przywrócić bazy danych z kopii zapasowej. Prawdopodobnie plik jest uszkodzony.</string>
-  <string name="backup_restore_title">Przywrócić skąd?</string>
-  <string name="backup_restore_message">Czy przywrócić kopię zapasową z pamięci wewnętrznej, czy wybrać plik ręcznie (będziesz mógł także wybrać np.: Dysk Google)?</string>
   <string name="backup_phone_storage">Pamięć wewnętrzna</string>
-  <string name="backup_manually">Wybierz plik</string>
   <string name="backup_backup_title">Dokąd?</string>
   <string name="backup_backup_message">Czy utworzyć kopię zapasową w pamięci wewnętrznej, czy używając funkcji „udostępnij” (poczta, Dysk Google, itp.)?</string>
   <string name="backup_share">Udostępnij</string>
@@ -413,24 +373,8 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="module_about_installed_version">Zainstalowana wersja: %s (%s)</string>
   <string name="module_about_latest_version">Najnowsza wersja: %s (%s)</string>
   <string name="module_about_versification">Wersyfikacja: %s</string>
-  <string name="module_about_repository">Repozytorium: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Zgłoś błąd</string>
-  <string name="report_bug_email_subject_2">Raport o błędzie programu %s %s</string>
-  <string name="report_bug_email_message">
---- NAPISZ ZGŁOSZENIE BŁĘDU NAD TĄ LINIĄ ---\n
-Instrukcja:\n
-Zwięźle opisz co zrobiłeś/co się stało w momencie, kiedy błąd się pojawił. Przykład:\n
-\n
-1. Uruchomiono aplikację.\n
-2. Otwarto menu okna.\n
--&gt; Błąd.\n
-\n
-Czasami może przydać się zrzut ekranu. Proszę użyć tej funkcji zaraz po tym, jak błąd wystąpił. Możesz również skorzystać z tej funkcji po następnym uruchomieniu aplikacji, po tym jak aplikacja uległa awarii.
-\n\n
-Informacje o urządzeniu:\n
-%s</string>
   <!--Document types-->
   <string name="doc_type_all">Dowolny</string>
   <string name="doc_type_bible">Biblia</string>
@@ -448,7 +392,6 @@ Informacje o urządzeniu:\n
   <string name="error">Błąd</string>
   <string name="please_wait">Proszę czekać…</string>
   <string name="all">Wszystkie</string>
-  <string name="default_value">Domyślny</string>
   <string name="edit">Edytuj</string>
   <string name="watch_tutorial_video">Obejrzyj filmik instruktażowy (po angielsku)</string>
   <string name="verse_not_found">Nie znaleziono wersetu</string>
@@ -498,9 +441,6 @@ Użytkownicy wersji beta proszeni są o zgłaszanie błędów przez sklep Google
   <string name="history_for">Historia (%s: okno %d)</string>
   <!--Help-->
   <string name="help_nav_title">Nawigacja</string>
-  <string name="help_nav_text">Przesuń palcem po ekranie w prawo lub w lewo, aby przejść do następnego lub poprzedniego rozdziału.
- Dwukrotnie stuknij w tekst, aby przełączyć tryb pełnego ekranu.
- Dzielenie ekranu (tryb okienkowy) dostępny jest pod przyciskiem w prawym górnym rogu ekranu, przycisk ten umożliwia dostęp do kilku okienkowych funkcji i dostosowanie zachowania i wyglądu okien.</string>
   <string name="help_contextmenus_title">Menu kontekstowe</string>
   <string name="help_contextmenus_text">
 Naciśnięcie i przytrzymanie otwiera menu kontekstowe lub akcje w zależności od wyświetlanego elementu aplikacji.
@@ -508,13 +448,6 @@ Naciśnięcie i przytrzymanie otwiera menu kontekstowe lub akcje w zależności 
  Naciśnij i przytrzymaj na dokument w widoku „wybór dokumentu” lub „pobierz moduł”, aby usunąć dokument lub wyświetlić o nim informacje.
  Naciśnij i przytrzymaj na zakładkę w liście zakładek, aby ją usunąć lub dodać do niej etykiety.
  Naciśnij i przytrzymaj odnośnik, aby otworzyć go w obecnym, nowym lub specjalnym oknie.</string>
-  <string name="help_mynote_title">Moje notatki</string>
-  <string name="help_mynote_text">Poprzez element „moje notatki” menu kontekstowego wersetu można dodawać notatki.
- Lista istniejących notatek dostępna jest poprzez menu główne.</string>
-  <string name="help_bookmarks_title">Zakładki</string>
-  <string name="help_bookmarks_text">Zakładki można dodać poprzez menu kontekstowe wersetu.
- Organizator zakładek jest dostępny poprzez menu główne.
- Organizator zakładek pozwala grupować zakładki za pomocą etykiet.</string>
   <string name="help_search_title">Wyszukiwanie</string>
   <string name="help_search_text">Szukany tekst może zawierać specjalne znaki takie jak: *, ?, AND, OR, NOT
 (więcej informacji w „Apache Lucene - Query Parser Syntax”)</string>
@@ -529,8 +462,7 @@ Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszar�
  Naciśnij i przytrzymaj tytuł księgi na pasku narzędzi, aby otworzyć wybierak dokumentów.
  Naciśnij i przytrzymaj przycisk wstecz, aby wyświetlić listę historii.</string>
   <string name="help_window_pinning_title">Przypinanie okien</string>
-  <string name="help_window_pinning_text">
-Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym górnym rogu). Gdy przypinanie okien jest aktywne, można wyświetlać kilka przypiętych okien w widoku Biblii, ale tylko jedno okno nieprzypięte. Najpierw są wyświetlane okna przypięte, następnie nieprzypięte. Możesz przykładowo otworzyć dokumenty Biblii w przypiętych oknach, i komentarze i mapy w oknach nieprzypiętych. W ten sposób będzie można mieć dokumenty Biblii zawsze otwarte i móc szybko przeskakiwać między komentarzami i innymi materiałami.</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Zamknij</string>
   <string name="something_with_parenthesis">%s (%s)</string>
