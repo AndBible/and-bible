@@ -356,6 +356,9 @@ class LabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types
         intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, originalValues)
         intent.putExtra("resetButton", true)
         intent.putExtra("title", title)
+        if(type === TextDisplaySettings.Types.BOOKMARKS_HIDELABELS) {
+            intent.putExtra("showUnassigned", true)
+        }
         GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
             val labels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
