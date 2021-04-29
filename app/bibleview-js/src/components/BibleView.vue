@@ -197,11 +197,13 @@ export default {
       });
 
       const modalStyle = computed(() => {
+        const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
         return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${calculatedConfig.value.topOffset}px;
           --font-size:${config.fontSize}px;
-          --font-family:${config.fontFamily};`
+          --font-family:${config.fontFamily};
+          --background-color: ${backgroundColor.hsl().string()}`
       });
 
       const topStyle = computed(() => {
@@ -324,6 +326,29 @@ a {
 
 #bottom {
   padding-bottom: 100vh;
+}
+
+.modal-action-button {
+  font-size: 90%;
+  + .toggled {
+    background-color: #474747;
+    &.light {
+      background-color: #d5d5d5;
+    }
+  }
+
+  &.right {
+    align-self: flex-end;
+  }
+  background-color: inherit;
+  border: none;
+  color: white;
+  border-radius: 5pt;
+  padding: 5pt 5pt;
+  margin: 2pt 2pt;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .button {

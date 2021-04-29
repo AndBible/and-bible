@@ -53,13 +53,32 @@
         <FontAwesomeIcon v-if="bookmarkNotes" icon="edit"/>
         <FontAwesomeIcon v-else icon="bookmark"/>
       </span>
-      {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 15)}}</i></q> <LabelList handle-touch :bookmark-id="bookmark.id"/>
+      {{ bookmark.verseRangeAbbreviated }}
+      <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 15)}}</i></q>
+      <LabelList handle-touch :bookmark-id="bookmark.id"/>
+    </template>
+    <template #buttons>
+      <div style="align-self: flex-end; display: flex;">
+        <ButtonRow handle-touch>
+          <template #menubutton>
+            <div class="modal-action-button">
+              <FontAwesomeIcon icon="ellipsis-h"/>
+            </div>
+          </template>
+          <div class="journal-button" @touchstart="removeBookmark">
+            <FontAwesomeIcon icon="trash"/>
+          </div>
+          <div class="journal-button" :class="{toggled: infoShown}" @touchstart.stop="infoShown = !infoShown">
+            <FontAwesomeIcon icon="info"/>
+          </div>
+        </ButtonRow>
+        <div class="modal-action-button right" @touchstart.stop="closeBookmark">
+          <FontAwesomeIcon icon="times"/>
+        </div>
+      </div>
     </template>
     <template #footer>
-      <button class="button" @click="removeBookmark">{{strings.removeBookmark}}</button>
-      <button class="button" @click="assignLabels">{{strings.assignLabels}}</button>
-      <button :class="{'button': true, toggled: infoShown}" @click="infoShown = !infoShown">{{strings.bookmarkInfo}}</button>
-      <button class="button right" @click="closeBookmark">{{strings.closeModal}}</button>
+
     </template>
   </Modal>
   <AreYouSure ref="areYouSure">
@@ -81,10 +100,11 @@ import AreYouSure from "@/components/modals/AreYouSure";
 import EditableText from "@/components/EditableText";
 import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
+import ButtonRow from "@/components/ButtonRow";
 
 export default {
   name: "BookmarkModal",
-  components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure},
+  components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure, ButtonRow},
   setup() {
     const showBookmark = ref(false);
     const android = inject("android");
@@ -169,6 +189,10 @@ export default {
   padding-top: 10pt;
   padding-bottom: 5pt;
 }
+//.action-buttons {
+//  position: relative;
+//  right: 0;
+//}
 .bible-text {
   text-indent: 5pt;
   margin-bottom: 10pt;

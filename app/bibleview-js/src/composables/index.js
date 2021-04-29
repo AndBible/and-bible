@@ -36,10 +36,10 @@ import {
     faEdit,
     faEllipsisH,
     faHeadphones,
-    faIndent,
+    faIndent, faInfo,
     faOutdent,
     faPlusCircle,
-    faSort,
+    faSort, faTimes,
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import Color from "color";
@@ -299,6 +299,8 @@ export function useFontAwesome() {
     library.add(faBookmark)
     library.add(faPlusCircle)
     library.add(faTrash)
+    library.add(faInfo)
+    library.add(faTimes)
     library.add(faEllipsisH)
     library.add(faSort)
     library.add(faIndent)

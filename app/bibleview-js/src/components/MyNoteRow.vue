@@ -22,17 +22,19 @@
     </template>
     {{ strings.removeBookmarkConfirmation }}
   </AreYouSure>
-  <EditButtonRow>
-    <div class="journal-button" @click="editBookmark">
-      <FontAwesomeIcon icon="bookmark"/>
-    </div>
-    <div v-if="!bookmark.notes" class="journal-button" @click="editor.editMode = true">
-      <FontAwesomeIcon icon="edit"/>
-    </div>
-    <div class="journal-button" @click="deleteEntry">
-      <FontAwesomeIcon icon="trash"/>
-    </div>
-  </EditButtonRow>
+  <div class="menu" style="display: flex;">
+    <ButtonRow>
+      <div class="journal-button" @click="editBookmark">
+        <FontAwesomeIcon icon="bookmark"/>
+      </div>
+      <div v-if="!bookmark.notes" class="journal-button" @click="editor.editMode = true">
+        <FontAwesomeIcon icon="edit"/>
+      </div>
+      <div class="journal-button" @click="deleteEntry">
+        <FontAwesomeIcon icon="trash"/>
+      </div>
+    </ButtonRow>
+  </div>
   <div>
     <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b>&nbsp;
     <BookmarkText :bookmark="bookmark" :expanded="expanded" @change-expanded="expanded = $event"/> <LabelList :bookmark-id="bookmark.id"/>
@@ -47,7 +49,7 @@
 </template>
 
 <script>
-import EditButtonRow from "@/components/EditButtonRow";
+import ButtonRow from "@/components/ButtonRow";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
@@ -60,7 +62,7 @@ import AreYouSure from "@/components/modals/AreYouSure";
 
 export default {
   name: "MyNoteRow",
-  components: {EditButtonRow, FontAwesomeIcon, LabelList, BookmarkText, EditableText, AreYouSure},
+  components: {ButtonRow, FontAwesomeIcon, LabelList, BookmarkText, EditableText, AreYouSure},
   props: {
     bookmark: {type: Object, required: true},
   },

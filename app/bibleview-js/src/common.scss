@@ -15,6 +15,13 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+.menu {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+
 .journal-button {
   z-index: 1;
   color: rgba(0, 0, 0, 0.3);
@@ -23,6 +30,13 @@
   }
   margin: 2pt;
   padding: 7pt;
+
+  &.toggled {
+    color: #474747;
+    &.light {
+      color: #d5d5d5;
+    }
+  }
 }
 
 .note-container {
