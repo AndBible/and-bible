@@ -1317,7 +1317,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         ABEventBus.getDefault().post(ToastEvent(getString(R.string.verse_not_found)))
                         return
                     }
-                    windowControl.activeWindowPageManager.currentPage.setKey(verse)
+                    val pageManager = windowControl.activeWindowPageManager
+                    if(!pageManager.isBibleShown) {
+                        pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
+                    } else
+                        pageManager.currentPage.setKey( verse)
                     return
                 }
             }
