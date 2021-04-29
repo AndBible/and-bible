@@ -71,6 +71,9 @@
           <div class="journal-button" :class="{toggled: infoShown}" @touchstart.stop="infoShown = !infoShown">
             <FontAwesomeIcon icon="info"/>
           </div>
+          <div class="journal-button" @touchstart.stop="shareVerse">
+            <FontAwesomeIcon icon="share-alt"/>
+          </div>
         </ButtonRow>
         <div class="modal-action-button right" @touchstart.stop="closeBookmark">
           <FontAwesomeIcon icon="times"/>
@@ -163,11 +166,15 @@ export default {
       android.saveBookmarkNote(bookmark.value.id, text);
     }
 
+    function shareVerse() {
+      android.shareBookmarkVerse(bookmark.value.id);
+    }
+
     const originalBookLink = computed(() =>
         `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`)
 
     return {
-      showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,
+      showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes, shareVerse,
       removeBookmark,  assignLabels,  bookmark, labelColor, changeNote, labels, originalBookLink,
       strings, ...common
     };

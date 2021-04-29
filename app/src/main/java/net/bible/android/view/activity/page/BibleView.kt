@@ -238,7 +238,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val v11n = book.versification
         val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
-        val textRange = BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
+        val textRange = BookmarkEntities.TextRange(selection.startOffset!!, selection.endOffset!!)
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
         val initialLabels = displaySettings.bookmarksAssignLabels!!.toList()
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
@@ -271,12 +271,26 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     @Serializable
-    class Selection(val bookInitials: String, val startOrdinal: Int,
-                    val startOffset: Int, val endOrdinal: Int, val endOffset: Int, val bookmarks: List<Long>)
+    class Selection(val bookInitials: String?, val startOrdinal: Int,
+                    val startOffset: Int?, val endOrdinal: Int, val endOffset: Int?,
+                    val bookmarks: List<Long>,
+                    val notes: String? = null
+    )
     {
+        constructor(bookmark: BookmarkEntities.Bookmark):
+            this(
+                bookmark.book?.initials,
+                bookmark.ordinalStart,
+                bookmark.startOffset,
+                bookmark.ordinalEnd,
+                bookmark.endOffset,
+                emptyList(),
+                bookmark.notes
+            )
+
         val book: Book get() = (Books.installed().getBook(bookInitials) as SwordBook)
         val verseRange: VerseRange get() {
-            val v11n = (Books.installed().getBook(bookInitials) as SwordBook).versification
+            val v11n = (Books.installed().getBook(bookInitials) as SwordBook?)?.versification ?: KJVA
             return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
         }
     }

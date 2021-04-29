@@ -37,6 +37,12 @@
             android:padding="7dip"
             android:text="@string/show_full_verses" />
         <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="7dip"
+            android:text="@string/show_notes" />
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/advertise"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -39,6 +39,7 @@ import {
     faIndent, faInfo,
     faOutdent,
     faPlusCircle,
+    faShareAlt,
     faSort, faTimes,
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
@@ -294,6 +295,7 @@ export function useCommon() {
 }
 
 export function useFontAwesome() {
+    library.add(faShareAlt)
     library.add(faHeadphones)
     library.add(faEdit)
     library.add(faBookmark)

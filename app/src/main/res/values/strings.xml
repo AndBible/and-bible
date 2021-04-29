@@ -781,4 +781,5 @@
     <string name="back_button">Back</string>
     <string name="upgrading_database">Upgrading database. Please wait…</string>
     <string name="initializing_app">Initializing application…</string>
+    <string name="show_notes">Show notes</string>
 </resources>

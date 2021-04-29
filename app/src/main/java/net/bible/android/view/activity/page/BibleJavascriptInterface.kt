@@ -22,6 +22,9 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.webkit.JavascriptInterface
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -31,6 +34,7 @@ import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
 
 
@@ -156,6 +160,14 @@ class BibleJavascriptInterface(
         val entry: BookmarkEntities.BookmarkToLabel = json.decodeFromString(serializer(), data)
         bookmarkControl.updateBookmarkTimestamp(entry.bookmarkId)
         bookmarkControl.updateBookmarkToLabel(entry)
+    }
+
+    @JavascriptInterface
+    fun shareBookmarkVerse(bookmarkId: Long) {
+        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+        GlobalScope.launch(Dispatchers.Main) {
+            ShareWidget.dialog(mainBibleActivity, bookmark)
+        }
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

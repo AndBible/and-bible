@@ -24,9 +24,11 @@ import android.content.Intent
 import android.text.method.ScrollingMovementMethod
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ShareVersesBinding
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.BibleView
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
@@ -45,11 +47,14 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleVersenumbers.isChecked = CommonUtils.sharedPreferences.getBoolean("share_verse_numbers", true)
             advertise.isChecked = CommonUtils.sharedPreferences.getBoolean("share_show_add", true)
             abbreviateReference.isChecked = CommonUtils.sharedPreferences.getBoolean("share_abbreviate_reference", true)
+            toggleNotes.visibility = if(selection.notes!= null) View.VISIBLE else View.GONE
+            toggleNotes.isChecked = CommonUtils.sharedPreferences.getBoolean("show_notes", true)
 
             toggleFullVerses.setOnClickListener { updateText()}
             toggleVersenumbers.setOnClickListener { updateText()}
             advertise.setOnClickListener { updateText()}
             abbreviateReference.setOnClickListener { updateText()}
+            toggleNotes.setOnClickListener { updateText()}
         }
         updateText()
     }
@@ -59,7 +64,8 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             showVerseNumbers = bindings.toggleVersenumbers.isChecked,
             showFull = bindings.toggleFullVerses.isChecked,
             advertiseApp = bindings.advertise.isChecked,
-            abbreviateReference = bindings.abbreviateReference.isChecked
+            abbreviateReference = bindings.abbreviateReference.isChecked,
+            showNotes = bindings.toggleNotes.isChecked,
         )
         bindings.preview.text = text
         CommonUtils.sharedPreferences.edit()
@@ -67,6 +73,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             .putBoolean("share_verse_numbers", bindings.toggleVersenumbers.isChecked)
             .putBoolean("share_show_add", bindings.advertise.isChecked)
             .putBoolean("share_abbreviate_reference", bindings.abbreviateReference.isChecked)
+            .putBoolean("show_notes", bindings.toggleNotes.isChecked)
             .apply()
     }
 
@@ -91,5 +98,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
                 create().show()
             }
         }
+        fun dialog(context: Context, bookmark: BookmarkEntities.Bookmark) =
+            dialog(context, BibleView.Selection(bookmark))
     }
 }

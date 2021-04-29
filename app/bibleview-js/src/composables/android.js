@@ -214,6 +214,10 @@ export function useAndroid({bookmarks}, config) {
         android.removeBookmarkLabel(bookmarkId, labelId);
     }
 
+    function shareBookmarkVerse(bookmarkId) {
+        android.shareBookmarkVerse(bookmarkId);
+    }
+
     function updateOrderNumber(labelId, bookmarks, journals) {
         const orderNumberPairs = l => l.map(v=>[v.id, v.orderNumber])
         android.updateOrderNumber(labelId, JSON.stringify(
@@ -260,6 +264,7 @@ export function useAndroid({bookmarks}, config) {
         updateOrderNumber,
         updateJournalEntry,
         toast,
+        shareBookmarkVerse,
     }
 
     if(config.developmentMode) return {
