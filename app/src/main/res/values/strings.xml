@@ -778,4 +778,6 @@
     <string name="advertise_app">Advertise app</string>
     <string name="verse_share_advertise">Shared using %s".</string>
     <string name="abbreviate_reference">Abbreviate reference</string>
+    <string name="backup_button">Backup</string>
+    <string name="back_button">Back</string>
 </resources>

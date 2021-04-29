@@ -147,6 +147,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         setContentView(R.layout.spinner)
         supportActionBar!!.hide()
         if (!checkForExternalStorage()) return;
+        BackupControl.setupDirs(this)
         val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
         GlobalScope.launch {
             if (crashed) {
@@ -159,8 +160,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 postBasicInitialisationControl()
             }
         }
-
-        BackupControl.setupDirs(this)
     }
 
 

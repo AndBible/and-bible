@@ -19,12 +19,16 @@ package net.bible.android.control.report
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Build
+import android.util.AttributeSet
 import android.util.Log
+import android.view.LayoutInflater
+import android.widget.LinearLayout
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -33,12 +37,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.BackupViewBinding
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.applicationVersionName
+import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.CommonUtils.megabytesFree
 import java.io.BufferedReader
 import java.io.File
@@ -53,6 +60,20 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 
+class BackupView(val activity: ActivityBase, attributeSet: AttributeSet?): LinearLayout(activity, attributeSet) {
+    @Inject lateinit var backupControl: BackupControl
+    private val bindings = BackupViewBinding.inflate(context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater, this, true)
+    init {
+        buildActivityComponent().inject(this)
+        bindings.apply {
+            backupApp.setOnClickListener { GlobalScope.launch { backupControl.backupApp(activity) } }
+            backupAppDatabase.setOnClickListener { backupControl.backupDatabaseViaSendIntent(activity, false) }
+            backupModules.setOnClickListener { GlobalScope.launch { backupControl.backupModulesViaIntent(activity) } }
+        }
+    }
+}
+
+
 @ApplicationScope
 class ErrorReportControl @Inject constructor() {
     fun sendErrorReportEmail(e: Throwable? = null, source: String) {
@@ -61,32 +82,56 @@ class ErrorReportControl @Inject constructor() {
         }
     }
 
-    enum class AlertDialogResult {CANCEL, OKAY, REPORT}
+    enum class BackupDialogResult {CANCEL, OKAY}
+
+    private suspend fun backupPopup(context: ActivityBase) {
+        val result = suspendCoroutine<BackupDialogResult> {
+            val dlgBuilder = AlertDialog.Builder(context)
+                .setMessage("Backup")
+                .setCancelable(true)
+                .setView(BackupView(context, null))
+                .setOnCancelListener { _ -> it.resume(BackupDialogResult.CANCEL) }
+                .setNeutralButton(R.string.back_button) { _, _ -> it.resume(BackupDialogResult.OKAY) }
+
+            dlgBuilder.show()
+        }
+    }
+
+    enum class ErrorDialogResult {CANCEL, OKAY, REPORT, BACKUP}
     suspend fun showErrorDialog(context: ActivityBase, msg: String, isCancelable: Boolean = false, report: Boolean = true) {
         Log.d(TAG, "showErrorMesage message:$msg")
         withContext(Dispatchers.Main) {
-            val result = suspendCoroutine<AlertDialogResult> {
-                val dlgBuilder = AlertDialog.Builder(context)
-                    .setMessage(msg)
-                    .setCancelable(isCancelable)
-                    .setOnCancelListener { _ -> it.resume(AlertDialogResult.CANCEL) }
-                    .setPositiveButton(R.string.okay) { _, _ -> it.resume(AlertDialogResult.OKAY) }
+            var askAgain = true
+            while(askAgain) {
+                askAgain = false
+                val result = suspendCoroutine<ErrorDialogResult> {
+                    val dlgBuilder = AlertDialog.Builder(context)
+                        .setMessage(msg)
+                        .setCancelable(isCancelable)
+                        .setOnCancelListener { _ -> it.resume(ErrorDialogResult.CANCEL) }
+                        .setPositiveButton(R.string.okay) { _, _ -> it.resume(ErrorDialogResult.OKAY) }
 
-                if (isCancelable && !report) {
-                    dlgBuilder.setNegativeButton(R.string.cancel) { _, _ ->
-                        it.resume(AlertDialogResult.CANCEL)
+                    if (isCancelable && !report) {
+                        dlgBuilder.setNegativeButton(R.string.cancel) { _, _ ->
+                            it.resume(ErrorDialogResult.CANCEL)
+                        }
+                    }
+                    if (report) {
+                        dlgBuilder.setNegativeButton(R.string.backup_button) { _, _ -> it.resume(ErrorDialogResult.BACKUP) }
+                        dlgBuilder.setPositiveButton(R.string.report_error) { _, _ -> it.resume(ErrorDialogResult.REPORT) }
+                        dlgBuilder.setNeutralButton(R.string.error_skip) { _, _ -> it.resume(ErrorDialogResult.CANCEL) }
+                    }
+                    dlgBuilder.show()
+                }
+                when(result) {
+                    ErrorDialogResult.OKAY -> null
+                    ErrorDialogResult.REPORT -> BugReport.reportBug(context, useSaved = true, source = "after crash")
+                    ErrorDialogResult.CANCEL -> null
+                    ErrorDialogResult.BACKUP -> {
+                        backupPopup(context)
+                        askAgain = true
                     }
                 }
-                if (report) {
-                    dlgBuilder.setPositiveButton(R.string.report_error) { _, _ -> it.resume(AlertDialogResult.REPORT) }
-                    dlgBuilder.setNeutralButton(R.string.error_skip) { _, _ -> it.resume(AlertDialogResult.CANCEL) }
-                }
-                dlgBuilder.show()
-            }
-            when(result) {
-                AlertDialogResult.OKAY -> null
-                AlertDialogResult.REPORT -> BugReport.reportBug(context, useSaved = true, source = "after crash")
-                AlertDialogResult.CANCEL -> null
             }
         }
     }

@@ -45,6 +45,7 @@ import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW
 import net.bible.service.device.speak.TextCommand
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
+import java.lang.Exception
 import javax.inject.Inject
 
 
@@ -220,7 +221,11 @@ class SpeakWidgetManager {
         override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
             Log.d(TAG, "onUpdate")
             for (appWidgetId in appWidgetIds) {
-                setupWidget(context, appWidgetManager, appWidgetId)
+                try {
+                    setupWidget(context, appWidgetManager, appWidgetId)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Widget updating failed!")
+                }
             }
         }
 
