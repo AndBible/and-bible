@@ -152,7 +152,7 @@
     <string name="prefs_line_spacing_pt">Line spacing %1.1fx</string>
     <string name="pref_font_family_label">Font family</string>
     <string name="prefs_top_margin_title">Top margin</string>
-    <string name="prefs_top_margin_summary">Add margin (with visual indication) to top of the window that contains Bible document. Text will be scrolled to the margin.</string>
+    <string name="prefs_top_margin_summary">Add margin (with visual indication) to top of the window that contains Bible document. Bible is scrolled so that current verse starts below the margin.</string>
     <string name="prefs_hyphenation_title">Hyphenation</string>
     <string name="prefs_hyphenation_summary">Automatically hyphenate words, if language is supported</string>
     <string name="prefs_line_spacing_pt_title">Line spacing (%1.1fx)</string>
@@ -355,13 +355,9 @@
     <string name="label_unlabelled">Unlabelled</string>
     <string name="add_bookmark1">Bookmark</string>
     <string name="remove_bookmark">Remove</string>
-    <string name="bookmark_settings_title">Bookmark settings</string>
-    <string name="window_bookmark_settings_title">Window bookmark settings</string>
-    <string name="workspace_bookmark_settings_title">Workspace bookmark settings</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
     <string name="bookmark_settings_assign_labels_title">Assign labels to new bookmarks</string>
-    <string name="prefs_bookmark_settings_summary">Bookmark settings summary</string>
     <string name="bookmark_settings_assign_labels_summary">Automatically assign labels to new bookmarks</string>
     <string name="label_color">Label color</string>
     <string name="label_color_example">Example</string>
