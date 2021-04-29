@@ -86,7 +86,7 @@ object FakeBookFactory {
 
     private val JOURNAL_DUMMY_CONF get() = """[MyStudyPads]
 Description=${application.getString(R.string.journal_description)}
-Abbreviation=${application.getString(R.string.studypad_abbreviation)}
+Abbreviation=${application.getString(R.string.studypads)}
 Category=Generic Books
 LCSH=Bible--Commentaries.
 Versification=KJVA"""
