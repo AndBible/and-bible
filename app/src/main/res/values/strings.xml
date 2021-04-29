@@ -152,7 +152,7 @@
     <string name="prefs_line_spacing_pt">Line spacing %1.1fx</string>
     <string name="pref_font_family_label">Font family</string>
     <string name="prefs_top_margin_title">Top margin</string>
-    <string name="prefs_top_margin_summary">Add margin (with visual indication) to top of the window that contains bible document. Text will be scrolled to the margin.</string>
+    <string name="prefs_top_margin_summary">Add margin (with visual indication) to top of the window that contains Bible document. Text will be scrolled to the margin.</string>
     <string name="prefs_hyphenation_title">Hyphenation</string>
     <string name="prefs_hyphenation_summary">Automatically hyphenate words, if language is supported</string>
     <string name="prefs_line_spacing_pt_title">Line spacing (%1.1fx)</string>
@@ -162,7 +162,7 @@
     <string name="reset_are_you_sure">Are you sure that you want to reset all of these values?</string>
     <string name="window_pinning_menutitle">Window pinning</string>
     <string name="hide_window_buttons_title">Hide window buttons</string>
-    <string name="hide_window_buttons_summary">Window buttons that are displayed on right side of the bible views are hidden. Window navigation bar on the bottom is still displayed and you may open window popup menu by long-clicking them.</string>
+    <string name="hide_window_buttons_summary">Window buttons that are displayed on right side of the Bible views are hidden. Window navigation bar on the bottom is still displayed and you may open window popup menu by long-clicking them.</string>
     <string name="hide_bible_reference_overlay_title">Hide Bible reference overlay</string>
     <string name="hide_bible_reference_overlay_summary">Do not show the semi-transparent Bible reference overlay when app is in fullscreen mode</string>
 
@@ -220,14 +220,14 @@
     <string name="download_document_confirm_prefix">Download</string>
     <string name="download_refreshing_book_list">Refreshing list of available documents</string>
     <string name="download_refresh_book_list_menu_item">Refresh</string>
-    <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
-    <string name="error_downloading_status">Repository server gave error when downloading %s due to %s (%d).</string>
+    <string name="error_downloading">An error occurred while downloading.  Please check your internet connection.</string>
+    <string name="error_downloading_status">The server which hosts %s returned an error due to %s (%d).</string>
     <string name="storage_space_warning">Insufficient local storage space.</string>
-    <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
+    <string name="too_many_jobs">Too many tasks are running.  Please wait for some to finish and try again.</string>
     <string name="document_not_installed">Please download \'%s\'</string>
     <string name="free_text_search_documents">Search</string>
     <string name="chooce_language_hint">Language</string>
-    <string name="one_more_back_press">One more pressing of back button will close app</string>
+    <string name="one_more_back_press">Press back again to close the app</string>
     <string name="document_filter_results">%d documents</string>
     <string name="download_question_title">Do you want to proceed to download documents?</string>
     <string name="download_question_message">If you live in a persecuted country,
@@ -629,7 +629,7 @@
     <!-- Help -->
     <string name="help_nav_title">Navigation</string>
     <string name="help_nav_text">Go to the next or previous chapter by swiping the screen with your finger.
-        Double-tap bible text to toggle full screen mode.
+        Double-tap Bible text to toggle full screen mode.
         Split screens (called also windows) have menu button on their top-right corner,
         which enables you to use several window-specific functions and customize window outlook and behaviour.
     </string>
@@ -642,19 +642,19 @@
         Long press links to choose if you want to open them in current window, new window or special links window.
     </string>
     <string name="help_bookmarks_title">Bookmarks &amp; My Notes</string>
-    <string name="help_bookmarks_text">Text can be highlighted by selecting the text and choosing "Bookmark" from
-        selection context menu. You can add your custom remarks to the created highlights by tapping the created
-        highlighted text in bible view. There is also "My Notes" special document in commentaries that allows you
-        to view your notes.
+    <string name="help_bookmarks_text">Bookmarks can be created by selecting some text and choosing "Bookmark" from
+        the popup menu. You can add your custom notes to the new bookmark by tapping the now
+        highlighted text in Bible view. There is also a "My Notes" special document in commentaries that allows you
+        to view your notes in a separate window.
     </string>
     <string name="help_studypads_title">Study Pads</string>
     <string name="help_studypads_text">
-        Study pads are designed to make it easy to writing sermon notes, preparing sermons or just
-        write down personal bible study notes that have multiple bible references. Each Study Pad is associated with one Bookmark Label.
-        All Bookmarks that have been created with respective Label, appear automatically in Study Pad document.
-        In addition to Bookmarks, there can be custom text entries in Study Pad.
+        Study pads are designed to make it easy to write sermon notes, prepare sermons or just
+        write down personal Bible study notes that have multiple Bible references. Each study pad is associated with one bookmark label.
+        All Bookmarks that have been created with that respective label appear automatically in the study pad document.
+        In addition to bookmarks, there can be custom text entries in a study pad.
         Tip: Use Workspace menu -> All Text Options -> Assign Labels to automatically assign all created
-        bookmarks to the Study Pad.
+        bookmarks to the study pad.
     </string>
 
     <string name="help_search_title">Search</string>
@@ -679,12 +679,12 @@
     <string name="help_window_pinning_title">Window pinning</string>
     <string name="help_window_pinning_text">
         You can enable window pinning from options menu (three dots, right top corner).
-        If window pinning is enabled, you may show many pinned windows on bible view,
+        If window pinning is enabled, you may show many pinned windows on Bible view,
         but only one non-pinned window. Pinned windows are displayed first, and then
-        unpinned windows. You might want to open bible documents as pinned windows, and
+        unpinned windows. You might want to open Bible documents as pinned windows, and
         commentaries and maps etc. as non-pinned windows. Then you can easily
-        have bible documents always opened, and switch quickly between commentaries and
-        other extra material when you study bible.
+        have Bible documents always opened, and switch quickly between commentaries and
+        other extra material when you study Bible.
     </string>
 
     <!-- Welcome text -->
@@ -705,7 +705,7 @@
     <string name="first_time_help_show_next_time">Show again next time</string>
     <string name="add_bookmark1">Bookmark</string>
     <string name="remove_bookmark">Remove</string>
-    <string name="bookmark_settings_title">Bookmarking settings</string>
+    <string name="bookmark_settings_title">Bookmark settings</string>
     <string name="window_bookmark_settings_title">Window bookmark settings</string>
     <string name="workspace_bookmark_settings_title">Workspace bookmark settings</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
@@ -719,7 +719,7 @@
     <string name="download_dialog_message">The following books could not be downloaded:</string>
     <string name="select_multiple">Select multiple</string>
     <string name="mynotes_error_loading">Error in loading document</string>
-    <string name="journal_description">User-editable study pads, with custom text and bookmarks (pseudo document)</string>
+    <string name="journal_description">User-editable study pads with custom text and bookmarks (pseudo document)</string>
     <string name="my_notes_description">User-editable notes attached to bookmarks (pseudo document)</string>
     <string name="my_notes_abbreviation">My Notes</string>
     <string name="studypad_abbreviation">Study Pads</string>
@@ -735,9 +735,9 @@
     <string name="give_passphrase_for_module">Document %s is encrypted and needs passphrase to be unlocked</string>
     <string name="unlocking_failed">Unlocking failed, invalid passphrase</string>
     <string name="unlock_module">Set module passphrase</string>
-    <string name="unlock_info">Encrypted module unlocking info</string>
+    <string name="unlock_info">Encrypted module unlock info</string>
     <string name="try_again_passphrase">Passphrase did not work, try again?</string>
-    <string name="cant_delete_last_bible">Can\'t remove last bible document</string>
+    <string name="cant_delete_last_bible">Can\'t remove last Bible document</string>
     <string name="show_unlock_info">Module &amp; unlock info</string>
     <string name="prefs_top_margin_title_mm">Top margin (%d mm)</string>
     <string name="font_size_title">Font size</string>
@@ -747,16 +747,16 @@
     <string name="pref_font_family_label_name">Font family (%s)</string>
     <string name="prefs_font_family_summary">Change font family. Tip: more fonts can be installed via Download Documents / Add-ons.</string>
 
-    <string name="prefs_text_bookmarks_title">Bookmarking &amp; My Notes settings</string>
+    <string name="prefs_text_bookmarks_title">Bookmark &amp; My Notes settings</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
-    <string name="prefs_show_error_box_summary">Useful for debugging Bibleview errors. This will make app slower.</string>
+    <string name="prefs_show_error_box_summary">Useful for debugging Bibleview errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
     <string name="active_window_indicator_summary">Highlight window corners to help recognising which window is active</string>
     <string name="app_licence_title">Open Source License</string>
     <string name="give_feedback_title">Give us feedback</string>
     <string name="feedback_subject">Feedback to And Bible Open Source development team</string>
     <string name="choose_strongs_greek_dictionary_title">Strongs Greek dictionary</string>
-    <string name="choose_strongs_greek_dictionary_summary">Choose Strongs dictionary for Greek word words</string>
+    <string name="choose_strongs_greek_dictionary_summary">Choose Strongs dictionary for Greek word definitions</string>
     <string name="choose_strongs_hebrew_dictionary_title">Strongs Hebrew dictionary</string>
     <string name="choose_strongs_hebrew_dictionary_summary">Choose Strongs dictionary for Hebrew word definitions</string>
     <string name="choose_strongs_greek_morphology_title">Robinson Greek morphology</string>
@@ -765,11 +765,11 @@
     <string name="prefs_dictionaries_cat">Dictionaries</string>
     <string name="how_to_contribute">How to contribute?</string>
     <string name="confirm_delete_bookmarks">Do you want to remove %d bookmarks and their notes?</string>
-    <string name="confirm_delete_study_pads">Do you want to remove %d Bookmark Labels / Study Pads? Also all associated bookmarks and Study Pad notes labels will be removed.</string>
-    <string name="toast_deletion_cancel">You can still undo delete by pressing cancel button.</string>
+    <string name="confirm_delete_study_pads">Do you want to remove %d bookmark labels / study pads? Also all associated bookmarks and study pad notes labels will be removed.</string>
+    <string name="toast_deletion_cancel">Undo delete by pressing cancel button.</string>
     <string name="module_size_megabytes">%.1f MB</string>
-    <string name="tell_friend_title">Invite friend</string>
-    <string name="tell_friend_message">I would like to recommend you Bible Study app by And Bible Open Source Project.
+    <string name="tell_friend_title">Invite a friend</string>
+    <string name="tell_friend_message">I would like to recommend the Bible Study app by And Bible Open Source Project, to you.
         It is a powerful, yet easy to use, offline Bible study application for Android.
         \n\nInstall it from Play Store: %s
         \nRead more &amp; more install options: %s.
