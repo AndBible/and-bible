@@ -22,7 +22,7 @@
     <div :style="modalStyle" id="modals"/>
     <template v-if="mounted">
       <BookmarkModal/>
-      <AmbiguousSelection ref="ambiguousSelection" @back-clicked="emit(Events.CLOSE_MODALS)"/>
+      <AmbiguousSelection ref="ambiguousSelection" @back-clicked="backClicked"/>
     </template>
     <ErrorBox v-if="appSettings.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
@@ -213,11 +213,20 @@ export default {
           `;
       });
 
+      setupEventBusListener(Events.BOOKMARK_CLICKED, () => {
+        verseMap.resetHighlights();
+      })
+
+      function backClicked() {
+        emit(Events.CLOSE_MODALS)
+        verseMap.resetHighlights();
+      }
+
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
         config, strings, documents, topElement, currentVerse, mounted, emit, Events,
-        contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings,
+        contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings, backClicked,
       };
     },
   }

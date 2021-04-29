@@ -35,7 +35,6 @@ import {useCommon} from "@/composables";
 import {cancellableTimer, getVerseInfo} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {fadeReferenceDelay} from "@/constants";
-import {Events, setupEventBusListener} from "@/eventbus";
 
 export default {
   name: "Verse",
@@ -83,10 +82,6 @@ export default {
       highlighted.value = false;
     }
 
-    setupEventBusListener(Events.CLEAR_HIGHLIGHTS, () => {
-      endHighlight();
-    })
-
     const highlighted = ref(false);
 
     function setupEndHighlight() {
@@ -99,6 +94,7 @@ export default {
       endHighlight();
       highlighted.value = true;
       setupEndHighlight();
+      verseMap.registerEndHighlight(endHighlight);
     }
 
     if(originalOrdinalRange &&

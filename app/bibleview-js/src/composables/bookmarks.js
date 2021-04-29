@@ -387,7 +387,7 @@ export function useBookmarks(documentId,
                 const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
                 const icon = b.notes ? "edit" : "bookmark"
                 const color = adjustedColor(bookmarkLabels_[0].color).string();
-                addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {icon, color, title, bookmark: b});
+                addEventFunction(event, () => emit(Events.BOOKMARK_CLICKED, b.id), {icon, color, title, bookmark: b});
             }
         }
 
@@ -440,7 +440,7 @@ export function useBookmarks(documentId,
                 const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {title, icon: "headphones", color, bookmark: b}));
+                    () => emit(Events.BOOKMARK_CLICKED, b.id), {title, icon: "headphones", color, bookmark: b}));
                 firstElement.parentElement.insertBefore(iconElement, firstElement);
                 undoHighlights.push(() => iconElement.remove());
             }
@@ -454,7 +454,7 @@ export function useBookmarks(documentId,
                 const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {title, icon, color, bookmark: b}));
+                    () => emit(Events.BOOKMARK_CLICKED, b.id), {title, icon, color, bookmark: b}));
                 lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
                 undoHighlights.push(() => iconElement.remove());
             }
@@ -481,7 +481,7 @@ export function useBookmarks(documentId,
                     const icon = b.notes ? "edit" : "bookmark"
                     const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
                     addEventFunction(event,
-                        () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {title, icon, color, bookmark: b});
+                        () => emit(Events.BOOKMARK_CLICKED, b.id), {title, icon, color, bookmark: b});
                 }
             });
             if(bookmarkList.length>1) {

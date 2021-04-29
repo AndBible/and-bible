@@ -38,14 +38,13 @@ export const Events = {
     DELETE_BOOKMARKS: "delete_bookmarks",
     REMOVE_RANGES: "remove_ranges",
     SET_OFFSETS: "set_offsets",
-    BOOKMARK_FLAG_CLICKED: "bookmark_flag_clicked",
+    BOOKMARK_CLICKED: "bookmark_clicked",
     CLOSE_MODALS: "close_modals",
     ADD_OR_UPDATE_JOURNAL: "add_or_update_journal",
     ADD_OR_UPDATE_BOOKMARK_TO_LABEL: "add_or_update_bookmark_to_label",
     DELETE_JOURNAL: "delete_journal",
     CONFIG_CHANGED: "config_changed",
     RELOAD_ADDONS: "reload_addons",
-    CLEAR_HIGHLIGHTS: "clear_highlights",
     BOOKMARK_NOTE_MODIFIED: "bookmark_note_modified",
 }
 

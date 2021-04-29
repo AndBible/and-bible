@@ -130,7 +130,7 @@ export default {
     const bookmarkNotes = computed(() => bookmark.value.notes);
     let originalNotes = null;
 
-    setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (bookmarkId_, {open = false} = {}) => {
+    setupEventBusListener(Events.BOOKMARK_CLICKED, (bookmarkId_, {open = false} = {}) => {
       bookmarkId.value = bookmarkId_;
       originalNotes = bookmarkNotes.value;
       if(!showBookmark.value) infoShown.value = false;

@@ -71,7 +71,7 @@ export default {
     const expanded = ref(false);
 
     function editBookmark() {
-      ebEmit(Events.BOOKMARK_FLAG_CLICKED, props.bookmark.id)
+      ebEmit(Events.BOOKMARK_CLICKED, props.bookmark.id)
     }
 
     function save(newText) {

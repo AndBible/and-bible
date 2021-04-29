@@ -386,7 +386,19 @@ export function useVerseMap() {
     function getVerses(ordinal) {
         return verses.get(ordinal) || []
     }
-    return {register, getVerses}
+
+    const highlights = [];
+
+    function registerEndHighlight(fn) {
+        highlights.push(fn);
+    }
+
+    function resetHighlights() {
+        highlights.forEach(f => f())
+        highlights.splice(0);
+    }
+
+    return {register, getVerses, registerEndHighlight, resetHighlights}
 }
 
 export function useCustomFeatures() {

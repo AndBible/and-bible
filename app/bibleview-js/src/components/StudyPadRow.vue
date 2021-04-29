@@ -101,7 +101,7 @@ export default {
     });
 
     function editBookmark() {
-      ebEmit(Events.BOOKMARK_FLAG_CLICKED, props.journalEntry.id)
+      ebEmit(Events.BOOKMARK_CLICKED, props.journalEntry.id)
     }
 
     function addNewEntryAfter() {

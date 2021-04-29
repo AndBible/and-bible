@@ -19,7 +19,7 @@ import {nextTick} from "@vue/runtime-core";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 
-export function useScroll(config, appSettings, calculatedConfig, {getVerses}, documentPromise) {
+export function useScroll(config, appSettings, calculatedConfig, {getVerses, resetHighlights}, documentPromise) {
     let currentScrollAnimation = ref(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
@@ -93,7 +93,7 @@ export function useScroll(config, appSettings, calculatedConfig, {getVerses}, do
         stopScrolling();
         let delta = calculatedConfig.value.topOffset;
         if(highlight && ordinalStart) {
-            emit(Events.CLEAR_HIGHLIGHTS)
+            resetHighlights();
             if(!ordinalEnd) {
                 ordinalEnd = ordinalStart;
             }
