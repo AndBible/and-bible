@@ -37,6 +37,7 @@ import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.page.BibleViewFactory
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
@@ -176,6 +177,7 @@ open class Window (
 
         displayedBook = currentPage.currentDocument
         displayedKey = currentPage.key
+        Log.d(TAG, "updateText ${this.hashCode()} ${Log.getStackTraceString(Exception())}")
 
         GlobalScope.launch(Dispatchers.IO) {
             if (notifyLocationChange) {

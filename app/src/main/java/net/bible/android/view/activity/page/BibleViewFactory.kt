@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.page
 
+import android.util.Log
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.PageControl
@@ -46,7 +47,10 @@ class BibleViewFactory @Inject constructor(
 ) {
 
     private val windowBibleViewMap: MutableMap<Long, BibleView> = HashMap()
-
+    init {
+        Log.d(TAG, "New BibleViewFactory ${this.hashCode()} ${Log.getStackTraceString(Exception())}")
+    }
+    
     fun getOrCreateBibleView(window: Window): BibleView {
         var bibleView = windowBibleViewMap[window.id]?.also {
             // Update window reference (window objects are created when loading from db, but id's are same)
@@ -60,6 +64,7 @@ class BibleViewFactory @Inject constructor(
             bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler,
                 pageControl, pageTiltScrollControl, linkControl, bookmarkControl)
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
+            Log.d(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}  ${Log.getStackTraceString(Exception())}")
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
             bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()
@@ -75,6 +80,7 @@ class BibleViewFactory @Inject constructor(
     }
 
     fun clear() {
+        Log.d(TAG, "clear")
         windowBibleViewMap.forEach { it ->
             val bw = it.value
             bw.onDestroy = null
