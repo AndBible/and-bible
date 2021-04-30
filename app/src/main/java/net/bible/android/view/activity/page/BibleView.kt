@@ -461,7 +461,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 // If errorBox is enabled, console logging is handled in js interface so we don't want anything
                 // from here anymore.
                 if (!showErrorBox) {
-                    Log.d(TAG, "bibleview-js: $consoleMessage")
+                    Log.d(TAG, "bibleview-js: ${consoleMessage.messageLevel()} ${consoleMessage.sourceId()}:${consoleMessage.lineNumber()} ${consoleMessage.message()}")
                 }
                 return true
             }
