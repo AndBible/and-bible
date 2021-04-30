@@ -729,13 +729,13 @@
 
     <string name="download_dialog_message">The following books could not be downloaded:</string>
     <string name="select_multiple">Select multiple</string>
-    <string name="journal_description">User-editable study pads with custom text and bookmarks (pseudo document)</string>
-    <string name="my_notes_description">User-editable notes attached to bookmarks (pseudo document)</string>
+    <string name="journal_description">User-editable study pads with custom text and bookmarks</string>
+    <string name="my_notes_description">User-editable notes attached to bookmarks</string>
     <string name="my_notes_abbreviation">My Notes</string>
     <string name="studypads">Study Pads</string>
-    <string name="multi_description">Multiple references (pseudo document)</string>
+    <string name="multi_description">Multiple references</string>
     <string name="multi_abbreviation">Multiple</string>
-    <string name="compare_description">Compare translations (pseudo document)</string>
+    <string name="compare_description">Compare translations</string>
     <string name="compare_abbreviation">Compare</string>
     <string name="http_forbidden">Forbidden</string>
     <string name="http_not_found">Not found</string>
