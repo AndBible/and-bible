@@ -75,14 +75,10 @@ import org.crosswire.jsword.passage.VerseRange
 import org.spongycastle.util.io.pem.PemReader
 import java.io.File
 import java.io.FileInputStream
-import java.io.InputStream
 import java.io.InputStreamReader
 import java.security.KeyFactory
-import java.security.PublicKey
 import java.security.Signature
-import java.security.cert.CertificateFactory
 import java.util.*
-import java.security.cert.X509Certificate
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
 import kotlin.coroutines.resume
@@ -348,7 +344,7 @@ object CommonUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val theme = try {
                 mainBibleActivity.theme
-            } catch (e: UninitializedPropertyAccessException) {
+            } catch (e: NullPointerException) {
                 resources.newTheme().apply {
                     applyStyle(R.style.AppTheme, true)
                 }

@@ -198,7 +198,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         Log.i(TAG, "Creating MainBibleActivity")
 
         // This is singleton so we can do this.
-        mainBibleActivity = this
+        if(_mainBibleActivity != null) {
+            throw RuntimeException("MainBibleActivity was attempted to be created second time! This would cause issues so let's crash!")
+        }
+        _mainBibleActivity = this
+
         ScreenSettings.refreshNightMode()
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState, true)
@@ -1483,7 +1487,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
 
     companion object {
-        lateinit var mainBibleActivity: MainBibleActivity
+        var _mainBibleActivity: MainBibleActivity? = null
+        val mainBibleActivity get() = _mainBibleActivity!!
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
 
