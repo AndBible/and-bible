@@ -145,6 +145,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var documentControl: DocumentControl
     @Inject lateinit var navigationControl: NavigationControl
+    @Inject lateinit var bibleViewFactory: BibleViewFactory
 
     private var navigationBarHeight = 0
     private var actionBarHeight = 0
@@ -199,7 +200,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         // This is singleton so we can do this.
         if(_mainBibleActivity != null) {
-            throw RuntimeException("MainBibleActivity was attempted to be created second time! This would cause issues so let's crash!")
+            Log.w(TAG, "MainBibleActivity was created second time!")
         }
         _mainBibleActivity = this
 
@@ -1083,6 +1084,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onDestroy() {
+        bibleViewFactory.clear()
         super.onDestroy()
         beforeDestroy()
         ABEventBus.getDefault().unregister(this)
