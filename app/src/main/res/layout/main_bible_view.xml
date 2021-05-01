@@ -42,7 +42,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/menu"
-                    android:tint="?attr/toolbarTextColor"
+                    app:tint="?attr/toolbarTextColor"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/pageTitleContainer"
                     app:layout_constraintStart_toStartOf="parent"
