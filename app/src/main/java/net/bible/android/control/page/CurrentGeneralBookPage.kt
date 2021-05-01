@@ -145,6 +145,9 @@ class CurrentGeneralBookPage internal constructor(
     override val isSearchable: Boolean
         get() = false
 
+    override val isSyncable: Boolean
+        get() = false
+
     override fun restoreFrom(entity: WorkspaceEntities.Page?) {
         when (entity?.document) {
             FakeBookFactory.journalDocument.initials -> {
