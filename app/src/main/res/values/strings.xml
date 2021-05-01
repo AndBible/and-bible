@@ -750,7 +750,7 @@
     <string name="show_unlock_info">Module &amp; unlock info</string>
 
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
-    <string name="prefs_show_error_box_summary">Useful for debugging Bibleview errors. This will make the app slower.</string>
+    <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
     <string name="active_window_indicator_summary">Highlight window corners to help recognising which window is active</string>
     <string name="app_licence_title">Open Source License</string>
