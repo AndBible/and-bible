@@ -1,49 +1,57 @@
-openMyNotes: ""
-chapterNum: ""
-verseNum: ""
-noteText: ""
-crossReferenceText: "Ristiviitteet"
-findAllOccurrences: ""
-reportError: ""
-errorTitle: ""
-footnoteTypeUndefined: ""
-footnoteTypeStudy: ""
-footnoteTypeExplanation: ""
-footnoteTypeVariant: ""
-footnoteTypeAlternative: ""
-footnoteTypeTranslation: ""
-clearLog: ""
-bookmarkInfo: ""
-editNote: ""
-editNotePlaceholder: ""
-editTextPlaceholder: ""
-inputPlaceholder: ""
-inputReference: ""
-removeBookmark: ""
-assignLabels: ""
-bookmarkAccurate: ""
-bookmarkInaccurate: ""
-defaultBook: ""
-ok: ""
-ambiguousSelection: ""
-cancel: ""
-removeBookmarkConfirmationTitle: ""
-removeBookmarkConfirmation: ""
-closeModal: ""
-createdAt: ""
-lastUpdatedOn: ""
-strongsLink: ""
-studyPadLink: ""
-externalLink: ""
-referenceLink: ""
-openFootnote: ""
-openBookmark: ""
-noMyNotesTitle: ""
-noMyNotesDescription: ""
-emptyStudyPad: ""
-studyPadModalTitle: ""
-doYouWantToDeleteEntry: ""
-removeStudyPadConfirmationTitle: ""
-dragHelp: ""
-saved: ""
-openAll: ""
+openMyNotes: Avaa My Notes -ikkunassa
+openStudyPad: Avaa Opintoalusta-ikkunassa (%s)
+noteText: Alaviitteet (%s)
+crossReferenceText: Ristiviitteet
+findAllOccurrences: Etsi kaikki esiintymät
+reportError: Raportoi virheestä
+errorTitle: Tapahtui virhe
+warningTitle: Varoitus
+normalTitle: Huomaa
+footnoteTypeUndefined: Määrittämätön tyyppi
+footnoteTypeStudy: Tutkimus
+footnoteTypeExplanation: Selitys
+footnoteTypeVariant: Muunnos
+footnoteTypeAlternative: Vaihtoehtoinen
+footnoteTypeTranslation: Käännös
+clearLog: Tyhjennä virheloki
+editNote: Muokkaa
+editNotePlaceholder: Muokkaa merkintää kirjanmerkissä
+editTextPlaceholder: Napsauta muokataksesi tekstiä
+inputPlaceholder: Kirjoita tähän
+inputReference: Anna raamattuviite
+assignLabels: Ryhmät
+bookmarkAccurate: Kirjanmerkki luotiin dokumentissa %s
+bookmarkInaccurate: "Kirjanmerkin kirjatietoa ei ole tallennettu, sisältö näytetään dokumentissa %s."
+defaultBook: oletusraamattudokumentti
+ok: Ok
+yes: Yes
+ambiguousSelection: "Minkä toiminteen haluat tehdä?"
+cancel: Peruuta
+removeBookmarkConfirmationTitle: "Poista kirjanmerkki?"
+removeBookmarkConfirmation: "Oletko varma että haluat poistaa tämän kirjanmerkin?"
+closeModal: Sulje
+createdAt: "Luotu: %s"
+lastUpdatedOn: "Viimeksi päivitetty: %s"
+strongsLink: Avaa Strongs
+studyPadLink: Avaa opintoalusta
+externalLink: Avaa ulkoinen linkki
+referenceLink: Avaa viittaus
+openFootnote: Avaa alaviite
+openBookmark: Avaa kirjanmerkki (%s)
+noMyNotesTitle: Ei merkintöjä tälle luvulle.
+noMyNotesDescription: >-
+  Pääset alkuun luomalla kirjanmerkkejä raamattudokumentissa. Kirjanmerkit näkyvät täällä ja voit lisätä omia merkintöjäsi niihin.
+emptyStudyPad: >
+  Tyhjä opintoalusta. Aloita lisäämällä opintoalustaan tekstimerkintöjä tästä tai tekemällä kirjanmerkkejä tätä opintoalustaa vastaavaan kirjanmerkkiryhmään. 
+studyPadModalTitle: Muokkaa opintoalustan merkintää
+doYouWantToDeleteEntry: "Oletko varma että haluat poistaa tämän opintoalustan merkinnän?"
+removeStudyPadConfirmationTitle: "Poista opintoalustan merkintä?"
+dragHelp: Voit raahata merkintöjä muuttaaksesi niiden järjestystä opintoalustassa
+saved: tallennettu
+openAll: Avaa kaikki viittaukset
+editBookmarkPlaceholder: "Napsauta muokataksesi tähän kirjanmerkkiin liittyviä merkintöjä "
+onlyLabel: Vain ryhmämerkintä
+wholeBookmark: Koko kirjanmerkki
+otherNoteText: Muu huomio
+assignLabelsMenuEntry: Sijoita ryhmiin
+jumpToStudyPad: Hyppää opintoalustaan

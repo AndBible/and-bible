@@ -127,6 +127,7 @@
   <string name="full_screen_hide_buttons_pref_title">Viso ekrano veiksenoje paslėpti mygtukų juotą</string>
   <string name="full_screen_hide_buttons_pref_summary">Perjungiant į viso ekrano veikseną, automatiškai paslėpti ekrano apačioje esančią mygtukų juostą</string>
   <string name="font_size_title">Šrifto dydis</string>
+  <string name="pref_font_family_label_name">Šriftas (%s)</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Spalvos nuostatos</string>
   <string name="window_color_settings_title">Lango spalvų nustatymai</string>
@@ -427,6 +428,7 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="error_page_too_large">Puslapis per didelis, kad būtų įkeltas</string>
   <string name="error_key_not_in_document">Dokumente nerasta</string>
   <string name="empty_list">Nėra ko rodyti</string>
+  <string name="error_skip">Praleisti</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekstas į kalbą</string>
   <string name="notification_channel_progress_status">Eigos būsenos pranešimas dėl dokumentų siuntimo ir t.t.</string>
@@ -498,4 +500,11 @@ Paspaudę ir palaikę mygtuką \"Atgal\", pateksite į istorijos sąrašą. </st
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Aš suprantu</string>
   <string name="first_time_help_show_next_time">Rodyti ir kitą kartą</string>
+  <string name="http_forbidden">Uždrausta</string>
+  <string name="http_not_found">Nerasta</string>
+  <string name="http_unknown">Kitokia klaida</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="back_button">Atgal</string>
+  <string name="upgrading_database">Naujinama duomenų bazė. Palaukite…</string>
+  <string name="initializing_app">Inicijuojama programėlė…</string>
 </resources>
