@@ -232,7 +232,20 @@ constructor(private val callingActivity: MainBibleActivity,
                     val homepage = Uri.parse("https://andbible.github.io")
                     val playstore = Uri.parse("https://play.google.com/store/apps/details?id=" + callingActivity.packageName)
 
-                    val message = callingActivity.getString(R.string.tell_friend_message, playstore, homepage)
+                    val appName = callingActivity.getString(R.string.app_name_long)
+                    val message1 = callingActivity.getString(R.string.tell_friend_message1, appName)
+                    val message2 = callingActivity.getString(R.string.tell_friend_message2)
+                    val message3 = callingActivity.getString(R.string.tell_friend_message3, playstore)
+                    val message4 = callingActivity.getString(R.string.tell_friend_message4, homepage)
+
+                    val message = """
+                        $message1 $message2 
+                        
+                        $message3 
+                        
+                        $message4
+                    """.trimIndent()
+
 
                     val emailIntent = Intent(Intent.ACTION_SEND).apply {
                         putExtra(Intent.EXTRA_TEXT, message)

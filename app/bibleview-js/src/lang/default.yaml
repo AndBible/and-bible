@@ -44,7 +44,7 @@ noMyNotesDescription: >
   The bookmarks will then appear here and you can add your personal notes to them.
 emptyStudyPad: >
   Empty study pad. Start adding to this study pad by creating text entries here
-  or by creating bookmarks with this bookmark label.
+  or by creating bookmarks with a bookmark label that corresponds with this study pad.
 studyPadModalTitle: Edit study pad entry
 doYouWantToDeleteEntry: Are you sure you want to delete this study pad entry?
 removeStudyPadConfirmationTitle: Remove study pad entry?

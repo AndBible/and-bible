@@ -93,7 +93,7 @@
         <menu>
             <item android:id="@+id/bugReport"
                 android:title="@string/send_bug_report_title"
-                android:icon="@drawable/ic_baseline_feedback_24"/>
+                android:icon="@drawable/ic_bug_report_white_24dp"/>
 
             <item android:id="@+id/rateButton"
                 android:title="@string/rate_application"

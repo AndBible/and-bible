@@ -754,26 +754,23 @@
     <string name="active_window_indicator_title">Show active window indicator</string>
     <string name="active_window_indicator_summary">Highlight window corners to help recognising which window is active</string>
     <string name="app_licence_title">Open Source License</string>
-    <string name="give_feedback_title">Give us feedback</string>
-    <string name="feedback_subject">Feedback to And Bible Open Source development team</string>
 
     <string name="how_to_contribute">How to contribute?</string>
     <string name="confirm_delete_bookmarks">Do you want to remove %d bookmarks and their notes?</string>
-    <string name="confirm_delete_study_pads">Do you want to remove %d bookmark labels / study pads? Also all associated bookmarks and study pad notes labels will be removed.</string>
+    <string name="confirm_delete_study_pads">Do you want to remove %d bookmark labels / study pads? Also all associated bookmarks and study pad notes will be removed.</string>
     <string name="toast_deletion_cancel">Undo delete by pressing cancel button.</string>
     <string name="module_size_megabytes">%.1f MB</string>
-    <string name="tell_friend_title">Invite a friend</string>
-    <string name="tell_friend_message">I would like to recommend the Bible Study app by And Bible Open Source Project, to you.
-        It is a powerful, yet easy to use, offline Bible study application for Android.
-        \n\nInstall it from Play Store: %s
-        \nRead more &amp; more install options: %s.
-    </string>
+    <string name="tell_friend_title">Recommend to a friend</string>
+    <string name="tell_friend_message1">I would like to recommend %s to you.</string>
+    <string name="tell_friend_message2">It is a powerful, yet easy to use, offline Bible study application for Android.</string>
+    <string name="tell_friend_message3">Install it from Play Store: %s</string>
+    <string name="tell_friend_message4">Read more &amp; more install options: %s</string>
     <string name="share_verse_ok">Share / Copy</string>
     <string name="share_verse_menu_title">Share / copy…</string>
     <string name="show_versenumbers">Show verse numbers</string>
     <string name="show_full_verses">Show full verses</string>
     <string name="advertise_app">Advertise app</string>
-    <string name="verse_share_advertise">Shared using %s".</string>
+    <string name="verse_share_advertise">Shared using %s.</string>
     <string name="abbreviate_reference">Abbreviate reference</string>
     <string name="backup_button">Backup</string>
     <string name="back_button">Back</string>
