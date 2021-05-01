@@ -1188,12 +1188,6 @@
             "columnName": "repository",
             "affinity": "TEXT",
             "notNull": true
-          },
-          {
-            "fieldPath": "rowId",
-            "columnName": "rowid",
-            "affinity": "INTEGER",
-            "notNull": true
           }
         ],
         "primaryKey": {
