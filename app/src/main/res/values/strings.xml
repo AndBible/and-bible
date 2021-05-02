@@ -113,7 +113,6 @@
     <string name="prefs_interface_locale_title">Application language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
     <string name="reset_fontsize">Reset</string>
-    <string name="reset_generic">Reset</string>
 
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
     <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword/sword folder on internal storage</string>
@@ -281,8 +280,21 @@
     <string name="set_current_day">Set as current day…</string>
     <string name="msg_set_current_day_reading_plan">This will set today as the current day in this plan and mark all previous days as read. Continue?</string>
     <string name="done">Done</string>
-    <string name="reset">Reset</string>
     <string name="reset_plan_question">Are you sure you want to reset this plan?</string>
+    <string name="import_reading_plan">Import reading plan…</string>
+    <string name="import_reading_plan_error">Error on import</string>
+    <string name="import_reading_plan_error_duplicate">The following days were duplicate: %s</string>
+    <string name="import_reading_plan_error_days">The following days contained errors: %s</string>
+    <string name="import_reading_plan_anyway">Import anyway</string>
+    <string name="overwrite_reading_plan">Do you want to overwrite %s?</string>
+    <string name="delete_reading_plan">Delete this plan</string>
+    <string name="reading_plan_deleted">The reading plan has been deleted</string>
+    <string name="reading_plan_ships_with_ab">This reading plan ships with %s</string>
+    <string name="confirm_delete_reading_plan">
+        Are you sure you want to delete %s along with it\'s reading history?
+        Hint: if you need to update the plan then you can just import it again with the same filename
+        and the history will be preserved.
+    </string>
     <string name="plan_duplicate_user_plan">
         There is a user reading plan in sdcard
         jsword/readingplan with the same name as an internal plan. It can not be listed here.
@@ -579,9 +591,11 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="error">Error</string>
+    <string name="delete_generic">Delete</string>
     <string name="please_wait">Please wait…</string>
     <string name="all">All</string>
     <string name="edit">Edit</string>
+    <string name="reset_generic">Reset</string>
     <string name="watch_tutorial_video">Watch tutorial video (English)</string>
     <string name="verse_not_found">Verse not found</string>
 

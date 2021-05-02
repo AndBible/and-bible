@@ -45,7 +45,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:onClick="onReset"
-			android:text="@string/reset" />
+			android:text="@string/reset_generic" />
 
 		<Button
 			android:id="@+id/newLabel"
