@@ -19,3 +19,4 @@ jobs:
       if: github.event.action == 'opened'
       with:
         project: 'https://github.com/AndBible/and-bible/projects/2'
+        column_name: 'Needs triage'
