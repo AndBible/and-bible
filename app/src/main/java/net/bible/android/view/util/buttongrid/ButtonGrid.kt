@@ -100,7 +100,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
             val row = TableRow(context)
             addView(row, rowInTableLp)
             for (iCol in 0 until rowColLayout.cols) {
-                val buttonInfoIndex = iRow * rowColLayout.cols + iCol
+                val buttonInfoIndex = getButtonInfoIndex(iRow, iCol)
                 if (buttonInfoIndex < numButtons) {
                     // create a graphical Button View object to show on the screen and link it to the ButtonInfo object
                     val buttonInfo = buttonInfoList[buttonInfoIndex]
@@ -142,6 +142,20 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
         }
         val scale = context.resources.displayMetrics.density
         previewHeight = (PREVIEW_HEIGHT_DIP * scale).toInt()
+    }
+
+    /** Ensure longer runs by populating in longest direction ie columns if portrait and rows if landscape
+     *
+     * @param row
+     * @param col
+     * @return
+     */
+    private fun getButtonInfoIndex(row: Int, col: Int): Int {
+        return if (rowColLayout!!.columnOrder) {
+            col * rowColLayout!!.rows + row
+        } else {
+            row * rowColLayout!!.cols + col
+        }
     }
 
     /* (non-Javadoc)
@@ -212,14 +226,16 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
 
     private fun showPreview(buttonInfo: ButtonInfo) {
         try {
+            val preview = previewText ?: return
             if (buttonInfo != currentPreview) {
                 Log.d(TAG, "Previewing " + buttonInfo.description)
+
                 currentPreview = buttonInfo
-                previewText!!.text = buttonInfo.description
+                preview.text = buttonInfo.description
                 val popupHeight = previewHeight
-                previewText!!.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
-                val popupWidth = max(previewText!!.measuredWidth, buttonInfo.button!!.width + previewText!!.paddingLeft + previewText!!.paddingRight)
-                val lp = previewText!!.layoutParams
+                preview.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
+                val popupWidth = max(preview.measuredWidth, buttonInfo.button.width + preview.paddingLeft + preview.paddingRight)
+                val lp = preview.layoutParams
                 if (lp != null) {
                     lp.width = popupWidth
                     lp.height = popupHeight
@@ -233,15 +249,15 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                     // if in top 2 rows then show off to right/left to avoid popup going off the screen
                     popupPreviewX = if (buttonInfo.colNo < rowColLayout!!.cols / 2.0) {
                         // key is on left so show to right of key
-                        buttonInfo.left - previewText!!.paddingLeft + horizontalOffset
+                        buttonInfo.left - preview.paddingLeft + horizontalOffset
                     } else {
                         // key is on right so show to right of key
-                        buttonInfo.left - previewText!!.paddingLeft - horizontalOffset
+                        buttonInfo.left - preview.paddingLeft - horizontalOffset
                     }
                     popupPreviewY = buttonInfo.bottom
                 } else {
                     // show above the key above the one currently pressed
-                    popupPreviewX = buttonInfo.left - previewText!!.paddingLeft
+                    popupPreviewX = buttonInfo.left - preview.paddingLeft
                     popupPreviewY = buttonInfo.top /*- popupHeight*/ + previewOffset
                 }
                 if (previewPopup!!.isShowing) {
@@ -251,11 +267,11 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                     previewPopup!!.height = popupHeight
                     previewPopup!!.showAtLocation(this, Gravity.NO_GRAVITY, popupPreviewX, popupPreviewY)
                 }
-                previewText!!.visibility = View.VISIBLE
+                preview.visibility = View.VISIBLE
             } else {
                 // could be returning to this view via Back or Finish and the user represses same button
-                if (previewText!!.visibility != View.VISIBLE) {
-                    previewText!!.visibility = View.VISIBLE
+                if (preview.visibility != View.VISIBLE) {
+                    preview.visibility = View.VISIBLE
                 }
             }
         } catch (e: Exception) {

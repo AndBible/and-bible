@@ -47,7 +47,6 @@ import java.util.ArrayList
 
 import javax.inject.Inject
 
-private val NEW_TESTAMENT_TINT = Color.parseColor("#FF505050")
 
 /**
  * Choose a bible book e.g. Psalms
@@ -266,6 +265,8 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(), OnButtonGridActionLi
 
         const val BOOK_NO = "BOOK_NO"
         const val CHAPTER_NO = "CHAPTER_NO"
+
+        private val NEW_TESTAMENT_TINT = Color.argb(0xFF,0x50,0x50,0x50)
 
         // colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
         private val PENTATEUCH_COLOR = Color.rgb(0xCC, 0xCC, 0xFE)

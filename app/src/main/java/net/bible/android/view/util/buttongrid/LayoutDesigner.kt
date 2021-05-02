@@ -31,6 +31,9 @@ class LayoutDesigner(private val view: View) {
     class RowColLayout {
         var rows = 0
         var cols = 0
+
+        /** column order if portrait mode to provide longer 'runs'  */
+        var columnOrder = false
     }
 
     companion object {
@@ -83,6 +86,7 @@ class LayoutDesigner(private val view: View) {
             val minCols = if (isPortrait) MIN_COLS else MIN_COLS_LAND
             rowColLayout.cols = Math.max(minCols, rowColLayout.cols)
         }
+        rowColLayout.columnOrder = isPortrait
         Log.d(TAG, "Rows:" + rowColLayout.rows + " Cols:" + rowColLayout.cols)
         return rowColLayout
     }
