@@ -35,15 +35,20 @@ if(testMode) {
 let stringsLoaded = false;
 
 async function loadStrings() {
-    const lang = new URLSearchParams(window.location.search).get("lang");
-    if(lang === "en-US") return;
-    console.log(`Loading lang ${lang}`)
+    const langTag = new URLSearchParams(window.location.search).get("lang");
+    if(langTag === "en-US") return;
+    const langShort = langTag.split('-')[0]
+    console.log(`Loading lang ${langTag}`)
     let translations;
     try {
-        translations = await import(`@/lang/${lang}.yaml`);
+        translations = await import(`@/lang/${langTag}.yaml`);
     } catch (e) {
-        console.error(`Language ${lang} not found, falling back to English!`)
-        return;
+        try {
+            translations = await import(`@/lang/${langShort}.yaml`);
+        } catch(e) {
+            console.error(`Language ${langTag} not found, falling back to English!`)
+            return;
+        }
     }
     for(const i in translations) {
         if(translations[i]) {
