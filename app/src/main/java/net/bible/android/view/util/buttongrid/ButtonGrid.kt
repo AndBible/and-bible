@@ -18,9 +18,11 @@
 package net.bible.android.view.util.buttongrid
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
@@ -36,11 +38,14 @@ import android.widget.TableRow
 import android.widget.TextView
 import net.bible.android.activity.R
 import net.bible.android.view.util.buttongrid.LayoutDesigner.RowColLayout
+import kotlin.math.max
 
 class ButtonInfo (
     var id: Int = 0,
     var name: String? = null,
+    var description: String? = null,
     var textColor: Int = Color.WHITE,
+    var tintColor: Int = Color.DKGRAY,
     var highlight: Boolean = false,
 
     var top: Int = 0,
@@ -101,8 +106,8 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                     val buttonInfo = buttonInfoList[buttonInfoIndex]
                     val button = Button(context)
                     button.text = buttonInfo.name
-                    button.setBackgroundResource(R.drawable.buttongrid_button_background)
                     button.setTextColor(buttonInfo.textColor)
+                    button.backgroundTintList = ColorStateList.valueOf(buttonInfo.tintColor)
                     if (buttonInfo.highlight) {
                         button.setTypeface(Typeface.DEFAULT_BOLD)
                         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
@@ -125,13 +130,16 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
             }
         }
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        previewText = inflater.inflate(R.layout.buttongrid_button_preview, null) as TextView
-        val previewPopup = PopupWindow(previewText)
-        this.previewPopup = previewPopup
-        previewPopup.contentView = previewText
-        previewPopup.setBackgroundDrawable(null)
-        previewPopup.isTouchable = false
-        previewText!!.setCompoundDrawables(null, null, null, null)
+        previewText = (inflater.inflate(R.layout.buttongrid_button_preview, null) as TextView).apply {
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.MARQUEE
+            setCompoundDrawables(null, null, null, null)
+        }
+        previewPopup = PopupWindow(previewText).apply {
+            contentView = previewText
+            setBackgroundDrawable(null)
+            isTouchable = false
+        }
         val scale = context.resources.displayMetrics.density
         previewHeight = (PREVIEW_HEIGHT_DIP * scale).toInt()
     }
@@ -218,15 +226,16 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
 
     private fun showPreview(buttonInfo: ButtonInfo) {
         try {
-            val button = buttonInfo.button
+            val preview = previewText ?: return
             if (buttonInfo != currentPreview) {
-                Log.d(TAG, "Previewing " + buttonInfo.name)
+                Log.d(TAG, "Previewing " + buttonInfo.description)
+
                 currentPreview = buttonInfo
-                previewText!!.text = buttonInfo.name
+                preview.text = buttonInfo.description
                 val popupHeight = previewHeight
-                previewText!!.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
-                val popupWidth = Math.max(previewText!!.measuredWidth, buttonInfo.button!!.width + previewText!!.paddingLeft + previewText!!.paddingRight)
-                val lp = previewText!!.layoutParams
+                preview.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
+                val popupWidth = max(preview.measuredWidth, buttonInfo.button.width + preview.paddingLeft + preview.paddingRight)
+                val lp = preview.layoutParams
                 if (lp != null) {
                     lp.width = popupWidth
                     lp.height = popupHeight
@@ -240,15 +249,15 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                     // if in top 2 rows then show off to right/left to avoid popup going off the screen
                     popupPreviewX = if (buttonInfo.colNo < rowColLayout!!.cols / 2.0) {
                         // key is on left so show to right of key
-                        buttonInfo.left - previewText!!.paddingLeft + horizontalOffset
+                        buttonInfo.left - preview.paddingLeft + horizontalOffset
                     } else {
                         // key is on right so show to right of key
-                        buttonInfo.left - previewText!!.paddingLeft - horizontalOffset
+                        buttonInfo.left - preview.paddingLeft - horizontalOffset
                     }
                     popupPreviewY = buttonInfo.bottom
                 } else {
                     // show above the key above the one currently pressed
-                    popupPreviewX = buttonInfo.left - previewText!!.paddingLeft
+                    popupPreviewX = buttonInfo.left - preview.paddingLeft
                     popupPreviewY = buttonInfo.top /*- popupHeight*/ + previewOffset
                 }
                 if (previewPopup!!.isShowing) {
@@ -258,11 +267,11 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                     previewPopup!!.height = popupHeight
                     previewPopup!!.showAtLocation(this, Gravity.NO_GRAVITY, popupPreviewX, popupPreviewY)
                 }
-                previewText!!.visibility = View.VISIBLE
+                preview.visibility = View.VISIBLE
             } else {
                 // could be returning to this view via Back or Finish and the user represses same button
-                if (previewText!!.visibility != View.VISIBLE) {
-                    previewText!!.visibility = View.VISIBLE
+                if (preview.visibility != View.VISIBLE) {
+                    preview.visibility = View.VISIBLE
                 }
             }
         } catch (e: Exception) {
