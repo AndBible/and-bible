@@ -3,7 +3,6 @@ name: Feature request
 about: Suggest an idea for this project
 title: ''
 labels: 'Prio: Minor, Type: Feature, Status: Preliminary'
-assignees: tuomas2
 
 ---
 
