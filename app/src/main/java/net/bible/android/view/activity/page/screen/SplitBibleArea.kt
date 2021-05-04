@@ -791,7 +791,7 @@ class SplitBibleArea(
             R.id.windowSynchronise -> CommandPreference(
                 handle = {windowControl.setSynchronised(window, !window.isSynchronised)},
                 value = window.isSynchronised,
-                visible = !window.isLinksWindow
+                visible = !window.isLinksWindow && window.isSyncable
             )
             R.id.pinMode -> CommandPreference(
                 handle = {windowControl.setPinMode(window, !window.isPinMode)},

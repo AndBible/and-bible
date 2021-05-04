@@ -265,6 +265,9 @@ abstract class CurrentPageBase protected constructor(
      */
     override val isSpeakable: Boolean = true
 
+    /** Can we sync between windows
+     */
+    override val isSyncable: Boolean = true
     companion object {
         private const val TAG = "CurrentPage"
     }
