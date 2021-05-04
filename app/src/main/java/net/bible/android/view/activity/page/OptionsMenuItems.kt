@@ -258,7 +258,7 @@ class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDi
                 newChoice = value
             }
             .setPositiveButton(R.string.okay) { _,_ -> this.value = newChoice; onChanged?.invoke(newChoice) }
-            .setNeutralButton(R.string.reset) { _, _ -> setNonSpecific(); onReset?.invoke() }
+            .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); onReset?.invoke() }
             .setNegativeButton(R.string.cancel, null)
         dialog.show()
         return true
