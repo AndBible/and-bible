@@ -234,7 +234,8 @@ class SpeakControl @Inject constructor(
 
             } catch (e: Exception) {
                 Log.e(TAG, "Error getting chapters to speak", e)
-                throw AndRuntimeException("Error preparing Speech", e)
+                EventBus.getDefault().post(ToastEvent(R.string.speak_general_error))
+                return
             }
 
         }

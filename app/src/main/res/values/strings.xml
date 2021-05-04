@@ -419,6 +419,7 @@
     <string name="speak_sleep_timer_title">Sleep timer</string>
 
     <string name="speak_no_books_available">No books available to speak</string>
+    <string name="speak_general_error">Speak could not be started for this book</string>
 
     <string name="repeat_passage">Repeat passage</string>
     <string name="set_repeat_passage_range">Set repeat passage range</string>
