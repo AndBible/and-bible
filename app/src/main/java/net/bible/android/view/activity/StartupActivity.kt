@@ -29,6 +29,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.webkit.WebViewCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -126,20 +127,27 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private fun checkForExternalStorage(): Boolean {
         var abortErrorMsgId = 0
 
-        // check for external storage
-        // it would be great to check in the Application but how to show dialog from Application?
         if (Environment.MEDIA_MOUNTED != Environment.getExternalStorageState()) {
             abortErrorMsgId = R.string.no_sdcard_error
         }
 
-        // show fatal startup msg and close app
         if (abortErrorMsgId != 0) {
             Dialogs.instance.showErrorMsg(abortErrorMsgId) {
-                // this causes the blue splashscreen activity to finish and since it is the top the app closes
                 finish()
             }
-            // this aborts further warmUp but leaves blue splashscreen activity
             return false;
+        }
+        return true
+    }
+
+    private fun checkWebView(): Boolean {
+        val info = WebViewCompat.getCurrentWebViewPackage(applicationContext)
+        val versionNum = info?.versionName?.split(".")?.first()?.toInt() ?: 0
+        if(versionNum < 89) {
+            Dialogs.instance.showErrorMsg(getString(R.string.old_webview, info?.versionName, getString(R.string.app_name_medium))) {
+                finish()
+            }
+            return false
         }
         return true
     }
@@ -155,6 +163,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         buildActivityComponent().inject(this)
         supportActionBar!!.hide()
         if (!checkForExternalStorage()) return;
+        if(!checkWebView()) return
+
         BackupControl.setupDirs(this)
         val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
         GlobalScope.launch {

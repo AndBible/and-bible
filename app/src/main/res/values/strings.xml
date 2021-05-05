@@ -792,4 +792,5 @@
     <string name="upgrading_database">Upgrading database. Please wait…</string>
     <string name="initializing_app">Initializing application…</string>
     <string name="show_notes">Show notes</string>
+    <string name="old_webview">Webview is too old (%s). You need to upgrade your Android Webview package to use %s.</string>
 </resources>
