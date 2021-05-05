@@ -97,7 +97,6 @@
   <string name="prefs_interface_locale_title">Sovelluksen kieli</string>
   <string name="prefs_interface_locale_summary">Valitse käyttöliittymän kieli</string>
   <string name="reset_fontsize">Tyhjää</string>
-  <string name="reset_generic">Tyhjennä</string>
   <string name="prefs_request_sdcard_permission_title">Käytä manuaalisesti asennettuja dokumentteja</string>
   <string name="prefs_request_sdcard_permission_summary">Ota käyttöön manuaalisesti asennetut dokumentit jsword/sword-kansioissa sisäisessä muistissa</string>
   <string name="all_text_options_window_menutitle">Kaikki tekstivalinnat</string>
@@ -238,8 +237,18 @@
   <string name="set_current_day">Aseta nykyiseksi päiväksi…</string>
   <string name="msg_set_current_day_reading_plan">Tämä asettaa tämän päivän nykyiseksi päiväksi lukusuunnitelmassa ja merkitsee edeltävät päivät luetuksi. Jatketaanko?</string>
   <string name="done">Valmis</string>
-  <string name="reset">Tyhjennä</string>
   <string name="reset_plan_question">Oletko varma että haluat alustaa tämän lukusuunnitelman?</string>
+  <string name="import_reading_plan">Tuo lukusuunnitelma…</string>
+  <string name="import_reading_plan_error">Virhe tuonnissa</string>
+  <string name="import_reading_plan_error_duplicate">Seuraavat päivät samanlaiset: %s</string>
+  <string name="import_reading_plan_error_days">Seuraavissa päivissä oli virheitä: %s</string>
+  <string name="import_reading_plan_anyway">Tuo jokatapauksessa</string>
+  <string name="overwrite_reading_plan">Haluatko ylikirjoittaa %s?</string>
+  <string name="delete_reading_plan">Poista tämä lukusuunnitelma</string>
+  <string name="reading_plan_deleted">Lukusuunnitelma on poistettu</string>
+  <string name="reading_plan_ships_with_ab">Tämä lukusuunnitelma tulee %s:n mukana</string>
+  <string name="confirm_delete_reading_plan">Haluatko varmasti poistaa %s ja sen lukuhistorian?
+Vinkki: jos sinun pitää päivittää lukusuunnitelma niin voit tuoda sen uudelleen samalla tiedostonimellä ja tällöin historia säilyy.</string>
   <string name="plan_duplicate_user_plan">
 SD-kortilla on käyttäjän lukusuunnitelma 
 jsword/readingplan joka on saman niminen kuin sisäänrakennettu lukusuunnitelma. Sitä ei voida näyttää tässä. 
@@ -345,6 +354,7 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="speak_advanced_settings">Lisäasetukset</string>
   <string name="speak_sleep_timer_title">Uniajastin</string>
   <string name="speak_no_books_available">Ei ole kirjoja joita voisi puhua</string>
+  <string name="speak_general_error">Puhetta ei voinut aloittaa tälle kirjalle</string>
   <string name="repeat_passage">Toista raamatunpaikkaa</string>
   <string name="set_repeat_passage_range">Aseta toiston laajuus</string>
   <string name="speak_beginning_of_passage">Valitse toistettavan alueen alkukohta</string>
@@ -489,9 +499,11 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="yes">Kyllä</string>
   <string name="no">Ei</string>
   <string name="error">Virhe</string>
+  <string name="delete_generic">Poista</string>
   <string name="please_wait">Odota…</string>
   <string name="all">Kaikki</string>
   <string name="edit">Muokkaa</string>
+  <string name="reset_generic">Tyhjennä</string>
   <string name="watch_tutorial_video">Katso ohjevideo (englanninkielinen)</string>
   <string name="verse_not_found">Jaetta ei löytynyt</string>
   <!--Errors-->
@@ -629,4 +641,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="upgrading_database">Päivitetään tietokantaa. Odota hetki…</string>
   <string name="initializing_app">Käynnistetään sovellusta…</string>
   <string name="show_notes">Näytä merkinnät</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Androidin WebView-paketti on liian vanha (%s). Sinun pitää päivittää Android Webview-paketti vähintään versioon %s käyttääksesi sovellusta %s. Useimmilla laitteilla tämä tapahtuu %sn kautta.</string>
+  <string name="play">Google Play</string>
 </resources>

@@ -196,7 +196,6 @@
   <string name="rdg_plan_day">Jour %s</string>
   <string name="rdg_plan_set_start_date">Définir la date de début…</string>
   <string name="done">Fait</string>
-  <string name="reset">Réinitialiser</string>
   <string name="reset_plan_question">Êtes-vous sûrs de redémarrer ce plan?</string>
   <string name="plan_duplicate_user_plan">
 Un plan de lecture existe sur la sdcard
@@ -483,4 +482,5 @@ Appuyez longuement sur le bouton Retour pour accéder à la liste de l\'historiq
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">J\'ai compris</string>
   <string name="first_time_help_show_next_time">Me montrer la prochaine fois</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

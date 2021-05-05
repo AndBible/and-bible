@@ -198,7 +198,6 @@
   <string name="rdg_plan_day">दिवस %s</string>
   <string name="rdg_plan_set_start_date"> प्रारंभ तिथि निर्धारित करें ...</string>
   <string name="done">समाप्त</string>
-  <string name="reset"> पुनः तैयार करना</string>
   <string name="reset_plan_question"> क्या आप वाकई इस प्लान को रिसेट करना चाहते हैं?</string>
   <string name="plan_duplicate_user_plan"> 
          एसडी कार्ड
@@ -506,4 +505,5 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">मै समझता हुँ</string>
   <string name="first_time_help_show_next_time">अगली बार फिर दिखाओ</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

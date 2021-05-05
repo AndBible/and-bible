@@ -204,7 +204,6 @@
   <string name="rdg_plan_set_start_date">শুরুর তারিখ সেট করুন ...
  </string>
   <string name="done">সম্পন্ন</string>
-  <string name="reset">রিসেট</string>
   <string name="reset_plan_question">আপনি কি নিশ্চিত যে আপনি এই পরিকল্পনাটি পুনরায় সেট করতে চান?</string>
   <string name="plan_duplicate_user_plan">
 এসডিকার্ডে একটি ব্যবহারকারী পড়ার পরিকল্পনা রয়েছে
@@ -483,4 +482,5 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">আমি বুঝেছি</string>
   <string name="first_time_help_show_next_time">পরের বার আবার প্রদর্শন করুন</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

@@ -29,7 +29,7 @@ And Biblio estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun n
 
  * programi novajn eblojn;
  * testi beta-eblojn;
- * traduki la programon; kaj per
+ * traduki la programon;
  * helpi plivastigi la bibliotekon de moduloj per ricevi permesojn de kopirajt‑posedantoj aŭ konverti dokumentojn al la formo SWORD.
 
 Se vi estas profesia programisto aŭ testanto, bonvolu konsideri kontribui al la projekto. Pliaj informoj pri kiel kontribui troviĝas ĉe https://git.io/JUnaj

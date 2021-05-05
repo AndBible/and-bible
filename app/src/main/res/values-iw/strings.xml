@@ -198,7 +198,6 @@
   <string name="rdg_plan_day">יום %s</string>
   <string name="rdg_plan_set_start_date">הגדרת תאריך התחלה....</string>
   <string name="done">סיום</string>
-  <string name="reset">איפוס</string>
   <string name="reset_plan_question">בטוח שאתה רוצה לאפס את התוכנית?</string>
   <string name="plan_duplicate_user_plan">
         ישנה תוכנית קריאה בכרטיס הזכרון
@@ -252,9 +251,12 @@
   <string name="bookmarks">סימניות</string>
   <string name="bookmark_added">הסימניה נוספה</string>
   <string name="assign_labels">הוסף תוויות</string>
+  <string name="new_item">חדש</string>
   <string name="new_label">תווית חדשה</string>
   <string name="label_name_prompt">שם</string>
   <string name="label_unlabelled">לא מתויג</string>
+  <string name="add_bookmark1">סימניה</string>
+  <string name="remove_bookmark">הסרה</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">סדר תאריכים</string>
   <string name="sort_by_bible_book">סדר הספרים</string>
@@ -460,4 +462,5 @@
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">אני מבין</string>
   <string name="first_time_help_show_next_time">הצג שוב בפעם הבאה</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

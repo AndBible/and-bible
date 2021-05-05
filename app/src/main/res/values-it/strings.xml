@@ -197,7 +197,6 @@ regolare la larghezza massima del testo.
   <string name="rdg_plan_day">Giorno %s</string>
   <string name="rdg_plan_set_start_date">Imposta data di inizio...</string>
   <string name="done">Fatto</string>
-  <string name="reset">Azzera</string>
   <string name="reset_plan_question">Sei sicuro di voler ripristinare questo piano?</string>
   <string name="plan_duplicate_user_plan">
 C\'è un piano di lettura dell\'utente in sdcard
@@ -506,4 +505,5 @@ quello di scorrere verso il basso dalla barra degli strumenti. Puoi anche usare 
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Capisco</string>
   <string name="first_time_help_show_next_time">Mostra di nuovo la prossima volta</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

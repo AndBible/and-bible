@@ -14,7 +14,9 @@
   <string name="history">Geskiedenis</string>
   <string name="speak">Praat</string>
   <string name="help">Hulp</string>
+  <string name="information">Inligting</string>
   <string name="other">Ander</string>
+  <string name="contact">Kontak</string>
   <string name="help_and_tips">Hulp &amp; wenke</string>
   <string name="administration">Administrasie</string>
   <string name="rate_application">Be-oordeel &amp; hersien in Google Play</string>
@@ -54,6 +56,7 @@
   <string name="search_current_book">Huidige boek</string>
   <string name="error_executing_search">Ongeldige soektog</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Wys hoofstuk &amp; vers nommers</string>
   <string name="prefs_verse_per_line_summary">Wys elke vers op \'n ander lyn</string>
   <string name="prefs_show_bookmarks_summary">Onmerk om alle boekmerke te verberg</string>
   <string name="prefs_show_mynotes_summary">Wys ikoon in verse met My nota</string>
@@ -63,6 +66,7 @@
   <string name="prefs_section_title_summary">Wys nie-kanonieke seksietitels</string>
   <string name="prefs_red_letter_summary">Wys woorde van Christus in rooi</string>
   <string name="prefs_text_size_title">Skrif voorkeure</string>
+  <string name="prefs_show_verseno_title">Hoofstuk &amp; vers nommers</string>
   <string name="prefs_verse_per_line_title">Een vers per lyn</string>
   <string name="prefs_show_bookmarks_title">Wys Boekmerke</string>
   <string name="prefs_show_mynotes_title">Wys My Nota ikone</string>
@@ -72,6 +76,11 @@
   <string name="prefs_section_title_title">Afdeling Titels</string>
   <string name="prefs_red_letter_title">Rooi woorde</string>
   <string name="prefs_tilt_to_scroll_title">Kantel om te skuif</string>
+  <string name="prefs_toolbar_button_action_title">Aksie vir nutsbalk knoppie druk</string>
+  <string name="prefs_toolbar_button_action_summary">Aksie om te neem wanneer jy Bybel- of Kommentaar nutsbalk knoppies druk</string>
+  <string name="prefs_toolbar_button_action_default">Druk om kieslys oop te maak, lang druk vir dokumente skerm (standaard)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Druk om volgende dokument oop te maak, lang druk om kieslys oop te maak</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Druk om volgende dokument oop te maak, lang druk vir dokumente skerm</string>
   <string name="prefs_night_mode_title">Nag mode skakel</string>
   <string name="prefs_night_mode_summary">Of u outomaties oorskakel na die nag mode (as die toestel ondersteun word), met die hand of via die stelselinstelling (Android 10+).</string>
   <string name="prefs_night_mode_manual">handleiding</string>
@@ -96,6 +105,7 @@
   <string name="reversed_split_mode">Omgekeerde verdeel modus</string>
   <string name="add_ellipsis">%s ...</string>
   <string name="font_size_pt">%dpt</string>
+  <string name="value_mm">%dmm</string>
   <string name="auto_fullscreen_summary">Skakel outomaties oor na volskerm wanneer u teks blaai. Wenk: u kan ook altyd oorskakel na die volledige skerm deur te dubbel klik op die skerm.</string>
   <string name="prefs_margin_size_title">Verander kantruimte grootte</string>
   <string name="prefs_margin_size_mm_title">Kantruimte grootte (%d/%d/%dmm)</string>
@@ -117,6 +127,8 @@
   <string name="pref_maximum_width_of_text_label_mm">Maksimum breedte van teks (%d mm)</string>
   <string name="prefs_line_spacing_pt">Lyn spasiëring %1.1fx</string>
   <string name="pref_font_family_label">Skrif familie</string>
+  <string name="prefs_top_margin_title">Boonste kantlyn</string>
+  <string name="prefs_top_margin_summary">Voeg kantlyn (met visuele aanduiding) bo-aan die venster wat die Bybelse dokument bevat. Die Bybel word geblaai sodat die huidige vers onder die kantlyn begin.</string>
   <string name="prefs_hyphenation_title"> 
 Woordafbreking</string>
   <string name="prefs_hyphenation_summary">Outomaties koppel woorde met koppelteken, as taal ondersteun word</string>
@@ -124,11 +136,28 @@ Woordafbreking</string>
   <string name="line_spacing_title">Lyn spasiëring</string>
   <string name="line_spacing_summary">Stel die spasie tussen lyne</string>
   <string name="select_none">Kies geen</string>
+  <string name="reset_are_you_sure">Is jy seker dat jy al hierdie waardes wil terugstel?</string>
   <string name="window_pinning_menutitle">Venster vasgespeld</string>
   <string name="hide_window_buttons_title">Versteek venster knoppies</string>
+  <string name="hide_window_buttons_summary">Venster knoppies wat aan die regterkant van die Bybel aansigte vertoon word, word weggesteek. Venster navigasiebalk aan die onderkant word steeds vertoon en jy kan venste ropspring kieslys oopmaak deur hulle lank te klik</string>
+  <string name="hide_bible_reference_overlay_title">Versteek Bybel verwysing oorleg</string>
+  <string name="hide_bible_reference_overlay_summary">Moenie die semi-deursigtige Bybel verwysings oorleg wys wanneer toep in volskerm modus is nie</string>
   <string name="full_screen_hide_buttons_pref_title">Versteek venster knoppiebalk in volskerm</string>
   <string name="full_screen_hide_buttons_pref_summary">Wanneer na volskerm modus oorskakel, verberg outomaties die venster knoppiebalk wat aan die onderkant van die skerm is</string>
+  <string name="prefs_dictionaries_cat">Woordeboeke</string>
+  <string name="choose_strongs_greek_dictionary_title">Strongs Griekse woordeboek</string>
+  <string name="choose_strongs_greek_dictionary_summary">Kies Strongs woordeboek vir Griekse woord definisies</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strongs Griekse woordeboek</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Kies Strongs woordeboek vir Hebreeuse  woord definisies</string>
+  <string name="choose_strongs_greek_morphology_title">Robinson Griekse morfologie</string>
+  <string name="choose_strongs_greek_morphology_summary">Kies woordeboek vir Robinson Griekse morfologie definisies</string>
+  <string name="prefs_top_margin_title_mm">Boonste kantlyn (%d mm)</string>
   <string name="font_size_title">Skrif grootte</string>
+  <string name="font_size_title_pt">Skrif grootte (%dpt)</string>
+  <string name="prefs_font_text_size_summary">Verstel hoof teks skrif grootte</string>
+  <string name="pref_font_family_label_name">Skrif familie (%s)</string>
+  <string name="prefs_font_family_summary">Verander skrif familie. Wenk: meer lettertipes kan geïnstalleer word via Aflaai Dokumente / Byvoegings.</string>
+  <string name="prefs_text_bookmarks_title">Boekmerk &amp; My Notas instellings</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleur instellings</string>
   <string name="window_color_settings_title">Venster kleur instellings</string>
@@ -168,19 +197,33 @@ Woordafbreking</string>
   <string name="morph_robinson_not_installed">Laai asseblief \'Robinson se morfologiese analise Kodes\' woordeboek af</string>
   <!--Module download-->
   <string name="download">Laai Dokumente af</string>
+  <string name="redownload">Herlaai Dokumente</string>
   <string name="download_confirmation">Laai \'n Bybel van die internet af?</string>
+  <string name="download_source_last_updated">Dokument lyste laas opgedateer: %s</string>
+  <string name="download_refreshing_book_list">Verfris lys beskikbare dokumente van dokument bedieners...</string>
+  <string name="download_source_message1">Dokumente word van die volgende bronne afgelaai:</string>
   <string name="download_document_confirm_prefix">Laai af</string>
   <string name="download_refresh_book_list_menu_item">Hernu</string>
+  <string name="error_downloading">\'n Fout het voorgekom terwyl dit afgelaai is. Kontroleer asseblief jou internetverbinding.</string>
+  <string name="error_downloading_status">Die bediener wat gasheer is %shet \'n fout teruggestuur as gevolg van %s (%d)</string>
   <string name="storage_space_warning">Onvoldoende lokale stoorplek.</string>
+  <string name="too_many_jobs">Te veel take loop. Wag asseblief dat sommige klaar is en probeer weer.</string>
   <string name="document_not_installed">Laai \'%s\' asseblief af</string>
   <string name="free_text_search_documents">Soek</string>
   <string name="chooce_language_hint">Taal</string>
+  <string name="one_more_back_press">Druk weer terug om die toep te sluit</string>
   <string name="document_filter_results">%ddocumente</string>
   <string name="download_question_title">Wil u voortgaan om dokumente af te laai?</string>
+  <string name="download_question_message">As u in \'n vervolgde land woon,
+moet jy miskien versigtig wees met die aflaai van Christelike materiaal via die internet.
+In plaas daarvan wil u miskien \'n zip-lêer van die module veiliger bekom en installeer
+via \"Laai dokumente vanaf zip\". Is jy seker dat jy wil voortgaan met die aflaai?
+Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
   <string name="do_not_ask_again">Ja, moenie meer vra nie</string>
   <string name="recommended_document">Aanbeveel!</string>
   <string name="about_version_history">Weergawe geskiedenis:%s</string>
   <string name="download_errors">Fout met aflaai</string>
+  <string name="failed_repositories_message">Kon nie met die volgende dokument bediener verbind nie: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Die volgende lêers kon nie afgelaai word nie:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Laai dokument van Zip </string>
@@ -197,9 +240,13 @@ Woordafbreking</string>
   <string name="rdg_plan_selector_title">Kies \'n lees plan</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Stel die begin datum ...</string>
+  <string name="set_current_day">Stel as huidige dag... </string>
+  <string name="msg_set_current_day_reading_plan">Dit sal vandag as die huidige dag in hierdie plan stel en al die vorige dae as gelees merk. Gan voort?</string>
   <string name="done">Klaar</string>
-  <string name="reset">Herstel</string>
   <string name="reset_plan_question">Is u seker dat u hierdie plan wil terugstel?</string>
+  <string name="import_reading_plan">Voer leesplan in... </string>
+  <string name="import_reading_plan_error">Fout met invoer</string>
+  <string name="import_reading_plan_error_duplicate">Die volgende dae het \'n duplikaat: %s</string>
   <string name="plan_duplicate_user_plan">
 Daar is \'n gebruikers leesplan in sdcard
 jsword / leesplan met dieselfde naam as \'n interne plan. Dit kan nie hier gelys word nie.
@@ -497,4 +544,5 @@ Lang druk op die Terug knoppie om toegang tot die geskiedenis lys te kry.
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Ek verstaan</string>
   <string name="first_time_help_show_next_time">Wys volgende keer weer</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

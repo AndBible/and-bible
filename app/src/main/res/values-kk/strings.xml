@@ -197,7 +197,6 @@
   <string name="rdg_plan_day">Күн %s</string>
   <string name="rdg_plan_set_start_date">Басталу Күнін Орнату...</string>
   <string name="done">Орындалды</string>
-  <string name="reset">Қайта бастау</string>
   <string name="reset_plan_question">Осы жоспарды қайта қалпына келтіргіңіз келетініне сенімдісіз бе?</string>
   <string name="plan_duplicate_user_plan">
 SD картасында пайдаланушының оқу жоспары бар,
@@ -476,4 +475,5 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="something_with_parenthesis">%s(%s)</string>
   <string name="first_time_help_do_not_show_again">Мен түсінемін</string>
   <string name="first_time_help_show_next_time">Келесі рет қайтадан көрсет</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

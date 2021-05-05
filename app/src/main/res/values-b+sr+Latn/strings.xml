@@ -198,7 +198,6 @@
   <string name="rdg_plan_day">Dan %s</string>
   <string name="rdg_plan_set_start_date">Postavi datum početka...</string>
   <string name="done">Gotovo</string>
-  <string name="reset">Resetuj</string>
   <string name="reset_plan_question">Da li ste sigurni da želite resetovati ovaj plan?</string>
   <string name="plan_duplicate_user_plan">
         Na SD kartici postoji plan čitanja
@@ -513,4 +512,5 @@
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Razumem</string>
   <string name="first_time_help_show_next_time">Prikaži i sledeći put</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

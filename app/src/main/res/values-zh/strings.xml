@@ -198,7 +198,6 @@
   <string name="rdg_plan_day">第 %s 天</string>
   <string name="rdg_plan_set_start_date">設定開始日期...</string>
   <string name="done">完成</string>
-  <string name="reset">重設</string>
   <string name="reset_plan_question">你確定要重設這計劃嗎？</string>
   <string name="plan_name_y1ntpspr">新約、詩篇與箴言一年計劃</string>
   <string name="plan_description_y1ntpspr">
@@ -450,4 +449,5 @@ Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">我明白</string>
   <string name="first_time_help_show_next_time">下次再顯示</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

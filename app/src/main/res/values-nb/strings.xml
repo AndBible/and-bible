@@ -193,7 +193,6 @@
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Sett startdato...</string>
   <string name="done">Ferdig</string>
-  <string name="reset">Tilbakestill</string>
   <string name="reset_plan_question">Er du sikker på at du vil tilbakestille denne planen?</string>
   <string name="plan_duplicate_user_plan">
 Det finnes en leseplan på minnekortet
@@ -416,4 +415,5 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Jeg forstår</string>
   <string name="first_time_help_show_next_time">Vis igjen neste gang</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

@@ -113,4 +113,5 @@
     </string>
   <!--Welcome text-->
   <!--Uncategorized-->
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

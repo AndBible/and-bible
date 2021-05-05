@@ -177,10 +177,17 @@
   <string name="chooce_language_hint">Idioma</string>
   <string name="document_filter_results">%d documentos</string>
   <string name="download_question_title">¿Desea proceder a descargar documentos?</string>
+  <string name="download_question_message">Si vives en un país perseguido,
+        Es posible que deba tener cuidado al descargar material cristiano a través de Internet.
+        En cambio, es posible que desee obtener archivos zip de módulo de forma más segura e instalarlos
+        a través de \"Cargar documento desde Zip\". ¿Seguro que quieres continuar con la descarga?
+        Todas las descargas de los servidores de módulos están encriptadas (HTTPS).
+</string>
   <string name="do_not_ask_again">Si, no preguntes de nuevo</string>
   <string name="recommended_document">Recomendada!</string>
   <string name="about_version_history">Historial de versiones: %s</string>
   <string name="download_errors">Descargar errores</string>
+  <string name="failed_repositories_message">No se pudo conectar al siguiente servidor de documentos: \n\n%s\n\n</string>
   <string name="failed_downloads_message">No se pudieron descargar los siguientes archivos: \n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Cargar documento desde zip</string>
@@ -198,7 +205,6 @@
   <string name="rdg_plan_day">Día %s</string>
   <string name="rdg_plan_set_start_date">Seleccione Fecha de Inicio...</string>
   <string name="done">Hecho</string>
-  <string name="reset">Resetea</string>
   <string name="reset_plan_question">¿Seguro que quiere restablecer este plan?</string>
   <string name="plan_duplicate_user_plan">
 Hay un plan de lectura de usuario en la tarjeta SD
@@ -506,4 +512,5 @@ a través de %s usted mismo. :-)</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Entiendo</string>
   <string name="first_time_help_show_next_time">Mostrar de nuevo la próxima vez</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

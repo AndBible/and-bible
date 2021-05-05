@@ -198,7 +198,6 @@
   <string name="rdg_plan_day">Dan %s</string>
   <string name="rdg_plan_set_start_date">Nastavi datum začetka...</string>
   <string name="done">Končano</string>
-  <string name="reset">Reset</string>
   <string name="reset_plan_question">Ali ste prepričani, da želite ponastaviti ta načrt?</string>
   <string name="plan_duplicate_user_plan">
         Na SD kartici je uporabnikov načrt branja
@@ -503,4 +502,5 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Razumem</string>
   <string name="first_time_help_show_next_time">Ponovno pokaži prihodnjič</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

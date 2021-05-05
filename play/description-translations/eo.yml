@@ -48,7 +48,7 @@ paragraph_3_1: >-
   And Biblio estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun necesaj scipovoj) povas kaj estas instigata por kontribui al la projekto per:
 contr_1: programi novajn eblojn;
 contr_2: testi beta-eblojn;
-contr_3: traduki la programon; kaj per
+contr_3: traduki la programon;
 contr_4: helpi plivastigi la bibliotekon de moduloj per ricevi permesojn de kopirajt‑posedantoj aŭ konverti dokumentojn al la formo SWORD.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 paragraph_4_1: "Se vi estas profesia programisto aŭ testanto, bonvolu konsideri kontribui al la projekto. Pliaj informoj pri kiel kontribui troviĝas ĉe {{how_to_contribute_url}}"

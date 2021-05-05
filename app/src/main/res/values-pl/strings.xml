@@ -196,7 +196,6 @@
   <string name="rdg_plan_day">Dzień %s</string>
   <string name="rdg_plan_set_start_date">Wybierz datę rozpoczęcia…</string>
   <string name="done">Gotowe</string>
-  <string name="reset">Reset</string>
   <string name="reset_plan_question">Czy na pewno chcesz rozpocząć ten plan od nowa?</string>
   <string name="plan_duplicate_user_plan">
 Istnieje plan czytania użytkownika w katalogu „jsword/readingplan” na karcie SD o tej samej nazwie co plan wewnętrzny, Nie można go tutaj wyświetlić. Prosimy zmienić nazwę pliku, pozostawiając jego rozszerzenie „.properties”.</string>
@@ -468,4 +467,5 @@ Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszar�
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Rozumiem</string>
   <string name="first_time_help_show_next_time">Wyświetl ponownie później</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

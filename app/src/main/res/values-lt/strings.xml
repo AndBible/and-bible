@@ -197,7 +197,6 @@
   <string name="rdg_plan_day">Diena %s</string>
   <string name="rdg_plan_set_start_date">Nustatyti pradžios datą</string>
   <string name="done">Atlikta</string>
-  <string name="reset">Atstatyti</string>
   <string name="reset_plan_question">Ar tikrai norite atstatyti šį planą?</string>
   <string name="plan_duplicate_user_plan">
         Yra skaitymo planas, esantis sdcard
@@ -507,4 +506,5 @@ Paspaudę ir palaikę mygtuką \"Atgal\", pateksite į istorijos sąrašą. </st
   <string name="back_button">Atgal</string>
   <string name="upgrading_database">Naujinama duomenų bazė. Palaukite…</string>
   <string name="initializing_app">Inicijuojama programėlė…</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>

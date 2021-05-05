@@ -14,7 +14,9 @@
   <string name="history">Historio</string>
   <string name="speak">Paroli</string>
   <string name="help">Helpo</string>
+  <string name="information">Informoj</string>
   <string name="other">Aliaj</string>
+  <string name="contact">Kontakto</string>
   <string name="help_and_tips">Helpo kaj konsiloj</string>
   <string name="administration">Administri</string>
   <string name="rate_application">Taksi kaj recenzi ĉe Google Play</string>
@@ -30,7 +32,7 @@
   <string name="index_creation_required">Indekso estas necesa por serĉi.</string>
   <string name="create_index_for">Indekso estas necesa por serĉi.\n\nĈu krei indekson por %s?</string>
   <string name="rebuild_index_for">Ĉu rekrei indekson por %s?</string>
-  <string name="indexing_wait_msg">Kiam indeksado finiĝos, vi iros al serĉa ekrano.</string>
+  <string name="indexing_wait_msg">Kiam indeksado finiĝos, vi revenos al la ekrano de serĉo.</string>
   <string name="index_create">Krei</string>
   <string name="rebuild_index">Rekrei indekson</string>
   <string name="search_in">Serĉi en %s</string>
@@ -38,7 +40,7 @@
   <string name="rebuild_index_button">Rekrei</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
-  <string name="task_kill_warning">Tiuj tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ili finiĝos.</string>
+  <string name="task_kill_warning">Tiuj ĉi tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ili finiĝos.</string>
   <string name="no_tasks_running">Nune neniu tasko estas lanĉata.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Serĉi versojn enhavantajn:</string>
@@ -54,6 +56,7 @@
   <string name="search_current_book">la nuna libro</string>
   <string name="error_executing_search">Erara serĉmendo</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Montri numerojn de versoj kaj ĉapitroj</string>
   <string name="prefs_verse_per_line_summary">Montri ĉiun verson en alia linio</string>
   <string name="prefs_show_bookmarks_summary">Malmarku por kaŝi ĉiujn legosignojn</string>
   <string name="prefs_show_mynotes_summary">Montri emblemon ĉe verso en miaj notoj</string>
@@ -63,6 +66,7 @@
   <string name="prefs_section_title_summary">Montri nekanonajn titolojn de sekcioj</string>
   <string name="prefs_red_letter_summary">Montri vortojn de Kristo ruĝe</string>
   <string name="prefs_text_size_title">Agordi tiparojn</string>
+  <string name="prefs_show_verseno_title">Numeroj de versoj k ĉapitroj</string>
   <string name="prefs_verse_per_line_title">Po unu verso en linio</string>
   <string name="prefs_show_bookmarks_title">Montri legosignojn</string>
   <string name="prefs_show_mynotes_title">Montri piktogramojn de miaj notoj</string>
@@ -72,11 +76,16 @@
   <string name="prefs_section_title_title">Sekciaj titoloj</string>
   <string name="prefs_red_letter_title">Ruĝaj literoj</string>
   <string name="prefs_tilt_to_scroll_title">Skui por rulumi</string>
+  <string name="prefs_toolbar_button_action_title">Agoj de butonoj de ilarstrio</string>
+  <string name="prefs_toolbar_button_action_summary">Agoj okazontaj post frapet(ad)i butonojn de ilarstrio de Biblio aŭ komentaro</string>
+  <string name="prefs_toolbar_button_action_default">Frapeti por malfermi menuon, frapetadi por montri ekranon de dokumentoj (implicite)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Frapeti por malfermi sekvan dokumenton, frapetadi por malfermi menuon</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Frapeti por malfermi sekvan dokumenton, frapetadi por montri ekranon de dokumentoj</string>
   <string name="prefs_night_mode_title">Aktivigi noktan reĝimon</string>
-  <string name="prefs_night_mode_summary">Agordi ĉu aŭtomate (mal)ŝalti noktan reĝimon (se subtenata de aparato), ĉu permane, ĉu permesi al sistemo decidi (Android 10+).</string>
+  <string name="prefs_night_mode_summary">Agordi ĉu aŭtomate (mal)ŝalti noktan reĝimon (se subtenata de aparato), ĉu permane, ĉu permesi al la operaciumo decidi (Android 10+).</string>
   <string name="prefs_night_mode_manual">Permane</string>
   <string name="prefs_night_mode_automatic">Aŭtomate</string>
-  <string name="prefs_night_mode_system">Sistema</string>
+  <string name="prefs_night_mode_system">Laŭ operaciumo</string>
   <string name="options_menu_night_mode">Nokta reĝimo</string>
   <string name="prefs_navigate_to_verse_title">Navigi al verso</string>
   <string name="prefs_navigate_to_verse_summary">Montri elekton de verso (kaj ĉapitro) je elekto de alineo</string>
@@ -96,6 +105,7 @@
   <string name="reversed_split_mode">Horizontale/vertikale</string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d p.</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Aŭtomate baskuli al plenekrano dum rulumi tekston. Konsilo: vi ĉiam povas baskuli al plenekrano per dufoje frapeti la ekranon.</string>
   <string name="prefs_margin_size_title">Ŝanĝi grandojn de marĝenoj</string>
   <string name="prefs_margin_size_mm_title">Grandoj de marĝenoj (%d/%d/%d mm)</string>
@@ -115,18 +125,37 @@
   <string name="pref_right_margin_label_mm">Dekstra marĝeno (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Maksimuma larĝo de teksto (%d mm)</string>
   <string name="prefs_line_spacing_pt">Interlinia distanco %1.1f×</string>
-  <string name="pref_font_family_label">Tipara familio</string>
+  <string name="pref_font_family_label">Familio de tiparo</string>
+  <string name="prefs_top_margin_title">Supra marĝeno</string>
+  <string name="prefs_top_margin_summary">Aldoni travideblan marĝenon je supro de la fenestro enhavanta dokumenton de Biblio. Biblio estas rulumita tiel, por ke la nuna verso komenciĝu sub la marĝeno.</string>
   <string name="prefs_hyphenation_title">Vortdivido</string>
   <string name="prefs_hyphenation_summary">Aŭtomate dividi vortojn (se subtenata por lingvo)</string>
   <string name="prefs_line_spacing_pt_title">Interlinia distanco (%1.1f×)</string>
   <string name="line_spacing_title">Interlinia distanco</string>
   <string name="line_spacing_summary">Alĝustigi spacon inter linioj de teksto</string>
   <string name="select_none">Elekti neniun</string>
+  <string name="reset_are_you_sure">Ĉu vi certe volas reagordi ĉiujn tiujn valorojn al implicitaj valoroj?</string>
   <string name="window_pinning_menutitle">Alpingli fenestron</string>
   <string name="hide_window_buttons_title">Kaŝi butonojn de fenestroj</string>
+  <string name="hide_window_buttons_summary">Butonoj de fenestroj montrataj ĉe dekstra flanko de la biblia vido estas nun kaŝitaj. Fenestra navigadstrio ĉe sube estas plue montrata kaj vi povas malfermi la menuon de fenestro per frapetadi ĝin.</string>
+  <string name="hide_bible_reference_overlay_title">Kaŝi surtavolon de bibliaj referencoj</string>
+  <string name="hide_bible_reference_overlay_summary">Ne montri travideblan tavolon de bibliaj referencoj kiam la aplikaĵo laboras en plenekrana reĝimo</string>
   <string name="full_screen_hide_buttons_pref_title">Kaŝi strion de fenestraj butonoj en plenekrano</string>
   <string name="full_screen_hide_buttons_pref_summary">Kiam baskuli al plenekrana reĝimo, aŭtomate kaŝi breton de fenestraj butonoj, kiu aperas ĉe subo de la ekrano</string>
+  <string name="prefs_dictionaries_cat">Vortaroj</string>
+  <string name="choose_strongs_greek_dictionary_title">Greka vortaro de Strong</string>
+  <string name="choose_strongs_greek_dictionary_summary">Elekti vortaron de Strong por difinojn de grekaj vortoj</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Hebrea vortaro de Strong</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Elekti vortaron de Strong por difinojn de hebreaj vortoj</string>
+  <string name="choose_strongs_greek_morphology_title">Greka morfologio de Robinson</string>
+  <string name="choose_strongs_greek_morphology_summary">Elekti vortaron de Robinson por morfologiajn difinojn de grekaj vortoj</string>
+  <string name="prefs_top_margin_title_mm">Supra marĝeno (%d mm)</string>
   <string name="font_size_title">Grando de tiparo</string>
+  <string name="font_size_title_pt">Grando de tiparo (%d p.)</string>
+  <string name="prefs_font_text_size_summary">Alĝustigi grandon de tiparo</string>
+  <string name="pref_font_family_label_name">Familio de tiparo (%s)</string>
+  <string name="prefs_font_family_summary">Elekti specon de tiparo. Konsilo: vi povas instali pliajn tiparojn per la menuo “elŝuti dokumentojn” → “aldonaĵoj”.</string>
+  <string name="prefs_text_bookmarks_title">Legosignoj kaj notoj</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Agordoj pri koloroj</string>
   <string name="window_color_settings_title">Koloro de fenestroj</string>
@@ -166,19 +195,29 @@
   <string name="morph_robinson_not_installed">Bonvolu elŝuti la vortaron “Morfologiaj analizaj kodoj de Robinson”</string>
   <!--Module download-->
   <string name="download">Elŝuti dokumentojn</string>
+  <string name="redownload">Reelŝuti dokumentojn</string>
   <string name="download_confirmation">Ĉu elŝuti Biblion el la interreto?</string>
+  <string name="download_source_last_updated">Listo de dokumentoj ĝisdatigita je %s.</string>
+  <string name="download_refreshing_book_list">Ĝisdatigado de listo de elŝuteblaj dokumentoj el la serviloj…</string>
+  <string name="download_source_message1">Elŝutado de dokumentoj el la jenaj fontoj:</string>
   <string name="download_document_confirm_prefix">Elŝuti</string>
   <string name="download_refresh_book_list_menu_item">Aktualigi</string>
+  <string name="error_downloading">Eraro okazis dum elŝutado. Bonvolu kontroli vian retkonekton.</string>
+  <string name="error_downloading_status">La servilo enhavanta la dosieron %s liveris eraron: %s (%d).</string>
   <string name="storage_space_warning">Nesufiĉa spaco en loka konservejo.</string>
+  <string name="too_many_jobs">Tro multe de taskoj estas lanĉataj. Atendu ĝis iujn finiĝos kaj reprovu.</string>
   <string name="document_not_installed">Bonvolu elŝuti “%s”</string>
   <string name="free_text_search_documents">Serĉi</string>
   <string name="chooce_language_hint">Lingvo</string>
+  <string name="one_more_back_press">Frapetu denove la REEN-butonon por fermi la aplikaĵon</string>
   <string name="document_filter_results">%d dokumentoj</string>
   <string name="download_question_title">Ĉu vi vere volas elŝuti dokumentojn?</string>
+  <string name="download_question_message">Se vi loĝas en persekutanta lando, vi estu singarda pri elŝuti kristanajn materialojn per la interreto. Anstataŭ tio, vi povas akiri la zip-mudulon en pli sekura maniero kaj sekve instali ĝin uzante “ŝargi dokumenton el zip-dosiero”. Ĉu vi certe volas elŝuti dokumentojn? Ĉiuj elŝutoj el deponejoj de moduloj estas ĉifrataj (HTTPS).</string>
   <string name="do_not_ask_again">Jes, ne demandi denove</string>
   <string name="recommended_document">Konsilinda!</string>
   <string name="about_version_history">Historio de versio: %s</string>
   <string name="download_errors">Eraroj dum elŝuti</string>
+  <string name="failed_repositories_message">Ne povis konekti al la jenaj deponejoj de dokumentoj:\n\n%s\n\n</string>
   <string name="failed_downloads_message">Ne povis elŝuti la jenajn dosierojn:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Ŝargi dokumenton el zip-dosiero</string>
@@ -195,8 +234,9 @@
   <string name="rdg_plan_selector_title">Elektu planon de legado</string>
   <string name="rdg_plan_day">%s-a tago</string>
   <string name="rdg_plan_set_start_date">Agordi daton de komenco…</string>
+  <string name="set_current_day">Agordi kiel nunan tagon…</string>
+  <string name="msg_set_current_day_reading_plan">Tio ĉi markos la hodiaŭon kiel la nunan tagon en tiu ĉi plano kaj markos ĉiujn antaŭajn tagojn kiel legitajn. Ĉu pluigi?</string>
   <string name="done">Farita</string>
-  <string name="reset">Reagordi</string>
   <string name="reset_plan_question">Ĉu vi certe volas rekomenci tiun ĉi planon?</string>
   <string name="plan_duplicate_user_plan">
 Estas uzanto leganta planon ĉe la dosierujo “jsword/readingplan” kun la samo nomo kiel interna plano. Bonvolu alinomi la dosieron kaj lasu ĝian dosiersufikson kiel “.properties”.</string>
@@ -221,7 +261,7 @@ kaj finante je Apokalipso. Unue la MT, sekve la NT.</string>
 La plano bazita sur la sistemo de s-ro M\'Cheyne,
 karakterizanta per kvar diversaj legaĵoj por legi kun familio aŭ sole.
 Po du alineoj el la Malnova Testamento, po unu el la Nova Testamento kaj po unu aŭ el Psalmoj aŭ evangelio por tago.
-Dum unu jaro vi legos la Malnovan Testamenton unufoje kaj la Malnovan Testamenton kaj Psalmoj dufoje.</string>
+Dum unu jaro vi legos la Malnovan Testamenton unufoje kaj la Malnovan Testamenton kaj Psalmojn dufoje.</string>
   <string name="plan_name_y1ot6nt4_profHorner">Legplano de Horner: po 10 ĉapitroj tage</string>
   <string name="plan_description_y1ot6nt4_profHorner">Danke al p-ro Horner, laŭ lia permeso</string>
   <string name="plan_name_y2ot1ntps2">Tra Biblio 2-jare, NT k Psalmoj dufoje</string>
@@ -238,6 +278,7 @@ laŭ ilia permeso.</string>
   <!--Verse context menu-->
   <string name="notes">Piednotoj kaj referencoj</string>
   <string name="share_verse">Kunhavigi…</string>
+  <string name="share_verse_widget_title">Kunhavigi elekton</string>
   <string name="share_verse_subject_2">Verso de Biblio kunhavigita per la aplikaĵo %s.</string>
   <string name="compare_translations">Kompari tradukojn</string>
   <!--Link context menu-->
@@ -245,12 +286,24 @@ laŭ ilia permeso.</string>
   <string name="open_link_in_new_window">Malfermi ligilon en nova fenestro</string>
   <string name="open_link_in_special_window">Malfermi ligilon en speciala fenestro</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Legosignoj kaj notoj</string>
+  <string name="migrated_my_notes">Enportitaj notoj</string>
   <string name="bookmarks">Legosignoj</string>
   <string name="bookmark_added">Legosigno aldonita</string>
+  <string name="manage_labels">Administri etikedojn</string>
   <string name="assign_labels">Aldoni etikedojn</string>
+  <string name="new_item">Nova</string>
   <string name="new_label">Nova etikedo</string>
   <string name="label_name_prompt">Nomo</string>
   <string name="label_unlabelled">Senetikeda</string>
+  <string name="add_bookmark1">Legosigno</string>
+  <string name="remove_bookmark">Forigi</string>
+  <string name="bookmark_settings_hide_labels_title">Kaŝi elektitajn etikedojn</string>
+  <string name="bookmark_settings_hide_labels_summary">Kaŝi legosignojn markitajn per specifa(j) etikedo(j)</string>
+  <string name="bookmark_settings_assign_labels_title">Atribui etikedojn al novaj legosignoj</string>
+  <string name="bookmark_settings_assign_labels_summary">Aŭtomate aldoni etikedojn al novaj legosignoj</string>
+  <string name="label_color">Koloro de etikedo</string>
+  <string name="label_color_example">Antaŭvido</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Laŭ tempa ordo</string>
   <string name="sort_by_bible_book">Laŭ biblia ordo</string>
@@ -360,14 +413,24 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <!--User Notes-->
   <string name="mynotes">Miaj notoj</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Kunhavigi / sekurkopii</string>
+  <string name="backup_modules">Kunhavigi aŭ sekurkopii dokumentojn al…</string>
+  <string name="backup_app_database">Kunhavigi aŭ sekurkopii datumbazon al…</string>
+  <string name="backup_app">Kunhavigi aŭ sekurkopii aplikaĵon (dosieron .apk) al…</string>
+  <string name="restore_app_database">Restarigi datumbazon el…</string>
+  <string name="restore_database">Dosiero de datumbazo</string>
+  <string name="restore_confirmation">Ĉu anstataŭigi miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn?</string>
+  <string name="restore_success">Sukcese restarigis miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn</string>
   <string name="loading_backup">Ŝargado de datumbazo el sekurkopio…</string>
+  <string name="backup_success2">Sukcese sekurkopiis miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn.</string>
+  <string name="backup_modules_success">Sukcese sekurkopiis la elektitajn modulojn.</string>
   <string name="backup_modules_email_subject_2">%s: sekurkopio de moduloj</string>
   <string name="backup_modules_email_message_2">Datumbazo enhavanta la jenajn modulojn de la programo %s: %s troviĝas en la kunsendaĵo</string>
   <string name="backup_email_subject_2">%s: sekurkopio de datumbazo</string>
   <string name="backup_email_message_2">Datumbazo enhavanta viajn legosignojn, notojn, legplanojn kaj laborspacojn de la programo %s troviĝas en la kunsendaĵo</string>
   <string name="restore_unsuccessfull">Fiaskis restarigi datumbazon. Probable la dosiero estas erara.</string>
   <string name="backup_phone_storage">Konservejo</string>
-  <string name="backup_backup_title">Sekurkopii kien?</string>
+  <string name="backup_backup_title">Kien sekurkopii?</string>
   <string name="backup_backup_message">Ĉu sekurkopii al konservejo aŭ ĉu per la menuo “kunhavigi” (retpoŝto, Google Drive, ktp.)?</string>
   <string name="backup_share">Kunhavigi</string>
   <string name="restore_modules">Restarigi dokumentojn el…</string>
@@ -379,8 +442,18 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="module_about_installed_version">Instalita versio: %s (%s)</string>
   <string name="module_about_latest_version">Plej nova versio: %s (%s)</string>
   <string name="module_about_versification">Versarto: %s</string>
+  <string name="module_about_repository">Deponejo: %s</string>
   <string name="module_about_osisId">OSIS-identigilo: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Raporti eraron / sendi opinion</string>
+  <string name="report_bug_email_subject_3">[%s] Erar‑raporto pri %s %s</string>
+  <string name="report_bug_big_heading">SKRIBU VIAN OPINION AŬ ERAR‑RAPORTON SUPER TIU ĈI LINIO</string>
+  <string name="report_bug_heading1">Instrukcioj:</string>
+  <string name="report_bug_line_1">Koncize priskribu kion vi faris aŭ io okazis, kiam la problemo okazis.</string>
+  <string name="report_bug_heading2">Ekzemplo:</string>
+  <string name="report_bug_instructions1">1. Mi lanĉis la aplikaĵon.</string>
+  <string name="report_bug_instructions2">2. Mi alklakis la menuon de fenestroj.</string>
+  <string name="report_bug_instructions3">-&gt; Paneo</string>
   <!--Document types-->
   <string name="doc_type_all">Ĉiu speco</string>
   <string name="doc_type_bible">Biblio</string>
@@ -399,6 +472,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="please_wait">Bonvolu atendi…</string>
   <string name="all">Ĉiuj</string>
   <string name="edit">Redakti</string>
+  <string name="reset_generic">Reagordi</string>
   <string name="watch_tutorial_video">Spekti filmetan instruilon (en la angla)</string>
   <string name="verse_not_found">Ne trovis verson</string>
   <!--Errors-->
@@ -474,4 +548,5 @@ Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Kompreneble</string>
   <string name="first_time_help_show_next_time">Montri denove poste</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
 </resources>
