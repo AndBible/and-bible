@@ -18,7 +18,11 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
+import android.os.Build
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
@@ -98,8 +102,14 @@ class Dialogs private constructor() {
             val activity = CurrentActivityHolder.getInstance().currentActivity
             if (activity != null) {
                 activity.runOnUiThread {
+                    val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        Html.fromHtml(msg, Html.FROM_HTML_MODE_LEGACY)
+                    } else {
+                        Html.fromHtml(msg)
+                    }
+
                     val dlgBuilder = AlertDialog.Builder(activity)
-                        .setMessage(msg)
+                        .setMessage(spanned)
                         .setCancelable(isCancelable)
                         .setPositiveButton(R.string.okay) { dialog, buttonId -> okayCallback.okay() }
 
@@ -114,7 +124,8 @@ class Dialogs private constructor() {
                     if (reportCallback != null) {
                         dlgBuilder.setNeutralButton(R.string.report_error) { dialog, buttonId -> reportCallback.okay() }
                     }
-                    dlgBuilder.show()
+                    val d = dlgBuilder.show()
+                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
                 }
             } else {
                 Toast.makeText(application.applicationContext, msg, Toast.LENGTH_LONG).show()

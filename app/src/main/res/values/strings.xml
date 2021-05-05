@@ -792,5 +792,6 @@
     <string name="upgrading_database">Upgrading database. Please wait…</string>
     <string name="initializing_app">Initializing application…</string>
     <string name="show_notes">Show notes</string>
-    <string name="old_webview">Webview is too old (%s). You need to upgrade your Android Webview package to use %s.</string>
+    <string name="old_webview">Android WebView package is too old (%s). You need to upgrade your Android WebView package to at least version %s to use %s. For most devices this is done via %s.</string>
+    <string name="play">Google Play</string>
 </resources>
