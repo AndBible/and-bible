@@ -22,7 +22,7 @@
         :data-ordinal="ordinal"
     >
       <span class="highlight-transition" :class="{timeout, isHighlighted: !timeout && highlighted}">
-        <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/><span class="skip-offset">&nbsp;</span>
+        <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/> <span/>
       </span>
     </span>
   <span :class="{linebreak: config.showVersePerLine}"/>
