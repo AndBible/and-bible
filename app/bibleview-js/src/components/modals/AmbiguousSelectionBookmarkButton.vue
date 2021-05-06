@@ -69,6 +69,7 @@ import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {Events, emit} from "@/eventbus";
 import AreYouSure from "@/components/modals/AreYouSure";
+import {adjustedColor, adjustedColorOrig} from "@/utils";
 
 export default {
   emits: ["selected"],
@@ -79,7 +80,7 @@ export default {
   components: {LabelList, FontAwesomeIcon, AreYouSure},
   setup(props, {emit: $emit}) {
     const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
-    const {adjustedColor, ...common} = useCommon();
+    const common = useCommon();
     const bookmark = computed(() => {
       return bookmarkMap.get(props.bookmarkId);
     });
@@ -93,8 +94,14 @@ export default {
       return bookmarkLabels.get(primaryLabelId);
     });
 
+    const appSettings = inject("appSettings")
+
     const buttonStyle = computed(() => {
-      return `background-color: ${adjustedColor(primaryLabel.value.color, -0.6)};`
+      let color = adjustedColorOrig(primaryLabel.value.color, appSettings.nightMode ? 0.2: -0.6);
+      if(appSettings.nightMode) {
+        color = color.alpha(0.5)
+      }
+      return `background-color: ${color.hsl()};`
     });
 
     const bookmarkColor = computed(() => {
@@ -150,6 +157,9 @@ export default {
 @import "~@/common.scss";
 .ambiguous-button {
   color: black;
+  .night & {
+    color: #d7d7d7;
+  }
   @extend .button;
   text-align: start;
 }

@@ -373,8 +373,7 @@ export function isInViewport(el) {
         rect.right - el.clientWidth <= (window.innerWidth || document.documentElement.clientWidth)
     );
 }
-
-export function adjustedColor(color, ratio=0.2) {
+export function adjustedColorOrig(color, ratio=0.2) {
     let col = Color(color);
     let cont = true;
     let rv;
@@ -386,5 +385,9 @@ export function adjustedColor(color, ratio=0.2) {
             cont = true
         }
     }
-    return rv.hsl();
+    return rv;
+}
+
+export function adjustedColor(color, ratio=0.2) {
+    return adjustedColorOrig(color, ratio).hsl();
 }
