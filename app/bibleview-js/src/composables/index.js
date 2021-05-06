@@ -26,7 +26,7 @@ import {
     watch
 } from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
-import {Deferred, setupWindowEventListener} from "@/utils";
+import {adjustedColor, Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
@@ -280,16 +280,6 @@ export function useCommon() {
 
     function formatTimestamp(timestamp) {
         return new Date(timestamp).toLocaleString()
-    }
-
-    function adjustedColor(color, ratio=0.2) {
-        let col = Color(color);
-        if(config.nightMode) {
-            col = col.darken(ratio);
-        } else {
-            col = col.darken(ratio);
-        }
-        return col.hsl();
     }
 
     return {config, appSettings, calculatedConfig, strings, sprintf, split,

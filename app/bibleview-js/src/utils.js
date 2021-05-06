@@ -373,3 +373,18 @@ export function isInViewport(el) {
         rect.right - el.clientWidth <= (window.innerWidth || document.documentElement.clientWidth)
     );
 }
+
+export function adjustedColor(color, ratio=0.2) {
+    let col = Color(color);
+    let cont = true;
+    let rv;
+    while(cont) {
+        cont = false;
+        rv = col.darken(ratio);
+        if(rv.hex() === "#FFFFFF" || rv.hex() === "#000000") {
+            ratio = 0.75*ratio;
+            cont = true
+        }
+    }
+    return rv.hsl();
+}
