@@ -38,9 +38,7 @@ commentary_examples: Gill, Matthew Henry etc. 
 cross_reference_examples: Treasure of Scripture Knowledge, TSKe
 feature_05: Advanced text to speech with speak bookmarks, enabling a smooth Bible listening experience
 feature_06: Flexible searching
-feature_07: Bookmarks, with custom colored bookmark groups
-feature_08: >
-  Personal notes: add your own study notes to any verse of the Bible
+feature_07: Advanced bookmarking & highlighting features with personal study notes
 feature_09: >
   Reading plans: set goals for reading the Bible 
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
@@ -58,6 +56,8 @@ feature_11: >
 unavailable_documents: ESV, NIV and NKJV
 feature_12: >
   Offline: the only time you need internet is for downloading documents.
+feature_13: >
+  Study Pads for easy note-writing and Bible reference adding during listening to sermons.
 subtitle_3: Let’s make the best Bible app together!
 paragraph_3_1: >
   And Bible is an open-source community project. In practice, this means that anyone with
