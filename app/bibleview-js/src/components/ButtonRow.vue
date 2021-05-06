@@ -20,8 +20,7 @@
       ref="element"
       @touchstart="clicked"
       @click="clicked"
-      :style="`left: ${leftPosition}px;`"
-      :class="{'edit-buttons': expanded}"
+      :class="{'edit-buttons': expanded, 'menu': !handleTouch}"
   >
     <div class="between" v-show="expanded">
       <slot/>
@@ -43,7 +42,7 @@
 <script>
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {ref} from "@vue/reactivity";
-import {inject, nextTick, watch} from "@vue/runtime-core";
+import {inject, watch} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import {eventBus, Events} from "@/eventbus";
 
@@ -61,7 +60,6 @@ export default {
     const {strings, ...common} = useCommon();
     const expanded = ref(false);
     const element = ref(null);
-    const leftPosition = ref(0);
     function close() {
       expanded.value = false
     }
@@ -73,12 +71,7 @@ export default {
         return
       }
       event.stopPropagation();
-      const pos = element.value.offsetLeft;
       expanded.value = !expanded.value;
-      const oldWidth = props.handleTouch ? element.value.clientWidth: 0;
-      await nextTick();
-      const width = element.value.clientWidth;
-      leftPosition.value = pos - width + oldWidth;
     }
     watch(expanded, v => {
       if(v) {
@@ -95,7 +88,7 @@ export default {
     function showHelp() {
       android.toast(strings.dragHelp);
     }
-    return {expanded, showHelp, strings, clicked, leftPosition, element, ...common};
+    return {expanded, showHelp, strings, clicked, element, ...common};
   }
 }
 </script>
@@ -124,4 +117,10 @@ export default {
   }
 }
 
+.menu {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
 </style>
