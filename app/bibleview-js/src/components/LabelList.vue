@@ -83,9 +83,11 @@ export default {
         addEventFunction(event, () => {
           window.location.assign(`journal://?id=${label.id}`);
         }, {title: strings.jumpToStudyPad});
-        addEventFunction(event, () => {
-          android.setAsPrimaryLabel(bookmark.value.id, label.id);
-        }, {title: strings.setAsPrimaryLabel});
+        if(bookmark.value.primaryLabelId !== label.id) {
+          addEventFunction(event, () => {
+            android.setAsPrimaryLabel(bookmark.value.id, label.id);
+          }, {title: strings.setAsPrimaryLabel});
+        }
       }
       ambiguousSelection.value.handle(event);
     }
