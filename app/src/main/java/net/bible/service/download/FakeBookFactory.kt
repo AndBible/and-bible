@@ -87,6 +87,7 @@ object FakeBookFactory {
     private val JOURNAL_DUMMY_CONF get() = """[MyStudyPads]
 Description=${application.getString(R.string.journal_description)}
 Abbreviation=${application.getString(R.string.studypads)}
+Encoding=UTF-8
 Category=Generic Books
 LCSH=Bible--Commentaries.
 Versification=KJVA"""
@@ -95,6 +96,7 @@ Versification=KJVA"""
 Description=${application.getString(R.string.compare_description)}
 Abbreviation=${application.getString(R.string.compare_abbreviation)}
 Category=Commentaries
+Encoding=UTF-8
 LCSH=Bible--Commentaries.
 Versification=KJVA"""
 
@@ -103,6 +105,7 @@ Versification=KJVA"""
 Description=${application.getString(R.string.multi_description)}
 Abbreviation=${application.getString(R.string.multi_abbreviation)}
 Category=Generic Books
+Encoding=UTF-8
 LCSH=Bible--Commentaries.
 Versification=KJVA"""
 
@@ -110,6 +113,7 @@ Versification=KJVA"""
 Description=${application.getString(R.string.my_notes_description)}
 Abbreviation=${application.getString(R.string.my_notes_abbreviation)}
 Category=Commentaries
+Encoding=UTF-8
 LCSH=Bible--Commentaries.
 Versification=KJVA"""
 
