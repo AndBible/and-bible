@@ -16,6 +16,7 @@
   <string name="help">Hilfe</string>
   <string name="information">Information</string>
   <string name="other">Anderes</string>
+  <string name="contact">Kontakt</string>
   <string name="help_and_tips">Hilfe &amp; Tipps</string>
   <string name="administration">Verwaltung</string>
   <string name="rate_application">Bewerten &amp; Beschreiben in Google Play</string>
@@ -55,6 +56,7 @@
   <string name="search_current_book">Derzeitiges Buch</string>
   <string name="error_executing_search">Ungültige Suchabfrage</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Zeige Kapitel- &amp; Versnummern</string>
   <string name="prefs_verse_per_line_summary">Jeden Vers in einer neuen Zeile anzeigen</string>
   <string name="prefs_show_bookmarks_summary">Anklicken um alle Lesezeichen zu verbergen</string>
   <string name="prefs_show_mynotes_summary">Symbol in Versen mit eigenen Notizen anzeigen</string>
@@ -64,6 +66,7 @@
   <string name="prefs_section_title_summary">Außerkanonische Abschnittstitel anzeigen</string>
   <string name="prefs_red_letter_summary">Zeige Worte Christi in roter Farbe</string>
   <string name="prefs_text_size_title">Schriftarteinstellungen</string>
+  <string name="prefs_show_verseno_title">Kapitel- &amp; Versnummern</string>
   <string name="prefs_verse_per_line_title">Zeilenumbruch nach Vers</string>
   <string name="prefs_show_bookmarks_title">Lesezeichen anzeigen</string>
   <string name="prefs_show_mynotes_title">Eigene Notizen</string>
@@ -73,6 +76,9 @@
   <string name="prefs_section_title_title">Überschriften</string>
   <string name="prefs_red_letter_title">Jesu Worte markieren</string>
   <string name="prefs_tilt_to_scroll_title">Bildvorlauf</string>
+  <string name="prefs_toolbar_button_action_title">Aktion bei Antippen des Toolbar-Knopfes</string>
+  <string name="prefs_toolbar_button_action_summary">Die Aktion, die bei Drücken bzw. Drücken und Halten des Toolbar-Knopfes in Bibel- oder Kommentardokumenten vorgenommen werden soll</string>
+  <string name="prefs_toolbar_button_action_default">Antippen, um das Menü zu öffnen, Tippen und Halten für Dokumentauswahl (Standardaktion)</string>
   <string name="prefs_night_mode_title">Nachtmodus an- und ausschalten</string>
   <string name="prefs_night_mode_summary">Wie der Nachtmodus eingeschaltet werden soll: Automatisch (soweit vom Gerät unterstützt), manuell oder wie in den Systemeinstellungen (ab Android 10).</string>
   <string name="prefs_night_mode_manual">Manuell</string>
@@ -470,4 +476,7 @@ Langes Drücken des Rückwärtsknopfes führt zur Chronikliste.</string>
   <string name="first_time_help_do_not_show_again">Verstanden</string>
   <string name="first_time_help_show_next_time">Das nächste Mal erneut anzeigen</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <!--parameters are actions (file a bug, send email)-->
+  <!--param is "please report maintainers"-->
+  <!--param is "please read what you can do"-->
 </resources>

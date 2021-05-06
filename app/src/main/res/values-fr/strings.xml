@@ -483,4 +483,7 @@ Appuyez longuement sur le bouton Retour pour accéder à la liste de l\'historiq
   <string name="first_time_help_do_not_show_again">J\'ai compris</string>
   <string name="first_time_help_show_next_time">Me montrer la prochaine fois</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <!--parameters are actions (file a bug, send email)-->
+  <!--param is "please report maintainers"-->
+  <!--param is "please read what you can do"-->
 </resources>

@@ -3,6 +3,7 @@
   <string name="app_name_short">Raamattu</string>
   <string name="app_name_medium">Raamattu (And Bible)</string>
   <string name="app_name_long">Raamatuntutkimissovellus, And Bible Open Source Projektilta</string>
+  <string name="project">And Bible avoimen lähdekoodin projekti</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä ohjelma uudelleen.</string>
   <!--Main menu-->
@@ -644,4 +645,20 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Androidin WebView-paketti on liian vanha (%s). Sinun pitää päivittää Android Webview-paketti vähintään versioon %s käyttääksesi sovellusta %s. Useimmilla laitteilla tämä tapahtuu %sn kautta.</string>
   <string name="play">Google Play</string>
+  <string name="proceed_anyway">Jatka joka tapauksessa</string>
+  <string name="rate_title">Sovelluksen arviointi</string>
+  <string name="rate_message5">Positiiviset ja yksityiskohtaiset arviot auttavat And Bible avoimen lähdekoodin projektia paljon. Kiitokset!</string>
+  <string name="rate_message6">Ennen kuin annat negatiivisen arvion, huomioithan seuraavat:</string>
+  <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">Jos sinulla on ongelmia sovelluksen kanssa, %s tai %s sen sijaan.</string>
+  <!--param is "please report maintainers"-->
+  <string name="rate_message2">Jos joissain teksteissä tai raamatunkäännöksissä on ongelmia, %s.</string>
+  <!--param is "please read what you can do"-->
+  <string name="rate_message3">Jos jokin teksti ei ole tarjolla sovelluksessa, %s.</string>
+  <string name="rate_message4">Sovelluksen kehittäjät eivät ole vastuussa dokumenttien ylläpidosta.</string>
+  <string name="bug_report">lähetä virheraportti (päävalikosta)</string>
+  <string name="how_to_help">lue täältä miten voit auttaa meitä</string>
+  <string name="send_email">lähetä sähköpostia kehittäjille</string>
+  <string name="proceed_google_play">Jatka Google Playhin</string>
+  <string name="text_maintainers">raportoi virheistä tekstin ylläpitäjille</string>
 </resources>

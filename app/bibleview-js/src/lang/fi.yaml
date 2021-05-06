@@ -1,5 +1,5 @@
-openMyNotes: Avaa My Notes -ikkunassa
-openStudyPad: Avaa Opintoalusta-ikkunassa (%s)
+openMyNotes: Avaa Omissa Merkinnöissä
+openStudyPad: Avaa Opintoalustassa (%s)
 noteText: Alaviitteet (%s)
 crossReferenceText: Ristiviitteet
 findAllOccurrences: Etsi kaikki esiintymät
@@ -55,3 +55,4 @@ wholeBookmark: Koko kirjanmerkki
 otherNoteText: Muu huomio
 assignLabelsMenuEntry: Sijoita ryhmiin
 jumpToStudyPad: Hyppää opintoalustaan
+setAsPrimaryLabel: Aseta pääasialliseksi kirjanmerkkiryhmäksi

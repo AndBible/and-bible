@@ -14,7 +14,9 @@
   <string name="history">Historia</string>
   <string name="speak">Con voz</string>
   <string name="help">Ayuda</string>
+  <string name="information">Información</string>
   <string name="other">Otro</string>
+  <string name="contact">Contacto</string>
   <string name="help_and_tips">Ayuda &amp; consejos</string>
   <string name="administration">Administración</string>
   <string name="rate_application">Valorar y comentar en Google Play</string>
@@ -54,6 +56,7 @@
   <string name="search_current_book">Libro actual</string>
   <string name="error_executing_search">Criterio de búsqueda inválido</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Mostrar números de capítulo y versículo</string>
   <string name="prefs_verse_per_line_summary">Muestra cada verso en una línea diferente</string>
   <string name="prefs_show_bookmarks_summary">Desmarcar para ocultar todos los marcadores</string>
   <string name="prefs_show_mynotes_summary">Mostrar icono en versículos con Mi Nota</string>
@@ -63,6 +66,7 @@
   <string name="prefs_section_title_summary">Muestra los títulos de sección no canónicos.</string>
   <string name="prefs_red_letter_summary">Muestra las palabras de Cristo en rojo</string>
   <string name="prefs_text_size_title">Preferencias de tipografía</string>
+  <string name="prefs_show_verseno_title">Números de capítulo y versículo</string>
   <string name="prefs_verse_per_line_title">Un verso por linea</string>
   <string name="prefs_show_bookmarks_title">Mostrar marcadores</string>
   <string name="prefs_show_mynotes_title">Mostrar iconos de Mis Notas</string>
@@ -72,6 +76,11 @@
   <string name="prefs_section_title_title">Títulos de sección</string>
   <string name="prefs_red_letter_title">Letra roja</string>
   <string name="prefs_tilt_to_scroll_title">Inclinar para desplazar</string>
+  <string name="prefs_toolbar_button_action_title">Acción  al presionar botón de la barra</string>
+  <string name="prefs_toolbar_button_action_summary">Acción a tomar al pulsar o pulsación larga los botones de la barra de Biblia o Comentario</string>
+  <string name="prefs_toolbar_button_action_default">Pulsar para abrir menú, pulsación larga para pantalla de documentos (predeterminado)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Pulsar para abrir el siguiente documento, pulsación larga para abrir menú</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Pulsar para abrir el siguiente documento, pulsación larga para pantalla de documentos</string>
   <string name="prefs_night_mode_title">Cambio de modo nocturno</string>
   <string name="prefs_night_mode_summary">Ya sea para cambiar al modo nocturno automáticamente (si el dispositivo lo admite), manualmente o mediante la configuración del sistema (Android 10+).</string>
   <string name="prefs_night_mode_manual">Manualmente</string>
@@ -96,6 +105,7 @@
   <string name="reversed_split_mode">Modo dividido invertido</string>
   <string name="add_ellipsis">%s...</string>
   <string name="font_size_pt">%d puntos</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Cambia automáticamente a pantalla completa al desplazar texto. Consejo: siempre puede cambiar a pantalla completa tocando dos veces la pantalla.</string>
   <string name="prefs_margin_size_title">Cambiar el tamaño del margen</string>
   <string name="prefs_margin_size_mm_title">Tamaño de margen (%d/%d/%d mm)</string>
@@ -118,17 +128,36 @@
   <string name="pref_maximum_width_of_text_label_mm">Ancho máximo de texto (%d mm)</string>
   <string name="prefs_line_spacing_pt">Espaciado entre líneas %1.1fx</string>
   <string name="pref_font_family_label">Familia tipográfica</string>
+  <string name="prefs_top_margin_title">Margen superior</string>
+  <string name="prefs_top_margin_summary">Agregar margen (con indicador visual) en la parte superior de la ventana que contiene el documento de Biblia. La Biblia se desplaza para que el versículo actual comience bajo el margen.</string>
   <string name="prefs_hyphenation_title">Separación</string>
   <string name="prefs_hyphenation_summary">Separar automáticamente las palabras, si el idioma es compatible</string>
   <string name="prefs_line_spacing_pt_title">Espaciado entre líneas (%1.1fx)</string>
   <string name="line_spacing_title">Espaciado entre líneas</string>
   <string name="line_spacing_summary">Establecer el espacio entre líneas</string>
   <string name="select_none">Seleccionar ninguno</string>
+  <string name="reset_are_you_sure">¿Seguro que quiere restablecer todos estos valores?</string>
   <string name="window_pinning_menutitle">Fijación de ventanas</string>
   <string name="hide_window_buttons_title">Ocultar botones de ventana</string>
+  <string name="hide_window_buttons_summary">Los botones de ventana que se muestran en el lado derecho de las vistas de la Biblia están ocultos. La barra de navegación de la ventana en la parte inferior todavía se muestra y puede abrir el menú emergente de la ventana haciendo clic largo en ellas.</string>
+  <string name="hide_bible_reference_overlay_title">Ocultar la superposición con referencia de Biblia</string>
+  <string name="hide_bible_reference_overlay_summary">No mostrar la superposición semitransparente con referencia de Biblia cuando la aplicación está en modo pantalla completa</string>
   <string name="full_screen_hide_buttons_pref_title">Ocultar barra de botones de ventana en pantalla completa</string>
   <string name="full_screen_hide_buttons_pref_summary">Cuando cambie al modo de pantalla completa, oculte automáticamente la barra de botones de la ventana que se encuentra en la parte inferior de la pantalla</string>
+  <string name="prefs_dictionaries_cat">Diccionarios</string>
+  <string name="choose_strongs_greek_dictionary_title">Diccionario griego de Strong</string>
+  <string name="choose_strongs_greek_dictionary_summary">Elegir el diccionario de Strong para las definiciones de palabras griegas</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Diccionario hebreo de Strong</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Elegir el diccionario de Strong para las definiciones de palabras hebreas</string>
+  <string name="choose_strongs_greek_morphology_title">Morfología griega de Robinson</string>
+  <string name="choose_strongs_greek_morphology_summary">Elegir el diccionario de morfología griega de Robinson para las definiciones</string>
+  <string name="prefs_top_margin_title_mm">Margen superior (%d mm)</string>
   <string name="font_size_title">Tamaño de tipografía</string>
+  <string name="font_size_title_pt">Tamaño de letra (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Ajustar el tamaño del texto principal</string>
+  <string name="pref_font_family_label_name">Tipo de letra (%s)</string>
+  <string name="prefs_font_family_summary">Cambiar el tipo de letra. Idea: se pueden instalar más tipos de letra desde Descargar Documentos / Complementos</string>
+  <string name="prefs_text_bookmarks_title">Ajustes de Marcadores &amp; Mis Notas</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Ajustes de color</string>
   <string name="window_color_settings_title">Ajustes de color de ventana</string>
@@ -168,13 +197,21 @@
   <string name="morph_robinson_not_installed">Por favor descargue el diccionario \'Códigos de análisis morfológicos de Robinson\'</string>
   <!--Module download-->
   <string name="download">Descarga Documentos</string>
+  <string name="redownload">Volver a descargar Documentos</string>
   <string name="download_confirmation">¿Descargar una Biblia de Internet?</string>
+  <string name="download_source_last_updated">Última actualización de listas de documentos: %s.</string>
+  <string name="download_refreshing_book_list">Actualizando la lista de documentos disponibles desde los servidores de documentos…</string>
+  <string name="download_source_message1">Los documentos se descargan de las siguientes fuentes:</string>
   <string name="download_document_confirm_prefix">Descarga</string>
   <string name="download_refresh_book_list_menu_item">Refresca</string>
+  <string name="error_downloading">Ocurrió un error durante la descarga. Por favor compruebe la conexión a internet.</string>
+  <string name="error_downloading_status">El servidor que aloja %s devolvió un error debido a %s (%d).</string>
   <string name="storage_space_warning">No hay suficiente espacio local de almacenamiento.</string>
+  <string name="too_many_jobs">Demasiadas tareas en ejecución.  Por favor espere que algunas terminen e intente nuevamente.</string>
   <string name="document_not_installed">Por favor descarga \'%s\'</string>
   <string name="free_text_search_documents">Búsqueda</string>
   <string name="chooce_language_hint">Idioma</string>
+  <string name="one_more_back_press">Presionando el botón Atrás otra vez se cerrará la aplicación</string>
   <string name="document_filter_results">%d documentos</string>
   <string name="download_question_title">¿Desea proceder a descargar documentos?</string>
   <string name="download_question_message">Si vives en un país perseguido,
@@ -204,8 +241,24 @@
   <string name="rdg_plan_selector_title">Elige plan de lectura</string>
   <string name="rdg_plan_day">Día %s</string>
   <string name="rdg_plan_set_start_date">Seleccione Fecha de Inicio...</string>
+  <string name="set_current_day">Establecer como día actual…</string>
+  <string name="msg_set_current_day_reading_plan">Esto establecerá hoy como día actual en este plan y marcará todos los días previos como leídos. ¿Continuar?</string>
   <string name="done">Hecho</string>
   <string name="reset_plan_question">¿Seguro que quiere restablecer este plan?</string>
+  <string name="import_reading_plan">Importar plan de lectura…</string>
+  <string name="import_reading_plan_error">Error al importar</string>
+  <string name="import_reading_plan_error_duplicate">Los siguientes días estaban duplicados: %s</string>
+  <string name="import_reading_plan_error_days">Los siguientes días contenían errores: %s</string>
+  <string name="import_reading_plan_anyway">Importar de todos modos</string>
+  <string name="overwrite_reading_plan">¿Quiere sobrescribir %s?</string>
+  <string name="delete_reading_plan">Eliminar este plan</string>
+  <string name="reading_plan_deleted">El plan de lectura ha sido eliminado.</string>
+  <string name="reading_plan_ships_with_ab">Este plan de lectura se envía con %s</string>
+  <string name="confirm_delete_reading_plan">
+        ¿Seguro que quiere eliminar %s junto con su historial de lectura?
+        Pista: si necesita actualizar el plan, puede importarlo de nuevo con el mismo nombre de archivo
+        y el historial se conservará.
+    </string>
   <string name="plan_duplicate_user_plan">
 Hay un plan de lectura de usuario en la tarjeta SD
 jsword/readingplan con el mismo nombre que un plan interno. No se puede enumerar aquí.
@@ -254,6 +307,7 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <!--Verse context menu-->
   <string name="notes">Pies de página y referencias</string>
   <string name="share_verse">Compartir …</string>
+  <string name="share_verse_widget_title">Compartir selección</string>
   <string name="share_verse_subject_2">Un versículo de Biblia ha sido compartido contigo usando %s.</string>
   <string name="compare_translations">Compara traducciones</string>
   <!--Link context menu-->
@@ -261,12 +315,24 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="open_link_in_new_window">Abrir enlace en nueva ventana</string>
   <string name="open_link_in_special_window">Abrir enlace en una ventana especial</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Marcadores &amp; Mis Notas</string>
+  <string name="migrated_my_notes">Mis Notas Migraron</string>
   <string name="bookmarks">Marcadores</string>
   <string name="bookmark_added">Marcador añadido</string>
+  <string name="manage_labels">Gestionar etiquetas</string>
   <string name="assign_labels">Asignar etiquetas</string>
+  <string name="new_item">Nuevo</string>
   <string name="new_label">Nueva etiqueta</string>
   <string name="label_name_prompt">Nombre</string>
   <string name="label_unlabelled">Sin etiquetar</string>
+  <string name="add_bookmark1">Marcador</string>
+  <string name="remove_bookmark">Eliminar</string>
+  <string name="bookmark_settings_hide_labels_title">Ocultar etiquetas especificadas</string>
+  <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que se marcaron con la(s) etiqueta(s) especificada(s)</string>
+  <string name="bookmark_settings_assign_labels_title">Asignar etiquetas a los nuevos marcadores</string>
+  <string name="bookmark_settings_assign_labels_summary">Asignar etiquetas automáticamente a los nuevos marcadores</string>
+  <string name="label_color">Color de etiqueta</string>
+  <string name="label_color_example">Ejemplo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Orden de fecha</string>
   <string name="sort_by_bible_book">Orden bíblico</string>
@@ -307,6 +373,7 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="speak_advanced_settings">Ajustes avanzados</string>
   <string name="speak_sleep_timer_title">Temporizador</string>
   <string name="speak_no_books_available">No hay libros disponibles para voz</string>
+  <string name="speak_general_error">No se pudo iniciar la locución para este libro</string>
   <string name="repeat_passage">Repetir pasaje</string>
   <string name="set_repeat_passage_range">Establecer el rango de repetición de pasaje</string>
   <string name="speak_beginning_of_passage">Elegir inicio de pasaje</string>
@@ -388,7 +455,17 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <!--User Notes-->
   <string name="mynotes">Mis Notas</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Compartir, Copia de seguridad y restauración</string>
+  <string name="backup_modules">Compartir o Guardar copia de seguridad de documentos en...</string>
+  <string name="backup_app_database">Compartir o Guardar copia de seguridad de la base de datos de la aplicación en...</string>
+  <string name="backup_app">Compartir o Guardar copia de seguridad de aplicación (archivo .apk) en...</string>
+  <string name="restore_app_database">Restaurar la base de datos de la aplicación desde...</string>
+  <string name="restore_database">Restaurar archivo de la base de datos desde...</string>
+  <string name="restore_confirmation">¿Sobreescribir Mis Notas, Marcadores, Blocs de Estudio, Planes de Lectura y Espacios?</string>
+  <string name="restore_success">Mis notas, marcadores, blocs de estudio, planes de lectura y espacios restaurados con éxito</string>
   <string name="loading_backup">Cargando base de datos desde la copia de seguridad...</string>
+  <string name="backup_success2">Mis notas, marcadores, blocs de estudio, planes de lectura y espacios guardados con éxito.</string>
+  <string name="backup_modules_success">Se ha hecho copia de seguridad correctamente de los módulos seleccionados.</string>
   <string name="backup_modules_email_subject_2">Copia de seguridad de módulos de %s</string>
   <string name="backup_modules_email_message_2">Se adjunta la copia de seguridad de sus módulos de %s, que contiene los siguientes módulos: %s</string>
   <string name="backup_email_subject_2">Copia de seguridad de la base de datos de %s</string>
@@ -407,8 +484,26 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="module_about_installed_version">Versión instalada: %s (%s)</string>
   <string name="module_about_latest_version">Ultima versión: %s (%s)</string>
   <string name="module_about_versification">Versificación: %s</string>
+  <string name="module_about_repository">Servidor de distribución: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Comentarios / informe de fallo</string>
+  <string name="report_bug_email_subject_3">[%s] Informe de fallo sobre %s %s</string>
+  <string name="report_bug_big_heading">POR FAVOR ESCRIBA SU COMENTARIO O INFORME DE FALLO POR ENCIMA DE ESTA LÍNEA</string>
+  <string name="report_bug_heading1">Instrucciones:</string>
+  <string name="report_bug_line_1">Comente brevemente qué hizo / qué pasó cuando ocurrió el problema.</string>
+  <string name="report_bug_heading2">Por ejemplo:</string>
+  <string name="report_bug_instructions1">1. Abrí la aplicación</string>
+  <string name="report_bug_instructions2">2. Pulsé en la ventana del menú</string>
+  <string name="report_bug_instructions3">-&gt; Se cerró de manera inesperada</string>
+  <string name="report_bug_line_2">A veces tomar capturas de pantalla puede beneficiar en la resolución de problemas.</string>
+  <string name="report_bug_line_3">Por favor use esta función para informar tan pronto como detecte que ocurre el fallo.</string>
+  <string name="report_bug_line_4">También puede usar esta función abriendo de nuevo la aplicación, si ha ocurrido un cierre inesperado.</string>
+  <string name="report_bug_heading_3">Adjuntos:</string>
+  <string name="bug_report_logcat">Archivo de registro de la aplicación. No contiene información sobre otras aplicaciones.</string>
+  <string name="bug_report_screenshot">Captura de pantalla de la aplicación cuando ocurrió el cierre inesperado, o cuando se creó el informe de fallo.</string>
+  <string name="bug_report_attachment_line_1">Adjuntar estos archivos ayuda mucho a los desarrolladores para arreglar el fallo del cual se informa.</string>
+  <string name="report_bug_heading_4">Información del dispositivo:</string>
   <!--Document types-->
   <string name="doc_type_all">Todos los tipos</string>
   <string name="doc_type_bible">Biblia</string>
@@ -416,6 +511,7 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="doc_type_dictionary">Diccionario</string>
   <string name="doc_type_book">Libro</string>
   <string name="doc_type_map">Mapa</string>
+  <string name="doc_type_addons">Complementos</string>
   <!--Languages-->
   <string name="lang_default">Predeterminado</string>
   <!--General-->
@@ -424,19 +520,24 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="yes">Sí</string>
   <string name="no">No\n</string>
   <string name="error">Error</string>
+  <string name="delete_generic">Borrar</string>
   <string name="please_wait">Por favor espere...</string>
   <string name="all">Todo</string>
   <string name="edit">Editar</string>
+  <string name="reset_generic">Restablecer</string>
   <string name="watch_tutorial_video">Ver vídeo tutorial (Inglés)</string>
   <string name="verse_not_found">Verso no encontrado</string>
   <!--Errors-->
   <string name="report_error">Enviar informe</string>
   <string name="error_occurred">A ocurrido un error.</string>
+  <string name="error_occurred_crash_last_time">La última vez que usó la aplicación, esta se cerró de manera inesperada. Para ayudarnos a resolver el problema, le agradecemos que nos envíe un informe de fallo.</string>
   <string name="error_occurred_with_link">Ha ocurrido un error. %s</string>
   <string name="error_no_content">No hay contenido para el verso seleccionado</string>
   <string name="error_page_too_large">La página es muy grande como para ser cargada</string>
   <string name="error_key_not_in_document">No encontrado en el documento</string>
+  <string name="error_key_not_in_document2">%s no se encontró en el documento %s.</string>
   <string name="empty_list">No hay ítems para mostrar</string>
+  <string name="error_skip">Saltar</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Texto a voz</string>
   <string name="notification_channel_progress_status">Notificación de estado de progreso para descarga de documentos etc.</string>
@@ -476,10 +577,18 @@ a través de %s usted mismo. :-)</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Descartar</string>
   <string name="beta_notice_dismiss_until_update">Descartar hasta la próxima actualización</string>
+  <string name="stable_notice_title">¡Se ha actualizado la aplicación!</string>
+  <string name="upgrade_video_message">Por favor vea el vídeo que muestra las nuevas características de esta versión (%s).</string>
+  <string name="stable_notice_par1">¡La nueva versión %s de %s se ha instalado correctamente!</string>
   <!--History-->
   <string name="history_for">Historia (%s: Ventana %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navegación</string>
+  <string name="help_nav_text">Vaya al capítulo siguiente o anterior deslizando el dedo sobre la pantalla.
+        Toque doble en el texto de la Biblia para alternar modo pantalla completa.
+        Las pantallas (también llamadas ventanas) divididas tienen un botón de menú en la esquina superior derecha,
+        que le permite usar algunas funciones específicas de ventanas y personalizar la apariencia y comportamiento de la ventana.
+    </string>
   <string name="help_contextmenus_title">Menús contextuales</string>
   <string name="help_contextmenus_text">
         Realice una presión larga en abre el menú contextual o el modo de acción en varias vistas.
@@ -488,6 +597,13 @@ a través de %s usted mismo. :-)</string>
         Realice presión larga un marcador en la lista de marcadores para agregar etiquetas o eliminar el marcador.
         Realice presión larga los enlaces para elegir si desea abrirlos en la ventana actual, nueva ventana o ventana de enlaces especiales.
 </string>
+  <string name="help_bookmarks_title">Marcadores &amp; Mis Notas</string>
+  <string name="help_bookmarks_text">Los marcadores se pueden crear seleccionando un texto y eligiendo \"Marcador\" en
+el menú emergente. Puede agregar sus notas personalizadas al nuevo marcador tocando ahora
+texto resaltado en la vista Biblia. También hay un documento especial \"Mis notas\" en los comentarios que le permite
+para ver sus notas en una ventana separada.
+</string>
+  <string name="help_studypads_title">Pizarras de estudio</string>
   <string name="help_search_title">Búsqueda</string>
   <string name="help_search_text">La búsqueda de texto puede incluir caracteres especiales como *, ?, AND, OR, NOT
 (vea \"Apache Lucene - Query Parser Syntax\" para más detalles)</string>
@@ -506,11 +622,74 @@ a través de %s usted mismo. :-)</string>
         Mantenga presionado el botón Atrás para acceder a la lista Historial.
 </string>
   <string name="help_window_pinning_title">Fijación de ventanas</string>
+  <string name="help_window_pinning_text">
+        Puede habilitar la fijación de ventanas desde el menú de opciones (tres puntos, esquina superior derecha).
+        Si la fijación de ventanas está habilitada, puede mostrar muchas ventanas fijas en la vista de la Biblia,
+        pero solo una ventana no fijado. Las ventanas fijas se muestran primero y luego
+        Ventanas sin fijar. Es posible que desee abrir documentos de la Biblia como ventanas fijas, y
+        comentarios y mapas, etc. como ventanas no fijado. Entonces puedes fácilmente
+        tener documentos Bíblicos siempre abiertos, y cambiar rápidamente entre comentarios y
+        otro material extra cuando estudias la Biblia.
+</string>
   <!--Welcome text-->
+  <string name="redownload_documents">Descargar de nuevo rápidamente</string>
   <!--Uncategorized-->
   <string name="close">Cerrar</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Entiendo</string>
   <string name="first_time_help_show_next_time">Mostrar de nuevo la próxima vez</string>
+  <string name="strongs_mode_title">Elegir modo de Strong</string>
+  <string name="download_dialog_message">No se pudieron descargar los siguientes libros:</string>
+  <string name="select_multiple">Selección múltiple</string>
+  <string name="journal_description">Pizarras de estudio editables por el usuario con texto personalizado y marcadores</string>
+  <string name="my_notes_description">Notas editables por el usuario adjuntas a los marcadores</string>
+  <string name="my_notes_abbreviation">Mis Notas</string>
+  <string name="studypads">Blocs de Estudio</string>
+  <string name="multi_description">Referencias múltiples</string>
+  <string name="multi_abbreviation">Múltiple</string>
+  <string name="compare_description">Comparar traducciones</string>
+  <string name="compare_abbreviation">Comparar</string>
+  <string name="http_forbidden">Prohibido</string>
+  <string name="http_not_found">No encontrado</string>
+  <string name="http_unknown">Otro error</string>
+  <string name="compare">Comparar</string>
+  <string name="give_passphrase_for_module">El documento %s está cifrado y se necesita una contraseña para desbloquearlo</string>
+  <string name="unlocking_failed">Desbloqueo fallido, contraseña no válida</string>
+  <string name="unlock_module">Establecer contraseña del módulo</string>
+  <string name="unlock_info">Información de desbloqueo de módulo cifrado</string>
+  <string name="try_again_passphrase">La contraseña no funcionó, ¿intentar de nuevo?</string>
+  <string name="cant_delete_last_bible">No se pudo eliminar el último documento de Biblia</string>
+  <string name="show_unlock_info">Módulo e información de desbloqueo</string>
+  <string name="prefs_show_error_box_title">Mostrar la caja de errores Javascript</string>
+  <string name="prefs_show_error_box_summary">Útil para desarrolladores que están depurando errores javascript de BibleView. Esto ralentizará la aplicación.</string>
+  <string name="active_window_indicator_title">Mostrar el indicador de ventana activa</string>
+  <string name="active_window_indicator_summary">Resaltar las esquinas de la ventana para ayudar a reconocer qué ventana está activa</string>
+  <string name="app_licence_title">Licencia de software libre</string>
+  <string name="how_to_contribute">¿Cómo contribuir?</string>
+  <string name="confirm_delete_bookmarks">¿Desea eliminar %d marcadores y sus notas?</string>
+  <string name="confirm_delete_study_pads">¿Desea eliminar %d etiquetas de marcadores / pizarras de estudio? Todos los marcadores y pizarras de estudio asociados también se eliminarán.</string>
+  <string name="toast_deletion_cancel">Botón cancelar para deshacer la eliminación.</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Recomendar a las amistades</string>
+  <string name="tell_friend_message1">Me gustaría recomendarte %s.</string>
+  <string name="tell_friend_message2">Es una aplicación de Android para estudiar la Biblia sin conexión a internet, potente y fácil de usar.</string>
+  <string name="tell_friend_message3">Instálala desde Play Store: %s</string>
+  <string name="tell_friend_message4">Leer más y otras opciones de instalación: %s</string>
+  <string name="share_verse_ok">Compartir / Copia</string>
+  <string name="share_verse_menu_title">Compartir / copia…</string>
+  <string name="show_versenumbers">Mostrar números de verso</string>
+  <string name="show_full_verses">Mostrar los versículos completos</string>
+  <string name="advertise_app">Anunciar la aplicación</string>
+  <string name="verse_share_advertise">Compartido con %s.</string>
+  <string name="abbreviate_reference">Abreviar referencia</string>
+  <string name="backup_button">Copia de seguridad</string>
+  <string name="back_button">Atrás</string>
+  <string name="upgrading_database">Actualizando la base de datos. Por favor espere…</string>
+  <string name="initializing_app">Inicializando la aplicación…</string>
+  <string name="show_notes">Mostrar notas</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="play">Google Play</string>
+  <!--parameters are actions (file a bug, send email)-->
+  <!--param is "please report maintainers"-->
+  <!--param is "please read what you can do"-->
 </resources>
