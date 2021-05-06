@@ -193,7 +193,7 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
         "offsetRange" to json.encodeToString(serializer(), bookmark.textRange?.clientList),
         "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
             if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)
-        }),
+        }.sortedBy { bookmark.primaryLabelId != it }),
         "bookInitials" to wrapString(bookmark.book?.initials),
         "bookName" to wrapString(bookmark.book?.name),
         "bookAbbreviation" to wrapString(bookmark.book?.abbreviation),
@@ -208,7 +208,8 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
         "bibleUrl" to wrapString(getUrl(bookmark)),
         "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
         "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
-        "type" to wrapString("bookmark")
+        "type" to wrapString("bookmark"),
+        "primaryLabelId" to bookmark.primaryLabelId.toString(),
     )
 
     companion object{

@@ -83,11 +83,14 @@ export default {
         addEventFunction(event, () => {
           window.location.assign(`journal://?id=${label.id}`);
         }, {title: strings.jumpToStudyPad});
+        addEventFunction(event, () => {
+          android.setAsPrimaryLabel(bookmark.value.id, label.id);
+        }, {title: strings.setAsPrimaryLabel});
       }
       ambiguousSelection.value.handle(event);
     }
     function isPrimary(label) {
-      return label.id === bookmark.value.labels[0];
+      return label.id === bookmark.value.primaryLabelId;
     }
     return {labelStyle, assignLabels, ambiguousSelection, labelClicked, labels, isPrimary, ...common}
   }

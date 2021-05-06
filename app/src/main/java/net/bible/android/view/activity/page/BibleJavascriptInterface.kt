@@ -177,5 +177,10 @@ class BibleJavascriptInterface(
         }
     }
 
+    @JavascriptInterface
+    fun setAsPrimaryLabel(bookmarkId: Long, labelId: Long) {
+        bookmarkControl.setAsPrimaryLabel(bookmarkId, labelId)
+    }
+
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

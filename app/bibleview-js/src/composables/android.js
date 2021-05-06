@@ -250,6 +250,10 @@ export function useAndroid({bookmarks}, config) {
         }
     }
 
+    function setAsPrimaryLabel(bookmarkId, labelId) {
+        android.setAsPrimaryLabel(bookmarkId, labelId);
+    }
+
     const exposed = {
         setActionMode,
         reportInputFocus,
@@ -270,6 +274,7 @@ export function useAndroid({bookmarks}, config) {
         toast,
         shareBookmarkVerse,
         openStudyPad,
+        setAsPrimaryLabel,
     }
 
     if(config.developmentMode) return {

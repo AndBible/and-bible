@@ -427,6 +427,11 @@ open class BookmarkControl @Inject constructor(
         ABEventBus.getDefault().post(StudyPadOrderEvent(labelId, null, bookmarksToLabels, studyPadTextEntries))
     }
 
+    fun setAsPrimaryLabel(bookmarkId: Long, labelId: Long) {
+        val bookmark = dao.bookmarkById(bookmarkId)?: return
+        bookmark.primaryLabelId = labelId
+        addOrUpdateBookmark(bookmark)
+    }
 
     companion object {
         const val LABEL_IDS_EXTRA = "bookmarkLabelIds"

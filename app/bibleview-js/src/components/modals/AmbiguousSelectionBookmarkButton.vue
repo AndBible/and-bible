@@ -89,7 +89,7 @@ export default {
     });
 
     const primaryLabel = computed(() => {
-      const primaryLabelId = bookmark.value.labels[0];
+      const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
       return bookmarkLabels.get(primaryLabelId);
     });
 
