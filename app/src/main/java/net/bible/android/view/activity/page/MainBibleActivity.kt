@@ -75,6 +75,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.SwordDocumentInfo
@@ -137,6 +138,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
+    @Inject lateinit var errorReportControl: ErrorReportControl
 
     // handle requests from main menu
     @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
@@ -304,6 +306,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         if(!initialized) {
             GlobalScope.launch(Dispatchers.Main) {
+                errorReportControl.checkCrash(this@MainBibleActivity)
                 showBetaNotice()
                 showStableNotice()
                 showFirstTimeHelp()

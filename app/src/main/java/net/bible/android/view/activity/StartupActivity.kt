@@ -189,13 +189,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         if (!checkForExternalStorage()) return;
 
         BackupControl.setupDirs(this)
-        val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
         GlobalScope.launch {
-            if (crashed) {
-                CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", false).commit() // Yes, we want this to be flushed to file immediately
-                val msg = getString(R.string.error_occurred_crash_last_time)
-                errorReportControl.showErrorDialog(this@StartupActivity, msg)
-            }
+            errorReportControl.checkCrash(this@StartupActivity)
             // switch back to ui thread to continue
             withContext(Dispatchers.Main) {
                 postBasicInitialisationControl()
