@@ -7,6 +7,7 @@
     <string name="app_name_short">Bible Study</string>
     <string name="app_name_medium">Bible Study (And Bible)</string>
     <string name="app_name_long">Bible Study app, by And Bible Open Source Project</string>
+    <string name="project">And Bible Open Source Project</string>
 
     <string name="version_text">Version %s</string>
     <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
@@ -796,4 +797,44 @@
     <string name="old_webview">Android WebView package is too old (%s). You need to upgrade your Android WebView package to at least version %s to use %s. For most devices this can be done via %s.</string>
     <string name="play">Google Play</string>
     <string name="proceed_anyway">Proceed anyway</string>
+    <string name="rate_title">Rating and reviewing app</string>
+    <string name="rate_message5">
+        Positive and detailed reviews help And Bible Open Source Project a lot. Thank you!
+    </string>
+    <string name="rate_message6">
+        Before reviewing negative review, please consider the following:
+    </string>
+
+    <!-- parameters are actions (file a bug, send email) -->
+    <string name="rate_message1">
+        If have a problem with app, please %s or %s instead.
+    </string>
+    <!-- param is "please report maintainers" -->
+    <string name="rate_message2">
+        If some text / Bible translation has an issue, %s.
+    </string>
+    <!-- param is "please read what you can do" -->
+    <string name="rate_message3">
+        If particular text is not available in the application, %s.
+    </string>
+    <string name="rate_message4">
+        The developers of this app are not responsible for maintaining documents.
+    </string>
+    <string name="bug_report">
+        send a bug report (from Main Menu)
+    </string>
+    <string name="how_to_help">
+        please read what you can do to help
+    </string>
+    <string name="send_email">
+       send email to developers
+    </string>
+    <string name="proceed_google_play">
+        Proceed to Google Play
+    </string>
+    <string name="text_maintainers">
+       please report issues to text maintainers
+    </string>
+
+
 </resources>

@@ -66,6 +66,10 @@ import net.bible.service.db.DATABASE_NAME
 
 import javax.inject.Inject
 
+const val contributeLink = "https://github.com/AndBible/and-bible/wiki/How-to-contribute"
+const val howToAdd = "https://github.com/AndBible/and-bible/wiki/FAQ#please-add-module-x-to-and-bible"
+const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-text-issue-in-one-of-the-bible--commentary-etc-modules-in-and-bible"
+
 /** Handle requests from the main menu
  *
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -99,19 +103,62 @@ constructor(private val callingActivity: MainBibleActivity,
                     callingActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
                 }
                 R.id.rateButton -> {
-                    val uri = Uri.parse("market://details?id=" + callingActivity.packageName)
-                    val intent = Intent(Intent.ACTION_VIEW, uri).apply{
-                        // To count with Play market backstack, After pressing back button,
-                        // to taken back to our application, we need to add following flags to intent.
-                        addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+                    val htmlMessage = callingActivity.run {
+                        val email = "help.andbible@gmail.com"
+                        val bugReport = getString(R.string.bug_report)
+
+                        val howToHelp = getString(R.string.how_to_help)
+                        val howToHelpLink = "<a href='$howToAdd'>$howToHelp</a>"
+
+                        val sendEmail = getString(R.string.send_email)
+                        val textMaintainers = getString(R.string.text_maintainers)
+                        val textMaintainersLink = "<a href='${textIssue}'>$textMaintainers</a>"
+
+                        val sendEmailLink = "<a href='mailto:$email'>$sendEmail</a> ($email)"
+
+                        val msg1 = getString(R.string.rate_message1, sendEmailLink, bugReport)
+                        val msg2 = getString(R.string.rate_message2, textMaintainersLink)
+                        val msg3 = getString(R.string.rate_message3, howToHelpLink)
+                        val msg4 = getString(R.string.rate_message4)
+                        val msg5 = getString(R.string.rate_message5)
+                        val msg6 = getString(R.string.rate_message6)
+
+                        """
+                            $msg5<br><br>
+                            $msg6 <br><br>
+                            $msg1 <br><br>
+                            $msg2 <br><br>
+                            $msg3 $msg4""".trimIndent()
                     }
-                    try {
-                        callingActivity.startActivity(intent)
-                    } catch (e: ActivityNotFoundException) {
-                        val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + callingActivity.packageName)
-                        callingActivity.startActivity(Intent(Intent.ACTION_VIEW, httpUri))
+                    val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
+                    } else {
+                        Html.fromHtml(htmlMessage)
                     }
+
+                    val d = AlertDialog.Builder(callingActivity)
+                        .setTitle(R.string.rate_title)
+                        .setMessage(spanned)
+                        .setPositiveButton(R.string.proceed_google_play) {_, _ ->
+                            val uri = Uri.parse("market://details?id=" + callingActivity.packageName)
+                            val intent = Intent(Intent.ACTION_VIEW, uri).apply{
+                                // To count with Play market backstack, After pressing back button,
+                                // to taken back to our application, we need to add following flags to intent.
+                                addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+                            }
+                            try {
+                                callingActivity.startActivity(intent)
+                            } catch (e: ActivityNotFoundException) {
+                                val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + callingActivity.packageName)
+                                callingActivity.startActivity(Intent(Intent.ACTION_VIEW, httpUri))
+                            }
+                        }
+                        .setNegativeButton(R.string.cancel, null)
+                        .create()
+                    d.show()
+                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+
                 }
                 R.id.backupMainMenu -> {
                     val view: View = callingActivity.findViewById(R.id.homeButton)
@@ -257,7 +304,7 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.howToContribute -> {
                    callingActivity.startActivity(Intent(Intent.ACTION_VIEW,
-                       Uri.parse("https://github.com/AndBible/and-bible/wiki/How-to-contribute")))
+                       Uri.parse(contributeLink)))
                    isHandled = true
                 }
                 R.id.restore_modules -> {
