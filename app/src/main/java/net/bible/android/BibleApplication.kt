@@ -130,8 +130,9 @@ open class BibleApplication : Application() {
         ttsWidgetManager = SpeakWidgetManager()
     }
 
+    var sqliteVersion = ""
+
     private fun logSqliteVersion() {
-        var sqliteVersion = ""
         try {
             val cursor =
                 SQLiteDatabase.openOrCreateDatabase(":memory:", null)
