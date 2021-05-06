@@ -34,13 +34,13 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {
     faBookmark,
     faEdit,
-    faEllipsisH,
+    faEllipsisH, faFileAlt,
     faHeadphones,
-    faIndent, faInfo,
+    faIndent, faInfo, faInfoCircle,
     faOutdent,
     faPlusCircle,
     faShareAlt,
-    faSort, faTimes,
+    faSort, faTags, faTimes,
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import Color from "color";
@@ -298,10 +298,12 @@ export function useFontAwesome() {
     library.add(faShareAlt)
     library.add(faHeadphones)
     library.add(faEdit)
+    library.add(faTags)
     library.add(faBookmark)
     library.add(faPlusCircle)
     library.add(faTrash)
-    library.add(faInfo)
+    library.add(faFileAlt)
+    library.add(faInfoCircle)
     library.add(faTimes)
     library.add(faEllipsisH)
     library.add(faSort)

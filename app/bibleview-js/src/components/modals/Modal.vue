@@ -22,9 +22,11 @@
       <div ref="modal" @click.stop class="modal-content" :class="{blocking}"
       >
         <div ref="header" class="modal-header">
-          <div class="title">
-            <slot name="title"/>
-          </div>
+          <slot name="title-div">
+            <div class="title">
+              <slot name="title"/>
+            </div>
+          </slot>
           <slot name="buttons">
             <button class="modal-action-button right" @touchstart.stop @click.stop="$emit('close')">
               <FontAwesomeIcon icon="times"/>

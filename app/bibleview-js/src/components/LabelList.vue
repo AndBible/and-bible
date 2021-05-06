@@ -18,7 +18,17 @@
 <template>
   <AmbiguousSelection blocking ref="ambiguousSelection"/>
   <div class="label-list">
-    <span @touchstart="labelClicked($event, label)" @click="labelClicked($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
+    <div
+        @touchstart="labelClicked($event, label)"
+        @click="labelClicked($event, label)"
+        v-for="label in labels"
+        :key="label.id"
+        :style="labelStyle(label)"
+        class="label"
+    >
+      <span v-if="isPrimary(label)" class="icon"><FontAwesomeIcon icon="bookmark"/></span>
+      {{label.name}}
+    </div>
   </div>
 </template>
 
@@ -27,12 +37,14 @@ import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {computed, ref} from "@vue/reactivity";
 import {addEventFunction} from "@/utils";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 export default {
   props: {
     bookmarkId: {type: Number, required: true},
     handleTouch: {type: Boolean, default: false},
   },
+  components: {FontAwesomeIcon},
   name: "LabelList",
   setup(props) {
     const {adjustedColor, strings, ...common} = useCommon();
@@ -72,31 +84,40 @@ export default {
       }
       ambiguousSelection.value.handle(event);
     }
-
-    return {labelStyle, assignLabels, ambiguousSelection, labelClicked, labels, ...common}
+    function isPrimary(label) {
+      return label.id === bookmark.value.labels[0];
+    }
+    return {labelStyle, assignLabels, ambiguousSelection, labelClicked, labels, isPrimary, ...common}
   }
 }
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
-
+.icon {
+  font-size: 10px;
+}
 .label {
-  font-weight: bold;
+  $padding: 2px;
+  height: calc(12px + #{2*$padding});
+  padding-top: $padding;
+  font-weight: normal;
   color: #e8e8e8;
-  font-size: 70%;
+  font-size: 11px;
   border-radius: 6pt;
   padding-left: 4pt;
   padding-right: 4pt;
   margin-right: 2pt;
 }
 .label-list {
-  @extend .superscript;
-  font-size: 100%;
-  line-height: 1.1em;
+  line-height: 1em;
   display: inline-flex;
-  flex-direction: row;
-  bottom: 30pt;
-  padding: 2pt 2pt 0 0;
+//  @extend .superscript;
+//  font-size: 100%;
+//  line-height: 1.1em;
+//  display: inline-flex;
+//  flex-direction: row;
+//  bottom: 30pt;
+//  padding: 2pt 2pt 0 0;
 }
 </style>

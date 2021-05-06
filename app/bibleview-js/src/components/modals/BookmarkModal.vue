@@ -17,6 +17,28 @@
 
 <template>
   <Modal v-if="showBookmark && bookmark" @close="closeBookmark">
+    <template #title-div>
+      <div class="bookmark-title">
+        <div class="label-list-div">
+          <LabelList handle-touch :bookmark-id="bookmark.id"/>
+        </div>
+        <div class="title-text">
+          {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 15)}}</i></q>
+        </div>
+      </div>
+    </template>
+
+    <template #buttons>
+      <div class="modal-toolbar">
+        <div class="modal-action-button" :class="{toggled: infoShown}" @touchstart.stop="infoShown = !infoShown">
+          <FontAwesomeIcon icon="info-circle"/>
+        </div>
+        <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
+          <FontAwesomeIcon icon="times"/>
+        </div>
+      </div>
+    </template>
+
     <EditableText
         v-if="!infoShown"
         constraint-display-height
@@ -28,58 +50,50 @@
       {{ strings.editBookmarkPlaceholder }}
     </EditableText>
     <div v-show="infoShown" class="info">
-      <div class="bible-text">
+     <div class="bible-text">
         <BookmarkText expanded :bookmark="bookmark"/>
       </div>
-      <div v-if="bookmark.bookName">
-        <span v-html="sprintf(strings.bookmarkAccurate, originalBookLink)"/>
-      </div>
-      <div v-else>
-        <span v-html="sprintf(strings.bookmarkInaccurate, originalBookLink)"/>
-      </div>
-      {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
-      {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
       <div class="links">
         <div>
+          <span class="link-icon"><FontAwesomeIcon icon="file-alt"/></span>
           <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
         </div>
         <div v-for="label in labels.filter(l => l.id > 0)" :key="label.id">
+          <span class="link-icon" :style="`color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon icon="file-alt"/></span>
           <a :href="`journal://?id=${label.id}&bookmarkId=${bookmark.id}`">{{ sprintf(strings.openStudyPad, label.name) }}</a>
         </div>
       </div>
-    </div>
-    <template #title>
-      <span :style="`color:${labelColor}`">
-        <FontAwesomeIcon v-if="bookmarkNotes" icon="edit"/>
-        <FontAwesomeIcon v-else icon="bookmark"/>
-      </span>
-      {{ bookmark.verseRangeAbbreviated }}
-      <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 15)}}</i></q>
-      <LabelList handle-touch :bookmark-id="bookmark.id"/>
-    </template>
-    <template #buttons>
-      <div style="align-self: flex-end; display: flex;">
-        <ButtonRow handle-touch>
-          <template #menubutton>
-            <div class="modal-action-button">
-              <FontAwesomeIcon icon="ellipsis-h"/>
-            </div>
-          </template>
-          <div class="journal-button" @touchstart="removeBookmark">
-            <FontAwesomeIcon icon="trash"/>
+
+      <div style="display: flex; justify-content: space-between;">
+        <div class="bookmark-buttons">
+          <div class="bookmark-button end" @click="assignLabels">
+            <FontAwesomeIcon icon="tags"/>
           </div>
-          <div class="journal-button" :class="{toggled: infoShown}" @touchstart.stop="infoShown = !infoShown">
-            <FontAwesomeIcon icon="info"/>
+          <div class="bookmark-button end" @click="infoShown=false">
+            <FontAwesomeIcon icon="edit"/>
           </div>
-          <div class="journal-button" @touchstart.stop="shareVerse">
+          <div class="bookmark-button" @click="shareVerse">
             <FontAwesomeIcon icon="share-alt"/>
           </div>
-        </ButtonRow>
-        <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
-          <FontAwesomeIcon icon="times"/>
+        </div>
+        <div class="bookmark-buttons" style="align-self: end;">
+          <div class="bookmark-button end" @click="removeBookmark">
+            <FontAwesomeIcon icon="trash"/>
+          </div>
         </div>
       </div>
-    </template>
+
+      <div class="info-text">
+        <div v-if="bookmark.bookName">
+          <span v-html="sprintf(strings.bookmarkAccurate, originalBookLink)"/>
+        </div>
+        <div v-else>
+          <span v-html="sprintf(strings.bookmarkInaccurate, originalBookLink)"/>
+        </div>
+        {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
+        {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
+      </div>
+    </div>
     <template #footer>
 
     </template>
@@ -103,11 +117,10 @@ import AreYouSure from "@/components/modals/AreYouSure";
 import EditableText from "@/components/EditableText";
 import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
-import ButtonRow from "@/components/ButtonRow";
 
 export default {
   name: "BookmarkModal",
-  components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure, ButtonRow},
+  components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure},
   setup() {
     const showBookmark = ref(false);
     const android = inject("android");
@@ -176,7 +189,7 @@ export default {
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes, shareVerse,
       removeBookmark,  assignLabels,  bookmark, labelColor, changeNote, labels, originalBookLink,
-      strings, ...common
+      strings, adjustedColor, ...common
     };
   },
 }
@@ -184,6 +197,48 @@ export default {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
+.bookmark-title {
+  padding-top: 2px;
+}
+
+.title-text {
+  font-weight: normal;
+  padding-top: 2px;
+}
+
+.bookmark-buttons {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+$button-grey: #8e8e8e;
+
+.bookmark-button {
+  font-size: 25px;
+  color: $button-grey;
+  padding: 5px;
+  &.end {
+    align-self: flex-end;
+  }
+}
+
+.modal-toolbar {
+  align-self: flex-end;
+  display: flex;
+}
+
+.link-icon {
+  padding: 2px;
+  padding-inline-end: 4px;
+  color: $button-grey;
+}
+
+.info-text {
+font-size: 85%;
+}
 
 .info {
   @extend .visible-scrollbar;
@@ -202,7 +257,6 @@ export default {
 //}
 .bible-text {
   text-indent: 5pt;
-  margin-bottom: 10pt;
   font-style: italic;
 }
 

@@ -249,7 +249,7 @@ if(process.env.NODE_ENV === "development") {
             indentLevel: 1,
         }))
 
-    const mode = "journal"
+    const mode = "notes"
 
     if(mode === "bible") {
         testData = testData.map(

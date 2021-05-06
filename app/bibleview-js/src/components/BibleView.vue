@@ -338,12 +338,9 @@ a {
 }
 
 .modal-action-button {
-  font-size: 90%;
-  + .toggled {
-    background-color: #474747;
-    &.light {
-      background-color: #d5d5d5;
-    }
+  font-size: 120%;
+  &.toggled {
+    color: #d5d5d5;
   }
 
   &.right {
