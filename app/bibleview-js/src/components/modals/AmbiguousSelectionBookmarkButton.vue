@@ -20,7 +20,7 @@
     <div>
       {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 30)}}</i></q>
     </div>
-    <LabelList disable-links :bookmark-id="bookmarkId"/>
+    <LabelList :bookmark-id="bookmarkId"/>
     <div style="display: flex; justify-content: space-between; height: 30px;">
       <div style="display: flex;">
         <div class="bookmark-button" @click.stop="assignLabels">
