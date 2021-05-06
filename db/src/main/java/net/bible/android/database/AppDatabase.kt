@@ -27,6 +27,7 @@ import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 import org.crosswire.jsword.book.Books
@@ -43,7 +44,7 @@ import java.io.ObjectOutputStream
 
 import java.util.*
 
-const val DATABASE_VERSION = 45
+const val DATABASE_VERSION = 46
 
 class Converters {
     @TypeConverter
@@ -86,6 +87,17 @@ class Converters {
         val book = Books.installed().getBook(s)
         if(book is AbstractPassageBook) book else null
     }
+
+    @TypeConverter
+    fun speakSettingsToStr(p: SpeakSettings?): String? {
+        return p?.toJson()
+    }
+
+    @TypeConverter
+    fun strToSpeakSettings(s: String?): SpeakSettings? {
+        return if (s != null) SpeakSettings.fromJson(s) else null
+    }
+
 
     @TypeConverter
     fun playbackSettingsToStr(p: PlaybackSettings?): String? {

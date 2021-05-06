@@ -828,6 +828,14 @@ private val MIGRATION_44_45_nullColors = object : Migration(44, 45) {
     }
 }
 
+private val MIGRATION_45_46_workspaceSpeakSettings = object : Migration(45, 46) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_speakSettings` TEXT DEFAULT NULL")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -886,6 +894,7 @@ object DatabaseContainer {
                         MIGRATION_42_43_expandContent,
                         MIGRATION_43_44_topMargin,
                         MIGRATION_44_45_nullColors,
+                        MIGRATION_45_46_workspaceSpeakSettings,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

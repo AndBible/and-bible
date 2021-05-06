@@ -212,6 +212,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         binding = MainBibleViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         DaggerMainBibleActivityComponent.builder()
             .applicationComponent(BibleApplication.application.applicationComponent)
             .mainBibleActivityModule(MainBibleActivityModule(this))

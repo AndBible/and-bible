@@ -27,6 +27,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import net.bible.android.database.bookmarks.SpeakSettings
 import org.crosswire.jsword.passage.Verse as JswordVerse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
@@ -305,7 +306,8 @@ class WorkspaceEntities {
     data class WindowBehaviorSettings(
         @ColumnInfo(defaultValue = "0") var enableTiltToScroll: Boolean = false,
         @ColumnInfo(defaultValue = "0") var enableReverseSplitMode: Boolean = false,
-        @ColumnInfo(defaultValue = "1") var autoPin: Boolean = false
+        @ColumnInfo(defaultValue = "1") var autoPin: Boolean = false,
+        @ColumnInfo(defaultValue = "NULL") var speakSettings: SpeakSettings? = null,
     ) {
         companion object {
             val default get() = WindowBehaviorSettings(
