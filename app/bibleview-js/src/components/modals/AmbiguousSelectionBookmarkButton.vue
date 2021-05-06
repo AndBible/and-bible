@@ -26,7 +26,7 @@
         <div class="bookmark-button" @click.stop="assignLabels">
           <FontAwesomeIcon icon="tags"/>
         </div>
-        <div class="bookmark-button" @click.stop="editNotes">
+        <div class="bookmark-button" :class="{highlighted: bookmark.hasNote}" @click.stop="editNotes">
           <FontAwesomeIcon icon="edit"/>
         </div>
         <div class="bookmark-button" @click.stop="bookmarkInfo">

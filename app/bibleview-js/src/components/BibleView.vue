@@ -197,13 +197,11 @@ export default {
       });
 
       const modalStyle = computed(() => {
-        const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
         return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${calculatedConfig.value.topOffset}px;
           --font-size:${config.fontSize}px;
-          --font-family:${config.fontFamily};
-          --background-color: ${backgroundColor.hsl().string()}`
+          --font-family:${config.fontFamily};`
       });
 
       const topStyle = computed(() => {
