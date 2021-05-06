@@ -23,8 +23,11 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -140,7 +143,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         return true
     }
 
-    private fun checkWebView(): Boolean {
+    private suspend fun checkWebView(): Boolean {
         val info = WebViewCompat.getCurrentWebViewPackage(applicationContext)
         val versionNum = info?.versionName?.split(".")?.first()?.split(" ")?.first()?.toInt() ?: 0
         val minimumVersion = 89
@@ -148,10 +151,27 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             val playUrl = "https://play.google.com/store/apps/details?id=com.google.android.webview"
             val playLink = "<a href=\"$playUrl\">${getString(R.string.play)}</a>"
 
-            Dialogs.instance.showErrorMsg(getString(R.string.old_webview, info?.versionName, minimumVersion.toString(), getString(R.string.app_name_medium), playLink)) {
-                finish()
+            val msg = getString(R.string.old_webview, info?.versionName, minimumVersion.toString(), getString(R.string.app_name_medium), playLink)
+
+            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Html.fromHtml(msg, Html.FROM_HTML_MODE_LEGACY)
+            } else {
+                Html.fromHtml(msg)
             }
-            return false
+
+            return suspendCoroutine {
+                val dlgBuilder = AlertDialog.Builder(this)
+                    .setMessage(spanned)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.proceed_anyway) { _, _ -> it.resume(true) }
+                    .setNeutralButton(R.string.close) { _, _ ->
+                        it.resume(false)
+                        finish()
+                    }
+
+                val d = dlgBuilder.show()
+                d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+            }
         }
         return true
     }
@@ -167,7 +187,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         buildActivityComponent().inject(this)
         supportActionBar!!.hide()
         if (!checkForExternalStorage()) return;
-        if(!checkWebView()) return
 
         BackupControl.setupDirs(this)
         val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
@@ -195,6 +214,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
 
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
+        if(!checkWebView()) return@withContext
+
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles

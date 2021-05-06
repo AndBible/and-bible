@@ -795,4 +795,5 @@
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
     <string name="old_webview">Android WebView package is too old (%s). You need to upgrade your Android WebView package to at least version %s to use %s. For most devices this can be done via %s.</string>
     <string name="play">Google Play</string>
+    <string name="proceed_anyway">Proceed anyway</string>
 </resources>
