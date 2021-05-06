@@ -32,7 +32,7 @@ removeBookmarkConfirmation: Are you sure you want to remove this bookmark?
 closeModal: Close
 createdAt: "Created: %s"
 lastUpdatedOn: "Last updated: %s"
-strongsLink: Open Strongs
+strongsLink: Open Strongs (%s)
 studyPadLink: Open study pad
 externalLink: Open external link
 referenceLink: Open reference link

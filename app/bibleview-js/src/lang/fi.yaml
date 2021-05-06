@@ -32,7 +32,7 @@ removeBookmarkConfirmation: "Oletko varma että haluat poistaa tämän kirjanmer
 closeModal: Sulje
 createdAt: "Luotu: %s"
 lastUpdatedOn: "Viimeksi päivitetty: %s"
-strongsLink: Avaa Strongs
+strongsLink: Avaa Strongs (%s)
 studyPadLink: Avaa opintoalusta
 externalLink: Avaa ulkoinen linkki
 referenceLink: Avaa viittaus

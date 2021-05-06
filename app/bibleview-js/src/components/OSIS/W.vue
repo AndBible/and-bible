@@ -80,9 +80,9 @@ export default {
       // ab-w://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.
       return "ab-w://?" + linkBodies.join("&")
     }
-    const {strings, ...common} = useCommon();
+    const {strings, sprintf, ...common} = useCommon();
     function goToLink(event, url) {
-      addEventFunction(event, () => window.location.assign(url), {title: strings.strongsLink});
+      addEventFunction(event, () => window.location.assign(url), {title: sprintf(strings.strongsLink, formatName(props.lemma))});
     }
     return {formatLink, formatName, goToLink, strings, ...common};
   },
