@@ -35,7 +35,7 @@
     </template>
   </Modal>
   <span
-      v-if="(config.showCrossReferences && isCrossReference) || (config.showFootNotes && isFootNote) || isOther"
+      v-if="(config.showFootNotes && isCrossReference) || (config.showFootNotes && isFootNote) || isOther"
       class="skip-offset">
     <span :class="{noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
       {{handle}}

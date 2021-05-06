@@ -151,7 +151,6 @@ export function useConfig(documentType) {
         makeNonCanonicalItalic: true,
         showSectionTitles: true,
         showStrongsSeparately: false,
-        showCrossReferences: true,
         showFootNotes: true,
         fontFamily: "sans-serif",
         fontSize: 16,
