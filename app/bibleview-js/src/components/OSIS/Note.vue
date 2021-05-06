@@ -91,8 +91,10 @@ export default {
     function noteClicked(event) {
       addEventFunction(event,
           () => {
-            referenceCollector.clear();
-            showNote.value = true;
+            if(!showNote.value) {
+              referenceCollector.clear();
+              showNote.value = true;
+            }
           },
           {title: strings.openFootnote, priority: 10});
     }
