@@ -339,6 +339,7 @@ a {
 
 .modal-action-button {
   font-size: 120%;
+  line-height: 0.5em; // make sure this does not increase modal title height
   &.toggled {
     color: #d5d5d5;
   }
