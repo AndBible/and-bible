@@ -45,6 +45,7 @@
         :text="bookmarkNotes || ''"
         @save="changeNote"
         show-placeholder
+        :edit-directly="editDirectly"
         max-editor-height="100pt"
     >
       {{ strings.editBookmarkPlaceholder }}
@@ -54,11 +55,11 @@
         <BookmarkText expanded :bookmark="bookmark"/>
       </div>
       <div class="links">
-        <div>
+        <div class="link-line">
           <span class="link-icon"><FontAwesomeIcon icon="file-alt"/></span>
           <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
         </div>
-        <div v-for="label in labels.filter(l => l.id > 0)" :key="label.id">
+        <div v-for="label in labels.filter(l => l.id > 0)" :key="label.id" class="link-line">
           <span class="link-icon" :style="`color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon icon="file-alt"/></span>
           <a :href="`journal://?id=${label.id}&bookmarkId=${bookmark.id}`">{{ sprintf(strings.openStudyPad, label.name) }}</a>
         </div>
@@ -66,10 +67,10 @@
 
       <div style="display: flex; justify-content: space-between;">
         <div class="bookmark-buttons">
-          <div class="bookmark-button end" @click="assignLabels">
+          <div class="bookmark-button" @click="assignLabels">
             <FontAwesomeIcon icon="tags"/>
           </div>
-          <div class="bookmark-button end" @click="infoShown=false">
+          <div class="bookmark-button" @click="infoShown=false">
             <FontAwesomeIcon icon="edit"/>
           </div>
           <div class="bookmark-button" @click="shareVerse">
@@ -143,10 +144,12 @@ export default {
     const bookmarkNotes = computed(() => bookmark.value.notes);
     let originalNotes = null;
 
-    setupEventBusListener(Events.BOOKMARK_CLICKED, (bookmarkId_, {open = false} = {}) => {
+    setupEventBusListener(Events.BOOKMARK_CLICKED, (bookmarkId_, {openInfo = false, open = false} = {}) => {
       bookmarkId.value = bookmarkId_;
       originalNotes = bookmarkNotes.value;
-      if(!showBookmark.value) infoShown.value = false;
+      //if(!showBookmark.value) infoShown.value = false;
+      infoShown.value = openInfo;
+      editDirectly.value = open;
       showBookmark.value = true;
     });
 
@@ -186,10 +189,12 @@ export default {
     const originalBookLink = computed(() =>
         `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`)
 
+    const editDirectly = ref(false);
+
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes, shareVerse,
       removeBookmark,  assignLabels,  bookmark, labelColor, changeNote, labels, originalBookLink,
-      strings, adjustedColor, ...common
+      strings, adjustedColor, editDirectly, ...common
     };
   },
 }
@@ -207,23 +212,6 @@ export default {
   padding-top: 2px;
 }
 
-.bookmark-buttons {
-  padding-top: 7px;
-  padding-bottom: 7px;
-  display: flex;
-  justify-content: flex-start;
-}
-
-$button-grey: #8e8e8e;
-
-.bookmark-button {
-  font-size: 25px;
-  color: $button-grey;
-  padding: 5px;
-  &.end {
-    align-self: flex-end;
-  }
-}
 
 .modal-toolbar {
   align-self: flex-end;
@@ -242,7 +230,7 @@ font-size: 85%;
 
 .info {
   @extend .visible-scrollbar;
-  font-size: 80%;
+  font-size: 90%;
   overflow-y: auto;
 
   max-height: calc(var(--max-height) - 25pt);
@@ -250,6 +238,9 @@ font-size: 85%;
 .links {
   padding-top: 10pt;
   padding-bottom: 5pt;
+  .link-line {
+    padding: 2px;
+  }
 }
 //.action-buttons {
 //  position: relative;

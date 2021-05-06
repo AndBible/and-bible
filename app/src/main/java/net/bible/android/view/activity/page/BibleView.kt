@@ -133,7 +133,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 private val bibleKeyHandler: BibleKeyHandler,
                 private val pageControl: PageControl,
                 private val pageTiltScrollControl: PageTiltScrollControl,
-                private val linkControl: LinkControl,
+                val linkControl: LinkControl,
                 internal val bookmarkControl: BookmarkControl
 ) : WebView(mainBibleActivity.applicationContext), DocumentView
 {

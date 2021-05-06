@@ -34,13 +34,17 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {
     faBookmark,
     faEdit,
-    faEllipsisH, faFileAlt,
+    faEllipsisH,
+    faFileAlt,
     faHeadphones,
-    faIndent, faInfo, faInfoCircle,
+    faIndent,
+    faInfoCircle,
     faOutdent,
     faPlusCircle,
     faShareAlt,
-    faSort, faTags, faTimes,
+    faSort,
+    faTags,
+    faTimes,
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import Color from "color";
@@ -279,12 +283,12 @@ export function useCommon() {
         return new Date(timestamp).toLocaleString()
     }
 
-    function adjustedColor(color) {
+    function adjustedColor(color, ratio=0.2) {
         let col = Color(color);
         if(config.nightMode) {
-            col = col.darken(0.2);
+            col = col.darken(ratio);
         } else {
-            col = col.darken(0.2);
+            col = col.darken(ratio);
         }
         return col.hsl();
     }

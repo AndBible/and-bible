@@ -35,7 +35,7 @@ if(testMode) {
 let stringsLoaded = false;
 
 async function loadStrings() {
-    const langTag = new URLSearchParams(window.location.search).get("lang");
+    const langTag = new URLSearchParams(window.location.search).get("lang") || "";
     if(langTag === "en-US") return;
     const langShort = langTag.split('-')[0]
     console.log(`Loading lang ${langTag}`)

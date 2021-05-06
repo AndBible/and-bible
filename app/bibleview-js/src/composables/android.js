@@ -218,6 +218,10 @@ export function useAndroid({bookmarks}, config) {
         android.shareBookmarkVerse(bookmarkId);
     }
 
+    function openStudyPad(labelId) {
+        android.openStudyPad(labelId);
+    }
+
     function updateOrderNumber(labelId, bookmarks, journals) {
         const orderNumberPairs = l => l.map(v=>[v.id, v.orderNumber])
         android.updateOrderNumber(labelId, JSON.stringify(
@@ -265,6 +269,7 @@ export function useAndroid({bookmarks}, config) {
         updateJournalEntry,
         toast,
         shareBookmarkVerse,
+        openStudyPad,
     }
 
     if(config.developmentMode) return {

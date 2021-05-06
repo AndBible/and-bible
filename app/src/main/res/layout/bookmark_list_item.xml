@@ -28,7 +28,7 @@
             <ImageView android:id="@+id/speakIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/hearing"
+                android:src="@drawable/ic_baseline_headphones_24"
             />
             <TextView android:id="@+id/verseText"
                 android:layout_width="wrap_content"

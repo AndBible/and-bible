@@ -363,3 +363,13 @@ export function highlightVerseRange(selectorPrefix, [startOrdinal, endOrdinal], 
         console.error("Highlight range failed!", {first,second,firstElem,secondElem,startOff,endOff,startOff1,endOff1})
     }
 }
+
+export function isInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+        rect.top >= -el.clientHeight &&
+        rect.left >= -el.clientWidth &&
+        rect.bottom - el.clientHeight <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right - el.clientWidth <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}

@@ -170,5 +170,12 @@ class BibleJavascriptInterface(
         }
     }
 
+    @JavascriptInterface
+    fun openStudyPad(labelId: Long) {
+        GlobalScope.launch(Dispatchers.Main) {
+            bibleView.linkControl.openJournal(labelId)
+        }
+    }
+
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

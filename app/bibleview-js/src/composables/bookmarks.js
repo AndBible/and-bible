@@ -32,7 +32,6 @@ import {faEdit, faBookmark, faHeadphones} from "@fortawesome/free-solid-svg-icon
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
 import {bookmarkingModes, testMode} from "@/composables/index";
-import {sprintf} from "sprintf-js";
 import {DocumentTypes} from "@/constants";
 
 const speakIcon = icon(faHeadphones);
@@ -383,11 +382,7 @@ export function useBookmarks(documentId,
 
         function addBookmarkEventFunctions(event) {
             for (const b of bookmarks) {
-                const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l)).filter(l => !l.noHighlight);
-                const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
-                const icon = b.notes ? "edit" : "bookmark"
-                const color = adjustedColor(bookmarkLabels_[0].color).string();
-                addEventFunction(event, () => emit(Events.BOOKMARK_CLICKED, b.id), {icon, color, title, bookmark: b});
+                addEventFunction(event, null, {bookmarkId: b.id});
             }
         }
 
@@ -437,10 +432,8 @@ export function useBookmarks(documentId,
                 const color = adjustedColor("red").string()
                 const iconElement = getIconElement(speakIcon, color);
 
-                const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
-
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    () => emit(Events.BOOKMARK_CLICKED, b.id), {title, icon: "headphones", color, bookmark: b}));
+                    null, {bookmarkId: b.id}));
                 firstElement.parentElement.insertBefore(iconElement, firstElement);
                 undoHighlights.push(() => iconElement.remove());
             }
@@ -448,13 +441,11 @@ export function useBookmarks(documentId,
         if(config.showMyNotes) {
             for (const b of bookmarks.filter(b => b.notes && arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
                 const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
-                const icon = b.notes ? "edit" : "bookmark"
                 const color = adjustedColor(bookmarkLabel.color).string();
                 const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
-                const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    () => emit(Events.BOOKMARK_CLICKED, b.id), {title, icon, color, bookmark: b}));
+                    null, {bookmarkId: b.id}));
                 lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
                 undoHighlights.push(() => iconElement.remove());
             }
@@ -476,12 +467,7 @@ export function useBookmarks(documentId,
             const iconElement = getIconElement(bookmarkIcon, color);
             iconElement.addEventListener("click", event => {
                 for(const b of bookmarkList) {
-                    const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
-                    const color = adjustedColor(bookmarkLabel.color).string();
-                    const icon = b.notes ? "edit" : "bookmark"
-                    const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
-                    addEventFunction(event,
-                        () => emit(Events.BOOKMARK_CLICKED, b.id), {title, icon, color, bookmark: b});
+                    addEventFunction(event, null, {bookmarkId: b.id});
                 }
             });
             if(bookmarkList.length>1) {

@@ -22,7 +22,6 @@ import android.text.Html
 import android.text.TextUtils
 import android.util.LayoutDirection
 import android.util.Log
-import androidx.core.text.layoutDirection
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n

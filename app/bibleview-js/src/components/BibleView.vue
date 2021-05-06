@@ -356,30 +356,4 @@ a {
   text-decoration: none;
   display: inline-block;
 }
-
-.button {
-  font-size: 90%;
-  background-color: #717171;
-  + .toggled {
-    background-color: #474747;
-    &.light {
-      background-color: #d5d5d5;
-    }
-  }
-  &.light {
-    background-color: #bdbdbd;
-    color: black;
-  }
-  &.right {
-    align-self: end;
-  }
-  border: none;
-  color: white;
-  padding: 5pt 5pt;
-  border-radius: 5pt;
-  margin: 2pt 2pt;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-}
 </style>

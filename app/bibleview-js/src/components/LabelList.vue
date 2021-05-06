@@ -43,6 +43,7 @@ export default {
   props: {
     bookmarkId: {type: Number, required: true},
     handleTouch: {type: Boolean, default: false},
+    disableLinks: {type: Boolean, default: false},
   },
   components: {FontAwesomeIcon},
   name: "LabelList",
@@ -69,6 +70,7 @@ export default {
     }
 
     function labelClicked(event, label) {
+      if(props.disableLinks) return;
       if(event.type === "touchstart" && !props.handleTouch) {
         return;
       }

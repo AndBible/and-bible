@@ -63,6 +63,7 @@
 .visible-scrollbar {
   &::-webkit-scrollbar {
     height: 20%;
+    width: 5px;
   }
   &::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, .3);
@@ -70,4 +71,49 @@
       background-color: rgba(255, 255, 255, .3);
     }
   };
+}
+
+.button {
+  font-size: 90%;
+  background-color: #717171;
+  + .toggled {
+    background-color: #474747;
+    &.light {
+      background-color: #d5d5d5;
+    }
+  }
+  &.light {
+    background-color: #bdbdbd;
+    color: black;
+  }
+  &.right {
+    align-self: end;
+  }
+  border: none;
+  color: white;
+  padding: 5pt 5pt;
+  border-radius: 5pt;
+  margin: 2pt 2pt;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+
+.bookmark-buttons {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+$button-grey: #8e8e8e;
+
+.bookmark-button {
+  font-size: 25px;
+  color: $button-grey;
+  padding: 5px;
+  &.end {
+    align-self: flex-end;
+  }
 }

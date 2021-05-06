@@ -59,7 +59,7 @@ class ManageLabelItemAdapter(context: Context?,
             checkbox.visibility = View.GONE
         }
         if(manageLabels.studyPadMode) {
-            bindings.labelIcon.setImageResource(R.drawable.ic_pen_24dp)
+            bindings.labelIcon.setImageResource(R.drawable.ic_baseline_studypads_24)
         }
         bookmarkStyleAdapterHelper.styleView(name, label, context, false, false)
         bindings.editLabel.setOnClickListener { manageLabels.editLabel(label) }
