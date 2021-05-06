@@ -70,6 +70,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {Events, emit} from "@/eventbus";
 import AreYouSure from "@/components/modals/AreYouSure";
 import {adjustedColor, adjustedColorOrig} from "@/utils";
+import Color from "color";
 
 export default {
   emits: ["selected"],
@@ -94,13 +95,9 @@ export default {
       return bookmarkLabels.get(primaryLabelId);
     });
 
-    const appSettings = inject("appSettings")
-
     const buttonStyle = computed(() => {
-      let color = adjustedColorOrig(primaryLabel.value.color, appSettings.nightMode ? 0.2: -0.6);
-      if(appSettings.nightMode) {
-        color = color.alpha(0.5)
-      }
+      let color = Color(primaryLabel.value.color);
+      color = color.alpha(0.5)
       return `background-color: ${color.hsl()};`
     });
 
