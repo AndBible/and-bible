@@ -26,7 +26,7 @@
             <slot name="title"/>
           </div>
           <slot name="buttons">
-            <button class="modal-action-button right" @touchstart.stop="$emit('close')">
+            <button class="modal-action-button right" @touchstart.stop @click.stop="$emit('close')">
               <FontAwesomeIcon icon="times"/>
             </button>
           </slot>

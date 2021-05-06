@@ -75,7 +75,7 @@
             <FontAwesomeIcon icon="share-alt"/>
           </div>
         </ButtonRow>
-        <div class="modal-action-button right" @touchstart.stop="closeBookmark">
+        <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
           <FontAwesomeIcon icon="times"/>
         </div>
       </div>
