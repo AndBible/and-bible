@@ -29,6 +29,7 @@
 import {inject, onBeforeUnmount, onMounted, onUnmounted, watch} from "@vue/runtime-core";
 import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
+import {bcv_parser} from "@/composables/refparser.js";
 import {init, exec, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText";
 import {
@@ -51,9 +52,18 @@ export default {
   emits: ['save', "close"],
   setup(props, {emit}) {
     const android = inject("android");
+    const features = inject('customFeatures')
     const editorElement = ref(null);
     const editor = ref(null);
     const inputText = ref(null);
+    var languages = null
+
+    function get_languages() {
+        if (!languages) {
+            languages = android.getActiveLanguages()
+        }
+        return languages
+    }
 
     // TODO: probably this hack can be removed.
     function setFocus(value) {
@@ -101,24 +111,24 @@ export default {
       title: 'Insert bible reference',
       result: async () => {
         const originalRange = document.getSelection().getRangeAt(0);
-        //Get the active languages and create a bible reference parser for each language
-        const languages = android.getActiveLanguages()
         //Always add the "en" language, so at least the english parser always exists.
-        if (!languages.includes("en")) {
-            languages.push("en")
+        var en_parser = new bcv_parser;
+        var parsers = [en_parser]
+
+        if (features.features.refParser) {
+            //Get the active languages and create a bible reference parser for each language
+            const languages = get_languages()
+            languages.forEach(async (lang) => {
+                if (lang != "en") {
+                    try {
+                        const bcv_parser = await features.features.refParser(lang)
+                        parsers.push(bcv_parser)
+                    } catch (error) {
+                        console.log(`No parser exists for language: ${lang}`)
+                    }
+                }
+            })
         }
-        var parsers = []
-        languages.forEach(async (lang) => {
-            try {
-                const bcv_parser = await import(`bible-passage-reference-parser/js/${lang}_bcv_parser`)
-                    .then((module) => {
-                        return new module.bcv_parser
-                    });
-                parsers.push(bcv_parser)
-            } catch (error) {
-                console.log(`No parser exists for language: ${lang}`)
-            }
-        })
 
         if(originalRange) {
           var text = "";

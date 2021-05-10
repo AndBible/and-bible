@@ -471,14 +471,15 @@ export function useCustomFeatures() {
 
     // eslint-disable-next-line no-unused-vars
     async function reloadFeatures(featureModuleNames) {
-        /*
-         TODO: implement loading and usage properly in #981
          if(featureModuleNames.includes("RefParser")) {
-            const url = "/features/RefParser/en_bcv_parser.js"
-            const content = await (await fetch(url)).text();
-            features.refParser = Function(content);
+            features.refParser = async lang => {
+                const url = `/features/RefParser/${lang}_bcv_parser.js`
+                const content = await (await fetch(url)).text();
+                var module = {}
+                Function(content).call(module)
+                return new module.bcv_parser;
+            }
         }
-        */
     }
 
     onBeforeMount(() => {
