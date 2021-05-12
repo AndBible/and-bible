@@ -56,13 +56,13 @@ export default {
     const editorElement = ref(null);
     const editor = ref(null);
     const inputText = ref(null);
-    var languages = null
+    let languages = null;
 
-    function get_languages() {
-        if (!languages) {
-            languages = android.getActiveLanguages()
-        }
-        return languages
+    function getLanguages() {
+      if (!languages) {
+        languages = android.getActiveLanguages()
+      }
+      return languages
     }
 
     // TODO: probably this hack can be removed.
@@ -112,41 +112,41 @@ export default {
       result: async () => {
         const originalRange = document.getSelection().getRangeAt(0);
         //Always add the "en" language, so at least the english parser always exists.
-        var en_parser = new bcv_parser;
-        var parsers = [en_parser]
+        const en_parser = new bcv_parser;
+        const parsers = [en_parser];
 
         if (features.features.refParser) {
-            //Get the active languages and create a bible reference parser for each language
-            const languages = get_languages()
-            languages.forEach(async (lang) => {
-                if (lang != "en") {
-                    try {
-                        const bcv_parser = await features.features.refParser(lang)
-                        parsers.push(bcv_parser)
-                    } catch (error) {
-                        console.log(`No parser exists for language: ${lang}`)
-                    }
-                }
-            })
+          //Get the active languages and create a bible reference parser for each language
+          const languages = getLanguages()
+          await Promise.all(languages.map(async (lang) => {
+            if (lang !== "en") {
+              try {
+                const bcv_parser = await features.features.refParser(lang)
+                parsers.push(bcv_parser)
+              } catch (error) {
+                console.log(`No parser exists for language: ${lang}`)
+              }
+            }
+          }))
         }
 
         if(originalRange) {
-          var text = "";
-          var parsed = "";
+          let text = "";
+          let parsed = "";
           //Keep trying to get a bible reference until either
           //    * It is successfully parsed (parsed != "") or
           //    * The user cancels (text === null)
-          while (parsed == "" && text !== null) {
+          while (parsed === "" && text !== null) {
             text = await inputText.value.inputText();
             if (text !== null) {
               //Try each of the parsers until one succeeds
               parsers.some(bcv_parser => {
                   parsed = bcv_parser.parse(text).osis();
-                  if (parsed != "") return true
+                  if (parsed !== "") return true
               })
             }
           }
-          if(text !== null) {
+          if (text !== null) {
             document.getSelection().removeAllRanges();
             if(originalRange) {
               document.getSelection().addRange(originalRange);
