@@ -29,7 +29,7 @@
 import {inject, onBeforeUnmount, onMounted, onUnmounted, watch} from "@vue/runtime-core";
 import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
-import {bcv_parser} from "@/composables/refparser.js";
+import {bcv_parser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
 import {init, exec, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText";
 import {
