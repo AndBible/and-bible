@@ -112,12 +112,13 @@ export default {
           //    * It is successfully parsed (parsed != "") or
           //    * The user cancels (text === null)
           while (parsed === "" && text !== null) {
-            text = await inputText.value.inputText();
+            text = await inputText.value.inputText(text);
             if (text !== null) {
               parsed = parse(text)
             }
-            // TODO: give error message if it was not possible to parse.
-            // Use current value as initial text in input text.
+            if (parsed === "") {
+              android.toast("Invalid bible reference")
+            }
           }
           if (text !== null) {
             document.getSelection().removeAllRanges();
