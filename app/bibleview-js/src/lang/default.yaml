@@ -20,6 +20,7 @@ editNotePlaceholder: Edit note
 editTextPlaceholder: Tap to edit text
 inputPlaceholder: Write here
 inputReference: Enter Bible reference
+invalidReference: Invalid Bible reference
 assignLabels: Labels
 bookmarkAccurate: Bookmark was created in %s
 bookmarkInaccurate: Bookmark book information not stored, content is displayed in %s.

@@ -31,6 +31,7 @@ import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {init, exec, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText";
+import {useStrings} from "@/composables/strings";
 import {
   faBible,
   faIndent,
@@ -56,6 +57,7 @@ export default {
     const editorElement = ref(null);
     const editor = ref(null);
     const inputText = ref(null);
+    const strings = useStrings();
 
     // TODO: probably this hack can be removed.
     function setFocus(value) {
@@ -115,9 +117,9 @@ export default {
             text = await inputText.value.inputText(text);
             if (text !== null) {
               parsed = parse(text)
-            }
-            if (parsed === "") {
-              android.toast("Invalid bible reference")
+              if (parsed === "") {
+                android.toast(strings.invalidReference)
+              }
             }
           }
           if (text !== null) {
