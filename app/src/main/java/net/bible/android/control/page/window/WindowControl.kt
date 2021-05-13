@@ -40,6 +40,7 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.Logger
 
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 
 import javax.inject.Inject
@@ -93,7 +94,7 @@ open class WindowControl @Inject constructor(
         showLink(defaultBibleDoc(), key)
     }
 
-    open fun defaultBibleDoc(useLinks: Boolean  = true): Book {
+    open fun defaultBibleDoc(useLinks: Boolean  = true): SwordBook {
         val linksWindow = windowRepository.dedicatedLinksWindow
         val currentBiblePage = linksWindow.pageManager.currentBible
 
@@ -106,7 +107,7 @@ open class WindowControl @Inject constructor(
         } else {
             windowRepository.activeWindow.pageManager.currentBible.currentDocument
         }
-        return if (isBible && bibleDoc != null) bibleDoc else defaultBible!!
+        return (if (isBible && bibleDoc != null) bibleDoc else defaultBible!!) as SwordBook
     }
 
     fun showLink(document: Book, key: Key) {

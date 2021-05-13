@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
@@ -43,6 +44,7 @@ import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.FeatureType
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
@@ -167,7 +169,8 @@ class LinkControl @Inject constructor(
     @Throws(NoSuchKeyException::class)
     private fun getBibleKey(keyText: String, versification: Versification): BookAndKey {
         val key: Passage = PassageKeyFactory.instance().getKey(versification, keyText)
-        return BookAndKey(windowControl.defaultBibleDoc(true), key)
+        val doc = windowControl.defaultBibleDoc(true)
+        return BookAndKey(doc, key.toV11n(doc.versification))
     }
 
     /** user has selected a Strong's Number link so show Strong's page for key in link
