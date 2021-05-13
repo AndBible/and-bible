@@ -32,6 +32,7 @@ import {computed} from "@vue/reactivity";
 import {isEqual, throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
+import {bcv_parser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
 import {
     faBookmark, faChevronCircleDown,
     faEdit,
@@ -47,6 +48,7 @@ import {
     faTimes,
     faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+
 import {DocumentTypes} from "@/constants";
 
 let developmentMode = false;
@@ -462,23 +464,67 @@ export function useVerseMap() {
     return {register, getVerses, registerEndHighlight, resetHighlights}
 }
 
-export function useCustomFeatures() {
+
+function useParsers(android) {
+    const en_parser = new bcv_parser;
+    const parsers = [en_parser];
+
+    let languages = null;
+
+    function getLanguages() {
+        if (!languages) {
+            languages = android.getActiveLanguages()
+        }
+        return languages
+    }
+
+    async function loadParser(lang) {
+        console.log(`Loading parser for ${lang}`)
+        const url = `/features/RefParser/${lang}_bcv_parser.js`
+        const content = await (await fetch(url)).text();
+        const module = {}
+        Function(content).call(module)
+        return new module.bcv_parser;
+    }
+
+    async function initialize() {
+        //Get the active languages and create a bible reference parser for each language
+        const languages = getLanguages()
+        console.log(`Enabling parsers for ${languages.join(",")}`)
+        await Promise.all(languages.filter(l => l !== "en").map(async (lang) => {
+            try {
+                parsers.push(await loadParser(lang))
+            } catch (error) {
+                console.log(`Could not load parser for language: ${lang} due to ${error}`)
+            }
+        }))
+    }
+
+    function parse(text) {
+        let parsed = ""
+        //Try each of the parsers until one succeeds
+        parsers.some(bcv_parser => {
+            parsed = bcv_parser.parse(text).osis();
+            if (parsed !== "") return true
+        })
+        return parsed;
+    }
+
+    return {initialize, parsers, parse}
+}
+
+export function useCustomFeatures(android) {
     const features = {}
 
     const defer = new Deferred();
     const featuresLoaded = ref(false);
     const featuresLoadedPromise = ref(defer.wait());
+    const {parse, initialize} = useParsers(android);
 
     // eslint-disable-next-line no-unused-vars
     async function reloadFeatures(featureModuleNames) {
          if(featureModuleNames.includes("RefParser")) {
-            features.refParser = async lang => {
-                const url = `/features/RefParser/${lang}_bcv_parser.js`
-                const content = await (await fetch(url)).text();
-                var module = {}
-                Function(content).call(module)
-                return new module.bcv_parser;
-            }
+             await initialize();
         }
     }
 
@@ -489,10 +535,11 @@ export function useCustomFeatures() {
             .then(() => {
                 defer.resolve()
                 featuresLoaded.value = true;
+                console.log("Features loading finished");
             });
     })
 
-    return {features, featuresLoadedPromise, featuresLoaded};
+    return {features, featuresLoadedPromise, featuresLoaded, parse};
 }
 
 export function useCustomCss() {

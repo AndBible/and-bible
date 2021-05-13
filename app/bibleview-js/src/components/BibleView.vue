@@ -105,7 +105,7 @@ export default {
     const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll);
     const customCss = useCustomCss();
     provide("customCss", customCss);
-    const customFeatures = useCustomFeatures();
+    const customFeatures = useCustomFeatures(android);
     provide("customFeatures", customFeatures);
 
     useInfiniteScroll(android, documents);

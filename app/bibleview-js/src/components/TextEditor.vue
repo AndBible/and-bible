@@ -29,7 +29,6 @@
 import {inject, onBeforeUnmount, onMounted, onUnmounted, watch} from "@vue/runtime-core";
 import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
-import {bcv_parser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
 import {init, exec, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText";
 import {
@@ -43,6 +42,7 @@ import {
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 
+
 export default {
   name: "TextEditor",
   components: {InputText},
@@ -52,18 +52,10 @@ export default {
   emits: ['save', "close"],
   setup(props, {emit}) {
     const android = inject("android");
-    const features = inject('customFeatures')
+    const {parse} = inject('customFeatures')
     const editorElement = ref(null);
     const editor = ref(null);
     const inputText = ref(null);
-    let languages = null;
-
-    function getLanguages() {
-      if (!languages) {
-        languages = android.getActiveLanguages()
-      }
-      return languages
-    }
 
     // TODO: probably this hack can be removed.
     function setFocus(value) {
@@ -112,23 +104,6 @@ export default {
       result: async () => {
         const originalRange = document.getSelection().getRangeAt(0);
         //Always add the "en" language, so at least the english parser always exists.
-        const en_parser = new bcv_parser;
-        const parsers = [en_parser];
-
-        if (features.features.refParser) {
-          //Get the active languages and create a bible reference parser for each language
-          const languages = getLanguages()
-          await Promise.all(languages.map(async (lang) => {
-            if (lang !== "en") {
-              try {
-                const bcv_parser = await features.features.refParser(lang)
-                parsers.push(bcv_parser)
-              } catch (error) {
-                console.log(`No parser exists for language: ${lang}`)
-              }
-            }
-          }))
-        }
 
         if(originalRange) {
           let text = "";
@@ -139,12 +114,10 @@ export default {
           while (parsed === "" && text !== null) {
             text = await inputText.value.inputText();
             if (text !== null) {
-              //Try each of the parsers until one succeeds
-              parsers.some(bcv_parser => {
-                  parsed = bcv_parser.parse(text).osis();
-                  if (parsed !== "") return true
-              })
+              parsed = parse(text)
             }
+            // TODO: give error message if it was not possible to parse.
+            // Use current value as initial text in input text.
           }
           if (text !== null) {
             document.getSelection().removeAllRanges();
