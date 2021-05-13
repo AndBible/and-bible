@@ -405,6 +405,7 @@ export function useCustomFeatures() {
     const featuresLoaded = ref(false);
     const featuresLoadedPromise = ref(defer.wait());
 
+    // eslint-disable-next-line no-unused-vars
     async function reloadFeatures(featureModuleNames) {
         /*
          TODO: implement loading and usage properly in #981
