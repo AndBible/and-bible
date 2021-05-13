@@ -23,10 +23,13 @@ jobs:
           node-version: 10.x
 
       - name: Run npm install
+        working-directory: app/bibleview-js
         run: npm install
 
       - name: Run lint
+        working-directory: app/bibleview-js
         run: npm run lint
 
       - name: Run js unit tests
+        working-directory: app/bibleview-js
         run: npm run test:unit
