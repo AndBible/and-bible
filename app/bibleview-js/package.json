@@ -63,6 +63,7 @@
     },
     "rules": {
       "strict": 1,
+      "no-var": ["error"],
       "vue/script-indent": [
         "error",
         2,
