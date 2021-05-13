@@ -26,9 +26,9 @@
           </button>
         </template>
         <AmbiguousSelectionBookmarkButton
-            v-else-if="bookmarkMap.has(s.options.bookmarkId)"
-            :bookmark-id="s.options.bookmarkId"
-            @selected="selected(s)"
+          v-else-if="bookmarkMap.has(s.options.bookmarkId)"
+          :bookmark-id="s.options.bookmarkId"
+          @selected="selected(s)"
         />
       </template>
     </div>

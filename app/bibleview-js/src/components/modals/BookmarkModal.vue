@@ -40,18 +40,18 @@
     </template>
 
     <EditableText
-        v-if="!infoShown"
-        constraint-display-height
-        :text="bookmarkNotes || ''"
-        @save="changeNote"
-        show-placeholder
-        :edit-directly="editDirectly"
-        max-editor-height="100pt"
+      v-if="!infoShown"
+      constraint-display-height
+      :text="bookmarkNotes || ''"
+      @save="changeNote"
+      show-placeholder
+      :edit-directly="editDirectly"
+      max-editor-height="100pt"
     >
       {{ strings.editBookmarkPlaceholder }}
     </EditableText>
     <div v-show="infoShown" class="info">
-     <div class="bible-text">
+      <div class="bible-text">
         <BookmarkText expanded :bookmark="bookmark"/>
       </div>
       <div class="links">
@@ -175,7 +175,7 @@ export default {
     const {adjustedColor, strings, ...common} = useCommon();
 
     const labelColor = computed(() => {
-        return adjustedColor(label.value.color).string();
+      return adjustedColor(label.value.color).string();
     });
 
     const changeNote = text => {
@@ -187,7 +187,7 @@ export default {
     }
 
     const originalBookLink = computed(() =>
-        `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`)
+      `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`)
 
     const editDirectly = ref(false);
 

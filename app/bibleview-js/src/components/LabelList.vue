@@ -19,12 +19,12 @@
   <AmbiguousSelection blocking ref="ambiguousSelection"/>
   <div class="label-list">
     <div
-        @touchstart="labelClicked($event, label)"
-        @click="labelClicked($event, label)"
-        v-for="label in labels"
-        :key="label.id"
-        :style="labelStyle(label)"
-        class="label"
+      @touchstart="labelClicked($event, label)"
+      @click="labelClicked($event, label)"
+      v-for="label in labels"
+      :key="label.id"
+      :style="labelStyle(label)"
+      class="label"
     >
       <span v-if="isPrimary(label)" class="icon"><FontAwesomeIcon icon="bookmark"/></span>
       {{label.name}}

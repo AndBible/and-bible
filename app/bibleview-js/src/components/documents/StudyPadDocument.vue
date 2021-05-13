@@ -32,13 +32,13 @@
     :item-key="(e) => `${e.type}-${e.id}`"
   >
     <template #item="{element: j}">
-    <div class="studypad-container" :style="indentStyle(j)" :id="`${j.type}-${j.id}`">
-      <StudyPadRow
+      <div class="studypad-container" :style="indentStyle(j)" :id="`${j.type}-${j.id}`">
+        <StudyPadRow
           :journal-entry="j"
           :label="document.label"
           @add="adding=true"
-      />
-    </div>
+        />
+      </div>
     </template>
   </draggable>
 </template>
@@ -81,29 +81,29 @@ export default {
 
     const journalEntries = computed({
       get:
-          () => {
-            let entries = [];
-            entries.push(...globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id)).map(e => {
-              const bookmarkToLabel = bookmarkToLabels.get(e.id);
-              return {
-                ...e,
-                orderNumber: bookmarkToLabel.orderNumber,
-                indentLevel: bookmarkToLabel.indentLevel,
-                expandContent: bookmarkToLabel.expandContent,
-                bookmarkToLabel
-              }
-            }))
-            entries.push(...journalTextEntries.values())
-            entries = sortBy(entries, ['orderNumber']);
-            return entries;
-          },
+        () => {
+          let entries = [];
+          entries.push(...globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id)).map(e => {
+            const bookmarkToLabel = bookmarkToLabels.get(e.id);
+            return {
+              ...e,
+              orderNumber: bookmarkToLabel.orderNumber,
+              indentLevel: bookmarkToLabel.indentLevel,
+              expandContent: bookmarkToLabel.expandContent,
+              bookmarkToLabel
+            }
+          }))
+          entries.push(...journalTextEntries.values())
+          entries = sortBy(entries, ['orderNumber']);
+          return entries;
+        },
       set(values) {
         let count = 0;
         const changed = [];
         for(const v of values) {
           const newOrder = count++
           if(v.orderNumber !== newOrder) {
-              changed.push(v);
+            changed.push(v);
           }
           if(v.type === JournalEntryTypes.BOOKMARK) {
             v.bookmarkToLabel.orderNumber = newOrder;

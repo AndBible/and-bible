@@ -36,11 +36,11 @@
           <FontAwesomeIcon icon="share-alt"/>
         </div>
         <div
-            v-for="label of labels.filter(l => l.isRealLabel)"
-            :key="label.id"
-            :style="`color: ${adjustedColor(label.color)};`"
-            class="bookmark-button"
-            @click.stop="openStudyPad(label.id)"
+          v-for="label of labels.filter(l => l.isRealLabel)"
+          :key="label.id"
+          :style="`color: ${adjustedColor(label.color)};`"
+          class="bookmark-button"
+          @click.stop="openStudyPad(label.id)"
         >
           <FontAwesomeIcon icon="file-alt"/>
         </div>
@@ -120,7 +120,7 @@ export default {
     }
 
     function openStudyPad(labelId) {
-        android.openStudyPad(labelId);
+      android.openStudyPad(labelId);
     }
 
     function editNotes() {

@@ -28,7 +28,7 @@ jobs:
 
       - name: Run lint
         working-directory: app/bibleview-js
-        run: npm run lint
+        run: npm run lint:ci
 
       - name: Run js unit tests
         working-directory: app/bibleview-js

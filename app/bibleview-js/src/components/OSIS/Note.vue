@@ -35,8 +35,8 @@
     </template>
   </Modal>
   <span
-      v-if="(config.showFootNotes && isCrossReference) || (config.showFootNotes && isFootNote) || isOther"
-      class="skip-offset">
+    v-if="(config.showFootNotes && isCrossReference) || (config.showFootNotes && isFootNote) || isOther"
+    class="skip-offset">
     <span :class="{noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
       {{handle}}
     </span>
@@ -83,20 +83,20 @@ export default {
     checkUnsupportedProps(props, "resp");
     checkUnsupportedProps(props, "placement", ['foot']);
     checkUnsupportedProps(props, "type",
-        ["explanation", "translation", "crossReference", "variant", "alternative", "study", "x-editor-correction"]);
+                          ["explanation", "translation", "crossReference", "variant", "alternative", "study", "x-editor-correction"]);
     checkUnsupportedProps(props, "subType",
-        ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
+                          ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
     const {strings, ...common} = useCommon();
     const showNote = ref(false);
     function noteClicked(event) {
       addEventFunction(event,
-          () => {
-            if(!showNote.value) {
-              referenceCollector.clear();
-              showNote.value = true;
-            }
-          },
-          {title: strings.openFootnote, priority: 10});
+                       () => {
+                         if(!showNote.value) {
+                           referenceCollector.clear();
+                           showNote.value = true;
+                         }
+                       },
+                       {title: strings.openFootnote, priority: 10});
     }
     const typeStrings = {
       explanation: strings.footnoteTypeExplanation,

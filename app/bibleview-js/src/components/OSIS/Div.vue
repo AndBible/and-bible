@@ -39,8 +39,8 @@ export default {
   components: {VerseNumber},
   setup(props) {
     checkUnsupportedProps(props, "type",
-        ["x-p", "x-gen", "x-milestone", "section", "majorSection",
-          "paragraph", "book", "variant", "introduction", "colophon"]);
+                          ["x-p", "x-gen", "x-milestone", "section", "majorSection",
+                           "paragraph", "book", "variant", "introduction", "colophon"]);
     checkUnsupportedProps(props, "canonical", ["true", "false"]);
     checkUnsupportedProps(props, "subType", ["x-preverse"]);
     checkUnsupportedProps(props, "annotateRef");
