@@ -37,14 +37,18 @@ export function setupElementEventListener(elementRef, eventType, handler, option
     onBeforeUnmount(() => elementRef.value.removeEventListener(eventType, handler, options))
 }
 
-export function stubsFor(object) {
+export function stubsFor(object, defaults={}) {
     const stubs = {};
     for(const key in object) {
         //Implement a separate stub for getActiveLanguages, since it needs to return data
-        if (key == "getActiveLanguages") {
-            stubs[key] = () => {
-                return ["he","nl","en"]
+        if (defaults.hasOwnProperty(key)) {
+            let value = defaults[key]
+            if (typeof value != "function") {
+                value = () => {
+                    return defaults[key]
+                }
             }
+            stubs[key] = value
         } else {
             stubs[key] = (...args) => {
                 console.log(`Stub for ${key}(${args}) called`)

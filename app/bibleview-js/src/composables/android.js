@@ -311,7 +311,9 @@ export function useAndroid({bookmarks}, config) {
     }
 
     if(config.developmentMode) return {
-        ...stubsFor(exposed),
+        ...stubsFor(exposed, {
+            getActiveLanguages: ['he', 'nl', 'en'],
+        }),
         querySelection
     }
 
