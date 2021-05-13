@@ -40,6 +40,7 @@ export default {
     document: {type: Object, required: true},
   },
   setup(props) {
+    // eslint-disable-next-line vue/no-setup-props-destructure
     const {osisFragments} = props.document;
     function link(frag) {
       const osis = encodeURI(`${frag.bookInitials}:${frag.osisRef}`)

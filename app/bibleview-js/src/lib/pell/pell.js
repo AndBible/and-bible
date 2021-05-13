@@ -1,3 +1,4 @@
+/* eslint-disable */
 const defaultParagraphSeparatorString = 'defaultParagraphSeparator'
 export const formatBlock = 'formatBlock'
 const addEventListener = (parent, type, listener) => parent.addEventListener(type, listener)

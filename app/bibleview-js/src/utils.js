@@ -357,8 +357,7 @@ export function highlightVerseRange(selectorPrefix, [startOrdinal, endOrdinal], 
     range.setEnd(second, endOff1);
     const highlightResult = highlightRange(range, 'span', {class: "highlight"});
     if (highlightResult) {
-        const {undo, highlightElements} = highlightResult;
-        return undo;
+        return highlightResult.undo;
     } else {
         console.error("Highlight range failed!", {first,second,firstElem,secondElem,startOff,endOff,startOff1,endOff1})
     }

@@ -69,7 +69,7 @@ import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {Events, emit} from "@/eventbus";
 import AreYouSure from "@/components/modals/AreYouSure";
-import {adjustedColor, adjustedColorOrig} from "@/utils";
+import {adjustedColor} from "@/utils";
 import Color from "color";
 
 export default {

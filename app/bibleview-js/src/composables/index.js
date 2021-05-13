@@ -47,7 +47,6 @@ import {
     faTimes,
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
-import Color from "color";
 import {DocumentTypes} from "@/constants";
 
 let developmentMode = false;
@@ -237,6 +236,7 @@ export function useConfig(documentType) {
             // eslint-disable-next-line require-atomic-updates
             config.showBookmarks = oldValue;
         }
+        // eslint-disable-next-line require-atomic-updates
         config.showChapterNumbers = config.showVerseNumbers;
         if (!initial) {
             await nextTick();

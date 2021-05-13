@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {inject, onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
+import {onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
 import {sortBy, uniqWith} from "lodash";
 import {
     addEventFunction,
@@ -26,7 +26,7 @@ import {
     rangesOverlap
 } from "@/utils";
 import {computed, ref} from "@vue/reactivity";
-import {Events, setupEventBusListener, emit} from "@/eventbus";
+import {Events, setupEventBusListener} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
 import {faEdit, faBookmark, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
@@ -119,11 +119,10 @@ export function useBookmarks(documentId,
                              {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated},
                              bookInitials,
                              documentReady,
-                             {adjustedColor, abbreviated},
+                             {adjustedColor},
                              config, appSettings) {
 
     const isMounted = ref(0);
-    const strings = inject("strings");
 
     onMounted(() => isMounted.value ++);
     onUnmounted( () => isMounted.value --);

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /*
  * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
