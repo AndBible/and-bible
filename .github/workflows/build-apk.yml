@@ -53,7 +53,7 @@ jobs:
         unzip -o -d $HOME/.sword ./testmods.zip
 
     - name: Build with Gradle
-      run: ./gradlew --console plain build -x testDebug
+      run: ./gradlew --console plain build -x testDebug -x test
 
     # Test complete, create apk etc
 
