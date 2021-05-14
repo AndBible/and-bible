@@ -239,8 +239,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
         val textRange = BookmarkEntities.TextRange(selection.startOffset!!, selection.endOffset!!)
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
-        val initialLabels = displaySettings.bookmarksAssignLabels!!.toList()
-        bookmark.primaryLabelId = initialLabels.firstOrNull()
+        val initialLabels = windowBehaviorSettings.autoAssignLabels ?: emptyList()
+        bookmark.primaryLabelId = windowBehaviorSettings.autoAssignPrimaryLabel
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
     }
 
@@ -823,6 +823,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
+    private val windowBehaviorSettings get() = windowControl.windowRepository.windowBehaviorSettings
 
     fun updateTextDisplaySettings(onAttach: Boolean = false) {
         Log.d(TAG, "updateTextDisplaySettings")

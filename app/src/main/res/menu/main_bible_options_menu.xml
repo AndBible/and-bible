@@ -29,6 +29,10 @@
 		android:checkable="true"
 		/>
 
+	<item android:id="@+id/autoAssignLabels"
+		android:title="@string/auto_assign_labels"
+		/>
+
 	<group
 		android:id="@+id/textOptionsGroup"
 		>

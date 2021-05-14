@@ -845,6 +845,16 @@ private val MIGRATION_46_47_primaryLabel = object : Migration(46, 47) {
     }
 }
 
+private val MIGRATION_47_48_autoAssignLabels = object : Migration(47, 48) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_favouriteLabels` TEXT DEFAULT NULL")
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoAssignLabels` TEXT DEFAULT NULL")
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoAssignPrimaryLabel` INTEGER DEFAULT NULL")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -905,6 +915,7 @@ object DatabaseContainer {
                         MIGRATION_44_45_nullColors,
                         MIGRATION_45_46_workspaceSpeakSettings,
                         MIGRATION_46_47_primaryLabel,
+                        MIGRATION_47_48_autoAssignLabels,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

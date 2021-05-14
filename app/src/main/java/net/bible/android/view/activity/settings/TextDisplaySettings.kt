@@ -111,7 +111,6 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.TOPMARGIN -> TopMarginPreference(settings)
         Types.LINE_SPACING -> LineSpacingPreference(settings)
         Types.BOOKMARKS_HIDELABELS -> LabelsPreference(settings, Types.BOOKMARKS_HIDELABELS)
-        Types.BOOKMARKS_ASSINGNLABELS -> LabelsPreference(settings, Types.BOOKMARKS_ASSINGNLABELS)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {

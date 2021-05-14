@@ -190,7 +190,6 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.MARGINSIZE -> R.string.prefs_margin_size_title
                 TextDisplaySettings.Types.LINE_SPACING -> R.string.line_spacing_title
                 TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.string.prefs_show_bookmarks_title
-                TextDisplaySettings.Types.BOOKMARKS_ASSINGNLABELS -> R.string.assign_labels
                 TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_hide_labels_title
             }
             return mainBibleActivity.getString(id)
@@ -369,6 +368,41 @@ class LabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types
             } else if(result?.resultData?.extras?.getBoolean("reset") == true) {
                 setNonSpecific()
                 onReset?.invoke()
+            }
+        }
+        return true
+    }
+}
+
+class AutoAssignPreference(val windowBehaviorSettings: WorkspaceEntities.WindowBehaviorSettings): GeneralPreference() {
+    override val isBoolean = false
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        val intent = Intent(activity, ManageLabels::class.java)
+        val autoAssignLabels = (windowBehaviorSettings.autoAssignLabels?: emptyList()).toLongArray()
+        val favouriteLabels = (windowBehaviorSettings.favouriteLabels?: emptyList()).toLongArray()
+        val primaryLabel = windowBehaviorSettings.autoAssignPrimaryLabel
+
+        intent.putExtra("autoAssignMode", true)
+
+        intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, autoAssignLabels)
+        intent.putExtra(BookmarkControl.FAVOURITE_LABEL_IDS, favouriteLabels)
+        intent.putExtra(BookmarkControl.PRIMARY_LABEL_EXTRA, primaryLabel?: 0L)
+
+        intent.putExtra("title", mainBibleActivity.getString(R.string.auto_assign_labels))
+        GlobalScope.launch (Dispatchers.Main) {
+            val result = activity.awaitIntent(intent)
+
+            if(result?.resultData?.extras?.getBoolean("reset") == true) {
+                windowBehaviorSettings.autoAssignLabels = null
+                onReset?.invoke()
+            }  else {
+                val newAutoAssignLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
+                val newFavouriteLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.FAVOURITE_LABEL_IDS)?.toList()
+                val newPrimaryLabel = result?.resultData?.extras?.getLong(BookmarkControl.PRIMARY_LABEL_EXTRA)
+                windowBehaviorSettings.autoAssignLabels = newAutoAssignLabels
+                windowBehaviorSettings.favouriteLabels = newFavouriteLabels
+                windowBehaviorSettings.autoAssignPrimaryLabel = if(newPrimaryLabel == 0L) null else newPrimaryLabel
+                onChanged?.invoke(1)
             }
         }
         return true
