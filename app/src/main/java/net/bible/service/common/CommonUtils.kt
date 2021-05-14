@@ -509,7 +509,7 @@ object CommonUtils {
         sharedPreferences.edit().putString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson()).apply()
     }
 
-    private val docDao get() = DatabaseContainer.db.documentBackupDao()
+    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
     suspend fun unlockDocument(context: Context, book: Book): Boolean {
         class ShowAgain: Exception()

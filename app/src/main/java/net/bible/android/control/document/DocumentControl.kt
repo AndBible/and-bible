@@ -53,7 +53,7 @@ class DocumentControl @Inject constructor(
         private val swordDocumentFacade: SwordDocumentFacade,
         private val windowControl: WindowControl)
 {
-    private val documentBackupDao get() = DatabaseContainer.db.documentBackupDao()
+    private val documentBackupDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
     val isNewTestament get() = activeWindowPageManagerProvider.activeWindowPageManager.currentVersePage.currentBibleVerse.currentBibleBook.ordinal >= BibleBook.MATT.ordinal
 

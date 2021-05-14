@@ -82,7 +82,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
     private val repoFactory = RepoFactory(downloadManager)
     private var booksToDownload: ArrayList<String>? = null
     private val booksNotFound = ArrayList<String>()
-    private val docDao get() = DatabaseContainer.db.documentBackupDao()
+    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
     private suspend fun loadRecommendedDocuments() = withContext(Dispatchers.IO) {
         val source = URI("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")

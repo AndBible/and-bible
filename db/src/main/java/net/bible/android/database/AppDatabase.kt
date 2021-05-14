@@ -166,7 +166,7 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun workspaceDao(): WorkspaceDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun documentDao(): DocumentSearchDao
-    abstract fun documentBackupDao(): DocumentBackupDao
+    abstract fun swordDocumentInfoDao(): SwordDocumentInfoDao
 
     fun sync() { // Sync all data so far into database file
         val cur = openHelper.writableDatabase

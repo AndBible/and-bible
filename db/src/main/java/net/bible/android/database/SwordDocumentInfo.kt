@@ -4,7 +4,6 @@ import androidx.room.*
 
 @Entity(tableName = "DocumentBackup")
 data class SwordDocumentInfo(
-    // TODO osisId -> initials in DB
     @PrimaryKey @ColumnInfo(name = "osisId") var initials: String,
     var name: String,
     var abbreviation: String,
@@ -14,7 +13,7 @@ data class SwordDocumentInfo(
 )
 
 @Dao
-interface DocumentBackupDao {
+interface SwordDocumentInfoDao {
     @Insert
     fun insert(documents: List<SwordDocumentInfo>)
 

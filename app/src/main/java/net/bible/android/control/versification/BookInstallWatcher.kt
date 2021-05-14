@@ -33,7 +33,7 @@ import org.crosswire.jsword.versification.VersificationsMapper
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class BookInstallWatcher {
-    private val docDao get() = DatabaseContainer.db.documentBackupDao()
+    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
     fun startListening() {
         Books.installed().addBooksListener(object : BooksListener {
             override fun bookAdded(ev: BooksEvent) {

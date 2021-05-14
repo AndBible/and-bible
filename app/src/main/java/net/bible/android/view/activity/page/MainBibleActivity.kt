@@ -159,7 +159,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var transportBarVisible = false
 
     val dao get() = DatabaseContainer.db.workspaceDao()
-    val docDao get() = DatabaseContainer.db.documentBackupDao()
+    val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
     val multiWinMode
         get() =

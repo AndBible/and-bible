@@ -35,7 +35,6 @@ import android.widget.TextView
 import androidx.webkit.WebViewCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
@@ -44,7 +43,6 @@ import kotlin.coroutines.suspendCoroutine
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
-import net.bible.android.activity.databinding.MainBibleViewBinding
 import net.bible.android.activity.databinding.SpinnerBinding
 import net.bible.android.activity.databinding.StartupViewBinding
 import net.bible.android.control.backup.BackupControl
@@ -77,7 +75,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private lateinit var spinnerBinding: SpinnerBinding
     private lateinit var startupViewBinding: StartupViewBinding
 
-    val docs get() = DatabaseContainer.db.documentBackupDao()
+    val docs get() = DatabaseContainer.db.swordDocumentInfoDao()
     private val previousInstallDetected: Boolean get() = docs.getKnownInstalled().isNotEmpty();
 
 

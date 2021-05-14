@@ -53,7 +53,7 @@ import java.io.File
 object SwordEnvironmentInitialisation {
     private var isSwordLoaded = false
     private val log = Logger(SwordDocumentFacade::class.java.name)
-    private val docDao get() = DatabaseContainer.db.documentBackupDao()
+    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
     fun initialiseJSwordFolders() {
         try {
             if (isAndroid && !isSwordLoaded) { // ensure required module directories exist and register them with jsword
