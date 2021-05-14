@@ -197,6 +197,11 @@ object CommonUtils {
     val sharedPreferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 
+    fun setupSharedPreferences() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
+        prefs.
+    }
+
     val truncatedDate: Date
         get() = DateUtils.truncate(Date(), Calendar.DAY_OF_MONTH)
 

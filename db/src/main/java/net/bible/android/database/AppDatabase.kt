@@ -156,7 +156,8 @@ class Converters {
         WorkspaceEntities.HistoryItem::class,
         WorkspaceEntities.PageManager::class,
         DocumentSearch::class,
-        SwordDocumentInfo::class
+        SwordDocumentInfo::class,
+        AppPreferences::class
     ],
     version = DATABASE_VERSION
 )
@@ -167,6 +168,7 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun documentDao(): DocumentSearchDao
     abstract fun documentBackupDao(): DocumentBackupDao
+    abstract fun appPreferencesDao(): AppPreferencesDao
 
     fun sync() { // Sync all data so far into database file
         val cur = openHelper.writableDatabase

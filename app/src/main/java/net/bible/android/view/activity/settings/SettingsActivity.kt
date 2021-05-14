@@ -17,21 +17,90 @@
  */
 package net.bible.android.view.activity.settings
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import kotlinx.serialization.serializer
 import net.bible.android.activity.R
+import net.bible.android.database.AppPreferences
+import net.bible.android.database.json
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.device.ScreenSettings.systemModeAvailable
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
+import java.lang.Exception
+
+class PreferenceStore: PreferenceDataStore() {
+    private val dao = DatabaseContainer.db.appPreferencesDao()
+
+    override fun putInt(key: String, value: Int) {
+        val pref = dao.getPreference(key) ?: AppPreferences(key)
+        pref.data = json.encodeToString(serializer(), value)
+        dao.update(pref)
+    }
+
+    override fun getInt(key: String, defValue: Int): Int {
+        val pref = dao.getPreference(key)?: return defValue
+        val data = pref.data;
+        data ?: return defValue
+        return try {json.decodeFromString(serializer(), data)} catch (e: Exception) {
+            Log.e("PrefStore", "Error in deserializing data")
+            defValue
+        }
+    }
+
+    override fun getBoolean(key: String?, defValue: Boolean): Boolean {
+        return super.getBoolean(key, defValue)
+    }
+
+    override fun putBoolean(key: String?, value: Boolean) {
+        super.putBoolean(key, value)
+    }
+
+    override fun putString(key: String?, value: String?) {
+        super.putString(key, value)
+    }
+
+    override fun getString(key: String?, defValue: String?): String? {
+        return super.getString(key, defValue)
+    }
+
+    override fun getLong(key: String?, defValue: Long): Long {
+        return super.getLong(key, defValue)
+    }
+
+    override fun putLong(key: String?, value: Long) {
+        super.putLong(key, value)
+    }
+
+    override fun getFloat(key: String?, defValue: Float): Float {
+        return super.getFloat(key, defValue)
+    }
+
+    override fun putFloat(key: String?, value: Float) {
+        super.putFloat(key, value)
+    }
+
+    override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? {
+        return super.getStringSet(key, defValues)
+    }
+
+    override fun putStringSet(key: String?, values: MutableSet<String>?) {
+        super.putStringSet(key, values)
+    }
+}
 
 class SettingsActivity: ActivityBase() {
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +140,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings, rootKey)
+        preferenceManager.preferenceDataStore = PreferenceStore()
 
         //If no light sensor exists switch to old boolean check box
         // see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
