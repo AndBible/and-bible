@@ -394,11 +394,13 @@ class AutoAssignPreference(val windowBehaviorSettings: WorkspaceEntities.WindowB
 
             if(result?.resultData?.extras?.getBoolean("reset") == true) {
                 windowBehaviorSettings.autoAssignLabels = null
+                windowBehaviorSettings.favouriteLabels = null
+                windowBehaviorSettings.autoAssignPrimaryLabel = null
                 onReset?.invoke()
-            }  else {
-                val newAutoAssignLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
-                val newFavouriteLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.FAVOURITE_LABEL_IDS)?.toList()
-                val newPrimaryLabel = result?.resultData?.extras?.getLong(BookmarkControl.PRIMARY_LABEL_EXTRA)
+            }  else if (result?.resultCode == Activity.RESULT_OK){
+                val newAutoAssignLabels = result.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
+                val newFavouriteLabels = result.resultData?.extras?.getLongArray(BookmarkControl.FAVOURITE_LABEL_IDS)?.toList()
+                val newPrimaryLabel = result.resultData?.extras?.getLong(BookmarkControl.PRIMARY_LABEL_EXTRA)
                 windowBehaviorSettings.autoAssignLabels = newAutoAssignLabels
                 windowBehaviorSettings.favouriteLabels = newFavouriteLabels
                 windowBehaviorSettings.autoAssignPrimaryLabel = if(newPrimaryLabel == 0L) null else newPrimaryLabel
