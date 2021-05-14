@@ -3,8 +3,9 @@
   <string name="app_name_short">Studi Biblion</string>
   <string name="app_name_medium">Studi Biblion (And Biblio)</string>
   <string name="app_name_long">Studi Biblion, la malfermkoda projekto de And Bible</string>
+  <string name="project">La malfermkoda projekto de And Bible</string>
   <string name="version_text">Versio %s</string>
-  <string name="no_sdcard_error">Bonvolu enmeti SD-karton kaj restartigi la aplikaĵon.</string>
+  <string name="no_sdcard_error">Enmetu SD‑karton kaj restartigu la aplikaĵon.</string>
   <!--Main menu-->
   <string name="menu">Menuo</string>
   <string name="chooseBook">Dokumento</string>
@@ -19,7 +20,7 @@
   <string name="contact">Kontakto</string>
   <string name="help_and_tips">Helpo kaj konsiloj</string>
   <string name="administration">Administri</string>
-  <string name="rate_application">Taksi kaj recenzi ĉe Google Play</string>
+  <string name="rate_application">Taksi / recenzi ĉe Google Play</string>
   <string name="chooce_document">Elekti dokumenton</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Elekti libron</string>
@@ -238,6 +239,18 @@
   <string name="msg_set_current_day_reading_plan">Tio ĉi markos la hodiaŭon kiel la nunan tagon en tiu ĉi plano kaj markos ĉiujn antaŭajn tagojn kiel legitajn. Ĉu pluigi?</string>
   <string name="done">Farita</string>
   <string name="reset_plan_question">Ĉu vi certe volas rekomenci tiun ĉi planon?</string>
+  <string name="import_reading_plan">Enportado de legplano…</string>
+  <string name="import_reading_plan_error">Eraro dum enportado</string>
+  <string name="import_reading_plan_error_duplicate">La jenaj tagoj estis obligitaj: %s</string>
+  <string name="import_reading_plan_error_days">La jenaj tagoj enhavis erarojn: %s</string>
+  <string name="import_reading_plan_anyway">Enporti malgraŭe</string>
+  <string name="overwrite_reading_plan">Ĉu anstataŭigi la legplanon %s?</string>
+  <string name="delete_reading_plan">Forigi tiun ĉi planon</string>
+  <string name="reading_plan_deleted">Forigis la legplanon</string>
+  <string name="reading_plan_ships_with_ab">Tiu ĉi legplano estas liverata kun %s</string>
+  <string name="confirm_delete_reading_plan">
+Ĉu vi certe volas forigi la legplanon %s kune kun ĝia historio de legado?
+Konsilo: se vi bezonas aktualigi la planon, reenportu ĝin kun la samo dosiernomo kaj ĝia historio ne perdiĝos.</string>
   <string name="plan_duplicate_user_plan">
 Estas uzanto leganta planon ĉe la dosierujo “jsword/readingplan” kun la samo nomo kiel interna plano. Bonvolu alinomi la dosieron kaj lasu ĝian dosiersufikson kiel “.properties”.</string>
   <string name="plan_name_y1ntpspr">NT, Psalmaro kaj Sentencoj jare</string>
@@ -300,8 +313,6 @@ laŭ ilia permeso.</string>
   <string name="remove_bookmark">Forigi</string>
   <string name="bookmark_settings_hide_labels_title">Kaŝi elektitajn etikedojn</string>
   <string name="bookmark_settings_hide_labels_summary">Kaŝi legosignojn markitajn per specifa(j) etikedo(j)</string>
-  <string name="bookmark_settings_assign_labels_title">Atribui etikedojn al novaj legosignoj</string>
-  <string name="bookmark_settings_assign_labels_summary">Aŭtomate aldoni etikedojn al novaj legosignoj</string>
   <string name="label_color">Koloro de etikedo</string>
   <string name="label_color_example">Antaŭvido</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -336,19 +347,20 @@ laŭ ilia permeso.</string>
   <string name="speak_repeat">Ripeti</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Parol-rapido</string>
-  <string name="speak_and_play_earcons_title">Paroli kaj ludi pepajn sonojn por</string>
+  <string name="speak_and_play_earcons_title">Paroli kaj ludi pepajn sonojn je</string>
   <string name="playback_settings_title">Agordoj pri ludado</string>
   <string name="speak_settings_title">Ĝeneralaj agordoj pri parolo</string>
   <string name="speak_bookmarking_settings_title">Agordoj pri legosignoj</string>
-  <string name="speak_bookmarks_menu_title">Paroli el legosignoj</string>
+  <string name="speak_bookmarks_menu_title">Paroli ekde legosigno</string>
   <string name="speak_advanced_settings">Spertulaj agordoj</string>
   <string name="speak_sleep_timer_title">Dormo</string>
   <string name="speak_no_books_available">Neniu disponebla libro por paroli</string>
+  <string name="speak_general_error">Ne povas ekigi paroladon por tiu ĉi libro</string>
   <string name="repeat_passage">Ripeti fragmenton</string>
   <string name="set_repeat_passage_range">Elekti amplekson de fragmento por ripeti</string>
   <string name="speak_beginning_of_passage">Elektu komencon de fragmento</string>
   <string name="speak_ending_of_passage">Elektu finon de fragmento</string>
-  <string name="speak_verse_range_to_repeat">Elektu amplekson de verso por ripeti</string>
+  <string name="speak_verse_range_to_repeat">Elekti amplekson de verso por ripeti</string>
   <string name="speak_ending_verse_must_be_later">Fina verso estu post komenca verso</string>
   <string name="conf_speak_synchronize">Samtempigi tekston kun parolo</string>
   <string name="conf_speak_auto_bookmark">Aŭtomate krei legosignojn</string>
@@ -360,7 +372,7 @@ laŭ ilia permeso.</string>
   <string name="conf_speak_sleep_timer">Agordi aŭtomatan fermon</string>
   <string name="sleep_timer_title">Dormi post (en minutoj)</string>
   <string name="sleep_timer_set">Agordis aŭtomatan fermon al %d minutoj</string>
-  <string name="sleep_timer_started">Agordis aŭtomatan fermon al %d minutoj</string>
+  <string name="sleep_timer_started">Aŭtomata fermo post %d  minutoj</string>
   <string name="sleep_timer_active_at">Aŭtomata fermo: post %s minutoj.</string>
   <string name="speak_next">Sekva</string>
   <string name="speak_previous">Antaŭa</string>
@@ -454,6 +466,14 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="report_bug_instructions1">1. Mi lanĉis la aplikaĵon.</string>
   <string name="report_bug_instructions2">2. Mi alklakis la menuon de fenestroj.</string>
   <string name="report_bug_instructions3">-&gt; Paneo</string>
+  <string name="report_bug_line_2">Iafoje faritaj ekrankopioj ankaŭ povas helpi solvi la problemon.</string>
+  <string name="report_bug_line_3">Bonvolu uzi tiun ĉi eblaĵon tuj post la momento kiam la eraro okazis.</string>
+  <string name="report_bug_line_4">Vi ankaŭ povas uzi tiun ĉi eblaĵon por je la sekva starto de la aplikaĵo post paneo.</string>
+  <string name="report_bug_heading_3">Kunsendaĵoj:</string>
+  <string name="bug_report_logcat">Dosiero de erar‑protokolo de la aplikaĵo. Ĝi ne enhavas informojn pri aliaj aplikaĵoj.</string>
+  <string name="bug_report_screenshot">Ekrankopio de la aplikaĵo kiam paneo okazis aŭ kiam vi raportis eraron.</string>
+  <string name="bug_report_attachment_line_1">La kunsendataj dosieroj helpos al programistoj ripari la raportatan problemon.</string>
+  <string name="report_bug_heading_4">Informoj pri aparato:</string>
   <!--Document types-->
   <string name="doc_type_all">Ĉiu speco</string>
   <string name="doc_type_bible">Biblio</string>
@@ -461,6 +481,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="doc_type_dictionary">Vortaro</string>
   <string name="doc_type_book">Libro</string>
   <string name="doc_type_map">Mapo</string>
+  <string name="doc_type_addons">Aldonaĵoj</string>
   <!--Languages-->
   <string name="lang_default">Implicita</string>
   <!--General-->
@@ -469,6 +490,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="yes">Jes</string>
   <string name="no">Ne</string>
   <string name="error">Eraro</string>
+  <string name="delete_generic">Forigi</string>
   <string name="please_wait">Bonvolu atendi…</string>
   <string name="all">Ĉiuj</string>
   <string name="edit">Redakti</string>
@@ -478,11 +500,14 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <!--Errors-->
   <string name="report_error">Sendi raporton</string>
   <string name="error_occurred">Eraro okazis</string>
+  <string name="error_occurred_crash_last_time">Lastfoje kiam vi uzis la aplikaĵon, ĝi paneis. Por helpi al ni ripari la eraron, ni petas vin pri sendi erarraporton.</string>
   <string name="error_occurred_with_link">Eraro okazis. %s</string>
   <string name="error_no_content">Neniu enhavo por elektita verso</string>
   <string name="error_page_too_large">Paĝo estas tro granda por esti ŝargita</string>
   <string name="error_key_not_in_document">Ne trovita en dokumento</string>
+  <string name="error_key_not_in_document2">Ne trovis “%s” en %s.</string>
   <string name="empty_list">Neniu elemento por montri</string>
+  <string name="error_skip">Preterlasi</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Parolsintezilo</string>
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
@@ -517,10 +542,16 @@ Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</stri
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss">Ignori</string>
   <string name="beta_notice_dismiss_until_update">Ignori ĝis la sekva ĝisdatigo</string>
+  <string name="stable_notice_title">Aplikaĵo estis ĝisdatigita!</string>
+  <string name="upgrade_video_message">Bonvolu spekti filmeton prezentantan novajn trajtojn de tiu ĉi versio (%s).</string>
+  <string name="stable_notice_par1">Sukcese instalis la novan version %s de %s!</string>
   <!--History-->
   <string name="history_for">Historio (%s: fenestro %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigi</string>
+  <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, fingrumu la ekranon (mal)dekstren.
+ Duoble frapetu la tekston por baskuli plenekranon.
+ Ĉe la supra dekstra angulo troviĝas butono dividi ekranon (montri la aplikaĵon en kelkaj fenestroj), per tiu ĉi butono vi ankaŭ povas alĝustigi aspekton kaj sintenon de fenestro(j).</string>
   <string name="help_contextmenus_title">Kuntekstaj menuoj</string>
   <string name="help_contextmenus_text">
 Frapetadu por malfermi kuntekstan menuon aŭ por montri agojn rilataj al la nuna vido.
@@ -528,6 +559,11 @@ Frapetadu por malfermi kuntekstan menuon aŭ por montri agojn rilataj al la nuna
  Frapetadu dokumenton en la vido “elekti dokumenton” aŭ ”elŝuti dokumenton” por forigi la dokumenton aŭ vidigi ĝiajn informojn.
  Frapetadu legosignon en la vido de legosignoj por aldoni etikedojn aŭ forigi ĝin.
  Frapetadu ligilon se vi volas malfermi ĝin en la nuna, nova aŭ en speciala fenestro.</string>
+  <string name="help_bookmarks_title">Legosignoj kaj notoj</string>
+  <string name="help_bookmarks_text">Marku iun tekston kaj elektu “legosigno” el la aperanta kunteksta menuo por krei legosignon. Vi povas aldoni proprajn notojn al legosigno per frapeti la emfazitan tekston. Estas ankaŭ speciala dokumento “miaj notoj” en komentaroj, kiu montras ĉiujn viajn notojn en aparta fenestro.</string>
+  <string name="help_studypads_title">Notblokoj</string>
+  <string name="help_studypads_text">
+Notblokoj estas destinitaj por fari notojn pri predikoj, prepari predikojn aŭ por skribi personajn notojn ligitajn al pluraj fragmentoj de la Biblio. Ĉiu notbloko estas ligita al unu legosigna etikedo. Ĉiu kreita legosigno aŭtomate montriĝas en la dokumento notbloko kune kun ligita legosigna etikedo. Aldone al legosignoj, eblas aldoni propran tekston al notbloko. Konsilo: el la menuo de laborspaco (⋮) elektu “ĉiuj tekstaj agordoj” → “aldoni etikedoj” por aŭtomate aldoni ĉiujn kreatajn legosignojn al la notbloko.</string>
   <string name="help_search_title">Serĉi</string>
   <string name="help_search_text">Serĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT
  (vidu “Apache Lucene - Query Parser Syntax” por pli da detaloj)</string>
@@ -542,11 +578,95 @@ Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
  Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekton de dokumento.
  Frapetadu la REEN‑butonon por aliri liston de historio.</string>
   <string name="help_window_pinning_title">Alpingli fenestron</string>
+  <string name="help_window_pinning_text">
+Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punktoj ĉe la supra dekstra angulo). Se alpinglado de fenestro estas aktiva, vi povos vidigi plurajn alpinglitajn fenestrojn en la vido de Biblio, sed nur unu nealplinglitan fenestron. Alpinglitaj fenestroj vidiĝos unue kaj sekve nealpinglitaj fenestroj. Vi povos malfermi tekston de Biblio kiel alpinglitan fenestron, kaj komentojn kaj mapojn kiel nealpinglitajn fenestrojn. Tiel vi havos tekston de Biblio ĉiam malfermitan, kaj povas facile transsalti inter komentojn kaj aliajn kromajn materialojn.</string>
   <!--Welcome text-->
+  <string name="redownload_documents">Rapide reelŝuti</string>
+  <string name="welcome_message">Dankon pro elŝuti la aplikaĵon %s. Nuntempe neniu Biblio aŭ dokumento estas instalita. Por pluigi, instalu almenaŭ 1 dokumenton per elŝuti ĝin el la interreto aŭ per ŝargi ĝin el la ZIP‑dosiero.</string>
+  <string name="redownload_message">
+Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝuti ilin.</string>
   <!--Uncategorized-->
   <string name="close">Fermi</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Kompreneble</string>
   <string name="first_time_help_show_next_time">Montri denove poste</string>
+  <string name="strongs_mode_title">Elekti Strong-reĝimon</string>
+  <string name="download_dialog_message">Ne povis elŝuti la jenajn librojn:</string>
+  <string name="select_multiple">Elekti plurajn</string>
+  <string name="journal_description">Redakteblaj notblokoj kun propra teksto kaj legosignoj</string>
+  <string name="my_notes_description">Redakteblaj notoj ligitaj al legosignoj</string>
+  <string name="my_notes_abbreviation">Notoj</string>
+  <string name="studypads">Notblokoj</string>
+  <string name="multi_description">Pluraj referencoj</string>
+  <string name="multi_abbreviation">Pluraj</string>
+  <string name="compare_description">Komparoj de tradukoj</string>
+  <string name="compare_abbreviation">Komparo</string>
+  <string name="http_forbidden">malpermesita</string>
+  <string name="http_not_found">ne trovita</string>
+  <string name="http_unknown">alia eraro</string>
+  <string name="compare">Kompari</string>
+  <string name="give_passphrase_for_module">La dokumento %s estas ĉifrita kaj pasvorto estas necesa por malfermi ĝin</string>
+  <string name="unlocking_failed">Fiaskis malfermi, erara pasvorto</string>
+  <string name="unlock_module">Agordi pasvorton por modulo</string>
+  <string name="unlock_info">Informoj pri malfermi ĉifritan modulon</string>
+  <string name="try_again_passphrase">Erara pasvorto; ĉu reprovi?</string>
+  <string name="cant_delete_last_bible">Ne povas forigi la lastan dokumenton de Biblio</string>
+  <string name="show_unlock_info">Pri ĉifrita modulo</string>
+  <string name="prefs_show_error_box_title">Montri JavaScript-erarujon</string>
+  <string name="prefs_show_error_box_summary">Uzebla por programistoj por solvi JavaScript‑rilatajn erarojn en BibleView. Tio ĉi malrapidigos la aplikaĵon.</string>
+  <string name="active_window_indicator_title">Montri indikilon de aktiva fenestro</string>
+  <string name="active_window_indicator_summary">Emfazi angulojn de la la aktiva fenestro</string>
+  <string name="app_licence_title">Permesilo</string>
+  <string name="how_to_contribute">Kontribui</string>
+  <string name="confirm_delete_bookmarks">Ĉu vi certe volas forigi %d legosignojn kaj iliajn notojn!</string>
+  <string name="confirm_delete_study_pads">Ĉu vi volas forigi %d legosignajn etikedojn / notblokojn? Ĉiuj rilataj legosignaj etikedoj kaj notblokoj perdiĝos.</string>
+  <string name="toast_deletion_cancel">Por malfari forigon frapetu “nuligi”.</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Rekomendi al amiko</string>
+  <string name="tell_friend_message1">Mi volus rekomendi al vi la aplikaĵon %s.</string>
+  <string name="tell_friend_message2">Ĝi estas potenca – kvankam facile uzebla – aplikaĵo por studi Biblio por Android.</string>
+  <string name="tell_friend_message3">Vi povas instali ĝin el la vendejo Play: %s</string>
+  <string name="tell_friend_message4">Pliaj informoj (en la angla) troviĝas ĉe: %s</string>
+  <string name="share_verse_ok">Kunhavigi / kopii</string>
+  <string name="share_verse_menu_title">Kunhavigi / kopii…</string>
+  <string name="show_versenumbers">Montri numerojn de versoj</string>
+  <string name="show_full_verses">Montri plenajn versojn</string>
+  <string name="advertise_app">Reklami la apon</string>
+  <string name="verse_share_advertise">Kunhavigita per la aplikaĵo %s.</string>
+  <string name="abbreviate_reference">Mallongigi referencojn</string>
+  <string name="backup_button">Konservi</string>
+  <string name="back_button">Reen</string>
+  <string name="upgrading_database">Ĝisdatigado de datumbazo. Bonvolu atendi…</string>
+  <string name="initializing_app">Ekigado de aplikaĵo…</string>
+  <string name="show_notes">Montri notojn</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">La pakaĵo Android WebView estas tro malnova (%s). Necesas ĝisdatigi la pakaĵon almenaŭ al la versio %s por uzi la aplikaĵon %s. Por plejparto da aparato tio ĉi eblas per la vendejo %s.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Pluigi malgraŭe</string>
+  <string name="rate_title">Taksi kaj recenzi la aplikaĵon</string>
+  <string name="rate_message5">
+Detalaj favoraj recenzoj multe helpas al la malfermkoda projekto And Bible. Dankon!</string>
+  <string name="rate_message6">
+Antaŭ skribi malfavoran recenzon, bonvolu konsideri:</string>
+  <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+se vi spertas problemon pri la aplikaĵo, %s aŭ %s;</string>
+  <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+se iu biblia teksto aŭ traduko enhavas eraron, %s;</string>
+  <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+se iu konkreta teksto ne estas disponebla per la aplikaĵo, %s –</string>
+  <string name="rate_message4">
+programistoj de la aplikaĵo ne respondumas pri prizorgi dokumentojn.</string>
+  <string name="bug_report">
+sendu erar‑raporton (per la ĉefmenuo)</string>
+  <string name="how_to_help">
+legu kiel vi povas helpi pri aldoni la dokumenton </string>
+  <string name="send_email">
+sendu retleteron al programistoj</string>
+  <string name="proceed_google_play">
+Pluigi al vendejo Play</string>
+  <string name="text_maintainers">
+raportu ĝin al prizorganto de modulo</string>
 </resources>

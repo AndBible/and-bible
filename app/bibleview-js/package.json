@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve --port 8085",
     "test:unit": "vue-cli-service test:unit",
+    "lint:ci": "vue-cli-service lint --no-fix",
     "lint": "vue-cli-service lint",
     "andbible-build-old": "vue-cli-service build --target app --formats umd-min --inline-vue --name BibleView src/main.js",
     "build-debug": "cross-env NODE_ENV=debug vue-cli-service build --target app --inline-vue",
@@ -37,7 +38,7 @@
     "eslint": "~6.7.2",
     "eslint-plugin-vue": "~7.1.0-0",
     "json-loader": "^0.5.7",
-    "npm": "^7.7.6",
+    "npm": "^7.13.0",
     "sass": "~1.29.0",
     "sass-loader": "^10.1.1",
     "stylus": "~0.54.8",
@@ -60,7 +61,27 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {},
+    "rules": {
+      "strict": 1,
+      "no-var": [
+        "error"
+      ],
+      "vue/script-indent": [
+        "error",
+        2,
+        {
+          "baseIndent": 0,
+          "switchCase": 1
+        }
+      ],
+      "vue/html-indent": [
+        "error",
+        2,
+        {
+          "baseIndent": 1
+        }
+      ]
+    },
     "overrides": [
       {
         "files": [

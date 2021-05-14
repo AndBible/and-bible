@@ -1,0 +1,60 @@
+openMyNotes: Malfermi en miaj notoj
+openStudyPad: Malfermi en notbloko (%s)
+noteText: Piednoto (%s)
+crossReferenceText: Internaj referencoj
+findAllOccurrences: Montri ĉiujn aperojn
+reportError: Raporti eraron
+errorTitle: Eraro okazis
+warningTitle: Averto
+normalTitle: Informo
+footnoteTypeUndefined: Nekonata speco
+footnoteTypeStudy: studo
+footnoteTypeExplanation: klarigo
+footnoteTypeVariant: variaĵo
+footnoteTypeAlternative: alternativo
+footnoteTypeTranslation: traduko
+clearLog: Forviŝi erar‑protokolon
+editNote: Redakti
+editNotePlaceholder: Redakti noton kiel legosignon
+editTextPlaceholder: Frapetu por redakti tekston
+inputPlaceholder: Skribu tien ĉi
+inputReference: Enigi biblian referencon
+assignLabels: Etikedoj
+bookmarkAccurate: Legosigno kreita en %s
+bookmarkInaccurate: "Informo pri libro ne konservita en legosigno, montras enhavon en %s."
+defaultBook: implicita dokumento de Biblio
+ok: Bone
+yes: Yes
+ambiguousSelection: "Kion vi volas fari?"
+cancel: Nuligi
+removeBookmarkConfirmationTitle: "Ĉu forigi legosignon?"
+removeBookmarkConfirmation: "Ĉu vi certe volas forigi tiun ĉi legosignon?"
+closeModal: Fermi
+createdAt: "Kreita: %s"
+lastUpdatedOn: "Ĝisdatigita: %s"
+strongsLink: Malfermi Strong-vortaron (%s)
+studyPadLink: Malfermi notblokon
+externalLink: Malfermi eksteran ligilon
+referenceLink: Malfermi referencan ligilon
+openFootnote: Malfermi piednoton
+openBookmark: Malfermi legosignon (%s)
+noMyNotesTitle: Neniu noto por tiu ĉi ĉapitro.
+noMyNotesDescription: >
+  Unue kreu legosignojn en la biblia dokumento. La kreotaj legosignoj aperos tie ĉi kaj vi povos aldoni al ili personajn notojn.
+emptyStudyPad: >
+  Malplena notbloko. Por komenci plenigi tiun ĉi notblokon, kreu notojn tie ĉi aŭ kreu legosignojn kun legosignaj etikedoj ligitaj al tiu ĉi notbloko.
+studyPadModalTitle: Redakti noton
+doYouWantToDeleteEntry: "Ĉu vi certe volas forigi tiun ĉi enskribon en notbloko?"
+removeStudyPadConfirmationTitle: "Ĉu forigi enskribon en notbloko?"
+dragHelp: Vi povas ŝovi kaj demeti elementojn en notbloko por ŝanĝi ilian ordon.
+saved: konservita
+openAll: Malfermi ĉiujn referencojn
+editBookmarkPlaceholder: Frapetu por redakti noton pri tiu ĉi legosigno
+onlyLabel: Nur etikedo
+wholeBookmark: Tuta legosigno
+otherNoteText: alia noto
+assignLabelsMenuEntry: Asigni etikedojn
+jumpToStudyPad: Iri al notbloko
+setAsPrimaryLabel: Agordi kiel ĉefan etikedon
+removeBookmarkLabel: ""
+addBookmarkLabel: ""

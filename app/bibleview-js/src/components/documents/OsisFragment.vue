@@ -96,6 +96,7 @@ export default {
       fragmentReady.value = true;
     }
     // TODO: leaving this now for a later point. Need to re-design replace_osis + setup_content for this too.
+    // eslint-disable-next-line no-constant-condition
     if(false && props.showTransition) {
       populate();
     } else {

@@ -208,7 +208,8 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
         "bibleUrl" to wrapString(getUrl(bookmark)),
         "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
         "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
-        "type" to wrapString("bookmark")
+        "type" to wrapString("bookmark"),
+        "primaryLabelId" to bookmark.primaryLabelId.toString(),
     )
 
     companion object{

@@ -25,9 +25,9 @@
       <button class="button" @click="clearLog">{{strings.clearLog}}</button>
       <ul>
         <li
-            v-for="({type, msg, count}, index) in logEntries"
-            :class="`error-${type}`"
-            :key="index">
+          v-for="({type, msg, count}, index) in logEntries"
+          :class="`error-${type}`"
+          :key="index">
           {{type}} {{msg}} ({{count}})
         </li>
       </ul>

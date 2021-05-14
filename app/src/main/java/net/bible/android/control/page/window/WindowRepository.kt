@@ -30,7 +30,9 @@ import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
@@ -46,7 +48,7 @@ open class WindowRepository @Inject constructor(
         // Each window has its own currentPageManagerProvider to store the different state e.g.
         // different current Bible module, so must create new cpm for each window
     val currentPageManagerProvider: Provider<CurrentPageManager>,
-    private val historyManagerProvider: Provider<HistoryManager>
+    private val historyManagerProvider: Provider<HistoryManager>,
 )
 {
     var unPinnedWeight: Float? = null
@@ -311,6 +313,8 @@ open class WindowRepository @Inject constructor(
 
     fun saveIntoDb() {
         Log.d(TAG, "saveIntoDb")
+        mainBibleActivity.speakControl.stop()
+        windowBehaviorSettings.speakSettings = SpeakSettings.currentSettings
         dao.updateWorkspace(WorkspaceEntities.Workspace(
             name = name,
             contentsText = contentText,
@@ -363,6 +367,7 @@ open class WindowRepository @Inject constructor(
 
         textDisplaySettings = entity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
         windowBehaviorSettings = entity.windowBehaviorSettings?: WorkspaceEntities.WindowBehaviorSettings.default
+        SpeakSettings.currentSettings = windowBehaviorSettings.speakSettings
 
         val linksWindowEntity = dao.linksWindow(id) ?: WorkspaceEntities.Window(
             id,

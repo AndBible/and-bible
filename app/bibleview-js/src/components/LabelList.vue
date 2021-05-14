@@ -19,12 +19,13 @@
   <AmbiguousSelection blocking ref="ambiguousSelection"/>
   <div class="label-list">
     <div
-        @touchstart="labelClicked($event, label)"
-        @click="labelClicked($event, label)"
-        v-for="label in labels"
-        :key="label.id"
-        :style="labelStyle(label)"
-        class="label"
+      @touchstart="labelClicked($event, label)"
+      @click="labelClicked($event, label)"
+      v-for="label in labels"
+      :key="label.id"
+      :style="labelStyle(label)"
+      class="label"
+      :class="{notAssigned: !isAssigned(label.id)}"
     >
       <span v-if="isPrimary(label)" class="icon"><FontAwesomeIcon icon="bookmark"/></span>
       {{label.name}}
@@ -36,8 +37,9 @@
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {computed, ref} from "@vue/reactivity";
-import {addEventFunction} from "@/utils";
+import {addEventFunction, Deferred} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {sortBy} from "lodash";
 
 export default {
   props: {
@@ -50,18 +52,31 @@ export default {
   setup(props) {
     const {adjustedColor, strings, ...common} = useCommon();
     const ambiguousSelection = ref(null);
+    const appSettings = inject("appSettings");
+    const android = inject("android");
+
     function labelStyle(label) {
-      return "background-color: " + adjustedColor(label.color).string() + ";";
+      const color = adjustedColor(label.color).string();
+      if (isAssigned(label.id)) {
+        return `background-color: ${color};`;
+      } else {
+        return `border-color: ${color};`;
+      }
     }
 
     const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
     const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
 
-    const labels = computed(() => {
-      return bookmark.value.labels.map(labelId => bookmarkLabels.get(labelId));
-    });
+    function isAssigned(labelId) {
+      return bookmark.value.labels.includes(labelId);
+    }
 
-    const android = inject("android");
+    const labels = computed(() => {
+      const labels = bookmark.value.labels.slice();
+      const favs = appSettings.favouriteLabels.filter(l => !labels.includes(l))
+      const lbls = [...labels, ...favs].map(labelId => bookmarkLabels.get(labelId));
+      return sortBy(lbls, ["name"]);
+    });
 
     function assignLabels() {
       if(bookmark.value) {
@@ -69,27 +84,54 @@ export default {
       }
     }
 
-    function labelClicked(event, label) {
+    let clickDeferred = null;
+
+    async function labelClicked(event, label) {
       if(props.disableLinks) return;
       if(event.type === "touchstart" && !props.handleTouch) {
         return;
       }
-      if(event.type === "click" && props.handleTouch) {
-        return
-      }
       event.stopPropagation();
-      addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
-      if(label.isRealLabel) {
+
+      if(props.handleTouch) {
+        if(event.type === "click") {
+          if (clickDeferred) {
+            clickDeferred.resolve();
+            clickDeferred = null;
+          } else {
+            console.error("Deferred not found");
+          }
+          return
+        }
+        else if(event.type === "touchstart") {
+          clickDeferred = new Deferred();
+          await clickDeferred.wait();
+        }
+      }
+
+      if(!isAssigned(label.id)) {
         addEventFunction(event, () => {
-          window.location.assign(`journal://?id=${label.id}`);
-        }, {title: strings.jumpToStudyPad});
+          android.toggleBookmarkLabel(bookmark.value.id, label.id);
+        }, {title: strings.addBookmarkLabel});
+      } else {
+        if (label.isRealLabel) {
+          if (bookmark.value.primaryLabelId !== label.id) {
+            addEventFunction(event, () => {
+              android.setAsPrimaryLabel(bookmark.value.id, label.id);
+            }, {title: strings.setAsPrimaryLabel});
+          }
+          addEventFunction(event, () => {
+            android.toggleBookmarkLabel(bookmark.value.id, label.id);
+          }, {title: strings.removeBookmarkLabel});
+        }
+        addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
       }
       ambiguousSelection.value.handle(event);
     }
     function isPrimary(label) {
-      return label.id === bookmark.value.labels[0];
+      return label.id === bookmark.value.primaryLabelId;
     }
-    return {labelStyle, assignLabels, ambiguousSelection, labelClicked, labels, isPrimary, ...common}
+    return {labelStyle, assignLabels, ambiguousSelection, labelClicked, labels, isPrimary, isAssigned, ...common}
   }
 }
 </script>
@@ -110,16 +152,20 @@ export default {
   padding-left: 4pt;
   padding-right: 4pt;
   margin-right: 2pt;
+  border-width: 2px;
+  border-style: solid;
+  background-color: rgba(0, 0, 0, 0.2);
+  .night & {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  &.notAssigned {
+    border-style: dotted;
+  }
+  border-color: rgba(0, 0, 0, 0);
 }
 .label-list {
   line-height: 1em;
   display: inline-flex;
-//  @extend .superscript;
-//  font-size: 100%;
-//  line-height: 1.1em;
-//  display: inline-flex;
-//  flex-direction: row;
-//  bottom: 30pt;
-//  padding: 2pt 2pt 0 0;
+  flex-wrap: wrap;
 }
 </style>

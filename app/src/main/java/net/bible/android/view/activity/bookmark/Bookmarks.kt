@@ -214,9 +214,9 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             if (selectedLabelNo > -1 && selectedLabelNo < labelList.size) {
                 Log.i(TAG, "filtering bookmarks")
                 val selectedLabel = labelList[selectedLabelNo]
-                bookmarkList.clear()
-                bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder))
                 withContext(Dispatchers.Main) {
+                    bookmarkList.clear()
+                    bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder))
                     notifyDataSetChanged()
 
                     // if in action mode then must exit because the data has changed, invalidating selections

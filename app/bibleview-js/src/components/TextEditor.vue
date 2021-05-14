@@ -89,7 +89,7 @@ export default {
       icon: layer(push => {
         push(icon(faEdit))
         push(icon(faSlash, {transform: {x: -2, size: 18} }))
-        }).html,
+      }).html,
       title: 'Close',
       result: () => {
         save();

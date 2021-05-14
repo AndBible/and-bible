@@ -129,10 +129,5 @@
             android:title="@string/bookmark_settings_hide_labels_title"
             android:summary="@string/bookmark_settings_hide_labels_summary"
             />
-        <Preference
-            android:key="BOOKMARKS_ASSINGNLABELS"
-            android:title="@string/bookmark_settings_assign_labels_title"
-            android:summary="@string/bookmark_settings_assign_labels_summary"
-            />
     </PreferenceCategory>
 </PreferenceScreen>

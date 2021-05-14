@@ -1,0 +1,35 @@
+name: Run js lint and tests
+
+on:
+  push:
+    branches:
+      - develop
+      - 'current-stable'
+      - 'release/*'
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 10 # so that recent tags can be found
+
+      - name: Set up Node.js environment
+        uses: actions/setup-node@v2-beta # v2-beta adds cacheing
+        with:
+          # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
+          node-version: 10.x
+
+      - name: Run npm install
+        working-directory: app/bibleview-js
+        run: npm install
+
+      - name: Run lint
+        working-directory: app/bibleview-js
+        run: npm run lint:ci
+
+      - name: Run js unit tests
+        working-directory: app/bibleview-js
+        run: npm run test:unit

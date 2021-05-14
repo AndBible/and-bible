@@ -42,9 +42,9 @@
     <LabelList v-if="!expanded" :bookmark-id="bookmark.id"/>
     <div class="notes">
       <EditableText
-          ref="editor"
-          :text="bookmark.notes"
-          @save="save"
+        ref="editor"
+        :text="bookmark.notes"
+        @save="save"
       />
     </div>
   </div>

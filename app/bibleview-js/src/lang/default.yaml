@@ -32,7 +32,7 @@ removeBookmarkConfirmation: Are you sure you want to remove this bookmark?
 closeModal: Close
 createdAt: "Created: %s"
 lastUpdatedOn: "Last updated: %s"
-strongsLink: Open Strongs
+strongsLink: Open Strongs (%s)
 studyPadLink: Open study pad
 externalLink: Open external link
 referenceLink: Open reference link
@@ -57,3 +57,6 @@ wholeBookmark: Whole bookmark
 otherNoteText: Other note
 assignLabelsMenuEntry: Assign labels
 jumpToStudyPad: Jump to Study Pad
+setAsPrimaryLabel: Set as primary label
+removeBookmarkLabel: Remove label from bookmark
+addBookmarkLabel: Add label to bookmark

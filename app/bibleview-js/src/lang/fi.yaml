@@ -1,5 +1,5 @@
-openMyNotes: Avaa My Notes -ikkunassa
-openStudyPad: Avaa Opintoalusta-ikkunassa (%s)
+openMyNotes: Avaa Omissa Merkinnöissä
+openStudyPad: Avaa Opintoalustassa (%s)
 noteText: Alaviitteet (%s)
 crossReferenceText: Ristiviitteet
 findAllOccurrences: Etsi kaikki esiintymät
@@ -32,7 +32,7 @@ removeBookmarkConfirmation: "Oletko varma että haluat poistaa tämän kirjanmer
 closeModal: Sulje
 createdAt: "Luotu: %s"
 lastUpdatedOn: "Viimeksi päivitetty: %s"
-strongsLink: Avaa Strongs
+strongsLink: Avaa Strongs (%s)
 studyPadLink: Avaa opintoalusta
 externalLink: Avaa ulkoinen linkki
 referenceLink: Avaa viittaus
@@ -55,3 +55,6 @@ wholeBookmark: Koko kirjanmerkki
 otherNoteText: Muu huomio
 assignLabelsMenuEntry: Sijoita ryhmiin
 jumpToStudyPad: Hyppää opintoalustaan
+setAsPrimaryLabel: Aseta pääasialliseksi kirjanmerkkiryhmäksi
+removeBookmarkLabel: Poista kirjanmerkkiryhmä kirjanmerkistä
+addBookmarkLabel: Lisää kirjanmerkkiryhmä kirjanmerkille

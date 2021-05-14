@@ -16,7 +16,7 @@
  */
 
 import {nextTick} from "@vue/runtime-core";
-import {emit, Events, setupEventBusListener} from "@/eventbus";
+import {Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 
 export function useScroll(config, appSettings, calculatedConfig, {getVerses, resetHighlights}, documentPromise) {

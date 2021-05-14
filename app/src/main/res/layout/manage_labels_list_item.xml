@@ -5,21 +5,32 @@
 			  android:layout_height="40dp"
 			  android:gravity="center_vertical">
 
-	<Space
-		android:layout_width="10dp"
-		android:layout_height="wrap_content"/>
-	<CheckBox
-		android:id="@+id/checkbox"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"/>
-	<Space
-		android:layout_width="10dp"
-		android:layout_height="wrap_content"/>
 	<ImageView android:id="@+id/labelIcon"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_marginStart="10dp"
 		android:src="@drawable/ic_label_24dp"
 		/>
+	<CheckBox
+		android:id="@+id/checkbox"
+		android:layout_width="wrap_content"
+		android:layout_marginStart="10dp"
+		android:layout_height="wrap_content"/>
+	<ImageView android:id="@+id/favouriteIcon"
+		android:layout_width="wrap_content"
+		android:layout_marginStart="10dp"
+		android:layout_height="wrap_content"
+		app:tint="@color/grey_500"
+		android:src="@drawable/ic_baseline_favorite_border_24"
+		/>
+	<ImageView android:id="@+id/primaryIcon"
+		app:tint="@color/grey_500"
+		android:layout_marginStart="10dp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:src="@drawable/ic_baseline_star_border_24"
+		/>
+
 	<TextView
 		android:id="@+id/labelName"
 		android:layout_height="wrap_content"

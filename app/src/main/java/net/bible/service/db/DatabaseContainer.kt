@@ -828,6 +828,33 @@ private val MIGRATION_44_45_nullColors = object : Migration(44, 45) {
     }
 }
 
+private val MIGRATION_45_46_workspaceSpeakSettings = object : Migration(45, 46) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_speakSettings` TEXT DEFAULT NULL")
+        }
+    }
+}
+
+private val MIGRATION_46_47_primaryLabel = object : Migration(46, 47) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Bookmark` ADD COLUMN `primaryLabelId` INTEGER DEFAULT NULL REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL")
+            execSQL("UPDATE `Bookmark` SET primaryLabelId = (SELECT labelId FROM BookmarkToLabel WHERE bookmarkId=Bookmark.id LIMIT 1)")
+        }
+    }
+}
+
+private val MIGRATION_47_48_autoAssignLabels = object : Migration(47, 48) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_favouriteLabels` TEXT DEFAULT NULL")
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoAssignLabels` TEXT DEFAULT NULL")
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoAssignPrimaryLabel` INTEGER DEFAULT NULL")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -886,6 +913,9 @@ object DatabaseContainer {
                         MIGRATION_42_43_expandContent,
                         MIGRATION_43_44_topMargin,
                         MIGRATION_44_45_nullColors,
+                        MIGRATION_45_46_workspaceSpeakSettings,
+                        MIGRATION_46_47_primaryLabel,
+                        MIGRATION_47_48_autoAssignLabels,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

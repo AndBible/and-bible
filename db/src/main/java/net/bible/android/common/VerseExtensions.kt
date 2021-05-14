@@ -19,6 +19,7 @@
 package net.bible.android.common
 
 import net.bible.android.database.WorkspaceEntities
+import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
@@ -38,5 +39,7 @@ fun VerseRange.toV11n(v11n: Versification?): VerseRange {
         VerseRange(v11n, startVerse.toV11n(v11n), endVerse.toV11n(v11n))
     } else this
 }
+fun Passage.toV11n(v11n: Versification): Passage = converter.convert(this, v11n)
+
 fun VerseRange.isConvertibleTo(v11n: Versification): Boolean = start.isConvertibleTo(v11n) && end.isConvertibleTo(v11n)
 

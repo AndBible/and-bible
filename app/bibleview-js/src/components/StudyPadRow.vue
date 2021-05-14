@@ -53,12 +53,12 @@
   </template>
   <div class="notes">
     <EditableText
-        ref="editor"
-        :show-placeholder="journalEntry.type === JournalEntryTypes.JOURNAL_TEXT"
-        :edit-directly="journalEntry.new"
-        :text="journalText"
-        @opened="$emit('edit-opened')"
-        @save="journalTextChanged"
+      ref="editor"
+      :show-placeholder="journalEntry.type === JournalEntryTypes.JOURNAL_TEXT"
+      :edit-directly="journalEntry.new"
+      :text="journalText"
+      @opened="$emit('edit-opened')"
+      @save="journalTextChanged"
     />
   </div>
 </template>

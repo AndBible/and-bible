@@ -24,22 +24,22 @@
 </template>
 
 <script>
-  import ErrorDocument from "@/components/documents/ErrorDocument";
-  import OsisDocument from "@/components/documents/OsisDocument";
-  import {DocumentTypes} from "@/constants";
-  import BibleDocument from "@/components/documents/BibleDocument";
-  import MyNotesDocument from "@/components/documents/MyNotesDocument";
-  import StudyPadDocument from "@/components/documents/StudyPadDocument";
-  import MultiDocument from "@/components/documents/MultiDocument";
-  export default {
-    name: "Document",
-    components: {MultiDocument, MyNotesDocument, BibleDocument, ErrorDocument, OsisDocument, StudyPadDocument},
-    props: {
-      document: {type: Object, required: true},
-    },
-    setup() {
-      return {DocumentTypes}
-    },
-  }
+import ErrorDocument from "@/components/documents/ErrorDocument";
+import OsisDocument from "@/components/documents/OsisDocument";
+import {DocumentTypes} from "@/constants";
+import BibleDocument from "@/components/documents/BibleDocument";
+import MyNotesDocument from "@/components/documents/MyNotesDocument";
+import StudyPadDocument from "@/components/documents/StudyPadDocument";
+import MultiDocument from "@/components/documents/MultiDocument";
+export default {
+  name: "Document",
+  components: {MultiDocument, MyNotesDocument, BibleDocument, ErrorDocument, OsisDocument, StudyPadDocument},
+  props: {
+    document: {type: Object, required: true},
+  },
+  setup() {
+    return {DocumentTypes}
+  },
+}
 </script>
 

@@ -1,0 +1,60 @@
+openMyNotes: Odpri v Mojih zaznamkih
+openStudyPad: Odpri v Moji beležnici (%s)
+noteText: Zaznamki (%s)
+crossReferenceText: Sklici
+findAllOccurrences: Najdi vse pojavitve
+reportError: Prijavite napako
+errorTitle: Zgodila se je napaka
+warningTitle: Opozorilo
+normalTitle: "Prosimo, upoštevajte"
+footnoteTypeUndefined: Nedoločena vrsta
+footnoteTypeStudy: "Študij "
+footnoteTypeExplanation: Pojasnilo
+footnoteTypeVariant: Različica
+footnoteTypeAlternative: Druga možnost
+footnoteTypeTranslation: Prevod
+clearLog: Počisti dnevnik napak
+editNote: Uredi
+editNotePlaceholder: "Uredite opombo za zaznamek "
+editTextPlaceholder: Dotaknite se za urejanje besedila
+inputPlaceholder: Pišite tukaj
+inputReference: Vnesite biblijsko referenco
+assignLabels: Oznake
+bookmarkAccurate: Zaznamek je bil ustvarjen v %s
+bookmarkInaccurate: "Informacije o zaznamkih niso shranjene, vsebina je prikazana v %s."
+defaultBook: privzeti biblijski dokument
+ok: OK
+yes: Yes
+ambiguousSelection: "Katero dejanje želite izvesti?"
+cancel: Prekliči
+removeBookmarkConfirmationTitle: "Zaznamek odstranim?"
+removeBookmarkConfirmation: "Ali ste prepričani, da želite odstraniti ta zaznamek?"
+closeModal: Zapri
+createdAt: "Ustvarjeno: %s"
+lastUpdatedOn: "Nazadnje posodobljeno: %s"
+strongsLink: Odpri Strong-a (%s)
+studyPadLink: Odpri beležnico
+externalLink: Odpri zunanjo povezavo
+referenceLink: Odpri zunanjo povezavo
+openFootnote: Odpri zaznamek
+openBookmark: Odpri zaznamke (%s)
+noMyNotesTitle: Za to poglavje ni Mojih opomb.
+noMyNotesDescription: >
+  Začnite z ustvarjanjem zaznamkov v biblijskem dokumentu. Nato se bodo tukaj prikazali zaznamki, vanje pa lahko dodate svoje osebne zapiske.
+emptyStudyPad: >
+  Prazna beležnica. Začnite dodajati na to beležnico z ustvarjanjem besedilnih vnosov ali z ustvarjanjem zaznamkov z oznako zaznamka, ki ustreza tej beležnici.
+studyPadModalTitle: Uredite vnos v beležnici
+doYouWantToDeleteEntry: "Ali ste prepričani, da želite v beležnici izbrisati ta vnos?"
+removeStudyPadConfirmationTitle: "Želite odstraniti vnos beležnice?"
+dragHelp: "Element lahko povlečete in spustite, da znova naročite beležnico"
+saved: shranjeno
+openAll: Odpri vse sklice
+editBookmarkPlaceholder: "Dotaknite se, če želite urediti Moje opombe za ta zaznamek"
+onlyLabel: Samo oznaka
+wholeBookmark: Celoten zaznamek
+otherNoteText: Drug zaznamek
+assignLabelsMenuEntry: Dodelite oznake
+jumpToStudyPad: Skoči na beležnico
+setAsPrimaryLabel: Nastavi kot primarno oznako
+removeBookmarkLabel: ""
+addBookmarkLabel: ""

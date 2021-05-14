@@ -94,7 +94,10 @@ class BookmarkEntities {
     @Entity(
         indices = [
             Index("kjvOrdinalStart"), Index("kjvOrdinalEnd")
-        ]
+        ],
+        foreignKeys = [
+            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
+        ],
     )
     data class Bookmark (
         // Verse range in KJV ordinals. For generic lookups, we must store verse ranges in a "standard"
@@ -119,6 +122,8 @@ class BookmarkEntities {
 
         var startOffset: Int?,
         var endOffset: Int?,
+
+        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: Long? = null,
 
         @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),

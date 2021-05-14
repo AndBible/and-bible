@@ -32,11 +32,11 @@ export default {
   },
   computed: {
     show:  ({type, subType, config, isCanonical}) =>
-        config.showSectionTitles
-        && ((config.showNonCanonical && !isCanonical) || isCanonical)
-        && !(type === "sub" && subType === "x-Chapter")
-        && !(type === "chapter")
-        && type !== "x-gen",
+      config.showSectionTitles
+      && ((config.showNonCanonical && !isCanonical) || isCanonical)
+      && !(type === "sub" && subType === "x-Chapter")
+      && !(type === "chapter")
+      && type !== "x-gen",
     isCanonical: ({canonical}) => canonical === "true",
     isSubTitle: ({type}) => type === "sub",
   },

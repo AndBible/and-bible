@@ -16,13 +16,14 @@
  */
 
 
-import {colorLightness, mixColors} from "@/utils";
+import {adjustedColor, colorLightness, mixColors} from "@/utils";
 import Color from "color";
 
 const c = Color("#00EDFF");
 const m = Color("#FF00AB");
 const y = Color("#FFED00");
 const r = Color("red");
+const col = Color(-1282938);
 
 describe("myMixColors test", () => {
     it("test1", () => expect(mixColors(y, c).hex()).toEqual("#89FF89"));
@@ -37,4 +38,9 @@ describe("myMixColors test", () => {
     it("colorDarkness 2", () => expect(colorLightness(Color("black"))).toEqual(0));
     it("White color as int", () => expect(Color("white").rgbNumber()).toEqual(16777215));
     it("Black color as int", () => expect(Color("black").rgbNumber()).toEqual(0));
+    it("Test ", () => expect(col.hex()).toEqual("#EC6C86"));
+    it("Test 1 ", () => expect(col.lighten(0.4).hex()).toEqual("#FCE6EA"));
+    it("Test 1 ", () => expect(Color("#FCE6EA").lighten(0.4).hex()).toEqual("#FFFFFF"));
+    it("Test 2 ", () => expect(col.lighten(0.6).hex()).toEqual("#FFFFFF"));
+    it("Adjusted color 1 ", () => expect(adjustedColor(-1282938, -0.6).hex()).toEqual("#FEF5F7"));
 });

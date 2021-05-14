@@ -16,7 +16,7 @@
   -->
 
 <template>
-<span class="divineName"><slot/></span>
+  <span class="divineName"><slot/></span>
 </template>
 
 <script>

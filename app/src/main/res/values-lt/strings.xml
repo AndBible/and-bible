@@ -96,6 +96,7 @@
   <string name="reversed_split_mode">Atvirkštinis dalinimo būdas</string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Slenkant tekstą, automatiškai perjungti į viso ekrano veikseną. Pastaba: visuomet galima perjungti į viso ekrano veikseną spustelėjus dukart ekrane.</string>
   <string name="prefs_margin_size_title">Keisti paraščių dydį</string>
   <string name="prefs_margin_size_mm_title">Paraščių dydis (%d/%d/%d mm)</string>
@@ -127,6 +128,7 @@
   <string name="full_screen_hide_buttons_pref_title">Viso ekrano veiksenoje paslėpti mygtukų juotą</string>
   <string name="full_screen_hide_buttons_pref_summary">Perjungiant į viso ekrano veikseną, automatiškai paslėpti ekrano apačioje esančią mygtukų juostą</string>
   <string name="font_size_title">Šrifto dydis</string>
+  <string name="font_size_title_pt">Šrifto dydis (%d tšk.)</string>
   <string name="pref_font_family_label_name">Šriftas (%s)</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Spalvos nuostatos</string>
@@ -198,6 +200,9 @@
   <string name="rdg_plan_set_start_date">Nustatyti pradžios datą</string>
   <string name="done">Atlikta</string>
   <string name="reset_plan_question">Ar tikrai norite atstatyti šį planą?</string>
+  <string name="import_reading_plan_error">Klaida importuojant</string>
+  <string name="import_reading_plan_anyway">Vis tiek importuoti</string>
+  <string name="overwrite_reading_plan">Ar norite perrašyti %s?</string>
   <string name="plan_duplicate_user_plan">
         Yra skaitymo planas, esantis sdcard
         jsword/readingplan tokiu pačiu pavadinimu kaip ir vidinis planas. Jis negali būti čia išvardytas.
@@ -507,4 +512,7 @@ Paspaudę ir palaikę mygtuką \"Atgal\", pateksite į istorijos sąrašą. </st
   <string name="upgrading_database">Naujinama duomenų bazė. Palaukite…</string>
   <string name="initializing_app">Inicijuojama programėlė…</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <!--parameters are actions (file a bug, send email)-->
+  <!--param is "please report maintainers"-->
+  <!--param is "please read what you can do"-->
 </resources>

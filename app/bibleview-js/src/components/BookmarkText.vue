@@ -20,10 +20,10 @@
     <AmbiguousSelection ref="ambiguousSelection" @back-clicked="$emit('change-expanded', false)"/>
     <div v-if="expanded" @click.stop="ambiguousSelection.handle">
       <OsisFragment
-          :highlight-ordinal-range="bookmark.originalOrdinalRange"
-          :highlight-offset-range="highlightOffset"
-          :fragment="bookmark.osisFragment"
-          hide-titles
+        :highlight-ordinal-range="bookmark.originalOrdinalRange"
+        :highlight-offset-range="highlightOffset"
+        :fragment="bookmark.osisFragment"
+        hide-titles
       />
     </div>
     <span class="bookmark-text">

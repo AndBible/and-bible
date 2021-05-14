@@ -108,7 +108,12 @@ open class BookmarkControl @Inject constructor(
 
         if(labels != null) {
             dao.deleteLabels(bookmark.id)
-            dao.insert(labels.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) })
+            val filteredLabels = labels.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) }
+            dao.insert(filteredLabels)
+            if(filteredLabels.find { it.labelId == bookmark.primaryLabelId } == null) {
+                bookmark.primaryLabelId = filteredLabels.firstOrNull()?.labelId
+                dao.update(bookmark)
+            }
         }
 
         addText(bookmark)
@@ -162,7 +167,13 @@ open class BookmarkControl @Inject constructor(
 
     fun setLabelsByIdForBookmark(bookmark: Bookmark, labelIdList: List<Long>) {
         dao.deleteLabels(bookmark)
-        dao.insert(labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) })
+        val filteredLabels = labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) }
+        dao.insert(filteredLabels)
+        if(filteredLabels.find { it.labelId == bookmark.primaryLabelId } == null) {
+            bookmark.primaryLabelId = filteredLabels.firstOrNull()?.labelId
+            dao.update(bookmark)
+        }
+
         addText(bookmark)
         addLabels(bookmark)
         ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
@@ -427,9 +438,17 @@ open class BookmarkControl @Inject constructor(
         ABEventBus.getDefault().post(StudyPadOrderEvent(labelId, null, bookmarksToLabels, studyPadTextEntries))
     }
 
+    fun setAsPrimaryLabel(bookmarkId: Long, labelId: Long) {
+        val bookmark = dao.bookmarkById(bookmarkId)?: return
+        bookmark.primaryLabelId = labelId
+        addOrUpdateBookmark(bookmark)
+    }
 
     companion object {
         const val LABEL_IDS_EXTRA = "bookmarkLabelIds"
+        const val FAVOURITE_LABEL_IDS = "favouriteLabelIds"
+        const val PRIMARY_LABEL_EXTRA = "primaryLabelExtra"
+
         const val LABEL_NO_EXTRA = "labelNo"
         private const val TAG = "BookmarkControl"
     }

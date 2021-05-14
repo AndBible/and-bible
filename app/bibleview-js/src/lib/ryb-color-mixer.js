@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Copied from https://github.com/camme/ryb-color-mixer (version 0.6.1). Licence: MIT.
 
 
@@ -183,7 +184,7 @@ function arrayToHex(rgbArray) {
     var rHex = Math.round(rgbArray[0]).toString(16); rHex = rHex.length == 1 ? "0" + rHex : rHex;
     var gHex = Math.round(rgbArray[1]).toString(16); gHex = gHex.length == 1 ? "0" + gHex : gHex;
     var bHex = Math.round(rgbArray[2]).toString(16); bHex = bHex.length == 1 ? "0" + bHex : bHex;
-    return rHex + gHex + bHex;;
+    return rHex + gHex + bHex;
 }
 
 function cubicInt(t, A, B){

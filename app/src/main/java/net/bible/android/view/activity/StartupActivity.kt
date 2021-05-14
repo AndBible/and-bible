@@ -146,7 +146,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private suspend fun checkWebView(): Boolean {
         val info = WebViewCompat.getCurrentWebViewPackage(applicationContext)
         val versionNum = info?.versionName?.split(".")?.first()?.split(" ")?.first()?.toInt() ?: 0
-        val minimumVersion = 89
+        val minimumVersion = 69 // tested with Android Emulator API 24
         if(versionNum < minimumVersion) {
             val playUrl = "https://play.google.com/store/apps/details?id=com.google.android.webview"
             val playLink = "<a href=\"$playUrl\">${getString(R.string.play)}</a>"

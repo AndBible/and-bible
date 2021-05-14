@@ -26,7 +26,7 @@ import {
     watch
 } from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
-import {Deferred, setupWindowEventListener} from "@/utils";
+import {adjustedColor, Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
@@ -47,7 +47,6 @@ import {
     faTimes,
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
-import Color from "color";
 import {DocumentTypes} from "@/constants";
 
 let developmentMode = false;
@@ -185,6 +184,7 @@ export function useConfig(documentType) {
         bottomOffset: 100,
         nightMode: false,
         errorBox: false,
+        favouriteLabels: [],
         activeWindow: false,
         rightToLeft: rtl
     });
@@ -216,7 +216,7 @@ export function useConfig(documentType) {
         appSettings.activeWindow = newActive;
     });
 
-    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {activeWindow, nightMode, errorBox: errorBoxVal}, initial = false} = {}) {
+    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {favouriteLabels, activeWindow, nightMode, errorBox: errorBoxVal}, initial = false} = {}) {
         const defer = new Deferred();
         if (!initial) emit(Events.CONFIG_CHANGED, defer)
         const oldValue = config.showBookmarks;
@@ -232,11 +232,14 @@ export function useConfig(documentType) {
         appSettings.nightMode = nightMode;
         appSettings.activeWindow = activeWindow;
         appSettings.errorBox = errorBoxVal;
+        appSettings.favouriteLabels.splice(0);
+        appSettings.favouriteLabels.push(...favouriteLabels);
         errorBox = errorBoxVal;
         if (c.showBookmarks === undefined) {
             // eslint-disable-next-line require-atomic-updates
             config.showBookmarks = oldValue;
         }
+        // eslint-disable-next-line require-atomic-updates
         config.showChapterNumbers = config.showVerseNumbers;
         if (!initial) {
             await nextTick();
@@ -280,16 +283,6 @@ export function useCommon() {
 
     function formatTimestamp(timestamp) {
         return new Date(timestamp).toLocaleString()
-    }
-
-    function adjustedColor(color, ratio=0.2) {
-        let col = Color(color);
-        if(config.nightMode) {
-            col = col.darken(ratio);
-        } else {
-            col = col.darken(ratio);
-        }
-        return col.hsl();
     }
 
     return {config, appSettings, calculatedConfig, strings, sprintf, split,
@@ -370,9 +363,11 @@ export function useJournal(label) {
 export function useReferenceCollector() {
     const references = reactive([]);
     function collect(linkRef) {
+        console.log("PUSH" ,linkRef);
         references.push(linkRef);
     }
     function clear() {
+        console.error("CLEAR");
         references.splice(0);
     }
     return {references, collect, clear}
@@ -413,6 +408,7 @@ export function useCustomFeatures() {
     const featuresLoaded = ref(false);
     const featuresLoadedPromise = ref(defer.wait());
 
+    // eslint-disable-next-line no-unused-vars
     async function reloadFeatures(featureModuleNames) {
         /*
          TODO: implement loading and usage properly in #981

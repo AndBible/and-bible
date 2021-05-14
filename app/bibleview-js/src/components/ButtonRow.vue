@@ -17,10 +17,10 @@
 
 <template>
   <div
-      ref="element"
-      @touchstart="clicked"
-      @click="clicked"
-      :class="{'edit-buttons': expanded, 'menu': !handleTouch}"
+    ref="element"
+    @touchstart="clicked"
+    @click="clicked"
+    :class="{'edit-buttons': expanded, 'menu': !handleTouch}"
   >
     <div class="between" v-show="expanded">
       <slot/>

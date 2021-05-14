@@ -20,13 +20,13 @@
     <div>
       {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 30)}}</i></q>
     </div>
-    <LabelList disable-links :bookmark-id="bookmarkId"/>
+    <LabelList :bookmark-id="bookmarkId"/>
     <div style="display: flex; justify-content: space-between; height: 30px;">
       <div style="display: flex;">
         <div class="bookmark-button" @click.stop="assignLabels">
           <FontAwesomeIcon icon="tags"/>
         </div>
-        <div class="bookmark-button" @click.stop="editNotes">
+        <div class="bookmark-button" :class="{highlighted: bookmark.hasNote}" @click.stop="editNotes">
           <FontAwesomeIcon icon="edit"/>
         </div>
         <div class="bookmark-button" @click.stop="bookmarkInfo">
@@ -36,11 +36,11 @@
           <FontAwesomeIcon icon="share-alt"/>
         </div>
         <div
-            v-for="label of labels.filter(l => l.isRealLabel)"
-            :key="label.id"
-            :style="`color: ${adjustedColor(label.color)};`"
-            class="bookmark-button"
-            @click.stop="openStudyPad(label.id)"
+          v-for="label of labels.filter(l => l.isRealLabel)"
+          :key="label.id"
+          :style="`color: ${adjustedColor(label.color)};`"
+          class="bookmark-button"
+          @click.stop="openStudyPad(label.id)"
         >
           <FontAwesomeIcon icon="file-alt"/>
         </div>
@@ -69,6 +69,8 @@ import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {Events, emit} from "@/eventbus";
 import AreYouSure from "@/components/modals/AreYouSure";
+import {adjustedColor} from "@/utils";
+import Color from "color";
 
 export default {
   emits: ["selected"],
@@ -79,7 +81,7 @@ export default {
   components: {LabelList, FontAwesomeIcon, AreYouSure},
   setup(props, {emit: $emit}) {
     const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
-    const {adjustedColor, ...common} = useCommon();
+    const common = useCommon();
     const bookmark = computed(() => {
       return bookmarkMap.get(props.bookmarkId);
     });
@@ -89,12 +91,14 @@ export default {
     });
 
     const primaryLabel = computed(() => {
-      const primaryLabelId = bookmark.value.labels[0];
+      const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
       return bookmarkLabels.get(primaryLabelId);
     });
 
     const buttonStyle = computed(() => {
-      return `background-color: ${adjustedColor(primaryLabel.value.color, -0.6)};`
+      let color = Color(primaryLabel.value.color);
+      color = color.alpha(0.5)
+      return `background-color: ${color.hsl()};`
     });
 
     const bookmarkColor = computed(() => {
@@ -116,7 +120,7 @@ export default {
     }
 
     function openStudyPad(labelId) {
-        android.openStudyPad(labelId);
+      android.openStudyPad(labelId);
     }
 
     function editNotes() {
@@ -150,6 +154,9 @@ export default {
 @import "~@/common.scss";
 .ambiguous-button {
   color: black;
+  .night & {
+    color: #d7d7d7;
+  }
   @extend .button;
   text-align: start;
 }

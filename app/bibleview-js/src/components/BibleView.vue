@@ -69,110 +69,110 @@ import {useStrings} from "@/composables/strings";
 import {DocumentTypes} from "@/constants";
 
 export default {
-    name: "BibleView",
-    components: {Document, ErrorBox, BookmarkModal, DevelopmentMode},
-    setup() {
-      useAddonFonts();
-      useFontAwesome();
-      const documents = reactive([]);
-      const documentType = computed(() => {
-          if(documents.length < 1) {
-              return DocumentTypes.NONE;
-          }
-          return documents[0].type;
-      });
-      const {config, appSettings, calculatedConfig} = useConfig(documentType);
-      const strings = useStrings();
-      window.bibleViewDebug.documents = documents;
-      const topElement = ref(null);
-      const documentPromise = ref(null);
-      const verseMap = useVerseMap();
-      provide("verseMap", verseMap);
-      const scroll = useScroll(config, appSettings, calculatedConfig, verseMap, documentPromise);
-      const {scrollToId} = scroll;
-      provide("scroll", scroll);
-      const globalBookmarks = useGlobalBookmarks(config, documentType);
-      const android = useAndroid(globalBookmarks, config);
-
-      const mounted = ref(false);
-      onMounted(() => mounted.value = true)
-      onUnmounted(() => mounted.value = false)
-
-      const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll);
-      const customCss = useCustomCss();
-      provide("customCss", customCss);
-      const customFeatures = useCustomFeatures();
-      provide("customFeatures", customFeatures);
-
-      useInfiniteScroll(android, documents);
-
-      function addDocuments(...docs) {
-        documentPromise.value = document.fonts.ready
-            .then(() => nextTick())
-            .then(() => documents.push(...docs));
+  name: "BibleView",
+  components: {Document, ErrorBox, BookmarkModal, DevelopmentMode},
+  setup() {
+    useAddonFonts();
+    useFontAwesome();
+    const documents = reactive([]);
+    const documentType = computed(() => {
+      if(documents.length < 1) {
+        return DocumentTypes.NONE;
       }
+      return documents[0].type;
+    });
+    const {config, appSettings, calculatedConfig} = useConfig(documentType);
+    const strings = useStrings();
+    window.bibleViewDebug.documents = documents;
+    const topElement = ref(null);
+    const documentPromise = ref(null);
+    const verseMap = useVerseMap();
+    provide("verseMap", verseMap);
+    const scroll = useScroll(config, appSettings, calculatedConfig, verseMap, documentPromise);
+    const {scrollToId} = scroll;
+    provide("scroll", scroll);
+    const globalBookmarks = useGlobalBookmarks(config, documentType);
+    const android = useAndroid(globalBookmarks, config);
 
-      setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
-        const verseBeforeConfigChange = currentVerse.value;
-        await deferred.wait();
-        scrollToId(`v-${verseBeforeConfigChange}`, {now: true})
-      })
+    const mounted = ref(false);
+    onMounted(() => mounted.value = true)
+    onUnmounted(() => mounted.value = false)
 
-      setupEventBusListener(Events.CLEAR_DOCUMENT, function clearDocument() {
-        emit(Events.CLOSE_MODALS);
-        clearLog();
-        globalBookmarks.clearBookmarks();
-        documents.splice(0)
-      });
+    const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll);
+    const customCss = useCustomCss();
+    provide("customCss", customCss);
+    const customFeatures = useCustomFeatures();
+    provide("customFeatures", customFeatures);
 
-      setupEventBusListener(Events.ADD_DOCUMENTS, addDocuments);
-      setupWindowEventListener("error", (e) => {
-        console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
-      });
+    useInfiniteScroll(android, documents);
 
-      if(config.developmentMode) {
-        console.log("populating test data");
-        globalBookmarks.updateBookmarkLabels(...testBookmarkLabels)
-        addDocuments(...testData)
+    function addDocuments(...docs) {
+      documentPromise.value = document.fonts.ready
+        .then(() => nextTick())
+        .then(() => documents.push(...docs));
+    }
+
+    setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
+      const verseBeforeConfigChange = currentVerse.value;
+      await deferred.wait();
+      scrollToId(`v-${verseBeforeConfigChange}`, {now: true})
+    })
+
+    setupEventBusListener(Events.CLEAR_DOCUMENT, function clearDocument() {
+      emit(Events.CLOSE_MODALS);
+      clearLog();
+      globalBookmarks.clearBookmarks();
+      documents.splice(0)
+    });
+
+    setupEventBusListener(Events.ADD_DOCUMENTS, addDocuments);
+    setupWindowEventListener("error", (e) => {
+      console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
+    });
+
+    if(config.developmentMode) {
+      console.log("populating test data");
+      globalBookmarks.updateBookmarkLabels(...testBookmarkLabels)
+      addDocuments(...testData)
+    }
+
+    let titlePrefix = ""
+    setupEventBusListener(Events.SET_TITLE, function setTitle(title) {
+      titlePrefix = title;
+    });
+
+    watch(documents, () => {
+      if(documents.length > 0) {
+        const id = documents[0].id;
+        const type = documents[0].type;
+        document.title = `${titlePrefix}/${type}/${id} (${process.env.NODE_ENV})`
       }
+    })
 
-      let titlePrefix = ""
-      setupEventBusListener(Events.SET_TITLE, function setTitle(title) {
-        titlePrefix = title;
-      });
+    provide("globalBookmarks", globalBookmarks);
+    provide("config", config);
+    provide("appSettings", appSettings);
+    provide("calculatedConfig", calculatedConfig);
 
-      watch(documents, () => {
-        if(documents.length > 0) {
-          const id = documents[0].id;
-          const type = documents[0].type;
-          document.title = `${titlePrefix}/${type}/${id} (${process.env.NODE_ENV})`
-        }
-      })
+    provide("strings", strings);
+    provide("android", android);
 
-      provide("globalBookmarks", globalBookmarks);
-      provide("config", config);
-      provide("appSettings", appSettings);
-      provide("calculatedConfig", calculatedConfig);
+    const ambiguousSelection = ref(null);
 
-      provide("strings", strings);
-      provide("android", android);
-
-      const ambiguousSelection = ref(null);
-
-      const backgroundStyle = computed(() => {
-        const colorInt = appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground;
-        if(colorInt === null) return "";
-        const backgroundColor = Color(colorInt).hsl().string();
-        return `
+    const backgroundStyle = computed(() => {
+      const colorInt = appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground;
+      if(colorInt === null) return "";
+      const backgroundColor = Color(colorInt).hsl().string();
+      return `
             background-color: ${backgroundColor};
         `;
-      });
+    });
 
-      const contentStyle = computed(() => {
-        const textColor = Color(appSettings.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
-        const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+    const contentStyle = computed(() => {
+      const textColor = Color(appSettings.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
+      const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
 
-        let style = `
+      let style = `
           max-width: ${config.marginSize.maxWidth}mm;
           margin-left: auto;
           margin-right: auto;
@@ -187,49 +187,47 @@ export default {
           --font-size: ${config.fontSize}px;
           --background-color: ${backgroundColor.hsl().string()};
           `;
-        if(config.marginSize.marginLeft || config.marginSize.marginRight) {
-          style += `
+      if(config.marginSize.marginLeft || config.marginSize.marginRight) {
+        style += `
             margin-left: ${config.marginSize.marginLeft}mm;
             margin-right: ${config.marginSize.marginRight}mm;
           `;
-        }
-        return style;
-      });
+      }
+      return style;
+    });
 
-      const modalStyle = computed(() => {
-        const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
-        return `
+    const modalStyle = computed(() => {
+      return `
           --bottom-offset: ${appSettings.bottomOffset}px;
-          --top-offset: ${calculatedConfig.value.topOffset}px;
+          --top-offset: ${appSettings.topOffset}px;
           --font-size:${config.fontSize}px;
-          --font-family:${config.fontFamily};
-          --background-color: ${backgroundColor.hsl().string()}`
-      });
+          --font-family:${config.fontFamily};`
+    });
 
-      const topStyle = computed(() => {
-        return `
+    const topStyle = computed(() => {
+      return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
           `;
-      });
+    });
 
-      setupEventBusListener(Events.BOOKMARK_CLICKED, () => {
-        verseMap.resetHighlights();
-      })
+    setupEventBusListener(Events.BOOKMARK_CLICKED, () => {
+      verseMap.resetHighlights();
+    })
 
-      function backClicked() {
-        emit(Events.CLOSE_MODALS)
-        verseMap.resetHighlights();
-      }
+    function backClicked() {
+      emit(Events.CLOSE_MODALS)
+      verseMap.resetHighlights();
+    }
 
-      return {
-        makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
-        updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
-        config, strings, documents, topElement, currentVerse, mounted, emit, Events,
-        contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings, backClicked,
-      };
-    },
-  }
+    return {
+      makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
+      updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
+      config, strings, documents, topElement, currentVerse, mounted, emit, Events,
+      contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings, backClicked,
+    };
+  },
+}
 </script>
 <style lang="scss" scoped>
 .background {
@@ -339,6 +337,7 @@ a {
 
 .modal-action-button {
   font-size: 120%;
+  line-height: 0.5em; // make sure this does not increase modal title height
   &.toggled {
     color: #d5d5d5;
   }

@@ -41,7 +41,7 @@ class AfterRemoveWebViewEvent
  */
 @MainBibleActivityScope
 class DocumentViewManager @Inject constructor(
-	private val mainBibleActivity: MainBibleActivity,
+	mainBibleActivity: MainBibleActivity,
 	private val windowControl: WindowControl
 ) {
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)

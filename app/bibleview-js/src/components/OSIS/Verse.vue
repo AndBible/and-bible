@@ -16,15 +16,15 @@
   -->
 
 <template>
-    <span
-        :id="`v-${ordinal}`"
-        class="verse ordinal"
-        :data-ordinal="ordinal"
-    >
-      <span class="highlight-transition" :class="{timeout, isHighlighted: !timeout && highlighted}">
-        <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/> <span/>
-      </span>
+  <span
+    :id="`v-${ordinal}`"
+    class="verse ordinal"
+    :data-ordinal="ordinal"
+  >
+    <span class="highlight-transition" :class="{timeout, isHighlighted: !timeout && highlighted}">
+      <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/> <span/>
     </span>
+  </span>
   <span :class="{linebreak: config.showVersePerLine}"/>
 </template>
 
@@ -98,8 +98,8 @@ export default {
     }
 
     if(originalOrdinalRange &&
-        ordinal.value <= originalOrdinalRange[1] &&
-        ordinal.value >= originalOrdinalRange[0])
+      ordinal.value <= originalOrdinalRange[1] &&
+      ordinal.value >= originalOrdinalRange[0])
       highlight()
 
     const common = useCommon();

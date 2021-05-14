@@ -25,6 +25,7 @@ import net.bible.android.control.PassageChangeMediator
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.service.common.CommonUtils
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.DocumentNotFound
@@ -165,7 +166,7 @@ abstract class CurrentPageBase protected constructor(
     override val currentDocument: Book?
         get() {
             if (_currentDocument == null) {
-                _currentDocument = getDefaultBook()
+                _currentDocument = FakeBookFactory.doesNotExist
             }
             return _currentDocument
         }
@@ -245,6 +246,7 @@ abstract class CurrentPageBase protected constructor(
         val document = entity.document
         Log.d(TAG, "State document:$document")
         val book = swordDocumentFacade.getDocumentByInitials(document)
+            ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
         if (book != null) {
             Log.d(TAG, "Restored document:" + book.name)
             // bypass setter to avoid automatic notifications
@@ -254,7 +256,7 @@ abstract class CurrentPageBase protected constructor(
                 try {
                     doSetKey(book.getKey(keyName))
                 } catch (e: NoSuchKeyException) {
-                    Log.e(TAG, "Key ${keyName} not found in book ${document}")
+                    Log.e(TAG, "Key $keyName not found in book $document")
                 }
             }
         }
