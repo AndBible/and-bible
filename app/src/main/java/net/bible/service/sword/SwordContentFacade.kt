@@ -84,7 +84,7 @@ open class SwordContentFacade @Inject constructor(
         book == null || key == null -> ""
         Books.installed().getBook(book.initials) == null -> {
             Log.w(TAG, "Book may have been uninstalled:$book")
-            throw OsisError(application.getString(R.string.document_not_installed, book.initials))
+            throw DocumentNotFound(application.getString(R.string.document_not_installed, book.initials))
         }
         !bookContainsAnyOf(book, key) -> {
             Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
