@@ -27,6 +27,7 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.io.IOException
+import java.util.*
 
 /** Create dummy sword Books used to download from Xiphos Repo that has unusual download file case
  *
@@ -59,12 +60,22 @@ object FakeBookFactory {
     private var _multiDocument: Book? = null
     private var _journalDocument: Book? = null
     private var _myNotesDocument: Book? = null
+    private var _doesNotExist: Book? = null
+
+    private var _doesNotExistBooks: MutableMap<String, Book> = TreeMap()
 
     val multiDocument: Book
         get() =
             _multiDocument ?: createFakeRepoSwordBook("Multi", MULTI_DUMMY_CONF, "").apply {
                 _multiDocument = this
             }
+
+    fun giveDoesNotExist(id: String): Book =
+            _doesNotExistBooks[id] ?: createFakeRepoSwordBook(id, doesNotExistConf(id), "").apply {
+                _doesNotExistBooks[id] = this
+            }
+
+    val doesNotExist: Book get() = giveDoesNotExist("DoesNotExist")
 
     val compareDocument: Book
         get() =
@@ -116,6 +127,16 @@ Category=Commentaries
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
 Versification=KJVA"""
+
+    private fun doesNotExistConf(id: String) = """[$id]
+Description=$id
+Abbreviation=$id
+Category=Commentaries
+Encoding=UTF-8
+LCSH=Bible--Commentaries.
+Versification=KJVA"""
+
+
 
     val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
 }

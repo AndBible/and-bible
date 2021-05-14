@@ -834,6 +834,7 @@
     <string name="text_maintainers">
        please report issues to text maintainers
     </string>
+    <string name="does_not_exist_abbreviation">Does Not Exist</string>
 
 
 </resources>

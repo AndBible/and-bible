@@ -25,6 +25,7 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils.getWholeChapter
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.sword.SwordBook
@@ -174,8 +175,8 @@ class CurrentBiblePage(
     fun restoreFrom(entity: WorkspaceEntities.BiblePage) {
         val document = entity.document
         Log.d(TAG, "State document:$document")
-        val book = swordDocumentFacade.getDocumentByInitials(document)?: swordDocumentFacade.bibles.first()
-        Log.d(TAG, "Restored document:" + book.name)
+        val book = swordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) FakeBookFactory.giveDoesNotExist(document) else null
+        Log.d(TAG, "Restored document:" + book?.name)
         // bypass setter to avoid automatic notifications
         localSetCurrentDocument(book)
         currentBibleVerse.restoreFrom(entity.verse)

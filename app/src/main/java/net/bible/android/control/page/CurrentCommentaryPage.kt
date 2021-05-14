@@ -157,7 +157,7 @@ open class CurrentCommentaryPage internal constructor(
         val document = entity.document
         val book = when(document) {
             FakeBookFactory.compareDocument.initials -> FakeBookFactory.compareDocument
-            else -> swordDocumentFacade.getDocumentByInitials(document)
+            else -> swordDocumentFacade.getDocumentByInitials(document) ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
         }
         if(book != null) {
             Log.d(TAG, "Restored document:" + book.name)
