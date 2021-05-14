@@ -292,7 +292,7 @@ open class WindowRepository @Inject constructor(
      */
     fun onEvent(appToBackgroundEvent: AppToBackgroundEvent) {
         if (appToBackgroundEvent.isMovedToBackground) {
-            saveIntoDb()
+            saveIntoDb(false)
         }
     }
 
@@ -311,9 +311,9 @@ open class WindowRepository @Inject constructor(
         return keyTitle.joinToString(", ")
     }
 
-    fun saveIntoDb() {
+    fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.d(TAG, "saveIntoDb")
-        mainBibleActivity.speakControl.stop()
+        if(stopSpeak) mainBibleActivity.speakControl.stop()
         windowBehaviorSettings.speakSettings = SpeakSettings.currentSettings
         dao.updateWorkspace(WorkspaceEntities.Workspace(
             name = name,
