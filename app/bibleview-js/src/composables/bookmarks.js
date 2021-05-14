@@ -453,7 +453,8 @@ export function useBookmarks(documentId,
         }
         for(const [lastOrdinal, bookmarkList] of bookmarkMap) {
             const lastElement = document.querySelector(`#doc-${documentId} #v-${lastOrdinal}`);
-            const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || bookmarkList[0].labels[0]);
+            const b = bookmarkList[0];
+            const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || b.labels[0]);
             const color = adjustedColor(bookmarkLabel.color).string();
             const iconElement = getIconElement(bookmarkIcon, color);
             iconElement.addEventListener("click", event => {
