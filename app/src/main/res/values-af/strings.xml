@@ -3,6 +3,7 @@
   <string name="app_name_short">Bybel Studie</string>
   <string name="app_name_medium">Bybel studie (And Bible)</string>
   <string name="app_name_long">Bybelstudie-toep,deur And Bible Oop bron projek</string>
+  <string name="project">And Bible Oop bron projek</string>
   <string name="version_text">Weergawe %s</string>
   <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
   <!--Main menu-->
@@ -326,8 +327,6 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="remove_bookmark">Verwyder</string>
   <string name="bookmark_settings_hide_labels_title">Versteek gespesifiseerde etikette</string>
   <string name="bookmark_settings_hide_labels_summary">Versteek boekmerke wat met gespesifiseerde etiket(e) gemerk is</string>
-  <string name="bookmark_settings_assign_labels_title">Ken etikette toe aan nuwe boekmerke</string>
-  <string name="bookmark_settings_assign_labels_summary">Ken etikette outomaties toe aan nuwe boekmerke</string>
   <string name="label_color">Etiketteer kleur</string>
   <string name="label_color_example">Voorbeeld</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -591,6 +590,13 @@ die opspring kieslys. Jy kan jou persoonlike notas by die nuwe boekmerk voeg deu
 Uitgeligte teks in die Bybel beskouing. Daar is ook \'n spesiale dokument \'My Notes\' in kommentare wat u toelaat
 Om u notas in \'n aparte venster te sien.</string>
   <string name="help_studypads_title">Bestudeer blokies</string>
+  <string name="help_studypads_text">
+         Studie blokkies is ontwerp om dit maklik te maak om preek notas te skryf, preke voor te berei of om net
+        persoonlike Bybel studie notas neer te skryf wat veelvuldige Bybel verwysings het. Elke studie blok word geassosieer met een boekmerk etieket.
+          Alle Boekmerke wat met daardie onderskeie etiket geskep is, verskyn outomaties in die studie blok dokument.
+            Benewens boekmerke, kan daar persoonlike teks in skrywings in \'n studie blok wees.
+       Wenk: Gebruik Werk ruimte kieslys -&gt; Alle Teks Opsies -&gt; Ken Etikette toe om alle geskepte outomaties toe te ken
+     boekmerke aan die studie blok.</string>
   <string name="help_search_title">Soek</string>
   <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
 (sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
@@ -610,14 +616,102 @@ Lang druk die vers plek se titel op die werkbalk om na die dokumente keurder te 
 Lang druk op die Terug knoppie om toegang tot die geskiedenis lys te kry.
  </string>
   <string name="help_window_pinning_title">Venster vaspen</string>
+  <string name="help_window_pinning_text">
+Jy  kan die venster vaspen vanaf die keuse lys (drie kolletjies, regste kant bo).
+As venster vasgespen ontsper is, kan jy baie vasgespende vensters in die bybel aansig toon,
+maar slegs een nie-vasgespende vester.  Vasgespende vensters, word eerste vertoon en daarna
+on-gespende vensters. Jy wil miskienbBybel dokumente oopmaak as vasgespelde vensters, en
+ kommentaar en kaarte, ens. as vensters wat nie vasgespeld is nie. Dan kan jy maklik
+bybel dokumente altyd oop laat wees, en wissel vinnig tussen kommentaar en
+ander ekstra materiaal as jy die bybel bestudeer.</string>
   <!--Welcome text-->
+  <string name="redownload_documents">Vinnige Herlaai</string>
+  <string name="welcome_message">Dankie vir die aflaai %s. Daar is tans geen Bybels of dokumente geïnstalleer nie. Om voort te gaan, installeer asseblief
+Ten minste 1 dokument deur van die internet af te laai, of deur \'n zip lêer dokument te laai
+Rugsteun.</string>
+  <string name="redownload_message">
+n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af te laai. </string>
   <!--Uncategorized-->
   <string name="close">Eindig</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Ek verstaan</string>
   <string name="first_time_help_show_next_time">Wys volgende keer weer</string>
+  <string name="strongs_mode_title">Kies strong modus</string>
+  <string name="download_dialog_message">Die volgende boeke kon nie afgelaai word nie:</string>
+  <string name="select_multiple">Kies veelvuldige</string>
+  <string name="journal_description">Gebruiker-redigeerbare studie blokkies met persoonlike teks en boekmerke</string>
+  <string name="my_notes_description">Gebruiker-redigeerbare notas verbonde aan boekmerke</string>
+  <string name="my_notes_abbreviation">My Notas</string>
+  <string name="studypads">Studie Blokkies</string>
+  <string name="multi_description">Veelvuldige verwysings</string>
+  <string name="multi_abbreviation">Veelvuldige</string>
+  <string name="compare_description">Vergelyk vertalings</string>
+  <string name="compare_abbreviation">Vergelyk</string>
+  <string name="http_forbidden">Verbode</string>
+  <string name="http_not_found">Nie gevind nie</string>
+  <string name="http_unknown">Ander fout</string>
+  <string name="compare">Vergelyk</string>
+  <string name="give_passphrase_for_module">Dokument %s is geïnkripteer en moet met wagfrase ontsluit wor</string>
+  <string name="unlocking_failed">Ontsluiting het misluk, ongeldige wagfrase</string>
+  <string name="unlock_module">Stel module wagfrase</string>
+  <string name="unlock_info">Geënkripteerde module ontsluitings inligting</string>
+  <string name="try_again_passphrase">Wagfrase het nie gewerk nie. Probeer weer?</string>
+  <string name="cant_delete_last_bible">Kan nie laaste Bybel dokument verwyder nie</string>
+  <string name="show_unlock_info">Module &amp; ontsluit inligting</string>
+  <string name="prefs_show_error_box_title">Wys Javascript fout vak</string>
+  <string name="prefs_show_error_box_summary">Nuttig vir ontwikkelaars wanneer BibleView javascript kantfoute ontfout word. Dit sal die toep stadiger maak.</string>
+  <string name="active_window_indicator_title">Wys aktiewe venste raanwyser</string>
+  <string name="active_window_indicator_summary">Merk vensterhoeke om te help herken watter venster aktief is</string>
+  <string name="app_licence_title">Maak bron lisensie oop</string>
+  <string name="how_to_contribute">Hoe om by te dra?</string>
+  <string name="confirm_delete_bookmarks">Wil jy %d boekmerke en hul notas  verwyder?</string>
+  <string name="confirm_delete_study_pads">Wil jy %d boekmerketikette / studieblokkies verwyder? Ook alle geassosieerde boekmerke en studiepadnotas sal verwyder word.</string>
+  <string name="toast_deletion_cancel">Ontdoen die verwydering deur op die kanselleer knoppie te druk.</string>
+  <string name="module_size_megabytes">%.1fMB</string>
+  <string name="tell_friend_title">Beveel dit aan vir \'n vriend</string>
+  <string name="tell_friend_message1">Ek wil graag %s vir jou aanbeveel.</string>
+  <string name="tell_friend_message2">Dit is \'n kragtige, maar maklik om te gebruik, vanlyn Bybelstudie aansoek vir Android.</string>
+  <string name="tell_friend_message3">Installeer dit by Google Play Winkel: %s</string>
+  <string name="tell_friend_message4">Lees meer &amp; meer installeer opsies: %s</string>
+  <string name="share_verse_ok">Deel / Kopieer</string>
+  <string name="share_verse_menu_title">Deel / Kopieer...</string>
+  <string name="show_versenumbers">Wys vers nommers</string>
+  <string name="show_full_verses">Wys volledige verse</string>
+  <string name="advertise_app">Adverteer  toep</string>
+  <string name="verse_share_advertise">Deel toep met %s.</string>
+  <string name="abbreviate_reference">Verkorte verwysing</string>
+  <string name="backup_button">Rugsteun</string>
+  <string name="back_button">Terug</string>
+  <string name="upgrading_database">Opgradering van databasis. Wag asseblief...</string>
+  <string name="initializing_app">Inisialiseer tans die program…</string>
+  <string name="show_notes">Wys notas</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Android WebView-pakket is te oud (%s). Jy moet jou Android WebView-pakket opgradeer na ten minste weergawe %som te gebruik %s. Vir die meeste toestelle kan dit via %s.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Gaan in elk geval voort</string>
+  <string name="rate_title">Gradering en hersiening van program</string>
+  <string name="rate_message5">
+Positiewe en gedetailleerde resensies help And Bible Open Source Project baie. Dankie!</string>
+  <string name="rate_message6">
+Voordat u negatiewe oorsig hersien, oorweeg asseblief die volgende</string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">Asseblief as jy \'n probleem met toep het, %sof %sEerder</string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+As een of ander teks / Bybelvertaling \'n probleem het, %s.</string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+Indien spesifieke teks nie in die toepassing beskikbaar is nie, %s</string>
+  <string name="rate_message4">
+Die ontwikkelaars van hierdie program is nie verantwoordelik vir die handhawing van dokumente nie.</string>
+  <string name="bug_report">
+Stuur \'n fout verslag (vanaf hooflys)</string>
+  <string name="how_to_help">
+lees asseblief wat jy kan doen om te help</string>
+  <string name="send_email">
+stuur e-pos aan ontwikkelaars</string>
+  <string name="proceed_google_play">
+Gaan voort na Google Play</string>
+  <string name="text_maintainers">
+rapporteer asseblief kwessies aan tekshandhaar</string>
 </resources>

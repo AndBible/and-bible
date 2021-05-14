@@ -311,8 +311,7 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="remove_bookmark">Poista</string>
   <string name="bookmark_settings_hide_labels_title">Piilota tietyt kirjanmerkkiryhmät</string>
   <string name="bookmark_settings_hide_labels_summary">Piilota kirjanmerkit jotka on merkitty määritellyillä kirjanmerkkiryhmillä</string>
-  <string name="bookmark_settings_assign_labels_title">Sijoita uudet kirjanmerkit kirjanmerkkiryhmiin</string>
-  <string name="bookmark_settings_assign_labels_summary">Sijoita uudet kirjanmerkit automaattisesti kirjanmerkkiryhmiin</string>
+  <string name="auto_assign_labels">Lisää automaattisesti kirjanmerkkiryhmät</string>
   <string name="label_color">Kirjanmerkkiryhmän väri</string>
   <string name="label_color_example">Esimerkki</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -661,4 +660,5 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="send_email">lähetä sähköpostia kehittäjille</string>
   <string name="proceed_google_play">Jatka Google Playhin</string>
   <string name="text_maintainers">raportoi virheistä tekstin ylläpitäjille</string>
+  <string name="does_not_exist_abbreviation">Ei löydy</string>
 </resources>

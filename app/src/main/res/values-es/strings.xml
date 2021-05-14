@@ -329,8 +329,6 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="remove_bookmark">Eliminar</string>
   <string name="bookmark_settings_hide_labels_title">Ocultar etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que se marcaron con la(s) etiqueta(s) especificada(s)</string>
-  <string name="bookmark_settings_assign_labels_title">Asignar etiquetas a los nuevos marcadores</string>
-  <string name="bookmark_settings_assign_labels_summary">Asignar etiquetas automáticamente a los nuevos marcadores</string>
   <string name="label_color">Color de etiqueta</string>
   <string name="label_color_example">Ejemplo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->

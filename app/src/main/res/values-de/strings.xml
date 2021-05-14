@@ -3,6 +3,7 @@
   <string name="app_name_short">Bibel+</string>
   <string name="app_name_medium">Bibel+ (And Bibel)</string>
   <string name="app_name_long">Bibel+, vom And Bibel Open Source Projekt</string>
+  <string name="project">And Bible Open Source Projekt</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Bitte setzen Sie eine SD-Karte ein und starten das Programm neu.</string>
   <!--Main menu-->
@@ -79,6 +80,8 @@
   <string name="prefs_toolbar_button_action_title">Aktion bei Antippen des Toolbar-Knopfes</string>
   <string name="prefs_toolbar_button_action_summary">Die Aktion, die bei Drücken bzw. Drücken und Halten des Toolbar-Knopfes in Bibel- oder Kommentardokumenten vorgenommen werden soll</string>
   <string name="prefs_toolbar_button_action_default">Antippen, um das Menü zu öffnen, Tippen und Halten für Dokumentauswahl (Standardaktion)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Antippen um das nächste Dokument zu öffnen, gedrückt halten um das Menü zu öffnen</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Antippen um das nächste Dokument zu öffnen, gedrückt halten um die Dokumentauswahl zu öffnen</string>
   <string name="prefs_night_mode_title">Nachtmodus an- und ausschalten</string>
   <string name="prefs_night_mode_summary">Wie der Nachtmodus eingeschaltet werden soll: Automatisch (soweit vom Gerät unterstützt), manuell oder wie in den Systemeinstellungen (ab Android 10).</string>
   <string name="prefs_night_mode_manual">Manuell</string>
@@ -103,6 +106,7 @@
   <string name="reversed_split_mode">Umgedrehter Fenstermodus</string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Bei aktiviertem Textvorlauf automatisch in den Vollbildmodus wechseln, Tipp: Man kann den Vollbildmodus auch durch Doppeltippen auf den Bildschirm aktivieren.</string>
   <string name="prefs_margin_size_title">Randgröße verändern</string>
   <string name="prefs_margin_size_mm_title">Randgröße (%d/%d/%d mm)</string>
@@ -123,17 +127,36 @@
   <string name="pref_maximum_width_of_text_label_mm">Maximale Textbreite (%d mm)</string>
   <string name="prefs_line_spacing_pt">Zeilenabstand %1.1fx</string>
   <string name="pref_font_family_label">Schriftart</string>
+  <string name="prefs_top_margin_title">Oberer Rand</string>
+  <string name="prefs_top_margin_summary">Füge einen Randbereich (mit sichtbarer Abgrenzung) am oberen Rand des Fensters für Bibeldokumente hinzu. Der Bibeltext wird nach unten verschoben, sodass der aktuelle Vers unterhalb des Randbereichs beginnt.</string>
   <string name="prefs_hyphenation_title">Silbentrennung</string>
   <string name="prefs_hyphenation_summary">Automatische Silbentrennung, wenn die Sprache unterstützt wird</string>
   <string name="prefs_line_spacing_pt_title">Zeilenabstand (%1.1fx)</string>
   <string name="line_spacing_title">Zeilenabstand</string>
   <string name="line_spacing_summary">Den Abstand zwischen Textzeilen einstellen</string>
   <string name="select_none">Nichts auswählen</string>
+  <string name="reset_are_you_sure">Bist du sicher, dass du alle diese Werte auf ihre Standardeinstellungen zurücksetzen möchtest?</string>
   <string name="window_pinning_menutitle">Fensterverankerung</string>
   <string name="hide_window_buttons_title">Fenstersymbole verbergen</string>
+  <string name="hide_window_buttons_summary">Die Fensterknöpfe auf der rechten Seite des Bibelfenster werden verborgen. Die Navigationsleiste am unteren Rand bleibt sichtbar, und du kannst die Fenster-Aufklappmenüs durch langes Drücken aktivieren.</string>
+  <string name="hide_bible_reference_overlay_title">Überlagerungen für Bibelreferenzen verbergen</string>
+  <string name="hide_bible_reference_overlay_summary">Die semitransparenten Überlagerungen mit Bibelverweisen ausblenden, wenn die App im Vollbildmodus ist</string>
   <string name="full_screen_hide_buttons_pref_title">Fensterschaltleiste im Vollbildmodus verbergen</string>
   <string name="full_screen_hide_buttons_pref_summary">Dadurch wird im Vollbildmodus automatisch die Fensterschaltleiste am unteren Bildschirmrand ausgeblendet</string>
+  <string name="prefs_dictionaries_cat">Wörterbücher</string>
+  <string name="choose_strongs_greek_dictionary_title">Strongs Wörterbuch Griechisch-Englisch</string>
+  <string name="choose_strongs_greek_dictionary_summary">Wähle das Wörterbuch für griechische Wortdefinitionen aus</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strongs Wörterbuch Hebräisch-Englisch</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Wähle das Wörterbuch für hebräische Wortdefinitionen aus</string>
+  <string name="choose_strongs_greek_morphology_title">Robinsons griechische Morphologie</string>
+  <string name="choose_strongs_greek_morphology_summary">Wähle das Lexikon für Robinsons griechische Morphologie</string>
+  <string name="prefs_top_margin_title_mm">Oberer Rand (%d mm)</string>
   <string name="font_size_title">Schriftgröße</string>
+  <string name="font_size_title_pt">Schriftgröße (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Die generelle Schriftgröße anpassen</string>
+  <string name="pref_font_family_label_name">Schriftart (%s)</string>
+  <string name="prefs_font_family_summary">Die Schriftart ändern. Tipp: weitere Schriftarten können über Dokumente herunterladen/Addons installieren</string>
+  <string name="prefs_text_bookmarks_title">Einstellungen für Lesezeichen &amp; eigene Notizen</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Farbeinstellungen</string>
   <string name="window_color_settings_title">Fensterfarben</string>
@@ -173,7 +196,10 @@
   <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
   <!--Module download-->
   <string name="download">Module herunterladen</string>
+  <string name="redownload">Dokumente neu herunterladen</string>
   <string name="download_confirmation">Soll eine Bibel aus dem Internet heruntergeladen werden?</string>
+  <string name="download_source_last_updated">letztes Update der Dokumentenliste: %s.</string>
+  <string name="download_refreshing_book_list">Auffrischen der Liste erhältlicher Dokumente von den Dokumentservern...</string>
   <string name="download_document_confirm_prefix">Download</string>
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
