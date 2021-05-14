@@ -19,9 +19,8 @@
   <Modal v-if="showBookmark && bookmark" @close="closeBookmark">
     <template #title-div>
       <div class="bookmark-title">
-        <div class="label-list-div">
+        <div>
           <LabelList handle-touch :bookmark-id="bookmark.id"/>
-          <LabelList favourites handle-touch :bookmark-id="bookmark.id"/>
         </div>
         <div class="title-text">
           {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 15)}}</i></q>

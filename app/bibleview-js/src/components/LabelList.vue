@@ -17,10 +17,7 @@
 
 <template>
   <AmbiguousSelection blocking ref="ambiguousSelection"/>
-  <div class="label-list"
-       :class="{favourites}"
-  >
-    <FontAwesomeIcon v-if="favourites" icon="heart"/>
+  <div class="label-list">
     <div
       @touchstart="labelClicked($event, label)"
       @click="labelClicked($event, label)"
@@ -29,7 +26,7 @@
       :style="labelStyle(label)"
       class="label"
     >
-      <span v-if="!favourites && isPrimary(label)" class="icon"><FontAwesomeIcon icon="bookmark"/></span>
+      <span v-if="isPrimary(label)" class="icon"><FontAwesomeIcon icon="bookmark"/></span>
       {{label.name}}
     </div>
   </div>
@@ -47,7 +44,6 @@ export default {
     bookmarkId: {type: Number, required: true},
     handleTouch: {type: Boolean, default: false},
     disableLinks: {type: Boolean, default: false},
-    favourites: {type: Boolean, default: false},
   },
   components: {FontAwesomeIcon},
   name: "LabelList",
@@ -55,13 +51,14 @@ export default {
     const {adjustedColor, strings, ...common} = useCommon();
     const ambiguousSelection = ref(null);
     const appSettings = inject("appSettings");
+    const android = inject("android");
 
     function labelStyle(label) {
       const color = adjustedColor(label.color).string();
-      if(props.favourites && !bookmark.value.labels.includes(label.id)) {
-        return `border-color: ${color};`;
-      } else {
+      if (bookmark.value.labels.includes(label.id)) {
         return `background-color: ${color};`;
+      } else {
+        return `border-color: ${color};`;
       }
     }
 
@@ -69,14 +66,10 @@ export default {
     const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
 
     const labels = computed(() => {
-      if(props.favourites) {
-        return appSettings.favouriteLabels.map(labelId => bookmarkLabels.get(labelId));
-      } else {
-        return bookmark.value.labels.map(labelId => bookmarkLabels.get(labelId));
-      }
+      const labels = bookmark.value.labels.slice();
+      const favs = appSettings.favouriteLabels.filter(l => !labels.includes(l))
+      return [...labels, ...favs].map(labelId => bookmarkLabels.get(labelId));
     });
-
-    const android = inject("android");
 
     function assignLabels() {
       if(bookmark.value) {
@@ -93,26 +86,24 @@ export default {
         return
       }
       event.stopPropagation();
-      if(props.favourites) {
-        android.toggleBookmarkLabel(bookmark.value.id, label.id);
+      if(!bookmark.value.labels.includes(label.id)) {
+        addEventFunction(event, () => {
+          android.toggleBookmarkLabel(bookmark.value.id, label.id);
+        }, {title: strings.addBookmarkLabel});
       } else {
-        if (bookmark.value.primaryLabelId !== label.id) {
-          android.setAsPrimaryLabel(bookmark.value.id, label.id);
-        } else {
-          addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
-          if (label.isRealLabel) {
+        if (label.isRealLabel) {
+          if (bookmark.value.primaryLabelId !== label.id) {
             addEventFunction(event, () => {
-              window.location.assign(`journal://?id=${label.id}`);
-            }, {title: strings.jumpToStudyPad});
-            if (bookmark.value.primaryLabelId !== label.id) {
-              addEventFunction(event, () => {
-                android.setAsPrimaryLabel(bookmark.value.id, label.id);
-              }, {title: strings.setAsPrimaryLabel});
-            }
+              android.setAsPrimaryLabel(bookmark.value.id, label.id);
+            }, {title: strings.setAsPrimaryLabel});
           }
-          ambiguousSelection.value.handle(event);
+          addEventFunction(event, () => {
+            android.toggleBookmarkLabel(bookmark.value.id, label.id);
+          }, {title: strings.removeBookmarkLabel});
         }
+        addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
       }
+      ambiguousSelection.value.handle(event);
     }
     function isPrimary(label) {
       return label.id === bookmark.value.primaryLabelId;
@@ -129,7 +120,7 @@ export default {
 }
 .label {
   $padding: 2px;
-  height: calc(12px + #{2*$padding});
+  height: calc(10px + #{2*$padding});
   padding-top: $padding;
   font-weight: normal;
   color: #e8e8e8;
@@ -138,21 +129,13 @@ export default {
   padding-left: 4pt;
   padding-right: 4pt;
   margin-right: 2pt;
-  .favourites & {
-    border-style: solid;
-    border-width: 2px;
-  }
+  border-width: 2px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0);
 }
 .label-list {
   line-height: 1em;
   display: inline-flex;
   flex-wrap: wrap;
-//  @extend .superscript;
-//  font-size: 100%;
-//  line-height: 1.1em;
-//  display: inline-flex;
-//  flex-direction: row;
-//  bottom: 30pt;
-//  padding: 2pt 2pt 0 0;
 }
 </style>

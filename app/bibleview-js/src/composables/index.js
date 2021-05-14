@@ -291,7 +291,6 @@ export function useCommon() {
 }
 
 export function useFontAwesome() {
-    library.add(faHeart)
     library.add(faShareAlt)
     library.add(faHeadphones)
     library.add(faEdit)

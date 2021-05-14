@@ -20,7 +20,7 @@ import {sortBy, uniqWith} from "lodash";
 import {
     addEventFunction,
     arrayEq,
-    colorLightness, difference,
+    colorLightness,
     findNodeAtOffsetWithNullOffset, intersection,
     mixColors,
     rangesOverlap
