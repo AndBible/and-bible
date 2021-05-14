@@ -199,7 +199,7 @@ export default {
     const modalStyle = computed(() => {
       return `
           --bottom-offset: ${appSettings.bottomOffset}px;
-          --top-offset: ${calculatedConfig.value.topOffset}px;
+          --top-offset: ${appSettings.topOffset}px;
           --font-size:${config.fontSize}px;
           --font-family:${config.fontFamily};`
     });
