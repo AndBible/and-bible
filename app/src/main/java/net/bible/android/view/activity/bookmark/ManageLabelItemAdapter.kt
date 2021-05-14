@@ -65,16 +65,20 @@ class ManageLabelItemAdapter(context: Context?,
         val isFavourite = manageLabels.favouriteLabels.contains(label.id)
         val isPrimary = manageLabels.primaryLabel == label.id
 
-        if(manageLabels.autoAssignMode) {
+        if(manageLabels.assignMode || manageLabels.autoAssignMode) {
             bindings.primaryIcon.visibility = if(checkbox.isChecked) View.VISIBLE else View.INVISIBLE
-            bindings.favouriteIcon.visibility = View.VISIBLE
             bindings.primaryIcon.setImageResource(if(isPrimary) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_border_24)
-            bindings.favouriteIcon.setImageResource(if(isFavourite) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24)
-
             bindings.primaryIcon.setOnClickListener {
                 manageLabels.primaryLabel = label.id
                 notifyDataSetChanged()
             }
+        } else {
+            bindings.primaryIcon.visibility = View.GONE
+        }
+
+        if(manageLabels.autoAssignMode) {
+            bindings.favouriteIcon.visibility = View.VISIBLE
+            bindings.favouriteIcon.setImageResource(if(isFavourite) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24)
 
             bindings.favouriteIcon.setOnClickListener {
                 if(isFavourite) {
@@ -86,7 +90,6 @@ class ManageLabelItemAdapter(context: Context?,
             }
 
         } else {
-            bindings.primaryIcon.visibility = View.GONE
             bindings.favouriteIcon.visibility = View.GONE
         }
         bookmarkStyleAdapterHelper.styleView(name, label, context, false, false)

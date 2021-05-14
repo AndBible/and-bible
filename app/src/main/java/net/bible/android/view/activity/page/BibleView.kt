@@ -262,11 +262,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }.toLongArray()
         val intent = Intent(mainBibleActivity, ManageLabels::class.java)
         intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
-        intent.putExtra("title", mainBibleActivity.getString(R.string.bookmark_settings_assign_labels_title))
+        intent.putExtra("title", mainBibleActivity.getString(R.string.assign_labels))
+        intent.putExtra("assignMode", true)
+        intent.putExtra(BookmarkControl.PRIMARY_LABEL_EXTRA, bookmark.primaryLabelId)
         val result = mainBibleActivity.awaitIntent(intent)
         val resultLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
         if(resultLabels != null) {
-            bookmarkControl.setLabelsByIdForBookmark(bookmark, resultLabels.toList())
+            val newPrimary = result.resultData?.extras?.getLong(BookmarkControl.PRIMARY_LABEL_EXTRA)
+            bookmark.primaryLabelId = if(newPrimary == 0L) null else newPrimary
+            bookmarkControl.addOrUpdateBookmark(bookmark, resultLabels.toList())
         }
     }
 
