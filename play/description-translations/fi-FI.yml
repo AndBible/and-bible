@@ -27,9 +27,7 @@ commentary_examples: "Gill, Matthew Henry jne. "
 cross_reference_examples: "Treasure of Scripture Knowledge, Quoting Passsages jne."
 feature_05: Edistynyt tekstin lukutoiminto ja puheen kirjanmerkit tekevät Raamatun kuuntelemisesta kätevää
 feature_06: Joustava hakutoiminto
-feature_07: Kirjanmerkit; kirjanmerkkiryhmät mukautettavilla väreillä
-feature_08: >
-  Omat muistiinpanot; voit lisätä omia muistiinpanoja ja huomioita mihin tahansa Raamatun jakeeseen
+feature_07: "Monipuoliset kirjanmerkkaus- ja korostusominaisuudet, mahdollisuudella omiin kommenttimerkintöihin"
 feature_09: >
   Lukusuunnitelmat: aseta tavoitteita Raamatun lukemiselle
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
@@ -43,6 +41,8 @@ feature_11: >-
 unavailable_documents: "ESV, NIV and NKJV"
 feature_12: >
   Offline: tarvitset internetyhteyttä vain dokumenttien lataamiseen.
+feature_13: >
+  Opintoalustat joihin voi kirjoittaa merkintöjä ja raamattuviitteitä saarnoja kuunnellessa.
 subtitle_3: Tehdään yhdessä paras Raamattusovellus!
 paragraph_3_1: >
   And Bible on yhteisöllinen avoimen lähdekoodin projekti. Käytännössä se tarkoittaa että rohkaisemme kaikkia, jolla on tarvittava osaaminen, antamaan panoksensa projektiin:

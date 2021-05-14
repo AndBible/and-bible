@@ -16,12 +16,12 @@ The application has many insightful, original features, that makes a complex and
  * Linked cross-references, footnotes, and documents; jump to cross-references and footnotes by simply tapping a link; perform in-depth study of the Scriptures by using hyperlinked commentaries (Gill, Matthew Henry etc.), cross-reference collections (Treasure of Scripture Knowledge, TSKe) and other resources.
  * Advanced text to speech with speak bookmarks, enabling a smooth Bible listening experience
  * Flexible searching
- * Bookmarks, with custom colored bookmark groups
- * Personal notes: add your own study notes to any verse of the Bible
+ * Advanced bookmarking & highlighting features with personal study notes
  * Reading plans: set goals for reading the Bible
  * Vast library of documents: Bible translations, theological commentaries, dictionaries, maps, and christian books, totaling over 1500 documents in over 700 languages, legally distributed by Crosswire and other SWORD repositories.
  * The provenance of all documents is researched to ensure that all documents can be legally distributed or that permission has been granted by the copyright holder. That is also the reason this app does not include documents like ESV, NIV and NKJV.
  * Offline: the only time you need internet is for downloading documents.
+ * Study Pads for adding notes and Bible references while listening to sermons.
 
 <b>Let’s make the best Bible app together!</b>
 

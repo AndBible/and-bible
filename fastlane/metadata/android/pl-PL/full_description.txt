@@ -17,11 +17,11 @@ Aplikacja wyróżnia się wieloma zmyślnymi, oryginalnymi cechami, które to u�
  * możliwość odczytu na głos z zakładkami, aby bez płynnie słuchać Biblii
  * elastyczne wyszukiwanie
  * zakładki i grupy zakładek z konfigurowalnymi kolorami
- * notatki osobiste: możliwość dodania własnych notatek do dowolnego wersetu Biblii
  * plany czytania: zdefiniuj własne cele czytania
  * obszerna biblioteka dokumentów: tłumaczenia, komentarze teologiczne, słowniki, mapy, książki chrześcijańskie, w sumie ponad 1500 dokumentów w 700 językach legalnie rozpowszechnianych przez CrossWire i inne repozytoria SWORD
  * pochodzenie wszystkich dokumentów zostało sprawdzone, aby upewnić się, że mogą one być rozpowszechnianie nie naruszając praw autorskich, z tego powodu aplikacja nie zawiera takich przekładów jak np. Biblia Warszawska
  * działa w pełni offline: połączenie internetowe jest potrzebne tylko do pobrania dokumentów
+ * 
 
 <b>Razem stwórzmy najlepszą apkę do czytania Biblii!</b>
 

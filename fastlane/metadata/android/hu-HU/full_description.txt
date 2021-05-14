@@ -18,11 +18,11 @@ Az app számos különleges funkcióval rendelkezik, amelyek az öszetett és al
  * Fejlett felolvasási képességek (a támogatott nyelveken), beszéd könyvjelzők, hogy tényleg akadálymentesen hallgathassa a Bibliát.
  * Rugalmas keresési lehetőségek
  * Könyvjelzők, színkóddal ellátható könyvjelzőcsoportok
- * Személyes jegyzetek hozzáfűzése bármelyik igeszakaszhoz
  * Olvasási tervek: olvassa a bibliát előre összeállított tervek szerint, és állítson be olvasási célokat
  * Modulkönyvtár: bibliafordítások, teológiai kommentárok, szótárak, térképek és keresztény irodalom, összesen 1500 mű, 700 nyelven,  jogtisztán letölthetően a Crosswire és egyéb SWORD modulkönyvtárakból.
  * Az összes modul eredete ellenőrzött, és terjesztésük a szerzői jogok tulajdonosainak hozzájárulásával történik. Ennek hiánya miatt az alkalmazásban nem elérhetőek többek közt az angol NIV és NKJV fordítások.
  * Offline: csak a bibliamodulok letöltésekor van szükség aktív internetkapcsolatra.
+ * 
 
 <b>Segítsen az alkalmazás jobbá tételében!</b>
 
