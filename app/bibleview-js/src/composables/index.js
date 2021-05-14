@@ -36,7 +36,7 @@ import {
     faEdit,
     faEllipsisH,
     faFileAlt,
-    faHeadphones, faHeart,
+    faHeadphones,
     faIndent,
     faInfoCircle,
     faOutdent,
