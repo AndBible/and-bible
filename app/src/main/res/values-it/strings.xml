@@ -77,7 +77,7 @@
   <string name="prefs_section_title_title">Titoli delle sezioni</string>
   <string name="prefs_red_letter_title">Lettera Rossa</string>
   <string name="prefs_tilt_to_scroll_title">Inclina per scorrere</string>
-  <string name="prefs_toolbar_button_action_title">Azione per il pulsante della barra degli strumenti</string>
+  <string name="prefs_toolbar_button_action_title">Azione del pulsante della barra strumenti</string>
   <string name="prefs_toolbar_button_action_summary">Azione quando si premono o si tengono premuti a lungo i pulsanti Bibbia o Commentario della barra strumenti</string>
   <string name="prefs_toolbar_button_action_default">Premi per aprire il menù, premi a lungo per i documenti (default)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Premi per aprire il documento successivo, premi a lungo per aprire il menù</string>
@@ -143,8 +143,8 @@ regolare la larghezza massima del testo.
   <string name="hide_window_buttons_summary">I pulsanti della finestra visualizzati sul lato destro delle viste della Bibbia sono nascosti. La barra di navigazione della finestra in basso è ancora visualizzata e puoi aprire il menu a comparsa della finestra facendo clic a lungo.</string>
   <string name="hide_bible_reference_overlay_title">Nascondi i riferimenti biblici in sovrimpressione</string>
   <string name="hide_bible_reference_overlay_summary">Non mostrare i riferimenti biblici semi-trasparenti in sovraimpressione quando l\'app è a schermo intero</string>
-  <string name="full_screen_hide_buttons_pref_title">Nascondi la barra dei pulsanti della finestra a schermo intero</string>
-  <string name="full_screen_hide_buttons_pref_summary">Quando si passa alla modalità a schermo intero, nascondere automaticamente la barra dei pulsanti della finestra che si trova nella parte inferiore dello schermo</string>
+  <string name="full_screen_hide_buttons_pref_title">Nascondi barra pulsanti a schermo intero</string>
+  <string name="full_screen_hide_buttons_pref_summary">Quando si passa alla modalità a schermo intero, nasconde automaticamente la barra dei pulsanti della finestra che si trova nella parte inferiore dello schermo</string>
   <string name="prefs_dictionaries_cat">Dizionari</string>
   <string name="choose_strongs_greek_dictionary_title">Dizionario greco di Strong</string>
   <string name="choose_strongs_greek_dictionary_summary">Scegli il dizionario Strong per le definizioni in greco</string>
@@ -158,7 +158,7 @@ regolare la larghezza massima del testo.
   <string name="prefs_font_text_size_summary">Cambia la dimensione del carattere principale</string>
   <string name="pref_font_family_label_name">Famiglia di carattere (%s)</string>
   <string name="prefs_font_family_summary">Cambia la famiglia del carattere. Suggerimento: altri caratteri possono essere installati da Download Documenti / Componenti aggiuntivi</string>
-  <string name="prefs_text_bookmarks_title">Impostazioni di Segnalibri &amp; Mie Note</string>
+  <string name="prefs_text_bookmarks_title">Impostazioni di Segnalibri &amp; Le mie note</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Impostazioni colore</string>
   <string name="window_color_settings_title">Impostazioni del colore della finestra</string>
@@ -272,18 +272,13 @@ http://www.heartlight.org, autorizzazione concessa
 </string>
   <string name="plan_name_y1ot1nt1_chronological">Cronologia 1 anno attraverso la Bibbia</string>
   <string name="plan_description_y1ot1nt1_chronological">
- Piano basato su eventi cronologici nella Bibbia.
- La cronologia è approssimativa.
-</string>
+Piano basato su eventi cronologici nella Bibbia. La cronologia è approssimativa.</string>
   <string name="plan_name_y1ot1nt1_OTandNT">1 anno AT+NT contemporaneamente</string>
   <string name="plan_description_y1ot1nt1_OTandNT">
-Leggi la Bibbia in 1 anno, con i capitoli
-in AT e NT ogni giorno.
-</string>
+Leggi la Bibbia in 1 anno, con capitoli dell\'AT e del NT, ogni giorno.</string>
   <string name="plan_name_y1ot1nt1_OTthenNT">1 anno attraverso la Bibbia</string>
   <string name="plan_description_y1ot1nt1_OTthenNT">
-Leggi la Bibbia in 1 anno, a partire dalla Genesi
-e finire all\'Apocalisse. L\'AT è prima, poi NT.</string>
+Leggi la Bibbia in 1 anno, a partire dalla Genesi fino all\'Apocalisse. L\'AT per primo, poi il NT.</string>
   <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 anno 4 capitoli/giorno</string>
   <string name="plan_description_y1ot1nt2_mcheyne">
 Questo piano si basa sul sistema di lettura M’Cheyne,
@@ -294,9 +289,7 @@ leggi l\'Antico Testamento una volta e il Nuovo Testamento e Salmi due volte.</s
   <string name="plan_description_y1ot6nt4_profHorner">Per gentile concessione del Prof. Horner, autorizzazione concessa</string>
   <string name="plan_name_y2ot1ntps2">2 anni tramite Bibbia, NT + PS due volte</string>
   <string name="plan_description_y2ot1ntps2">
-Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi.
-Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, autorizzazione concessa
-</string>
+Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, autorizzazione concessa</string>
   <!--Document context menu-->
   <string name="delete">Cancella</string>
   <string name="delete_index">Cancella l\'indice di ricerca</string>
@@ -314,8 +307,8 @@ Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, auto
   <string name="open_link_in_new_window">Apri il link in una nuova finestra</string>
   <string name="open_link_in_special_window">Apri il link in una finestra speciale</string>
   <!--Bookmarks-->
-  <string name="bookmarks_and_mynotes_title">Segnalibri &amp; Mie Note</string>
-  <string name="migrated_my_notes">Migrazione Mie Note</string>
+  <string name="bookmarks_and_mynotes_title">Segnalibri &amp; Le mie note</string>
+  <string name="migrated_my_notes">Migrazione Le mie note</string>
   <string name="bookmarks">Segnalibri</string>
   <string name="bookmark_added">Segnalibri aggiunti</string>
   <string name="manage_labels">Gestisci etichette</string>
@@ -328,6 +321,7 @@ Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, auto
   <string name="remove_bookmark">Rimuovi</string>
   <string name="bookmark_settings_hide_labels_title">Nascondi le etichette specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Nascondi i segnalibri che sono marcati con le etichette specificate</string>
+  <string name="auto_assign_labels">Assegna etichette segnalibri automaticamente</string>
   <string name="label_color">Colore dell\'etichetta</string>
   <string name="label_color_example">Esempio</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -453,16 +447,16 @@ quando queste impostazioni vengono salvate nei segnalibri corrispondenti.</strin
   <!--User Notes-->
   <string name="mynotes">I miei appunti</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Condividi, fai il Backup &amp; Ripristina i dati</string>
+  <string name="backup_and_restore">Condividi, Backup &amp; Ripristino dati</string>
   <string name="backup_modules">Condividi o esegui il backup dei documenti su...</string>
   <string name="backup_app_database">Condividi o esegui il backup della banca dati su...</string>
   <string name="backup_app">Condividi o esegui il backup dell\'app (file .apk) su...</string>
   <string name="restore_app_database">Ripristina la banca dati da...</string>
   <string name="restore_database">Ripristina il file della banca dati</string>
-  <string name="restore_confirmation">Sovrascrivere le Mie Note, i Segnalibri, gli Appunti di studio, i Piani di lettura e gli Spazi di lavoro?</string>
-  <string name="restore_success">Eseguito con successo il ripristino di Mie Note, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro</string>
+  <string name="restore_confirmation">Sovrascrivere Le mie note, i Segnalibri, gli Appunti di studio, i Piani di lettura e gli Spazi di lavoro?</string>
+  <string name="restore_success">Eseguito con successo il ripristino di Mie note, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro</string>
   <string name="loading_backup">Caricamento dalla banca dati dal backup ...</string>
-  <string name="backup_success2">Eseguita con successo copia di backup di Mie Note, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro.</string>
+  <string name="backup_success2">Eseguita con successo copia di backup di Mie note, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro.</string>
   <string name="backup_modules_success">Copia di backup dei moduli selezionati eseguita con successo.</string>
   <string name="backup_modules_email_subject_2">%s moduli salvati</string>
   <string name="backup_modules_email_message_2">In allegato è il backup dei moduli %s, che contiene i seguenti moduli: %s</string>
@@ -504,7 +498,7 @@ quando queste impostazioni vengono salvate nei segnalibri corrispondenti.</strin
   <string name="report_bug_heading_4">Informazioni sul dispositivo:</string>
   <!--Document types-->
   <string name="doc_type_all">Tutti i tipi</string>
-  <string name="doc_type_bible">La Bibbia</string>
+  <string name="doc_type_bible">Bibbia</string>
   <string name="doc_type_commentary">Commentario</string>
   <string name="doc_type_dictionary">Dizionario</string>
   <string name="doc_type_book">Libro</string>
@@ -562,19 +556,15 @@ quando queste impostazioni vengono salvate nei segnalibri corrispondenti.</strin
   <!--Beta notice-->
   <string name="beta_notice_title">Questa è la versione beta!</string>
   <string name="beta_notice_content_1">
-  Nella versione beta, ci sono nuove funzionalità che non sono ancora state testate correttamente,
-  e quindi l\'uso della beta potrebbe introdurre comportamenti imprevisti, ad esempio bug.
-  Si consiglia invece ai normali lettori biblici di utilizzare la versione stabile.
-</string>
+Nella versione beta, ci sono nuove funzionalità che non sono ancora state testate correttamente, e quindi l\'uso della beta potrebbe introdurre comportamenti imprevisti, ad esempio bug. Si consiglia ai normali lettori biblici di utilizzare la versione stabile.</string>
   <string name="beta_notice_content_2">
 Gli utenti beta sono incoraggiati a segnalare bug tramite Google Play o
  (preferibilmente) via %s.
 </string>
-  <string name="beta_notice_content_3">Se sei programmatore, prendi in considerazione la possibilità di contribuire con un bug
-correzioni tramite %s te stesso. :-)</string>
+  <string name="beta_notice_content_3">Se sei un programmatore, prendi in considerazione la possibilità di contribuire con dei bug fix tramite %s :-)</string>
   <string name="beta_notice_github_issues">Problemi Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Respinge</string>
+  <string name="beta_notice_dismiss">Chiudi</string>
   <string name="beta_notice_dismiss_until_update">Ignora fino al prossimo aggiornamento</string>
   <string name="stable_notice_title">L\'applicazione è stata aggiornata!</string>
   <string name="upgrade_video_message">Guarda il video esplicativo delle nuove caratteristiche di questa versione (%s).</string>
@@ -584,10 +574,8 @@ correzioni tramite %s te stesso. :-)</string>
   <!--Help-->
   <string name="help_nav_title">Navigazione</string>
   <string name="help_nav_text">Vai al capitolo successivo o precedente facendo scorrere lo schermo con un dito.
-   Tocca due volte il testo della Bibbia per attivare la modalità a schermo intero.
-   Le schermate divise (chiamate anche finestre) hanno il pulsante menu nell\'angolo in alto a destra,
-   che consente di utilizzare diverse funzioni specifiche della finestra e personalizzare le prospettive e il comportamento della finestra.
-</string>
+Tocca due volte il testo della Bibbia per attivare la modalità a schermo intero.
+Le schermate divise (chiamate anche finestre) hanno il pulsante menu nell\'angolo in alto a destra, che consente di utilizzare diverse funzioni specifiche della finestra e personalizzare le prospettive e il comportamento della finestra.</string>
   <string name="help_contextmenus_title">Menu contestuali</string>
   <string name="help_contextmenus_text">
 Premendo a lungo si apre il menu di scelta rapida o la modalità di azione in diverse viste.
@@ -595,21 +583,14 @@ Premi a lungo sulla vista della Bibbia per aprire la modalità di azione per le 
 Premere a lungo su un elemento del documento nella visualizzazione elenco di Scegli documento o Scarica per eliminare il documento o visualizzare le informazioni.
 Premere a lungo un segnalibro nell\'elenco dei segnalibri per aggiungere etichette o eliminare un segnalibro.
 Premere a lungo i collegamenti per scegliere se si desidera aprirli nella finestra corrente, in una nuova finestra o nella finestra dei collegamenti speciali.</string>
-  <string name="help_bookmarks_title">Segnalibri &amp; Mie Note</string>
-  <string name="help_bookmarks_text">I segnalibri possono essere creati selezionando del testo e scegliendo \"Segnalibro\" dal
-        menù popup. Puoi aggiungere note personali al nuovo segnalibro toccando il testo
-        ora evidenziato della Bibbia. C\'è anche un documento speciale \"Mie Note\" nei commentari che ti
-        consente di vedere le tue note in una finestra separata.
-    </string>
+  <string name="help_bookmarks_title">Segnalibri &amp; Le mie note</string>
+  <string name="help_bookmarks_text">I segnalibri possono essere creati selezionando del testo e scegliendo \"Segnalibro\" dal menù popup. Puoi aggiungere note personali al nuovo segnalibro toccando il testo ora evidenziato della Bibbia. C\'è anche un documento speciale \"Le mie note\" nei commentari che ti consente di vedere le tue note in una finestra separata.</string>
   <string name="help_studypads_title">Appunti di studio</string>
   <string name="help_studypads_text">
-        Gli Appunti di studio sono progettati per facilitare la scrittura di note per sermoni, per la preparazione di sermoni o anche solo
-        per scrivere note di studio personali che hanno numerosi riferimenti biblici. Ogni appunto di studio è associato a un\'etichetta di segnalibro.
-        Tutti i Segnalibri che sono stati creati con quella specifica etichetta appariranno automaticamente nel documento degli appunti di studio.
-        Oltre ai segnalibri, negli appunti di studio si possono inserire righe di testo personalizzate.
-        Suggerimento: Usa il menù Spazio di lavoro -&gt; Tutte le opzioni di testo -&gt; Assegna Etichette per assegnare automaticamente tutti i
-        segnalibri creati all\'appunto di studio.
-    </string>
+Gli Appunti di studio sono progettati per facilitare la scrittura di note per sermoni, per la preparazione di sermoni o anche solo per scrivere note di studio personali che hanno numerosi riferimenti biblici. Ogni appunto di studio è associato a un\'etichetta di segnalibro.
+Tutti i Segnalibri che sono stati creati con quella specifica etichetta appariranno automaticamente nel documento degli appunti di studio.
+Oltre ai segnalibri, negli appunti di studio si possono inserire righe di testo personalizzate.
+Suggerimento: Usa il menù Spazio di lavoro -&gt; Tutte le opzioni di testo -&gt; Assegna Etichette per assegnare automaticamente tutti i segnalibri creati all\'appunto di studio.</string>
   <string name="help_search_title">Ricerca</string>
   <string name="help_search_text">Il testo di ricerca può includere caratteri speciali come *,?, AND, OR, NOT
   (vedi \"Apache Lucene - Sintassi del parser di query\" per maggiori dettagli)
@@ -631,19 +612,11 @@ quello di scorrere verso il basso dalla barra degli strumenti. Puoi anche usare 
 </string>
   <string name="help_window_pinning_title">Fissa le finestre</string>
   <string name="help_window_pinning_text">
-        Puoi fissare le finestre dal menù opzioni (icona con tre punti, angolo in alto a destra).
-        Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella visualizzazione Bibbia,
-        ma solo una finestra non fissa. Le finestre fisse vengono mostrate per prime, e dopo
-        quelle non fisse. Potresti trovare utile aprire i documenti della Bibbia come finestre fisse, mentre
-        i commentari, mappe, ecc. come finestre non fisse. In questo modo puoi facilmente
-        avere i documenti biblici sempre aperti, e passare rapidamente ai commentari e ad altro materiale extra
-        durante lo studio della Bibbia.
-    </string>
+Puoi fissare le finestre dal menù opzioni (icona con tre punti, angolo in alto a destra).
+Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella visualizzazione Bibbia, ma solo una finestra non fissa. Le finestre fisse vengono mostrate per prime, e dopo quelle non fisse. Potresti trovare utile aprire i documenti della Bibbia come finestre fisse, mentre i commentari, mappe, ecc. come finestre non fisse. In questo modo puoi facilmente avere i documenti biblici sempre aperti, e passare rapidamente ai commentari e ad altro materiale extra durante lo studio della Bibbia.</string>
   <!--Welcome text-->
   <string name="redownload_documents">Riscarica rapidamente</string>
-  <string name="welcome_message">Grazie per aver scaricato %s. Al momento non hai Bibbie o documenti installati. Per continuare, per favore installa
-        almeno 1 documento scaricandolo da internet, oppure caricandolo da un backup
-        da un file zip.
+  <string name="welcome_message">Grazie per aver scaricato %s. Al momento non hai Bibbie o documenti installati. Per continuare, per favore installa almeno 1 documento scaricandolo da internet, oppure caricandolo da un backup da un file zip.
     </string>
   <string name="redownload_message">
         E\' stato trovato un elenco di libri/documenti precedenti. Clicca qui sotto per riscaricarli facilmente.
@@ -743,4 +716,5 @@ quello di scorrere verso il basso dalla barra degli strumenti. Puoi anche usare 
   <string name="text_maintainers">
        segnala i problemi a chi si occupa della manutenzione dei testi
     </string>
+  <string name="does_not_exist_abbreviation">Non esiste</string>
 </resources>

@@ -56,5 +56,5 @@ otherNoteText: Altra nota
 assignLabelsMenuEntry: Assegna etichette
 jumpToStudyPad: Salta agli Appunti di studio
 setAsPrimaryLabel: Imposta come etichetta principale
-removeBookmarkLabel: ""
-addBookmarkLabel: ""
+removeBookmarkLabel: Rimuovi etichetta dal segnalibro
+addBookmarkLabel: Aggiungi etichetta al segnalibro
