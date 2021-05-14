@@ -17,7 +17,10 @@
 
 <template>
   <AmbiguousSelection blocking ref="ambiguousSelection"/>
-  <div class="label-list">
+  <div class="label-list"
+       :class="{favourites}"
+  >
+    <FontAwesomeIcon v-if="favourites" icon="heart"/>
     <div
       @touchstart="labelClicked($event, label)"
       @click="labelClicked($event, label)"
@@ -26,7 +29,7 @@
       :style="labelStyle(label)"
       class="label"
     >
-      <span v-if="isPrimary(label)" class="icon"><FontAwesomeIcon icon="bookmark"/></span>
+      <span v-if="!favourites && isPrimary(label)" class="icon"><FontAwesomeIcon icon="bookmark"/></span>
       {{label.name}}
     </div>
   </div>
@@ -44,21 +47,33 @@ export default {
     bookmarkId: {type: Number, required: true},
     handleTouch: {type: Boolean, default: false},
     disableLinks: {type: Boolean, default: false},
+    favourites: {type: Boolean, default: false},
   },
   components: {FontAwesomeIcon},
   name: "LabelList",
   setup(props) {
     const {adjustedColor, strings, ...common} = useCommon();
     const ambiguousSelection = ref(null);
+    const appSettings = inject("appSettings");
+
     function labelStyle(label) {
-      return "background-color: " + adjustedColor(label.color).string() + ";";
+      const color = adjustedColor(label.color).string();
+      if(props.favourites && !bookmark.value.labels.includes(label.id)) {
+        return `border-color: ${color};`;
+      } else {
+        return `background-color: ${color};`;
+      }
     }
 
     const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
     const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
 
     const labels = computed(() => {
-      return bookmark.value.labels.map(labelId => bookmarkLabels.get(labelId));
+      if(props.favourites) {
+        return appSettings.favouriteLabels.map(labelId => bookmarkLabels.get(labelId));
+      } else {
+        return bookmark.value.labels.map(labelId => bookmarkLabels.get(labelId));
+      }
     });
 
     const android = inject("android");
@@ -78,18 +93,26 @@ export default {
         return
       }
       event.stopPropagation();
-      addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
-      if(label.isRealLabel) {
-        addEventFunction(event, () => {
-          window.location.assign(`journal://?id=${label.id}`);
-        }, {title: strings.jumpToStudyPad});
-        if(bookmark.value.primaryLabelId !== label.id) {
-          addEventFunction(event, () => {
-            android.setAsPrimaryLabel(bookmark.value.id, label.id);
-          }, {title: strings.setAsPrimaryLabel});
+      if(props.favourites) {
+        android.toggleBookmarkLabel(bookmark.value.id, label.id);
+      } else {
+        if (bookmark.value.primaryLabelId !== label.id) {
+          android.setAsPrimaryLabel(bookmark.value.id, label.id);
+        } else {
+          addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
+          if (label.isRealLabel) {
+            addEventFunction(event, () => {
+              window.location.assign(`journal://?id=${label.id}`);
+            }, {title: strings.jumpToStudyPad});
+            if (bookmark.value.primaryLabelId !== label.id) {
+              addEventFunction(event, () => {
+                android.setAsPrimaryLabel(bookmark.value.id, label.id);
+              }, {title: strings.setAsPrimaryLabel});
+            }
+          }
+          ambiguousSelection.value.handle(event);
         }
       }
-      ambiguousSelection.value.handle(event);
     }
     function isPrimary(label) {
       return label.id === bookmark.value.primaryLabelId;
@@ -115,6 +138,10 @@ export default {
   padding-left: 4pt;
   padding-right: 4pt;
   margin-right: 2pt;
+  .favourites & {
+    border-style: solid;
+    border-width: 2px;
+  }
 }
 .label-list {
   line-height: 1em;

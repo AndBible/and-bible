@@ -182,5 +182,18 @@ class BibleJavascriptInterface(
         bookmarkControl.setAsPrimaryLabel(bookmarkId, labelId)
     }
 
+    @JavascriptInterface
+    fun toggleBookmarkLabel(bookmarkId: Long, labelId: Long) {
+        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+        val labels = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
+        val foundLabel = labels.find { it.id == labelId }
+        if(foundLabel !== null) {
+            labels.remove(foundLabel)
+        } else {
+            labels.add(bookmarkControl.labelById(labelId)!!)
+        }
+        bookmarkControl.setLabelsForBookmark(bookmark, labels)
+    }
+
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

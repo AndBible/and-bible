@@ -260,11 +260,6 @@ export function useBookmarks(documentId,
 
         const styleRanges = [];
 
-        function filterLabels(labels) {
-            if(config.bookmarksHideLabels.length === 0) return labels;
-            return Array.from(difference(new Set(labels), new Set(config.bookmarksHideLabels)));
-        }
-
         for(let i = 0; i < splitPoints.length-1; i++) {
             const ordinalAndOffsetRange = [startPoint(splitPoints[i]), endPoint(splitPoints[i+1])];
             const labels = new Set();
@@ -274,13 +269,10 @@ export function useBookmarks(documentId,
                 .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange));
 
             filteredBookmarks.forEach(b => {
-                    // Show only first label color of each bookmark. Otherwise will be
-                    // confusing.
-                    filterLabels(b.labels).slice(0, 1).forEach(l => {
-                        labels.add(l);
-                        labelCount.set(l, (labelCount.get(l) || 0) + 1);
-                    })
-                });
+                const l = b.primaryLabelId || b.labels[0];
+                labels.add(l);
+                labelCount.set(l, (labelCount.get(l) || 0) + 1);
+            });
 
             const containedBookmarks = filteredBookmarks.map(b => b.id);
 
@@ -439,7 +431,7 @@ export function useBookmarks(documentId,
         }
         if(config.showMyNotes) {
             for (const b of bookmarks.filter(b => b.notes && arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
-                const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
+                const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || b.labels[0]);
                 const color = adjustedColor(bookmarkLabel.color).string();
                 const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
 
@@ -461,7 +453,7 @@ export function useBookmarks(documentId,
         }
         for(const [lastOrdinal, bookmarkList] of bookmarkMap) {
             const lastElement = document.querySelector(`#doc-${documentId} #v-${lastOrdinal}`);
-            const bookmarkLabel = bookmarkLabels.get(bookmarkList[0].labels[0]);
+            const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || bookmarkList[0].labels[0]);
             const color = adjustedColor(bookmarkLabel.color).string();
             const iconElement = getIconElement(bookmarkIcon, color);
             iconElement.addEventListener("click", event => {

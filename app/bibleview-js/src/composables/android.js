@@ -187,6 +187,10 @@ export function useAndroid({bookmarks}, config) {
         android.assignLabels(bookmarkId);
     }
 
+    function toggleBookmarkLabel(bookmarkId, labelId) {
+        android.toggleBookmarkLabel(bookmarkId, labelId);
+    }
+
     function setClientReady() {
         android.setClientReady();
     }
@@ -276,6 +280,7 @@ export function useAndroid({bookmarks}, config) {
         shareBookmarkVerse,
         openStudyPad,
         setAsPrimaryLabel,
+        toggleBookmarkLabel,
     }
 
     if(config.developmentMode) return {
