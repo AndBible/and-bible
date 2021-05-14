@@ -49,8 +49,13 @@ import {inject, onMounted} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import {Events, emit, setupEventBusListener} from "@/eventbus";
 import {ref} from "@vue/reactivity";
-import {draggableElement, isInViewport, setupWindowEventListener} from "@/utils";
+import {
+  draggableElement,
+  isInViewport,
+  setupWindowEventListener
+} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {throttle} from "lodash";
 
 export default {
   name: "Modal",
@@ -69,11 +74,11 @@ export default {
     }
 
     setupWindowEventListener("resize", resetPosition)
-    setupWindowEventListener("scroll", () => {
+    setupWindowEventListener("scroll", throttle(() => {
       if(!isInViewport(modal.value)) {
         resetPosition()
       }
-    })
+    }, 50));
 
     onMounted(async () => {
       resetPosition()

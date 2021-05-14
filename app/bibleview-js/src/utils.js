@@ -366,10 +366,8 @@ export function highlightVerseRange(selectorPrefix, [startOrdinal, endOrdinal], 
 export function isInViewport(el) {
     const rect = el.getBoundingClientRect();
     return (
-        rect.top >= -el.clientHeight &&
-        rect.left >= -el.clientWidth &&
-        rect.bottom - el.clientHeight <= (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right - el.clientWidth <= (window.innerWidth || document.documentElement.clientWidth)
+        rect.top <= window.innerHeight &&
+        rect.bottom >= 0
     );
 }
 export function adjustedColorOrig(color, ratio=0.2) {
