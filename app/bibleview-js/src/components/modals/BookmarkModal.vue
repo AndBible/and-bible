@@ -19,7 +19,7 @@
   <Modal v-if="showBookmark && bookmark" @close="closeBookmark">
     <template #title-div>
       <div class="bookmark-title">
-        <div class="label-list-div">
+        <div>
           <LabelList handle-touch :bookmark-id="bookmark.id"/>
         </div>
         <div class="title-text">

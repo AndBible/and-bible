@@ -61,6 +61,37 @@ class ManageLabelItemAdapter(context: Context?,
         if(manageLabels.studyPadMode) {
             bindings.labelIcon.setImageResource(R.drawable.ic_baseline_studypads_24)
         }
+
+        val isFavourite = manageLabels.favouriteLabels.contains(label.id)
+        val isPrimary = manageLabels.primaryLabel == label.id
+
+        if(manageLabels.assignMode || manageLabels.autoAssignMode) {
+            bindings.primaryIcon.visibility = if(checkbox.isChecked) View.VISIBLE else View.INVISIBLE
+            bindings.primaryIcon.setImageResource(if(isPrimary) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_border_24)
+            bindings.primaryIcon.setOnClickListener {
+                manageLabels.primaryLabel = label.id
+                notifyDataSetChanged()
+            }
+        } else {
+            bindings.primaryIcon.visibility = View.GONE
+        }
+
+        if(manageLabels.autoAssignMode) {
+            bindings.favouriteIcon.visibility = View.VISIBLE
+            bindings.favouriteIcon.setImageResource(if(isFavourite) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24)
+
+            bindings.favouriteIcon.setOnClickListener {
+                if(isFavourite) {
+                    manageLabels.favouriteLabels.remove(label.id)
+                } else {
+                    manageLabels.favouriteLabels.add(label.id)
+                }
+                notifyDataSetChanged()
+            }
+
+        } else {
+            bindings.favouriteIcon.visibility = View.GONE
+        }
         bookmarkStyleAdapterHelper.styleView(name, label, context, false, false)
         bindings.editLabel.setOnClickListener { manageLabels.editLabel(label) }
         bindings.deleteLabel.setOnClickListener { manageLabels.delete(label) }

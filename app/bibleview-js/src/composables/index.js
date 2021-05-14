@@ -36,7 +36,7 @@ import {
     faEdit,
     faEllipsisH,
     faFileAlt,
-    faHeadphones,
+    faHeadphones, faHeart,
     faIndent,
     faInfoCircle,
     faOutdent,
@@ -184,6 +184,7 @@ export function useConfig(documentType) {
         bottomOffset: 100,
         nightMode: false,
         errorBox: false,
+        favouriteLabels: [],
         activeWindow: false,
         rightToLeft: rtl
     });
@@ -215,7 +216,7 @@ export function useConfig(documentType) {
         appSettings.activeWindow = newActive;
     });
 
-    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {activeWindow, nightMode, errorBox: errorBoxVal}, initial = false} = {}) {
+    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {favouriteLabels, activeWindow, nightMode, errorBox: errorBoxVal}, initial = false} = {}) {
         const defer = new Deferred();
         if (!initial) emit(Events.CONFIG_CHANGED, defer)
         const oldValue = config.showBookmarks;
@@ -231,6 +232,8 @@ export function useConfig(documentType) {
         appSettings.nightMode = nightMode;
         appSettings.activeWindow = activeWindow;
         appSettings.errorBox = errorBoxVal;
+        appSettings.favouriteLabels.splice(0);
+        appSettings.favouriteLabels.push(...favouriteLabels);
         errorBox = errorBoxVal;
         if (c.showBookmarks === undefined) {
             // eslint-disable-next-line require-atomic-updates

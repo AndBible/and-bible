@@ -668,6 +668,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 intent.putExtra("settingsBundle", settingsBundle.toJson())
                 startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
             }, opensDialog = true)
+            R.id.autoAssignLabels -> AutoAssignPreference(windowRepository.windowBehaviorSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
             R.id.splitMode -> SplitModePreference()

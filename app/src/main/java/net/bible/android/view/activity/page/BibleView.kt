@@ -239,8 +239,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
         val textRange = BookmarkEntities.TextRange(selection.startOffset!!, selection.endOffset!!)
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
-        val initialLabels = displaySettings.bookmarksAssignLabels!!.toList()
-        bookmark.primaryLabelId = initialLabels.firstOrNull()
+        val initialLabels = windowBehaviorSettings.autoAssignLabels ?: emptyList()
+        bookmark.primaryLabelId = windowBehaviorSettings.autoAssignPrimaryLabel
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
     }
 
@@ -262,11 +262,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }.toLongArray()
         val intent = Intent(mainBibleActivity, ManageLabels::class.java)
         intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
-        intent.putExtra("title", mainBibleActivity.getString(R.string.bookmark_settings_assign_labels_title))
+        intent.putExtra("title", mainBibleActivity.getString(R.string.assign_labels))
+        intent.putExtra("assignMode", true)
+        intent.putExtra(BookmarkControl.PRIMARY_LABEL_EXTRA, bookmark.primaryLabelId)
         val result = mainBibleActivity.awaitIntent(intent)
         val resultLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
         if(resultLabels != null) {
-            bookmarkControl.setLabelsByIdForBookmark(bookmark, resultLabels.toList())
+            val newPrimary = result.resultData?.extras?.getLong(BookmarkControl.PRIMARY_LABEL_EXTRA)
+            bookmark.primaryLabelId = if(newPrimary == 0L) null else newPrimary
+            bookmarkControl.addOrUpdateBookmark(bookmark, resultLabels.toList())
         }
     }
 
@@ -823,6 +827,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
+    private val windowBehaviorSettings get() = windowControl.windowRepository.windowBehaviorSettings
 
     fun updateTextDisplaySettings(onAttach: Boolean = false) {
         Log.d(TAG, "updateTextDisplaySettings")
@@ -839,10 +844,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.sharedPreferences.getBoolean("show_errorbox", false) else false
 
     private fun getUpdateConfigCommand(initial: Boolean): String {
+        val favouriteLabels = json.encodeToString(serializer(), windowBehaviorSettings.favouriteLabels)
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
-                    appSettings: {activeWindow: $isActive, nightMode: $nightMode, errorBox: $showErrorBox}, 
+                    appSettings: {activeWindow: $isActive, nightMode: $nightMode, errorBox: $showErrorBox, favouriteLabels: $favouriteLabels}, 
                     initial: $initial
                     });
                 """.trimIndent()
