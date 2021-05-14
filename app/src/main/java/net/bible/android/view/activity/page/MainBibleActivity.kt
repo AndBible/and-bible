@@ -191,7 +191,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * return percentage scrolled down page
      */
     private val currentPosition: Float
-        get() = documentViewManager.documentView?.currentPosition ?: 0F
+        get() = documentViewManager.documentView.currentPosition
 
     /**
      * Called when the activity is first created.
@@ -647,6 +647,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var currentWorkspaceId
         get() = windowRepository.id
         set(value) {
+            bibleViewFactory.clear()
             windowRepository.loadFromDb(value)
 
             preferences.edit().putLong("current_workspace_id", windowRepository.id).apply()
@@ -1137,14 +1138,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onScreenTurnedOff() {
         super.onScreenTurnedOff()
-        documentViewManager.documentView?.onScreenTurnedOff()
+        documentViewManager.documentView.onScreenTurnedOff()
     }
 
     override fun onScreenTurnedOn() {
         super.onScreenTurnedOn()
         ScreenSettings.refreshNightMode()
         refreshIfNightModeChange()
-        documentViewManager.documentView?.onScreenTurnedOn()
+        documentViewManager.documentView.onScreenTurnedOn()
     }
 
     var currentNightMode: Boolean = false
@@ -1236,7 +1237,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                                 Log.d(TAG, "Restored database successfully")
                                 withContext(Dispatchers.Main) {
                                     bookmarkControl.reset()
-                                    documentViewManager.clearBibleViewFactory()
+                                    bibleViewFactory.clear()
                                     windowControl.windowSync.setResyncRequired()
                                     Dialogs.instance.showMsg(R.string.restore_success)
                                     currentWorkspaceId = 0
@@ -1450,7 +1451,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         super.onResume()
         isPaused = false
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
-        documentViewManager.documentView?.asView()?.requestFocus()
+        documentViewManager.documentView.asView().requestFocus()
     }
 
     /**
@@ -1478,7 +1479,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * user swiped right
      */
     operator fun next() {
-        if (documentViewManager.documentView!!.isPageNextOkay) {
+        if (documentViewManager.documentView.isPageNextOkay) {
             windowControl.activeWindowPageManager.currentPage.next()
         }
     }
@@ -1487,7 +1488,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * user swiped left
      */
     fun previous() {
-        if (documentViewManager.documentView!!.isPagePreviousOkay) {
+        if (documentViewManager.documentView.isPagePreviousOkay) {
             windowControl.activeWindowPageManager.currentPage.previous()
         }
     }

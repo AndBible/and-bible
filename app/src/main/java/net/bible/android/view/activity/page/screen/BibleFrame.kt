@@ -47,7 +47,7 @@ class BibleFrame(
 ): FrameLayout(allViews.context) {
     @Inject
     lateinit var windowControl: WindowControl
-    private val bibleViewFactory: BibleViewFactory = allViews.bibleViewFactory
+    private val bibleViewFactory: BibleViewFactory get() = mainBibleActivity.bibleViewFactory
 
     init {
         DaggerMainBibleActivityComponent.builder()

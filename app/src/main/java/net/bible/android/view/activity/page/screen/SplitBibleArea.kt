@@ -102,11 +102,9 @@ class LockableHorizontalScrollView(context: Context, attributeSet: AttributeSet)
 class RestoreButtonsVisibilityChanged
 
 @SuppressLint("ViewConstructor")
-class SplitBibleArea(
-): FrameLayout(mainBibleActivity) {
-
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var bibleViewFactory: BibleViewFactory
+class SplitBibleArea: FrameLayout(mainBibleActivity) {
+    private val windowControl: WindowControl get() = mainBibleActivity.windowControl
+    private val bibleViewFactory: BibleViewFactory get() = mainBibleActivity.bibleViewFactory
 
     private val res = BibleApplication.application.resources
 
@@ -138,12 +136,6 @@ class SplitBibleArea(
     )
 
     init {
-        DaggerMainBibleActivityComponent.builder()
-            .applicationComponent(BibleApplication.application.applicationComponent)
-            .mainBibleActivityModule(MainBibleActivityModule(mainBibleActivity))
-            .build()
-            .inject(this)
-
         binding.hideRestoreButton.setOnClickListener {
             restoreButtonsVisible = !restoreButtonsVisible
             updateRestoreButtons()
