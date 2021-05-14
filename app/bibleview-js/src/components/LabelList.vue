@@ -119,6 +119,7 @@ export default {
 .label-list {
   line-height: 1em;
   display: inline-flex;
+  flex-wrap: wrap;
 //  @extend .superscript;
 //  font-size: 100%;
 //  line-height: 1.1em;
