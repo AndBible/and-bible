@@ -25,6 +25,7 @@
       :key="label.id"
       :style="labelStyle(label)"
       class="label"
+      :class="{notAssigned: !isAssigned(label.id)}"
     >
       <span v-if="isPrimary(label)" class="icon"><FontAwesomeIcon icon="bookmark"/></span>
       {{label.name}}
@@ -36,8 +37,9 @@
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {computed, ref} from "@vue/reactivity";
-import {addEventFunction} from "@/utils";
+import {addEventFunction, Deferred} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {sortBy} from "lodash";
 
 export default {
   props: {
@@ -55,7 +57,7 @@ export default {
 
     function labelStyle(label) {
       const color = adjustedColor(label.color).string();
-      if (bookmark.value.labels.includes(label.id)) {
+      if (isAssigned(label.id)) {
         return `background-color: ${color};`;
       } else {
         return `border-color: ${color};`;
@@ -65,10 +67,15 @@ export default {
     const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
     const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
 
+    function isAssigned(labelId) {
+      return bookmark.value.labels.includes(labelId);
+    }
+
     const labels = computed(() => {
       const labels = bookmark.value.labels.slice();
       const favs = appSettings.favouriteLabels.filter(l => !labels.includes(l))
-      return [...labels, ...favs].map(labelId => bookmarkLabels.get(labelId));
+      const lbls = [...labels, ...favs].map(labelId => bookmarkLabels.get(labelId));
+      return sortBy(lbls, ["name"]);
     });
 
     function assignLabels() {
@@ -77,16 +84,32 @@ export default {
       }
     }
 
-    function labelClicked(event, label) {
+    let clickDeferred = null;
+
+    async function labelClicked(event, label) {
       if(props.disableLinks) return;
       if(event.type === "touchstart" && !props.handleTouch) {
         return;
       }
-      if(event.type === "click" && props.handleTouch) {
-        return
-      }
       event.stopPropagation();
-      if(!bookmark.value.labels.includes(label.id)) {
+
+      if(props.handleTouch) {
+        if(event.type === "click") {
+          if (clickDeferred) {
+            clickDeferred.resolve();
+            clickDeferred = null;
+          } else {
+            console.error("Deferred not found");
+          }
+          return
+        }
+        else if(event.type === "touchstart") {
+          clickDeferred = new Deferred();
+          await clickDeferred.wait();
+        }
+      }
+
+      if(!isAssigned(label.id)) {
         addEventFunction(event, () => {
           android.toggleBookmarkLabel(bookmark.value.id, label.id);
         }, {title: strings.addBookmarkLabel});
@@ -108,7 +131,7 @@ export default {
     function isPrimary(label) {
       return label.id === bookmark.value.primaryLabelId;
     }
-    return {labelStyle, assignLabels, ambiguousSelection, labelClicked, labels, isPrimary, ...common}
+    return {labelStyle, assignLabels, ambiguousSelection, labelClicked, labels, isPrimary, isAssigned, ...common}
   }
 }
 </script>
@@ -120,7 +143,7 @@ export default {
 }
 .label {
   $padding: 2px;
-  height: calc(10px + #{2*$padding});
+  height: calc(12px + #{2*$padding});
   padding-top: $padding;
   font-weight: normal;
   color: #e8e8e8;
@@ -131,6 +154,13 @@ export default {
   margin-right: 2pt;
   border-width: 2px;
   border-style: solid;
+  background-color: rgba(0, 0, 0, 0.2);
+  .night & {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  &.notAssigned {
+    border-style: dotted;
+  }
   border-color: rgba(0, 0, 0, 0);
 }
 .label-list {
