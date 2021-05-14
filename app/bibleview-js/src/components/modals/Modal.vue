@@ -51,7 +51,7 @@ import {Events, emit, setupEventBusListener} from "@/eventbus";
 import {ref} from "@vue/reactivity";
 import {
   draggableElement,
-  isInViewport,
+  isInViewport, setupDocumentEventListener,
   setupWindowEventListener
 } from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -79,6 +79,11 @@ export default {
         resetPosition()
       }
     }, 50));
+    setupDocumentEventListener("keyup", event => {
+      if(event.key === "Escape") {
+        $emit("close");
+      }
+    })
 
     onMounted(async () => {
       resetPosition()
