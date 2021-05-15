@@ -69,7 +69,6 @@ class DocumentViewManager @Inject constructor(
     fun removeView() {
         parent.removeAllViews()
         lastView = null
-        splitBibleArea = null
         ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
     }
 
