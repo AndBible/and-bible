@@ -647,7 +647,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var currentWorkspaceId
         get() = windowRepository.id
         set(value) {
-            documentViewManager.splitBibleArea?.removeAllViews()
+            documentViewManager.removeView()
             bibleViewFactory.clear()
             windowRepository.loadFromDb(value)
 
@@ -1091,7 +1091,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onDestroy() {
-        documentViewManager.splitBibleArea?.removeAllViews()
+        documentViewManager.removeView()
         bibleViewFactory.clear()
         super.onDestroy()
         beforeDestroy()
@@ -1239,7 +1239,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                                 Log.d(TAG, "Restored database successfully")
                                 withContext(Dispatchers.Main) {
                                     bookmarkControl.reset()
-                                    documentViewManager.splitBibleArea?.removeAllViews()
+                                    documentViewManager.removeView()
                                     bibleViewFactory.clear()
                                     windowControl.windowSync.setResyncRequired()
                                     Dialogs.instance.showMsg(R.string.restore_success)
