@@ -34,7 +34,7 @@ interface DocumentView {
     /** prevent swipe left if the user is scrolling the page left  */
     val isPagePreviousOkay: Boolean
 
-    val currentPosition: Float
+    val currentPosition: Int?
 
     // allow stop/start of autoscroll
     fun onScreenTurnedOn()

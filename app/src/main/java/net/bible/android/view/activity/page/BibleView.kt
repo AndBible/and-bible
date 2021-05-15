@@ -776,7 +776,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     suspend fun loadDocument(document: Document,
                              updateLocation: Boolean = false,
                              verse: Verse? = null,
-                             yOffsetRatio: Float? = null)
+                             yOffsetRatio: Int? = null)
     {
         val currentPage = window.pageManager.currentPage
         bookmarkLabels = bookmarkControl.allLabels
@@ -788,7 +788,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if (listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
                 initialVerse = KeyUtil.getVerse(window.pageManager.currentBibleVerse.verse)
             } else {
-                jumpToYOffsetRatio = currentPage.currentYOffsetRatio
+                jumpToYOffsetRatio = currentPage.anchorOrdinal
             }
         }
 
@@ -986,9 +986,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return handled
     }
 
-    override val currentPosition: Float get () {
+    override val currentPosition: Int? get () {
+        return null // TODO
         // see http://stackoverflow.com/questions/1086283/getting-document-position-in-a-webview
-        return scrollY.toFloat() / contentHeight.toFloat()
+        //return scrollY.toFloat() / contentHeight.toFloat()
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {

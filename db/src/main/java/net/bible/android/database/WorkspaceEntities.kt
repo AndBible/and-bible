@@ -43,7 +43,8 @@ class WorkspaceEntities {
     data class Page(
         val document: String?,
         val key: String?,
-        val currentYOffsetRatio: Float?
+        val anchorOrdinal: Int?,
+        val currentYOffsetRatio: Float? = null, // TODO: remove
     )
 
     data class Verse(
@@ -68,7 +69,8 @@ class WorkspaceEntities {
 
     data class CommentaryPage(
         val document: String?,
-        val currentYOffsetRatio: Float?
+        val anchorOrdinal: Int?,
+        val currentYOffsetRatio: Float? = null // TODO: remove
     )
 
     @Entity(
@@ -352,7 +354,8 @@ class WorkspaceEntities {
         val createdAt: Date,
         val document: String,
         val key: String,
-        val yOffsetRatio: Float?,
+        val anchorOrdinal: Int?,
+        val yOffsetRatio: Float? = null, // TODO: remove (deprecated)
 
         @PrimaryKey(autoGenerate = true) val id: Long = 0
     )

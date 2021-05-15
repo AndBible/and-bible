@@ -190,7 +190,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     /**
      * return percentage scrolled down page
      */
-    private val currentPosition: Float
+    private val currentPosition: Int?
         get() = documentViewManager.documentView.currentPosition
 
     /**
@@ -1432,7 +1432,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     fun onEvent(event: PreBeforeCurrentPageChangeEvent) {
         val currentPage = windowControl.activeWindowPageManager.currentPage
         // save current scroll position so history can return to correct place in document
-        currentPage.currentYOffsetRatio = currentPosition
+        currentPage.anchorOrdinal = currentPosition
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {

@@ -31,6 +31,7 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.MyNotesDocument
+import net.bible.android.control.page.OsisDocument
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
@@ -56,6 +57,8 @@ class BibleJavascriptInterface(
                     is MyNotesDocument -> KJVA
                     else -> throw RuntimeException("Unsupported doc")
                 })
+        } else if(doc is OsisDocument) {
+            currentPageManager.currentPage.anchorOrdinal = verseOrdinal
         }
     }
 
