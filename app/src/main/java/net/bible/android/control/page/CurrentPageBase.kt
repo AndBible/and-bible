@@ -166,7 +166,7 @@ abstract class CurrentPageBase protected constructor(
     override val currentDocument: Book?
         get() {
             if (_currentDocument == null) {
-                _currentDocument = FakeBookFactory.doesNotExist
+                _currentDocument = getDefaultBook()
             }
             return _currentDocument
         }
