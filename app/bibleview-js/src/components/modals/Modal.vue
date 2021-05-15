@@ -57,6 +57,7 @@ import {
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {throttle} from "lodash";
 
+
 export default {
   name: "Modal",
   emits: ["close"],
@@ -72,6 +73,9 @@ export default {
       modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + 10pt)`;
       modal.value.style.left = `calc((100% - 80%) / 2)`;
     }
+
+    const {register} = inject("modal");
+    register();
 
     setupWindowEventListener("resize", resetPosition)
     setupWindowEventListener("scroll", throttle(() => {

@@ -195,5 +195,10 @@ class BibleJavascriptInterface(
         bookmarkControl.setLabelsForBookmark(bookmark, labels)
     }
 
-	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
+    @JavascriptInterface
+    fun reportModalState(value: Boolean) {
+        bibleView.modalOpen = value
+    }
+
+    private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

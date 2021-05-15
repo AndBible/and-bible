@@ -259,6 +259,10 @@ export function useAndroid({bookmarks}, config) {
         android.setAsPrimaryLabel(bookmarkId, labelId);
     }
 
+    function reportModalState(value) {
+        android.reportModalState(value)
+    }
+
     const exposed = {
         setActionMode,
         reportInputFocus,
@@ -281,6 +285,7 @@ export function useAndroid({bookmarks}, config) {
         openStudyPad,
         setAsPrimaryLabel,
         toggleBookmarkLabel,
+        reportModalState,
     }
 
     if(config.developmentMode) return {

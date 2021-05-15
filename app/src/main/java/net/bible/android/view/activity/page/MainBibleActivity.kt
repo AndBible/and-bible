@@ -544,7 +544,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
             binding.drawerLayout.closeDrawers()
         } else {
-            if (!historyTraversal.goBack()) {
+            if (!documentViewManager.documentView.backButtonPressed() && !historyTraversal.goBack()) {
                 if(lastBackPressed == null || lastBackPressed < System.currentTimeMillis() - 1000) {
                     this.lastBackPressed = System.currentTimeMillis()
                     Toast.makeText(this, getString(R.string.one_more_back_press), Toast.LENGTH_SHORT).show()

@@ -28,6 +28,7 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.DocumentView
+import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import javax.inject.Inject
@@ -93,9 +94,9 @@ class DocumentViewManager @Inject constructor(
         ABEventBus.getDefault().post(WebViewsBuiltEvent())
     }
 
-    val documentView: DocumentView get() = getDocumentView(windowControl.activeWindow)
+    val documentView: BibleView get() = getDocumentView(windowControl.activeWindow)
 
-    private fun getDocumentView(window: Window): DocumentView {
+    private fun getDocumentView(window: Window): BibleView {
         // a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
         return mainBibleActivity.bibleViewFactory.getOrCreateBibleView(window)
     }

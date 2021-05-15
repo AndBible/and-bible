@@ -49,7 +49,7 @@ import {
   useConfig,
   useCustomCss,
   useCustomFeatures,
-  useFontAwesome,
+  useFontAwesome, useModal,
   useVerseMap,
   useVerseNotifier
 } from "@/composables";
@@ -93,6 +93,9 @@ export default {
     provide("scroll", scroll);
     const globalBookmarks = useGlobalBookmarks(config, documentType);
     const android = useAndroid(globalBookmarks, config);
+
+    const modal = useModal(android);
+    provide("modal", modal);
 
     const mounted = ref(false);
     onMounted(() => mounted.value = true)

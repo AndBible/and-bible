@@ -1319,6 +1319,20 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    var modalOpen = false
+
+    private fun closeModal() {
+        executeJavascriptOnUiThread("bibleView.emit('close_modals')")
+    }
+
+    fun backButtonPressed(): Boolean {
+        if(modalOpen) {
+            closeModal()
+            return true;
+        }
+        return false
+    }
+
     var onDestroy: (() -> Unit)? = null
 
     private val TAG get() = "BibleView[${windowRef.get()?.id}]"

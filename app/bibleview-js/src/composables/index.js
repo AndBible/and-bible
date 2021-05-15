@@ -20,6 +20,7 @@ import {
     inject,
     nextTick,
     onBeforeMount,
+    onMounted,
     onUnmounted,
     reactive,
     ref,
@@ -507,4 +508,23 @@ export function useAddonFonts() {
         if (!fontModuleNames) return
         reloadFonts(fontModuleNames.split(","));
     })
+}
+
+export function useModal(android) {
+    const modalCount = ref(0);
+    const modalOpen = computed(() => modalCount.value > 0);
+
+    function register() {
+        onMounted(() => {
+            modalCount.value++;
+        })
+
+        onUnmounted(() => {
+            modalCount.value--;
+        });
+    }
+
+    watch(modalOpen, v => android.reportModalState(v), {flush: "sync"})
+
+    return {register}
 }
