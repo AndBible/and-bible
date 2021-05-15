@@ -47,7 +47,7 @@ class DocumentViewManager @Inject constructor(
 ) {
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
     private var lastView: View? = null
-    private var splitBibleArea: SplitBibleArea? = null
+    var splitBibleArea: SplitBibleArea? = null
 
 	fun destroy() {
         ABEventBus.getDefault().unregister(this)

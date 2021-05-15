@@ -149,6 +149,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     private val windowRepository = windowControl.windowRepository
 
     fun destroy() {
+        removeAllViews()
         ABEventBus.getDefault().unregister(this)
         bibleViewFactory.clear()
     }
