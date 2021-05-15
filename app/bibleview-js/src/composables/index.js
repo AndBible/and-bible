@@ -364,11 +364,9 @@ export function useJournal(label) {
 export function useReferenceCollector() {
     const references = reactive([]);
     function collect(linkRef) {
-        console.log("PUSH" ,linkRef);
         references.push(linkRef);
     }
     function clear() {
-        console.error("CLEAR");
         references.splice(0);
     }
     return {references, collect, clear}
