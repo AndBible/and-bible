@@ -313,6 +313,7 @@ laŭ ilia permeso.</string>
   <string name="remove_bookmark">Forigi</string>
   <string name="bookmark_settings_hide_labels_title">Kaŝi elektitajn etikedojn</string>
   <string name="bookmark_settings_hide_labels_summary">Kaŝi legosignojn markitajn per specifa(j) etikedo(j)</string>
+  <string name="auto_assign_labels">Aŭtomate aldoni legosignajn etikedojn</string>
   <string name="label_color">Koloro de etikedo</string>
   <string name="label_color_example">Antaŭvido</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -534,7 +535,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <!--Beta notice-->
   <string name="beta_notice_title">Tio ĉi estas beta-versio!</string>
   <string name="beta_notice_content_1">
-En versio “beta” estas novajn eblaĵoj, kiuj ankoraŭ ne estis sufiĉe kontrolitaj, do dum uzi tiun ĉi version vi povas sperti neatenditan sintenon – eraroj. Estas konsilinde, por ke kutimaj legantoj de Biblio uzu la stabilan version.</string>
+En versio “beta” troviĝas novaj eblaĵoj, kiuj ankoraŭ ne estis sufiĉe kontrolitaj, do dum uzi tiun ĉi version vi povas sperti neatenditan sintenon – eraroj. Estas konsilinde, por ke kutimaj legantoj de Biblio uzu la stabilan version.</string>
   <string name="beta_notice_content_2">
 Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</string>
   <string name="beta_notice_content_3">Se vi estas programisto, bonvolu konsideri mem ripari erarojn per %s. :-)</string>
@@ -669,4 +670,5 @@ sendu retleteron al programistoj</string>
 Pluigi al vendejo Play</string>
   <string name="text_maintainers">
 raportu ĝin al prizorganto de modulo</string>
+  <string name="does_not_exist_abbreviation">Ne ekzistas</string>
 </resources>

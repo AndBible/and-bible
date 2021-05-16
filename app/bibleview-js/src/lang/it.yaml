@@ -1,4 +1,4 @@
-openMyNotes: Apri in Mie Note
+openMyNotes: Apri in Le mie note
 openStudyPad: Apri in Appunti di studio (%s)
 noteText: Note a piè di pagina (%s)
 crossReferenceText: Riferimenti incrociati
@@ -38,7 +38,7 @@ externalLink: Apri link esterno
 referenceLink: Apri link di riferimento
 openFootnote: Apri nota a piè di pagina
 openBookmark: Apri segnalibro (%s)
-noMyNotesTitle: Non esistono Mie Note per questo capitolo.
+noMyNotesTitle: Le mie note per questo capitolo sono vuote.
 noMyNotesDescription: >
   Inizia creando dei segnalibri in un documento della Bibbia. I segnalibri appariranno qui e potrai aggiungere le tue note personali.
 emptyStudyPad: >
@@ -49,7 +49,7 @@ removeStudyPadConfirmationTitle: "Eliminare voce degli appunti di studio?"
 dragHelp: Puoi trascinare e rilasciare gli elementi per riordinare gli appunti di studio
 saved: salvato
 openAll: Apri tutti i riferimenti
-editBookmarkPlaceholder: Tocca per modificare le Mie Note per questo segnalibro
+editBookmarkPlaceholder: Tocca per modificare Le mie note per questo segnalibro
 onlyLabel: Solo etichetta
 wholeBookmark: Intero segnalibro
 otherNoteText: Altra nota

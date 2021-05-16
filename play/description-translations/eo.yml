@@ -27,9 +27,7 @@ commentary_examples: nedisponeblaj en EO
 cross_reference_examples: nedisponeblaj en EO
 feature_05: teksto-al-parolo kun legosignoj por senbare aŭskulti Biblion
 feature_06: fleksebla serĉo
-feature_07: legosignoj kun propre koloreblaj grupoj da legosignoj
-feature_08: >
-  personaj notoj: aldonu viajn proprajn notojn al ĉiu verso
+feature_07: ampleksaj ebloj por krei legosignojn kaj emfazi tekston kun personaj notoj
 feature_09: >
   planoj de legado: difinu viajn celojn por legi Biblion
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
@@ -43,6 +41,8 @@ feature_11: >
 unavailable_documents: " "
 feature_12: >-
   funkcias malkonekte: interreta konekto estas bezonata nur por elŝuti dokumentojn
+feature_13: >-
+  “notblokoj” por aldoni notojn kaj referencojn dum aŭskulti predikojn
 subtitle_3: Ni kune faru la plej bonan apon por legi Biblion!
 paragraph_3_1: >-
   And Biblio estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun necesaj scipovoj) povas kaj estas instigata por kontribui al la projekto per:

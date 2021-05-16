@@ -10,7 +10,7 @@ Alcune note versioni della Bibbia (tra le tante disponibili) sono KJV, NASB, NET
 
 L'applicazione ha molte caratteristiche intuitive e originali, che rendono una complessa esperienza di studio della Bibbia più agevole che mai. Le caratteristiche più interessanti sono le seguenti:
 
- * Visualizzazioni del testo separate che permettono di confrontare le traduzioni e consultare i commentari
+ * Le finestre di testo separate permettono di confrontare le traduzioni e consultare i commentari
  * Le aree di lavoro consentono ambienti separati di studio biblico con impostazioni differenti
  * L'integrazione dei numeri Strong consente l'analisi delle parole in greco ed ebraico
  * Riferimenti incrociati, note a piè di pagina, e documenti collegati; passa ai riferimenti incrociati e alle note semplicemente toccando un collegamento; esegui uno studio approfondito delle Scritture usando i commentari collegati (Gill, Matthew Henry, ecc.), le raccolte di riferimenti incrociati (Treasure of Scripture Knowledge, TSKe) e altre risorse.

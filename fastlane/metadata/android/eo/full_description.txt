@@ -16,12 +16,12 @@ La aplikaĵo distingiĝas per pluraj sagaj, originalaj ebloj, kiuj plifaciligas 
  * entekstaj malfermeblaj ligiloj al internaj referencoj, piednotoj kaj dokumentoj; komentaroj (nedisponeblaj en EO), kolektoj de internaj referencoj (nedisponeblaj en EO) kaj aliaj tekstoj
  * teksto-al-parolo kun legosignoj por senbare aŭskulti Biblion
  * fleksebla serĉo
- * legosignoj kun propre koloreblaj grupoj da legosignoj
+ * ampleksaj ebloj por krei legosignojn kaj emfazi tekston kun personaj notoj
  * planoj de legado: difinu viajn celojn por legi Biblion
  * granda biblioteko de dokumentoj: tradukoj, teologiaj komentaroj, vortaroj, mapoj, kristanismaj libroj, pli ol 1500 dokumentoj en 700 lingvoj, laŭleĝe distribuataj de per CrossWire kaj per aliaj SWORD-deponejoj
  * deveno de ĉiuj dokumentoj estas kontrolita por certigi, ke ĉiuj dokumentoj povas esti laŭleĝe distribuataj aŭ ricevis permeson de kopirajt‑posedantoj 
  * funkcias malkonekte: interreta konekto estas bezonata nur por elŝuti dokumentojn
- * 
+ * “notblokoj” por aldoni notojn kaj referencojn dum aŭskulti predikojn
 
 <b>Ni kune faru la plej bonan apon por legi Biblion!</b>
 

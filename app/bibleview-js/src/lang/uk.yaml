@@ -1,0 +1,60 @@
+openMyNotes: Відкрити в Мої Примітки
+openStudyPad: Відкрити в Блокноті (%s)
+noteText: Виноски (%s)
+crossReferenceText: Перехресні посилання
+findAllOccurrences: Знайти всі випадки
+reportError: Повідомити про помилку
+errorTitle: Виникла помилка
+warningTitle: Увага
+normalTitle: Зверніть увагу
+footnoteTypeUndefined: Невизначений тип
+footnoteTypeStudy: Дослідження
+footnoteTypeExplanation: Пояснення
+footnoteTypeVariant: Варіант
+footnoteTypeAlternative: Альтернативний
+footnoteTypeTranslation: Переклад
+clearLog: Очистити журнал помилок
+editNote: Редагувати
+editNotePlaceholder: Відредагувати примітку для закладки
+editTextPlaceholder: "Торкніться, щоб редагувати текст"
+inputPlaceholder: Пишіть тут
+inputReference: Введіть біблійне посилання
+assignLabels: Мітки
+bookmarkAccurate: Закладка була створена в %s
+bookmarkInaccurate: "Закладка інформації про книгу не збереглась, вміст відображається в %s."
+defaultBook: Біблійний документ за замовчуванням
+ok: OK
+yes: Yes
+ambiguousSelection: "Яку дію ви хочете зробити?"
+cancel: Скасувати
+removeBookmarkConfirmationTitle: "Видалити закладку?"
+removeBookmarkConfirmation: "Ви впевнені, що хочете видалити цю закладку?"
+closeModal: Закрити
+createdAt: "Створено: %s"
+lastUpdatedOn: "Останнє оновлення: %s"
+strongsLink: Відкрити Стронга (%s)
+studyPadLink: Відкрити блокнот
+externalLink: Відкрити зовнішнє посилання
+referenceLink: Відкрити посилання
+openFootnote: Відкрити виноску
+openBookmark: Відкрити закладку (%s)
+noMyNotesTitle: У цьому розділі немає приміток.
+noMyNotesDescription: >
+  Почніть із створення закладок у біблійному документі. Потім тут з’являться закладки, до яких ви можете додати свої особисті примітки, нотатки.
+emptyStudyPad: >
+  Порожній блокнот. Почніть додавати до цього блокноту, створюючи тут текстові записи або закладки з мітками, яка відповідає цему блокноту.
+studyPadModalTitle: Редагувати запис у блокноті
+doYouWantToDeleteEntry: "Ви впевнені, що хочете видалити цей запис в блокноті?"
+removeStudyPadConfirmationTitle: "Видалити запис у блокноті?"
+dragHelp: "Ви можете перетягнути запис, щоб змінити порядок блокноту"
+saved: збережено
+openAll: Відкрити всі посилання
+editBookmarkPlaceholder: "Торкніться, щоб редагувати Мої примітки для цієї закладки"
+onlyLabel: Тільки мітку
+wholeBookmark: Всю закладку
+otherNoteText: Інша примітка
+assignLabelsMenuEntry: Призначити мітки
+jumpToStudyPad: Перейти до блокноту
+setAsPrimaryLabel: Встановити як основну мітку
+removeBookmarkLabel: Видалити мітку із закладки
+addBookmarkLabel: Додати мітку до закладки
