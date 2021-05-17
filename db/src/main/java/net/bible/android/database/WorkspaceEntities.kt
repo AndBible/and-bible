@@ -43,7 +43,7 @@ class WorkspaceEntities {
     data class Page(
         val document: String?,
         val key: String?,
-        val anchorOrdinal: Int?,
+        @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
         val currentYOffsetRatio: Float? = null, // TODO: remove
     )
 
@@ -69,7 +69,7 @@ class WorkspaceEntities {
 
     data class CommentaryPage(
         val document: String?,
-        val anchorOrdinal: Int?,
+        @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
         val currentYOffsetRatio: Float? = null // TODO: remove
     )
 
@@ -354,7 +354,7 @@ class WorkspaceEntities {
         val createdAt: Date,
         val document: String,
         val key: String,
-        val anchorOrdinal: Int?,
+        @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
         val yOffsetRatio: Float? = null, // TODO: remove (deprecated)
 
         @PrimaryKey(autoGenerate = true) val id: Long = 0

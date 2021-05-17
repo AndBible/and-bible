@@ -68,9 +68,8 @@ export default {
       let count = 0;
 
       function addAnchor(node, textNode) {
-        const anchor = xmlDoc.createElement("anchorSpan");
-        anchor.className = "ordinal";
-        anchor.setAttribute("data-ordinal", count++);
+        const anchor = xmlDoc.createElement("BibleViewAnchor");
+        anchor.setAttribute("ordinal", count++);
         anchor.appendChild(textNode)
         node.parentElement.insertBefore(anchor, node);
       }
@@ -85,9 +84,9 @@ export default {
       return xmlDoc.firstElementChild.outerHTML;
     }
 
-    let xml = addAnchors(osisFragment.xml);
+    let xml = osisFragment.xml
     xml = osisToTemplateString(xml)
-    xml = xml.replaceAll("OsisAnchorSpan", "span")
+    xml = addAnchors(xml);
     osisFragment.xml = xml;
     return {osisFragment};
   }
