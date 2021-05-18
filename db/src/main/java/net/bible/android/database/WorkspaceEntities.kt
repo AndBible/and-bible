@@ -44,7 +44,7 @@ class WorkspaceEntities {
         val document: String?,
         val key: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-        val currentYOffsetRatio: Float? = null, // TODO: remove
+        @ColumnInfo(name = "currentYOffsetRatio") val deprecatedCurrentYOffsetRatio: Float? = null, // TODO: remove
     )
 
     data class Verse(
@@ -70,7 +70,7 @@ class WorkspaceEntities {
     data class CommentaryPage(
         val document: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-        val currentYOffsetRatio: Float? = null // TODO: remove
+        @ColumnInfo(name = "currentYOffsetRatio") val deprecatedCurrentYOffsetRatio: Float? = null // TODO: remove
     )
 
     @Entity(
@@ -355,7 +355,7 @@ class WorkspaceEntities {
         val document: String,
         val key: String,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-        val yOffsetRatio: Float? = null, // TODO: remove (deprecated)
+        @ColumnInfo(name = "yOffsetRatio") val deprecatedYOffsetRatio: Float? = null, // TODO: remove (deprecated)
 
         @PrimaryKey(autoGenerate = true) val id: Long = 0
     )
