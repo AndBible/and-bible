@@ -157,10 +157,10 @@ constructor(private val windowControl: WindowControl) {
             }
 
             val key = currentPage.singleKey
-            val yOffsetRatio = currentPage.anchorOrdinal
+            val anchorOrdinal = currentPage.anchorOrdinal
             if(doc == null) return null
             historyItem =
-                if(key != null) KeyHistoryItem(doc, key, yOffsetRatio, windowControl.activeWindow)
+                if(key != null) KeyHistoryItem(doc, key, anchorOrdinal, windowControl.activeWindow)
                 else null
 
         } else if (currentActivity is AndBibleActivity) {

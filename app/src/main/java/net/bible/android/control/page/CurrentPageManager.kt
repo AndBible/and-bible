@@ -177,7 +177,7 @@ open class CurrentPageManager @Inject constructor(
     fun setCurrentDocumentAndKey(currentBook: Book?,
                                  key: Key,
                                  updateHistory: Boolean = true,
-                                 yOffsetRatio: Int? = null
+                                 anchorOrdinal: Int? = null
     ): CurrentPage? {
         PassageChangeMediator.getInstance().onBeforeCurrentPageChanged(updateHistory)
 
@@ -187,7 +187,7 @@ open class CurrentPageManager @Inject constructor(
                 nextPage.isInhibitChangeNotifications = true
                 nextPage.setCurrentDocument(currentBook)
                 nextPage.setKey(key)
-                nextPage.anchorOrdinal = yOffsetRatio
+                nextPage.anchorOrdinal = anchorOrdinal
                 currentPage = nextPage
             } finally {
                 nextPage.isInhibitChangeNotifications = false

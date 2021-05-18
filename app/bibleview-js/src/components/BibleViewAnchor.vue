@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span :data-ordinal="ordinal" class="ordinal"><slot/></span>
+  <span :id="`o-${ordinal}`" :data-ordinal="ordinal" class="ordinal"><slot/></span>
 </template>
 
 <script>

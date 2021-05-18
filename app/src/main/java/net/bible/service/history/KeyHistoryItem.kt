@@ -57,7 +57,7 @@ class KeyHistoryItem(
 	 * @see net.bible.service.history.HistoryItem#revertTo()
 	 */
     override fun revertTo() {
-        window.pageManager.setCurrentDocumentAndKey(document, key, yOffsetRatio=anchorOrdinal)
+        window.pageManager.setCurrentDocumentAndKey(document, key, anchorOrdinal=anchorOrdinal)
     }
 
     override fun toString(): String {

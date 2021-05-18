@@ -167,13 +167,13 @@ open class Window (
 
         Log.d(TAG, "Loading OSIS xml in background")
         var verse: Verse? = null
-        var yOffsetRatio: Int? = null
+        var anchorOrdinal: Int? = null
         val currentPage = pageManager.currentPage
 
         if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
             verse = pageManager.currentBibleVerse.verse
         } else {
-            yOffsetRatio = currentPage.anchorOrdinal
+            anchorOrdinal = currentPage.anchorOrdinal
         }
 
         displayedBook = currentPage.currentDocument
@@ -195,7 +195,7 @@ open class Window (
             if(notifyLocationChange) {
                 bibleView?.loadDocument(doc, updateLocation = true)
             } else {
-                bibleView?.loadDocument(doc, verse = verse, yOffsetRatio = yOffsetRatio)
+                bibleView?.loadDocument(doc, verse = verse, anchorOrdinal = anchorOrdinal)
             }
 
             if(notifyLocationChange)
