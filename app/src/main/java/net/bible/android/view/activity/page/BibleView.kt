@@ -987,12 +987,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return handled
     }
 
-    override val currentPosition: Int? get () {
-        return null // TODO
-        // see http://stackoverflow.com/questions/1086283/getting-document-position-in-a-webview
-        //return scrollY.toFloat() / contentHeight.toFloat()
-    }
-
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         //TODO allow DPAD_LEFT to always change page and navigation between links using dpad
         // placing BibleKeyHandler second means that DPAD left is unable to move to prev page if strongs refs are shown
