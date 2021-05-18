@@ -18,10 +18,8 @@
 
 package net.bible.android.control.page
 
-import android.content.Intent
 import android.util.Log
 
-import net.bible.android.SharedConstants
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.Window
@@ -179,7 +177,7 @@ open class CurrentPageManager @Inject constructor(
     fun setCurrentDocumentAndKey(currentBook: Book?,
                                  key: Key,
                                  updateHistory: Boolean = true,
-                                 yOffsetRatio: Float = SharedConstants.NO_VALUE.toFloat()
+                                 anchorOrdinal: Int? = null
     ): CurrentPage? {
         PassageChangeMediator.getInstance().onBeforeCurrentPageChanged(updateHistory)
 
@@ -189,7 +187,7 @@ open class CurrentPageManager @Inject constructor(
                 nextPage.isInhibitChangeNotifications = true
                 nextPage.setCurrentDocument(currentBook)
                 nextPage.setKey(key)
-                nextPage.currentYOffsetRatio = yOffsetRatio
+                nextPage.anchorOrdinal = anchorOrdinal
                 currentPage = nextPage
             } finally {
                 nextPage.isInhibitChangeNotifications = false

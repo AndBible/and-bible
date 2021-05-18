@@ -83,6 +83,6 @@ interface CurrentPage {
     val isSpeakable: Boolean
     val isSyncable: Boolean
     //screen offset as a percentage of total height of screen
-    var currentYOffsetRatio: Float
+    var anchorOrdinal: Int?
 
 }

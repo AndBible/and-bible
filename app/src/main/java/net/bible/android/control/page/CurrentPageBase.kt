@@ -26,8 +26,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
-import net.bible.service.sword.BookAndKey
-import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
@@ -57,28 +55,28 @@ abstract class CurrentPageBase protected constructor(
 
     /** how far down the page was the user - allows Back to go to correct line on non-Bible pages (Bibles use verse number for positioning)
      */
-    override var currentYOffsetRatio = 0f
+    override var anchorOrdinal: Int? = 0
         get() {
             try { // if key has changed then offsetRatio must be reset because user has changed page
-                if (key == null || key != keyWhenYOffsetRatioSet || currentDocument != docWhenYOffsetRatioSet) {
-                    field = 0f
+                if (key == null || key != keyWhenAnchorOrdinalSet || currentDocument != docWhenAnchorOrdinalSet) {
+                    field = 0
                 }
             } catch (e: Exception) {
                 // cope with occasional NPE thrown by above if statement
                 // just pretend we are at the top of the page if error occurs
-                field = 0f
+                field = 0
                 Log.w(TAG, "NPE getting currentYOffsetRatio")
             }
             return field
         }
         set(currentYOffsetRatio) {
             key ?: return
-            docWhenYOffsetRatioSet = currentDocument
-            keyWhenYOffsetRatioSet = key
+            docWhenAnchorOrdinalSet = currentDocument
+            keyWhenAnchorOrdinalSet = key
             field = currentYOffsetRatio
         }
-    private var keyWhenYOffsetRatioSet: Key? = null
-    private var docWhenYOffsetRatioSet: Book? = null
+    private var keyWhenAnchorOrdinalSet: Key? = null
+    private var docWhenAnchorOrdinalSet: Book? = null
 
     // all bibles and commentaries share the same key
     override var isShareKeyBetweenDocs: Boolean = false
@@ -237,7 +235,7 @@ abstract class CurrentPageBase protected constructor(
             return WorkspaceEntities.Page(
                 currentDocument?.initials,
                 key?.osisRef,
-                currentYOffsetRatio
+                anchorOrdinal
             )
         }
 
@@ -260,7 +258,7 @@ abstract class CurrentPageBase protected constructor(
                 }
             }
         }
-        currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
+        anchorOrdinal = entity.anchorOrdinal
     }
 
     /** can we enable the main menu Speak button

@@ -46,8 +46,9 @@ import Figure from "@/components/OSIS/Figure";
 import A from "@/components/OSIS/A";
 import Abbr from "@/components/OSIS/Abbr";
 import {osisToTemplateString} from "@/utils";
+import BibleViewAnchor from "@/components/BibleViewAnchor";
 
-const components = {
+const osisComponents = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,
   DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
   Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr
@@ -55,8 +56,8 @@ const components = {
 
 function prefixComponents() {
   const result = {}
-  for(const name in components) {
-    result["Osis" + name] = components[name]
+  for(const name in osisComponents) {
+    result["Osis" + name] = osisComponents[name]
   }
   return result;
 }
@@ -70,7 +71,7 @@ export default {
   render() {
     return h({
       template: this.convert ? osisToTemplateString(this.osisTemplate): this.osisTemplate,
-      components: prefixComponents(components),
+      components: {BibleViewAnchor, ...prefixComponents(osisComponents)},
     });
   },
 }

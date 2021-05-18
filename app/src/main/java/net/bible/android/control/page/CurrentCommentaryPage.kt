@@ -150,7 +150,7 @@ open class CurrentCommentaryPage internal constructor(
     override val isSearchable = true
 
     val entity get() =
-        WorkspaceEntities.CommentaryPage(currentDocument?.initials, currentYOffsetRatio)
+        WorkspaceEntities.CommentaryPage(currentDocument?.initials, anchorOrdinal)
 
     fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
         if(entity == null) return
@@ -166,7 +166,7 @@ open class CurrentCommentaryPage internal constructor(
             // It is already set correctly when CurrentBiblePage is restored.
             // Otherwise versification will be messed up!
             onlySetCurrentDocument(book)
-            currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
+            anchorOrdinal = entity.anchorOrdinal
         }
     }
 

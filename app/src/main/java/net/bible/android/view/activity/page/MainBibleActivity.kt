@@ -187,11 +187,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
     private var isPaused = false
-    /**
-     * return percentage scrolled down page
-     */
-    private val currentPosition: Float
-        get() = documentViewManager.documentView.currentPosition
 
     /**
      * Called when the activity is first created.
@@ -1424,15 +1419,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), SDCARD_READ_REQUEST)
             }
         }
-    }
-
-    /**
-     * allow current page to save any settings or data before being changed
-     */
-    fun onEvent(event: PreBeforeCurrentPageChangeEvent) {
-        val currentPage = windowControl.activeWindowPageManager.currentPage
-        // save current scroll position so history can return to correct place in document
-        currentPage.currentYOffsetRatio = currentPosition
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {

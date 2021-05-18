@@ -776,19 +776,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     suspend fun loadDocument(document: Document,
                              updateLocation: Boolean = false,
                              verse: Verse? = null,
-                             yOffsetRatio: Float? = null)
+                             anchorOrdinal: Int? = null)
     {
         val currentPage = window.pageManager.currentPage
         bookmarkLabels = bookmarkControl.allLabels
         initialVerse = verse
 
-        var jumpToYOffsetRatio = yOffsetRatio
+        initialAnchorOrdinal = anchorOrdinal
 
         if (lastUpdated == 0L || updateLocation) {
             if (listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
                 initialVerse = KeyUtil.getVerse(window.pageManager.currentBibleVerse.verse)
             } else {
-                jumpToYOffsetRatio = currentPage.currentYOffsetRatio
+                initialAnchorOrdinal = currentPage.anchorOrdinal
             }
         }
 
@@ -799,7 +799,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             addChapter(chapter)
         }
 
-        Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
+        Log.d(TAG, "Show $initialVerse, $initialAnchorOrdinal Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
         this.firstDocument = document
         synchronized(this) {
             latestDocumentStr = document.asJson
@@ -825,6 +825,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    private var initialAnchorOrdinal: Int? = null
     internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
     private val windowBehaviorSettings get() = windowControl.windowRepository.windowBehaviorSettings
@@ -888,7 +889,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             bibleView.emit("add_documents", $documentStr);
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
-                jumpToYOffsetRatio: null,
+                jumpToAnchor: ${initialAnchorOrdinal},
                 topOffset: $topOffset,
                 bottomOffset: $bottomOffset,
             });            
@@ -984,11 +985,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         pageTiltScroller.recalculateViewingPosition()
 
         return handled
-    }
-
-    override val currentPosition: Float get () {
-        // see http://stackoverflow.com/questions/1086283/getting-document-position-in-a-webview
-        return scrollY.toFloat() / contentHeight.toFloat()
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {

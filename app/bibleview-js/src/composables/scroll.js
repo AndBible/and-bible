@@ -125,23 +125,18 @@ export function useScroll(config, appSettings, calculatedConfig, {getVerses, res
         }
     }
 
-    async function setupContent({jumpToOrdinal = null, jumpToYOffsetRatio = null, topOffset, bottomOffset}  = {}) {
+    async function setupContent({jumpToOrdinal = null, jumpToAnchor = null, topOffset, bottomOffset}  = {}) {
         await documentPromise.value;
-        console.log(`setupContent`, jumpToOrdinal, jumpToYOffsetRatio, topOffset);
+        console.log(`setupContent`, jumpToOrdinal, jumpToAnchor, topOffset);
 
-        const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
-        setToolbarOffset(topOffset, bottomOffset, {immediate: true, doNotScroll: !doScroll});
+        setToolbarOffset(topOffset, bottomOffset, {immediate: true, doNotScroll: true});
 
         await nextTick(); // Do scrolling only after view has been settled (fonts etc)
 
         if (jumpToOrdinal != null) {
             scrollToId(`v-${jumpToOrdinal}`, {now: true, force: true});
-        } else if (doScroll) {
-            console.log("jumpToYOffsetRatio", jumpToYOffsetRatio);
-            const
-                contentHeight = document.documentElement.scrollHeight,
-                y = contentHeight * jumpToYOffsetRatio / window.devicePixelRatio;
-            doScrolling(y, 0)
+        } else if (jumpToAnchor !== null) {
+            scrollToId(`o-${jumpToAnchor}`, {now: true, force: true});
         } else {
             console.log("scrolling to beginning of document (now)");
             scrollToId(null, {now: true, force: true});

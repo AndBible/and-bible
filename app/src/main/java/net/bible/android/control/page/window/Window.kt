@@ -28,7 +28,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
@@ -37,7 +36,6 @@ import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.page.BibleViewFactory
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
@@ -169,13 +167,13 @@ open class Window (
 
         Log.d(TAG, "Loading OSIS xml in background")
         var verse: Verse? = null
-        var yOffsetRatio: Float? = null
+        var anchorOrdinal: Int? = null
         val currentPage = pageManager.currentPage
 
         if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
             verse = pageManager.currentBibleVerse.verse
         } else {
-            yOffsetRatio = currentPage.currentYOffsetRatio
+            anchorOrdinal = currentPage.anchorOrdinal
         }
 
         displayedBook = currentPage.currentDocument
@@ -197,7 +195,7 @@ open class Window (
             if(notifyLocationChange) {
                 bibleView?.loadDocument(doc, updateLocation = true)
             } else {
-                bibleView?.loadDocument(doc, verse = verse, yOffsetRatio = yOffsetRatio)
+                bibleView?.loadDocument(doc, verse = verse, anchorOrdinal = anchorOrdinal)
             }
 
             if(notifyLocationChange)
