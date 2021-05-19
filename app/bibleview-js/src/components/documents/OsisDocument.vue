@@ -69,7 +69,7 @@ export default {
 
       function addAnchor(node, textNode) {
         if(textNode.textContent.length > 1) {
-          const anchor = xmlDoc.createElement("BWA");
+          const anchor = xmlDoc.createElement("BWA"); // BibleViewAnchor.vue
           anchor.setAttribute("ordinal", count++);
           anchor.appendChild(textNode)
           node.parentElement.insertBefore(anchor, node);
