@@ -68,10 +68,14 @@ export default {
       let count = 0;
 
       function addAnchor(node, textNode) {
-        const anchor = xmlDoc.createElement("BibleViewAnchor");
-        anchor.setAttribute("ordinal", count++);
-        anchor.appendChild(textNode)
-        node.parentElement.insertBefore(anchor, node);
+        if(textNode.textContent.length > 1) {
+          const anchor = xmlDoc.createElement("BWA");
+          anchor.setAttribute("ordinal", count++);
+          anchor.appendChild(textNode)
+          node.parentElement.insertBefore(anchor, node);
+        } else {
+          node.parentElement.insertBefore(textNode, node);
+        }
       }
 
       for(const node of textNodes) {
@@ -85,6 +89,7 @@ export default {
     }
 
     let xml = osisFragment.xml
+    osisFragment.originalXml = xml;
     xml = osisToTemplateString(xml)
     xml = addAnchors(xml);
     osisFragment.xml = xml;

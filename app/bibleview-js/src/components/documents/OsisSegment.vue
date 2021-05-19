@@ -71,7 +71,7 @@ export default {
   render() {
     return h({
       template: this.convert ? osisToTemplateString(this.osisTemplate): this.osisTemplate,
-      components: {BibleViewAnchor, ...prefixComponents(osisComponents)},
+      components: {BWA: BibleViewAnchor, ...prefixComponents(osisComponents)},
     });
   },
 }
