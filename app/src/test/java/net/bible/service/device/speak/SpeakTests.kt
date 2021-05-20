@@ -542,7 +542,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     fun autoBookmarkOnPauseAddLabel() {
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange)
+        var dto = Bookmark(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
         var label = Label()
         label.name = "Another"
@@ -571,7 +571,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     fun autoBookmarkWhenThereIsDefaultBookmark1() {
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange)
+        var dto = Bookmark(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
 
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
@@ -607,7 +607,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     fun autoBookmarkWhenThereIsDefaultBookmark2() {
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange)
+        var dto = Bookmark(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
 
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse), notNullValue())
@@ -654,7 +654,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         val speakLabel = bookmarkControl.speakLabel
 
         val verseRange = VerseRange(book.versification, getVerse("Ps.14.2"))
-        var dto = Bookmark(verseRange)
+        var dto = Bookmark(verseRange, null, true, null)
         dto.playbackSettings = PlaybackSettings(bookmarkWasCreated = true)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
         bookmarkControl.setLabelsForBookmark(dto, mutableListOf(speakLabel))
@@ -746,7 +746,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmark = true)
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange)
+        var dto = Bookmark(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
         var label = Label()
         label.name = "Another"

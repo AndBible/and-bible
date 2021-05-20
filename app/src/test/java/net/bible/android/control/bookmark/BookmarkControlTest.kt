@@ -153,7 +153,7 @@ class BookmarkControlTest {
     @Test
     fun testVerseRange() {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 2), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 5))
-        val newBookmark = Bookmark(verseRange)
+        val newBookmark = Bookmark(verseRange, null, true, null)
         val newDto = bookmarkControl!!.addOrUpdateBookmark(newBookmark, null)
         Assert.assertThat(newDto.verseRange, IsEqual.equalTo(verseRange))
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(verseRange.start), IsEqual.equalTo(true))
@@ -162,7 +162,7 @@ class BookmarkControlTest {
     @Test
     fun testIsBookmarkForAnyVerseRangeWithSameStart() {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
-        val newBookmark = Bookmark(verseRange)
+        val newBookmark = Bookmark(verseRange, null, true, null)
         bookmarkControl!!.addOrUpdateBookmark(newBookmark, null)
         val startVerse = Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10)
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(startVerse), IsEqual.equalTo(true))
@@ -185,7 +185,7 @@ class BookmarkControlTest {
     @Throws(NoSuchVerseException::class)
     private fun addBookmark(verse: String?): Bookmark {
         val verseRange = VerseRangeFactory.fromString(KJV_VERSIFICATION, verse)
-        val bookmark = Bookmark(verseRange)
+        val bookmark = Bookmark(verseRange, null, true, null)
         return bookmarkControl!!.addOrUpdateBookmark(bookmark, null)
     }
 
