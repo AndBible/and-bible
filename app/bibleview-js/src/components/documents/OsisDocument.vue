@@ -36,7 +36,7 @@ const parser = new DOMParser();
 
 // https://stackoverflow.com/questions/49836558/split-string-at-space-after-certain-number-of-characters-in-javascript/49836804
 const splitRegex = /.{1,100}(\s|$)/g
-const spacesRegex = /\s+/
+const spacesRegex = /^\s+$/
 
 export default {
   name: "OsisDocument",
