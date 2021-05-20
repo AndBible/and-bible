@@ -163,16 +163,6 @@ class ManageLabels : ListActivityBase() {
         loadLabelList()
     }
 
-    fun setEnabled(label: BookmarkEntities.Label, enabled: Boolean) {
-        if (enabled) {
-            if(!selectMultiple) {
-                checkedLabels.clear()
-            }
-            checkedLabels.add(label.id)
-        } else checkedLabels.remove(label.id)
-        notifyDataSetChanged()
-    }
-
     private fun randomColor(): Int = Color.argb(255, nextInt(0, 255), nextInt(0, 255), nextInt(0, 255))
 
     fun onNewLabel(v: View?) {

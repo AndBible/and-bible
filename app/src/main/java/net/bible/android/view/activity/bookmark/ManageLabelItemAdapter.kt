@@ -27,6 +27,7 @@ import android.view.View
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsListItemBinding
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.displayName
 
 class ManageLabelItemAdapter(context: Context?,
@@ -35,6 +36,7 @@ class ManageLabelItemAdapter(context: Context?,
                              private val checkedLabels: MutableSet<Long>,
                              ) : ArrayAdapter<BookmarkEntities.Label?>(context!!, R.layout.manage_labels_list_item, items!!)
 {
+    private val workspaceSettings get() = MainBibleActivity.mainBibleActivity.windowRepository.windowBehaviorSettings
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
     private lateinit var bindings: ManageLabelsListItemBinding
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -47,13 +49,26 @@ class ManageLabelItemAdapter(context: Context?,
             ManageLabelsListItemBinding.bind(convertView)
         }        
 
-        val name = bindings.labelName
-        
-        name.text = label!!.displayName
+        bindings.labelName.text = label!!.displayName
         val checkbox = bindings.checkbox
         if(manageLabels.showCheckboxes) {
-            name.setOnClickListener { checkbox.isChecked = !checkbox.isChecked }
-            checkbox.setOnCheckedChangeListener { _, isChecked -> manageLabels.setEnabled(label, isChecked)}
+            checkbox.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    if(!manageLabels.selectMultiple) {
+                        checkedLabels.clear()
+                    }
+                    checkedLabels.add(label.id)
+                    if(manageLabels.primaryLabel == 0L) {
+                        manageLabels.primaryLabel = label.id
+                    }
+                } else {
+                    checkedLabels.remove(label.id)
+                    if(manageLabels.primaryLabel == label.id) {
+                        manageLabels.primaryLabel = checkedLabels.toList().firstOrNull() ?: 0L
+                    }
+                }
+                notifyDataSetChanged()
+            }
             checkbox.isChecked = checkedLabels.contains(label.id)
         } else {
             checkbox.visibility = View.GONE
@@ -76,35 +91,31 @@ class ManageLabelItemAdapter(context: Context?,
             bindings.primaryIcon.visibility = View.GONE
         }
 
-        if(manageLabels.autoAssignMode) {
-            bindings.favouriteIcon.visibility = View.VISIBLE
-            bindings.favouriteIcon.setImageResource(if(isFavourite) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24)
+        if(workspaceSettings.autoAssignLabels.contains(label.id)) {
+            bindings.labelIcon.setImageResource(R.drawable.ic_label_circle)
+        } else {
+            bindings.labelIcon.setImageResource(R.drawable.ic_label_24dp)
+        }
 
-            bindings.favouriteIcon.setOnClickListener {
-                if(isFavourite) {
-                    manageLabels.favouriteLabels.remove(label.id)
-                } else {
-                    manageLabels.favouriteLabels.add(label.id)
-                }
-                notifyDataSetChanged()
+        bindings.labelIcon.setOnClickListener {
+            if(workspaceSettings.autoAssignLabels.contains(label.id)) {
+                workspaceSettings.autoAssignLabels.remove(label.id)
+            } else {
+                workspaceSettings.autoAssignLabels.add(label.id)
             }
+            notifyDataSetChanged()
+        }
+
+
+        if(manageLabels.autoAssignMode) {
+            bindings.favouriteIcon.visibility = if(isFavourite) View.VISIBLE else View.GONE
 
         } else {
             bindings.favouriteIcon.visibility = View.GONE
         }
-        bookmarkStyleAdapterHelper.styleView(name, label, context, false, false)
-        bindings.editLabel.setOnClickListener { manageLabels.editLabel(label) }
-        bindings.deleteLabel.setOnClickListener { manageLabels.delete(label) }
-        bindings.editLabel.visibility = if(label.isSpeakLabel) View.INVISIBLE else View.VISIBLE
-        bindings.deleteLabel.visibility = if (label.isSpeakLabel || label.isUnlabeledLabel) View.INVISIBLE else View.VISIBLE
+        bookmarkStyleAdapterHelper.styleView(bindings.labelName, label, context, false, false)
+        bindings.root.setOnClickListener { manageLabels.editLabel(label) }
         bindings.labelIcon.setColorFilter(label.color)
-        if (nightMode) {
-            bindings.editLabel.setImageResource(R.drawable.ic_pen_24dp)
-            bindings.deleteLabel.setImageResource(R.drawable.ic_delete_24dp)
-        } else {
-            bindings.editLabel.setImageResource(R.drawable.ic_pen_24dp_black)
-            bindings.deleteLabel.setImageResource(R.drawable.ic_delete_24dp_black)
-        }
         return convertView?: bindings.root
     }
 

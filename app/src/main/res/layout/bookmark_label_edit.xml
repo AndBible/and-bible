@@ -151,42 +151,6 @@
 				style="@style/EditBookmarkLabelCategoryTitle"
 				/>
 
-
-			<TextView
-				android:id="@+id/assignToNewTitle"
-				style="@style/EditBookmarkLabelItemTitle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/highlight_entire_verse"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/thisWorkspaceTitle"
-				/>
-			<ImageView
-				android:id="@+id/assignToNewIcon"
-				android:layout_width="wrap_content"
-				android:layout_height="0dp"
-				app:tint="@color/grey_500"
-				android:src="@drawable/ic_label_circle"
-				app:layout_constraintStart_toEndOf="@id/assignToNewTitle"
-				app:layout_constraintTop_toTopOf="@id/assignToNewTitle"
-				app:layout_constraintBottom_toBottomOf="@id/assignToNewTitle"
-				/>
-			<Space
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				app:layout_constraintStart_toEndOf="@id/assignToNewIcon"
-				app:layout_constraintTop_toTopOf="@id/assignToNewIcon"
-				app:layout_constraintEnd_toStartOf="@id/assignToNewCheckBox"
-				/>
-			<androidx.appcompat.widget.AppCompatCheckBox
-				android:id="@+id/assignToNewCheckBox"
-				android:layout_width="wrap_content"
-				android:layout_height="0dp"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toTopOf="@id/assignToNewTitle"
-				app:layout_constraintBottom_toBottomOf="@id/assignToNewTitle"
-				/>
-
 			<TextView
 				android:id="@+id/favouriteLabelTitle"
 				style="@style/EditBookmarkLabelItemTitle"
@@ -194,7 +158,7 @@
 				android:layout_height="wrap_content"
 				android:text="@string/favourite_label"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/assignToNewTitle"
+				app:layout_constraintTop_toBottomOf="@id/thisWorkspaceTitle"
 				/>
 			<ImageView
 				android:id="@+id/favouriteLabelIcon"
@@ -236,6 +200,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="0dp"
 				app:tint="@color/grey_500"
+				android:src="@drawable/ic_label_circle"
 				app:layout_constraintStart_toEndOf="@id/autoAssignTitle"
 				app:layout_constraintTop_toTopOf="@id/autoAssignTitle"
 				app:layout_constraintBottom_toBottomOf="@id/autoAssignTitle"
