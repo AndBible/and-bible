@@ -93,7 +93,6 @@ import {computed, ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import AreYouSure from "@/components/modals/AreYouSure";
 import EditableText from "@/components/EditableText";
 import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
@@ -101,7 +100,7 @@ import BookmarkButtons from "@/components/BookmarkButtons";
 
 export default {
   name: "BookmarkModal",
-  components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure, BookmarkButtons},
+  components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, BookmarkButtons},
   setup() {
     const showBookmark = ref(false);
     const android = inject("android");
