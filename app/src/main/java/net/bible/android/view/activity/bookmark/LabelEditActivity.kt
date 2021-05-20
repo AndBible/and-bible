@@ -18,10 +18,15 @@
 package net.bible.android.view.activity.bookmark
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarkLabelEditBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -30,6 +35,8 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.displayName
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 @ActivityScope
 class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
@@ -54,9 +61,17 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         setContentView(binding.root)
         buildActivityComponent().inject(this)
         val labelId = intent.getLongExtra("labelId", 0)
-        label = if(labelId > 0) bookmarkControl.labelById(labelId)!! else BookmarkEntities.Label()
+        val bookmarkId = intent.getLongExtra("bookmarkId", 0)
+        val isAssigning = bookmarkId != 0L
+        val isNewLabel = labelId == 0L
+
+        label = if(!isNewLabel) bookmarkControl.labelById(labelId)!! else BookmarkEntities.Label()
 
         binding.apply {
+            if(!isAssigning) {
+                thisBookmarkCategory.visibility = View.GONE
+            }
+
             if (label.isUnlabeledLabel) {
                 labelName.isEnabled = false
             }
@@ -67,7 +82,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                     .setColor(label.color)
                     .show(this@LabelEditActivity)
             }
-            val isNewLabel = label.id == 0L
             favouriteLabelCheckBox.isChecked = workspaceSettings.favouriteLabels.contains(label.id)
             autoAssignCheckBox.isChecked = workspaceSettings.autoAssignLabels.contains(label.id)
             primaryAutoAssignCheckBox.isChecked = workspaceSettings.autoAssignPrimaryLabel == label.id
@@ -103,8 +117,21 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                 finish()
             }
             removeButton.setOnClickListener {
-                setResult(RESULT_REMOVE)
-                finish()
+                GlobalScope.launch(Dispatchers.Main) {
+                    val result = suspendCoroutine<Boolean> {
+                        AlertDialog.Builder(this@LabelEditActivity)
+                            .setMessage(getString(R.string.delete_label_confirmation, label.name))
+                            .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
+                            .setNegativeButton(R.string.no) {_, _ -> it.resume(false)}
+                            .setCancelable(true)
+                            .create().show()
+                    }
+                    if(result) {
+                        bookmarkControl.deleteLabel(label)
+                        setResult(RESULT_REMOVE)
+                        finish()
+                    }
+                }
             }
         }
     }

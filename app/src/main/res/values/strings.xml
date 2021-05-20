@@ -846,4 +846,5 @@
     <string name="highlight_entire_verse">Highlight entire verse</string>
     <string name="favourite_label">Favourite label</string>
     <string name="edit_label">Edit bookmark label</string>
+    <string name="delete_label_confirmation">Do you want to remove the label %s?</string>
 </resources>
