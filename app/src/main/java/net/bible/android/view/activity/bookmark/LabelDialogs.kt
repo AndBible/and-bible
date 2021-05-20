@@ -19,13 +19,16 @@ package net.bible.android.view.activity.bookmark
 
 import android.app.AlertDialog
 import android.content.Context
+import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.jaredrummler.android.colorpicker.ColorPickerView
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.BookmarkLabelEditBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Callback
@@ -37,6 +40,26 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+class LabelEditWidget(context: Context, attributeSet: AttributeSet?, label: BookmarkEntities.Label): LinearLayout(context, attributeSet) {
+    private val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    val bindings = BookmarkLabelEditBinding.inflate(inflater, this, true)
+    init {
+        bindings.apply {
+            if (label.isUnlabeledLabel) {
+                labelName.isEnabled = false
+            }
+            labelName.setText(label.displayName)
+            colorPicker.color = label.color
+            labelColorExample.setBackgroundColor(label.color)
+            colorPicker.setOnColorChangedListener {
+                labelColorExample.setBackgroundColor(it)
+            }
+        }
+    }
+}
+
+
 class LabelDialogs @Inject constructor(private val bookmarkControl: BookmarkControl) {
     fun createLabel(context: Context, label: BookmarkEntities.Label, onCreateCallback: Callback) {
         showDialog(context, R.string.new_label, label, onCreateCallback)
@@ -48,34 +71,23 @@ class LabelDialogs @Inject constructor(private val bookmarkControl: BookmarkCont
 
     private fun showDialog(context: Context, titleId: Int, label: BookmarkEntities.Label, onCreateCallback: Callback) {
         Log.i(TAG, "Edit label clicked")
-        val inflater = LayoutInflater.from(context)
-        val view = inflater.inflate(R.layout.bookmark_label_edit, null)
-        val labelName = view.findViewById<View>(R.id.labelName) as EditText
-        if(label.isUnlabeledLabel) {
-            labelName.isEnabled = false
-        }
-        val colorExample = view.findViewById<View>(R.id.labelColorExample) as TextView
-        labelName.setText(label.displayName)
-        val color = view.findViewById<View>(R.id.colorPicker) as ColorPickerView
-        color.color = label.color
-        colorExample.setBackgroundColor(label.color)
-        color.setOnColorChangedListener {
-            colorExample.setBackgroundColor(it)
-        }
+        val view = LabelEditWidget(context, null, label)
+
         AlertDialog.Builder(context)
             .setTitle(titleId)
             .setView(view)
             .setPositiveButton(R.string.okay) { _, _ ->
                 if(!label.isUnlabeledLabel) {
-                    val name = labelName.text.toString()
+                    val name = view.bindings.labelName.text.toString()
                     label.name = name
                 }
                 // let's remove alpha
-                label.color = color.color or (255 shl 24)
+                label.color = view.bindings.colorPicker.color or (255 shl 24)
                 bookmarkControl.insertOrUpdateLabel(label)
                 onCreateCallback.okay()
             }
             .setNegativeButton(R.string.cancel, null)
+            .create()
             .show()
     }
 
