@@ -40,6 +40,7 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.android.view.activity.bookmark.LabelEditActivity.Companion.RESULT_REMOVE
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
@@ -57,7 +58,6 @@ class ManageLabels : ListActivityBase() {
     private lateinit var binding: ManageLabelsBinding
     private val labels: MutableList<BookmarkEntities.Label> = ArrayList()
     @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var labelEditDialog: LabelEditDialog
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     var showUnassigned = false
@@ -179,9 +179,13 @@ class ManageLabels : ListActivityBase() {
         Log.i(TAG, "New label clicked")
         val newLabel = BookmarkEntities.Label()
         newLabel.color = randomColor()
+
+        val intent = Intent(this, LabelEditActivity::class.java)
+
         GlobalScope.launch(Dispatchers.Main) {
-            val result = labelEditDialog.showDialog(this@ManageLabels, newLabel)
-            if(result !== LabelDialogResult.CANCEL) {
+            val result = awaitIntent(intent) ?: return@launch
+
+            if(result.resultCode != Activity.RESULT_CANCELED) {
                 loadLabelList()
                 checkedLabels.add(newLabel.id)
                 notifyDataSetChanged()
@@ -189,13 +193,16 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    fun editLabel(label: BookmarkEntities.Label?) {
+    fun editLabel(label: BookmarkEntities.Label) {
         Log.i(TAG, "Edit label clicked")
+        val intent = Intent(this, LabelEditActivity::class.java)
+        intent.putExtra("labelId", label.id)
+
         GlobalScope.launch(Dispatchers.Main) {
-            val result = labelEditDialog.showDialog(this@ManageLabels, label!!)
-            if(result !== LabelDialogResult.CANCEL) {
+            val result = awaitIntent(intent) ?: return@launch
+            if(result.resultCode != Activity.RESULT_CANCELED) {
                 loadLabelList()
-                if(result == LabelDialogResult.REMOVE) {
+                if(result.resultCode == RESULT_REMOVE) {
                     checkedLabels.remove(label.id)
                     notifyDataSetChanged()
                 }
