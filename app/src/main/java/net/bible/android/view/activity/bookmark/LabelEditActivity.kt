@@ -20,6 +20,8 @@ package net.bible.android.view.activity.bookmark
 import android.app.Activity
 import android.os.Bundle
 import android.view.View
+import com.jaredrummler.android.colorpicker.ColorPickerDialog
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import net.bible.android.activity.databinding.BookmarkLabelEditBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -30,10 +32,21 @@ import net.bible.service.common.displayName
 import javax.inject.Inject
 
 @ActivityScope
-class LabelEditActivity: ActivityBase() {
+class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     lateinit var binding: BookmarkLabelEditBinding
     @Inject lateinit var bookmarkControl: BookmarkControl
     private val workspaceSettings get() = mainBibleActivity.windowRepository.windowBehaviorSettings
+    lateinit var label: BookmarkEntities.Label
+    override fun onColorSelected(dialogId: Int, color: Int) {
+        // let's remove alpha
+        label.color = color or (255 shl 24)
+    }
+
+    private fun updateColor() {
+        binding.titleIcon.setColorFilter(label.color)
+    }
+
+    override fun onDialogDismissed(dialogId: Int) {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,20 +54,19 @@ class LabelEditActivity: ActivityBase() {
         setContentView(binding.root)
         buildActivityComponent().inject(this)
         val labelId = intent.getLongExtra("labelId", 0)
-        val label = if(labelId > 0) bookmarkControl.labelById(labelId)!! else BookmarkEntities.Label()
+        label = if(labelId > 0) bookmarkControl.labelById(labelId)!! else BookmarkEntities.Label()
 
         binding.apply {
             if (label.isUnlabeledLabel) {
                 labelName.isEnabled = false
             }
             labelName.setText(label.displayName)
-            colorPicker.color = label.color
-            labelColorExample.setBackgroundColor(label.color)
-            colorPicker.setOnColorChangedListener {
-                labelColorExample.setBackgroundColor(it)
+            updateColor()
+            labelColorExample.setOnClickListener {
+                ColorPickerDialog.newBuilder()
+                    .setColor(label.color)
+                    .show(this@LabelEditActivity)
             }
-
-
             val isNewLabel = label.id == 0L
             favouriteLabelCheckBox.isChecked = workspaceSettings.favouriteLabels.contains(label.id)
             autoAssignCheckBox.isChecked = workspaceSettings.autoAssignLabels.contains(label.id)
@@ -64,8 +76,6 @@ class LabelEditActivity: ActivityBase() {
                     val name = labelName.text.toString()
                     label.name = name
                 }
-                // let's remove alpha
-                label.color = colorPicker.color or (255 shl 24)
                 bookmarkControl.insertOrUpdateLabel(label)
 
                 if(favouriteLabelCheckBox.isChecked) {
