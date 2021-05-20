@@ -62,7 +62,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             }
             labelName.setText(label.displayName)
             updateColor()
-            labelColorExample.setOnClickListener {
+            editColorButton.setOnClickListener {
                 ColorPickerDialog.newBuilder()
                     .setColor(label.color)
                     .show(this@LabelEditActivity)

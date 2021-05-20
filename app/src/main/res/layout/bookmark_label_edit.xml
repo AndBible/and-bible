@@ -20,8 +20,8 @@
 			>
 			<ImageView
 				android:id="@+id/titleIcon"
-				android:layout_width="wrap_content"
-				android:layout_height="0dp"
+				android:layout_width="40dip"
+				android:layout_height="40dip"
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintBottom_toBottomOf="@id/labelName"
@@ -42,51 +42,36 @@
 				android:id="@+id/labelColorTitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:paddingTop="15dp"
 				android:text="@string/label_color"
-				android:padding="2dip"
-				android:textAppearance="?android:attr/textAppearanceSmall"
+				style="@style/EditBookmarkLabelCategoryTitle"
 				app:layout_constraintTop_toBottomOf="@+id/labelName"
 				app:layout_constraintStart_toStartOf="parent"
-				tools:layout_editor_absoluteX="10dp" />
-
-			<ImageView
-				android:layout_width="0dp"
-				android:layout_height="0dp"
-				android:textColor="@color/grey_500"
-				android:id="@+id/labelColorExample"
-				android:background="@drawable/ic_label_24dp"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toStartOf="@id/editColorButton"
-				app:layout_constraintTop_toBottomOf="@id/labelColorTitle"
-				app:layout_constraintBottom_toBottomOf="@id/editColorButton"
 				/>
+
 			<Button
 				android:id="@+id/editColorButton"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/edit"
-				app:layout_constraintTop_toTopOf="@id/labelColorExample"
+				app:layout_constraintTop_toTopOf="@id/labelColorTitle"
 				app:layout_constraintEnd_toEndOf="parent"
 				/>
 			<TextView
 				android:id="@+id/thisBookmarkTitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:paddingTop="15dp"
+				style="@style/EditBookmarkLabelCategoryTitle"
 				android:text="@string/this_bookmark"
-				android:textAppearance="?android:attr/textAppearanceSmall"
-				app:layout_constraintTop_toBottomOf="@+id/labelColorExample"
+				app:layout_constraintTop_toBottomOf="@+id/editColorButton"
 				app:layout_constraintStart_toStartOf="parent"
-				tools:layout_editor_absoluteX="10dp" />
+				/>
 
 			<TextView
-				android:padding="2dip"
+				style="@style/EditBookmarkLabelItemTitle"
 				android:id="@+id/primaryLabelTitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/primary_label"
-				android:textAppearance="?android:attr/textAppearanceMedium"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@id/thisBookmarkTitle"
 				/>
@@ -118,11 +103,10 @@
 
 			<TextView
 				android:id="@+id/wholeVerseTitle"
-				android:padding="2dip"
+				style="@style/EditBookmarkLabelItemTitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/highlight_entire_verse"
-				android:textAppearance="?android:attr/textAppearanceMedium"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@id/primaryLabelTitle"
 				/>
@@ -155,21 +139,19 @@
 				android:id="@+id/thisWorkspaceTitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:paddingTop="15dp"
 				android:text="@string/this_workspace"
-				android:textAppearance="?android:attr/textAppearanceSmall"
 				app:layout_constraintTop_toBottomOf="@+id/wholeVerseTitle"
 				app:layout_constraintStart_toStartOf="parent"
-				tools:layout_editor_absoluteX="10dp" />
+				style="@style/EditBookmarkLabelCategoryTitle"
+				/>
 
 
 			<TextView
 				android:id="@+id/assignToNewTitle"
-				android:padding="2dip"
+				style="@style/EditBookmarkLabelItemTitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/highlight_entire_verse"
-				android:textAppearance="?android:attr/textAppearanceMedium"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@id/thisWorkspaceTitle"
 				/>
@@ -201,11 +183,10 @@
 
 			<TextView
 				android:id="@+id/favouriteLabelTitle"
-				android:padding="2dip"
+				style="@style/EditBookmarkLabelItemTitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/favourite_label"
-				android:textAppearance="?android:attr/textAppearanceMedium"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@id/assignToNewTitle"
 				/>
@@ -237,11 +218,10 @@
 
 			<TextView
 				android:id="@+id/autoAssignTitle"
-				android:padding="2dip"
+				style="@style/EditBookmarkLabelItemTitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/auto_assign_labels1"
-				android:textAppearance="?android:attr/textAppearanceMedium"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@id/favouriteLabelTitle"
 				/>
@@ -272,11 +252,10 @@
 
 			<TextView
 				android:id="@+id/primaryAutoAssignTitle"
-				android:padding="2dip"
+				style="@style/EditBookmarkLabelItemTitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/auto_assign_labels_primary"
-				android:textAppearance="?android:attr/textAppearanceMedium"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@id/autoAssignTitle"
 				/>
