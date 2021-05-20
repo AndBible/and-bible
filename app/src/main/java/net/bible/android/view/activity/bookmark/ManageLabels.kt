@@ -57,7 +57,7 @@ class ManageLabels : ListActivityBase() {
     private lateinit var binding: ManageLabelsBinding
     private val labels: MutableList<BookmarkEntities.Label> = ArrayList()
     @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var labelDialogs: LabelDialogs
+    @Inject lateinit var labelEditDialog: LabelEditDialog
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     var showUnassigned = false
@@ -179,16 +179,28 @@ class ManageLabels : ListActivityBase() {
         Log.i(TAG, "New label clicked")
         val newLabel = BookmarkEntities.Label()
         newLabel.color = randomColor()
-        labelDialogs.createLabel(this, newLabel) {
-            loadLabelList()
-            checkedLabels.add(newLabel.id)
-            notifyDataSetChanged()
+        GlobalScope.launch(Dispatchers.Main) {
+            val result = labelEditDialog.showDialog(this@ManageLabels, newLabel)
+            if(result !== LabelDialogResult.CANCEL) {
+                loadLabelList()
+                checkedLabels.add(newLabel.id)
+                notifyDataSetChanged()
+            }
         }
     }
 
     fun editLabel(label: BookmarkEntities.Label?) {
         Log.i(TAG, "Edit label clicked")
-        labelDialogs.editLabel(this, label!!) { loadLabelList() }
+        GlobalScope.launch(Dispatchers.Main) {
+            val result = labelEditDialog.showDialog(this@ManageLabels, label!!)
+            if(result !== LabelDialogResult.CANCEL) {
+                loadLabelList()
+                if(result == LabelDialogResult.REMOVE) {
+                    checkedLabels.remove(label.id)
+                    notifyDataSetChanged()
+                }
+            }
+        }
     }
 
     fun onOkay(v: View?) {

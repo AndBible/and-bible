@@ -378,8 +378,8 @@ class AutoAssignPreference(val windowBehaviorSettings: WorkspaceEntities.WindowB
     override val isBoolean = false
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ManageLabels::class.java)
-        val autoAssignLabels = (windowBehaviorSettings.autoAssignLabels?: emptyList()).toLongArray()
-        val favouriteLabels = (windowBehaviorSettings.favouriteLabels?: emptyList()).toLongArray()
+        val autoAssignLabels = windowBehaviorSettings.autoAssignLabels.toLongArray()
+        val favouriteLabels = windowBehaviorSettings.favouriteLabels.toLongArray()
         val primaryLabel = windowBehaviorSettings.autoAssignPrimaryLabel
 
         intent.putExtra("autoAssignMode", true)
@@ -393,13 +393,13 @@ class AutoAssignPreference(val windowBehaviorSettings: WorkspaceEntities.WindowB
             val result = activity.awaitIntent(intent)
 
             if(result?.resultData?.extras?.getBoolean("reset") == true) {
-                windowBehaviorSettings.autoAssignLabels = null
-                windowBehaviorSettings.favouriteLabels = null
+                windowBehaviorSettings.autoAssignLabels = mutableSetOf()
+                windowBehaviorSettings.favouriteLabels = mutableSetOf()
                 windowBehaviorSettings.autoAssignPrimaryLabel = null
                 onReset?.invoke()
             }  else if (result?.resultCode == Activity.RESULT_OK){
-                val newAutoAssignLabels = result.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
-                val newFavouriteLabels = result.resultData?.extras?.getLongArray(BookmarkControl.FAVOURITE_LABEL_IDS)?.toList()
+                val newAutoAssignLabels = result.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toMutableSet() ?: mutableSetOf()
+                val newFavouriteLabels = result.resultData?.extras?.getLongArray(BookmarkControl.FAVOURITE_LABEL_IDS)?.toMutableSet() ?: mutableSetOf()
                 val newPrimaryLabel = result.resultData?.extras?.getLong(BookmarkControl.PRIMARY_LABEL_EXTRA)
                 windowBehaviorSettings.autoAssignLabels = newAutoAssignLabels
                 windowBehaviorSettings.favouriteLabels = newFavouriteLabels

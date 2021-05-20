@@ -22,14 +22,16 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
-import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarkLabelEditBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.view.activity.base.Callback
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.displayName
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Label dialogs - edit or create label.  Used in a couple of places so extracted.
@@ -55,21 +57,24 @@ class LabelEditWidget(context: Context, attributeSet: AttributeSet?, label: Book
     }
 }
 
+enum class LabelDialogResult {OK, CANCEL, REMOVE}
 
-class LabelDialogs @Inject constructor(private val bookmarkControl: BookmarkControl) {
-    fun createLabel(context: Context, label: BookmarkEntities.Label, onCreateCallback: Callback) {
-        showDialog(context, R.string.new_label, label, onCreateCallback)
-    }
+class LabelEditDialog @Inject constructor(
+    private val bookmarkControl: BookmarkControl,
+) {
+    private val workspaceSettings get() = mainBibleActivity.windowRepository.windowBehaviorSettings
 
-    fun editLabel(context: Context, label: BookmarkEntities.Label, onCreateCallback: Callback) {
-        showDialog(context, R.string.edit, label, onCreateCallback)
-    }
-
-    private fun showDialog(context: Context, titleId: Int, label: BookmarkEntities.Label, onCreateCallback: Callback) {
+    suspend fun showDialog(context: Context, label: BookmarkEntities.Label) = suspendCoroutine<LabelDialogResult> { r->
         Log.i(TAG, "Edit label clicked")
         val view = LabelEditWidget(context, null, label)
-        val dialog = AlertDialog.Builder(context).setView(view).create()
-
+        val dialog = AlertDialog.Builder(context)
+            .setView(view)
+            .setCancelable(false)
+            .create()
+        val isNewLabel = label.id == 0L
+        view.bindings.favouriteLabelCheckBox.isChecked = workspaceSettings.favouriteLabels.contains(label.id)
+        view.bindings.autoAssignCheckBox.isChecked = workspaceSettings.autoAssignLabels.contains(label.id)
+        view.bindings.primaryAutoAssignCheckBox.isChecked = workspaceSettings.autoAssignPrimaryLabel == label.id
         view.bindings.okButton.setOnClickListener {
             if(!label.isUnlabeledLabel) {
                 val name = view.bindings.labelName.text.toString()
@@ -78,13 +83,35 @@ class LabelDialogs @Inject constructor(private val bookmarkControl: BookmarkCont
             // let's remove alpha
             label.color = view.bindings.colorPicker.color or (255 shl 24)
             bookmarkControl.insertOrUpdateLabel(label)
+
+            if(view.bindings.favouriteLabelCheckBox.isChecked) {
+                workspaceSettings.favouriteLabels.add(label.id)
+            } else {
+                workspaceSettings.favouriteLabels.remove(label.id)
+            }
+
+            if(view.bindings.autoAssignCheckBox.isChecked) {
+                workspaceSettings.autoAssignLabels.add(label.id)
+            } else {
+                workspaceSettings.autoAssignLabels.remove(label.id)
+            }
+            if(view.bindings.primaryAutoAssignCheckBox.isChecked) {
+                workspaceSettings.autoAssignPrimaryLabel = label.id
+            }
+
+            r.resume(LabelDialogResult.OK)
             dialog.dismiss()
-            onCreateCallback.okay()
+        }
+        if(isNewLabel) {
+            view.bindings.removeButton.visibility = View.GONE
         }
         view.bindings.cancelButton.setOnClickListener {
+            r.resume(LabelDialogResult.CANCEL)
             dialog.dismiss()
         }
         view.bindings.removeButton.setOnClickListener {
+            r.resume(LabelDialogResult.REMOVE)
+            bookmarkControl.deleteLabel(label)
             dialog.dismiss()
         }
         dialog.show()

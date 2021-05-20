@@ -372,6 +372,8 @@
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
     <string name="auto_assign_labels">Auto-assign bookmark labels</string>
+    <string name="auto_assign_labels1">Auto-assign to new bookmarks</string>
+    <string name="auto_assign_labels_primary">Auto-assign (primary)</string>
     <string name="label_color">Label color</string>
     <string name="label_color_example">Example</string>
 

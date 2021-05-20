@@ -244,9 +244,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
         val textRange = BookmarkEntities.TextRange(selection.startOffset!!, selection.endOffset!!)
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, wholeVerse, book)
-        val initialLabels = windowBehaviorSettings.autoAssignLabels ?: emptyList()
+        val initialLabels = windowBehaviorSettings.autoAssignLabels
         bookmark.primaryLabelId = windowBehaviorSettings.autoAssignPrimaryLabel
-        bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
+        bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels.toList())
     }
 
     private fun compareSelection() {
@@ -852,7 +852,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.sharedPreferences.getBoolean("show_errorbox", false) else false
 
     private fun getUpdateConfigCommand(initial: Boolean): String {
-        val favouriteLabels = json.encodeToString(serializer(), windowBehaviorSettings.favouriteLabels?: emptyList())
+        val favouriteLabels = json.encodeToString(serializer(), windowBehaviorSettings.favouriteLabels)
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
