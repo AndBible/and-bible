@@ -58,3 +58,6 @@ jumpToStudyPad: Hyppää opintoalustaan
 setAsPrimaryLabel: Aseta pääasialliseksi kirjanmerkkiryhmäksi
 removeBookmarkLabel: Poista kirjanmerkkiryhmä kirjanmerkistä
 addBookmarkLabel: Lisää kirjanmerkkiryhmä kirjanmerkille
+favouriteLabels: ""
+recentLabels: ""
+frequentlyUsedLabels: ""

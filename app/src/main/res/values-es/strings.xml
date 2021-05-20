@@ -3,6 +3,7 @@
   <string name="app_name_short">Biblia de Estudio</string>
   <string name="app_name_medium">Biblia de Estudio (And Bible)</string>
   <string name="app_name_long">Biblia de Estudio, Proyecto de Código Abierto And Bible</string>
+  <string name="project">Proyecto de Código Abierto And Bible</string>
   <string name="version_text">Versión %s</string>
   <string name="no_sdcard_error">Por favor inserte una tarjeta SD y reinicie la aplicación.</string>
   <!--Main menu-->
@@ -690,4 +691,5 @@ para ver sus notas en una ventana separada.
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="does_not_exist_abbreviation">No existe</string>
 </resources>

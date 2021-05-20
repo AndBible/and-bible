@@ -58,3 +58,6 @@ jumpToStudyPad: Перейти до блокноту
 setAsPrimaryLabel: Встановити як основну мітку
 removeBookmarkLabel: Видалити мітку із закладки
 addBookmarkLabel: Додати мітку до закладки
+favouriteLabels: ""
+recentLabels: ""
+frequentlyUsedLabels: ""

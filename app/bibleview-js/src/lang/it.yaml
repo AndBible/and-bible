@@ -58,3 +58,6 @@ jumpToStudyPad: Salta agli Appunti di studio
 setAsPrimaryLabel: Imposta come etichetta principale
 removeBookmarkLabel: Rimuovi etichetta dal segnalibro
 addBookmarkLabel: Aggiungi etichetta al segnalibro
+favouriteLabels: ""
+recentLabels: ""
+frequentlyUsedLabels: ""
