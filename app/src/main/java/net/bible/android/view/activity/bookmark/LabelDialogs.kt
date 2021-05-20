@@ -22,11 +22,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
-import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.TextView
-import com.jaredrummler.android.colorpicker.ColorPickerView
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarkLabelEditBinding
 import net.bible.android.control.bookmark.BookmarkControl
@@ -72,22 +68,26 @@ class LabelDialogs @Inject constructor(private val bookmarkControl: BookmarkCont
     private fun showDialog(context: Context, titleId: Int, label: BookmarkEntities.Label, onCreateCallback: Callback) {
         Log.i(TAG, "Edit label clicked")
         val view = LabelEditWidget(context, null, label)
+        val dialog = AlertDialog.Builder(context).setView(view).create()
 
-        AlertDialog.Builder(context)
-            .setView(view)
-            .setPositiveButton(R.string.okay) { _, _ ->
-                if(!label.isUnlabeledLabel) {
-                    val name = view.bindings.labelName.text.toString()
-                    label.name = name
-                }
-                // let's remove alpha
-                label.color = view.bindings.colorPicker.color or (255 shl 24)
-                bookmarkControl.insertOrUpdateLabel(label)
-                onCreateCallback.okay()
+        view.bindings.okButton.setOnClickListener {
+            if(!label.isUnlabeledLabel) {
+                val name = view.bindings.labelName.text.toString()
+                label.name = name
             }
-            .setNegativeButton(R.string.cancel, null)
-            .create()
-            .show()
+            // let's remove alpha
+            label.color = view.bindings.colorPicker.color or (255 shl 24)
+            bookmarkControl.insertOrUpdateLabel(label)
+            dialog.dismiss()
+            onCreateCallback.okay()
+        }
+        view.bindings.cancelButton.setOnClickListener {
+            dialog.dismiss()
+        }
+        view.bindings.removeButton.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 
     companion object {

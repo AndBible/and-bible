@@ -1,65 +1,283 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
+<androidx.constraintlayout.widget.ConstraintLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="?android:colorBackground"
+	android:minHeight="@dimen/bookmark_label_style_dialog_min_height"
+	android:padding="10dip"
 	>
-
-	<androidx.constraintlayout.widget.ConstraintLayout
+	<ScrollView
+		android:id="@+id/mainScrollView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="?android:colorBackground"
-		android:minHeight="@dimen/bookmark_label_style_dialog_min_height"
-		android:padding="10dip"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintBottom_toTopOf="@id/okButton"
 		>
-
-		<EditText
-			android:id="@+id/labelName"
+		<androidx.constraintlayout.widget.ConstraintLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:hint="@string/label_name_prompt"
-			android:textAppearance="?android:attr/textAppearanceMedium"
-			app:layout_constraintTop_toTopOf="parent" />
+			>
+			<ImageView
+				android:id="@+id/titleIcon"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintBottom_toBottomOf="@id/labelName"
+				android:src="@drawable/ic_label_circle"
+				/>
+			<EditText
+				android:id="@+id/labelName"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:hint="@string/label_name_prompt"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintStart_toEndOf="@id/titleIcon"
+				app:layout_constraintEnd_toEndOf="parent"
+				/>
 
-		<TextView
-			android:id="@+id/labelColorTitle"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:paddingTop="15dp"
-			android:text="@string/label_color"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			app:layout_constraintTop_toBottomOf="@+id/labelName"
-			app:layout_constraintStart_toStartOf="parent"
-			tools:layout_editor_absoluteX="10dp" />
+			<TextView
+				android:id="@+id/labelColorTitle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:paddingTop="15dp"
+				android:text="@string/label_color"
+				android:textAppearance="?android:attr/textAppearanceSmall"
+				app:layout_constraintTop_toBottomOf="@+id/labelName"
+				app:layout_constraintStart_toStartOf="parent"
+				tools:layout_editor_absoluteX="10dp" />
 
-		<com.jaredrummler.android.colorpicker.ColorPickerView
-			android:id="@+id/colorPicker"
-			app:layout_constraintTop_toBottomOf="@+id/labelColorTitle"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			/>
+			<com.jaredrummler.android.colorpicker.ColorPickerView
+				android:id="@+id/colorPicker"
+				android:layout_width="0dp"
+				android:layout_height="0dp"
+				app:layout_constraintTop_toBottomOf="@+id/labelColorTitle"
+				app:layout_constraintBottom_toTopOf="@id/labelColorExampleTitle"
+				app:layout_constraintStart_toStartOf="parent"
+				android:padding="10dp"
+				app:layout_constraintWidth_percent="0.8"
+				app:layout_constraintHeight_default="wrap"
+				/>
 
-		<TextView
-			android:id="@+id/textView"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:paddingTop="15dp"
-			android:text="@string/label_color_example"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			tools:layout_editor_absoluteX="10dp"
-			tools:layout_editor_absoluteY="10dp"
-			app:layout_constraintTop_toBottomOf="@id/colorPicker"
-			app:layout_constraintStart_toStartOf="parent"
-			/>
-		<TextView
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:id="@+id/labelColorExample"
-			app:layout_constraintTop_toBottomOf="@id/textView"
-			app:layout_constraintBottom_toBottomOf="parent"
-			/>
+			<TextView
+				android:id="@+id/labelColorExampleTitle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:paddingTop="15dp"
+				android:text="@string/label_color_example"
+				android:textAppearance="?android:attr/textAppearanceSmall"
+				tools:layout_editor_absoluteX="10dp"
+				tools:layout_editor_absoluteY="10dp"
+				app:layout_constraintTop_toBottomOf="@id/colorPicker"
+				app:layout_constraintStart_toStartOf="parent"
+				/>
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/labelColorExample"
+				app:layout_constraintTop_toBottomOf="@id/labelColorExampleTitle"
+				/>
+			<TextView
+				android:id="@+id/thisBookmarkTitle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:paddingTop="15dp"
+				android:text="@string/this_bookmark"
+				android:textAppearance="?android:attr/textAppearanceSmall"
+				app:layout_constraintTop_toBottomOf="@+id/labelColorExample"
+				app:layout_constraintStart_toStartOf="parent"
+				tools:layout_editor_absoluteX="10dp" />
 
-	</androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+			<TextView
+				android:padding="2dip"
+				android:id="@+id/primaryLabelTitle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/primary_label"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/thisBookmarkTitle"
+				/>
+			<ImageView
+				android:id="@+id/primaryLabelIcon"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				app:tint="@color/grey_500"
+				android:src="@drawable/ic_baseline_star_24"
+				app:layout_constraintStart_toEndOf="@id/primaryLabelTitle"
+				app:layout_constraintTop_toTopOf="@id/primaryLabelTitle"
+				app:layout_constraintBottom_toBottomOf="@id/primaryLabelTitle"
+				/>
+			<Space
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				app:layout_constraintStart_toEndOf="@id/primaryLabelIcon"
+				app:layout_constraintTop_toTopOf="@id/primaryLabelIcon"
+				app:layout_constraintEnd_toStartOf="@id/primaryLabelCheckBox"
+				/>
+			<androidx.appcompat.widget.AppCompatCheckBox
+				android:id="@+id/primaryLabelCheckBox"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toTopOf="@id/primaryLabelTitle"
+				app:layout_constraintBottom_toBottomOf="@id/primaryLabelTitle"
+				/>
+
+			<TextView
+				android:id="@+id/wholeVerseTitle"
+				android:padding="2dip"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/highlight_entire_verse"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/primaryLabelTitle"
+				/>
+			<ImageView
+				android:id="@+id/wholeVerseIcon"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				app:tint="@color/grey_500"
+				app:layout_constraintStart_toEndOf="@id/wholeVerseTitle"
+				app:layout_constraintTop_toTopOf="@id/wholeVerseTitle"
+				app:layout_constraintBottom_toBottomOf="@id/wholeVerseTitle"
+				/>
+			<Space
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				app:layout_constraintStart_toEndOf="@id/wholeVerseIcon"
+				app:layout_constraintTop_toTopOf="@id/wholeVerseIcon"
+				app:layout_constraintEnd_toStartOf="@id/wholeVerseCheckBox"
+				/>
+			<androidx.appcompat.widget.AppCompatCheckBox
+				android:id="@+id/wholeVerseCheckBox"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toTopOf="@id/wholeVerseTitle"
+				app:layout_constraintBottom_toBottomOf="@id/wholeVerseTitle"
+				/>
+
+			<TextView
+				android:id="@+id/thisWorkspaceTitle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:paddingTop="15dp"
+				android:text="@string/this_workspace"
+				android:textAppearance="?android:attr/textAppearanceSmall"
+				app:layout_constraintTop_toBottomOf="@+id/wholeVerseTitle"
+				app:layout_constraintStart_toStartOf="parent"
+				tools:layout_editor_absoluteX="10dp" />
+
+
+			<TextView
+				android:id="@+id/assignToNewTitle"
+				android:padding="2dip"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/highlight_entire_verse"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/thisWorkspaceTitle"
+				/>
+			<ImageView
+				android:id="@+id/assignToNewIcon"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				app:tint="@color/grey_500"
+				android:src="@drawable/ic_label_circle"
+				app:layout_constraintStart_toEndOf="@id/assignToNewTitle"
+				app:layout_constraintTop_toTopOf="@id/assignToNewTitle"
+				app:layout_constraintBottom_toBottomOf="@id/assignToNewTitle"
+				/>
+			<Space
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				app:layout_constraintStart_toEndOf="@id/assignToNewIcon"
+				app:layout_constraintTop_toTopOf="@id/assignToNewIcon"
+				app:layout_constraintEnd_toStartOf="@id/assignToNewCheckBox"
+				/>
+			<androidx.appcompat.widget.AppCompatCheckBox
+				android:id="@+id/assignToNewCheckBox"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toTopOf="@id/assignToNewTitle"
+				app:layout_constraintBottom_toBottomOf="@id/assignToNewTitle"
+				/>
+
+			<TextView
+				android:id="@+id/favouriteLabelTitle"
+				android:padding="2dip"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/favourite_label"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/assignToNewTitle"
+				/>
+			<ImageView
+				android:id="@+id/favouriteLabelIcon"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				android:src="@drawable/ic_baseline_favorite_24"
+				app:tint="@color/grey_500"
+				app:layout_constraintStart_toEndOf="@id/favouriteLabelTitle"
+				app:layout_constraintTop_toTopOf="@id/favouriteLabelTitle"
+				app:layout_constraintBottom_toBottomOf="@id/favouriteLabelTitle"
+				/>
+			<Space
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				app:layout_constraintStart_toEndOf="@id/favouriteLabelIcon"
+				app:layout_constraintTop_toTopOf="@id/favouriteLabelIcon"
+				app:layout_constraintEnd_toStartOf="@id/favouriteLabelCheckBox"
+				/>
+			<androidx.appcompat.widget.AppCompatCheckBox
+				android:id="@+id/favouriteLabelCheckBox"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toTopOf="@id/favouriteLabelTitle"
+				app:layout_constraintBottom_toBottomOf="@id/favouriteLabelTitle"
+				/>
+		</androidx.constraintlayout.widget.ConstraintLayout>
+	</ScrollView>
+
+	<ImageView
+		android:id="@+id/removeButton"
+		android:layout_width="wrap_content"
+		android:layout_height="0dp"
+		app:layout_constraintTop_toTopOf="@id/okButton"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintBottom_toBottomOf="parent"
+		android:src="@drawable/ic_delete_24dp"
+		app:tint="@color/grey_500"
+		/>
+	<Button
+		android:id="@+id/okButton"
+		android:padding="10dip"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:layout_constraintTop_toBottomOf="@id/mainScrollView"
+		style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		android:text="@string/okay"
+		/>
+	<Button
+		android:id="@id/cancelButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+		app:layout_constraintTop_toTopOf="@id/okButton"
+		app:layout_constraintEnd_toStartOf="@id/okButton"
+		android:text="@string/cancel"
+		/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

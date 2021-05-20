@@ -838,4 +838,9 @@
     <string name="does_not_exist_abbreviation">Does Not Exist</string>
     <string name="cant_change_wholeverse">Can\'t turn off whole verse marking for this bookmark</string>
     <string name="whole_verse_turned_on">Bookmark is now marked for whole verse</string>
+    <string name="this_bookmark">This bookmark</string>
+    <string name="this_workspace">This workspace</string>
+    <string name="primary_label">Primary label</string>
+    <string name="highlight_entire_verse">Highlight entire verse</string>
+    <string name="favourite_label">Favourite label</string>
 </resources>
