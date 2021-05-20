@@ -69,8 +69,8 @@ class ManageLabels : ListActivityBase() {
     var assignMode = false
 
     private val checkedLabels = mutableSetOf<Long>()
-    val favouriteLabels = mutableSetOf<Long>()
-    var primaryLabel: Long = 0L
+    //val favouriteLabels = mutableSetOf<Long>()
+    //var primaryLabel: Long = 0L
     private val deletedLabels = mutableSetOf<Long>()
 
     @SuppressLint("MissingSuperCall")
@@ -88,12 +88,12 @@ class ManageLabels : ListActivityBase() {
         assignMode = intent.getBooleanExtra("assignMode", false)
         studyPadMode = intent.getBooleanExtra("studyPadMode", false)
         autoAssignMode = intent.getBooleanExtra("autoAssignMode", false)
-        primaryLabel = intent.getLongExtra(BookmarkControl.PRIMARY_LABEL_EXTRA, 0L)
+        //primaryLabel = intent.getLongExtra(BookmarkControl.PRIMARY_LABEL_EXTRA, 0L)
 
-        if(autoAssignMode) {
-            val favouriteIds = intent.getLongArrayExtra(BookmarkControl.FAVOURITE_LABEL_IDS)?.toList() ?: emptyList()
-            favouriteLabels.addAll(favouriteIds)
-        }
+        //if(autoAssignMode) {
+        //    val favouriteIds = intent.getLongArrayExtra(BookmarkControl.FAVOURITE_LABEL_IDS)?.toList() ?: emptyList()
+        //    favouriteLabels.addAll(favouriteIds)
+        //}
 
         hasResetButton = intent.getBooleanExtra("resetButton", false)
         binding.resetButton.visibility = if(hasResetButton) View.VISIBLE else View.GONE
@@ -194,8 +194,8 @@ class ManageLabels : ListActivityBase() {
                 loadLabelList()
                 if(result.resultCode == RESULT_REMOVE) {
                     checkedLabels.remove(label.id)
-                    notifyDataSetChanged()
                 }
+                notifyDataSetChanged()
             }
         }
     }
@@ -211,10 +211,10 @@ class ManageLabels : ListActivityBase() {
         val result = Intent()
         bookmarkControl.deleteLabels(deletedLabels.toList())
         result.putExtra(BookmarkControl.LABEL_IDS_EXTRA, checkedLabels.toLongArray())
-        if(autoAssignMode) {
-            result.putExtra(BookmarkControl.FAVOURITE_LABEL_IDS, favouriteLabels.toLongArray())
-        }
-        result.putExtra(BookmarkControl.PRIMARY_LABEL_EXTRA, primaryLabel)
+        //if(autoAssignMode) {
+        //    result.putExtra(BookmarkControl.FAVOURITE_LABEL_IDS, favouriteLabels.toLongArray())
+        //}
+        //result.putExtra(BookmarkControl.PRIMARY_LABEL_EXTRA, primaryLabel)
         setResult(Activity.RESULT_OK, result)
         if(selected != null) {
             studyPadSelected(selected)

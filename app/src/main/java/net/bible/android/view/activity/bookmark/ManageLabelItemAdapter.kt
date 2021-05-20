@@ -49,73 +49,78 @@ class ManageLabelItemAdapter(context: Context?,
             ManageLabelsListItemBinding.bind(convertView)
         }        
 
-        bindings.labelName.text = label!!.displayName
-        val checkbox = bindings.checkbox
-        if(manageLabels.showCheckboxes) {
-            checkbox.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    if(!manageLabels.selectMultiple) {
-                        checkedLabels.clear()
+        bindings.apply {
+            labelName.text = label!!.displayName
+            val checkbox = checkbox
+            if (manageLabels.showCheckboxes) {
+                checkbox.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        if (!manageLabels.selectMultiple) {
+                            checkedLabels.clear()
+                        }
+                        checkedLabels.add(label.id)
+                        if (workspaceSettings.autoAssignPrimaryLabel == 0L) {
+                            workspaceSettings.autoAssignPrimaryLabel = label.id
+                        }
+                    } else {
+                        checkedLabels.remove(label.id)
+                        if (workspaceSettings.autoAssignPrimaryLabel == label.id) {
+                            workspaceSettings.autoAssignPrimaryLabel = checkedLabels.toList().firstOrNull() ?: 0L
+                        }
                     }
-                    checkedLabels.add(label.id)
-                    if(manageLabels.primaryLabel == 0L) {
-                        manageLabels.primaryLabel = label.id
-                    }
+                    notifyDataSetChanged()
+                }
+                checkbox.isChecked = checkedLabels.contains(label.id)
+            } else {
+                checkbox.visibility = View.GONE
+            }
+            if (manageLabels.studyPadMode) {
+                labelIcon.setImageResource(R.drawable.ic_baseline_studypads_24)
+            }
+
+            val isFavourite = workspaceSettings.favouriteLabels.contains(label.id)
+            val isPrimary = workspaceSettings.autoAssignPrimaryLabel == label.id
+
+            favouriteIcon.setImageResource(if (isFavourite) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24)
+            favouriteIcon.setOnClickListener {
+                if(isFavourite) {
+                    workspaceSettings.favouriteLabels.remove(label.id)
                 } else {
-                    checkedLabels.remove(label.id)
-                    if(manageLabels.primaryLabel == label.id) {
-                        manageLabels.primaryLabel = checkedLabels.toList().firstOrNull() ?: 0L
-                    }
+                    workspaceSettings.favouriteLabels.add(label.id)
                 }
                 notifyDataSetChanged()
             }
-            checkbox.isChecked = checkedLabels.contains(label.id)
-        } else {
-            checkbox.visibility = View.GONE
-        }
-        if(manageLabels.studyPadMode) {
-            bindings.labelIcon.setImageResource(R.drawable.ic_baseline_studypads_24)
-        }
 
-        val isFavourite = manageLabels.favouriteLabels.contains(label.id)
-        val isPrimary = manageLabels.primaryLabel == label.id
+            if (manageLabels.assignMode || manageLabels.autoAssignMode) {
+                primaryIcon.visibility = if (checkbox.isChecked) View.VISIBLE else View.INVISIBLE
+                primaryIcon.setImageResource(if (isPrimary) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_border_24)
+                primaryIcon.setOnClickListener {
+                    workspaceSettings.autoAssignPrimaryLabel = label.id
+                    notifyDataSetChanged()
+                }
+            } else {
+                primaryIcon.visibility = View.GONE
+            }
 
-        if(manageLabels.assignMode || manageLabels.autoAssignMode) {
-            bindings.primaryIcon.visibility = if(checkbox.isChecked) View.VISIBLE else View.INVISIBLE
-            bindings.primaryIcon.setImageResource(if(isPrimary) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_border_24)
-            bindings.primaryIcon.setOnClickListener {
-                manageLabels.primaryLabel = label.id
+            if (workspaceSettings.autoAssignLabels.contains(label.id)) {
+                labelIcon.setImageResource(R.drawable.ic_label_circle)
+            } else {
+                labelIcon.setImageResource(R.drawable.ic_label_24dp)
+            }
+
+            labelIcon.setOnClickListener {
+                if (workspaceSettings.autoAssignLabels.contains(label.id)) {
+                    workspaceSettings.autoAssignLabels.remove(label.id)
+                } else {
+                    workspaceSettings.autoAssignLabels.add(label.id)
+                }
                 notifyDataSetChanged()
             }
-        } else {
-            bindings.primaryIcon.visibility = View.GONE
+
+            bookmarkStyleAdapterHelper.styleView(labelName, label, context, false, false)
+            root.setOnClickListener { manageLabels.editLabel(label) }
+            labelIcon.setColorFilter(label.color)
         }
-
-        if(workspaceSettings.autoAssignLabels.contains(label.id)) {
-            bindings.labelIcon.setImageResource(R.drawable.ic_label_circle)
-        } else {
-            bindings.labelIcon.setImageResource(R.drawable.ic_label_24dp)
-        }
-
-        bindings.labelIcon.setOnClickListener {
-            if(workspaceSettings.autoAssignLabels.contains(label.id)) {
-                workspaceSettings.autoAssignLabels.remove(label.id)
-            } else {
-                workspaceSettings.autoAssignLabels.add(label.id)
-            }
-            notifyDataSetChanged()
-        }
-
-
-        if(manageLabels.autoAssignMode) {
-            bindings.favouriteIcon.visibility = if(isFavourite) View.VISIBLE else View.GONE
-
-        } else {
-            bindings.favouriteIcon.visibility = View.GONE
-        }
-        bookmarkStyleAdapterHelper.styleView(bindings.labelName, label, context, false, false)
-        bindings.root.setOnClickListener { manageLabels.editLabel(label) }
-        bindings.labelIcon.setColorFilter(label.color)
         return convertView?: bindings.root
     }
 
