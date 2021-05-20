@@ -356,30 +356,39 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(removeRanges) executeJavascriptOnUiThread("bibleView.emit('remove_ranges')")
     }
 
+    fun adjustRange() {
+        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        //    runOnUiThread {
+        //        mainBibleActivity.startActionMode(ActionModeCallback2(null), ActionMode.TYPE_FLOATING)
+        //        //startActionMode(null, ActionMode.TYPE_FLOATING)
+        //    }
+        //}
+    }
+
     @RequiresApi(Build.VERSION_CODES.M)
-    private inner class ActionModeCallback2(val callback: ActionMode.Callback): ActionMode.Callback2() {
+    private inner class ActionModeCallback2(val callback: ActionMode.Callback?): ActionMode.Callback2() {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            val wasUpdated2 = callback.onCreateActionMode(mode, menu)
+            val wasUpdated2 = callback?.onCreateActionMode(mode, menu)?: false
             val wasUpdated1 = false
             return wasUpdated1 || wasUpdated2
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
             if(!actionModeEnabled) return true
-            val wasUpdated2 = callback.onPrepareActionMode(mode, menu)
+            val wasUpdated2 = callback?.onPrepareActionMode(mode, menu)?:false
             val wasUpdated1 = onPrepareActionMenu(mode, menu)
             return wasUpdated1 || wasUpdated2
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             val handled1 = onActionMenuItemClicked(mode, item)
-            val handled2 = callback.onActionItemClicked(mode, item)
+            val handled2 = callback?.onActionItemClicked(mode, item)?:false
             if(handled1) stopSelection(true)
             return handled1 || handled2
         }
 
         override fun onDestroyActionMode(mode: ActionMode) {
-            return callback.onDestroyActionMode(mode)
+            callback?.onDestroyActionMode(mode)
         }
 
         override fun onGetContentRect(mode: ActionMode, view: View, outRect: Rect) {
@@ -391,7 +400,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    override fun startActionMode(callback: ActionMode.Callback, type: Int): ActionMode {
+    override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             super.startActionMode(ActionModeCallback2(callback), type)
         } else {
@@ -404,25 +413,25 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     // This can be removed after Lollipop support is dropped.
-    private inner class ActionModeCallback(val callback: ActionMode.Callback): ActionMode.Callback {
+    private inner class ActionModeCallback(val callback: ActionMode.Callback?): ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            callback.onCreateActionMode(mode, menu)
+            callback?.onCreateActionMode(mode, menu)
             return true
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
             if(!actionModeEnabled) return true
-            val wasUpdated1 = callback.onPrepareActionMode(mode, menu)
+            val wasUpdated1 = callback?.onPrepareActionMode(mode, menu)?: false
             val wasUpdated2 = onPrepareActionMenu(mode, menu)
             return wasUpdated1 || wasUpdated2
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            return onActionMenuItemClicked(mode, item) || callback.onActionItemClicked(mode, item)
+            return onActionMenuItemClicked(mode, item) || callback?.onActionItemClicked(mode, item)?: false
         }
 
         override fun onDestroyActionMode(mode: ActionMode?) {
-            return callback.onDestroyActionMode(mode)
+            callback?.onDestroyActionMode(mode)
         }
     }
 

@@ -66,6 +66,7 @@
       </div>
       <BookmarkButtons
         :bookmark="bookmark"
+        :document-id="documentId"
         @close-bookmark="showBookmark = false"
         @info-clicked="infoShown = false"
       />
@@ -108,6 +109,7 @@ export default {
     const areYouSure = ref(null);
     const infoShown = ref(false);
     const bookmarkId = ref(null);
+    const documentId = ref(null);
 
     const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
 
@@ -124,8 +126,9 @@ export default {
     const bookmarkNotes = computed(() => bookmark.value.notes);
     let originalNotes = null;
 
-    setupEventBusListener(Events.BOOKMARK_CLICKED, (bookmarkId_, {openInfo = false, open = false} = {}) => {
+    setupEventBusListener(Events.BOOKMARK_CLICKED, (bookmarkId_, documentId_, {openInfo = false, open = false} = {}) => {
       bookmarkId.value = bookmarkId_;
+      documentId.value = documentId_;
       originalNotes = bookmarkNotes.value;
       //if(!showBookmark.value) infoShown.value = false;
       infoShown.value = openInfo;
@@ -159,7 +162,7 @@ export default {
 
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,  bookmark, labelColor,
-      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, ...common
+      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, documentId, ...common
     };
   },
 }

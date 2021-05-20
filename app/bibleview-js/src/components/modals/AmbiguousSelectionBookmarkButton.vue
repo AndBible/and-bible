@@ -24,6 +24,7 @@
     <div style="height: 7px"/>
     <BookmarkButtons
       :bookmark="bookmark"
+      :document-id="documentId"
       show-study-pad-buttons
       @info-clicked="editNotes"
     />
@@ -45,6 +46,7 @@ export default {
   name: "AmbiguousSelectionBookmarkButton",
   props: {
     bookmarkId: {required: true, type: Number},
+    documentId: {required: true, type: String},
   },
   components: {LabelList, BookmarkButtons},
   setup(props, {emit: $emit}) {
@@ -71,17 +73,17 @@ export default {
 
     function editNotes() {
       $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {open: true});
+      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, props.documentId, {open: true});
     }
 
     function openBookmark() {
       $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id);
+      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, props.documentId);
     }
 
     function bookmarkInfo() {
       $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openInfo: true});
+      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, props.documentId, {openInfo: true});
     }
 
     return {
