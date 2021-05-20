@@ -23,7 +23,7 @@
     </div>
     <template #title>
       <template v-if="isFootNote">
-        {{ sprintf(strings.noteText, typeStr) }}
+        {{ noteType }}
 
       </template>
       <template v-else-if="isCrossReference">
@@ -74,7 +74,8 @@ export default {
   computed: {
     handle: ({n}) => n || runningHandle(),
     isFootNote: ({type}) => ["explanation", "translation", "study", "variant", "alternative", "x-editor-correction"].includes(type),
-    typeStr: ({type, typeStrings, strings}) => get(typeStrings, type, strings.footnoteTypeUndefined),
+    typeStr: ({type, typeStrings}) => get(typeStrings, type),
+    noteType: ({typeStr, sprintf, strings}) => typeStr ? sprintf(strings.noteText, typeStr) : strings.noteTextWithoutType,
     isCrossReference: ({type}) => type === "crossReference",
     isOther: ({isCrossReference, isFootNote}) => !isCrossReference && !isFootNote
   },
