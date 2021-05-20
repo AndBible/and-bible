@@ -27,7 +27,7 @@
       <div class="bookmark-button" @click="shareVerse">
         <FontAwesomeIcon icon="share-alt"/>
       </div>
-      <div :class="{highlighted: !bookmark.wholeVerse}" class="bookmark-button" @click="toggleWholeVerse">
+      <div :class="{highlighted: bookmark.wholeVerse}" class="bookmark-button" @click="toggleWholeVerse">
         <FontAwesomeIcon icon="text-width"/>
       </div>
       <template v-if="showStudyPadButtons">
