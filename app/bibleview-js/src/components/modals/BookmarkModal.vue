@@ -64,26 +64,11 @@
           <a :href="`journal://?id=${label.id}&bookmarkId=${bookmark.id}`">{{ sprintf(strings.openStudyPad, label.name) }}</a>
         </div>
       </div>
-
-      <div style="display: flex; justify-content: space-between;">
-        <div class="bookmark-buttons">
-          <div class="bookmark-button" @click="assignLabels">
-            <FontAwesomeIcon icon="tags"/>
-          </div>
-          <div class="bookmark-button" @click="infoShown=false">
-            <FontAwesomeIcon icon="edit"/>
-          </div>
-          <div class="bookmark-button" @click="shareVerse">
-            <FontAwesomeIcon icon="share-alt"/>
-          </div>
-        </div>
-        <div class="bookmark-buttons" style="align-self: end;">
-          <div class="bookmark-button end" @click="removeBookmark">
-            <FontAwesomeIcon icon="trash"/>
-          </div>
-        </div>
-      </div>
-
+      <BookmarkButtons
+        :bookmark="bookmark"
+        @close-bookmark="showBookmark = false"
+        @info-clicked="infoShown = false"
+      />
       <div class="info-text">
         <div v-if="bookmark.bookName">
           <span v-html="sprintf(strings.bookmarkAccurate, originalBookLink)"/>
@@ -99,12 +84,6 @@
 
     </template>
   </Modal>
-  <AreYouSure ref="areYouSure">
-    <template #title>
-      {{ strings.removeBookmarkConfirmationTitle }}
-    </template>
-    {{ strings.removeBookmarkConfirmation }}
-  </AreYouSure>
 </template>
 
 <script>
@@ -118,10 +97,11 @@ import AreYouSure from "@/components/modals/AreYouSure";
 import EditableText from "@/components/EditableText";
 import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
+import BookmarkButtons from "@/components/BookmarkButtons";
 
 export default {
   name: "BookmarkModal",
-  components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure},
+  components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure, BookmarkButtons},
   setup() {
     const showBookmark = ref(false);
     const android = inject("android");
@@ -161,17 +141,6 @@ export default {
       originalNotes = null;
     }
 
-    function assignLabels() {
-      android.assignLabels(bookmark.value.id);
-    }
-
-    async function removeBookmark() {
-      if(await areYouSure.value.areYouSure()) {
-        showBookmark.value = false;
-        android.removeBookmark(bookmark.value.id);
-      }
-    }
-
     const {adjustedColor, strings, ...common} = useCommon();
 
     const labelColor = computed(() => {
@@ -182,19 +151,15 @@ export default {
       android.saveBookmarkNote(bookmark.value.id, text);
     }
 
-    function shareVerse() {
-      android.shareBookmarkVerse(bookmark.value.id);
-    }
-
     const originalBookLink = computed(() =>
       `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`)
 
     const editDirectly = ref(false);
 
+
     return {
-      showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes, shareVerse,
-      removeBookmark,  assignLabels,  bookmark, labelColor, changeNote, labels, originalBookLink,
-      strings, adjustedColor, editDirectly, ...common
+      showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,  bookmark, labelColor,
+      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, ...common
     };
   },
 }

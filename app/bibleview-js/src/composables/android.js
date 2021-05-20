@@ -258,7 +258,9 @@ export function useAndroid({bookmarks}, config) {
     function setAsPrimaryLabel(bookmarkId, labelId) {
         android.setAsPrimaryLabel(bookmarkId, labelId);
     }
-
+    function setBookmarkWholeVerse(bookmarkId, value) {
+        android.setBookmarkWholeVerse(bookmarkId, value);
+    }
     function reportModalState(value) {
         android.reportModalState(value)
     }
@@ -286,6 +288,7 @@ export function useAndroid({bookmarks}, config) {
         setAsPrimaryLabel,
         toggleBookmarkLabel,
         reportModalState,
+        setBookmarkWholeVerse,
     }
 
     if(config.developmentMode) return {

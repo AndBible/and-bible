@@ -204,6 +204,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 mode.finish()
                 return true
             }
+            R.id.add_bookmark_whole_verse -> {
+                makeBookmark(true)
+                mode.finish()
+                return true
+            }
             R.id.remove_bookmark -> {
                 val sel = currentSelection
                 if(sel?.bookmarks?.isNotEmpty() == true) {
@@ -226,7 +231,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private fun makeBookmark() {
+    private fun makeBookmark(wholeVerse: Boolean = false) {
         val selection = currentSelection?: return
         Log.d(TAG, "makeBookmark")
         val book = Books.installed().getBook(selection.bookInitials)
@@ -238,7 +243,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val v11n = book.versification
         val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
         val textRange = BookmarkEntities.TextRange(selection.startOffset!!, selection.endOffset!!)
-        val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
+        val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, wholeVerse, book)
         val initialLabels = windowBehaviorSettings.autoAssignLabels ?: emptyList()
         bookmark.primaryLabelId = windowBehaviorSettings.autoAssignPrimaryLabel
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
@@ -308,11 +313,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
             // For some reason, these do not seem to be correct from XML, even though specified there
             menu.findItem(R.id.add_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            menu.findItem(R.id.add_bookmark_whole_verse).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.remove_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.share_verses).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             if(currentSelection == null) {
                 menu.findItem(R.id.add_bookmark).isVisible = false
+                menu.findItem(R.id.add_bookmark_whole_verse).isVisible = false
                 menu.findItem(R.id.compare).isVisible = false
                 menu.findItem(R.id.share_verses).isVisible = false
             }

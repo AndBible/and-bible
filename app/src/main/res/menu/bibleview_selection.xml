@@ -25,6 +25,11 @@
 			android:orderInCategory="1"
 			app:showAsAction="always"
 			/>
+		<item android:id="@+id/add_bookmark_whole_verse"
+			android:title="@string/add_bookmark_whole_verse"
+			android:orderInCategory="1"
+			app:showAsAction="always"
+			/>
 		<item android:id="@+id/remove_bookmark"
 			android:title="@string/remove_bookmark"
 			android:orderInCategory="2"

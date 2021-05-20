@@ -367,6 +367,7 @@
     <string name="label_name_prompt">Name</string>
     <string name="label_unlabelled">Unlabelled</string>
     <string name="add_bookmark1">Bookmark</string>
+    <string name="add_bookmark_whole_verse">Bookmark Verse</string>
     <string name="remove_bookmark">Remove</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
@@ -835,6 +836,6 @@
        please report issues to text maintainers
     </string>
     <string name="does_not_exist_abbreviation">Does Not Exist</string>
-
-
+    <string name="cant_change_wholeverse">Can\'t turn off whole verse marking for this bookmark</string>
+    <string name="whole_verse_turned_on">Bookmark is now marked for whole verse</string>
 </resources>

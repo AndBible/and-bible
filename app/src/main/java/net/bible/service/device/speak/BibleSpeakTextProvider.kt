@@ -407,7 +407,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
             if(bookmark == null) {
                 playbackSettings.bookmarkWasCreated = true
-                bookmark = Bookmark(VerseRange(startVerse.versification, startVerse), null, null)
+                bookmark = Bookmark(VerseRange(startVerse.versification, startVerse), null, true, null)
                 bookmark.playbackSettings = playbackSettings
                 bookmark = bookmarkControl.addOrUpdateBookmark(bookmark)
             }

@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
+import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.BibleDocument
@@ -201,6 +202,19 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun reportModalState(value: Boolean) {
         bibleView.modalOpen = value
+    }
+
+    @JavascriptInterface
+    fun setBookmarkWholeVerse(bookmarkId: Long, value: Boolean) {
+        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+        if(!value && bookmark.textRange == null) {
+            ABEventBus.getDefault().post(ToastEvent(R.string.cant_change_wholeverse))
+            return
+        }
+        bookmark.wholeVerse = value
+
+        bookmarkControl.addOrUpdateBookmark(bookmark)
+        if(value) ABEventBus.getDefault().post(ToastEvent(R.string.whole_verse_turned_on))
     }
 
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
