@@ -159,7 +159,7 @@ export default {
     background-color: rgba(255, 255, 255, 0.2);
   }
   &.notAssigned {
-    border-style: dotted;
+    border-style: solid;
   }
   border-color: rgba(0, 0, 0, 0);
 }
