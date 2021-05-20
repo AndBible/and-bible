@@ -858,15 +858,23 @@ private val MIGRATION_47_48_autoAssignLabels = object : Migration(47, 48) {
 private val MIGRATION_48_49_anchorOrdinal = object : Migration(48, 49) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
-            execSQL("ALTER TABLE `PageManager` ADD COLUMN `commentary_anchorOrdinal` INT DEFAULT NULL")
-            execSQL("ALTER TABLE `PageManager` ADD COLUMN `dictionary_anchorOrdinal` INT DEFAULT NULL")
-            execSQL("ALTER TABLE `PageManager` ADD COLUMN `general_book_anchorOrdinal` INT DEFAULT NULL")
-            execSQL("ALTER TABLE `PageManager` ADD COLUMN `map_anchorOrdinal` INT DEFAULT NULL")
-            execSQL("ALTER TABLE `HistoryItem` ADD COLUMN `anchorOrdinal` INT DEFAULT NULL")
+            execSQL("ALTER TABLE `PageManager` ADD COLUMN `commentary_anchorOrdinal` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `PageManager` ADD COLUMN `dictionary_anchorOrdinal` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `PageManager` ADD COLUMN `general_book_anchorOrdinal` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `PageManager` ADD COLUMN `map_anchorOrdinal` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `HistoryItem` ADD COLUMN `anchorOrdinal` INTEGER DEFAULT NULL")
         }
     }
 }
 
+private val MIGRATION_49_50_wholeVerseBookmark = object : Migration(49, 50) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Bookmark` ADD COLUMN `wholeVerse` INTEGER NOT NULL DEFAULT 0")
+            execSQL("UPDATE `Bookmark` SET wholeVerse = startOffset IS NULL")
+        }
+    }
+}
 
 object DatabaseContainer {
     private var instance: AppDatabase? = null
@@ -930,6 +938,7 @@ object DatabaseContainer {
                         MIGRATION_46_47_primaryLabel,
                         MIGRATION_47_48_autoAssignLabels,
                         MIGRATION_48_49_anchorOrdinal,
+                        MIGRATION_49_50_wholeVerseBookmark
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

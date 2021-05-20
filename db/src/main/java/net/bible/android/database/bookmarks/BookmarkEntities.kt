@@ -127,6 +127,7 @@ class BookmarkEntities {
 
         @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        @ColumnInfo(defaultValue = "0") var wholeVerse: Boolean = false,
         ): VerseRangeUser {
         constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: AbstractPassageBook? = null): this(
             verseRange.toV11n(KJVA).start.ordinal,
@@ -138,20 +139,22 @@ class BookmarkEntities {
             book = book,
             startOffset = textRange?.start,
             endOffset = textRange?.end,
+            wholeVerse = textRange == null,
         )
 
         constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, book: AbstractPassageBook?, playbackSettings: PlaybackSettings?): this(
-            verseRange.toV11n(KJVA).start.ordinal,
-            verseRange.toV11n(KJVA).end.ordinal,
-            verseRange.start.ordinal,
-            verseRange.end.ordinal,
-            verseRange.versification,
-            playbackSettings,
-            id,
-            createdAt,
-            book,
-            textRange?.start,
-            textRange?.end,
+            kjvOrdinalStart = verseRange.toV11n(KJVA).start.ordinal,
+            kjvOrdinalEnd = verseRange.toV11n(KJVA).end.ordinal,
+            ordinalStart = verseRange.start.ordinal,
+            ordinalEnd = verseRange.end.ordinal,
+            v11n = verseRange.versification,
+            playbackSettings = playbackSettings,
+            id = id,
+            createdAt = createdAt,
+            book = book,
+            startOffset = textRange?.start,
+            endOffset = textRange?.end,
+            wholeVerse = textRange == null,
         )
 
         var textRange: TextRange?
