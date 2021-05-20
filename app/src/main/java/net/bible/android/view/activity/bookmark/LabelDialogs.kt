@@ -74,7 +74,6 @@ class LabelDialogs @Inject constructor(private val bookmarkControl: BookmarkCont
         val view = LabelEditWidget(context, null, label)
 
         AlertDialog.Builder(context)
-            .setTitle(titleId)
             .setView(view)
             .setPositiveButton(R.string.okay) { _, _ ->
                 if(!label.isUnlabeledLabel) {
