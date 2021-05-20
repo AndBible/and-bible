@@ -34,6 +34,10 @@ import {osisToTemplateString} from "@/utils";
 
 const parser = new DOMParser();
 
+// https://stackoverflow.com/questions/49836558/split-string-at-space-after-certain-number-of-characters-in-javascript/49836804
+const splitRegex = /.{1,100}(\s|$)/g
+const spacesRegex = /\s+/
+
 export default {
   name: "OsisDocument",
   components: {OsisFragment, FeaturesLink, OpenAllLink},
@@ -49,9 +53,8 @@ export default {
       provide("referenceCollector", referenceCollector);
     }
 
-    // https://stackoverflow.com/questions/49836558/split-string-at-space-after-certain-number-of-characters-in-javascript/49836804
     function splitString(s) {
-      const v = s.match(/.{1,100}(\s|$)/g);
+      const v = s.match(splitRegex);
       if(v === null) {
         return [s];
       }
@@ -68,13 +71,13 @@ export default {
       let count = 0;
 
       function addAnchor(node, textNode) {
-        if(textNode.textContent.length > 1) {
+        if (textNode.textContent.match(spacesRegex)) {
+          node.parentElement.insertBefore(textNode, node);
+        } else {
           const anchor = xmlDoc.createElement("BWA"); // BibleViewAnchor.vue
           anchor.setAttribute("ordinal", count++);
           anchor.appendChild(textNode)
           node.parentElement.insertBefore(anchor, node);
-        } else {
-          node.parentElement.insertBefore(textNode, node);
         }
       }
 
