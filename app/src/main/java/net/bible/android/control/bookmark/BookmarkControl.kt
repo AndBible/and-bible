@@ -210,18 +210,12 @@ open class BookmarkControl @Inject constructor(
     private var _speakLabel: Label? = null
     val speakLabel: Label get() {
         return _speakLabel
-            ?: dao.labelById(CommonUtils.sharedPreferences.getLong("speak_label_id", -1))
-                ?.also {
-                    _speakLabel = it
-                }
             ?: dao.speakLabelByName()
                 ?.also {
-                    CommonUtils.sharedPreferences.edit().putLong("speak_label_id", it.id).apply()
                     _speakLabel = it
                 }
             ?: Label(name = SPEAK_LABEL_NAME, color = 0).apply {
                 id = dao.insert(this)
-                CommonUtils.sharedPreferences.edit().putLong("speak_label_id", id).apply()
                 _speakLabel = this
             }
     }
@@ -229,18 +223,12 @@ open class BookmarkControl @Inject constructor(
     private var _unlabeledLabel: Label? = null
     val labelUnlabelled: Label get() {
         return _unlabeledLabel
-            ?: dao.labelById(CommonUtils.sharedPreferences.getLong("unlabeled_label_id", -1))
-                ?.also {
-                    _unlabeledLabel = it
-                }
             ?: dao.unlabeledLabelByName()
                 ?.also {
-                    CommonUtils.sharedPreferences.edit().putLong("unlabeled_label_id", it.id).apply()
                     _unlabeledLabel = it
                 }
             ?: Label(name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor).apply {
                 id = dao.insert(this)
-                CommonUtils.sharedPreferences.edit().putLong("unlabeled_label_id", id).apply()
                 _unlabeledLabel = this
             }
     }
