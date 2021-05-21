@@ -37,6 +37,7 @@ to get started.
 - [Jan-Jaap Korpershoek](https://github.com/JJK96), developer
 - [Matt Schlosser](https://github.com/mattschlosser), developer
 - [Ben Vahedy](https://github.com/bvahedy), QA, testing & reporting bugs
+- [Andrew Rogers](https://github.com/agrogers), UX/UI design, project management, email support
 
 ## Acknowledgements
 
