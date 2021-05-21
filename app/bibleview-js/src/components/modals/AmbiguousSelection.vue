@@ -28,6 +28,7 @@
         <AmbiguousSelectionBookmarkButton
           v-else-if="bookmarkMap.has(s.options.bookmarkId)"
           :bookmark-id="s.options.bookmarkId"
+          :document-id="s.options.documentId"
           @selected="selected(s)"
         />
       </template>
@@ -85,7 +86,7 @@ export default {
       if(eventFunctions.length > 0) {
         if(eventFunctions.length === 1) {
           if(eventFunctions[0].options.bookmarkId) {
-            emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId);
+            emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId, eventFunctions[0].options.documentId);
           } else {
             eventFunctions[0].callback();
           }

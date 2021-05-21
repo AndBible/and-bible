@@ -43,7 +43,7 @@ export default {
     // eslint-disable-next-line no-unused-vars,vue/no-setup-props-destructure
     const {id, bookInitials, bookmarks, ordinalRange, originalOrdinalRange, v11n} = props.document;
 
-    provide("bibleDocumentInfo", {ordinalRange, originalOrdinalRange, v11n})
+    provide("bibleDocumentInfo", {id, ordinalRange, originalOrdinalRange, v11n})
 
     const globalBookmarks = inject("globalBookmarks");
     globalBookmarks.updateBookmarks(...bookmarks);

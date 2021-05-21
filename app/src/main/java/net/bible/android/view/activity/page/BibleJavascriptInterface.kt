@@ -217,5 +217,10 @@ class BibleJavascriptInterface(
         if(value) ABEventBus.getDefault().post(ToastEvent(R.string.whole_verse_turned_on))
     }
 
+    @JavascriptInterface
+    fun adjustRange() {
+        bibleView.adjustRange()
+    }
+
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }
