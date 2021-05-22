@@ -61,7 +61,7 @@ class ManageLabels : ListActivityBase() {
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
-    enum class Mode {STUDYPAD, AUTOASSIGN, ASSIGN, HIDELABELS, MANAGELABELS}
+    enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS, MANAGELABELS}
 
     @Serializable
     data class ManageLabelsData(
@@ -78,13 +78,35 @@ class ManageLabels : ListActivityBase() {
         var reset: Boolean = false,
     ) {
         val showUnassigned: Boolean get() = setOf(Mode.HIDELABELS, Mode.MANAGELABELS).contains(mode)
-        val showCheckboxes: Boolean get() = setOf(Mode.AUTOASSIGN, Mode.HIDELABELS, Mode.ASSIGN).contains(mode)
-        val hasResetButton: Boolean get() = setOf(Mode.AUTOASSIGN, Mode.HIDELABELS).contains(mode)
+        val showCheckboxes: Boolean get() = setOf(Mode.HIDELABELS, Mode.ASSIGN).contains(mode)
+        val hasResetButton: Boolean get() = setOf(Mode.WORKSPACE, Mode.HIDELABELS).contains(mode)
+        val workspaceEdits: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
+        val primaryShown: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
+
+        val selectedItems: MutableSet<Long> get() =
+            when (mode) {
+                Mode.WORKSPACE -> autoAssignLabels
+                else -> selectedLabels
+            }
+
+        var primaryLabel: Long? get() =
+            when (mode) {
+                Mode.WORKSPACE -> autoAssignPrimaryLabel
+                Mode.ASSIGN -> bookmarkPrimaryLabel
+                else -> null
+            }
+            set(value) =
+                when (mode) {
+                    Mode.WORKSPACE -> autoAssignPrimaryLabel = value
+                    Mode.ASSIGN -> bookmarkPrimaryLabel = value
+                    else -> {}
+                }
+
         val titleId: Int get() {
             return when(mode) {
                 Mode.ASSIGN -> R.string.assign_labels
                 Mode.STUDYPAD -> R.string.studypads
-                Mode.AUTOASSIGN -> R.string.auto_assign_labels
+                Mode.WORKSPACE -> R.string.auto_assign_labels
                 Mode.HIDELABELS -> R.string.bookmark_settings_hide_labels_title
                 Mode.MANAGELABELS -> R.string.manage_labels
             }
@@ -172,7 +194,6 @@ class ManageLabels : ListActivityBase() {
     }
 
     fun delete(label: BookmarkEntities.Label) {
-        ABEventBus.getDefault().post(ToastEvent(R.string.toast_deletion_cancel))
         data.deletedLabels.add(label.id)
         data.selectedLabels.remove(label.id)
         loadLabelList()

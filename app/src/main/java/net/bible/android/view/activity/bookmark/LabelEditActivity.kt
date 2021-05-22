@@ -28,7 +28,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarkLabelEditBinding
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -63,7 +62,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         var isFavourite: Boolean,
 
         var isAutoAssignPrimary: Boolean,
-        //var isThisBookmarkPrimary: Boolean,
+        var isThisBookmarkPrimary: Boolean,
         var delete: Boolean = false,
     ) {
         fun toJSON(): String = json.encodeToString(serializer(), this)
@@ -81,7 +80,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         setContentView(binding.root)
         buildActivityComponent().inject(this)
 
-        data = json.decodeFromString(serializer(), intent.getStringExtra("data")!!)
+        data = LabelData.fromJSON(intent.getStringExtra("data")!!)
 
         val isNewLabel = data.label.id == 0L
 
@@ -94,38 +93,52 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             data.isFavourite = favouriteLabelCheckBox.isChecked
             data.isAutoAssign = autoAssignCheckBox.isChecked
             data.isAutoAssignPrimary = primaryAutoAssignCheckBox.isChecked
+            if(!data.isAutoAssign) {
+                data.isAutoAssignPrimary = false
+            }
+            data.isThisBookmarkPrimary = primaryLabelCheckBox.isChecked
         }
 
-        binding.apply {
-            if(!data.isAssigning) {
-                thisBookmarkCategory.visibility = View.GONE
-            }
-
+        fun updateUI() = binding.apply {
+            favouriteLabelCheckBox.isChecked = data.isFavourite
+            autoAssignCheckBox.isChecked = data.isAutoAssign
+            primaryAutoAssignCheckBox.isChecked = data.isAutoAssignPrimary
+            primaryLabelCheckBox.isChecked = data.isThisBookmarkPrimary
+            labelName.setText(data.label.displayName)
+            updateColor()
             if (data.label.isUnlabeledLabel) {
                 labelName.isEnabled = false
             }
-            labelName.setText(data.label.displayName)
-            updateColor()
+            primaryAutoAssignCheckBox.isEnabled = data.isAutoAssign
+
+            thisBookmarkCategory.visibility = if(data.isAssigning) View.VISIBLE else View.GONE
+            removeButton.visibility = if(isNewLabel) View.GONE else View.VISIBLE
+        }
+
+        binding.apply {
+            updateData()
+            updateUI()
+
             editColorButton.setOnClickListener {
                 ColorPickerDialog.newBuilder()
                     .setColor(data.label.color)
                     .show(this@LabelEditActivity)
             }
-            favouriteLabelCheckBox.isChecked = data.isFavourite
-            autoAssignCheckBox.isChecked = data.isAutoAssign
-            primaryAutoAssignCheckBox.isChecked = data.isAutoAssignPrimary
 
             okButton.setOnClickListener {
                 updateData()
 
                 val resultIntent = Intent()
-                resultIntent.putExtra("data", json.encodeToString(serializer(), data))
+                resultIntent.putExtra("data", data.toJSON())
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             }
-            if(isNewLabel) {
-                removeButton.visibility = View.GONE
+
+            autoAssignCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+                updateData()
+                updateUI()
             }
+
             cancelButton.setOnClickListener {
                 setResult(Activity.RESULT_CANCELED)
                 finish()
@@ -146,7 +159,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                         data.delete = true
 
                         val resultIntent = Intent()
-                        resultIntent.putExtra("data", json.encodeToString(serializer(), data))
+                        resultIntent.putExtra("data", data.toJSON())
                         setResult(Activity.RESULT_OK, resultIntent)
                         finish()
                     }

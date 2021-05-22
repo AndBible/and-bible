@@ -105,40 +105,6 @@
 					app:layout_constraintTop_toTopOf="@id/primaryLabelTitle"
 					app:layout_constraintBottom_toBottomOf="@id/primaryLabelTitle"
 					/>
-
-				<TextView
-					android:id="@+id/wholeVerseTitle"
-					style="@style/EditBookmarkLabelItemTitle"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="@string/highlight_entire_verse"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/primaryLabelTitle"
-					/>
-				<ImageView
-					android:id="@+id/wholeVerseIcon"
-					android:layout_width="wrap_content"
-					android:layout_height="0dp"
-					app:tint="@color/grey_500"
-					app:layout_constraintStart_toEndOf="@id/wholeVerseTitle"
-					app:layout_constraintTop_toTopOf="@id/wholeVerseTitle"
-					app:layout_constraintBottom_toBottomOf="@id/wholeVerseTitle"
-					/>
-				<Space
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					app:layout_constraintStart_toEndOf="@id/wholeVerseIcon"
-					app:layout_constraintTop_toTopOf="@id/wholeVerseIcon"
-					app:layout_constraintEnd_toStartOf="@id/wholeVerseCheckBox"
-					/>
-				<androidx.appcompat.widget.AppCompatCheckBox
-					android:id="@+id/wholeVerseCheckBox"
-					android:layout_width="wrap_content"
-					android:layout_height="0dp"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintTop_toTopOf="@id/wholeVerseTitle"
-					app:layout_constraintBottom_toBottomOf="@id/wholeVerseTitle"
-					/>
 			</androidx.constraintlayout.widget.ConstraintLayout>
 
 			<TextView

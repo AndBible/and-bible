@@ -25,7 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
-import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.database.SettingsBundle
@@ -351,11 +350,11 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
 class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types): Preference(settings, type) {
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ManageLabels::class.java)
-        val originalValues = value as MutableSet<Long>
+        val originalValues = value as List<Long>
 
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.HIDELABELS,
-            selectedLabels = originalValues,
+            selectedLabels = originalValues.toMutableSet(),
         ).toJSON())
         GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
@@ -365,7 +364,7 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
                     setNonSpecific()
                     onReset?.invoke()
                 } else {
-                    value = resultData.selectedLabels
+                    value = resultData.selectedLabels.toList()
                     onChanged?.invoke(value)
                 }
             }
@@ -378,15 +377,12 @@ class AutoAssignPreference(val windowBehaviorSettings: WorkspaceEntities.WindowB
     override val isBoolean = false
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ManageLabels::class.java)
-        val autoAssignLabels = windowBehaviorSettings.autoAssignLabels
-        val favouriteLabels = windowBehaviorSettings.favouriteLabels
-        val primaryLabel = windowBehaviorSettings.autoAssignPrimaryLabel
 
         intent.putExtra("data", ManageLabels.ManageLabelsData(
-            mode = ManageLabels.Mode.AUTOASSIGN,
-            selectedLabels = autoAssignLabels,
-            autoAssignPrimaryLabel = primaryLabel,
-            favouriteLabels = favouriteLabels,
+            mode = ManageLabels.Mode.WORKSPACE,
+            autoAssignPrimaryLabel = windowBehaviorSettings.autoAssignPrimaryLabel,
+            favouriteLabels = windowBehaviorSettings.favouriteLabels,
+            autoAssignLabels = windowBehaviorSettings.autoAssignLabels,
         ).toJSON())
 
         GlobalScope.launch (Dispatchers.Main) {
