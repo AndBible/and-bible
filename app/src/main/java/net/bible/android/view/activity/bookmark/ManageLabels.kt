@@ -35,8 +35,6 @@ import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
@@ -135,7 +133,6 @@ class ManageLabels : ListActivityBase() {
         binding.resetButton.visibility = if(data.hasResetButton) View.VISIBLE else View.GONE
 
         selectMultiple = data.selectedLabels.size > 1 || CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
-
 
         binding.selectMultipleSwitch.isChecked = selectMultiple
         binding.selectMultipleSwitch.visibility = if(data.showCheckboxes) View.VISIBLE else View.GONE
@@ -269,6 +266,14 @@ class ManageLabels : ListActivityBase() {
         if(data.showUnassigned) {
             labels.add(bookmarkControl.labelUnlabelled)
         }
+        val labelIds = labels.map { it.id }.toSet()
+
+        // Some sanity check
+        data.autoAssignLabels.myRemoveIf { !labelIds.contains(it) }
+        data.favouriteLabels.myRemoveIf { !labelIds.contains(it) }
+        data.selectedLabels.myRemoveIf { !labelIds.contains(it) }
+        data.deletedLabels.myRemoveIf { !labelIds.contains(it) }
+
         notifyDataSetChanged()
     }
 
@@ -276,3 +281,6 @@ class ManageLabels : ListActivityBase() {
         private const val TAG = "BookmarkLabels"
     }
 }
+
+private fun <E> MutableSet<E>.myRemoveIf(function: (it: E) -> Boolean)  = filter { function.invoke(it) }.forEach { remove(it) }
+

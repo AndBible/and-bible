@@ -74,14 +74,15 @@ class ManageLabelItemAdapter(context: Context?,
                 checkbox.setOnCheckedChangeListener { _, isChecked ->
                     if (isChecked) {
                         if (!manageLabels.selectMultiple) {
-                            data.selectedItems.clear()
+                            data.selectedLabels.clear()
+                            data.bookmarkPrimaryLabel = null
                         }
-                        data.selectedItems.add(label.id)
-                        if (data.primaryLabel == null) {
-                            data.primaryLabel = label.id
+                        data.selectedLabels.add(label.id)
+                        if (data.bookmarkPrimaryLabel == null) {
+                            data.bookmarkPrimaryLabel = label.id
                         }
                     } else {
-                        data.selectedItems.remove(label.id)
+                        data.selectedLabels.remove(label.id)
                         ensureNotBookmarkPrimaryLabel(label)
                     }
                     notifyDataSetChanged()
@@ -130,8 +131,12 @@ class ManageLabelItemAdapter(context: Context?,
                 labelIcon.setOnClickListener {
                     if (data.autoAssignLabels.contains(label.id)) {
                         data.autoAssignLabels.remove(label.id)
+                        ensureNotAutoAssignPrimaryLabel(label)
                     } else {
                         data.autoAssignLabels.add(label.id)
+                        if (data.autoAssignPrimaryLabel == null) {
+                            data.autoAssignPrimaryLabel = label.id
+                        }
                     }
                     notifyDataSetChanged()
                 }
