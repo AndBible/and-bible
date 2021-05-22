@@ -307,8 +307,8 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "1") var autoPin: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var speakSettings: SpeakSettings? = null,
 
-        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: List<Long>? = null,
-        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: List<Long>? = null,
+        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<Long> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<Long> = mutableSetOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,
     ) {
         companion object {

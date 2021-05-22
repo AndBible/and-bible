@@ -43,7 +43,7 @@ import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.FontFamilyPreference
 import net.bible.android.view.activity.page.FontSizePreference
-import net.bible.android.view.activity.page.LabelsPreference
+import net.bible.android.view.activity.page.HideLabelsPreference
 import net.bible.android.view.activity.page.LineSpacingPreference
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
@@ -110,7 +110,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.HYPHENATION -> ItemPreference(settings, Types.HYPHENATION)
         Types.TOPMARGIN -> TopMarginPreference(settings)
         Types.LINE_SPACING -> LineSpacingPreference(settings)
-        Types.BOOKMARKS_HIDELABELS -> LabelsPreference(settings, Types.BOOKMARKS_HIDELABELS)
+        Types.BOOKMARKS_HIDELABELS -> HideLabelsPreference(settings, Types.BOOKMARKS_HIDELABELS)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {

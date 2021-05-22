@@ -17,26 +17,46 @@
  */
 package net.bible.android.view.activity.bookmark
 
+import android.app.Activity
 import android.content.Context
-import net.bible.service.device.ScreenSettings.nightMode
+import android.content.Intent
+import android.util.Log
 import android.widget.ArrayAdapter
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsListItemBinding
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.displayName
 
 class ManageLabelItemAdapter(context: Context?,
                              items: List<BookmarkEntities.Label?>?,
                              private val manageLabels: ManageLabels,
-                             private val checkedLabels: MutableSet<Long>,
                              ) : ArrayAdapter<BookmarkEntities.Label?>(context!!, R.layout.manage_labels_list_item, items!!)
 {
+    private val data get() = manageLabels.data
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
     private lateinit var bindings: ManageLabelsListItemBinding
+
+    private fun ensureNotAutoAssignPrimaryLabel(label: BookmarkEntities.Label) {
+        if (data.autoAssignPrimaryLabel == label.id) {
+            data.autoAssignPrimaryLabel = data.autoAssignLabels.toList().firstOrNull()
+        }
+    }
+
+    private fun ensureNotBookmarkPrimaryLabel(label: BookmarkEntities.Label) {
+        if (data.bookmarkPrimaryLabel == label.id) {
+            data.bookmarkPrimaryLabel = data.selectedLabels.toList().firstOrNull()
+        }
+    }
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val label = getItem(position)
 
@@ -47,63 +67,139 @@ class ManageLabelItemAdapter(context: Context?,
             ManageLabelsListItemBinding.bind(convertView)
         }        
 
-        val name = bindings.labelName
-        
-        name.text = label!!.displayName
-        val checkbox = bindings.checkbox
-        if(manageLabels.showCheckboxes) {
-            name.setOnClickListener { checkbox.isChecked = !checkbox.isChecked }
-            checkbox.setOnCheckedChangeListener { _, isChecked -> manageLabels.setEnabled(label, isChecked)}
-            checkbox.isChecked = checkedLabels.contains(label.id)
-        } else {
-            checkbox.visibility = View.GONE
-        }
-        if(manageLabels.studyPadMode) {
-            bindings.labelIcon.setImageResource(R.drawable.ic_baseline_studypads_24)
-        }
-
-        val isFavourite = manageLabels.favouriteLabels.contains(label.id)
-        val isPrimary = manageLabels.primaryLabel == label.id
-
-        if(manageLabels.assignMode || manageLabels.autoAssignMode) {
-            bindings.primaryIcon.visibility = if(checkbox.isChecked) View.VISIBLE else View.INVISIBLE
-            bindings.primaryIcon.setImageResource(if(isPrimary) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_border_24)
-            bindings.primaryIcon.setOnClickListener {
-                manageLabels.primaryLabel = label.id
-                notifyDataSetChanged()
+        bindings.apply {
+            labelName.text = label!!.displayName
+            val checkbox = checkbox
+            if (data.showCheckboxes) {
+                checkbox.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        if (!manageLabels.selectMultiple) {
+                            data.selectedLabels.clear()
+                            data.bookmarkPrimaryLabel = null
+                        }
+                        data.selectedLabels.add(label.id)
+                        if (data.bookmarkPrimaryLabel == null) {
+                            data.bookmarkPrimaryLabel = label.id
+                        }
+                    } else {
+                        data.selectedLabels.remove(label.id)
+                        ensureNotBookmarkPrimaryLabel(label)
+                    }
+                    notifyDataSetChanged()
+                }
+                checkbox.isChecked = data.selectedItems.contains(label.id)
+            } else {
+                checkbox.visibility = View.GONE
             }
-        } else {
-            bindings.primaryIcon.visibility = View.GONE
-        }
+            if (data.mode == ManageLabels.Mode.STUDYPAD) {
+                labelIcon.setImageResource(R.drawable.ic_baseline_studypads_24)
+            }
 
-        if(manageLabels.autoAssignMode) {
-            bindings.favouriteIcon.visibility = View.VISIBLE
-            bindings.favouriteIcon.setImageResource(if(isFavourite) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24)
+            val isFavourite = data.favouriteLabels.contains(label.id)
+            val isPrimary = data.primaryLabel == label.id
 
-            bindings.favouriteIcon.setOnClickListener {
+            favouriteIcon.setImageResource(if (isFavourite) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24)
+            favouriteIcon.setOnClickListener {
                 if(isFavourite) {
-                    manageLabels.favouriteLabels.remove(label.id)
+                    data.favouriteLabels.remove(label.id)
                 } else {
-                    manageLabels.favouriteLabels.add(label.id)
+                    data.favouriteLabels.add(label.id)
                 }
                 notifyDataSetChanged()
             }
 
-        } else {
-            bindings.favouriteIcon.visibility = View.GONE
-        }
-        bookmarkStyleAdapterHelper.styleView(name, label, context, false, false)
-        bindings.editLabel.setOnClickListener { manageLabels.editLabel(label) }
-        bindings.deleteLabel.setOnClickListener { manageLabels.delete(label) }
-        bindings.editLabel.visibility = if(label.isSpeakLabel) View.INVISIBLE else View.VISIBLE
-        bindings.deleteLabel.visibility = if (label.isSpeakLabel || label.isUnlabeledLabel) View.INVISIBLE else View.VISIBLE
-        bindings.labelIcon.setColorFilter(label.color)
-        if (nightMode) {
-            bindings.editLabel.setImageResource(R.drawable.ic_pen_24dp)
-            bindings.deleteLabel.setImageResource(R.drawable.ic_delete_24dp)
-        } else {
-            bindings.editLabel.setImageResource(R.drawable.ic_pen_24dp_black)
-            bindings.deleteLabel.setImageResource(R.drawable.ic_delete_24dp_black)
+            favouriteIcon.visibility = if(data.workspaceEdits) View.VISIBLE else View.GONE
+
+            if (data.primaryShown) {
+                primaryIcon.visibility = if (data.selectedItems.contains(label.id)) View.VISIBLE else View.INVISIBLE
+                primaryIcon.setImageResource(if (isPrimary) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_border_24)
+                primaryIcon.setOnClickListener {
+                    data.primaryLabel = label.id
+                    notifyDataSetChanged()
+                }
+            } else {
+                primaryIcon.visibility = View.GONE
+            }
+
+            if(data.workspaceEdits) {
+                if (data.autoAssignLabels.contains(label.id)) {
+                    labelIcon.setImageResource(R.drawable.ic_label_circle)
+                } else {
+                    labelIcon.setImageResource(R.drawable.ic_label_24dp)
+                }
+
+                labelIcon.setOnClickListener {
+                    if (data.autoAssignLabels.contains(label.id)) {
+                        data.autoAssignLabels.remove(label.id)
+                        ensureNotAutoAssignPrimaryLabel(label)
+                    } else {
+                        data.autoAssignLabels.add(label.id)
+                        if (data.autoAssignPrimaryLabel == null) {
+                            data.autoAssignPrimaryLabel = label.id
+                        }
+                    }
+                    notifyDataSetChanged()
+                }
+            } else {
+                labelIcon.setImageResource(R.drawable.ic_label_24dp)
+            }
+
+            // TODO: implement otherwise
+            bookmarkStyleAdapterHelper.styleView(labelName, label, context, false, false)
+            if(data.mode != ManageLabels.Mode.STUDYPAD) {
+                root.setOnClickListener {
+                    Log.i(TAG, "Edit label clicked")
+                    val intent = Intent(manageLabels, LabelEditActivity::class.java)
+                    val labelData = LabelEditActivity.LabelData(
+                        isAssigning = data.mode == ManageLabels.Mode.ASSIGN,
+                        label = label,
+                        isAutoAssign = data.autoAssignLabels.contains(label.id),
+                        isFavourite = data.favouriteLabels.contains(label.id),
+                        isAutoAssignPrimary = data.autoAssignPrimaryLabel == label.id,
+                        isThisBookmarkPrimary = data.primaryLabel == label.id,
+                    )
+                    intent.putExtra("data", json.encodeToString(serializer(), labelData))
+
+                    GlobalScope.launch(Dispatchers.Main) {
+                        val result = manageLabels.awaitIntent(intent) ?: return@launch
+                        if (result.resultCode != Activity.RESULT_CANCELED) {
+                            manageLabels.loadLabelList()
+                            val newLabelData: LabelEditActivity.LabelData = json.decodeFromString(
+                                serializer(), result.resultData.getStringExtra("data")!!)
+
+                            if (newLabelData.isAutoAssign) {
+                                data.autoAssignLabels.add(label.id)
+                            } else {
+                                data.autoAssignLabels.remove(label.id)
+                            }
+                            if (newLabelData.isFavourite) {
+                                data.favouriteLabels.add(label.id)
+                            } else {
+                                data.favouriteLabels.remove(label.id)
+                            }
+                            if (newLabelData.isAutoAssignPrimary) {
+                                data.autoAssignPrimaryLabel = label.id
+                            } else {
+                                ensureNotAutoAssignPrimaryLabel(label)
+                            }
+                            if (newLabelData.isThisBookmarkPrimary) {
+                                data.bookmarkPrimaryLabel = label.id
+                            } else {
+                                ensureNotBookmarkPrimaryLabel(label)
+                            }
+
+                            if (newLabelData.delete) {
+                                ensureNotBookmarkPrimaryLabel(label)
+                                ensureNotAutoAssignPrimaryLabel(label)
+                                manageLabels.delete(label)
+                            }
+
+                            notifyDataSetChanged()
+                        }
+                    }
+                }
+            }
+            labelIcon.setColorFilter(label.color)
         }
         return convertView?: bindings.root
     }

@@ -31,6 +31,13 @@
     <style name="TransportButtonTheme">
         <item name="android:tint">?attr/transportButtonColor</item>
     </style>
-
-
+    <style name="EditBookmarkLabelCategoryTitle" parent="@android:style/TextAppearance.Medium">
+        <item name="android:paddingStart">2dip</item>
+        <item name="android:paddingTop">15dip</item>
+    </style>
+    <style name="EditBookmarkLabelItemTitle" parent="@android:style/TextAppearance.Small">
+        <item name="android:paddingStart">2dip</item>
+        <item name="android:paddingEnd">5dip</item>
+        <item name="android:paddingTop">15dip</item>
+    </style>
 </resources>

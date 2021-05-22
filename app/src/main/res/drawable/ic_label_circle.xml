@@ -1,0 +1,24 @@
+<!--
+  ~ Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<vector android:height="24.000072dp" android:viewportHeight="95.430565"
+    android:viewportWidth="95.43028" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="@color/grey_500"
+        android:pathData="M48.0953,0.0015A47.7154,47.7154 0,0 0,1.842 34.5856,47.7154 47.7154,0 0,0 34.4758,93.5571 47.7154,47.7154 0,0 0,93.5249 61.0646l0.1257,-0.4392A47.7154,47.7154 0,0 0,60.7347 1.811,47.7154 47.7154,0 0,0 48.0953,0.0015ZM35.6611,15.6272c6.4908,0.0072 12.9995,0.1826 14.0196,0.5197 1.2742,0.4211 2.9501,1.9994 17.3921,16.3801C84.2297,49.6111 84.4142,49.8249 84.4201,52.6371 84.4255,55.3177 84.1729,55.6189 70.3603,69.3603 58.2577,81.4005 57.2952,82.2902 56.0428,82.5931 54.3155,83.0108 53.3942,82.9758 51.8059,82.4316 50.7035,82.0539 48.2201,79.7011 34.5367,66.0739 21.855,53.4442 18.4141,49.8622 17.8733,48.7271L17.1916,47.2965L17.1916,34.1352 17.1916,20.9739l0.6818,-1.4641c0.7599,-1.632 2.0279,-2.7426 3.8748,-3.3943 0.9493,-0.3349 7.4221,-0.4957 13.9129,-0.4884zM28.8513,22.314c-2.1634,0.0471 -4.2835,1.4686 -4.8215,3.4663 -1.2986,4.8226 3.653,8.5236 7.7637,5.8033 3.562,-2.3572 2.6831,-7.8328 -1.4563,-9.073 -0.4849,-0.1453 -0.9866,-0.2076 -1.4859,-0.1967z"
+        />
+</vector>

@@ -141,6 +141,18 @@ class Converters {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
+
+    @TypeConverter
+    fun strToLongSet(s: String?): MutableSet<Long> {
+        if(s == null) return mutableSetOf()
+        return json.decodeFromString(serializer(), s)
+    }
+
+    @TypeConverter
+    fun longSetToStr(obj: Set<Long>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
 }
 
 @Database(

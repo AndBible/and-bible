@@ -25,7 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
-import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.database.SettingsBundle
@@ -348,26 +347,26 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
     }
 }
 
-class LabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types): Preference(settings, type) {
+class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types): Preference(settings, type) {
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ManageLabels::class.java)
-        val originalValues = (value as List<Long>).toLongArray()
-        intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, originalValues)
-        intent.putExtra("resetButton", true)
-        intent.putExtra("title", title)
-        if(type === TextDisplaySettings.Types.BOOKMARKS_HIDELABELS) {
-            intent.putExtra("showUnassigned", true)
-        }
+        val originalValues = value as List<Long>
+
+        intent.putExtra("data", ManageLabels.ManageLabelsData(
+            mode = ManageLabels.Mode.HIDELABELS,
+            selectedLabels = originalValues.toMutableSet(),
+        ).toJSON())
         GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
-            val labels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
-            if(labels != null) {
-                value = labels
-                value
-                onChanged?.invoke(labels)
-            } else if(result?.resultData?.extras?.getBoolean("reset") == true) {
-                setNonSpecific()
-                onReset?.invoke()
+            if(result?.resultCode == Activity.RESULT_OK) {
+                val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                if(resultData.reset) {
+                    setNonSpecific()
+                    onReset?.invoke()
+                } else {
+                    value = resultData.selectedLabels.toList()
+                    onChanged?.invoke(value)
+                }
             }
         }
         return true
@@ -378,33 +377,29 @@ class AutoAssignPreference(val windowBehaviorSettings: WorkspaceEntities.WindowB
     override val isBoolean = false
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ManageLabels::class.java)
-        val autoAssignLabels = (windowBehaviorSettings.autoAssignLabels?: emptyList()).toLongArray()
-        val favouriteLabels = (windowBehaviorSettings.favouriteLabels?: emptyList()).toLongArray()
-        val primaryLabel = windowBehaviorSettings.autoAssignPrimaryLabel
 
-        intent.putExtra("autoAssignMode", true)
+        intent.putExtra("data", ManageLabels.ManageLabelsData(
+            mode = ManageLabels.Mode.WORKSPACE,
+            autoAssignPrimaryLabel = windowBehaviorSettings.autoAssignPrimaryLabel,
+            favouriteLabels = windowBehaviorSettings.favouriteLabels,
+            autoAssignLabels = windowBehaviorSettings.autoAssignLabels,
+        ).toJSON())
 
-        intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, autoAssignLabels)
-        intent.putExtra(BookmarkControl.FAVOURITE_LABEL_IDS, favouriteLabels)
-        intent.putExtra(BookmarkControl.PRIMARY_LABEL_EXTRA, primaryLabel?: 0L)
-
-        intent.putExtra("title", mainBibleActivity.getString(R.string.auto_assign_labels))
         GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
-
-            if(result?.resultData?.extras?.getBoolean("reset") == true) {
-                windowBehaviorSettings.autoAssignLabels = null
-                windowBehaviorSettings.favouriteLabels = null
-                windowBehaviorSettings.autoAssignPrimaryLabel = null
-                onReset?.invoke()
-            }  else if (result?.resultCode == Activity.RESULT_OK){
-                val newAutoAssignLabels = result.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
-                val newFavouriteLabels = result.resultData?.extras?.getLongArray(BookmarkControl.FAVOURITE_LABEL_IDS)?.toList()
-                val newPrimaryLabel = result.resultData?.extras?.getLong(BookmarkControl.PRIMARY_LABEL_EXTRA)
-                windowBehaviorSettings.autoAssignLabels = newAutoAssignLabels
-                windowBehaviorSettings.favouriteLabels = newFavouriteLabels
-                windowBehaviorSettings.autoAssignPrimaryLabel = if(newPrimaryLabel == 0L) null else newPrimaryLabel
-                onChanged?.invoke(1)
+            if(result?.resultCode == Activity.RESULT_OK) {
+                val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                if (resultData.reset) {
+                    windowBehaviorSettings.autoAssignLabels = mutableSetOf()
+                    windowBehaviorSettings.favouriteLabels = mutableSetOf()
+                    windowBehaviorSettings.autoAssignPrimaryLabel = null
+                    onReset?.invoke()
+                } else {
+                    windowBehaviorSettings.autoAssignLabels = resultData.autoAssignLabels
+                    windowBehaviorSettings.favouriteLabels = resultData.favouriteLabels
+                    windowBehaviorSettings.autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
+                    onChanged?.invoke(1)
+                }
             }
         }
         return true

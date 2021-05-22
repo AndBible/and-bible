@@ -99,7 +99,7 @@ open class BookmarkControl @Inject constructor(
 
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> = dao.allBookmarksWithNotes(orderBy)
 
-    fun addOrUpdateBookmark(bookmark: Bookmark, labels: List<Long>?=null): Bookmark {
+    fun addOrUpdateBookmark(bookmark: Bookmark, labels: Set<Long>?=null): Bookmark {
         if(bookmark.id != 0L) {
             dao.update(bookmark)
         } else {
