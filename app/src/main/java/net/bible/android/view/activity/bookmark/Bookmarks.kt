@@ -166,17 +166,20 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
 
         val intent = Intent(this@Bookmarks, ManageLabels::class.java)
-        intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels.toLongArray())
+        intent.putExtra("data", ManageLabels.ManageLabelsData(
+            mode = ManageLabels.Mode.ASSIGN,
+            selectedLabels = labels
+        ).toJSON())
         val result = awaitIntent(intent)
-        val labelIds = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)
-        if(labelIds != null) {
+        if(result?.resultCode == RESULT_OK) {
+            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
             for (b in bookmarks) {
-                bookmarkControl.changeLabelsForBookmark(b, labelIds.toList())
+                bookmarkControl.changeLabelsForBookmark(b, resultData.selectedLabels.toList())
             }
-        }
-        withContext(Dispatchers.Main) {
-            loadLabelList()
-            loadBookmarkList()
+            withContext(Dispatchers.Main) {
+                loadLabelList()
+                loadBookmarkList()
+            }
         }
     }
 
@@ -299,6 +302,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             R.id.manageLabels -> {
                 isHandled = true
                 val intent = Intent(this, ManageLabels::class.java)
+                intent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.MANAGELABELS).toJSON())
                 startActivityForResult(intent, REQUEST_MANAGE_LABELS)
             }
         }

@@ -19,6 +19,7 @@
 package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.graphics.Rect
@@ -246,7 +247,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, wholeVerse, book)
         val initialLabels = windowBehaviorSettings.autoAssignLabels
         bookmark.primaryLabelId = windowBehaviorSettings.autoAssignPrimaryLabel
-        bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels.toList())
+        bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
     }
 
     private fun compareSelection() {
@@ -264,18 +265,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     internal fun assignLabels(bookmarkId: Long) = GlobalScope.launch(Dispatchers.IO) {
         val bookmark = bookmarkControl.bookmarksByIds(listOf(bookmarkId)).first()
-        val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }.toLongArray()
+        val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
         val intent = Intent(mainBibleActivity, ManageLabels::class.java)
-        intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
-        intent.putExtra("title", mainBibleActivity.getString(R.string.assign_labels))
-        intent.putExtra("assignMode", true)
-        intent.putExtra(BookmarkControl.PRIMARY_LABEL_EXTRA, bookmark.primaryLabelId)
+        intent.putExtra("data", ManageLabels.ManageLabelsData(
+            mode = ManageLabels.Mode.ASSIGN,
+            selectedLabels = labels.toMutableSet(),
+            bookmarkPrimaryLabel = bookmark.primaryLabelId
+        ).toJSON())
         val result = mainBibleActivity.awaitIntent(intent)
-        val resultLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
-        if(resultLabels != null) {
-            val newPrimary = result.resultData?.extras?.getLong(BookmarkControl.PRIMARY_LABEL_EXTRA)
-            bookmark.primaryLabelId = if(newPrimary == 0L) null else newPrimary
-            bookmarkControl.addOrUpdateBookmark(bookmark, resultLabels.toList())
+
+        if(result?.resultCode == Activity.RESULT_OK) {
+            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+            bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
+            bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels)
         }
     }
 

@@ -17,28 +17,40 @@
  */
 package net.bible.android.view.activity.bookmark
 
+import android.app.Activity
 import android.content.Context
-import net.bible.service.device.ScreenSettings.nightMode
+import android.content.Intent
+import android.util.Log
 import android.widget.ArrayAdapter
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsListItemBinding
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.displayName
 
 class ManageLabelItemAdapter(context: Context?,
                              items: List<BookmarkEntities.Label?>?,
                              private val manageLabels: ManageLabels,
-                             private val checkedLabels: MutableSet<Long>,
                              ) : ArrayAdapter<BookmarkEntities.Label?>(context!!, R.layout.manage_labels_list_item, items!!)
 {
-    private val workspaceSettings get() = MainBibleActivity.mainBibleActivity.windowRepository.windowBehaviorSettings
+    private val data get() = manageLabels.data
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
     private lateinit var bindings: ManageLabelsListItemBinding
+
+    private fun ensureNotAutoAssignPrimaryLabel(label: BookmarkEntities.Label) {
+        if (data.autoAssignPrimaryLabel == label.id) {
+            data.autoAssignPrimaryLabel = data.selectedLabels.toList().firstOrNull()
+        }
+    }
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val label = getItem(position)
 
@@ -52,73 +64,117 @@ class ManageLabelItemAdapter(context: Context?,
         bindings.apply {
             labelName.text = label!!.displayName
             val checkbox = checkbox
-            if (manageLabels.showCheckboxes) {
+            if (data.showCheckboxes) {
                 checkbox.setOnCheckedChangeListener { _, isChecked ->
                     if (isChecked) {
                         if (!manageLabels.selectMultiple) {
-                            checkedLabels.clear()
+                            data.selectedLabels.clear()
                         }
-                        checkedLabels.add(label.id)
-                        if (workspaceSettings.autoAssignPrimaryLabel == 0L) {
-                            workspaceSettings.autoAssignPrimaryLabel = label.id
+                        data.selectedLabels.add(label.id)
+                        if (data.autoAssignPrimaryLabel == null) {
+                            data.autoAssignPrimaryLabel = label.id
                         }
                     } else {
-                        checkedLabels.remove(label.id)
-                        if (workspaceSettings.autoAssignPrimaryLabel == label.id) {
-                            workspaceSettings.autoAssignPrimaryLabel = checkedLabels.toList().firstOrNull() ?: 0L
-                        }
+                        data.selectedLabels.remove(label.id)
+                        ensureNotAutoAssignPrimaryLabel(label)
                     }
                     notifyDataSetChanged()
                 }
-                checkbox.isChecked = checkedLabels.contains(label.id)
+                checkbox.isChecked = data.selectedLabels.contains(label.id)
             } else {
                 checkbox.visibility = View.GONE
             }
-            if (manageLabels.studyPadMode) {
+            if (data.mode == ManageLabels.Mode.STUDYPAD) {
                 labelIcon.setImageResource(R.drawable.ic_baseline_studypads_24)
             }
 
-            val isFavourite = workspaceSettings.favouriteLabels.contains(label.id)
-            val isPrimary = workspaceSettings.autoAssignPrimaryLabel == label.id
+            val isFavourite = data.favouriteLabels.contains(label.id)
+            val isPrimary = data.autoAssignPrimaryLabel == label.id
 
             favouriteIcon.setImageResource(if (isFavourite) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24)
             favouriteIcon.setOnClickListener {
                 if(isFavourite) {
-                    workspaceSettings.favouriteLabels.remove(label.id)
+                    data.favouriteLabels.remove(label.id)
                 } else {
-                    workspaceSettings.favouriteLabels.add(label.id)
+                    data.favouriteLabels.add(label.id)
                 }
                 notifyDataSetChanged()
             }
 
-            if (manageLabels.assignMode || manageLabels.autoAssignMode) {
+            if (setOf(ManageLabels.Mode.ASSIGN, ManageLabels.Mode.AUTOASSIGN).contains(data.mode)) {
                 primaryIcon.visibility = if (checkbox.isChecked) View.VISIBLE else View.INVISIBLE
                 primaryIcon.setImageResource(if (isPrimary) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_border_24)
                 primaryIcon.setOnClickListener {
-                    workspaceSettings.autoAssignPrimaryLabel = label.id
+                    data.autoAssignPrimaryLabel = label.id
                     notifyDataSetChanged()
                 }
             } else {
                 primaryIcon.visibility = View.GONE
             }
 
-            if (workspaceSettings.autoAssignLabels.contains(label.id)) {
+            if (data.autoAssignLabels.contains(label.id)) {
                 labelIcon.setImageResource(R.drawable.ic_label_circle)
             } else {
                 labelIcon.setImageResource(R.drawable.ic_label_24dp)
             }
 
             labelIcon.setOnClickListener {
-                if (workspaceSettings.autoAssignLabels.contains(label.id)) {
-                    workspaceSettings.autoAssignLabels.remove(label.id)
+                if (data.autoAssignLabels.contains(label.id)) {
+                    data.autoAssignLabels.remove(label.id)
                 } else {
-                    workspaceSettings.autoAssignLabels.add(label.id)
+                    data.autoAssignLabels.add(label.id)
                 }
                 notifyDataSetChanged()
             }
 
+            // TODO: implement otherwise
             bookmarkStyleAdapterHelper.styleView(labelName, label, context, false, false)
-            root.setOnClickListener { manageLabels.editLabel(label) }
+
+            root.setOnClickListener {
+                Log.i(TAG, "Edit label clicked")
+                val intent = Intent(manageLabels, LabelEditActivity::class.java)
+                val labelData = LabelEditActivity.LabelData(
+                    isAssigning = data.mode == ManageLabels.Mode.ASSIGN,
+                    label = label,
+                    isAutoAssign = data.autoAssignLabels.contains(label.id),
+                    isFavourite = data.favouriteLabels.contains(label.id),
+                    isAutoAssignPrimary = data.autoAssignPrimaryLabel == label.id,
+                )
+                intent.putExtra("data", json.encodeToString(serializer(), labelData))
+
+                GlobalScope.launch(Dispatchers.Main) {
+                    val result = manageLabels.awaitIntent(intent) ?: return@launch
+                    if(result.resultCode != Activity.RESULT_CANCELED) {
+                        manageLabels.loadLabelList()
+                        val newLabelData: LabelEditActivity.LabelData = json.decodeFromString(
+                            serializer(), result.resultData.getStringExtra("data")!!)
+
+                        if(newLabelData.isAutoAssign) {
+                            data.autoAssignLabels.add(label.id)
+                        } else {
+                            data.autoAssignLabels.remove(label.id)
+                        }
+                        if(newLabelData.isFavourite) {
+                            data.favouriteLabels.add(label.id)
+                        } else {
+                            data.favouriteLabels.remove(label.id)
+                        }
+                        if(newLabelData.isAutoAssignPrimary) {
+                            data.autoAssignPrimaryLabel = label.id
+                        } else {
+                            ensureNotAutoAssignPrimaryLabel(label)
+                        }
+
+                        if(newLabelData.delete) {
+                            data.deletedLabels.add(label.id)
+                            data.selectedLabels.remove(label.id)
+                            ensureNotAutoAssignPrimaryLabel(label)
+                        }
+
+                        notifyDataSetChanged()
+                    }
+                }
+            }
             labelIcon.setColorFilter(label.color)
         }
         return convertView?: bindings.root

@@ -58,7 +58,8 @@ class CurrentGeneralBookPage internal constructor(
 
     override fun getKeyChooserIntent(context: Context): Intent? = when (currentDocument) {
         FakeBookFactory.journalDocument -> {
-            Intent(context, ManageLabels::class.java).putExtra("studyPadMode", true)
+            Intent(context, ManageLabels::class.java)
+                .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD).toJSON())
         }
         FakeBookFactory.multiDocument -> null
         else -> Intent(context, ChooseGeneralBookKey::class.java)
