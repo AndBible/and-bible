@@ -58,14 +58,15 @@ task vuecli(type: Exec, dependsOn: npmInstall) {
     outputs.dir "$jsDir/dist"
     println("Task names "+gradle.startParameter.taskNames)
     def taskNames = gradle.startParameter.taskNames
-    def isDebug = taskNames.contains(":app:assembleDebug") || taskNames.contains(":app:packageDebug")
+    System.println(taskNames)
+    def isDebug = taskNames.contains(":app:packageDebug")
     def buildCmd
 
     if(!isDebug) {
-        println("Building for production")
+        println("Building js for production")
         buildCmd = "build-production"
     } else {
-        println("Building for debug")
+        println("Building js for debug")
         buildCmd = "build-debug"
     }
     workingDir jsDir
