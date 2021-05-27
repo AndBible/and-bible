@@ -143,8 +143,8 @@ class Converters {
     }
 
     @TypeConverter
-    fun strToList2(s: String?): List<WorkspaceEntities.RecentLabel>? {
-        if(s == null) return null
+    fun strToList2(s: String?): MutableList<WorkspaceEntities.RecentLabel> {
+        if(s == null) return mutableListOf()
         return json.decodeFromString(serializer(), s)
     }
 
