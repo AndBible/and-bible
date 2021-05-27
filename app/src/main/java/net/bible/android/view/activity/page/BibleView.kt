@@ -95,6 +95,7 @@ import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
@@ -124,12 +125,13 @@ import java.util.*
 import kotlin.math.min
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
+class AppSettingsUpdated
 
 /** The WebView component that shows the bible and other documents */
 @SuppressLint("ViewConstructor")
 class BibleView(val mainBibleActivity: MainBibleActivity,
                 internal var windowRef: WeakReference<Window>,
-                private val windowControl: WindowControl,
+                val windowControl: WindowControl,
                 private val bibleKeyHandler: BibleKeyHandler,
                 private val pageControl: PageControl,
                 private val pageTiltScrollControl: PageTiltScrollControl,
@@ -271,13 +273,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             mode = ManageLabels.Mode.ASSIGN,
             selectedLabels = labels.toMutableSet(),
             bookmarkPrimaryLabel = bookmark.primaryLabelId
-        ).toJSON())
+        ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
         val result = mainBibleActivity.awaitIntent(intent)
 
         if(result?.resultCode == Activity.RESULT_OK) {
             val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
             bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
             bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels)
+            windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
+
         }
     }
 
@@ -855,13 +859,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun getUpdateConfigCommand(initial: Boolean): String {
         val favouriteLabels = json.encodeToString(serializer(), workspaceSettings.favouriteLabels)
+        val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
-                    appSettings: {activeWindow: $isActive, nightMode: $nightMode, errorBox: $showErrorBox, favouriteLabels: $favouriteLabels}, 
+                    appSettings: {activeWindow: $isActive, nightMode: $nightMode, errorBox: $showErrorBox, favouriteLabels: $favouriteLabels, recentLabels: $recentLabels}, 
                     initial: $initial
                     });
                 """.trimIndent()
+    }
+
+    fun onEvent(event: AppSettingsUpdated) {
+        updateConfig()
     }
 
     private fun updateConfig(initial: Boolean = false) {

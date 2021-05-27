@@ -37,6 +37,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
@@ -49,6 +50,13 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt
+
+fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.ManageLabelsData) {
+    autoAssignLabels = resultData.autoAssignLabels
+    favouriteLabels = resultData.favouriteLabels
+    autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
+}
+
 
 /**
  *
@@ -114,6 +122,12 @@ class ManageLabels : ListActivityBase() {
         }
 
         fun toJSON(): String = json.encodeToString(serializer(), this)
+        fun applyFrom(workspaceSettings: WorkspaceEntities.WorkspaceSettings): ManageLabelsData {
+            favouriteLabels.addAll(workspaceSettings.favouriteLabels)
+            autoAssignLabels.addAll(workspaceSettings.autoAssignLabels)
+            autoAssignPrimaryLabel = workspaceSettings.autoAssignPrimaryLabel
+            return this
+        }
 
         companion object {
             fun fromJSON(str: String): ManageLabelsData = json.decodeFromString(serializer(), str)
@@ -228,7 +242,8 @@ class ManageLabels : ListActivityBase() {
         ensureNotAutoAssignPrimaryLabel(label)
     }
 
-    fun editLabel(label: BookmarkEntities.Label) {
+    fun editLabel(label_: BookmarkEntities.Label) {
+        var label = label_
         val intent = Intent(this, LabelEditActivity::class.java)
         val labelData = LabelEditActivity.LabelData(
             isAssigning = data.mode == Mode.ASSIGN,
@@ -251,13 +266,9 @@ class ManageLabels : ListActivityBase() {
 
                 } else {
                     shownLabels.remove(label)
-                    shownLabels.add(newLabelData.label)
+                    label = newLabelData.label
+                    shownLabels.add(label)
                     data.changedLabels.add(label.id)
-
-                    if(!shownLabels.contains(label)) {
-                        shownLabels.add(label)
-                        data.selectedLabels.add(label.id)
-                    }
 
                     if (newLabelData.isAutoAssign) {
                         data.autoAssignLabels.add(label.id)
@@ -296,7 +307,20 @@ class ManageLabels : ListActivityBase() {
         val result = Intent()
         bookmarkControl.deleteLabels(deleteLabelIds)
         val saveLabels = shownLabels.filter { data.changedLabels.contains(it.id) && !data.deletedLabels.contains(it.id) }
-        saveLabels.filter { it.id < 0 }.forEach { it.id = 0 }
+        saveLabels.filter { it.id < 0 }.forEach {
+            val oldLabel = it.id
+            it.id = bookmarkControl.insertOrUpdateLabel(it).id
+            for(list in listOf(data.selectedLabels, data.autoAssignLabels, data.changedLabels, data.favouriteLabels)) {
+                if(list.contains(oldLabel)) {
+                    list.remove(oldLabel)
+                    list.add(it.id)
+                }
+            }
+            if(data.primaryLabel == oldLabel) {
+                data.primaryLabel = it.id
+            }
+        }
+
         for (it in saveLabels) {
             bookmarkControl.insertOrUpdateLabel(it)
         }

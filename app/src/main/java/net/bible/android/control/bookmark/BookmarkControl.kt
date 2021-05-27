@@ -35,7 +35,6 @@ import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
@@ -114,6 +113,7 @@ open class BookmarkControl @Inject constructor(
                 bookmark.primaryLabelId = filteredLabels.firstOrNull()?.labelId
                 dao.update(bookmark)
             }
+            windowControl.windowRepository.updateRecentLabels(labels.toList())
         }
 
         addText(bookmark)
@@ -169,6 +169,8 @@ open class BookmarkControl @Inject constructor(
         dao.deleteLabels(bookmark)
         val filteredLabels = labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) }
         dao.insert(filteredLabels)
+        windowControl.windowRepository.updateRecentLabels(filteredLabels.map { it.labelId })
+
         if(filteredLabels.find { it.labelId == bookmark.primaryLabelId } == null) {
             bookmark.primaryLabelId = filteredLabels.firstOrNull()?.labelId
             dao.update(bookmark)

@@ -189,6 +189,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private var isPaused = false
 
+    val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
+
     /**
      * Called when the activity is first created.
      */

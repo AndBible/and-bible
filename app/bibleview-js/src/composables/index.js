@@ -186,6 +186,7 @@ export function useConfig(documentType) {
         nightMode: false,
         errorBox: false,
         favouriteLabels: [],
+        recentLabels: [],
         activeWindow: false,
         rightToLeft: rtl
     });
@@ -217,7 +218,7 @@ export function useConfig(documentType) {
         appSettings.activeWindow = newActive;
     });
 
-    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {favouriteLabels, activeWindow, nightMode, errorBox: errorBoxVal}, initial = false} = {}) {
+    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {favouriteLabels, recentLabels, activeWindow, nightMode, errorBox: errorBoxVal}, initial = false} = {}) {
         const defer = new Deferred();
         if (!initial) emit(Events.CONFIG_CHANGED, defer)
         const oldValue = config.showBookmarks;
@@ -235,6 +236,8 @@ export function useConfig(documentType) {
         appSettings.errorBox = errorBoxVal;
         appSettings.favouriteLabels.splice(0);
         appSettings.favouriteLabels.push(...favouriteLabels);
+        appSettings.recentLabels.splice(0);
+        appSettings.recentLabels.push(...recentLabels);
         errorBox = errorBoxVal;
         if (c.showBookmarks === undefined) {
             // eslint-disable-next-line require-atomic-updates

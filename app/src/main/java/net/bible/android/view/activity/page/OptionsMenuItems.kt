@@ -32,6 +32,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.settings.ColorSettingsActivity
@@ -355,7 +356,7 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.HIDELABELS,
             selectedLabels = originalValues.toMutableSet(),
-        ).toJSON())
+        ).applyFrom(mainBibleActivity.workspaceSettings).toJSON())
         GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
             if(result?.resultCode == Activity.RESULT_OK) {
@@ -365,6 +366,7 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
                     onReset?.invoke()
                 } else {
                     value = resultData.selectedLabels.toList()
+                    mainBibleActivity.workspaceSettings.updateFrom(resultData)
                     onChanged?.invoke(value)
                 }
             }
@@ -378,12 +380,9 @@ class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSet
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ManageLabels::class.java)
 
-        intent.putExtra("data", ManageLabels.ManageLabelsData(
-            mode = ManageLabels.Mode.WORKSPACE,
-            autoAssignPrimaryLabel = workspaceSettings.autoAssignPrimaryLabel,
-            favouriteLabels = workspaceSettings.favouriteLabels,
-            autoAssignLabels = workspaceSettings.autoAssignLabels,
-        ).toJSON())
+        intent.putExtra("data",
+            ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.WORKSPACE).applyFrom(workspaceSettings).toJSON()
+        )
 
         GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
@@ -395,9 +394,7 @@ class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSet
                     workspaceSettings.autoAssignPrimaryLabel = null
                     onReset?.invoke()
                 } else {
-                    workspaceSettings.autoAssignLabels = resultData.autoAssignLabels
-                    workspaceSettings.favouriteLabels = resultData.favouriteLabels
-                    workspaceSettings.autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
+                    workspaceSettings.updateFrom(resultData)
                     onChanged?.invoke(1)
                 }
             }

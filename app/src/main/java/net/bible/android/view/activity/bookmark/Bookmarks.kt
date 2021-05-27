@@ -40,6 +40,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarksBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper
@@ -49,6 +50,7 @@ import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.sword.SwordContentFacade
@@ -78,6 +80,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var speakControl: SpeakControl
+    @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     private val labelList: MutableList<Label> = ArrayList()
@@ -169,13 +172,14 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.ASSIGN,
             selectedLabels = labels
-        ).toJSON())
+        ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
         val result = awaitIntent(intent)
         if(result?.resultCode == RESULT_OK) {
             val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
             for (b in bookmarks) {
                 bookmarkControl.changeLabelsForBookmark(b, resultData.selectedLabels.toList())
             }
+            windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
             withContext(Dispatchers.Main) {
                 loadLabelList()
                 loadBookmarkList()

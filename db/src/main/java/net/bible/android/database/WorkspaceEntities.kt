@@ -302,7 +302,7 @@ class WorkspaceEntities {
     }
 
     @Serializable
-    data class RecentLabel(val labelId: Long, val lastAccess: Long)
+    data class RecentLabel(val labelId: Long, var lastAccess: Long)
 
     data class WorkspaceSettings(
         @ColumnInfo(defaultValue = "0") var enableTiltToScroll: Boolean = false,

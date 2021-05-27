@@ -184,6 +184,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun setAsPrimaryLabel(bookmarkId: Long, labelId: Long) {
         bookmarkControl.setAsPrimaryLabel(bookmarkId, labelId)
+        bibleView.windowControl.windowRepository.updateRecentLabels(listOf(labelId))
     }
 
     @JavascriptInterface
@@ -197,6 +198,7 @@ class BibleJavascriptInterface(
             labels.add(bookmarkControl.labelById(labelId)!!)
         }
         bookmarkControl.setLabelsForBookmark(bookmark, labels)
+        bibleView.windowControl.windowRepository.updateRecentLabels(listOf(labelId))
     }
 
     @JavascriptInterface

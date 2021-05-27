@@ -32,6 +32,8 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
+import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
@@ -434,6 +436,22 @@ open class WindowRepository @Inject constructor(
         for (it in windows) {
             it.bibleView?.updateTextDisplaySettings()
         }
+    }
+
+    fun updateRecentLabels(labelIds: List<Long>) {
+        for(labelId in labelIds) {
+            val existingLabel = workspaceSettings.recentLabels.find { it.labelId == labelId }
+            if (existingLabel != null) {
+                existingLabel.lastAccess = System.currentTimeMillis()
+                workspaceSettings.recentLabels.sortBy { it.lastAccess }
+            } else {
+                workspaceSettings.recentLabels.add(WorkspaceEntities.RecentLabel(labelId, System.currentTimeMillis()))
+                while (workspaceSettings.recentLabels.size > 5) {
+                    workspaceSettings.recentLabels.removeAt(0)
+                }
+            }
+        }
+        ABEventBus.getDefault().post(AppSettingsUpdated())
     }
 
     companion object {
