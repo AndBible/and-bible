@@ -17,27 +17,13 @@
  */
 package net.bible.android.control.page
 
-import android.app.Activity
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Intent
 import android.util.Log
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.Scripture
-import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
-import java.util.*
 import javax.inject.Inject
 
 /**
