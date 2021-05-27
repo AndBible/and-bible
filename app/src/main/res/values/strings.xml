@@ -846,4 +846,6 @@
     <string name="favourite_label">Favourite label</string>
     <string name="edit_label">Edit bookmark label</string>
     <string name="delete_label_confirmation">Do you want to remove the label %s?</string>
+    <string name="bookmark_underline_style_arbitrary">Underline style for normal bookmarks</string>
+    <string name="bookmark_underline_style_whole_verse">Underline style for whole verse bookmarks</string>
 </resources>

@@ -250,15 +250,14 @@ class ManageLabels : ListActivityBase() {
                     deleteLabel(label)
 
                 } else {
-                    label.name = newLabelData.label.name
-                    label.color = newLabelData.label.color
+                    shownLabels.remove(label)
+                    shownLabels.add(newLabelData.label)
+                    data.changedLabels.add(label.id)
 
                     if(!shownLabels.contains(label)) {
                         shownLabels.add(label)
                         data.selectedLabels.add(label.id)
                     }
-
-                    data.changedLabels.add(label.id)
 
                     if (newLabelData.isAutoAssign) {
                         data.autoAssignLabels.add(label.id)

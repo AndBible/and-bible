@@ -876,6 +876,15 @@ private val MIGRATION_49_50_wholeVerseBookmark = object : Migration(49, 50) {
     }
 }
 
+private val MIGRATION_50_51_underlineStyle = object : Migration(50, 51) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Label` ADD COLUMN `underlineStyle` INTEGER NOT NULL DEFAULT 0")
+            execSQL("ALTER TABLE `Label` ADD COLUMN `underlineStyleWholeVerse` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -938,7 +947,8 @@ object DatabaseContainer {
                         MIGRATION_46_47_primaryLabel,
                         MIGRATION_47_48_autoAssignLabels,
                         MIGRATION_48_49_anchorOrdinal,
-                        MIGRATION_49_50_wholeVerseBookmark
+                        MIGRATION_49_50_wholeVerseBookmark,
+                        MIGRATION_50_51_underlineStyle,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

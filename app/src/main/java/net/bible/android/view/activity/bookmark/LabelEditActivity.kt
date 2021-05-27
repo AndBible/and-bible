@@ -81,7 +81,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             val name = labelName.text.toString()
             data.label.name = name
         }
-
+        data.label.underlineStyle = underLineStyle.isChecked
+        data.label.underlineStyleWholeVerse = underLineStyleWholeVerse.isChecked
         data.isFavourite = favouriteLabelCheckBox.isChecked
         data.isAutoAssign = autoAssignCheckBox.isChecked
         data.isAutoAssignPrimary = primaryAutoAssignCheckBox.isChecked
@@ -97,6 +98,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         primaryAutoAssignCheckBox.isChecked = data.isAutoAssignPrimary
         primaryLabelCheckBox.isChecked = data.isThisBookmarkPrimary
         labelName.setText(data.label.displayName)
+        underLineStyle.isChecked = data.label.underlineStyle
+        underLineStyleWholeVerse.isChecked = data.label.underlineStyleWholeVerse
         updateColor()
         if (data.label.isUnlabeledLabel) {
             labelName.isEnabled = false

@@ -263,7 +263,9 @@ class BookmarkEntities {
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         var name: String = "",
         @ColumnInfo(name = "bookmarkStyle") var bookmarkStyleDeprecated: BookmarkStyle? = null,
-        @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor
+        @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
+        @ColumnInfo(defaultValue = "0") var underlineStyle: Boolean = false,
+        @ColumnInfo(defaultValue = "0") var underlineStyleWholeVerse: Boolean = false,
     ) {
         override fun toString() = name
         val isSpeakLabel get() = name == SPEAK_LABEL_NAME
