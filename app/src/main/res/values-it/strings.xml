@@ -51,7 +51,7 @@
   <string name="search_result_count">%d risultati trovati</string>
   <string name="search_showing_first">Troppi risultati. Mostro i primi %d</string>
   <string name="search_bible_section_group_prompt">Dove cercare</string>
-  <string name="search_all_bible">Bibbia intera </string>
+  <string name="search_all_bible">Tutta la Bibbia </string>
   <string name="search_new_testament">Nuovo Testamento</string>
   <string name="search_old_testament">Antico Testamento</string>
   <string name="search_current_book">Libro attuale</string>
@@ -95,8 +95,8 @@
   <string name="prefs_text_size_sample_text">Testo d\'esempio</string>
   <string name="prefs_screen_keep_on_title">Tieni lo schermo acceso</string>
   <string name="prefs_screen_keep_on_summary">Impedisci la sospensione dello schermo durante l\'utilizzo di questa app</string>
-  <string name="prefs_interface_locale_title">Applicazione della lingua</string>
-  <string name="prefs_interface_locale_summary">Seleziona la lingua dell\'utente personalizzato</string>
+  <string name="prefs_interface_locale_title">Lingua dell\'applicazione</string>
+  <string name="prefs_interface_locale_summary">Scegli una lingua personalizzata per l\'interfaccia</string>
   <string name="reset_fontsize">Ripristina</string>
   <string name="prefs_request_sdcard_permission_title">Esistono documenti installati manualmente</string>
   <string name="prefs_request_sdcard_permission_summary">Abilita l\'uso di documenti installati manualmente dalla cartella jsword/sword sulla memoria interna</string>
@@ -111,7 +111,7 @@
   <string name="prefs_margin_size_title">Cambia la dimensione del margine</string>
   <string name="prefs_margin_size_mm_title">Dimensione del margine (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Impostazioni avanzate</string>
-  <string name="prefs_display_customization_cat">Guarda &amp; senti</string>
+  <string name="prefs_display_customization_cat">Aspetto dell\'interfaccia</string>
   <string name="prefs_behavior_customization_cat">Comportamento dell\'applicazione</string>
   <string name="prefs_margin_size_summary">Regola il margine sinistro e destro della visualizzazione del testo. Puoi anche regolare la larghezza massima del testo.</string>
   <string name="prefs_text_colors_summary">Regola i colori del testo e dello sfondo e l\'effetto del rumore</string>
@@ -280,7 +280,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="delete_index">Cancella l\'indice di ricerca</string>
   <string name="about">Informazioni</string>
   <string name="delete_doc">Cancella %s?</string>
-  <string name="delete_search_index_doc">Cancella l\'indice di %s?</string>
+  <string name="delete_search_index_doc">Cancellare l\'indice di %s?</string>
   <!--Verse context menu-->
   <string name="notes">Note e referenze</string>
   <string name="share_verse">Condividere…</string>
@@ -299,10 +299,11 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="manage_labels">Gestisci etichette</string>
   <string name="assign_labels">Assegna le etichette</string>
   <string name="new_item">Nuovo</string>
-  <string name="new_label">Etichetta nuova</string>
+  <string name="new_label">Nuova etichetta</string>
   <string name="label_name_prompt">Nome</string>
   <string name="label_unlabelled">Senza etichetta</string>
   <string name="add_bookmark1">Segnalibro</string>
+  <string name="add_bookmark_whole_verse">Segnalibro su verso</string>
   <string name="remove_bookmark">Rimuovi</string>
   <string name="bookmark_settings_hide_labels_title">Nascondi le etichette specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Nascondi i segnalibri che sono marcati con le etichette specificate</string>
@@ -310,7 +311,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="label_color">Colore dell\'etichetta</string>
   <string name="label_color_example">Esempio</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
-  <string name="sort_by_date">Ordine di data</string>
+  <string name="sort_by_date">Ordine per data</string>
   <string name="sort_by_bible_book">Ordine biblico</string>
   <string name="sort_by_alphabetical">Ordine alfabetico</string>
   <!--Dictionary-->
@@ -336,11 +337,11 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="pause">Pausa</string>
   <string name="rewind">Riavvolgere</string>
   <string name="forward">Avanti</string>
-  <string name="tts_lang_not_available">La lingua non è disponibile</string>
+  <string name="tts_lang_not_available">La lingua non è disponibile.</string>
   <string name="speak_queue">Coda</string>
   <string name="speak_repeat">Ripeti</string>
   <!--Speak - Bible-->
-  <string name="speak_speed_title">Parla/Audio velocità</string>
+  <string name="speak_speed_title">Velocità del testo parlato</string>
   <string name="speak_and_play_earcons_title">Parla e riproduci suoni per auricolari</string>
   <string name="playback_settings_title">Impostazioni di riproduzione</string>
   <string name="speak_settings_title">Impostazioni generali di Parla/Audio</string>
@@ -514,7 +515,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="switch_to_workspace">Spazi di lavoro</string>
   <string name="delete_workspace">Rimuovi</string>
   <string name="new_copied_workspace">Copia come nuovo</string>
-  <string name="workspace_number">Area di lavoro %d</string>
+  <string name="workspace_number">Spazio di lavoro %d</string>
   <string name="rename_workspace">Rinomina</string>
   <string name="workspace_selector_title">Seleziona gli spazi di lavoro</string>
   <string name="workspace_settings">Impostazioni…</string>
@@ -556,9 +557,9 @@ Le schermate divise (chiamate anche finestre) hanno il pulsante menu nell\'angol
   <string name="help_contextmenus_text">
 Premendo a lungo si apre il menu di scelta rapida o la modalità di azione in diverse viste.
 Premi a lungo sulla vista della Bibbia per aprire la modalità di azione per le azioni che riguardano il versetto attuale.
-Premere a lungo su un elemento del documento nella visualizzazione elenco di Scegli documento o Scarica per eliminare il documento o visualizzare le informazioni.
-Premere a lungo un segnalibro nell\'elenco dei segnalibri per aggiungere etichette o eliminare un segnalibro.
-Premere a lungo i collegamenti per scegliere se si desidera aprirli nella finestra corrente, in una nuova finestra o nella finestra dei collegamenti speciali.</string>
+Premi a lungo su un elemento del documento nella visualizzazione elenco di Scegli documento o Scarica per eliminare il documento o visualizzare le informazioni.
+Premi a lungo un segnalibro nell\'elenco dei segnalibri per aggiungere etichette o eliminare un segnalibro.
+Premi a lungo i collegamenti per scegliere se desideri aprirli nella finestra corrente, in una nuova finestra o nella finestra dei collegamenti speciali.</string>
   <string name="help_bookmarks_title">Segnalibri &amp; Le mie note</string>
   <string name="help_bookmarks_text">I segnalibri possono essere creati selezionando del testo e scegliendo \"Segnalibri\" dal menù popup. Puoi aggiungere note personali al nuovo segnalibro toccando il testo ora evidenziato della Bibbia. C\'è anche un documento speciale \"Le mie note\" nei commentari che ti consente di vedere le tue note in una finestra separata.</string>
   <string name="help_studypads_title">Appunti di studio</string>
@@ -592,7 +593,7 @@ Puoi fissare le finestre dal menù opzioni (icona con tre punti, angolo in alto 
 Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella visualizzazione Bibbia, ma solo una finestra non fissa. Le finestre fisse vengono mostrate per prime, e dopo quelle non fisse. Potresti trovare utile aprire i documenti della Bibbia come finestre fisse, mentre i commentari, mappe, ecc. come finestre non fisse. In questo modo puoi facilmente avere i documenti biblici sempre aperti, e passare rapidamente ai commentari e ad altro materiale extra durante lo studio della Bibbia.</string>
   <!--Welcome text-->
   <string name="redownload_documents">Riscarica rapidamente</string>
-  <string name="welcome_message">Grazie per aver scaricato %s. Al momento non hai Bibbie o documenti installati. Per continuare, per favore installa almeno 1 documento scaricandolo da internet, oppure caricandolo da un backup da un file zip.
+  <string name="welcome_message">Grazie per aver scaricato %s. Al momento non hai Bibbie o documenti installati. Per continuare, per favore installa almeno 1 documento scaricandolo da internet, oppure caricandolo da un backup su file zip.
     </string>
   <string name="redownload_message">
         E\' stato trovato un elenco di libri/documenti precedenti. Clicca qui sotto per riscaricarli facilmente.
@@ -693,4 +694,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
        segnala i problemi a chi si occupa della manutenzione dei testi
     </string>
   <string name="does_not_exist_abbreviation">Non esiste</string>
+  <string name="cant_change_wholeverse">Impossibile disattivare il segnalibro sul verso intero</string>
+  <string name="whole_verse_turned_on">Segnalibro impostato per l\'intero verso</string>
 </resources>

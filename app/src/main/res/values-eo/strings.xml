@@ -310,6 +310,7 @@ laŭ ilia permeso.</string>
   <string name="label_name_prompt">Nomo</string>
   <string name="label_unlabelled">Senetikeda</string>
   <string name="add_bookmark1">Legosigno</string>
+  <string name="add_bookmark_whole_verse">Legosigno (verso)</string>
   <string name="remove_bookmark">Forigi</string>
   <string name="bookmark_settings_hide_labels_title">Kaŝi elektitajn etikedojn</string>
   <string name="bookmark_settings_hide_labels_summary">Kaŝi legosignojn markitajn per specifa(j) etikedo(j)</string>
@@ -671,4 +672,6 @@ Pluigi al vendejo Play</string>
   <string name="text_maintainers">
 raportu ĝin al prizorganto de modulo</string>
   <string name="does_not_exist_abbreviation">Ne ekzistas</string>
+  <string name="cant_change_wholeverse">Ne povas ne marki la tutan verson por tiu ĉi legosigno</string>
+  <string name="whole_verse_turned_on">La tuta verso estas markita kiel legosigno</string>
 </resources>

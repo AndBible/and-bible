@@ -324,9 +324,11 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="label_name_prompt">Naam</string>
   <string name="label_unlabelled">Die etiket is verwyder</string>
   <string name="add_bookmark1">Boekmerke</string>
+  <string name="add_bookmark_whole_verse">Boekmerk Vers</string>
   <string name="remove_bookmark">Verwyder</string>
   <string name="bookmark_settings_hide_labels_title">Versteek gespesifiseerde etikette</string>
   <string name="bookmark_settings_hide_labels_summary">Versteek boekmerke wat met gespesifiseerde etiket(e) gemerk is</string>
+  <string name="auto_assign_labels">Outomatiese toewys van boekmerk etikette</string>
   <string name="label_color">Etiketteer kleur</string>
   <string name="label_color_example">Voorbeeld</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -714,4 +716,7 @@ stuur e-pos aan ontwikkelaars</string>
 Gaan voort na Google Play</string>
   <string name="text_maintainers">
 rapporteer asseblief kwessies aan tekshandhaar</string>
+  <string name="does_not_exist_abbreviation">Bestaan ​​nie</string>
+  <string name="cant_change_wholeverse">Kan nie hele vers merking vir hierdie boekmerk afskakel nie</string>
+  <string name="whole_verse_turned_on">Boekmerk is nou gemerk vir hele vers</string>
 </resources>

@@ -200,18 +200,29 @@
   <string name="download_confirmation">Soll eine Bibel aus dem Internet heruntergeladen werden?</string>
   <string name="download_source_last_updated">letztes Update der Dokumentenliste: %s.</string>
   <string name="download_refreshing_book_list">Auffrischen der Liste erhältlicher Dokumente von den Dokumentservern...</string>
+  <string name="download_source_message1">Dokumente werden von folgenden Quellen heruntergeladen:</string>
   <string name="download_document_confirm_prefix">Download</string>
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>
+  <string name="error_downloading">Während des Herunterladens ist ein Fehler aufgetreten. Bitte überprüfe deine Internetverbindung.</string>
+  <string name="error_downloading_status">Der Server, auf dem %s liegt, hat einen Fehler zurückgegeben: %s (%d).</string>
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
+  <string name="too_many_jobs">Es werden zu viele Aufgaben ausgeführt. Bitte warte, bis einige beendet worden sind und versuche es dann erneut.</string>
   <string name="document_not_installed">Bitte \'%s\' herunterladen</string>
   <string name="free_text_search_documents">Suche</string>
   <string name="chooce_language_hint">Sprache</string>
+  <string name="one_more_back_press">Drücke die Zurück-Taste erneut, um die App zu beenden</string>
   <string name="document_filter_results">%d Dokument(e)</string>
   <string name="download_question_title">Möchten Sie mit dem Herunterladen der Dokumente fortfahren?</string>
+  <string name="download_question_message">Wenn du in einem Land lebst, das unter Verfolgung leidet,
+dann möchtest du evtl. vorsichtig sein, christliches Material über das Internet herunterzuladen.
+Stattdessen wäre es evtl. besser, Zip-Dateien über einen sichereren Weg erhalten und händisch
+über \"Dokumente aus Zip-Datei laden\" installieren. Bist du dir sicher, dass du fortfahren möchtest?
+Alle Dokumente werden verschlüsselt von den Servern übertragen (über HTTPS).</string>
   <string name="do_not_ask_again">Ja, nicht mehr nachfragen</string>
   <string name="recommended_document">Empfohlen!</string>
   <string name="about_version_history">Versionschronik: %s</string>
   <string name="download_errors">Downloadfehler</string>
+  <string name="failed_repositories_message">Konnte nicht mit dem folgenden Dokumentserver verbinden: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Die folgenden Dateien konnten nicht heruntergeladen werden:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Lade Dokument aus Zip-Datei</string>
@@ -228,8 +239,23 @@
   <string name="rdg_plan_selector_title">Leseplan auswählen</string>
   <string name="rdg_plan_day">Tag %s</string>
   <string name="rdg_plan_set_start_date">Setze Startdatum...</string>
+  <string name="set_current_day">Als aktuellen Tag einstellen...</string>
+  <string name="msg_set_current_day_reading_plan">Das wird heute als den aktuellen Tag im Leseplan einstellen und alle vorhergehenden Tage als gelesen markieren. Fortfahren?</string>
   <string name="done">Fertig</string>
   <string name="reset_plan_question">Sind Sie sicher, dass Sie diesen Leseplan zurücksetzen wollen?</string>
+  <string name="import_reading_plan">Leseplan importieren...</string>
+  <string name="import_reading_plan_error">Fehler beim Importieren</string>
+  <string name="import_reading_plan_error_duplicate">Die folgenden Tage waren doppelt vorhanden: %s</string>
+  <string name="import_reading_plan_error_days">Die folgenden Tage waren fehlerhaft: %s</string>
+  <string name="import_reading_plan_anyway">Trotzdem importieren</string>
+  <string name="overwrite_reading_plan">Möchtest du %s überschreiben?</string>
+  <string name="delete_reading_plan">Diesen Leseplan löschen</string>
+  <string name="reading_plan_deleted">Der Leseplan wurde gelöscht</string>
+  <string name="reading_plan_ships_with_ab">Dieser Leseplan wird mit %sgeliefert</string>
+  <string name="confirm_delete_reading_plan">
+        Bist du sicher, dass du %s zusammen mit der Lesechronik löschen willst?
+Hinweis: wenn du den Plan auffrischen möchtest, kannst du ihn einfach mit dem gleichen Dateinamen importieren, und die Lesechronik bleibt erhalten.
+    </string>
   <string name="plan_duplicate_user_plan">
 Es gibt einen benutzerdefinierten Leseplan in sdcard
 jsword/readingplan, der denselben Namen wie ein vordefinierter Leseplan hat. Darum kann er hier nicht angezeigt werden. Bitte benennen Sie den Plan um, ohne die Endung .properties zu ändern.</string>
@@ -263,6 +289,7 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <!--Verse context menu-->
   <string name="notes">Fußnoten und Querverweise</string>
   <string name="share_verse">Teilen...</string>
+  <string name="share_verse_widget_title">Auswahl teilen</string>
   <string name="share_verse_subject_2">Ein Bibelvers wurde mit Ihnen über %s geteilt.</string>
   <string name="compare_translations">Vergleiche Übersetzungen</string>
   <!--Link context menu-->
@@ -270,12 +297,24 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="open_link_in_new_window">Verknüpfung in neuem Fenster öffnen</string>
   <string name="open_link_in_special_window">Verknüpfung in temporären Fenster öffnen</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Lesezeichen &amp; eigene Notizen</string>
+  <string name="migrated_my_notes">Eigene Notizen wurden migriert</string>
   <string name="bookmarks">Lesezeichen</string>
   <string name="bookmark_added">Lesezeichen hinzugefügt</string>
+  <string name="manage_labels">Gruppen verwalten</string>
   <string name="assign_labels">Gruppennamen auswählen</string>
+  <string name="new_item">Neu</string>
   <string name="new_label">Neue Gruppe</string>
   <string name="label_name_prompt">Name</string>
   <string name="label_unlabelled">Nicht kategorisiert</string>
+  <string name="add_bookmark1">Lesezeichen</string>
+  <string name="add_bookmark_whole_verse">Lesezeichen f. Vers</string>
+  <string name="remove_bookmark">Entfernen</string>
+  <string name="bookmark_settings_hide_labels_title">Bestimmte Gruppen verbergen</string>
+  <string name="bookmark_settings_hide_labels_summary">Lesezeichen aus gekennzeichenten Gruppen verbergen</string>
+  <string name="auto_assign_labels">Lesezeichen-Gruppen automatisch zuweisen</string>
+  <string name="label_color">Gruppenfarbe</string>
+  <string name="label_color_example">Beispiel</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Sortieren nach Datum</string>
   <string name="sort_by_bible_book">Sortieren nach Buch</string>
@@ -316,6 +355,7 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="speak_advanced_settings">Erweitert</string>
   <string name="speak_sleep_timer_title">Zeitgeber</string>
   <string name="speak_no_books_available">Keine Bücher zum Vorlesen verfügbar</string>
+  <string name="speak_general_error">Sprachwiedergabe konnte für dieses Buch nicht gestartet werden</string>
   <string name="repeat_passage">Abschnitt wiederholen</string>
   <string name="set_repeat_passage_range">Bereich für die Wiederholung festlegen</string>
   <string name="speak_beginning_of_passage">Abschnittsanfang festlegen</string>
@@ -385,7 +425,17 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <!--User Notes-->
   <string name="mynotes">Eigene Notizen</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Teile, sichere und stelle Daten wieder her</string>
+  <string name="backup_modules">Teilen oder Sichern von Dokumenten nach...</string>
+  <string name="backup_app_database">Teilen oder Sichern der App-Datenbank nach...</string>
+  <string name="backup_app">Teilen oder Sichern der App-Datei (.apk) nach...</string>
+  <string name="restore_app_database">Wiederherstellen der Datenbank von...</string>
+  <string name="restore_database">Wiederherstellen der Datenbankdatei</string>
+  <string name="restore_confirmation">Überschreiben von eigenen Notizen, Lesezeichen, Studienmappen, Leseplänen und Arbeitsräumen?</string>
+  <string name="restore_success">Eigene Notizen, Lesezeichen, Arbeitsmappen, Lesezeichen und Arbeitsräume erfolgreich wiederhergestellt</string>
   <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
+  <string name="backup_success2">Eigene Notizen, Lesezeichen, Arbeitsmappen, Lesezeichen und Arbeitsräume erfolgreich gesichert</string>
+  <string name="backup_modules_success">Aufgewählte Module erfolgreich gesichert</string>
   <string name="backup_modules_email_subject_2">%s Modulbackup</string>
   <string name="backup_modules_email_message_2">Angehängt finden Sie ihr %s Modulbackup, das folgende Module enthält: %s</string>
   <string name="backup_email_subject_2">%s Datenbanksicherung</string>
@@ -404,8 +454,26 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="module_about_installed_version">Installierte Version: %s (%s)</string>
   <string name="module_about_latest_version">Neueste Version: %s (%s)</string>
   <string name="module_about_versification">Versnummerierung: %s</string>
+  <string name="module_about_repository">Quellverzeichnis: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Rückmeldung / Fehlermeldung</string>
+  <string name="report_bug_email_subject_3">[%s] Fehlermeldung für %s %s</string>
+  <string name="report_bug_big_heading">BITTE SCHREIBE DEINE RÜCKMELDUNG ODER ODER FEHLERMELDUNG OBERHALB DIESER LINIE</string>
+  <string name="report_bug_heading1">Anleitung:</string>
+  <string name="report_bug_line_1">Schreib uns kurz, was du gemacht hast bzw was passierte, als das Problem auftrat.</string>
+  <string name="report_bug_heading2">Zum Beispiel:</string>
+  <string name="report_bug_instructions1">1. App geöffnet</string>
+  <string name="report_bug_instructions2">2. Fenstermenü angeklickt</string>
+  <string name="report_bug_instructions3">-&gt; Crash</string>
+  <string name="report_bug_line_2">Manchmal ist es auch hilfreich, händisch Bildschirmfotos vom Problem aufzunehmen.</string>
+  <string name="report_bug_line_3">Bitte verwende diese Funktion, um Probleme zu melden, wenn du merkst, dass sie auftreten.</string>
+  <string name="report_bug_line_4">Du kannst diese Funktion auch auswählen, wenn du die App das erste mal nach einem Crash wieder startest.</string>
+  <string name="report_bug_heading_3">Anhänge:</string>
+  <string name="bug_report_logcat">Log file dieser App. Es sind keine Daten über andere Apps enthalten.</string>
+  <string name="bug_report_screenshot">Bildschirmaufnahme der App, als der Crash auftrat, oder als der Fehlerbericht generiert wurde.</string>
+  <string name="bug_report_attachment_line_1">Diese Dateien anzuhängen hilft den Entwicklern bei der Behebung gemeldeter Fehler.</string>
+  <string name="report_bug_heading_4">Geräteinfo:</string>
   <!--Document types-->
   <string name="doc_type_all">Alle Dokumentarten</string>
   <string name="doc_type_bible">Bibel</string>
@@ -413,6 +481,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="doc_type_dictionary">Wörterbuch</string>
   <string name="doc_type_book">Buch</string>
   <string name="doc_type_map">Karte</string>
+  <string name="doc_type_addons">Add-ons</string>
   <!--Languages-->
   <string name="lang_default">Vorgabe</string>
   <!--General-->
@@ -421,19 +490,24 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="yes">Ja</string>
   <string name="no">Nein</string>
   <string name="error">Fehler</string>
+  <string name="delete_generic">Löschen</string>
   <string name="please_wait">Bitte warten...</string>
   <string name="all">Alles</string>
   <string name="edit">Bearbeiten</string>
+  <string name="reset_generic">Zurücksetzen</string>
   <string name="watch_tutorial_video">Tutorial ansehen (auf Englisch)</string>
   <string name="verse_not_found">Vers wurde nicht gefunden</string>
   <!--Errors-->
   <string name="report_error">Fehlerbericht senden</string>
   <string name="error_occurred">Ein Fehler ist aufgetreten!</string>
+  <string name="error_occurred_crash_last_time">Das letzte Mal, als du diese App verwendet hast, ist sie abgestürzt. Um uns beim Beheben dieses Fehlers zu helfen, würde es uns freuen, wenn du uns eine Fehlermeldung schicken würdest.</string>
   <string name="error_occurred_with_link">Ein Fehler ist aufgetreten. %s</string>
   <string name="error_no_content">Kein Inhalt für diesen Vers</string>
   <string name="error_page_too_large">Seite zu groß zum Laden</string>
   <string name="error_key_not_in_document">Nichts gefunden</string>
+  <string name="error_key_not_in_document2">%s wurde nicht in Dokumen %sgefunden.</string>
   <string name="empty_list">Nichts anzuzeigen</string>
+  <string name="error_skip">Üerspringen</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text zu Sprache</string>
   <string name="notification_channel_progress_status">Fortschrittsanzeige für Dokumentendownload etc.</string>
@@ -470,10 +544,17 @@ Benutzer der Beta-Version werden gebeten, Fehler über Google Play oder (bevorzu
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Verwerfen</string>
   <string name="beta_notice_dismiss_until_update">Bis zum nächsten Update verwerfen</string>
+  <string name="stable_notice_title">Die Applikation hat ein Upgrade erhalten! </string>
+  <string name="upgrade_video_message">Sieh dir ein Video mit den neuen Funktionen der neuen Version an: (%s).</string>
+  <string name="stable_notice_par1">Die neue Version %s von %s wurde erfolgreich installiert!</string>
   <!--History-->
   <string name="history_for">Chronik (%s: Fenster %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigation</string>
+  <string name="help_nav_text">Gehe zum nächsten oder vorhergehenden Kapitel durch Wischen mit dem Finger.
+Doppelklick um den Vollbildschirm ein- und auszuschalten.
+Geteilte Bildschirme (auch Fenster genannt) haben Menüknöpfe rechts oben,
+die es ermöglichen, bestimmte fensterspezifische Funktionen aufzurufen und das Fenster individuell einzurichten.</string>
   <string name="help_contextmenus_title">Kontextmenüs</string>
   <string name="help_contextmenus_text">
 Langes Drücken öffnet das Kontextmenü oder Aktionsmenüs in den verschiedensten Ansichten.
@@ -481,6 +562,15 @@ Langes Drücken in der Bibelansicht öffnet ein Aktionsmenü für den aktuellen 
 Langes Drücken auf ein Dokument in der Dokumentenauswahl oder dem Download ermöglicht das Löschen oder Einsehen zusätzlicher Informationen.
 Langes Drücken auf ein Lesezeichen ermöglicht das Hinzufügen zu Gruppen oder das Löschen des Lesezeichens.
 Langes Drücken auf Verweise ermöglicht die Auswahl, den Verweis im gleichen Fenster, einem neuen Fenster oder einem Spezialfenster für Verweise zu öffnen.</string>
+  <string name="help_bookmarks_title">Lesezeichen &amp; eigene Notizen</string>
+  <string name="help_bookmarks_text">Lesezeichen können erzeugt werden, indem man Text auswählt und \"Lesezeichen vom Pop-up Menü auswählt.
+Du kannst deine eigenen Notizen hinzufügen, indem du den jetzt hervorgehobenen Text anklickst. Es gibt auch ein spezielles Dokument \"eigene Notizen\" unter den Kommentaren, in dem du deine Notizen in einem eigenen Fenster ansehen kannst.</string>
+  <string name="help_studypads_title">Studienmappen</string>
+  <string name="help_studypads_text">
+Studienmappen sollen das Niederschreiben von Predigtnotizen, ganzen Predigten oder einfach persönlichen Notizen fürs Bibelstudium zu erleichtern, die mehrere biblische Querverweise beinhalten. Jede Studienmappe ist mit einer Lesezeichengruppe verbunden.
+Alle Lesezeichen, die in diese Gruppe hinzugefügt worden sind, erscheinen automatisch in der Studienmappe.
+Neben Lesezeichen können auch andere Einträge händisch hinzugefügt werden.
+Tipp: Verwende Arbeitsplatzmenü -&gt; Alle Textoptionen -&gt; Gruppen automatisch zuweisen um alle erstellten Lesezeichen automatisch der Studienmappe hinzuzufügen.</string>
   <string name="help_search_title">Suche</string>
   <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
   <string name="help_workspaces_title">Arbeitsbereich</string>
@@ -495,6 +585,9 @@ Langes Drücken des Vorleseknopfes führt zu den Vorleseeinstellungen.
 Langes Drücken der Versauswahl führt zur Dokumentauswahl.
 Langes Drücken des Rückwärtsknopfes führt zur Chronikliste.</string>
   <string name="help_window_pinning_title">Fensterverankerung</string>
+  <string name="help_window_pinning_text">
+Man kann die Fensterverankerung im Optionenmenü aktivieren (drei Punkte rechts oben).
+Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster angezeigt werden, aber nur ein nicht verankertes. Verankerte Fenster werden zuerst angezeigt, dann nicht verankerte. Es wäre z.B. eine Idee, Bibeldokumente zu verankern und Kommentare und Karten etc. nicht zu verankern. Dann ist es leichter möglich, Bibeldokumente immer geöffnet zu haben und schnell zwischen Kommentaren und anderem Zusatzmaterial zu wechseln.</string>
   <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Schließen</string>

@@ -1,0 +1,63 @@
+openMyNotes: Открыть в Моих заметках
+openStudyPad: Открыть в Блокноте (%s)
+noteText: Сноски (%s)
+crossReferenceText: Перекрестные ссылки
+findAllOccurrences: Найти все случаи
+reportError: Сообщить об ошибке
+errorTitle: Возникла ошибка
+warningTitle: Предупреждение
+normalTitle: "Пожалуйста, обрати внимание"
+footnoteTypeUndefined: Неопределенный тип
+footnoteTypeStudy: Изучение
+footnoteTypeExplanation: Объяснение
+footnoteTypeVariant: Вариант
+footnoteTypeAlternative: Альтернативный
+footnoteTypeTranslation: Перевод
+clearLog: Очистить журнал ошибок
+editNote: Редактировать
+editNotePlaceholder: Редактировать заметку для закладки
+editTextPlaceholder: "Нажмите, чтобы отредактировать текст"
+inputPlaceholder: Пишите здесь
+inputReference: Введите ссылку
+assignLabels: Метки
+bookmarkAccurate: Закладка создана в %s
+bookmarkInaccurate: "Информация о закладке не сохраняется, содержимое отображается в %s."
+defaultBook: Библейский ресурс по умолчанию
+ok: OK
+yes: Yes
+ambiguousSelection: "Какое действие вы хотите предпринять?"
+cancel: Отменить
+removeBookmarkConfirmationTitle: "Удалить закладку?"
+removeBookmarkConfirmation: "Вы уверены, что хотите удалить эту закладку?"
+closeModal: Закрыть
+createdAt: "Созданный: %s"
+lastUpdatedOn: "Последнее обновление: %s"
+strongsLink: Открыть Стронга (%s)
+studyPadLink: Открыть блокнот
+externalLink: Открыть внешнюю ссылку
+referenceLink: Открыть справочную ссылку
+openFootnote: Открыть сноску
+openBookmark: Открыть закладку (%s)
+noMyNotesTitle: Нет заметок для этой главы.
+noMyNotesDescription: >
+  Начните с создания закладок в библейском ресурсе. Закладки появятся здесь, и вы сможете добавлять к ним свои личные заметки.
+emptyStudyPad: >
+  Пустой блокнот. Начните добавлять в этот блокнот, создавая текстовые записи или создавая закладки с меткой закладки, которая соответствует этому блокноту.
+studyPadModalTitle: Редактировать запись в блокноте
+doYouWantToDeleteEntry: "Вы уверены, что хотите удалить эту запись из блокнота?"
+removeStudyPadConfirmationTitle: "Удалить запись в блокноте?"
+dragHelp: "Вы можете перетащить и оставить элемент, чтобы изменить порядок блокнота"
+saved: сохранено
+openAll: Открыть все ссылки
+editBookmarkPlaceholder: "Нажмите, чтобы изменить \"Мои заметки\" для этой закладки"
+onlyLabel: Только ярлык
+wholeBookmark: Всю закладку
+otherNoteText: Прочие примечания
+assignLabelsMenuEntry: Назначить ярлыки
+jumpToStudyPad: Перейти к блокноту
+setAsPrimaryLabel: Сделать основной меткой
+removeBookmarkLabel: Удалить ярлык с закладки
+addBookmarkLabel: Добавить ярлык в закладку
+favouriteLabels: Любимые ярлыки
+recentLabels: Недавние ярлыки
+frequentlyUsedLabels: Часто используемые ярлыки

@@ -1,0 +1,61 @@
+openMyNotes: Atverti mano pastabose
+openStudyPad: Atverti bloknote (%s)
+noteText: Išnašos (%s)
+crossReferenceText: Kryžminės nuorodos
+findAllOccurrences: Rasti visus atitikmenis
+reportError: Pranešti apie klaidą
+errorTitle: Įvyko klaida
+warningTitle: Įspėjimas
+normalTitle: ""
+footnoteTypeUndefined: Neapibrėžtas tipas
+footnoteTypeStudy: ""
+footnoteTypeExplanation: Paaiškinimas
+footnoteTypeVariant: Variantas
+footnoteTypeAlternative: ""
+footnoteTypeTranslation: Vertimas
+clearLog: Išvalyti klaidų žurnalą
+editNote: Taisyti
+editNotePlaceholder: ""
+editTextPlaceholder: "Bakstelėkite, norėdami taisyti tekstą"
+inputPlaceholder: Rašykite čia
+inputReference: Įveskite Biblijos nuorodą
+assignLabels: Etiketės
+bookmarkAccurate: Žymė buvo sukurta dokumente %s
+bookmarkInaccurate: ""
+defaultBook: numatytasis Biblijos dokumentas
+ok: Gerai
+yes: Yes
+ambiguousSelection: "Kurį veiksmą norite atlikti?"
+cancel: Atsisakyti
+removeBookmarkConfirmationTitle: "Šalinti žymę?"
+removeBookmarkConfirmation: "Ar tikrai norite pašalinti šią žymę?"
+closeModal: Užverti
+createdAt: "Sukurta: %s"
+lastUpdatedOn: "Paskiausiai atnaujinta: %s"
+strongsLink: ""
+studyPadLink: Atverti bloknotą
+externalLink: Atverti išorinę nuorodą
+referenceLink: Atverti nuorodos adresą
+openFootnote: Atverti išnašą
+openBookmark: Atverti žymę (%s)
+noMyNotesTitle: ""
+noMyNotesDescription: >
+emptyStudyPad: >
+studyPadModalTitle: Taisyti bloknoto įrašą
+doYouWantToDeleteEntry: "Ar tikrai norite ištrinti šį bloknoto įrašą?"
+removeStudyPadConfirmationTitle: "Šalinti bloknoto įrašą?"
+dragHelp: "Galite tempti elementus, norėdami pertvarkyti bloknotą"
+saved: išsaugota
+openAll: Atverti visas nuorodas
+editBookmarkPlaceholder: "Bakstelėkite, norėdami taisyti šioje eilutėje mano pastabas"
+onlyLabel: Tik etiketę
+wholeBookmark: Visą žymę
+otherNoteText: Kita pastaba
+assignLabelsMenuEntry: Priskirti etiketes
+jumpToStudyPad: Pereiti prie bloknoto
+setAsPrimaryLabel: Nustatyti kaip pirminę etiketę
+removeBookmarkLabel: Šalinti etiketę nuo žymės
+addBookmarkLabel: Pridėti etiketę prie žymės
+favouriteLabels: Mėgstamos etiketės
+recentLabels: Paskiausios etiketės
+frequentlyUsedLabels: Dažniausios etiketės

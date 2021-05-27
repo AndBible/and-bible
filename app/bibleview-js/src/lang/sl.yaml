@@ -56,8 +56,8 @@ otherNoteText: Drug zaznamek
 assignLabelsMenuEntry: Dodelite oznake
 jumpToStudyPad: Skoči na beležnico
 setAsPrimaryLabel: Nastavi kot primarno oznako
-removeBookmarkLabel: ""
-addBookmarkLabel: ""
-favouriteLabels: ""
-recentLabels: ""
-frequentlyUsedLabels: ""
+removeBookmarkLabel: "Iz zaznamka odstrani oznako "
+addBookmarkLabel: Zaznamku dodaj oznako
+favouriteLabels: Priljubljene oznake
+recentLabels: Nedavne oznake
+frequentlyUsedLabels: Pogosto uporabljene oznake

@@ -18,9 +18,9 @@
   <string name="information">Informacije</string>
   <string name="other">Drugo</string>
   <string name="contact">Stik</string>
-  <string name="help_and_tips">Pomoč &amp; namigi</string>
+  <string name="help_and_tips">Pomoč in namigi</string>
   <string name="administration">Upravljanje</string>
-  <string name="rate_application">Ocena &amp; Recenzija na Google Play</string>
+  <string name="rate_application">Ocena in Recenzija na Google Play</string>
   <string name="chooce_document">Zapri dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Izberi knjigo</string>
@@ -44,7 +44,7 @@
   <string name="task_kill_warning">Ta dolgo trajajoča opravila lahko končate, če preklopite na drugo aplikacijo, še preden se le-ta zaključijo.</string>
   <string name="no_tasks_running">Trenutno se ne izvaja nobeno opravilo.</string>
   <!--Search-->
-  <string name="search_words_group_prompt">Najdi vrstice</string>
+  <string name="search_words_group_prompt">Najdi vrstice:</string>
   <string name="search_all_words">Vse besede</string>
   <string name="search_any_word">Katerakoli beseda</string>
   <string name="search_phrase">Fraza</string>
@@ -58,11 +58,11 @@
   <string name="error_executing_search">Napačna iskalna poizvedba</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_summary">Pokaži poglavje in številke vrstic</string>
-  <string name="prefs_verse_per_line_summary">Vsako vrstico prikaži v drugi vrsti.</string>
+  <string name="prefs_verse_per_line_summary">Vsako vrstico prikaži v svoji vrsti.</string>
   <string name="prefs_show_bookmarks_summary">Odznači, da se skrijejo vsi zaznamki.</string>
   <string name="prefs_show_mynotes_summary">V vrsticah prikaži ikono z mojimi opombami.</string>
   <string name="prefs_show_notes_summary">Prikaži zaznamke in sklice.</string>
-  <string name="prefs_show_strongs_summary">Povezave na grške &amp; hebrejske definicije.</string>
+  <string name="prefs_show_strongs_summary">Povezave na grške in hebrejske definicije.</string>
   <string name="prefs_show_morphology_summary">Prikaži Robinsonovo grško oblikoslovje.</string>
   <string name="prefs_section_title_summary">Prikaži nekanonične naslove poglavij.</string>
   <string name="prefs_red_letter_summary">Jezusove besede prikaži v rdeči barvi.</string>
@@ -77,12 +77,12 @@
   <string name="prefs_section_title_title">Naslovi poglavij</string>
   <string name="prefs_red_letter_title">Rdeče črke</string>
   <string name="prefs_tilt_to_scroll_title">Nagib za pomik</string>
-  <string name="prefs_toolbar_button_action_title">Dejanje za pritisk gumba v orodni vrstici</string>
-  <string name="prefs_toolbar_button_action_summary">Dejanje, ki se zgodi s pritiskom/dolgim pritiskom biblije ali komentarja v orodni vrstici</string>
+  <string name="prefs_toolbar_button_action_title">Dejanje za pritisk gumba v orodni vrstici...</string>
+  <string name="prefs_toolbar_button_action_summary">Dejanje, ki se zgodi s pritiskom/dolgim pritiskom biblije ali komentarja v orodni vrstici.</string>
   <string name="prefs_toolbar_button_action_default">Pritisnite, da odprete meni, dolgo pritisnite za zaslon dokumentov (privzeto) </string>
   <string name="prefs_toolbar_button_action_swap_menu">Pritisnite, da odprete naslednji dokument, dolgo pritisnite, da odprete meni</string>
   <string name="prefs_toolbar_button_action_swap_activity">Pritisnite, da odprete naslednji dokument, dolgo pritisnite za zaslon dokumentov</string>
-  <string name="prefs_night_mode_title">Preklop na nočni način</string>
+  <string name="prefs_night_mode_title">Preklop na nočni način...</string>
   <string name="prefs_night_mode_summary">Ali naj se samodejno preklopi na nočni način (če naprava podpira), ročno ali prek sistemskih nastavitev (Android 10+).</string>
   <string name="prefs_night_mode_manual">Ročno</string>
   <string name="prefs_night_mode_automatic">Avtomatsko</string>
@@ -94,7 +94,7 @@
   <string name="prefs_open_links_in_special_window_summary">Za hitrejši prikaz sklicev in Strong-ovih števil.</string>
   <string name="prefs_text_size_sample_text">Primer besedila</string>
   <string name="prefs_screen_keep_on_title">Ohrani prižgan zaslon</string>
-  <string name="prefs_screen_keep_on_summary">Prepreči ugašanje ekrana med uporabo te aplikacije.</string>
+  <string name="prefs_screen_keep_on_summary">Prepreči ugašanje zaslona med uporabo te aplikacije.</string>
   <string name="prefs_interface_locale_title">Jezik aplikacije...</string>
   <string name="prefs_interface_locale_summary">Izbira jezika uporabniškega vmesnika.</string>
   <string name="reset_fontsize">Reset</string>
@@ -107,16 +107,16 @@
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d točk</string>
   <string name="value_mm">%d mm</string>
-  <string name="auto_fullscreen_summary">Ko se pomikate po besedilu samodejno preklopi na cel zaslon. Nasvet: na celozaslonski način lahko vedno preklopite tako, da dvakrat tapnete na zaslon.</string>
+  <string name="auto_fullscreen_summary">Ko se pomikate po besedilu samodejno preklopi na cel zaslon. Nasvet: na celozaslonski način lahko vedno preklopite tako, da dvakrat tapnete po zaslonu.</string>
   <string name="prefs_margin_size_title">Spremeni velikost robu</string>
   <string name="prefs_margin_size_mm_title">Robovi (%d/%d/%d mm)</string>
-  <string name="prefs_advanced_settings_cat">Napredne nastavitve...</string>
-  <string name="prefs_display_customization_cat">Poglej &amp; začuti</string>
+  <string name="prefs_advanced_settings_cat">Napredne nastavitve</string>
+  <string name="prefs_display_customization_cat">Poglej in začuti</string>
   <string name="prefs_behavior_customization_cat">Vedenje aplikacije</string>
   <string name="prefs_margin_size_summary">Prilagodite levi in desni rob prikaza besedila. Prilagodite
         lahko tudi največjo širino besedila.
     </string>
-  <string name="prefs_text_colors_summary">Prilagodite barve besedila in ozadja ter šum ozadja.</string>
+  <string name="prefs_text_colors_summary">Prilagodite barve besedila, ozadje in šum ozadja.</string>
   <string name="text_display_settings_activity_title">Nastavitve prikaza besedila</string>
   <string name="workspace_text_display_settings_title">Nastavitve besedila - %s</string>
   <string name="window_text_display_settings_title">Nastavitve besedila - Okno %d</string>
@@ -132,7 +132,7 @@
   <string name="prefs_top_margin_title">Levi rob</string>
   <string name="prefs_top_margin_summary">Na vrh okna, ki vsebuje biblijski dokument, dodajte rob (z vizualno indikacijo). Biblija se pomakne tako, da se trenutni verz začne pod robom.</string>
   <string name="prefs_hyphenation_title">Deljenje besed</string>
-  <string name="prefs_hyphenation_summary">Samodejno deli besede, če je to jezik podpira.</string>
+  <string name="prefs_hyphenation_summary">Samodejno deli besede, če to jezik podpira.</string>
   <string name="prefs_line_spacing_pt_title">Razmik med vrsticami (%1.1fx)</string>
   <string name="line_spacing_title">Razmik med vrsticami</string>
   <string name="line_spacing_summary">Nastavi razmik med vrsticami.</string>
@@ -142,14 +142,14 @@
   <string name="hide_window_buttons_title">Skrij gumbe oken</string>
   <string name="hide_window_buttons_summary">Gumbi za okna, ki so prikazani na desni strani biblijskih pogledov, so skriti. Vrstica za krmarjenje po oknih na dnu je še vedno prikazana in lahko z dolgim klikom odprete pojavni meni okna.</string>
   <string name="hide_bible_reference_overlay_title">Skrij prekrivni naslov biblije</string>
-  <string name="hide_bible_reference_overlay_summary">Ne prikazujte polprozorne biblijske vrstice na dni ekrana, ko je aplikacija v celozaslonskem načinu</string>
+  <string name="hide_bible_reference_overlay_summary">Ne prikazuje polprozorne biblijske vrstice na dnu zaslona, ko je aplikacija v celozaslonskem načinu.</string>
   <string name="full_screen_hide_buttons_pref_title">Skrij gumbe oken v celozaslonskem prikazu</string>
   <string name="full_screen_hide_buttons_pref_summary">Ko preklopite v celozaslonski način, samodejno skrijte vrstico gumbov z okni, ki je na dnu zaslona</string>
   <string name="prefs_dictionaries_cat">Slovarji</string>
-  <string name="choose_strongs_greek_dictionary_title">Slovar Strong-ovih števil</string>
-  <string name="choose_strongs_greek_dictionary_summary">Izberite Strong-ov slovar za definicije grških besed</string>
-  <string name="choose_strongs_hebrew_dictionary_title">Slovar Strong-ovih števil</string>
-  <string name="choose_strongs_hebrew_dictionary_summary">Izberite Strong-ov slovar za definicije grških besed</string>
+  <string name="choose_strongs_greek_dictionary_title">Slovar grških Strong-ovih števil</string>
+  <string name="choose_strongs_greek_dictionary_summary">Izberite grški Strong-ov slovar za definicije grških besed</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Slovar hebrejskih Strong-ovih števil</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Izberite hebrejski Strong-ov slovar za definicije grških besed</string>
   <string name="choose_strongs_greek_morphology_title">Robinsonovo grško oblikoslovje</string>
   <string name="choose_strongs_greek_morphology_summary">Izberite slovar za Robinsonovno grško oblikoslovje</string>
   <string name="prefs_top_margin_title_mm">Levi rob (%d mm)</string>
@@ -157,7 +157,7 @@
   <string name="font_size_title_pt">Velikost besedila (%d)</string>
   <string name="prefs_font_text_size_summary">Nastavite velikost pisave glavnega besedila</string>
   <string name="pref_font_family_label_name">Družina pisav (%s)</string>
-  <string name="prefs_font_family_summary">Spremeni družino pisav. Namig: več pisav lahko namestite preko Prenosa dokumentov / dodatkov.</string>
+  <string name="prefs_font_family_summary">Spremeni družino pisav. Namig: več pisav lahko namestite preko Prenosa dokumentov.</string>
   <string name="prefs_text_bookmarks_title">Nastavitve Zaznamkov in Mojih opomb</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Nastavitve barv</string>
@@ -241,7 +241,7 @@
   <string name="rdg_plan_selector_title">Izberite načrt branja</string>
   <string name="rdg_plan_day">Dan %s</string>
   <string name="rdg_plan_set_start_date">Nastavi datum začetka...</string>
-  <string name="set_current_day">Nastavi kot trenutni dan…</string>
+  <string name="set_current_day">Nastavi kot trenuten dan…</string>
   <string name="msg_set_current_day_reading_plan">S tem bo današnji dan v tem načrtu nastavljen na trenutni dan, vsi prejšnji dnevi pa bodo označeni kot prebrani. Želite nadaljevati?</string>
   <string name="done">Končano</string>
   <string name="reset_plan_question">Ali ste prepričani, da želite ponastaviti ta načrt?</string>
@@ -264,14 +264,14 @@
         Na SD kartici je uporabnikov načrt branja
         z istim imenom kot notranji načrt. Tega ni mogoče izpisati.
         Preimenujte datoteko, pri čemer ohranite pripono .properties</string>
-  <string name="plan_name_y1ntpspr">NZ, Psalmi &amp; Pregovori v enem letu</string>
+  <string name="plan_name_y1ntpspr">NZ, Psalmi in Pregovori v enem letu</string>
   <string name="plan_description_y1ntpspr">
         Z dovoljenjem spletnega časopisa HEARTLIGHT,
         http://www.heartlight.org.
     </string>
   <string name="plan_name_y1ot1nt1_chronological">Kronološko v enem letu skozi biblijo.</string>
   <string name="plan_description_y1ot1nt1_chronological">
-        Načrt temelji na časovnem zaporedju dogodkih v bibliji.
+        Načrt temelji na časovnem zaporedju dogodkov v bibliji.
         Časovno zaporedje je približno.</string>
   <string name="plan_name_y1ot1nt1_OTandNT">V enem letu hkrati SZ + NZ</string>
   <string name="plan_description_y1ot1nt1_OTandNT">
@@ -325,9 +325,11 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="label_name_prompt">Poimenuj</string>
   <string name="label_unlabelled">Neoznačeni</string>
   <string name="add_bookmark1">Zaznamek</string>
+  <string name="add_bookmark_whole_verse">Vrstica zaznamka</string>
   <string name="remove_bookmark">Odstrani</string>
   <string name="bookmark_settings_hide_labels_title">Skrij nekatere oznake</string>
   <string name="bookmark_settings_hide_labels_summary">Skrij zaznamke, ki so označeni z navedenimi oznakami</string>
+  <string name="auto_assign_labels">Samodejno dodeli oznake zaznamkov</string>
   <string name="label_color">Barva oznake</string>
   <string name="label_color_example">Primer</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -367,7 +369,7 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="speak_settings_title">Splošne nastavitve govora</string>
   <string name="speak_bookmarking_settings_title">Nastavitve zaznamkov</string>
   <string name="speak_bookmarks_menu_title">Govori iz zaznamkov</string>
-  <string name="speak_advanced_settings">Napredne nastavitve..</string>
+  <string name="speak_advanced_settings">Napredne nastavitve...</string>
   <string name="speak_sleep_timer_title">Časovnik za spanje</string>
   <string name="speak_no_books_available">Nobena knjiga ni na voljo za govor</string>
   <string name="speak_general_error">Govora za to knjigo ni bilo mogoče začeti</string>
@@ -375,14 +377,14 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="set_repeat_passage_range">Nastavi obseg ponovitve vrstice</string>
   <string name="speak_beginning_of_passage">Izberi začetek vrstice</string>
   <string name="speak_ending_of_passage">Izberi konec vrstice</string>
-  <string name="speak_verse_range_to_repeat">Izberi obseg vrstic, ki naj se ponove</string>
+  <string name="speak_verse_range_to_repeat">Izberi obseg vrstic, ki naj se ponovijo</string>
   <string name="speak_ending_verse_must_be_later">Končna vrstica mora biti kasneje kakor začetna vrstica</string>
   <string name="conf_speak_synchronize">Besedilo sledi govoru</string>
   <string name="conf_speak_auto_bookmark">Samodejni zaznamki</string>
   <string name="conf_save_playback_settings_to_bookmarks">Shrani nastavitve ponovnega posnetka v zaznamke</string>
   <string name="conf_replace_divinename">Zamenjaj božansko ime z Jehova</string>
-  <string name="conf_change_chapter">Spremembe poglavij</string>
-  <string name="conf_change_title">Naslovi</string>
+  <string name="conf_change_chapter">Spremembo poglavja</string>
+  <string name="conf_change_title">Naslov</string>
   <string name="conf_speak_footnotes">Zaznamki</string>
   <string name="conf_speak_sleep_timer">Nastavi časovnik za spanje</string>
   <string name="sleep_timer_title">Časovnik za spanje v minutah</string>
@@ -395,7 +397,7 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="widget_bookmark_helptext">Tukaj se bo prikazala bližnjica do zaznamkov.</string>
   <string name="speak_status_stopped">ustavljeno</string>
   <string name="speak_autobookmarking_disabled">Avtomatski zaznamki onemogočeni!</string>
-  <string name="system_speak_settings">Sistemske nastavitve Besedila V Govor...</string>
+  <string name="system_speak_settings">Odpri nastavitve besedila v govor...</string>
   <string name="speak_bookmark_help">Govori zaznamki pomoč</string>
   <string name="speak_help_auto_bookmark">
 Govorni zaznamek bo samodejno dodan, ko bo govor zaustavljen ali ustavljen.
@@ -471,7 +473,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="restore_unsuccessfull">Obnovitev baze podatkov ni bila uspešna. Morda ste navedli neveljavno datoteko baze podatkov.</string>
   <string name="backup_phone_storage">Pomnilnik telefona</string>
   <string name="backup_backup_title">Kam varnostno kopiram?</string>
-  <string name="backup_backup_message">Ali želite varnostno kopirati v telefon ali kam drugam s funkcijo skupne rabe (e-pošta, Google Drive itd.)?</string>
+  <string name="backup_backup_message">Ali želite varnostno kopirati v telefon ali kam drugam s funkcijo skupne rabe (e-pošta, Google Drive, itd.)?</string>
   <string name="backup_share">Deli</string>
   <string name="restore_modules">Obnovi dokumente iz…</string>
   <string name="send_backup_file">Pošlji arhivsko datoteko</string>
@@ -494,13 +496,13 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="report_bug_instructions1">1. Odprte aplikacije</string>
   <string name="report_bug_instructions2">2. Kliknjen meni okna</string>
   <string name="report_bug_instructions3">-&gt; Sesutje</string>
-  <string name="report_bug_line_2">Včasih so pri reševanju težav koristni tudi ročno posneti posnetki zaslona.</string>
+  <string name="report_bug_line_2">Včasih so pri reševanju težav koristni tudi ročno zajeti posnetki zaslona.</string>
   <string name="report_bug_line_3">To funkcijo za poročanje uporabite takoj, ko opazite težavo.</string>
   <string name="report_bug_line_4">To funkcijo lahko uporabljate tudi po odprtju aplikacije, potem ko je prišlo do sesutja.</string>
   <string name="report_bug_heading_3">Priloge:</string>
   <string name="bug_report_logcat">Dnevnik, ki ga je ustvarila ta aplikacija. Ne vsebuje informacij o drugih aplikacijah.</string>
   <string name="bug_report_screenshot">Posnetek zaslona aplikacije, ko je prišlo do sesutja ali ko je bilo ustvarjeno poročilo o napaki.</string>
-  <string name="bug_report_attachment_line_1">Če priložite te datoteke, razvijalcem aplikacij veliko pomaga pri odpravljanju prijavljene napake.</string>
+  <string name="bug_report_attachment_line_1">Če priložite te datoteke, to razvijalcem aplikacij zelo pomaga pri odpravljanju prijavljene napake.</string>
   <string name="report_bug_heading_4">Informacije o napravi: </string>
   <!--Document types-->
   <string name="doc_type_all">Vse vrste</string>
@@ -523,7 +525,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="all">Vsi</string>
   <string name="edit">Uredi</string>
   <string name="reset_generic">Reset</string>
-  <string name="watch_tutorial_video">Ogled video navodil (v angleščini)</string>
+  <string name="watch_tutorial_video">Ogled video navodil (v angleščini).</string>
   <string name="verse_not_found">Vrstice ni mogoče najti</string>
   <!--Errors-->
   <string name="report_error">Pošlji poročilo</string>
@@ -557,7 +559,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="select_all">Izberi vse</string>
   <string name="copy_settings_workspaces_title">V katere delovne prostore želite kopirati nastavitve?</string>
   <string name="reset_settings">Reset</string>
-  <string name="workspace_dismiss">Opusti</string>
+  <string name="workspace_dismiss">Prekliči</string>
   <string name="workspace_listing_with_current">%s (trenuten)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">To je beta različica!</string>
@@ -570,13 +572,13 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
         (še raje) prek%s.
     </string>
   <string name="beta_notice_content_3">Če ste programer, razmislite, da bi popravke napak sami prispevali
-        preko %s  :-)</string>
+        preko %s-a.  :-)</string>
   <string name="beta_notice_github_issues">Github izdaje</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Opusti</string>
-  <string name="beta_notice_dismiss_until_update">Opusti do naslednjega popravka</string>
+  <string name="beta_notice_dismiss">Prekliči</string>
+  <string name="beta_notice_dismiss_until_update">Prekliči do naslednjega popravka</string>
   <string name="stable_notice_title">Aplikacija je bila nadgrajena!</string>
-  <string name="upgrade_video_message">Oglejte si video z novimi funkcijami te izdaje (%s).</string>
+  <string name="upgrade_video_message">Oglejte si video z novimi funkcijami te različice (%s).</string>
   <string name="stable_notice_par1">Nova verzija%s od %sje bila uspešno nameščena! </string>
   <!--History-->
   <string name="history_for">Zgodovina (%s: Okno %d)</string>
@@ -585,26 +587,26 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="help_nav_text">Na naslednje ali prejšnje poglavje greste tako, da s prstom povlečete levo ali desno čez zaslon.
         Dvakrat tapnite besedilo Biblije, da preklopite med celozaslonskim načinom.
         Razdeljeni zasloni (imenovani tudi okna) imajo v zgornjem desnem kotu gumb menija,
-        ki vam omogoča uporabo več funkcij, značilnih za okna, in prilagoditev videza in vedenja okna.</string>
+        ki vam omogoča uporabo več funkcij, značilnih za okna, prilagoditev videza in vedenja okna.</string>
   <string name="help_contextmenus_title">Kontekstni meni</string>
   <string name="help_contextmenus_text">
         Dolg pritisk v več pogledih odpre kontekstni meni ali način delovanja.
         Dolg pritisk na biblijski pogled odpre akcijski način za dejanja, ki vplivajo na trenutno vrstico.
         Če želite izbrisati dokument ali si ogledati informacije, na seznamu dolgo pritisnite element dokumenta na seznamu.
-        Dolg pritisk na zaznamek v seznamu zaznamkov, če želite dodati nalepke ali izbrisati zaznamek.
+        Dolg pritisk na zaznamek v seznamu zaznamkov, če želite dodati oznake ali izbrisati zaznamek.
         Dolg pritisk na povezave, če jih želite odpreti v trenutnem oknu, novem oknu ali posebnem oknu povezav.</string>
   <string name="help_bookmarks_title">Zaznamki in Moje opombe</string>
   <string name="help_bookmarks_text">Zaznamke lahko ustvarite tako, da izberete nekaj besedila in v pojavnem meniju izberete
-         »Zaznamek«. Opombe po meri lahko dodate novemu zaznamku, tako da tapnete zdaj
-        poudarjeno besedilo v pogledu Biblij. V komentarjih je tudi poseben dokument \"Moji zapiski,\" ki vam omogoča
-        da si vaše zapiske ogledate v ločenem oknu.</string>
+         »Zaznamek.« Opombe po meri lahko dodate novemu zaznamku, tako da tapnete zdaj
+        poudarjeno besedilo v pogledu Biblij. V komentarjih je tudi poseben dokument \"Moji zapiski,\" ki vam omogoča,
+        da si svoje zapiske ogledate v ločenem oknu.</string>
   <string name="help_studypads_title">Beležke</string>
   <string name="help_studypads_text">       Beležke so zasnovane tako, da olajšajo pisanje opomb, pripravo pridig ali da si samo
-       zapišete osebne zapiske preučevanja Biblije, ki vsebujejo več biblijskih referenc. Vsaka beležnica je povezana z eno oznako zaznamka.
-       Vsi zaznamki, ki so bili ustvarjeni s to oznako, se samodejno prikažejo v dokumentu beležnice.
-       Poleg zaznamkov so na beležnici lahko tudi vnosi besedila po meri.
+       zapišete osebne zapiske preučevanja Biblije, ki vsebujejo več biblijskih referenc. Vsaka beležka je povezana z eno oznako zaznamka.
+       Vsi zaznamki, ki so bili ustvarjeni s to oznako, se samodejno prikažejo v dokumentu beležke.
+       Poleg zaznamkov so na beležki lahko tudi vnosi besedila po meri.
        Namig: uporabite meni Delovni prostor -&gt; Vse možnosti besedila -&gt; Dodelite oznake za samodejno dodelitev vseh ustvarjenih
-       zaznamkov na beležnici.</string>
+       zaznamkov na beležki.</string>
   <string name="help_search_title">Iskanje</string>
   <string name="help_search_text">
 Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
@@ -615,10 +617,10 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
         Delovni prostori omogočajo več delovnih okolij, ki so odvisna od vsebine. Do nastavitev delovnega prostora lahko dostopate prek elementa Delovni prostori v meniju z možnostmi (zgornji desni kot s tremi pikami). Hiter način dostopa do delovnih prostorov je poteg navzdol iz zgornjega desnega kota s tremi pikami. Na prejšnji ali naslednji delovni prostor lahko preklopite tudi s potezo vleke v levo ali v desno prek orodne vrstice.</string>
   <string name="help_hidden_features_title">Skrite bližnjice</string>
   <string name="help_hidden_features_text">
-        Povlecite navzdol z orodne vrstice, da se prikaže izbirnik delovnega prostora.
+        Povlecite navzdol z orodne vrstice, da se prikaže izbira delovnih prostorov.
         Dolgo pritisnite gumb za okno, da hitro zmanjšate.
         Dolgo pritisnite gumb orodne vrstice govori, da hitro odprete nastavitve govora.
-        Dolgo pritisnite naslov vrstice v orodni vrstici, da skočite na izbirnik dokumentov.
+        Dolgo pritisnite naslov vrstice v orodni vrstici, da skočite na izbiro dokumentov.
         Dolgo pritisnite gumb Nazaj za dostop do seznama Zgodovina.
     </string>
   <string name="help_window_pinning_title">Pripenjanje oken</string>
@@ -626,7 +628,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
          Pripenjanje oken lahko omogočite v meniju z možnostmi (tri pike, desni zgornji kot).
          Če je omogočeno pripenjanje oken, lahko v pogledu Biblije prikažete veliko pripetih oken,
          ampak samo eno nepripeto okno. Najprej se prikažejo pripeta okna, nato pa
-         odpeta okna. Morda boste želeli biblijske dokumente odpreti kot  pripeta okna,
+         nepripeta okna. Morda boste želeli biblijske dokumente odpreti kot  pripeta okna,
          komentarje in zemljevide itd. kot nepripeta okna. Potem imate lahko med proučevanjem
          biblije vedno odprte biblijske dokumente in hitro preklapljajte med komentarji in
          drugim dodatnim gradivom.</string>
@@ -663,11 +665,11 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="unlock_info">Informacije o odklepanju šifriranega modula</string>
   <string name="try_again_passphrase">Geslo ni bilo pravo, boste znova poskusiii?</string>
   <string name="cant_delete_last_bible">Zadnjega biblijskega dokumenta ni mogoče odstraniti</string>
-  <string name="show_unlock_info">Modul &amp; informacije o odklepanju</string>
+  <string name="show_unlock_info">Modul in informacije o odklepanju</string>
   <string name="prefs_show_error_box_title">Pokaži okno z Javascript napako</string>
   <string name="prefs_show_error_box_summary">Koristno za razvijalce pri odpravljanju JavaScript napak v programu BibleView. Aplikacija bo počasnejša.</string>
   <string name="active_window_indicator_title">Prikaži indikator aktivnega okna</string>
-  <string name="active_window_indicator_summary">Odebelite vogale oken, da boste lažje prepoznali, katero okno je aktivno</string>
+  <string name="active_window_indicator_summary">Odebelite vogale oken, da boste lažje prepoznali, katero okno je aktivno.</string>
   <string name="app_licence_title">Odprtokodna licenca</string>
   <string name="how_to_contribute">Kako prispevati?</string>
   <string name="confirm_delete_bookmarks">Ali želite odstraniti %d zaznamke in njihove zapiske?</string>
@@ -675,10 +677,10 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="toast_deletion_cancel">Razveljavite brisanje s pritiskom na gumb za preklic.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Priporočite prijatelju</string>
-  <string name="tell_friend_message1">Rad bi vam priporočil %s .</string>
+  <string name="tell_friend_message1">Rad bi vam priporočil: %s .</string>
   <string name="tell_friend_message2">Je zmogljiva, a enostavna Android aplikacija za preučevanje Biblije, brez povezave na internet.</string>
   <string name="tell_friend_message3">Namestite jo iz Trgovine Play: %s</string>
-  <string name="tell_friend_message4">Preberite več &amp; več možnosti namestitve: %s</string>
+  <string name="tell_friend_message4">Preberite več in več možnosti namestitve: %s</string>
   <string name="share_verse_ok">Skupna raba / kopiranje</string>
   <string name="share_verse_menu_title">Skupna raba / kopiranje…</string>
   <string name="show_versenumbers">Pokaži številke verzov</string>
@@ -714,7 +716,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
         Če določeno besedilo v aplikaciji ni na voljo, %s.
     </string>
   <string name="rate_message4">
-        Razvijalci te aplikacije niso odgovorni za vzdrževanje dokumentov..
+        Razvijalci te aplikacije niso odgovorni za vzdrževanje dokumentov.
     </string>
   <string name="bug_report">
         pošljite poročilo o napaki (iz glavnega menija)
@@ -726,9 +728,12 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
        pošlji e-pošto razvijalcem
     </string>
   <string name="proceed_google_play">
-        Pojdite v Google Play
+        Pojdi v Google Play
     </string>
   <string name="text_maintainers">
        prosimo, prijavite težave vzdrževalcem besedila
     </string>
+  <string name="does_not_exist_abbreviation">Ne obstaja</string>
+  <string name="cant_change_wholeverse">Oznake celotne vrstice za ta zaznamek ni mogoče izklopiti</string>
+  <string name="whole_verse_turned_on">Zaznamek je sedaj označen za celotno vrstico</string>
 </resources>

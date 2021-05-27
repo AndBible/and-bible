@@ -27,9 +27,7 @@ commentary_examples: "Gill, Matthew Henry ens. ..."
 cross_reference_examples: "Skat van Skrif kennis, TSKe"
 feature_05: "Gevorderde teks-na-spraak-spraak-boekmerke, wat 'n gladde Bybel beluister ervaring moontlik maak"
 feature_06: Buigsame soek
-feature_07: "Boekmerke, met pasgemaakte boekmerk groepe"
-feature_08: >
-  Persoonlike aantekeninge: voeg u eie studie notas by enige vers van die Bybel
+feature_07: Gevorderde boekmerk & beklemtoon funksies met persoonlike studie notas
 feature_09: >
   Leesplanne: stel doelwitte vir die lees van die Bybel 
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
@@ -43,6 +41,8 @@ feature_11: >
 unavailable_documents: "ESV, NIV en NKJV"
 feature_12: >
   Vanlyn: die enigste keer wat jy internet nodig het, is vir die aflaai van documents.
+feature_13: >
+  Bestudeer blokke vir die toevoeging van notas en Bybel verwysings terwyl jy na preke luister.
 subtitle_3: Kom ons maak die beste Bybel toep saam!
 paragraph_3_1: >
   And Bible is 'n oop brone gemeenskapsprojek. In die praktyk beteken dit dat enigiemand met geskikte vaardighede kan, en word aangemoedig om, by te dra tot die projek deur: 

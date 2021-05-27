@@ -27,9 +27,7 @@ commentary_examples: "Gill, Matthew Henry itd. "
 cross_reference_examples: "Zakladnica znanja Božje besede - Treasure of Scripture Knowledge, TSK"
 feature_05: "Napredna pretvorba besedila v govor z zaznamki za govor, kar omogoča nemoteno izkušnjo poslušanja Biblije - ni še za slovenščino."
 feature_06: Prilagodljivo iskanje
-feature_07: "Zaznamki, obarvani z raznimi barvami"
-feature_08: >
-  Osebne opombe: poljubnim biblijskim vrsticam dodajte lastne opombe
+feature_07: Napredne funkcije zaznamkov in poudarjanja z osebnimi študijskimi opombami
 feature_09: >
   Načrti branja: določite si cilje za branje Biblije
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
@@ -43,6 +41,8 @@ feature_11: >
 unavailable_documents: "ESV, NIV in NKJV"
 feature_12: >
   Brez internetne povezave: internet se potrebujete le za enkraten prenos dokumentov.
+feature_13: >
+  Študijske beležnice za dodajanje opomb in biblijskih referenc med poslušanjem pridig.
 subtitle_3: Skupaj naredimo najboljšo biblijsko aplikacijo!
 paragraph_3_1: >
   And Bible je projekt odprtokodne skupnosti. V praksi to pomeni, da lahko vsak, ki ima ustrezna znanja, k projektu prispeva in ga spodbuja z:

@@ -16,12 +16,12 @@ Aplikacija ima številne vpogledne, izvirne funkcije, zaradi česar je kompleksn
  * Povezani sklici, opombe in dokumenti; skok na reference in opombe s preprostim dotikom povezave; izvedite poglobljeno preučevanje Svetega pisma z uporabo komentarjev (), zbirk referenc (Zakladnica znanja Božje besede - Treasure of Scripture Knowledge, TSK) in drugih virov.
  * Napredna pretvorba besedila v govor z zaznamki za govor, kar omogoča nemoteno izkušnjo poslušanja Biblije - ni še za slovenščino.
  * Prilagodljivo iskanje
- * Zaznamki, obarvani z raznimi barvami
+ * Napredne funkcije zaznamkov in poudarjanja z osebnimi študijskimi opombami
  * Načrti branja: določite si cilje za branje Biblije
  * Ogromna knjižnica dokumentov: prevodi Biblije, komentarji, slovarji, zemljevidi in krščanske knjige, skupaj več kot 1500 dokumentov v več 700 jezikih, ki jih zakonito distribuira Crosswire in druge SWORD shrambe.
  * Izvor vseh dokumentov se prouči, da se zagotovi zakonita distribucija vseh dokumentov, oziroma distribucija z dovoljenjem imetnika avtorskih pravic. To je tudi razlog, da ta aplikacija ne vključuje dokumentov, kot so ESV, NIV in NKJV.
  * Brez internetne povezave: internet se potrebujete le za enkraten prenos dokumentov.
- * 
+ * Študijske beležnice za dodajanje opomb in biblijskih referenc med poslušanjem pridig.
 
 <b>Skupaj naredimo najboljšo biblijsko aplikacijo!</b>
 

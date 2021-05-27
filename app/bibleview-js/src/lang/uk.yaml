@@ -22,7 +22,7 @@ inputReference: Введіть біблійне посилання
 assignLabels: Мітки
 bookmarkAccurate: Закладка була створена в %s
 bookmarkInaccurate: "Закладка інформації про книгу не збереглась, вміст відображається в %s."
-defaultBook: Біблійний документ за замовчуванням
+defaultBook: Біблійний ресурс за замовчуванням
 ok: OK
 yes: Yes
 ambiguousSelection: "Яку дію ви хочете зробити?"
@@ -58,6 +58,6 @@ jumpToStudyPad: Перейти до блокноту
 setAsPrimaryLabel: Встановити як основну мітку
 removeBookmarkLabel: Видалити мітку із закладки
 addBookmarkLabel: Додати мітку до закладки
-favouriteLabels: ""
-recentLabels: ""
-frequentlyUsedLabels: ""
+favouriteLabels: Улюблені мітки
+recentLabels: Недавні мітки
+frequentlyUsedLabels: "Мітки, що часто використовуються"
