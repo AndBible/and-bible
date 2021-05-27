@@ -169,7 +169,8 @@ open class BookmarkControl @Inject constructor(
         dao.deleteLabels(bookmark)
         val filteredLabels = labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) }
         dao.insert(filteredLabels)
-        windowControl.windowRepository.updateRecentLabels(filteredLabels.map { it.labelId })
+        @Suppress("UNNECESSARY_SAFE_CALL") // Leaving for tests
+        windowControl.windowRepository?.updateRecentLabels(filteredLabels.map { it.labelId })
 
         if(filteredLabels.find { it.labelId == bookmark.primaryLabelId } == null) {
             bookmark.primaryLabelId = filteredLabels.firstOrNull()?.labelId
