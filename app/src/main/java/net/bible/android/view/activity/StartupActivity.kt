@@ -299,7 +299,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 }
             }
 
-            pageControl.setFirstUseDefaultVerse()
             startActivity(handlerIntent)
             finish()
         }

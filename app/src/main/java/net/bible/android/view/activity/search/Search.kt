@@ -35,6 +35,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils
 
 import org.apache.commons.lang3.StringUtils
@@ -58,7 +59,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     @Inject lateinit var searchControl: SearchControl
 
     private val documentToSearch: Book?
-        get() = pageControl.currentPageManager.currentPage.currentDocument
+        get() = mainBibleActivity.pageControl.currentPageManager.currentPage.currentDocument
 
     /** get all, any, phrase query limitation
      */

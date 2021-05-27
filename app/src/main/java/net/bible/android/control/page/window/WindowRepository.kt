@@ -102,14 +102,19 @@ open class WindowRepository @Inject constructor(
 
     fun initialize() {
         if(initialized) return
+        var firstTime = false
         if(id == 0L) {
             id = sharedPreferences.getLong("current_workspace_id", 0)
             if (id == 0L || dao.workspace(id) == null) {
                 id = dao.insertWorkspace(WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1)))
                 sharedPreferences.edit().putLong("current_workspace_id", id).apply()
+                firstTime = true
             }
         }
         loadFromDb(id)
+        if(firstTime) {
+            activeWindow.pageManager.setFirstUseDefaultVerse()
+        }
     }
 
     private var _activeWindow: Window? = null

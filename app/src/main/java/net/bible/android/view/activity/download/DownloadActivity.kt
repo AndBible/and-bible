@@ -140,11 +140,9 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
                     binding.documentTypeSpinner.isEnabled = true
                 }
                 val firstTime = swordDocumentFacade.bibles.isEmpty()
-                // if first time
                 when {
                     firstTime -> {
-                        // prepare the document list view - done in another thread
-                        populateMasterDocumentList(false)
+                        populateMasterDocumentList(true)
                         updateLastRepoRefreshDate()
                     }
                     isRepoBookListOld -> {

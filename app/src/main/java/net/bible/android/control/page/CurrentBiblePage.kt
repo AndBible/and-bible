@@ -173,6 +173,7 @@ class CurrentBiblePage(
         WorkspaceEntities.BiblePage(currentDocument?.initials, currentBibleVerse.entity)
 
     fun restoreFrom(entity: WorkspaceEntities.BiblePage) {
+        originalKey = null
         val document = entity.document
         Log.d(TAG, "State document:$document")
         val book = swordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) FakeBookFactory.giveDoesNotExist(document) else null

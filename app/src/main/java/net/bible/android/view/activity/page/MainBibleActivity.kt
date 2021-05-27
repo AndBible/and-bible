@@ -74,6 +74,7 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.DocumentCategory
+import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
@@ -148,6 +149,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var documentControl: DocumentControl
     @Inject lateinit var navigationControl: NavigationControl
     @Inject lateinit var bibleViewFactory: BibleViewFactory
+    @Inject lateinit var pageControl: PageControl
 
     private var navigationBarHeight = 0
     private var actionBarHeight = 0
@@ -220,6 +222,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // backupControl.resetDatabase()
 
         backupControl.clearBackupDir()
+
         windowRepository.initialize()
 
         runOnUiThread {

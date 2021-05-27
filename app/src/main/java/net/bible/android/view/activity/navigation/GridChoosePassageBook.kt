@@ -33,6 +33,7 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
@@ -152,7 +153,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(), OnButtonGridActionLi
 
         setActionBarManager(bibleBookActionBarManager)
 
-        isCurrentlyShowingScripture = pageControl.isCurrentPageScripture
+        isCurrentlyShowingScripture = mainBibleActivity.pageControl.currentPageManager.isCurrentPageScripture
         bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

@@ -29,6 +29,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SearchIndexBinding
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -53,7 +54,7 @@ class SearchIndex : CustomTitlebarActivityBase() {
             if (StringUtils.isNotEmpty(documentInitials)) {
                 documentToIndex = swordDocumentFacade.getDocumentByInitials(documentInitials)
             } else {
-                documentToIndex = pageControl.currentPageManager.currentPage.currentDocument
+                documentToIndex = mainBibleActivity.pageControl.currentPageManager.currentPage.currentDocument
             }
 
             return documentToIndex

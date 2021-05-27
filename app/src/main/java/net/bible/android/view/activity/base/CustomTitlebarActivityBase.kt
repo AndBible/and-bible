@@ -38,8 +38,6 @@ abstract class CustomTitlebarActivityBase(private val optionsMenuId: Int = NO_OP
 
     private var actionBarManager: ActionBarManager = DefaultActionBarManager()
 
-    @Inject lateinit var pageControl: PageControl
-
     /**
      * load the default menu items from xml config
      */

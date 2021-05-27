@@ -17,13 +17,9 @@
  */
 package net.bible.android.control.page
 
-import android.util.Log
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.control.versification.Scripture
-import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.BibleBook
 import javax.inject.Inject
 
 /**
@@ -32,51 +28,11 @@ import javax.inject.Inject
  */
 @ApplicationScope
 open class PageControl @Inject constructor(
-	private val swordDocumentFacade: SwordDocumentFacade,
 	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 ) {
 
-    /** This is only called after the very first bible download to attempt to ensure the first page is not 'Verse not found'
-     * go through a list of default verses until one is found in the first/only book installed
-     */
-    fun setFirstUseDefaultVerse() {
-        try {
-            val versification = currentPageManager.currentBible.versification
-            val defaultVerses = arrayOf(
-                Verse(versification, BibleBook.JOHN, 3, 16),
-                Verse(versification, BibleBook.GEN, 1, 1),
-                Verse(versification, BibleBook.PS, 1, 1))
-            val bibles = swordDocumentFacade.bibles
-            if (bibles.size == 1) {
-                val bible = bibles[0]
-                for (verse in defaultVerses) {
-                    if (bible.contains(verse)) {
-                        currentPageManager.currentBible.doSetKey(verse)
-                        return
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Verse error")
-        }
-    }
-
     open val currentBibleVerse: Verse
         get() = currentPageManager.currentBible.singleKey
-
-    /**
-     * Return false if current page is not scripture, but only if the page is valid
-     */
-    val isCurrentPageScripture: Boolean
-        get() {
-            val currentVersePage = currentPageManager.currentVersePage
-            val currentVersification = currentVersePage.versification
-            val currentBibleBook = currentVersePage.currentBibleVerse.currentBibleBook
-            val isCurrentBibleBookScripture = Scripture.isScripture(currentBibleBook)
-            // Non-scriptural pages are not so safe.  They may be synched with the other screen but not support the current dc book
-            return isCurrentBibleBookScripture ||
-                !currentVersification.containsBook(currentBibleBook)
-        }
 
     val currentPageManager: CurrentPageManager
         get() = activeWindowPageManagerProvider.activeWindowPageManager

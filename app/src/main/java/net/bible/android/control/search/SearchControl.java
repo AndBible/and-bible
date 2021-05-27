@@ -270,7 +270,7 @@ public class SearchControl {
 	}
 
 	public boolean isCurrentDefaultScripture() {
-		return pageControl.isCurrentPageScripture();
+		return pageControl.getCurrentPageManager().isCurrentPageScripture();
 	}
 	
 	public boolean currentDocumentContainsNonScripture() {
