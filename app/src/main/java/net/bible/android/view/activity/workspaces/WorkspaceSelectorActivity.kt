@@ -216,7 +216,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
                             name.text.toString(), null, 0,
                             windowRepository.orderNumber,
                             windowRepository.textDisplaySettings,
-                            windowRepository.windowBehaviorSettings
+                            windowRepository.workspaceSettings
                         ).apply {
                             id = dao.insertWorkspace(this)
                         }

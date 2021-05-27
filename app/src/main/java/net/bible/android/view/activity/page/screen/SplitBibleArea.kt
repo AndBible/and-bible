@@ -57,8 +57,6 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
-import net.bible.android.view.activity.MainBibleActivityModule
-import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.BibleViewInputFocusChanged
@@ -77,7 +75,6 @@ import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.versification.BookName
 import java.lang.IndexOutOfBoundsException
 import java.util.*
-import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -789,7 +786,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             R.id.pinMode -> CommandPreference(
                 handle = {windowControl.setPinMode(window, !window.isPinMode)},
                 value = window.isPinMode,
-                visible = !window.isLinksWindow && !isMaximised && !windowRepository.windowBehaviorSettings.autoPin
+                visible = !window.isLinksWindow && !isMaximised && !windowRepository.workspaceSettings.autoPin
             )
             R.id.moveWindowSubMenu -> SubMenuPreference(false,
                 visible = !window.isLinksWindow && !isMaximised && windowControl.hasMoveItems(window)

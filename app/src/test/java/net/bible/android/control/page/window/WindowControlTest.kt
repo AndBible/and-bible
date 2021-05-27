@@ -12,13 +12,11 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.device.speak.AbstractSpeakTests
-import net.bible.service.download.RepoFactory
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.test.DatabaseResetter
 import net.bible.test.PassageTestData
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
@@ -30,16 +28,13 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.hasItem
-import org.hamcrest.Matchers.hasSize
 import org.hamcrest.Matchers.isA
 import org.junit.After
 import org.junit.Assert.assertThat
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
-import org.mockito.Mockito.any
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.times
@@ -75,7 +70,7 @@ class WindowControlTest {
         windowControl = WindowControl(windowRepository!!, eventManager!!)
         windowRepository!!.initialize()
         reset<EventManager>(eventManager)
-        windowRepository!!.windowBehaviorSettings.autoPin = true
+        windowRepository!!.workspaceSettings.autoPin = true
         windowControl!!.activeWindow.isPinMode = true
     }
 

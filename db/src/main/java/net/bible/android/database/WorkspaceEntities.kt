@@ -304,7 +304,7 @@ class WorkspaceEntities {
     @Serializable
     data class RecentLabel(val labelId: Long, val lastAccess: Long)
 
-    data class WindowBehaviorSettings(
+    data class WorkspaceSettings(
         @ColumnInfo(defaultValue = "0") var enableTiltToScroll: Boolean = false,
         @ColumnInfo(defaultValue = "0") var enableReverseSplitMode: Boolean = false,
         @ColumnInfo(defaultValue = "1") var autoPin: Boolean = false,
@@ -316,7 +316,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,
     ) {
         companion object {
-            val default get() = WindowBehaviorSettings(
+            val default get() = WorkspaceSettings(
                 enableTiltToScroll = false,
                 enableReverseSplitMode = false,
                 autoPin = true
@@ -333,7 +333,9 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
         @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
-        @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings(),
+
+        // TODO: change prefix to correspond variable name
+        @Embedded(prefix="window_behavior_settings_") val workspaceSettings: WorkspaceSettings? = WorkspaceSettings(),
         @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null,
         val maximizedWindowId: Long? = null,
 

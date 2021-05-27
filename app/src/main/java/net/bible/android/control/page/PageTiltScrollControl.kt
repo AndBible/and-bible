@@ -101,7 +101,7 @@ class PageTiltScrollControl {
     /** start or stop tilt to scroll functionality
      */
     fun enableTiltScroll(enable: Boolean): Boolean {
-        val enabled = mainBibleActivity.windowRepository.windowBehaviorSettings.enableTiltToScroll
+        val enabled = mainBibleActivity.windowRepository.workspaceSettings.enableTiltToScroll
         return if (!enabled || !isTiltSensingPossible) {
             false
         } else if (isTiltScrollEnabled != enable) {

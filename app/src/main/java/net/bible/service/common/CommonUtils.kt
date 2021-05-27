@@ -170,7 +170,7 @@ object CommonUtils {
     val isFirstInstall get() = packageInfo.firstInstallTime == packageInfo.lastUpdateTime
 
     val isSplitVertically: Boolean get() {
-        val reverse = mainBibleActivity.windowRepository.windowBehaviorSettings.enableReverseSplitMode
+        val reverse = mainBibleActivity.windowRepository.workspaceSettings.enableReverseSplitMode
         return if(reverse) !isPortrait else isPortrait
     }
 

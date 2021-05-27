@@ -94,7 +94,7 @@ open class Window (
         }
 
     open var isPinMode: Boolean = window.isPinMode
-        get() = if(windowRepository.windowBehaviorSettings.autoPin) {
+        get() = if(windowRepository.workspaceSettings.autoPin) {
             true
         } else {
             field

@@ -245,8 +245,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
         val textRange = BookmarkEntities.TextRange(selection.startOffset!!, selection.endOffset!!)
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, wholeVerse, book)
-        val initialLabels = windowBehaviorSettings.autoAssignLabels
-        bookmark.primaryLabelId = windowBehaviorSettings.autoAssignPrimaryLabel
+        val initialLabels = workspaceSettings.autoAssignLabels
+        bookmark.primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
     }
 
@@ -837,7 +837,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var initialAnchorOrdinal: Int? = null
     internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
-    private val windowBehaviorSettings get() = windowControl.windowRepository.windowBehaviorSettings
+    private val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
 
     fun updateTextDisplaySettings(onAttach: Boolean = false) {
         Log.d(TAG, "updateTextDisplaySettings")
@@ -854,7 +854,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.sharedPreferences.getBoolean("show_errorbox", false) else false
 
     private fun getUpdateConfigCommand(initial: Boolean): String {
-        val favouriteLabels = json.encodeToString(serializer(), windowBehaviorSettings.favouriteLabels)
+        val favouriteLabels = json.encodeToString(serializer(), workspaceSettings.favouriteLabels)
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 

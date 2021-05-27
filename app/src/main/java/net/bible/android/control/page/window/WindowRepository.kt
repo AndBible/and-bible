@@ -62,7 +62,7 @@ open class WindowRepository @Inject constructor(
             }
         }
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
-    var windowBehaviorSettings = WorkspaceEntities.WindowBehaviorSettings.default
+    var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
     var maximizedWindowId: Long? = null
 
     val isMaximized get() = maximizedWindowId != null
@@ -319,14 +319,14 @@ open class WindowRepository @Inject constructor(
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.d(TAG, "saveIntoDb")
         if(stopSpeak) mainBibleActivity.speakControl.stop()
-        windowBehaviorSettings.speakSettings = SpeakSettings.currentSettings
+        workspaceSettings.speakSettings = SpeakSettings.currentSettings
         dao.updateWorkspace(WorkspaceEntities.Workspace(
             name = name,
             contentsText = contentText,
             id = id,
             orderNumber = orderNumber,
             textDisplaySettings = textDisplaySettings,
-            windowBehaviorSettings = windowBehaviorSettings,
+            workspaceSettings = workspaceSettings,
             unPinnedWeight = unPinnedWeight,
             maximizedWindowId = maximizedWindowId
         ))
@@ -365,8 +365,8 @@ open class WindowRepository @Inject constructor(
         maximizedWindowId = entity.maximizedWindowId
 
         textDisplaySettings = entity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
-        windowBehaviorSettings = entity.windowBehaviorSettings?: WorkspaceEntities.WindowBehaviorSettings.default
-        SpeakSettings.currentSettings = windowBehaviorSettings.speakSettings
+        workspaceSettings = entity.workspaceSettings?: WorkspaceEntities.WorkspaceSettings.default
+        SpeakSettings.currentSettings = workspaceSettings.speakSettings
 
         val linksWindowEntity = dao.linksWindow(id) ?: WorkspaceEntities.Window(
             id,

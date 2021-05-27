@@ -197,7 +197,7 @@ open class Preference(val settings: SettingsBundle,
 
 class TiltToScrollPreference:
     GeneralPreference() {
-    private val wsBehaviorSettings = mainBibleActivity.windowRepository.windowBehaviorSettings
+    private val wsBehaviorSettings = mainBibleActivity.windowRepository.workspaceSettings
     override fun handle() = mainBibleActivity.invalidateOptionsMenu()
     override var value: Any
         get() = wsBehaviorSettings.enableTiltToScroll
@@ -373,16 +373,16 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
     }
 }
 
-class AutoAssignPreference(val windowBehaviorSettings: WorkspaceEntities.WindowBehaviorSettings): GeneralPreference() {
+class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSettings): GeneralPreference() {
     override val isBoolean = false
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ManageLabels::class.java)
 
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.WORKSPACE,
-            autoAssignPrimaryLabel = windowBehaviorSettings.autoAssignPrimaryLabel,
-            favouriteLabels = windowBehaviorSettings.favouriteLabels,
-            autoAssignLabels = windowBehaviorSettings.autoAssignLabels,
+            autoAssignPrimaryLabel = workspaceSettings.autoAssignPrimaryLabel,
+            favouriteLabels = workspaceSettings.favouriteLabels,
+            autoAssignLabels = workspaceSettings.autoAssignLabels,
         ).toJSON())
 
         GlobalScope.launch (Dispatchers.Main) {
@@ -390,14 +390,14 @@ class AutoAssignPreference(val windowBehaviorSettings: WorkspaceEntities.WindowB
             if(result?.resultCode == Activity.RESULT_OK) {
                 val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
                 if (resultData.reset) {
-                    windowBehaviorSettings.autoAssignLabels = mutableSetOf()
-                    windowBehaviorSettings.favouriteLabels = mutableSetOf()
-                    windowBehaviorSettings.autoAssignPrimaryLabel = null
+                    workspaceSettings.autoAssignLabels = mutableSetOf()
+                    workspaceSettings.favouriteLabels = mutableSetOf()
+                    workspaceSettings.autoAssignPrimaryLabel = null
                     onReset?.invoke()
                 } else {
-                    windowBehaviorSettings.autoAssignLabels = resultData.autoAssignLabels
-                    windowBehaviorSettings.favouriteLabels = resultData.favouriteLabels
-                    windowBehaviorSettings.autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
+                    workspaceSettings.autoAssignLabels = resultData.autoAssignLabels
+                    workspaceSettings.favouriteLabels = resultData.favouriteLabels
+                    workspaceSettings.autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
                     onChanged?.invoke(1)
                 }
             }
@@ -431,7 +431,7 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
 
 class SplitModePreference :
     GeneralPreference() {
-    private val wsBehaviorSettings = mainBibleActivity.windowRepository.windowBehaviorSettings
+    private val wsBehaviorSettings = mainBibleActivity.windowRepository.workspaceSettings
     override fun handle() {
         mainBibleActivity.windowControl.windowSizesChanged()
         ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged(mainBibleActivity.resources.configuration))
@@ -449,7 +449,7 @@ class SplitModePreference :
 
 class WindowPinningPreference :
     GeneralPreference() {
-    private val wsBehaviorSettings = mainBibleActivity.windowRepository.windowBehaviorSettings
+    private val wsBehaviorSettings = mainBibleActivity.windowRepository.workspaceSettings
     override var value: Any
         get() = !wsBehaviorSettings.autoPin
         set(value) {
