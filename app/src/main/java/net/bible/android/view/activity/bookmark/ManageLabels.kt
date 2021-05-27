@@ -36,11 +36,13 @@ import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.download.FakeBookFactory
@@ -55,6 +57,7 @@ fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.Mana
     autoAssignLabels = resultData.autoAssignLabels
     favouriteLabels = resultData.favouriteLabels
     autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
+    ABEventBus.getDefault().post(AppSettingsUpdated())
 }
 
 
@@ -221,7 +224,7 @@ class ManageLabels : ListActivityBase() {
 
     private fun randomColor(): Int = Color.argb(255, nextInt(0, 255), nextInt(0, 255), nextInt(0, 255))
 
-    private var newLabelCount = 0L
+    private var newLabelCount = 1L
 
     fun onNewLabel(v: View?) {
         Log.i(TAG, "New label clicked")
@@ -307,8 +310,12 @@ class ManageLabels : ListActivityBase() {
         val result = Intent()
         bookmarkControl.deleteLabels(deleteLabelIds)
         val saveLabels = shownLabels.filter { data.changedLabels.contains(it.id) && !data.deletedLabels.contains(it.id) }
-        saveLabels.filter { it.id < 0 }.forEach {
+        val newLabels = saveLabels.filter { it.id < 0 }
+        val existingLabels = saveLabels.filter { it.id > 0 }
+
+        for (it in newLabels) {
             val oldLabel = it.id
+            it.id = 0
             it.id = bookmarkControl.insertOrUpdateLabel(it).id
             for(list in listOf(data.selectedLabels, data.autoAssignLabels, data.changedLabels, data.favouriteLabels)) {
                 if(list.contains(oldLabel)) {
@@ -321,7 +328,7 @@ class ManageLabels : ListActivityBase() {
             }
         }
 
-        for (it in saveLabels) {
+        for (it in existingLabels) {
             bookmarkControl.insertOrUpdateLabel(it)
         }
 

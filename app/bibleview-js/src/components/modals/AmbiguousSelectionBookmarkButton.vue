@@ -20,7 +20,7 @@
     <div>
       {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 30)}}</i></q>
     </div>
-    <LabelList :bookmark-id="bookmarkId"/>
+    <LabelList in-bookmark :bookmark-id="bookmarkId"/>
     <div style="height: 7px"/>
     <BookmarkButtons
       :bookmark="bookmark"

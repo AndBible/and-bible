@@ -16,7 +16,8 @@
   -->
 
 <template>
-  <AmbiguousSelection blocking ref="ambiguousSelection"/>
+  <BookmarkLabelActions :bookmark-id="bookmarkId" ref="actions"/>
+
   <div class="label-list">
     <div
       @touchstart="labelClicked($event, label)"
@@ -37,7 +38,7 @@
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {computed, ref} from "@vue/reactivity";
-import {addEventFunction, Deferred} from "@/utils";
+import {addAll, addEventFunction, Deferred} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";
 
@@ -46,14 +47,20 @@ export default {
     bookmarkId: {type: Number, required: true},
     handleTouch: {type: Boolean, default: false},
     disableLinks: {type: Boolean, default: false},
+    favourites: {type: Boolean, default: false},
+    frequent: {type: Boolean, default: false},
+    recent: {type: Boolean, default: false},
+    specific: {type: Array, default: null},
+    inBookmark: {type: Boolean, default: false},
+    onlyAssign: {type: Boolean, default: false},
   },
   components: {FontAwesomeIcon},
   name: "LabelList",
   setup(props) {
     const {adjustedColor, strings, ...common} = useCommon();
-    const ambiguousSelection = ref(null);
     const appSettings = inject("appSettings");
     const android = inject("android");
+    const actions = ref(null);
 
     function labelStyle(label) {
       const color = adjustedColor(label.color).string();
@@ -71,11 +78,29 @@ export default {
       return bookmark.value.labels.includes(labelId);
     }
 
+    function isPrimary(label) {
+      return label.id === bookmark.value.primaryLabelId;
+    }
+
     const labels = computed(() => {
-      const labels = bookmark.value.labels.slice();
-      const favs = appSettings.favouriteLabels.filter(l => !labels.includes(l))
-      const lbls = [...labels, ...favs].map(labelId => bookmarkLabels.get(labelId));
-      return sortBy(lbls, ["name"]);
+      const shown = new Set();
+      if(props.inBookmark) {
+        addAll(shown, ...bookmark.value.labels);
+      }
+      if(props.favourites) {
+        addAll(shown, ...appSettings.favouriteLabels);
+      }
+      if(props.recent) {
+        addAll(shown, ...appSettings.recentLabels);
+      }
+      if(props.specific) {
+        addAll(shown, ...props.specific);
+      }
+      if(props.frequent) {
+        addAll(shown, ...appSettings.frequentLabels);
+      }
+      // TODO: add frequent
+      return sortBy(Array.from(shown).map(labelId => bookmarkLabels.get(labelId)).filter(v => v), ["name"]);
     });
 
     function assignLabels() {
@@ -110,28 +135,22 @@ export default {
       }
 
       if(!isAssigned(label.id)) {
-        addEventFunction(event, () => {
-          android.toggleBookmarkLabel(bookmark.value.id, label.id);
-        }, {title: strings.addBookmarkLabel});
+        android.toggleBookmarkLabel(bookmark.value.id, label.id);
+      } else if(!props.onlyAssign) {
+        actions.value.showActions()
       } else {
-        if (label.isRealLabel) {
-          if (bookmark.value.primaryLabelId !== label.id) {
-            addEventFunction(event, () => {
-              android.setAsPrimaryLabel(bookmark.value.id, label.id);
-            }, {title: strings.setAsPrimaryLabel});
-          }
-          addEventFunction(event, () => {
-            android.toggleBookmarkLabel(bookmark.value.id, label.id);
-          }, {title: strings.removeBookmarkLabel});
+        if(isAssigned(label.id) && !isPrimary(label)) {
+          android.setAsPrimaryLabel(bookmark.value.id, label.id);
+        } else {
+          android.toggleBookmarkLabel(bookmark.value.id, label.id);
         }
-        addEventFunction(event, assignLabels, {title: strings.assignLabelsMenuEntry})
       }
-      ambiguousSelection.value.handle(event);
     }
-    function isPrimary(label) {
-      return label.id === bookmark.value.primaryLabelId;
+
+    return {
+      labelStyle, assignLabels, actions, labelClicked, labels, isPrimary,
+      isAssigned, ...common
     }
-    return {labelStyle, assignLabels, ambiguousSelection, labelClicked, labels, isPrimary, isAssigned, ...common}
   }
 }
 </script>

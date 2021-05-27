@@ -183,6 +183,10 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun setAsPrimaryLabel(bookmarkId: Long, labelId: Long) {
+        val label = bookmarkControl.labelById(labelId)!!
+        if(label.isUnlabeledLabel) {
+            return
+        }
         bookmarkControl.setAsPrimaryLabel(bookmarkId, labelId)
         bibleView.windowControl.windowRepository.updateRecentLabels(listOf(labelId))
     }

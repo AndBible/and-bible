@@ -86,6 +86,13 @@
     background-color: #bdbdbd;
     color: black;
   }
+  &.warning {
+    background: rgba(255, 0, 0, 0.5);
+    color: black;
+    border-style: solid;
+    border-width:1px;
+    border-color: black;
+  }
   &.right {
     align-self: end;
   }

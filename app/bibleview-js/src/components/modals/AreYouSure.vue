@@ -69,12 +69,5 @@ export default {
 </script>
 
 <style scoped>
-.warning {
-  background: rgba(255, 0, 0, 0.5);
-  color: black;
-  border-style: solid;
-  border-width:1px;
-  border-color: black;
-}
-
+@import "~@/common.scss";
 </style>

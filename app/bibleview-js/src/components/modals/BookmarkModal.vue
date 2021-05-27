@@ -20,7 +20,7 @@
     <template #title-div>
       <div class="bookmark-title">
         <div>
-          <LabelList handle-touch :bookmark-id="bookmark.id"/>
+          <LabelList handle-touch in-bookmark :bookmark-id="bookmark.id"/>
         </div>
         <div class="title-text">
           {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 25)}}</i></q>

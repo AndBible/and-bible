@@ -57,6 +57,7 @@ onlyLabel: Only label
 wholeBookmark: Whole bookmark
 otherNoteText: Other note
 assignLabelsMenuEntry: Assign labels
+assignLabelsMenuEntry1: Select or edit labels in list…
 jumpToStudyPad: Jump to Study Pad
 setAsPrimaryLabel: Set as primary label
 removeBookmarkLabel: Remove label from bookmark
@@ -64,3 +65,5 @@ addBookmarkLabel: Add label to bookmark
 favouriteLabels: Favourite Labels
 recentLabels: Recent Labels
 frequentlyUsedLabels: Frequently Used Labels
+setupLabels: Set bookmark labels
+currentLabels: Current labels

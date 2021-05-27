@@ -281,7 +281,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
             bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels)
             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
-
         }
     }
 

@@ -36,8 +36,8 @@ import {
     faBookmark,
     faEdit,
     faEllipsisH,
-    faFileAlt,
-    faHeadphones,
+    faFileAlt, faFireAlt,
+    faHeadphones, faHeart, faHistory,
     faIndent,
     faInfoCircle,
     faOutdent,
@@ -187,6 +187,7 @@ export function useConfig(documentType) {
         errorBox: false,
         favouriteLabels: [],
         recentLabels: [],
+        frequentLabels: [],
         activeWindow: false,
         rightToLeft: rtl
     });
@@ -310,6 +311,9 @@ export function useFontAwesome() {
     library.add(faSort)
     library.add(faIndent)
     library.add(faOutdent)
+    library.add(faHeart)
+    library.add(faHistory)
+    library.add(faFireAlt)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {

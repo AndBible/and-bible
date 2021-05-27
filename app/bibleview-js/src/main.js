@@ -27,8 +27,12 @@ import { createApp } from 'vue'
 
 import BibleView from "@/components/BibleView";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
+import LabelList from "@/components/LabelList";
+import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions";
 
 const app = createApp(BibleView);
 app.component("AmbiguousSelection", AmbiguousSelection);
+app.component("LabelList", LabelList);
+app.component("BookmarkLabelActions", BookmarkLabelActions);
 app.mount('#app')
 
