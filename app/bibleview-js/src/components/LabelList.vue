@@ -38,7 +38,7 @@
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {computed, ref} from "@vue/reactivity";
-import {addAll, addEventFunction, Deferred} from "@/utils";
+import {addAll, Deferred} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";
 
@@ -57,7 +57,7 @@ export default {
   components: {FontAwesomeIcon},
   name: "LabelList",
   setup(props) {
-    const {adjustedColor, strings, ...common} = useCommon();
+    const {adjustedColor, ...common} = useCommon();
     const appSettings = inject("appSettings");
     const android = inject("android");
     const actions = ref(null);
