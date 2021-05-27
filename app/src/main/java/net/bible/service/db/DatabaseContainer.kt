@@ -19,7 +19,6 @@ package net.bible.service.db
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
-import android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE
 import android.util.Log
 import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -876,11 +875,12 @@ private val MIGRATION_49_50_wholeVerseBookmark = object : Migration(49, 50) {
     }
 }
 
-private val MIGRATION_50_51_underlineStyle = object : Migration(50, 51) {
+private val MIGRATION_50_51_underlineStyleAndRecentLabels = object : Migration(50, 51) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
             execSQL("ALTER TABLE `Label` ADD COLUMN `underlineStyle` INTEGER NOT NULL DEFAULT 0")
             execSQL("ALTER TABLE `Label` ADD COLUMN `underlineStyleWholeVerse` INTEGER NOT NULL DEFAULT 0")
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_recentLabels` TEXT DEFAULT NULL")
         }
     }
 }
@@ -948,7 +948,7 @@ object DatabaseContainer {
                         MIGRATION_47_48_autoAssignLabels,
                         MIGRATION_48_49_anchorOrdinal,
                         MIGRATION_49_50_wholeVerseBookmark,
-                        MIGRATION_50_51_underlineStyle,
+                        MIGRATION_50_51_underlineStyleAndRecentLabels,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

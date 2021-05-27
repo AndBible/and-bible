@@ -301,12 +301,16 @@ class WorkspaceEntities {
         }
     }
 
+    @Serializable
+    data class RecentLabel(val labelId: Long, val lastAccess: Long)
+
     data class WindowBehaviorSettings(
         @ColumnInfo(defaultValue = "0") var enableTiltToScroll: Boolean = false,
         @ColumnInfo(defaultValue = "0") var enableReverseSplitMode: Boolean = false,
         @ColumnInfo(defaultValue = "1") var autoPin: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var speakSettings: SpeakSettings? = null,
 
+        @ColumnInfo(defaultValue = "NULL") var recentLabels: MutableList<RecentLabel> = mutableListOf(),
         @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<Long> = mutableSetOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<Long> = mutableSetOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,

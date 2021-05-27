@@ -59,8 +59,10 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.SwordEnvironmentInitialisation
 
 import org.apache.commons.lang3.StringUtils
+import org.crosswire.jsword.book.Books
 
 import javax.inject.Inject
 
@@ -205,6 +207,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         spinnerBinding.progressText.text = oldText
     }
 
+    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if(!checkWebView()) return@withContext
@@ -215,7 +218,17 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             showFirstLayout()
         } else {
             Log.i(TAG, "Going to main bible view")
+
+            // When I mess up database, I can re-create database like this.
+            // backupControl.resetDatabase()
+
             initializeDatabase()
+
+            docDao.getUnlocked().forEach {
+                val book = Books.installed().getBook(it.initials)
+                book.unlock(it.cipherKey)
+            }
+
             gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)
         }

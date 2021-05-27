@@ -53,7 +53,6 @@ import java.io.File
 object SwordEnvironmentInitialisation {
     private var isSwordLoaded = false
     private val log = Logger(SwordDocumentFacade::class.java.name)
-    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
     fun initialiseJSwordFolders() {
         try {
             if (isAndroid && !isSwordLoaded) { // ensure required module directories exist and register them with jsword
@@ -86,10 +85,6 @@ object SwordEnvironmentInitialisation {
                 // because the above line causes initialisation set the is initialised flag here
                 isSwordLoaded = true
                 BookInstallWatcher().startListening()
-                docDao.getUnlocked().forEach {
-                   val book = Books.installed().getBook(it.initials)
-                   book.unlock(it.cipherKey)
-                }
             }
         } catch (e: Exception) {
             log.error("Error initialising", e)

@@ -131,13 +131,25 @@ class Converters {
     }
 
     @TypeConverter
-    fun strToLongList(s: String?): List<Long>? {
+    fun strToList1(s: String?): List<Long>? {
         if(s == null) return null
         return json.decodeFromString(serializer(), s)
     }
 
     @TypeConverter
-    fun longListToStr(obj: List<Long>?): String? {
+    fun listToStr1(obj: List<Long>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
+    fun strToList2(s: String?): List<WorkspaceEntities.RecentLabel>? {
+        if(s == null) return null
+        return json.decodeFromString(serializer(), s)
+    }
+
+    @TypeConverter
+    fun listToStr2(obj: List<WorkspaceEntities.RecentLabel>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
