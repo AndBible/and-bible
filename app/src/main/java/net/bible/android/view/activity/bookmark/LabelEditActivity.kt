@@ -45,6 +45,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     override fun onColorSelected(dialogId: Int, color: Int) {
         // let's remove alpha
         data.label.color = color or (255 shl 24)
+        updateUI()
     }
 
     private fun updateColor() {
@@ -74,6 +75,37 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
     private lateinit var data: LabelData
 
+
+    private fun updateData() = binding.apply {
+        if(!data.label.isUnlabeledLabel) {
+            val name = labelName.text.toString()
+            data.label.name = name
+        }
+
+        data.isFavourite = favouriteLabelCheckBox.isChecked
+        data.isAutoAssign = autoAssignCheckBox.isChecked
+        data.isAutoAssignPrimary = primaryAutoAssignCheckBox.isChecked
+        if(!data.isAutoAssign) {
+            data.isAutoAssignPrimary = false
+        }
+        data.isThisBookmarkPrimary = primaryLabelCheckBox.isChecked
+    }
+
+    private fun updateUI() = binding.apply {
+        favouriteLabelCheckBox.isChecked = data.isFavourite
+        autoAssignCheckBox.isChecked = data.isAutoAssign
+        primaryAutoAssignCheckBox.isChecked = data.isAutoAssignPrimary
+        primaryLabelCheckBox.isChecked = data.isThisBookmarkPrimary
+        labelName.setText(data.label.displayName)
+        updateColor()
+        if (data.label.isUnlabeledLabel) {
+            labelName.isEnabled = false
+        }
+        primaryAutoAssignCheckBox.isEnabled = data.isAutoAssign
+
+        thisBookmarkCategory.visibility = if(data.isAssigning) View.VISIBLE else View.GONE
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = BookmarkLabelEditBinding.inflate(layoutInflater)
@@ -82,40 +114,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
         data = LabelData.fromJSON(intent.getStringExtra("data")!!)
 
-        val isNewLabel = data.label.id == 0L
-
-        fun updateData() = binding.apply {
-            if(!data.label.isUnlabeledLabel) {
-                val name = labelName.text.toString()
-                data.label.name = name
-            }
-
-            data.isFavourite = favouriteLabelCheckBox.isChecked
-            data.isAutoAssign = autoAssignCheckBox.isChecked
-            data.isAutoAssignPrimary = primaryAutoAssignCheckBox.isChecked
-            if(!data.isAutoAssign) {
-                data.isAutoAssignPrimary = false
-            }
-            data.isThisBookmarkPrimary = primaryLabelCheckBox.isChecked
-        }
-
-        fun updateUI() = binding.apply {
-            favouriteLabelCheckBox.isChecked = data.isFavourite
-            autoAssignCheckBox.isChecked = data.isAutoAssign
-            primaryAutoAssignCheckBox.isChecked = data.isAutoAssignPrimary
-            primaryLabelCheckBox.isChecked = data.isThisBookmarkPrimary
-            labelName.setText(data.label.displayName)
-            updateColor()
-            if (data.label.isUnlabeledLabel) {
-                labelName.isEnabled = false
-            }
-            primaryAutoAssignCheckBox.isEnabled = data.isAutoAssign
-
-            thisBookmarkCategory.visibility = if(data.isAssigning) View.VISIBLE else View.GONE
-            removeButton.visibility = if(isNewLabel) View.GONE else View.VISIBLE
-        }
-
         binding.apply {
+            updateUI()
             updateData()
             updateUI()
 
