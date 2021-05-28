@@ -379,10 +379,10 @@ export function useBookmarks(documentId,
 
         if(!startOff && !endOff) {
             firstElement = document.querySelector(`#doc-${documentId} #v-${startOrdinal}`);
-            lastElement = firstElement;
             const lastOrdinal = (endOff === null ? endOrdinal : endOrdinal - 1)
             for(let ord = startOrdinal; ord <= lastOrdinal; ord ++) {
                 const elem = document.querySelector(`#doc-${documentId} #v-${ord}`);
+                lastElement = elem;
                 const oldStyle = elem.style;
                 elem.style = style;
                 elem.addEventListener("click", addBookmarkEventFunctions)
