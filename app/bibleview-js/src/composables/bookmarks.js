@@ -430,10 +430,10 @@ export function useBookmarks(documentId,
             }
         }
         if(config.showMyNotes) {
-            for (const b of bookmarks.filter(b => b.notes && arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
+            for (const b of bookmarks.filter(b => b.hasNote && arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
                 const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || b.labels[0]);
                 const color = adjustedColor(bookmarkLabel.color).string();
-                const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
+                const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
                     null, {bookmarkId: b.id}));
