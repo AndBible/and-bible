@@ -323,7 +323,10 @@ class ManageLabels : ListActivityBase() {
                     list.add(it.id)
                 }
             }
-            if(data.primaryLabel == oldLabel) {
+            if(data.bookmarkPrimaryLabel == oldLabel) {
+                data.bookmarkPrimaryLabel = it.id
+            }
+            if(data.autoAssignPrimaryLabel == oldLabel) {
                 data.primaryLabel = it.id
             }
         }
