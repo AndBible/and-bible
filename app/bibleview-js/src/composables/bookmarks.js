@@ -266,7 +266,6 @@ export function useBookmarks(documentId,
             const underlineLabels = new Set();
 
             const highlightLabelCount = new Map();
-            const underlineLabelCount = new Map();
 
             const filteredBookmarks = bookmarks
                 .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange));
@@ -277,7 +276,6 @@ export function useBookmarks(documentId,
 
                 if((b.wholeVerse && label.underlineWholeVerse) || (!b.wholeVerse && label.underline)) {
                     underlineLabels.add(labelId);
-                    underlineLabelCount.set(labelId, (highlightLabelCount.get(labelId) || 0) + 1);
                 } else {
                     highlightLabels.add(labelId);
                     highlightLabelCount.set(labelId, (highlightLabelCount.get(labelId) || 0) + 1);
@@ -290,7 +288,6 @@ export function useBookmarks(documentId,
                 styleRanges.push({
                     ordinalAndOffsetRange,
                     highlightLabelCount,
-                    underlineLabelCount,
                     highlightLabelIds: Array.from(highlightLabels),
                     underlineLabelIds: Array.from(underlineLabels),
                     bookmarks: containedBookmarks,
@@ -301,7 +298,7 @@ export function useBookmarks(documentId,
     })
 
     function styleForStyleRange(styleRange) {
-        const {highlightLabelIds, underlineLabelIds, highlightLabelCount, underlineLabelCount} = styleRange;
+        const {highlightLabelIds, underlineLabelIds, highlightLabelCount} = styleRange;
         const highlightLabels = Array.from(highlightLabelIds).map(v => ({
             id: v,
             label: bookmarkLabels.get(v)
@@ -321,14 +318,14 @@ export function useBookmarks(documentId,
                 break;
         }
 
-        style += underlineStyleForLabels(underlineLabels, underlineLabelCount);
+        style += underlineStyleForLabels(underlineLabels);
         return style;
     }
 
-    function underlineStyleForLabels(labels, labelCount) {
+    function underlineStyleForLabels(labels) {
         if(labels.length === 0) return "";
 
-        const color = highlightColor(labels[0].label, labelCount.get(labels[0].id)).hsl().string();
+        const color = new Color(labels[0].label.color).hsl().string();
         if(labels.length === 1) {
             return `text-decoration: underline; text-decoration-style: solid; text-decoration-color: ${color};`;
         } else {
