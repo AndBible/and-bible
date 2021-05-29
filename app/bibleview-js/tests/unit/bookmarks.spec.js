@@ -37,6 +37,11 @@ describe("useBookmark tests", () => {
             {adjustedColor: () => null},
             config
         );
+        gb.updateBookmarkLabels({
+            id: 1,
+            color: 1,
+            underline: false,
+        })
     });
 
     function addBookmarkId(id, ordinalRange, offsetRange = null) {
@@ -47,6 +52,7 @@ describe("useBookmark tests", () => {
             labels: [1],
             bookInitials: "KJV",
             notes: null,
+            wholeVerse: false,
         });
     }
 

@@ -224,7 +224,7 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
 
 @Serializable
 data class ClientBookmarkStyle(val color: Int, val icon: String?, val noHighlight: Boolean,
-                               val underlineStyle: Boolean, val underlineStyleWholeVerse: Boolean)
+                               val underline: Boolean, val underlineWholeVerse: Boolean)
 
 @Serializable
 data class ClientBookmarkLabel(

@@ -262,25 +262,37 @@ export function useBookmarks(documentId,
 
         for(let i = 0; i < splitPoints.length-1; i++) {
             const ordinalAndOffsetRange = [startPoint(splitPoints[i]), endPoint(splitPoints[i+1])];
-            const labels = new Set();
-            const labelCount = new Map();
+            const highlightLabels = new Set();
+            const underlineLabels = new Set();
+
+            const highlightLabelCount = new Map();
+            const underlineLabelCount = new Map();
 
             const filteredBookmarks = bookmarks
                 .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange));
 
             filteredBookmarks.forEach(b => {
-                const l = b.primaryLabelId || b.labels[0];
-                labels.add(l);
-                labelCount.set(l, (labelCount.get(l) || 0) + 1);
+                const labelId = b.primaryLabelId || b.labels[0];
+                const label = bookmarkLabels.get(labelId);
+
+                if((b.wholeVerse && label.underlineWholeVerse) || (!b.wholeVerse && label.underline)) {
+                    underlineLabels.add(labelId);
+                    underlineLabelCount.set(labelId, (highlightLabelCount.get(labelId) || 0) + 1);
+                } else {
+                    highlightLabels.add(labelId);
+                    highlightLabelCount.set(labelId, (highlightLabelCount.get(labelId) || 0) + 1);
+                }
             });
 
             const containedBookmarks = filteredBookmarks.map(b => b.id);
 
-            if(labels.size > 0) {
+            if(highlightLabels.size > 0 || underlineLabels.size > 0) {
                 styleRanges.push({
                     ordinalAndOffsetRange,
-                    labelCount,
-                    labels: Array.from(labels),
+                    highlightLabelCount,
+                    underlineLabelCount,
+                    highlightLabelIds: Array.from(highlightLabels),
+                    underlineLabelIds: Array.from(underlineLabels),
                     bookmarks: containedBookmarks,
                 });
             }
@@ -288,16 +300,39 @@ export function useBookmarks(documentId,
         return styleRanges;
     })
 
-    function styleForStyleRange({labels, labelCount}) {
-        const _bookmarkLabels = Array.from(labels).map(v => ({
+    function styleForStyleRange(styleRange) {
+        const {highlightLabelIds, underlineLabelIds, highlightLabelCount, underlineLabelCount} = styleRange;
+        const highlightLabels = Array.from(highlightLabelIds).map(v => ({
             id: v,
             label: bookmarkLabels.get(v)
         })).filter(l => !l.label.noHighlight);
+        const underlineLabels = Array.from(underlineLabelIds).map(v => ({
+            id: v,
+            label: bookmarkLabels.get(v)
+        })).filter(l => !l.label.noHighlight);
+
+        let style = "";
         switch(config.bookmarkingMode) {
             case bookmarkingModes.verticalColorBars:
-                return verticalColorbarStyleForLabels(_bookmarkLabels, labelCount);
+                style += verticalColorbarStyleForLabels(highlightLabels, highlightLabelCount);
+                break;
             case bookmarkingModes.blend:
-                return blendingStyleForLabels(_bookmarkLabels, labelCount);
+                style += blendingStyleForLabels(highlightLabels, highlightLabelCount);
+                break;
+        }
+
+        style += underlineStyleForLabels(underlineLabels, underlineLabelCount);
+        return style;
+    }
+
+    function underlineStyleForLabels(labels, labelCount) {
+        if(labels.length === 0) return "";
+
+        const color = highlightColor(labels[0].label, labelCount.get(labels[0].id)).hsl().string();
+        if(labels.length === 1) {
+            return `text-decoration: underline; text-decoration-style: solid; text-decoration-color: ${color};`;
+        } else {
+            return `text-decoration: underline; text-decoration-style: double; text-decoration-color: ${color};`;
         }
     }
 
@@ -324,15 +359,19 @@ export function useBookmarks(documentId,
         return `background-color: ${color.hsl().string()}`
     }
 
+    function highlightColor(label, count) {
+        let c = new Color(label.color)
+        c = c.alpha(appSettings.nightMode? 0.4 : 0.3)
+        for(let i = 0; i<count-1; i++) {
+            c = c.opaquer(0.3).darken(0.2);
+        }
+        return c;
+    }
+
     function verticalColorbarStyleForLabels(bookmarkLabels, labelCount) {
         let colors = [];
         for(const {label: s, id} of bookmarkLabels) {
-            let c = new Color(s.color)
-            c = c.alpha(appSettings.nightMode? 0.4 : 0.3)
-            for(let i = 0; i<labelCount.get(id)-1; i++) {
-                c = c.opaquer(0.3).darken(0.2);
-            }
-            colors.push(c.hsl().string())
+            colors.push(highlightColor(s, labelCount.get(id)).hsl().string());
         }
         if(colors.length === 1) {
             colors.push(colors[0]);
@@ -350,7 +389,7 @@ export function useBookmarks(documentId,
             return `${v} ${percent}`;
         }).join(", ")
 
-        return `background-image: linear-gradient(to bottom, ${colorStr})`;
+        return `background-image: linear-gradient(to bottom, ${colorStr});`;
     }
 
     const undoHighlights = [];
