@@ -68,7 +68,7 @@ class ManageLabelItemAdapter(context: Context?,
                     }
                     notifyDataSetChanged()
                 }
-                checkbox.isChecked = data.selectedItems.contains(label.id)
+                checkbox.isChecked = data.contextSelectedItems.contains(label.id)
             } else {
                 checkbox.visibility = View.GONE
             }
@@ -77,7 +77,7 @@ class ManageLabelItemAdapter(context: Context?,
             }
 
             val isFavourite = data.favouriteLabels.contains(label.id)
-            val isPrimary = data.primaryLabel == label.id
+            val isPrimary = data.contextPrimaryLabel == label.id
 
             favouriteIcon.setImageResource(if (isFavourite) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24)
             favouriteIcon.setOnClickListener {
@@ -92,10 +92,10 @@ class ManageLabelItemAdapter(context: Context?,
             favouriteIcon.visibility = if(data.workspaceEdits) View.VISIBLE else View.GONE
 
             if (data.primaryShown) {
-                primaryIcon.visibility = if (data.selectedItems.contains(label.id)) View.VISIBLE else View.INVISIBLE
+                primaryIcon.visibility = if (data.contextSelectedItems.contains(label.id)) View.VISIBLE else View.INVISIBLE
                 primaryIcon.setImageResource(if (isPrimary) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_border_24)
                 primaryIcon.setOnClickListener {
-                    data.primaryLabel = label.id
+                    data.contextPrimaryLabel = label.id
                     notifyDataSetChanged()
                 }
             } else {

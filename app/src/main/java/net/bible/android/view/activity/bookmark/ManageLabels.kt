@@ -95,13 +95,13 @@ class ManageLabels : ListActivityBase() {
         val workspaceEdits: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
         val primaryShown: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
 
-        val selectedItems: MutableSet<Long> get() =
+        val contextSelectedItems: MutableSet<Long> get() =
             when (mode) {
                 Mode.WORKSPACE -> autoAssignLabels
                 else -> selectedLabels
             }
 
-        var primaryLabel: Long? get() =
+        var contextPrimaryLabel: Long? get() =
             when (mode) {
                 Mode.WORKSPACE -> autoAssignPrimaryLabel
                 Mode.ASSIGN -> bookmarkPrimaryLabel
@@ -254,7 +254,7 @@ class ManageLabels : ListActivityBase() {
             isAutoAssign = data.autoAssignLabels.contains(label.id),
             isFavourite = data.favouriteLabels.contains(label.id),
             isAutoAssignPrimary = data.autoAssignPrimaryLabel == label.id,
-            isThisBookmarkPrimary = data.primaryLabel == label.id,
+            isThisBookmarkPrimary = data.contextPrimaryLabel == label.id,
         )
         intent.putExtra("data", json.encodeToString(serializer(), labelData))
 
@@ -327,7 +327,7 @@ class ManageLabels : ListActivityBase() {
                 data.bookmarkPrimaryLabel = it.id
             }
             if(data.autoAssignPrimaryLabel == oldLabel) {
-                data.primaryLabel = it.id
+                data.contextPrimaryLabel = it.id
             }
         }
 
