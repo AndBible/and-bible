@@ -254,7 +254,7 @@ class ManageLabels : ListActivityBase() {
             isAutoAssign = data.autoAssignLabels.contains(label.id),
             isFavourite = data.favouriteLabels.contains(label.id),
             isAutoAssignPrimary = data.autoAssignPrimaryLabel == label.id,
-            isThisBookmarkPrimary = data.contextPrimaryLabel == label.id,
+            isThisBookmarkPrimary = data.bookmarkPrimaryLabel == label.id,
         )
         intent.putExtra("data", json.encodeToString(serializer(), labelData))
 
@@ -327,7 +327,7 @@ class ManageLabels : ListActivityBase() {
                 data.bookmarkPrimaryLabel = it.id
             }
             if(data.autoAssignPrimaryLabel == oldLabel) {
-                data.contextPrimaryLabel = it.id
+                data.autoAssignPrimaryLabel = it.id
             }
         }
 
