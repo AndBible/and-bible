@@ -162,6 +162,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         windowControl.windowRepository.saveIntoDb()
         resultIntent = Intent(this, this::class.java)
         setContentView(R.layout.workspace_selector)
+        this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         workspaceAdapter = WorkspaceAdapter(this).apply {
             setHasStableIds(true)
             registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
