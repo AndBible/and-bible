@@ -105,7 +105,7 @@ class NavigationControl @Inject constructor(
         }
     }
 
-    private var bibleBookSortOrder: BibleBookSortOrder
+    var bibleBookSortOrder: BibleBookSortOrder
         get() {
             val bibleBookSortOrderStr = getSharedPreference(BIBLE_BOOK_SORT_ORDER, BibleBookSortOrder.BIBLE_BOOK.toString())
             return BibleBookSortOrder.valueOf(bibleBookSortOrderStr!!)

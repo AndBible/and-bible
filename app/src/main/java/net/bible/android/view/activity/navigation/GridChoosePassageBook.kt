@@ -24,10 +24,13 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View.OnClickListener
+import androidx.core.view.children
 
 import net.bible.android.activity.R
+import net.bible.android.control.navigation.BibleBookSortOrder
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
@@ -55,7 +58,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class GridChoosePassageBook : CustomTitlebarActivityBase(), OnButtonGridActionListener {
+class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_book_menu), OnButtonGridActionListener {
 
     private lateinit var buttonGrid: ButtonGrid
 
@@ -165,8 +168,23 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(), OnButtonGridActionLi
         setContentView(buttonGrid)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val sortOptionItem = menu.children.first { it.itemId == R.id.alphabetical_order_opt }
+        sortOptionItem.isChecked = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.alphabetical_order_opt -> {
+                navigationControl.changeBibleBookSortOrder()
+                buttonGrid.clear()
+                buttonGrid.addButtons(bibleBookButtonInfo)
+                true
+            }
+            R.id.row_order_opt -> {
+                true
+            }
             android.R.id.home -> {
                 onBackPressed()
                 true
