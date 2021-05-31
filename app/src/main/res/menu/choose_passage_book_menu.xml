@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/alphabetical_order_opt"
-        android:title="Alphabetical"
+        android:title="@string/sort_by_alphabetical"
         android:checkable="true"/>
 
     <item

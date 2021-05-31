@@ -121,16 +121,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture)
     }
 
-    /**
-     * Handle scripture/Appendix toggle
-     */
-    private val sortOrderClickListener = OnClickListener {
-        navigationControl.changeBibleBookSortOrder()
-
-        buttonGrid.clear()
-        buttonGrid.addButtons(bibleBookButtonInfo)
-    }
-
     private var navigateToVerse: Boolean = false
 
     /** Called when the activity is first created.  */
@@ -152,7 +142,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         navigateToVerse = intent?.extras?.getBoolean("navigateToVerse", navigateToVerseDefault)?:navigateToVerseDefault
 
         bibleBookActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
-        bibleBookActionBarManager.sortButton.registerClickListener(sortOrderClickListener)
 
         setActionBarManager(bibleBookActionBarManager)
 

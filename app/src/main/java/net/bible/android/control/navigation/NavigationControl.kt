@@ -97,6 +97,9 @@ class NavigationControl @Inject constructor(
         return bibleBookList
     }
 
+    /**
+     * Toggle sort of Bible books by name or canonically
+     * */
     fun changeBibleBookSortOrder() {
         bibleBookSortOrder = if (bibleBookSortOrder == BibleBookSortOrder.BIBLE_BOOK) {
             BibleBookSortOrder.ALPHABETICAL
