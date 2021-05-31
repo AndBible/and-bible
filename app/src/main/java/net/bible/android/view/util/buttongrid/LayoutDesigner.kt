@@ -33,7 +33,7 @@ class LayoutDesigner(private val view: View) {
         var cols = 0
 
         /** column order if portrait mode to provide longer 'runs'  */
-        var columnOrder = false
+        val columnOrder = false
     }
 
     companion object {
@@ -86,7 +86,11 @@ class LayoutDesigner(private val view: View) {
             val minCols = if (isPortrait) MIN_COLS else MIN_COLS_LAND
             rowColLayout.cols = Math.max(minCols, rowColLayout.cols)
         }
-        rowColLayout.columnOrder = isPortrait
+
+        // #142: always use "column" order, even when in portrait orientation
+        // This provides a natural left-to-right instead of top-to-bottom flow.
+//        rowColLayout.columnOrder = isPortrait
+
         Log.d(TAG, "Rows:" + rowColLayout.rows + " Cols:" + rowColLayout.cols)
         return rowColLayout
     }
