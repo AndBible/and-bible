@@ -91,7 +91,7 @@ describe("textLength tests", () => {
     })
 
     it("test1", () => {
-        const e = document.querySelector("#v-0")
+        const e = document.querySelector("#o-0")
         const length = textLength(e);
         expect(length).toBe(35);
     });
@@ -105,7 +105,7 @@ describe("lastTextNode tests", () => {
     })
 
     it("test1", () => {
-        const e = document.querySelector("#v-0")
+        const e = document.querySelector("#o-0")
         const node = lastTextNode(e);
         console.log("node", node);
         expect(node.textContent).toBe("text5");
@@ -402,7 +402,7 @@ describe("calculateOffsetToVerse tests", () => {
         expect(offset).toBe(5)
     });
     it("test calculateOffsetToParent test 4", () => {
-        const elem1 = document.querySelector("#v-0")
+        const elem1 = document.querySelector("#o-0")
         const t = findNext(elem1, elem1, true);
 
         const offset = calculateOffsetToParent(t, elem1, t.length)
@@ -456,7 +456,7 @@ describe("findNodeAtOffset tests", () => {
     })
 
     function testOffset(testOffset, resultText, resultOffset) {
-        const elem1 = document.querySelector("#v-0")
+        const elem1 = document.querySelector("#o-0")
 
         const result = findNodeAtOffset(elem1, testOffset, resultText, resultOffset)
         const [node, offset] = result;

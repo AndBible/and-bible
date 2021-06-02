@@ -414,10 +414,10 @@ export function useBookmarks(documentId,
         }
 
         if(!startOff && !endOff) {
-            firstElement = document.querySelector(`#doc-${documentId} #v-${startOrdinal}`);
+            firstElement = document.querySelector(`#doc-${documentId} #o-${startOrdinal}`);
             const lastOrdinal = (endOff === null ? endOrdinal : endOrdinal - 1)
             for(let ord = startOrdinal; ord <= lastOrdinal; ord ++) {
-                const elem = document.querySelector(`#doc-${documentId} #v-${ord}`);
+                const elem = document.querySelector(`#doc-${documentId} #o-${ord}`);
                 lastElement = elem;
                 const oldStyle = elem.style;
                 elem.style = style;
@@ -429,8 +429,8 @@ export function useBookmarks(documentId,
 
             }
         } else {
-            const firstElem = document.querySelector(`#doc-${documentId} #v-${startOrdinal}`);
-            const secondElem = document.querySelector(`#doc-${documentId} #v-${endOrdinal}`);
+            const firstElem = document.querySelector(`#doc-${documentId} #o-${startOrdinal}`);
+            const secondElem = document.querySelector(`#doc-${documentId} #o-${endOrdinal}`);
             if (firstElem === null || secondElem === null) {
                 console.error("Element is not found!", documentId, startOrdinal, endOrdinal);
                 return;
@@ -488,7 +488,7 @@ export function useBookmarks(documentId,
             bookmarkMap.set(key, value);
         }
         for(const [lastOrdinal, bookmarkList] of bookmarkMap) {
-            const lastElement = document.querySelector(`#doc-${documentId} #v-${lastOrdinal}`);
+            const lastElement = document.querySelector(`#doc-${documentId} #o-${lastOrdinal}`);
             const b = bookmarkList[0];
             const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || b.labels[0]);
             const color = adjustedColor(bookmarkLabel.color).string();
