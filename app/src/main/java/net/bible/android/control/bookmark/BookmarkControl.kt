@@ -289,9 +289,9 @@ open class BookmarkControl @Inject constructor(
                 null
             }
         val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(book, it, true) }
-        val startOffset = b.startOffset ?: 0
+        val startOffset = if(b.wholeVerse) 0 else b.startOffset ?: 0
         var startVerse = verseTexts.first()
-        var endOffset = b.endOffset ?: startVerse.length
+        var endOffset = if(b.wholeVerse) startVerse.length else b.endOffset ?: startVerse.length
         val start = startVerse.slice(0 until min(startOffset, startVerse.length))
         if(verseTexts.size == 1) {
             val end = startVerse.slice(endOffset until startVerse.length)
@@ -302,7 +302,7 @@ open class BookmarkControl @Inject constructor(
         } else if(verseTexts.size > 1) {
             startVerse = startVerse.slice(startOffset until startVerse.length)
             val lastVerse = verseTexts.last()
-            endOffset = b.endOffset ?: lastVerse.length
+            endOffset = if(b.wholeVerse) lastVerse.length else b.endOffset ?: lastVerse.length
             val endVerse = lastVerse.slice(0 until min(lastVerse.length, endOffset))
             val end = lastVerse.slice(endOffset until lastVerse.length)
             val middleVerses = if(verseTexts.size > 2) {
