@@ -202,10 +202,12 @@ export function useConfig(documentType) {
     }
     const mmInPx = calcMmInPx();
 
+    const isBible = computed(() => documentType.value === DocumentTypes.BIBLE_DOCUMENT);
+
     const calculatedConfig = computed(() => {
         let topOffset = appSettings.topOffset;
         let topMargin = 0;
-        if(documentType.value === DocumentTypes.BIBLE_DOCUMENT) {
+        if(isBible.value) {
             topMargin = config.topMargin * mmInPx;
             topOffset += topMargin;
         }
@@ -219,12 +221,14 @@ export function useConfig(documentType) {
         appSettings.activeWindow = newActive;
     });
 
-    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {favouriteLabels, recentLabels, activeWindow, nightMode, errorBox: errorBoxVal}, initial = false} = {}) {
+    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: a, initial = false} = {}) {
         const defer = new Deferred();
-        if (!initial) emit(Events.CONFIG_CHANGED, defer)
         const oldValue = config.showBookmarks;
-        config.showBookmarks = false
-        await nextTick();
+        if(isBible.value) {
+            if (!initial) emit(Events.CONFIG_CHANGED, defer)
+            config.showBookmarks = false
+            await nextTick();
+        }
         for (const i in c) {
             if (config[i] !== undefined) {
                 config[i] = c[i];
@@ -232,24 +236,28 @@ export function useConfig(documentType) {
                 console.error("Unknown setting", i, c[i]);
             }
         }
-        appSettings.nightMode = nightMode;
-        appSettings.activeWindow = activeWindow;
-        appSettings.errorBox = errorBoxVal;
-        appSettings.favouriteLabels.splice(0);
-        appSettings.favouriteLabels.push(...favouriteLabels);
-        appSettings.recentLabels.splice(0);
-        appSettings.recentLabels.push(...recentLabels);
-        errorBox = errorBoxVal;
+
+        for (const i in a) {
+            if (appSettings[i] !== undefined) {
+                appSettings[i] = a[i];
+            } else if(!i.startsWith("deprecated")) {
+                console.error("Unknown setting", i, appSettings[i]);
+            }
+        }
+
+        errorBox = appSettings.errorBox;
         if (c.showBookmarks === undefined) {
             // eslint-disable-next-line require-atomic-updates
             config.showBookmarks = oldValue;
         }
         // eslint-disable-next-line require-atomic-updates
         config.showChapterNumbers = config.showVerseNumbers;
-        if (!initial) {
-            await nextTick();
+        if(isBible.value) {
+            if (!initial) {
+                await nextTick();
+            }
+            defer.resolve()
         }
-        defer.resolve()
     })
 
     return {config, appSettings, calculatedConfig};
