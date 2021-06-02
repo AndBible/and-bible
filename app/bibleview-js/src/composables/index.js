@@ -224,8 +224,13 @@ export function useConfig(documentType) {
     setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: a, initial = false} = {}) {
         const defer = new Deferred();
         const oldValue = config.showBookmarks;
-        if(isBible.value) {
-            if (!initial) emit(Events.CONFIG_CHANGED, defer)
+        const isBible = documentType.value === DocumentTypes.BIBLE_DOCUMENT
+        const needsRefresh =
+            isBible ||
+            documentType.value === DocumentTypes.OSIS_DOCUMENT;
+
+        if (!initial && needsRefresh) emit(Events.CONFIG_CHANGED, defer)
+        if(isBible) {
             config.showBookmarks = false
             await nextTick();
         }
@@ -252,10 +257,12 @@ export function useConfig(documentType) {
         }
         // eslint-disable-next-line require-atomic-updates
         config.showChapterNumbers = config.showVerseNumbers;
-        if(isBible.value) {
+        if(isBible) {
             if (!initial) {
                 await nextTick();
             }
+        }
+        if(needsRefresh) {
             defer.resolve()
         }
     })

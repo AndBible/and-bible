@@ -17,7 +17,7 @@
 
 <template>
   <span
-    :id="`v-${ordinal}`"
+    :id="`o-${ordinal}`"
     class="verse ordinal"
     :data-ordinal="ordinal"
   >

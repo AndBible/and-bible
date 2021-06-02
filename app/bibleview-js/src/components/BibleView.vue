@@ -118,7 +118,7 @@ export default {
     setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
       const verseBeforeConfigChange = currentVerse.value;
       await deferred.wait();
-      scrollToId(`v-${verseBeforeConfigChange}`, {now: true})
+      scrollToId(`o-${verseBeforeConfigChange}`, {now: true})
     })
 
     setupEventBusListener(Events.CLEAR_DOCUMENT, function clearDocument() {
