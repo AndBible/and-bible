@@ -327,9 +327,11 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="label_name_prompt">Nombre</string>
   <string name="label_unlabelled">Sin etiquetar</string>
   <string name="add_bookmark1">Marcador</string>
+  <string name="add_bookmark_whole_verse">Marcar versículo</string>
   <string name="remove_bookmark">Eliminar</string>
   <string name="bookmark_settings_hide_labels_title">Ocultar etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que se marcaron con la(s) etiqueta(s) especificada(s)</string>
+  <string name="auto_assign_labels">Asignar etiquetas automáticamente</string>
   <string name="label_color">Color de etiqueta</string>
   <string name="label_color_example">Ejemplo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -603,6 +605,14 @@ texto resaltado en la vista Biblia. También hay un documento especial \"Mis not
 para ver sus notas en una ventana separada.
 </string>
   <string name="help_studypads_title">Pizarras de estudio</string>
+  <string name="help_studypads_text">
+Los pizarras de estudio están diseñados para facilitar la redacción de notas de sermones, preparar sermones o simplemente
+escriba notas personales de estudio bíblico que tengan múltiples referencias bíblicas. Cada pizarra de estudio está asociado con una etiqueta de marcador.
+Todos los marcadores que se han creado con esa etiqueta respectiva aparecen automáticamente en el documento de la libreta de estudio.
+Además de los marcadores, puede haber entradas de texto personalizadas en un pizarra de estudio.
+Consejo: use el menú Espacio de trabajo -&gt; Todas las opciones de texto -&gt; Asignar etiquetas para asignar automáticamente todas las
+marcadores a la libreta de estudio.
+</string>
   <string name="help_search_title">Búsqueda</string>
   <string name="help_search_text">La búsqueda de texto puede incluir caracteres especiales como *, ?, AND, OR, NOT
 (vea \"Apache Lucene - Query Parser Syntax\" para más detalles)</string>
@@ -632,6 +642,13 @@ para ver sus notas en una ventana separada.
 </string>
   <!--Welcome text-->
   <string name="redownload_documents">Descargar de nuevo rápidamente</string>
+  <string name="welcome_message">Gracias por descargar %s. Actualmente no hay Biblias ni documentos instalados. Para continuar, instale
+al menos 1 documento descargándolo de Internet o cargándolo desde un documento de archivo zip
+respaldo.
+</string>
+  <string name="redownload_message">
+Se encontró una lista de libros / documentos anteriores. Haga clic a continuación para volver a descargarlos fácilmente.
+</string>
   <!--Uncategorized-->
   <string name="close">Cerrar</string>
   <string name="something_with_parenthesis">%s (%s)</string>
@@ -687,9 +704,47 @@ para ver sus notas en una ventana separada.
   <string name="initializing_app">Inicializando la aplicación…</string>
   <string name="show_notes">Mostrar notas</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">El paquete WebView de Android es demasiado antiguo (%s). Necesita actualizar su paquete WebView de Android al menos a la versión %s para usar %s. Para la mayoría de los dispositivos, esto se puede hacer a través de %s.</string>
   <string name="play">Google Play</string>
+  <string name="proceed_anyway">Proceda seguro</string>
+  <string name="rate_title">Calificar y revisar la aplicación</string>
+  <string name="rate_message5">
+Las revisiones positivas y detalladas ayudan mucho al Proyecto de Código Abierto de la Biblia. ¡Gracias!
+</string>
+  <string name="rate_message6">
+Antes de revisar la reseña negativa, considere lo siguiente:
+</string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+Si tiene un problema con la aplicación, %s o %s en su lugar.
+</string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+Si algún texto / traducción de la Biblia tiene algún problema, %s.
+</string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+Si un texto en particular no está disponible en la aplicación, %s.
+</string>
+  <string name="rate_message4">
+Los desarrolladores de esta aplicación no son responsables del mantenimiento de los documentos.
+</string>
+  <string name="bug_report">
+enviar un informe de error (desde el menú principal)
+</string>
+  <string name="how_to_help">
+por favor lea lo que puede hacer para ayudar
+</string>
+  <string name="send_email">
+enviar correo electrónico a las desarrolladoras
+</string>
+  <string name="proceed_google_play">
+Proceda a Google Play
+</string>
+  <string name="text_maintainers">
+informe los problemas a los mantenedores de texto
+</string>
   <string name="does_not_exist_abbreviation">No existe</string>
+  <string name="cant_change_wholeverse">No se puede desactivar la marcación de verso completo para este marcador</string>
+  <string name="whole_verse_turned_on">El marcador ahora está marcado para todo el verso</string>
 </resources>

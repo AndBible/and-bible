@@ -20,7 +20,7 @@
   <string name="contact">Kontaktas</string>
   <string name="help_and_tips">Pagalba ir patarimai</string>
   <string name="administration">Valdymas</string>
-  <string name="rate_application">Įvertinti ir apžvelgti Google Play parduotuvėje</string>
+  <string name="rate_application">Įvertinti ir apžvelgti „Google Play“ parduotuvėje</string>
   <string name="chooce_document">Pasirinkti dokumentą</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Pasirinkite knygą</string>
@@ -306,6 +306,7 @@
   <string name="notes">Išnašos ir nuorodos</string>
   <string name="share_verse">Bendrinti…</string>
   <string name="share_verse_widget_title">Bendrinti žymėjimą</string>
+  <string name="share_verse_subject_2">Su jumis pasidalinta Biblijos eilute naudojant %s.</string>
   <string name="compare_translations">Lyginti vertimus</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Atverti nuorodą čia</string>
@@ -467,7 +468,7 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="restore_unsuccessfull">Duomenų bazės atkūrimas buvo nesėkmingas. Galbūt, pateikėte neteisingą duomenų bazės failą.</string>
   <string name="backup_phone_storage">Telefono saugykla</string>
   <string name="backup_backup_title">Kur išsaugoti atsarginę kopiją?</string>
-  <string name="backup_backup_message">Išsaugoti atsarginę kopiją telefone arba kitur naudojant bendrinimo funkciją (el. paštu, Google Diskas ir kt.)?</string>
+  <string name="backup_backup_message">Išsaugoti atsarginę kopiją telefone arba kitur naudojant bendrinimo funkciją (el. paštu, „Google“ Diskas ir kt.)?</string>
   <string name="backup_share">Bendrinti</string>
   <string name="restore_modules">Atkurti dokumentus iš…</string>
   <string name="send_backup_file">Siųsti atsarginės kopijos failą</string>
@@ -565,7 +566,7 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
     </string>
   <string name="beta_notice_content_2">
         Beta versija besinaudojantys žmonės yra skatinami pranešti
-        apie programėlės klaidas per Google Play arba (labiau pageidautina)
+        apie programėlės klaidas per „Google Play“ arba (labiau pageidautina)
         per %s.
     </string>
   <string name="beta_notice_content_3">Jei esate programuotojas, apsvarstykite galimybę asmeniškai
@@ -576,10 +577,15 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="beta_notice_dismiss_until_update">Atmesti iki kito atnaujinimo</string>
   <string name="stable_notice_title">Programėlė atnaujinta!</string>
   <string name="upgrade_video_message">Žiūrėkite vaizdo įrašą, kuriame demonstruojamos naujos programėlės ypatybės (%s).</string>
+  <string name="stable_notice_par1">Nauja versija %s %s sėkmingai įdiegta!</string>
   <!--History-->
   <string name="history_for">Istorija (%s: Langas %d)</string>
   <!--Help-->
   <string name="help_nav_title">Naršymas</string>
+  <string name="help_nav_text">Eikite į kitą arba ankstesnį skyrių pirštu braukdami per ekraną iš kairės į dešinę arba atvirkščiai.
+     Bakstelėkite ekrane dukart, kad perjungtumėte į viso ekrano veikseną.
+     Padalinti ekranai (kitaip vadinami langais) turi meniu mygtuką viršutiniame dešiniajame kampe,
+     kuris įgalina tam tikras specifines konkretaus lango funkcijas bei nustato lango išvaizdą bei elgseną.</string>
   <string name="help_contextmenus_title">Kontekstiniai meniu</string>
   <string name="help_contextmenus_text">
      Ilgas paspaudimas atveria kontekstinį meniu arba veiksmo meniu keliuose rodiniuose.
@@ -588,10 +594,22 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
      Ilgas paspaudimas ant žymių sąraše esančios žymės leis pridėti etiketę arba pašalinti žymę.
      Ilgas paspaudimas ant nuorodos leis pasirinkti ar atverti ją dabartiniame lange, ar naujame, arba specialiame nuorodų lange.</string>
   <string name="help_bookmarks_title">Žymės ir mano pastabos</string>
+  <string name="help_bookmarks_text">Žymės gali būti kuriamos pažymėjus tekstą ir atsiradusiame meniu pasirinkus „Žymė“. 
+Naujai žymei pridėti pastabas galite Biblijos rodinyje paspaudę ant paryškinto teksto.
+        Komentaruose taip pat yra specialus dokumentas „Mano pastabos“, leidžiantis jums
+        matyti savo pastabas atskirame lange.
+    </string>
   <string name="help_studypads_title">Bloknotai</string>
+  <string name="help_studypads_text">
+Bloknotai yra sukurti, kad leistų lengviau užsirašyti pamokslo pastabas, pasiruošti pamokslui arba, tiesiog,
+užsirašyti asmenines Biblijos studijų pastabas, kuriose yra sudėtinės Biblijos nuorodos. Kiekvienas bloknotas yra susietas su viena žymės etikete.
+Visos žymės, kurios buvo sukurtos naudojant tą atitinkamą etiketę, automatiškai atsiranda bloknoto dokumente.
+Be žymių, bloknote dar gali būti įterpiami teksto įrašai.
+Patarimas: Naudokite Darbo sričių meniu -&gt; Visos teksto parinktys -&gt; Priskirti etiketes, kad automatiškai bloknotui priskirtumėte visas sukurtas žymes.
+</string>
   <string name="help_search_title">Paieška</string>
   <string name="help_search_text">Paieškos tekste gali būti specialūs simboliai, tokie kaip *, ?, AND, OR, NOT
-(Išsamios informacijos ieškokite \"Apache Lucene - Query Parser Syntax\")</string>
+(Išsamios informacijos ieškokite „Apache Lucene - Query Parser Syntax“)</string>
   <string name="help_workspaces_title">Darbo sritys</string>
   <string name="help_workspaces_text">
         Darbo sritys leidžia turėti kelias darbines aplinkas. Darbo sričių funkcijas
@@ -600,9 +618,25 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
         galite perjungti į ankstesnę / kitą darbo sritį.
     </string>
   <string name="help_hidden_features_title">Paslėpti trumpiniai</string>
+  <string name="help_hidden_features_text">Perbraukite nuo įrankių juostos žemyn, norėdami pasiekti darbo sričių pasirinkimo meniu.
+Paspauskite ir palaikykite lango mygtuką, norėdami greitai suskleisti.
+Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo nustatymus.
+Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos sąrašą.
+</string>
   <string name="help_window_pinning_title">Lango pritvirtinimas</string>
+  <string name="help_window_pinning_text">
+     Langų pritvirtinimą galite įjungti nustatymų meniu (trys taškai, viršutinis dešinys kampas).
+     Jei langų pritvirtinimas veikia, vienu metu galite parodyti daug pritvirtintų langų,
+     bet tik vieną nepritvirtintą. Pirma rodomi pritvirtinti langai, po to nepritvirtinti.
+     Geriau Biblijų dokumentus atverti kaip pritvirtintus, o komentarus ir žemėlapius -
+     kaip nepritvirtintus. Tuomet turėsite Biblijos dokumentus visuomet atvertus ir
+     lengvai persijungsite prie komentarų ir kitos papildomos medžiagos.
+</string>
   <!--Welcome text-->
   <string name="redownload_documents">Greitas atsisiuntimas iš naujo</string>
+  <string name="welcome_message">Dėkojame, kad atsisiuntėte %s. Šiuo metu nėra įdiegta jokių dokumentų ar Biblijų. Norėdami tęsti, įsidiekite
+        bent 1 dokumentą, atsisiųsdami jį iš interneto arba įkeldami iš zip failo dokumento atsarginės kopijos.
+    </string>
   <string name="redownload_message">
         Buvo rastas ankstesnių knygų/dokumentų sąrašas. Spustelėkite žemiau, norėdami vėl juos lengvai atsisiųsti.
     </string>
@@ -611,13 +645,21 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Aš suprantu</string>
   <string name="first_time_help_show_next_time">Rodyti ir kitą kartą</string>
+  <string name="strongs_mode_title">Pasirinkite strongo veikseną</string>
   <string name="download_dialog_message">Nepavyko atsisiųsti šių knygų:</string>
   <string name="select_multiple">Žymėti kelias</string>
+  <string name="journal_description">Naudotojo redaguojami bloknotai su įterpiamu tekstu ir žymėmis</string>
+  <string name="my_notes_description">Naudotojo redaguojamos pastabos, pridėtos prie žymių</string>
   <string name="my_notes_abbreviation">Mano pastabos</string>
   <string name="studypads">Bloknotai</string>
+  <string name="multi_description">Sudėtinės nuorodos</string>
+  <string name="multi_abbreviation">Sudėtinės</string>
+  <string name="compare_description">Lyginti vertimus</string>
+  <string name="compare_abbreviation">Lyginti</string>
   <string name="http_forbidden">Uždrausta</string>
   <string name="http_not_found">Nerasta</string>
   <string name="http_unknown">Kitokia klaida</string>
+  <string name="compare">Lyginti</string>
   <string name="give_passphrase_for_module">Dokumentas %s yra šifruotas ir tam, kad būtų atrakintas, reikalauja slaptafrazės</string>
   <string name="unlocking_failed">Nepavyko atrakinti, neteisinga slaptafrazė</string>
   <string name="unlock_module">Nustatyti modulio slaptafrazę</string>
@@ -625,19 +667,75 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="try_again_passphrase">Slaptafrazė nesuveikė, bandyti dar kartą?</string>
   <string name="cant_delete_last_bible">Negalima pašalinti paskutinio Biblijos dokumento</string>
   <string name="show_unlock_info">Modulis ir informacija apie atrakinimą</string>
+  <string name="prefs_show_error_box_title">Rodyti Javascript klaidų langą</string>
+  <string name="prefs_show_error_box_summary">Praverčia plėtotojams derinant BibleView javascript pusės klaidas. Tai sulėtins programėlės veikimą.</string>
+  <string name="active_window_indicator_title">Rodyti aktyvaus lango indikatorių</string>
+  <string name="active_window_indicator_summary">Paryškinti lango kampus, kad būtų lengviau atpažinti aktyvų langą</string>
   <string name="app_licence_title">Atvirojo kodo licencija</string>
+  <string name="how_to_contribute">Kaip talkinti?</string>
   <string name="confirm_delete_bookmarks">Ar norite pašalinti %d žymes(-ių) ir jų pastabas?</string>
+  <string name="confirm_delete_study_pads">Ar norite pašalinti %d žymės etiketes(-ių) / bloknotus(-ų)? Be to, bus pašalintos visos susijusios žymės ir bloknoto pastabos.</string>
   <string name="toast_deletion_cancel">Atšaukite ištrynimą paspausdami atsisakymo mygtuką.</string>
   <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Rekomenduoti draugui</string>
+  <string name="tell_friend_message1">Norėčiau tau parekomenduoti %s.</string>
+  <string name="tell_friend_message2">Tai – galinga, bet lengva naudoti Biblijos studijų programėlė, skirta „Android“.</string>
+  <string name="tell_friend_message3">Įsidiek iš „Play“ parduotuvės: %s</string>
+  <string name="tell_friend_message4">Sužinok daugiau apie programėlę ir kaip ją įsidiegti: %s</string>
   <string name="share_verse_ok">Bendrinti / Kopijuoti</string>
   <string name="share_verse_menu_title">Bendrinti / kopijuoti…</string>
+  <string name="show_versenumbers">Rodyti eilučių numerius</string>
+  <string name="show_full_verses">Rodyti pilnas eilutes</string>
+  <string name="advertise_app">Skleisti žinią apie programėlę</string>
   <string name="verse_share_advertise">Bendrinama naudojant %s.</string>
+  <string name="abbreviate_reference">Sutrumpinti nuorodą</string>
+  <string name="backup_button">Atsarginė kopija</string>
   <string name="back_button">Atgal</string>
   <string name="upgrading_database">Naujinama duomenų bazė. Palaukite…</string>
   <string name="initializing_app">Inicijuojama programėlė…</string>
   <string name="show_notes">Rodyti pastabas</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">„Android WebView“ paketas yra per senas (%s). Turite atnaujinti savo „Android WebView“ paketą bent iki versijos %s, kad galėtumėte naudoti %s. Daugumoje įrenginių, tai galima atlikti per %s.</string>
+  <string name="play">„Google Play“</string>
+  <string name="proceed_anyway">Vis tiek tęsti</string>
+  <string name="rate_title">Programėlės įvertinimas ir apžvalga</string>
+  <string name="rate_message5">
+        Teigiamos ir išsamios apžvalgos labai padeda And Bible atvirojo kodo projektui. Dėkojame!
+    </string>
+  <string name="rate_message6">
+        Prieš rašydami neigiamą apžvalgą, turėkite omenyje šiuos dalykus:
+    </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        Jei susidūrėte su problema programėlėje, %s arba, vietoj to, %s.
+    </string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+        Jei tekste / Biblijos vertime yra klaida, %s.
+    </string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+        Jei programėlėje nėra prieinamas tam tikras tekstas, %s.
+    </string>
+  <string name="rate_message4">
+        Šios programėlės plėtotojai nėra atsakingi už dokumentus ir jų neprižiūri.
+    </string>
+  <string name="bug_report">
+        siųskite pranešimą apie klaidą (Pagrindiniame meniu)
+    </string>
+  <string name="how_to_help">
+        perskaitykite, ką galite padaryti, kad padėtumėte
+    </string>
+  <string name="send_email">
+       siųskite plėtotojams el. laišką
+    </string>
+  <string name="proceed_google_play">
+        Pereiti į „Google Play“
+    </string>
+  <string name="text_maintainers">
+       siųskite pranešimus apie klaidas teksto prižiūrėtojams
+    </string>
+  <string name="does_not_exist_abbreviation">Nėra</string>
+  <string name="cant_change_wholeverse">Nepavyksta išjungti visos eilutės žymėjimą šiai žymei</string>
+  <string name="whole_verse_turned_on">Dabar, žymė yra pažymėta visai eilutei</string>
 </resources>
