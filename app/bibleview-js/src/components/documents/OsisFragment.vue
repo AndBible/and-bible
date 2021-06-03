@@ -43,7 +43,6 @@ export default {
     // eslint-disable-next-line vue/no-setup-props-destructure
     const {
       xml,
-      key: fragmentKey,
       bookInitials,
       osisRef,
     } = props.fragment;
