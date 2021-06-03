@@ -314,6 +314,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<Long> = mutableSetOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<Long> = mutableSetOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
     ) {
         companion object {
             val default get() = WorkspaceSettings(

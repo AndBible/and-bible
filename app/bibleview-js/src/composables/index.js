@@ -188,6 +188,7 @@ export function useConfig(documentType) {
         favouriteLabels: [],
         recentLabels: [],
         frequentLabels: [],
+        hideCompareDocuments: [],
         activeWindow: false,
         rightToLeft: rtl
     });
@@ -317,6 +318,7 @@ export function useCommon() {
     const config = inject("config");
     const appSettings = inject("appSettings");
     const calculatedConfig = inject("calculatedConfig");
+    const android = inject("android");
 
     const strings = inject("strings");
 
@@ -334,7 +336,7 @@ export function useCommon() {
     }
 
     return {config, appSettings, calculatedConfig, strings, sprintf, split,
-        adjustedColor, formatTimestamp, abbreviated, emit, Events
+        adjustedColor, formatTimestamp, abbreviated, emit, Events, android,
     }
 }
 

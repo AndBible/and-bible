@@ -840,7 +840,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var initialAnchorOrdinal: Int? = null
     internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
-    private val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
+    internal val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
 
     fun updateTextDisplaySettings(onAttach: Boolean = false) {
         Log.d(TAG, "updateTextDisplaySettings")
@@ -859,10 +859,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun getUpdateConfigCommand(initial: Boolean): String {
         val favouriteLabels = json.encodeToString(serializer(), workspaceSettings.favouriteLabels)
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
+        val hideCompareDocuments = json.encodeToString(serializer(), workspaceSettings.hideCompareDocuments)
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
-                    appSettings: {activeWindow: $isActive, nightMode: $nightMode, errorBox: $showErrorBox, favouriteLabels: $favouriteLabels, recentLabels: $recentLabels}, 
+                    appSettings: {activeWindow: $isActive, nightMode: $nightMode, 
+                        errorBox: $showErrorBox, favouriteLabels: $favouriteLabels, 
+                        recentLabels: $recentLabels, hideCompareDocuments: $hideCompareDocuments
+                        }, 
                     initial: $initial
                     });
                 """.trimIndent()

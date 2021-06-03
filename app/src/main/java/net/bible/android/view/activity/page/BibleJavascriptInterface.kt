@@ -223,5 +223,16 @@ class BibleJavascriptInterface(
         if(value) ABEventBus.getDefault().post(ToastEvent(R.string.whole_verse_turned_on))
     }
 
+    @JavascriptInterface
+    fun toggleCompareDocument(documentId: String) {
+        val hideDocs = bibleView.workspaceSettings.hideCompareDocuments
+        if(hideDocs.contains(documentId)) {
+            hideDocs.remove(documentId)
+        } else {
+            hideDocs.add(documentId)
+        }
+        ABEventBus.getDefault().post(AppSettingsUpdated())
+    }
+
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }
