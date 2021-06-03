@@ -221,7 +221,7 @@ export function useConfig(documentType) {
         appSettings.activeWindow = newActive;
     });
 
-    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: a, initial = false} = {}) {
+    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: newConfig, appSettings: newAppSettings, initial = false} = {}) {
         const defer = new Deferred();
         const oldValue = config.showBookmarks;
         const isBible = documentType.value === DocumentTypes.BIBLE_DOCUMENT
@@ -234,24 +234,24 @@ export function useConfig(documentType) {
             config.showBookmarks = false
             await nextTick();
         }
-        for (const i in c) {
+        for (const i in newConfig) {
             if (config[i] !== undefined) {
-                config[i] = c[i];
+                config[i] = newConfig[i];
             } else if(!i.startsWith("deprecated")) {
-                console.error("Unknown setting", i, c[i]);
+                console.error("Unknown setting", i, newConfig[i]);
             }
         }
 
-        for (const i in a) {
+        for (const i in newAppSettings) {
             if (appSettings[i] !== undefined) {
-                appSettings[i] = a[i];
+                appSettings[i] = newAppSettings[i];
             } else if(!i.startsWith("deprecated")) {
                 console.error("Unknown setting", i, appSettings[i]);
             }
         }
 
         errorBox = appSettings.errorBox;
-        if (c.showBookmarks === undefined) {
+        if (newConfig.showBookmarks === undefined) {
             // eslint-disable-next-line require-atomic-updates
             config.showBookmarks = oldValue;
         }
