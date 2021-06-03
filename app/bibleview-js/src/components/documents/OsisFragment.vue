@@ -17,14 +17,12 @@
 
 <template>
   <div :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language" :dir="fragment.direction" >
-    <div v-for="{key, template} in templates" :key="key">
-      <OsisSegment :osis-template="template" />
-    </div>
+    <OsisSegment :osis-template="template" />
   </div>
 </template>
 
 <script>
-import {computed, reactive, ref} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
 import {inject, onMounted, provide} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import {highlightVerseRange, osisToTemplateString} from "@/utils";
@@ -76,11 +74,8 @@ export default {
     });
 
     const template = !props.doNotConvert ? osisToTemplateString(xml): xml;
-    const templates = reactive([]);
 
-    templates.push({template, key: `${fragmentKey}-0`})
-
-    return {templates, strings, uniqueId}
+    return {template, strings, uniqueId}
   }
 }
 </script>
