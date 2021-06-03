@@ -4,54 +4,72 @@
 	android:layout_width="match_parent"
 	android:layout_height="40dp"
 	>
-
-	<ImageView android:id="@+id/labelIcon"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginStart="10dp"
-		app:layout_constraintTop_toTopOf="@id/labelName"
-		app:layout_constraintStart_toStartOf="parent"
-		android:src="@drawable/ic_label_24dp"
-		/>
-	<ImageView android:id="@+id/favouriteIcon"
-		android:layout_width="wrap_content"
-		android:layout_marginStart="10dp"
-		android:layout_height="wrap_content"
-		app:layout_constraintTop_toTopOf="@id/labelName"
-		app:layout_constraintStart_toEndOf="@id/labelIcon"
-		app:tint="@color/grey_500"
-		android:src="@drawable/ic_baseline_favorite_24"
-		/>
-	<CheckBox
-		android:id="@+id/checkbox"
-		app:layout_constraintTop_toTopOf="@id/labelName"
-		app:layout_constraintStart_toEndOf="@id/favouriteIcon"
-		app:layout_constraintBottom_toBottomOf="@id/labelName"
-		android:layout_width="wrap_content"
-		android:layout_marginStart="10dp"
-		android:layout_height="wrap_content"/>
-
-	<ImageView android:id="@+id/primaryIcon"
-		app:layout_constraintTop_toTopOf="@id/labelName"
-		app:layout_constraintStart_toEndOf="@id/checkbox"
-		app:tint="@color/grey_500"
-		android:layout_marginStart="10dp"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:src="@drawable/ic_baseline_bookmark_24"
-		/>
 	<TextView
-		android:id="@+id/labelName"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintStart_toEndOf="@id/primaryIcon"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintBottom_toBottomOf="parent"
+		android:id="@+id/categoryTitle"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_width="0dp"
-		android:singleLine="true"
-		android:ellipsize="end"
-		android:text="TEST"
-		android:paddingStart="18dip"
-		android:textAppearance="?android:attr/textAppearanceMedium"/>
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		android:paddingStart="20dip"
+		android:text="TEST TITLE"
+		style="@style/TextAppearance.AppCompat.Title"
+		>
+	</TextView>
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:id="@+id/labelCategory"
+		>
+		<ImageView android:id="@+id/labelIcon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="10dp"
+			app:layout_constraintTop_toTopOf="@id/labelName"
+			app:layout_constraintStart_toStartOf="parent"
+			android:src="@drawable/ic_label_24dp"
+			/>
+		<ImageView android:id="@+id/favouriteIcon"
+			android:layout_width="wrap_content"
+			android:layout_marginStart="10dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintTop_toTopOf="@id/labelName"
+			app:layout_constraintStart_toEndOf="@id/labelIcon"
+			app:tint="@color/grey_500"
+			android:src="@drawable/ic_baseline_favorite_24"
+			/>
+		<CheckBox
+			android:id="@+id/checkbox"
+			app:layout_constraintTop_toTopOf="@id/labelName"
+			app:layout_constraintStart_toEndOf="@id/favouriteIcon"
+			app:layout_constraintBottom_toBottomOf="@id/labelName"
+			android:layout_width="wrap_content"
+			android:layout_marginStart="10dp"
+			android:layout_height="wrap_content"/>
 
+		<ImageView android:id="@+id/primaryIcon"
+			app:layout_constraintTop_toTopOf="@id/labelName"
+			app:layout_constraintStart_toEndOf="@id/checkbox"
+			app:tint="@color/grey_500"
+			android:layout_marginStart="10dp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_baseline_bookmark_24"
+			/>
+		<TextView
+			android:id="@+id/labelName"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintStart_toEndOf="@id/primaryIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"
+			android:layout_height="wrap_content"
+			android:layout_width="0dp"
+			android:singleLine="true"
+			android:ellipsize="end"
+			android:text="TEST"
+			android:paddingStart="18dip"
+			android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
