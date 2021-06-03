@@ -29,7 +29,7 @@ import {
 import {sprintf} from "sprintf-js";
 import {adjustedColor, Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
-import {throttle} from "lodash";
+import {isEqual, throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {
@@ -221,16 +221,36 @@ export function useConfig(documentType) {
         appSettings.activeWindow = newActive;
     });
 
+    function hasBookmarkConfigChanged(newConfig) {
+        const keys = [
+            "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
+            "showRedLetters", "showVersePerLine", "showNonCanonical", "makeNonCanonicalItalic", "showSectionTitles",
+            "showStrongsSeparately", "showFootNotes", "showBookmarks", "showMyNotes", "bookmarksHideLabels"
+        ];
+        for(const key of keys) {
+            let comparison;
+            if(newConfig[key] === undefined) continue;
+            if(config[key] instanceof Array) {
+                comparison = isEqual(config[key], newConfig[key]);
+            } else {
+                comparison = config[key] === newConfig[key];
+            }
+            if(!comparison) return true;
+        }
+        return false;
+    }
+
+
     setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: newConfig, appSettings: newAppSettings, initial = false} = {}) {
         const defer = new Deferred();
         const oldValue = config.showBookmarks;
         const isBible = documentType.value === DocumentTypes.BIBLE_DOCUMENT
-        const needsRefreshLocation =
-            isBible ||
-            documentType.value === DocumentTypes.OSIS_DOCUMENT;
+        const needsRefreshLocation = !initial && (isBible || documentType.value === DocumentTypes.OSIS_DOCUMENT);
+        const needBookmarkRefresh = hasBookmarkConfigChanged(newConfig);
 
-        if (!initial && needsRefreshLocation) emit(Events.CONFIG_CHANGED, defer)
-        if(isBible) {
+        if (needsRefreshLocation) emit(Events.CONFIG_CHANGED, defer)
+
+        if(isBible && needBookmarkRefresh) {
             config.showBookmarks = false
             await nextTick();
         }
@@ -241,6 +261,8 @@ export function useConfig(documentType) {
                 console.error("Unknown setting", i, newConfig[i]);
             }
         }
+        // eslint-disable-next-line require-atomic-updates
+        config.showChapterNumbers = config.showVerseNumbers;
 
         for (const i in newAppSettings) {
             if (appSettings[i] !== undefined) {
@@ -251,18 +273,15 @@ export function useConfig(documentType) {
         }
 
         errorBox = appSettings.errorBox;
-        if (newConfig.showBookmarks === undefined) {
-            // eslint-disable-next-line require-atomic-updates
-            config.showBookmarks = oldValue;
-        }
-        // eslint-disable-next-line require-atomic-updates
-        config.showChapterNumbers = config.showVerseNumbers;
-        if(isBible) {
-            if (!initial) {
-                await nextTick();
+        if(isBible && needBookmarkRefresh) {
+            if (newConfig.showBookmarks === undefined) {
+                // eslint-disable-next-line require-atomic-updates
+                config.showBookmarks = oldValue;
             }
         }
-        if(needsRefreshLocation) {
+
+        if (needsRefreshLocation) {
+            await nextTick();
             defer.resolve()
         }
     })
