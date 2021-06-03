@@ -328,7 +328,6 @@
   <string name="remove_bookmark">Šalinti</string>
   <string name="bookmark_settings_hide_labels_title">Paslėpti nurodytas etiketes</string>
   <string name="bookmark_settings_hide_labels_summary">Paslėpti žymes, kurios pažymėtos nurodyta etikete(-ėmis)</string>
-  <string name="auto_assign_labels">Automatiškai priskirti žymių etiketes</string>
   <string name="label_color">Etiketės spalva</string>
   <string name="label_color_example">Pavyzdys</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -675,7 +674,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="how_to_contribute">Kaip talkinti?</string>
   <string name="confirm_delete_bookmarks">Ar norite pašalinti %d žymes(-ių) ir jų pastabas?</string>
   <string name="confirm_delete_study_pads">Ar norite pašalinti %d žymės etiketes(-ių) / bloknotus(-ų)? Be to, bus pašalintos visos susijusios žymės ir bloknoto pastabos.</string>
-  <string name="toast_deletion_cancel">Atšaukite ištrynimą paspausdami atsisakymo mygtuką.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekomenduoti draugui</string>
   <string name="tell_friend_message1">Norėčiau tau parekomenduoti %s.</string>

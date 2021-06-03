@@ -1,6 +1,7 @@
 openMyNotes: Apri in Le mie note
 openStudyPad: Apri in Appunti di studio (%s)
 noteText: Note a piè di pagina (%s)
+noteTextWithoutType: ""
 crossReferenceText: Riferimenti incrociati
 findAllOccurrences: Trova tutte le occorrenze
 reportError: Segnala un errore
@@ -54,6 +55,7 @@ onlyLabel: Solo etichetta
 wholeBookmark: Intero segnalibro
 otherNoteText: Altra nota
 assignLabelsMenuEntry: Assegna etichette
+assignLabelsMenuEntry1: ""
 jumpToStudyPad: Salta agli Appunti di studio
 setAsPrimaryLabel: Imposta come etichetta principale
 removeBookmarkLabel: Rimuovi etichetta dal segnalibro
@@ -61,3 +63,5 @@ addBookmarkLabel: Aggiungi etichetta al segnalibro
 favouriteLabels: Etichette preferite
 recentLabels: Etichette recenti
 frequentlyUsedLabels: Etichette usate più spesso
+bookmarkLabels: ""
+restoreCompareTitle: ""

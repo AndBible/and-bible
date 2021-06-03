@@ -329,7 +329,6 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="remove_bookmark">Odstrani</string>
   <string name="bookmark_settings_hide_labels_title">Skrij nekatere oznake</string>
   <string name="bookmark_settings_hide_labels_summary">Skrij zaznamke, ki so označeni z navedenimi oznakami</string>
-  <string name="auto_assign_labels">Zaznamkom dodeli oznake</string>
   <string name="label_color">Barva oznake</string>
   <string name="label_color_example">Primer</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -674,7 +673,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="how_to_contribute">Kako prispevati?</string>
   <string name="confirm_delete_bookmarks">Ali želite odstraniti %d zaznamke in njihove zapiske?</string>
   <string name="confirm_delete_study_pads">Ali želite odstraniti %d oznake zaznamkov / beležnice? Prav tako bodo odstranjeni vsi povezani zaznamki in opombe v beležnici.</string>
-  <string name="toast_deletion_cancel">Razveljavite brisanje s pritiskom na gumb za preklic.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Priporočite prijatelju</string>
   <string name="tell_friend_message1">Rad bi vam priporočil: %s .</string>

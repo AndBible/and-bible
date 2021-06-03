@@ -312,7 +312,6 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="remove_bookmark">Entfernen</string>
   <string name="bookmark_settings_hide_labels_title">Bestimmte Gruppen verbergen</string>
   <string name="bookmark_settings_hide_labels_summary">Lesezeichen aus gekennzeichenten Gruppen verbergen</string>
-  <string name="auto_assign_labels">Lesezeichen-Gruppen automatisch zuweisen</string>
   <string name="label_color">Gruppenfarbe</string>
   <string name="label_color_example">Beispiel</string>
   <!--Sort orders used for Bookmarks and MyNotes-->

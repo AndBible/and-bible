@@ -1,6 +1,7 @@
 openMyNotes: Abrir en Mis Notas
 openStudyPad: Abrir en Pizarra de Estudio (%s)
 noteText: Notas al pie (%s)
+noteTextWithoutType: ""
 crossReferenceText: Referencias cruzadas
 findAllOccurrences: Encuentra todas las coincidencias
 reportError: Informar de un error
@@ -54,6 +55,7 @@ onlyLabel: Solo etiqueta
 wholeBookmark: Marcador completo
 otherNoteText: Otro nota
 assignLabelsMenuEntry: Asignar etiquetas
+assignLabelsMenuEntry1: ""
 jumpToStudyPad: Ir a la Bloc de Estudio
 setAsPrimaryLabel: Establecer etiqueta principal
 removeBookmarkLabel: Quitar etiqueta del marcador
@@ -61,3 +63,5 @@ addBookmarkLabel: Agregar etiqueta al marcador
 favouriteLabels: Etiquetas favoritas
 recentLabels: Etiquetas recientes
 frequentlyUsedLabels: Etiquetas uso frecuente
+bookmarkLabels: ""
+restoreCompareTitle: ""

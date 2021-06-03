@@ -1,6 +1,7 @@
 openMyNotes: Malfermi en miaj notoj
 openStudyPad: Malfermi en notbloko (%s)
 noteText: Piednoto (%s)
+noteTextWithoutType: ""
 crossReferenceText: Internaj referencoj
 findAllOccurrences: Montri ĉiujn aperojn
 reportError: Raporti eraron
@@ -54,6 +55,7 @@ onlyLabel: Nur etikedo
 wholeBookmark: Tuta legosigno
 otherNoteText: alia noto
 assignLabelsMenuEntry: Asigni etikedojn
+assignLabelsMenuEntry1: ""
 jumpToStudyPad: Iri al notbloko
 setAsPrimaryLabel: Agordi kiel ĉefan etikedon
 removeBookmarkLabel: Forigi etikedon de legosigno
@@ -61,3 +63,5 @@ addBookmarkLabel: Aldoni etikedon al legosigno
 favouriteLabels: Ŝatataj etikedoj
 recentLabels: Antaŭaj etikedoj
 frequentlyUsedLabels: Ofte uzataj etikedoj
+bookmarkLabels: ""
+restoreCompareTitle: ""

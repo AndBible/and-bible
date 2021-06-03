@@ -1,6 +1,7 @@
 openMyNotes: Maak oop in My Notas
 openStudyPad: Open in Studie blok (%s)
 noteText: Voet Notas (%s)
+noteTextWithoutType: ""
 crossReferenceText: Kruis verwysings
 findAllOccurrences: Vind alle gebeurtenisse
 reportError: Rapporteer 'n fout
@@ -54,6 +55,7 @@ onlyLabel: Slegs etiket
 wholeBookmark: Hele boekmerk
 otherNoteText: Ander nota
 assignLabelsMenuEntry: Ken etikette toe
+assignLabelsMenuEntry1: ""
 jumpToStudyPad: Spring na studieblok
 setAsPrimaryLabel: Stel as primêre etiket
 removeBookmarkLabel: Verwyder etiket van boekmerk
@@ -61,3 +63,5 @@ addBookmarkLabel: Voeg etiket by boekmerk
 favouriteLabels: Gunsteling etikette
 recentLabels: Onlangse etikette
 frequentlyUsedLabels: Dikwels gebruik etikette
+bookmarkLabels: ""
+restoreCompareTitle: ""

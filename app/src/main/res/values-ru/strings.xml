@@ -328,7 +328,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="remove_bookmark">Удалить</string>
   <string name="bookmark_settings_hide_labels_title">Скрыть указанные метки</string>
   <string name="bookmark_settings_hide_labels_summary">Скрыть закладки, отмеченные указанными ярлыками</string>
-  <string name="auto_assign_labels">Автоматически назначать ярлыки закладок</string>
   <string name="label_color">Цвет ярлыка</string>
   <string name="label_color_example">Пример</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -676,7 +675,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="how_to_contribute">Как внести свой вклад?</string>
   <string name="confirm_delete_bookmarks">Вы хотите удалить %d закладки и их заметки?</string>
   <string name="confirm_delete_study_pads">Вы хотите удалить %d ярлыков закладок / блокнотов? Также будут удалены все связанные закладки и заметки в блокноте.</string>
-  <string name="toast_deletion_cancel">Отмените удаление, нажав кнопку отмены.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Порекомендовать другу</string>
   <string name="tell_friend_message1">Хочу порекомендовать вам приложение %s для глубокого и удобного изучения Библии.</string>

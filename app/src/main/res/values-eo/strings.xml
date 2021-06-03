@@ -314,7 +314,6 @@ laŭ ilia permeso.</string>
   <string name="remove_bookmark">Forigi</string>
   <string name="bookmark_settings_hide_labels_title">Kaŝi elektitajn etikedojn</string>
   <string name="bookmark_settings_hide_labels_summary">Kaŝi legosignojn markitajn per specifa(j) etikedo(j)</string>
-  <string name="auto_assign_labels">Aŭtomate aldoni legosignajn etikedojn</string>
   <string name="label_color">Koloro de etikedo</string>
   <string name="label_color_example">Antaŭvido</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -622,7 +621,6 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="how_to_contribute">Kontribui</string>
   <string name="confirm_delete_bookmarks">Ĉu vi certe volas forigi %d legosignojn kaj iliajn notojn!</string>
   <string name="confirm_delete_study_pads">Ĉu vi volas forigi %d legosignajn etikedojn / notblokojn? Ĉiuj rilataj legosignaj etikedoj kaj notblokoj perdiĝos.</string>
-  <string name="toast_deletion_cancel">Por malfari forigon frapetu “nuligi”.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekomendi al amiko</string>
   <string name="tell_friend_message1">Mi volus rekomendi al vi la aplikaĵon %s.</string>

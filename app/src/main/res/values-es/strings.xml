@@ -331,7 +331,6 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="remove_bookmark">Eliminar</string>
   <string name="bookmark_settings_hide_labels_title">Ocultar etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que se marcaron con la(s) etiqueta(s) especificada(s)</string>
-  <string name="auto_assign_labels">Asignar etiquetas automáticamente</string>
   <string name="label_color">Color de etiqueta</string>
   <string name="label_color_example">Ejemplo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -684,7 +683,6 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="how_to_contribute">¿Cómo contribuir?</string>
   <string name="confirm_delete_bookmarks">¿Desea eliminar %d marcadores y sus notas?</string>
   <string name="confirm_delete_study_pads">¿Desea eliminar %d etiquetas de marcadores / pizarras de estudio? Todos los marcadores y pizarras de estudio asociados también se eliminarán.</string>
-  <string name="toast_deletion_cancel">Botón cancelar para deshacer la eliminación.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recomendar a las amistades</string>
   <string name="tell_friend_message1">Me gustaría recomendarte %s.</string>

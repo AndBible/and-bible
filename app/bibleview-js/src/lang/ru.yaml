@@ -1,6 +1,7 @@
 openMyNotes: Открыть в Моих заметках
 openStudyPad: Открыть в Блокноте (%s)
 noteText: Сноски (%s)
+noteTextWithoutType: ""
 crossReferenceText: Перекрестные ссылки
 findAllOccurrences: Найти все случаи
 reportError: Сообщить об ошибке
@@ -54,6 +55,7 @@ onlyLabel: Только ярлык
 wholeBookmark: Всю закладку
 otherNoteText: Прочие примечания
 assignLabelsMenuEntry: Назначить ярлыки
+assignLabelsMenuEntry1: ""
 jumpToStudyPad: Перейти к блокноту
 setAsPrimaryLabel: Сделать основной меткой
 removeBookmarkLabel: Удалить ярлык с закладки
@@ -61,3 +63,5 @@ addBookmarkLabel: Добавить ярлык в закладку
 favouriteLabels: Любимые ярлыки
 recentLabels: Недавние ярлыки
 frequentlyUsedLabels: Часто используемые ярлыки
+bookmarkLabels: ""
+restoreCompareTitle: ""

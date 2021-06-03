@@ -328,7 +328,6 @@
   <string name="remove_bookmark">Видалити</string>
   <string name="bookmark_settings_hide_labels_title">Сховати вказані мітки</string>
   <string name="bookmark_settings_hide_labels_summary">Сховати закладки, позначені зазначеними мітками</string>
-  <string name="auto_assign_labels">Автоматичне призначення міток закладок</string>
   <string name="label_color">Колір мітки</string>
   <string name="label_color_example">Приклад</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -674,7 +673,6 @@
   <string name="how_to_contribute">Як внести свій внесок?</string>
   <string name="confirm_delete_bookmarks">Видалити %d закладки та їх примітки?</string>
   <string name="confirm_delete_study_pads">Ви хочете видалити %d мітки закладок / блокнотів? Також буде видалено всі пов’язані закладки та примітки блокноту.</string>
-  <string name="toast_deletion_cancel">Щоб скасувати видалення, натисніть кнопку скасувати.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Порекомендувати другові</string>
   <string name="tell_friend_message1">Рекомендую тобі додаток %s для глибокого і зручного вивчення Біблії.</string>

@@ -1,6 +1,7 @@
 openMyNotes: Atverti mano pastabose
 openStudyPad: Atverti bloknote (%s)
 noteText: Išnašos (%s)
+noteTextWithoutType: ""
 crossReferenceText: Kryžminės nuorodos
 findAllOccurrences: Rasti visus atitikmenis
 reportError: Pranešti apie klaidą
@@ -54,6 +55,7 @@ onlyLabel: Tik etiketę
 wholeBookmark: Visą žymę
 otherNoteText: Kita pastaba
 assignLabelsMenuEntry: Priskirti etiketes
+assignLabelsMenuEntry1: ""
 jumpToStudyPad: Pereiti prie bloknoto
 setAsPrimaryLabel: Nustatyti kaip pirminę etiketę
 removeBookmarkLabel: Šalinti etiketę nuo žymės
@@ -61,3 +63,5 @@ addBookmarkLabel: Pridėti etiketę prie žymės
 favouriteLabels: Mėgstamos etiketės
 recentLabels: Paskiausios etiketės
 frequentlyUsedLabels: Dažniausios etiketės
+bookmarkLabels: ""
+restoreCompareTitle: ""
