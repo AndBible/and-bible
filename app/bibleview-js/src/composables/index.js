@@ -225,11 +225,11 @@ export function useConfig(documentType) {
         const defer = new Deferred();
         const oldValue = config.showBookmarks;
         const isBible = documentType.value === DocumentTypes.BIBLE_DOCUMENT
-        const needsRefresh =
+        const needsRefreshLocation =
             isBible ||
             documentType.value === DocumentTypes.OSIS_DOCUMENT;
 
-        if (!initial && needsRefresh) emit(Events.CONFIG_CHANGED, defer)
+        if (!initial && needsRefreshLocation) emit(Events.CONFIG_CHANGED, defer)
         if(isBible) {
             config.showBookmarks = false
             await nextTick();
@@ -262,7 +262,7 @@ export function useConfig(documentType) {
                 await nextTick();
             }
         }
-        if(needsRefresh) {
+        if(needsRefreshLocation) {
             defer.resolve()
         }
     })
