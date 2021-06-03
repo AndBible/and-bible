@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:app="http://schemas.android.com/apk/res-auto"
-			  android:layout_width="match_parent"
-			  android:layout_height="40dp"
-			  android:gravity="center_vertical">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="40dp"
+	>
 
 	<ImageView android:id="@+id/labelIcon"
 		android:layout_width="wrap_content"
@@ -45,11 +45,12 @@
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintStart_toEndOf="@id/primaryIcon"
 		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintBottom_toBottomOf="parent"
 		android:layout_height="wrap_content"
 		android:layout_width="0dp"
 		android:singleLine="true"
 		android:ellipsize="end"
-		app:layout_constraintBottom_toBottomOf="parent"
+		android:text="TEST"
 		android:paddingStart="18dip"
 		android:textAppearance="?android:attr/textAppearanceMedium"/>
 

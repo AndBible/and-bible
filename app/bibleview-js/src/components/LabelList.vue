@@ -178,7 +178,10 @@ export default {
   padding-right: 4pt;
   border-width: 2px;
   border-style: solid;
-
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 150px;
   .night & {
     background-color: black;
     color: #bbbbbb;
