@@ -67,6 +67,8 @@ export default {
       referenceCollector.collect(osisRef);
     }
 
+    const {registerEndHighlight} = inject("verseMap");
+
     function openLink(event, url) {
       addEventFunction(event, () => {
         window.location.assign(url)
@@ -74,6 +76,7 @@ export default {
         clicked.value = true;
         lastClicked.value = true;
         cancelFunc = () => lastClicked.value = false;
+        registerEndHighlight(cancelFunc);
         sleep(fadeReferenceDelay).then(() => cancelFunc());
       }, {title: strings.referenceLink});
     }
