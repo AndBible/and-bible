@@ -155,8 +155,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         binding.biblesLinearLayout.orientation = if (isSplitVertically) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
 
         removeSeparators()
-        if(forceUpdate || orientationChanges)
-            removeAllFrames()
+        if(forceUpdate || orientationChanges) removeAllFrames()
         updateWindows()
         addSeparators()
         rebuildRestoreButtons()
@@ -167,6 +166,11 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         lastSplitVertically = isSplitVertically
         if(firstTime)
             updateRestoreButtons()
+    }
+
+    override fun onDetachedFromWindow() {
+        removeAllFrames()
+        super.onDetachedFromWindow()
     }
 
     private fun removeSeparators() {
