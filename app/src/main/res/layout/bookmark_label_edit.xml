@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	>
@@ -57,36 +56,58 @@
 				app:layout_constraintEnd_toEndOf="parent"
 				/>
 
+			<TextView
+				style="@style/EditBookmarkLabelItemTitle"
+				android:id="@+id/underLineTitle"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:text="@string/bookmark_underline_style_arbitrary"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/editColorButton"
+				app:layout_constraintEnd_toStartOf="@id/underLineStyle"
+				/>
+
 			<androidx.appcompat.widget.AppCompatCheckBox
 				android:id="@+id/underLineStyle"
-				android:layout_width="match_parent"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				app:layout_constraintTop_toBottomOf="@id/labelColorTitle"
-				android:text="@string/bookmark_underline_style_arbitrary"
+				app:layout_constraintTop_toTopOf="@id/underLineTitle"
+				app:layout_constraintBottom_toBottomOf="@id/underLineTitle"
+				app:layout_constraintEnd_toEndOf="parent"
+				/>
+			<TextView
 				style="@style/EditBookmarkLabelItemTitle"
+				android:id="@+id/underLineWholeVerseTitle"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:text="@string/bookmark_underline_style_whole_verse"
+				app:layout_constraintEnd_toStartOf="@id/underLineStyleWholeVerse"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/underLineTitle"
 				/>
 
 			<androidx.appcompat.widget.AppCompatCheckBox
 				android:id="@+id/underLineStyleWholeVerse"
-				android:layout_width="match_parent"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				app:layout_constraintTop_toBottomOf="@id/underLineStyle"
-				android:text="@string/bookmark_underline_style_whole_verse"
-				style="@style/EditBookmarkLabelItemTitle"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toTopOf="@id/underLineWholeVerseTitle"
+				app:layout_constraintBottom_toBottomOf="@id/underLineWholeVerseTitle"
 				/>
 
 			<androidx.constraintlayout.widget.ConstraintLayout
 				android:id="@+id/thisBookmarkCategory"
-				app:layout_constraintTop_toBottomOf="@+id/underLineStyleWholeVerse"
+				app:layout_constraintTop_toBottomOf="@+id/underLineWholeVerseTitle"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
 				<TextView
 					android:id="@+id/thisBookmarkTitle"
-					android:layout_width="wrap_content"
+					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					style="@style/EditBookmarkLabelCategoryTitle"
 					android:text="@string/this_bookmark"
 					app:layout_constraintTop_toTopOf="parent"
+					app:layout_constraintEnd_toStartOf="@id/selectedLabelCheckBox"
 					app:layout_constraintStart_toStartOf="parent"
 					/>
 				<androidx.appcompat.widget.AppCompatCheckBox
@@ -147,23 +168,25 @@
 			<TextView
 				android:id="@+id/favouriteLabelTitle"
 				style="@style/EditBookmarkLabelItemTitle"
-				android:layout_width="wrap_content"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:text="@string/favourite_label"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/thisWorkspaceTitle"
-				/>
+				app:layout_constraintEnd_toStartOf="@+id/favouriteLabelCheckBox"
+				app:layout_constraintStart_toEndOf="@+id/favouriteLabelIcon"
+				app:layout_constraintTop_toBottomOf="@id/thisWorkspaceTitle" />
+
 			<ImageView
 				android:id="@+id/favouriteLabelIcon"
+				style="@style/EditBookmarkLabelItemIcon"
 				android:layout_width="wrap_content"
 				android:layout_height="0dp"
 				android:src="@drawable/ic_baseline_favorite_24"
-				app:tint="@color/grey_500"
-				app:layout_constraintStart_toEndOf="@id/favouriteLabelTitle"
-				app:layout_constraintTop_toTopOf="@id/favouriteLabelTitle"
 				app:layout_constraintBottom_toBottomOf="@id/favouriteLabelTitle"
-				style="@style/EditBookmarkLabelItemIcon"
-				/>
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@id/favouriteLabelTitle"
+				app:layout_constraintVertical_bias="1.0"
+				app:tint="@color/grey_500" />
+
 			<Space
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
@@ -183,23 +206,23 @@
 			<TextView
 				android:id="@+id/autoAssignTitle"
 				style="@style/EditBookmarkLabelItemTitle"
-				android:layout_width="wrap_content"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:text="@string/auto_assign_labels1"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/favouriteLabelTitle"
-				/>
+				app:layout_constraintEnd_toStartOf="@+id/autoAssignCheckBox"
+				app:layout_constraintStart_toEndOf="@+id/autoAssignIcon"
+				app:layout_constraintTop_toBottomOf="@id/favouriteLabelTitle" />
+
 			<ImageView
 				android:id="@+id/autoAssignIcon"
+				style="@style/EditBookmarkLabelItemIcon"
 				android:layout_width="wrap_content"
 				android:layout_height="0dp"
-				app:tint="@color/grey_500"
 				android:src="@drawable/ic_label_circle"
-				app:layout_constraintStart_toEndOf="@id/autoAssignTitle"
-				app:layout_constraintTop_toTopOf="@id/autoAssignTitle"
 				app:layout_constraintBottom_toBottomOf="@id/autoAssignTitle"
-				style="@style/EditBookmarkLabelItemIcon"
-				/>
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@id/autoAssignTitle"
+				app:tint="@color/grey_500" />
 			<Space
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
@@ -219,32 +242,27 @@
 			<TextView
 				android:id="@+id/primaryAutoAssignTitle"
 				style="@style/EditBookmarkLabelItemTitle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:paddingStart="10dip"
-				android:text="@string/auto_assign_labels_primary"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/autoAssignTitle"
-				/>
-			<ImageView
-				android:id="@+id/primaryAutoAssignIcon"
-				android:layout_width="wrap_content"
-				android:layout_height="0dp"
-				app:tint="@color/grey_500"
-				android:src="@drawable/ic_baseline_bookmark_24"
-				app:layout_constraintStart_toEndOf="@id/primaryAutoAssignTitle"
-				app:layout_constraintTop_toTopOf="@id/primaryAutoAssignTitle"
-				app:layout_constraintBottom_toBottomOf="@id/primaryAutoAssignTitle"
-				style="@style/EditBookmarkLabelItemIcon"
-				/>
-			<Space
-				android:id="@+id/primaryAutoAssignSpacer"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				app:layout_constraintStart_toEndOf="@id/primaryAutoAssignIcon"
-				app:layout_constraintTop_toTopOf="@id/primaryAutoAssignIcon"
-				app:layout_constraintEnd_toStartOf="@id/primaryAutoAssignCheckBox"
-				/>
+				android:text="@string/auto_assign_labels_primary"
+				app:layout_constraintEnd_toStartOf="@+id/primaryAutoAssignCheckBox"
+				app:layout_constraintStart_toEndOf="@+id/primaryAutoAssignIcon"
+				app:layout_constraintTop_toBottomOf="@id/autoAssignTitle" />
+
+			<ImageView
+				android:id="@+id/primaryAutoAssignIcon"
+				android:paddingStart="10dip"
+				style="@style/EditBookmarkLabelItemIcon"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				android:src="@drawable/ic_baseline_bookmark_24"
+				app:layout_constraintBottom_toBottomOf="@id/primaryAutoAssignTitle"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@id/primaryAutoAssignTitle"
+				app:layout_constraintVertical_bias="1.0"
+				app:tint="@color/grey_500" />
+
+
 			<androidx.appcompat.widget.AppCompatCheckBox
 				android:id="@+id/primaryAutoAssignCheckBox"
 				android:layout_width="wrap_content"
