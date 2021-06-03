@@ -147,7 +147,7 @@ if(process.env.NODE_ENV === "development") {
             id: 3,
             ordinalRange: [30838, 30838],
             offsetRange: [10, 50],
-            labels: [1, 2],
+            labels: [1, 2, 3, -5, -4, -3, -2, -1],
             bookInitials: "KJV",
             notes: "Testinote pitkä pitkä pitkä asdlfk lasdkfj laskdf laksdf laksdj laskdjf laksjd laksjdf laskdj" +
                 "asldfkj alskdf alskdj laskdj alskdj alskdj asldkj ladfjlsjflajfasfkjad jfl kjdfljsdflja flkjasfl" +

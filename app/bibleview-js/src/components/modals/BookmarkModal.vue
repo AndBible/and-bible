@@ -18,9 +18,9 @@
 <template>
   <Modal v-if="showBookmark && bookmark" @close="closeBookmark">
     <template #title-div>
-      <div class="bookmark-title">
-        <div>
-          <LabelList handle-touch in-bookmark :bookmark-id="bookmark.id"/>
+      <div class="bookmark-title" style="width: calc(100% - 80px);">
+        <div style="overflow-x: auto">
+          <LabelList single-line handle-touch in-bookmark :bookmark-id="bookmark.id"/>
         </div>
         <div class="title-text">
           {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 25)}}</i></q>

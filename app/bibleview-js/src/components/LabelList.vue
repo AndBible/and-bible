@@ -18,7 +18,7 @@
 <template>
   <BookmarkLabelActions :bookmark-id="bookmarkId" ref="actions"/>
 
-  <div class="label-list">
+  <div class="label-list" :class="{singleLine}">
     <div
       @touchstart="labelClicked($event, label)"
       @click="labelClicked($event, label)"
@@ -52,6 +52,7 @@ export default {
     recent: {type: Boolean, default: false},
     inBookmark: {type: Boolean, default: false},
     onlyAssign: {type: Boolean, default: false},
+    singleLine: {type: Boolean, default: false},
   },
   components: {FontAwesomeIcon},
   name: "LabelList",
@@ -203,5 +204,8 @@ export default {
   line-height: 1em;
   display: inline-flex;
   flex-wrap: wrap;
+  &.singleLine {
+    flex-wrap: nowrap;
+  }
 }
 </style>
