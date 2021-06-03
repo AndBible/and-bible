@@ -71,6 +71,12 @@
       background-color: rgba(255, 255, 255, .3);
     }
   };
+  &::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.1);
+    .night & {
+      background-color: rgba(255, 255, 255, .1);
+    }
+  }
 }
 
 .button {
