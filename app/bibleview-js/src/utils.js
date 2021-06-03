@@ -59,6 +59,12 @@ export function setFrom(...args) {
     return set;
 }
 
+export function removeAll(set, ...args) {
+    for(const a of args) {
+        set.delete(a);
+    }
+}
+
 export function addAll(set, ...args) {
     for(const a of args) {
         set.add(a);

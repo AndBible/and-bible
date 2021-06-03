@@ -38,7 +38,7 @@
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {computed, ref} from "@vue/reactivity";
-import {addAll, Deferred} from "@/utils";
+import {addAll, Deferred, removeAll} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";
 
@@ -50,7 +50,6 @@ export default {
     favourites: {type: Boolean, default: false},
     frequent: {type: Boolean, default: false},
     recent: {type: Boolean, default: false},
-    specific: {type: Array, default: null},
     inBookmark: {type: Boolean, default: false},
     onlyAssign: {type: Boolean, default: false},
   },
@@ -84,21 +83,26 @@ export default {
 
     const labels = computed(() => {
       const shown = new Set();
+      const earlier = new Set();
       if(props.inBookmark) {
         addAll(shown, ...bookmark.value.labels);
       }
+      addAll(earlier, ...bookmark.value.labels);
       if(props.favourites) {
         addAll(shown, ...appSettings.favouriteLabels);
+        removeAll(shown, ...earlier);
       }
+      addAll(earlier, ...appSettings.favouriteLabels);
       if(props.recent) {
         addAll(shown, ...appSettings.recentLabels);
+        removeAll(shown, ...earlier);
       }
-      if(props.specific) {
-        addAll(shown, ...props.specific);
-      }
+      addAll(earlier, ...appSettings.recentLabels);
       if(props.frequent) {
         addAll(shown, ...appSettings.frequentLabels);
+        removeAll(shown, ...earlier);
       }
+      //addAll(earlier, ...appSettings.frequentLabels);
       // TODO: add frequent
       return sortBy(Array.from(shown).map(labelId => bookmarkLabels.get(labelId)).filter(v => v), ["name"]);
     });
