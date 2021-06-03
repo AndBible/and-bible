@@ -1324,6 +1324,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val classes = arrayOf(GridChoosePassageBook::class.java.name, Bookmarks::class.java.name)
                 val className = data?.component?.className
                 if (className != null && classes.contains(className)) {
+                    val isFromBookmark = className == Bookmarks::class.java.name
                     val verseStr = data.extras!!.getString("verse")
                     val verse = try {
                         VerseFactory.fromString(navigationControl.versification, verseStr)
@@ -1332,7 +1333,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         return
                     }
                     val pageManager = windowControl.activeWindowPageManager
-                    if(!pageManager.isBibleShown) {
+                    if(isFromBookmark && !pageManager.isBibleShown) {
                         pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
                     } else
                         pageManager.currentPage.setKey( verse)
