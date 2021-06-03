@@ -46,7 +46,6 @@
       @save="changeNote"
       show-placeholder
       :edit-directly="editDirectly"
-      max-editor-height="100pt"
     >
       {{ strings.editBookmarkPlaceholder }}
     </EditableText>

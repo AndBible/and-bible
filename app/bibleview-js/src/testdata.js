@@ -149,7 +149,16 @@ if(process.env.NODE_ENV === "development") {
             offsetRange: [10, 50],
             labels: [1, 2],
             bookInitials: "KJV",
-            notes: "Testinote",
+            notes: "Testinote pitkä pitkä pitkä asdlfk lasdkfj laskdf laksdf laksdj laskdjf laksjd laksjdf laskdj" +
+                "asldfkj alskdf alskdj laskdj alskdj alskdj asldkj ladfjlsjflajfasfkjad jfl kjdfljsdflja flkjasfl" +
+                "asldfkj alskdf alskdj laskdj alskdj alskdj asldkj ladfjlsjflajfasfkjad jfl kjdfljsdflja flkjasfl" +
+                "asldfkj alskdf alskdj laskdj alskdj alskdj asldkj ladfjlsjflajfasfkjad jfl kjdfljsdflja flkjasfl" +
+                "asldfkj alskdf alskdj laskdj alskdj alskdj asldkj ladfjlsjflajfasfkjad jfl kjdfljsdflja flkjasfl" +
+                "asldfkj alskdf alskdj laskdj alskdj alskdj asldkj ladfjlsjflajfasfkjad jfl kjdfljsdflja flkjasfl" +
+                "asldfkj alskdf alskdj laskdj alskdj alskdj asldkj ladfjlsjflajfasfkjad jfl kjdfljsdflja flkjasfl" +
+                "asldfkj alskdf alskdj laskdj alskdj alskdj asldkj ladfjlsjflajfasfkjad jfl kjdfljsdflja flkjasfl" +
+                "asldfkj alskdf alskdj laskdj alskdj alskdj asldkj ladfjlsjflajfasfkjad jfl kjdfljsdflja flkjasfl" +
+                "asldfkj alskdf alskdj laskdj alskdj alskdj asldkj ladfjlsjflajfasfkjad jfl kjdfljsdflja flkjasfl",
             text: "asdf asdf asdf asdf asdf asdf",
             type: "bookmark",
         },
