@@ -70,7 +70,7 @@ export default {
     const ready = ref(false);
 
     function resetPosition() {
-      modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + 10pt)`;
+      modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + 25px)`;
       modal.value.style.left = `calc(14px / 2)`;
     }
 
