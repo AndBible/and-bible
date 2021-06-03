@@ -22,7 +22,7 @@
     @click="clicked"
     :class="{'edit-buttons': expanded, 'menu': !handleTouch}"
   >
-    <div class="between" v-show="expanded">
+    <div class="between" v-if="expanded">
       <slot/>
       <div v-if="showDragHandle" class="drag-handle journal-button" @click.stop="showHelp" @touchend="expanded=false">
         <FontAwesomeIcon icon="sort"/>

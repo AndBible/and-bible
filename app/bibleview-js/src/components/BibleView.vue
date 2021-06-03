@@ -27,7 +27,7 @@
     <ErrorBox v-if="appSettings.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
-    <div v-show="appSettings.activeWindow">
+    <div v-if="appSettings.activeWindow">
       <div class="top-left-corner"/>
       <div class="top-right-corner"/>
       <div class="bottom-left-corner"/>

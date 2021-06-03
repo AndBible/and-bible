@@ -17,11 +17,9 @@
 
 <template>
   <div :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language" :dir="fragment.direction" >
-    <transition-group name="fade">
-      <div v-for="{key, template} in templates" :key="key">
-        <OsisSegment :osis-template="template" />
-      </div>
-    </transition-group>
+    <div v-for="{key, template} in templates" :key="key">
+      <OsisSegment :osis-template="template" />
+    </div>
   </div>
 </template>
 
@@ -29,16 +27,13 @@
 import {computed, reactive, ref} from "@vue/reactivity";
 import {inject, onMounted, provide} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
-import {AutoSleep, highlightVerseRange, osisToTemplateString} from "@/utils";
+import {highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment";
 import {useStrings} from "@/composables/strings";
-
-const parser = new DOMParser();
 
 export default {
   name: "OsisFragment",
   props: {
-    showTransition: {type: Boolean, default: false},
     fragment: {type: Object, required: true},
     highlightOrdinalRange: {type: Array, default: null},
     highlightOffsetRange: {type: Array, default: null},
@@ -65,7 +60,6 @@ export default {
     });
     provide("config", customConfig);
 
-    const fragmentReady = ref(!props.showTransition);
     const strings = useStrings();
     provide("osisFragment", props.fragment)
     const {registerBook} = inject("customCss");
@@ -84,25 +78,8 @@ export default {
     const template = !props.doNotConvert ? osisToTemplateString(xml): xml;
     const templates = reactive([]);
 
-    async function populate() {
-      const autoSleep = new AutoSleep();
-      const xmlDoc = parser.parseFromString(template, "text/xml");
-      let ordinalCount = 0;
+    templates.push({template, key: `${fragmentKey}-0`})
 
-      for (const c of xmlDoc.firstElementChild.children) {
-        const key = `${fragmentKey.value}-${ordinalCount++}`;
-        templates.push({template: c.outerHTML, key})
-        await autoSleep.autoSleep();
-      }
-      fragmentReady.value = true;
-    }
-    // TODO: leaving this now for a later point. Need to re-design replace_osis + setup_content for this too.
-    // eslint-disable-next-line no-constant-condition
-    if(false && props.showTransition) {
-      populate();
-    } else {
-      templates.push({template, key: `${fragmentKey}-0`})
-    }
     return {templates, strings, uniqueId}
   }
 }
