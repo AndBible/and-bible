@@ -38,7 +38,7 @@ export default {
     checkUnsupportedProps(props, "chapterTitle")
     const bibleDocumentInfo = inject("bibleDocumentInfo", null);
     const ordinal = computed(() => {
-      if(bibleDocumentInfo.value == null) return -1;
+      if(bibleDocumentInfo == null) return -1;
       const ordinalRange = bibleDocumentInfo.originalOrdinalRange || bibleDocumentInfo.ordinalRange;
       return ordinalRange[0];
     });
