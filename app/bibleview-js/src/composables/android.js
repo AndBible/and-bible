@@ -172,6 +172,7 @@ export function useAndroid({bookmarks}, config) {
     }
 
     function scrolledToVerse(ordinal) {
+        if(ordinal < 0) return;
         android.scrolledToVerse(ordinal)
     }
 

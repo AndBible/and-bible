@@ -890,6 +890,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var labelsUploaded = false
 
     private fun replaceDocument() {
+        Log.d(TAG, "replaceDocument")
         val documentStr = latestDocumentStr
         synchronized(this) {
             needsDocument = false
