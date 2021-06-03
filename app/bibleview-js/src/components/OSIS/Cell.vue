@@ -36,5 +36,8 @@ export default {
 </script>
 
 <style scoped>
+td {
+  padding: 5px;
 
+}
 </style>
