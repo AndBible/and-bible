@@ -255,6 +255,7 @@ class ManageLabels : ListActivityBase() {
             isFavourite = data.favouriteLabels.contains(label.id),
             isAutoAssignPrimary = data.autoAssignPrimaryLabel == label.id,
             isThisBookmarkPrimary = data.bookmarkPrimaryLabel == label.id,
+            isThisBookmarkSelected = data.selectedLabels.contains(label.id)
         )
         intent.putExtra("data", json.encodeToString(serializer(), labelData))
 
@@ -292,6 +293,13 @@ class ManageLabels : ListActivityBase() {
                         data.bookmarkPrimaryLabel = label.id
                     } else {
                         ensureNotBookmarkPrimaryLabel(label)
+                    }
+                    if(data.mode == Mode.ASSIGN) {
+                        if (newLabelData.isThisBookmarkSelected) {
+                            data.selectedLabels.add(label.id)
+                        } else {
+                            data.selectedLabels.remove(label.id)
+                        }
                     }
                 }
                 updateLabelList()
