@@ -221,32 +221,41 @@ export function useConfig(documentType) {
         appSettings.activeWindow = newActive;
     });
 
-    function hasBookmarkConfigChanged(newConfig) {
+    function compareConfig(newConfig, checkedKeys) {
+        for(const key of checkedKeys) {
+            if(newConfig[key] === undefined) continue;
+            if(!isEqual(config[key], newConfig[key])) return true;
+        }
+        return false;
+    }
+
+    function getNeedBookmarkRefresh(newConfig) {
+        // Anything that changes DOM in a significant way needs bookmark refresh
         const keys = [
             "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
             "showRedLetters", "showVersePerLine", "showNonCanonical", "makeNonCanonicalItalic", "showSectionTitles",
             "showStrongsSeparately", "showFootNotes", "showBookmarks", "showMyNotes", "bookmarksHideLabels"
         ];
-        for(const key of keys) {
-            let comparison;
-            if(newConfig[key] === undefined) continue;
-            if(config[key] instanceof Array) {
-                comparison = isEqual(config[key], newConfig[key]);
-            } else {
-                comparison = config[key] === newConfig[key];
-            }
-            if(!comparison) return true;
-        }
-        return false;
+        return compareConfig(newConfig, keys);
     }
 
+    function getNeedRefreshLocation(newConfig) {
+        // Anything that changes location of text in a significant way, needs location refresh
+        const keys = [
+            "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
+            "showRedLetters", "showVersePerLine", "showNonCanonical", "showSectionTitles",
+            "showStrongsSeparately", "showFootNotes", "showBookmarks", "showMyNotes",
+            "fontSize", "fontFamily", "hyphenation", "justifyText", "marginSize", "topMargin"
+        ];
+        return compareConfig(newConfig, keys);
+    }
 
     setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: newConfig, appSettings: newAppSettings, initial = false} = {}) {
         const defer = new Deferred();
         const oldValue = config.showBookmarks;
         const isBible = documentType.value === DocumentTypes.BIBLE_DOCUMENT
-        const needsRefreshLocation = !initial && (isBible || documentType.value === DocumentTypes.OSIS_DOCUMENT);
-        const needBookmarkRefresh = hasBookmarkConfigChanged(newConfig);
+        const needsRefreshLocation = !initial && (isBible || documentType.value === DocumentTypes.OSIS_DOCUMENT) && getNeedRefreshLocation(newConfig);
+        const needBookmarkRefresh = getNeedBookmarkRefresh(newConfig);
 
         if (needsRefreshLocation) emit(Events.CONFIG_CHANGED, defer)
 
