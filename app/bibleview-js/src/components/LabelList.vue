@@ -164,21 +164,31 @@ export default {
   $padding: 2px;
   height: calc(12px + #{2*$padding});
   padding-top: $padding;
+  margin-bottom: 3px;
+  margin-right: 3px;
   font-weight: normal;
   color: #e8e8e8;
   font-size: 11px;
   border-radius: 6pt;
   padding-left: 4pt;
   padding-right: 4pt;
-  margin-right: 2pt;
   border-width: 2px;
   border-style: solid;
-  background-color: rgba(0, 0, 0, 0.2);
+
   .night & {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: black;
+    color: #bbbbbb;
   }
   &.notAssigned {
     border-style: solid;
+
+    background-color: white;
+    color: black;
+    .night & {
+      background-color: black;
+      color: #bbbbbb;
+    }
+
   }
   border-color: rgba(0, 0, 0, 0);
 }
