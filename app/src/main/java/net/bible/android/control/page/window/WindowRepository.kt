@@ -446,7 +446,7 @@ open class WindowRepository @Inject constructor(
                 workspaceSettings.recentLabels.sortBy { it.lastAccess }
             } else {
                 workspaceSettings.recentLabels.add(WorkspaceEntities.RecentLabel(labelId, System.currentTimeMillis()))
-                while (workspaceSettings.recentLabels.size > 5) {
+                while (workspaceSettings.recentLabels.size > 15) {
                     workspaceSettings.recentLabels.removeAt(0)
                 }
             }
