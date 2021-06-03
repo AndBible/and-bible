@@ -93,7 +93,7 @@ class ManageLabelItemAdapter(context: Context?,
 
             if (data.primaryShown) {
                 primaryIcon.visibility = if (data.contextSelectedItems.contains(label.id)) View.VISIBLE else View.INVISIBLE
-                primaryIcon.setImageResource(if (isPrimary) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_border_24)
+                primaryIcon.setImageResource(if (isPrimary) R.drawable.ic_baseline_bookmark_24 else R.drawable.ic_bookmark_24dp)
                 primaryIcon.setOnClickListener {
                     data.contextPrimaryLabel = label.id
                     notifyDataSetChanged()
