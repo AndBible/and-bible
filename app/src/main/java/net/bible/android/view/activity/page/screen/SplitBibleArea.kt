@@ -168,6 +168,11 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             updateRestoreButtons()
     }
 
+    override fun onDetachedFromWindow() {
+        removeAllFrames()
+        super.onDetachedFromWindow()
+    }
+
     private fun removeSeparators() {
         for(v in binding.biblesLinearLayout.children.filter { it is Separator }.map{it as Separator}) {
             v.frame1.removeView(v.touchDelegateView1)
