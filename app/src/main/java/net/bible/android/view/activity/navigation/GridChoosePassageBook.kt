@@ -153,6 +153,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         buttonGrid = ButtonGrid(this)
         buttonGrid.setOnButtonGridActionListener(this)
         buttonGrid.addButtons(bibleBookButtonInfo)
+        buttonGrid.isLeftToRightEnabled = CommonUtils.sharedPreferences.getBoolean(BOOK_GRID_FLOW_PREFS, false)
 
         setContentView(buttonGrid)
     }
@@ -160,6 +161,9 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val sortOptionItem = menu.children.first { it.itemId == R.id.alphabetical_order_opt }
         sortOptionItem.isChecked = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
+        val rowDistributionItem = menu.children.first { it.itemId == R.id.row_order_opt }
+        buttonGrid.isLeftToRightEnabled = CommonUtils.sharedPreferences.getBoolean(BOOK_GRID_FLOW_PREFS, false)
+        rowDistributionItem.isChecked  = buttonGrid.isLeftToRightEnabled
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -172,6 +176,13 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                 true
             }
             R.id.row_order_opt -> {
+                buttonGrid.toggleLeftToRight()
+                item.isChecked = buttonGrid.isLeftToRightEnabled
+                buttonGrid.clear()
+                buttonGrid.addButtons(bibleBookButtonInfo)
+                CommonUtils.sharedPreferences.edit()
+                    .putBoolean(BOOK_GRID_FLOW_PREFS, item.isChecked)
+                    .apply()
                 true
             }
             android.R.id.home -> {
@@ -302,6 +313,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         private val REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF)
         private val OTHER_COLOR = ACTS_COLOR
 
+        private const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
         private const val TAG = "GridChoosePassageBook"
     }
 }
