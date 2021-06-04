@@ -1261,7 +1261,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             toVerse = toVerse.toV11n(v.versification)
             endVerse = endVerse?.toV11n(v.versification)
         }
-        val jumpToId = "v-${toVerse.ordinal}"
+        val jumpToId = "o-${toVerse.ordinal}"
         val now = !contentVisible || restoreOngoing
         val highlight = !contentVisible || endVerse != null
         fun boolString(value: Boolean?): String {
