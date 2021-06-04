@@ -24,7 +24,7 @@
         <template v-else>{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookInitials)}}</template>
       </a>
       <template v-if="document.compare">
-        (<a @click="android.toggleCompareDocument(fragment.bookInitials)">hide</a>)
+        (<a @click="android.toggleCompareDocument(fragment.bookInitials)">{{strings.compareHide}}</a>)
       </template>
     </div>
     <OsisFragment hide-titles :fragment="fragment"/>
