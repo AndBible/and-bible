@@ -59,6 +59,12 @@ export function setFrom(...args) {
     return set;
 }
 
+export function removeAll(set, ...args) {
+    for(const a of args) {
+        set.delete(a);
+    }
+}
+
 export function addAll(set, ...args) {
     for(const a of args) {
         set.add(a);
@@ -343,8 +349,8 @@ export function findNodeAtOffsetWithNullOffset(elem, offset) {
 
 // Bit generalized version from bookmarks:highlightStyleRange
 export function highlightVerseRange(selectorPrefix, [startOrdinal, endOrdinal], [startOff, endOff] = [0, null]) {
-    const firstElem = document.querySelector(`${selectorPrefix} #v-${startOrdinal}`);
-    const secondElem = document.querySelector(`${selectorPrefix} #v-${endOrdinal}`);
+    const firstElem = document.querySelector(`${selectorPrefix} #o-${startOrdinal}`);
+    const secondElem = document.querySelector(`${selectorPrefix} #o-${endOrdinal}`);
     if (firstElem === null || secondElem === null) {
         console.error("Element is not found!", {selectorPrefix, startOrdinal, endOrdinal});
         return;
@@ -374,10 +380,11 @@ export function adjustedColorOrig(color, ratio=0.2) {
     let col = Color(color);
     let cont = true;
     let rv;
+    let loops = 0;
     while(cont) {
         cont = false;
         rv = col.darken(ratio);
-        if(rv.hex() === "#FFFFFF" || rv.hex() === "#000000") {
+        if((rv.hex() === "#FFFFFF" || rv.hex() === "#000000") && ++loops < 5) {
             ratio = 0.75*ratio;
             cont = true
         }

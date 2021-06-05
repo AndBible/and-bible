@@ -18,7 +18,7 @@
 <template>
   <BookmarkLabelActions :bookmark-id="bookmarkId" ref="actions"/>
 
-  <div class="label-list">
+  <div class="label-list" :class="{singleLine}">
     <div
       @touchstart="labelClicked($event, label)"
       @click="labelClicked($event, label)"
@@ -38,7 +38,7 @@
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {computed, ref} from "@vue/reactivity";
-import {addAll, Deferred} from "@/utils";
+import {addAll, Deferred, removeAll} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";
 
@@ -50,9 +50,9 @@ export default {
     favourites: {type: Boolean, default: false},
     frequent: {type: Boolean, default: false},
     recent: {type: Boolean, default: false},
-    specific: {type: Array, default: null},
     inBookmark: {type: Boolean, default: false},
     onlyAssign: {type: Boolean, default: false},
+    singleLine: {type: Boolean, default: false},
   },
   components: {FontAwesomeIcon},
   name: "LabelList",
@@ -84,21 +84,26 @@ export default {
 
     const labels = computed(() => {
       const shown = new Set();
+      const earlier = new Set();
       if(props.inBookmark) {
         addAll(shown, ...bookmark.value.labels);
       }
+      addAll(earlier, ...bookmark.value.labels);
       if(props.favourites) {
         addAll(shown, ...appSettings.favouriteLabels);
+        removeAll(shown, ...earlier);
       }
+      addAll(earlier, ...appSettings.favouriteLabels);
       if(props.recent) {
         addAll(shown, ...appSettings.recentLabels);
+        removeAll(shown, ...earlier);
       }
-      if(props.specific) {
-        addAll(shown, ...props.specific);
-      }
+      addAll(earlier, ...appSettings.recentLabels);
       if(props.frequent) {
         addAll(shown, ...appSettings.frequentLabels);
+        removeAll(shown, ...earlier);
       }
+      //addAll(earlier, ...appSettings.frequentLabels);
       // TODO: add frequent
       return sortBy(Array.from(shown).map(labelId => bookmarkLabels.get(labelId)).filter(v => v), ["name"]);
     });
@@ -164,21 +169,34 @@ export default {
   $padding: 2px;
   height: calc(12px + #{2*$padding});
   padding-top: $padding;
+  margin-bottom: 3px;
+  margin-right: 3px;
   font-weight: normal;
   color: #e8e8e8;
   font-size: 11px;
   border-radius: 6pt;
   padding-left: 4pt;
   padding-right: 4pt;
-  margin-right: 2pt;
   border-width: 2px;
   border-style: solid;
-  background-color: rgba(0, 0, 0, 0.2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 150px;
   .night & {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: black;
+    color: #bbbbbb;
   }
   &.notAssigned {
     border-style: solid;
+
+    background-color: white;
+    color: black;
+    .night & {
+      background-color: black;
+      color: #bbbbbb;
+    }
+
   }
   border-color: rgba(0, 0, 0, 0);
 }
@@ -186,5 +204,8 @@ export default {
   line-height: 1em;
   display: inline-flex;
   flex-wrap: wrap;
+  &.singleLine {
+    flex-wrap: nowrap;
+  }
 }
 </style>

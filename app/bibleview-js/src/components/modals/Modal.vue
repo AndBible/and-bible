@@ -70,8 +70,8 @@ export default {
     const ready = ref(false);
 
     function resetPosition() {
-      modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + 10pt)`;
-      modal.value.style.left = `calc((100% - 80%) / 2)`;
+      modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + 25px)`;
+      modal.value.style.left = `calc(60px / 2)`;
     }
 
     const {register} = inject("modal");
@@ -135,7 +135,7 @@ $border-radius2: $border-radius - 1.5pt;
   }
   position: absolute;
   background-color: #fefefe;
-  width: 80%;
+  width: calc(100% - 60px);
   padding: 0;
   border: 1px solid #888;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
@@ -174,7 +174,7 @@ $border-radius2: $border-radius - 1.5pt;
 }
 
 .modal-body {
-  --max-height: calc(100vh - var(--top-offset) - var(--bottom-offset) - 60px);
+  --max-height: calc(100vh - var(--top-offset) - var(--bottom-offset) - 100px);
   //min-height: 60pt;
   padding: 5px 5px;
   margin: 5pt 5pt;

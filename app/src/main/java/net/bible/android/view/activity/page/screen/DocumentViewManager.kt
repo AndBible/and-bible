@@ -51,6 +51,7 @@ class DocumentViewManager @Inject constructor(
     var splitBibleArea: SplitBibleArea? = null
 
 	fun destroy() {
+        removeView()
         ABEventBus.getDefault().unregister(this)
         splitBibleArea?.destroy()
     }

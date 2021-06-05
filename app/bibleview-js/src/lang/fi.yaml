@@ -1,6 +1,7 @@
 openMyNotes: Avaa Omissa Merkinnöissä
 openStudyPad: Avaa Opintoalustassa (%s)
 noteText: Alaviitteet (%s)
+noteTextWithoutType: Alaviitteet
 crossReferenceText: Ristiviitteet
 findAllOccurrences: Etsi kaikki esiintymät
 reportError: Raportoi virheestä
@@ -54,10 +55,13 @@ onlyLabel: Vain ryhmämerkintä
 wholeBookmark: Koko kirjanmerkki
 otherNoteText: Muu huomio
 assignLabelsMenuEntry: Sijoita ryhmiin
+assignLabelsMenuEntry1: Valitse tai muokkaa kirjanmerkkiryhmiä listalta...
 jumpToStudyPad: Hyppää opintoalustaan
 setAsPrimaryLabel: Aseta pääasialliseksi kirjanmerkkiryhmäksi
 removeBookmarkLabel: Poista kirjanmerkkiryhmä kirjanmerkistä
 addBookmarkLabel: Lisää kirjanmerkkiryhmä kirjanmerkille
-favouriteLabels: ""
-recentLabels: ""
-frequentlyUsedLabels: ""
+favouriteLabels: Suosikkiryhmät
+recentLabels: Viimeaikaiset ryhmät
+frequentlyUsedLabels: Usein käytetyt ryhmät
+bookmarkLabels: Kirjanmerkkiryhmät
+restoreCompareTitle: Palauta

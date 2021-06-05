@@ -43,6 +43,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.page.AppSettingsUpdated
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.download.FakeBookFactory
@@ -68,7 +69,7 @@ fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.Mana
 class ManageLabels : ListActivityBase() {
     private lateinit var binding: ManageLabelsBinding
     private val allLabels: MutableList<BookmarkEntities.Label> = ArrayList()
-    private val shownLabels: MutableList<BookmarkEntities.Label> = ArrayList()
+    private val shownLabels: MutableList<Any> = ArrayList()
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
@@ -205,7 +206,8 @@ class ManageLabels : ListActivityBase() {
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
         if(data.mode == Mode.STUDYPAD) {
-            okay(shownLabels[position])
+            val selected = shownLabels[position]
+            if(selected is BookmarkEntities.Label) okay(selected)
         }
         super.onListItemClick(l, v, position, id)
     }
@@ -255,6 +257,7 @@ class ManageLabels : ListActivityBase() {
             isFavourite = data.favouriteLabels.contains(label.id),
             isAutoAssignPrimary = data.autoAssignPrimaryLabel == label.id,
             isThisBookmarkPrimary = data.bookmarkPrimaryLabel == label.id,
+            isThisBookmarkSelected = data.selectedLabels.contains(label.id)
         )
         intent.putExtra("data", json.encodeToString(serializer(), labelData))
 
@@ -293,6 +296,13 @@ class ManageLabels : ListActivityBase() {
                     } else {
                         ensureNotBookmarkPrimaryLabel(label)
                     }
+                    if(data.mode == Mode.ASSIGN) {
+                        if (newLabelData.isThisBookmarkSelected) {
+                            data.selectedLabels.add(label.id)
+                        } else {
+                            data.selectedLabels.remove(label.id)
+                        }
+                    }
                 }
                 updateLabelList()
             }
@@ -309,7 +319,10 @@ class ManageLabels : ListActivityBase() {
         if(deleteLabelIds.isNotEmpty() && !askConfirmation(deleteLabelIds.size)) return@launch
         val result = Intent()
         bookmarkControl.deleteLabels(deleteLabelIds)
-        val saveLabels = shownLabels.filter { data.changedLabels.contains(it.id) && !data.deletedLabels.contains(it.id) }
+        val saveLabels = shownLabels
+            .filterIsInstance<BookmarkEntities.Label>()
+            .filter{ data.changedLabels.contains(it.id) && !data.deletedLabels.contains(it.id) }
+
         val newLabels = saveLabels.filter { it.id < 0 }
         val existingLabels = saveLabels.filter { it.id > 0 }
 
@@ -370,18 +383,42 @@ class ManageLabels : ListActivityBase() {
         finish();
     }
 
-    private fun updateLabelList(fromDb: Boolean = false) {
+    fun updateLabelList(fromDb: Boolean = false) {
         if(fromDb) {
             allLabels.clear()
             allLabels.addAll(bookmarkControl.assignableLabels.filterNot { it.isSpeakLabel || it.isUnlabeledLabel })
             if (data.showUnassigned) {
                 allLabels.add(bookmarkControl.labelUnlabelled)
             }
+            shownLabels.add(LabelCategory.ACTIVE)
+            shownLabels.add(LabelCategory.RECENT)
+            shownLabels.add(LabelCategory.OTHER)
             shownLabels.addAll(allLabels)
         }
-        shownLabels.myRemoveIf { data.deletedLabels.contains(it.id) }
-        shownLabels.sortBy { it.name }
-        val labelIds = shownLabels.map { it.id }.toSet()
+        val recentLabelIds = mainBibleActivity.workspaceSettings.recentLabels.map { it.labelId }
+        shownLabels.myRemoveIf { it is BookmarkEntities.Label && data.deletedLabels.contains(it.id) }
+        shownLabels.sortWith (compareBy({
+            val inActiveCategory = it == LabelCategory.ACTIVE || (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id))
+            val inRecentCategory = it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id))
+            when {
+                inActiveCategory -> 1
+                inRecentCategory -> 2
+                else -> 3
+            }
+        }, {
+            when (it) {
+                is LabelCategory -> 1
+                else -> 2
+            }
+        }, {
+                when (it) {
+                    is BookmarkEntities.Label -> it.name.toLowerCase(Locale.getDefault())
+                    else -> ""
+                }
+        }))
+
+
+        val labelIds = shownLabels.filterIsInstance<BookmarkEntities.Label>().map { it.id }.toSet()
 
         // Some sanity check
         data.autoAssignLabels.myRemoveIf { !labelIds.contains(it) }
@@ -395,6 +432,8 @@ class ManageLabels : ListActivityBase() {
         private const val TAG = "BookmarkLabels"
     }
 }
+
+enum class LabelCategory {ACTIVE, RECENT, OTHER}
 
 private fun <E> MutableSet<E>.myRemoveIf(function: (it: E) -> Boolean)  = filter { function.invoke(it) }.forEach { remove(it) }
 private fun <E> MutableList<E>.myRemoveIf(function: (it: E) -> Boolean)  = filter { function.invoke(it) }.forEach { remove(it) }

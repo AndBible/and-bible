@@ -63,6 +63,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         var isFavourite: Boolean,
 
         var isAutoAssignPrimary: Boolean,
+        var isThisBookmarkSelected: Boolean,
         var isThisBookmarkPrimary: Boolean,
         var delete: Boolean = false,
     ) {
@@ -89,7 +90,11 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         if(!data.isAutoAssign) {
             data.isAutoAssignPrimary = false
         }
+        data.isThisBookmarkSelected = selectedLabelCheckBox.isChecked
         data.isThisBookmarkPrimary = primaryLabelCheckBox.isChecked
+        if(!data.isThisBookmarkSelected) {
+            data.isThisBookmarkPrimary = false
+        }
     }
 
     private fun updateUI() = binding.apply {
@@ -104,6 +109,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         if (data.label.isUnlabeledLabel) {
             labelName.isEnabled = false
         }
+        selectedLabelCheckBox.isChecked = data.isThisBookmarkSelected
+        primaryLabelCheckBox.isEnabled = data.isThisBookmarkSelected
         primaryAutoAssignCheckBox.isEnabled = data.isAutoAssign
 
         thisBookmarkCategory.visibility = if(data.isAssigning) View.VISIBLE else View.GONE
@@ -137,7 +144,11 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                 finish()
             }
 
-            autoAssignCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            autoAssignCheckBox.setOnCheckedChangeListener { _, _ ->
+                updateData()
+                updateUI()
+            }
+            selectedLabelCheckBox.setOnCheckedChangeListener { _, _ ->
                 updateData()
                 updateUI()
             }

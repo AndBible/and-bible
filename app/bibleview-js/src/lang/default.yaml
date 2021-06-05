@@ -65,5 +65,6 @@ addBookmarkLabel: Add label to bookmark
 favouriteLabels: Favourite Labels
 recentLabels: Recent Labels
 frequentlyUsedLabels: Frequently Used Labels
-setupLabels: Set bookmark labels
-currentLabels: Current labels
+bookmarkLabels: Bookmark labels
+restoreCompareTitle: Restore
+compareHide: Hide

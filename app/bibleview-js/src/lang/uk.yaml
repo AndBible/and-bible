@@ -1,6 +1,7 @@
 openMyNotes: Відкрити в Мої Примітки
 openStudyPad: Відкрити в Блокноті (%s)
 noteText: Виноски (%s)
+noteTextWithoutType: ""
 crossReferenceText: Перехресні посилання
 findAllOccurrences: Знайти всі випадки
 reportError: Повідомити про помилку
@@ -54,6 +55,7 @@ onlyLabel: Тільки мітку
 wholeBookmark: Всю закладку
 otherNoteText: Інша примітка
 assignLabelsMenuEntry: Призначити мітки
+assignLabelsMenuEntry1: ""
 jumpToStudyPad: Перейти до блокноту
 setAsPrimaryLabel: Встановити як основну мітку
 removeBookmarkLabel: Видалити мітку із закладки
@@ -61,3 +63,5 @@ addBookmarkLabel: Додати мітку до закладки
 favouriteLabels: Улюблені мітки
 recentLabels: Недавні мітки
 frequentlyUsedLabels: "Мітки, що часто використовуються"
+bookmarkLabels: ""
+restoreCompareTitle: ""

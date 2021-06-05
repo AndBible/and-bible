@@ -5,7 +5,7 @@ short_description: "Skaityti Bibliją, studijuoti komentarus, žodynus, skaityti
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Galingas Biblijos studijavimo įrankis
 paragraph_1_1: >-
-  Biblijos Studijų programėlė, sukurta And Bible Open Source projekto - tai galinga, bet tuo pačiu metu lengva naudoti „Android“ Biblijos studijų programėlė, kuri nereikalauja interneto. Ši programėlė nesiekia būti paprasta Biblijos skaitytuve, bet verčiau yra sutelkta į tai, kad būtų išplėstiniu įrankiu, kuris yra skirtas išsamiai asmeniškai nagrinėti Bibliją.
+  Biblijos Studijų programėlė, sukurta And Bible atvirojo kodo projekto - tai galinga, bet tuo pačiu metu lengva naudoti „Android“ Biblijos studijų programėlė, kuri nereikalauja interneto. Ši programėlė nesiekia būti paprasta Biblijos skaitytuve, bet verčiau yra sutelkta į tai, kad būtų išplėstiniu įrankiu, kuris yra skirtas išsamiai asmeniškai nagrinėti Bibliją.
 paragraph_1_2: >
   Šią programėlę Biblijos skaitytojams sukūrė Biblijos skaitytojai. Jos tikslas - padėti jums patogiai, išsamiai ir linksmai nagrinėti Bibliją. Geriausia, kas yra šiame nekomerciniame bendruomenės projekte yra tai, jog jis yra atvirojo kodo, visiškai nemokamas ir be jokių reklamų. Kadangi ši programėlė nuo pat pradžių buvo kuriama „Android“ sistemai, ji yra mažo dydžio ir todėl, labai efektyvi bei išskirtinai greita.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -27,9 +27,7 @@ commentary_examples: "Gill, Matthew Henry ir t.t. "
 cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
 feature_05: "Išplėstinis garsinio teksto atkūrimas su šnekamosiomis žymėmis, leidžiantis sklandžiai klausytis Biblijos teksto"
 feature_06: Lanksti paieška
-feature_07: Žymės su pasirinktinės spalvos žymių grupėmis
-feature_08: >
-  Asmeninės pastabos: pridėkite bet kuriai Biblijos eilutei savo asmenines nagrinėjimo pastabas
+feature_07: Išplėstinės žymių ir paryškinimo ypatybės kartu su asmeninio studijavimo pastabomis
 feature_09: >
   Skaitymo planai: nusistatykite Biblijos skaitymo tikslus 
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
@@ -43,6 +41,8 @@ feature_11: >
 unavailable_documents: "ESV, NIV ir NKJV"
 feature_12: >
   Nereikalauja interneto: interneto reikia tik vienintelį kartą, atsisiunčiant dokumentus.
+feature_13: >
+  Bloknotai, skirti, klausantis pamokslo, pridėti pastabas ir Biblijos nuorodas.
 subtitle_3: Sukurkime geriausią Biblijos programėlę kartu!
 paragraph_3_1: >
   And Bible yra atvirojo kodo bendruomenės projektas. Praktiškai, tai reiškia, kad kiekvienas žmogus su tinkamais įgūdžiai gali, ir yra skatinamas, talkinti projektui:

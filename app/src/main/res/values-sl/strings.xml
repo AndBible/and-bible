@@ -20,7 +20,7 @@
   <string name="contact">Stik</string>
   <string name="help_and_tips">Pomoč in namigi</string>
   <string name="administration">Upravljanje</string>
-  <string name="rate_application">Ocena in Recenzija na Google Play</string>
+  <string name="rate_application">Ocena na Google Play</string>
   <string name="chooce_document">Zapri dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Izberi knjigo</string>
@@ -77,8 +77,8 @@
   <string name="prefs_section_title_title">Naslovi poglavij</string>
   <string name="prefs_red_letter_title">Rdeče črke</string>
   <string name="prefs_tilt_to_scroll_title">Nagib za pomik</string>
-  <string name="prefs_toolbar_button_action_title">Dejanje za pritisk gumba v orodni vrstici...</string>
-  <string name="prefs_toolbar_button_action_summary">Dejanje, ki se zgodi s pritiskom/dolgim pritiskom biblije ali komentarja v orodni vrstici.</string>
+  <string name="prefs_toolbar_button_action_title">Pritisk gumba v orodni vrstici...</string>
+  <string name="prefs_toolbar_button_action_summary">Dejanje, ki se zgodi s pritiskom / dolgim pritiskom biblije ali komentarja v orodni vrstici.</string>
   <string name="prefs_toolbar_button_action_default">Pritisnite, da odprete meni, dolgo pritisnite za zaslon dokumentov (privzeto) </string>
   <string name="prefs_toolbar_button_action_swap_menu">Pritisnite, da odprete naslednji dokument, dolgo pritisnite, da odprete meni</string>
   <string name="prefs_toolbar_button_action_swap_activity">Pritisnite, da odprete naslednji dokument, dolgo pritisnite za zaslon dokumentov</string>
@@ -227,7 +227,7 @@
   <string name="failed_repositories_message">Ni se mogoče povezati z naslednjimi strežniki dokumentov: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Naslednjih datotek ni bilo mogoče prenesti:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Dokumente naloži iz zip datoteke.</string>
+  <string name="install_zip">Naloži iz zip datoteke</string>
   <string name="install_zip_module">Namesti biblijski modul</string>
   <string name="install_zip_successfull">Modul je bil uspešno nameščen</string>
   <string name="extracting_zip_file">Odpakiranje zip datoteke...</string>
@@ -329,7 +329,6 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="remove_bookmark">Odstrani</string>
   <string name="bookmark_settings_hide_labels_title">Skrij nekatere oznake</string>
   <string name="bookmark_settings_hide_labels_summary">Skrij zaznamke, ki so označeni z navedenimi oznakami</string>
-  <string name="auto_assign_labels">Samodejno dodeli oznake zaznamkov</string>
   <string name="label_color">Barva oznake</string>
   <string name="label_color_example">Primer</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -455,7 +454,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <!--User Notes-->
   <string name="mynotes">Moje opombe</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Deli, Arhiviraj in Obnovi podatke</string>
+  <string name="backup_and_restore">Deli, Arhiviraj, Obnovi</string>
   <string name="backup_modules">Deli ali Arhiviraj dokumente v...</string>
   <string name="backup_app_database">Deli ali Arhiviraj bazo aplikacije v...</string>
   <string name="backup_app">Deli ali Arhiviraj aplikacijo (.apk datoteko) v...</string>
@@ -668,13 +667,12 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="show_unlock_info">Modul in informacije o odklepanju</string>
   <string name="prefs_show_error_box_title">Pokaži okno z Javascript napako</string>
   <string name="prefs_show_error_box_summary">Koristno za razvijalce pri odpravljanju JavaScript napak v programu BibleView. Aplikacija bo počasnejša.</string>
-  <string name="active_window_indicator_title">Prikaži indikator aktivnega okna</string>
-  <string name="active_window_indicator_summary">Odebelite vogale oken, da boste lažje prepoznali, katero okno je aktivno.</string>
+  <string name="active_window_indicator_title">Indikator aktivnega okna</string>
+  <string name="active_window_indicator_summary">Poudarite vogale oken, da boste lažje prepoznali, katero okno je aktivno.</string>
   <string name="app_licence_title">Odprtokodna licenca</string>
   <string name="how_to_contribute">Kako prispevati?</string>
   <string name="confirm_delete_bookmarks">Ali želite odstraniti %d zaznamke in njihove zapiske?</string>
   <string name="confirm_delete_study_pads">Ali želite odstraniti %d oznake zaznamkov / beležnice? Prav tako bodo odstranjeni vsi povezani zaznamki in opombe v beležnici.</string>
-  <string name="toast_deletion_cancel">Razveljavite brisanje s pritiskom na gumb za preklic.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Priporočite prijatelju</string>
   <string name="tell_friend_message1">Rad bi vam priporočil: %s .</string>

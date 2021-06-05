@@ -17,21 +17,33 @@
 
 <template>
   <h2 v-if="document.compare">{{osisFragments[0].keyName}}</h2>
-  <div v-for="(fragment, index) in osisFragments" :key="fragment.key">
+  <div v-for="(fragment, index) in filteredOsisFragments" :key="fragment.key">
     <div class="ref-link">
       <a :href="link(fragment)">
-        <template v-if="document.compare">{{fragment.bookInitials}}</template>
+        <template v-if="document.compare">{{fragment.bookAbbreviation}}</template>
         <template v-else>{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookInitials)}}</template>
       </a>
+      <template v-if="document.compare">
+        (<a @click="android.toggleCompareDocument(fragment.bookInitials)">{{strings.compareHide}}</a>)
+      </template>
     </div>
     <OsisFragment hide-titles :fragment="fragment"/>
-    <div v-if="index < osisFragments.length - 1" class="separator"/>
+    <div v-if="index < filteredOsisFragments.length - 1" class="separator"/>
+  </div>
+  <div class="restore" v-if="document.compare && hiddenOsisFragments.length > 0">
+    <div class="separator"/>
+    {{ strings.restoreCompareTitle }}
+    <a @click="android.toggleCompareDocument(fragment.bookInitials)" v-for="fragment  in hiddenOsisFragments" :key="fragment.key">
+      {{ fragment.bookAbbreviation }} &nbsp;
+    </a>
   </div>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment";
+import {inject} from "@vue/runtime-core";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "MultiDocument",
@@ -42,17 +54,31 @@ export default {
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure
     const {osisFragments} = props.document;
+
+    const appSettings = inject("appSettings");
+
+    const filteredOsisFragments = computed(() => {
+      if(props.document.compare) {
+        return osisFragments.filter(v => !appSettings.hideCompareDocuments.includes(v.bookInitials))
+      } else {
+        return osisFragments;
+      }
+    });
+    const hiddenOsisFragments = computed(() => {
+      return osisFragments.filter(v => appSettings.hideCompareDocuments.includes(v.bookInitials))
+    });
+
     function link(frag) {
       const osis = encodeURI(`${frag.bookInitials}:${frag.osisRef}`)
       return `osis://?osis=${osis}`
     }
 
-    return {osisFragments, link, ...useCommon()}
+    return {hiddenOsisFragments, filteredOsisFragments, osisFragments, link, ...useCommon()}
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .ref-link {
   padding-bottom: 0.5em;
   font-weight: bold;
@@ -62,6 +88,11 @@ export default {
   width: calc(100% - 10pt);
   margin: 10pt 5pt 5pt;
   background: rgba(0, 0, 0, 0.2);
+}
+.restore {
+  a {
+    padding-inline-start: 0.5em;
+  }
 }
 
 </style>

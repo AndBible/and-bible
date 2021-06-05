@@ -26,7 +26,7 @@ import {
 const test1 = `
 <!DOCTYPE html>
 <div>
-  <div class="verse" id="v-0">
+  <div class="verse" id="o-0">
     text1
     <div id="id1-1">
       text2
@@ -58,7 +58,7 @@ const test1 = `
     <b id="b-3-2">test1</b>
     test
   </div>
-  <div class="verse" id="v-1">
+  <div class="verse" id="o-1">
     text6
     <div id="id2-1">
       text7
@@ -91,7 +91,7 @@ describe("textLength tests", () => {
     })
 
     it("test1", () => {
-        const e = document.querySelector("#v-0")
+        const e = document.querySelector("#o-0")
         const length = textLength(e);
         expect(length).toBe(35);
     });
@@ -105,7 +105,7 @@ describe("lastTextNode tests", () => {
     })
 
     it("test1", () => {
-        const e = document.querySelector("#v-0")
+        const e = document.querySelector("#o-0")
         const node = lastTextNode(e);
         console.log("node", node);
         expect(node.textContent).toBe("text5");
@@ -125,13 +125,13 @@ describe("findPreviousSiblingsWithClass tests", () => {
         const e = document.querySelector("#between-2").firstChild
         const {siblings, verseNode} = findPreviousSiblingWithClass(e, "verse")
         expect(siblings.length).toBe(2);
-        expect(verseNode.id).toBe("v-0");
+        expect(verseNode.id).toBe("o-0");
     });
     it("test2", () => {
         const e = document.querySelector("#between-1").firstChild
         const {siblings, verseNode} = findPreviousSiblingWithClass(e, "verse")
         expect(siblings.length).toBe(1);
-        expect(verseNode.id).toBe("v-0");
+        expect(verseNode.id).toBe("o-0");
     });
     it("test3", () => {
         const e = document.querySelector("#b-3-1").firstChild
@@ -143,7 +143,7 @@ describe("findPreviousSiblingsWithClass tests", () => {
         const e = document.querySelector("#between-3").firstChild
         const {siblings, verseNode} = findPreviousSiblingWithClass(e, "verse")
         expect(siblings.length).toBe(3);
-        expect(verseNode.id).toBe("v-0");
+        expect(verseNode.id).toBe("o-0");
     });
 });
 
@@ -159,7 +159,7 @@ describe("findParentsBeforeVerseSiblings tests", () => {
         const {parent, siblings, verseNode} = findParentsBeforeVerseSibling(e)
         expect(parent.id).toBe("between-2");
         expect(siblings.length).toBe(2);
-        expect(verseNode.id).toBe("v-0");
+        expect(verseNode.id).toBe("o-0");
     });
 
     it("test2", () => {
@@ -167,7 +167,7 @@ describe("findParentsBeforeVerseSiblings tests", () => {
         const {parent, siblings, verseNode} = findParentsBeforeVerseSibling(e)
         expect(parent.id).toBe("between-2");
         expect(siblings.length).toBe(2);
-        expect(verseNode.id).toBe("v-0");
+        expect(verseNode.id).toBe("o-0");
     });
 });
 
@@ -402,7 +402,7 @@ describe("calculateOffsetToVerse tests", () => {
         expect(offset).toBe(5)
     });
     it("test calculateOffsetToParent test 4", () => {
-        const elem1 = document.querySelector("#v-0")
+        const elem1 = document.querySelector("#o-0")
         const t = findNext(elem1, elem1, true);
 
         const offset = calculateOffsetToParent(t, elem1, t.length)
@@ -456,7 +456,7 @@ describe("findNodeAtOffset tests", () => {
     })
 
     function testOffset(testOffset, resultText, resultOffset) {
-        const elem1 = document.querySelector("#v-0")
+        const elem1 = document.querySelector("#o-0")
 
         const result = findNodeAtOffset(elem1, testOffset, resultText, resultOffset)
         const [node, offset] = result;

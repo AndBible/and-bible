@@ -29,7 +29,7 @@ import {
 import {sprintf} from "sprintf-js";
 import {adjustedColor, Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
-import {throttle} from "lodash";
+import {isEqual, throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {
@@ -188,6 +188,7 @@ export function useConfig(documentType) {
         favouriteLabels: [],
         recentLabels: [],
         frequentLabels: [],
+        hideCompareDocuments: [],
         activeWindow: false,
         rightToLeft: rtl
     });
@@ -202,10 +203,12 @@ export function useConfig(documentType) {
     }
     const mmInPx = calcMmInPx();
 
+    const isBible = computed(() => documentType.value === DocumentTypes.BIBLE_DOCUMENT);
+
     const calculatedConfig = computed(() => {
         let topOffset = appSettings.topOffset;
         let topMargin = 0;
-        if(documentType.value === DocumentTypes.BIBLE_DOCUMENT) {
+        if(isBible.value) {
             topMargin = config.topMargin * mmInPx;
             topOffset += topMargin;
         }
@@ -219,37 +222,78 @@ export function useConfig(documentType) {
         appSettings.activeWindow = newActive;
     });
 
-    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: c, appSettings: {favouriteLabels, recentLabels, activeWindow, nightMode, errorBox: errorBoxVal}, initial = false} = {}) {
-        const defer = new Deferred();
-        if (!initial) emit(Events.CONFIG_CHANGED, defer)
-        const oldValue = config.showBookmarks;
-        config.showBookmarks = false
-        await nextTick();
-        for (const i in c) {
-            if (config[i] !== undefined) {
-                config[i] = c[i];
-            } else if(!i.startsWith("deprecated")) {
-                console.error("Unknown setting", i, c[i]);
-            }
+    function compareConfig(newConfig, checkedKeys) {
+        for(const key of checkedKeys) {
+            if(newConfig[key] === undefined) continue;
+            if(!isEqual(config[key], newConfig[key])) return true;
         }
-        appSettings.nightMode = nightMode;
-        appSettings.activeWindow = activeWindow;
-        appSettings.errorBox = errorBoxVal;
-        appSettings.favouriteLabels.splice(0);
-        appSettings.favouriteLabels.push(...favouriteLabels);
-        appSettings.recentLabels.splice(0);
-        appSettings.recentLabels.push(...recentLabels);
-        errorBox = errorBoxVal;
-        if (c.showBookmarks === undefined) {
-            // eslint-disable-next-line require-atomic-updates
-            config.showBookmarks = oldValue;
+        return false;
+    }
+
+    function getNeedBookmarkRefresh(newConfig) {
+        // Anything that changes DOM in a significant way needs bookmark refresh
+        const keys = [
+            "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
+            "showRedLetters", "showVersePerLine", "showNonCanonical", "makeNonCanonicalItalic", "showSectionTitles",
+            "showStrongsSeparately", "showFootNotes", "showBookmarks", "showMyNotes", "bookmarksHideLabels"
+        ];
+        return compareConfig(newConfig, keys);
+    }
+
+    function getNeedRefreshLocation(newConfig) {
+        // Anything that changes location of text in a significant way, needs location refresh
+        const keys = [
+            "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
+            "showRedLetters", "showVersePerLine", "showNonCanonical", "showSectionTitles",
+            "showStrongsSeparately", "showFootNotes", "showBookmarks", "showMyNotes",
+            "fontSize", "fontFamily", "hyphenation", "justifyText", "marginSize", "topMargin"
+        ];
+        return compareConfig(newConfig, keys);
+    }
+
+    setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: newConfig, appSettings: newAppSettings, initial = false} = {}) {
+        const defer = new Deferred();
+        const oldValue = config.showBookmarks;
+        const isBible = documentType.value === DocumentTypes.BIBLE_DOCUMENT
+        const needsRefreshLocation = !initial && (isBible || documentType.value === DocumentTypes.OSIS_DOCUMENT) && getNeedRefreshLocation(newConfig);
+        const needBookmarkRefresh = getNeedBookmarkRefresh(newConfig);
+
+        if (needsRefreshLocation) emit(Events.CONFIG_CHANGED, defer)
+
+        if(isBible && needBookmarkRefresh) {
+            config.showBookmarks = false
+            await nextTick();
+        }
+        for (const i in newConfig) {
+            if (config[i] !== undefined) {
+                config[i] = newConfig[i];
+            } else if(!i.startsWith("deprecated")) {
+                console.error("Unknown setting", i, newConfig[i]);
+            }
         }
         // eslint-disable-next-line require-atomic-updates
         config.showChapterNumbers = config.showVerseNumbers;
-        if (!initial) {
-            await nextTick();
+
+        for (const i in newAppSettings) {
+            if (appSettings[i] !== undefined) {
+                appSettings[i] = newAppSettings[i];
+            } else if(!i.startsWith("deprecated")) {
+                console.error("Unknown setting", i, appSettings[i]);
+            }
         }
-        defer.resolve()
+
+        errorBox = appSettings.errorBox;
+        if(isBible && needBookmarkRefresh) {
+            if (newConfig.showBookmarks === undefined) {
+                // eslint-disable-next-line require-atomic-updates
+                config.showBookmarks = oldValue;
+            }
+        }
+
+        if (needsRefreshLocation) {
+            await nextTick();
+            defer.resolve()
+        }
     })
 
     return {config, appSettings, calculatedConfig};
@@ -274,6 +318,7 @@ export function useCommon() {
     const config = inject("config");
     const appSettings = inject("appSettings");
     const calculatedConfig = inject("calculatedConfig");
+    const android = inject("android");
 
     const strings = inject("strings");
 
@@ -291,7 +336,7 @@ export function useCommon() {
     }
 
     return {config, appSettings, calculatedConfig, strings, sprintf, split,
-        adjustedColor, formatTimestamp, abbreviated, emit, Events
+        adjustedColor, formatTimestamp, abbreviated, emit, Events, android,
     }
 }
 

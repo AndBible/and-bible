@@ -66,6 +66,7 @@ class OsisFragment(
             "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
             "bookCategory" to wrapString(book.bookCategory.name),
             "bookInitials" to wrapString(book.initials),
+            "bookAbbreviation" to wrapString(book.abbreviation),
             "osisRef" to wrapString(key.osisRef),
             "features" to json.encodeToString(serializer(), features),
             "ordinalRange" to ordinalRangeStr,

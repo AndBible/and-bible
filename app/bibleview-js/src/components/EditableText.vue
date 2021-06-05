@@ -94,8 +94,7 @@ export default {
 @import '~@/lib/pell/pell.scss';
 @import "~@/common.scss";
 .notes-display {
-  width: calc(100% - 22pt);
-  padding: $pell-content-padding $pell-content-padding 2pt;
+  width: 100%;
   &.constraintDisplayHeight {
     @extend .visible-scrollbar;
     overflow-y: auto;
@@ -108,7 +107,7 @@ export default {
 }
 
 .editor-container {
-  max-width: calc(100% - 22pt);
+  max-width: 100%;
   padding-top: 8pt;
   padding-bottom: 3pt;
   padding-inline-start: 2pt;

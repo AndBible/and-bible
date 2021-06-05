@@ -307,7 +307,6 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="remove_bookmark">Rimuovi</string>
   <string name="bookmark_settings_hide_labels_title">Nascondi le etichette specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Nascondi i segnalibri che sono marcati con le etichette specificate</string>
-  <string name="auto_assign_labels">Assegna etichette segnalibri automaticamente</string>
   <string name="label_color">Colore dell\'etichetta</string>
   <string name="label_color_example">Esempio</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -633,7 +632,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="how_to_contribute">Come contribuire?</string>
   <string name="confirm_delete_bookmarks">Vuoi rimuovere %d segnalibri e le loro note?</string>
   <string name="confirm_delete_study_pads">Vuoi rimuovere %d etichette / appunti di studio dei segnalibri? Tutti i segnalibri e gli appunti di studio associati saranno rimossi.</string>
-  <string name="toast_deletion_cancel">Annulla l\'eliminazione premendo il bottone Annulla</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Consiglia a un amico</string>
   <string name="tell_friend_message1">Vorrei consigliarti %s</string>

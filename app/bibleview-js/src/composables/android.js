@@ -172,6 +172,7 @@ export function useAndroid({bookmarks}, config) {
     }
 
     function scrolledToVerse(ordinal) {
+        if(ordinal < 0) return;
         android.scrolledToVerse(ordinal)
     }
 
@@ -265,6 +266,10 @@ export function useAndroid({bookmarks}, config) {
         android.reportModalState(value)
     }
 
+    function toggleCompareDocument(docId) {
+        android.toggleCompareDocument(docId);
+    }
+
     const exposed = {
         setActionMode,
         reportInputFocus,
@@ -289,6 +294,7 @@ export function useAndroid({bookmarks}, config) {
         toggleBookmarkLabel,
         reportModalState,
         setBookmarkWholeVerse,
+        toggleCompareDocument,
     }
 
     if(config.developmentMode) return {

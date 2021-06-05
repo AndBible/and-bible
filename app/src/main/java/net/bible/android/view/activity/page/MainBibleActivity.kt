@@ -116,6 +116,7 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
+import java.io.FileNotFoundException
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -1231,8 +1232,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         val hourglass = Hourglass(this)
                         GlobalScope.launch(Dispatchers.IO) {
                             hourglass.show()
-                            val inputStream = contentResolver.openInputStream(data!!.data!!)
-                            if (backupControl.restoreDatabaseViaIntent(inputStream!!)) {
+                            val inputStream = try {contentResolver.openInputStream(data!!.data!!)} catch (e: FileNotFoundException) {null}
+                            if (inputStream != null && backupControl.restoreDatabaseViaIntent(inputStream)) {
                                 Log.d(TAG, "Restored database successfully")
                                 withContext(Dispatchers.Main) {
                                     bookmarkControl.reset()
@@ -1242,6 +1243,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                                     Dialogs.instance.showMsg(R.string.restore_success)
                                     currentWorkspaceId = 0
                                 }
+                            } else {
+                                Dialogs.instance.showMsg(R.string.restore_unsuccessfull)
                             }
                             hourglass.dismiss()
                         }
@@ -1324,6 +1327,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val classes = arrayOf(GridChoosePassageBook::class.java.name, Bookmarks::class.java.name)
                 val className = data?.component?.className
                 if (className != null && classes.contains(className)) {
+                    val isFromBookmark = className == Bookmarks::class.java.name
                     val verseStr = data.extras!!.getString("verse")
                     val verse = try {
                         VerseFactory.fromString(navigationControl.versification, verseStr)
@@ -1332,7 +1336,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         return
                     }
                     val pageManager = windowControl.activeWindowPageManager
-                    if(!pageManager.isBibleShown) {
+                    if(isFromBookmark && !pageManager.isBibleShown) {
                         pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
                     } else
                         pageManager.currentPage.setKey( verse)

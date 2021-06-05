@@ -328,7 +328,6 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="remove_bookmark">Verwyder</string>
   <string name="bookmark_settings_hide_labels_title">Versteek gespesifiseerde etikette</string>
   <string name="bookmark_settings_hide_labels_summary">Versteek boekmerke wat met gespesifiseerde etiket(e) gemerk is</string>
-  <string name="auto_assign_labels">Outomatiese toewys van boekmerk etikette</string>
   <string name="label_color">Etiketteer kleur</string>
   <string name="label_color_example">Voorbeeld</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -668,7 +667,6 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="how_to_contribute">Hoe om by te dra?</string>
   <string name="confirm_delete_bookmarks">Wil jy %d boekmerke en hul notas  verwyder?</string>
   <string name="confirm_delete_study_pads">Wil jy %d boekmerketikette / studieblokkies verwyder? Ook alle geassosieerde boekmerke en studiepadnotas sal verwyder word.</string>
-  <string name="toast_deletion_cancel">Ontdoen die verwydering deur op die kanselleer knoppie te druk.</string>
   <string name="module_size_megabytes">%.1fMB</string>
   <string name="tell_friend_title">Beveel dit aan vir \'n vriend</string>
   <string name="tell_friend_message1">Ek wil graag %s vir jou aanbeveel.</string>

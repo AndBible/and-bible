@@ -308,10 +308,13 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="label_name_prompt">Nimi</string>
   <string name="label_unlabelled">Nimetön</string>
   <string name="add_bookmark1">Kirjanmerkki</string>
+  <string name="add_bookmark_whole_verse">Kirjanmerkki jakeelle</string>
   <string name="remove_bookmark">Poista</string>
   <string name="bookmark_settings_hide_labels_title">Piilota tietyt kirjanmerkkiryhmät</string>
   <string name="bookmark_settings_hide_labels_summary">Piilota kirjanmerkit jotka on merkitty määritellyillä kirjanmerkkiryhmillä</string>
-  <string name="auto_assign_labels">Lisää automaattisesti kirjanmerkkiryhmät</string>
+  <string name="auto_assign_labels">Automaattiset ja suosikkikirjanmerkkiryhmät</string>
+  <string name="auto_assign_labels1">Lisää automaattisesti uusiin kirjanmerkkeihin</string>
+  <string name="auto_assign_labels_primary">Lisää automaattisesti pääasiallisena</string>
   <string name="label_color">Kirjanmerkkiryhmän väri</string>
   <string name="label_color_example">Esimerkki</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -622,7 +625,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="how_to_contribute">Kuinka voin auttaa?</string>
   <string name="confirm_delete_bookmarks">Haluatko poistaa %dkirjanmerkkiä merkintöineen?</string>
   <string name="confirm_delete_study_pads">Haluatko poistaa %d kirjanmerkkiryhmää / opintoalustaa? Myös kaikki niihin liittyvät kirjanmerkit ja opintoalustan merkinnät poistuvat.</string>
-  <string name="toast_deletion_cancel">Voit peruuttaa poiston painamalla peruuta-painiketta.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Suosittele ystävälle</string>
   <string name="tell_friend_message1">Haluaisin suositella sinulle sovellusta %s.</string>
@@ -661,4 +663,18 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="proceed_google_play">Jatka Google Playhin</string>
   <string name="text_maintainers">raportoi virheistä tekstin ylläpitäjille</string>
   <string name="does_not_exist_abbreviation">Ei löydy</string>
+  <string name="cant_change_wholeverse">Ei voida kytkeä pois koko jakeen merkintää tälle kirjanmerkille</string>
+  <string name="whole_verse_turned_on">Kirjanmerkki on nyt merkitty koko jakeelle</string>
+  <string name="this_bookmark">Tämä kirjanmerkki</string>
+  <string name="this_workspace">Tämä työtila</string>
+  <string name="primary_label">Pääasiallinen kirjanmerkkiryhmä</string>
+  <string name="highlight_entire_verse">Korosta koko jae</string>
+  <string name="favourite_label">Suosikkikirjanmerkkiryhmä</string>
+  <string name="edit_label">Muokkaa kirjanmerkkiryhmää</string>
+  <string name="delete_label_confirmation">Haluatko poistaa kirjanmerkkiryhmän %s?</string>
+  <string name="bookmark_underline_style_arbitrary">Alleviivaustyyli normaaleille kirjanmerkeille</string>
+  <string name="bookmark_underline_style_whole_verse">Alleviivaustyyli koko jakeen kirjanmerkeille</string>
+  <string name="active_labels">Aktiiviset kirjanmerkkiryhmät</string>
+  <string name="recent_labels">Viimeaikaiset kirjanmerkkiryhmät</string>
+  <string name="other_labels">Muut kirjanmerkkiryhmät</string>
 </resources>

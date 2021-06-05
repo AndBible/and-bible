@@ -134,7 +134,7 @@ export function useScroll(config, appSettings, calculatedConfig, {getVerses, res
         await nextTick(); // Do scrolling only after view has been settled (fonts etc)
 
         if (jumpToOrdinal != null) {
-            scrollToId(`v-${jumpToOrdinal}`, {now: true, force: true});
+            scrollToId(`o-${jumpToOrdinal}`, {now: true, force: true});
         } else if (jumpToAnchor !== null) {
             scrollToId(`o-${jumpToAnchor}`, {now: true, force: true});
         } else {

@@ -17,7 +17,7 @@
 
 <template>
   <div>
-    <OsisFragment do-not-convert :fragment="osisFragment" :show-transition="document.showTransition"/>
+    <OsisFragment do-not-convert :fragment="osisFragment"/>
     <OpenAllLink :v11n="document.v11n"/>
     <FeaturesLink :fragment="osisFragment"/>
   </div>

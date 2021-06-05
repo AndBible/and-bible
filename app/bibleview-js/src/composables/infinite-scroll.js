@@ -71,7 +71,7 @@ export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}, 
             const priorHeight = bodyHeight();
             const origPosition = scrollPosition();
 
-            if(document) documents.unshift({...document, showTransition: false});
+            if(document) documents.unshift({...document});
             await nextTick();
 
             // do no try to get scrollPosition here because it has not settled

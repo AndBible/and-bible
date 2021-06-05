@@ -196,13 +196,13 @@ class CurrentBiblePage(
     val currentVerseOrdinal: Int get() = currentBibleVerse.verse.ordinal
 
     fun setCurrentVerseOrdinal(value: Int, versification: Versification?) {
-            val old = currentBibleVerse.verse.ordinal
-            val newVerse = Verse(versification?: currentBibleVerse.versificationOfLastSelectedVerse, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
-            if(newVerse.ordinal != old) {
-                currentBibleVerse.verse = newVerse
-                onVerseChange()
-            }
+        val old = currentBibleVerse.verse.ordinal
+        val newVerse = Verse(versification?: currentBibleVerse.versificationOfLastSelectedVerse, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
+        if(newVerse.ordinal != old) {
+            currentBibleVerse.verse = newVerse
+            onVerseChange()
         }
+    }
 
     //TODO allow japanese search - japanese bibles use smartcn which is not available
     /** can we enable the main menu search button

@@ -44,7 +44,7 @@ import java.io.ObjectOutputStream
 
 import java.util.*
 
-const val DATABASE_VERSION = 51
+const val DATABASE_VERSION = 52
 
 class Converters {
     @TypeConverter
@@ -155,13 +155,25 @@ class Converters {
     }
 
     @TypeConverter
-    fun strToLongSet(s: String?): MutableSet<Long> {
+    fun strToSet1(s: String?): MutableSet<Long> {
         if(s == null) return mutableSetOf()
         return json.decodeFromString(serializer(), s)
     }
 
     @TypeConverter
-    fun longSetToStr(obj: Set<Long>?): String? {
+    fun setToStr1(obj: Set<Long>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
+    fun strToSet2(s: String?): MutableSet<String> {
+        if(s == null) return mutableSetOf()
+        return json.decodeFromString(serializer(), s)
+    }
+
+    @TypeConverter
+    fun setToStr2(obj: Set<String>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }

@@ -21,7 +21,7 @@
        :data-book-initials="bookInitials"
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
-    <OsisFragment :fragment="document.osisFragment" :show-transition="document.showTransition"/>
+    <OsisFragment :fragment="document.osisFragment"/>
   </div>
 </template>
 

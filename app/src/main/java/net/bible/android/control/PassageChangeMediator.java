@@ -23,7 +23,6 @@ import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
-import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.window.Window;
 import android.util.Log;
 
@@ -51,7 +50,6 @@ public class PassageChangeMediator {
 	/** first time we know a page or doc will imminently change
 	 */
 	public void onBeforeCurrentPageChanged(boolean updateHistory) {
-		ABEventBus.getDefault().post(new PreBeforeCurrentPageChangeEvent());
 		ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent(updateHistory));
 	}
 	

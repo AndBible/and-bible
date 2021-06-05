@@ -1,0 +1,67 @@
+openMyNotes: Abrir en Mis Notas
+openStudyPad: Abrir en Pizarra de Estudio (%s)
+noteText: Notas al pie (%s)
+noteTextWithoutType: ""
+crossReferenceText: Referencias cruzadas
+findAllOccurrences: Encuentra todas las coincidencias
+reportError: Informar de un error
+errorTitle: Ocurrido un error
+warningTitle: Advertencia
+normalTitle: Por favor nota
+footnoteTypeUndefined: Tipo indefinido
+footnoteTypeStudy: Estudio
+footnoteTypeExplanation: Explicación
+footnoteTypeVariant: Variante
+footnoteTypeAlternative: Alternativa
+footnoteTypeTranslation: Traduccion
+clearLog: Borrar errores
+editNote: Editar
+editNotePlaceholder: Editar una nota para marcador
+editTextPlaceholder: Toca para editar el texto
+inputPlaceholder: Escriba aqui
+inputReference: Ingrese la referencia de la Biblia
+assignLabels: Etiquetas
+bookmarkAccurate: El marcador se creó en %s
+bookmarkInaccurate: "La información del libro de marcadores no se almacena, el contenido se muestra en %s."
+defaultBook: documento Bíblico predeterminada
+ok: OK
+yes: Yes
+ambiguousSelection: "¿Qué acción desea realizar?"
+cancel: Cancelar
+removeBookmarkConfirmationTitle: "¿Eliminar marcador?"
+removeBookmarkConfirmation: "¿Seguro que quiere eliminar este marcador?"
+closeModal: Cerrar
+createdAt: "Creado: %s"
+lastUpdatedOn: "Última actualización: %s"
+strongsLink: Abrir Strongs (%s)
+studyPadLink: Abrir bloc de estudio
+externalLink: Abrir enlace externo
+referenceLink: Abrir enlace de referencia
+openFootnote: Abrir nota al pie
+openBookmark: Abrir marcador (%s)
+noMyNotesTitle: No existen Mis Notas en este capítulo.
+noMyNotesDescription: >
+  Comience creando marcadores en un documento bíblico. Los marcadores aparecerán aquí y podrá agregarles sus notas personales.
+emptyStudyPad: >
+  Bloc de estudio vacía. Comience a agregar elementos a este bloc de estudio creando entradas de texto aquí o creando marcadores con una etiqueta de marcador que se corresponda con este bloc de estudio.
+studyPadModalTitle: Editar la entrada del bloc de estudio
+doYouWantToDeleteEntry: "¿Está seguro de que desea eliminar esta entrada del bloc de estudio?"
+removeStudyPadConfirmationTitle: "¿Eliminar la entrada del bloc de estudio?"
+dragHelp: Puede arrastrar y soltar el elemento para reordenar el bloc de estudio
+saved: guardado
+openAll: Abrir todas las referencias
+editBookmarkPlaceholder: Toque para editar Mis Notas para este marcador
+onlyLabel: Solo etiqueta
+wholeBookmark: Marcador completo
+otherNoteText: Otro nota
+assignLabelsMenuEntry: Asignar etiquetas
+assignLabelsMenuEntry1: ""
+jumpToStudyPad: Ir a la Bloc de Estudio
+setAsPrimaryLabel: Establecer etiqueta principal
+removeBookmarkLabel: Quitar etiqueta del marcador
+addBookmarkLabel: Agregar etiqueta al marcador
+favouriteLabels: Etiquetas favoritas
+recentLabels: Etiquetas recientes
+frequentlyUsedLabels: Etiquetas uso frecuente
+bookmarkLabels: ""
+restoreCompareTitle: ""
