@@ -309,7 +309,7 @@ $borderDistance: 0;
   left: 0;
   right: 0;
   .night & {
-    background-color: rgba(255, 255, 255, $nightAlpha);
+    background-color: rgba(255, 255, 255, 0.15);
   }
   background-color: rgba(0, 0, 0, 0.15);
 }
