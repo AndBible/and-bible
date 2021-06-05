@@ -380,10 +380,11 @@ export function adjustedColorOrig(color, ratio=0.2) {
     let col = Color(color);
     let cont = true;
     let rv;
+    let loops = 0;
     while(cont) {
         cont = false;
         rv = col.darken(ratio);
-        if(rv.hex() === "#FFFFFF" || rv.hex() === "#000000" && ratio > 0.01) {
+        if((rv.hex() === "#FFFFFF" || rv.hex() === "#000000") && ++loops < 5) {
             ratio = 0.75*ratio;
             cont = true
         }
