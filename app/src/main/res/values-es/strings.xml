@@ -692,5 +692,4 @@ para ver sus notas en una ventana separada.
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
   <string name="does_not_exist_abbreviation">No existe</string>
-  <string name="book_menu_sort_row_opt">Orden por fila</string>
 </resources>
