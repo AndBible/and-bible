@@ -374,7 +374,7 @@
     <string name="auto_assign_labels">Auto-assign &amp; Favourite labels</string>
     <string name="auto_assign_labels1">Auto-assign to new bookmarks</string>
     <string name="auto_assign_labels_primary">Auto-assign as primary</string>
-    <string name="label_color">Label color</string>
+    <string name="label_color">Label color</string>  <!-- can be removed -->
     <string name="label_color_example">Example</string>
 
     <!--  Sort orders used for Bookmarks and MyNotes -->

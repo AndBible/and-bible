@@ -33,13 +33,14 @@
     </style>
     <style name="EditBookmarkLabelCategoryTitle" parent="@android:style/TextAppearance.Medium">
         <item name="android:paddingStart">2dip</item>
-        <item name="android:paddingTop">15dip</item>
+        <item name="android:paddingTop">5dip</item>
+        <item name="android:paddingBottom">5dip</item>
     </style>
     <style name="EditBookmarkLabelItemTitle" parent="@android:style/TextAppearance.Small">
         <item name="android:paddingStart">2dip</item>
         <item name="android:paddingEnd">5dip</item>
-        <item name="android:paddingTop">10dip</item>
-        <item name="android:paddingBottom">10dip</item>
+        <item name="android:paddingTop">8dip</item>
+        <item name="android:paddingBottom">8dip</item>
     </style>
     <style name="EditBookmarkLabelItemIcon">
         <item name="android:scaleY">0.8</item>

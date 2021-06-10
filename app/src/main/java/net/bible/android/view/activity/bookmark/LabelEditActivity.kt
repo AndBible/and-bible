@@ -19,11 +19,17 @@ package net.bible.android.view.activity.bookmark
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.ColorFilter
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.core.graphics.drawable.updateBounds
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import kotlinx.coroutines.Dispatchers
@@ -182,15 +188,16 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         data = LabelData.fromJSON(intent.getStringExtra("data")!!)
 
         binding.apply {
+            addImage(favouriteLabelCheckBox, R.drawable.ic_baseline_favorite_24)
+            addImage(autoAssignCheckBox, R.drawable.ic_label_circle)
+            addImage(primaryAutoAssignCheckBox, R.drawable.ic_baseline_bookmark_24)
+            addImage(primaryLabelCheckBox, R.drawable.ic_baseline_bookmark_24)
+
             updateUI()
             updateData()
             updateUI()
 
-            editColorButton.setOnClickListener {
-                ColorPickerDialog.newBuilder()
-                    .setColor(data.label.color)
-                    .show(this@LabelEditActivity)
-            }
+            titleIcon.setOnClickListener { editColor() }
 
             autoAssignCheckBox.setOnCheckedChangeListener { _, _ ->
                 updateData()
@@ -202,6 +209,25 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             }
         }
     }
+
+    private fun editColor() {
+        ColorPickerDialog.newBuilder()
+            .setColor(data.label.color)
+            .show(this@LabelEditActivity)
+    }
+
+    private fun addImage(view: AppCompatCheckBox, icon: Int) {
+        val imageSpan = ImageSpan(this, icon, ImageSpan.ALIGN_BASELINE)
+        imageSpan.drawable.setTint(view.currentHintTextColor)
+        val h = imageSpan.drawable.intrinsicHeight / 2
+        val w = imageSpan.drawable.intrinsicWidth / 2
+        imageSpan.drawable.setBounds(0, 0, w, h)
+        val spannableString = SpannableString("${view.text} *")
+        val l = view.text.length+1
+        spannableString.setSpan(imageSpan, l, l+1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+        view.setText(spannableString, TextView.BufferType.SPANNABLE)
+    }
+
     companion object {
         const val RESULT_REMOVE = 999
     }
