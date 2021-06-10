@@ -775,7 +775,6 @@
 
     <string name="how_to_contribute">How to contribute?</string>
     <string name="confirm_delete_bookmarks">Do you want to remove %d bookmarks and their notes?</string>
-    <string name="confirm_delete_study_pads">Do you want to remove %d bookmark labels / study pads? Also all associated bookmarks and study pad notes will be removed.</string>
     <string name="module_size_megabytes">%.1f MB</string>
     <string name="tell_friend_title">Recommend to a friend</string>
     <string name="tell_friend_message1">I would like to recommend %s to you.</string>
@@ -845,7 +844,7 @@
     <string name="highlight_entire_verse">Highlight entire verse</string>
     <string name="favourite_label">Favourite label</string>
     <string name="edit_label">Edit bookmark label</string>
-    <string name="delete_label_confirmation">Do you want to remove the label %s?</string>
+    <string name="delete_label_confirmation">Do you want to remove bookmark label "%s"? Also all associated Study Pad notes will be removed.</string>
     <string name="bookmark_underline_style_arbitrary">Underline style for normal bookmarks</string>
     <string name="bookmark_underline_style_whole_verse">Underline style for whole verse bookmarks</string>
     <string name="active_labels">Active labels</string>

@@ -143,7 +143,7 @@ class ManageLabels : ListActivityBase() {
     lateinit var data: ManageLabelsData
 
     override fun onBackPressed() {
-        okay()
+        saveAndExit()
     }
 
     @SuppressLint("MissingSuperCall")
@@ -189,7 +189,7 @@ class ManageLabels : ListActivityBase() {
         when(item.itemId){
             R.id.help -> CommonUtils.showHelp(this, listOf(R.string.help_studypads_title, R.string.help_bookmarks_title))
             R.id.newLabel -> newLabel()
-            android.R.id.home -> okay()
+            android.R.id.home -> saveAndExit()
             else -> isHandled = false
         }
         if (!isHandled) {
@@ -211,7 +211,7 @@ class ManageLabels : ListActivityBase() {
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
         if(data.mode == Mode.STUDYPAD) {
             val selected = shownLabels[position]
-            if(selected is BookmarkEntities.Label) okay(selected)
+            if(selected is BookmarkEntities.Label) saveAndExit(selected)
         }
         super.onListItemClick(l, v, position, id)
     }
@@ -313,13 +313,14 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    private fun okay(selected: BookmarkEntities.Label? = null) = GlobalScope.launch(Dispatchers.Main) {
+    private fun saveAndExit(selected: BookmarkEntities.Label? = null) = GlobalScope.launch(Dispatchers.Main) {
         Log.i(TAG, "Okay clicked")
         val deleteLabelIds = data.deletedLabels.filter{ it > 0 }.toList()
-        val message = getString(R.string.confirm_delete_study_pads, deleteLabelIds.size)
-        if(deleteLabelIds.isNotEmpty() && !askConfirmation(message)) return@launch
+        if(deleteLabelIds.isNotEmpty()) {
+            bookmarkControl.deleteLabels(deleteLabelIds)
+        }
+
         val result = Intent()
-        bookmarkControl.deleteLabels(deleteLabelIds)
         val saveLabels = shownLabels
             .filterIsInstance<BookmarkEntities.Label>()
             .filter{ data.changedLabels.contains(it.id) && !data.deletedLabels.contains(it.id) }
@@ -357,16 +358,24 @@ class ManageLabels : ListActivityBase() {
         finish()
     }
 
-    private suspend fun askConfirmation(message: String)  = suspendCoroutine<Boolean> {
-        AlertDialog.Builder(this)
-            .setMessage(message)
-            .setPositiveButton(R.string.yes) { _, _ ->
+    private suspend fun askConfirmation(message: String, yesNo: Boolean = false)  = suspendCoroutine<Boolean> {
+        AlertDialog.Builder(this).apply {
+            setMessage(message)
+            setPositiveButton(R.string.yes) { _, _ ->
                 it.resume(true)
             }
-            .setCancelable(true)
-            .setOnCancelListener { _ -> it.resume(false) }
-            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false)}
-            .show()
+            if(yesNo) {
+                setNegativeButton(R.string.no) { _, _ ->
+                    it.resume(false)
+                }
+                setCancelable(false)
+            } else {
+                setCancelable(true)
+                setOnCancelListener { _ -> it.resume(false) }
+                setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
+            }
+            show()
+        }
     }
 
     fun reset() {
