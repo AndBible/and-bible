@@ -1062,6 +1062,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
         val document = firstDocument
         if(document !is DocumentWithBookmarks) return
+        if(document is MyNotesDocument && !document.verseRange.overlaps(event.bookmark.kjvVerseRange)) return
 
         val clientBookmark = ClientBookmark(event.bookmark,
             when(document) {
