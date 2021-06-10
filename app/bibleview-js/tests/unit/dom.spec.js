@@ -157,11 +157,34 @@ describe("highlighting", () => {
             expect(document.documentElement.outerHTML).toBe(highLighted);
             undo1();
             expect(document.documentElement.outerHTML).toBe(unHighLighted1);
-            expect(e.childNodes.length).toBe(2);
+            expect(e.childNodes.length).toBe(3);
             undo2();
-            expect(e.childNodes.length).toBe(2);
+            expect(e.childNodes.length).toBe(3);
             expect(document.documentElement.outerHTML).toBe(unHighLighted);
         }
+        for(let i=0; i<5; i++) {
+            const node1 = e.childNodes[0];
+            const node2 = e.childNodes[2];
+            range.setStart(node1, 0);
+            range.setEnd(node1, 5);
+            range2.setStart(node2, 0);
+            range2.setEnd(node2, 5);
+            expect(e.childNodes.length).toBe(3);
+
+            const {undo: undo1} = highlightRange(range, "span", {style: "width:1"});
+            expect(document.documentElement.outerHTML).toBe(highLighted1);
+            expect(e.childNodes.length).toBe(3);
+            const {undo: undo2} = highlightRange(range2, "span", {style: "width:2"});
+            expect(e.childNodes.length).toBe(3);
+            expect(document.documentElement.outerHTML).toBe(highLighted);
+            undo1();
+            expect(document.documentElement.outerHTML).toBe(unHighLighted1);
+            expect(e.childNodes.length).toBe(3);
+            undo2();
+            expect(e.childNodes.length).toBe(3);
+            expect(document.documentElement.outerHTML).toBe(unHighLighted);
+        }
+
     });
 
     it("test 2 (undo's in opposite order) that highlight two consequent highlight ranges work", () => {
@@ -195,7 +218,7 @@ describe("highlighting", () => {
             expect(document.documentElement.outerHTML).toBe(highLighted);
             undo2();
             undo1();
-            expect(e.childNodes.length).toBe(2);
+            expect(e.childNodes.length).toBe(3);
             expect(document.documentElement.outerHTML).toBe(unHighLighted);
         }
     });

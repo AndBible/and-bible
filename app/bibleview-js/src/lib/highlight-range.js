@@ -97,7 +97,6 @@ function textNodesInRange(range) {
 // Replace [node] with <tagName ...attributes>[node]</tagName>
 function wrapNodeInHighlight(node, tagName, attributes) {
     if(node.textContent.length === 0) {
-        node.remove();
         return null;
     }
     const highlightElement = node.ownerDocument.createElement(tagName);
