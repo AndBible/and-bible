@@ -73,6 +73,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     private var rowColLayout: RowColLayout? = null
     private var pressed: ButtonInfo? = null
     private var isInitialised = false
+    var isLeftToRightEnabled = false
 
     fun clear() {
         removeAllViews()
@@ -144,6 +145,10 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
         previewHeight = (PREVIEW_HEIGHT_DIP * scale).toInt()
     }
 
+    fun toggleLeftToRight() {
+        isLeftToRightEnabled = !isLeftToRightEnabled
+    }
+
     /** Ensure longer runs by populating in longest direction ie columns if portrait and rows if landscape
      *
      * @param row
@@ -151,7 +156,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
      * @return
      */
     private fun getButtonInfoIndex(row: Int, col: Int): Int {
-        return if (rowColLayout!!.columnOrder) {
+        return if (rowColLayout!!.columnOrder && !isLeftToRightEnabled) {
             col * rowColLayout!!.rows + row
         } else {
             row * rowColLayout!!.cols + col

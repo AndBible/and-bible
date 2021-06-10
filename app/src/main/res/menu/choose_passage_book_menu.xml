@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/alphabetical_order_opt"
+        android:title="@string/sort_by_alphabetical"
+        android:checkable="true"/>
+
+    <item
+        android:id="@+id/row_order_opt"
+        android:title="@string/book_menu_sort_row_opt"
+        android:checkable="true"/>
+
+</menu>

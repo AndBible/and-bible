@@ -31,7 +31,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class BibleBookActionBarManager @Inject constructor(private val scriptureToggleActionBarButton: ScriptureToggleActionBarButton, val sortButton: SortActionBarButton) : DefaultActionBarManager(), ActionBarManager {
+class BibleBookActionBarManager @Inject constructor(private val scriptureToggleActionBarButton: ScriptureToggleActionBarButton) : DefaultActionBarManager(), ActionBarManager {
     fun registerScriptureToggleClickListener(scriptureToggleClickListener: View.OnClickListener?) {
         scriptureToggleActionBarButton.registerClickListener(scriptureToggleClickListener)
     }
@@ -46,7 +46,6 @@ class BibleBookActionBarManager @Inject constructor(private val scriptureToggleA
     override fun prepareOptionsMenu(activity: Activity, menu: Menu, actionBar: ActionBar) {
         super.prepareOptionsMenu(activity, menu, actionBar)
         scriptureToggleActionBarButton.addToMenu(menu)
-        sortButton.addToMenu(menu)
     }
 
     /* (non-Javadoc)
@@ -58,7 +57,6 @@ class BibleBookActionBarManager @Inject constructor(private val scriptureToggleA
         // this can be called on end of speech in non-ui thread
         CurrentActivityHolder.getInstance().runOnUiThread {
             scriptureToggleActionBarButton.update()
-            sortButton.update()
         }
     }
 

@@ -24,10 +24,13 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View.OnClickListener
+import androidx.core.view.children
 
 import net.bible.android.activity.R
+import net.bible.android.control.navigation.BibleBookSortOrder
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
@@ -55,7 +58,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class GridChoosePassageBook : CustomTitlebarActivityBase(), OnButtonGridActionListener {
+class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_book_menu), OnButtonGridActionListener {
 
     private lateinit var buttonGrid: ButtonGrid
 
@@ -118,16 +121,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(), OnButtonGridActionLi
         bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture)
     }
 
-    /**
-     * Handle scripture/Appendix toggle
-     */
-    private val sortOrderClickListener = OnClickListener {
-        navigationControl.changeBibleBookSortOrder()
-
-        buttonGrid.clear()
-        buttonGrid.addButtons(bibleBookButtonInfo)
-    }
-
     private var navigateToVerse: Boolean = false
 
     /** Called when the activity is first created.  */
@@ -149,7 +142,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(), OnButtonGridActionLi
         navigateToVerse = intent?.extras?.getBoolean("navigateToVerse", navigateToVerseDefault)?:navigateToVerseDefault
 
         bibleBookActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
-        bibleBookActionBarManager.sortButton.registerClickListener(sortOrderClickListener)
 
         setActionBarManager(bibleBookActionBarManager)
 
@@ -161,12 +153,38 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(), OnButtonGridActionLi
         buttonGrid = ButtonGrid(this)
         buttonGrid.setOnButtonGridActionListener(this)
         buttonGrid.addButtons(bibleBookButtonInfo)
+        buttonGrid.isLeftToRightEnabled = CommonUtils.sharedPreferences.getBoolean(BOOK_GRID_FLOW_PREFS, false)
 
         setContentView(buttonGrid)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val sortOptionItem = menu.children.first { it.itemId == R.id.alphabetical_order_opt }
+        sortOptionItem.isChecked = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
+        val rowDistributionItem = menu.children.first { it.itemId == R.id.row_order_opt }
+        buttonGrid.isLeftToRightEnabled = CommonUtils.sharedPreferences.getBoolean(BOOK_GRID_FLOW_PREFS, false)
+        rowDistributionItem.isChecked  = buttonGrid.isLeftToRightEnabled
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.alphabetical_order_opt -> {
+                navigationControl.changeBibleBookSortOrder()
+                buttonGrid.clear()
+                buttonGrid.addButtons(bibleBookButtonInfo)
+                true
+            }
+            R.id.row_order_opt -> {
+                buttonGrid.toggleLeftToRight()
+                item.isChecked = buttonGrid.isLeftToRightEnabled
+                buttonGrid.clear()
+                buttonGrid.addButtons(bibleBookButtonInfo)
+                CommonUtils.sharedPreferences.edit()
+                    .putBoolean(BOOK_GRID_FLOW_PREFS, item.isChecked)
+                    .apply()
+                true
+            }
             android.R.id.home -> {
                 onBackPressed()
                 true
@@ -295,6 +313,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(), OnButtonGridActionLi
         private val REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF)
         private val OTHER_COLOR = ACTS_COLOR
 
+        private const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
         private const val TAG = "GridChoosePassageBook"
     }
 }
