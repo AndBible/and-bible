@@ -851,5 +851,5 @@
     <string name="active_labels">Active labels</string>
     <string name="recent_labels">Recent labels</string>
     <string name="other_labels">Other labels</string>
-    <string name="book_menu_sort_row_opt">Flow by row (LTR)</string>
+    <string name="book_menu_sort_row_opt">Order books horizontally</string>
 </resources>
