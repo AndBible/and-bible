@@ -116,7 +116,9 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                             else -> {
                                 speakControl.speakBible()
                                 if (SpeakSettings.load().synchronize) {
-                                    context.startActivity(Intent(context, MainBibleActivity::class.java))
+                                    val intent = Intent(context, MainBibleActivity::class.java)
+                                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                    context.startActivity(intent)
                                 }
                             }
                         }
@@ -145,7 +147,9 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                 .setAdapter(adapter) { _, which ->
                     speakControl.speakFromBookmark(bookmarks[which])
                     if(SpeakSettings.load().synchronize) {
-                        context.startActivity(Intent(context, MainBibleActivity::class.java))
+                        context.startActivity(Intent(context, MainBibleActivity::class.java)
+                            .apply { flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP }
+                        )
                     }
                 }
                 .setNegativeButton(R.string.cancel, null)

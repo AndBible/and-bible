@@ -301,6 +301,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private fun gotoMainBibleActivity() {
         Log.i(TAG, "Going to MainBibleActivity")
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
+        handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         GlobalScope.launch(Dispatchers.Main) {
             if(swordDocumentFacade.bibles.filter { !it.isLocked }.isEmpty()) {
                 for (it in swordDocumentFacade.bibles.filter { it.isLocked }) {

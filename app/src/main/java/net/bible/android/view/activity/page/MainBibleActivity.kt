@@ -201,7 +201,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         // This is singleton so we can do this.
         if(_mainBibleActivity != null) {
-            Log.w(TAG, "MainBibleActivity was created second time!")
+            throw RuntimeException("MainBibleActivity was created second time!")
         }
         _mainBibleActivity = this
 
@@ -1094,6 +1094,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         super.onDestroy()
         beforeDestroy()
         ABEventBus.getDefault().unregister(this)
+        _mainBibleActivity = null
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
