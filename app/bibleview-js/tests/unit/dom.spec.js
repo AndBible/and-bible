@@ -22,6 +22,7 @@ import {
     findParentsBeforeVerseSibling,
     findPreviousSiblingWithClass, lastTextNode, textLength, walkBackText
 } from "@/dom";
+import {highlightRange} from "@/lib/highlight-range";
 
 const test1 = `
 <!DOCTYPE html>
@@ -82,6 +83,123 @@ function getDom(html) {
     let stripped = html.replace(/ *\n */g, "");
     return new JSDOM(stripped);
 }
+
+describe("highlighting", () => {
+   it("test that highlight and undoing work", () => {
+       const hlTestDoc = `
+<!DOCTYPE html>
+<div>
+  <div class="verse" id="o-0">
+    text1
+  </div>
+</div>  
+`;
+       const highLighted = `<html><head></head><body><div><div class="verse" id="o-0"><span style="width:1">text1</span></div></div></body></html>`
+       const unHighLighted = `<html><head></head><body><div><div class="verse" id="o-0">text1</div></div></body></html>`
+       const dom = getDom(hlTestDoc);
+       const document = dom.window.document;
+       const range = document.createRange();
+       const e = document.querySelector("#o-0")
+       {
+           const node1 = e.childNodes[0];
+           range.setStart(node1, 0);
+           range.setEnd(node1, 5);
+           expect(e.childNodes.length).toBe(1);
+           const {undo} = highlightRange(range, "span", {style: "width:1"});
+           expect(e.childNodes.length).toBe(1);
+           expect(document.documentElement.outerHTML).toBe(highLighted);
+           undo();
+           expect(e.childNodes.length).toBe(1);
+           expect(document.documentElement.outerHTML).toBe(unHighLighted);
+       }
+       {
+           const node1 = e.childNodes[0];
+           range.setStart(node1, 0);
+           range.setEnd(node1, 5);
+           const {undo} = highlightRange(range, "span", {style: "width:1"});
+           expect(document.documentElement.outerHTML).toBe(highLighted);
+           undo();
+           expect(document.documentElement.outerHTML).toBe(unHighLighted);
+       }
+   });
+
+    it("test that highlight two consequent highlight ranges work", () => {
+        const hlTestDoc = `
+<!DOCTYPE html>
+<div>
+  <div class="verse" id="o-0">
+    text1text2
+  </div>
+</div>  
+`;
+        const highLighted = `<html><head></head><body><div><div class="verse" id="o-0"><span style="width:1">text1</span><span style="width:2">text2</span></div></div></body></html>`
+        const highLighted1 = `<html><head></head><body><div><div class="verse" id="o-0"><span style="width:1">text1</span>text2</div></div></body></html>`
+        const unHighLighted1 = `<html><head></head><body><div><div class="verse" id="o-0">text1<span style="width:2">text2</span></div></div></body></html>`
+        const unHighLighted = `<html><head></head><body><div><div class="verse" id="o-0">text1text2</div></div></body></html>`
+        const dom = getDom(hlTestDoc);
+        const document = dom.window.document;
+        const range = document.createRange();
+        const range2 = document.createRange();
+        const e = document.querySelector("#o-0")
+        {
+            const node1 = e.childNodes[0];
+            range.setStart(node1, 0);
+            range.setEnd(node1, 5);
+            range2.setStart(node1, 5);
+            range2.setEnd(node1, 10);
+            expect(e.childNodes.length).toBe(1);
+
+            const {undo: undo1} = highlightRange(range, "span", {style: "width:1"});
+            expect(document.documentElement.outerHTML).toBe(highLighted1);
+            expect(e.childNodes.length).toBe(2);
+            const {undo: undo2} = highlightRange(range2, "span", {style: "width:2"});
+            expect(e.childNodes.length).toBe(2);
+            expect(document.documentElement.outerHTML).toBe(highLighted);
+            undo1();
+            expect(document.documentElement.outerHTML).toBe(unHighLighted1);
+            expect(e.childNodes.length).toBe(2);
+            undo2();
+            expect(e.childNodes.length).toBe(2);
+            expect(document.documentElement.outerHTML).toBe(unHighLighted);
+        }
+    });
+
+    it("test 2 (undo's in opposite order) that highlight two consequent highlight ranges work", () => {
+        const hlTestDoc = `
+<!DOCTYPE html>
+<div>
+  <div class="verse" id="o-0">
+    text1text2
+  </div>
+</div>  
+`;
+        const highLighted = `<html><head></head><body><div><div class="verse" id="o-0"><span style="width:1">text1</span><span style="width:1">text2</span></div></div></body></html>`
+        const unHighLighted = `<html><head></head><body><div><div class="verse" id="o-0">text1text2</div></div></body></html>`
+        const dom = getDom(hlTestDoc);
+        const document = dom.window.document;
+        const range = document.createRange();
+        const range2 = document.createRange();
+        const e = document.querySelector("#o-0")
+        {
+            const node1 = e.childNodes[0];
+            range.setStart(node1, 0);
+            range.setEnd(node1, 5);
+            range2.setStart(node1, 5);
+            range2.setEnd(node1, 10);
+            expect(e.childNodes.length).toBe(1);
+
+            const {undo: undo1} = highlightRange(range, "span", {style: "width:1"});
+            expect(e.childNodes.length).toBe(2);
+            const {undo: undo2} = highlightRange(range2, "span", {style: "width:1"});
+            expect(e.childNodes.length).toBe(2);
+            expect(document.documentElement.outerHTML).toBe(highLighted);
+            undo2();
+            undo1();
+            expect(e.childNodes.length).toBe(2);
+            expect(document.documentElement.outerHTML).toBe(unHighLighted);
+        }
+    });
+});
 
 describe("textLength tests", () => {
     let dom, document;

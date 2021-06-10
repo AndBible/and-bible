@@ -510,15 +510,26 @@ export function useBookmarks(documentId,
         }
     }
 
-    watch(styleRanges, (newValue) => {
-        if(!isMounted.value) return;
+    function removeHighLights() {
         undoHighlights.reverse();
         undoHighlights.forEach(v => v())
         undoHighlights.splice(0);
-        for (const s of newValue) {
+    }
+
+    function addHighLights() {
+        for (const s of styleRanges.value) {
             highlightStyleRange(s);
         }
         addMarkers();
+    }
+
+    window.bibleViewDebug.removeHighLights = removeHighLights;
+    window.bibleViewDebug.addHighLights = addHighLights;
+
+    watch(styleRanges, () => {
+        if(!isMounted.value) return;
+        removeHighLights();
+        addHighLights();
     }, {flush: 'post'});
 
     onMounted(() => {
