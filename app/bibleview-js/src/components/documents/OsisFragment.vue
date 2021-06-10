@@ -23,7 +23,7 @@
 
 <script>
 import {computed, ref} from "@vue/reactivity";
-import {inject, onMounted, provide} from "@vue/runtime-core";
+import {inject, onMounted, provide, watch} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import {highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment";
@@ -42,7 +42,6 @@ export default {
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure
     const {
-      xml,
       bookInitials,
       osisRef,
     } = props.fragment;
@@ -62,18 +61,28 @@ export default {
     const {registerBook} = inject("customCss");
     registerBook(bookInitials);
 
-    onMounted(() => {
+    let undo = () => {};
+    function refreshHighlight() {
+      undo();
       if(props.highlightOrdinalRange && props.highlightOffsetRange) {
         try {
-          highlightVerseRange(`#frag-${uniqueId.value}`, props.highlightOrdinalRange, props.highlightOffsetRange);
+          undo = highlightVerseRange(`#frag-${uniqueId.value}`, props.highlightOrdinalRange, props.highlightOffsetRange);
         } catch (e) {
           console.error("Highlight failed for ", osisRef);
         }
       }
+    }
+
+    onMounted(() => {
+      refreshHighlight();
     });
 
-    const template = !props.doNotConvert ? osisToTemplateString(xml): xml;
+    const template = computed(() => {
+      const xml = props.fragment.xml;
+      return !props.doNotConvert ? osisToTemplateString(xml) : xml;
+    });
 
+    watch(props, () => refreshHighlight());
     return {template, strings, uniqueId}
   }
 }
