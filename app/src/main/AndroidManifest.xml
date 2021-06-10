@@ -57,6 +57,7 @@
             android:label="@string/chooseBook"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
+            android:parentActivityName="net.bible.android.view.activity.bookmark.ManageLabels"
             android:name="net.bible.android.view.activity.bookmark.LabelEditActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/edit_label"

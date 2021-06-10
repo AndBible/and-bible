@@ -20,6 +20,8 @@ package net.bible.android.view.activity.bookmark
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
@@ -53,6 +55,29 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     override fun onDialogDismissed(dialogId: Int) {}
+
+    override fun onBackPressed() {
+        saveAndExit()
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.clear()
+        menuInflater.inflate(R.menu.edit_label_options_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        var isHandled = true
+        when(item.itemId){
+            R.id.removeLabel -> remove()
+            android.R.id.home -> saveAndExit()
+            else -> isHandled = false
+        }
+        if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item)
+        }
+        return isHandled
+    }
 
     @Serializable
     data class LabelData (
@@ -116,6 +141,38 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         thisBookmarkCategory.visibility = if(data.isAssigning) View.VISIBLE else View.GONE
     }
 
+    private fun saveAndExit() {
+        updateData()
+
+        val resultIntent = Intent()
+        resultIntent.putExtra("data", data.toJSON())
+        setResult(Activity.RESULT_OK, resultIntent)
+        finish()
+    }
+
+    private fun remove() {
+        updateData()
+
+        GlobalScope.launch(Dispatchers.Main) {
+            val result = suspendCoroutine<Boolean> {
+                AlertDialog.Builder(this@LabelEditActivity)
+                    .setMessage(getString(R.string.delete_label_confirmation, data.label.name))
+                    .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
+                    .setNegativeButton(R.string.no) {_, _ -> it.resume(false)}
+                    .setCancelable(true)
+                    .create().show()
+            }
+            if(result) {
+                data.delete = true
+
+                val resultIntent = Intent()
+                resultIntent.putExtra("data", data.toJSON())
+                setResult(Activity.RESULT_OK, resultIntent)
+                finish()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = BookmarkLabelEditBinding.inflate(layoutInflater)
@@ -135,15 +192,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                     .show(this@LabelEditActivity)
             }
 
-            okButton.setOnClickListener {
-                updateData()
-
-                val resultIntent = Intent()
-                resultIntent.putExtra("data", data.toJSON())
-                setResult(Activity.RESULT_OK, resultIntent)
-                finish()
-            }
-
             autoAssignCheckBox.setOnCheckedChangeListener { _, _ ->
                 updateData()
                 updateUI()
@@ -151,33 +199,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             selectedLabelCheckBox.setOnCheckedChangeListener { _, _ ->
                 updateData()
                 updateUI()
-            }
-
-            cancelButton.setOnClickListener {
-                setResult(Activity.RESULT_CANCELED)
-                finish()
-            }
-            removeButton.setOnClickListener {
-                updateData()
-
-                GlobalScope.launch(Dispatchers.Main) {
-                    val result = suspendCoroutine<Boolean> {
-                        AlertDialog.Builder(this@LabelEditActivity)
-                            .setMessage(getString(R.string.delete_label_confirmation, data.label.name))
-                            .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
-                            .setNegativeButton(R.string.no) {_, _ -> it.resume(false)}
-                            .setCancelable(true)
-                            .create().show()
-                    }
-                    if(result) {
-                        data.delete = true
-
-                        val resultIntent = Intent()
-                        resultIntent.putExtra("data", data.toJSON())
-                        setResult(Activity.RESULT_OK, resultIntent)
-                        finish()
-                    }
-                }
             }
         }
     }

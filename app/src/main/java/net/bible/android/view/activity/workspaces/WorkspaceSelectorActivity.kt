@@ -164,7 +164,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
         resultIntent = Intent(this, this::class.java)
         binding = WorkspaceSelectorBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         workspaceAdapter = WorkspaceAdapter(this).apply {
             setHasStableIds(true)

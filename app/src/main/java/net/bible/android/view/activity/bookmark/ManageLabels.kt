@@ -142,6 +142,10 @@ class ManageLabels : ListActivityBase() {
 
     lateinit var data: ManageLabelsData
 
+    override fun onBackPressed() {
+        okay()
+    }
+
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, false)
@@ -151,9 +155,6 @@ class ManageLabels : ListActivityBase() {
 
         data = ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
 
-        binding.resetButton.visibility = if(data.hasResetButton) View.VISIBLE else View.GONE
-        binding.okButton.setOnClickListener {okay()}
-        binding.resetButton.setOnClickListener {reset()}
 
         selectMultiple = data.selectedLabels.size > 1 || CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
 
@@ -166,7 +167,6 @@ class ManageLabels : ListActivityBase() {
 
         if(data.mode == Mode.STUDYPAD) {
             title = getString(R.string.studypads)
-            binding.okButton.visibility = View.GONE
         }
 
         title = getString(data.titleId)
@@ -179,15 +179,18 @@ class ManageLabels : ListActivityBase() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.clear()
         menuInflater.inflate(R.menu.manage_labels_options_menu, menu)
+        menu.findItem(R.id.resetButton).isVisible = data.hasResetButton
         menu.findItem(R.id.help).isVisible = !data.showCheckboxes
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        var isHandled = false
+        var isHandled = true
         when(item.itemId){
             R.id.help -> CommonUtils.showHelp(this, listOf(R.string.help_studypads_title, R.string.help_bookmarks_title))
             R.id.newLabel -> newLabel()
+            android.R.id.home -> okay()
+            else -> isHandled = false
         }
         if (!isHandled) {
             isHandled = super.onOptionsItemSelected(item)

@@ -26,37 +26,7 @@
 		android:id="@android:id/list"
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
-		android:layout_above="@+id/button_panel"
-		app:layout_constraintBottom_toTopOf="@+id/button_panel"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/selectMultipleSwitch" />
-	<!-- Button bar with OK button -->
-	<androidx.constraintlayout.widget.ConstraintLayout
-		android:id="@+id/button_panel"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintStart_toStartOf="parent">
-		<Button
-			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			android:id="@+id/resetButton"
-			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			app:layout_constraintEnd_toStartOf="@id/okButton"
-			android:text="@string/reset_generic" />
-		<Button
-			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toEndOf="@id/resetButton"
-			android:id="@+id/okButton"
-			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:text="@string/save_and_exit" />
-	</androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
