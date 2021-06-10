@@ -893,6 +893,14 @@ private val MIGRATION_51_52_compareDocuments = object : Migration(51, 52) {
     }
 }
 
+private val MIGRATION_52_53_underline_default = object : Migration(52, 53) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("UPDATE `Label` SET underlineStyleWholeVerse=1")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -958,6 +966,7 @@ object DatabaseContainer {
                         MIGRATION_49_50_wholeVerseBookmark,
                         MIGRATION_50_51_underlineStyleAndRecentLabels,
                         MIGRATION_51_52_compareDocuments,
+                        MIGRATION_52_53_underline_default,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
