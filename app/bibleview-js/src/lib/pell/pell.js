@@ -139,7 +139,7 @@ export const init = settings => {
       return;
     }
     const button = createElement('button')
-    button.className = classes.button
+    button.className = `${classes.button} ${action.class||""}`
     button.innerHTML = action.icon
     button.title = action.title
     button.setAttribute('type', 'button')
