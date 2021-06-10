@@ -45,7 +45,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     override fun onColorSelected(dialogId: Int, color: Int) {
         // let's remove alpha
         data.label.color = color or (255 shl 24)
-        updateUI()
+        updateColor()
     }
 
     private fun updateColor() {
