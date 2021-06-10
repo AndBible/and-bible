@@ -271,6 +271,10 @@ class ManageLabels : ListActivityBase() {
                 val newLabelData: LabelEditActivity.LabelData = json.decodeFromString(
                     serializer(), result.resultData.getStringExtra("data")!!)
 
+                if(newLabelData.label.name.isEmpty() && label.id < 0) {
+                    return@launch
+                }
+
                 if (newLabelData.delete) {
                     deleteLabel(label)
 
