@@ -33,13 +33,13 @@ import {init, exec, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText";
 import {
   faBible,
-  faEdit,
   faIndent,
   faListOl,
   faListUl,
-  faOutdent, faSlash, faTimes,
+  faOutdent,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
-import {icon, layer} from "@fortawesome/fontawesome-svg-core";
+import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 
 export default {
