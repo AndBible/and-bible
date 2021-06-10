@@ -18,10 +18,7 @@
 <template>
   <div style="display: flex; justify-content: space-between;" @click.stop>
     <div class="bookmark-buttons">
-      <div class="bookmark-button" @click="assignLabels">
-        <FontAwesomeIcon icon="tags"/>
-      </div>
-      <div class="bookmark-button" :class="{highlighted: bookmark.hasNote}" @click="$emit('info-clicked')">
+      <div v-if="!inBookmarkModal" class="bookmark-button" :class="{highlighted: bookmark.hasNote}" @click="$emit('edit-clicked')">
         <FontAwesomeIcon icon="edit"/>
       </div>
       <div class="bookmark-button" @click="shareVerse">
@@ -68,8 +65,9 @@ export default {
   props: {
     bookmark: {type: Object, required: true},
     showStudyPadButtons: {type: Boolean, default: false},
+    inBookmarkModal: {type: Boolean, default: false},
   },
-  emits: ["close-bookmark", "info-clicked"],
+  emits: ["close-bookmark", "edit-clicked"],
   components: {AreYouSure, FontAwesomeIcon},
   setup(props, {emit}) {
     const areYouSure = ref(null);

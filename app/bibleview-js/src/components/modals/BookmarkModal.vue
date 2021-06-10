@@ -31,8 +31,8 @@
 
     <template #buttons>
       <div class="modal-toolbar">
-        <div class="modal-action-button" :class="{toggled: infoShown}" @touchstart.stop="infoShown = !infoShown">
-          <FontAwesomeIcon icon="info-circle"/>
+        <div class="modal-action-button" :class="{toggled: !infoShown}" @touchstart.stop="infoShown = !infoShown">
+          <FontAwesomeIcon icon="edit"/>
         </div>
         <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
           <FontAwesomeIcon icon="times"/>
@@ -51,6 +51,11 @@
       {{ strings.editBookmarkPlaceholder }}
     </EditableText>
     <div v-if="infoShown" class="info">
+      <BookmarkButtons
+        :bookmark="bookmark"
+        in-bookmark-modal
+        @close-bookmark="showBookmark = false"
+      />
       <div class="bible-text">
         <BookmarkText expanded :bookmark="bookmark"/>
       </div>
@@ -64,11 +69,6 @@
           <a :href="`journal://?id=${label.id}&bookmarkId=${bookmark.id}`">{{ sprintf(strings.openStudyPad, label.name) }}</a>
         </div>
       </div>
-      <BookmarkButtons
-        :bookmark="bookmark"
-        @close-bookmark="showBookmark = false"
-        @info-clicked="infoShown = false"
-      />
       <div class="info-text">
         <div v-if="bookmark.bookName">
           <span v-html="sprintf(strings.bookmarkAccurate, originalBookLink)"/>
@@ -81,7 +81,6 @@
       </div>
     </div>
     <template #footer>
-
     </template>
   </Modal>
 </template>
@@ -127,7 +126,7 @@ export default {
       bookmarkId.value = bookmarkId_;
       originalNotes = bookmarkNotes.value;
       //if(!showBookmark.value) infoShown.value = false;
-      infoShown.value = openInfo;
+      infoShown.value = openInfo || !bookmarkNotes.value;
       editDirectly.value = open;
       showBookmark.value = true;
     });
@@ -217,6 +216,9 @@ font-size: 85%;
 .overlay {
   position: absolute;
   background: linear-gradient(90deg, rgba(0, 0, 0, 0), $modal-header-background-color);
+  .night & {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0), $night-modal-header-background-color);
+  }
   right: 80px; top: 0;
   width: 30px;
   height: 2em;

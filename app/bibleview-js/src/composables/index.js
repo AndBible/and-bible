@@ -33,7 +33,7 @@ import {isEqual, throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {
-    faBookmark,
+    faBookmark, faChevronCircleDown,
     faEdit,
     faEllipsisH,
     faFileAlt, faFireAlt,
@@ -353,6 +353,7 @@ export function useFontAwesome() {
     library.add(faInfoCircle)
     library.add(faTimes)
     library.add(faEllipsisH)
+    library.add(faChevronCircleDown)
     library.add(faSort)
     library.add(faIndent)
     library.add(faOutdent)

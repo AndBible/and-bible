@@ -25,7 +25,7 @@
     <BookmarkButtons
       :bookmark="bookmark"
       show-study-pad-buttons
-      @info-clicked="editNotes"
+      @edit-clicked="editNotes"
     />
   </div>
 </template>
