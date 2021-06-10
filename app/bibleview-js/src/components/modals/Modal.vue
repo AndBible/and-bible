@@ -19,7 +19,7 @@
   <teleport to="#modals">
     <div v-if="blocking" @click.stop="backdropClick" class="modal-backdrop"/>
     <div :class="{blocking}">
-      <div ref="modal" @click.stop class="modal-content" :class="{blocking}"
+      <div ref="modal" @click.stop class="modal-content" :class="{blocking, wide}"
       >
         <div ref="header" class="modal-header">
           <slot name="title-div">
@@ -61,7 +61,10 @@ import {throttle} from "lodash";
 export default {
   name: "Modal",
   emits: ["close"],
-  props: {blocking: {type: Boolean, default: false}},
+  props: {
+    blocking: {type: Boolean, default: false},
+    wide: {type: Boolean, default: false}
+  },
   components: {FontAwesomeIcon},
   setup: function (props, {emit: $emit}) {
     const config = inject("config");
@@ -70,8 +73,8 @@ export default {
     const ready = ref(false);
 
     function resetPosition() {
-      modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + 25px)`;
-      modal.value.style.left = `calc(60px / 2)`;
+      modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + var(--modal-top))`;
+      modal.value.style.left = `var(--modal-left)`;
     }
 
     const {register} = inject("modal");
@@ -135,7 +138,6 @@ $border-radius2: $border-radius - 1.5pt;
   }
   position: absolute;
   background-color: #fefefe;
-  width: calc(100% - 60px);
   padding: 0;
   border: 1px solid #888;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
@@ -146,6 +148,16 @@ $border-radius2: $border-radius - 1.5pt;
     color: #bdbdbd;
   }
   border-radius: $border-radius;
+
+  width: 80%;
+  --modal-left: calc(20% / 2);
+  --modal-top: 30px;
+
+  &.wide {
+    width: calc(100% - 60px);
+    --modal-left: calc(60px / 2);
+    --modal-top: 25px;
+  }
 }
 
 @keyframes animatetop {
