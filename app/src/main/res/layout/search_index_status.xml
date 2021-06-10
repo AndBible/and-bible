@@ -37,33 +37,18 @@
 			>
 		</LinearLayout>
 	</LinearLayout>
-	<LinearLayout android:id="@+id/button_panel"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		app:layout_constraintBottom_toBottomOf="parent"
-		>
-		<View
-			android:layout_width="0dip"
-			android:layout_height="match_parent"
-			android:layout_weight="1"/>
 
-		<Button android:id="@+id/hideButton"
-			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-			android:text="@string/do_in_background"
-			android:onClick="onHide"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="3"/>
-
-		<View
+	<Button
+		android:id="@+id/hideButton"
+		style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 		android:layout_width="0dip"
-			android:layout_height="match_parent"
-			android:layout_weight="1"
-			/>
-
-	</LinearLayout>
-
+		android:layout_height="wrap_content"
+		android:layout_weight="3"
+		android:onClick="onHide"
+		android:text="@string/do_in_background"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
