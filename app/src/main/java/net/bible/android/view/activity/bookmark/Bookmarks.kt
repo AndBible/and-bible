@@ -204,7 +204,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private fun loadLabelList() {
         labelList.clear()
         labelList.addAll(bookmarkControl.allLabels)
-        labelList.sortBy { it.name.toLowerCase(Locale.getDefault()) }
         val labelArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, labelList.map { it.displayName })
         labelArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.labelSpinner.adapter = labelArrayAdapter

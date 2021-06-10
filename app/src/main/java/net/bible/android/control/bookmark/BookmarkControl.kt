@@ -43,7 +43,9 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import java.lang.IndexOutOfBoundsException
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 import kotlin.math.min
 
 abstract class BookmarkEvent
@@ -72,7 +74,7 @@ open class BookmarkControl @Inject constructor(
     resourceProvider: ResourceProvider,
 ) {
     // Dummy labels for all / unlabelled
-    private val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
+    val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
 
     private val dao get() = DatabaseContainer.db.bookmarkDao()
 
@@ -202,6 +204,7 @@ open class BookmarkControl @Inject constructor(
     val allLabels: List<Label>
         get() {
             val labelList = assignableLabels.toMutableList()
+            labelList.sortBy { it.name.toLowerCase(Locale.getDefault()) }
             // add special label that is automatically associated with all-bookmarks
             labelList.add(0, labelUnlabelled)
             labelList.add(0, labelAll)
