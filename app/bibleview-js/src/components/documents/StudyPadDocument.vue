@@ -16,7 +16,9 @@
   -->
 
 <template>
-  <h2>{{ document.label.name }}</h2>
+  <div class="journal-name">
+    <span :style="labelNameStyle">{{ document.label.name }}</span>
+  </div>
   <div v-if="journalEntries.length === 0">
     {{strings.emptyStudyPad}}
     <span class="journal-button" @click="addNewEntry">
@@ -53,6 +55,7 @@ import StudyPadRow from "@/components/StudyPadRow";
 import draggable from "vuedraggable";
 import {JournalEntryTypes} from "@/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {adjustedColorOrig} from "@/utils";
 
 export default {
   name: "StudyPadDocument",
@@ -158,9 +161,16 @@ export default {
       android.createNewJournalEntry(label.id);
     }
 
+    const appSettings = inject("appSettings");
+
+    const labelNameStyle = computed(() => {
+      const color = adjustedColorOrig(label.style.color).alpha(appSettings.nightMode ? 0.8: 0.3).hsl().string();
+      return `background-color: ${color};`;
+    });
+
     return {
       journalEntries, editNotes, adding, indentStyle,
-      editableJournalEntry,  addNewEntry,
+      editableJournalEntry,  addNewEntry, labelNameStyle,
       ...useCommon()
     }
   }
@@ -169,6 +179,18 @@ export default {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
+div.journal-name {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  span {
+    font-size: 180%;
+    border-radius: 10px;
+    padding: 5px;
+    margin-inline-start: 15px;
+    font-weight: bold;
+  }
+}
 
 .studypad-container {
   @extend .note-container;
