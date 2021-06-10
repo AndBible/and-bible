@@ -202,7 +202,7 @@ font-size: 85%;
   padding-top: 10pt;
   padding-bottom: 5pt;
   .link-line {
-    padding: 2px;
+    padding: 4px;
   }
 }
 //.action-buttons {
