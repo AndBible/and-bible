@@ -19,6 +19,7 @@
   <Modal v-if="showBookmark && bookmark" @close="closeBookmark" wide>
     <template #title-div>
       <div class="bookmark-title" style="width: calc(100% - 80px);">
+        <div class="overlay"/>
         <div style="overflow-x: auto">
           <LabelList single-line handle-touch in-bookmark :bookmark-id="bookmark.id"/>
         </div>
@@ -213,5 +214,15 @@ font-size: 85%;
   text-indent: 5pt;
   font-style: italic;
 }
-
+.overlay {
+  position: absolute;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), $modal-header-background-color);
+  right: 80px; top: 0;
+  width: 30px;
+  height: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #c1c1c1
+}
 </style>

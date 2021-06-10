@@ -113,6 +113,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "~@/common.scss";
 .modal-backdrop {
   display: block;
   position: fixed;
@@ -169,18 +170,21 @@ $border-radius2: $border-radius - 1.5pt;
   padding-top: 5pt;
   margin-top: 2pt;
 }
+
 .modal-header {
   display:flex;
   justify-content: space-between;
   padding: 0.1em;
   padding-left: 0.5em;
-  background-color: #acacac;
+  background-color: $modal-header-background-color;
+  --header-backround: #{$modal-header-background-color};
   color: white;
   font-weight: bold;
   border-radius: $border-radius2 $border-radius2 0 0;
 
   .night & {
-    background-color: #454545;
+    background-color: $night-modal-header-background-color;
+    --header-backround: #{$night-modal-header-background-color};
     color: #e2e2e2;
   }
 }
