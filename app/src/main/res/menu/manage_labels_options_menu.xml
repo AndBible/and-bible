@@ -24,4 +24,9 @@
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_help_white_24dp"
         />
+    <item android:id="@+id/newLabel"
+        android:title="@string/new_item"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_add_circle_outline_white_24dp"
+        />
 </menu>

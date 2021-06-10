@@ -31,7 +31,7 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/selectMultipleSwitch" />
 	<!-- Button bar with OK button -->
-	<LinearLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/button_panel"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
@@ -39,45 +39,24 @@
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toStartOf="parent">
 		<Button
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
 			android:id="@+id/resetButton"
 			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:onClick="onReset"
+			app:layout_constraintEnd_toStartOf="@id/okButton"
 			android:text="@string/reset_generic" />
-
 		<Button
-			android:id="@+id/newLabel"
-			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:onClick="onNewLabel"
-			android:text="@string/new_item" />
-
-		<Space
-			android:id="@+id/spacer"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_weight="1" />
-
-		<Button
-			android:id="@+id/cancel"
-			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:onClick="onCancel"
-			android:text="@string/cancel" />
-
-		<Button
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@id/resetButton"
 			android:id="@+id/okButton"
 			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:onClick="onOkay"
-			android:text="@string/okay" />
-	</LinearLayout>
+			android:text="@string/save_and_exit" />
+	</androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

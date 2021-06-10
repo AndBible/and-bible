@@ -152,6 +152,8 @@ class ManageLabels : ListActivityBase() {
         data = ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
 
         binding.resetButton.visibility = if(data.hasResetButton) View.VISIBLE else View.GONE
+        binding.okButton.setOnClickListener {okay()}
+        binding.resetButton.setOnClickListener {reset()}
 
         selectMultiple = data.selectedLabels.size > 1 || CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
 
@@ -165,7 +167,6 @@ class ManageLabels : ListActivityBase() {
         if(data.mode == Mode.STUDYPAD) {
             title = getString(R.string.studypads)
             binding.okButton.visibility = View.GONE
-            binding.spacer.visibility = View.GONE
         }
 
         title = getString(data.titleId)
@@ -176,7 +177,8 @@ class ManageLabels : ListActivityBase() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.journals_options_menu, menu)
+        menu.clear()
+        menuInflater.inflate(R.menu.manage_labels_options_menu, menu)
         menu.findItem(R.id.help).isVisible = !data.showCheckboxes
         return true
     }
@@ -184,9 +186,8 @@ class ManageLabels : ListActivityBase() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isHandled = false
         when(item.itemId){
-            R.id.help -> {
-                CommonUtils.showHelp(this, listOf(R.string.help_studypads_title, R.string.help_bookmarks_title))
-            }
+            R.id.help -> CommonUtils.showHelp(this, listOf(R.string.help_studypads_title, R.string.help_bookmarks_title))
+            R.id.newLabel -> newLabel()
         }
         if (!isHandled) {
             isHandled = super.onOptionsItemSelected(item)
@@ -228,7 +229,7 @@ class ManageLabels : ListActivityBase() {
 
     private var newLabelCount = 1L
 
-    fun onNewLabel(v: View?) {
+    private fun newLabel() {
         Log.i(TAG, "New label clicked")
         val newLabel = BookmarkEntities.Label()
         newLabel.color = randomColor()
@@ -309,14 +310,11 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    fun onOkay(v: View?) {
-        okay()
-    }
-
     private fun okay(selected: BookmarkEntities.Label? = null) = GlobalScope.launch(Dispatchers.Main) {
         Log.i(TAG, "Okay clicked")
         val deleteLabelIds = data.deletedLabels.filter{ it > 0 }.toList()
-        if(deleteLabelIds.isNotEmpty() && !askConfirmation(deleteLabelIds.size)) return@launch
+        val message = getString(R.string.confirm_delete_study_pads, deleteLabelIds.size)
+        if(deleteLabelIds.isNotEmpty() && !askConfirmation(message)) return@launch
         val result = Intent()
         bookmarkControl.deleteLabels(deleteLabelIds)
         val saveLabels = shownLabels
@@ -356,9 +354,9 @@ class ManageLabels : ListActivityBase() {
         finish()
     }
 
-    private suspend fun askConfirmation(size: Int)  = suspendCoroutine<Boolean> {
+    private suspend fun askConfirmation(message: String)  = suspendCoroutine<Boolean> {
         AlertDialog.Builder(this)
-            .setMessage(getString(R.string.confirm_delete_study_pads, size))
+            .setMessage(message)
             .setPositiveButton(R.string.yes) { _, _ ->
                 it.resume(true)
             }
@@ -368,19 +366,24 @@ class ManageLabels : ListActivityBase() {
             .show()
     }
 
-    fun onReset(v: View?) {
-        val result = Intent()
-        data.reset = true
+    fun reset() {
+        GlobalScope.launch(Dispatchers.Main) {
+            val msgId = when(data.mode) {
+                Mode.WORKSPACE -> R.string.reset_workspace_labels
+                Mode.HIDELABELS -> R.string.reset_hide_labels
+                else -> throw RuntimeException("Illegal value")
+            }
+            if(askConfirmation(getString(msgId))) {
+                val result = Intent()
+                data.reset = true
 
-        result.putExtra("data", data.toJSON())
+                result.putExtra("data", data.toJSON())
 
-        setResult(Activity.RESULT_OK, result)
-        finish();
-    }
+                setResult(Activity.RESULT_OK, result)
+                finish()
+            }
+        }
 
-    fun onCancel(v: View?) {
-        setResult(Activity.RESULT_CANCELED)
-        finish();
     }
 
     fun updateLabelList(fromDb: Boolean = false) {
