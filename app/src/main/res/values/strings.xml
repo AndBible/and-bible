@@ -693,8 +693,6 @@
         write down personal Bible study notes that have multiple Bible references. Each study pad is associated with one bookmark label.
         All Bookmarks that have been created with that respective label appear automatically in the study pad document.
         In addition to bookmarks, there can be custom text entries in a study pad.
-        Tip: Use Workspace menu -> All Text Options -> Assign Labels to automatically assign all created
-        bookmarks to the study pad.
     </string>
 
     <string name="help_search_title">Search</string>
