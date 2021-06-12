@@ -91,8 +91,11 @@ export default {
 <style scoped lang="scss">
 @import "~@/common.scss";
 .items {
+  @extend .visible-scrollbar;
   display: flex;
   flex-direction: column;
+  max-height: calc(var(--max-height) - 25pt);
+  overflow-y: auto;
 }
 .item {
   padding-top: 5px;
