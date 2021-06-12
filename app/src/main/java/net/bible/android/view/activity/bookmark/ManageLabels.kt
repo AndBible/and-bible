@@ -95,6 +95,8 @@ class ManageLabels : ListActivityBase() {
         val hasResetButton: Boolean get() = setOf(Mode.WORKSPACE, Mode.HIDELABELS).contains(mode)
         val workspaceEdits: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
         val primaryShown: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
+        val showActiveCategory: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
+        val hideCategories: Boolean get() = setOf(Mode.STUDYPAD).contains(mode)
 
         val contextSelectedItems: MutableSet<Long> get() =
             when (mode) {
@@ -409,16 +411,20 @@ class ManageLabels : ListActivityBase() {
             if (data.showUnassigned) {
                 allLabels.add(bookmarkControl.labelUnlabelled)
             }
-            shownLabels.add(LabelCategory.ACTIVE)
-            shownLabels.add(LabelCategory.RECENT)
-            shownLabels.add(LabelCategory.OTHER)
+            if(data.showActiveCategory) {
+                shownLabels.add(LabelCategory.ACTIVE)
+            } else if(!data.hideCategories) {
+                shownLabels.add(LabelCategory.RECENT)
+                shownLabels.add(LabelCategory.OTHER)
+            }
             shownLabels.addAll(allLabels)
         }
         val recentLabelIds = mainBibleActivity.workspaceSettings.recentLabels.map { it.labelId }
         shownLabels.myRemoveIf { it is BookmarkEntities.Label && data.deletedLabels.contains(it.id) }
-        shownLabels.sortWith (compareBy({
-            val inActiveCategory = it == LabelCategory.ACTIVE || (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id))
-            val inRecentCategory = it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id))
+
+        shownLabels.sortWith(compareBy({
+            val inActiveCategory = data.showActiveCategory && (it == LabelCategory.ACTIVE || (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id)))
+            val inRecentCategory = !data.hideCategories && (it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id)))
             when {
                 inActiveCategory -> 1
                 inRecentCategory -> 2
@@ -430,12 +436,11 @@ class ManageLabels : ListActivityBase() {
                 else -> 2
             }
         }, {
-                when (it) {
-                    is BookmarkEntities.Label -> it.name.toLowerCase(Locale.getDefault())
-                    else -> ""
-                }
+            when (it) {
+                is BookmarkEntities.Label -> it.name.toLowerCase(Locale.getDefault())
+                else -> ""
+            }
         }))
-
 
         val labelIds = shownLabels.filterIsInstance<BookmarkEntities.Label>().map { it.id }.toSet()
 
