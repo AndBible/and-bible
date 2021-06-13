@@ -411,7 +411,7 @@ class ManageLabels : ListActivityBase() {
             if (data.showUnassigned) {
                 allLabels.add(bookmarkControl.labelUnlabelled)
             }
-            if(data.showActiveCategory && !data.hid) {
+            if(data.showActiveCategory) {
                 shownLabels.add(LabelCategory.ACTIVE)
             }
             if(!data.hideCategories) {
