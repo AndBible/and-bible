@@ -32,7 +32,6 @@ class ProvidedFont(val book: Book, val name: String, val path: String) {
 
 class ProvidedReadingPlan(val book: Book, val fileName: String, val isDateBased: Boolean) {
     val file: File get() = File(File(book.bookMetaData.location), fileName)
-    val fileNameWithoutExtension get() = file.nameWithoutExtension
 }
 
 object AndBibleAddons {
@@ -72,7 +71,8 @@ object AndBibleAddons {
         addons.forEach { book ->
             book.bookMetaData.getValues("AndBibleProvidesReadingPlan")?.forEach { fileName ->
                 val isDateBased = book.bookMetaData.getProperty("AndBibleReadingPlanDateBased")?.equals("True", ignoreCase = true) == true
-                readingPlansByFileName[fileName] = ProvidedReadingPlan(book, fileName, isDateBased)
+                val planCode = File(File(book.bookMetaData.location), fileName).nameWithoutExtension
+                readingPlansByFileName[planCode] = ProvidedReadingPlan(book, fileName, isDateBased)
             }
         }
         return readingPlansByFileName
