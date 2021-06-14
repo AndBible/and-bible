@@ -86,7 +86,7 @@ class ReadingPlanTextFileDao {
             if(userPlans != null) {
                 allCodes.addAll(userPlans.filter { s -> !allCodes.contains(s) })
             }
-            
+
             val userPlanModules = AndBibleAddons.providedReadingPlans.keys
             allCodes.addAll(userPlanModules.filter { s -> !allCodes.contains(s) })
 
@@ -189,9 +189,9 @@ class ReadingPlanTextFileDao {
         return getReadingPlanVersification(getPlanProperties(planCode))
     }
 
-    private fun getReadingPlanVersification(properties: ReadingPlanProperties): Versification =
+    private fun getReadingPlanVersification(properties: ReadingPlanProperties, versificationString: String? = null): Versification =
         try {
-            val versificationName = properties.getProperty(VERSIFICATION, DEFAULT_VERSIFICATION)
+            val versificationName = versificationString ?: properties.getProperty(VERSIFICATION, DEFAULT_VERSIFICATION)
             Versifications.instance().getVersification(versificationName)
         } catch (e: Exception) {
             Log.e(TAG, "Error loading versification from Reading plan:${properties.planCode}")
@@ -265,7 +265,7 @@ class ReadingPlanTextFileDao {
                 properties.load(ByteArrayInputStream(byteArrayForReuse.toByteArray()))
                 properties.planCode = planCode
                 properties.numberOfPlanDays = getNumberOfPlanDays(properties)
-                properties.versification = (userReadingPlanModule?.book as AbstractPassageBook?)?.versification ?: getReadingPlanVersification(properties)
+                properties.versification = getReadingPlanVersification(properties, userReadingPlanModule?.book?.getProperty(VERSIFICATION))
                 properties.isDateBasedPlan = userReadingPlanModule?.isDateBased ?: properties["1"].toString().contains("^([a-z]|[A-Z]){3}-([0-9]{1,2});".toRegex())
                 if (userReadingPlanModule != null) {
                     properties.planName = userReadingPlanModule.book.name
