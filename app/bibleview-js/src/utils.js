@@ -395,3 +395,32 @@ export function adjustedColorOrig(color, ratio=0.2) {
 export function adjustedColor(color, ratio=0.2) {
     return adjustedColorOrig(color, ratio).hsl();
 }
+
+export function clickWaiter(handleTouch = true) {
+    let clickDeferred = null;
+
+    async function waitForClick(event) {
+        if(event.type === "touchstart" && !handleTouch) {
+            return false;
+        }
+        event.stopPropagation();
+        if(handleTouch) {
+            if (event.type === "click") {
+                if (clickDeferred) {
+                    clickDeferred.resolve();
+                    clickDeferred = null;
+                } else {
+                    console.error("Deferred not found");
+                }
+                return false;
+            } else if (event.type === "touchstart") {
+                clickDeferred = new Deferred();
+                await clickDeferred.wait();
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
+    return {waitForClick}
+}

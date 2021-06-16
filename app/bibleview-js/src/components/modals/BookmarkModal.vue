@@ -31,7 +31,7 @@
 
     <template #buttons>
       <div class="modal-toolbar">
-        <div class="modal-action-button" :class="{toggled: !infoShown}" @touchstart.stop="infoShown = !infoShown">
+        <div class="modal-action-button" :class="{toggled: !infoShown}" @click="toggleInfo" @touchstart="toggleInfo">
           <FontAwesomeIcon icon="edit"/>
         </div>
         <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
@@ -96,6 +96,7 @@ import EditableText from "@/components/EditableText";
 import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
 import BookmarkButtons from "@/components/BookmarkButtons";
+import {clickWaiter} from "@/utils";
 
 export default {
   name: "BookmarkModal",
@@ -154,10 +155,19 @@ export default {
 
     const editDirectly = ref(false);
 
+    const {waitForClick} = clickWaiter();
+
+    async function toggleInfo(event) {
+      if(!await waitForClick(event)) return;
+      infoShown.value = !infoShown.value
+      if(!infoShown.value && !bookmarkNotes.value) {
+        editDirectly.value = true;
+      }
+    }
 
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,  bookmark, labelColor,
-      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, ...common
+      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, toggleInfo, ...common
     };
   },
 }
