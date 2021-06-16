@@ -160,9 +160,7 @@ export default {
     async function toggleInfo(event) {
       if(!await waitForClick(event)) return;
       infoShown.value = !infoShown.value
-      if(!infoShown.value && !bookmarkNotes.value) {
-        editDirectly.value = true;
-      }
+      editDirectly.value = !infoShown.value && !bookmarkNotes.value;
     }
 
     return {

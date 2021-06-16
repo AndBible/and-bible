@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import {inject, onMounted, onUnmounted, watch} from "@vue/runtime-core";
+import {inject, onBeforeUnmount, onMounted, onUnmounted, watch} from "@vue/runtime-core";
 import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {init, exec, queryCommandState} from "@/lib/pell/pell";
@@ -148,6 +148,10 @@ export default {
       editor.value.content.innerHTML = editText.value;
       editor.value.content.focus();
       //android.setActionMode(false);
+    });
+
+    onBeforeUnmount(() => {
+      save();
     });
 
     onUnmounted(() => {
