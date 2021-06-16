@@ -16,15 +16,15 @@
   -->
 
 <template>
-  <div style="display: flex; justify-content: space-between;" @click.stop>
+  <div style="display: flex; justify-content: space-between;">
     <div class="bookmark-buttons">
-      <div v-if="!inBookmarkModal" class="bookmark-button" :class="{highlighted: bookmark.hasNote}" @click="$emit('edit-clicked')">
+      <div v-if="!inBookmarkModal" class="bookmark-button" :class="{highlighted: bookmark.hasNote}" @click.stop="$emit('edit-clicked')">
         <FontAwesomeIcon icon="edit"/>
       </div>
-      <div class="bookmark-button" @click="shareVerse">
+      <div class="bookmark-button" @click.stop="shareVerse">
         <FontAwesomeIcon icon="share-alt"/>
       </div>
-      <div :class="{highlighted: bookmark.wholeVerse}" class="bookmark-button" @click="toggleWholeVerse">
+      <div :class="{highlighted: bookmark.wholeVerse}" class="bookmark-button" @click.stop="toggleWholeVerse">
         <FontAwesomeIcon icon="text-width"/>
       </div>
       <template v-if="showStudyPadButtons">
@@ -40,7 +40,7 @@
       </template>
     </div>
     <div class="bookmark-buttons" style="align-self: end;">
-      <div class="bookmark-button end" @click="removeBookmark">
+      <div class="bookmark-button end" @click.stop="removeBookmark">
         <FontAwesomeIcon icon="trash"/>
       </div>
     </div>
