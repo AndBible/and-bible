@@ -51,7 +51,7 @@
     <b><a :href="journalEntry.bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
     <BookmarkText :expanded="journalEntry.expandContent" @change-expanded="changeExpanded" :bookmark="journalEntry"/>
   </template>
-  <div class="notes">
+  <div :class="{notes: journalEntry.type === JournalEntryTypes.BOOKMARK}">
     <EditableText
       ref="editor"
       :show-placeholder="journalEntry.type === JournalEntryTypes.JOURNAL_TEXT"
