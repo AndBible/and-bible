@@ -166,5 +166,8 @@ export default {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
-
+.notes {
+  text-indent: 2pt;
+  margin-top: 4pt;
+}
 </style>

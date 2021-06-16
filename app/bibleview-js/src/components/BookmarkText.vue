@@ -26,8 +26,8 @@
         hide-titles
       />
     </div>
-    <span class="bookmark-text">
-      <q v-if="!expanded" @click.stop="$emit('change-expanded', true)" class="bible-text">{{abbreviated(bookmark.text, 50)}}</q>
+    <span class="bookmark-text" v-if="!expanded">
+      <q @click.stop="$emit('change-expanded', true)" class="bible-text">{{abbreviated(bookmark.text, 50)}}</q>
     </span>
   </template>
 </template>

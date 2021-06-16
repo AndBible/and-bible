@@ -203,10 +203,6 @@ div.journal-name {
   font-style: italic;
 }
 
-.notes {
-  text-indent: 2pt;
-  margin-top: 4pt;
-}
 </style>
 
 <style lang="scss">

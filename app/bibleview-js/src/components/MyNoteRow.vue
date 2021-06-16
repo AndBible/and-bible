@@ -38,7 +38,8 @@
   <div>
     <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b>&nbsp;
     <LabelList v-if="expanded" in-bookmark :bookmark-id="bookmark.id"/>
-    <BookmarkText :bookmark="bookmark" :expanded="expanded" @change-expanded="expanded = $event"/>&nbsp;
+    <BookmarkText :bookmark="bookmark" :expanded="expanded" @change-expanded="expanded = $event"/>
+    <template v-if="!expanded">"&nbsp;</template>
     <LabelList v-if="!expanded" in-bookmark :bookmark-id="bookmark.id"/>
     <div class="notes">
       <EditableText
@@ -96,5 +97,8 @@ export default {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
-
+.notes {
+  text-indent: 2pt;
+  margin-top: 4pt;
+}
 </style>
