@@ -182,6 +182,9 @@ export default {
   &.end {
     position: absolute;
     right: 0;
+    .studypad-text-entry & {
+      right: 40px;
+    }
   }
 }
 
