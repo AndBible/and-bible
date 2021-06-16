@@ -211,33 +211,37 @@ class SpeakControl @Inject constructor(
     fun toggleSpeak() {
         Log.d(TAG, "Speak toggle current page")
         // Continue
-        if (isPaused) {
-            continueAfterPause()
-            //Pause
-        } else if (isSpeaking) {
-            pause()
-            // Start Speak
-        } else {
-            if (!booksAvailable) {
-                EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
-                return
+        when {
+            isPaused -> {
+                continueAfterPause()
+                //Pause
             }
-            try {
-                val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
-                val fromBook = page.currentDocument
-                if (fromBook?.bookCategory == BookCategory.BIBLE) {
-                    resetPassageRepeatIfOutsideRange()
-                    speakBible()
-                } else {
-                    speakText()
+            isSpeaking -> {
+                pause()
+                // Start Speak
+            }
+            else -> {
+                if (!booksAvailable) {
+                    EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+                    return
+                }
+                try {
+                    val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
+                    val fromBook = page.currentDocument
+                    if (fromBook?.bookCategory == BookCategory.BIBLE) {
+                        resetPassageRepeatIfOutsideRange()
+                        speakBible()
+                    } else {
+                        speakText()
+                    }
+
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error getting chapters to speak", e)
+                    EventBus.getDefault().post(ToastEvent(R.string.speak_general_error))
+                    return
                 }
 
-            } catch (e: Exception) {
-                Log.e(TAG, "Error getting chapters to speak", e)
-                EventBus.getDefault().post(ToastEvent(R.string.speak_general_error))
-                return
             }
-
         }
     }
 
@@ -269,9 +273,7 @@ class SpeakControl @Inject constructor(
             val keyList = ArrayList<Key>()
             for (i in 0 until numPagesDefn.numPages) {
                 val key = page.getPagePlus(i)
-                if (key != null) {
-                    keyList.add(key)
-                }
+                keyList.add(key)
             }
             if(fromBook == null) {
                 Log.e(TAG, "currentdocument is null! Can't speak")
@@ -333,7 +335,6 @@ class SpeakControl @Inject constructor(
         ttsServiceManager.speakText(book, keyList, queue, repeat)
     }
 
-    @JvmOverloads
     fun rewind(amount: SpeakSettings.RewindAmount? = null) {
         if (isSpeaking || isPaused) {
             Log.d(TAG, "Rewind TTS speaking")
@@ -342,7 +343,6 @@ class SpeakControl @Inject constructor(
         }
     }
 
-    @JvmOverloads
     fun forward(amount: SpeakSettings.RewindAmount? = null) {
         if (isSpeaking || isPaused) {
             Log.d(TAG, "Forward TTS speaking")
@@ -359,7 +359,6 @@ class SpeakControl @Inject constructor(
         ttsServiceManager.setupMockedTts()
     }
 
-    @JvmOverloads
     fun pause(willContinueAfterThis: Boolean, toast: Boolean = !willContinueAfterThis) {
         if (!willContinueAfterThis) {
             stopTimer()
