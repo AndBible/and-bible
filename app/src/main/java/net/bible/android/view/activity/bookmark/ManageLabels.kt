@@ -281,9 +281,10 @@ class ManageLabels : ListActivityBase() {
                     deleteLabel(label)
 
                 } else {
+                    val idx = shownLabels.indexOf(label)
                     shownLabels.remove(label)
                     label = newLabelData.label
-                    shownLabels.add(label)
+                    shownLabels.add(idx, label)
                     data.changedLabels.add(label.id)
 
                     if (newLabelData.isAutoAssign) {
@@ -422,26 +423,27 @@ class ManageLabels : ListActivityBase() {
         }
         val recentLabelIds = mainBibleActivity.workspaceSettings.recentLabels.map { it.labelId }
         shownLabels.myRemoveIf { it is BookmarkEntities.Label && data.deletedLabels.contains(it.id) }
-
-        shownLabels.sortWith(compareBy({
-            val inActiveCategory = data.showActiveCategory && (it == LabelCategory.ACTIVE || (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id)))
-            val inRecentCategory = !data.hideCategories && (it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id)))
-            when {
-                inActiveCategory -> 1
-                inRecentCategory -> 2
-                else -> 3
-            }
-        }, {
-            when (it) {
-                is LabelCategory -> 1
-                else -> 2
-            }
-        }, {
-            when (it) {
-                is BookmarkEntities.Label -> it.name.toLowerCase(Locale.getDefault())
-                else -> ""
-            }
-        }))
+        if(fromDb) {
+            shownLabels.sortWith(compareBy({
+                val inActiveCategory = data.showActiveCategory && (it == LabelCategory.ACTIVE || (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id)))
+                val inRecentCategory = !data.hideCategories && (it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id)))
+                when {
+                    inActiveCategory -> 1
+                    inRecentCategory -> 2
+                    else -> 3
+                }
+            }, {
+                when (it) {
+                    is LabelCategory -> 1
+                    else -> 2
+                }
+            }, {
+                when (it) {
+                    is BookmarkEntities.Label -> it.name.toLowerCase(Locale.getDefault())
+                    else -> ""
+                }
+            }))
+        }
 
         val labelIds = shownLabels.filterIsInstance<BookmarkEntities.Label>().map { it.id }.toSet()
 
