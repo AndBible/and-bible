@@ -169,7 +169,6 @@ export function useConfig(documentType) {
         },
 
         hyphenation: true,
-        noiseOpacity: 50,
         lineSpacing: 10,
         justifyText: false,
         marginSize: {

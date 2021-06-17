@@ -181,7 +181,6 @@ export default {
           margin-right: auto;
           color: ${textColor.hsl().string()};
           hyphens: ${config.hyphenation ? "auto": "none"};
-          noise-opacity: ${config.noiseOpacity/100};
           line-spacing: ${config.lineSpacing / 10}em;
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
@@ -208,9 +207,11 @@ export default {
     });
 
     const topStyle = computed(() => {
+      const noiseOpacity = appSettings.nightMode ? config.colors.nightNoise : config.colors.dayNoise;
       return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
+          --noise-opacity: ${noiseOpacity/100};
           `;
     });
 
@@ -240,6 +241,8 @@ export default {
   top: 0;
   right: 0;
   bottom: 0;
+  opacity: var(--noise-opacity);
+  background-image: url("~@/assets/noise.svg");
 }
 
 $dayAlpha: 0.07;
