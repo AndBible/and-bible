@@ -21,14 +21,15 @@ import {
     addEventFunction,
     arrayEq,
     colorLightness,
-    findNodeAtOffsetWithNullOffset, intersection,
+    findNodeAtOffsetWithNullOffset,
+    intersection,
     mixColors,
     rangesOverlap
 } from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
-import {faEdit, faBookmark, faHeadphones} from "@fortawesome/free-solid-svg-icons";
+import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
 import {bookmarkingModes, testMode} from "@/composables/index";
@@ -97,7 +98,7 @@ export function useGlobalBookmarks(config, documentType) {
     })
 
     const filteredBookmarks = computed(() => {
-        if(documentType.value === DocumentTypes.BIBLE_DOCUMENT && !config.showBookmarks) return [];
+        if(documentType.value === DocumentTypes.BIBLE_DOCUMENT && !config.showBookmarks && !config.showMyNotes) return [];
         const allBookmarks = Array.from(bookmarks.values());
         if(documentType.value === DocumentTypes.JOURNAL || config.bookmarksHideLabels.length === 0) return allBookmarks;
         const hideLabels = new Set(config.bookmarksHideLabels);
@@ -234,11 +235,21 @@ export function useBookmarks(documentId,
     }
 
     function showHighlight(b) {
-        return b.offsetRange == null || b.bookInitials === bookInitials
+        return config.showBookmarks && (b.offsetRange == null || b.bookInitials === bookInitials)
     }
 
-    const highlightBookmarks = computed(() => documentBookmarks.value.filter(b => showHighlight(b)))
-    const markerBookmarks = computed(() => documentBookmarks.value.filter(b => !showHighlight(b) && checkOrdinalEnd(b)))
+    function showMarker(b) {
+        return !showHighlight(b) && (!config.showBookmarks && config.showMyNotes && b.hasNote);
+    }
+
+    const highlightBookmarks = computed(() => {
+        if(!config.showBookmarks) return [];
+        return documentBookmarks.value.filter(b => showHighlight(b))
+    })
+
+    const markerBookmarks = computed(
+        () => documentBookmarks.value.filter(b => showMarker(b) && checkOrdinalEnd(b))
+    )
 
     const styleRanges = computed(function styleRanges() {
         isMounted.value;
@@ -393,6 +404,7 @@ export function useBookmarks(documentId,
     }
 
     const undoHighlights = [];
+    const undoMarkers = [];
 
     function getIconElement(faIcon, iconColor) {
         const icon = document.createElement("span")
@@ -495,7 +507,7 @@ export function useBookmarks(documentId,
             const b = bookmarkList[0];
             const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || b.labels[0]);
             const color = adjustedColor(bookmarkLabel.color).string();
-            const iconElement = getIconElement(bookmarkIcon, color);
+            const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
             iconElement.addEventListener("click", event => {
                 for(const b of bookmarkList) {
                     addEventFunction(event, null, {bookmarkId: b.id});
@@ -506,21 +518,24 @@ export function useBookmarks(documentId,
             }
             lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
 
-            undoHighlights.push(() => iconElement.remove());
+            undoMarkers.push(() => iconElement.remove());
         }
     }
 
     function removeHighLights() {
-        undoHighlights.reverse();
         undoHighlights.forEach(v => v())
         undoHighlights.splice(0);
+    }
+
+    function removeMarkers() {
+        undoMarkers.forEach(v => v())
+        undoMarkers.splice(0);
     }
 
     function addHighLights() {
         for (const s of styleRanges.value) {
             highlightStyleRange(s);
         }
-        addMarkers();
     }
 
     window.bibleViewDebug.removeHighLights = removeHighLights;
@@ -530,6 +545,12 @@ export function useBookmarks(documentId,
         if(!isMounted.value) return;
         removeHighLights();
         addHighLights();
+    }, {flush: 'post'});
+
+    watch(markerBookmarks, () => {
+        if(!isMounted.value) return;
+        removeMarkers();
+        addMarkers();
     }, {flush: 'post'});
 
     onMounted(() => {

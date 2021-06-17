@@ -255,7 +255,8 @@ export function useConfig(documentType) {
 
     setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: newConfig, appSettings: newAppSettings, initial = false} = {}) {
         const defer = new Deferred();
-        const oldValue = config.showBookmarks;
+        const oldShowBookmarks = config.showBookmarks;
+        const oldMyNotes = config.showMyNotes;
         const isBible = documentType.value === DocumentTypes.BIBLE_DOCUMENT
         const needsRefreshLocation = !initial && (isBible || documentType.value === DocumentTypes.OSIS_DOCUMENT) && getNeedRefreshLocation(newConfig);
         const needBookmarkRefresh = getNeedBookmarkRefresh(newConfig);
@@ -264,6 +265,7 @@ export function useConfig(documentType) {
 
         if(isBible && needBookmarkRefresh) {
             config.showBookmarks = false
+            config.showMyNotes = false
             await nextTick();
         }
         for (const i in newConfig) {
@@ -288,7 +290,11 @@ export function useConfig(documentType) {
         if(isBible && needBookmarkRefresh) {
             if (newConfig.showBookmarks === undefined) {
                 // eslint-disable-next-line require-atomic-updates
-                config.showBookmarks = oldValue;
+                config.showBookmarks = oldShowBookmarks;
+            }
+            if (newConfig.showMyNotes === undefined) {
+                // eslint-disable-next-line require-atomic-updates
+                config.showMyNotes = oldMyNotes;
             }
         }
 
