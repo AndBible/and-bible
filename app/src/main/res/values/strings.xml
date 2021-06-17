@@ -857,6 +857,6 @@
     <string name="reset_workspace_labels">Do you want to reset auto-assign and favorite settings for this workspace?</string>
     <string name="reset_hide_labels">Do you want to reset label hide settings?</string>
     <string name="reorder">Re-order</string>
-    <string name="system_items">System actions</string>
+    <string name="system_items">More</string>
     <string name="text_copied_to_clicpboard">Text copied to clipboard</string>
 </resources>
