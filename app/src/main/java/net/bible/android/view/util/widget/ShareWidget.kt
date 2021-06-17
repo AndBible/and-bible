@@ -19,6 +19,8 @@
 package net.bible.android.view.util.widget
 
 import android.app.AlertDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.text.method.ScrollingMovementMethod
@@ -28,6 +30,8 @@ import android.view.View
 import android.widget.LinearLayout
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ShareVersesBinding
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.BibleView
 import net.bible.service.common.CommonUtils
@@ -93,7 +97,14 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
                     context.startActivity(chooserIntent)
 
                 }
-                setNegativeButton(R.string.cancel, null)
+                setCancelable(true)
+                setNeutralButton(R.string.cancel, null)
+                setNegativeButton(R.string.verse_action_copy) { _, _ ->
+                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val clip = ClipData.newPlainText(selection.verseRange.name, layout.bindings.preview.text)
+                    clipboard.setPrimaryClip(clip)
+                    ABEventBus.getDefault().post(ToastEvent(context.getString(R.string.text_copied_to_clicpboard)))
+                }
                 setTitle(R.string.share_verse_widget_title)
                 create().show()
             }

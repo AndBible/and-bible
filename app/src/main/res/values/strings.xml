@@ -784,6 +784,7 @@
     <string name="tell_friend_message3">Install it from Play Store: %s</string>
     <string name="tell_friend_message4">Read more &amp; more install options: %s</string>
     <string name="share_verse_ok">Share / Copy</string>
+    <string name="verse_action_copy">Copy</string>
     <string name="share_verse_menu_title">Share / copy…</string>
     <string name="show_versenumbers">Show verse numbers</string>
     <string name="show_full_verses">Show full verses</string>
@@ -857,4 +858,5 @@
     <string name="reset_hide_labels">Do you want to reset label hide settings?</string>
     <string name="reorder">Re-order</string>
     <string name="system_items">Browser actions</string>
+    <string name="text_copied_to_clicpboard">Text copied to clipboard</string>
 </resources>
