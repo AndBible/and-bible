@@ -27,12 +27,8 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MenuItem
-import android.view.View
 import android.widget.TextView
-import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.view.menu.MenuBuilder
-import androidx.appcompat.view.menu.MenuPopupHelper
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
@@ -54,15 +50,12 @@ import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_DB
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_RESTORE
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.DATABASE_NAME
 
 import javax.inject.Inject
 
@@ -81,7 +74,6 @@ constructor(private val callingActivity: MainBibleActivity,
             private val searchControl: SearchControl,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
-            private val backupControl: BackupControl,
 ) {
 
     /**
@@ -161,15 +153,10 @@ constructor(private val callingActivity: MainBibleActivity,
 
                 }
                 R.id.backupMainMenu -> {
-                    val view: View = callingActivity.findViewById(R.id.homeButton)
-                    val menu = PopupMenu(callingActivity, view).apply {
-                        menuInflater.inflate(R.menu.backup_submenu, menu)
-                        setOnMenuItemClickListener {handleMenuRequest(it)}
+                    GlobalScope.launch(Dispatchers.Main) {
+                        BackupControl.backupPopup(callingActivity)
                     }
-
-                    val menuHelper = MenuPopupHelper(callingActivity, menu.menu as MenuBuilder, view)
-                    menuHelper.setForceShowIcon(true)
-                    menuHelper.show()
+                    isHandled = true
                 }
                 R.id.searchButton -> {
                     if(currentPage.isSearchable) {
@@ -236,37 +223,6 @@ constructor(private val callingActivity: MainBibleActivity,
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
                     isHandled = true
                 }
-                R.id.backup_app_database -> {
-                    AlertDialog.Builder(callingActivity)
-                        .setTitle(callingActivity.getString(R.string.backup_backup_title))
-                        .setMessage(callingActivity.getString(R.string.backup_backup_message))
-                        .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) { dialog, which ->
-                            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                                addCategory(Intent.CATEGORY_OPENABLE)
-                                type = "application/x-sqlite3"
-                                putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
-                            }
-                            callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_DB)
-                        }
-                        .setPositiveButton(callingActivity.getString(R.string.backup_share)) { dialog, which ->
-                            backupControl.backupDatabaseViaSendIntent(callingActivity)
-                        }
-                        .setNeutralButton(callingActivity.getString(R.string.cancel), null)
-                        .show()
-                    isHandled = true
-                }
-                R.id.backup_modules -> {
-                    GlobalScope.launch(Dispatchers.Main) {
-                        backupControl.backupModulesViaIntent(callingActivity)
-                    }
-                    isHandled = true
-                }
-                R.id.backup_app -> {
-                    GlobalScope.launch(Dispatchers.Main) {
-                        backupControl.backupApp(callingActivity)
-                    }
-                    isHandled = true
-                }
                 R.id.bugReport -> {
                     GlobalScope.launch {
                         BugReport.reportBug(callingActivity, source = "manual")
@@ -304,16 +260,6 @@ constructor(private val callingActivity: MainBibleActivity,
                    callingActivity.startActivity(Intent(Intent.ACTION_VIEW,
                        Uri.parse(contributeLink)))
                    isHandled = true
-                }
-                R.id.restore_modules -> {
-                    handlerIntent = Intent(callingActivity, InstallZip::class.java)
-                    requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
-                }
-                R.id.restore_app_database -> {
-                    val intent = Intent(Intent.ACTION_GET_CONTENT)
-                    intent.type = "application/*"
-                    callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
-                    isHandled = true
                 }
             }
 

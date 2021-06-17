@@ -47,7 +47,6 @@ import javax.inject.Inject
  */
 class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu.document_context_menu) {
     @Inject lateinit var downloadControl: DownloadControl
-    @Inject lateinit var backupControl: BackupControl
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -153,7 +152,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
             }
             R.id.backupButton -> {
                 GlobalScope.launch {
-                    backupControl.backupModulesViaIntent(this@ChooseDocument)
+                    BackupControl.backupModulesViaIntent(this@ChooseDocument)
                 }
             }
         }

@@ -55,7 +55,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.MainBibleViewBinding
@@ -103,7 +102,6 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
-import net.bible.android.view.util.Hourglass
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -116,7 +114,6 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
-import java.io.FileNotFoundException
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -139,12 +136,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var errorReportControl: ErrorReportControl
 
     // handle requests from main menu
     @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
     @Inject lateinit var bibleKeyHandler: BibleKeyHandler
-    @Inject lateinit var backupControl: BackupControl
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var documentControl: DocumentControl
     @Inject lateinit var navigationControl: NavigationControl
@@ -221,7 +216,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // use context to setup backup control dirs
         BackupControl.setupDirs(this)
 
-        backupControl.clearBackupDir()
+        BackupControl.clearBackupDir()
 
         windowRepository.initialize()
 
@@ -305,7 +300,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         if(!initialized) {
             GlobalScope.launch(Dispatchers.Main) {
-                errorReportControl.checkCrash(this@MainBibleActivity)
+                ErrorReportControl.checkCrash(this@MainBibleActivity)
                 showBetaNotice()
                 showStableNotice()
                 showFirstTimeHelp()
@@ -1222,50 +1217,23 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return super.onKeyUp(keyCode, event)
     }
 
+    fun afterRestore() {
+        bookmarkControl.reset()
+        documentViewManager.removeView()
+        bibleViewFactory.clear()
+        windowControl.windowSync.setResyncRequired()
+        Dialogs.instance.showMsg(R.string.restore_success)
+        currentWorkspaceId = 0
+    }
+
+    fun updateDocuments() {
+        documentControl.checkIfAnyPageDocumentsDeleted()
+        updateActions()
+    }
+
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.d(TAG, "Activity result:$resultCode")
         when(requestCode) {
-            REQUEST_PICK_FILE_FOR_BACKUP_RESTORE -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    CurrentActivityHolder.getInstance().currentActivity = this
-                    Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
-                        ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
-                        val hourglass = Hourglass(this)
-                        GlobalScope.launch(Dispatchers.IO) {
-                            hourglass.show()
-                            val inputStream = try {contentResolver.openInputStream(data!!.data!!)} catch (e: FileNotFoundException) {null}
-                            if (inputStream != null && backupControl.restoreDatabaseViaIntent(inputStream)) {
-                                Log.d(TAG, "Restored database successfully")
-                                withContext(Dispatchers.Main) {
-                                    bookmarkControl.reset()
-                                    documentViewManager.removeView()
-                                    bibleViewFactory.clear()
-                                    windowControl.windowSync.setResyncRequired()
-                                    Dialogs.instance.showMsg(R.string.restore_success)
-                                    currentWorkspaceId = 0
-                                }
-                            } else {
-                                Dialogs.instance.showMsg(R.string.restore_unsuccessfull)
-                            }
-                            hourglass.dismiss()
-                        }
-                    }
-                }
-            }
-            REQUEST_PICK_FILE_FOR_BACKUP_DB -> {
-                if (data?.data == null) return // is null when user selects no file
-                mainBibleActivity.windowRepository.saveIntoDb()
-                DatabaseContainer.db.sync()
-                GlobalScope.launch(Dispatchers.IO) {
-                    backupControl.backupDatabaseToUri(data.data!!)
-                }
-            }
-            REQUEST_PICK_FILE_FOR_BACKUP_MODULES -> {
-                if (data?.data == null) return // is null when user selects no file
-                GlobalScope.launch(Dispatchers.IO) {
-                    backupControl.backupModulesToUri(data.data!!)
-                }
-            }
             WORKSPACE_CHANGED -> {
                 val extras = data?.extras
                 val workspaceId = extras?.getLong("workspaceId")
@@ -1345,8 +1313,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
             }
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {
-                documentControl.checkIfAnyPageDocumentsDeleted()
-                updateActions()
+                updateDocuments()
                 return
             }
         }
@@ -1496,12 +1463,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
 
-        const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 91
         const val TEXT_DISPLAY_SETTINGS_CHANGED = 92
         const val COLORS_CHANGED = 93
         const val WORKSPACE_CHANGED = 94
-        const val REQUEST_PICK_FILE_FOR_BACKUP_DB = 95
-        const val REQUEST_PICK_FILE_FOR_BACKUP_MODULES = 96
 
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"

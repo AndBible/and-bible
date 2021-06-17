@@ -519,7 +519,7 @@
     <string name="mynotes">My Notes</string>
 
     <!-- Backup and restore -->
-    <string name="backup_and_restore">Share, Backup &amp; Restore data</string>
+    <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup_modules">Share or Backup Documents to…</string>
     <string name="backup_app_database">Share or Backup app database to…</string>
 

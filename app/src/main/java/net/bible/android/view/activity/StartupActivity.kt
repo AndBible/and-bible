@@ -59,7 +59,6 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.sword.SwordEnvironmentInitialisation
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Books
@@ -71,9 +70,6 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 open class StartupActivity : CustomTitlebarActivityBase() {
-
-    @Inject lateinit var errorReportControl: ErrorReportControl
-    @Inject lateinit var backupControl: BackupControl
     private lateinit var spinnerBinding: SpinnerBinding
     private lateinit var startupViewBinding: StartupViewBinding
 
@@ -190,7 +186,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         BackupControl.setupDirs(this)
         GlobalScope.launch {
-            errorReportControl.checkCrash(this@StartupActivity)
+            ErrorReportControl.checkCrash(this@StartupActivity)
             // switch back to ui thread to continue
             withContext(Dispatchers.Main) {
                 postBasicInitialisationControl()
@@ -350,7 +346,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     GlobalScope.launch(Dispatchers.IO) {
                         hourglass.show()
                         val inputStream = contentResolver.openInputStream(data!!.data!!)
-                        if (backupControl.restoreDatabaseViaIntent(inputStream!!)) {
+                        if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {
                             Log.d(TAG, "Restored database successfully")
 
                             withContext(Dispatchers.Main) {

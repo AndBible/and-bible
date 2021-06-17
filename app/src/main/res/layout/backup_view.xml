@@ -27,5 +27,17 @@
             android:id="@+id/backup_modules"
             android:text="@string/backup_modules"
             />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/restore_app_database"
+            android:text="@string/restore_app_database"
+            />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/restore_modules"
+            android:text="@string/restore_modules"
+            />
     </LinearLayout>
 </ScrollView>

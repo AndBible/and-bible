@@ -69,8 +69,7 @@ class LinkControl @Inject constructor(
 	private val bookmarkControl: BookmarkControl,
 	private val searchControl: SearchControl,
 	private val swordDocumentFacade: SwordDocumentFacade,
-	private val errorReportControl: ErrorReportControl)
-{
+)  {
     private var windowMode = WINDOW_MODE_UNDEFINED
 
     fun openMulti(links: List<BibleView.BibleLink>): Boolean {
@@ -92,7 +91,7 @@ class LinkControl @Inject constructor(
     fun loadApplicationUrl(link: BibleView.BibleLink): Boolean = loadApplicationUrl(link.url, link.versification)
 
     fun errorLink() {
-        errorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
+        ErrorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
     }
 
     private fun getBookAndKey(uriStr: String, versification: Versification): BookAndKey? {
