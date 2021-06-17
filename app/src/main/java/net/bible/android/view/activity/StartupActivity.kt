@@ -140,7 +140,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     private suspend fun checkWebView(): Boolean {
-        val info = WebViewCompat.getCurrentWebViewPackage(BibleApplication.application)
+        val info = WebViewCompat.getCurrentWebViewPackage(applicationContext)
         val versionNum = info?.versionName?.split(".")?.first()?.split(" ")?.first()?.toInt() ?: 0
         val minimumVersion = 69 // tested with Android Emulator API 24
         if(versionNum < minimumVersion) {
