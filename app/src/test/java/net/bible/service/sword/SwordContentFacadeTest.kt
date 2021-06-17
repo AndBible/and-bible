@@ -6,6 +6,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.ParseException
 import net.bible.test.DatabaseResetter
 
@@ -136,7 +137,8 @@ class SwordContentFacadeTest {
     }
 }
 
-
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk=[28])
 class TestShare {
     private lateinit var swordContentFacade: SwordContentFacade
 
@@ -157,7 +159,7 @@ class TestShare {
         val verseRange = VerseRangeFactory.fromString(v11n, verseRangeStr)
 
 
-        val sel = BibleView.Selection(initials,
+        val sel = Selection(initials,
             verseRange.start.ordinal,
             offsetRange.first,
             verseRange.end.ordinal,
