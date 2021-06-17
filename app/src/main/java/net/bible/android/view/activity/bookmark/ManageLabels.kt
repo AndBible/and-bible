@@ -267,6 +267,16 @@ class ManageLabels : ListActivityBase() {
             isThisBookmarkPrimary = data.bookmarkPrimaryLabel == label.id,
             isThisBookmarkSelected = data.selectedLabels.contains(label.id)
         )
+        if(isNew) {
+            if(data.mode === Mode.ASSIGN) {
+                labelData.isThisBookmarkSelected = true
+                labelData.isThisBookmarkPrimary = true
+            } else if(data.mode === Mode.WORKSPACE) {
+                labelData.isAutoAssignPrimary = true
+                labelData.isAutoAssign = true
+            }
+        }
+
         intent.putExtra("data", json.encodeToString(serializer(), labelData))
 
         GlobalScope.launch(Dispatchers.Main) {
