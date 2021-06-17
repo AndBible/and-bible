@@ -54,10 +54,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
+import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
@@ -105,9 +107,9 @@ import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
@@ -122,10 +124,42 @@ import java.io.File
 import java.lang.ref.WeakReference
 import java.net.URLConnection
 import java.util.*
+import javax.inject.Inject
 import kotlin.math.min
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
+
+
+@Serializable
+class Selection(val bookInitials: String?, val startOrdinal: Int,
+                val startOffset: Int?, val endOrdinal: Int, val endOffset: Int?,
+                val bookmarks: List<Long>,
+                val notes: String? = null
+)
+{
+    constructor(bookmark: BookmarkEntities.Bookmark):
+        this(
+            bookmark.book?.initials,
+            bookmark.ordinalStart,
+            bookmark.startOffset,
+            bookmark.ordinalEnd,
+            bookmark.endOffset,
+            emptyList(),
+            bookmark.notes
+        )
+    @Transient @Inject lateinit var windowControl: WindowControl
+
+    init {
+        buildActivityComponent().inject(this)
+    }
+
+    val book: SwordBook get() = (Books.installed().getBook(bookInitials) as SwordBook?) ?: windowControl.defaultBibleDoc(false)
+    val verseRange: VerseRange get() {
+        val v11n = book.versification ?: KJVA
+        return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
+    }
+}
 
 /** The WebView component that shows the bible and other documents */
 @SuppressLint("ViewConstructor")
@@ -289,31 +323,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
             bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels)
             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
-        }
-    }
-
-    @Serializable
-    class Selection(val bookInitials: String?, val startOrdinal: Int,
-                    val startOffset: Int?, val endOrdinal: Int, val endOffset: Int?,
-                    val bookmarks: List<Long>,
-                    val notes: String? = null
-    )
-    {
-        constructor(bookmark: BookmarkEntities.Bookmark):
-            this(
-                bookmark.book?.initials,
-                bookmark.ordinalStart,
-                bookmark.startOffset,
-                bookmark.ordinalEnd,
-                bookmark.endOffset,
-                emptyList(),
-                bookmark.notes
-            )
-
-        val book: Book get() = (Books.installed().getBook(bookInitials) as SwordBook)
-        val verseRange: VerseRange get() {
-            val v11n = (Books.installed().getBook(bookInitials) as SwordBook?)?.versification ?: KJVA
-            return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
         }
     }
 

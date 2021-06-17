@@ -29,7 +29,7 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 import net.bible.service.common.ParseException
@@ -141,7 +141,7 @@ open class SwordContentFacade @Inject constructor(
         }
     }
 
-    fun getSelectionText(selection: BibleView.Selection,
+    fun getSelectionText(selection: Selection,
                          showVerseNumbers: Boolean,
                          showFull: Boolean,
                          advertiseApp: Boolean,
