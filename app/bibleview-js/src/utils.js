@@ -349,8 +349,8 @@ export function findNodeAtOffsetWithNullOffset(elem, offset) {
 
 // Bit generalized version from bookmarks:highlightStyleRange
 export function highlightVerseRange(selectorPrefix, [startOrdinal, endOrdinal], [startOff, endOff] = [0, null]) {
-    const firstElem = document.querySelector(`${selectorPrefix} #o-${startOrdinal}`);
-    const secondElem = document.querySelector(`${selectorPrefix} #o-${endOrdinal}`);
+    const firstElem = document.querySelector(`${selectorPrefix} #v-${startOrdinal}`);
+    const secondElem = document.querySelector(`${selectorPrefix} #v-${endOrdinal}`);
     if (firstElem === null || secondElem === null) {
         console.error("Element is not found!", {selectorPrefix, startOrdinal, endOrdinal});
         return;
