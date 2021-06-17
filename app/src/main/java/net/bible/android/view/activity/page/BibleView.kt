@@ -354,24 +354,23 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return true
         }
         else {
-            if(!showSystem) {
+            if (showSystem) {
+                showSystem = false
+                return true
+            } else {
+                menu.clear()
                 GlobalScope.launch {
                     val result = evaluateJavascriptAsync("bibleView.querySelection()")
                     val sel = json.decodeFromString(serializer<Selection?>(), result)
                     if (sel !== null) {
                         currentSelection = sel
                         menuPrepared = true
-
                         withContext(Dispatchers.Main) {
-                            menu.clear()
                             mode.invalidate()
                         }
                     }
                 }
                 return false
-            } else {
-                showSystem = false
-                return true
             }
         }
     }
