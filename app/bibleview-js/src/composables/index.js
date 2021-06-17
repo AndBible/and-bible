@@ -35,7 +35,7 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {
     faBookmark, faChevronCircleDown,
     faEdit,
-    faEllipsisH,
+    faEllipsisH, faEye, faEyeSlash,
     faFileAlt, faFireAlt,
     faHeadphones, faHeart, faHistory,
     faIndent,
@@ -360,6 +360,8 @@ export function useFontAwesome() {
     library.add(faHeart)
     library.add(faHistory)
     library.add(faFireAlt)
+    library.add(faEyeSlash);
+    library.add(faEye);
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {

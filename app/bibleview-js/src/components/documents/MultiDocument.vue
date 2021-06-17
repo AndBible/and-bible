@@ -19,23 +19,29 @@
   <h2 v-if="document.compare">{{osisFragments[0].keyName}}</h2>
   <div v-for="(fragment, index) in filteredOsisFragments" :key="fragment.key">
     <div class="ref-link">
-      <a :href="link(fragment)">
-        <template v-if="document.compare">{{fragment.bookAbbreviation}}</template>
-        <template v-else>{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookInitials)}}</template>
-      </a>
-      <template v-if="document.compare">
-        (<a @click="android.toggleCompareDocument(fragment.bookInitials)">{{strings.compareHide}}</a>)
-      </template>
+      <div class="flex">
+        <a :href="link(fragment)">
+          <template v-if="document.compare">{{fragment.bookAbbreviation}}</template>
+          <template v-else>{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookInitials)}}</template>
+        </a>
+        <div v-if="document.compare" class="hide-button" @click="android.toggleCompareDocument(fragment.bookInitials)">
+          <FontAwesomeIcon icon="eye-slash"/>
+        </div>
+      </div>
     </div>
     <OsisFragment hide-titles :fragment="fragment"/>
     <div v-if="index < filteredOsisFragments.length - 1" class="separator"/>
   </div>
   <div class="restore" v-if="document.compare && hiddenOsisFragments.length > 0">
     <div class="separator"/>
-    {{ strings.restoreCompareTitle }}
-    <a @click="android.toggleCompareDocument(fragment.bookInitials)" v-for="fragment  in hiddenOsisFragments" :key="fragment.key">
-      {{ fragment.bookAbbreviation }} &nbsp;
-    </a>
+    <div class="flex2">
+      <div class="restore-button">
+        <FontAwesomeIcon icon="eye"/>
+      </div>
+      <a @click="android.toggleCompareDocument(fragment.bookInitials)" v-for="fragment  in hiddenOsisFragments" :key="fragment.key">
+        {{ fragment.bookAbbreviation }} &nbsp;
+      </a>
+    </div>
   </div>
 </template>
 
@@ -44,10 +50,11 @@ import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment";
 import {inject} from "@vue/runtime-core";
 import {computed} from "@vue/reactivity";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 export default {
   name: "MultiDocument",
-  components: {OsisFragment},
+  components: {OsisFragment, FontAwesomeIcon},
   props: {
     document: {type: Object, required: true},
   },
@@ -79,6 +86,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "~@/common.scss";
 .ref-link {
   padding-bottom: 0.5em;
   font-weight: bold;
@@ -94,5 +102,23 @@ export default {
     padding-inline-start: 0.5em;
   }
 }
+.flex {
+  display: flex;
+  justify-content: space-between;
+}
+.flex2 {
+  display: flex;
+  justify-content: start;
+}
 
+.hide-button {
+  justify-self: end;
+  font-size: 120%;
+  color:$modal-header-background-color;
+}
+.restore-button {
+  justify-self: start;
+  font-size: 120%;
+  color:$modal-header-background-color;
+}
 </style>
