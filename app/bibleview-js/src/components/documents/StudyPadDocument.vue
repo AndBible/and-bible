@@ -31,10 +31,10 @@
     group="journal-entries"
     ghost-class="drag-ghost"
     chosen-class="drag-chosen"
-    :item-key="(e) => `${e.type}-${e.id}`"
+    :item-key="(e) => `studypad-${e.type}-${e.id}`"
   >
     <template #item="{element: j}">
-      <div class="studypad-container" :style="indentStyle(j)" :id="`${j.type}-${j.id}`">
+      <div class="studypad-container" :style="indentStyle(j)" :id="`studypad-${j.type}-${j.id}`">
         <StudyPadRow
           :journal-entry="j"
           :label="document.label"
@@ -47,7 +47,7 @@
 
 <script>
 import {computed, ref} from "@vue/reactivity";
-import {inject, provide, nextTick} from "@vue/runtime-core";
+import {inject, provide, nextTick, onMounted} from "@vue/runtime-core";
 import {useCommon, useJournal} from "@/composables";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";
@@ -134,7 +134,7 @@ export default {
       }
       await nextTick();
       if(journal && journal.new) {
-        scrollToId(`${journal.type}-${journal.id}`, {duration: 300})
+        scrollToId(`studypad-${journal.type}-${journal.id}`, {duration: 300})
       }
     })
 

@@ -44,7 +44,6 @@ import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.FeatureType
-import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
@@ -291,9 +290,9 @@ class LinkControl @Inject constructor(
         return true
     }
 
-    fun openJournal(id: Long): Boolean {
-        val label = bookmarkControl.labelById(id) ?: return false
-        val key = StudyPadKey(label)
+    fun openJournal(labelId: Long, bookmarkId: Long?): Boolean {
+        val label = bookmarkControl.labelById(labelId) ?: return false
+        val key = StudyPadKey(label, bookmarkId)
         showLink(FakeBookFactory.journalDocument, key)
         return true
     }

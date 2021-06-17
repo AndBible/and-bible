@@ -175,9 +175,9 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun openStudyPad(labelId: Long) {
+    fun openStudyPad(labelId: Long, bookmarkId: Long) {
         GlobalScope.launch(Dispatchers.Main) {
-            bibleView.linkControl.openJournal(labelId)
+            bibleView.linkControl.openJournal(labelId, bookmarkId)
         }
     }
 

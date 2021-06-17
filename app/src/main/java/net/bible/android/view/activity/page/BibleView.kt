@@ -63,9 +63,9 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
+import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.StudyPadOrderEvent
 import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
-import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
@@ -80,9 +80,9 @@ import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
 import net.bible.android.control.page.MyNotesDocument
-import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
+import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.DecrementBusyCount
 import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
@@ -664,8 +664,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         UriConstants.SCHEME_JOURNAL -> {
             val id = uri.getQueryParameter("id")?.toLongOrNull()
+            val bookmarkId = uri.getQueryParameter("bookmarkId")?.toLongOrNull()
             if(id != null) {
-                linkControl.openJournal(id)
+                linkControl.openJournal(id, bookmarkId)
             } else false
         }
         UriConstants.SCHEME_REFERENCE -> {
@@ -905,13 +906,20 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             labelsUploaded = true
        }
 
+        val doc = firstDocument
+        val jumpToId =
+            if(doc is StudyPadDocument && doc.bookmarkId != null)
+                "studypad-bookmark-${doc.bookmarkId}"
+            else null
+
         executeJavascriptOnUiThread("""
             bibleView.emit("clear_document");
             ${getUpdateConfigCommand(true)}
             bibleView.emit("add_documents", $documentStr);
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
-                jumpToAnchor: ${initialAnchorOrdinal},
+                jumpToAnchor: $initialAnchorOrdinal,
+                jumpToId: "$jumpToId",
                 topOffset: $topOffset,
                 bottomOffset: $bottomOffset,
             });            

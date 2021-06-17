@@ -160,9 +160,10 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
 
 class StudyPadDocument(
     val label: BookmarkEntities.Label,
+    val bookmarkId: Long?,
     val bookmarks: List<BookmarkEntities.Bookmark>,
-    val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
-    val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>,
+    private val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
+    private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>,
 ): Document, DocumentWithBookmarks {
     override val asHashMap: Map<String, Any>
         get() {

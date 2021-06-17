@@ -95,7 +95,7 @@ export default {
     });
 
     function openStudyPad(labelId) {
-      android.openStudyPad(labelId);
+      android.openStudyPad(labelId, bookmark.value.id);
     }
 
     async function removeBookmark() {

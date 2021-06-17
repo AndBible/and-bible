@@ -224,8 +224,8 @@ export function useAndroid({bookmarks}, config) {
         android.shareBookmarkVerse(bookmarkId);
     }
 
-    function openStudyPad(labelId) {
-        android.openStudyPad(labelId);
+    function openStudyPad(labelId, bookmarkId) {
+        android.openStudyPad(labelId, bookmarkId);
     }
 
     function updateOrderNumber(labelId, bookmarks, journals) {

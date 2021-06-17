@@ -24,7 +24,10 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RestrictionType
 import java.lang.UnsupportedOperationException
 
-class StudyPadKey(@Transient val label: BookmarkEntities.Label): Key {
+class StudyPadKey(
+    @Transient val label: BookmarkEntities.Label,
+    @Transient val bookmarkId: Long? = null,
+): Key {
     private val labelId = label.id
 
     override fun compareTo(other: Key?): Int {
