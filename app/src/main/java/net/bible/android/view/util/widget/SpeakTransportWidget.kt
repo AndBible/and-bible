@@ -100,6 +100,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         super.onAttachedToWindow()
         resetView(SpeakSettings.load())
     }
+    class HideTransportEvent
 
     private fun onButtonClick(button: View) {
         try {
@@ -108,7 +109,13 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                     prevButton -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
                     nextButton -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
                     rewindButton -> speakControl.rewind()
-                    stopButton -> speakControl.stop()
+                    stopButton -> {
+                        if(speakControl.isStopped) {
+                            ABEventBus.getDefault().post(HideTransportEvent())
+                        } else {
+                            speakControl.stop()
+                        }
+                    }
                     speakPauseButton ->
                         when {
                             speakControl.isPaused -> speakControl.continueAfterPause()

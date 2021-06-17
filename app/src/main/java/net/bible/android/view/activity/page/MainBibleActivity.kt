@@ -103,6 +103,7 @@ import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
+import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
@@ -592,7 +593,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 true
             }
 
-            speakButton.setOnClickListener { speakControl.toggleSpeak() }
+            speakButton.setOnClickListener {
+                transportBarVisible = true
+                updateBottomBars()
+            }
+
             speakButton.setOnLongClickListener {
                 val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
                 val intent = Intent(this@MainBibleActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
@@ -602,6 +607,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE) }
             bookmarkButton.setOnClickListener { startActivityForResult(Intent(this@MainBibleActivity, Bookmarks::class.java), STD_REQUEST_CODE) }
         }
+    }
+
+    fun onEvent(event: SpeakEvent) {
+        if(event.isSpeaking) {
+            transportBarVisible = true
+            updateBottomBars()
+        } else if(event.isStopped) {
+            transportBarVisible = false
+            updateBottomBars()
+        }
+    }
+
+    fun onEvent(event: SpeakTransportWidget.HideTransportEvent) {
+        transportBarVisible = false
+        updateBottomBars()
     }
 
     private val dummyStrongsPrefOption
@@ -1054,15 +1074,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateBottomBars() {
         Log.d(TAG, "updateBottomBars")
-        if(isFullScreen || speakControl.isStopped) {
-            transportBarVisible = false
+        if(isFullScreen || !transportBarVisible) {
             binding.speakTransport.animate()
                 .translationY(binding.speakTransport.height.toFloat())
                 .setInterpolator(AccelerateInterpolator())
                 .withEndAction { binding.speakTransport.visibility = View.GONE }
                 .start()
         } else {
-            transportBarVisible = true
             binding.speakTransport.visibility = View.VISIBLE
             binding.speakTransport.animate()
                 .translationY(-bottomOffset1.toFloat())
