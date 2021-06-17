@@ -30,7 +30,7 @@
 		/>
 
 	<item android:id="@+id/autoAssignLabels"
-		android:title="@string/auto_assign_labels"
+		android:title="@string/auto_assign_labels_title"
 		/>
 
 	<group
