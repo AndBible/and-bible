@@ -138,14 +138,14 @@ $border-radius2: $border-radius - 1.5pt;
     z-index: 15;
   }
   position: absolute;
-  background-color: #fefefe;
+  background-color: $modal-content-background-color;
   padding: 0;
   border: 1px solid #888;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
   animation-name: animatetop;
   animation-duration: 0.2s;
   .night & {
-    background-color: black;
+    background-color: $modal-content-background-color-night;
     color: #bdbdbd;
   }
   border-radius: $border-radius;

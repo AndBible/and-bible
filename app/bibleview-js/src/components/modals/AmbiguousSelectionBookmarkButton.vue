@@ -71,7 +71,7 @@ export default {
 
     function editNotes() {
       $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {open: true});
+      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openNotes: true});
     }
 
     function openBookmark() {
@@ -79,14 +79,8 @@ export default {
       emit(Events.BOOKMARK_CLICKED, bookmark.value.id);
     }
 
-    function bookmarkInfo() {
-      $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openInfo: true});
-    }
-
     return {
-      bookmark, buttonStyle, adjustedColor, bookmarkColor, editNotes,
-      bookmarkInfo, openBookmark, ...common
+      bookmark, buttonStyle, adjustedColor, bookmarkColor, editNotes, openBookmark, ...common
     };
   },
 }

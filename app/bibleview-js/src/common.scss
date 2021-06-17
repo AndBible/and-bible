@@ -79,6 +79,8 @@
   }
 }
 
+$button-border-radius: 8px;
+$button-padding: 6px;
 .button {
   font-size: 90%;
   background-color: #717171;
@@ -104,8 +106,8 @@
   }
   border: none;
   color: white;
-  padding: 5pt 5pt;
-  border-radius: 5pt;
+  padding: $button-padding;
+  border-radius: $button-border-radius;
   margin: 2pt 2pt;
   text-align: center;
   text-decoration: none;
@@ -121,16 +123,7 @@
 $modal-header-background-color: rgba(172,172,172,1);
 $night-modal-header-background-color: rgba(69,69,69,1);
 
-$button-grey: #8e8e8e;
+$modal-content-background-color: #fefefe;
+$modal-content-background-color-night: black;
 
-.bookmark-button {
-  font-size: 25px;
-  color: $button-grey;
-  padding: 5px;
-  &.end {
-    align-self: flex-end;
-  }
-  &.highlighted {
-    color: #005eff;
-  }
-}
+$button-grey: #8e8e8e;

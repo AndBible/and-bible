@@ -123,12 +123,11 @@ export default {
     const bookmarkNotes = computed(() => bookmark.value.notes);
     let originalNotes = null;
 
-    setupEventBusListener(Events.BOOKMARK_CLICKED, (bookmarkId_, {openInfo = false, open = false} = {}) => {
+    setupEventBusListener(Events.BOOKMARK_CLICKED, (bookmarkId_, {openInfo = false, openNotes = false} = {}) => {
       bookmarkId.value = bookmarkId_;
       originalNotes = bookmarkNotes.value;
-      //if(!showBookmark.value) infoShown.value = false;
-      infoShown.value = openInfo || !bookmarkNotes.value;
-      editDirectly.value = open;
+      infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);
+      editDirectly.value = !infoShown.value && !bookmarkNotes.value;
       showBookmark.value = true;
     });
 
