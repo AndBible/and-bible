@@ -174,7 +174,7 @@ class ManageLabels : ListActivityBase() {
         title = getString(data.titleId)
 
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
-        updateLabelList(true)
+        updateLabelList(fromDb = true)
         listAdapter = ManageLabelItemAdapter(this, shownLabels, this)
     }
 
@@ -191,6 +191,7 @@ class ManageLabels : ListActivityBase() {
         when(item.itemId){
             R.id.help -> CommonUtils.showHelp(this, listOf(R.string.help_studypads_title, R.string.help_bookmarks_title))
             R.id.newLabel -> newLabel()
+            R.id.reOrder -> updateLabelList(reOrder = true)
             android.R.id.home -> saveAndExit()
             else -> isHandled = false
         }
@@ -255,6 +256,7 @@ class ManageLabels : ListActivityBase() {
 
     fun editLabel(label_: BookmarkEntities.Label) {
         var label = label_
+        val isNew = label.id < 0
         val intent = Intent(this, LabelEditActivity::class.java)
         val labelData = LabelEditActivity.LabelData(
             isAssigning = data.mode == Mode.ASSIGN,
@@ -284,7 +286,11 @@ class ManageLabels : ListActivityBase() {
                     val idx = shownLabels.indexOf(label)
                     shownLabels.remove(label)
                     label = newLabelData.label
-                    shownLabels.add(idx, label)
+                    if(idx > 0) {
+                        shownLabels.add(idx, label)
+                    } else {
+                        shownLabels.add(label)
+                    }
                     data.changedLabels.add(label.id)
 
                     if (newLabelData.isAutoAssign) {
@@ -315,7 +321,10 @@ class ManageLabels : ListActivityBase() {
                         }
                     }
                 }
-                updateLabelList()
+                updateLabelList(reOrder = isNew)
+                if(isNew) {
+                    listView.smoothScrollToPosition(shownLabels.indexOf(label))
+                }
             }
         }
     }
@@ -405,7 +414,7 @@ class ManageLabels : ListActivityBase() {
 
     }
 
-    fun updateLabelList(fromDb: Boolean = false) {
+    fun updateLabelList(fromDb: Boolean = false, reOrder: Boolean = false) {
         if(fromDb) {
             allLabels.clear()
             allLabels.addAll(bookmarkControl.assignableLabels.filterNot { it.isSpeakLabel || it.isUnlabeledLabel })
@@ -423,7 +432,7 @@ class ManageLabels : ListActivityBase() {
         }
         val recentLabelIds = mainBibleActivity.workspaceSettings.recentLabels.map { it.labelId }
         shownLabels.myRemoveIf { it is BookmarkEntities.Label && data.deletedLabels.contains(it.id) }
-        if(fromDb) {
+        if(fromDb || reOrder) {
             shownLabels.sortWith(compareBy({
                 val inActiveCategory = data.showActiveCategory && (it == LabelCategory.ACTIVE || (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id)))
                 val inRecentCategory = !data.hideCategories && (it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id)))

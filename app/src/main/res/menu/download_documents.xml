@@ -11,6 +11,6 @@
 		appcompat:showAsAction="always"/>
 	<item android:id="@+id/refresh"
 		  android:title="@string/download_refresh_book_list_menu_item"
-		  android:icon="@drawable/ic_action_refresh"
+		  android:icon="@drawable/ic_baseline_refresh_24"
 		  appcompat:showAsAction="always"/>
 </menu>
