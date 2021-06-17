@@ -371,6 +371,7 @@
     <string name="add_bookmark3">Selection</string>
     <string name="add_bookmark_whole_verse">Bookmark Verse</string>
     <string name="add_bookmark_whole_verse1">Verses</string>
+    <string name="add_bookmark_whole_verse2">Full verses</string>
     <string name="remove_bookmark">Remove</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
@@ -857,6 +858,6 @@
     <string name="reset_workspace_labels">Do you want to reset auto-assign and favorite settings for this workspace?</string>
     <string name="reset_hide_labels">Do you want to reset label hide settings?</string>
     <string name="reorder">Re-order</string>
-    <string name="system_items">More</string>
+    <string name="system_items">System actions</string>
     <string name="text_copied_to_clicpboard">Text copied to clipboard</string>
 </resources>
