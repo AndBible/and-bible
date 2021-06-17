@@ -368,7 +368,9 @@
     <string name="label_unlabelled">Unlabelled</string>
     <string name="add_bookmark1">Bookmark</string>
     <string name="add_bookmark2">Bookmark Selection</string>
+    <string name="add_bookmark3">Selection</string>
     <string name="add_bookmark_whole_verse">Bookmark Verse</string>
+    <string name="add_bookmark_whole_verse1">Verses</string>
     <string name="remove_bookmark">Remove</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
@@ -755,10 +757,10 @@
     <string name="multi_abbreviation">Multiple</string>
     <string name="compare_description">Compare translations</string>
     <string name="compare_abbreviation">Compare</string>
+    <string name="compare">Compare</string>
     <string name="http_forbidden">Forbidden</string>
     <string name="http_not_found">Not found</string>
     <string name="http_unknown">Other error</string>
-    <string name="compare">Compare</string>
     <string name="give_passphrase_for_module">Document %s is encrypted and needs passphrase to be unlocked</string>
     <string name="unlocking_failed">Unlocking failed, invalid passphrase</string>
     <string name="unlock_module">Set module passphrase</string>
