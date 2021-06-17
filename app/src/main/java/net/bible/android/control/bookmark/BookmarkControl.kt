@@ -220,7 +220,7 @@ open class BookmarkControl @Inject constructor(
                 ?.also {
                     _speakLabel = it
                 }
-            ?: Label(name = SPEAK_LABEL_NAME, color = 0).apply {
+            ?: Label(name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor).apply {
                 id = dao.insert(this)
                 _speakLabel = this
             }
@@ -415,13 +415,13 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun getNextLabel(label: Label): Label {
-        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpeakLabel && !it.isUnlabeledLabel }
+        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpecialLabel }
         val thisIndex = allLabels.indexOf(label)
         return try {allLabels[thisIndex+1]} catch (e: IndexOutOfBoundsException) {allLabels[0]}
     }
 
     fun getPrevLabel(label: Label): Label {
-        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpeakLabel && !it.isUnlabeledLabel }
+        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpecialLabel }
         val thisIndex = allLabels.indexOf(label)
         return try {allLabels[thisIndex-1]} catch (e: IndexOutOfBoundsException) {allLabels[allLabels.size - 1]}
     }

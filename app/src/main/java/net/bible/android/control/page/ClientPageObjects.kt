@@ -241,7 +241,7 @@ data class ClientBookmarkLabel(
             label.color, if(label.isSpeakLabel) "headphones" else null, label.isSpeakLabel,
             label.underlineStyle, label.underlineStyleWholeVerse
         ),
-        !label.isUnlabeledLabel && !label.isSpeakLabel && label.id > 0
+        !label.isSpecialLabel && label.id > 0
     )
 }
 

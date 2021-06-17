@@ -19,7 +19,6 @@ package net.bible.android.view.activity.bookmark
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.ColorFilter
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.ImageSpan
@@ -29,7 +28,6 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
-import androidx.core.graphics.drawable.updateBounds
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import kotlinx.coroutines.Dispatchers
@@ -109,7 +107,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
 
     private fun updateData() = binding.apply {
-        if(!data.label.isUnlabeledLabel) {
+        if(!data.label.isSpecialLabel) {
             val name = labelName.text.toString()
             data.label.name = name
         }
@@ -137,7 +135,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         underLineStyle.isChecked = data.label.underlineStyle
         underLineStyleWholeVerse.isChecked = data.label.underlineStyleWholeVerse
         updateColor()
-        if (data.label.isUnlabeledLabel) {
+        if (data.label.isSpecialLabel) {
             labelName.isEnabled = false
         }
         selectedLabelCheckBox.isChecked = data.isThisBookmarkSelected

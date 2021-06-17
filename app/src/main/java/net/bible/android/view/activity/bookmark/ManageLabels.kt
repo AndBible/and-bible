@@ -417,7 +417,7 @@ class ManageLabels : ListActivityBase() {
     fun updateLabelList(fromDb: Boolean = false, reOrder: Boolean = false) {
         if(fromDb) {
             allLabels.clear()
-            allLabels.addAll(bookmarkControl.assignableLabels.filterNot { it.isSpeakLabel || it.isUnlabeledLabel })
+            allLabels.addAll(bookmarkControl.assignableLabels.filterNot { it.isUnlabeledLabel })
             if (data.showUnassigned) {
                 allLabels.add(bookmarkControl.labelUnlabelled)
             }
