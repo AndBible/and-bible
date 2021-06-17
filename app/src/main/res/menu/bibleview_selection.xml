@@ -21,7 +21,7 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 	<group android:id="@+id/bookmark_group">
 		<item android:id="@+id/add_bookmark"
-			android:title="@string/add_bookmark1"
+			android:title="@string/add_bookmark2"
 			android:orderInCategory="1"
 			app:showAsAction="always"
 			/>
@@ -42,6 +42,11 @@
 			/>
 		<item android:id="@+id/share_verses"
 			android:title="@string/share_verse_menu_title"
+			android:orderInCategory="2"
+			app:showAsAction="always"
+			/>
+		<item android:id="@+id/system_items"
+			android:title="@string/system_items"
 			android:orderInCategory="2"
 			app:showAsAction="always"
 			/>

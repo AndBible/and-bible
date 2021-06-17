@@ -200,6 +200,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         setOnLongClickListener(BibleViewLongClickListener())
     }
 
+    var showSystem = false
+
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.add_bookmark -> {
@@ -229,6 +231,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 if(sel != null)
                     ShareWidget.dialog(mainBibleActivity, sel)
                 return true
+            }
+            R.id.system_items -> {
+                showSystem = true
+                mode.menu.clear()
+                mode.invalidate()
+                return false
             }
             else -> false
         }
@@ -315,6 +323,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
         Log.d(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
         if(menuPrepared) {
+            mode.menu.clear()
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
             // For some reason, these do not seem to be correct from XML, even though specified there
             menu.findItem(R.id.add_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
@@ -336,20 +345,25 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return true
         }
         else {
-            GlobalScope.launch {
-                val result = evaluateJavascriptAsync("bibleView.querySelection()")
-                val sel = json.decodeFromString(serializer<Selection?>(), result)
-                if(sel !== null) {
-                    currentSelection = sel
-                    menuPrepared = true
+            if(!showSystem) {
+                GlobalScope.launch {
+                    val result = evaluateJavascriptAsync("bibleView.querySelection()")
+                    val sel = json.decodeFromString(serializer<Selection?>(), result)
+                    if (sel !== null) {
+                        currentSelection = sel
+                        menuPrepared = true
 
-                    withContext(Dispatchers.Main) {
-                        menu.clear()
-                        mode.invalidate()
+                        withContext(Dispatchers.Main) {
+                            menu.clear()
+                            mode.invalidate()
+                        }
                     }
                 }
+                return false
+            } else {
+                showSystem = false
+                return true
             }
-            return false
         }
     }
 

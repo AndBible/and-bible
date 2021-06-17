@@ -367,6 +367,7 @@
     <string name="label_name_prompt">Name</string>
     <string name="label_unlabelled">Unlabelled</string>
     <string name="add_bookmark1">Bookmark</string>
+    <string name="add_bookmark2">Bookmark Selection</string>
     <string name="add_bookmark_whole_verse">Bookmark Verse</string>
     <string name="remove_bookmark">Remove</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
@@ -853,4 +854,5 @@
     <string name="reset_workspace_labels">Do you want to reset auto-assign and favorite settings for this workspace?</string>
     <string name="reset_hide_labels">Do you want to reset label hide settings?</string>
     <string name="reorder">Re-order</string>
+    <string name="system_items">Browser actions</string>
 </resources>
