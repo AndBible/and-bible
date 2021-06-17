@@ -158,6 +158,7 @@ class CurrentGeneralBookPage internal constructor(
                 if (label != null) {
                     doSetKey(StudyPadKey(label))
                     localSetCurrentDocument(FakeBookFactory.journalDocument)
+                    anchorOrdinal = entity.anchorOrdinal
                 }
             }
             FakeBookFactory.multiDocument.initials -> {

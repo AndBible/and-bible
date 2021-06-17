@@ -60,9 +60,9 @@ if(process.env.NODE_ENV === "test") {
     testMode = true;
 }
 
-export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToVerse}, topElement, {isScrolling}) {
+export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToOrdinal}, topElement, {isScrolling}) {
     const currentVerse = ref(null);
-    watch(() => currentVerse.value,  value => scrolledToVerse(value));
+    watch(() => currentVerse.value,  value => scrolledToOrdinal(value));
 
     const lineHeight = computed(() => {
         config; // Update also when font settings etc are changed

@@ -33,6 +33,7 @@ import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OsisDocument
+import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
@@ -49,17 +50,17 @@ class BibleJavascriptInterface(
     var notificationsEnabled = false
 
     @JavascriptInterface
-    fun scrolledToVerse(verseOrdinal: Int) {
+    fun scrolledToOrdinal(ordinal: Int) {
         val doc = bibleView.firstDocument
         if (doc is BibleDocument || doc is MyNotesDocument) {
-            currentPageManager.currentBible.setCurrentVerseOrdinal(verseOrdinal,
+            currentPageManager.currentBible.setCurrentVerseOrdinal(ordinal,
                 when (doc) {
                     is BibleDocument -> bibleView.initialVerse?.versification
                     is MyNotesDocument -> KJVA
                     else -> throw RuntimeException("Unsupported doc")
                 })
-        } else if(doc is OsisDocument) {
-            currentPageManager.currentPage.anchorOrdinal = verseOrdinal
+        } else if(doc is OsisDocument || doc is StudyPadDocument) {
+            currentPageManager.currentPage.anchorOrdinal = ordinal
         }
     }
 
