@@ -179,11 +179,13 @@ export function useConfig(documentType) {
         },
         topMargin: 0,
     });
-    const rtl = new URLSearchParams(window.location.search).get("rtl");
+    const rtl = new URLSearchParams(window.location.search).get("rtl") === "true";
+    const nightMode = new URLSearchParams(window.location.search).get("night") === "true";
+    console.log({nightMode, rtl});
     const appSettings = reactive({
         topOffset: 0,
         bottomOffset: 100,
-        nightMode: false,
+        nightMode: nightMode,
         errorBox: false,
         favouriteLabels: [],
         recentLabels: [],

@@ -498,7 +498,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val fontModuleNames = AndBibleAddons.fontModuleNames.joinToString(",")
         val featureModuleNames = AndBibleAddons.featureModuleNames.joinToString(",")
         loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html" +
-            "?lang=$lang&fontModuleNames=$fontModuleNames&featureModuleNames=$featureModuleNames&rtl=$isRtl")
+            "?lang=$lang&fontModuleNames=$fontModuleNames&featureModuleNames=$featureModuleNames&rtl=$isRtl&night=$nightMode")
     }
 
      fun onEvent(e: ReloadAddonsEvent) {
@@ -864,10 +864,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
-                    appSettings: {activeWindow: $isActive, nightMode: $nightMode, 
-                        errorBox: $showErrorBox, favouriteLabels: $favouriteLabels, 
-                        recentLabels: $recentLabels, hideCompareDocuments: $hideCompareDocuments
-                        }, 
+                    appSettings: {
+                        activeWindow: $isActive, 
+                        nightMode: $nightMode, 
+                        errorBox: $showErrorBox, 
+                        favouriteLabels: $favouriteLabels, 
+                        recentLabels: $recentLabels, 
+                        hideCompareDocuments: $hideCompareDocuments
+                    }, 
                     initial: $initial
                     });
                 """.trimIndent()
@@ -886,7 +890,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         setBackgroundColor(backgroundColor)
     }
 
-    val nightMode get() = mainBibleActivity.currentNightMode
+    private val nightMode get() = mainBibleActivity.currentNightMode
 
     var labelsUploaded = false
 
