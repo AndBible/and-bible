@@ -474,6 +474,8 @@ class BackupView(val activity: ActivityBase, attributeSet: AttributeSet?, val cl
     private val bindings = BackupViewBinding.inflate(context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater, this, true)
     init {
         bindings.apply {
+            restoreModules.text = "${activity.getString(R.string.install_zip)} / \n ${activity.getString(R.string.restore_modules)}"
+
             backupApp.setOnClickListener { GlobalScope.launch { BackupControl.backupApp(activity) } }
             backupAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.startBackupAppDatabase(activity) } }
             backupModules.setOnClickListener { GlobalScope.launch { BackupControl.backupModulesViaIntent(activity) } }
