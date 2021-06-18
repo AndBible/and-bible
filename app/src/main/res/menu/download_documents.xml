@@ -13,4 +13,8 @@
 		  android:title="@string/download_refresh_book_list_menu_item"
 		  android:icon="@drawable/ic_baseline_refresh_24"
 		  appcompat:showAsAction="always"/>
+	<item android:id="@+id/installZip"
+		android:title="@string/install_zip"
+		android:icon="@drawable/ic_unarchive_white_24dp"
+		appcompat:showAsAction="ifRoom"/>
 </menu>
