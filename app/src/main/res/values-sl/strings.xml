@@ -329,6 +329,9 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="remove_bookmark">Odstrani</string>
   <string name="bookmark_settings_hide_labels_title">Skrij nekatere oznake</string>
   <string name="bookmark_settings_hide_labels_summary">Skrij zaznamke, ki so označeni z navedenimi oznakami</string>
+  <string name="auto_assign_labels">Določene in priljubljene oznake</string>
+  <string name="auto_assign_labels1">Določi k novim zaznamkom</string>
+  <string name="auto_assign_labels_primary">Določi kot osnovnega</string>
   <string name="label_color">Barva oznake</string>
   <string name="label_color_example">Primer</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -734,4 +737,16 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="does_not_exist_abbreviation">Ne obstaja</string>
   <string name="cant_change_wholeverse">Oznake celotne vrstice za ta zaznamek ni mogoče izklopiti</string>
   <string name="whole_verse_turned_on">Zaznamek je sedaj označen za celotno vrstico</string>
+  <string name="this_bookmark">Ta zaznamek</string>
+  <string name="this_workspace">Delovni prostor</string>
+  <string name="primary_label">Osnovna oznaka</string>
+  <string name="highlight_entire_verse">Označi celotno vrstico</string>
+  <string name="favourite_label">Priljubljena oznaka</string>
+  <string name="edit_label">Uredi oznako zaznamka</string>
+  <string name="delete_label_confirmation">Ali želite odstraniti oznako %s?</string>
+  <string name="bookmark_underline_style_arbitrary">Podčrtan stil za običajne zaznamke</string>
+  <string name="bookmark_underline_style_whole_verse">Podčrtan stil za celotno vrstico zaznamkov</string>
+  <string name="active_labels">Aktivne oznake</string>
+  <string name="recent_labels">Prejšnje oznake</string>
+  <string name="other_labels">Ostale oznake</string>
 </resources>

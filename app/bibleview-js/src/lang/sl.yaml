@@ -1,7 +1,7 @@
 openMyNotes: Odpri v Mojih zaznamkih
 openStudyPad: Odpri v Moji beležnici (%s)
 noteText: Zaznamki (%s)
-noteTextWithoutType: ""
+noteTextWithoutType: Opombe
 crossReferenceText: Sklici
 findAllOccurrences: Najdi vse pojavitve
 reportError: Prijavite napako
@@ -55,7 +55,7 @@ onlyLabel: Samo oznaka
 wholeBookmark: Celoten zaznamek
 otherNoteText: Drug zaznamek
 assignLabelsMenuEntry: Dodelite oznake
-assignLabelsMenuEntry1: ""
+assignLabelsMenuEntry1: Izberi ali uredi znake…
 jumpToStudyPad: Skoči na beležnico
 setAsPrimaryLabel: Nastavi kot primarno oznako
 removeBookmarkLabel: "Iz zaznamka odstrani oznako "
@@ -63,5 +63,5 @@ addBookmarkLabel: Zaznamku dodaj oznako
 favouriteLabels: Priljubljene oznake
 recentLabels: Nedavne oznake
 frequentlyUsedLabels: Pogosto uporabljene oznake
-bookmarkLabels: ""
-restoreCompareTitle: ""
+bookmarkLabels: Oznake zaznamkov
+restoreCompareTitle: Obnovi

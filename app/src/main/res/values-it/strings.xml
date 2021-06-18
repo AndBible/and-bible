@@ -307,6 +307,9 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="remove_bookmark">Rimuovi</string>
   <string name="bookmark_settings_hide_labels_title">Nascondi le etichette specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Nascondi i segnalibri che sono marcati con le etichette specificate</string>
+  <string name="auto_assign_labels">Auto-assegna &amp; Etichette preferiti</string>
+  <string name="auto_assign_labels1">Auto-assegna a nuovi segnalibri</string>
+  <string name="auto_assign_labels_primary">Auto-assegna come principale</string>
   <string name="label_color">Colore dell\'etichetta</string>
   <string name="label_color_example">Esempio</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -694,4 +697,16 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="does_not_exist_abbreviation">Non esiste</string>
   <string name="cant_change_wholeverse">Impossibile disattivare il segnalibro sul verso intero</string>
   <string name="whole_verse_turned_on">Segnalibro impostato per l\'intero verso</string>
+  <string name="this_bookmark">Questo segnalibro</string>
+  <string name="this_workspace">Questo spazio di lavoro</string>
+  <string name="primary_label">Etichetta principale</string>
+  <string name="highlight_entire_verse">Evidenzia l\'intero verso</string>
+  <string name="favourite_label">Etichetta preferiti</string>
+  <string name="edit_label">Modifica etichetta segnalibro</string>
+  <string name="delete_label_confirmation">Vuoi rimuovere l\'etichetta %s?</string>
+  <string name="bookmark_underline_style_arbitrary">Stile sottolineatura per i segnalibri normali</string>
+  <string name="bookmark_underline_style_whole_verse">Stile sottolineatura per i segnalibri a verso intero</string>
+  <string name="active_labels">Etichette attive</string>
+  <string name="recent_labels">Etichette recenti</string>
+  <string name="other_labels">Altre etichette</string>
 </resources>

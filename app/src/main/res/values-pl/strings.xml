@@ -3,6 +3,7 @@
   <string name="app_name_short">Studium Biblii</string>
   <string name="app_name_medium">Studium Biblii (And Bible)</string>
   <string name="app_name_long">Studium Biblii, otwartoźródłowy projekt And Bible</string>
+  <string name="project">Otwartoźródłowy projekt And Bible</string>
   <string name="version_text">Wersja %s</string>
   <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić aplikację.</string>
   <!--Main menu-->
@@ -14,7 +15,9 @@
   <string name="history">Historia</string>
   <string name="speak">Odsłuchaj</string>
   <string name="help">Pomoc</string>
+  <string name="information">Informacje</string>
   <string name="other">Inne</string>
+  <string name="contact">Kontakt</string>
   <string name="help_and_tips">Pomoc i wskazówki</string>
   <string name="administration">Zarządzanie</string>
   <string name="rate_application">Oceń w sklepie Google Play</string>
@@ -54,6 +57,7 @@
   <string name="search_current_book">obecnej księdze</string>
   <string name="error_executing_search">Niepoprawne zapytanie</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Wyświetl numery wersetów i rozdziałów</string>
   <string name="prefs_verse_per_line_summary">Wyświetl każdy werset w osobnej linii</string>
   <string name="prefs_show_bookmarks_summary">Odznacz, aby ukryć wszystkie zakładki</string>
   <string name="prefs_show_mynotes_summary">Wersety z moich notatek oznacz ikoną</string>
@@ -63,6 +67,7 @@
   <string name="prefs_section_title_summary">Wyświetl niekanoniczne tytuły sekcji</string>
   <string name="prefs_red_letter_summary">Wyświetl słowa Chrystusa na czerwono</string>
   <string name="prefs_text_size_title">Ustawienia czcionek</string>
+  <string name="prefs_show_verseno_title">Numery wersetów i rozdziałów</string>
   <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
   <string name="prefs_show_bookmarks_title">Pokaż zakładki</string>
   <string name="prefs_show_mynotes_title">Pokaż ikony notatek</string>
@@ -72,6 +77,8 @@
   <string name="prefs_section_title_title">Tytuły sekcji</string>
   <string name="prefs_red_letter_title">Tytuł na czerwono</string>
   <string name="prefs_tilt_to_scroll_title">Przechyl urządzenie aby przesunąć</string>
+  <string name="prefs_toolbar_button_action_title">Akcje przycisków paska narzędzi</string>
+  <string name="prefs_toolbar_button_action_summary">Akcje wywoływane po naciśnięciu/przytrzymaniu przycisków paska narzędzi Biblii lub komentarza</string>
   <string name="prefs_night_mode_title">Włącz tryb nocny</string>
   <string name="prefs_night_mode_summary">Ustaw, czy włączać tryb nocny automatycznie (jeżeli wspierane przez urządzenie), ręcznie, czy korzystając z ustawień systemu (Android 10+).</string>
   <string name="prefs_night_mode_manual">Ręcznie</string>

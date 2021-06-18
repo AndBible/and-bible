@@ -314,6 +314,9 @@ laŭ ilia permeso.</string>
   <string name="remove_bookmark">Forigi</string>
   <string name="bookmark_settings_hide_labels_title">Kaŝi elektitajn etikedojn</string>
   <string name="bookmark_settings_hide_labels_summary">Kaŝi legosignojn markitajn per specifa(j) etikedo(j)</string>
+  <string name="auto_assign_labels">Aŭtomate etikedi</string>
+  <string name="auto_assign_labels1">Atribui la etikedon al novaj legosignoj</string>
+  <string name="auto_assign_labels_primary">Atribui kiel ĉefan</string>
   <string name="label_color">Koloro de etikedo</string>
   <string name="label_color_example">Antaŭvido</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -672,4 +675,16 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="does_not_exist_abbreviation">Ne ekzistas</string>
   <string name="cant_change_wholeverse">Ne povas ne marki la tutan verson por tiu ĉi legosigno</string>
   <string name="whole_verse_turned_on">La tuta verso estas markita kiel legosigno</string>
+  <string name="this_bookmark">Tiu ĉi legosigno</string>
+  <string name="this_workspace">Tiu ĉi labortablo</string>
+  <string name="primary_label">Ĉefa etikedo</string>
+  <string name="highlight_entire_verse">Emfazi tutan verson</string>
+  <string name="favourite_label">Ŝatata etikedo</string>
+  <string name="edit_label">Redakti legosignan etikedon</string>
+  <string name="delete_label_confirmation">Ĉu forigi la etikedon %s?</string>
+  <string name="bookmark_underline_style_arbitrary">Substreki normajn legosignojn</string>
+  <string name="bookmark_underline_style_whole_verse">Substreki tut-versajn legosignojn</string>
+  <string name="active_labels">Aktivaj etikedoj</string>
+  <string name="recent_labels">Antaŭaj etikedoj</string>
+  <string name="other_labels">Aliaj etikedoj</string>
 </resources>

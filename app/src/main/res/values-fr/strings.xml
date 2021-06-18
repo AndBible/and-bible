@@ -3,6 +3,7 @@
   <string name="app_name_short">Bible Study</string>
   <string name="app_name_medium">Bible Study (And Bible)</string>
   <string name="app_name_long">Bible Study app, du projet opensource And Bible</string>
+  <string name="project">Projet Open source And Bible</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer l\'application.</string>
   <!--Main menu-->
@@ -14,7 +15,9 @@
   <string name="history">Historique</string>
   <string name="speak">Lecture audio</string>
   <string name="help">Aide</string>
+  <string name="information">Information</string>
   <string name="other">Autre</string>
+  <string name="contact">Contact</string>
   <string name="help_and_tips">Aide &amp; astuces</string>
   <string name="administration">Gérer</string>
   <string name="rate_application">Laisser un avis sur Google Play</string>
@@ -54,6 +57,7 @@
   <string name="search_current_book">Livre courant</string>
   <string name="error_executing_search">Requête invalide</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Montrer le chapitre et les numéros de versets</string>
   <string name="prefs_verse_per_line_summary">Affiche chaque verset sur une ligne différente</string>
   <string name="prefs_show_bookmarks_summary">Affiche les signets dans le texte</string>
   <string name="prefs_show_mynotes_summary">Les notes sont signalées par une icône dans les versets</string>
@@ -63,6 +67,7 @@
   <string name="prefs_section_title_summary">Affiche les titres des sections non-canoniques</string>
   <string name="prefs_red_letter_summary">Affiche les paroles de Christ en rouge</string>
   <string name="prefs_text_size_title">Options de police</string>
+  <string name="prefs_show_verseno_title">Chapitre et numéros de versets</string>
   <string name="prefs_verse_per_line_title">Un verset par ligne</string>
   <string name="prefs_show_bookmarks_title">Afficher les signets</string>
   <string name="prefs_show_mynotes_title">Afficher les icônes des notes</string>
@@ -72,6 +77,11 @@
   <string name="prefs_section_title_title">Titres de sections</string>
   <string name="prefs_red_letter_title">Paroles de Christ en rouge</string>
   <string name="prefs_tilt_to_scroll_title">Incliner pour faire défiler</string>
+  <string name="prefs_toolbar_button_action_title">Action en cas de pression sur un bouton de la barre d\'outils</string>
+  <string name="prefs_toolbar_button_action_summary">Action à entreprendre lorsque vous appuyez ou appuyez longuement sur les boutons de la barre d\'outils Bible ou Commentaire.</string>
+  <string name="prefs_toolbar_button_action_default">Appuyez pour ouvrir le menu, appuyez longuement pour l\'affichage des documents (par défaut).</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Appuyer pour ouvrir le document suivant, appui long pour ouvrir le menu</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Appuyer pour ouvrir le document suivant, appui long pour l\'affichage des documents</string>
   <string name="prefs_night_mode_title">Passe en mode nuit</string>
   <string name="prefs_night_mode_summary">Que ce soit pour passer automatiquement en mode nuit (si l\'appareil le prend en charge), manuellement ou via les paramètres système (Android 10+).</string>
   <string name="prefs_night_mode_manual">Manuel</string>
@@ -96,6 +106,7 @@
   <string name="reversed_split_mode">Partage d\'écran pivoté</string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Faire défiler le texte active automatiquement le mode plein-écran. Astuce: Vous pouvez aussi activer le mode plein-écran par un double tapotement sur le texte.</string>
   <string name="prefs_margin_size_title">Taille des marges</string>
   <string name="prefs_margin_size_mm_title">Taille des marges (%d/%d/%d mm)</string>
@@ -116,17 +127,36 @@
   <string name="pref_maximum_width_of_text_label_mm">Longueur maximum du texte (%d mm)</string>
   <string name="prefs_line_spacing_pt">Espace inter-lignes %1.1fx</string>
   <string name="pref_font_family_label">Famille de police</string>
+  <string name="prefs_top_margin_title">Marge supérieure</string>
+  <string name="prefs_top_margin_summary">Ajouter une marge (avec indication visuelle) en haut de la fenêtre qui contient le document biblique. La Bible défile de façon à ce que le verset actuel commence sous la marge.</string>
   <string name="prefs_hyphenation_title">Césure des mots</string>
   <string name="prefs_hyphenation_summary">Applique automatiquement la césure des mots, si le langage est supporté.</string>
   <string name="prefs_line_spacing_pt_title">Espace inter-lignes (%1.1fx)</string>
   <string name="line_spacing_title">Espace inter-lignes</string>
   <string name="line_spacing_summary">Configure l\'espace entre les lignes</string>
   <string name="select_none">Ne rien sélectionner</string>
+  <string name="reset_are_you_sure">Êtes-vous sûr de vouloir réinitialiser toutes ces valeurs ?</string>
   <string name="window_pinning_menutitle">Épingler l\'écran</string>
   <string name="hide_window_buttons_title">Cacher les boutons de fenêtres</string>
+  <string name="hide_window_buttons_summary">Les boutons de fenêtre qui sont affichés sur le côté droit des vues de la Bible sont cachés. La barre de navigation des fenêtres en bas est toujours affichée et vous pouvez ouvrir le menu contextuel des fenêtres en les cliquant longuement.</string>
+  <string name="hide_bible_reference_overlay_title">Masquer la superposition des références bibliques</string>
+  <string name="hide_bible_reference_overlay_summary">Ne pas afficher la superposition semi-transparente des références bibliques lorsque l\'application est en mode plein écran.</string>
   <string name="full_screen_hide_buttons_pref_title">Masquer la barre de boutons de la fenêtre en plein écran</string>
   <string name="full_screen_hide_buttons_pref_summary">Lorsque vous passez en mode plein écran, masquez automatiquement la barre de boutons de la fenêtre qui se trouve en bas de l\'écran</string>
+  <string name="prefs_dictionaries_cat">Dictionnaires</string>
+  <string name="choose_strongs_greek_dictionary_title">Dictionnaire grec de Strongs</string>
+  <string name="choose_strongs_greek_dictionary_summary">Choisir le dictionnaire de Strongs pour les définitions des mots grecs</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Dictionnaire hébreu de Strongs</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Choisir le dictionnaire de Strongs pour les définitions des mots hébreux</string>
+  <string name="choose_strongs_greek_morphology_title">Morphologie grecque de Robinson</string>
+  <string name="choose_strongs_greek_morphology_summary">Choisir un dictionnaire pour  les définitions de la morphologie grecque de Robinson</string>
+  <string name="prefs_top_margin_title_mm">Marge supérieure (%d mm)</string>
   <string name="font_size_title">Taille de la police</string>
+  <string name="font_size_title_pt">Taille de la police (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Ajuster la taille de la police du texte principal</string>
+  <string name="pref_font_family_label_name">Famille de police (%s)</string>
+  <string name="prefs_font_family_summary">Modifier la famille de polices. Conseil : d\'autres polices peuvent être installées via Documents à télécharger / Extensions.</string>
+  <string name="prefs_text_bookmarks_title">Signets &amp; paramètres de mes notes</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Options de couleur</string>
   <string name="window_color_settings_title">Paramètres de couleur de fenêtre</string>
@@ -166,19 +196,33 @@
   <string name="morph_robinson_not_installed">Merci de télécharger le lexique « Robinson\'s Morphological Analysis Codes »</string>
   <!--Module download-->
   <string name="download">Télécharger des documents</string>
+  <string name="redownload">Retélécharger les documents</string>
   <string name="download_confirmation">Télécharger une Bible par Internet?</string>
+  <string name="download_source_last_updated">Dernière mise à jour des listes de documents : %s.</string>
+  <string name="download_refreshing_book_list">Rafraîchir la liste des documents disponibles à partir des serveurs de documents...</string>
+  <string name="download_source_message1">Les documents sont téléchargés à partir des sources suivantes :</string>
   <string name="download_document_confirm_prefix">Télécharger </string>
   <string name="download_refresh_book_list_menu_item">Rafraîchir</string>
+  <string name="error_downloading">Une erreur s\'est produite lors du téléchargement. Veuillez vérifier votre connexion Internet.</string>
+  <string name="error_downloading_status">Le serveur qui héberge %s a renvoyé une erreur due à %s (%d).</string>
   <string name="storage_space_warning">Espace de stockage local insuffisant.</string>
+  <string name="too_many_jobs">Trop de tâches sont en cours d\'exécution. Veuillez attendre que certaines se terminent et réessayer.</string>
   <string name="document_not_installed">Merci de télécharger \'%s\'</string>
   <string name="free_text_search_documents">Rechercher</string>
   <string name="chooce_language_hint">Langue</string>
+  <string name="one_more_back_press">Appuyez à nouveau sur la touche retour pour fermer l\'application</string>
   <string name="document_filter_results">%d documents</string>
   <string name="download_question_title">Voulez-vous procéder au téléchargement des documents ?</string>
+  <string name="download_question_message">Si vous vivez dans un pays de persécution,
+vous devrez faire attention au téléchargement de matériel chrétien via Internet.
+Au lieu de cela, vous souhaiterez peut-être obtenir les fichiers zip du module de manière plus sécurisée et les installer
+via « Charger un document au format Zip ». Voulez-vous vraiment continuer le téléchargement ?
+Tous les téléchargements à partir des dépôts de modules sont cryptés (HTTPS).</string>
   <string name="do_not_ask_again">Oui ne plus me demander</string>
   <string name="recommended_document">Recommandé!</string>
   <string name="about_version_history">Historique de version : %s</string>
   <string name="download_errors">Erreurs de téléchargement</string>
+  <string name="failed_repositories_message">Impossible de se connecter aux dépôts de documents suivants : \n\n %s\n\n</string>
   <string name="failed_downloads_message">Les fichiers suivants n\'ont pas pu être téléchargés :\n\n %s \n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Charger un document au format Zip</string>
@@ -195,8 +239,24 @@
   <string name="rdg_plan_selector_title">Choix d\'un plan de lecture</string>
   <string name="rdg_plan_day">Jour %s</string>
   <string name="rdg_plan_set_start_date">Définir la date de début…</string>
+  <string name="set_current_day">Définir comme le jour actuel...</string>
+  <string name="msg_set_current_day_reading_plan">Cela fera d\'aujourd\'hui le jour en cours dans ce plan et marquera tous les jours précédents comme lus. Continuer ?</string>
   <string name="done">Fait</string>
   <string name="reset_plan_question">Êtes-vous sûrs de redémarrer ce plan?</string>
+  <string name="import_reading_plan">Importer le plan de lecture…</string>
+  <string name="import_reading_plan_error">Erreur durant l\'importation</string>
+  <string name="import_reading_plan_error_duplicate">Les jours suivants ont été dupliqués : %s</string>
+  <string name="import_reading_plan_error_days">Les jours suivants contenaient des erreurs : %s</string>
+  <string name="import_reading_plan_anyway">Importer malgré tout</string>
+  <string name="overwrite_reading_plan">Voulez-vous écraser %s ?</string>
+  <string name="delete_reading_plan">Supprimer ce plan</string>
+  <string name="reading_plan_deleted">Le plan de lecture a été supprimé</string>
+  <string name="reading_plan_ships_with_ab">Ce plan de lecture est livré avec %s</string>
+  <string name="confirm_delete_reading_plan">
+        Êtes-vous sûr de vouloir supprimer %s avec son historique de lecture ?
+        Conseil : si vous devez mettre à jour le plan, vous pouvez simplement le réimporter avec le même nom de fichier
+         et l\'historique sera préservé.
+    </string>
   <string name="plan_duplicate_user_plan">
 Un plan de lecture existe sur la sdcard
 jsword/readingplan du même nom qu\'un plan interne. Il ne peut pas être listé.
@@ -237,6 +297,7 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <!--Verse context menu-->
   <string name="notes">Notes et références croisées</string>
   <string name="share_verse">Partager ...</string>
+  <string name="share_verse_widget_title">Partager la sélection</string>
   <string name="share_verse_subject_2">Un verset de la Bible a été partagé avec vous en utilisant %s.</string>
   <string name="compare_translations">Comparer les traductions</string>
   <!--Link context menu-->
@@ -244,12 +305,26 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="open_link_in_new_window">Ouvrir le lien dans une nouvelle fenêtre</string>
   <string name="open_link_in_special_window">Ouvrir le lien dans une fenêtre spéciale</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Signets &amp; mes notes</string>
+  <string name="migrated_my_notes">Migrer mes notes</string>
   <string name="bookmarks">Signets</string>
   <string name="bookmark_added">Signet ajouté</string>
+  <string name="manage_labels">Gérer les étiquettes</string>
   <string name="assign_labels">Attribuer des étiquettes</string>
+  <string name="new_item">Nouveau</string>
   <string name="new_label">Nouvelle étiquette</string>
   <string name="label_name_prompt">Nom de l\'étiquette</string>
   <string name="label_unlabelled">Indéfini</string>
+  <string name="add_bookmark1">Signets</string>
+  <string name="add_bookmark_whole_verse">Signet de verset</string>
+  <string name="remove_bookmark">Supprimer</string>
+  <string name="bookmark_settings_hide_labels_title">Masquer les étiquettes spécifiées</string>
+  <string name="bookmark_settings_hide_labels_summary">Cachez les signets qui sont marqués avec une ou plusieurs étiquettes spécifiées</string>
+  <string name="auto_assign_labels">Auto-assignation &amp; étiquettes favorites</string>
+  <string name="auto_assign_labels1">Attribution automatique aux nouveaux signets</string>
+  <string name="auto_assign_labels_primary">Auto-assignation comme première</string>
+  <string name="label_color">Couleur des étiquettes</string>
+  <string name="label_color_example">Exemple</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordre chronologique</string>
   <string name="sort_by_bible_book">Ordre biblique</string>
@@ -290,6 +365,7 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="speak_advanced_settings">Paramètres avancés</string>
   <string name="speak_sleep_timer_title">Mise en sommeil</string>
   <string name="speak_no_books_available">Pas de livre disponible à écouter</string>
+  <string name="speak_general_error">La synthèse vocale n\'a pas pu être lancée pour ce livre</string>
   <string name="repeat_passage">Répéter un passage</string>
   <string name="set_repeat_passage_range">Définir la plage de répétition de passage</string>
   <string name="speak_beginning_of_passage">Choisir le début du passage</string>
@@ -362,7 +438,17 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <!--User Notes-->
   <string name="mynotes">Mes notes</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Partager, sauvegarder &amp; restaurer les données</string>
+  <string name="backup_modules">Partager ou sauvegarde les documents vers...</string>
+  <string name="backup_app_database">Partager ou sauvegarde la base de données de l\'application vers…</string>
+  <string name="backup_app">Partagez ou sauvegardez l\'application (fichier .apk) sur…</string>
+  <string name="restore_app_database">Restaurer la base de données de l\'application depuis…</string>
+  <string name="restore_database">Restaurer le fichier de base de données</string>
+  <string name="restore_confirmation">Écraser mes notes, signets, fiches d\'étude, plans de lecture et espaces de travail ?</string>
+  <string name="restore_success">Mes notes, signets, fiches d\'étude, plans de lecture et espaces de travail ont été restaurés avec succès.</string>
   <string name="loading_backup">Chargement de la base de données depuis la sauvegarde...</string>
+  <string name="backup_success2">Mes notes, signets, fiches d\'étude, plans de lecture et espaces de travail ont été sauvegardés avec succès.</string>
+  <string name="backup_modules_success">Les modules sélectionnés ont été sauvegardés avec succès.</string>
   <string name="backup_modules_email_subject_2">%s sauvegarde de modules</string>
   <string name="backup_modules_email_message_2">Vous trouverez ci-joint la sauvegarde de vos modules %s, qui contient les modules suivants : %s</string>
   <string name="backup_email_subject_2">%s sauvegarde de la base de données</string>
@@ -382,8 +468,26 @@ Le fichier est peut-être invalide.</string>
   <string name="module_about_installed_version">Version installée : %s (%s)</string>
   <string name="module_about_latest_version">Dernière version : %s (%s)</string>
   <string name="module_about_versification">Versification : %s</string>
+  <string name="module_about_repository">Serveur de distribution : %s</string>
   <string name="module_about_osisId">OSIS ID : %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Commentaire / rapport de bogue</string>
+  <string name="report_bug_email_subject_3">[%s] Rapport de bogues pour %s %s</string>
+  <string name="report_bug_big_heading">VEUILLEZ ÉCRIRE VOS COMMENTAIRES OU VOTRE RAPPORT DE BOGUE AU-DESSUS DE CETTE LIGNE.</string>
+  <string name="report_bug_heading1">Instructions :</string>
+  <string name="report_bug_line_1">Dites-nous brièvement ce que vous avez fait / ce qui s\'est passé lorsque le problème a eu lieu.</string>
+  <string name="report_bug_heading2">Par exemple :</string>
+  <string name="report_bug_instructions1">1. App ouverte</string>
+  <string name="report_bug_instructions2">2. Fenêtre de menu sélectionnée</string>
+  <string name="report_bug_instructions3">-&gt; Plantage</string>
+  <string name="report_bug_line_2">Parfois, les captures d\'écran réalisées manuellement sont également utiles pour résoudre les problèmes.</string>
+  <string name="report_bug_line_3">Veuillez utiliser cette fonction pour signaler tout problème dès que vous l\'avez remarqué.</string>
+  <string name="report_bug_line_4">Vous pouvez également utiliser cette fonction après avoir ouvert l\'application, après que le plantage ait eu lieu.</string>
+  <string name="report_bug_heading_3">Annexes :</string>
+  <string name="bug_report_logcat">Fichier journal produit par cette application. Il ne contient pas d\'informations sur d\'autres applications.</string>
+  <string name="bug_report_screenshot">Capture d\'écran de l\'application au moment du plantage ou de la création du rapport de bogue.</string>
+  <string name="bug_report_attachment_line_1">Le fait d\'avoir ces fichiers joints aide beaucoup les développeurs d\'applications à corriger le bogue signalé.</string>
+  <string name="report_bug_heading_4">Info sur le périphérique :</string>
   <!--Document types-->
   <string name="doc_type_all">Tous types</string>
   <string name="doc_type_bible">Bible</string>
@@ -391,6 +495,7 @@ Le fichier est peut-être invalide.</string>
   <string name="doc_type_dictionary">Dictionnaire</string>
   <string name="doc_type_book">Livre</string>
   <string name="doc_type_map">Carte</string>
+  <string name="doc_type_addons">Extensions</string>
   <!--Languages-->
   <string name="lang_default">Par défaut</string>
   <!--General-->
@@ -399,19 +504,24 @@ Le fichier est peut-être invalide.</string>
   <string name="yes">Oui</string>
   <string name="no">Non</string>
   <string name="error">Erreur </string>
+  <string name="delete_generic">Supprimer</string>
   <string name="please_wait">Veuillez patienter...</string>
   <string name="all">Tout</string>
   <string name="edit">Éditer</string>
+  <string name="reset_generic">Réinitialiser</string>
   <string name="watch_tutorial_video">Voir le tutoriel vidéo (en anglais)</string>
   <string name="verse_not_found">Verset non trouvé</string>
   <!--Errors-->
   <string name="report_error">Envoyer un rapport </string>
   <string name="error_occurred">Une erreur s\'est produite</string>
+  <string name="error_occurred_crash_last_time">La dernière fois que vous avez utilisé l\'application, elle a planté. Pour nous aider à corriger le bogue, nous vous serions reconnaissants de nous envoyer un rapport. </string>
   <string name="error_occurred_with_link">Un erreur s\'est produite. %s</string>
   <string name="error_no_content">Aucun contenu pour le verset sélectionné</string>
   <string name="error_page_too_large">La page est trop lourde pour être chargée</string>
   <string name="error_key_not_in_document">Aucune correspondance dans le document</string>
+  <string name="error_key_not_in_document2">%s n\'a pas été trouvé dans le document %s.</string>
   <string name="empty_list">Aucun élément à afficher</string>
+  <string name="error_skip">Sauter</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Lecture de texte</string>
   <string name="notification_channel_progress_status">État d\'avancement de la notification de téléchargement des documents etc.</string>
@@ -448,10 +558,17 @@ Les bêta-testeurs sont invités à rapporter les bogues via Google Play ou via 
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Ignorer</string>
   <string name="beta_notice_dismiss_until_update">Ignorer jusqu\'à la prochaine mise à jour</string>
+  <string name="stable_notice_title">L\'application a été mise à jour !</string>
+  <string name="upgrade_video_message">Veuillez voir la vidéo présentant les nouvelles fonctionnalités de cette version (%s).</string>
+  <string name="stable_notice_par1">La nouvelle version %s de %s a été installé avec succès !</string>
   <!--History-->
   <string name="history_for">Historique (%s: Fenêtre %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigation</string>
+  <string name="help_nav_text">Passez au chapitre suivant ou précédent en faisant glisser l\'écran avec votre doigt.
+  Appuyez deux fois sur le texte de la Bible pour passer en mode plein écran.
+  Les écrans divisés (appelés aussi fenêtres) ont un bouton de menu dans leur coin supérieur droit,
+qui vous permet d\'utiliser plusieurs fonctions spécifiques aux fenêtres et de personnaliser leur aspect et leur comportement.</string>
   <string name="help_contextmenus_title">Menus contextuels</string>
   <string name="help_contextmenus_text">
 Un appui long ouvre le menu contextuel ou le mode d\'action dans plusieurs vues.
@@ -459,6 +576,19 @@ Appuyez longuement sur la vue de la Bible pour ouvrir le mode action pour les ac
 Appuyez longuement sur un élément de document dans la vue de liste de Choisir un document ou Télécharger pour supprimer le document ou afficher les informations.
 Appuyez longuement sur un signet dans la liste des signets pour ajouter des étiquettes ou supprimer un signet.
 Appuyez longuement sur les liens pour choisir si vous souhaitez les ouvrir dans la fenêtre actuelle, une nouvelle fenêtre ou une fenêtre de liens spéciaux.</string>
+  <string name="help_bookmarks_title">Signets &amp; mes notes</string>
+  <string name="help_bookmarks_text">Les signets peuvent être créés en sélectionnant du texte et en choisissant « Signet » dans le
+  menu contextuel. Vous pouvez ajouter vos notes personnalisées au nouveau signet en tapant
+ sur le texte en surbrillance dans l\'affichage de la Bible. Il existe également un document spécial « Mes notes » dans les commentaires qui vous permet
+d\'afficher vos notes dans une fenêtre séparée.</string>
+  <string name="help_studypads_title">Fiches d\'étude</string>
+  <string name="help_studypads_text">
+ Les fichiers d\'étude sont conçus pour faciliter l\'écriture de notes de sermon, la préparation de sermons ou simplement pour
+écrire des notes personnelles d\'études bibliques comportant plusieurs références bibliques. Chaque fichier d\'étude est associé à une étiquette de signet.
+Tous les signets qui ont été créés avec cette étiquette respective apparaissent automatiquement dans le document du bloc d\'étude.
+En plus des signets, il peut y avoir des entrées de texte personnalisées dans un fichier d\'étude.
+Conseil : Utilisez le menu Espace -&gt; Toutes les options de texte -&gt; Affecter des étiquettes pour affecter automatiquement tous les signets créés
+signets créés au bloc d\'étude.</string>
   <string name="help_search_title">Rechercher</string>
   <string name="help_search_text">La recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND, OR, NOT
  (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
@@ -476,14 +606,130 @@ Appuyez longuement sur le bouton de la barre d\'outils Lecture audio, pour accé
 Appuyez longuement sur le titre de l\'emplacement du verset dans la barre d\'outils pour accéder au sélecteur de documents.
 Appuyez longuement sur le bouton Retour pour accéder à la liste de l\'historique.</string>
   <string name="help_window_pinning_title">Épinglage de fenêtre</string>
+  <string name="help_window_pinning_text">
+   Vous pouvez activer l\'épinglage des fenêtres à partir du menu des options (trois points, coin supérieur droit).
+  Si l\'épinglage des fenêtres est activé, vous pouvez afficher de nombreuses fenêtres épinglées sur la vue Bible,
+   mais seulement une fenêtre non épinglée. Les fenêtres épinglées sont affichées en premier, et ensuite
+  les fenêtres non épinglées. Vous voudrez peut-être 
+  ouvrir les documents bibliques en tant que fenêtres épinglées, et les 
+commentaires, les cartes, etc. en tant que fenêtres non épinglées.Ainsi, vous pouvez facilement
+avoir les documents bibliques toujours ouverts, et passer rapidement des commentaires et autres
+documents supplémentaires lorsque vous étudiez la Bible.</string>
   <!--Welcome text-->
+  <string name="redownload_documents">Rapide retéléchargement</string>
+  <string name="welcome_message">Merci d\'avoir téléchargé %s. Il n\'y a actuellement aucune bible ou document installé. Pour continuer, veuillez installer
+  au moins 1 document en le téléchargeant depuis l\'internet, ou en le chargeant depuis un fichier zip de document
+        sauvegardé.
+    </string>
+  <string name="redownload_message">
+        Une liste de livres/documents précédents a été trouvée. Cliquez ci-dessous pour les télécharger à nouveau facilement.
+    </string>
   <!--Uncategorized-->
   <string name="close">Fermer</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">J\'ai compris</string>
   <string name="first_time_help_show_next_time">Me montrer la prochaine fois</string>
+  <string name="strongs_mode_title">Choisir le mode Strongs</string>
+  <string name="download_dialog_message">Les livres suivants ne peuvent pas être téléchargés :</string>
+  <string name="select_multiple">Sélectionner plusieurs</string>
+  <string name="journal_description">Fichier d\'étude modifiables par l\'utilisateur avec du texte et des signets personnalisés</string>
+  <string name="my_notes_description">Fichier d\'étude modifiables par l\'utilisateur joints à des signets</string>
+  <string name="my_notes_abbreviation">Mes notes</string>
+  <string name="studypads">Fiches d\'étude</string>
+  <string name="multi_description">références multiples</string>
+  <string name="multi_abbreviation">Multiple</string>
+  <string name="compare_description">Comparer les traductions</string>
+  <string name="compare_abbreviation">Comparer</string>
+  <string name="http_forbidden">Interdit</string>
+  <string name="http_not_found">Non trouvé</string>
+  <string name="http_unknown">Autre erreur</string>
+  <string name="compare">Comparer</string>
+  <string name="give_passphrase_for_module">Le document %s est crypté et nécessite une phrase de passe pour être déverrouillé.</string>
+  <string name="unlocking_failed">Échec du déverrouillage, phrase de passe invalide.</string>
+  <string name="unlock_module">Définir la phrase de passe du module</string>
+  <string name="unlock_info">Infos de déverrouillage du module crypté</string>
+  <string name="try_again_passphrase">La phrase de passe n\'a pas fonctionné, essayez à nouveau ?</string>
+  <string name="cant_delete_last_bible">Impossible de supprimer le dernier document biblique</string>
+  <string name="show_unlock_info">Module et info de déverrouillage</string>
+  <string name="prefs_show_error_box_title">Afficher la boîte d\'erreur Javascript</string>
+  <string name="prefs_show_error_box_summary">Utile pour les développeurs lors du débogage des erreurs javascript de BibleView. Cela rendra l\'application plus lente.</string>
+  <string name="active_window_indicator_title">Afficher l\'indicateur de la fenêtre active</string>
+  <string name="active_window_indicator_summary">Mise en évidence des coins de fenêtre pour aider à reconnaître la fenêtre active</string>
+  <string name="app_licence_title">Licence Open Source</string>
+  <string name="how_to_contribute">Comment contribuer ?</string>
+  <string name="confirm_delete_bookmarks">Voulez-vous supprimer les signets %d et leurs notes ?</string>
+  <string name="confirm_delete_study_pads">Voulez-vous supprimer les étiquettes de signets / fiches d\'étude %d ? Tous les signets associés et les notes des fiches d\'étude seront également supprimés.</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Recommander à un ami</string>
+  <string name="tell_friend_message1">Je voudrais vous recommander %s.</string>
+  <string name="tell_friend_message2">Il s\'agit d\'une application d\'étude biblique hors ligne puissante, mais facile à utiliser, pour Android.</string>
+  <string name="tell_friend_message3">L\'installer depuis le Play Store : %s</string>
+  <string name="tell_friend_message4">Lire davantage &amp; plus d'options d'installation : %s</string>
+  <string name="share_verse_ok">Partager / copier</string>
+  <string name="share_verse_menu_title">Partager / copier...</string>
+  <string name="show_versenumbers">Afficher les numéros de verset</string>
+  <string name="show_full_verses">Afficher tous les versets</string>
+  <string name="advertise_app">Promouvoir l\'app</string>
+  <string name="verse_share_advertise">Partagé en utilisant %s.</string>
+  <string name="abbreviate_reference">Référence abrégée</string>
+  <string name="backup_button">Sauvegarde</string>
+  <string name="back_button">Retour</string>
+  <string name="upgrading_database">Mise à jour de la base de données. Veuillez patienter...</string>
+  <string name="initializing_app">Initialisation de l\'application…</string>
+  <string name="show_notes">Montrer les notes</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Le paquet Android WebView est trop ancien (%s). Vous devez mettre à jour votre paquet Android WebView vers la version minimale %s pour utiliser %s. Pour la plupart des appareils, cela peut être fait via %s.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Accéder malgré tout</string>
+  <string name="rate_title">Évaluation et révision de l\'application</string>
+  <string name="rate_message5">
+         Les critiques positives et détaillées aident beaucoup le projet Open Source And Bible. Merci !
+    </string>
+  <string name="rate_message6">
+     Avant d\'examiner un avis négatif, veuillez prendre en compte les éléments suivants :
+    </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+         Si vous avez un problème avec l\'application, s\'il vous plaît %sou %sà la place.
+    </string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+        Si un texte / une traduction de la Bible présente un problème, %s.
+    </string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+Si un texte particulier n\'est pas disponible dans l\'application, %s.
+</string>
+  <string name="rate_message4">
+        Les développeurs de cette application ne sont pas responsables de la mise à jour des documents.
+    </string>
+  <string name="bug_report">
+        envoyer un rapport de bug (depuis le menu principal)
+    </string>
+  <string name="how_to_help">
+        Veuillez lire ce que vous pouvez faire pour aider
+    </string>
+  <string name="send_email">
+       envoyer un courriel aux développeurs
+    </string>
+  <string name="proceed_google_play">
+  Accéder à Google Play</string>
+  <string name="text_maintainers">
+       veuillez signaler les problèmes aux mainteneurs du texte
+    </string>
+  <string name="does_not_exist_abbreviation">N\'existe pas</string>
+  <string name="cant_change_wholeverse">Impossible de désactiver le marquage de tous le verset pour ce signet.</string>
+  <string name="whole_verse_turned_on">Le signet est maintenant marqué pour tout le verset</string>
+  <string name="this_bookmark">Ce signet</string>
+  <string name="this_workspace">Cet espace</string>
+  <string name="primary_label">Première étiquette</string>
+  <string name="highlight_entire_verse">Surligner tout le verset</string>
+  <string name="favourite_label">Étiquette favorite</string>
+  <string name="edit_label">Éditer les étiquettes des signets</string>
+  <string name="delete_label_confirmation">Voulez-vous supprimer l\'étiquette%s ?</string>
+  <string name="bookmark_underline_style_arbitrary">Style de soulignement pour les signets normaux</string>
+  <string name="bookmark_underline_style_whole_verse">Style de soulignement pour les signets de verset entier</string>
+  <string name="active_labels">Étiquettes actives</string>
+  <string name="recent_labels">Étiquettes récentes</string>
+  <string name="other_labels">Autres étiquettes</string>
 </resources>

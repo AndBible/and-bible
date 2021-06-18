@@ -328,6 +328,9 @@
   <string name="remove_bookmark">Šalinti</string>
   <string name="bookmark_settings_hide_labels_title">Paslėpti nurodytas etiketes</string>
   <string name="bookmark_settings_hide_labels_summary">Paslėpti žymes, kurios pažymėtos nurodyta etikete(-ėmis)</string>
+  <string name="auto_assign_labels">Automatinis priskyrimas ir mėgstamos etiketės</string>
+  <string name="auto_assign_labels1">Automatiškai priskirti naujoms žymėms</string>
+  <string name="auto_assign_labels_primary">Automatiškai priskirti kaip pirminę</string>
   <string name="label_color">Etiketės spalva</string>
   <string name="label_color_example">Pavyzdys</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -736,4 +739,16 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="does_not_exist_abbreviation">Nėra</string>
   <string name="cant_change_wholeverse">Nepavyksta išjungti visos eilutės žymėjimą šiai žymei</string>
   <string name="whole_verse_turned_on">Dabar, žymė yra pažymėta visai eilutei</string>
+  <string name="this_bookmark">Ši žymė</string>
+  <string name="this_workspace">Ši darbo sritis</string>
+  <string name="primary_label">Pirminė etiketė</string>
+  <string name="highlight_entire_verse">Paryškinti visą eilutę</string>
+  <string name="favourite_label">Mėgstama etiketė</string>
+  <string name="edit_label">Taisyti žymės etiketę</string>
+  <string name="delete_label_confirmation">Ar norite pašalinti etiketę „%s“?</string>
+  <string name="bookmark_underline_style_arbitrary">Įprastų žymių pabraukimo stilius</string>
+  <string name="bookmark_underline_style_whole_verse">Visos eilutės žymių pabraukimo stilius</string>
+  <string name="active_labels">Aktyvios etiketės</string>
+  <string name="recent_labels">Paskiausios etiketės</string>
+  <string name="other_labels">Kitos etiketės</string>
 </resources>

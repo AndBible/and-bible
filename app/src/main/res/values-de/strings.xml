@@ -301,18 +301,21 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="migrated_my_notes">Eigene Notizen wurden migriert</string>
   <string name="bookmarks">Lesezeichen</string>
   <string name="bookmark_added">Lesezeichen hinzugefügt</string>
-  <string name="manage_labels">Gruppen verwalten</string>
-  <string name="assign_labels">Gruppennamen auswählen</string>
+  <string name="manage_labels">Kategorien verwalten</string>
+  <string name="assign_labels">Kategorie auswählen</string>
   <string name="new_item">Neu</string>
-  <string name="new_label">Neue Gruppe</string>
+  <string name="new_label">Neue Kategorie</string>
   <string name="label_name_prompt">Name</string>
   <string name="label_unlabelled">Nicht kategorisiert</string>
   <string name="add_bookmark1">Lesezeichen</string>
   <string name="add_bookmark_whole_verse">Lesezeichen f. Vers</string>
   <string name="remove_bookmark">Entfernen</string>
-  <string name="bookmark_settings_hide_labels_title">Bestimmte Gruppen verbergen</string>
-  <string name="bookmark_settings_hide_labels_summary">Lesezeichen aus gekennzeichenten Gruppen verbergen</string>
-  <string name="label_color">Gruppenfarbe</string>
+  <string name="bookmark_settings_hide_labels_title">Bestimmte Kategorien verbergen</string>
+  <string name="bookmark_settings_hide_labels_summary">Lesezeichen aus gekennzeichenten Kategorien verbergen</string>
+  <string name="auto_assign_labels">Lesezeichen-Kategorie automatisch zuweisen</string>
+  <string name="auto_assign_labels1">Automatisch zu neuen Lesezeichen hinzufügen</string>
+  <string name="auto_assign_labels_primary">Automatisch als Primärgruppe zuweisen</string>
+  <string name="label_color">Kategorienfarbe</string>
   <string name="label_color_example">Beispiel</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Sortieren nach Datum</string>
@@ -382,7 +385,7 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="system_speak_settings">Öffne die Systemsteuerung für Sprachausgabe</string>
   <string name="speak_bookmark_help">Sprachhilfe</string>
   <string name="speak_help_auto_bookmark">
-Ein Sprachlesezeichen wird automatisch hinzugefügt, wenn die Vorlesefunktion pausiert oder angehalten wird. Automatische Lesezeichen erhalten den Spezialmarker. Wenn die Vorlesefunktion an einem Sprachlesezeichen gestartet wird, wird das Lesezeichen automatisch an den Ort verschoben, an dem die Wiedergabe pausiert oder gestoppt wird. Nur Sprachlesezeichen werden verschoben, alle anderen Lesezeichen bleiben unberührt.</string>
+Ein Sprachlesezeichen wird automatisch hinzugefügt, wenn die Vorlesefunktion pausiert oder angehalten wird. Automatische Lesezeichen erhalten die Spezialmarkierung. Wenn die Vorlesefunktion an einem Sprachlesezeichen gestartet wird, wird das Lesezeichen automatisch an den Ort verschoben, an dem die Wiedergabe pausiert oder gestoppt wird. Nur Sprachlesezeichen werden verschoben, alle anderen Lesezeichen bleiben unberührt.</string>
   <string name="speak_help_playback_settings">
 Spezielle Einstellungen für die Wiedergaben (unter \"Wiedergabeeinstellungen\" im Sprachwiedergabefenster) werden mit den Lesezeichen gespeichert, wenn die Einstellung aktiviert ist. Wird die Wiedergabe von einem Lesezeichen gestartet, werden die speziellen Einstellungen mit dem Lesezeichen geladen.</string>
   <string name="speak_help_playback_settings_example">
@@ -431,9 +434,9 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="restore_app_database">Wiederherstellen der Datenbank von...</string>
   <string name="restore_database">Wiederherstellen der Datenbankdatei</string>
   <string name="restore_confirmation">Überschreiben von eigenen Notizen, Lesezeichen, Studienmappen, Leseplänen und Arbeitsräumen?</string>
-  <string name="restore_success">Eigene Notizen, Lesezeichen, Arbeitsmappen, Lesezeichen und Arbeitsräume erfolgreich wiederhergestellt</string>
+  <string name="restore_success">Eigene Notizen, Lesezeichen, Studienmappen, Lesezeichen und Arbeitsräume erfolgreich wiederhergestellt</string>
   <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
-  <string name="backup_success2">Eigene Notizen, Lesezeichen, Arbeitsmappen, Lesezeichen und Arbeitsräume erfolgreich gesichert</string>
+  <string name="backup_success2">Eigene Notizen, Lesezeichen, Studienmappen, Lesezeichen und Arbeitsräume erfolgreich gesichert</string>
   <string name="backup_modules_success">Aufgewählte Module erfolgreich gesichert</string>
   <string name="backup_modules_email_subject_2">%s Modulbackup</string>
   <string name="backup_modules_email_message_2">Angehängt finden Sie ihr %s Modulbackup, das folgende Module enthält: %s</string>
@@ -559,17 +562,17 @@ die es ermöglichen, bestimmte fensterspezifische Funktionen aufzurufen und das 
 Langes Drücken öffnet das Kontextmenü oder Aktionsmenüs in den verschiedensten Ansichten.
 Langes Drücken in der Bibelansicht öffnet ein Aktionsmenü für den aktuellen Vers.
 Langes Drücken auf ein Dokument in der Dokumentenauswahl oder dem Download ermöglicht das Löschen oder Einsehen zusätzlicher Informationen.
-Langes Drücken auf ein Lesezeichen ermöglicht das Hinzufügen zu Gruppen oder das Löschen des Lesezeichens.
+Langes Drücken auf ein Lesezeichen ermöglicht das Hinzufügen zu Kategorien oder das Löschen des Lesezeichens.
 Langes Drücken auf Verweise ermöglicht die Auswahl, den Verweis im gleichen Fenster, einem neuen Fenster oder einem Spezialfenster für Verweise zu öffnen.</string>
   <string name="help_bookmarks_title">Lesezeichen &amp; eigene Notizen</string>
   <string name="help_bookmarks_text">Lesezeichen können erzeugt werden, indem man Text auswählt und \"Lesezeichen vom Pop-up Menü auswählt.
 Du kannst deine eigenen Notizen hinzufügen, indem du den jetzt hervorgehobenen Text anklickst. Es gibt auch ein spezielles Dokument \"eigene Notizen\" unter den Kommentaren, in dem du deine Notizen in einem eigenen Fenster ansehen kannst.</string>
   <string name="help_studypads_title">Studienmappen</string>
   <string name="help_studypads_text">
-Studienmappen sollen das Niederschreiben von Predigtnotizen, ganzen Predigten oder einfach persönlichen Notizen fürs Bibelstudium zu erleichtern, die mehrere biblische Querverweise beinhalten. Jede Studienmappe ist mit einer Lesezeichengruppe verbunden.
-Alle Lesezeichen, die in diese Gruppe hinzugefügt worden sind, erscheinen automatisch in der Studienmappe.
+Studienmappen sollen das Niederschreiben von Predigtnotizen, ganzen Predigten oder einfach persönlichen Notizen fürs Bibelstudium zu erleichtern, die mehrere biblische Querverweise beinhalten. Jede Studienmappe ist mit einer Lesezeichenkategorie verbunden.
+Alle Lesezeichen, die zu dieser Kaegorie hinzugefügt worden sind, erscheinen automatisch in der Studienmappe.
 Neben Lesezeichen können auch andere Einträge händisch hinzugefügt werden.
-Tipp: Verwende Arbeitsplatzmenü -&gt; Alle Textoptionen -&gt; Gruppen automatisch zuweisen um alle erstellten Lesezeichen automatisch der Studienmappe hinzuzufügen.</string>
+Tipp: Verwende Arbeitsplatzmenü -&gt; Alle Textoptionen -&gt; Kategorien automatisch zuweisen um alle erstellten Lesezeichen automatisch der Studienmappe hinzuzufügen.</string>
   <string name="help_search_title">Suche</string>
   <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
   <string name="help_workspaces_title">Arbeitsbereich</string>
@@ -588,13 +591,107 @@ Langes Drücken des Rückwärtsknopfes führt zur Chronikliste.</string>
 Man kann die Fensterverankerung im Optionenmenü aktivieren (drei Punkte rechts oben).
 Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster angezeigt werden, aber nur ein nicht verankertes. Verankerte Fenster werden zuerst angezeigt, dann nicht verankerte. Es wäre z.B. eine Idee, Bibeldokumente zu verankern und Kommentare und Karten etc. nicht zu verankern. Dann ist es leichter möglich, Bibeldokumente immer geöffnet zu haben und schnell zwischen Kommentaren und anderem Zusatzmaterial zu wechseln.</string>
   <!--Welcome text-->
+  <string name="redownload_documents">Schneller erneuter Download</string>
+  <string name="welcome_message">Danke für das Herunterladen von%s. Zur Zeit sind keine Bibeln oder andere Dokumente installiert. Um fortzufahren, installiere bitte mindestens ein Dokument aus dem Internet oder aus einer Sicherungsdatei.</string>
+  <string name="redownload_message">
+Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um sie auf einmal wieder herunterzuladen.</string>
   <!--Uncategorized-->
   <string name="close">Schließen</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Verstanden</string>
   <string name="first_time_help_show_next_time">Das nächste Mal erneut anzeigen</string>
+  <string name="strongs_mode_title">Strong-Modus auswählen</string>
+  <string name="download_dialog_message">Die folgenden Bücher konnten nicht heruntergeladen werden:</string>
+  <string name="select_multiple">Mehrfachauswahl</string>
+  <string name="journal_description">Bearbeitbare Studienmappen mit benutzerdefiniertem Text und Lesezeichen</string>
+  <string name="my_notes_description">Benutzereigene editierbare Notizen als Anhang zu Lesezeichen</string>
+  <string name="my_notes_abbreviation">Eigene Notizen</string>
+  <string name="studypads">Studienmappen</string>
+  <string name="multi_description">Mehrere Querverweise</string>
+  <string name="multi_abbreviation">Multiple</string>
+  <string name="compare_description">Vergleiche Übersetzungen</string>
+  <string name="compare_abbreviation">Vergleiche</string>
+  <string name="http_forbidden">Verboten</string>
+  <string name="http_not_found">Nicht gefunden</string>
+  <string name="http_unknown">Anderer Fehler</string>
+  <string name="compare">Vergleiche</string>
+  <string name="give_passphrase_for_module">Dokument %s ist verschlüsselt und benötigt eine Passphrase zum Entschlüsseln</string>
+  <string name="unlocking_failed">Entschlüsselung fehlgeschlagen, fehlerhaftes Passwort</string>
+  <string name="unlock_module">Modulpasswort festlegen</string>
+  <string name="unlock_info">Information zum Entschlüsseln des Moduls</string>
+  <string name="try_again_passphrase">Passwort fehlerhaft, neu probieren?</string>
+  <string name="cant_delete_last_bible">Das letzte Bibeldokument kann nicht entfernt werden</string>
+  <string name="show_unlock_info">Informationen zum Modul &amp; zum Entschlüsseln</string>
+  <string name="prefs_show_error_box_title">Javascript Fehlerbox anzeigen</string>
+  <string name="prefs_show_error_box_summary">Nützlich für Entwickler um BibleView Javascript Fehler zu korrigieren. Das wird die App verlangsamen.</string>
+  <string name="active_window_indicator_title">Den Anzeige für das aktive Fenster einblenden</string>
+  <string name="active_window_indicator_summary">Fensterecken hervorheben, um anzuzeigen, welches Fenster aktiv ist</string>
+  <string name="app_licence_title">Open Source License</string>
+  <string name="how_to_contribute">Wie man beitragen kann</string>
+  <string name="confirm_delete_bookmarks">Möchtest du %dLesezeichen und die dazugehörigen Notizen entfernen?</string>
+  <string name="confirm_delete_study_pads">Möchtest du %dLesezeichenkategorien /Studienmappen löschen? Alle zugeordneten Lesezeichen und Sutdienmappennotizen werden ebenfalls entfernt.</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Einem Freund empfehlen</string>
+  <string name="tell_friend_message1">Ich möchte dir %sempfehlen.</string>
+  <string name="tell_friend_message2">Es ist ein mächtiges, aber einfach zu bedienenden Offline-Programm zum Bibelstudium für Android.</string>
+  <string name="tell_friend_message3">Installiere vom Play Store: %s</string>
+  <string name="tell_friend_message4">Weitere Info &amp; Installationsoptionen: %s</string>
+  <string name="share_verse_ok">Teilen/Kopieren</string>
+  <string name="share_verse_menu_title">Teilen/Kopieren...</string>
+  <string name="show_versenumbers">Zeige Versnummern</string>
+  <string name="show_full_verses">Zeige die ganzen Verse</string>
+  <string name="advertise_app">Programm bewerben</string>
+  <string name="verse_share_advertise">Geteilt mit %s.</string>
+  <string name="abbreviate_reference">Querverweis abkürzen</string>
+  <string name="backup_button">Backup</string>
+  <string name="back_button">Zurück</string>
+  <string name="upgrading_database">Datenbank wird erneuert. Bitte warten...</string>
+  <string name="initializing_app">Programm wird gestartet...</string>
+  <string name="show_notes">Notizen anzeigen</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Android WebView Paket ist zu alt ( %s ). Du must dein Android Webview Paket zumindest zu Version %s updaten um %s zu verwenden. Für die meisten Geräte geht das einfach über %s.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Trotzdem fortfahren</string>
+  <string name="rate_title">Programm bewerten</string>
+  <string name="rate_message5">
+Positive und ausführliche Bewertngen helfen dem And Bible Open Source Projekt sehr. Herzlichen Dank!</string>
+  <string name="rate_message6">
+Vor dem Posten einer negativen Bewertung beachte bitte Folgendes:</string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+Wenn du ein Problem mit dem Programm hast, dann kannst du stattdessen %soder %s.</string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+Wenn ein Text oder eine Bibelübersetzung ein Problem hat, %s
+</string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+Wenn ein bestimmter Text nicht im Programm erhältlich ist, dann %s.</string>
+  <string name="rate_message4">
+Die Entwickler dieses Programms sind nicht für die Wartung der Dokumente zuständig.</string>
+  <string name="bug_report">
+Eine Fehlermeldung senden (vom Hauptmenü)</string>
+  <string name="how_to_help">
+Bitte lies nach, was du tun kannst, um zu helfen</string>
+  <string name="send_email">
+E-Mail an die Entwickler senden</string>
+  <string name="proceed_google_play">
+Weiter zu Google Play</string>
+  <string name="text_maintainers">
+Bitte informiere die Textmaintainer über Probleme</string>
+  <string name="does_not_exist_abbreviation">Nicht vorhanden</string>
+  <string name="cant_change_wholeverse">Für dieses Lesezeichen kann die Markierung des ganzen Verses nicht abgeschalten werden</string>
+  <string name="whole_verse_turned_on">Das Lesezeichen ist nun für den den ganzen Vers </string>
+  <string name="this_bookmark">Dieses Lesezeichen</string>
+  <string name="this_workspace">Dieser Arbeitsbereich</string>
+  <string name="primary_label">Primärkategorie</string>
+  <string name="highlight_entire_verse">Den ganzen Vers hervorheben</string>
+  <string name="favourite_label">Lieblingskategorie</string>
+  <string name="edit_label">Bearbeite Lesezeichenkategorie</string>
+  <string name="delete_label_confirmation">Möchtest du Kategorie %sentfernen</string>
+  <string name="bookmark_underline_style_arbitrary">Unterstreichungsstil für normale Lesezeichen</string>
+  <string name="bookmark_underline_style_whole_verse">Unterstreichungsstil für Lesezeichen für ganze Verse</string>
+  <string name="active_labels">Aktive Kategorien</string>
+  <string name="recent_labels">Kürzliche Kategorien</string>
+  <string name="other_labels">Andere Kategorien</string>
 </resources>

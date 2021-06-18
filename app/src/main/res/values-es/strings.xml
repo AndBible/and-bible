@@ -331,6 +331,9 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="remove_bookmark">Eliminar</string>
   <string name="bookmark_settings_hide_labels_title">Ocultar etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que se marcaron con la(s) etiqueta(s) especificada(s)</string>
+  <string name="auto_assign_labels">Auto-asignar &amp; etiquetas favoritas</string>
+  <string name="auto_assign_labels1">Auto-asignar a nuevos marcadores</string>
+  <string name="auto_assign_labels_primary">Auto-asignar como principal</string>
   <string name="label_color">Color de etiqueta</string>
   <string name="label_color_example">Ejemplo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -745,4 +748,16 @@ informe los problemas a los mantenedores de texto
   <string name="does_not_exist_abbreviation">No existe</string>
   <string name="cant_change_wholeverse">No se puede desactivar la marcación de verso completo para este marcador</string>
   <string name="whole_verse_turned_on">El marcador ahora está marcado para todo el verso</string>
+  <string name="this_bookmark">Este marcador</string>
+  <string name="this_workspace">Este espacio</string>
+  <string name="primary_label">Etiqueta principal</string>
+  <string name="highlight_entire_verse">Resalta el verso completo</string>
+  <string name="favourite_label">Etiqueta favorita</string>
+  <string name="edit_label">Editar etiqueta de marcador</string>
+  <string name="delete_label_confirmation">¿Quieres quitar la etiqueta %s?</string>
+  <string name="bookmark_underline_style_arbitrary">Estilo de subrayado para marcadores normales</string>
+  <string name="bookmark_underline_style_whole_verse">Estilo de subrayado para marcadores de verso completo</string>
+  <string name="active_labels">Etiquetas activas</string>
+  <string name="recent_labels">Etiquetas recientes</string>
+  <string name="other_labels">Otras etiquetas</string>
 </resources>
