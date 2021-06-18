@@ -196,10 +196,6 @@ constructor(private val callingActivity: MainBibleActivity,
                     handlerIntent = Intent(callingActivity, DownloadActivity::class.java)
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
-                R.id.installZipButton -> {
-                    handlerIntent = Intent(callingActivity, InstallZip::class.java)
-                    requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
-                }
                 R.id.helpButton -> {
                     CommonUtils.showHelp(callingActivity, showVersion = true)
                     isHandled = true
