@@ -354,7 +354,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return true
         }
         else {
-            if (showSystem) {
+            if (showSystem || firstDocument !is BibleDocument) {
                 showSystem = false
                 return true
             } else {
