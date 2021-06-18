@@ -33,7 +33,7 @@
                 android:title="@string/speak"
                 android:icon="@drawable/ic_baseline_headphones_24"/>
             <item android:id="@+id/bookmarksButton"
-                android:title="@string/bookmarks_and_mynotes_title"
+                android:title="@string/bookmarks"
                 android:icon="@drawable/ic_baseline_bookmark_24"
                 />
             <item android:id="@+id/myJournalsButton"
