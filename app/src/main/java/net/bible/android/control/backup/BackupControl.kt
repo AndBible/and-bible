@@ -25,6 +25,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
+import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -39,6 +40,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BackupViewBinding
+import net.bible.android.activity.databinding.ChooseDictionaryPageBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
@@ -451,19 +453,9 @@ object BackupControl {
         _mainBibleActivity?.updateDocuments()
     }
 
-    enum class BackupDialogResult {CANCEL, OKAY}
-
     suspend fun backupPopup(context: ActivityBase) {
-        suspendCoroutine<BackupDialogResult> {
-            val dlgBuilder = AlertDialog.Builder(context)
-                .setMessage(R.string.backup_and_restore)
-                .setCancelable(true)
-                .setView(BackupView(context, null) { it.resume(BackupDialogResult.OKAY) })
-                .setOnCancelListener { _ -> it.resume(BackupDialogResult.CANCEL) }
-                .setNeutralButton(R.string.back_button) { _, _ -> it.resume(BackupDialogResult.OKAY) }
-
-            dlgBuilder.show()
-        }
+        val intent = Intent(context, BackupActivity::class.java)
+        context.awaitIntent(intent)
     }
 
     private lateinit var internalDbDir : File;
@@ -477,17 +469,21 @@ object BackupControl {
     private const val TAG = "BackupControl"
 }
 
-class BackupView(val activity: ActivityBase, attributeSet: AttributeSet?, val closeCallback: () -> Unit): LinearLayout(activity, attributeSet) {
-    private val bindings = BackupViewBinding.inflate(context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater, this, true)
-    init {
-        bindings.apply {
-            restoreModules.text = "${activity.getString(R.string.install_zip)} / \n ${activity.getString(R.string.restore_modules)}"
+class BackupActivity: ActivityBase() {
+    lateinit var binding: BackupViewBinding
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        buildActivityComponent().inject(this)
+        binding = BackupViewBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.apply {
+            restoreModules.text = "${getString(R.string.install_zip)} / \n ${getString(R.string.restore_modules)}"
 
-            backupApp.setOnClickListener { GlobalScope.launch { BackupControl.backupApp(activity) } }
-            backupAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.startBackupAppDatabase(activity) } }
-            backupModules.setOnClickListener { GlobalScope.launch { BackupControl.backupModulesViaIntent(activity) } }
-            restoreAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.restoreAppDatabaseViaIntent(activity) } }
-            restoreModules.setOnClickListener { GlobalScope.launch { BackupControl.restoreModulesViaIntent(activity) } }
+            backupApp.setOnClickListener { GlobalScope.launch { BackupControl.backupApp(this@BackupActivity) } }
+            backupAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) } }
+            backupModules.setOnClickListener { GlobalScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) } }
+            restoreAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) } }
+            restoreModules.setOnClickListener { GlobalScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) } }
         }
     }
 }

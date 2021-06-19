@@ -52,6 +52,12 @@
             android:launchMode="singleTop"
             android:label="@string/app_name_short" />
         <activity
+            android:name="net.bible.android.control.backup.BackupActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/backup_and_restore"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDocument"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/chooseBook"
