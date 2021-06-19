@@ -16,7 +16,7 @@ footnoteTypeAlternative: Alternative
 footnoteTypeTranslation: Translation
 clearLog: Clear error log
 editNote: Edit
-editNotePlaceholder: Edit a note for bookmark
+editNotePlaceholder: Edit note
 editTextPlaceholder: Tap to edit text
 inputPlaceholder: Write here
 inputReference: Enter Bible reference
@@ -47,9 +47,9 @@ emptyStudyPad: >
   Empty study pad. Start adding to this study pad by creating text entries here
   or by creating bookmarks with a bookmark label that corresponds with this study pad.
 studyPadModalTitle: Edit study pad entry
-doYouWantToDeleteEntry: Are you sure you want to delete this study pad entry?
+doYouWantToDeleteEntry: Delete this study pad entry?
 removeStudyPadConfirmationTitle: Remove study pad entry?
-dragHelp: You can drag & drop item to re-order study pad
+dragHelp: Drag to reorder
 saved: saved
 openAll: Open all references
 editBookmarkPlaceholder: Tap to edit My Notes for this bookmark
@@ -57,11 +57,11 @@ onlyLabel: Only label
 wholeBookmark: Whole bookmark
 otherNoteText: Other note
 assignLabelsMenuEntry: Assign labels
-assignLabelsMenuEntry1: Select or edit labels in list…
+assignLabelsMenuEntry1: Select or edit labels…
 jumpToStudyPad: Jump to Study Pad
 setAsPrimaryLabel: Set as primary label
-removeBookmarkLabel: Remove label from bookmark
-addBookmarkLabel: Add label to bookmark
+removeBookmarkLabel: Remove label
+addBookmarkLabel: Add label
 favouriteLabels: Favourite Labels
 recentLabels: Recent Labels
 frequentlyUsedLabels: Frequently Used Labels
