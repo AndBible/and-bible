@@ -40,8 +40,6 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
     private val autoFullScreen: Boolean get() = CommonUtils.sharedPreferences.getBoolean("auto_fullscreen_pref", false)
     private var lastFullScreenByDoubleTap = false
 
-    private var verseSelectionMode = false
-
     private lateinit var scrollEv: MotionEvent
     private lateinit var flingEv: MotionEvent
     private var lastDirection = false
@@ -135,13 +133,12 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         return super.onSingleTapUp(e)
     }
 
+    private val doubleTapToFullscreen get() = CommonUtils.sharedPreferences.getBoolean("double_tap_to_fullscreen", true)
+
     override fun onDoubleTap(e: MotionEvent): Boolean {
-        if (verseSelectionMode) {
-            return false
-        }
         if (mainBibleActivity.fullScreen) {
             mainBibleActivity.fullScreen = false
-        } else if(!mainBibleActivity.fullScreen){
+        } else if(!mainBibleActivity.fullScreen && doubleTapToFullscreen){
             mainBibleActivity.fullScreen = true
 			lastFullScreenByDoubleTap = true
         }

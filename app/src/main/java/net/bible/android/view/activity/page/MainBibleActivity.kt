@@ -690,6 +690,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             R.id.autoPinMode -> WindowPinningPreference()
             R.id.tiltToScroll -> TiltToScrollPreference()
             R.id.nightMode -> NightModePreference()
+            R.id.fullscreen -> CommandPreference(launch = { _, _, _ ->
+                fullScreen = true
+            })
             R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
                 val intent = Intent(this, WorkspaceSelectorActivity::class.java)
                 startActivityForResult(intent, WORKSPACE_CHANGED)
@@ -1019,6 +1022,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         ABEventBus.getDefault().post(FullScreenEvent(isFullScreen))
         updateToolbar()
         updateBottomBars()
+        if(isFullScreen) {
+            ABEventBus.getDefault().post(ToastEvent(R.string.exit_fullscreen))
+        }
     }
 
     fun resetSystemUi() {

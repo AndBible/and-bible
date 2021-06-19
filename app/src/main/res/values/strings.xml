@@ -864,4 +864,8 @@
     <string name="text_copied_to_clicpboard">Text copied to clipboard</string>
     <string name="prefs_disable_two_step_bookmarking_title">One-step bookmarking</string>
     <string name="prefs_disable_two_step_bookmarking_summary">Show \"Selection\" and \"Verses\" items directly in Bible view Selection menu</string>
+    <string name="prefs_double_tap_to_fullscreen_title">Double-tap to Fullscreen</string>
+    <string name="prefs_double_tap_to_fullscreen_summary">Enter full-screeen mode by double-tapping window</string>
+    <string name="toggle_fullscreen">Fullscreen</string>
+    <string name="exit_fullscreen">Double-tap screen to exit fullscreen</string>
 </resources>
