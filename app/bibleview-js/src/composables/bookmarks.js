@@ -235,7 +235,7 @@ export function useBookmarks(documentId,
     }
 
     function showHighlight(b) {
-        return config.showBookmarks && (b.offsetRange == null || b.bookInitials === bookInitials)
+        return b.offsetRange == null || b.bookInitials === bookInitials;
     }
 
     const highlightBookmarks = computed(() => {
@@ -245,7 +245,12 @@ export function useBookmarks(documentId,
     const markerBookmarks = computed(
         () => {
             isMounted.value;
-            return documentBookmarks.value.filter(b => !showHighlight(b) && checkOrdinalEnd(b))
+            return documentBookmarks.value
+                .filter(b =>
+                    !showHighlight(b) &&
+                    checkOrdinalEnd(b) &&
+                    ((b.hasNote && config.showMyNotes) || config.showBookmarks)
+                )
         }
     )
 
