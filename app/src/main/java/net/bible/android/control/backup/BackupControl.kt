@@ -76,6 +76,9 @@ object BackupControl {
     /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
      */
     private suspend fun backupDatabaseToUri(activity: ActivityBase, uri: Uri)  {
+        val hourglass = Hourglass(activity)
+        hourglass.show()
+
         val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
         val filename = DATABASE_NAME
         val f = File(internalDbDir, filename);
@@ -91,8 +94,8 @@ object BackupControl {
             Log.e(TAG, ex.message ?: "Error occurred in backuping db")
             ok = false
         }
-
-       withContext(Dispatchers.Main) {
+        hourglass.dismiss()
+        withContext(Dispatchers.Main) {
             if (ok) {
                 Log.d(TAG, "Copied database to chosen backup location successfully")
                 Dialogs.instance.showMsg2(activity, R.string.backup_success2)
@@ -106,6 +109,9 @@ object BackupControl {
     /** backup database to custom target (email, drive etc.) via ACTION_SEND intent
      */
     private suspend fun backupDatabaseViaSendIntent(callingActivity: ActivityBase) {
+        val hourglass = Hourglass(callingActivity)
+        hourglass.show()
+
         _mainBibleActivity?.windowRepository?.saveIntoDb()
         db.sync()
         val fileName = DATABASE_NAME
@@ -123,6 +129,7 @@ object BackupControl {
         }
 		val chooserIntent = Intent.createChooser(email, getString(R.string.send_backup_file))
         chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        hourglass.dismiss()
 		callingActivity.awaitIntent(chooserIntent)
     }
 
