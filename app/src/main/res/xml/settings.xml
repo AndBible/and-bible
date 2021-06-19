@@ -68,6 +68,12 @@
 			android:entries="@array/prefs_toolbar_button_action_descriptions"
 			android:entryValues="@array/prefs_toolbar_button_action_values" />
 
+		<SwitchPreference android:key="disable_two_step_bookmarking"
+			android:title="@string/prefs_disable_two_step_bookmarking_title"
+			android:summary="@string/prefs_disable_two_step_bookmarking_summary"
+			android:defaultValue="false"
+			/>
+
 		<ListPreference android:key="night_mode_pref3"
 			android:title="@string/prefs_night_mode_title"
 			android:summary="@string/prefs_night_mode_summary"

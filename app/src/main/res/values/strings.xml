@@ -862,4 +862,6 @@
     <string name="system_items1">More</string>
     <string name="system_action2">Android actions</string>
     <string name="text_copied_to_clicpboard">Text copied to clipboard</string>
+    <string name="prefs_disable_two_step_bookmarking_title">One-step bookmarking</string>
+    <string name="prefs_disable_two_step_bookmarking_summary">Show \"Selection\" and \"Verses\" items directly in Bible view Selection menu</string>
 </resources>
