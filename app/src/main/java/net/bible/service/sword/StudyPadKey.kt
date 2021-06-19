@@ -19,6 +19,7 @@
 package net.bible.service.sword
 
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.service.common.displayName
 import org.crosswire.common.util.ItemIterator
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RestrictionType
@@ -44,7 +45,7 @@ class StudyPadKey(
     }
 
     override fun getName(): String {
-        return label.name
+        return label.displayName
     }
 
     override fun getName(base: Key?): String {
