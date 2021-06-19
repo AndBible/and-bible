@@ -328,7 +328,9 @@
   <string name="remove_bookmark">Šalinti</string>
   <string name="bookmark_settings_hide_labels_title">Paslėpti nurodytas etiketes</string>
   <string name="bookmark_settings_hide_labels_summary">Paslėpti žymes, kurios pažymėtos nurodyta etikete(-ėmis)</string>
+  <string name="auto_assign_labels_title">Etikečių nustatymai</string>
   <string name="auto_assign_labels">Automatinis priskyrimas ir mėgstamos etiketės</string>
+  <string name="auto_assign_labels1">Automatiškai priskirti etiketę naujoms žymėms</string>
   <string name="auto_assign_labels_primary">Automatiškai priskirti kaip pirminę</string>
   <string name="label_color">Etiketės spalva</string>
   <!--can be removed-->
@@ -675,6 +677,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="tell_friend_message3">Įsidiek iš „Play“ parduotuvės: %s</string>
   <string name="tell_friend_message4">Sužinok daugiau apie programėlę ir kaip ją įsidiegti: %s</string>
   <string name="share_verse_ok">Bendrinti / Kopijuoti</string>
+  <string name="verse_action_copy">Kopijuoti</string>
   <string name="share_verse_menu_title">Bendrinti / kopijuoti…</string>
   <string name="show_versenumbers">Rodyti eilučių numerius</string>
   <string name="show_full_verses">Rodyti pilnas eilutes</string>
@@ -735,7 +738,13 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="primary_label">Pirminė etiketė</string>
   <string name="highlight_entire_verse">Paryškinti visą eilutę</string>
   <string name="favourite_label">Mėgstama etiketė</string>
+  <string name="edit_label">Taisyti etiketę</string>
   <string name="bookmark_underline_style_whole_verse">Visos eilutės žymių pabraukimo stilius</string>
   <string name="recent_labels">Paskiausios etiketės</string>
   <string name="other_labels">Kitos etiketės</string>
+  <string name="reorder">Pertvarkyti</string>
+  <string name="system_items1">Daugiau</string>
+  <string name="system_action2">„Android“ veiksmai</string>
+  <string name="text_copied_to_clicpboard">Tekstas nukopijuotas į iškarpinę</string>
+  <string name="toggle_fullscreen">Visas ekranas</string>
 </resources>

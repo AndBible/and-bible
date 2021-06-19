@@ -16,7 +16,7 @@ footnoteTypeAlternative: Alternatyva
 footnoteTypeTranslation: Vertimas
 clearLog: Išvalyti klaidų žurnalą
 editNote: Taisyti
-editNotePlaceholder: ""
+editNotePlaceholder: Taisyti pastabą
 editTextPlaceholder: "Bakstelėkite, norėdami taisyti tekstą"
 inputPlaceholder: Rašykite čia
 inputReference: Įveskite Biblijos nuorodą
@@ -45,9 +45,9 @@ noMyNotesDescription: >
 emptyStudyPad: >-
   Tuščias bloknotas. Galite pridėti turinį į šį bloknotą ,sukurdami čia teksto įrašus arba sukurdami žymes su žymės etikete, kuri atitinka šį bloknotą.
 studyPadModalTitle: Taisyti bloknoto įrašą
-doYouWantToDeleteEntry: ""
+doYouWantToDeleteEntry: "Ištrinti šį bloknoto įrašą?"
 removeStudyPadConfirmationTitle: "Šalinti bloknoto įrašą?"
-dragHelp: ""
+dragHelp: "Tempkite, norėdami pertvarkyti"
 saved: išsaugota
 openAll: Atverti visas nuorodas
 editBookmarkPlaceholder: "Bakstelėkite, norėdami taisyti šioje eilutėje mano pastabas"
@@ -55,11 +55,11 @@ onlyLabel: Tik etiketę
 wholeBookmark: Visą žymę
 otherNoteText: Kita pastaba
 assignLabelsMenuEntry: Priskirti etiketes
-assignLabelsMenuEntry1: ""
+assignLabelsMenuEntry1: Pasirinkti ar taisyti etiketes…
 jumpToStudyPad: Pereiti prie bloknoto
 setAsPrimaryLabel: Nustatyti kaip pirminę etiketę
-removeBookmarkLabel: ""
-addBookmarkLabel: ""
+removeBookmarkLabel: Šalinti etiketę
+addBookmarkLabel: Pridėti etiketę
 favouriteLabels: Mėgstamos etiketės
 recentLabels: Paskiausios etiketės
 frequentlyUsedLabels: Dažniausios etiketės
