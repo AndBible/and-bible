@@ -33,7 +33,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -45,6 +44,9 @@ import androidx.recyclerview.widget.ItemTouchHelper.DOWN
 import androidx.recyclerview.widget.ItemTouchHelper.UP
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.WorkspaceSelectorBinding
 import net.bible.android.control.page.window.WindowControl
@@ -254,7 +256,10 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 ).apply {
                     id = dao.insertWorkspace(this)
                 }
-                goToWorkspace(newWorkspaceEntity.id)
+                // To make sure keyboard is closed first
+                GlobalScope.launch(Dispatchers.Main) {
+                    goToWorkspace(newWorkspaceEntity.id)
+                }
             }
             .setView(name)
             .setNegativeButton(R.string.cancel, null)

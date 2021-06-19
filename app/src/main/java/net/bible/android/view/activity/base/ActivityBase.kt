@@ -237,7 +237,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
 
-    private fun closeKeyboard() {
+    fun closeKeyboard() {
         try {
             val inputMethodManager: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
