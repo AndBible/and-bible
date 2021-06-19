@@ -58,13 +58,14 @@
                 android:title="@string/manage_labels"
                 android:icon="@drawable/ic_label_multiple_24dp"/>
 
+            <item android:id="@+id/backupMainMenu"
+                android:title="@string/backup_and_restore"
+                android:icon="@drawable/ic_baseline_share_24"/>
+
             <item android:id="@+id/settingsButton"
                 android:title="@string/settings"
                 android:icon="@drawable/ic_settings_white_24dp"/>
 
-			<item android:id="@+id/backupMainMenu"
-				  android:title="@string/backup_and_restore"
-				  android:icon="@drawable/ic_baseline_share_24"/>
 
         </menu>
     </item>
@@ -87,18 +88,15 @@
     <item
         android:title="@string/contact">
         <menu>
-            <item android:id="@+id/bugReport"
-                android:title="@string/send_bug_report_title"
-                android:icon="@drawable/ic_bug_report_white_24dp"/>
-
-            <item android:id="@+id/rateButton"
-                android:title="@string/rate_application"
-                android:icon="@drawable/ic_rate_review_white_24dp"/>
-
             <item android:id="@+id/tellFriend"
                 android:title="@string/tell_friend_title"
                 android:icon="@drawable/ic_baseline_people_24"/>
-
+            <item android:id="@+id/rateButton"
+                android:title="@string/rate_application"
+                android:icon="@drawable/ic_rate_review_white_24dp"/>
+            <item android:id="@+id/bugReport"
+                android:title="@string/send_bug_report_title"
+                android:icon="@drawable/ic_bug_report_white_24dp"/>
         </menu>
     </item>
 </menu>
