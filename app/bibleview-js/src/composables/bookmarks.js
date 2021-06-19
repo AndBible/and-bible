@@ -238,17 +238,15 @@ export function useBookmarks(documentId,
         return config.showBookmarks && (b.offsetRange == null || b.bookInitials === bookInitials)
     }
 
-    function showMarker(b) {
-        return !showHighlight(b) && (!config.showBookmarks && config.showMyNotes && b.hasNote);
-    }
-
     const highlightBookmarks = computed(() => {
-        if(!config.showBookmarks) return [];
         return documentBookmarks.value.filter(b => showHighlight(b))
     })
 
     const markerBookmarks = computed(
-        () => documentBookmarks.value.filter(b => showMarker(b) && checkOrdinalEnd(b))
+        () => {
+            isMounted.value;
+            return documentBookmarks.value.filter(b => !showHighlight(b) && checkOrdinalEnd(b))
+        }
     )
 
     const styleRanges = computed(function styleRanges() {
@@ -418,8 +416,7 @@ export function useBookmarks(documentId,
     function highlightStyleRange(styleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
         let firstElement, lastElement;
-        const style = styleForStyleRange(styleRange)
-
+        const style = config.showBookmarks ? styleForStyleRange(styleRange) : "";
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId));
 
         function addBookmarkEventFunctions(event) {
@@ -467,17 +464,18 @@ export function useBookmarks(documentId,
                 console.error("Highlight range failed!", {first, second, firstElem, secondElem, startOff, endOff, startOff1, endOff1})
             }
         }
+        if(config.showBookmarks) {
+            for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
+                const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.icon === "headphones");
+                if (speakLabel) {
+                    const color = adjustedColor("red").string()
+                    const iconElement = getIconElement(speakIcon, color);
 
-        for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
-            const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.icon === "headphones");
-            if (speakLabel) {
-                const color = adjustedColor("red").string()
-                const iconElement = getIconElement(speakIcon, color);
-
-                iconElement.addEventListener("click", event => addEventFunction(event,
-                    null, {bookmarkId: b.id}));
-                firstElement.parentElement.insertBefore(iconElement, firstElement);
-                undoHighlights.push(() => iconElement.remove());
+                    iconElement.addEventListener("click", event => addEventFunction(event,
+                        null, {bookmarkId: b.id}));
+                    firstElement.parentElement.insertBefore(iconElement, firstElement);
+                    undoHighlights.push(() => iconElement.remove());
+                }
             }
         }
         if(config.showMyNotes) {

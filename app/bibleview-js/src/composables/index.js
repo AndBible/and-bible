@@ -180,7 +180,6 @@ export function useConfig(documentType) {
     });
     const rtl = new URLSearchParams(window.location.search).get("rtl") === "true";
     const nightMode = new URLSearchParams(window.location.search).get("night") === "true";
-    console.log({nightMode, rtl});
     const appSettings = reactive({
         topOffset: 0,
         bottomOffset: 100,
