@@ -109,6 +109,7 @@ export default {
 .flex2 {
   display: flex;
   justify-content: start;
+  flex-wrap: wrap;
 }
 
 .hide-button {
