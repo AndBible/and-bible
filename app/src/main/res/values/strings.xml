@@ -865,7 +865,8 @@
     <string name="prefs_disable_two_step_bookmarking_title">One-step bookmarking</string>
     <string name="prefs_disable_two_step_bookmarking_summary">Show \"Selection\" and \"Verses\" items directly in Bible view Selection menu</string>
     <string name="prefs_double_tap_to_fullscreen_title">Double-tap to Fullscreen</string>
-    <string name="prefs_double_tap_to_fullscreen_summary">Enter full-screeen mode by double-tapping window</string>
+    <string name="prefs_double_tap_to_fullscreen_summary">Enter fullscreen mode by double-tapping window</string>
     <string name="toggle_fullscreen">Fullscreen</string>
     <string name="exit_fullscreen">Double-tap screen to exit fullscreen</string>
+    <string name="reset_app_prefs">Do you want to reset all global application preferences that are displayed on this screen to their default values?</string>
 </resources>

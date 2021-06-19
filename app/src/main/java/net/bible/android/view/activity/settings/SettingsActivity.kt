@@ -17,16 +17,17 @@
  */
 package net.bible.android.view.activity.settings
 
+import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.device.ScreenSettings.systemModeAvailable
@@ -44,6 +45,61 @@ class SettingsActivity: ActivityBase() {
 			.replace(R.id.settings_container, SettingsFragment())
 			.commit()
 	}
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.app_prefs_options, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        var isHandled = true
+        when(item.itemId) {
+            R.id.reset -> reset()
+            android.R.id.home -> onBackPressed()
+            else -> isHandled = false
+        }
+        if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item)
+        }
+        return isHandled
+    }
+
+    private fun reset() {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.reset_app_prefs).setCancelable(true)
+            .setPositiveButton(R.string.yes
+            ) { _, _ ->
+                val editor = CommonUtils.sharedPreferences.edit()
+                val keys = listOf(
+                    "strongs_greek_dictionary",
+                    "strongs_hebrew_dictionary",
+                    "robinson_greek_morphology",
+                    "navigate_to_verse_pref",
+                    "open_links_in_special_window_pref",
+                    "screen_keep_on_pref",
+                    "auto_fullscreen_pref",
+                    "full_screen_hide_buttons_pref",
+                    "hide_window_buttons",
+                    "hide_bible_reference_overlay",
+                    "show_active_window_indicator",
+                    "toolbar_button_actions",
+                    "disable_two_step_bookmarking",
+                    "double_tap_to_fullscreen",
+                    "night_mode_pref3",
+                    "locale_pref",
+                    "request_sdcard_permission_pref",
+                    "show_errorbox"
+                )
+                for(key in keys) {
+                    editor.remove(key)
+                }
+                editor.apply()
+                recreate()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .create()
+            .show()
+    }
 }
 
 class SettingsFragment : PreferenceFragmentCompat() {
