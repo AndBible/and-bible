@@ -84,6 +84,11 @@
     <string name="prefs_verse_per_line_title">One verse per line</string>
     <string name="prefs_show_bookmarks_title">Show bookmarks</string>
     <string name="prefs_show_mynotes_title">Show My Note icons</string>
+    <string name="prefs_show_footnotes_title">Footnotes</string>
+    <string name="prefs_show_xrefs_title">Cross references</string>
+    <string name="prefs_show_footnotes_summary">Show footnotes, if they are available in the document</string>
+    <string name="prefs_show_xrefs_summary">Show cross references, if they are available in the document</string>
+
     <string name="prefs_show_notes_title">Footnotes and x-refs</string>
     <string name="prefs_show_strongs_title">Strong\'s numbers</string>
     <string name="prefs_show_morphology_title">Morphological codes</string>
