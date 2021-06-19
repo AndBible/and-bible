@@ -27,10 +27,13 @@ import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -51,6 +54,7 @@ import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import javax.inject.Inject
 
@@ -102,7 +106,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
     }
 
     fun moveItem(from: Int, to: Int) {
-        Log.d("MoveItem","Moving $from $to")
+        Log.d("MoveItem", "Moving $from $to")
         if(from == to) return
 
         val item = items[from]
@@ -131,6 +135,25 @@ class WorkspaceSelectorActivity: ActivityBase() {
     @Inject lateinit var windowControl: WindowControl
     internal lateinit var dataSet: MutableList<WorkspaceEntities.Workspace>
     private lateinit var workspaceAdapter: WorkspaceAdapter
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.workspace_options_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        var isHandled = true
+        when(item.itemId){
+            R.id.help -> CommonUtils.showHelp(this, listOf(R.string.help_workspaces_title))
+            R.id.newItem -> createNewWorkspace()
+            android.R.id.home -> onBackPressed()
+            else -> isHandled = false
+        }
+        if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item)
+        }
+        return isHandled
+    }
 
     val itemTouchHelper by lazy {
         val cb = object: ItemTouchHelper.SimpleCallback(UP or DOWN, 0) {
@@ -167,13 +190,13 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
         workspaceAdapter = WorkspaceAdapter(this).apply {
             setHasStableIds(true)
-            registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+            registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                 override fun onChanged() {
                     setDirty()
                 }
 
                 override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) {
-                    if(payload == null) {
+                    if (payload == null) {
                         setDirty()
                     }
                 }
@@ -204,31 +227,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
             }
             itemTouchHelper.attachToRecyclerView(recyclerView)
 
-            newWorkspace.setOnClickListener {
-                val name = EditText(this@WorkspaceSelectorActivity)
-                name.text = SpannableStringBuilder(getString(R.string.workspace_number, dataSet.size + 1))
-                name.selectAll()
-                name.requestFocus()
-                AlertDialog.Builder(this@WorkspaceSelectorActivity)
-                    .setPositiveButton(R.string.okay) { d, _ ->
-                        val windowRepository = windowControl.windowRepository
-                        val newWorkspaceEntity = WorkspaceEntities.Workspace(
-                            name.text.toString(), null, 0,
-                            windowRepository.orderNumber,
-                            windowRepository.textDisplaySettings,
-                            windowRepository.workspaceSettings
-                        ).apply {
-                            id = dao.insertWorkspace(this)
-                        }
-                        goToWorkspace(newWorkspaceEntity.id)
-                    }
-                    .setView(name)
-                    .setNegativeButton(R.string.cancel, null)
-                    .setTitle(getString(R.string.give_name_workspace))
-                    .create()
-                    .show()
-            }
-
             cancel.setOnClickListener {
                 cancelChanges()
                 finishCanceled()
@@ -240,6 +238,34 @@ class WorkspaceSelectorActivity: ActivityBase() {
             }
             recyclerView.adapter = workspaceAdapter
         }
+    }
+
+    private fun createNewWorkspace() {
+        val name = EditText(this@WorkspaceSelectorActivity)
+        name.text = SpannableStringBuilder(getString(R.string.workspace_number, dataSet.size + 1))
+        val dialog = AlertDialog.Builder(this@WorkspaceSelectorActivity)
+            .setPositiveButton(R.string.okay) { d, _ ->
+                val windowRepository = windowControl.windowRepository
+                val newWorkspaceEntity = WorkspaceEntities.Workspace(
+                    name.text.toString(), null, 0,
+                    windowRepository.orderNumber,
+                    windowRepository.textDisplaySettings,
+                    windowRepository.workspaceSettings
+                ).apply {
+                    id = dao.insertWorkspace(this)
+                }
+                goToWorkspace(newWorkspaceEntity.id)
+            }
+            .setView(name)
+            .setNegativeButton(R.string.cancel, null)
+            .setTitle(getString(R.string.give_name_workspace))
+            .create()
+
+        name.selectAll()
+        name.requestFocus()
+
+        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show()
     }
 
     private fun finishOk() {
@@ -277,7 +303,8 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 val settings = SettingsBundle(
                     workspaceId = workspaceId,
                     workspaceName = workspace.name,
-                    workspaceSettings = dataSet.find {it.id == workspaceId}!!.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings.default
+                    workspaceSettings = dataSet.find { it.id == workspaceId }!!.textDisplaySettings
+                        ?: WorkspaceEntities.TextDisplaySettings.default
                 )
                 intent.putExtra("settingsBundle", settings.toJson())
                 startActivityForResult(intent, WORKSPACE_SETTINGS_CHANGED)
@@ -293,7 +320,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 name.selectAll()
                 name.requestFocus()
                 AlertDialog.Builder(this@WorkspaceSelectorActivity)
-                    .setPositiveButton(R.string.okay) {d,_ ->
+                    .setPositiveButton(R.string.okay) { d, _ ->
                         workspace.name = name.text.toString()
                         workspaceAdapter.notifyItemChanged(position)
                     }
@@ -309,7 +336,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 name.selectAll()
                 name.requestFocus()
                 AlertDialog.Builder(this)
-                    .setPositiveButton(R.string.okay) {d,_ ->
+                    .setPositiveButton(R.string.okay) { d, _ ->
                         val newWorkspaceEntity = dao.cloneWorkspace(workspaceId, name.text.toString())
                         workspacesCreated.add(newWorkspaceEntity.id)
                         dataSet.add(position + 1, newWorkspaceEntity)
@@ -331,11 +358,12 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
     private fun copySettingsStage1(workspace: WorkspaceEntities.Workspace) {
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
-            getPrefItem(SettingsBundle(workspace.id, workspace.name, workspace.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default), it).title
+            getPrefItem(SettingsBundle(workspace.id, workspace.name, workspace.textDisplaySettings
+                ?: WorkspaceEntities.TextDisplaySettings.default), it).title
         }.toTypedArray()
         val checkedItems = items.map { false }.toBooleanArray()
         val dialog = AlertDialog.Builder(this)
-            .setPositiveButton(R.string.okay) {d,_ ->
+            .setPositiveButton(R.string.okay) { d, _ ->
                 copySettingsStage2(workspace, checkedItems)
             }
             .setMultiChoiceItems(items, checkedItems) { _, pos, value ->
@@ -355,7 +383,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
                     v.setItemChecked(i, newValue)
                     checkedItems[i] = newValue
                 }
-                (it as Button).text = getString(if(allSelected) R.string.select_all else R.string.select_none)
+                (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
             }
         }
         dialog.show()
@@ -396,7 +424,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
                     v.setItemChecked(i, newValue)
                     checkedItems[i] = newValue
                 }
-                (it as Button).text = getString(if(allSelected) R.string.select_all else R.string.select_none)
+                (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
             }
         }
         dialog.show()
@@ -443,10 +471,10 @@ class WorkspaceSelectorActivity: ActivityBase() {
         }
         if(isDirty) {
             AlertDialog.Builder(this@WorkspaceSelectorActivity)
-                .setPositiveButton(R.string.yes) {_, _ ->
+                .setPositiveButton(R.string.yes) { _, _ ->
                     apply(true)
                 }
-                .setNegativeButton(R.string.no) {_, _ ->
+                .setNegativeButton(R.string.no) { _, _ ->
                     resultIntent.putExtra("changed", false)
                     apply(false)
                 }

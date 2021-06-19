@@ -46,14 +46,6 @@
             android:text="@string/workspace_dismiss"
             />
         <Button
-            android:id="@+id/newWorkspace"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-            android:text="@string/new_workspace"
-            />
-        <Button
             android:id="@+id/save"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
