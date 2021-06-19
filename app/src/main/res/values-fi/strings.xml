@@ -697,4 +697,5 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="prefs_double_tap_to_fullscreen_summary">Siirry kokoruututilaan kaksoisnapauttamalla teksti-ikkunaa</string>
   <string name="toggle_fullscreen">Kokoruututila</string>
   <string name="exit_fullscreen">Tupla-napauta ruutua sulkeaksesi kokoruututilan</string>
+  <string name="reset_app_prefs">Haluatko alustaa kaikki tässä ruudussa näkyvät sovelluksen yleiset asetukset oletusarvoihin?</string>
 </resources>
