@@ -236,9 +236,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var showSystem = false
 
+    var step2 = false
+
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.add_bookmark -> {
+                step2 = true
+                mode.menu.clear()
+                mode.invalidate()
+                return false
+            }
+            R.id.add_bookmark_selection -> {
                 makeBookmark()
                 mode.finish()
                 return true
@@ -335,13 +343,27 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             mode.menu.clear()
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
             // For some reason, these do not seem to be correct from XML, even though specified there
-            menu.findItem(R.id.add_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            menu.findItem(R.id.add_bookmark_whole_verse).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            if(CommonUtils.sharedPreferences.getBoolean("disable_two_step_bookmarking", false)) {
+                menu.findItem(R.id.add_bookmark_selection).run {
+                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    setVisible(true)
+                }
+                menu.findItem(R.id.add_bookmark_whole_verse).run{
+                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    setVisible(true)
+                }
+            } else {
+                menu.findItem(R.id.add_bookmark).run {
+                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    setVisible(true)
+                }
+            }
             menu.findItem(R.id.remove_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.share_verses).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             if(currentSelection == null) {
                 menu.findItem(R.id.add_bookmark).isVisible = false
+                menu.findItem(R.id.add_bookmark_selection).isVisible = false
                 menu.findItem(R.id.add_bookmark_whole_verse).isVisible = false
                 menu.findItem(R.id.compare).isVisible = false
                 menu.findItem(R.id.share_verses).isVisible = false
@@ -354,6 +376,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return true
         }
         else {
+            if(step2) {
+                mode.menu.clear()
+                mode.menuInflater.inflate(R.menu.bibleview_selection2, menu)
+                step2 = false
+                return true
+            }
             if (showSystem || firstDocument !is BibleDocument) {
                 showSystem = false
                 return true
