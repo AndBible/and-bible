@@ -252,6 +252,7 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="new_label">Nova etiqueta</string>
   <string name="label_name_prompt">Nome</string>
   <string name="label_unlabelled">Sem etiqueta</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordem de data</string>
   <string name="sort_by_bible_book">Ordem bíblica</string>

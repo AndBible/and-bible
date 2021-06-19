@@ -329,6 +329,7 @@
   <string name="bookmark_settings_hide_labels_title">Сховати вказані мітки</string>
   <string name="bookmark_settings_hide_labels_summary">Сховати закладки, позначені зазначеними мітками</string>
   <string name="label_color">Колір мітки</string>
+  <!--can be removed-->
   <string name="label_color_example">Приклад</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Сортувати за датою</string>
@@ -450,7 +451,6 @@
   <!--User Notes-->
   <string name="mynotes">Мої примітки</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Обмін, резервне копіювання та відновлення даних</string>
   <string name="backup_modules">Поділитися або резервне копіювання ресурсів у…</string>
   <string name="backup_app_database">Поділитися або резервне копіювання бази даних додатку у…</string>
   <string name="backup_app">Поділитися або резервне копіювання додатку (файл .apk) у…</string>
@@ -598,13 +598,6 @@
 виділений текст у перегляді Біблії. У коментарях також є спеціальний ресурс \"Мої примітки\", який дозволяє вам
 переглянути свої нотатки в окремому вікні.</string>
   <string name="help_studypads_title">Блокноти</string>
-  <string name="help_studypads_text">
-Блокноти призначені щоб легко писати конспекти проповідей, для підготовки проповідей або просто
-для запису особистих приміток при вивченні Біблії, які містять кілька біблійних посилань. Кожний блокнот пов’язаний з однією міткою закладки.
-Усі закладки, створені з відповідною міткою, автоматично відображаються в документі блокноту.
-Окрім закладок, у блокноті можуть бути власні текстові записи.
-Порада: Використовуйте меню Робоча область -&gt; Усі Параметри Тексту -&gt; Призначити Мітки для автоматичного призначення всіх створених
-закладок в блокнот.</string>
   <string name="help_search_title">Пошук</string>
   <string name="help_search_text">Текст пошуку може містити спеціальні символи, такі як *, ?, AND, OR, NOT
 (див. \"Apache Lucene - Query Parser Syntax\" для більш детальнішої інформації)</string>
@@ -654,10 +647,10 @@
   <string name="multi_abbreviation">Кілька</string>
   <string name="compare_description">Порівняти переклади</string>
   <string name="compare_abbreviation">Порівняти</string>
+  <string name="compare">Порівняти</string>
   <string name="http_forbidden">Заборонено</string>
   <string name="http_not_found">Не знайдено</string>
   <string name="http_unknown">Інша помилка</string>
-  <string name="compare">Порівняти</string>
   <string name="give_passphrase_for_module">Ресурс %s зашифрований, потрібно парольну фразу для розблокування</string>
   <string name="unlocking_failed">Помилка розблокування, недійсна парольна фраза</string>
   <string name="unlock_module">Встановити парольну фразу модуля</string>
@@ -672,7 +665,6 @@
   <string name="app_licence_title">Ліцензія з відкритим кодом</string>
   <string name="how_to_contribute">Як внести свій внесок?</string>
   <string name="confirm_delete_bookmarks">Видалити %d закладки та їх примітки?</string>
-  <string name="confirm_delete_study_pads">Ви хочете видалити %d мітки закладок / блокнотів? Також буде видалено всі пов’язані закладки та примітки блокноту.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Порекомендувати другові</string>
   <string name="tell_friend_message1">Рекомендую тобі додаток %s для глибокого і зручного вивчення Біблії.</string>

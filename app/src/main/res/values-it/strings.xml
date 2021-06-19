@@ -308,9 +308,9 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="bookmark_settings_hide_labels_title">Nascondi le etichette specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Nascondi i segnalibri che sono marcati con le etichette specificate</string>
   <string name="auto_assign_labels">Auto-assegna &amp; Etichette preferiti</string>
-  <string name="auto_assign_labels1">Auto-assegna a nuovi segnalibri</string>
   <string name="auto_assign_labels_primary">Auto-assegna come principale</string>
   <string name="label_color">Colore dell\'etichetta</string>
+  <!--can be removed-->
   <string name="label_color_example">Esempio</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordine per data</string>
@@ -426,7 +426,6 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <!--User Notes-->
   <string name="mynotes">Le mie note</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Condividi, Backup &amp; Ripristino dati</string>
   <string name="backup_modules">Condividi o esegui il backup dei documenti su...</string>
   <string name="backup_app_database">Condividi o esegui il backup del database su...</string>
   <string name="backup_app">Condividi o esegui il backup dell\'app (file .apk) su...</string>
@@ -565,11 +564,6 @@ Premi a lungo i collegamenti per scegliere se desideri aprirli nella finestra co
   <string name="help_bookmarks_title">Segnalibri &amp; Le mie note</string>
   <string name="help_bookmarks_text">I segnalibri possono essere creati selezionando del testo e scegliendo \"Segnalibri\" dal menù popup. Puoi aggiungere note personali al nuovo segnalibro toccando il testo ora evidenziato della Bibbia. C\'è anche un documento speciale \"Le mie note\" nei commentari che ti consente di vedere le tue note in una finestra separata.</string>
   <string name="help_studypads_title">Appunti di studio</string>
-  <string name="help_studypads_text">
-Gli Appunti di studio sono progettati per facilitare la scrittura di note per sermoni, per la preparazione di sermoni o anche solo per scrivere note di studio personali che hanno numerosi riferimenti biblici. Ogni appunto di studio è associato a un\'etichetta di segnalibro.
-Tutti i Segnalibri che sono stati creati con quella specifica etichetta appariranno automaticamente nel documento degli appunti di studio.
-Oltre ai segnalibri, negli appunti di studio si possono inserire righe di testo personalizzate.
-Suggerimento: Usa il menù Spazio di lavoro -&gt; Tutte le opzioni di testo -&gt; Assegna Etichette per assegnare automaticamente tutti i segnalibri creati all\'appunto di studio.</string>
   <string name="help_search_title">Ricerca</string>
   <string name="help_search_text">Il testo di ricerca può includere caratteri speciali come *,?, AND, OR, NOT
   (vedi \"Apache Lucene - Sintassi del parser di query\" per maggiori dettagli)
@@ -616,10 +610,10 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="multi_abbreviation">Multipli</string>
   <string name="compare_description">Confronta le traduzioni</string>
   <string name="compare_abbreviation">Confronta</string>
+  <string name="compare">Confronta</string>
   <string name="http_forbidden">Non consentito</string>
   <string name="http_not_found">Non trovato</string>
   <string name="http_unknown">Altro errore</string>
-  <string name="compare">Confronta</string>
   <string name="give_passphrase_for_module">Il documento %s è cifrato e necessita di una password per essere sbloccato</string>
   <string name="unlocking_failed">Sblocco fallito, password non valida</string>
   <string name="unlock_module">Imposta la password del modulo</string>
@@ -634,7 +628,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="app_licence_title">Licenza Open Source</string>
   <string name="how_to_contribute">Come contribuire?</string>
   <string name="confirm_delete_bookmarks">Vuoi rimuovere %d segnalibri e le loro note?</string>
-  <string name="confirm_delete_study_pads">Vuoi rimuovere %d etichette / appunti di studio dei segnalibri? Tutti i segnalibri e gli appunti di studio associati saranno rimossi.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Consiglia a un amico</string>
   <string name="tell_friend_message1">Vorrei consigliarti %s</string>
@@ -702,11 +695,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="primary_label">Etichetta principale</string>
   <string name="highlight_entire_verse">Evidenzia l\'intero verso</string>
   <string name="favourite_label">Etichetta preferiti</string>
-  <string name="edit_label">Modifica etichetta segnalibro</string>
-  <string name="delete_label_confirmation">Vuoi rimuovere l\'etichetta %s?</string>
-  <string name="bookmark_underline_style_arbitrary">Stile sottolineatura per i segnalibri normali</string>
   <string name="bookmark_underline_style_whole_verse">Stile sottolineatura per i segnalibri a verso intero</string>
-  <string name="active_labels">Etichette attive</string>
   <string name="recent_labels">Etichette recenti</string>
   <string name="other_labels">Altre etichette</string>
 </resources>

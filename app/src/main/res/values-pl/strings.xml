@@ -77,8 +77,11 @@
   <string name="prefs_section_title_title">Tytuły sekcji</string>
   <string name="prefs_red_letter_title">Tytuł na czerwono</string>
   <string name="prefs_tilt_to_scroll_title">Przechyl urządzenie aby przesunąć</string>
-  <string name="prefs_toolbar_button_action_title">Akcje przycisków paska narzędzi</string>
-  <string name="prefs_toolbar_button_action_summary">Akcje wywoływane po naciśnięciu/przytrzymaniu przycisków paska narzędzi Biblii lub komentarza</string>
+  <string name="prefs_toolbar_button_action_title">Akcje przycisku paska narzędzi</string>
+  <string name="prefs_toolbar_button_action_summary">Akcje wywoływane po naciśnięciu/przytrzymaniu przycisku wyświetlającego tytuł księgi na pasku narzędzi</string>
+  <string name="prefs_toolbar_button_action_default">Naciśnij, aby otworzyć menu; przytrzymaj, aby otworzyć wybór dokumentu (domyślne)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Naciśnij, aby otworzyć następny dokument; przytrzymaj, aby otworzyć menu</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Naciśnij, aby otworzyć następny dokument; przytrzymaj, aby otworzyć wybór dokumentu</string>
   <string name="prefs_night_mode_title">Włącz tryb nocny</string>
   <string name="prefs_night_mode_summary">Ustaw, czy włączać tryb nocny automatycznie (jeżeli wspierane przez urządzenie), ręcznie, czy korzystając z ustawień systemu (Android 10+).</string>
   <string name="prefs_night_mode_manual">Ręcznie</string>
@@ -103,6 +106,7 @@
   <string name="reversed_split_mode">Pionowo/poziomo</string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d p.</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Automatycznie przełączaj na tryb pełnego ekranu podczas przewijania tekstu. Wskazówka: zawsze możesz wejść w tryb pełnoekranowy stukając dwukrotnie w ekran.</string>
   <string name="prefs_margin_size_title">Dostosuj rozmiary marginesów</string>
   <string name="prefs_margin_size_mm_title">Rozmiary marginesów (%d/%d/%d mm)</string>
@@ -123,12 +127,15 @@
   <string name="pref_maximum_width_of_text_label_mm">Maksymalna szerokość tekstu (%d mm)</string>
   <string name="prefs_line_spacing_pt">Interlinia: %1.1f×</string>
   <string name="pref_font_family_label">Rodzaj czcionki</string>
+  <string name="prefs_top_margin_title">Górny margines</string>
+  <string name="prefs_top_margin_summary">Dodaj półprzezroczysty margines u góry okna zawierającego dokument Biblii. Tekst Biblii zostanie przewinięty tak, aby obecny werset znajdował się pod marginesem.</string>
   <string name="prefs_hyphenation_title">Dzielenie wyrazów</string>
   <string name="prefs_hyphenation_summary">Automatycznie dziel wyrazy na końcach linii (jeżeli wspierane dla języka)</string>
   <string name="prefs_line_spacing_pt_title">Interlinia (%1.1f×)</string>
   <string name="line_spacing_title">Interlinia</string>
   <string name="line_spacing_summary">Dostosuj odstęp między liniami tekstu</string>
   <string name="select_none">Wybierz nic</string>
+  <string name="reset_are_you_sure">Czy na pewno chcesz zresetować te ustawienia do wartości domyślnych?</string>
   <string name="window_pinning_menutitle">Przypinanie okien</string>
   <string name="hide_window_buttons_title">Ukryj przyciski okien</string>
   <string name="full_screen_hide_buttons_pref_title">Ukryj pasek okna przy pełnym ekranie</string>
@@ -251,6 +258,7 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="new_label">Nowa etykieta</string>
   <string name="label_name_prompt">Nazwa</string>
   <string name="label_unlabelled">Nieoznaczony</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Porządek chronologiczny</string>
   <string name="sort_by_bible_book">Porządek biblijny</string>

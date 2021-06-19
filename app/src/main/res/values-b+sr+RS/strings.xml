@@ -260,6 +260,7 @@
   <string name="new_label">Нова налепница</string>
   <string name="label_name_prompt">Име</string>
   <string name="label_unlabelled">Неозначено</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Датумски редослед</string>
   <string name="sort_by_bible_book">Библијски редослед</string>

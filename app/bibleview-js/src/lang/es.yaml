@@ -16,7 +16,7 @@ footnoteTypeAlternative: Alternativa
 footnoteTypeTranslation: Traduccion
 clearLog: Borrar errores
 editNote: Editar
-editNotePlaceholder: Editar una nota para marcador
+editNotePlaceholder: ""
 editTextPlaceholder: Toca para editar el texto
 inputPlaceholder: Escriba aqui
 inputReference: Ingrese la referencia de la Biblia
@@ -45,9 +45,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Bloc de estudio vacía. Comience a agregar elementos a este bloc de estudio creando entradas de texto aquí o creando marcadores con una etiqueta de marcador que se corresponda con este bloc de estudio.
 studyPadModalTitle: Editar la entrada del bloc de estudio
-doYouWantToDeleteEntry: "¿Está seguro de que desea eliminar esta entrada del bloc de estudio?"
+doYouWantToDeleteEntry: ""
 removeStudyPadConfirmationTitle: "¿Eliminar la entrada del bloc de estudio?"
-dragHelp: Puede arrastrar y soltar el elemento para reordenar el bloc de estudio
+dragHelp: ""
 saved: guardado
 openAll: Abrir todas las referencias
 editBookmarkPlaceholder: Toque para editar Mis Notas para este marcador
@@ -55,13 +55,12 @@ onlyLabel: Solo etiqueta
 wholeBookmark: Marcador completo
 otherNoteText: Otro nota
 assignLabelsMenuEntry: Asignar etiquetas
-assignLabelsMenuEntry1: Seleccionar o editar etiquetas en la lista...
+assignLabelsMenuEntry1: ""
 jumpToStudyPad: Ir a la Bloc de Estudio
 setAsPrimaryLabel: Establecer etiqueta principal
-removeBookmarkLabel: Quitar etiqueta del marcador
-addBookmarkLabel: Agregar etiqueta al marcador
+removeBookmarkLabel: ""
+addBookmarkLabel: ""
 favouriteLabels: Etiquetas favoritas
 recentLabels: Etiquetas recientes
 frequentlyUsedLabels: Etiquetas uso frecuente
 bookmarkLabels: Etiquetas de marcador
-restoreCompareTitle: Resturar

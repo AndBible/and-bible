@@ -329,6 +329,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="bookmark_settings_hide_labels_title">Скрыть указанные метки</string>
   <string name="bookmark_settings_hide_labels_summary">Скрыть закладки, отмеченные указанными ярлыками</string>
   <string name="label_color">Цвет ярлыка</string>
+  <!--can be removed-->
   <string name="label_color_example">Пример</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">По датам</string>
@@ -455,7 +456,6 @@ http://www.heartlight.org, разрешение предоставлено
   <!--User Notes-->
   <string name="mynotes">Мои заметки</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Отправка, резервное копирование и восстановление данных</string>
   <string name="backup_modules">Отправка или резервное копирование документов в…</string>
   <string name="backup_app_database">Отправить или создать резервную копию базы данных приложения в…</string>
   <string name="backup_app">Отправить или создать резервную копию приложения (файл .apk) в…</string>
@@ -602,13 +602,6 @@ http://www.heartlight.org, разрешение предоставлено
 выделенный текст в режиме просмотра Библии. В комментариях также есть специальный ресурс «Мои заметки», который позволяет вам
 для просмотра заметок в отдельном окне.</string>
   <string name="help_studypads_title">Блокноты</string>
-  <string name="help_studypads_text">
-Блокноты предназначены для облегчения написания заметок к проповеди, подготовки проповедей или просто
-записывания личных заметок по изучению Библии, в которых есть несколько ссылок на Библию. Каждый блокнот связан с одной меткой закладки.
-Все закладки, созданные с соответствующей меткой, автоматически появляются в документе блокнота.
-Помимо закладок, в блокноте могут быть пользовательские текстовые записи.
-Совет: используйте меню «Рабочая область» -&gt; «Все параметры текста» -&gt; «Прикрепить ярлыки», чтобы автоматически назначать все созданные
-закладки в блокнот.</string>
   <string name="help_search_title">Поиск</string>
   <string name="help_search_text">Текст поиска может содержать специальные символы, такие как *, ?, AND, OR, NOT
 (см. \"Apache Lucene - Query Parser Syntax\" для более подробной информации)</string>
@@ -656,10 +649,10 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="multi_abbreviation">Несколько</string>
   <string name="compare_description">Сравнить переводы</string>
   <string name="compare_abbreviation">Сравнить</string>
+  <string name="compare">Сравнить</string>
   <string name="http_forbidden">Запрещено</string>
   <string name="http_not_found">Не найдено</string>
   <string name="http_unknown">Другая ошибка</string>
-  <string name="compare">Сравнить</string>
   <string name="give_passphrase_for_module">Документ %s зашифрован, для разблокировки требуется парольная фраза.</string>
   <string name="unlocking_failed">Не удалось разблокировать, неверная парольная фраза</string>
   <string name="unlock_module">Установить парольную фразу модуля</string>
@@ -674,7 +667,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="app_licence_title">Лицензия с открытым исходным кодом</string>
   <string name="how_to_contribute">Как внести свой вклад?</string>
   <string name="confirm_delete_bookmarks">Вы хотите удалить %d закладки и их заметки?</string>
-  <string name="confirm_delete_study_pads">Вы хотите удалить %d ярлыков закладок / блокнотов? Также будут удалены все связанные закладки и заметки в блокноте.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Порекомендовать другу</string>
   <string name="tell_friend_message1">Хочу порекомендовать вам приложение %s для глубокого и удобного изучения Библии.</string>

@@ -258,6 +258,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="new_label">नया लेबल</string>
   <string name="label_name_prompt">नाम</string>
   <string name="label_unlabelled">कोई लेबल नही</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">दिनांक अनुक्रम</string>
   <string name="sort_by_bible_book">बाइबिल का अनुक्रम</string>

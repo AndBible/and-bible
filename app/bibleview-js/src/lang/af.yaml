@@ -16,7 +16,7 @@ footnoteTypeAlternative: Alternatiewe
 footnoteTypeTranslation: Vertaling
 clearLog: Vee fout lêer uit
 editNote: "Wysig "
-editNotePlaceholder: Wysig 'n nota vir die boekmerk
+editNotePlaceholder: ""
 editTextPlaceholder: Tik om teks te wysig
 inputPlaceholder: Skryf hier
 inputReference: oer Bybel verwysing in
@@ -45,9 +45,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Leë studieblok. Begin by hierdie studieblok voeg deur teks inskrywings hier te skep of deur boekmerke te skep met 'n boekmerk etiket wat ooreenstem met hierdie studieblok.
 studyPadModalTitle: Wysig studieblok inskrywing
-doYouWantToDeleteEntry: "Is jy seker dat jy hierdie studiebblok inskrywing wil verwyder?"
+doYouWantToDeleteEntry: ""
 removeStudyPadConfirmationTitle: "Verwyder studieblok inskrywing?"
-dragHelp: Jy kan sleep & val om item te herbestel in studieblok
+dragHelp: ""
 saved: stoor
 openAll: Maak alle verwysings oop
 editBookmarkPlaceholder: Tik om My Notas vir hierdie boekmerk te redigeer
@@ -58,10 +58,9 @@ assignLabelsMenuEntry: Ken etikette toe
 assignLabelsMenuEntry1: ""
 jumpToStudyPad: Spring na studieblok
 setAsPrimaryLabel: Stel as primêre etiket
-removeBookmarkLabel: Verwyder etiket van boekmerk
-addBookmarkLabel: Voeg etiket by boekmerk
+removeBookmarkLabel: ""
+addBookmarkLabel: ""
 favouriteLabels: Gunsteling etikette
 recentLabels: Onlangse etikette
 frequentlyUsedLabels: Dikwels gebruik etikette
 bookmarkLabels: ""
-restoreCompareTitle: ""

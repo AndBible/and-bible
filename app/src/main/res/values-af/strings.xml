@@ -329,6 +329,7 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="bookmark_settings_hide_labels_title">Versteek gespesifiseerde etikette</string>
   <string name="bookmark_settings_hide_labels_summary">Versteek boekmerke wat met gespesifiseerde etiket(e) gemerk is</string>
   <string name="label_color">Etiketteer kleur</string>
+  <!--can be removed-->
   <string name="label_color_example">Voorbeeld</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datum volgorde</string>
@@ -442,7 +443,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <!--User Notes-->
   <string name="mynotes">My Notas</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Deel, rugsteun &amp;amp herstel data</string>
   <string name="backup_modules">Deel of rugsteun dokumente na ...</string>
   <string name="backup_app_database">Deel of rugsteun toep databasis na ...</string>
   <string name="backup_app">Deel of rugsteun toep (.apk-lêer) na ...</string>
@@ -591,13 +591,6 @@ die opspring kieslys. Jy kan jou persoonlike notas by die nuwe boekmerk voeg deu
 Uitgeligte teks in die Bybel beskouing. Daar is ook \'n spesiale dokument \'My Notes\' in kommentare wat u toelaat
 Om u notas in \'n aparte venster te sien.</string>
   <string name="help_studypads_title">Bestudeer blokies</string>
-  <string name="help_studypads_text">
-         Studie blokkies is ontwerp om dit maklik te maak om preek notas te skryf, preke voor te berei of om net
-        persoonlike Bybel studie notas neer te skryf wat veelvuldige Bybel verwysings het. Elke studie blok word geassosieer met een boekmerk etieket.
-          Alle Boekmerke wat met daardie onderskeie etiket geskep is, verskyn outomaties in die studie blok dokument.
-            Benewens boekmerke, kan daar persoonlike teks in skrywings in \'n studie blok wees.
-       Wenk: Gebruik Werk ruimte kieslys -&gt; Alle Teks Opsies -&gt; Ken Etikette toe om alle geskepte outomaties toe te ken
-     boekmerke aan die studie blok.</string>
   <string name="help_search_title">Soek</string>
   <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
 (sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
@@ -648,10 +641,10 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="multi_abbreviation">Veelvuldige</string>
   <string name="compare_description">Vergelyk vertalings</string>
   <string name="compare_abbreviation">Vergelyk</string>
+  <string name="compare">Vergelyk</string>
   <string name="http_forbidden">Verbode</string>
   <string name="http_not_found">Nie gevind nie</string>
   <string name="http_unknown">Ander fout</string>
-  <string name="compare">Vergelyk</string>
   <string name="give_passphrase_for_module">Dokument %s is geïnkripteer en moet met wagfrase ontsluit wor</string>
   <string name="unlocking_failed">Ontsluiting het misluk, ongeldige wagfrase</string>
   <string name="unlock_module">Stel module wagfrase</string>
@@ -666,7 +659,6 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="app_licence_title">Maak bron lisensie oop</string>
   <string name="how_to_contribute">Hoe om by te dra?</string>
   <string name="confirm_delete_bookmarks">Wil jy %d boekmerke en hul notas  verwyder?</string>
-  <string name="confirm_delete_study_pads">Wil jy %d boekmerketikette / studieblokkies verwyder? Ook alle geassosieerde boekmerke en studiepadnotas sal verwyder word.</string>
   <string name="module_size_megabytes">%.1fMB</string>
   <string name="tell_friend_title">Beveel dit aan vir \'n vriend</string>
   <string name="tell_friend_message1">Ek wil graag %s vir jou aanbeveel.</string>

@@ -260,6 +260,7 @@
   <string name="new_label">Nova nalepnica</string>
   <string name="label_name_prompt">Ime</string>
   <string name="label_unlabelled">Neoznačeno</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datumski redosled</string>
   <string name="sort_by_bible_book">Biblijski redosled</string>

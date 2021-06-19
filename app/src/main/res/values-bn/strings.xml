@@ -255,6 +255,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="new_label">নতুন লেবেল </string>
   <string name="label_name_prompt">নাম </string>
   <string name="label_unlabelled">লেবেল বিহীন</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date"> 
 তারিখ ক্রমানুসারে </string>

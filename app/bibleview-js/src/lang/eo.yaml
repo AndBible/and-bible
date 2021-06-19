@@ -16,7 +16,7 @@ footnoteTypeAlternative: alternativo
 footnoteTypeTranslation: traduko
 clearLog: Forviŝi erar‑protokolon
 editNote: Redakti
-editNotePlaceholder: Redakti noton kiel legosignon
+editNotePlaceholder: ""
 editTextPlaceholder: Frapetu por redakti tekston
 inputPlaceholder: Skribu tien ĉi
 inputReference: Enigi biblian referencon
@@ -45,9 +45,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Malplena notbloko. Por komenci plenigi tiun ĉi notblokon, kreu notojn tie ĉi aŭ kreu legosignojn kun legosignaj etikedoj ligitaj al tiu ĉi notbloko.
 studyPadModalTitle: Redakti noton
-doYouWantToDeleteEntry: "Ĉu vi certe volas forigi tiun ĉi enskribon en notbloko?"
+doYouWantToDeleteEntry: ""
 removeStudyPadConfirmationTitle: "Ĉu forigi enskribon en notbloko?"
-dragHelp: Vi povas ŝovi kaj demeti elementojn en notbloko por ŝanĝi ilian ordon.
+dragHelp: ""
 saved: konservita
 openAll: Malfermi ĉiujn referencojn
 editBookmarkPlaceholder: Frapetu por redakti noton pri tiu ĉi legosigno
@@ -55,13 +55,12 @@ onlyLabel: Nur etikedo
 wholeBookmark: Tuta legosigno
 otherNoteText: alia noto
 assignLabelsMenuEntry: Asigni etikedojn
-assignLabelsMenuEntry1: Elekti aŭ redakti etikedojn en listo…
+assignLabelsMenuEntry1: ""
 jumpToStudyPad: Iri al notbloko
 setAsPrimaryLabel: Agordi kiel ĉefan etikedon
-removeBookmarkLabel: Forigi etikedon de legosigno
-addBookmarkLabel: Aldoni etikedon al legosigno
+removeBookmarkLabel: ""
+addBookmarkLabel: ""
 favouriteLabels: Ŝatataj etikedoj
 recentLabels: Antaŭaj etikedoj
 frequentlyUsedLabels: Ofte uzataj etikedoj
 bookmarkLabels: Legosignaj etikedoj
-restoreCompareTitle: Restarigi

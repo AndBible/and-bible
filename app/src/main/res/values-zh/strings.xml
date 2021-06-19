@@ -232,6 +232,7 @@ http://www.heartlight.org 准予使用
   <string name="new_label">新標籤</string>
   <string name="label_name_prompt">標籤名稱</string>
   <string name="label_unlabelled">未有標籤</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">日期順序</string>
   <string name="sort_by_bible_book">聖經書序</string>

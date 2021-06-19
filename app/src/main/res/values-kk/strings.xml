@@ -251,6 +251,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="new_label">Жаңа таңба</string>
   <string name="label_name_prompt">Атауы</string>
   <string name="label_unlabelled">Таңбаланбаған</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Күн реті</string>
   <string name="sort_by_bible_book">Киелі Кітап реті</string>

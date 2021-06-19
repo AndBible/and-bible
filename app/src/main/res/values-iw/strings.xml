@@ -257,6 +257,7 @@
   <string name="label_unlabelled">לא מתויג</string>
   <string name="add_bookmark1">סימניה</string>
   <string name="remove_bookmark">הסרה</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">סדר תאריכים</string>
   <string name="sort_by_bible_book">סדר הספרים</string>

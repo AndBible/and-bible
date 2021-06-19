@@ -329,9 +329,9 @@
   <string name="bookmark_settings_hide_labels_title">Paslėpti nurodytas etiketes</string>
   <string name="bookmark_settings_hide_labels_summary">Paslėpti žymes, kurios pažymėtos nurodyta etikete(-ėmis)</string>
   <string name="auto_assign_labels">Automatinis priskyrimas ir mėgstamos etiketės</string>
-  <string name="auto_assign_labels1">Automatiškai priskirti naujoms žymėms</string>
   <string name="auto_assign_labels_primary">Automatiškai priskirti kaip pirminę</string>
   <string name="label_color">Etiketės spalva</string>
+  <!--can be removed-->
   <string name="label_color_example">Pavyzdys</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Rikiavimas pagal datą</string>
@@ -452,7 +452,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <!--User Notes-->
   <string name="mynotes">Mano pastabos</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Bendrinti, saugoti ir atstatyti duomenis</string>
   <string name="backup_modules">Bendrinti arba saugoti dokumentų atsargines kopijas į...</string>
   <string name="backup_app_database">Bendrinti arba saugoti programos duomenų bazės atsarginę kopiją į...</string>
   <string name="backup_app">Bendrinti arba saugoti programą (.apk failą) į...</string>
@@ -602,13 +601,6 @@ Naujai žymei pridėti pastabas galite Biblijos rodinyje paspaudę ant paryškin
         matyti savo pastabas atskirame lange.
     </string>
   <string name="help_studypads_title">Bloknotai</string>
-  <string name="help_studypads_text">
-Bloknotai yra sukurti, kad leistų lengviau užsirašyti pamokslo pastabas, pasiruošti pamokslui arba, tiesiog,
-užsirašyti asmenines Biblijos studijų pastabas, kuriose yra sudėtinės Biblijos nuorodos. Kiekvienas bloknotas yra susietas su viena žymės etikete.
-Visos žymės, kurios buvo sukurtos naudojant tą atitinkamą etiketę, automatiškai atsiranda bloknoto dokumente.
-Be žymių, bloknote dar gali būti įterpiami teksto įrašai.
-Patarimas: Naudokite Darbo sričių meniu -&gt; Visos teksto parinktys -&gt; Priskirti etiketes, kad automatiškai bloknotui priskirtumėte visas sukurtas žymes.
-</string>
   <string name="help_search_title">Paieška</string>
   <string name="help_search_text">Paieškos tekste gali būti specialūs simboliai, tokie kaip *, ?, AND, OR, NOT
 (Išsamios informacijos ieškokite „Apache Lucene - Query Parser Syntax“)</string>
@@ -658,10 +650,10 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="multi_abbreviation">Sudėtinės</string>
   <string name="compare_description">Lyginti vertimus</string>
   <string name="compare_abbreviation">Lyginti</string>
+  <string name="compare">Lyginti</string>
   <string name="http_forbidden">Uždrausta</string>
   <string name="http_not_found">Nerasta</string>
   <string name="http_unknown">Kitokia klaida</string>
-  <string name="compare">Lyginti</string>
   <string name="give_passphrase_for_module">Dokumentas %s yra šifruotas ir tam, kad būtų atrakintas, reikalauja slaptafrazės</string>
   <string name="unlocking_failed">Nepavyko atrakinti, neteisinga slaptafrazė</string>
   <string name="unlock_module">Nustatyti modulio slaptafrazę</string>
@@ -676,7 +668,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="app_licence_title">Atvirojo kodo licencija</string>
   <string name="how_to_contribute">Kaip talkinti?</string>
   <string name="confirm_delete_bookmarks">Ar norite pašalinti %d žymes(-ių) ir jų pastabas?</string>
-  <string name="confirm_delete_study_pads">Ar norite pašalinti %d žymės etiketes(-ių) / bloknotus(-ų)? Be to, bus pašalintos visos susijusios žymės ir bloknoto pastabos.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekomenduoti draugui</string>
   <string name="tell_friend_message1">Norėčiau tau parekomenduoti %s.</string>
@@ -744,11 +735,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="primary_label">Pirminė etiketė</string>
   <string name="highlight_entire_verse">Paryškinti visą eilutę</string>
   <string name="favourite_label">Mėgstama etiketė</string>
-  <string name="edit_label">Taisyti žymės etiketę</string>
-  <string name="delete_label_confirmation">Ar norite pašalinti etiketę „%s“?</string>
-  <string name="bookmark_underline_style_arbitrary">Įprastų žymių pabraukimo stilius</string>
   <string name="bookmark_underline_style_whole_verse">Visos eilutės žymių pabraukimo stilius</string>
-  <string name="active_labels">Aktyvios etiketės</string>
   <string name="recent_labels">Paskiausios etiketės</string>
   <string name="other_labels">Kitos etiketės</string>
 </resources>

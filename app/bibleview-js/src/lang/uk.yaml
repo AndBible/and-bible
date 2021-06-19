@@ -16,7 +16,7 @@ footnoteTypeAlternative: Альтернативний
 footnoteTypeTranslation: Переклад
 clearLog: Очистити журнал помилок
 editNote: Редагувати
-editNotePlaceholder: Відредагувати примітку для закладки
+editNotePlaceholder: ""
 editTextPlaceholder: "Торкніться, щоб редагувати текст"
 inputPlaceholder: Пишіть тут
 inputReference: Введіть біблійне посилання
@@ -45,9 +45,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Порожній блокнот. Почніть додавати до цього блокноту, створюючи тут текстові записи або закладки з мітками, яка відповідає цему блокноту.
 studyPadModalTitle: Редагувати запис у блокноті
-doYouWantToDeleteEntry: "Ви впевнені, що хочете видалити цей запис в блокноті?"
+doYouWantToDeleteEntry: ""
 removeStudyPadConfirmationTitle: "Видалити запис у блокноті?"
-dragHelp: "Ви можете перетягнути запис, щоб змінити порядок блокноту"
+dragHelp: ""
 saved: збережено
 openAll: Відкрити всі посилання
 editBookmarkPlaceholder: "Торкніться, щоб редагувати Мої примітки для цієї закладки"
@@ -58,10 +58,9 @@ assignLabelsMenuEntry: Призначити мітки
 assignLabelsMenuEntry1: ""
 jumpToStudyPad: Перейти до блокноту
 setAsPrimaryLabel: Встановити як основну мітку
-removeBookmarkLabel: Видалити мітку із закладки
-addBookmarkLabel: Додати мітку до закладки
+removeBookmarkLabel: ""
+addBookmarkLabel: ""
 favouriteLabels: Улюблені мітки
 recentLabels: Недавні мітки
 frequentlyUsedLabels: "Мітки, що часто використовуються"
 bookmarkLabels: ""
-restoreCompareTitle: ""

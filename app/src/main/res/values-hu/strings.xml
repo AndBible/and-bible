@@ -248,6 +248,7 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="new_label">Új címke</string>
   <string name="label_name_prompt">Név</string>
   <string name="label_unlabelled">Címke nélküli</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Hozzáadás sorrendje</string>
   <string name="sort_by_bible_book">Bibliai sorrend</string>

@@ -313,9 +313,9 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="bookmark_settings_hide_labels_title">Bestimmte Kategorien verbergen</string>
   <string name="bookmark_settings_hide_labels_summary">Lesezeichen aus gekennzeichenten Kategorien verbergen</string>
   <string name="auto_assign_labels">Lesezeichen-Kategorie automatisch zuweisen</string>
-  <string name="auto_assign_labels1">Automatisch zu neuen Lesezeichen hinzufügen</string>
   <string name="auto_assign_labels_primary">Automatisch als Primärgruppe zuweisen</string>
   <string name="label_color">Kategorienfarbe</string>
+  <!--can be removed-->
   <string name="label_color_example">Beispiel</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Sortieren nach Datum</string>
@@ -427,7 +427,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <!--User Notes-->
   <string name="mynotes">Eigene Notizen</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Teile, sichere und stelle Daten wieder her</string>
   <string name="backup_modules">Teilen oder Sichern von Dokumenten nach...</string>
   <string name="backup_app_database">Teilen oder Sichern der App-Datenbank nach...</string>
   <string name="backup_app">Teilen oder Sichern der App-Datei (.apk) nach...</string>
@@ -568,11 +567,6 @@ Langes Drücken auf Verweise ermöglicht die Auswahl, den Verweis im gleichen Fe
   <string name="help_bookmarks_text">Lesezeichen können erzeugt werden, indem man Text auswählt und \"Lesezeichen vom Pop-up Menü auswählt.
 Du kannst deine eigenen Notizen hinzufügen, indem du den jetzt hervorgehobenen Text anklickst. Es gibt auch ein spezielles Dokument \"eigene Notizen\" unter den Kommentaren, in dem du deine Notizen in einem eigenen Fenster ansehen kannst.</string>
   <string name="help_studypads_title">Studienmappen</string>
-  <string name="help_studypads_text">
-Studienmappen sollen das Niederschreiben von Predigtnotizen, ganzen Predigten oder einfach persönlichen Notizen fürs Bibelstudium zu erleichtern, die mehrere biblische Querverweise beinhalten. Jede Studienmappe ist mit einer Lesezeichenkategorie verbunden.
-Alle Lesezeichen, die zu dieser Kaegorie hinzugefügt worden sind, erscheinen automatisch in der Studienmappe.
-Neben Lesezeichen können auch andere Einträge händisch hinzugefügt werden.
-Tipp: Verwende Arbeitsplatzmenü -&gt; Alle Textoptionen -&gt; Kategorien automatisch zuweisen um alle erstellten Lesezeichen automatisch der Studienmappe hinzuzufügen.</string>
   <string name="help_search_title">Suche</string>
   <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
   <string name="help_workspaces_title">Arbeitsbereich</string>
@@ -611,10 +605,10 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="multi_abbreviation">Multiple</string>
   <string name="compare_description">Vergleiche Übersetzungen</string>
   <string name="compare_abbreviation">Vergleiche</string>
+  <string name="compare">Vergleiche</string>
   <string name="http_forbidden">Verboten</string>
   <string name="http_not_found">Nicht gefunden</string>
   <string name="http_unknown">Anderer Fehler</string>
-  <string name="compare">Vergleiche</string>
   <string name="give_passphrase_for_module">Dokument %s ist verschlüsselt und benötigt eine Passphrase zum Entschlüsseln</string>
   <string name="unlocking_failed">Entschlüsselung fehlgeschlagen, fehlerhaftes Passwort</string>
   <string name="unlock_module">Modulpasswort festlegen</string>
@@ -629,7 +623,6 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="app_licence_title">Open Source License</string>
   <string name="how_to_contribute">Wie man beitragen kann</string>
   <string name="confirm_delete_bookmarks">Möchtest du %dLesezeichen und die dazugehörigen Notizen entfernen?</string>
-  <string name="confirm_delete_study_pads">Möchtest du %dLesezeichenkategorien /Studienmappen löschen? Alle zugeordneten Lesezeichen und Sutdienmappennotizen werden ebenfalls entfernt.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Einem Freund empfehlen</string>
   <string name="tell_friend_message1">Ich möchte dir %sempfehlen.</string>
@@ -687,11 +680,7 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="primary_label">Primärkategorie</string>
   <string name="highlight_entire_verse">Den ganzen Vers hervorheben</string>
   <string name="favourite_label">Lieblingskategorie</string>
-  <string name="edit_label">Bearbeite Lesezeichenkategorie</string>
-  <string name="delete_label_confirmation">Möchtest du Kategorie %sentfernen</string>
-  <string name="bookmark_underline_style_arbitrary">Unterstreichungsstil für normale Lesezeichen</string>
   <string name="bookmark_underline_style_whole_verse">Unterstreichungsstil für Lesezeichen für ganze Verse</string>
-  <string name="active_labels">Aktive Kategorien</string>
   <string name="recent_labels">Kürzliche Kategorien</string>
   <string name="other_labels">Andere Kategorien</string>
 </resources>

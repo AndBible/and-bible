@@ -308,14 +308,20 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="label_name_prompt">Nimi</string>
   <string name="label_unlabelled">Nimetön</string>
   <string name="add_bookmark1">Kirjanmerkki</string>
+  <string name="add_bookmark2">Kirjanmerkki valinnalle</string>
+  <string name="add_bookmark3">Valinta</string>
   <string name="add_bookmark_whole_verse">Kirjanmerkki jakeelle</string>
+  <string name="add_bookmark_whole_verse1">Jakeet</string>
+  <string name="add_bookmark_whole_verse2">Kokonaiset jakeet</string>
   <string name="remove_bookmark">Poista</string>
   <string name="bookmark_settings_hide_labels_title">Piilota tietyt kirjanmerkkiryhmät</string>
   <string name="bookmark_settings_hide_labels_summary">Piilota kirjanmerkit jotka on merkitty määritellyillä kirjanmerkkiryhmillä</string>
+  <string name="auto_assign_labels_title">Kirjanmerkkiryhmien asetukset</string>
   <string name="auto_assign_labels">Automaattiset ja suosikkikirjanmerkkiryhmät</string>
-  <string name="auto_assign_labels1">Lisää automaattisesti uusiin kirjanmerkkeihin</string>
+  <string name="auto_assign_labels1">Lisää kirjanmerkkiryhmä automaattisesti uusiin kirjanmerkkeihin</string>
   <string name="auto_assign_labels_primary">Lisää automaattisesti pääasiallisena</string>
   <string name="label_color">Kirjanmerkkiryhmän väri</string>
+  <!--can be removed-->
   <string name="label_color_example">Esimerkki</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Aikajärjestys</string>
@@ -437,7 +443,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <!--User Notes-->
   <string name="mynotes">Omat kommentit</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Jaa, varmuuskopioi &amp; palauta tietoja</string>
+  <string name="backup_and_restore">Varmuuskopioi &amp; palauta</string>
   <string name="backup_modules">Jaa tai varmuuskopioi dokumentit...</string>
   <string name="backup_app_database">Jaa tai varmuuskopioi sovelluksen tietokanta…</string>
   <string name="backup_app">Jaa tai varmuuskopioi ohjelmisto (.apk-tiedosto)...</string>
@@ -570,7 +576,7 @@ Pitkä painallus avaa kontekstivalikon tai toimintotilan useissa näkymissä. Pi
   <string name="help_bookmarks_title">Kirjanmerkit &amp; Omat Merkinnät</string>
   <string name="help_bookmarks_text">Voit luoda kirjanmerkkejä valitsemalla tekstiä ja valitsemalla \"Kirjanmerkki\" ponnahdusvalikosta. Voit lisätä omia huomioita uuteen kirjanmerkkiin painamalla korostettua tekstiä raamattunäkymässä. Voit myös käyttää \"Omat Merkinnät\" -erikoisdokumenttia, joka löytyy kommentaareista. Sen avulla voit tarkastella huomioitasi erillisessä ikkunassa.</string>
   <string name="help_studypads_title">Opintoalustat</string>
-  <string name="help_studypads_text">Opintoalustat on suunniteltu siihen että voit helposti kirjoittaa muistiinpanoja saarnan aikana, valmistella saarnoja tai kirjoittaa raamattuviittauksia sisältäviä muistiinpanoja Raamattua tutkiessasi. Jokainen tutkimusalusta on liitetty yhteen kirjanmerkkiryhmään. Kaikki kirjanmerkit jotka luot kyseiseen kirjanmerkkiryhmään näkyvät automaattisesti opintoalustadokumentissa. Kirjanmerkkien lisäksi voit myös lisätä omia tekstikatkelmia opintoalustaan. Vinkki: Voit automaattisesti lisätä uudet kirjanmerkit opintoalustaan seuraavan asetuksen avulla: Käytä asetusta Työtilat -&gt; Kaikki tekstivalinnat -&gt; Liitä kirjanmerkkiryhmään.</string>
+  <string name="help_studypads_text">Opintoalustat on suunniteltu siihen että voit helposti kirjoittaa muistiinpanoja saarnan aikana, valmistella saarnoja tai kirjoittaa raamattuviittauksia sisältäviä muistiinpanoja Raamattua tutkiessasi. Jokainen tutkimusalusta on liitetty yhteen kirjanmerkkiryhmään. Kaikki kirjanmerkit jotka luot kyseiseen kirjanmerkkiryhmään näkyvät automaattisesti opintoalustadokumentissa. Kirjanmerkkien lisäksi voit myös lisätä omia tekstikatkelmia opintoalustaan. </string>
   <string name="help_search_title">Etsi</string>
   <string name="help_search_text">Tekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)</string>
   <string name="help_workspaces_title">Työtilat</string>
@@ -606,10 +612,10 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="multi_abbreviation">Viitteitä</string>
   <string name="compare_description">Vertaile käännöksiä</string>
   <string name="compare_abbreviation">Vertaa</string>
+  <string name="compare">Vertaa</string>
   <string name="http_forbidden">Kielletty</string>
   <string name="http_not_found">Ei löytynyt</string>
   <string name="http_unknown">Muu virhe</string>
-  <string name="compare">Vertaa</string>
   <string name="give_passphrase_for_module">Dokumentti %s on salattu ja tarvitset salasanan avataksesi sen</string>
   <string name="unlocking_failed">Salauksen purku epäonnistui, väärä salasana</string>
   <string name="unlock_module">Aseta moduulin salasana</string>
@@ -624,7 +630,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="app_licence_title">Avoimen lähdekoodin lisenssi</string>
   <string name="how_to_contribute">Kuinka voin auttaa?</string>
   <string name="confirm_delete_bookmarks">Haluatko poistaa %dkirjanmerkkiä merkintöineen?</string>
-  <string name="confirm_delete_study_pads">Haluatko poistaa %d kirjanmerkkiryhmää / opintoalustaa? Myös kaikki niihin liittyvät kirjanmerkit ja opintoalustan merkinnät poistuvat.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Suosittele ystävälle</string>
   <string name="tell_friend_message1">Haluaisin suositella sinulle sovellusta %s.</string>
@@ -632,6 +637,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="tell_friend_message3">Asenna se Play-kaupasta: %s</string>
   <string name="tell_friend_message4">Lue lisää &amp; lisää asennusvaihtoehtoja: %s</string>
   <string name="share_verse_ok">Jaa / Kopioi</string>
+  <string name="verse_action_copy">Kopioi</string>
   <string name="share_verse_menu_title">Jaa / kopioi…</string>
   <string name="show_versenumbers">Näytä jaenumerot</string>
   <string name="show_full_verses">Näytä kokonaiset jakeet</string>
@@ -671,10 +677,24 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="highlight_entire_verse">Korosta koko jae</string>
   <string name="favourite_label">Suosikkikirjanmerkkiryhmä</string>
   <string name="edit_label">Muokkaa kirjanmerkkiryhmää</string>
-  <string name="delete_label_confirmation">Haluatko poistaa kirjanmerkkiryhmän %s?</string>
-  <string name="bookmark_underline_style_arbitrary">Alleviivaustyyli normaaleille kirjanmerkeille</string>
+  <string name="delete_label_confirmation">Haluatko poistaa kirjanmerkkiryhmän \"%s\"? Myös kaikki liitännäiset opintoalustan merkinnät poistetaan.</string>
+  <string name="bookmark_underline_style_arbitrary">Alleviivaustyyli tekstivalinnan sisältäville kirjanmerkeille</string>
   <string name="bookmark_underline_style_whole_verse">Alleviivaustyyli koko jakeen kirjanmerkeille</string>
-  <string name="active_labels">Aktiiviset kirjanmerkkiryhmät</string>
+  <string name="active_labels">Valitut kirjanmerkkiryhmät</string>
   <string name="recent_labels">Viimeaikaiset kirjanmerkkiryhmät</string>
   <string name="other_labels">Muut kirjanmerkkiryhmät</string>
+  <string name="book_menu_sort_row_opt">Järjestä kirjat vaakatasoon</string>
+  <string name="reset_workspace_labels">Haluatko alustaa työtilaan liittyvät kirjanmerkkiryhmien asetukset? Tämä koskee suosikkikirjamerkkiryhmiä ja automaattisesti uusiin kirjanmerkkehin lisättäviä kirjanmerkkiryhmiä. </string>
+  <string name="reset_hide_labels">Haluatko tyhjätä tiettyjen kirjanmerkkiryhmien piilotuksen asetuksen?</string>
+  <string name="reorder">Järjestä uudelleen</string>
+  <string name="system_items">Järestelmän toiminnot</string>
+  <string name="system_items1">Lisää</string>
+  <string name="system_action2">Androidin toiminnot</string>
+  <string name="text_copied_to_clicpboard">Teskti kopioitiin leikepöydälle</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Yksivaiheinen kirjanmerkin lisääminen</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Näytä \"Valinta\" ja \"Jakeet\" suoraan raamattunäkymän valintavalikossa.</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Kaksoisnapautuksella kokoruututilaan</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Siirry kokoruututilaan kaksoisnapauttamalla teksti-ikkunaa</string>
+  <string name="toggle_fullscreen">Kokoruututila</string>
+  <string name="exit_fullscreen">Tupla-napauta ruutua sulkeaksesi kokoruututilan</string>
 </resources>

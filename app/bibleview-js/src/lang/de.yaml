@@ -16,7 +16,7 @@ footnoteTypeAlternative: Alternative
 footnoteTypeTranslation: Übersetzung
 clearLog: Lösche Fehlerprotokoll
 editNote: Bearbeiten
-editNotePlaceholder: Bearbeite eine Notiz für das Lesezeichen
+editNotePlaceholder: ""
 editTextPlaceholder: Antippen um Text zu bearbeiten
 inputPlaceholder: Hier schreiben
 inputReference: Querverweis einfügen
@@ -45,9 +45,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Leere Studienmappe. Füge dieser Studienmappe Text hinzu oder erstelle Lesezeichen in einer Kategorien, die mit dieser Studienmappe verknüpft ist.
 studyPadModalTitle: Studienmappeneintrag bearbeiten
-doYouWantToDeleteEntry: "Bist du sicher, dass du diesen Studienmappeneintrag entfernen willst?"
+doYouWantToDeleteEntry: ""
 removeStudyPadConfirmationTitle: "Studienmappeneintrag entfernen?"
-dragHelp: Du kannst die Studienmappe über Ziehen und Ablegen reorganisieren
+dragHelp: ""
 saved: Gespeichert
 openAll: Öffne alle Querverweise
 editBookmarkPlaceholder: Tippen um die eigene Notiz für dieses Lesezeichen zu bearbeiten
@@ -55,13 +55,12 @@ onlyLabel: Einzige Kategorie
 wholeBookmark: Gesamtes Lesezeichen
 otherNoteText: Andere Notiz
 assignLabelsMenuEntry: Lesezeichen hinzufügen
-assignLabelsMenuEntry1: Kategorie in der Liste auswählen oder bearbeiten...
+assignLabelsMenuEntry1: ""
 jumpToStudyPad: Gehe zur Studiermappe
 setAsPrimaryLabel: Setze als Primärkategorie
-removeBookmarkLabel: Entferne Kategorie von dem Lesezeichen
-addBookmarkLabel: Füge Kategorie zum Lesezeichen hinzu
+removeBookmarkLabel: ""
+addBookmarkLabel: ""
 favouriteLabels: Lieblingskategorien
 recentLabels: Kürzliche Kategorien
 frequentlyUsedLabels: Häufig verwendete Kategorien
 bookmarkLabels: Lesezeichenkategorien
-restoreCompareTitle: Wiederherstellen

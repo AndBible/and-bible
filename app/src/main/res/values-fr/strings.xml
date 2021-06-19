@@ -321,9 +321,9 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="bookmark_settings_hide_labels_title">Masquer les étiquettes spécifiées</string>
   <string name="bookmark_settings_hide_labels_summary">Cachez les signets qui sont marqués avec une ou plusieurs étiquettes spécifiées</string>
   <string name="auto_assign_labels">Auto-assignation &amp; étiquettes favorites</string>
-  <string name="auto_assign_labels1">Attribution automatique aux nouveaux signets</string>
   <string name="auto_assign_labels_primary">Auto-assignation comme première</string>
   <string name="label_color">Couleur des étiquettes</string>
+  <!--can be removed-->
   <string name="label_color_example">Exemple</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordre chronologique</string>
@@ -438,7 +438,6 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <!--User Notes-->
   <string name="mynotes">Mes notes</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Partager, sauvegarder &amp; restaurer les données</string>
   <string name="backup_modules">Partager ou sauvegarde les documents vers...</string>
   <string name="backup_app_database">Partager ou sauvegarde la base de données de l\'application vers…</string>
   <string name="backup_app">Partagez ou sauvegardez l\'application (fichier .apk) sur…</string>
@@ -582,13 +581,6 @@ Appuyez longuement sur les liens pour choisir si vous souhaitez les ouvrir dans 
  sur le texte en surbrillance dans l\'affichage de la Bible. Il existe également un document spécial « Mes notes » dans les commentaires qui vous permet
 d\'afficher vos notes dans une fenêtre séparée.</string>
   <string name="help_studypads_title">Fiches d\'étude</string>
-  <string name="help_studypads_text">
- Les fichiers d\'étude sont conçus pour faciliter l\'écriture de notes de sermon, la préparation de sermons ou simplement pour
-écrire des notes personnelles d\'études bibliques comportant plusieurs références bibliques. Chaque fichier d\'étude est associé à une étiquette de signet.
-Tous les signets qui ont été créés avec cette étiquette respective apparaissent automatiquement dans le document du bloc d\'étude.
-En plus des signets, il peut y avoir des entrées de texte personnalisées dans un fichier d\'étude.
-Conseil : Utilisez le menu Espace -&gt; Toutes les options de texte -&gt; Affecter des étiquettes pour affecter automatiquement tous les signets créés
-signets créés au bloc d\'étude.</string>
   <string name="help_search_title">Rechercher</string>
   <string name="help_search_text">La recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND, OR, NOT
  (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
@@ -640,10 +632,10 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="multi_abbreviation">Multiple</string>
   <string name="compare_description">Comparer les traductions</string>
   <string name="compare_abbreviation">Comparer</string>
+  <string name="compare">Comparer</string>
   <string name="http_forbidden">Interdit</string>
   <string name="http_not_found">Non trouvé</string>
   <string name="http_unknown">Autre erreur</string>
-  <string name="compare">Comparer</string>
   <string name="give_passphrase_for_module">Le document %s est crypté et nécessite une phrase de passe pour être déverrouillé.</string>
   <string name="unlocking_failed">Échec du déverrouillage, phrase de passe invalide.</string>
   <string name="unlock_module">Définir la phrase de passe du module</string>
@@ -658,7 +650,6 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="app_licence_title">Licence Open Source</string>
   <string name="how_to_contribute">Comment contribuer ?</string>
   <string name="confirm_delete_bookmarks">Voulez-vous supprimer les signets %d et leurs notes ?</string>
-  <string name="confirm_delete_study_pads">Voulez-vous supprimer les étiquettes de signets / fiches d\'étude %d ? Tous les signets associés et les notes des fiches d\'étude seront également supprimés.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recommander à un ami</string>
   <string name="tell_friend_message1">Je voudrais vous recommander %s.</string>
@@ -725,11 +716,7 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="primary_label">Première étiquette</string>
   <string name="highlight_entire_verse">Surligner tout le verset</string>
   <string name="favourite_label">Étiquette favorite</string>
-  <string name="edit_label">Éditer les étiquettes des signets</string>
-  <string name="delete_label_confirmation">Voulez-vous supprimer l\'étiquette%s ?</string>
-  <string name="bookmark_underline_style_arbitrary">Style de soulignement pour les signets normaux</string>
   <string name="bookmark_underline_style_whole_verse">Style de soulignement pour les signets de verset entier</string>
-  <string name="active_labels">Étiquettes actives</string>
   <string name="recent_labels">Étiquettes récentes</string>
   <string name="other_labels">Autres étiquettes</string>
 </resources>

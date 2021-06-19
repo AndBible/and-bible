@@ -330,9 +330,9 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="bookmark_settings_hide_labels_title">Skrij nekatere oznake</string>
   <string name="bookmark_settings_hide_labels_summary">Skrij zaznamke, ki so označeni z navedenimi oznakami</string>
   <string name="auto_assign_labels">Določene in priljubljene oznake</string>
-  <string name="auto_assign_labels1">Določi k novim zaznamkom</string>
   <string name="auto_assign_labels_primary">Določi kot osnovnega</string>
   <string name="label_color">Barva oznake</string>
+  <!--can be removed-->
   <string name="label_color_example">Primer</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Urejeno po datumu</string>
@@ -457,7 +457,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <!--User Notes-->
   <string name="mynotes">Moje opombe</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Deli, Arhiviraj, Obnovi</string>
   <string name="backup_modules">Deli ali Arhiviraj dokumente v...</string>
   <string name="backup_app_database">Deli ali Arhiviraj bazo aplikacije v...</string>
   <string name="backup_app">Deli ali Arhiviraj aplikacijo (.apk datoteko) v...</string>
@@ -603,12 +602,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
         poudarjeno besedilo v pogledu Biblij. V komentarjih je tudi poseben dokument \"Moji zapiski,\" ki vam omogoča,
         da si svoje zapiske ogledate v ločenem oknu.</string>
   <string name="help_studypads_title">Beležke</string>
-  <string name="help_studypads_text">       Beležke so zasnovane tako, da olajšajo pisanje opomb, pripravo pridig ali da si samo
-       zapišete osebne zapiske preučevanja Biblije, ki vsebujejo več biblijskih referenc. Vsaka beležka je povezana z eno oznako zaznamka.
-       Vsi zaznamki, ki so bili ustvarjeni s to oznako, se samodejno prikažejo v dokumentu beležke.
-       Poleg zaznamkov so na beležki lahko tudi vnosi besedila po meri.
-       Namig: uporabite meni Delovni prostor -&gt; Vse možnosti besedila -&gt; Dodelite oznake za samodejno dodelitev vseh ustvarjenih
-       zaznamkov na beležki.</string>
   <string name="help_search_title">Iskanje</string>
   <string name="help_search_text">
 Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
@@ -657,10 +650,10 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="multi_abbreviation">Več</string>
   <string name="compare_description">Primerjaj prevode</string>
   <string name="compare_abbreviation">Primerjaj</string>
+  <string name="compare">Primerjaj</string>
   <string name="http_forbidden">Prepovedano</string>
   <string name="http_not_found">Ni najti</string>
   <string name="http_unknown">Druga napaka</string>
-  <string name="compare">Primerjaj</string>
   <string name="give_passphrase_for_module">Dokument %sje šifriran in za odklepanje potrebuje geslo </string>
   <string name="unlocking_failed">Odklepanje ni uspelo, neveljavno geslo</string>
   <string name="unlock_module">Nastavite geslo za modul</string>
@@ -675,7 +668,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="app_licence_title">Odprtokodna licenca</string>
   <string name="how_to_contribute">Kako prispevati?</string>
   <string name="confirm_delete_bookmarks">Ali želite odstraniti %d zaznamke in njihove zapiske?</string>
-  <string name="confirm_delete_study_pads">Ali želite odstraniti %d oznake zaznamkov / beležnice? Prav tako bodo odstranjeni vsi povezani zaznamki in opombe v beležnici.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Priporočite prijatelju</string>
   <string name="tell_friend_message1">Rad bi vam priporočil: %s .</string>
@@ -742,11 +734,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="primary_label">Osnovna oznaka</string>
   <string name="highlight_entire_verse">Označi celotno vrstico</string>
   <string name="favourite_label">Priljubljena oznaka</string>
-  <string name="edit_label">Uredi oznako zaznamka</string>
-  <string name="delete_label_confirmation">Ali želite odstraniti oznako %s?</string>
-  <string name="bookmark_underline_style_arbitrary">Podčrtan stil za običajne zaznamke</string>
   <string name="bookmark_underline_style_whole_verse">Podčrtan stil za celotno vrstico zaznamkov</string>
-  <string name="active_labels">Aktivne oznake</string>
   <string name="recent_labels">Prejšnje oznake</string>
   <string name="other_labels">Ostale oznake</string>
 </resources>

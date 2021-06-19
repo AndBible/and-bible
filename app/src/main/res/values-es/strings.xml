@@ -332,9 +332,9 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="bookmark_settings_hide_labels_title">Ocultar etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que se marcaron con la(s) etiqueta(s) especificada(s)</string>
   <string name="auto_assign_labels">Auto-asignar &amp; etiquetas favoritas</string>
-  <string name="auto_assign_labels1">Auto-asignar a nuevos marcadores</string>
   <string name="auto_assign_labels_primary">Auto-asignar como principal</string>
   <string name="label_color">Color de etiqueta</string>
+  <!--can be removed-->
   <string name="label_color_example">Ejemplo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Orden de fecha</string>
@@ -458,7 +458,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <!--User Notes-->
   <string name="mynotes">Mis Notas</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Compartir, Copia de seguridad y restauración</string>
   <string name="backup_modules">Compartir o Guardar copia de seguridad de documentos en...</string>
   <string name="backup_app_database">Compartir o Guardar copia de seguridad de la base de datos de la aplicación en...</string>
   <string name="backup_app">Compartir o Guardar copia de seguridad de aplicación (archivo .apk) en...</string>
@@ -607,14 +606,6 @@ texto resaltado en la vista Biblia. También hay un documento especial \"Mis not
 para ver sus notas en una ventana separada.
 </string>
   <string name="help_studypads_title">Pizarras de estudio</string>
-  <string name="help_studypads_text">
-Los pizarras de estudio están diseñados para facilitar la redacción de notas de sermones, preparar sermones o simplemente
-escriba notas personales de estudio bíblico que tengan múltiples referencias bíblicas. Cada pizarra de estudio está asociado con una etiqueta de marcador.
-Todos los marcadores que se han creado con esa etiqueta respectiva aparecen automáticamente en el documento de la libreta de estudio.
-Además de los marcadores, puede haber entradas de texto personalizadas en un pizarra de estudio.
-Consejo: use el menú Espacio de trabajo -&gt; Todas las opciones de texto -&gt; Asignar etiquetas para asignar automáticamente todas las
-marcadores a la libreta de estudio.
-</string>
   <string name="help_search_title">Búsqueda</string>
   <string name="help_search_text">La búsqueda de texto puede incluir caracteres especiales como *, ?, AND, OR, NOT
 (vea \"Apache Lucene - Query Parser Syntax\" para más detalles)</string>
@@ -667,10 +658,10 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="multi_abbreviation">Múltiple</string>
   <string name="compare_description">Comparar traducciones</string>
   <string name="compare_abbreviation">Comparar</string>
+  <string name="compare">Comparar</string>
   <string name="http_forbidden">Prohibido</string>
   <string name="http_not_found">No encontrado</string>
   <string name="http_unknown">Otro error</string>
-  <string name="compare">Comparar</string>
   <string name="give_passphrase_for_module">El documento %s está cifrado y se necesita una contraseña para desbloquearlo</string>
   <string name="unlocking_failed">Desbloqueo fallido, contraseña no válida</string>
   <string name="unlock_module">Establecer contraseña del módulo</string>
@@ -685,7 +676,6 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="app_licence_title">Licencia de software libre</string>
   <string name="how_to_contribute">¿Cómo contribuir?</string>
   <string name="confirm_delete_bookmarks">¿Desea eliminar %d marcadores y sus notas?</string>
-  <string name="confirm_delete_study_pads">¿Desea eliminar %d etiquetas de marcadores / pizarras de estudio? Todos los marcadores y pizarras de estudio asociados también se eliminarán.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recomendar a las amistades</string>
   <string name="tell_friend_message1">Me gustaría recomendarte %s.</string>
@@ -753,11 +743,7 @@ informe los problemas a los mantenedores de texto
   <string name="primary_label">Etiqueta principal</string>
   <string name="highlight_entire_verse">Resalta el verso completo</string>
   <string name="favourite_label">Etiqueta favorita</string>
-  <string name="edit_label">Editar etiqueta de marcador</string>
-  <string name="delete_label_confirmation">¿Quieres quitar la etiqueta %s?</string>
-  <string name="bookmark_underline_style_arbitrary">Estilo de subrayado para marcadores normales</string>
   <string name="bookmark_underline_style_whole_verse">Estilo de subrayado para marcadores de verso completo</string>
-  <string name="active_labels">Etiquetas activas</string>
   <string name="recent_labels">Etiquetas recientes</string>
   <string name="other_labels">Otras etiquetas</string>
 </resources>

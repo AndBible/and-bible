@@ -3,6 +3,7 @@
   <!--Main menu-->
   <!--Passage navigation-->
   <!--Search-->
+  <string name="create_index_for">To search a document we need an index. \n\nCreate an index for %s?</string>
   <!--Tasks-->
   <!--Search-->
   <!--Preferences-->
@@ -24,6 +25,7 @@
   <!--Verse context menu-->
   <!--Link context menu-->
   <!--Bookmarks-->
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <!--General Book-->
@@ -86,10 +88,15 @@
         and thus using beta might introduce unexpected behavior, i.e. bugs.
         It is recommended that ordinary Bible readers use stable versions instead.
     </string>
+  <string name="upgrade_video_message">Please see the video highlighting new features of this release (%s).</string>
   <!--History-->
   <!--Help-->
+  <string name="help_nav_text">Go to the next or previous chapter by swiping left or right..
+        Double-tap the document window to toggle full screen mode.
+       The menu button at the top-right corner of each window 
+provides easy access to manipulate and customize the window.</string>
   <string name="help_contextmenus_text">
-        Long pressing opens the context menu or action mode in several views.
+        A long press opens a context menu in several views.
         Long press on the Bible view to open the action mode for actions affecting the current verse.
         Long press on a document item in list view of Choose Document or Download to delete document or view information.
         Long press a bookmark in bookmarks listing to add labels or delete bookmark.
@@ -117,4 +124,5 @@
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="delete_label_confirmation">Do you want to remove the bookmark label \"%s\"? ALL associated Study Pad notes will also be removed.</string>
 </resources>

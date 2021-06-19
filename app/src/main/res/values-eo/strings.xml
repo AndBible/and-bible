@@ -77,8 +77,8 @@
   <string name="prefs_section_title_title">Sekciaj titoloj</string>
   <string name="prefs_red_letter_title">Ruĝaj literoj</string>
   <string name="prefs_tilt_to_scroll_title">Skui por rulumi</string>
-  <string name="prefs_toolbar_button_action_title">Agoj de butonoj de ilarstrio</string>
-  <string name="prefs_toolbar_button_action_summary">Agoj okazontaj post frapet(ad)i butonojn de ilarstrio de Biblio aŭ komentaro</string>
+  <string name="prefs_toolbar_button_action_title">Agoj de butono sur ilarstrio</string>
+  <string name="prefs_toolbar_button_action_summary">Agoj okazontaj post frapet(ad)i la butonon montrantan titolon de libro sur la ilarstrio</string>
   <string name="prefs_toolbar_button_action_default">Frapeti por malfermi menuon, frapetadi por montri ekranon de dokumentoj (implicite)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Frapeti por malfermi sekvan dokumenton, frapetadi por malfermi menuon</string>
   <string name="prefs_toolbar_button_action_swap_activity">Frapeti por malfermi sekvan dokumenton, frapetadi por montri ekranon de dokumentoj</string>
@@ -315,9 +315,9 @@ laŭ ilia permeso.</string>
   <string name="bookmark_settings_hide_labels_title">Kaŝi elektitajn etikedojn</string>
   <string name="bookmark_settings_hide_labels_summary">Kaŝi legosignojn markitajn per specifa(j) etikedo(j)</string>
   <string name="auto_assign_labels">Aŭtomate etikedi</string>
-  <string name="auto_assign_labels1">Atribui la etikedon al novaj legosignoj</string>
   <string name="auto_assign_labels_primary">Atribui kiel ĉefan</string>
   <string name="label_color">Koloro de etikedo</string>
+  <!--can be removed-->
   <string name="label_color_example">Antaŭvido</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Laŭ tempa ordo</string>
@@ -429,7 +429,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <!--User Notes-->
   <string name="mynotes">Miaj notoj</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Kunhavigi / sekurkopii</string>
   <string name="backup_modules">Kunhavigi aŭ sekurkopii dokumentojn al…</string>
   <string name="backup_app_database">Kunhavigi aŭ sekurkopii datumbazon al…</string>
   <string name="backup_app">Kunhavigi aŭ sekurkopii aplikaĵon (dosieron .apk) al…</string>
@@ -566,8 +565,6 @@ Frapetadu por malfermi kuntekstan menuon aŭ por montri agojn rilataj al la nuna
   <string name="help_bookmarks_title">Legosignoj kaj notoj</string>
   <string name="help_bookmarks_text">Marku iun tekston kaj elektu “legosigno” el la aperanta kunteksta menuo por krei legosignon. Vi povas aldoni proprajn notojn al legosigno per frapeti la emfazitan tekston. Estas ankaŭ speciala dokumento “miaj notoj” en komentaroj, kiu montras ĉiujn viajn notojn en aparta fenestro.</string>
   <string name="help_studypads_title">Notblokoj</string>
-  <string name="help_studypads_text">
-Notblokoj estas destinitaj por fari notojn pri predikoj, prepari predikojn aŭ por skribi personajn notojn ligitajn al pluraj fragmentoj de la Biblio. Ĉiu notbloko estas ligita al unu legosigna etikedo. Ĉiu kreita legosigno aŭtomate montriĝas en la dokumento notbloko kune kun ligita legosigna etikedo. Aldone al legosignoj, eblas aldoni propran tekston al notbloko. Konsilo: el la menuo de laborspaco (⋮) elektu “ĉiuj tekstaj agordoj” → “aldoni etikedoj” por aŭtomate aldoni ĉiujn kreatajn legosignojn al la notbloko.</string>
   <string name="help_search_title">Serĉi</string>
   <string name="help_search_text">Serĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT
  (vidu “Apache Lucene - Query Parser Syntax” por pli da detaloj)</string>
@@ -605,10 +602,10 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="multi_abbreviation">Pluraj</string>
   <string name="compare_description">Komparoj de tradukoj</string>
   <string name="compare_abbreviation">Komparo</string>
+  <string name="compare">Kompari</string>
   <string name="http_forbidden">malpermesita</string>
   <string name="http_not_found">ne trovita</string>
   <string name="http_unknown">alia eraro</string>
-  <string name="compare">Kompari</string>
   <string name="give_passphrase_for_module">La dokumento %s estas ĉifrita kaj pasvorto estas necesa por malfermi ĝin</string>
   <string name="unlocking_failed">Fiaskis malfermi, erara pasvorto</string>
   <string name="unlock_module">Agordi pasvorton por modulo</string>
@@ -623,7 +620,6 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="app_licence_title">Permesilo</string>
   <string name="how_to_contribute">Kontribui</string>
   <string name="confirm_delete_bookmarks">Ĉu vi certe volas forigi %d legosignojn kaj iliajn notojn!</string>
-  <string name="confirm_delete_study_pads">Ĉu vi volas forigi %d legosignajn etikedojn / notblokojn? Ĉiuj rilataj legosignaj etikedoj kaj notblokoj perdiĝos.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekomendi al amiko</string>
   <string name="tell_friend_message1">Mi volus rekomendi al vi la aplikaĵon %s.</string>
@@ -680,11 +676,7 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="primary_label">Ĉefa etikedo</string>
   <string name="highlight_entire_verse">Emfazi tutan verson</string>
   <string name="favourite_label">Ŝatata etikedo</string>
-  <string name="edit_label">Redakti legosignan etikedon</string>
-  <string name="delete_label_confirmation">Ĉu forigi la etikedon %s?</string>
-  <string name="bookmark_underline_style_arbitrary">Substreki normajn legosignojn</string>
   <string name="bookmark_underline_style_whole_verse">Substreki tut-versajn legosignojn</string>
-  <string name="active_labels">Aktivaj etikedoj</string>
   <string name="recent_labels">Antaŭaj etikedoj</string>
   <string name="other_labels">Aliaj etikedoj</string>
 </resources>
