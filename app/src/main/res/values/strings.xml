@@ -880,4 +880,8 @@
     <string name="toggle_fullscreen">Fullscreen</string>
     <string name="exit_fullscreen">Double-tap screen to exit fullscreen</string>
     <string name="reset_app_prefs">Do you want to reset all global application preferences that are displayed on this screen to their default values?</string>
+    <string name="label_red">Red</string>
+    <string name="label_green">Green</string>
+    <string name="label_blue">Blue</string>
+    <string name="label_underline">Underline</string>
 </resources>
