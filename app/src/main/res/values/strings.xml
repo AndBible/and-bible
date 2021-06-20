@@ -68,7 +68,14 @@
     <string name="error_executing_search">Invalid search query</string>
 
     <!-- Preferences -->
+    <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
     <string name="prefs_show_verseno_summary">Show chapter &amp; verse numbers</string>
+
+    <string name="prefs_show_verseno_title1">Verse numbers</string>
+
+    <string name="prefs_show_chapter_no_title">Chapter numbers</string>
+    <string name="prefs_show_chapter_no_summary">Show chapter numbers</string>
+
     <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
     <string name="prefs_show_bookmarks_summary">Untick to hide all bookmarks</string>
 
@@ -80,7 +87,6 @@
     <string name="prefs_red_letter_summary">Show words of Christ in red</string>
     <string name="prefs_text_size_title">Font preferences</string>
 
-    <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
     <string name="prefs_show_bookmarks_title">Show bookmarks</string>
     <string name="prefs_show_mynotes_title">Show My Note icons</string>
