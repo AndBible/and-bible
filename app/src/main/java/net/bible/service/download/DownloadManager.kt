@@ -161,7 +161,7 @@ class DownloadManager(
     // sites
 
     companion object {
-        const val REPOSITORY_KEY = "RepositoryKey"
+        const val REPOSITORY_KEY = "SourceRepository"
         const val TAG = "DownloadManager"
         private val log = Logger(DownloadManager::class.java.name)
     }

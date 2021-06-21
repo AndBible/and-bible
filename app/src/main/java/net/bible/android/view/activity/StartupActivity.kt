@@ -226,9 +226,11 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 book.unlock(it.cipherKey)
             }
 
-            docDao.getAll().forEach {
-                Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
-            }
+            // IN practice we don't need to restore this data, because it is stored by JSword in book
+            // metadata (persisted by JSWORD to files) too.
+            //docDao.getAll().forEach {
+            //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
+            //}
 
             gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)
