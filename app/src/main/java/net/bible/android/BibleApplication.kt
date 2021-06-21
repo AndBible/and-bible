@@ -134,13 +134,13 @@ open class BibleApplication : Application() {
 
     private fun logSqliteVersion() {
         try {
-            val cursor =
-                SQLiteDatabase.openOrCreateDatabase(":memory:", null)
-                    .rawQuery("select sqlite_version() AS sqlite_version", null)
+            val db = SQLiteDatabase.openOrCreateDatabase(":memory:", null)
+            val cursor = db.rawQuery("select sqlite_version() AS sqlite_version", null)
             while (cursor.moveToNext()) {
                 sqliteVersion += cursor.getString(0)
             }
             cursor.close()
+            db.close()
         } catch (e: Throwable) {
             Log.e(TAG, "Couldn't figure out SQLite version due to error: ", e)
         }

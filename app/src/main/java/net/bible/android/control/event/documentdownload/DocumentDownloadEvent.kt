@@ -15,33 +15,16 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.event.documentdownload
 
-package net.bible.android.control.event.documentdownload;
-
-import net.bible.android.control.download.DocumentStatus;
+import net.bible.android.control.download.DocumentStatus
+import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 
 /** Event raised when a change related to document download occurs
- * 
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class DocumentDownloadEvent {
-
-	private DocumentStatus documentStatus;
-
-	public DocumentDownloadEvent(String initials, DocumentStatus.DocumentInstallStatus status, int percentDone) {
-		super();
-		documentStatus = new DocumentStatus(initials, status, percentDone);
-	}
-
-	public DocumentStatus getDocumentStatus() {
-		return documentStatus;
-	}
-
-	public String getInitials() {
-		return documentStatus.getInitials();
-	}
-
-	public int getPercentDone() {
-		return documentStatus.getPercentDone();
-	}
+class DocumentDownloadEvent(id: String, status: DocumentInstallStatus, percentDone: Int) {
+    val documentStatus = DocumentStatus(id, status, percentDone)
+    val id: String get() = documentStatus.id
 }

@@ -18,8 +18,11 @@
 package net.bible.service.download
 
 import net.bible.android.activity.R
+import net.bible.android.control.download.repoIdentity
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.service.common.Logger
+import net.bible.service.db.DatabaseContainer
+import org.crosswire.common.progress.Progress
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
@@ -93,6 +96,8 @@ class DownloadManager(
         return documents
     }
 
+    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+
     /**
      * Install a book, overwriting it if the book to be installed is newer.
      *
@@ -104,7 +109,7 @@ class DownloadManager(
      * @throws InstallException
      */
     @Throws(BookException::class, InstallException::class)
-    fun installBook(repositoryName: String?, book: Book) {
+    fun installBook(repositoryName: String, book: Book) {
         // Delete the book, if present
         // At the moment, JSword will not re-install. Later it will, if the
         // remote version is greater.
@@ -113,9 +118,18 @@ class DownloadManager(
         installedBook?.let { unregisterBook(it) }
         // An installer knows how to install books
         val installer = installManager.getInstaller(repositoryName)
-        installer.install(book)
+        val jobId = Progress.INSTALL_BOOK.format(book.repoIdentity)
+        installer.install(book, jobId)
         // reload metadata to ensure the correct location is set, otherwise maps won't show
-        (book.bookMetaData as SwordBookMetaData).reload { true }
+        val metadata = book.bookMetaData as SwordBookMetaData
+        metadata.reload { true }
+
+        // InstallWatcher does not know about repository, so let's add it here
+        metadata.putProperty(REPOSITORY_KEY, repositoryName)
+        docDao.getBook(book.initials)?.run {
+            repository = repositoryName
+            docDao.update(this)
+        }
     }
 
     /**
@@ -146,7 +160,7 @@ class DownloadManager(
     // sites
 
     companion object {
-        const val REPOSITORY_KEY = "repository"
+        const val REPOSITORY_KEY = "RepositoryKey"
         const val TAG = "DownloadManager"
         private val log = Logger(DownloadManager::class.java.name)
     }

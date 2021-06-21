@@ -16,5 +16,5 @@
 	<item android:id="@+id/installZip"
 		android:title="@string/install_zip"
 		android:icon="@drawable/ic_unarchive_white_24dp"
-		appcompat:showAsAction="ifRoom"/>
+		appcompat:showAsAction="never"/>
 </menu>

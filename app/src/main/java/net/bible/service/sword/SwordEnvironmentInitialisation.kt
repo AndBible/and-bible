@@ -84,7 +84,7 @@ object SwordEnvironmentInitialisation {
                 WebResource.setTimeout(20000)
                 // because the above line causes initialisation set the is initialised flag here
                 isSwordLoaded = true
-                BookInstallWatcher().startListening()
+                BookInstallWatcher.startListening()
             }
         } catch (e: Exception) {
             log.error("Error initialising", e)

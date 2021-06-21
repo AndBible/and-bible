@@ -48,15 +48,15 @@ class DocumentDownloadProgressCache {
     fun sendProgressEvent(progress: Progress) {
         val jobID = progress.jobID
         if (jobID.startsWith(INSTALL_BOOK_JOB_NAME)) {
-            val initials = jobID.substring(INSTALL_BOOK_JOB_NAME.length)
+            val id = jobID.substring(INSTALL_BOOK_JOB_NAME.length)
             val percentDone = progress.work
-            percentDoneByInitials[initials] = percentDone
-            ABEventBus.getDefault().post(DocumentDownloadEvent(initials, DocumentStatus.DocumentInstallStatus.BEING_INSTALLED, percentDone))
+            percentDoneByInitials[id] = percentDone
+            ABEventBus.getDefault().post(DocumentDownloadEvent(id, DocumentStatus.DocumentInstallStatus.BEING_INSTALLED, percentDone))
         }
     }
 
     fun getPercentDone(document: Book): Int {
-        val percentDone = percentDoneByInitials[document.initials]
+        val percentDone = percentDoneByInitials[document.repoIdentity]
         return percentDone ?: 0
     }
 

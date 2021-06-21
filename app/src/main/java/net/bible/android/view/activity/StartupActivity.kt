@@ -59,6 +59,7 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.download.DownloadManager.Companion.REPOSITORY_KEY
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Books
@@ -223,6 +224,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             docDao.getUnlocked().forEach {
                 val book = Books.installed().getBook(it.initials)
                 book.unlock(it.cipherKey)
+            }
+
+            docDao.getAll().forEach {
+                Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
             }
 
             gotoMainBibleActivity()

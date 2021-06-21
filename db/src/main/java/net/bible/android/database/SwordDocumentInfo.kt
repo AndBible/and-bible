@@ -32,6 +32,9 @@ interface SwordDocumentInfoDao {
     @Query("""SELECT * from DocumentBackup WHERE cipherKey IS NOT NULL""")
     fun getUnlocked(): List<SwordDocumentInfo>
 
+    @Query("""SELECT * from DocumentBackup""")
+    fun getAll(): List<SwordDocumentInfo>
+
     @Query("""DELETE FROM DocumentBackup WHERE osisId = :initials""")
     fun deleteByOsisId(initials: String)
 

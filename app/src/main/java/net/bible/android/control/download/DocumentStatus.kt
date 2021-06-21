@@ -21,7 +21,7 @@ package net.bible.android.control.download
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DocumentStatus(
-    val initials: String,
+    val id: String,
     val documentInstallStatus: DocumentInstallStatus,
     val percentDone: Int)
 {
