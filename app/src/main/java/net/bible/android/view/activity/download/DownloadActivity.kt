@@ -311,7 +311,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         }
     }
 
-    private fun doDownload(document: Book) {
+    private fun doDownload(document: Book) = GlobalScope.launch (Dispatchers.Main) {
         try {
             // the download happens in another thread
             downloadControl.downloadDocument(repoFactory, document)
@@ -320,7 +320,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
             notifyDataSetChanged()
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to download", e)
-            Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@DownloadActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
         }
     }
 

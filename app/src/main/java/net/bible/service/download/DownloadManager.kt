@@ -125,8 +125,9 @@ class DownloadManager(
         metadata.reload { true }
 
         // InstallWatcher does not know about repository, so let's add it here
+        book.putProperty(REPOSITORY_KEY, repositoryName)
         Books.installed().getBook(bookInitials)?.putProperty(REPOSITORY_KEY, repositoryName)
-        docDao.getBook(book.initials)?.run {
+        docDao.getBook(bookInitials)?.run {
             repository = repositoryName
             docDao.update(this)
         }

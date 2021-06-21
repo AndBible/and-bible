@@ -17,6 +17,8 @@
  */
 package net.bible.android.control.download
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -30,14 +32,13 @@ import org.crosswire.jsword.book.install.DownloadException
 import org.crosswire.jsword.book.install.InstallException
 import java.lang.Exception
 import java.util.*
-import java.util.concurrent.ExecutorService
 
 /**
  * Download a single document at a time.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DownloadQueue(private val executorService: ExecutorService) {
+class DownloadQueue {
     private val beingQueued = Collections.synchronizedSet(HashSet<String>())
     private val downloadError = Collections.synchronizedSet(HashSet<String>())
     private val log = Logger(this.javaClass.simpleName)
@@ -51,12 +52,12 @@ class DownloadQueue(private val executorService: ExecutorService) {
         return application.getString(msgId)
     }
 
-    fun addDocumentToDownloadQueue(document: Book, repo: RepoBase) {
+    suspend fun addDocumentToDownloadQueue(document: Book, repo: RepoBase) {
         val repoIdentity = document.repoIdentity
         if (!beingQueued.contains(repoIdentity)) {
             beingQueued.add(repoIdentity)
             downloadError.remove(repoIdentity)
-            executorService.submit {
+            withContext(Dispatchers.IO) {
                 log.info("Downloading " + document.osisID + " from repo " + repo.repoName)
                 try {
                     repo.downloadDocument(document)

@@ -105,7 +105,7 @@ class DownloadControl(
     }
 
     @Throws(LucidException::class)
-    fun downloadDocument(repoFactory: RepoFactory, document: Book) {
+    suspend fun downloadDocument(repoFactory: RepoFactory, document: Book) {
         Log.d(TAG, "Download requested")
 
         // ensure SBMD is fully, not just partially, loaded
