@@ -22,20 +22,16 @@
       <OpenAllLink :v11n="v11n"/>
     </div>
     <template #title>
-      <template v-if="isFootNote">
-        {{ noteType }}
-
-      </template>
-      <template v-else-if="isCrossReference">
+      <template v-if="isCrossReference">
         {{ strings.crossReferenceText }}
       </template>
       <template v-else>
-        {{ strings.otherNoteText }}
+        {{ noteType }}
       </template>
     </template>
   </Modal>
   <span
-    v-if="(config.showFootNotes && isCrossReference) || (config.showFootNotes && isFootNote) || isOther"
+    v-if="(config.showFootNotes && isCrossReference) || config.showFootNotes"
     class="skip-offset">
     <span :class="{noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
       {{handle}}
