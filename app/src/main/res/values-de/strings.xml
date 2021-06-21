@@ -57,6 +57,7 @@
   <string name="search_current_book">Derzeitiges Buch</string>
   <string name="error_executing_search">Ungültige Suchabfrage</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Kapitel- &amp; Versnummern</string>
   <string name="prefs_show_verseno_summary">Zeige Kapitel- &amp; Versnummern</string>
   <string name="prefs_verse_per_line_summary">Jeden Vers in einer neuen Zeile anzeigen</string>
   <string name="prefs_show_bookmarks_summary">Anklicken um alle Lesezeichen zu verbergen</string>
@@ -67,7 +68,6 @@
   <string name="prefs_section_title_summary">Außerkanonische Abschnittstitel anzeigen</string>
   <string name="prefs_red_letter_summary">Zeige Worte Christi in roter Farbe</string>
   <string name="prefs_text_size_title">Schriftarteinstellungen</string>
-  <string name="prefs_show_verseno_title">Kapitel- &amp; Versnummern</string>
   <string name="prefs_verse_per_line_title">Zeilenumbruch nach Vers</string>
   <string name="prefs_show_bookmarks_title">Lesezeichen anzeigen</string>
   <string name="prefs_show_mynotes_title">Eigene Notizen</string>

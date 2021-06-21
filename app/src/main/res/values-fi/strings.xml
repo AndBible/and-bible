@@ -57,6 +57,7 @@
   <string name="search_current_book">Avoin kirja</string>
   <string name="error_executing_search">Virheellinen haku</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Luku- ja jaenumerot</string>
   <string name="prefs_show_verseno_summary">Näytä luku- ja jaenumerot</string>
   <string name="prefs_verse_per_line_summary">Näytä kukin jae omalla rivillään</string>
   <string name="prefs_show_bookmarks_summary">Kytke pois piilottaaksesi kirjanmerkit</string>
@@ -67,7 +68,6 @@
   <string name="prefs_section_title_summary">Näytä ei-kanoniset otsikot</string>
   <string name="prefs_red_letter_summary">Näytä Kristuksen sanat punaisella</string>
   <string name="prefs_text_size_title">Kirjaisimen määritykset</string>
-  <string name="prefs_show_verseno_title">Luku- ja jaenumerot</string>
   <string name="prefs_verse_per_line_title">Jokainen jae omalla rivillään</string>
   <string name="prefs_show_bookmarks_title">Näytä kirjanmerkit</string>
   <string name="prefs_show_mynotes_title">Näytä oman kommentin kuvake</string>

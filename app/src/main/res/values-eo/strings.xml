@@ -57,7 +57,11 @@
   <string name="search_current_book">la nuna libro</string>
   <string name="error_executing_search">Erara serĉmendo</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Numeroj de versoj k ĉapitroj</string>
   <string name="prefs_show_verseno_summary">Montri numerojn de versoj kaj ĉapitroj</string>
+  <string name="prefs_show_verseno_title1">Numeroj de versoj</string>
+  <string name="prefs_show_chapter_no_title">Numeroj de ĉapitroj</string>
+  <string name="prefs_show_chapter_no_summary">Montri numerojn de ĉapitroj</string>
   <string name="prefs_verse_per_line_summary">Montri ĉiun verson en alia linio</string>
   <string name="prefs_show_bookmarks_summary">Malmarku por kaŝi ĉiujn legosignojn</string>
   <string name="prefs_show_mynotes_summary">Montri emblemon ĉe verso en miaj notoj</string>
@@ -67,10 +71,13 @@
   <string name="prefs_section_title_summary">Montri nekanonajn titolojn de sekcioj</string>
   <string name="prefs_red_letter_summary">Montri vortojn de Kristo ruĝe</string>
   <string name="prefs_text_size_title">Agordi tiparojn</string>
-  <string name="prefs_show_verseno_title">Numeroj de versoj k ĉapitroj</string>
   <string name="prefs_verse_per_line_title">Po unu verso en linio</string>
   <string name="prefs_show_bookmarks_title">Montri legosignojn</string>
   <string name="prefs_show_mynotes_title">Montri piktogramojn de miaj notoj</string>
+  <string name="prefs_show_footnotes_title">Piednotoj</string>
+  <string name="prefs_show_xrefs_title">Internaj referencoj</string>
+  <string name="prefs_show_footnotes_summary">Montri piednotojn (se disponeblaj en la dokumento)</string>
+  <string name="prefs_show_xrefs_summary">Montri internajn referencojn (se disponeblaj en la dokumento)</string>
   <string name="prefs_show_notes_title">Piednotoj kaj internaj referencoj</string>
   <string name="prefs_show_strongs_title">Numeroj de Strong</string>
   <string name="prefs_show_morphology_title">Morfologiaj kodoj</string>
@@ -310,11 +317,17 @@ laŭ ilia permeso.</string>
   <string name="label_name_prompt">Nomo</string>
   <string name="label_unlabelled">Senetikeda</string>
   <string name="add_bookmark1">Legosigno</string>
-  <string name="add_bookmark_whole_verse">Legosigno (verso)</string>
+  <string name="add_bookmark2">Legosigno (elekto)</string>
+  <string name="add_bookmark3">Elekto</string>
+  <string name="add_bookmark_whole_verse">Legosigno (versoj)</string>
+  <string name="add_bookmark_whole_verse1">Versoj</string>
+  <string name="add_bookmark_whole_verse2">Plenaj versoj</string>
   <string name="remove_bookmark">Forigi</string>
   <string name="bookmark_settings_hide_labels_title">Kaŝi elektitajn etikedojn</string>
   <string name="bookmark_settings_hide_labels_summary">Kaŝi legosignojn markitajn per specifa(j) etikedo(j)</string>
+  <string name="auto_assign_labels_title">Agordi etikedojn</string>
   <string name="auto_assign_labels">Aŭtomate etikedi</string>
+  <string name="auto_assign_labels1">Aŭtomate atribui la etikedon al novaj legosignoj</string>
   <string name="auto_assign_labels_primary">Atribui kiel ĉefan</string>
   <string name="label_color">Koloro de etikedo</string>
   <!--can be removed-->
@@ -429,6 +442,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <!--User Notes-->
   <string name="mynotes">Miaj notoj</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Sekurkopio</string>
   <string name="backup_modules">Kunhavigi aŭ sekurkopii dokumentojn al…</string>
   <string name="backup_app_database">Kunhavigi aŭ sekurkopii datumbazon al…</string>
   <string name="backup_app">Kunhavigi aŭ sekurkopii aplikaĵon (dosieron .apk) al…</string>
@@ -565,6 +579,8 @@ Frapetadu por malfermi kuntekstan menuon aŭ por montri agojn rilataj al la nuna
   <string name="help_bookmarks_title">Legosignoj kaj notoj</string>
   <string name="help_bookmarks_text">Marku iun tekston kaj elektu “legosigno” el la aperanta kunteksta menuo por krei legosignon. Vi povas aldoni proprajn notojn al legosigno per frapeti la emfazitan tekston. Estas ankaŭ speciala dokumento “miaj notoj” en komentaroj, kiu montras ĉiujn viajn notojn en aparta fenestro.</string>
   <string name="help_studypads_title">Notblokoj</string>
+  <string name="help_studypads_text">
+Notblokoj estas destinitaj por fari notojn pri predikoj, prepari predikojn aŭ por skribi personajn notojn ligitajn al pluraj fragmentoj de la Biblio. Ĉiu notbloko estas ligita al unu legosigna etikedo. Ĉiu kreita legosigno aŭtomate montriĝas en la dokumento notbloko kune kun ligita legosigna etikedo. Aldone al legosignoj, eblas aldoni propran tekston al notbloko.</string>
   <string name="help_search_title">Serĉi</string>
   <string name="help_search_text">Serĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT
  (vidu “Apache Lucene - Query Parser Syntax” por pli da detaloj)</string>
@@ -627,6 +643,7 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="tell_friend_message3">Vi povas instali ĝin el la vendejo Play: %s</string>
   <string name="tell_friend_message4">Pliaj informoj (en la angla) troviĝas ĉe: %s</string>
   <string name="share_verse_ok">Kunhavigi / kopii</string>
+  <string name="verse_action_copy">Kopii</string>
   <string name="share_verse_menu_title">Kunhavigi / kopii…</string>
   <string name="show_versenumbers">Montri numerojn de versoj</string>
   <string name="show_full_verses">Montri plenajn versojn</string>
@@ -676,7 +693,30 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="primary_label">Ĉefa etikedo</string>
   <string name="highlight_entire_verse">Emfazi tutan verson</string>
   <string name="favourite_label">Ŝatata etikedo</string>
-  <string name="bookmark_underline_style_whole_verse">Substreki tut-versajn legosignojn</string>
+  <string name="edit_label">Redakti etikedon</string>
+  <string name="delete_label_confirmation">Ĉu vi volas forigi la legosignan etikedon “%s”? Ĉiuj rilataj notblokoj perdiĝos.</string>
+  <string name="bookmark_underline_style_arbitrary">Substreki legosignojn (elektoj)</string>
+  <string name="bookmark_underline_style_whole_verse">Substreki legosignojn (tutaj versoj)</string>
+  <string name="active_labels">Elektitaj legosignoj</string>
   <string name="recent_labels">Antaŭaj etikedoj</string>
   <string name="other_labels">Aliaj etikedoj</string>
+  <string name="book_menu_sort_row_opt">Ordigi librojn horizontale</string>
+  <string name="reset_workspace_labels">Ĉu vi volas nuligi agordojn pri aŭtomata atribuo kaj ŝatataj etikedoj por tiu ĉi laborspaco?</string>
+  <string name="reset_hide_labels">Ĉu vi volas nuligi agordojn pri kaŝi specifajn etikedojn?</string>
+  <string name="reorder">Reordigi</string>
+  <string name="system_items">Agoj de operaciumo</string>
+  <string name="system_items1">Pli</string>
+  <string name="system_action2">Agoj de Android</string>
+  <string name="text_copied_to_clicpboard">Kopiis tekston al tondujo</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Aldoni legosignon per unu frapeto</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Montri la agojn “elekto” kaj “versoj” anstataŭ la etendita menuo “legosigno”</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Plenekranigi per duobla frapeto</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Enigi plenekranon per duoble frapeti la fenestron</string>
+  <string name="toggle_fullscreen">Plenekrano</string>
+  <string name="exit_fullscreen">Duoble frapetu por eliri plenekranan reĝimon</string>
+  <string name="reset_app_prefs">Ĉu vi volas reagordi ĉiujn aplikaĵajn agordojn montratajn sur tiu ĉi ekrano al implicitaj valoroj?</string>
+  <string name="label_red">Ruĝa</string>
+  <string name="label_green">Verda</string>
+  <string name="label_blue">Blua</string>
+  <string name="label_underline">Substrekita</string>
 </resources>

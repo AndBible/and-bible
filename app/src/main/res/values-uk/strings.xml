@@ -57,6 +57,7 @@
   <string name="search_current_book">Поточна книга</string>
   <string name="error_executing_search">Неприпустимий запит пошуку</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Номери розділів та віршів</string>
   <string name="prefs_show_verseno_summary">Показати номери розділів та віршів</string>
   <string name="prefs_verse_per_line_summary">Показати один вірш на рядок</string>
   <string name="prefs_show_bookmarks_summary">Зніміть прапорець, щоб сховати всі закладки</string>
@@ -67,7 +68,6 @@
   <string name="prefs_section_title_summary">Показати неканонічні назви розділів</string>
   <string name="prefs_red_letter_summary">Показати слова Христа червоним кольором</string>
   <string name="prefs_text_size_title">Налаштування шрифту</string>
-  <string name="prefs_show_verseno_title">Номери розділів та віршів</string>
   <string name="prefs_verse_per_line_title">Один вірш на рядок</string>
   <string name="prefs_show_bookmarks_title">Показати піктограми закладок</string>
   <string name="prefs_show_mynotes_title">Показати піктограми приміток</string>

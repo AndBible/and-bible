@@ -57,6 +57,7 @@
   <string name="search_current_book">Livre courant</string>
   <string name="error_executing_search">Requête invalide</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Chapitre et numéros de versets</string>
   <string name="prefs_show_verseno_summary">Montrer le chapitre et les numéros de versets</string>
   <string name="prefs_verse_per_line_summary">Affiche chaque verset sur une ligne différente</string>
   <string name="prefs_show_bookmarks_summary">Affiche les signets dans le texte</string>
@@ -67,7 +68,6 @@
   <string name="prefs_section_title_summary">Affiche les titres des sections non-canoniques</string>
   <string name="prefs_red_letter_summary">Affiche les paroles de Christ en rouge</string>
   <string name="prefs_text_size_title">Options de police</string>
-  <string name="prefs_show_verseno_title">Chapitre et numéros de versets</string>
   <string name="prefs_verse_per_line_title">Un verset par ligne</string>
   <string name="prefs_show_bookmarks_title">Afficher les signets</string>
   <string name="prefs_show_mynotes_title">Afficher les icônes des notes</string>

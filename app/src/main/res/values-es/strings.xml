@@ -57,6 +57,7 @@
   <string name="search_current_book">Libro actual</string>
   <string name="error_executing_search">Criterio de búsqueda inválido</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Números de capítulo y versículo</string>
   <string name="prefs_show_verseno_summary">Mostrar números de capítulo y versículo</string>
   <string name="prefs_verse_per_line_summary">Muestra cada verso en una línea diferente</string>
   <string name="prefs_show_bookmarks_summary">Desmarcar para ocultar todos los marcadores</string>
@@ -67,7 +68,6 @@
   <string name="prefs_section_title_summary">Muestra los títulos de sección no canónicos.</string>
   <string name="prefs_red_letter_summary">Muestra las palabras de Cristo en rojo</string>
   <string name="prefs_text_size_title">Preferencias de tipografía</string>
-  <string name="prefs_show_verseno_title">Números de capítulo y versículo</string>
   <string name="prefs_verse_per_line_title">Un verso por linea</string>
   <string name="prefs_show_bookmarks_title">Mostrar marcadores</string>
   <string name="prefs_show_mynotes_title">Mostrar iconos de Mis Notas</string>

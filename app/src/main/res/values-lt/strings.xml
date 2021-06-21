@@ -57,6 +57,7 @@
   <string name="search_current_book">Esamoje knygoje</string>
   <string name="error_executing_search">Neteisinga paieškos užklausa</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Skyrių &amp; eilučių numeriai</string>
   <string name="prefs_show_verseno_summary">Rodyti skyrių &amp; eilučių numerius</string>
   <string name="prefs_verse_per_line_summary">Rodyti kiekvieną Biblijos eilutę atskiroje eilutėje</string>
   <string name="prefs_show_bookmarks_summary">Nuimkite žymėjimą, norėdami paslėpti visas žymes</string>
@@ -67,7 +68,6 @@
   <string name="prefs_section_title_summary">Rodyti nekanonines skyrių antraštes</string>
   <string name="prefs_red_letter_summary">Rodyti Kristaus žodžius raudona spalva</string>
   <string name="prefs_text_size_title">Šrifto nustatymai</string>
-  <string name="prefs_show_verseno_title">Skyrių &amp; eilučių numeriai</string>
   <string name="prefs_verse_per_line_title">Po vieną eilutę eilutėje</string>
   <string name="prefs_show_bookmarks_title">Rodyti žymes</string>
   <string name="prefs_show_mynotes_title">Rodyti mano pastabų piktogramas</string>

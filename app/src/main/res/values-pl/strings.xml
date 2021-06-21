@@ -57,7 +57,11 @@
   <string name="search_current_book">obecnej księdze</string>
   <string name="error_executing_search">Niepoprawne zapytanie</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Numery wersetów i rozdziałów</string>
   <string name="prefs_show_verseno_summary">Wyświetl numery wersetów i rozdziałów</string>
+  <string name="prefs_show_verseno_title1">Numery wersetów</string>
+  <string name="prefs_show_chapter_no_title">Numery rozdziałów</string>
+  <string name="prefs_show_chapter_no_summary">Wyświetl numery rozdziałów</string>
   <string name="prefs_verse_per_line_summary">Wyświetl każdy werset w osobnej linii</string>
   <string name="prefs_show_bookmarks_summary">Odznacz, aby ukryć wszystkie zakładki</string>
   <string name="prefs_show_mynotes_summary">Wersety z moich notatek oznacz ikoną</string>
@@ -67,10 +71,13 @@
   <string name="prefs_section_title_summary">Wyświetl niekanoniczne tytuły sekcji</string>
   <string name="prefs_red_letter_summary">Wyświetl słowa Chrystusa na czerwono</string>
   <string name="prefs_text_size_title">Ustawienia czcionek</string>
-  <string name="prefs_show_verseno_title">Numery wersetów i rozdziałów</string>
   <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
   <string name="prefs_show_bookmarks_title">Pokaż zakładki</string>
   <string name="prefs_show_mynotes_title">Pokaż ikony notatek</string>
+  <string name="prefs_show_footnotes_title">Przypisy</string>
+  <string name="prefs_show_xrefs_title">Odsyłacze wewnętrzne</string>
+  <string name="prefs_show_footnotes_summary">Wyświetl przypisy (jeżeli obecne w dokumencie)</string>
+  <string name="prefs_show_xrefs_summary">Wyświetl odsyłacze wewnętrzne (jeżeli obecne w dokumencie)</string>
   <string name="prefs_show_notes_title">Przypisy i odsyłacze</string>
   <string name="prefs_show_strongs_title">Numeracja Stronga</string>
   <string name="prefs_show_morphology_title">Kody morfologiczne</string>
@@ -138,6 +145,9 @@
   <string name="reset_are_you_sure">Czy na pewno chcesz zresetować te ustawienia do wartości domyślnych?</string>
   <string name="window_pinning_menutitle">Przypinanie okien</string>
   <string name="hide_window_buttons_title">Ukryj przyciski okien</string>
+  <string name="hide_window_buttons_summary">Przyciski okna wyświetlane po prawej stronie widoku Biblii zostały ukryte. Pasek nawigacji na dole jest wciąż wyświetlany i możesz wywołać menu okna poprzez naciśnięcie i przytrzymanie okna.</string>
+  <string name="hide_bible_reference_overlay_title">Ukryj warstwę odsyłaczy</string>
+  <string name="hide_bible_reference_overlay_summary">Nie wyświetlaj półprzezroczystej warstwy odsyłaczy biblijnych kiedy aplikacja działa w trybie pełnoekranowym</string>
   <string name="full_screen_hide_buttons_pref_title">Ukryj pasek okna przy pełnym ekranie</string>
   <string name="full_screen_hide_buttons_pref_summary">Po przełączeniu w trym pełnego ekranu, automatycznie ukrywaj pasek przycisków okna na dole ekranu</string>
   <string name="font_size_title">Rozmiar czcionki</string>

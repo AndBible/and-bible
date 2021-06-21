@@ -57,6 +57,7 @@
   <string name="search_current_book">Trenutna knjiga</string>
   <string name="error_executing_search">Napačna iskalna poizvedba</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Poglavje in številke vrstic</string>
   <string name="prefs_show_verseno_summary">Pokaži poglavje in številke vrstic</string>
   <string name="prefs_verse_per_line_summary">Vsako vrstico prikaži v svoji vrsti.</string>
   <string name="prefs_show_bookmarks_summary">Odznači, da se skrijejo vsi zaznamki.</string>
@@ -67,7 +68,6 @@
   <string name="prefs_section_title_summary">Prikaži nekanonične naslove poglavij.</string>
   <string name="prefs_red_letter_summary">Jezusove besede prikaži v rdeči barvi.</string>
   <string name="prefs_text_size_title">Nastavitve pisave</string>
-  <string name="prefs_show_verseno_title">Poglavje in številke vrstic</string>
   <string name="prefs_verse_per_line_title">Vsaka vrstica v svojo vrsto</string>
   <string name="prefs_show_bookmarks_title">Prikaži zaznamke</string>
   <string name="prefs_show_mynotes_title">Prikaži ikone mojih opomb</string>

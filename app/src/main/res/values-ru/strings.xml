@@ -57,6 +57,7 @@
   <string name="search_current_book">Текущая книга</string>
   <string name="error_executing_search">Неверный запрос</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Номера глав и стихов</string>
   <string name="prefs_show_verseno_summary">Показать номера глав и стихов</string>
   <string name="prefs_verse_per_line_summary">Показать каждый стих на отдельной строке</string>
   <string name="prefs_show_bookmarks_summary">Снять галочку, чтобы скрыть все закладки</string>
@@ -67,7 +68,6 @@
   <string name="prefs_section_title_summary">Показать неканонические заголовки разделов</string>
   <string name="prefs_red_letter_summary">Показать слова Христа красным шрифтом</string>
   <string name="prefs_text_size_title">Настройки шрифта</string>
-  <string name="prefs_show_verseno_title">Номера глав и стихов</string>
   <string name="prefs_verse_per_line_title">Стих с новой строки</string>
   <string name="prefs_show_bookmarks_title">Показать закладки</string>
   <string name="prefs_show_mynotes_title">Показать ярлык с моей заметкой в стихе</string>

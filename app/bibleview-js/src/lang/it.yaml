@@ -16,7 +16,7 @@ footnoteTypeAlternative: Alternativa
 footnoteTypeTranslation: Traduzione
 clearLog: Pulisci il registro degli errori
 editNote: Modifica
-editNotePlaceholder: ""
+editNotePlaceholder: Modifica nota
 editTextPlaceholder: Tocca per modificare il testo
 inputPlaceholder: Scrivi qui
 inputReference: Inserisci un riferimento biblico
@@ -45,9 +45,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Appunti di studio vuoti. Inizia aggiungendo una voce qui, o creando dei segnalibri con un'etichetta che corrisponda a questi appunti.
 studyPadModalTitle: Modifica voce degli appunti di studio
-doYouWantToDeleteEntry: ""
+doYouWantToDeleteEntry: "Eliminare voce degli appunti di studio?"
 removeStudyPadConfirmationTitle: "Eliminare voce degli appunti di studio?"
-dragHelp: ""
+dragHelp: Trascina per riordinare
 saved: salvato
 openAll: Apri tutti i riferimenti
 editBookmarkPlaceholder: Tocca per modificare Le mie note per questo segnalibro
@@ -55,12 +55,14 @@ onlyLabel: Solo etichetta
 wholeBookmark: Intero segnalibro
 otherNoteText: Altra nota
 assignLabelsMenuEntry: Assegna etichette
-assignLabelsMenuEntry1: ""
+assignLabelsMenuEntry1: Scegli o modifica etichette...
 jumpToStudyPad: Salta agli Appunti di studio
 setAsPrimaryLabel: Imposta come etichetta principale
-removeBookmarkLabel: ""
-addBookmarkLabel: ""
+removeBookmarkLabel: Elimina etichetta
+addBookmarkLabel: Aggiungi etichetta
 favouriteLabels: Etichette preferite
 recentLabels: Etichette recenti
 frequentlyUsedLabels: Etichette usate più spesso
 bookmarkLabels: Etichette dei segnalibri
+refParserHelp: Per favore installa il modulo RefParser per usare i riferimenti in lingue diverse dall'inglese.
+openDownloads: Vai ai Download
