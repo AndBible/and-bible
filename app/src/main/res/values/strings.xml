@@ -887,4 +887,6 @@
     <string name="import_menu">Import &amp; Export</string>
     <string name="export_fileformat">Export as %s</string>
     <string name="import_items">Import %s</string>
+    <string name="import_from_db">Import from App Database file</string>
+    <string name="import_error">Importing from App Database failed. Database file could be wrong format or made with too old version of %s.</string>
 </resources>
