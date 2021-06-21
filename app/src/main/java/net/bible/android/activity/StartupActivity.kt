@@ -15,12 +15,12 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.activity
 
-package net.bible.android.activity;
+import net.bible.android.view.activity.StartupActivity
 
 /** Legacy - this was moved but having this here prevents old shortcuts breaking
- * 
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class StartupActivity extends net.bible.android.view.activity.StartupActivity {
-}
+class StartupActivity : StartupActivity()

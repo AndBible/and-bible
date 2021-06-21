@@ -59,12 +59,10 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.download.DownloadManager.Companion.REPOSITORY_KEY
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Books
 
-import javax.inject.Inject
 
 /** Called first to show download screen if no documents exist
  *
@@ -218,19 +216,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
             // When I mess up database, I can re-create database like this.
             // BackupControl.resetDatabase()
-
             initializeDatabase()
 
-            docDao.getUnlocked().forEach {
-                val book = Books.installed().getBook(it.initials)
-                book.unlock(it.cipherKey)
-            }
-
-            // IN practice we don't need to restore this data, because it is stored by JSword in book
-            // metadata (persisted by JSWORD to files) too.
-            //docDao.getAll().forEach {
-            //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
-            //}
+            CommonUtils.initializeApp()
 
             gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)
@@ -369,7 +357,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     companion object {
-
         private val TAG = "StartupActivity"
 
         private val DOWNLOAD_DOCUMENT_REQUEST = 2

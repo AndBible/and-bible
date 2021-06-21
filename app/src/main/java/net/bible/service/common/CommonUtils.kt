@@ -58,7 +58,6 @@ import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.DownloadActivity
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
@@ -745,6 +744,25 @@ object CommonUtils {
         val signatureBytes = ByteArray(publicKey.modulus.bitLength() / 8)
         signatureData.read(signatureBytes)
         return signature.verify(signatureBytes)
+    }
+
+    var initialized = false
+
+    fun initializeApp() {
+        if(!initialized) {
+            docDao.getUnlocked().forEach {
+                val book = Books.installed().getBook(it.initials)
+                book.unlock(it.cipherKey)
+            }
+
+            // IN practice we don't need to restore this data, because it is stored by JSword in book
+            // metadata (persisted by JSWORD to files) too.
+            //docDao.getAll().forEach {
+            //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
+            //}
+
+            initialized = true
+        }
     }
 }
 

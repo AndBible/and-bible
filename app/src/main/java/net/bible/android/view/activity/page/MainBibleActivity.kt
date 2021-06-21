@@ -83,6 +83,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
+import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
@@ -194,7 +195,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Creating MainBibleActivity")
-
+        CommonUtils.initializeApp()
         // This is singleton so we can do this.
         if(_mainBibleActivity != null) {
             throw RuntimeException("MainBibleActivity was created second time!")
