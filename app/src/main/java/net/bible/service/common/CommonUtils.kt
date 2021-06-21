@@ -55,6 +55,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
+import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -475,7 +476,7 @@ object CommonUtils {
     }
 
     fun restartApp(callingActivity: Activity) {
-        val intent = Intent(callingActivity, MainBibleActivity::class.java)
+        val intent = Intent(callingActivity, StartupActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
 
         val pendingIntent: PendingIntent

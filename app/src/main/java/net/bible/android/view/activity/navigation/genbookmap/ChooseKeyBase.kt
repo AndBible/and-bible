@@ -103,8 +103,7 @@ abstract class ChooseKeyBase : ListActivityBase() {
 
     private fun returnToMainScreen() {
         // just pass control back to the main screen
-        val resultIntent = Intent(this, MainBibleActivity::class.java)
-        setResult(FINISHED, resultIntent)
+        setResult(FINISHED)
         finish()
     }
 
