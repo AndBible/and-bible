@@ -49,7 +49,6 @@ constructor(private val windowControl: WindowControl) {
         val previousDocument = window.displayedBook
         val prevVerse = window.displayedKey
         val isBible = BookCategory.BIBLE == document?.bookCategory
-        val isCommentary = BookCategory.COMMENTARY == document?.bookCategory
 
         val update = forceUpdate  || previousDocument != document
 
@@ -67,7 +66,7 @@ constructor(private val windowControl: WindowControl) {
             PassageChangeMediator.getInstance().contentChangeFinished()
             return
         }
-        if(isCommentary && prevVerse == verse) return
+        if(prevVerse == verse) return
         window.updateText(notifyLocationChange = true)
     }
 }
