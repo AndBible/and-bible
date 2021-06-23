@@ -23,6 +23,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
 
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
 import javax.inject.Inject
@@ -47,21 +48,26 @@ constructor(private val windowControl: WindowControl) {
         val book = window.pageManager.currentVersePage.currentBibleVerse.currentBibleBook
         val previousDocument = window.displayedBook
         val prevVerse = window.displayedKey
+        val isBible = BookCategory.BIBLE == document?.bookCategory
+        val isCommentary = BookCategory.COMMENTARY == document?.bookCategory
 
-        if(!forceUpdate
-            && previousDocument == document
-            && document?.bookCategory == BookCategory.BIBLE
+        val update = forceUpdate  || previousDocument != document
+
+        if(update) {
+            window.updateText(true)
+            return
+        }
+        if( isBible
             && prevVerse is VerseRange
             && prevVerse.start?.book == book
             && window.hasChapterLoaded(verse.chapter)
-        )
-        {
+        ) {
             val originalKey = window.pageManager.currentBible.originalKey
             window.bibleView?.scrollOrJumpToVerse(originalKey ?: verse, window.restoreOngoing)
             PassageChangeMediator.getInstance().contentChangeFinished()
+            return
         }
-        else {
-            window.updateText(notifyLocationChange = true)
-        }
+        if(isCommentary && prevVerse == verse) return
+        window.updateText(notifyLocationChange = true)
     }
 }
