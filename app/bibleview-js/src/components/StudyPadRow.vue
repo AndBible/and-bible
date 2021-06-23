@@ -49,7 +49,8 @@
   </div>
   <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
     <b><a :href="journalEntry.bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
-    <BookmarkText :expanded="journalEntry.expandContent" @change-expanded="changeExpanded" :bookmark="journalEntry"/>
+    <BookmarkText :expanded="journalEntry.hasNote && journalEntry.expandContent" @change-expanded="changeExpanded" :bookmark="journalEntry"/>
+    <div v-if="journalEntry.hasNote && journalEntry.expandContent" class="separator"/>
   </template>
   <div :class="{'studypad-text-entry': journalEntry.type === JournalEntryTypes.JOURNAL_TEXT, notes: journalEntry.type === JournalEntryTypes.BOOKMARK}">
     <EditableText

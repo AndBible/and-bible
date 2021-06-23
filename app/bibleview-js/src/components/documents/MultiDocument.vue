@@ -91,12 +91,6 @@ export default {
   padding-bottom: 0.5em;
   font-weight: bold;
 }
-.separator {
-  height: 1pt;
-  width: calc(100% - 10pt);
-  margin: 10pt 5pt 5pt;
-  background: rgba(0, 0, 0, 0.2);
-}
 .restore {
   a {
     padding-inline-start: 0.5em;

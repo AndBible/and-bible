@@ -36,7 +36,6 @@
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment";
 import {computed, ref} from "@vue/reactivity";
-import {watch} from "@vue/runtime-core";
 
 export default {
   name: "BookmarkText",
@@ -54,9 +53,6 @@ export default {
       //const fullLength = props.bookmark.fullText.length;
       //if(highlightedLength > 0.95*fullLength || highlightedLength > fullLength - 5) return null
       return props.bookmark.offsetRange
-    });
-    watch(() => props.bookmark, () => {
-      console.log("bookmark changed");
     });
     return {ambiguousSelection, highlightOffset, ...useCommon()};
   }
