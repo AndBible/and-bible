@@ -883,6 +883,7 @@
     <string name="label_red">Red</string>
     <string name="label_green">Green</string>
     <string name="label_blue">Blue</string>
+    <string name="label_salvation">Salvation</string>
     <string name="label_underline">Underline</string>
     <string name="import_menu">Import &amp; Export</string>
     <string name="export_fileformat">Export as %s</string>
