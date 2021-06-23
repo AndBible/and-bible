@@ -20,6 +20,9 @@
     <div>
       {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 30)}}</i></q>
     </div>
+    <div v-if="bookmark.hasNote">
+      {{ abbreviated(htmlToString(bookmark.notes), 30)}}
+    </div>
     <LabelList in-bookmark :bookmark-id="bookmarkId"/>
     <div style="height: 7px"/>
     <BookmarkButtons
@@ -79,8 +82,14 @@ export default {
       emit(Events.BOOKMARK_CLICKED, bookmark.value.id);
     }
 
+    function htmlToString(html) {
+      const ele = document.createElement("div")
+      ele.innerHTML = html
+      return ele.innerText
+    }
+
     return {
-      bookmark, buttonStyle, adjustedColor, bookmarkColor, editNotes, openBookmark, ...common
+      bookmark, buttonStyle, adjustedColor, bookmarkColor, editNotes, openBookmark, ...common, htmlToString,
     };
   },
 }
