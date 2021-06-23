@@ -82,7 +82,7 @@
   <string name="prefs_show_strongs_title">Numeroj de Strong</string>
   <string name="prefs_show_morphology_title">Morfologiaj kodoj</string>
   <string name="prefs_section_title_title">Sekciaj titoloj</string>
-  <string name="prefs_red_letter_title">Ruĝaj literoj</string>
+  <string name="prefs_red_letter_title">Vortoj de Kristo</string>
   <string name="prefs_tilt_to_scroll_title">Skui por rulumi</string>
   <string name="prefs_toolbar_button_action_title">Agoj de butono sur ilarstrio</string>
   <string name="prefs_toolbar_button_action_summary">Agoj okazontaj post frapet(ad)i la butonon montrantan titolon de libro sur la ilarstrio</string>
@@ -607,7 +607,7 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Kompreneble</string>
   <string name="first_time_help_show_next_time">Montri denove poste</string>
-  <string name="strongs_mode_title">Elekti Strong-reĝimon</string>
+  <string name="strongs_mode_title">Reĝimo de Strong-numerado</string>
   <string name="download_dialog_message">Ne povis elŝuti la jenajn librojn:</string>
   <string name="select_multiple">Elekti plurajn</string>
   <string name="journal_description">Redakteblaj notblokoj kun propra teksto kaj legosignoj</string>
@@ -719,4 +719,9 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="label_green">Verda</string>
   <string name="label_blue">Blua</string>
   <string name="label_underline">Substrekita</string>
+  <string name="import_menu">Enporti aŭ elporti</string>
+  <string name="export_fileformat">Elporti kiel %s</string>
+  <string name="import_items">Enporti %s</string>
+  <string name="import_from_db">Enporti el dosiero de aplikaĵa datumbazo</string>
+  <string name="import_error">Fiaskis enporti datumojn el aplikaĵa datumbazo. La dosiero povas esti en malĝusta formo aŭ povas esti farita per tro malnova versio de la aplikaĵo %s.</string>
 </resources>

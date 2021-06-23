@@ -441,9 +441,9 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <!--Backup and restore-->
   <string name="backup_and_restore">Backup &amp; Ripristino</string>
   <string name="backup_modules">Condividi o esegui il backup dei documenti su...</string>
-  <string name="backup_app_database">Condividi o esegui il backup del database su...</string>
+  <string name="backup_app_database">Condividi o fai il backup del database dell\'app su...</string>
   <string name="backup_app">Condividi o esegui il backup dell\'app (file .apk) su...</string>
-  <string name="restore_app_database">Ripristina il database da...</string>
+  <string name="restore_app_database">Ripristina il database dell\'app da...</string>
   <string name="restore_database">Ripristina il file del database</string>
   <string name="restore_confirmation">Sovrascrivere Le mie note, i Segnalibri, gli Appunti di studio, i Piani di lettura e gli Spazi di lavoro?</string>
   <string name="restore_success">Eseguito con successo il ripristino di Mie note, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro</string>
@@ -738,4 +738,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="label_green">Verde</string>
   <string name="label_blue">Blu</string>
   <string name="label_underline">Sottolinea</string>
+  <string name="import_menu">Importa &amp; Esporta</string>
+  <string name="export_fileformat">Esporta come %s</string>
+  <string name="import_items">Importa %s</string>
+  <string name="import_from_db">Importazione del database da file</string>
+  <string name="import_error">L\'importazione del database dell\'app non è riuscita. Il file di database potrebbe essere in un formato sbagliato o creato da una versione troppo vecchia di %s.</string>
 </resources>
