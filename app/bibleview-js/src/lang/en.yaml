@@ -39,7 +39,7 @@ externalLink: ""
 referenceLink: Open reference
 openFootnote: ""
 openBookmark: ""
-noMyNotesTitle: ""
+noMyNotesTitle: No My Notes for this chapter.
 noMyNotesDescription: >
 emptyStudyPad: >
 studyPadModalTitle: ""
@@ -55,7 +55,7 @@ otherNoteText: ""
 assignLabelsMenuEntry: ""
 assignLabelsMenuEntry1: ""
 jumpToStudyPad: ""
-setAsPrimaryLabel: ""
+setAsPrimaryLabel: Set as main label
 removeBookmarkLabel: ""
 addBookmarkLabel: ""
 favouriteLabels: ""
