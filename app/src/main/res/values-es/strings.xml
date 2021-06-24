@@ -85,7 +85,6 @@
   <string name="prefs_toolbar_button_action_swap_menu">Pulsar para abrir el siguiente documento, pulsación larga para abrir menú</string>
   <string name="prefs_toolbar_button_action_swap_activity">Pulsar para abrir el siguiente documento, pulsación larga para pantalla de documentos</string>
   <string name="prefs_night_mode_title">Cambio de modo nocturno</string>
-  <string name="prefs_night_mode_summary">Ya sea para cambiar al modo nocturno automáticamente (si el dispositivo lo admite), manualmente o mediante la configuración del sistema (Android 10+).</string>
   <string name="prefs_night_mode_manual">Manualmente</string>
   <string name="prefs_night_mode_automatic">Automático</string>
   <string name="prefs_night_mode_system">Sistema</string>

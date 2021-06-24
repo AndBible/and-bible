@@ -53,6 +53,7 @@
   <string name="search_current_book">বর্তমান বই </string>
   <string name="error_executing_search">বাতিল অনুসন্ধান জিজ্ঞাস্য </string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">পদ সংখ্যাগুলি </string>
   <string name="prefs_verse_per_line_summary">প্রতিটি পদ একটি আলাদা লাইনে দেখান </string>
   <string name="prefs_show_bookmarks_summary">সমস্ত বুকমার্কগুলি  লুকানোর জন্য টিক চিহ্নটি তুলে দিন  </string>
   <string name="prefs_show_mynotes_summary">আমার নোট সহ পদের আইকন দেখান </string>
@@ -65,6 +66,7 @@
   <string name="prefs_verse_per_line_title">প্রত্যেক লাইনে একটি পদ</string>
   <string name="prefs_show_bookmarks_title">বুকমার্কগুলি দেখান</string>
   <string name="prefs_show_mynotes_title">আমার নোট আইকনগুলি দেখান </string>
+  <string name="prefs_show_footnotes_title">পদটীকা </string>
   <string name="prefs_show_notes_title">পাদটীকা এবং সম্পর্কিত রেফারেন্স</string>
   <string name="prefs_show_strongs_title">স্ট্রং এর সংখ্যাগুলি </string>
   <string name="prefs_show_morphology_title">অঙ্গসংস্থানবিদ্যা কোডগুলি </string>
@@ -72,7 +74,6 @@
   <string name="prefs_red_letter_title">লাল অক্ষর </string>
   <string name="prefs_tilt_to_scroll_title">স্ক্রোলকে ঢিল দিন </string>
   <string name="prefs_night_mode_title">নাইট মোড সুইচ্ </string>
-  <string name="prefs_night_mode_summary">নাইট মোডে স্বয়ংক্রিয়ভাবে ( যদি ডিভাইস সমর্থন করে) ম্যানুয়ালি বা সিস্টেম সেটিং (অ্যান্ডয়েই 10+) মাধ্যমে সুইচ্ করবে কিনা।  </string>
   <string name="prefs_night_mode_manual">ম্যানুয়াল</string>
   <string name="prefs_night_mode_automatic">স্বয়ংক্রিয়</string>
   <string name="prefs_night_mode_system">পদ্ধতি </string>

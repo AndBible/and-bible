@@ -53,6 +53,7 @@
   <string name="search_current_book">הספר הנוכחי</string>
   <string name="error_executing_search">שגיאה בשאילתת החיפוש</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">מספרי פסוקים</string>
   <string name="prefs_verse_per_line_summary">הצג כל פסוק בשורה חדשה</string>
   <string name="prefs_show_bookmarks_summary">בטל סימון כדי להסתיר את כל הסימניות</string>
   <string name="prefs_show_mynotes_summary">הצגת אייקון ליד פסוקים שכתבתי להם פתקית</string>
@@ -65,6 +66,7 @@
   <string name="prefs_verse_per_line_title">כל פסוק בשורה נפרדת</string>
   <string name="prefs_show_bookmarks_title">הצג סימניות</string>
   <string name="prefs_show_mynotes_title">הצג אייקון של הערות</string>
+  <string name="prefs_show_footnotes_title">הערות שוליים</string>
   <string name="prefs_show_notes_title">הערות</string>
   <string name="prefs_show_strongs_title">מספור STRONG</string>
   <string name="prefs_show_morphology_title">סימנים מורפולוגיים</string>
@@ -72,7 +74,6 @@
   <string name="prefs_red_letter_title">צבע אדום</string>
   <string name="prefs_tilt_to_scroll_title">הטה כדי לגלול</string>
   <string name="prefs_night_mode_title">מעבר למצב לילה</string>
-  <string name="prefs_night_mode_summary">האם להחליף למצב לילה אוטומטית (אם המכשיר תומך), ידנית, או לפי הגדרות המערכת  (Android 10+).</string>
   <string name="prefs_night_mode_manual">ידני</string>
   <string name="prefs_night_mode_automatic">אוטומטי</string>
   <string name="prefs_night_mode_system">מערכת</string>
@@ -466,10 +467,12 @@
   <string name="first_time_help_show_next_time">הצג שוב בפעם הבאה</string>
   <string name="my_notes_abbreviation">הערות אישיות</string>
   <string name="compare_description">השוואת תרגומים</string>
+  <string name="verse_action_copy">העתק</string>
   <string name="show_versenumbers">הצג מספרי פסוקים</string>
   <string name="backup_button">גיבוי</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">עוד</string>
 </resources>

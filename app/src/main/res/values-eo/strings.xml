@@ -89,7 +89,6 @@
   <string name="prefs_toolbar_button_action_swap_menu">Frapeti por malfermi sekvan dokumenton, frapetadi por malfermi menuon</string>
   <string name="prefs_toolbar_button_action_swap_activity">Frapeti por malfermi sekvan dokumenton, frapetadi por montri ekranon de dokumentoj</string>
   <string name="prefs_night_mode_title">Aktivigi noktan reĝimon</string>
-  <string name="prefs_night_mode_summary">Agordi ĉu aŭtomate (mal)ŝalti noktan reĝimon (se subtenata de aparato), ĉu permane, ĉu permesi al la operaciumo decidi (Android 10+).</string>
   <string name="prefs_night_mode_manual">Permane</string>
   <string name="prefs_night_mode_automatic">Aŭtomate</string>
   <string name="prefs_night_mode_system">Laŭ operaciumo</string>

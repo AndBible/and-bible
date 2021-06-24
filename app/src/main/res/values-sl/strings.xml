@@ -20,6 +20,7 @@
   <string name="contact">Stik</string>
   <string name="help_and_tips">Pomoč in namigi</string>
   <string name="administration">Upravljanje</string>
+  <string name="rate_application">Ocena in pregled</string>
   <string name="chooce_document">Zapri dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Izberi knjigo</string>
@@ -58,7 +59,11 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Poglavje in številke vrstic</string>
   <string name="prefs_show_verseno_summary">Pokaži poglavje in številke vrstic</string>
+  <string name="prefs_e_ink_mode_title">Črno-bel način</string>
+  <string name="prefs_eink_mode_summary">Aplikacijo uporabljate v enobarvnem načinu (brez barv), zato je primernejša za naprave z e-črnilom.</string>
   <string name="prefs_show_verseno_title1">Številke vrstic</string>
+  <string name="prefs_show_chapter_no_title">Številke poglavij</string>
+  <string name="prefs_show_chapter_no_summary">Pokaži številke poglavij</string>
   <string name="prefs_verse_per_line_summary">Vsako vrstico prikaži v svoji vrsti.</string>
   <string name="prefs_show_bookmarks_summary">Odznači, da se skrijejo vsi zaznamki.</string>
   <string name="prefs_show_mynotes_summary">V vrsticah prikaži ikono z mojimi opombami.</string>
@@ -73,6 +78,8 @@
   <string name="prefs_show_mynotes_title">Prikaži ikone mojih opomb</string>
   <string name="prefs_show_footnotes_title">Opombe</string>
   <string name="prefs_show_xrefs_title">Sklici</string>
+  <string name="prefs_show_footnotes_summary">Pokaži opombe, če so v dokumentu</string>
+  <string name="prefs_show_xrefs_summary">Pokaži navzkrižne reference, če so  v dokumentu</string>
   <string name="prefs_show_notes_title">Zaznamki in sklici</string>
   <string name="prefs_show_strongs_title">Strong-ova števila</string>
   <string name="prefs_show_morphology_title">Oblikoslovne kode</string>
@@ -85,13 +92,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Pritisnite, da odprete naslednji dokument, dolgo pritisnite, da odprete meni</string>
   <string name="prefs_toolbar_button_action_swap_activity">Pritisnite, da odprete naslednji dokument, dolgo pritisnite za zaslon dokumentov</string>
   <string name="prefs_night_mode_title">Preklop na nočni način...</string>
-  <string name="prefs_night_mode_summary">Ali naj se samodejno preklopi na nočni način (če naprava podpira), ročno ali prek sistemskih nastavitev (Android 10+).</string>
+  <string name="prefs_night_mode_summary">Ali naj samodejno preklopi v nočni način (če naprava podpira), ročno ali prek sistemskih nastavitev (Android 10+). Ročno preklapljanje lahko izvedete v meniju s tremi pikami na glavnem zaslonu.</string>
   <string name="prefs_night_mode_manual">Ročno</string>
   <string name="prefs_night_mode_automatic">Avtomatsko</string>
   <string name="prefs_night_mode_system">Sistemsko</string>
   <string name="options_menu_night_mode">Nočni način</string>
   <string name="prefs_navigate_to_verse_title">Usmeri do vrstice</string>
   <string name="prefs_navigate_to_verse_summary">Za izbiro odlomka izberi vrstico in poglavje.</string>
+  <string name="prefs_open_links_in_special_window_title">Okno povezav</string>
+  <string name="prefs_open_links_in_special_window_summary">Povezave odprite v posebnem oknu za hitrejši prikaz navzkrižnih referenc in Strongovih števil</string>
   <string name="prefs_text_size_sample_text">Primer besedila</string>
   <string name="prefs_screen_keep_on_title">Ohrani prižgan zaslon</string>
   <string name="prefs_screen_keep_on_summary">Prepreči ugašanje zaslona med uporabo te aplikacije.</string>
@@ -325,11 +334,17 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="label_name_prompt">Poimenuj</string>
   <string name="label_unlabelled">Neoznačeni</string>
   <string name="add_bookmark1">Zaznamek</string>
+  <string name="add_bookmark2">Izbira zaznamka</string>
+  <string name="add_bookmark3">Izbira</string>
   <string name="add_bookmark_whole_verse">Vrstica zaznamka</string>
+  <string name="add_bookmark_whole_verse1">Vrstice</string>
+  <string name="add_bookmark_whole_verse2">Celotne vrstice</string>
   <string name="remove_bookmark">Odstrani</string>
   <string name="bookmark_settings_hide_labels_title">Skrij nekatere oznake</string>
   <string name="bookmark_settings_hide_labels_summary">Skrij zaznamke, ki so označeni z navedenimi oznakami</string>
+  <string name="auto_assign_labels_title">Nastavitve oznak</string>
   <string name="auto_assign_labels">Določene in priljubljene oznake</string>
+  <string name="auto_assign_labels1">K novim zaznamkom samodejno dodaj oznako</string>
   <string name="auto_assign_labels_primary">Določi kot osnovnega</string>
   <string name="label_color">Barva oznake</string>
   <!--can be removed-->

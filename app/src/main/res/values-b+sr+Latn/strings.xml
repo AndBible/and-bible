@@ -53,6 +53,7 @@
   <string name="search_current_book">Trenutna knjiga</string>
   <string name="error_executing_search">Neregularan upit za pretragu</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">Brojevi stihova</string>
   <string name="prefs_verse_per_line_summary">Prikaži svaki stih u posebnom redu</string>
   <string name="prefs_show_bookmarks_summary">Odštrikliraj da se sakriju svi obeleživači</string>
   <string name="prefs_show_mynotes_summary">Prikaži ikonicu u stihovima sa Mojom beleškom</string>
@@ -65,6 +66,7 @@
   <string name="prefs_verse_per_line_title">Jedan stih u redu</string>
   <string name="prefs_show_bookmarks_title">Prikaži obeleživače</string>
   <string name="prefs_show_mynotes_title">Prikaži ikonice Moje beleške</string>
+  <string name="prefs_show_footnotes_title">Fusnote</string>
   <string name="prefs_show_notes_title">Fusnote i unakresne reference</string>
   <string name="prefs_show_strongs_title">Strongovi brojevi</string>
   <string name="prefs_show_morphology_title">Morfološki kodovi</string>
@@ -72,7 +74,6 @@
   <string name="prefs_red_letter_title">Crveno Pismo</string>
   <string name="prefs_tilt_to_scroll_title">Nagni za skrolovanje</string>
   <string name="prefs_night_mode_title">Kontrola noćnog režima</string>
-  <string name="prefs_night_mode_summary">Prebaci na noćni režim automatski (ukoliko uređaj podržava), ručno ili putem sistemskih postavki (Android 10+).</string>
   <string name="prefs_night_mode_manual">Ručna</string>
   <string name="prefs_night_mode_automatic">Automatski</string>
   <string name="prefs_night_mode_system">Sistemska</string>

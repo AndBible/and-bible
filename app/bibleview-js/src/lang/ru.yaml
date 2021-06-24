@@ -1,7 +1,7 @@
 openMyNotes: Открыть в Моих заметках
 openStudyPad: Открыть в Блокноте (%s)
 noteText: Сноски (%s)
-noteTextWithoutType: ""
+noteTextWithoutType: Примечаний
 crossReferenceText: Перекрестные ссылки
 findAllOccurrences: Найти все случаи
 reportError: Сообщить об ошибке

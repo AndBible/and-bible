@@ -85,7 +85,6 @@
   <string name="prefs_toolbar_button_action_swap_menu">Druk om volgende dokument oop te maak, lang druk om kieslys oop te maak</string>
   <string name="prefs_toolbar_button_action_swap_activity">Druk om volgende dokument oop te maak, lang druk vir dokumente skerm</string>
   <string name="prefs_night_mode_title">Nag mode skakel</string>
-  <string name="prefs_night_mode_summary">Of u outomaties oorskakel na die nag mode (as die toestel ondersteun word), met die hand of via die stelselinstelling (Android 10+).</string>
   <string name="prefs_night_mode_manual">handleiding</string>
   <string name="prefs_night_mode_automatic">Outomaties</string>
   <string name="prefs_night_mode_system">Stelsel</string>

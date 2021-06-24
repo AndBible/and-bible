@@ -53,6 +53,7 @@
   <string name="search_current_book">Тренутна књига</string>
   <string name="error_executing_search">Нерегуларан упит за претрагу</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">Бројеви стихова</string>
   <string name="prefs_verse_per_line_summary">Прикажи сваки стих у посебном реду</string>
   <string name="prefs_show_bookmarks_summary">Одштриклирај да се сакрију сви обележивачи</string>
   <string name="prefs_show_mynotes_summary">Прикажи иконицу у стиховима са Мојом белешком</string>
@@ -65,6 +66,7 @@
   <string name="prefs_verse_per_line_title">Један стих у реду</string>
   <string name="prefs_show_bookmarks_title">Прикажи обележиваче</string>
   <string name="prefs_show_mynotes_title">Прикажи иконице Моје белешке</string>
+  <string name="prefs_show_footnotes_title">Фусноте</string>
   <string name="prefs_show_notes_title">Фусноте и унакресне референце</string>
   <string name="prefs_show_strongs_title">Стронгови бројеви</string>
   <string name="prefs_show_morphology_title">Морфолошки кодови</string>
@@ -72,7 +74,6 @@
   <string name="prefs_red_letter_title">Црвено Писмо</string>
   <string name="prefs_tilt_to_scroll_title">Нагни за скроловање</string>
   <string name="prefs_night_mode_title">Контрола ноћног режима</string>
-  <string name="prefs_night_mode_summary">Пребаци на ноћни режим аутоматски (уколико уређај подржава), ручно или путем системских поставки (Андроид 10+).</string>
   <string name="prefs_night_mode_manual">Ручна</string>
   <string name="prefs_night_mode_automatic">Аутоматски</string>
   <string name="prefs_night_mode_system">Системска</string>

@@ -53,6 +53,7 @@
   <string name="search_current_book">Jelenlegi könyv</string>
   <string name="error_executing_search">Érvénytelen keresési feltétel</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">Versszámozás</string>
   <string name="prefs_verse_per_line_summary">Minden vers külön sorban</string>
   <string name="prefs_show_bookmarks_summary">Könyvjelzők megjelenítése</string>
   <string name="prefs_show_mynotes_summary">Ikon a saját jegyzettel ellátott verseknél</string>
@@ -65,6 +66,7 @@
   <string name="prefs_verse_per_line_title">Soronként egy vers</string>
   <string name="prefs_show_bookmarks_title">Könyvjelzők megjelenítése</string>
   <string name="prefs_show_mynotes_title">Jegyzetjelző ikonok</string>
+  <string name="prefs_show_footnotes_title">Lábjegyezetek</string>
   <string name="prefs_show_notes_title">Lábjegyzetek és hivatkozások</string>
   <string name="prefs_show_strongs_title">Strong-számok</string>
   <string name="prefs_show_morphology_title">Morfológiai kódok</string>
@@ -72,7 +74,6 @@
   <string name="prefs_red_letter_title">Piros betűk</string>
   <string name="prefs_tilt_to_scroll_title">Görgetés billentéssel</string>
   <string name="prefs_night_mode_title">Éjszakai mód</string>
-  <string name="prefs_night_mode_summary">Éjszakai mód (rendszerfüggő) automatikus bekapcsolása manuálisan vagy rendszerbeállításokból (Android 10+)</string>
   <string name="prefs_night_mode_manual">Kézi beállítás</string>
   <string name="prefs_night_mode_automatic">Automatikus</string>
   <string name="prefs_night_mode_system">Rendszerbeállítás</string>
@@ -498,4 +499,5 @@ Nyomja hosszan a Vissza gombot az Előzmények listájának előhívásához. </
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">Tovább</string>
 </resources>

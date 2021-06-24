@@ -53,6 +53,7 @@
   <string name="search_current_book">Livro atual</string>
   <string name="error_executing_search">Pesquisa inválida</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">Números dos versículos</string>
   <string name="prefs_verse_per_line_summary">Mostrar cada versículo na sua linha</string>
   <string name="prefs_show_bookmarks_summary">Apague seleção para esconder favoritos</string>
   <string name="prefs_show_mynotes_summary">Mostrar o icon nos versículos com As Minhas Anotações</string>
@@ -65,6 +66,7 @@
   <string name="prefs_verse_per_line_title">Um versículo por linha</string>
   <string name="prefs_show_bookmarks_title">Mostrar marcadores</string>
   <string name="prefs_show_mynotes_title">Mostrar ícones das Minhas Notas</string>
+  <string name="prefs_show_footnotes_title">Notas de rodapé</string>
   <string name="prefs_show_notes_title">Notas de rodapé e referências cruzadas</string>
   <string name="prefs_show_strongs_title">Números de acordo com Strong</string>
   <string name="prefs_show_morphology_title">Códigos morfológicos</string>
@@ -72,7 +74,6 @@
   <string name="prefs_red_letter_title">Letras vermelhas</string>
   <string name="prefs_tilt_to_scroll_title">Inclinar para rolar página</string>
   <string name="prefs_night_mode_title">Comutação do modo noturno</string>
-  <string name="prefs_night_mode_summary">Se desejar alternar para o modo noturno automaticamente (se o dispositivo suportar), manualmente ou por meio da configuração do sistema (Android 10+).</string>
   <string name="prefs_night_mode_manual">Manual</string>
   <string name="prefs_night_mode_automatic">Automático</string>
   <string name="prefs_night_mode_system">Sistema</string>
@@ -492,4 +493,5 @@ Pressione e segure o botão Voltar para ter acesso  lista do Histórico.</string
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">Mais</string>
 </resources>

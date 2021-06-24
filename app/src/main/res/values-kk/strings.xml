@@ -53,6 +53,7 @@
   <string name="search_current_book">Қазіргі кітап</string>
   <string name="error_executing_search">Іздеу сауалы қате</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">Аят нөмірлері</string>
   <string name="prefs_verse_per_line_summary">Әр аятты әр түрлі жолда көрсету</string>
   <string name="prefs_show_bookmarks_summary">Бар кітап белгілерін жасыру үшін таңдауды алыңыз</string>
   <string name="prefs_show_mynotes_summary">Менің нұсқауларымен бірге аяттарда белгішені көрсету</string>
@@ -65,6 +66,7 @@
   <string name="prefs_verse_per_line_title">Әр жолға бір аят</string>
   <string name="prefs_show_bookmarks_title">Кітап белгілерін көрсету</string>
   <string name="prefs_show_mynotes_title">Менің Ескертпелерімнің белгішесін көрсету</string>
+  <string name="prefs_show_footnotes_title">Ескертпелер</string>
   <string name="prefs_show_notes_title">Ескертпелер мен айқасқан сілтемелер</string>
   <string name="prefs_show_strongs_title">Стронг сандары</string>
   <string name="prefs_show_morphology_title">Морфологиялық кодтар</string>
@@ -72,7 +74,6 @@
   <string name="prefs_red_letter_title">Қызыл Хат</string>
   <string name="prefs_tilt_to_scroll_title">Бұрау үшін еңістеу</string>
   <string name="prefs_night_mode_title">Түнгі режиміне қосу</string>
-  <string name="prefs_night_mode_summary">Қолмен немесе жүйенің параметрлері арқылы (Android 10+), түнгі режимге автоматты түрде ауысу (егер құрылғы қолдайтын болса).</string>
   <string name="prefs_night_mode_manual">Қолмен жасау</string>
   <string name="prefs_night_mode_automatic">Автоматты</string>
   <string name="prefs_night_mode_system">Жүйе</string>
@@ -487,4 +488,5 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">Көбірек</string>
 </resources>

@@ -85,7 +85,6 @@
   <string name="prefs_toolbar_button_action_swap_menu">Antippen um das nächste Dokument zu öffnen, gedrückt halten um das Menü zu öffnen</string>
   <string name="prefs_toolbar_button_action_swap_activity">Antippen um das nächste Dokument zu öffnen, gedrückt halten um die Dokumentauswahl zu öffnen</string>
   <string name="prefs_night_mode_title">Nachtmodus an- und ausschalten</string>
-  <string name="prefs_night_mode_summary">Wie der Nachtmodus eingeschaltet werden soll: Automatisch (soweit vom Gerät unterstützt), manuell oder wie in den Systemeinstellungen (ab Android 10).</string>
   <string name="prefs_night_mode_manual">Manuell</string>
   <string name="prefs_night_mode_automatic">Automatisch</string>
   <string name="prefs_night_mode_system">System</string>

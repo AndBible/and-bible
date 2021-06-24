@@ -89,7 +89,6 @@
   <string name="prefs_toolbar_button_action_swap_menu">Paspaudus atverti kitą dokumentą, paspaudus ir palaikius atverti meniu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Paspaudus atverti kitą dokumentą, paspaudus ir palaikius atverti dokumentų langą</string>
   <string name="prefs_night_mode_title">Nakties režimo perjungimas</string>
-  <string name="prefs_night_mode_summary">Perjungti į nakties režimą automatiškai (jei įrenginys gali), rankiniu būdu, arba per sisteminius nustatymus („Android“ 10+).</string>
   <string name="prefs_night_mode_manual">Rankiniu būdu</string>
   <string name="prefs_night_mode_automatic">Automatinis</string>
   <string name="prefs_night_mode_system">Sistema</string>

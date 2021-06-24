@@ -53,6 +53,7 @@
   <string name="search_current_book">本書卷</string>
   <string name="error_executing_search">搜尋項目無效</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">顯示節數</string>
   <string name="prefs_verse_per_line_summary">在不同行顯示每一節</string>
   <string name="prefs_show_bookmarks_summary">取消剔選以隱藏所有書籤</string>
   <string name="prefs_show_mynotes_summary">在經文中顯示我的筆記的圖示</string>
@@ -65,6 +66,8 @@
   <string name="prefs_verse_per_line_title">每行一節</string>
   <string name="prefs_show_bookmarks_title">顯示書籤圖示</string>
   <string name="prefs_show_mynotes_title">顯示筆記圖示</string>
+  <string name="prefs_show_footnotes_title">注腳</string>
+  <string name="prefs_show_xrefs_title">交叉對照</string>
   <string name="prefs_show_notes_title">注腳和交叉對照</string>
   <string name="prefs_show_strongs_title">Strong\'s原文編號</string>
   <string name="prefs_show_morphology_title">顯示詞形碼</string>
@@ -72,7 +75,6 @@
   <string name="prefs_red_letter_title">紅字</string>
   <string name="prefs_tilt_to_scroll_title">傾斜手機向下捲動</string>
   <string name="prefs_night_mode_title">夜間模式切換</string>
-  <string name="prefs_night_mode_summary">是否手動或自動經由系統設定轉換至夜間模式 (Android 10+)</string>
   <string name="prefs_night_mode_manual">手動</string>
   <string name="prefs_night_mode_automatic">自動啟動夜間模式</string>
   <string name="prefs_night_mode_system">系統</string>
@@ -454,10 +456,12 @@ Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
   <string name="first_time_help_show_next_time">下次再顯示</string>
   <string name="my_notes_abbreviation">筆記列表</string>
   <string name="compare_description">譯本比較</string>
+  <string name="verse_action_copy">複製</string>
   <string name="show_versenumbers">顯示節數</string>
   <string name="backup_button">備份</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">更多</string>
 </resources>

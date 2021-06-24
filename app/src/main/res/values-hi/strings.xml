@@ -53,6 +53,7 @@
   <string name="search_current_book">वर्तमान पुस्तक</string>
   <string name="error_executing_search">खोज वाक्य में गलती</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">छंद संख्या</string>
   <string name="prefs_verse_per_line_summary"> प्रत्येक छंद को एक अलग लाइन पर दिखाएं</string>
   <string name="prefs_show_bookmarks_summary">सभी बुकमार्क छिपाने के लिए अनचाहा करे</string>
   <string name="prefs_show_mynotes_summary">मेरे नोट के साथ छंद में आइकन दिखाएं</string>
@@ -65,6 +66,7 @@
   <string name="prefs_verse_per_line_title">हर छंद, नई पंक्ति में</string>
   <string name="prefs_show_bookmarks_title">बुकमार्क दिखाएँ</string>
   <string name="prefs_show_mynotes_title">मेरे टिप्पणी-चित्र दिखाना</string>
+  <string name="prefs_show_footnotes_title"> फ़ुटनोट</string>
   <string name="prefs_show_notes_title">पाद टिप्पणी और संबंधित संदर्भ</string>
   <string name="prefs_show_strongs_title"> स्ट्रॉन्ग के संख्याएं</string>
   <string name="prefs_show_morphology_title">आकारिकी(Morphology) संख्या </string>
@@ -72,7 +74,6 @@
   <string name="prefs_red_letter_title">लाल अक्षर</string>
   <string name="prefs_tilt_to_scroll_title">अगले पृष्ठ के लिए फ़ोन झुकना</string>
   <string name="prefs_night_mode_title">नाइट मोड स्विचिंग</string>
-  <string name="prefs_night_mode_summary"> स्वचालित रूप (यदि डिवाइस समर्थन करता है) से या सिस्टम सेटिंग (ऐंड्रॉयड 10+) के माध्यम से नाइट मोड पर स्विच करना है या नहीं।</string>
   <string name="prefs_night_mode_manual">मैनुअल</string>
   <string name="prefs_night_mode_automatic">ऑटोमैटिक</string>
   <string name="prefs_night_mode_system">सिस्टम</string>
@@ -517,4 +518,5 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">और</string>
 </resources>

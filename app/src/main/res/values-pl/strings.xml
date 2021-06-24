@@ -89,7 +89,6 @@
   <string name="prefs_toolbar_button_action_swap_menu">Naciśnij, aby otworzyć następny dokument; przytrzymaj, aby otworzyć menu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Naciśnij, aby otworzyć następny dokument; przytrzymaj, aby otworzyć wybór dokumentu</string>
   <string name="prefs_night_mode_title">Włącz tryb nocny</string>
-  <string name="prefs_night_mode_summary">Ustaw, czy włączać tryb nocny automatycznie (jeżeli wspierane przez urządzenie), ręcznie, czy korzystając z ustawień systemu (Android 10+).</string>
   <string name="prefs_night_mode_manual">Ręcznie</string>
   <string name="prefs_night_mode_automatic">Automatycznie</string>
   <string name="prefs_night_mode_system">Systemowy</string>

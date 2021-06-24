@@ -85,7 +85,6 @@
   <string name="prefs_toolbar_button_action_swap_menu">Нажмите, чтобы открыть следующий ресурс, нажмите и удерживайте, чтобы открыть меню</string>
   <string name="prefs_toolbar_button_action_swap_activity">Нажмите, чтобы открыть следующий ресурс, нажмите и удерживайте, чтобы открыть экран ресурсов</string>
   <string name="prefs_night_mode_title">Переключение ночного режима</string>
-  <string name="prefs_night_mode_summary">Переключаться ли в ночной режим автоматически (если устройство поддерживает), вручную или с помощью системных настроек (Android 10+).</string>
   <string name="prefs_night_mode_manual">Вручную</string>
   <string name="prefs_night_mode_automatic">Автоматически</string>
   <string name="prefs_night_mode_system">Система</string>
