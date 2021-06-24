@@ -210,7 +210,6 @@ class BibleJavascriptInterface(
             labels.add(bookmarkControl.labelById(labelId)!!)
         }
         bookmarkControl.setLabelsForBookmark(bookmark, labels)
-        bibleView.windowControl.windowRepository.updateRecentLabels(listOf(labelId))
     }
 
     @JavascriptInterface
