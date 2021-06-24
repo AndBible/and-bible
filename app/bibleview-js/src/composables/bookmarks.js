@@ -342,7 +342,8 @@ export function useBookmarks(documentId,
     function underlineStyleForLabels(labels, underlineLabelCount) {
         if(labels.length === 0) return "";
 
-        const color = new Color(labels[0].label.color).hsl().string();
+        const label = labels.filter(l => l.label.isRealLabel)[0] || labels[0];
+        const color = new Color(label.label.color).hsl().string();
         if(labels.length === 1 && underlineLabelCount.get(labels[0].id) === 1) {
             return `text-decoration: underline; text-decoration-style: solid; text-decoration-color: ${color};`;
         } else {
