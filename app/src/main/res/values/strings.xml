@@ -26,7 +26,7 @@
     <string name="contact">Contact</string>
     <string name="help_and_tips">Help &amp; tips</string>
     <string name="administration">Administration</string>
-    <string name="rate_application">Rate &amp; Review in Google Play</string>
+    <string name="rate_application">Rate &amp; Review</string>
     <string name="chooce_document">Choose Document</string>
 
     <!-- Passage navigation -->
@@ -117,8 +117,8 @@
 
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
-    <string name="prefs_open_links_in_special_window_title">Open links in special window</string>
-    <string name="prefs_open_links_in_special_window_summary">For quicker display of cross-references and Strongs</string>
+    <string name="prefs_open_links_in_special_window_title">Links window</string>
+    <string name="prefs_open_links_in_special_window_summary">Open links in special window, for quicker display of cross-references and Strongs</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
     <string name="prefs_screen_keep_on_title">Keep screen on</string>
     <string name="prefs_screen_keep_on_summary">Prevent screen sleeping while using this app</string>
