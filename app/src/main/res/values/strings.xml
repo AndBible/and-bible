@@ -71,6 +71,9 @@
     <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
     <string name="prefs_show_verseno_summary">Show chapter &amp; verse numbers</string>
 
+    <string name="prefs_e_ink_mode_title">Black & white mode</string>
+    <string name="prefs_eink_mode_summary">Use application in monochrome mode (no colors), making it more suitable for E-ink devices.</string>
+
     <string name="prefs_show_verseno_title1">Verse numbers</string>
 
     <string name="prefs_show_chapter_no_title">Chapter numbers</string>
