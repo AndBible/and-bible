@@ -148,7 +148,10 @@ constructor(private val callingActivity: MainBibleActivity,
                         .setNegativeButton(R.string.cancel, null)
                         .create()
                     d.show()
-                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                    d.findViewById<TextView>(android.R.id.message)?.run {
+                        movementMethod = LinkMovementMethod.getInstance()
+                        setTextIsSelectable(true)
+                    }
 
                 }
                 R.id.backupMainMenu -> {
