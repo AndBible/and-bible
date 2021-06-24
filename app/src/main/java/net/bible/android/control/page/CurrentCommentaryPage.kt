@@ -147,7 +147,7 @@ open class CurrentCommentaryPage internal constructor(
 
     /** can we enable the main menu search button
      */
-    override val isSearchable = true
+    override val isSearchable get() = !isSpecialDoc
 
     val entity get() =
         WorkspaceEntities.CommentaryPage(currentDocument?.initials, anchorOrdinal)

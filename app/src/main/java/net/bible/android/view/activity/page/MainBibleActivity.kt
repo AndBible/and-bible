@@ -860,7 +860,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val approximateSize = 53 * resources.displayMetrics.density
         val maxWidth = (screenWidth * 0.5).roundToInt()
         val maxButtons: Int = (maxWidth / approximateSize).toInt()
-        val showSearch = documentControl.isBibleBook || documentControl.isCommentary
+        val showSearch = documentControl.currentPage.currentPage.isSearchable
+        val showSpeak = documentControl.currentPage.currentPage.isSpeakable
 
         fun shouldShowBibleButton(): Boolean =
             toolbarButtonSetting?.let {
@@ -963,8 +964,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             invalidateOptionsMenu()
 
-            val btn = navigationView.menu.findItem(R.id.searchButton)
-            btn.isEnabled = showSearch
+            navigationView.menu.findItem(R.id.searchButton).isEnabled = showSearch
+            navigationView.menu.findItem(R.id.speakButton).isEnabled = showSpeak
         }
     }
 
