@@ -212,6 +212,7 @@ export default {
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
           --noise-opacity: ${noiseOpacity/100};
+          --text-max-width: ${config.marginSize.maxWidth}mm;
           `;
     });
 

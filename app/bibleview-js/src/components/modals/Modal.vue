@@ -149,14 +149,14 @@ $border-radius2: $border-radius - 1.5pt;
     color: #bdbdbd;
   }
   border-radius: $border-radius;
+  width: var(--modal-width);
 
-  width: 80%;
-  --modal-left: calc(20% / 2);
+  --modal-left: calc((100% - var(--modal-width)) / 2);
+  --modal-width: calc(min(80%, var(--text-max-width)));
   --modal-top: 30px;
 
   &.wide {
-    width: calc(100% - 60px);
-    --modal-left: calc(60px / 2);
+    --modal-width: calc(min(var(--text-max-width) + 20px, 100% - 60px));
     --modal-top: 25px;
   }
 }
