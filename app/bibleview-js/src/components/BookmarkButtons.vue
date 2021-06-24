@@ -49,6 +49,12 @@
       </div>
       <template v-if="showStudyPadButtons">
         <div
+          class="bookmark-button"
+          @click.stop="openMyNotes"
+        >
+          <FontAwesomeIcon icon="file-alt"/>
+        </div>
+        <div
           v-for="label of labels.filter(l => l.isRealLabel)"
           :key="label.id"
           :style="`color: ${buttonColor(label.color)};`"
@@ -122,6 +128,10 @@ export default {
       android.openStudyPad(labelId, bookmark.value.id);
     }
 
+    function openMyNotes() {
+      android.openMyNotes(bookmark.value.id);
+    }
+
     async function removeBookmark() {
       if(await areYouSure.value.areYouSure()) {
         emit("close-bookmark");
@@ -138,7 +148,7 @@ export default {
     }
 
     return {
-      toggleWholeVerse, shareVerse, assignLabels, removeBookmark, areYouSure, labels, openStudyPad, primaryLabel, buttonColor,
+      toggleWholeVerse, shareVerse, assignLabels, removeBookmark, areYouSure, labels, openStudyPad, primaryLabel, buttonColor, openMyNotes,
       ...useCommon()
     }
   }

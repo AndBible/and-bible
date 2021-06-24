@@ -183,6 +183,13 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun openMyNotes(bookmarkId: Long) {
+        GlobalScope.launch(Dispatchers.Main) {
+            bibleView.linkControl.openMyNotes(bookmarkId)
+        }
+    }
+
+    @JavascriptInterface
     fun setAsPrimaryLabel(bookmarkId: Long, labelId: Long) {
         val label = bookmarkControl.labelById(labelId)!!
         if(label.isUnlabeledLabel) {
