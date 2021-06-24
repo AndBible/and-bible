@@ -686,9 +686,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             updateTitle()
         }
 
-    private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface {
+    private fun getItemOptions(itemId: Int, order: Int = 0): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceName = windowRepository.name, workspaceSettings = windowRepository.textDisplaySettings)
-        return when(item.itemId) {
+        return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
                 val intent = Intent(this, TextDisplaySettingsActivity::class.java)
                 intent.putExtra("settingsBundle", settingsBundle.toJson())
@@ -696,7 +696,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }, opensDialog = true)
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository.workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
-            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
+            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[order])
             R.id.splitMode -> SplitModePreference()
             R.id.autoPinMode -> WindowPinningPreference()
             R.id.tiltToScroll -> TiltToScrollPreference()
@@ -711,6 +711,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             else -> throw RuntimeException("Illegal menu item")
         }
     }
+    private fun getItemOptions(item: MenuItem) = getItemOptions(item.itemId, item.order)
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
@@ -718,7 +719,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val lastSettings = CommonUtils.lastDisplaySettings
         if(lastSettings.isNotEmpty()) {
             for ((idx, t) in lastSettings.withIndex()) {
-                menu.add(R.id.textOptionsGroup, R.id.textOptionItem, idx, t.name)
+                val itm = getItemOptions(R.id.textOptionItem, idx)
+                if(itm.enabled && itm.visible) {
+                    menu.add(R.id.textOptionsGroup, R.id.textOptionItem, idx, t.name)
+                }
             }
         }
         MenuCompat.setGroupDividerEnabled(menu, true)
