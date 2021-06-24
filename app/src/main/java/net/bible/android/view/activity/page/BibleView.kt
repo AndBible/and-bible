@@ -393,9 +393,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     if (sel !== null) {
                         currentSelection = sel
                         menuPrepared = true
-                        withContext(Dispatchers.Main) {
-                            mode.invalidate()
-                        }
+                    } else {
+                        showSystem = true
+                    }
+                    withContext(Dispatchers.Main) {
+                        mode.invalidate()
                     }
                 }
                 return false
