@@ -668,7 +668,9 @@ object CommonUtils {
                     it.resume(null)
                 }.create()
             d.show()
-            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+            val textView = d.findViewById<TextView>(android.R.id.message)!!
+            textView.movementMethod = LinkMovementMethod.getInstance()
+            textView.setTextIsSelectable(true)
         }
     }
 
