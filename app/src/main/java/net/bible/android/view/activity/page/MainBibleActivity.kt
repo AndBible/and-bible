@@ -595,7 +595,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             speakButton.setOnClickListener {
-                transportBarVisible = true
+                if(transportBarVisible) {
+                    if(speakControl.isStopped) {
+                       transportBarVisible = false
+                    }
+                } else {
+                    transportBarVisible = true
+                }
                 updateBottomBars()
             }
 
