@@ -42,7 +42,7 @@
       <div class="journal-button" @click="deleteEntry">
         <FontAwesomeIcon icon="trash"/>
       </div>
-      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="editBookmark">
+      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click.stop="editBookmark">
         <FontAwesomeIcon icon="bookmark"/>
       </div>
     </ButtonRow>
