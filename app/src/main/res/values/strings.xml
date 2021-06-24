@@ -890,4 +890,8 @@
     <string name="import_items">Import %s</string>
     <string name="import_from_db">Import from App Database file</string>
     <string name="import_error">Importing from App Database failed. Database file could be wrong format or made with too old version of %s.</string>
+    <string name="chooser_jump">Jump</string>
+    <string name="chooser_style_grid">Grid</string>
+    <string name="chooser_style_lists">Lists</string>
+    <string name="chooser_pref_reset">Do not reset chapter/verse to 1 when book/chapter is selected</string>
 </resources>
