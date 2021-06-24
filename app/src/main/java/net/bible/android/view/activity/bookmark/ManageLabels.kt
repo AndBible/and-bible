@@ -157,15 +157,16 @@ class ManageLabels : ListActivityBase() {
 
         data = ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
 
-
-        selectMultiple = data.selectedLabels.size > 1 || CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
-
-        binding.selectMultipleSwitch.isChecked = selectMultiple
-        binding.selectMultipleSwitch.visibility = if(data.showCheckboxes) View.VISIBLE else View.GONE
-        binding.selectMultipleSwitch.setOnCheckedChangeListener { _, isChecked ->
-            selectMultiple = isChecked
-            CommonUtils.sharedPreferences.edit().putBoolean("assignLabelsSelectMultiple", selectMultiple).apply()
-        }
+        binding.selectMultipleSwitch.visibility = View.GONE
+        selectMultiple = true
+        // Let's remove selectMultible and see if anyone notices
+        //selectMultiple = data.selectedLabels.size > 1 || CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
+        //binding.selectMultipleSwitch.isChecked = selectMultiple
+        //binding.selectMultipleSwitch.visibility = if(data.showCheckboxes) View.VISIBLE else View.GONE
+        //binding.selectMultipleSwitch.setOnCheckedChangeListener { _, isChecked ->
+        //    selectMultiple = isChecked
+        //    CommonUtils.sharedPreferences.edit().putBoolean("assignLabelsSelectMultiple", selectMultiple).apply()
+        //}
 
         if(data.mode == Mode.STUDYPAD) {
             title = getString(R.string.studypads)
