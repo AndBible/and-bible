@@ -25,7 +25,7 @@ bookmarkAccurate: Zaznamek je bil ustvarjen v %s
 bookmarkInaccurate: "Informacije o zaznamkih niso shranjene, vsebina je prikazana v %s."
 defaultBook: privzeti biblijski dokument
 ok: OK
-yes: Yes
+yes: "Da"
 ambiguousSelection: "Katero dejanje želite izvesti?"
 cancel: Prekliči
 removeBookmarkConfirmationTitle: "Zaznamek odstranim?"

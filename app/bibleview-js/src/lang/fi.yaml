@@ -25,7 +25,7 @@ bookmarkAccurate: Kirjanmerkki luotiin dokumentissa %s
 bookmarkInaccurate: "Kirjanmerkin kirjatietoa ei ole tallennettu, sisältö näytetään dokumentissa %s."
 defaultBook: oletusraamattudokumentti
 ok: Ok
-yes: Yes
+yes: "Kyllä"
 ambiguousSelection: "Minkä toiminteen haluat tehdä?"
 cancel: Peruuta
 removeBookmarkConfirmationTitle: "Poista kirjanmerkki?"

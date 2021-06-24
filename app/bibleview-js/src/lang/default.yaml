@@ -25,7 +25,7 @@ bookmarkAccurate: Bookmark was created in %s
 bookmarkInaccurate: Bookmark book information not stored, content is displayed in %s.
 defaultBook: default Bible document
 ok: OK
-yes: Yes
+yes: "Yes"
 ambiguousSelection: Which action do you wish to take?
 cancel: Cancel
 removeBookmarkConfirmationTitle: Remove bookmark?

@@ -25,7 +25,7 @@ bookmarkAccurate: Lesezeichen wurde in %s erstellt
 bookmarkInaccurate: "Lesezeicheninformation wurde nicht gespeichert, der Inhalt wird in %s angezeigt."
 defaultBook: Standard-Bibeldokument
 ok: OK
-yes: Yes
+yes: "Ja"
 ambiguousSelection: Welche Aktion möchtest du durchführen
 cancel: Abbrechen
 removeBookmarkConfirmationTitle: "Lesezeichen entfernen?"

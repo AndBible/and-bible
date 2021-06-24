@@ -25,7 +25,7 @@ bookmarkAccurate: Boekmerk is in %s geskep
 bookmarkInaccurate: "Boekmerk boek inligting wat nie gestoor is nie, inhoud word in %s vertoon."
 defaultBook: Standaard Bybel dokument
 ok: Goed
-yes: Yes
+yes: "Ja"
 ambiguousSelection: "Watter aksie wil jy neem?"
 cancel: Kanselleer
 removeBookmarkConfirmationTitle: "Verwyder boekmerk?"

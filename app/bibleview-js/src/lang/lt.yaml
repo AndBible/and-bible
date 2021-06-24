@@ -25,7 +25,7 @@ bookmarkAccurate: Žymė buvo sukurta dokumente %s
 bookmarkInaccurate: "Žymės knygos informacija nėra saugoma, turinys yra rodomas čia: %s."
 defaultBook: numatytasis Biblijos dokumentas
 ok: Gerai
-yes: Yes
+yes: "Taip"
 ambiguousSelection: "Kurį veiksmą norite atlikti?"
 cancel: Atsisakyti
 removeBookmarkConfirmationTitle: "Šalinti žymę?"

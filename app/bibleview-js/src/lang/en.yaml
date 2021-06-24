@@ -25,7 +25,7 @@ bookmarkAccurate: Bookmark created in %s
 bookmarkInaccurate: ""
 defaultBook: ""
 ok: ""
-yes: Yes
+yes: ""
 ambiguousSelection: ""
 cancel: ""
 removeBookmarkConfirmationTitle: ""

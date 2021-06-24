@@ -25,7 +25,7 @@ bookmarkAccurate: Закладка создана в %s
 bookmarkInaccurate: "Информация о закладке не сохраняется, содержимое отображается в %s."
 defaultBook: Библейский ресурс по умолчанию
 ok: OK
-yes: Yes
+yes: "Да"
 ambiguousSelection: "Какое действие вы хотите предпринять?"
 cancel: Отменить
 removeBookmarkConfirmationTitle: "Удалить закладку?"
