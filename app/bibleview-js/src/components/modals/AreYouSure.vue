@@ -42,7 +42,7 @@ export default {
     const {strings, ...common} = useCommon();
 
     const okButton = {
-      title: strings.answerYes,
+      title: strings.yes,
       class: "warning",
       result: true
     }
