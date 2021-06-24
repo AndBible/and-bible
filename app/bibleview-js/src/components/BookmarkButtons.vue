@@ -21,6 +21,13 @@
       <div
         v-if="!inBookmarkModal"
         class="bookmark-button"
+        :style="`color: ${buttonColor(primaryLabel.color)};`"
+      >
+        <FontAwesomeIcon icon="bookmark"/>
+      </div>
+      <div
+        v-if="!inBookmarkModal"
+        class="bookmark-button"
         @click.stop="$emit('edit-clicked')"
         :style="`color: ${buttonColor(primaryLabel.color, bookmark.hasNote)};`"
       >
