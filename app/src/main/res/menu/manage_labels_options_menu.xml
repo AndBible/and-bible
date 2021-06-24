@@ -27,11 +27,11 @@
     <item android:id="@+id/reOrder"
         android:title="@string/reorder"
         android:icon="@drawable/ic_baseline_refresh_24"
-        app:showAsAction="ifRoom"
+        app:showAsAction="never"
         />
     <item android:id="@+id/help"
         android:title="@string/help"
-        app:showAsAction="ifRoom"
+        app:showAsAction="never"
         android:icon="@drawable/ic_help_white_24dp"
         />
     <item android:id="@+id/resetButton"
