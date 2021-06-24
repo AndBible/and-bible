@@ -107,6 +107,7 @@ Versification=KJVA"""
 Description=${application.getString(R.string.compare_description)}
 Abbreviation=${application.getString(R.string.compare_abbreviation)}
 Category=Commentaries
+Feature=StrongsNumbers
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
 Versification=KJVA"""
