@@ -140,6 +140,7 @@ export default {
     }
 
     function buttonColor(color, highlighted = false) {
+      if(props.inBookmarkModal) return "--button-grey";
       let col = Color(color);
       if(highlighted) {
         col = col.darken(0.5);
@@ -173,6 +174,7 @@ export default {
 .bookmark-button {
   font-size: 25px;
   color: $button-grey;
+  --button-grey: $button-grey;
   padding: 5px;
   &.end {
     align-self: flex-end;
