@@ -49,6 +49,7 @@ import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_C
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.MorphologyPreference
+import net.bible.android.view.activity.page.MyNotesPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.activity.page.TopMarginPreference
@@ -98,7 +99,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.VERSENUMBERS -> ItemPreference(settings, Types.VERSENUMBERS)
         Types.VERSEPERLINE -> ItemPreference(settings, Types.VERSEPERLINE)
         Types.FOOTNOTES -> ItemPreference(settings, Types.FOOTNOTES)
-        Types.MYNOTES -> ItemPreference(settings, Types.MYNOTES)
+        Types.MYNOTES -> MyNotesPreference(settings)
 
         Types.STRONGS -> StrongsPreference(settings)
         Types.MORPH -> MorphologyPreference(settings)
