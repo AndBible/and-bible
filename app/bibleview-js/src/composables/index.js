@@ -41,8 +41,7 @@ import {
     faIndent,
     faInfoCircle,
     faOutdent,
-    faPlusCircle,
-    faShareAlt,
+    faPlusCircle, faShareAlt,
     faSort,
     faTags, faTextWidth,
     faTimes,
@@ -348,7 +347,6 @@ export function useCommon() {
 
 export function useFontAwesome() {
     library.add(faTextWidth)
-    library.add(faShareAlt)
     library.add(faHeadphones)
     library.add(faEdit)
     library.add(faTags)
@@ -368,6 +366,7 @@ export function useFontAwesome() {
     library.add(faFireAlt)
     library.add(faEyeSlash);
     library.add(faEye);
+    library.add(faShareAlt);
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
