@@ -20,7 +20,6 @@
   <string name="contact">Contatti</string>
   <string name="help_and_tips">Aiuto &amp; suggerimenti</string>
   <string name="administration">Amministrazione </string>
-  <string name="rate_application">Voti &amp; recensioni su Google Play</string>
   <string name="chooce_document">Scegli un documento</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Scegli un libro</string>
@@ -97,8 +96,6 @@
   <string name="options_menu_night_mode">Modalità notturna</string>
   <string name="prefs_navigate_to_verse_title">Naviga al verso</string>
   <string name="prefs_navigate_to_verse_summary">Scegli il verso (e il capitolo) quando selezioni un passaggio</string>
-  <string name="prefs_open_links_in_special_window_title">Apri i link in una finestra speciale</string>
-  <string name="prefs_open_links_in_special_window_summary">Per una visualizzazione più rapida di riferimenti incrociati e numeri Strong</string>
   <string name="prefs_text_size_sample_text">Testo d\'esempio</string>
   <string name="prefs_screen_keep_on_title">Tieni lo schermo acceso</string>
   <string name="prefs_screen_keep_on_summary">Impedisci la sospensione dello schermo durante l\'utilizzo di questa app</string>

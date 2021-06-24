@@ -20,7 +20,6 @@
   <string name="contact">Contacto</string>
   <string name="help_and_tips">Ayuda &amp; consejos</string>
   <string name="administration">Administración</string>
-  <string name="rate_application">Valorar y comentar en Google Play</string>
   <string name="chooce_document">Elegir documento</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Elige Libro</string>
@@ -59,6 +58,7 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Números de capítulo y versículo</string>
   <string name="prefs_show_verseno_summary">Mostrar números de capítulo y versículo</string>
+  <string name="prefs_show_verseno_title1">Numeros de verso</string>
   <string name="prefs_verse_per_line_summary">Muestra cada verso en una línea diferente</string>
   <string name="prefs_show_bookmarks_summary">Desmarcar para ocultar todos los marcadores</string>
   <string name="prefs_show_mynotes_summary">Mostrar icono en versículos con Mi Nota</string>
@@ -71,6 +71,8 @@
   <string name="prefs_verse_per_line_title">Un verso por linea</string>
   <string name="prefs_show_bookmarks_title">Mostrar marcadores</string>
   <string name="prefs_show_mynotes_title">Mostrar iconos de Mis Notas</string>
+  <string name="prefs_show_footnotes_title">Notas al pie</string>
+  <string name="prefs_show_xrefs_title">Referencias cruzadas</string>
   <string name="prefs_show_notes_title">Pies de página y x-refs</string>
   <string name="prefs_show_strongs_title">Números de Strong</string>
   <string name="prefs_show_morphology_title">Códigos morfológicos</string>
@@ -90,8 +92,6 @@
   <string name="options_menu_night_mode">Modo nocturno</string>
   <string name="prefs_navigate_to_verse_title">Navegar al versículo</string>
   <string name="prefs_navigate_to_verse_summary">Escoger versículo (y capítulo) al seleccionar un pasaje</string>
-  <string name="prefs_open_links_in_special_window_title">Abrir enlaces en ventana especial</string>
-  <string name="prefs_open_links_in_special_window_summary">Para mostrar más rápido las referencias cruzadas o negritas</string>
   <string name="prefs_text_size_sample_text">Texto de ejemplo</string>
   <string name="prefs_screen_keep_on_title">Mantener encendida la pantalla</string>
   <string name="prefs_screen_keep_on_summary">Evita que la pantalla se apague mientras se está usando esta aplicación</string>
@@ -458,6 +458,7 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <!--User Notes-->
   <string name="mynotes">Mis Notas</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Copia de seguridad y restauración</string>
   <string name="backup_modules">Compartir o Guardar copia de seguridad de documentos en...</string>
   <string name="backup_app_database">Compartir o Guardar copia de seguridad de la base de datos de la aplicación en...</string>
   <string name="backup_app">Compartir o Guardar copia de seguridad de aplicación (archivo .apk) en...</string>
@@ -683,6 +684,7 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="tell_friend_message3">Instálala desde Play Store: %s</string>
   <string name="tell_friend_message4">Leer más y otras opciones de instalación: %s</string>
   <string name="share_verse_ok">Compartir / Copia</string>
+  <string name="verse_action_copy">Copiar</string>
   <string name="share_verse_menu_title">Compartir / copia…</string>
   <string name="show_versenumbers">Mostrar números de verso</string>
   <string name="show_full_verses">Mostrar los versículos completos</string>
@@ -746,4 +748,5 @@ informe los problemas a los mantenedores de texto
   <string name="bookmark_underline_style_whole_verse">Estilo de subrayado para marcadores de verso completo</string>
   <string name="recent_labels">Etiquetas recientes</string>
   <string name="other_labels">Otras etiquetas</string>
+  <string name="system_items1">Más</string>
 </resources>

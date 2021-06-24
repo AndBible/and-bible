@@ -20,7 +20,6 @@
   <string name="contact">Kontaktas</string>
   <string name="help_and_tips">Pagalba ir patarimai</string>
   <string name="administration">Valdymas</string>
-  <string name="rate_application">Įvertinti ir apžvelgti „Google Play“ parduotuvėje</string>
   <string name="chooce_document">Pasirinkti dokumentą</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Pasirinkite knygą</string>
@@ -97,8 +96,6 @@
   <string name="options_menu_night_mode">Nakties režimas</string>
   <string name="prefs_navigate_to_verse_title">Nukreipti į eilutę</string>
   <string name="prefs_navigate_to_verse_summary">Renkantis ištrauką, pasirinkti eilutę (ir skyrių)</string>
-  <string name="prefs_open_links_in_special_window_title">Atverti nuorodas atskirame lange</string>
-  <string name="prefs_open_links_in_special_window_summary">Greitesniai kryžminių nuorodų ir Strongo peržiūrai</string>
   <string name="prefs_text_size_sample_text">Pavyzdys</string>
   <string name="prefs_screen_keep_on_title">Laikyti ekraną įjungtą</string>
   <string name="prefs_screen_keep_on_summary">Neleidžia ekranui išsijungti tol, kol naudojatės šia programėle</string>

@@ -17,7 +17,6 @@
   <string name="other">অন্যান্য</string>
   <string name="help_and_tips">সহায়তা এবং &amp; পরামর্শ</string>
   <string name="administration">প্রশাসন </string>
-  <string name="rate_application">Rate &amp; গুগল প্লে পূনঃমূল্যায়ন করুন</string>
   <string name="chooce_document">নথি চয়ন করুন </string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">বই চয়ন করুন</string>
@@ -80,8 +79,6 @@
   <string name="options_menu_night_mode">নাইট মোড </string>
   <string name="prefs_navigate_to_verse_title">পদে পৌছান</string>
   <string name="prefs_navigate_to_verse_summary">একটি গ্রন্থাংশ নির্বাচন করার সময় পদ ( এবং অধ্যায়) চয়ণ করুন। </string>
-  <string name="prefs_open_links_in_special_window_title">বিশেষ উইন্ডোতে লিংক খুলুন </string>
-  <string name="prefs_open_links_in_special_window_summary">ক্রশ- রেফারেন্স এবং স্ট্রংসের দ্রুত প্রদর্শনের জন্য </string>
   <string name="prefs_text_size_sample_text">নমুনা পাঠ </string>
   <string name="prefs_screen_keep_on_title">স্ক্রিন চালু রাখুন</string>
   <string name="prefs_screen_keep_on_summary">এই অ্যাপ্লিকেশনটি ব্যবহার করার সময় স্ক্রিন স্লিপিং প্রতিরোধ করুন</string>
@@ -252,9 +249,11 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="bookmarks">বুকমার্ক</string>
   <string name="bookmark_added">বুকমার্ক যোগ হয়েছে</string>
   <string name="assign_labels">লেবেল নিযুক্ত করুন </string>
+  <string name="new_item">নতুন </string>
   <string name="new_label">নতুন লেবেল </string>
   <string name="label_name_prompt">নাম </string>
   <string name="label_unlabelled">লেবেল বিহীন</string>
+  <string name="remove_bookmark">অপসারণ</string>
   <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date"> 
@@ -372,6 +371,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <!--User Notes-->
   <string name="mynotes">আমার নোটস</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">ব্যাকআপ &amp; প্রত্যর্পণ করা</string>
   <string name="loading_backup">ব্যাকআপ থেকে ডেটাবেস লোড হচ্ছে…</string>
   <string name="backup_modules_email_subject_2">%s মডিউল ব্যাকআপ</string>
   <string name="backup_modules_email_message_2"> সংযুক্ত হল আপনার %s মডিউলগুলির ব্যাকআপ, এতে নিম্নলিখিত মডিউলগুলি রয়েছে: %s </string>
@@ -408,9 +408,11 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="yes">হ্যাঁ </string>
   <string name="no">না </string>
   <string name="error">ভুল </string>
+  <string name="delete_generic">মুছে ফেলুন </string>
   <string name="please_wait">দয়াকরে অপেক্ষা করুন......</string>
   <string name="all">সব </string>
   <string name="edit">সম্পাদন করুন </string>
+  <string name="reset_generic">রিসেট</string>
   <string name="watch_tutorial_video">টিউটোরিয়াল ভিডিও দেখুন (ইংরেজি)</string>
   <string name="verse_not_found">পদ পাওয়া যায়নি </string>
   <!--Errors-->
@@ -483,6 +485,10 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">আমি বুঝেছি</string>
   <string name="first_time_help_show_next_time">পরের বার আবার প্রদর্শন করুন</string>
+  <string name="my_notes_abbreviation">আমার নোটস</string>
+  <string name="compare_description">অনুবাদগুলির সাথে তুলনা করুন</string>
+  <string name="verse_action_copy">কপি</string>
+  <string name="show_versenumbers">পদ সংখ্যাগুলি দেখান</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->

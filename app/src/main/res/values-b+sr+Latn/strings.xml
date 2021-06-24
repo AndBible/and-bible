@@ -17,7 +17,6 @@
   <string name="other">Drugo</string>
   <string name="help_and_tips">Pomoć i saveti</string>
   <string name="administration">Upravljanje</string>
-  <string name="rate_application">Ocenite i opišite u Gugl Prodavnici</string>
   <string name="chooce_document">Izaberi dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Izaberi knjigu</string>
@@ -80,8 +79,6 @@
   <string name="options_menu_night_mode">Noćni režim</string>
   <string name="prefs_navigate_to_verse_title">Idi na stih</string>
   <string name="prefs_navigate_to_verse_summary">Izaberi stih (i poglavlje) kada se označi odlomak.</string>
-  <string name="prefs_open_links_in_special_window_title">Otvori veze u prozoru za posebne veze</string>
-  <string name="prefs_open_links_in_special_window_summary">Za brži prikaz unakrsnih referenci i Strongova</string>
   <string name="prefs_text_size_sample_text">Uzorak teksta</string>
   <string name="prefs_screen_keep_on_title">Drži ekran uključenim</string>
   <string name="prefs_screen_keep_on_summary">Spreči ekran da ode u spavanje tokom korišćenja aplikacije</string>
@@ -257,9 +254,11 @@
   <string name="bookmarks">Obeleživači</string>
   <string name="bookmark_added">Dodat obeleživač</string>
   <string name="assign_labels">Dodeli nalepnice</string>
+  <string name="new_item">Novi</string>
   <string name="new_label">Nova nalepnica</string>
   <string name="label_name_prompt">Ime</string>
   <string name="label_unlabelled">Neoznačeno</string>
+  <string name="remove_bookmark">Ukloni</string>
   <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datumski redosled</string>
@@ -386,6 +385,7 @@
   <!--User Notes-->
   <string name="mynotes">Moje beleške</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Rezervna kopija i vraćanje</string>
   <string name="loading_backup">Učitavanje baze podataka iz rezervne kopije...</string>
   <string name="backup_modules_email_subject_2">Rezervna kopija modula %s </string>
   <string name="backup_modules_email_message_2">Zakačena je rezervna kopija %s modula, koja sadrži sledeće module: %s</string>
@@ -422,9 +422,11 @@
   <string name="yes">Da</string>
   <string name="no">Ne</string>
   <string name="error">Greška</string>
+  <string name="delete_generic">Obriši</string>
   <string name="please_wait">Molim sačekajte...</string>
   <string name="all">Sve</string>
   <string name="edit">Izmeni</string>
+  <string name="reset_generic">Povrati</string>
   <string name="watch_tutorial_video">Pogledajte video sa uputstvima (na engleskom)</string>
   <string name="verse_not_found">Stih nije pronađen</string>
   <!--Errors-->
@@ -513,6 +515,10 @@
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Razumem</string>
   <string name="first_time_help_show_next_time">Prikaži i sledeći put</string>
+  <string name="my_notes_abbreviation">Moje beleške</string>
+  <string name="compare_description">Uporedi prevode</string>
+  <string name="verse_action_copy">Kopiraj</string>
+  <string name="show_versenumbers">Prikaži brojeve stihova</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->

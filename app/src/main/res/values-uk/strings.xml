@@ -20,7 +20,6 @@
   <string name="contact">Контакти</string>
   <string name="help_and_tips">Довідка і поради</string>
   <string name="administration">Адміністрування</string>
-  <string name="rate_application">Оцінити і Написати відгук в Google Play</string>
   <string name="chooce_document">Вибрати ресурс</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Вибрати книгу</string>
@@ -59,6 +58,7 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номери розділів та віршів</string>
   <string name="prefs_show_verseno_summary">Показати номери розділів та віршів</string>
+  <string name="prefs_show_verseno_title1">Номери віршів</string>
   <string name="prefs_verse_per_line_summary">Показати один вірш на рядок</string>
   <string name="prefs_show_bookmarks_summary">Зніміть прапорець, щоб сховати всі закладки</string>
   <string name="prefs_show_mynotes_summary">Показати піктограму у віршах з Моєю Заміткою</string>
@@ -71,6 +71,8 @@
   <string name="prefs_verse_per_line_title">Один вірш на рядок</string>
   <string name="prefs_show_bookmarks_title">Показати піктограми закладок</string>
   <string name="prefs_show_mynotes_title">Показати піктограми приміток</string>
+  <string name="prefs_show_footnotes_title">Виноски</string>
+  <string name="prefs_show_xrefs_title">Перехресні посилання</string>
   <string name="prefs_show_notes_title">Виноски і ссилки</string>
   <string name="prefs_show_strongs_title">Відобразити номери Стронга</string>
   <string name="prefs_show_morphology_title">Морфологічні коди</string>
@@ -90,8 +92,6 @@
   <string name="options_menu_night_mode">Нічний режим</string>
   <string name="prefs_navigate_to_verse_title">Перейти до вірша</string>
   <string name="prefs_navigate_to_verse_summary">Вибір вірша (і розділу) при виборі місця з Біблії</string>
-  <string name="prefs_open_links_in_special_window_title">Відкрити посилання в окремому вікні</string>
-  <string name="prefs_open_links_in_special_window_summary">Для швидкого відображення взаємних посилань і номерів Стронга</string>
   <string name="prefs_text_size_sample_text">Зразок тексту</string>
   <string name="prefs_screen_keep_on_title">Не виключати екран</string>
   <string name="prefs_screen_keep_on_summary">Запобігти засипанню екрана під час користування додатком</string>
@@ -451,6 +451,7 @@
   <!--User Notes-->
   <string name="mynotes">Мої примітки</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Резервне копіювання та відновлення</string>
   <string name="backup_modules">Поділитися або резервне копіювання ресурсів у…</string>
   <string name="backup_app_database">Поділитися або резервне копіювання бази даних додатку у…</string>
   <string name="backup_app">Поділитися або резервне копіювання додатку (файл .apk) у…</string>
@@ -672,6 +673,7 @@
   <string name="tell_friend_message3">Встановіть його з Play Store: %s</string>
   <string name="tell_friend_message4">Детальніше і більше варіантів інсталяції: %s</string>
   <string name="share_verse_ok">Поділитися / скопіювати</string>
+  <string name="verse_action_copy">Скопіювати</string>
   <string name="share_verse_menu_title">Поділитися / скопіювати...</string>
   <string name="show_versenumbers">Показати номери віршів</string>
   <string name="show_full_verses">Показати повні вірші</string>

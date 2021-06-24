@@ -20,7 +20,6 @@
   <string name="contact">Kontakto</string>
   <string name="help_and_tips">Helpo kaj konsiloj</string>
   <string name="administration">Administri</string>
-  <string name="rate_application">Taksi / recenzi ĉe Google Play</string>
   <string name="chooce_document">Elekti dokumenton</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Elekti libron</string>
@@ -97,8 +96,6 @@
   <string name="options_menu_night_mode">Nokta reĝimo</string>
   <string name="prefs_navigate_to_verse_title">Navigi al verso</string>
   <string name="prefs_navigate_to_verse_summary">Montri elekton de verso (kaj ĉapitro) je elekto de alineo</string>
-  <string name="prefs_open_links_in_special_window_title">Malfermi ligilojn en speciala fenestro</string>
-  <string name="prefs_open_links_in_special_window_summary">Por pli rapida montrado de internaj referencoj kaj numeroj de Strong</string>
   <string name="prefs_text_size_sample_text">Ekzempla teksto</string>
   <string name="prefs_screen_keep_on_title">Teni ekranon enŝaltita</string>
   <string name="prefs_screen_keep_on_summary">Ne permesi malŝalti ekranon dum uzi tiun ĉi aplikaĵon</string>

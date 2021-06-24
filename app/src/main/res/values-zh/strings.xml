@@ -17,7 +17,6 @@
   <string name="other">其他</string>
   <string name="help_and_tips">說明與提示</string>
   <string name="administration">管理</string>
-  <string name="rate_application">在Google Play中評分</string>
   <string name="chooce_document">選擇文件</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">選擇書卷</string>
@@ -80,8 +79,6 @@
   <string name="options_menu_night_mode">夜間模式</string>
   <string name="prefs_navigate_to_verse_title">導航到經節</string>
   <string name="prefs_navigate_to_verse_summary">選擇聖經段落時挑選經文章節</string>
-  <string name="prefs_open_links_in_special_window_title">在特殊視窗打開連結</string>
-  <string name="prefs_open_links_in_special_window_summary">更快地顯示交叉對照和Strong\'s原文編號</string>
   <string name="prefs_text_size_sample_text">示範文字</string>
   <string name="prefs_screen_keep_on_title">保持螢幕開啟</string>
   <string name="prefs_screen_keep_on_summary">使用此應用程式時防止螢幕睡眠</string>
@@ -229,9 +226,11 @@ http://www.heartlight.org 准予使用
   <string name="bookmarks">書籤</string>
   <string name="bookmark_added">書籤已保存</string>
   <string name="assign_labels">分配標籤</string>
+  <string name="new_item">建立</string>
   <string name="new_label">新標籤</string>
   <string name="label_name_prompt">標籤名稱</string>
   <string name="label_unlabelled">未有標籤</string>
+  <string name="remove_bookmark">移除</string>
   <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">日期順序</string>
@@ -353,6 +352,7 @@ http://www.heartlight.org 准予使用
   <!--User Notes-->
   <string name="mynotes">筆記列表</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">備份及回復</string>
   <string name="loading_backup">正在從備份載入資料庫</string>
   <string name="backup_modules_email_subject_2">%s 模組備份</string>
   <string name="backup_modules_email_message_2">此附你的 %s 模組備份，包含了以下模組: %s</string>
@@ -388,9 +388,11 @@ http://www.heartlight.org 准予使用
   <string name="yes">是</string>
   <string name="no">否</string>
   <string name="error">錯誤</string>
+  <string name="delete_generic">刪除</string>
   <string name="please_wait">請稍候...</string>
   <string name="all">全部</string>
   <string name="edit">編輯</string>
+  <string name="reset_generic">重設</string>
   <string name="watch_tutorial_video">觀看示範影片 (英文)</string>
   <string name="verse_not_found">找不到節</string>
   <!--Errors-->
@@ -450,6 +452,10 @@ Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">我明白</string>
   <string name="first_time_help_show_next_time">下次再顯示</string>
+  <string name="my_notes_abbreviation">筆記列表</string>
+  <string name="compare_description">譯本比較</string>
+  <string name="show_versenumbers">顯示節數</string>
+  <string name="backup_button">備份</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->

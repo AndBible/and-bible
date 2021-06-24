@@ -64,5 +64,5 @@ favouriteLabels: Suosikkiryhmät
 recentLabels: Viimeaikaiset ryhmät
 frequentlyUsedLabels: Usein käytetyt ryhmät
 bookmarkLabels: Kirjanmerkkiryhmät
-refParserHelp: ""
-openDownloads: ""
+refParserHelp: Asenna moduuli %s tehdäksesi viittauksia muilla kuin englannin kielellä.
+openDownloads: Siirry lisäosien latauksiin

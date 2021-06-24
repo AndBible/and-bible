@@ -20,7 +20,6 @@
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Pomoc i wskazówki</string>
   <string name="administration">Zarządzanie</string>
-  <string name="rate_application">Oceń w sklepie Google Play</string>
   <string name="chooce_document">Wybór dokumentu</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Wybierz księgę</string>
@@ -97,8 +96,6 @@
   <string name="options_menu_night_mode">Tryb nocny</string>
   <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
   <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
-  <string name="prefs_open_links_in_special_window_title">Otwórz link w specjalnym oknie</string>
-  <string name="prefs_open_links_in_special_window_summary">Szybsze wyświetlanie odnośników</string>
   <string name="prefs_text_size_sample_text">Zwykły tekst</string>
   <string name="prefs_screen_keep_on_title">Trzymaj ekran włączony</string>
   <string name="prefs_screen_keep_on_summary">Nie wyłączaj ekranu podczas korzystania z aplikacji</string>
@@ -614,8 +611,12 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="http_not_found">nie znaleziono</string>
   <string name="http_unknown">inny błąd</string>
   <string name="give_passphrase_for_module">Dokument %s jest zaszyfrowany i wymaga hasła do otwarcia</string>
+  <string name="verse_action_copy">Kopiuj</string>
+  <string name="show_versenumbers">Wyświetl numery wersetów</string>
+  <string name="backup_button">Backup</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">Więcej</string>
 </resources>

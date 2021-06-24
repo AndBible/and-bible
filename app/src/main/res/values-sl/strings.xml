@@ -20,7 +20,6 @@
   <string name="contact">Stik</string>
   <string name="help_and_tips">Pomoč in namigi</string>
   <string name="administration">Upravljanje</string>
-  <string name="rate_application">Ocena na Google Play</string>
   <string name="chooce_document">Zapri dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Izberi knjigo</string>
@@ -59,6 +58,7 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Poglavje in številke vrstic</string>
   <string name="prefs_show_verseno_summary">Pokaži poglavje in številke vrstic</string>
+  <string name="prefs_show_verseno_title1">Številke vrstic</string>
   <string name="prefs_verse_per_line_summary">Vsako vrstico prikaži v svoji vrsti.</string>
   <string name="prefs_show_bookmarks_summary">Odznači, da se skrijejo vsi zaznamki.</string>
   <string name="prefs_show_mynotes_summary">V vrsticah prikaži ikono z mojimi opombami.</string>
@@ -71,6 +71,8 @@
   <string name="prefs_verse_per_line_title">Vsaka vrstica v svojo vrsto</string>
   <string name="prefs_show_bookmarks_title">Prikaži zaznamke</string>
   <string name="prefs_show_mynotes_title">Prikaži ikone mojih opomb</string>
+  <string name="prefs_show_footnotes_title">Opombe</string>
+  <string name="prefs_show_xrefs_title">Sklici</string>
   <string name="prefs_show_notes_title">Zaznamki in sklici</string>
   <string name="prefs_show_strongs_title">Strong-ova števila</string>
   <string name="prefs_show_morphology_title">Oblikoslovne kode</string>
@@ -90,8 +92,6 @@
   <string name="options_menu_night_mode">Nočni način</string>
   <string name="prefs_navigate_to_verse_title">Usmeri do vrstice</string>
   <string name="prefs_navigate_to_verse_summary">Za izbiro odlomka izberi vrstico in poglavje.</string>
-  <string name="prefs_open_links_in_special_window_title">Povezave v posebnem oknu</string>
-  <string name="prefs_open_links_in_special_window_summary">Za hitrejši prikaz sklicev in Strong-ovih števil.</string>
   <string name="prefs_text_size_sample_text">Primer besedila</string>
   <string name="prefs_screen_keep_on_title">Ohrani prižgan zaslon</string>
   <string name="prefs_screen_keep_on_summary">Prepreči ugašanje zaslona med uporabo te aplikacije.</string>
@@ -457,6 +457,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <!--User Notes-->
   <string name="mynotes">Moje opombe</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Varnostna kopija &amp; Obnova</string>
   <string name="backup_modules">Deli ali Arhiviraj dokumente v...</string>
   <string name="backup_app_database">Deli ali Arhiviraj bazo aplikacije v...</string>
   <string name="backup_app">Deli ali Arhiviraj aplikacijo (.apk datoteko) v...</string>
@@ -675,6 +676,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="tell_friend_message3">Namestite jo iz Trgovine Play: %s</string>
   <string name="tell_friend_message4">Preberite več in več možnosti namestitve: %s</string>
   <string name="share_verse_ok">Skupna raba / kopiranje</string>
+  <string name="verse_action_copy">Kopiraj</string>
   <string name="share_verse_menu_title">Skupna raba / kopiranje…</string>
   <string name="show_versenumbers">Pokaži številke verzov</string>
   <string name="show_full_verses">Pokaži celotne vrstice</string>
@@ -737,4 +739,5 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="bookmark_underline_style_whole_verse">Podčrtan stil za celotno vrstico zaznamkov</string>
   <string name="recent_labels">Prejšnje oznake</string>
   <string name="other_labels">Ostale oznake</string>
+  <string name="system_items1">Več</string>
 </resources>
