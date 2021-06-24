@@ -30,6 +30,12 @@ if(testMode) {
     strings = {}
 } else {
     strings = reactive({...require(`@/lang/default.yaml`), ...untranslated});
+    const enFixes = require(`@/lang/en.yaml`);
+    for(const i in enFixes) {
+        if(enFixes[i]) {
+            strings[i] = enFixes[i]
+        }
+    }
 }
 
 let stringsLoaded = false;

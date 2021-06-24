@@ -609,6 +609,11 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="multi_abbreviation">Odsyłacze</string>
   <string name="compare_description">Porównanie przekładów</string>
   <string name="compare_abbreviation">Porównanie</string>
+  <string name="compare">Porównaj</string>
+  <string name="http_forbidden">zabroniony</string>
+  <string name="http_not_found">nie znaleziono</string>
+  <string name="http_unknown">inny błąd</string>
+  <string name="give_passphrase_for_module">Dokument %s jest zaszyfrowany i wymaga hasła do otwarcia</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
