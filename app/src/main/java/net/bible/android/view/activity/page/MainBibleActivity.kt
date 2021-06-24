@@ -156,6 +156,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var hasHwKeys: Boolean = false
 
     private var transportBarVisible = false
+        set(value) {
+            binding.speakButton.alpha = if(value) 0.7F else 1.0F
+            field = value
+        }
 
     val dao get() = DatabaseContainer.db.workspaceDao()
     val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
