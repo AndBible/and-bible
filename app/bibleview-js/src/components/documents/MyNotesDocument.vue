@@ -56,9 +56,6 @@ export default {
       if(!config.showBookmarks) {
         bs = bs.filter(v => v.hasNote)
       }
-      if(!config.showMyNotes) {
-        bs = bs.filter(v => !v.hasNote)
-      }
       return sortBy(bs, [o => o.ordinalRange[0], o => o.offsetRange && o.offsetRange[0]])
     });
 
