@@ -121,7 +121,7 @@ open class BookmarkControl @Inject constructor(
                 bookmark.primaryLabelId = addBookmarkToLabels.firstOrNull()?.labelId
                 dao.update(bookmark)
             }
-            windowControl.windowRepository.updateRecentLabels(toBeAdded.toList())
+            windowControl.windowRepository?.updateRecentLabels(toBeAdded.toList()) // for tests ?.
         }
 
         addText(bookmark)
