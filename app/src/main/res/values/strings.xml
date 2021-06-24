@@ -112,7 +112,7 @@
     <string name="prefs_toolbar_button_action_swap_activity">Press to open next document, long press for documents screen</string>
 
     <string name="prefs_night_mode_title">Night mode switching</string>
-    <string name="prefs_night_mode_summary">Whether to switch to night mode automatically (if device supports), manually or via system setting (Android 10+).</string>
+    <string name="prefs_night_mode_summary">Whether to switch to night mode automatically (if device supports), manually or via system setting (Android 10+). Manual switching can be done from the 3-dot options menu on the main screen. </string>
     <string name="prefs_night_mode_manual">Manual</string>
     <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_night_mode_system">System</string>
