@@ -77,6 +77,9 @@
     <string name="prefs_disable_animations_title">Disable animations</string>
     <string name="prefs_disable_animations_summary">Disable various animations such as smooth scrolling. </string>
 
+    <string name="prefs_paragraph_spacing_title">Paragraph spacing (%s mm)</string>
+    <string name="prefs_paragraph_spacing_summary">Adjust space between paragraphs.</string>
+
     <string name="prefs_show_verseno_title1">Verse numbers</string>
 
     <string name="prefs_show_chapter_no_title">Chapter numbers</string>
