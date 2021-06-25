@@ -35,6 +35,7 @@ createdAt: "Created: %s"
 lastUpdatedOn: "Last updated: %s"
 strongsLink: Strongs definition (%s)
 morphLink: Morphological code (%s)
+strongsAndMorph: Definition & Morphology
 studyPadLink: Open study pad
 externalLink: Open external link
 referenceLink: Open reference link
