@@ -21,7 +21,7 @@
       <div
         v-if="!inBookmarkModal"
         class="bookmark-button"
-        :style="`color: ${buttonColor(primaryLabel.color)};`"
+        :style="buttonColor(primaryLabel.color)"
       >
         <FontAwesomeIcon icon="bookmark"/>
       </div>
@@ -29,21 +29,23 @@
         v-if="!inBookmarkModal"
         class="bookmark-button"
         @click.stop="$emit('edit-clicked')"
-        :style="`color: ${buttonColor(primaryLabel.color, bookmark.hasNote)};`"
+        :class="{highlighted: inBookmarkModal && bookmark.hasNote}"
+        :style="buttonColor(primaryLabel.color, bookmark.hasNote)"
       >
         <FontAwesomeIcon icon="edit"/>
       </div>
       <div
         class="bookmark-button"
         @click.stop="shareVerse"
-        :style="`color: ${buttonColor(primaryLabel.color)};`"
+        :style="buttonColor(primaryLabel.color)"
       >
         <FontAwesomeIcon icon="share-alt"/>
       </div>
       <div
         class="bookmark-button"
         @click.stop="toggleWholeVerse"
-        :style="`color: ${buttonColor(primaryLabel.color, bookmark.wholeVerse)};`"
+        :class="{highlighted: inBookmarkModal && bookmark.wholeVerse}"
+        :style="buttonColor(primaryLabel.color, bookmark.wholeVerse)"
       >
         <FontAwesomeIcon icon="text-width"/>
       </div>
@@ -57,7 +59,7 @@
         <div
           v-for="label of labels.filter(l => l.isRealLabel)"
           :key="label.id"
-          :style="`color: ${buttonColor(label.color)};`"
+          :style="buttonColor(label.color)"
           class="bookmark-button"
           @click.stop="openStudyPad(label.id)"
         >
@@ -140,12 +142,14 @@ export default {
     }
 
     function buttonColor(color, highlighted = false) {
-      if(props.inBookmarkModal) return "--button-grey";
+      if(props.inBookmarkModal) {
+        return ""
+      }
       let col = Color(color);
       if(highlighted) {
-        col = col.darken(0.5);
+        col = col.alpha(0.7);
       }
-      return col.hsl().string();
+      return `color:${col.hsl().string()};`;
     }
 
     return {
@@ -174,13 +178,12 @@ export default {
 .bookmark-button {
   font-size: 25px;
   color: $button-grey;
-  --button-grey: $button-grey;
   padding: 5px;
   &.end {
     align-self: flex-end;
   }
   &.highlighted {
-    // opacity: 0.5;
+    opacity: 0.7;
   }
 }
 </style>
