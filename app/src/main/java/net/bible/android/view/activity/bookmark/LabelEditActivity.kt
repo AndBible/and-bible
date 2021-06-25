@@ -25,6 +25,7 @@ import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.View.GONE
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
@@ -140,9 +141,10 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         updateColor()
         if (data.label.isSpecialLabel) {
             labelName.isEnabled = false
-            favouriteLabelCheckBox.isEnabled = false
-            autoAssignCheckBox.isEnabled = false
-            primaryAutoAssignCheckBox.isEnabled = false
+            thisWorkspaceTitle.visibility = GONE
+            favouriteLabelCheckBox.visibility = GONE
+            autoAssignCheckBox.visibility = GONE
+            primaryAutoAssignCheckBox.visibility = GONE
         }
         selectedLabelCheckBox.isChecked = data.isThisBookmarkSelected
         primaryLabelCheckBox.isEnabled = data.isThisBookmarkSelected
