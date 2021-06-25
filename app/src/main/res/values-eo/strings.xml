@@ -20,7 +20,7 @@
   <string name="contact">Kontakto</string>
   <string name="help_and_tips">Helpo kaj konsiloj</string>
   <string name="administration">Administri</string>
-  <string name="rate_application">Taksi / recenzi ĉe Google Play</string>
+  <string name="rate_application">Taksi / recenzi</string>
   <string name="chooce_document">Elekti dokumenton</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Elekti libron</string>
@@ -59,6 +59,8 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numeroj de versoj k ĉapitroj</string>
   <string name="prefs_show_verseno_summary">Montri numerojn de versoj kaj ĉapitroj</string>
+  <string name="prefs_e_ink_mode_title">Blank-nigra reĝimo</string>
+  <string name="prefs_eink_mode_summary">Vidigi la aplikaĵon sen koloroj por igi ĝin pli taŭga por elektronikaj librolegiloj (E Ink).</string>
   <string name="prefs_show_verseno_title1">Numeroj de versoj</string>
   <string name="prefs_show_chapter_no_title">Numeroj de ĉapitroj</string>
   <string name="prefs_show_chapter_no_summary">Montri numerojn de ĉapitroj</string>
@@ -81,8 +83,8 @@
   <string name="prefs_show_notes_title">Piednotoj kaj internaj referencoj</string>
   <string name="prefs_show_strongs_title">Numeroj de Strong</string>
   <string name="prefs_show_morphology_title">Morfologiaj kodoj</string>
-  <string name="prefs_section_title_title">Sekciaj titoloj</string>
-  <string name="prefs_red_letter_title">Vortoj de Kristo</string>
+  <string name="prefs_section_title_title">Titoloj de sekcioj</string>
+  <string name="prefs_red_letter_title">Vortoj de Kristo ruĝe</string>
   <string name="prefs_tilt_to_scroll_title">Skui por rulumi</string>
   <string name="prefs_toolbar_button_action_title">Agoj de butono sur ilarstrio</string>
   <string name="prefs_toolbar_button_action_summary">Agoj okazontaj post frapet(ad)i la butonon montrantan titolon de libro sur la ilarstrio</string>
@@ -90,15 +92,12 @@
   <string name="prefs_toolbar_button_action_swap_menu">Frapeti por malfermi sekvan dokumenton, frapetadi por malfermi menuon</string>
   <string name="prefs_toolbar_button_action_swap_activity">Frapeti por malfermi sekvan dokumenton, frapetadi por montri ekranon de dokumentoj</string>
   <string name="prefs_night_mode_title">Aktivigi noktan reĝimon</string>
-  <string name="prefs_night_mode_summary">Agordi ĉu aŭtomate (mal)ŝalti noktan reĝimon (se subtenata de aparato), ĉu permane, ĉu permesi al la operaciumo decidi (Android 10+).</string>
   <string name="prefs_night_mode_manual">Permane</string>
   <string name="prefs_night_mode_automatic">Aŭtomate</string>
   <string name="prefs_night_mode_system">Laŭ operaciumo</string>
   <string name="options_menu_night_mode">Nokta reĝimo</string>
   <string name="prefs_navigate_to_verse_title">Navigi al verso</string>
   <string name="prefs_navigate_to_verse_summary">Montri elekton de verso (kaj ĉapitro) je elekto de alineo</string>
-  <string name="prefs_open_links_in_special_window_title">Malfermi ligilojn en speciala fenestro</string>
-  <string name="prefs_open_links_in_special_window_summary">Por pli rapida montrado de internaj referencoj kaj numeroj de Strong</string>
   <string name="prefs_text_size_sample_text">Ekzempla teksto</string>
   <string name="prefs_screen_keep_on_title">Teni ekranon enŝaltita</string>
   <string name="prefs_screen_keep_on_summary">Ne permesi malŝalti ekranon dum uzi tiun ĉi aplikaĵon</string>
@@ -635,7 +634,7 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="active_window_indicator_summary">Emfazi angulojn de la la aktiva fenestro</string>
   <string name="app_licence_title">Permesilo</string>
   <string name="how_to_contribute">Kontribui</string>
-  <string name="confirm_delete_bookmarks">Ĉu vi certe volas forigi %d legosignojn kaj iliajn notojn!</string>
+  <string name="confirm_delete_bookmarks">Ĉu vi certe volas forigi %d legosignojn kaj iliajn notojn?</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekomendi al amiko</string>
   <string name="tell_friend_message1">Mi volus rekomendi al vi la aplikaĵon %s.</string>

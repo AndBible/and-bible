@@ -25,7 +25,7 @@ bookmarkAccurate: Legosigno kreita en %s
 bookmarkInaccurate: "Informo pri libro ne konservita en legosigno, montras enhavon en %s."
 defaultBook: implicita dokumento de Biblio
 ok: Bone
-yes: Yes
+yes: "Jes"
 ambiguousSelection: "Kion vi volas fari?"
 cancel: Nuligi
 removeBookmarkConfirmationTitle: "Ĉu forigi legosignon?"
@@ -64,5 +64,5 @@ favouriteLabels: Ŝatataj etikedoj
 recentLabels: Antaŭaj etikedoj
 frequentlyUsedLabels: Ofte uzataj etikedoj
 bookmarkLabels: Legosignaj etikedoj
-refParserHelp: Instalu la modulon RefParser por uzi referencojn en aliaj lingvoj ol la angla.
-openDownloads: Malfermi elŝutojn
+refParserHelp: ""
+openDownloads: ""

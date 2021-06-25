@@ -20,7 +20,6 @@
   <string name="contact">Contact</string>
   <string name="help_and_tips">Aide &amp; astuces</string>
   <string name="administration">Gérer</string>
-  <string name="rate_application">Laisser un avis sur Google Play</string>
   <string name="chooce_document">Ouvrir un document</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Sélectionner un livre</string>
@@ -59,6 +58,7 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Chapitre et numéros de versets</string>
   <string name="prefs_show_verseno_summary">Montrer le chapitre et les numéros de versets</string>
+  <string name="prefs_show_verseno_title1">Numéros de versets</string>
   <string name="prefs_verse_per_line_summary">Affiche chaque verset sur une ligne différente</string>
   <string name="prefs_show_bookmarks_summary">Affiche les signets dans le texte</string>
   <string name="prefs_show_mynotes_summary">Les notes sont signalées par une icône dans les versets</string>
@@ -71,6 +71,7 @@
   <string name="prefs_verse_per_line_title">Un verset par ligne</string>
   <string name="prefs_show_bookmarks_title">Afficher les signets</string>
   <string name="prefs_show_mynotes_title">Afficher les icônes des notes</string>
+  <string name="prefs_show_footnotes_title">Note de bas de page</string>
   <string name="prefs_show_notes_title">Notes et références croisées</string>
   <string name="prefs_show_strongs_title">Nombres de Strong</string>
   <string name="prefs_show_morphology_title">Codes morphologiques</string>
@@ -83,15 +84,12 @@
   <string name="prefs_toolbar_button_action_swap_menu">Appuyer pour ouvrir le document suivant, appui long pour ouvrir le menu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Appuyer pour ouvrir le document suivant, appui long pour l\'affichage des documents</string>
   <string name="prefs_night_mode_title">Passe en mode nuit</string>
-  <string name="prefs_night_mode_summary">Que ce soit pour passer automatiquement en mode nuit (si l\'appareil le prend en charge), manuellement ou via les paramètres système (Android 10+).</string>
   <string name="prefs_night_mode_manual">Manuel</string>
   <string name="prefs_night_mode_automatic">Automatique</string>
   <string name="prefs_night_mode_system">Système</string>
   <string name="options_menu_night_mode">Mode nuit</string>
   <string name="prefs_navigate_to_verse_title">Aller au verset</string>
   <string name="prefs_navigate_to_verse_summary">Sélectionne aussi le verset (après le chapitre) lors du choix d\'un passage</string>
-  <string name="prefs_open_links_in_special_window_title">Ouvrir les liens dans une fenêtre spéciale</string>
-  <string name="prefs_open_links_in_special_window_summary">Permet d\'afficher plus rapidement les références croisées et codes de Strong</string>
   <string name="prefs_text_size_sample_text">Exemple de texte</string>
   <string name="prefs_screen_keep_on_title">Maintenir activé</string>
   <string name="prefs_screen_keep_on_summary">Bloque la mise en veille automatique</string>
@@ -438,6 +436,7 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <!--User Notes-->
   <string name="mynotes">Mes notes</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
   <string name="backup_modules">Partager ou sauvegarde les documents vers...</string>
   <string name="backup_app_database">Partager ou sauvegarde la base de données de l\'application vers…</string>
   <string name="backup_app">Partagez ou sauvegardez l\'application (fichier .apk) sur…</string>
@@ -657,6 +656,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="tell_friend_message3">L\'installer depuis le Play Store : %s</string>
   <string name="tell_friend_message4">Lire davantage &amp; plus d\'options d\'installation: %s</string>
   <string name="share_verse_ok">Partager / copier</string>
+  <string name="verse_action_copy">Copier</string>
   <string name="share_verse_menu_title">Partager / copier...</string>
   <string name="show_versenumbers">Afficher les numéros de verset</string>
   <string name="show_full_verses">Afficher tous les versets</string>
@@ -719,4 +719,5 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="bookmark_underline_style_whole_verse">Style de soulignement pour les signets de verset entier</string>
   <string name="recent_labels">Étiquettes récentes</string>
   <string name="other_labels">Autres étiquettes</string>
+  <string name="system_items1">Plus</string>
 </resources>

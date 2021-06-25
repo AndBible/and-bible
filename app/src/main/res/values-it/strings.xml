@@ -20,7 +20,7 @@
   <string name="contact">Contatti</string>
   <string name="help_and_tips">Aiuto &amp; suggerimenti</string>
   <string name="administration">Amministrazione </string>
-  <string name="rate_application">Voti &amp; recensioni su Google Play</string>
+  <string name="rate_application">Vota &amp; recensisci</string>
   <string name="chooce_document">Scegli un documento</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Scegli un libro</string>
@@ -59,6 +59,8 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numeri di capitolo &amp; verso</string>
   <string name="prefs_show_verseno_summary">Mostra numeri di capitolo &amp; verso</string>
+  <string name="prefs_e_ink_mode_title">Modalità bianco e nero</string>
+  <string name="prefs_eink_mode_summary">Usa l\'app in modalità monocromatica (senza colori), più adatta ai dispositivi E-ink.</string>
   <string name="prefs_show_verseno_title1">Numeri dei versi</string>
   <string name="prefs_show_chapter_no_title">Numeri di capitolo</string>
   <string name="prefs_show_chapter_no_summary">Mostra i numeri di capitolo</string>
@@ -90,15 +92,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Premi per aprire il documento successivo, premi a lungo per aprire il menù</string>
   <string name="prefs_toolbar_button_action_swap_activity">Premi per il documento successivo, premi a lungo per la schermata documenti</string>
   <string name="prefs_night_mode_title">Passaggio alla modalità notturna</string>
-  <string name="prefs_night_mode_summary">Passa automaticamente alla modalità notturna (se il dispositivo lo supporta), manualmente o tramite le impostazioni di sistema (Android 10+).</string>
+  <string name="prefs_night_mode_summary">Passa alla modalità notturna automaticamente (se supportata), manualmente, o tramite impostazioni (Android 10+). Il passaggio manuale può essere fatto dal menù opzioni con i 3 puntini, sullo schermo principale.</string>
   <string name="prefs_night_mode_manual">Manuale</string>
   <string name="prefs_night_mode_automatic">Automatico</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Modalità notturna</string>
   <string name="prefs_navigate_to_verse_title">Naviga al verso</string>
   <string name="prefs_navigate_to_verse_summary">Scegli il verso (e il capitolo) quando selezioni un passaggio</string>
-  <string name="prefs_open_links_in_special_window_title">Apri i link in una finestra speciale</string>
-  <string name="prefs_open_links_in_special_window_summary">Per una visualizzazione più rapida di riferimenti incrociati e numeri Strong</string>
+  <string name="prefs_open_links_in_special_window_title">Finestra collegamenti</string>
+  <string name="prefs_open_links_in_special_window_summary">Apre i collegamenti in finestre speciali, per mostrare più rapidamente i riferimenti incrociati e gli Strong</string>
   <string name="prefs_text_size_sample_text">Testo d\'esempio</string>
   <string name="prefs_screen_keep_on_title">Tieni lo schermo acceso</string>
   <string name="prefs_screen_keep_on_summary">Impedisci la sospensione dello schermo durante l\'utilizzo di questa app</string>
@@ -658,6 +660,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="advertise_app">Pubblicizza l\'app</string>
   <string name="verse_share_advertise">Condiviso usando %s.</string>
   <string name="abbreviate_reference">Abbrevia riferimento</string>
+  <string name="version_name">Nome versione</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Indietro</string>
   <string name="upgrading_database">Sto aggiornando il database. Attendi...</string>
@@ -737,10 +740,19 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="label_red">Rosso</string>
   <string name="label_green">Verde</string>
   <string name="label_blue">Blu</string>
+  <string name="label_salvation">Salvezza</string>
   <string name="label_underline">Sottolinea</string>
   <string name="import_menu">Importa &amp; Esporta</string>
   <string name="export_fileformat">Esporta come %s</string>
   <string name="import_items">Importa %s</string>
   <string name="import_from_db">Importazione del database da file</string>
   <string name="import_error">L\'importazione del database dell\'app non è riuscita. Il file di database potrebbe essere in un formato sbagliato o creato da una versione troppo vecchia di %s.</string>
+  <string name="chooser_range">Intervallo</string>
+  <string name="chooser_jump">Salta</string>
+  <string name="chooser_OT_abbrev">AT</string>
+  <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_grid">Griglia</string>
+  <string name="chooser_style_lists">Elenchi</string>
+  <string name="chooser_select">Seleziona %s</string>
+  <string name="chooser_pref_reset">Non reimpostare il capitolo/verso a 1 quando un libro o capitolo viene selezionato</string>
 </resources>

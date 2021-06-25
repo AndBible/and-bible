@@ -20,7 +20,6 @@
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Hilfe &amp; Tipps</string>
   <string name="administration">Verwaltung</string>
-  <string name="rate_application">Bewerten &amp; Beschreiben in Google Play</string>
   <string name="chooce_document">Dokument auswählen</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Buchauswahl</string>
@@ -59,6 +58,7 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel- &amp; Versnummern</string>
   <string name="prefs_show_verseno_summary">Zeige Kapitel- &amp; Versnummern</string>
+  <string name="prefs_show_verseno_title1">Versnummer</string>
   <string name="prefs_verse_per_line_summary">Jeden Vers in einer neuen Zeile anzeigen</string>
   <string name="prefs_show_bookmarks_summary">Anklicken um alle Lesezeichen zu verbergen</string>
   <string name="prefs_show_mynotes_summary">Symbol in Versen mit eigenen Notizen anzeigen</string>
@@ -71,6 +71,8 @@
   <string name="prefs_verse_per_line_title">Zeilenumbruch nach Vers</string>
   <string name="prefs_show_bookmarks_title">Lesezeichen anzeigen</string>
   <string name="prefs_show_mynotes_title">Eigene Notizen</string>
+  <string name="prefs_show_footnotes_title">Fußnoten</string>
+  <string name="prefs_show_xrefs_title">Querverweise</string>
   <string name="prefs_show_notes_title">Fußnoten &amp; Querverweise</string>
   <string name="prefs_show_strongs_title">Strong\'s numbers</string>
   <string name="prefs_show_morphology_title">Morphologie anzeigen</string>
@@ -83,15 +85,12 @@
   <string name="prefs_toolbar_button_action_swap_menu">Antippen um das nächste Dokument zu öffnen, gedrückt halten um das Menü zu öffnen</string>
   <string name="prefs_toolbar_button_action_swap_activity">Antippen um das nächste Dokument zu öffnen, gedrückt halten um die Dokumentauswahl zu öffnen</string>
   <string name="prefs_night_mode_title">Nachtmodus an- und ausschalten</string>
-  <string name="prefs_night_mode_summary">Wie der Nachtmodus eingeschaltet werden soll: Automatisch (soweit vom Gerät unterstützt), manuell oder wie in den Systemeinstellungen (ab Android 10).</string>
   <string name="prefs_night_mode_manual">Manuell</string>
   <string name="prefs_night_mode_automatic">Automatisch</string>
   <string name="prefs_night_mode_system">System</string>
   <string name="options_menu_night_mode">Nachtmodus</string>
   <string name="prefs_navigate_to_verse_title">Versauswahl</string>
   <string name="prefs_navigate_to_verse_summary">Bis zu einem bestimmten Vers navigieren</string>
-  <string name="prefs_open_links_in_special_window_title">Verknüpfungen in eigenem Fenster öffnen</string>
-  <string name="prefs_open_links_in_special_window_summary">Für die schnellere Anzeige von Querverweisen und Lexikoneinträgen</string>
   <string name="prefs_text_size_sample_text">Beispieltext</string>
   <string name="prefs_screen_keep_on_title">Bildschirm nicht ausschalten</string>
   <string name="prefs_screen_keep_on_summary">Ruhemodus während dem Gebrauch dieser Anwendung verhindern</string>
@@ -427,6 +426,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <!--User Notes-->
   <string name="mynotes">Eigene Notizen</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Sicherung &amp; Wiederherstellung</string>
   <string name="backup_modules">Teilen oder Sichern von Dokumenten nach...</string>
   <string name="backup_app_database">Teilen oder Sichern der App-Datenbank nach...</string>
   <string name="backup_app">Teilen oder Sichern der App-Datei (.apk) nach...</string>
@@ -630,6 +630,7 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="tell_friend_message3">Installiere vom Play Store: %s</string>
   <string name="tell_friend_message4">Weitere Info &amp; Installationsoptionen: %s</string>
   <string name="share_verse_ok">Teilen/Kopieren</string>
+  <string name="verse_action_copy">Kopieren</string>
   <string name="share_verse_menu_title">Teilen/Kopieren...</string>
   <string name="show_versenumbers">Zeige Versnummern</string>
   <string name="show_full_verses">Zeige die ganzen Verse</string>
@@ -683,4 +684,5 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="bookmark_underline_style_whole_verse">Unterstreichungsstil für Lesezeichen für ganze Verse</string>
   <string name="recent_labels">Kürzliche Kategorien</string>
   <string name="other_labels">Andere Kategorien</string>
+  <string name="system_items1">Mehr</string>
 </resources>

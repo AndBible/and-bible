@@ -20,7 +20,7 @@
   <string name="contact">Ota yhteyttä</string>
   <string name="help_and_tips">Ohjeita &amp; vinkkejä</string>
   <string name="administration">Ylläpito</string>
-  <string name="rate_application">Arvioi &amp; arvostele Google Playssa</string>
+  <string name="rate_application">Arvioi &amp; arvostele</string>
   <string name="chooce_document">Valitse teos</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Valitse kirja</string>
@@ -59,6 +59,11 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Luku- ja jaenumerot</string>
   <string name="prefs_show_verseno_summary">Näytä luku- ja jaenumerot</string>
+  <string name="prefs_e_ink_mode_title">Mustavalkoinen tila</string>
+  <string name="prefs_eink_mode_summary">Käytä sovellusta kaksivärisessä tilassa, joka soveltuu paremmin E-ink-näytöllä varustettuihin laitteisiin.</string>
+  <string name="prefs_show_verseno_title1">Jaenumerot</string>
+  <string name="prefs_show_chapter_no_title">Luvun numerot</string>
+  <string name="prefs_show_chapter_no_summary">Näytä luvun numerot</string>
   <string name="prefs_verse_per_line_summary">Näytä kukin jae omalla rivillään</string>
   <string name="prefs_show_bookmarks_summary">Kytke pois piilottaaksesi kirjanmerkit</string>
   <string name="prefs_show_mynotes_summary">Näytä kuvake jakeissa joissa on muistiinpanoja</string>
@@ -71,6 +76,10 @@
   <string name="prefs_verse_per_line_title">Jokainen jae omalla rivillään</string>
   <string name="prefs_show_bookmarks_title">Näytä kirjanmerkit</string>
   <string name="prefs_show_mynotes_title">Näytä oman kommentin kuvake</string>
+  <string name="prefs_show_footnotes_title">Alaviitteet</string>
+  <string name="prefs_show_xrefs_title">Ristiviitteet</string>
+  <string name="prefs_show_footnotes_summary">Näytä alaviitteet, jos ne ovat tarjolla käytetyssä dokumentissa</string>
+  <string name="prefs_show_xrefs_summary">Näytä ristiviitteet, jos ne on tarjolla käytetyssä dokumentissa</string>
   <string name="prefs_show_notes_title">Ala- ja rinnakkaisviitteet</string>
   <string name="prefs_show_strongs_title">Strongin numerointi</string>
   <string name="prefs_show_morphology_title">Morfologiset koodit</string>
@@ -83,15 +92,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Painalluksella seuraavaan dokumenttiin, pitkä painallus avaa valikon</string>
   <string name="prefs_toolbar_button_action_swap_activity">Painalluksella seuraavaan dokumenttiin, pitkällä painalluksella dokumentit -näkymään</string>
   <string name="prefs_night_mode_title">Yötilaan vaihtaminen</string>
-  <string name="prefs_night_mode_summary">Vaihdetaanko yötilaan automaattisesti (jos laite tukee), käsin, vai järjestelmän asetuksen kautta (Android 10+).</string>
+  <string name="prefs_night_mode_summary">Vaihdetaanko yötilaan automaattisesti (jos laite tukee), käsin, vai järjestelmän asetuksen kautta (Android 10+). Käsin vaihtaminen tapahtuu 3 pisteen valikosta päänäkymässä.</string>
   <string name="prefs_night_mode_manual">Käsin</string>
   <string name="prefs_night_mode_automatic">Automaattinen</string>
   <string name="prefs_night_mode_system">Järjestelmä</string>
   <string name="options_menu_night_mode">Yötila</string>
   <string name="prefs_navigate_to_verse_title">Navigoi jakeeseen</string>
   <string name="prefs_navigate_to_verse_summary">Valitse jae (ja luku) kohtaa valitsessa</string>
-  <string name="prefs_open_links_in_special_window_title">Avaa linkit erikoisikkunaan</string>
-  <string name="prefs_open_links_in_special_window_summary">Rinnakkaispaikkojen ja Strongin numeroinnin nopeammaksi näyttämiseksi</string>
+  <string name="prefs_open_links_in_special_window_title">Linkki-ikkuna</string>
+  <string name="prefs_open_links_in_special_window_summary">Avaa linkit erityisessä linkki-ikkunassa. Tämä nopeuttaa rinnakkaispaikkojen ja Strongin sanakirjan tarkastelua.</string>
   <string name="prefs_text_size_sample_text">Esimerkkiteksti</string>
   <string name="prefs_screen_keep_on_title">Pidä näyttö päällä</string>
   <string name="prefs_screen_keep_on_summary">Estä näyttöä menemästä pois päällä ohjelmaa käytettäessä</string>
@@ -644,6 +653,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="advertise_app">Mainosta sovellusta</string>
   <string name="verse_share_advertise">Jaettu käyttäen sovellusta %s.</string>
   <string name="abbreviate_reference">Lyhennä viittaukset</string>
+  <string name="version_name">Käännöksen nimi</string>
   <string name="backup_button">Varmuuskopioi</string>
   <string name="back_button">Takaisin</string>
   <string name="upgrading_database">Päivitetään tietokantaa. Odota hetki…</string>
@@ -698,4 +708,22 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="toggle_fullscreen">Kokoruututila</string>
   <string name="exit_fullscreen">Tupla-napauta ruutua sulkeaksesi kokoruututilan</string>
   <string name="reset_app_prefs">Haluatko alustaa kaikki tässä ruudussa näkyvät sovelluksen yleiset asetukset oletusarvoihin?</string>
+  <string name="label_red">Punainen</string>
+  <string name="label_green">Vihreä</string>
+  <string name="label_blue">Sininen</string>
+  <string name="label_salvation">Pelastus</string>
+  <string name="label_underline">Alleviivaus</string>
+  <string name="import_menu">Tuo &amp; vie</string>
+  <string name="export_fileformat">Vie muodossa %s</string>
+  <string name="import_items">Tuo muodossa %s</string>
+  <string name="import_from_db">Tuo sovelluksen tietokannasta</string>
+  <string name="import_error">Tuonti sovelluksen tietokannasta epäonnistui. Tietokanta saattaa olla väärässä muodossa tai se on tehty liian vanhalla %s:n versiolla.</string>
+  <string name="chooser_range">Alue</string>
+  <string name="chooser_jump">Hyppää</string>
+  <string name="chooser_OT_abbrev">OT</string>
+  <string name="chooser_NT_abbrev">UT</string>
+  <string name="chooser_style_grid">Ruudukko</string>
+  <string name="chooser_style_lists">Lista</string>
+  <string name="chooser_select">Valitse %s</string>
+  <string name="chooser_pref_reset">Älä tyhjennä luvun/jakeen valitsinta 1:n kirjaa/lukua valittaessa</string>
 </resources>

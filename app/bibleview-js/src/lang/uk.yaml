@@ -1,7 +1,7 @@
 openMyNotes: Відкрити в Мої Примітки
 openStudyPad: Відкрити в Блокноті (%s)
 noteText: Виноски (%s)
-noteTextWithoutType: ""
+noteTextWithoutType: Виноски
 crossReferenceText: Перехресні посилання
 findAllOccurrences: Знайти всі випадки
 reportError: Повідомити про помилку
@@ -25,7 +25,7 @@ bookmarkAccurate: Закладка була створена в %s
 bookmarkInaccurate: "Закладка інформації про книгу не збереглась, вміст відображається в %s."
 defaultBook: Біблійний ресурс за замовчуванням
 ok: OK
-yes: Yes
+yes: "Так"
 ambiguousSelection: "Яку дію ви хочете зробити?"
 cancel: Скасувати
 removeBookmarkConfirmationTitle: "Видалити закладку?"

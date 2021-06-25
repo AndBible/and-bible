@@ -25,15 +25,17 @@ bookmarkAccurate: Bookmark was created in %s
 bookmarkInaccurate: Bookmark book information not stored, content is displayed in %s.
 defaultBook: default Bible document
 ok: OK
-yes: Yes
+yes: "Yes"
 ambiguousSelection: Which action do you wish to take?
 cancel: Cancel
 removeBookmarkConfirmationTitle: Remove bookmark?
 removeBookmarkConfirmation: Are you sure you want to remove this bookmark?
 closeModal: Close
-createdAt: "Created on: %s"
-lastUpdatedOn: "Updated on: %s"
-strongsLink: Open Strongs (%s)
+createdAt: "Created: %s"
+lastUpdatedOn: "Last updated: %s"
+strongsLink: Strongs definition (%s)
+morphLink: Morphological code (%s)
+strongsAndMorph: Definition & Morphology
 studyPadLink: Open study pad
 externalLink: Open external link
 referenceLink: Open reference link
@@ -66,5 +68,15 @@ favouriteLabels: Favourite Labels
 recentLabels: Recent Labels
 frequentlyUsedLabels: Frequently Used Labels
 bookmarkLabels: Bookmark labels
-refParserHelp: Please install RefParser module to use references in languages other than English.
-openDownloads: Go to Downloads
+refParserHelp: Please install %s module to use references in languages other than English.
+openDownloads: Go to Add-on downloads
+verseShare: Share
+verseCompare: Compare
+verseNote: Note
+verseMyNotes: My Notes
+verseSpeak: Speak
+verseShareLong: Share this verse
+verseCompareLong: Compare verse
+verseNoteLong: Write a note
+verseSpeakLong: Start listening from this verse
+verseTip: To select partial or many verses, you can long-press Bible text

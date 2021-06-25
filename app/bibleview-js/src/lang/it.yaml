@@ -25,7 +25,7 @@ bookmarkAccurate: Segnalibro creato in %s
 bookmarkInaccurate: "Informazioni del segnalibro non salvate, il contenuto è mostrato in %s."
 defaultBook: documento Bibbia di default
 ok: OK
-yes: Yes
+yes: "Si"
 ambiguousSelection: "Quale azione vuoi eseguire?"
 cancel: Annulla
 removeBookmarkConfirmationTitle: "Cancellare il segnalibro?"
@@ -64,5 +64,5 @@ favouriteLabels: Etichette preferite
 recentLabels: Etichette recenti
 frequentlyUsedLabels: Etichette usate più spesso
 bookmarkLabels: Etichette dei segnalibri
-refParserHelp: Per favore installa il modulo RefParser per usare i riferimenti in lingue diverse dall'inglese.
-openDownloads: Vai ai Download
+refParserHelp: Per favore installa il modulo %s per usare riferimenti in lingue diverse dall'inglese.
+openDownloads: Scarica estensioni

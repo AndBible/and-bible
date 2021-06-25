@@ -20,7 +20,7 @@
   <string name="contact">Stik</string>
   <string name="help_and_tips">Pomoč in namigi</string>
   <string name="administration">Upravljanje</string>
-  <string name="rate_application">Ocena na Google Play</string>
+  <string name="rate_application">Ocena in pregled</string>
   <string name="chooce_document">Zapri dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Izberi knjigo</string>
@@ -59,6 +59,11 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Poglavje in številke vrstic</string>
   <string name="prefs_show_verseno_summary">Pokaži poglavje in številke vrstic</string>
+  <string name="prefs_e_ink_mode_title">Črno-bel način</string>
+  <string name="prefs_eink_mode_summary">Aplikacijo uporabljate v enobarvnem načinu (brez barv), zato je primernejša za naprave z e-črnilom.</string>
+  <string name="prefs_show_verseno_title1">Številke vrstic</string>
+  <string name="prefs_show_chapter_no_title">Številke poglavij</string>
+  <string name="prefs_show_chapter_no_summary">Pokaži številke poglavij</string>
   <string name="prefs_verse_per_line_summary">Vsako vrstico prikaži v svoji vrsti.</string>
   <string name="prefs_show_bookmarks_summary">Odznači, da se skrijejo vsi zaznamki.</string>
   <string name="prefs_show_mynotes_summary">V vrsticah prikaži ikono z mojimi opombami.</string>
@@ -71,6 +76,10 @@
   <string name="prefs_verse_per_line_title">Vsaka vrstica v svojo vrsto</string>
   <string name="prefs_show_bookmarks_title">Prikaži zaznamke</string>
   <string name="prefs_show_mynotes_title">Prikaži ikone mojih opomb</string>
+  <string name="prefs_show_footnotes_title">Opombe</string>
+  <string name="prefs_show_xrefs_title">Sklici</string>
+  <string name="prefs_show_footnotes_summary">Pokaži opombe, če so v dokumentu</string>
+  <string name="prefs_show_xrefs_summary">Pokaži navzkrižne reference, če so  v dokumentu</string>
   <string name="prefs_show_notes_title">Zaznamki in sklici</string>
   <string name="prefs_show_strongs_title">Strong-ova števila</string>
   <string name="prefs_show_morphology_title">Oblikoslovne kode</string>
@@ -83,15 +92,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Pritisnite, da odprete naslednji dokument, dolgo pritisnite, da odprete meni</string>
   <string name="prefs_toolbar_button_action_swap_activity">Pritisnite, da odprete naslednji dokument, dolgo pritisnite za zaslon dokumentov</string>
   <string name="prefs_night_mode_title">Preklop na nočni način...</string>
-  <string name="prefs_night_mode_summary">Ali naj se samodejno preklopi na nočni način (če naprava podpira), ročno ali prek sistemskih nastavitev (Android 10+).</string>
+  <string name="prefs_night_mode_summary">Ali naj samodejno preklopi v nočni način (če naprava podpira), ročno ali prek sistemskih nastavitev (Android 10+). Ročno preklapljanje lahko izvedete v meniju s tremi pikami na glavnem zaslonu.</string>
   <string name="prefs_night_mode_manual">Ročno</string>
   <string name="prefs_night_mode_automatic">Avtomatsko</string>
   <string name="prefs_night_mode_system">Sistemsko</string>
   <string name="options_menu_night_mode">Nočni način</string>
   <string name="prefs_navigate_to_verse_title">Usmeri do vrstice</string>
   <string name="prefs_navigate_to_verse_summary">Za izbiro odlomka izberi vrstico in poglavje.</string>
-  <string name="prefs_open_links_in_special_window_title">Povezave v posebnem oknu</string>
-  <string name="prefs_open_links_in_special_window_summary">Za hitrejši prikaz sklicev in Strong-ovih števil.</string>
+  <string name="prefs_open_links_in_special_window_title">Okno povezav</string>
+  <string name="prefs_open_links_in_special_window_summary">Povezave odprite v posebnem oknu za hitrejši prikaz navzkrižnih referenc in Strongovih števil</string>
   <string name="prefs_text_size_sample_text">Primer besedila</string>
   <string name="prefs_screen_keep_on_title">Ohrani prižgan zaslon</string>
   <string name="prefs_screen_keep_on_summary">Prepreči ugašanje zaslona med uporabo te aplikacije.</string>
@@ -325,11 +334,17 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="label_name_prompt">Poimenuj</string>
   <string name="label_unlabelled">Neoznačeni</string>
   <string name="add_bookmark1">Zaznamek</string>
+  <string name="add_bookmark2">Izbira zaznamka</string>
+  <string name="add_bookmark3">Izbira</string>
   <string name="add_bookmark_whole_verse">Vrstica zaznamka</string>
+  <string name="add_bookmark_whole_verse1">Vrstice</string>
+  <string name="add_bookmark_whole_verse2">Celotne vrstice</string>
   <string name="remove_bookmark">Odstrani</string>
   <string name="bookmark_settings_hide_labels_title">Skrij nekatere oznake</string>
   <string name="bookmark_settings_hide_labels_summary">Skrij zaznamke, ki so označeni z navedenimi oznakami</string>
+  <string name="auto_assign_labels_title">Nastavitve oznak</string>
   <string name="auto_assign_labels">Določene in priljubljene oznake</string>
+  <string name="auto_assign_labels1">K novim zaznamkom samodejno dodaj oznako</string>
   <string name="auto_assign_labels_primary">Določi kot osnovnega</string>
   <string name="label_color">Barva oznake</string>
   <!--can be removed-->
@@ -457,6 +472,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <!--User Notes-->
   <string name="mynotes">Moje opombe</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Varnostna kopija &amp; Obnova</string>
   <string name="backup_modules">Deli ali Arhiviraj dokumente v...</string>
   <string name="backup_app_database">Deli ali Arhiviraj bazo aplikacije v...</string>
   <string name="backup_app">Deli ali Arhiviraj aplikacijo (.apk datoteko) v...</string>
@@ -602,6 +618,10 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
         poudarjeno besedilo v pogledu Biblij. V komentarjih je tudi poseben dokument \"Moji zapiski,\" ki vam omogoča,
         da si svoje zapiske ogledate v ločenem oknu.</string>
   <string name="help_studypads_title">Beležke</string>
+  <string name="help_studypads_text">        Študijske beležke so zasnovane tako, da olajšajo pisanje opomb, pripravo pridig ali samo
+        zapis osebnih zapisov preučevanja Biblije, ki vsebujejo več biblijskih referenc. Vsaka študijska beležka je povezana z eno oznako zaznamka.
+        Vsi zaznamki, ki so bili ustvarjeni s to oznako, se samodejno prikažejo v dokumentu študijske beležke.
+        Poleg zaznamkov so beležke primerne tudi za vnose besedila po meri.</string>
   <string name="help_search_title">Iskanje</string>
   <string name="help_search_text">
 Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
@@ -675,12 +695,14 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="tell_friend_message3">Namestite jo iz Trgovine Play: %s</string>
   <string name="tell_friend_message4">Preberite več in več možnosti namestitve: %s</string>
   <string name="share_verse_ok">Skupna raba / kopiranje</string>
+  <string name="verse_action_copy">Kopiraj</string>
   <string name="share_verse_menu_title">Skupna raba / kopiranje…</string>
   <string name="show_versenumbers">Pokaži številke verzov</string>
   <string name="show_full_verses">Pokaži celotne vrstice</string>
   <string name="advertise_app">Oglašujte aplikacijo</string>
   <string name="verse_share_advertise">V skupni rabi z %s.</string>
   <string name="abbreviate_reference">Skrajšana referenca</string>
+  <string name="version_name">Ime verzije</string>
   <string name="backup_button">Arhiv</string>
   <string name="back_button">Nazaj</string>
   <string name="upgrading_database">Nadgradnja baze podatkov. Prosim počakajte…</string>
@@ -734,7 +756,44 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="primary_label">Osnovna oznaka</string>
   <string name="highlight_entire_verse">Označi celotno vrstico</string>
   <string name="favourite_label">Priljubljena oznaka</string>
+  <string name="edit_label">Uredi oznako</string>
+  <string name="delete_label_confirmation">Ali želite odstraniti oznako zaznamka \"%s\"? Odstranjene bodo tudi vse povezane opombe!</string>
+  <string name="bookmark_underline_style_arbitrary">Podčrtan stil za izbrane zaznamke</string>
   <string name="bookmark_underline_style_whole_verse">Podčrtan stil za celotno vrstico zaznamkov</string>
+  <string name="active_labels">Izbrane oznake</string>
   <string name="recent_labels">Prejšnje oznake</string>
   <string name="other_labels">Ostale oznake</string>
+  <string name="book_menu_sort_row_opt">Knjige postavi vodoravno</string>
+  <string name="reset_workspace_labels">Ali želite ponastaviti nastavitve za ta delovni prostor?</string>
+  <string name="reset_hide_labels">Ali želite ponastaviti nastavitve za skrivanje določenih nastavitev oznak?</string>
+  <string name="reorder">Prerazporeditev</string>
+  <string name="system_items">Sistemska opravila</string>
+  <string name="system_items1">Več</string>
+  <string name="system_action2">Androidna opravila</string>
+  <string name="text_copied_to_clicpboard">Besedilo je kopirano v odložišče</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Zaznamek v enem koraku</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">\"Izbor\" in \"Vrstice\" prikaži neposredno v meniju za izbiro Biblije</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Dvakrat tapnite za celozaslonski način</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Za celozaslonski način dvakrat tapnite v oknu</string>
+  <string name="toggle_fullscreen">Celozaslonski način</string>
+  <string name="exit_fullscreen">Dvakrat tapnite za izhod iz celozaslonskega načina</string>
+  <string name="reset_app_prefs">Ali želite ponastaviti vse globalne nastavitve aplikacije, ki so prikazane na tem zaslonu, na privzete vrednosti?</string>
+  <string name="label_red">Rdeča</string>
+  <string name="label_green">Zelena</string>
+  <string name="label_blue">Modra</string>
+  <string name="label_salvation">Rešitev duše</string>
+  <string name="label_underline">Podčrtaj</string>
+  <string name="import_menu">Uvoz in izvoz</string>
+  <string name="export_fileformat">Izvozi kot %s</string>
+  <string name="import_items">Uvozi %s</string>
+  <string name="import_from_db">Uvoz iz podatkovne datoteke</string>
+  <string name="import_error">Uvoz iz podatkovne datoteke ni uspel. Datoteka je lahko napačne oblike ali pa je narejena s prestaro različico%s.</string>
+  <string name="chooser_range">Razpon</string>
+  <string name="chooser_jump">Skok</string>
+  <string name="chooser_OT_abbrev">SZ</string>
+  <string name="chooser_NT_abbrev">NZ</string>
+  <string name="chooser_style_grid">Mreža</string>
+  <string name="chooser_style_lists">Seznami</string>
+  <string name="chooser_select">Izberi %s</string>
+  <string name="chooser_pref_reset">Poglavja ali vrstice ne ponastavite na 1, medtem ko je izbrana knjiga ali poglavje</string>
 </resources>

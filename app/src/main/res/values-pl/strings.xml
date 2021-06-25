@@ -20,7 +20,6 @@
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Pomoc i wskazówki</string>
   <string name="administration">Zarządzanie</string>
-  <string name="rate_application">Oceń w sklepie Google Play</string>
   <string name="chooce_document">Wybór dokumentu</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Wybierz księgę</string>
@@ -82,7 +81,7 @@
   <string name="prefs_show_strongs_title">Numeracja Stronga</string>
   <string name="prefs_show_morphology_title">Kody morfologiczne</string>
   <string name="prefs_section_title_title">Tytuły sekcji</string>
-  <string name="prefs_red_letter_title">Słowa Chrystusa</string>
+  <string name="prefs_red_letter_title">Słowa Chrystusa na czerwono</string>
   <string name="prefs_tilt_to_scroll_title">Przechyl urządzenie aby przesunąć</string>
   <string name="prefs_toolbar_button_action_title">Akcje przycisku paska narzędzi</string>
   <string name="prefs_toolbar_button_action_summary">Akcje wywoływane po naciśnięciu/przytrzymaniu przycisku wyświetlającego tytuł księgi na pasku narzędzi</string>
@@ -90,15 +89,12 @@
   <string name="prefs_toolbar_button_action_swap_menu">Naciśnij, aby otworzyć następny dokument; przytrzymaj, aby otworzyć menu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Naciśnij, aby otworzyć następny dokument; przytrzymaj, aby otworzyć wybór dokumentu</string>
   <string name="prefs_night_mode_title">Włącz tryb nocny</string>
-  <string name="prefs_night_mode_summary">Ustaw, czy włączać tryb nocny automatycznie (jeżeli wspierane przez urządzenie), ręcznie, czy korzystając z ustawień systemu (Android 10+).</string>
   <string name="prefs_night_mode_manual">Ręcznie</string>
   <string name="prefs_night_mode_automatic">Automatycznie</string>
   <string name="prefs_night_mode_system">Systemowy</string>
   <string name="options_menu_night_mode">Tryb nocny</string>
   <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
   <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
-  <string name="prefs_open_links_in_special_window_title">Otwórz link w specjalnym oknie</string>
-  <string name="prefs_open_links_in_special_window_summary">Szybsze wyświetlanie odnośników</string>
   <string name="prefs_text_size_sample_text">Zwykły tekst</string>
   <string name="prefs_screen_keep_on_title">Trzymaj ekran włączony</string>
   <string name="prefs_screen_keep_on_summary">Nie wyłączaj ekranu podczas korzystania z aplikacji</string>
@@ -614,8 +610,25 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="http_not_found">nie znaleziono</string>
   <string name="http_unknown">inny błąd</string>
   <string name="give_passphrase_for_module">Dokument %s jest zaszyfrowany i wymaga hasła do otwarcia</string>
+  <string name="unlocking_failed">Nie udało się odblokować: błędne hasło</string>
+  <string name="unlock_module">Ustaw hasło modułu</string>
+  <string name="unlock_info">Informacja o szyfrowanych modułach</string>
+  <string name="try_again_passphrase">Błędne hasło, czy spróbować ponownie?</string>
+  <string name="cant_delete_last_bible">Nie można usunąć ostatniego dokumentu Biblii</string>
+  <string name="show_unlock_info">O szyfrowanym module</string>
+  <string name="prefs_show_error_box_title">Wyświetl konsolę błędów JavaScript</string>
+  <string name="prefs_show_error_box_summary">Przydatne dla programistów do naprawy błędów JavaScript komponentu BibleView. Spowoduje spowolnienie aplikacji.</string>
+  <string name="active_window_indicator_title">Wyświetl znacznik aktywnego okna</string>
+  <string name="active_window_indicator_summary">Podświetl narożniki aktywnego okna</string>
+  <string name="app_licence_title">Licencja</string>
+  <string name="how_to_contribute">Jak pomóc?</string>
+  <string name="confirm_delete_bookmarks">Czy na pewno chcesz usunąć %d zakładek i powiązanych notatek?</string>
+  <string name="verse_action_copy">Kopiuj</string>
+  <string name="show_versenumbers">Wyświetl numery wersetów</string>
+  <string name="backup_button">Backup</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">Więcej</string>
 </resources>

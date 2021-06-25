@@ -20,7 +20,6 @@
   <string name="contact">Контакт</string>
   <string name="help_and_tips">Помощь и советы</string>
   <string name="administration">Управление</string>
-  <string name="rate_application">Оценить и Просмотреть в Google Play</string>
   <string name="chooce_document">Выбрать модуль</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Выбрать книгу</string>
@@ -59,6 +58,7 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номера глав и стихов</string>
   <string name="prefs_show_verseno_summary">Показать номера глав и стихов</string>
+  <string name="prefs_show_verseno_title1">Нумерация стихов</string>
   <string name="prefs_verse_per_line_summary">Показать каждый стих на отдельной строке</string>
   <string name="prefs_show_bookmarks_summary">Снять галочку, чтобы скрыть все закладки</string>
   <string name="prefs_show_mynotes_summary">Показать значок в стихах с Моей Заметкой</string>
@@ -71,6 +71,8 @@
   <string name="prefs_verse_per_line_title">Стих с новой строки</string>
   <string name="prefs_show_bookmarks_title">Показать закладки</string>
   <string name="prefs_show_mynotes_title">Показать ярлык с моей заметкой в стихе</string>
+  <string name="prefs_show_footnotes_title">Примечаний</string>
+  <string name="prefs_show_xrefs_title">Перекрестные ссылки</string>
   <string name="prefs_show_notes_title">Заметки</string>
   <string name="prefs_show_strongs_title">Номера Стронга</string>
   <string name="prefs_show_morphology_title">Морфологические коды</string>
@@ -83,15 +85,12 @@
   <string name="prefs_toolbar_button_action_swap_menu">Нажмите, чтобы открыть следующий ресурс, нажмите и удерживайте, чтобы открыть меню</string>
   <string name="prefs_toolbar_button_action_swap_activity">Нажмите, чтобы открыть следующий ресурс, нажмите и удерживайте, чтобы открыть экран ресурсов</string>
   <string name="prefs_night_mode_title">Переключение ночного режима</string>
-  <string name="prefs_night_mode_summary">Переключаться ли в ночной режим автоматически (если устройство поддерживает), вручную или с помощью системных настроек (Android 10+).</string>
   <string name="prefs_night_mode_manual">Вручную</string>
   <string name="prefs_night_mode_automatic">Автоматически</string>
   <string name="prefs_night_mode_system">Система</string>
   <string name="options_menu_night_mode">Ночной режим</string>
   <string name="prefs_navigate_to_verse_title">Перейти к стиху</string>
   <string name="prefs_navigate_to_verse_summary">Перейти на уровень стиха при выборе отрывка</string>
-  <string name="prefs_open_links_in_special_window_title">Открывать ссылки в отдельном окне</string>
-  <string name="prefs_open_links_in_special_window_summary">Для быстрого отображения перекрестных ссылок и номеров Стронга</string>
   <string name="prefs_text_size_sample_text">Образец текста</string>
   <string name="prefs_screen_keep_on_title">Не выключать экран</string>
   <string name="prefs_screen_keep_on_summary">Предотвращение засыпания экрана при использовании этого приложения</string>
@@ -456,6 +455,7 @@ http://www.heartlight.org, разрешение предоставлено
   <!--User Notes-->
   <string name="mynotes">Мои заметки</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Бэкап &amp; Восстановление</string>
   <string name="backup_modules">Отправка или резервное копирование документов в…</string>
   <string name="backup_app_database">Отправить или создать резервную копию базы данных приложения в…</string>
   <string name="backup_app">Отправить или создать резервную копию приложения (файл .apk) в…</string>
@@ -674,6 +674,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="tell_friend_message3">Установить из Play Store: %s</string>
   <string name="tell_friend_message4">Подробнее и дополнительные варианты установки: %s</string>
   <string name="share_verse_ok">Поделиться / Копировать</string>
+  <string name="verse_action_copy">Копировать</string>
   <string name="share_verse_menu_title">Поделиться / копировать…</string>
   <string name="show_versenumbers">Показать номера стихов</string>
   <string name="show_full_verses">Показать полные стихи</string>
@@ -729,4 +730,5 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="does_not_exist_abbreviation">Нету</string>
   <string name="cant_change_wholeverse">Невозможно отключить выделение всего стиха для этой закладки</string>
   <string name="whole_verse_turned_on">Закладка теперь выделена для всего стиха</string>
+  <string name="system_items1">Еще</string>
 </resources>

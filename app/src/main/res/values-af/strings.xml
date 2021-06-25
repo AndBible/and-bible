@@ -20,7 +20,6 @@
   <string name="contact">Kontak</string>
   <string name="help_and_tips">Hulp &amp; wenke</string>
   <string name="administration">Administrasie</string>
-  <string name="rate_application">Be-oordeel &amp; hersien in Google Play</string>
   <string name="chooce_document">Kies Dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kies \'n Boek</string>
@@ -59,6 +58,7 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Hoofstuk &amp; vers nommers</string>
   <string name="prefs_show_verseno_summary">Wys hoofstuk &amp; vers nommers</string>
+  <string name="prefs_show_verseno_title1">Vers nommers</string>
   <string name="prefs_verse_per_line_summary">Wys elke vers op \'n ander lyn</string>
   <string name="prefs_show_bookmarks_summary">Onmerk om alle boekmerke te verberg</string>
   <string name="prefs_show_mynotes_summary">Wys ikoon in verse met My nota</string>
@@ -71,6 +71,8 @@
   <string name="prefs_verse_per_line_title">Een vers per lyn</string>
   <string name="prefs_show_bookmarks_title">Wys Boekmerke</string>
   <string name="prefs_show_mynotes_title">Wys My Nota ikone</string>
+  <string name="prefs_show_footnotes_title">Voet Notas</string>
+  <string name="prefs_show_xrefs_title">Kruis verwysings</string>
   <string name="prefs_show_notes_title">Voetnotas en kruis-verwysings</string>
   <string name="prefs_show_strongs_title">Strong\'s getalle</string>
   <string name="prefs_show_morphology_title">Morfologiese kodes</string>
@@ -83,15 +85,12 @@
   <string name="prefs_toolbar_button_action_swap_menu">Druk om volgende dokument oop te maak, lang druk om kieslys oop te maak</string>
   <string name="prefs_toolbar_button_action_swap_activity">Druk om volgende dokument oop te maak, lang druk vir dokumente skerm</string>
   <string name="prefs_night_mode_title">Nag mode skakel</string>
-  <string name="prefs_night_mode_summary">Of u outomaties oorskakel na die nag mode (as die toestel ondersteun word), met die hand of via die stelselinstelling (Android 10+).</string>
   <string name="prefs_night_mode_manual">handleiding</string>
   <string name="prefs_night_mode_automatic">Outomaties</string>
   <string name="prefs_night_mode_system">Stelsel</string>
   <string name="options_menu_night_mode">Nag mode</string>
   <string name="prefs_navigate_to_verse_title">Gaan na vers</string>
   <string name="prefs_navigate_to_verse_summary">Kies vers (en hoofstuk) wanneer \'n teks gekies word</string>
-  <string name="prefs_open_links_in_special_window_title">Maak skakels in \'n spesiale venster</string>
-  <string name="prefs_open_links_in_special_window_summary">Vir vinniger vertoon van die kruis-verwysings en Strongs</string>
   <string name="prefs_text_size_sample_text">Teks voorbeeld</string>
   <string name="prefs_screen_keep_on_title">Hou skerm aan</string>
   <string name="prefs_screen_keep_on_summary">Voorkom dat skerm gaan slaap tydens die gebruik van hierdie program</string>
@@ -443,6 +442,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <!--User Notes-->
   <string name="mynotes">My Notas</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Rugsteun &amp; herstel</string>
   <string name="backup_modules">Deel of rugsteun dokumente na ...</string>
   <string name="backup_app_database">Deel of rugsteun toep databasis na ...</string>
   <string name="backup_app">Deel of rugsteun toep (.apk-lêer) na ...</string>
@@ -666,6 +666,7 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="tell_friend_message3">Installeer dit by Google Play Winkel: %s</string>
   <string name="tell_friend_message4">Lees meer &amp; meer installeer opsies: %s</string>
   <string name="share_verse_ok">Deel / Kopieer</string>
+  <string name="verse_action_copy">Kopieër</string>
   <string name="share_verse_menu_title">Deel / Kopieer...</string>
   <string name="show_versenumbers">Wys vers nommers</string>
   <string name="show_full_verses">Wys volledige verse</string>
@@ -709,4 +710,5 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="does_not_exist_abbreviation">Bestaan ​​nie</string>
   <string name="cant_change_wholeverse">Kan nie hele vers merking vir hierdie boekmerk afskakel nie</string>
   <string name="whole_verse_turned_on">Boekmerk is nou gemerk vir hele vers</string>
+  <string name="system_items1">Meer</string>
 </resources>

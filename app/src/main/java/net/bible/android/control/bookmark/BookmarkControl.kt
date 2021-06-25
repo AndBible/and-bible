@@ -121,7 +121,7 @@ open class BookmarkControl @Inject constructor(
                 bookmark.primaryLabelId = addBookmarkToLabels.firstOrNull()?.labelId
                 dao.update(bookmark)
             }
-            windowControl.windowRepository?.updateRecentLabels(toBeAdded.toList()) // for tests ?.
+            windowControl.windowRepository?.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests ?.
         }
 
         addText(bookmark)
@@ -428,10 +428,6 @@ open class BookmarkControl @Inject constructor(
     }
 
     companion object {
-        const val LABEL_IDS_EXTRA = "bookmarkLabelIds"
-        const val FAVOURITE_LABEL_IDS = "favouriteLabelIds"
-        const val PRIMARY_LABEL_EXTRA = "primaryLabelExtra"
-
         const val LABEL_NO_EXTRA = "labelNo"
         private const val TAG = "BookmarkControl"
     }
