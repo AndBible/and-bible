@@ -67,6 +67,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.clear()
         menuInflater.inflate(R.menu.edit_label_options_menu, menu)
+        if(data.label.isSpecialLabel) {
+            menu.findItem(R.id.removeLabel).isVisible = false
+        }
         return true
     }
 
@@ -137,6 +140,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         updateColor()
         if (data.label.isSpecialLabel) {
             labelName.isEnabled = false
+            favouriteLabelCheckBox.isEnabled = false
+            autoAssignCheckBox.isEnabled = false
+            primaryAutoAssignCheckBox.isEnabled = false
         }
         selectedLabelCheckBox.isChecked = data.isThisBookmarkSelected
         primaryLabelCheckBox.isEnabled = data.isThisBookmarkSelected
