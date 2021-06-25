@@ -16,3 +16,17 @@
 *.env.*
 /projectFilesBackup/
 /app/src/main/assets/web/bibleview-js/
+app/.idea/gradle.xml
+app/.idea/misc.xml
+app/settings.gradle
+app/local.properties
+app/gradlew.bat
+app/gradlew
+app/gradle/wrapper/gradle-wrapper.properties
+app/gradle/wrapper/gradle-wrapper.jar
+app/build.gradle
+app/bibleview-js/package.json
+app/bibleview-js/package-lock.json
+app/.idea/vcs.xml
+app/.idea/runConfigurations.xml
+app/.idea/modules.xml
