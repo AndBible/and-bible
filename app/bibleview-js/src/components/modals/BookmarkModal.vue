@@ -70,14 +70,17 @@
         </div>
       </div>
       <div class="info-text">
+        <hr style="border: 1px dotted gray">
         <div v-if="bookmark.bookName">
           <span v-html="sprintf(strings.bookmarkAccurate, originalBookLink)"/>
         </div>
         <div v-else>
           <span v-html="sprintf(strings.bookmarkInaccurate, originalBookLink)"/>
         </div>
+        <div v-if="formatTimestamp(bookmark.createdAt) !== formatTimestamp(bookmark.lastUpdatedOn)">
+          {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
+        </div>
         {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
-        {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
       </div>
     </div>
     <template #footer>
