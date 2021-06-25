@@ -68,3 +68,13 @@ frequentlyUsedLabels: Frequently Used Labels
 bookmarkLabels: Bookmark labels
 refParserHelp: Please install %s module to use references in languages other than English.
 openDownloads: Go to Add-on downloads
+verseShare: Share
+verseCompare: Compare
+verseNote: Note
+verseMyNotes: My Notes
+verseSpeak: Speak
+verseShareLong: Share this verse
+verseCompareLong: Compare verse
+verseNoteLong: Write a note
+verseSpeakLong: Start listening from this verse
+verseTip: To select partial or many verses, you can long-press Bible text
