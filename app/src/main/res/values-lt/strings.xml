@@ -20,6 +20,7 @@
   <string name="contact">Kontaktas</string>
   <string name="help_and_tips">Pagalba ir patarimai</string>
   <string name="administration">Valdymas</string>
+  <string name="rate_application">Įvertinti ir apžvelgti</string>
   <string name="chooce_document">Pasirinkti dokumentą</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Pasirinkite knygą</string>
@@ -58,6 +59,8 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Skyrių &amp; eilučių numeriai</string>
   <string name="prefs_show_verseno_summary">Rodyti skyrių &amp; eilučių numerius</string>
+  <string name="prefs_e_ink_mode_title">Nespalvotoji veiksena</string>
+  <string name="prefs_eink_mode_summary">Naudoti programėlę nespalvotoje veiksenoje (be spalvų), taip paverčiant ją labiau tinkamą elektroninio popieriaus įrenginiams.</string>
   <string name="prefs_show_verseno_title1">Eilučių numeriai</string>
   <string name="prefs_show_chapter_no_title">Skyrių numeriai</string>
   <string name="prefs_show_chapter_no_summary">Rodyti skyrių numerius</string>
@@ -89,12 +92,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Paspaudus atverti kitą dokumentą, paspaudus ir palaikius atverti meniu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Paspaudus atverti kitą dokumentą, paspaudus ir palaikius atverti dokumentų langą</string>
   <string name="prefs_night_mode_title">Nakties režimo perjungimas</string>
+  <string name="prefs_night_mode_summary">Perjungti į nakties režimą automatiškai (jei įrenginys palaiko), rankiniu būdu arba per sisteminius nustatymus („Android“ 10+). Rankinį perjungimą galimą atlikti pagrindiniame ekrane, 3 taškų parinkčių meniu.</string>
   <string name="prefs_night_mode_manual">Rankiniu būdu</string>
   <string name="prefs_night_mode_automatic">Automatinis</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Nakties režimas</string>
   <string name="prefs_navigate_to_verse_title">Nukreipti į eilutę</string>
   <string name="prefs_navigate_to_verse_summary">Renkantis ištrauką, pasirinkti eilutę (ir skyrių)</string>
+  <string name="prefs_open_links_in_special_window_title">Nuorodų langas</string>
+  <string name="prefs_open_links_in_special_window_summary">Atverti nuorodas specialiame lange greitesniai kryžminių nuorodų ir Strongo peržiūrai</string>
   <string name="prefs_text_size_sample_text">Pavyzdys</string>
   <string name="prefs_screen_keep_on_title">Laikyti ekraną įjungtą</string>
   <string name="prefs_screen_keep_on_summary">Neleidžia ekranui išsijungti tol, kol naudojatės šia programėle</string>
@@ -698,6 +704,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="advertise_app">Skleisti žinią apie programėlę</string>
   <string name="verse_share_advertise">Bendrinama naudojant %s.</string>
   <string name="abbreviate_reference">Sutrumpinti nuorodą</string>
+  <string name="version_name">Versijos pavadinimas</string>
   <string name="backup_button">Atsarginė kopija</string>
   <string name="back_button">Atgal</string>
   <string name="upgrading_database">Naujinama duomenų bazė. Palaukite…</string>
@@ -777,10 +784,19 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="label_red">Raudona</string>
   <string name="label_green">Žalia</string>
   <string name="label_blue">Mėlyna</string>
+  <string name="label_salvation">Išgelbėjimas</string>
   <string name="label_underline">Pabraukimas</string>
   <string name="import_menu">Importuoti ir eksportuoti</string>
   <string name="export_fileformat">Eksportuoti kaip %s</string>
   <string name="import_items">Importuoti %s</string>
   <string name="import_from_db">Importuoti iš programėlės duomenų bazės failo</string>
   <string name="import_error">Nepavyko importuoti iš programėlės duomenų bazės. Gali būti, kad duomenų bazės failas yra neteisingo formato arba sukurtas naudojant per seną %s versiją.</string>
+  <string name="chooser_range">Rėžis</string>
+  <string name="chooser_jump">Peršokti</string>
+  <string name="chooser_OT_abbrev">ST</string>
+  <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_grid">Tinklelis</string>
+  <string name="chooser_style_lists">Sąrašai</string>
+  <string name="chooser_select">Pasirinkti %s</string>
+  <string name="chooser_pref_reset">Pasirinkus knygą/skyrių, neatstatyti skyriaus/eilutės į 1</string>
 </resources>

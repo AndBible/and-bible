@@ -25,6 +25,7 @@
   <!--Verse context menu-->
   <!--Link context menu-->
   <!--Bookmarks-->
+  <string name="label_unlabelled">Unlabeled</string>
   <string name="auto_assign_labels_primary">Set as the main label</string>
   <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
