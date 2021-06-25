@@ -913,4 +913,7 @@
     <string name="chooser_style_lists">Lists</string>
     <string name="chooser_select">Select %s</string>
     <string name="chooser_pref_reset">Do not reset chapter/verse to 1 when book/chapter is selected</string>
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+    <string name="incomplete_translation">We are sorry, but we have only partial user interface translation in %s language. %s is voluntary based application. If you can help in translating, please see %s.</string>
+    <string name="instructions_for_translators">instructions for translators</string>
 </resources>
