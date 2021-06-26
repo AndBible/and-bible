@@ -26,7 +26,4 @@ app/gradle/wrapper/gradle-wrapper.properties
 app/gradle/wrapper/gradle-wrapper.jar
 app/build.gradle
 app/bibleview-js/package.json
-app/bibleview-js/package-lock.json
-app/.idea/vcs.xml
-app/.idea/runConfigurations.xml
-app/.idea/modules.xml
+
