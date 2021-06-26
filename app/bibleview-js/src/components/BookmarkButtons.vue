@@ -88,6 +88,7 @@ import {inject} from "@vue/runtime-core";
 import AreYouSure from "@/components/modals/AreYouSure";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Color from "color";
+import {sortBy} from "lodash";
 
 export default {
   name: "BookmarkButtons",
@@ -118,7 +119,7 @@ export default {
     const {bookmarkLabels} = inject("globalBookmarks");
 
     const labels = computed(() => {
-      return bookmark.value.labels.map(id => bookmarkLabels.get(id));
+      return sortBy(bookmark.value.labels.map(id => bookmarkLabels.get(id)), ["name"]);
     });
 
     const primaryLabel = computed(() => {
