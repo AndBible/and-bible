@@ -478,6 +478,14 @@
     <string name="speak_autobookmarking_disabled">Autobookmarking disabled!</string>
     <string name="system_speak_settings">Open system TTS settings</string>
 
+    <string name="assing_labels_help1">Each bookmark can be assigned multiple labels. </string>
+    <!-- param is bookmark icon -->
+    <string name="assing_labels_help2">Use %s to specify which label color is shown.</string>
+    <!-- param is auto-assign label icon -->
+    <string name="assing_labels_help3">Tap %s icon to have that label is assigned automatically to new bookmarks.</string>
+    <!-- param is heart icon -->
+    <string name="assing_labels_help4">Tap %s to add label to your favourite list for quick access.</string>
+
     <string name="speak_bookmark_help">Speak bookmark help</string>
 
     <string name="speak_help_auto_bookmark">
