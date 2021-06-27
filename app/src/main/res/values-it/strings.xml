@@ -20,7 +20,7 @@
   <string name="contact">Contatti</string>
   <string name="help_and_tips">Aiuto &amp; suggerimenti</string>
   <string name="administration">Amministrazione </string>
-  <string name="rate_application">Voti &amp; recensioni su Google Play</string>
+  <string name="rate_application">Vota &amp; recensisci</string>
   <string name="chooce_document">Scegli un documento</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Scegli un libro</string>
@@ -57,7 +57,13 @@
   <string name="search_current_book">Libro attuale</string>
   <string name="error_executing_search">Ricerca non valida</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Numeri di capitolo &amp; verso</string>
   <string name="prefs_show_verseno_summary">Mostra numeri di capitolo &amp; verso</string>
+  <string name="prefs_e_ink_mode_title">Modalità bianco e nero</string>
+  <string name="prefs_eink_mode_summary">Usa l\'app in modalità monocromatica (senza colori), più adatta ai dispositivi E-ink.</string>
+  <string name="prefs_show_verseno_title1">Numeri dei versi</string>
+  <string name="prefs_show_chapter_no_title">Numeri di capitolo</string>
+  <string name="prefs_show_chapter_no_summary">Mostra i numeri di capitolo</string>
   <string name="prefs_verse_per_line_summary">Mostra ogni versetto su una riga diversa</string>
   <string name="prefs_show_bookmarks_summary">Deseleziona per nascondere tutti i segnalibri</string>
   <string name="prefs_show_mynotes_summary">Mostra l\'icona nei versetti con Le mie note</string>
@@ -67,10 +73,13 @@
   <string name="prefs_section_title_summary">Mostra i titoli delle sezioni non canoniche</string>
   <string name="prefs_red_letter_summary">Mostra le parole di Cristo in rosso</string>
   <string name="prefs_text_size_title">Impostazioni del carattere</string>
-  <string name="prefs_show_verseno_title">Numeri di capitolo &amp; verso</string>
   <string name="prefs_verse_per_line_title">Un verso per riga</string>
   <string name="prefs_show_bookmarks_title">Mostra le icone del segnalibro</string>
   <string name="prefs_show_mynotes_title">Mostra le icone dei miei appunti</string>
+  <string name="prefs_show_footnotes_title">Note a piè di pagina</string>
+  <string name="prefs_show_xrefs_title">Riferimenti incrociati</string>
+  <string name="prefs_show_footnotes_summary">Mostra le note a piè di pagina, se sono disponibili nel documento</string>
+  <string name="prefs_show_xrefs_summary">Mostra i riferimenti incrociati, se sono disponibili nel documento</string>
   <string name="prefs_show_notes_title">Note e rif. incrociati</string>
   <string name="prefs_show_strongs_title">Numeri di Strong</string>
   <string name="prefs_show_morphology_title">Codici morfologici</string>
@@ -83,15 +92,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Premi per aprire il documento successivo, premi a lungo per aprire il menù</string>
   <string name="prefs_toolbar_button_action_swap_activity">Premi per il documento successivo, premi a lungo per la schermata documenti</string>
   <string name="prefs_night_mode_title">Passaggio alla modalità notturna</string>
-  <string name="prefs_night_mode_summary">Passa automaticamente alla modalità notturna (se il dispositivo lo supporta), manualmente o tramite le impostazioni di sistema (Android 10+).</string>
+  <string name="prefs_night_mode_summary">Passa alla modalità notturna automaticamente (se supportata), manualmente, o tramite impostazioni (Android 10+). Il passaggio manuale può essere fatto dal menù opzioni con i 3 puntini, sullo schermo principale.</string>
   <string name="prefs_night_mode_manual">Manuale</string>
   <string name="prefs_night_mode_automatic">Automatico</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Modalità notturna</string>
   <string name="prefs_navigate_to_verse_title">Naviga al verso</string>
   <string name="prefs_navigate_to_verse_summary">Scegli il verso (e il capitolo) quando selezioni un passaggio</string>
-  <string name="prefs_open_links_in_special_window_title">Apri i link in una finestra speciale</string>
-  <string name="prefs_open_links_in_special_window_summary">Per una visualizzazione più rapida di riferimenti incrociati e numeri Strong</string>
+  <string name="prefs_open_links_in_special_window_title">Finestra collegamenti</string>
+  <string name="prefs_open_links_in_special_window_summary">Apre i collegamenti in finestre speciali, per mostrare più rapidamente i riferimenti incrociati e gli Strong</string>
   <string name="prefs_text_size_sample_text">Testo d\'esempio</string>
   <string name="prefs_screen_keep_on_title">Tieni lo schermo acceso</string>
   <string name="prefs_screen_keep_on_summary">Impedisci la sospensione dello schermo durante l\'utilizzo di questa app</string>
@@ -303,11 +312,20 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="label_name_prompt">Nome</string>
   <string name="label_unlabelled">Senza etichetta</string>
   <string name="add_bookmark1">Segnalibro</string>
+  <string name="add_bookmark2">Scelta segnalibri</string>
+  <string name="add_bookmark3">Selezione</string>
   <string name="add_bookmark_whole_verse">Segnalibro su verso</string>
+  <string name="add_bookmark_whole_verse1">Versi</string>
+  <string name="add_bookmark_whole_verse2">Versi completi</string>
   <string name="remove_bookmark">Rimuovi</string>
   <string name="bookmark_settings_hide_labels_title">Nascondi le etichette specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Nascondi i segnalibri che sono marcati con le etichette specificate</string>
+  <string name="auto_assign_labels_title">Impostazioni etichette</string>
+  <string name="auto_assign_labels">Auto-assegna &amp; Etichette preferiti</string>
+  <string name="auto_assign_labels1">Auto-assegna a nuovi segnalibri</string>
+  <string name="auto_assign_labels_primary">Auto-assegna come principale</string>
   <string name="label_color">Colore dell\'etichetta</string>
+  <!--can be removed-->
   <string name="label_color_example">Esempio</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordine per data</string>
@@ -423,11 +441,11 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <!--User Notes-->
   <string name="mynotes">Le mie note</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Condividi, Backup &amp; Ripristino dati</string>
+  <string name="backup_and_restore">Backup &amp; Ripristino</string>
   <string name="backup_modules">Condividi o esegui il backup dei documenti su...</string>
-  <string name="backup_app_database">Condividi o esegui il backup del database su...</string>
+  <string name="backup_app_database">Condividi o fai il backup del database dell\'app su...</string>
   <string name="backup_app">Condividi o esegui il backup dell\'app (file .apk) su...</string>
-  <string name="restore_app_database">Ripristina il database da...</string>
+  <string name="restore_app_database">Ripristina il database dell\'app da...</string>
   <string name="restore_database">Ripristina il file del database</string>
   <string name="restore_confirmation">Sovrascrivere Le mie note, i Segnalibri, gli Appunti di studio, i Piani di lettura e gli Spazi di lavoro?</string>
   <string name="restore_success">Eseguito con successo il ripristino di Mie note, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro</string>
@@ -563,10 +581,7 @@ Premi a lungo i collegamenti per scegliere se desideri aprirli nella finestra co
   <string name="help_bookmarks_text">I segnalibri possono essere creati selezionando del testo e scegliendo \"Segnalibri\" dal menù popup. Puoi aggiungere note personali al nuovo segnalibro toccando il testo ora evidenziato della Bibbia. C\'è anche un documento speciale \"Le mie note\" nei commentari che ti consente di vedere le tue note in una finestra separata.</string>
   <string name="help_studypads_title">Appunti di studio</string>
   <string name="help_studypads_text">
-Gli Appunti di studio sono progettati per facilitare la scrittura di note per sermoni, per la preparazione di sermoni o anche solo per scrivere note di studio personali che hanno numerosi riferimenti biblici. Ogni appunto di studio è associato a un\'etichetta di segnalibro.
-Tutti i Segnalibri che sono stati creati con quella specifica etichetta appariranno automaticamente nel documento degli appunti di studio.
-Oltre ai segnalibri, negli appunti di studio si possono inserire righe di testo personalizzate.
-Suggerimento: Usa il menù Spazio di lavoro -&gt; Tutte le opzioni di testo -&gt; Assegna Etichette per assegnare automaticamente tutti i segnalibri creati all\'appunto di studio.</string>
+Gli Appunti di studio sono progettati per facilitare la scrittura di appunti per la preparazione di sermoni, o semplicemente per annotare note personali di studio della Bibbia con riferimenti biblici multipli. Ogni Appunto di studio è associato a un\'etichetta di Segnalibro. Tutti i Segnalibri creati con una specifica etichetta appaiono automaticamente nel documento dell\'appunto di studio. Oltre ai Segnalibri, si possono inserire voci di testo personalizzate negli Appunti di studio.</string>
   <string name="help_search_title">Ricerca</string>
   <string name="help_search_text">Il testo di ricerca può includere caratteri speciali come *,?, AND, OR, NOT
   (vedi \"Apache Lucene - Sintassi del parser di query\" per maggiori dettagli)
@@ -613,10 +628,10 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="multi_abbreviation">Multipli</string>
   <string name="compare_description">Confronta le traduzioni</string>
   <string name="compare_abbreviation">Confronta</string>
+  <string name="compare">Confronta</string>
   <string name="http_forbidden">Non consentito</string>
   <string name="http_not_found">Non trovato</string>
   <string name="http_unknown">Altro errore</string>
-  <string name="compare">Confronta</string>
   <string name="give_passphrase_for_module">Il documento %s è cifrato e necessita di una password per essere sbloccato</string>
   <string name="unlocking_failed">Sblocco fallito, password non valida</string>
   <string name="unlock_module">Imposta la password del modulo</string>
@@ -631,7 +646,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="app_licence_title">Licenza Open Source</string>
   <string name="how_to_contribute">Come contribuire?</string>
   <string name="confirm_delete_bookmarks">Vuoi rimuovere %d segnalibri e le loro note?</string>
-  <string name="confirm_delete_study_pads">Vuoi rimuovere %d etichette / appunti di studio dei segnalibri? Tutti i segnalibri e gli appunti di studio associati saranno rimossi.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Consiglia a un amico</string>
   <string name="tell_friend_message1">Vorrei consigliarti %s</string>
@@ -639,12 +653,14 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="tell_friend_message3">Puoi installarlo da Play Store: %s</string>
   <string name="tell_friend_message4">Altre informazioni &amp; opzioni di installazioni: %s</string>
   <string name="share_verse_ok">Condividi / Copia</string>
+  <string name="verse_action_copy">Copia</string>
   <string name="share_verse_menu_title">Condividi / copia...</string>
   <string name="show_versenumbers">Mostra i numeri dei versi</string>
   <string name="show_full_verses">Mostra i versi completi</string>
   <string name="advertise_app">Pubblicizza l\'app</string>
   <string name="verse_share_advertise">Condiviso usando %s.</string>
   <string name="abbreviate_reference">Abbrevia riferimento</string>
+  <string name="version_name">Nome versione</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Indietro</string>
   <string name="upgrading_database">Sto aggiornando il database. Attendi...</string>
@@ -694,4 +710,49 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="does_not_exist_abbreviation">Non esiste</string>
   <string name="cant_change_wholeverse">Impossibile disattivare il segnalibro sul verso intero</string>
   <string name="whole_verse_turned_on">Segnalibro impostato per l\'intero verso</string>
+  <string name="this_bookmark">Questo segnalibro</string>
+  <string name="this_workspace">Questo spazio di lavoro</string>
+  <string name="primary_label">Etichetta principale</string>
+  <string name="highlight_entire_verse">Evidenzia l\'intero verso</string>
+  <string name="favourite_label">Etichetta preferiti</string>
+  <string name="edit_label">Modifica etichetta</string>
+  <string name="delete_label_confirmation">Vuoi rimuovere l\'etichetta di segnalibro \"%s\"? Anche tutti gli Appunti di studio ad essa associati verranno rimossi.</string>
+  <string name="bookmark_underline_style_arbitrary">Stile sottolineatura per la selezione segnalibri</string>
+  <string name="bookmark_underline_style_whole_verse">Stile sottolineatura per i segnalibri a verso intero</string>
+  <string name="active_labels">Etichette selezionate</string>
+  <string name="recent_labels">Etichette recenti</string>
+  <string name="other_labels">Altre etichette</string>
+  <string name="book_menu_sort_row_opt">Ordina i libri orizzontalmente</string>
+  <string name="reset_workspace_labels">Vuoi resettare le impostazioni di assegnamento automatico e dei preferiti per questo spazio di lavoro?</string>
+  <string name="reset_hide_labels">Vuoi resettare le impostazioni che nascondono i settaggi delle etichette specificate?</string>
+  <string name="reorder">Riordina</string>
+  <string name="system_items">Azioni di sistema</string>
+  <string name="system_items1">Ancora</string>
+  <string name="system_action2">Azioni di Android</string>
+  <string name="text_copied_to_clicpboard">Testo copiato negli appunti</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Segnalibro rapido</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Mostra gli elementi \"Selezione\" e \"Versi\" direttamente nella vista Bibbia del menù Selezione</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Tocca due volte per lo schermo intero</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Usa la modalità schermo intero toccando due volte la finestra</string>
+  <string name="toggle_fullscreen">Schermo intero</string>
+  <string name="exit_fullscreen">Tocca due volte per uscire dallo schermo intero</string>
+  <string name="reset_app_prefs">Vuoi resettare ai loro valori iniziali tutte le preferenze globali dell\'applicazione che sono mostrate in questo schermo?</string>
+  <string name="label_red">Rosso</string>
+  <string name="label_green">Verde</string>
+  <string name="label_blue">Blu</string>
+  <string name="label_salvation">Salvezza</string>
+  <string name="label_underline">Sottolinea</string>
+  <string name="import_menu">Importa &amp; Esporta</string>
+  <string name="export_fileformat">Esporta come %s</string>
+  <string name="import_items">Importa %s</string>
+  <string name="import_from_db">Importazione del database da file</string>
+  <string name="import_error">L\'importazione del database dell\'app non è riuscita. Il file di database potrebbe essere in un formato sbagliato o creato da una versione troppo vecchia di %s.</string>
+  <string name="chooser_range">Intervallo</string>
+  <string name="chooser_jump">Salta</string>
+  <string name="chooser_OT_abbrev">AT</string>
+  <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_grid">Griglia</string>
+  <string name="chooser_style_lists">Elenchi</string>
+  <string name="chooser_select">Seleziona %s</string>
+  <string name="chooser_pref_reset">Non reimpostare il capitolo/verso a 1 quando un libro o capitolo viene selezionato</string>
 </resources>

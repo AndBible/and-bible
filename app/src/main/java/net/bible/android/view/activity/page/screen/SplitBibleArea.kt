@@ -705,7 +705,10 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         val lastSettings = CommonUtils.lastDisplaySettings
         if(lastSettings.isNotEmpty()) {
             for ((idx, t) in lastSettings.withIndex()) {
-                textOptionsSubMenu.add(Menu.NONE, R.id.textOptionItem, idx, t.name)
+                val itm = getItemOptions(window, R.id.textOptionItem, idx)
+                if(itm.enabled && itm.visible) {
+                    textOptionsSubMenu.add(Menu.NONE, R.id.textOptionItem, idx, t.name)
+                }
             }
         } else {
             menu.removeItem(R.id.textOptionsSubMenu)
@@ -753,7 +756,9 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         menuHelper.show()
     }
 
-    private fun getItemOptions(window: Window, item: MenuItem): OptionsMenuItemInterface {
+    private fun getItemOptions(window: Window, item: MenuItem) = getItemOptions(window, item.itemId, item.order)
+
+    private fun getItemOptions(window: Window, itemId: Int, order: Int): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(
             windowId = window.id,
             pageManagerSettings = window.pageManager.textDisplaySettings,
@@ -764,7 +769,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
         val isMaximised = windowRepository.isMaximized
 
-        return when(item.itemId) {
+        return when(itemId) {
 
             R.id.windowNew -> CommandPreference(
                 launch = {_, _, _ -> windowControl.addNewWindow(window)},
@@ -816,18 +821,18 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                 opensDialog = true
             )
             R.id.moveItem -> CommandPreference({_, _, _ ->
-                windowControl.moveWindow(window, item.order)
-                Log.d(TAG, "Number ${item.order}")
+                windowControl.moveWindow(window, order)
+                Log.d(TAG, "Number ${order}")
             },
                 visible = !window.isLinksWindow
             )
-            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
+            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[order])
             R.id.copySettingsTo -> SubMenuPreference()
             R.id.copySettingsToWorkspace -> CommandPreference({_, _, _ ->
                 windowControl.copySettingsToWorkspace(window)
             })
             R.id.copySettingsToWindow -> CommandPreference({_, _, _ ->
-                windowControl.copySettingsToWindow(window, item.order)
+                windowControl.copySettingsToWindow(window, order)
             })
             else -> throw RuntimeException("Illegal menu item")
         }

@@ -3,6 +3,7 @@
   <!--Main menu-->
   <!--Passage navigation-->
   <!--Search-->
+  <string name="create_index_for">To search a document we need an index. \n\nCreate an index for %s?</string>
   <!--Tasks-->
   <!--Search-->
   <!--Preferences-->
@@ -24,6 +25,9 @@
   <!--Verse context menu-->
   <!--Link context menu-->
   <!--Bookmarks-->
+  <string name="label_unlabelled">Unlabeled</string>
+  <string name="auto_assign_labels_primary">Set as the main label</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <!--General Book-->
@@ -80,16 +84,22 @@
   <!--Errors-->
   <!--Notifications-->
   <!--Workspaces-->
+  <string name="give_name_workspace">New workspace name</string>
   <!--Beta notice-->
   <string name="beta_notice_content_1">
         In the beta version, there are new features that are not yet properly tested,
         and thus using beta might introduce unexpected behavior, i.e. bugs.
         It is recommended that ordinary Bible readers use stable versions instead.
     </string>
+  <string name="upgrade_video_message">Please see the video highlighting new features of this release (%s).</string>
   <!--History-->
   <!--Help-->
+  <string name="help_nav_text">Go to the next or previous chapter by swiping left or right..
+        Double-tap the document window to toggle full screen mode.
+       The menu button at the top-right corner of each window 
+provides easy access to manipulate and customize the window.</string>
   <string name="help_contextmenus_text">
-        Long pressing opens the context menu or action mode in several views.
+        A long press opens a context menu in several views.
         Long press on the Bible view to open the action mode for actions affecting the current verse.
         Long press on a document item in list view of Choose Document or Download to delete document or view information.
         Long press a bookmark in bookmarks listing to add labels or delete bookmark.
@@ -105,10 +115,10 @@
         switch to previous / next workspace.
     </string>
   <string name="help_hidden_features_text">
-        Swipe down from the toolbar to show the workspace selector.
+        Swipe down starting on the bible verse selector to show the workspace selector.
         Long press the window button to quickly minimize.
-        Long press speak toolbar button to quickly go to speak settings.
-        Long press verse location title in toolbar to jump to document selector.
+        Long press the Speak toolbar button to quickly go to speak settings.
+        Long press the verse location title in toolbar to jump to document selector.
         Long press the Back button to access the History list.
     </string>
   <!--Welcome text-->
@@ -117,4 +127,12 @@
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="rate_message4">
+The developers of this app are not responsible for maintaining documents (Bibles, commentaries, books etc).</string>
+  <string name="primary_label">Main label</string>
+  <string name="delete_label_confirmation">Do you want to remove the bookmark label \"%s\"? ALL associated Study Pad notes will also be removed.</string>
+  <string name="bookmark_underline_style_arbitrary">Use underline style for selection bookmarks</string>
+  <string name="bookmark_underline_style_whole_verse">Use underline style for whole verse bookmarks</string>
+  <string name="reset_workspace_labels">Do you want to reset the label auto-assign and favorite settings for this workspace?</string>
+  <string name="reset_hide_labels">Do you want to reset the hidden label settings?</string>
 </resources>

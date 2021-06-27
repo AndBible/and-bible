@@ -17,7 +17,6 @@
   <string name="other"> अन्य</string>
   <string name="help_and_tips">सहायता &amp; सुझाव</string>
   <string name="administration"> प्रशासन</string>
-  <string name="rate_application"> गूगल प्ले पे रेट &amp; रिव्यू करे</string>
   <string name="chooce_document"> दस्तावेज़ चुनें</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">पुस्तक चुनें</string>
@@ -54,6 +53,7 @@
   <string name="search_current_book">वर्तमान पुस्तक</string>
   <string name="error_executing_search">खोज वाक्य में गलती</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">छंद संख्या</string>
   <string name="prefs_verse_per_line_summary"> प्रत्येक छंद को एक अलग लाइन पर दिखाएं</string>
   <string name="prefs_show_bookmarks_summary">सभी बुकमार्क छिपाने के लिए अनचाहा करे</string>
   <string name="prefs_show_mynotes_summary">मेरे नोट के साथ छंद में आइकन दिखाएं</string>
@@ -66,6 +66,7 @@
   <string name="prefs_verse_per_line_title">हर छंद, नई पंक्ति में</string>
   <string name="prefs_show_bookmarks_title">बुकमार्क दिखाएँ</string>
   <string name="prefs_show_mynotes_title">मेरे टिप्पणी-चित्र दिखाना</string>
+  <string name="prefs_show_footnotes_title"> फ़ुटनोट</string>
   <string name="prefs_show_notes_title">पाद टिप्पणी और संबंधित संदर्भ</string>
   <string name="prefs_show_strongs_title"> स्ट्रॉन्ग के संख्याएं</string>
   <string name="prefs_show_morphology_title">आकारिकी(Morphology) संख्या </string>
@@ -73,15 +74,12 @@
   <string name="prefs_red_letter_title">लाल अक्षर</string>
   <string name="prefs_tilt_to_scroll_title">अगले पृष्ठ के लिए फ़ोन झुकना</string>
   <string name="prefs_night_mode_title">नाइट मोड स्विचिंग</string>
-  <string name="prefs_night_mode_summary"> स्वचालित रूप (यदि डिवाइस समर्थन करता है) से या सिस्टम सेटिंग (ऐंड्रॉयड 10+) के माध्यम से नाइट मोड पर स्विच करना है या नहीं।</string>
   <string name="prefs_night_mode_manual">मैनुअल</string>
   <string name="prefs_night_mode_automatic">ऑटोमैटिक</string>
   <string name="prefs_night_mode_system">सिस्टम</string>
   <string name="options_menu_night_mode"> नाइट मोड</string>
   <string name="prefs_navigate_to_verse_title">छंद पर पहुंचे</string>
   <string name="prefs_navigate_to_verse_summary">पुस्तक मे अध्याय और छंद चुनें</string>
-  <string name="prefs_open_links_in_special_window_title">विशेष विंडो में लिंक खोले</string>
-  <string name="prefs_open_links_in_special_window_summary"> क्रॉस-रेफरेंस और स्ट्रॉन्ग के तेज प्रदर्शन के लिए</string>
   <string name="prefs_text_size_sample_text">नमूना वाक्य</string>
   <string name="prefs_screen_keep_on_title">स्क्रीन ऑन रखे</string>
   <string name="prefs_screen_keep_on_summary"> इस एप्लिकेशन का उपयोग करते समय स्क्रीन को बन्द होने से रोके</string>
@@ -255,9 +253,12 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="bookmarks"> बुकमार्क</string>
   <string name="bookmark_added"> बुकमार्क जोड़ा गया</string>
   <string name="assign_labels">लेबल लिखना/देना</string>
+  <string name="new_item">नया</string>
   <string name="new_label">नया लेबल</string>
   <string name="label_name_prompt">नाम</string>
   <string name="label_unlabelled">कोई लेबल नही</string>
+  <string name="remove_bookmark"> हटाना</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">दिनांक अनुक्रम</string>
   <string name="sort_by_bible_book">बाइबिल का अनुक्रम</string>
@@ -379,6 +380,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <!--User Notes-->
   <string name="mynotes">मेरे टिप्पणीयां</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore"> बैकअप &amp; रिस्टोर</string>
   <string name="loading_backup">डेटाबेस को बैकअप से लोड किया जा रहा हैं...</string>
   <string name="backup_modules_email_subject_2">%s मॉड्यूल बैकअप</string>
   <string name="backup_modules_email_message_2">आपका %s मॉड्यूल बैकअप जुड़ा हुआ है, जिसमें निम्नलिखित मॉड्यूल शामिल हैं: %s</string>
@@ -415,9 +417,11 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="yes">हाँ</string>
   <string name="no"> नही</string>
   <string name="error">त्रुटि</string>
+  <string name="delete_generic">मिटाओ</string>
   <string name="please_wait">कृपया प्रतीक्षा कीजिये</string>
   <string name="all">संपूर्ण</string>
   <string name="edit"> संपादित करें</string>
+  <string name="reset_generic">रिसेट</string>
   <string name="watch_tutorial_video"> ट्यूटोरियल वीडियो देखें (अंग्रेजी में)</string>
   <string name="verse_not_found"> छंद नहीं मिला</string>
   <!--Errors-->
@@ -505,8 +509,14 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">मै समझता हुँ</string>
   <string name="first_time_help_show_next_time">अगली बार फिर दिखाओ</string>
+  <string name="my_notes_abbreviation">मेरे टिप्पणीयां</string>
+  <string name="compare_description">अन्य अनुवादों से तुलना</string>
+  <string name="verse_action_copy"> कॉपी</string>
+  <string name="show_versenumbers">छंद के संख्या दिखाएं</string>
+  <string name="backup_button">बैकअप</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">और</string>
 </resources>

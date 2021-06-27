@@ -54,18 +54,20 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
+import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
+import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.StudyPadOrderEvent
 import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
-import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
@@ -80,9 +82,9 @@ import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
 import net.bible.android.control.page.MyNotesDocument
-import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
+import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.DecrementBusyCount
 import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
@@ -105,9 +107,9 @@ import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
@@ -122,10 +124,42 @@ import java.io.File
 import java.lang.ref.WeakReference
 import java.net.URLConnection
 import java.util.*
+import javax.inject.Inject
 import kotlin.math.min
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
+
+
+@Serializable
+class Selection(val bookInitials: String?, val startOrdinal: Int,
+                val startOffset: Int?, val endOrdinal: Int, val endOffset: Int?,
+                val bookmarks: List<Long>,
+                val notes: String? = null
+)
+{
+    constructor(bookmark: BookmarkEntities.Bookmark):
+        this(
+            bookmark.book?.initials,
+            bookmark.ordinalStart,
+            bookmark.startOffset,
+            bookmark.ordinalEnd,
+            bookmark.endOffset,
+            emptyList(),
+            bookmark.notes
+        )
+    @Transient @Inject lateinit var windowControl: WindowControl
+
+    init {
+        buildActivityComponent().inject(this)
+    }
+
+    val book: SwordBook get() = (Books.installed().getBook(bookInitials) as SwordBook?) ?: windowControl.defaultBibleDoc(false)
+    val verseRange: VerseRange get() {
+        val v11n = book.versification ?: KJVA
+        return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
+    }
+}
 
 /** The WebView component that shows the bible and other documents */
 @SuppressLint("ViewConstructor")
@@ -200,9 +234,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         setOnLongClickListener(BibleViewLongClickListener())
     }
 
+    var showSystem = false
+
+    var step2 = false
+
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.add_bookmark -> {
+                step2 = true
+                mode.menu.clear()
+                mode.invalidate()
+                return false
+            }
+            R.id.add_bookmark_selection -> {
                 makeBookmark()
                 mode.finish()
                 return true
@@ -229,6 +273,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 if(sel != null)
                     ShareWidget.dialog(mainBibleActivity, sel)
                 return true
+            }
+            R.id.system_items -> {
+                showSystem = true
+                mode.menu.clear()
+                mode.invalidate()
+                return false
             }
             else -> false
         }
@@ -284,46 +334,36 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    @Serializable
-    class Selection(val bookInitials: String?, val startOrdinal: Int,
-                    val startOffset: Int?, val endOrdinal: Int, val endOffset: Int?,
-                    val bookmarks: List<Long>,
-                    val notes: String? = null
-    )
-    {
-        constructor(bookmark: BookmarkEntities.Bookmark):
-            this(
-                bookmark.book?.initials,
-                bookmark.ordinalStart,
-                bookmark.startOffset,
-                bookmark.ordinalEnd,
-                bookmark.endOffset,
-                emptyList(),
-                bookmark.notes
-            )
-
-        val book: Book get() = (Books.installed().getBook(bookInitials) as SwordBook)
-        val verseRange: VerseRange get() {
-            val v11n = (Books.installed().getBook(bookInitials) as SwordBook?)?.versification ?: KJVA
-            return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
-        }
-    }
-
     var menuPrepared = false
     var currentSelection: Selection? = null
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
         Log.d(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
         if(menuPrepared) {
+            mode.menu.clear()
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
             // For some reason, these do not seem to be correct from XML, even though specified there
-            menu.findItem(R.id.add_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            menu.findItem(R.id.add_bookmark_whole_verse).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            if(CommonUtils.sharedPreferences.getBoolean("disable_two_step_bookmarking", false)) {
+                menu.findItem(R.id.add_bookmark_selection).run {
+                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    setVisible(true)
+                }
+                menu.findItem(R.id.add_bookmark_whole_verse).run{
+                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    setVisible(true)
+                }
+            } else {
+                menu.findItem(R.id.add_bookmark).run {
+                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    setVisible(true)
+                }
+            }
             menu.findItem(R.id.remove_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.share_verses).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             if(currentSelection == null) {
                 menu.findItem(R.id.add_bookmark).isVisible = false
+                menu.findItem(R.id.add_bookmark_selection).isVisible = false
                 menu.findItem(R.id.add_bookmark_whole_verse).isVisible = false
                 menu.findItem(R.id.compare).isVisible = false
                 menu.findItem(R.id.share_verses).isVisible = false
@@ -336,20 +376,32 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return true
         }
         else {
-            GlobalScope.launch {
-                val result = evaluateJavascriptAsync("bibleView.querySelection()")
-                val sel = json.decodeFromString(serializer<Selection?>(), result)
-                if(sel !== null) {
-                    currentSelection = sel
-                    menuPrepared = true
-
+            if(step2) {
+                mode.menu.clear()
+                mode.menuInflater.inflate(R.menu.bibleview_selection2, menu)
+                step2 = false
+                return true
+            }
+            if (showSystem || firstDocument !is BibleDocument) {
+                showSystem = false
+                return true
+            } else {
+                menu.clear()
+                GlobalScope.launch {
+                    val result = evaluateJavascriptAsync("bibleView.querySelection()")
+                    val sel = json.decodeFromString(serializer<Selection?>(), result)
+                    if (sel !== null) {
+                        currentSelection = sel
+                        menuPrepared = true
+                    } else {
+                        showSystem = true
+                    }
                     withContext(Dispatchers.Main) {
-                        menu.clear()
                         mode.invalidate()
                     }
                 }
+                return false
             }
-            return false
         }
     }
 
@@ -498,7 +550,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val fontModuleNames = AndBibleAddons.fontModuleNames.joinToString(",")
         val featureModuleNames = AndBibleAddons.featureModuleNames.joinToString(",")
         loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html" +
-            "?lang=$lang&fontModuleNames=$fontModuleNames&featureModuleNames=$featureModuleNames&rtl=$isRtl")
+            "?lang=$lang&fontModuleNames=$fontModuleNames&featureModuleNames=$featureModuleNames&rtl=$isRtl&night=$nightMode")
     }
 
      fun onEvent(e: ReloadAddonsEvent) {
@@ -664,8 +716,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         UriConstants.SCHEME_JOURNAL -> {
             val id = uri.getQueryParameter("id")?.toLongOrNull()
+            val bookmarkId = uri.getQueryParameter("bookmarkId")?.toLongOrNull()
             if(id != null) {
-                linkControl.openJournal(id)
+                linkControl.openJournal(id, bookmarkId)
             } else false
         }
         UriConstants.SCHEME_REFERENCE -> {
@@ -863,10 +916,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
-                    appSettings: {activeWindow: $isActive, nightMode: $nightMode, 
-                        errorBox: $showErrorBox, favouriteLabels: $favouriteLabels, 
-                        recentLabels: $recentLabels, hideCompareDocuments: $hideCompareDocuments
-                        }, 
+                    appSettings: {
+                        activeWindow: $isActive, 
+                        nightMode: $nightMode, 
+                        errorBox: $showErrorBox, 
+                        favouriteLabels: $favouriteLabels, 
+                        recentLabels: $recentLabels, 
+                        hideCompareDocuments: $hideCompareDocuments
+                    }, 
                     initial: $initial
                     });
                 """.trimIndent()
@@ -885,7 +942,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         setBackgroundColor(backgroundColor)
     }
 
-    val nightMode get() = mainBibleActivity.currentNightMode
+    private val nightMode get() = mainBibleActivity.currentNightMode
 
     var labelsUploaded = false
 
@@ -905,13 +962,20 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             labelsUploaded = true
        }
 
+        val doc = firstDocument
+        val jumpToId =
+            if(doc is StudyPadDocument && doc.bookmarkId != null)
+                "studypad-bookmark-${doc.bookmarkId}"
+            else null
+
         executeJavascriptOnUiThread("""
             bibleView.emit("clear_document");
             ${getUpdateConfigCommand(true)}
             bibleView.emit("add_documents", $documentStr);
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
-                jumpToAnchor: ${initialAnchorOrdinal},
+                jumpToAnchor: $initialAnchorOrdinal,
+                jumpToId: "$jumpToId",
                 topOffset: $topOffset,
                 bottomOffset: $bottomOffset,
             });            

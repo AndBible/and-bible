@@ -22,7 +22,6 @@ import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.readingplan.ReadingStatus
-import net.bible.android.control.report.BackupView
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.LabelEditActivity
@@ -31,6 +30,7 @@ import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.navigation.*
 import net.bible.android.view.activity.navigation.genbookmap.ChooseKeyBase
+import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -83,12 +83,12 @@ interface ActivityComponent {
 
     fun inject(speak: GeneralSpeakActivity)
     fun inject(speakBible: BibleSpeakActivity)
-    fun inject(backupView: BackupView)
     fun inject(speakSettings: SpeakSettingsActivity)
     fun inject(dailyReading: DailyReading)
     fun inject(dailyReadingList: DailyReadingList)
     fun inject(readingPlanSelectorList: ReadingPlanSelectorList)
     fun inject(readingStatus: ReadingStatus)
+    fun inject(sel: Selection)
     fun inject(searchIndex: SearchIndex)
     fun inject(w: SpeakTransportWidget)
     fun inject(search: Search)

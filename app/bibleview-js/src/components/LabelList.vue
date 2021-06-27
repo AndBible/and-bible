@@ -38,7 +38,7 @@
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {computed, ref} from "@vue/reactivity";
-import {addAll, Deferred, removeAll} from "@/utils";
+import {addAll, clickWaiter, removeAll} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";
 
@@ -114,30 +114,11 @@ export default {
       }
     }
 
-    let clickDeferred = null;
+    const {waitForClick} = clickWaiter(props.handleTouch);
 
     async function labelClicked(event, label) {
       if(props.disableLinks) return;
-      if(event.type === "touchstart" && !props.handleTouch) {
-        return;
-      }
-      event.stopPropagation();
-
-      if(props.handleTouch) {
-        if(event.type === "click") {
-          if (clickDeferred) {
-            clickDeferred.resolve();
-            clickDeferred = null;
-          } else {
-            console.error("Deferred not found");
-          }
-          return
-        }
-        else if(event.type === "touchstart") {
-          clickDeferred = new Deferred();
-          await clickDeferred.wait();
-        }
-      }
+      if(!await waitForClick(event)) return;
 
       if(!isAssigned(label.id)) {
         android.toggleBookmarkLabel(bookmark.value.id, label.id);

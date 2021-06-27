@@ -17,7 +17,6 @@
   <string name="other">Басқасы</string>
   <string name="help_and_tips">Көмек пен кеңестер</string>
   <string name="administration">Басқару</string>
-  <string name="rate_application">Бағалау мен күшейту; Google Play де пікір қалдыру</string>
   <string name="chooce_document">Құжатты таңдаңыз</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Кітапті Таңдаңыз</string>
@@ -54,6 +53,7 @@
   <string name="search_current_book">Қазіргі кітап</string>
   <string name="error_executing_search">Іздеу сауалы қате</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">Аят нөмірлері</string>
   <string name="prefs_verse_per_line_summary">Әр аятты әр түрлі жолда көрсету</string>
   <string name="prefs_show_bookmarks_summary">Бар кітап белгілерін жасыру үшін таңдауды алыңыз</string>
   <string name="prefs_show_mynotes_summary">Менің нұсқауларымен бірге аяттарда белгішені көрсету</string>
@@ -66,6 +66,7 @@
   <string name="prefs_verse_per_line_title">Әр жолға бір аят</string>
   <string name="prefs_show_bookmarks_title">Кітап белгілерін көрсету</string>
   <string name="prefs_show_mynotes_title">Менің Ескертпелерімнің белгішесін көрсету</string>
+  <string name="prefs_show_footnotes_title">Ескертпелер</string>
   <string name="prefs_show_notes_title">Ескертпелер мен айқасқан сілтемелер</string>
   <string name="prefs_show_strongs_title">Стронг сандары</string>
   <string name="prefs_show_morphology_title">Морфологиялық кодтар</string>
@@ -73,15 +74,12 @@
   <string name="prefs_red_letter_title">Қызыл Хат</string>
   <string name="prefs_tilt_to_scroll_title">Бұрау үшін еңістеу</string>
   <string name="prefs_night_mode_title">Түнгі режиміне қосу</string>
-  <string name="prefs_night_mode_summary">Қолмен немесе жүйенің параметрлері арқылы (Android 10+), түнгі режимге автоматты түрде ауысу (егер құрылғы қолдайтын болса).</string>
   <string name="prefs_night_mode_manual">Қолмен жасау</string>
   <string name="prefs_night_mode_automatic">Автоматты</string>
   <string name="prefs_night_mode_system">Жүйе</string>
   <string name="options_menu_night_mode">Түнгі режим</string>
   <string name="prefs_navigate_to_verse_title">Аятқа навигация жүргізу</string>
   <string name="prefs_navigate_to_verse_summary">Үзіндіні таңдап белгілегенде аятты (әрі тарауды) таңдаңыз</string>
-  <string name="prefs_open_links_in_special_window_title">Линктерді айрықша арнайы терезеде ашу</string>
-  <string name="prefs_open_links_in_special_window_summary">Айқасқан және Стронг сілтемелерін шапшаң көрсету үшін</string>
   <string name="prefs_text_size_sample_text">Мысалы мәтін</string>
   <string name="prefs_screen_keep_on_title">Экранды қосулы сақтау</string>
   <string name="prefs_screen_keep_on_summary">Осы қолданбаны пайдаланып отырғанда, экранды өшіп қалудан сақтау. </string>
@@ -248,9 +246,12 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="bookmarks">Кітап белгілері</string>
   <string name="bookmark_added">Кітап белгісі қосылды</string>
   <string name="assign_labels">Таңбаларды белгілеу</string>
+  <string name="new_item">Жаңа</string>
   <string name="new_label">Жаңа таңба</string>
   <string name="label_name_prompt">Атауы</string>
   <string name="label_unlabelled">Таңбаланбаған</string>
+  <string name="remove_bookmark">Жою</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Күн реті</string>
   <string name="sort_by_bible_book">Киелі Кітап реті</string>
@@ -358,6 +359,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--User Notes-->
   <string name="mynotes">Менің Ескертпелерім</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Сақтық көшіру мен Қалпына келтіру</string>
   <string name="loading_backup">Деректер базасы сақтық көшірмеден жүктелуде…</string>
   <string name="backup_modules_email_subject_2">%s модульдерді сақтыққа көшіру</string>
   <string name="backup_modules_email_message_2">Қосылып бекітілген сіздің %s модульдердің сақтық көшірмесі, онда келесі модульдер бар:%s</string>
@@ -394,9 +396,11 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="yes">Иә</string>
   <string name="no">Жоқ</string>
   <string name="error">Қате</string>
+  <string name="delete_generic">Жою</string>
   <string name="please_wait">Өтінеміз күтіңіз...</string>
   <string name="all">Бәрі</string>
   <string name="edit">Редакциялау</string>
+  <string name="reset_generic">Қайта бастау</string>
   <string name="watch_tutorial_video">Үйрету видеосын көріңіз (Ағылшын тілінде)</string>
   <string name="verse_not_found">Аят табылмады</string>
   <!--Errors-->
@@ -475,8 +479,14 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="something_with_parenthesis">%s(%s)</string>
   <string name="first_time_help_do_not_show_again">Мен түсінемін</string>
   <string name="first_time_help_show_next_time">Келесі рет қайтадан көрсет</string>
+  <string name="my_notes_abbreviation">Менің Ескертпелерім</string>
+  <string name="compare_description">Аудармаларды салыстыру</string>
+  <string name="verse_action_copy">Көшіріңіз</string>
+  <string name="show_versenumbers">Аят санын көрсету</string>
+  <string name="backup_button">Резерв Көшірмесі</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">Көбірек</string>
 </resources>

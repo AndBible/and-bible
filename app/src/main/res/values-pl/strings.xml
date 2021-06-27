@@ -3,6 +3,7 @@
   <string name="app_name_short">Studium Biblii</string>
   <string name="app_name_medium">Studium Biblii (And Bible)</string>
   <string name="app_name_long">Studium Biblii, otwartoźródłowy projekt And Bible</string>
+  <string name="project">Otwartoźródłowy projekt And Bible</string>
   <string name="version_text">Wersja %s</string>
   <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić aplikację.</string>
   <!--Main menu-->
@@ -14,10 +15,11 @@
   <string name="history">Historia</string>
   <string name="speak">Odsłuchaj</string>
   <string name="help">Pomoc</string>
+  <string name="information">Informacje</string>
   <string name="other">Inne</string>
+  <string name="contact">Kontakt</string>
   <string name="help_and_tips">Pomoc i wskazówki</string>
   <string name="administration">Zarządzanie</string>
-  <string name="rate_application">Oceń w sklepie Google Play</string>
   <string name="chooce_document">Wybór dokumentu</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Wybierz księgę</string>
@@ -54,6 +56,11 @@
   <string name="search_current_book">obecnej księdze</string>
   <string name="error_executing_search">Niepoprawne zapytanie</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Numery wersetów i rozdziałów</string>
+  <string name="prefs_show_verseno_summary">Wyświetl numery wersetów i rozdziałów</string>
+  <string name="prefs_show_verseno_title1">Numery wersetów</string>
+  <string name="prefs_show_chapter_no_title">Numery rozdziałów</string>
+  <string name="prefs_show_chapter_no_summary">Wyświetl numery rozdziałów</string>
   <string name="prefs_verse_per_line_summary">Wyświetl każdy werset w osobnej linii</string>
   <string name="prefs_show_bookmarks_summary">Odznacz, aby ukryć wszystkie zakładki</string>
   <string name="prefs_show_mynotes_summary">Wersety z moich notatek oznacz ikoną</string>
@@ -66,22 +73,28 @@
   <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
   <string name="prefs_show_bookmarks_title">Pokaż zakładki</string>
   <string name="prefs_show_mynotes_title">Pokaż ikony notatek</string>
+  <string name="prefs_show_footnotes_title">Przypisy</string>
+  <string name="prefs_show_xrefs_title">Odsyłacze wewnętrzne</string>
+  <string name="prefs_show_footnotes_summary">Wyświetl przypisy (jeżeli obecne w dokumencie)</string>
+  <string name="prefs_show_xrefs_summary">Wyświetl odsyłacze wewnętrzne (jeżeli obecne w dokumencie)</string>
   <string name="prefs_show_notes_title">Przypisy i odsyłacze</string>
   <string name="prefs_show_strongs_title">Numeracja Stronga</string>
   <string name="prefs_show_morphology_title">Kody morfologiczne</string>
   <string name="prefs_section_title_title">Tytuły sekcji</string>
-  <string name="prefs_red_letter_title">Tytuł na czerwono</string>
+  <string name="prefs_red_letter_title">Słowa Chrystusa na czerwono</string>
   <string name="prefs_tilt_to_scroll_title">Przechyl urządzenie aby przesunąć</string>
+  <string name="prefs_toolbar_button_action_title">Akcje przycisku paska narzędzi</string>
+  <string name="prefs_toolbar_button_action_summary">Akcje wywoływane po naciśnięciu/przytrzymaniu przycisku wyświetlającego tytuł księgi na pasku narzędzi</string>
+  <string name="prefs_toolbar_button_action_default">Naciśnij, aby otworzyć menu; przytrzymaj, aby otworzyć wybór dokumentu (domyślne)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Naciśnij, aby otworzyć następny dokument; przytrzymaj, aby otworzyć menu</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Naciśnij, aby otworzyć następny dokument; przytrzymaj, aby otworzyć wybór dokumentu</string>
   <string name="prefs_night_mode_title">Włącz tryb nocny</string>
-  <string name="prefs_night_mode_summary">Ustaw, czy włączać tryb nocny automatycznie (jeżeli wspierane przez urządzenie), ręcznie, czy korzystając z ustawień systemu (Android 10+).</string>
   <string name="prefs_night_mode_manual">Ręcznie</string>
   <string name="prefs_night_mode_automatic">Automatycznie</string>
   <string name="prefs_night_mode_system">Systemowy</string>
   <string name="options_menu_night_mode">Tryb nocny</string>
   <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
   <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
-  <string name="prefs_open_links_in_special_window_title">Otwórz link w specjalnym oknie</string>
-  <string name="prefs_open_links_in_special_window_summary">Szybsze wyświetlanie odnośników</string>
   <string name="prefs_text_size_sample_text">Zwykły tekst</string>
   <string name="prefs_screen_keep_on_title">Trzymaj ekran włączony</string>
   <string name="prefs_screen_keep_on_summary">Nie wyłączaj ekranu podczas korzystania z aplikacji</string>
@@ -96,6 +109,7 @@
   <string name="reversed_split_mode">Pionowo/poziomo</string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d p.</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Automatycznie przełączaj na tryb pełnego ekranu podczas przewijania tekstu. Wskazówka: zawsze możesz wejść w tryb pełnoekranowy stukając dwukrotnie w ekran.</string>
   <string name="prefs_margin_size_title">Dostosuj rozmiary marginesów</string>
   <string name="prefs_margin_size_mm_title">Rozmiary marginesów (%d/%d/%d mm)</string>
@@ -116,17 +130,36 @@
   <string name="pref_maximum_width_of_text_label_mm">Maksymalna szerokość tekstu (%d mm)</string>
   <string name="prefs_line_spacing_pt">Interlinia: %1.1f×</string>
   <string name="pref_font_family_label">Rodzaj czcionki</string>
+  <string name="prefs_top_margin_title">Górny margines</string>
+  <string name="prefs_top_margin_summary">Dodaj półprzezroczysty margines u góry okna zawierającego dokument Biblii. Tekst Biblii zostanie przewinięty tak, aby obecny werset znajdował się pod marginesem.</string>
   <string name="prefs_hyphenation_title">Dzielenie wyrazów</string>
   <string name="prefs_hyphenation_summary">Automatycznie dziel wyrazy na końcach linii (jeżeli wspierane dla języka)</string>
   <string name="prefs_line_spacing_pt_title">Interlinia (%1.1f×)</string>
   <string name="line_spacing_title">Interlinia</string>
   <string name="line_spacing_summary">Dostosuj odstęp między liniami tekstu</string>
   <string name="select_none">Wybierz nic</string>
+  <string name="reset_are_you_sure">Czy na pewno chcesz zresetować te ustawienia do wartości domyślnych?</string>
   <string name="window_pinning_menutitle">Przypinanie okien</string>
   <string name="hide_window_buttons_title">Ukryj przyciski okien</string>
+  <string name="hide_window_buttons_summary">Przyciski okna wyświetlane po prawej stronie widoku Biblii zostały ukryte. Pasek nawigacji na dole jest wciąż wyświetlany i możesz wywołać menu okna poprzez naciśnięcie i przytrzymanie okna.</string>
+  <string name="hide_bible_reference_overlay_title">Ukryj warstwę odsyłaczy</string>
+  <string name="hide_bible_reference_overlay_summary">Nie wyświetlaj półprzezroczystej warstwy odsyłaczy biblijnych kiedy aplikacja działa w trybie pełnoekranowym</string>
   <string name="full_screen_hide_buttons_pref_title">Ukryj pasek okna przy pełnym ekranie</string>
   <string name="full_screen_hide_buttons_pref_summary">Po przełączeniu w trym pełnego ekranu, automatycznie ukrywaj pasek przycisków okna na dole ekranu</string>
+  <string name="prefs_dictionaries_cat">Słowniki</string>
+  <string name="choose_strongs_greek_dictionary_title">Grecki słownik Stronga</string>
+  <string name="choose_strongs_greek_dictionary_summary">Wybierz słownik Stronga dla definicji słów w grece</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Hebrajski słownik Stronga</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Wybierz słownik Stronga dla definicji słów w j. hebrajskim</string>
+  <string name="choose_strongs_greek_morphology_title">Kody morfologiczne Robinsona</string>
+  <string name="choose_strongs_greek_morphology_summary">Wybierz słownik Robinsona dla definicji morfologicznych słów w grece</string>
+  <string name="prefs_top_margin_title_mm">Górny margines (%d mm)</string>
   <string name="font_size_title">Rozmiar czcionki</string>
+  <string name="font_size_title_pt">Rozmiar czcionki (%d p.)</string>
+  <string name="prefs_font_text_size_summary">Dostosuj rozmiar czcionki</string>
+  <string name="pref_font_family_label_name">Krój czcionki (%s)</string>
+  <string name="prefs_font_family_summary">Wybierz rodzaj czcionki. Porada: można doinstalować czcionki poprzez menu „pobierz dokumenty” → „dodatki”.</string>
+  <string name="prefs_text_bookmarks_title">Zakładki i notatki</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Ustawienia kolorów</string>
   <string name="window_color_settings_title">Kolor okien</string>
@@ -165,20 +198,30 @@
   <string name="no_indexed_bible_with_strongs_ref">Należy pobrać Biblię zawierającą numery Stronga i następnie pobierać ich spis poprzez „wyszukiwanie”</string>
   <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
   <!--Module download-->
-  <string name="download">Pobierz moduł</string>
+  <string name="download">Pobierz dokumenty</string>
+  <string name="redownload">Ponownie pobierz dokumenty</string>
   <string name="download_confirmation">Czy pobrać dokumentu z Internetu?</string>
+  <string name="download_source_last_updated">Ostatnia aktualizacja listy dokumentów: %s.</string>
+  <string name="download_refreshing_book_list">Aktualizacja listy dostępnych dokumentów z serwerów…</string>
+  <string name="download_source_message1">Pobieranie dokumentów z następujących źródeł:</string>
   <string name="download_document_confirm_prefix">Pobieranie</string>
   <string name="download_refresh_book_list_menu_item">Odśwież</string>
+  <string name="error_downloading">Wystąpił błąd podczas pobierania. Sprawdź swoje połączenie internetowe.</string>
+  <string name="error_downloading_status">Serwer posiadający plik „%s” zwrócił błąd %s (%d).</string>
   <string name="storage_space_warning">Niewystarczająca ilość zasobów pamięci</string>
-  <string name="document_not_installed">Proszę pobrać \'%s\'</string>
+  <string name="too_many_jobs">Zbyt wiele zadań jest uruchomionych. Poczekaj chwilę aż kilka z nich się zakończy i spróbuj ponownie.</string>
+  <string name="document_not_installed">Proszę pobrać „%s”</string>
   <string name="free_text_search_documents">Szukaj</string>
   <string name="chooce_language_hint">Język</string>
+  <string name="one_more_back_press">Stuknij ponownie przycisk wstecz, aby zamknąć aplikację</string>
   <string name="document_filter_results">%d dokumentów</string>
   <string name="download_question_title">Czy na prawdę chcesz pobrać dokumenty?</string>
+  <string name="download_question_message">Jeżeli mieszkasz w opresyjnym państwie, powinieneś być ostrożny podczas pobierania chrześcijańskich materiałów z Internetu. Zamiast tego, możesz pobrać moduł zip w bardziej bezpieczny sposób, a następnie zainstalować go poprzez funkcję „załaduj dokument z pliku zip”. Czy chcesz kontynuować pobieranie? Wszystkie pobierania z serwerów są szyfrowane (HTTPS)?</string>
   <string name="do_not_ask_again">Tak, nie pytaj ponownie</string>
   <string name="recommended_document">Zalecany!</string>
   <string name="about_version_history">Historia wersji: %s</string>
   <string name="download_errors">Błędy pobierania</string>
+  <string name="failed_repositories_message">Nie można połączyć się z następującymi serwerami dokumentów: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Nie udało się pobrać następujących plików:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Załaduj dokument z pliku zip</string>
@@ -195,8 +238,21 @@
   <string name="rdg_plan_selector_title">Wybierz plan czytania</string>
   <string name="rdg_plan_day">Dzień %s</string>
   <string name="rdg_plan_set_start_date">Wybierz datę rozpoczęcia…</string>
+  <string name="set_current_day">Ustaw jako obecny dzień…</string>
+  <string name="msg_set_current_day_reading_plan">Ta opcja oznaczy w tym planie czytania dzisiaj jako obecny dzień i wszystkich poprzednie dni jako przeczytane. Czy kontynuować?</string>
   <string name="done">Gotowe</string>
   <string name="reset_plan_question">Czy na pewno chcesz rozpocząć ten plan od nowa?</string>
+  <string name="import_reading_plan">Importowanie planu czytania…</string>
+  <string name="import_reading_plan_error">Błąd podczas importowania</string>
+  <string name="import_reading_plan_error_duplicate">Następujące dni były zduplikowane: %s</string>
+  <string name="import_reading_plan_error_days">Następujące dni zawierały błędy: %s</string>
+  <string name="import_reading_plan_anyway">Importuj mimo wszystko</string>
+  <string name="overwrite_reading_plan">Czy nadpisać plan czytania %s?</string>
+  <string name="delete_reading_plan">Usuń ten plan</string>
+  <string name="reading_plan_deleted">Plan czytania został usunięty</string>
+  <string name="reading_plan_ships_with_ab">Ten plan czytania jest dostarczany z %s</string>
+  <string name="confirm_delete_reading_plan">
+Czy na pewno chcesz usunąć plan czytania %s wraz z historią czytania? Porada: jeżeli chcesz zaktualizować ten plan, zaimportuj go ponownie z tą samą nazwą, a historia planu zostanie zachowana.</string>
   <string name="plan_duplicate_user_plan">
 Istnieje plan czytania użytkownika w katalogu „jsword/readingplan” na karcie SD o tej samej nazwie co plan wewnętrzny, Nie można go tutaj wyświetlić. Prosimy zmienić nazwę pliku, pozostawiając jego rozszerzenie „.properties”.</string>
   <string name="plan_name_y1ntpspr">NT, Psalmy i Księga Przysłów w rok</string>
@@ -231,6 +287,7 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <!--Verse context menu-->
   <string name="notes">Przypisy i odnośniki</string>
   <string name="share_verse">Udostępnij…</string>
+  <string name="share_verse_widget_title">Udostępnij fragment</string>
   <string name="share_verse_subject_2">Werset z Biblii przesłany z aplikacji %s.</string>
   <string name="compare_translations">Porównaj tłumaczenia</string>
   <!--Link context menu-->
@@ -238,12 +295,32 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="open_link_in_new_window">Otwórz odnośnik w nowym oknie</string>
   <string name="open_link_in_special_window">Otwórz odnośnik w oknie specjalnym</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Zakładki i notatki</string>
+  <string name="migrated_my_notes">Zaimportowane notatki</string>
   <string name="bookmarks">Zakładki</string>
   <string name="bookmark_added">Dodano zakładkę</string>
+  <string name="manage_labels">Zarządzaj etykietami</string>
   <string name="assign_labels">Przypisz etykiety</string>
+  <string name="new_item">Nowa</string>
   <string name="new_label">Nowa etykieta</string>
   <string name="label_name_prompt">Nazwa</string>
   <string name="label_unlabelled">Nieoznaczony</string>
+  <string name="add_bookmark1">Zakładka</string>
+  <string name="add_bookmark2">Zakładka (fragment)</string>
+  <string name="add_bookmark3">Fragment</string>
+  <string name="add_bookmark_whole_verse">Zakładka (wersety)</string>
+  <string name="add_bookmark_whole_verse1">Wersety</string>
+  <string name="add_bookmark_whole_verse2">Pełne wersety</string>
+  <string name="remove_bookmark">Usuń</string>
+  <string name="bookmark_settings_hide_labels_title">Ukryj wybrane etykiety</string>
+  <string name="bookmark_settings_hide_labels_summary">Ukryj zakładki oznaczone określonymi etykietami</string>
+  <string name="auto_assign_labels_title">Ustawienia etykiet</string>
+  <string name="auto_assign_labels">Automatycznie przypisuj etykietę</string>
+  <string name="auto_assign_labels1">Automatycznie przypisuj etykietę do nowych zakładek</string>
+  <string name="auto_assign_labels_primary">Przypisuj jako główną</string>
+  <string name="label_color">Kolor etykiety</string>
+  <!--can be removed-->
+  <string name="label_color_example">Przykład</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Porządek chronologiczny</string>
   <string name="sort_by_bible_book">Porządek biblijny</string>
@@ -284,6 +361,7 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="speak_advanced_settings">Zaawansowane ustawienia</string>
   <string name="speak_sleep_timer_title">Uśpienie</string>
   <string name="speak_no_books_available">Brak dostępnych książek do czytania</string>
+  <string name="speak_general_error">Nie można rozpocząć czytania od tej księgi</string>
   <string name="repeat_passage">Powtórz fragment</string>
   <string name="set_repeat_passage_range">Wybierz zakres fragmentu do powtórzenia</string>
   <string name="speak_beginning_of_passage">Wybierz początek fragmentu</string>
@@ -353,7 +431,17 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <!--User Notes-->
   <string name="mynotes">Moje notatki</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Kopia zapasowa</string>
+  <string name="backup_modules">Udostępnij / kopiuj dokumenty do…</string>
+  <string name="backup_app_database">Udostępnij / kopiuj bazę danych aplikacji do…</string>
+  <string name="backup_app">Udostępnij / kopiuj aplikację (plik .apk) do…</string>
+  <string name="restore_app_database">Przywróć bazę danych z…</string>
+  <string name="restore_database">Plik bazy danych</string>
+  <string name="restore_confirmation">Czy nadpisać notatki, zakładki, bloczki notatek, plany czytania i obszary robocze?</string>
+  <string name="restore_success">Pomyślnie przywrócono notatki, zakładki, bloczki notatek, plany czytania i obszary robocze</string>
   <string name="loading_backup">Wczytywanie bazy danych z kopii zapasowej…</string>
+  <string name="backup_success2">Pomyślnie utworzono kopię zapasową notatek, zakładek, bloczków notatek, planów czytania i obszarów roboczych.</string>
+  <string name="backup_modules_success">Pomyślnie utworzono kopię zapasową wybranych modułów.</string>
   <string name="backup_modules_email_subject_2">%s: kopia zapasowa modułów</string>
   <string name="backup_modules_email_message_2">W załączniku znajduje się kopia zapasowa następujących modułów aplikacji %s: %s</string>
   <string name="backup_email_subject_2">%s: kopia zapasowa bazy danych</string>
@@ -372,8 +460,26 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="module_about_installed_version">Zainstalowana wersja: %s (%s)</string>
   <string name="module_about_latest_version">Najnowsza wersja: %s (%s)</string>
   <string name="module_about_versification">Wersyfikacja: %s</string>
+  <string name="module_about_repository">Repozytorium: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Zgłoś błąd / wyślij opinię</string>
+  <string name="report_bug_email_subject_3">[%s] Zgłoszenie błędu: %s %s</string>
+  <string name="report_bug_big_heading">NAPISZ OPINIĘ LUB ZGŁOSZENIE BŁĘDU NAD TĄ LINIĄ</string>
+  <string name="report_bug_heading1">Instrukcja:</string>
+  <string name="report_bug_line_1">Zwięźle opisz co zrobiłeś albo co się stało kiedy problem wystąpił.</string>
+  <string name="report_bug_heading2">Przykład:</string>
+  <string name="report_bug_instructions1">1. Otwarłem aplikację.</string>
+  <string name="report_bug_instructions2">2. Otwarłem menu okien.</string>
+  <string name="report_bug_instructions3">-&gt; Aplikacja przestała działać</string>
+  <string name="report_bug_line_2">Czasami zrzuty ekranów mogą być pomocne w rozwiązaniu problemu.</string>
+  <string name="report_bug_line_3">Prosimy użyć tej funkcji tuż po tym, jak wystąpił błąd.</string>
+  <string name="report_bug_line_4">Możesz również użyć tej funkcji po ponownym uruchomieniu aplikacji po awarii.</string>
+  <string name="report_bug_heading_3">Załączniki:</string>
+  <string name="bug_report_logcat">Plik dziennika aplikacji. Nie zawiera on informacji o innych aplikacjach.</string>
+  <string name="bug_report_screenshot">Zrzut ekranu zrobiony podczas awarii aplikacji lub podczas zgłaszania błędu.</string>
+  <string name="bug_report_attachment_line_1">Załączenie tych plików może pomóc programistom naprawić błąd.</string>
+  <string name="report_bug_heading_4">Informacje o urządzeniu:</string>
   <!--Document types-->
   <string name="doc_type_all">Dowolny</string>
   <string name="doc_type_bible">Biblia</string>
@@ -381,6 +487,7 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="doc_type_dictionary">Słownik</string>
   <string name="doc_type_book">Księga</string>
   <string name="doc_type_map">Mapa</string>
+  <string name="doc_type_addons">Dodatki</string>
   <!--Languages-->
   <string name="lang_default">Domyślny</string>
   <!--General-->
@@ -389,19 +496,24 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="yes">Tak</string>
   <string name="no">Nie</string>
   <string name="error">Błąd</string>
+  <string name="delete_generic">Usuń</string>
   <string name="please_wait">Proszę czekać…</string>
   <string name="all">Wszystkie</string>
   <string name="edit">Edytuj</string>
+  <string name="reset_generic">Reset</string>
   <string name="watch_tutorial_video">Obejrzyj filmik instruktażowy (po angielsku)</string>
   <string name="verse_not_found">Nie znaleziono wersetu</string>
   <!--Errors-->
   <string name="report_error">Wyślij raport</string>
   <string name="error_occurred">Wystąpił błąd</string>
+  <string name="error_occurred_crash_last_time">Podczas poprzedniego uruchomienia aplikacji nastąpiła jej awaria. Aby pomóc nam naprawić błąd, prosimy wysłać raport o błędzie.</string>
   <string name="error_occurred_with_link">Wystąpił błąd: %s</string>
   <string name="error_no_content">Brak zawartości dla wybranego wiersza</string>
   <string name="error_page_too_large">Strona jest za duża i nie zostanie wczytana</string>
   <string name="error_key_not_in_document">Nie znaleziono w dokumencie</string>
+  <string name="error_key_not_in_document2">Nie znaleziono „%s” w dokumencie: %s.</string>
   <string name="empty_list">Brak elementów do wyświetlenia</string>
+  <string name="error_skip">Pomiń</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Syntetyzator mowy</string>
   <string name="notification_channel_progress_status">Powiadomienie postępu stanu pobierań, itp.</string>
@@ -436,10 +548,14 @@ Użytkownicy wersji beta proszeni są o zgłaszanie błędów przez sklep Google
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss">Ignoruj</string>
   <string name="beta_notice_dismiss_until_update">Nie pokazuj do następnej aktualizacji</string>
+  <string name="stable_notice_title">Nowa wersja aplikacji!</string>
+  <string name="upgrade_video_message">Prosimy obejrzeć filmik prezentujący nowe funkcje w tej wersji (%s) aplikacji.</string>
+  <string name="stable_notice_par1">Pomyślnie zainstalowano nową wersję (%s) aplikacji %s!</string>
   <!--History-->
   <string name="history_for">Historia (%s: okno %d)</string>
   <!--Help-->
   <string name="help_nav_title">Nawigacja</string>
+  <string name="help_nav_text">Przesuń palcem po ekranie w prawo lub w lewo, aby przejść do następnego lub poprzedniego rozdziału. Dwukrotnie stuknij w tekst, aby przełączyć tryb pełnego ekranu. Dzielenie ekranu (tryb okienkowy) dostępny jest pod przyciskiem w prawym górnym rogu ekranu, przycisk ten umożliwia dostęp do kilku okienkowych funkcji i dostosowanie zachowania i wyglądu okien.</string>
   <string name="help_contextmenus_title">Menu kontekstowe</string>
   <string name="help_contextmenus_text">
 Naciśnięcie i przytrzymanie otwiera menu kontekstowe lub akcje w zależności od wyświetlanego elementu aplikacji.
@@ -447,6 +563,11 @@ Naciśnięcie i przytrzymanie otwiera menu kontekstowe lub akcje w zależności 
  Naciśnij i przytrzymaj na dokument w widoku „wybór dokumentu” lub „pobierz moduł”, aby usunąć dokument lub wyświetlić o nim informacje.
  Naciśnij i przytrzymaj na zakładkę w liście zakładek, aby ją usunąć lub dodać do niej etykiety.
  Naciśnij i przytrzymaj odnośnik, aby otworzyć go w obecnym, nowym lub specjalnym oknie.</string>
+  <string name="help_bookmarks_title">Zakładki i notatki</string>
+  <string name="help_bookmarks_text">Zaznacz jakiś tekst i wybierz opcję „zakładka” z menu kontekstowego, aby utworzyć zakładkę. Możesz dodać własne notatki do nowo utworzonej zakładki poprzez stuknięcie wyróżnionego tekstu. W dokumentach, w sekcji komentarze zostanie utworzony dokument „moje notatki” umożliwiający przeglądanie wszystkich notatek w osobnym oknie.</string>
+  <string name="help_studypads_title">Bloczki notatek</string>
+  <string name="help_studypads_text">
+Bloczki notatek mają na celu ułatwić pisanie kazań lub tworzenie osobistych notatek odwołujących się do wielu fragmentów Biblii. Każdy bloczek notatek jest powiązany z jedną etykietą zakładek. Wszystkie zakładki utworzone z określoną etykietą automatycznie pojawią się w bloczku notatek. Oprócz zakładek, bloczek notatek może zawierać własny tekst.</string>
   <string name="help_search_title">Wyszukiwanie</string>
   <string name="help_search_text">Szukany tekst może zawierać specjalne znaki takie jak: *, ?, AND, OR, NOT
 (więcej informacji w „Apache Lucene - Query Parser Syntax”)</string>
@@ -461,14 +582,53 @@ Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszar�
  Naciśnij i przytrzymaj tytuł księgi na pasku narzędzi, aby otworzyć wybierak dokumentów.
  Naciśnij i przytrzymaj przycisk wstecz, aby wyświetlić listę historii.</string>
   <string name="help_window_pinning_title">Przypinanie okien</string>
+  <string name="help_window_pinning_text">
+Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym górnym rogu). Gdy przypinanie okien jest aktywne, można wyświetlać kilka przypiętych okien w widoku Biblii, ale tylko jedno okno nieprzypięte. Najpierw są wyświetlane okna przypięte, następnie nieprzypięte. Możesz przykładowo otworzyć dokumenty Biblii w przypiętych oknach, i komentarze i mapy w oknach nieprzypiętych. W ten sposób będzie można mieć dokumenty Biblii zawsze otwarte i móc szybko przeskakiwać między komentarzami i innymi materiałami.</string>
   <!--Welcome text-->
+  <string name="redownload_documents">Szybkie ponowne pobieranie</string>
+  <string name="welcome_message">Dziękujemy za instalację aplikacji %s. Obecnie nie jest zainstalowana żadna wersja Biblii lub inny dokument. Aby kontynuować, pobierz co najmniej 1 dokument z internetu bądź załaduj go z pliku .zip.</string>
+  <string name="redownload_message">
+Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby pobrać je ponownie.</string>
   <!--Uncategorized-->
   <string name="close">Zamknij</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Rozumiem</string>
   <string name="first_time_help_show_next_time">Wyświetl ponownie później</string>
+  <string name="strongs_mode_title">Tryb numeracji Stronga</string>
+  <string name="download_dialog_message">Nie udało się pobrać następujących książek:</string>
+  <string name="select_multiple">Wybór wielu</string>
+  <string name="journal_description">Edytowalne bloczki notatek z własnym tekstem i zakładkami</string>
+  <string name="my_notes_description">Edytowalne notatki dołączane do zakładek</string>
+  <string name="my_notes_abbreviation">Moje notatki</string>
+  <string name="studypads">Bloczki notatek</string>
+  <string name="multi_description">Mnogie odsyłacze</string>
+  <string name="multi_abbreviation">Odsyłacze</string>
+  <string name="compare_description">Porównanie przekładów</string>
+  <string name="compare_abbreviation">Porównanie</string>
+  <string name="compare">Porównaj</string>
+  <string name="http_forbidden">zabroniony</string>
+  <string name="http_not_found">nie znaleziono</string>
+  <string name="http_unknown">inny błąd</string>
+  <string name="give_passphrase_for_module">Dokument %s jest zaszyfrowany i wymaga hasła do otwarcia</string>
+  <string name="unlocking_failed">Nie udało się odblokować: błędne hasło</string>
+  <string name="unlock_module">Ustaw hasło modułu</string>
+  <string name="unlock_info">Informacja o szyfrowanych modułach</string>
+  <string name="try_again_passphrase">Błędne hasło, czy spróbować ponownie?</string>
+  <string name="cant_delete_last_bible">Nie można usunąć ostatniego dokumentu Biblii</string>
+  <string name="show_unlock_info">O szyfrowanym module</string>
+  <string name="prefs_show_error_box_title">Wyświetl konsolę błędów JavaScript</string>
+  <string name="prefs_show_error_box_summary">Przydatne dla programistów do naprawy błędów JavaScript komponentu BibleView. Spowoduje spowolnienie aplikacji.</string>
+  <string name="active_window_indicator_title">Wyświetl znacznik aktywnego okna</string>
+  <string name="active_window_indicator_summary">Podświetl narożniki aktywnego okna</string>
+  <string name="app_licence_title">Licencja</string>
+  <string name="how_to_contribute">Jak pomóc?</string>
+  <string name="confirm_delete_bookmarks">Czy na pewno chcesz usunąć %d zakładek i powiązanych notatek?</string>
+  <string name="verse_action_copy">Kopiuj</string>
+  <string name="show_versenumbers">Wyświetl numery wersetów</string>
+  <string name="backup_button">Backup</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">Więcej</string>
 </resources>

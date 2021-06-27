@@ -31,7 +31,7 @@
 
     <template #buttons>
       <div class="modal-toolbar">
-        <div class="modal-action-button" :class="{toggled: !infoShown}" @touchstart.stop="infoShown = !infoShown">
+        <div class="modal-action-button" :class="{toggled: !infoShown}" @click="toggleInfo" @touchstart="toggleInfo">
           <FontAwesomeIcon icon="edit"/>
         </div>
         <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
@@ -64,7 +64,7 @@
           <span class="link-icon"><FontAwesomeIcon icon="file-alt"/></span>
           <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
         </div>
-        <div v-for="label in labels" :key="`label-${bookmark.id}-${label.id}`" class="link-line">
+        <div v-for="label in labels.filter(l => l.isRealLabel)" :key="`label-${bookmark.id}-${label.id}`" class="link-line">
           <span class="link-icon" :style="`color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon icon="file-alt"/></span>
           <a :href="`journal://?id=${label.id}&bookmarkId=${bookmark.id}`">{{ sprintf(strings.openStudyPad, label.name) }}</a>
         </div>
@@ -96,6 +96,7 @@ import EditableText from "@/components/EditableText";
 import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
 import BookmarkButtons from "@/components/BookmarkButtons";
+import {clickWaiter} from "@/utils";
 
 export default {
   name: "BookmarkModal",
@@ -122,12 +123,11 @@ export default {
     const bookmarkNotes = computed(() => bookmark.value.notes);
     let originalNotes = null;
 
-    setupEventBusListener(Events.BOOKMARK_CLICKED, (bookmarkId_, {openInfo = false, open = false} = {}) => {
+    setupEventBusListener(Events.BOOKMARK_CLICKED, (bookmarkId_, {openInfo = false, openNotes = false} = {}) => {
       bookmarkId.value = bookmarkId_;
       originalNotes = bookmarkNotes.value;
-      //if(!showBookmark.value) infoShown.value = false;
-      infoShown.value = openInfo || !bookmarkNotes.value;
-      editDirectly.value = open;
+      infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);
+      editDirectly.value = !infoShown.value && !bookmarkNotes.value;
       showBookmark.value = true;
     });
 
@@ -154,10 +154,17 @@ export default {
 
     const editDirectly = ref(false);
 
+    const {waitForClick} = clickWaiter();
+
+    async function toggleInfo(event) {
+      if(!await waitForClick(event)) return;
+      infoShown.value = !infoShown.value
+      editDirectly.value = !infoShown.value && !bookmarkNotes.value;
+    }
 
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,  bookmark, labelColor,
-      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, ...common
+      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, toggleInfo, ...common
     };
   },
 }

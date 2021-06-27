@@ -17,26 +17,28 @@
  */
 package net.bible.android.control.download
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.service.common.Logger
+import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoBase
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.install.DownloadException
 import org.crosswire.jsword.book.install.InstallException
 import java.lang.Exception
 import java.util.*
-import java.util.concurrent.ExecutorService
 
 /**
  * Download a single document at a time.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DownloadQueue(private val executorService: ExecutorService) {
+class DownloadQueue {
     private val beingQueued = Collections.synchronizedSet(HashSet<String>())
     private val downloadError = Collections.synchronizedSet(HashSet<String>())
     private val log = Logger(this.javaClass.simpleName)
@@ -50,50 +52,54 @@ class DownloadQueue(private val executorService: ExecutorService) {
         return application.getString(msgId)
     }
 
-    fun addDocumentToDownloadQueue(document: Book, repo: RepoBase) {
-        if (!beingQueued.contains(document.initials)) {
-            beingQueued.add(document.initials)
-            downloadError.remove(document.initials)
-            executorService.submit {
-                log.info("Downloading " + document.initials + " from repo " + repo.repoName)
+    suspend fun addDocumentToDownloadQueue(document: Book, repo: RepoBase) {
+        val repoIdentity = document.repoIdentity
+        if (!beingQueued.contains(repoIdentity)) {
+            beingQueued.add(repoIdentity)
+            downloadError.remove(repoIdentity)
+            withContext(Dispatchers.IO) {
+                log.info("Downloading " + document.osisID + " from repo " + repo.repoName)
                 try {
                     repo.downloadDocument(document)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials,
+                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.INSTALLED, 100))
                 } catch (e: DownloadException) {
                     log.error("Error downloading $document", e)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials,
+                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
-                    downloadError.add(document.initials)
+                    downloadError.add(repoIdentity)
                     val downloadStatusStr = httpError(e.statusCode)
                     val errorMessage = application.getString(R.string.error_downloading_status, e.uri.toString(), downloadStatusStr, e.statusCode)
                     instance.showErrorMsg(errorMessage)
                 } catch (e: InstallException) {
                     log.error("Error downloading $document", e)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials,
+                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
-                    downloadError.add(document.initials)
+                    downloadError.add(repoIdentity)
                     instance.showErrorMsg(R.string.error_downloading)
                 } catch (e: Exception) {
                     log.error("Error downloading $document", e)
                     instance.showErrorMsg(R.string.error_occurred, e)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials,
+                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
-                    downloadError.add(document.initials)
+                    downloadError.add(repoIdentity)
                 }
                 finally {
-                    beingQueued.remove(document.initials)
+                    beingQueued.remove(repoIdentity)
                 }
             }
         }
     }
 
-    fun isInQueue(document: Book): Boolean {
-        return beingQueued.contains(document.initials)
-    }
-
-    fun isErrorDownloading(document: Book): Boolean {
-        return downloadError.contains(document.initials)
-    }
+    fun isInQueue(document: Book): Boolean = beingQueued.contains(document.repoIdentity)
+    fun isErrorDownloading(document: Book): Boolean = downloadError.contains(document.repoIdentity)
 
 }
+
+val Book.repo: String? get() {
+    val repo = getProperty(DownloadManager.REPOSITORY_KEY)
+    if(repo?.isEmpty() == true) return null
+    return repo
+}
+
+val Book.repoIdentity: String get() = "${repo}--${initials}"

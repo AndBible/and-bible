@@ -23,11 +23,19 @@
 		<item android:id="@+id/add_bookmark"
 			android:title="@string/add_bookmark1"
 			android:orderInCategory="1"
+			android:visible="false"
+			app:showAsAction="always"
+			/>
+		<item android:id="@+id/add_bookmark_selection"
+			android:title="@string/add_bookmark3"
+			android:orderInCategory="1"
+			android:visible="false"
 			app:showAsAction="always"
 			/>
 		<item android:id="@+id/add_bookmark_whole_verse"
-			android:title="@string/add_bookmark_whole_verse"
+			android:title="@string/add_bookmark_whole_verse1"
 			android:orderInCategory="1"
+			android:visible="false"
 			app:showAsAction="always"
 			/>
 		<item android:id="@+id/remove_bookmark"
@@ -36,12 +44,17 @@
 			app:showAsAction="always"
 			/>
 		<item android:id="@+id/compare"
-			android:title="@string/compare"
+			android:title="@string/compare_abbreviation"
 			android:orderInCategory="2"
 			app:showAsAction="always"
 			/>
 		<item android:id="@+id/share_verses"
-			android:title="@string/share_verse_menu_title"
+			android:title="@string/backup_share"
+			android:orderInCategory="2"
+			app:showAsAction="always"
+			/>
+		<item android:id="@+id/system_items"
+			android:title="@string/system_items1"
 			android:orderInCategory="2"
 			app:showAsAction="always"
 			/>

@@ -1,7 +1,7 @@
 openMyNotes: Atverti mano pastabose
 openStudyPad: Atverti bloknote (%s)
 noteText: Išnašos (%s)
-noteTextWithoutType: ""
+noteTextWithoutType: Išnašos
 crossReferenceText: Kryžminės nuorodos
 findAllOccurrences: Rasti visus atitikmenis
 reportError: Pranešti apie klaidą
@@ -16,7 +16,7 @@ footnoteTypeAlternative: Alternatyva
 footnoteTypeTranslation: Vertimas
 clearLog: Išvalyti klaidų žurnalą
 editNote: Taisyti
-editNotePlaceholder: Taisyti žymės pastabą
+editNotePlaceholder: Taisyti pastabą
 editTextPlaceholder: "Bakstelėkite, norėdami taisyti tekstą"
 inputPlaceholder: Rašykite čia
 inputReference: Įveskite Biblijos nuorodą
@@ -25,7 +25,7 @@ bookmarkAccurate: Žymė buvo sukurta dokumente %s
 bookmarkInaccurate: "Žymės knygos informacija nėra saugoma, turinys yra rodomas čia: %s."
 defaultBook: numatytasis Biblijos dokumentas
 ok: Gerai
-yes: Yes
+yes: "Taip"
 ambiguousSelection: "Kurį veiksmą norite atlikti?"
 cancel: Atsisakyti
 removeBookmarkConfirmationTitle: "Šalinti žymę?"
@@ -45,9 +45,9 @@ noMyNotesDescription: >
 emptyStudyPad: >-
   Tuščias bloknotas. Galite pridėti turinį į šį bloknotą ,sukurdami čia teksto įrašus arba sukurdami žymes su žymės etikete, kuri atitinka šį bloknotą.
 studyPadModalTitle: Taisyti bloknoto įrašą
-doYouWantToDeleteEntry: "Ar tikrai norite ištrinti šį bloknoto įrašą?"
+doYouWantToDeleteEntry: "Ištrinti šį bloknoto įrašą?"
 removeStudyPadConfirmationTitle: "Šalinti bloknoto įrašą?"
-dragHelp: "Galite tempti elementus, norėdami pertvarkyti bloknotą"
+dragHelp: "Tempkite, norėdami pertvarkyti"
 saved: išsaugota
 openAll: Atverti visas nuorodas
 editBookmarkPlaceholder: "Bakstelėkite, norėdami taisyti šioje eilutėje mano pastabas"
@@ -55,13 +55,14 @@ onlyLabel: Tik etiketę
 wholeBookmark: Visą žymę
 otherNoteText: Kita pastaba
 assignLabelsMenuEntry: Priskirti etiketes
-assignLabelsMenuEntry1: ""
+assignLabelsMenuEntry1: Pasirinkti ar taisyti etiketes…
 jumpToStudyPad: Pereiti prie bloknoto
 setAsPrimaryLabel: Nustatyti kaip pirminę etiketę
-removeBookmarkLabel: Šalinti etiketę nuo žymės
-addBookmarkLabel: Pridėti etiketę prie žymės
+removeBookmarkLabel: Šalinti etiketę
+addBookmarkLabel: Pridėti etiketę
 favouriteLabels: Mėgstamos etiketės
 recentLabels: Paskiausios etiketės
 frequentlyUsedLabels: Dažniausios etiketės
-bookmarkLabels: ""
-restoreCompareTitle: ""
+bookmarkLabels: Žymės etiketės
+refParserHelp: "Norėdami naudotis nuorodomis kitokia nei anglų kalba, įsidiekite %s modulį."
+openDownloads: Pereiti į papildinių atsiuntimus

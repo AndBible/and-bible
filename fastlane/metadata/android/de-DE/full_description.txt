@@ -16,12 +16,12 @@ Das Programm hat viele originelle und aufschlussreiche Funktionen, die ein kompl
  * Verknüpfte Querverweise, Fußnoten und andere Dokumente; einfach antipppen um dahin zu springen; tiefergehende Studien ausführen durch den Gebrauch verknüpfter Kommentare (Gill, Matthew Henry, etc.), Sammlungen von Querverweisen (Treasure of Scripture Knowledge, TSKe) und anderer Resourcen.
  * Fortgeschrittene Sprachausgabe von Text mit Lesezeichen, für ein reibungsfreies Hörerlebnis
  * Flexible Suche
- * Lesezeichen, mit konfigurierbaren farbigen Gruppierungen
+ * Fortgeschrittene Lesezeichen- & Hervorhebungsfunktionen mit persönlichen Studiennotizen
  * Bibellesepläne: setze dir Ziele für deine Bibellese
  * Große Sammlung von Dokumenten: Bibelübersetzungen, theologische Kommentare, Wörterbücher, Landkarten und christliche Bücher, insgesamt über  1500 Dokumente in über 700 Sprachen, gesetzeskonform zur Verfügung gestellt von Crosswire und anderen SWORD Quellen.
  * Die Herkunft aller Dokumente wird überprüft um sicherzustellen, dass sie gesetzeskonform verbreitet werden können bzw. dass die Erlaubnis dazu vom Rechteinhaber erteilt worden ist. Das ist auch der Grund warum Dokumente wie ESV, NIV, NKJV, LUT84, NGÜ etc. nicht enthalten sind.
  * Offline: das Internet wird nur für das Herunterladen der gewünschten Dokumente benötigt.
- * 
+ * Studienmappen für Notizen und Querverweise während Predigten.
 
 <b>Lasst uns gemeinsam die beste Bibelleseapp entwickeln!</b>
 

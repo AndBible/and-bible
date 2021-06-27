@@ -204,6 +204,10 @@ interface BookmarkDao {
 
     @Delete fun delete(e: BookmarkEntities.StudyPadTextEntry)
 
+    @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId AND labelId IN (:labels)")
+    fun deleteLabelsFromBookmark(bookmarkId: Long, labels: List<Long>): Int
+    fun deleteLabelsFromBookmark(bookmark: Bookmark, labels: List<Label>): Int = deleteLabelsFromBookmark(bookmark.id, labels.map { it.id })
+
     @Insert fun insert(entities: List<BookmarkToLabel>): List<Long>
 
     @Query("SELECT * from Label WHERE name = '${SPEAK_LABEL_NAME}' LIMIT 1")

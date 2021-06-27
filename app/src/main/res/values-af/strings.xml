@@ -20,7 +20,6 @@
   <string name="contact">Kontak</string>
   <string name="help_and_tips">Hulp &amp; wenke</string>
   <string name="administration">Administrasie</string>
-  <string name="rate_application">Be-oordeel &amp; hersien in Google Play</string>
   <string name="chooce_document">Kies Dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kies \'n Boek</string>
@@ -57,7 +56,9 @@
   <string name="search_current_book">Huidige boek</string>
   <string name="error_executing_search">Ongeldige soektog</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Hoofstuk &amp; vers nommers</string>
   <string name="prefs_show_verseno_summary">Wys hoofstuk &amp; vers nommers</string>
+  <string name="prefs_show_verseno_title1">Vers nommers</string>
   <string name="prefs_verse_per_line_summary">Wys elke vers op \'n ander lyn</string>
   <string name="prefs_show_bookmarks_summary">Onmerk om alle boekmerke te verberg</string>
   <string name="prefs_show_mynotes_summary">Wys ikoon in verse met My nota</string>
@@ -67,10 +68,11 @@
   <string name="prefs_section_title_summary">Wys nie-kanonieke seksietitels</string>
   <string name="prefs_red_letter_summary">Wys woorde van Christus in rooi</string>
   <string name="prefs_text_size_title">Skrif voorkeure</string>
-  <string name="prefs_show_verseno_title">Hoofstuk &amp; vers nommers</string>
   <string name="prefs_verse_per_line_title">Een vers per lyn</string>
   <string name="prefs_show_bookmarks_title">Wys Boekmerke</string>
   <string name="prefs_show_mynotes_title">Wys My Nota ikone</string>
+  <string name="prefs_show_footnotes_title">Voet Notas</string>
+  <string name="prefs_show_xrefs_title">Kruis verwysings</string>
   <string name="prefs_show_notes_title">Voetnotas en kruis-verwysings</string>
   <string name="prefs_show_strongs_title">Strong\'s getalle</string>
   <string name="prefs_show_morphology_title">Morfologiese kodes</string>
@@ -83,15 +85,12 @@
   <string name="prefs_toolbar_button_action_swap_menu">Druk om volgende dokument oop te maak, lang druk om kieslys oop te maak</string>
   <string name="prefs_toolbar_button_action_swap_activity">Druk om volgende dokument oop te maak, lang druk vir dokumente skerm</string>
   <string name="prefs_night_mode_title">Nag mode skakel</string>
-  <string name="prefs_night_mode_summary">Of u outomaties oorskakel na die nag mode (as die toestel ondersteun word), met die hand of via die stelselinstelling (Android 10+).</string>
   <string name="prefs_night_mode_manual">handleiding</string>
   <string name="prefs_night_mode_automatic">Outomaties</string>
   <string name="prefs_night_mode_system">Stelsel</string>
   <string name="options_menu_night_mode">Nag mode</string>
   <string name="prefs_navigate_to_verse_title">Gaan na vers</string>
   <string name="prefs_navigate_to_verse_summary">Kies vers (en hoofstuk) wanneer \'n teks gekies word</string>
-  <string name="prefs_open_links_in_special_window_title">Maak skakels in \'n spesiale venster</string>
-  <string name="prefs_open_links_in_special_window_summary">Vir vinniger vertoon van die kruis-verwysings en Strongs</string>
   <string name="prefs_text_size_sample_text">Teks voorbeeld</string>
   <string name="prefs_screen_keep_on_title">Hou skerm aan</string>
   <string name="prefs_screen_keep_on_summary">Voorkom dat skerm gaan slaap tydens die gebruik van hierdie program</string>
@@ -329,6 +328,7 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="bookmark_settings_hide_labels_title">Versteek gespesifiseerde etikette</string>
   <string name="bookmark_settings_hide_labels_summary">Versteek boekmerke wat met gespesifiseerde etiket(e) gemerk is</string>
   <string name="label_color">Etiketteer kleur</string>
+  <!--can be removed-->
   <string name="label_color_example">Voorbeeld</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datum volgorde</string>
@@ -442,7 +442,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <!--User Notes-->
   <string name="mynotes">My Notas</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Deel, rugsteun &amp;amp herstel data</string>
+  <string name="backup_and_restore">Rugsteun &amp; herstel</string>
   <string name="backup_modules">Deel of rugsteun dokumente na ...</string>
   <string name="backup_app_database">Deel of rugsteun toep databasis na ...</string>
   <string name="backup_app">Deel of rugsteun toep (.apk-lêer) na ...</string>
@@ -591,13 +591,6 @@ die opspring kieslys. Jy kan jou persoonlike notas by die nuwe boekmerk voeg deu
 Uitgeligte teks in die Bybel beskouing. Daar is ook \'n spesiale dokument \'My Notes\' in kommentare wat u toelaat
 Om u notas in \'n aparte venster te sien.</string>
   <string name="help_studypads_title">Bestudeer blokies</string>
-  <string name="help_studypads_text">
-         Studie blokkies is ontwerp om dit maklik te maak om preek notas te skryf, preke voor te berei of om net
-        persoonlike Bybel studie notas neer te skryf wat veelvuldige Bybel verwysings het. Elke studie blok word geassosieer met een boekmerk etieket.
-          Alle Boekmerke wat met daardie onderskeie etiket geskep is, verskyn outomaties in die studie blok dokument.
-            Benewens boekmerke, kan daar persoonlike teks in skrywings in \'n studie blok wees.
-       Wenk: Gebruik Werk ruimte kieslys -&gt; Alle Teks Opsies -&gt; Ken Etikette toe om alle geskepte outomaties toe te ken
-     boekmerke aan die studie blok.</string>
   <string name="help_search_title">Soek</string>
   <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
 (sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
@@ -648,10 +641,10 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="multi_abbreviation">Veelvuldige</string>
   <string name="compare_description">Vergelyk vertalings</string>
   <string name="compare_abbreviation">Vergelyk</string>
+  <string name="compare">Vergelyk</string>
   <string name="http_forbidden">Verbode</string>
   <string name="http_not_found">Nie gevind nie</string>
   <string name="http_unknown">Ander fout</string>
-  <string name="compare">Vergelyk</string>
   <string name="give_passphrase_for_module">Dokument %s is geïnkripteer en moet met wagfrase ontsluit wor</string>
   <string name="unlocking_failed">Ontsluiting het misluk, ongeldige wagfrase</string>
   <string name="unlock_module">Stel module wagfrase</string>
@@ -666,7 +659,6 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="app_licence_title">Maak bron lisensie oop</string>
   <string name="how_to_contribute">Hoe om by te dra?</string>
   <string name="confirm_delete_bookmarks">Wil jy %d boekmerke en hul notas  verwyder?</string>
-  <string name="confirm_delete_study_pads">Wil jy %d boekmerketikette / studieblokkies verwyder? Ook alle geassosieerde boekmerke en studiepadnotas sal verwyder word.</string>
   <string name="module_size_megabytes">%.1fMB</string>
   <string name="tell_friend_title">Beveel dit aan vir \'n vriend</string>
   <string name="tell_friend_message1">Ek wil graag %s vir jou aanbeveel.</string>
@@ -674,6 +666,7 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="tell_friend_message3">Installeer dit by Google Play Winkel: %s</string>
   <string name="tell_friend_message4">Lees meer &amp; meer installeer opsies: %s</string>
   <string name="share_verse_ok">Deel / Kopieer</string>
+  <string name="verse_action_copy">Kopieër</string>
   <string name="share_verse_menu_title">Deel / Kopieer...</string>
   <string name="show_versenumbers">Wys vers nommers</string>
   <string name="show_full_verses">Wys volledige verse</string>
@@ -717,4 +710,5 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="does_not_exist_abbreviation">Bestaan ​​nie</string>
   <string name="cant_change_wholeverse">Kan nie hele vers merking vir hierdie boekmerk afskakel nie</string>
   <string name="whole_verse_turned_on">Boekmerk is nou gemerk vir hele vers</string>
+  <string name="system_items1">Meer</string>
 </resources>

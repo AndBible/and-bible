@@ -125,7 +125,7 @@ export function useScroll(config, appSettings, calculatedConfig, {getVerses, res
         }
     }
 
-    async function setupContent({jumpToOrdinal = null, jumpToAnchor = null, topOffset, bottomOffset}  = {}) {
+    async function setupContent({jumpToOrdinal = null, jumpToAnchor = null, jumpToId = null, topOffset, bottomOffset}  = {}) {
         await documentPromise.value;
         console.log(`setupContent`, jumpToOrdinal, jumpToAnchor, topOffset);
 
@@ -137,6 +137,8 @@ export function useScroll(config, appSettings, calculatedConfig, {getVerses, res
             scrollToId(`o-${jumpToOrdinal}`, {now: true, force: true});
         } else if (jumpToAnchor !== null) {
             scrollToId(`o-${jumpToAnchor}`, {now: true, force: true});
+        } else if(jumpToId !== null) {
+            scrollToId(jumpToId, {now: true, force: true});
         } else {
             console.log("scrolling to beginning of document (now)");
             scrollToId(null, {now: true, force: true});

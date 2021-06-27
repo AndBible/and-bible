@@ -152,8 +152,8 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
 
         buttonGrid = ButtonGrid(this)
         buttonGrid.setOnButtonGridActionListener(this)
-        buttonGrid.addButtons(bibleBookButtonInfo)
         buttonGrid.isLeftToRightEnabled = CommonUtils.sharedPreferences.getBoolean(BOOK_GRID_FLOW_PREFS, false)
+        buttonGrid.addButtons(bibleBookButtonInfo)
 
         setContentView(buttonGrid)
     }

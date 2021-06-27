@@ -108,14 +108,20 @@ open class BookmarkControl @Inject constructor(
         }
 
         if(labels != null) {
-            dao.deleteLabels(bookmark.id)
-            val filteredLabels = labels.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) }
-            dao.insert(filteredLabels)
-            if(filteredLabels.find { it.labelId == bookmark.primaryLabelId } == null) {
-                bookmark.primaryLabelId = filteredLabels.firstOrNull()?.labelId
+            val existingLabels = dao.labelsForBookmark(bookmark.id).map { it.id }.toSet()
+            val toBeDeleted = existingLabels.filterNot { labels.contains(it) }
+            val toBeAdded = labels.filterNot { existingLabels.contains(it) }
+
+            dao.deleteLabelsFromBookmark(bookmark.id, toBeDeleted)
+
+            val addBookmarkToLabels = toBeAdded.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) }
+            dao.insert(addBookmarkToLabels)
+
+            if(addBookmarkToLabels.find { it.labelId == bookmark.primaryLabelId } == null) {
+                bookmark.primaryLabelId = addBookmarkToLabels.firstOrNull()?.labelId
                 dao.update(bookmark)
             }
-            windowControl.windowRepository.updateRecentLabels(labels.toList())
+            windowControl.windowRepository?.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests ?.
         }
 
         addText(bookmark)
@@ -167,25 +173,8 @@ open class BookmarkControl @Inject constructor(
         return dao.labelsForBookmark(bookmark.id)
     }
 
-    fun setLabelsByIdForBookmark(bookmark: Bookmark, labelIdList: List<Long>) {
-        dao.deleteLabels(bookmark)
-        val filteredLabels = labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) }
-        dao.insert(filteredLabels)
-        @Suppress("UNNECESSARY_SAFE_CALL") // Leaving for tests
-        windowControl.windowRepository?.updateRecentLabels(filteredLabels.map { it.labelId })
-
-        if(filteredLabels.find { it.labelId == bookmark.primaryLabelId } == null) {
-            bookmark.primaryLabelId = filteredLabels.firstOrNull()?.labelId
-            dao.update(bookmark)
-        }
-
-        addText(bookmark)
-        addLabels(bookmark)
-        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
-    }
-
     fun setLabelsForBookmark(bookmark: Bookmark, labels: List<Label>) =
-        setLabelsByIdForBookmark(bookmark, labels.map { it.id })
+        addOrUpdateBookmark(bookmark, labels.map { it.id }.toSet())
 
     fun insertOrUpdateLabel(label: Label): Label {
         if(label.id < 0) throw RuntimeException("Illegal negative label.id")
@@ -220,7 +209,7 @@ open class BookmarkControl @Inject constructor(
                 ?.also {
                     _speakLabel = it
                 }
-            ?: Label(name = SPEAK_LABEL_NAME, color = 0).apply {
+            ?: Label(name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor).apply {
                 id = dao.insert(this)
                 _speakLabel = this
             }
@@ -415,13 +404,13 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun getNextLabel(label: Label): Label {
-        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpeakLabel && !it.isUnlabeledLabel }
+        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpecialLabel }
         val thisIndex = allLabels.indexOf(label)
         return try {allLabels[thisIndex+1]} catch (e: IndexOutOfBoundsException) {allLabels[0]}
     }
 
     fun getPrevLabel(label: Label): Label {
-        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpeakLabel && !it.isUnlabeledLabel }
+        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpecialLabel }
         val thisIndex = allLabels.indexOf(label)
         return try {allLabels[thisIndex-1]} catch (e: IndexOutOfBoundsException) {allLabels[allLabels.size - 1]}
     }
@@ -439,10 +428,6 @@ open class BookmarkControl @Inject constructor(
     }
 
     companion object {
-        const val LABEL_IDS_EXTRA = "bookmarkLabelIds"
-        const val FAVOURITE_LABEL_IDS = "favouriteLabelIds"
-        const val PRIMARY_LABEL_EXTRA = "primaryLabelExtra"
-
         const val LABEL_NO_EXTRA = "labelNo"
         private const val TAG = "BookmarkControl"
     }

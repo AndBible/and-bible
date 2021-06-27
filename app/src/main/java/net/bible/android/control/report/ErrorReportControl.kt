@@ -25,10 +25,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Build
-import android.util.AttributeSet
 import android.util.Log
-import android.view.LayoutInflater
-import android.widget.LinearLayout
 import androidx.core.content.FileProvider
 import androidx.webkit.WebViewCompat
 import kotlinx.coroutines.Dispatchers
@@ -39,15 +36,12 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
-import net.bible.android.activity.databinding.BackupViewBinding
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.applicationVersionName
-import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.CommonUtils.megabytesFree
 import java.io.BufferedReader
 import java.io.File
@@ -57,47 +51,17 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.zip.GZIPOutputStream
-import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 
-class BackupView(val activity: ActivityBase, attributeSet: AttributeSet?): LinearLayout(activity, attributeSet) {
-    @Inject lateinit var backupControl: BackupControl
-    private val bindings = BackupViewBinding.inflate(context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater, this, true)
-    init {
-        buildActivityComponent().inject(this)
-        bindings.apply {
-            backupApp.setOnClickListener { GlobalScope.launch { backupControl.backupApp(activity) } }
-            backupAppDatabase.setOnClickListener { backupControl.backupDatabaseViaSendIntent(activity, false) }
-            backupModules.setOnClickListener { GlobalScope.launch { backupControl.backupModulesViaIntent(activity) } }
-        }
-    }
-}
-
-
-@ApplicationScope
-class ErrorReportControl @Inject constructor() {
+object ErrorReportControl {
     fun sendErrorReportEmail(e: Throwable? = null, source: String) {
         GlobalScope.launch {
             BugReport.reportBug(exception = e, source = source)
         }
     }
 
-    enum class BackupDialogResult {CANCEL, OKAY}
-
-    private suspend fun backupPopup(context: ActivityBase) {
-        val result = suspendCoroutine<BackupDialogResult> {
-            val dlgBuilder = AlertDialog.Builder(context)
-                .setMessage("Backup")
-                .setCancelable(true)
-                .setView(BackupView(context, null))
-                .setOnCancelListener { _ -> it.resume(BackupDialogResult.CANCEL) }
-                .setNeutralButton(R.string.back_button) { _, _ -> it.resume(BackupDialogResult.OKAY) }
-
-            dlgBuilder.show()
-        }
-    }
 
     enum class ErrorDialogResult {CANCEL, OKAY, REPORT, BACKUP}
     suspend fun showErrorDialog(context: ActivityBase, msg: String, isCancelable: Boolean = false, report: Boolean = true) {
@@ -130,7 +94,7 @@ class ErrorReportControl @Inject constructor() {
                     ErrorDialogResult.REPORT -> BugReport.reportBug(context, useSaved = true, source = "after crash")
                     ErrorDialogResult.CANCEL -> null
                     ErrorDialogResult.BACKUP -> {
-                        backupPopup(context)
+                        BackupControl.backupPopup(context)
                         askAgain = true
                     }
                 }
@@ -151,7 +115,7 @@ class ErrorReportControl @Inject constructor() {
 const val SCREENSHOT_FILE = "screenshot.webp"
 
 object BugReport {
-    fun createErrorText(exception: Throwable? = null) = try {
+    private fun createErrorText(exception: Throwable? = null) = try {
         val text = StringBuilder()
         text.append("And Bible version: ").append(applicationVersionName).append("\n")
         text.append("Android version: ").append(Build.VERSION.RELEASE).append("\n")

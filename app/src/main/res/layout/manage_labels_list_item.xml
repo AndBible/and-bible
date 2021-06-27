@@ -69,7 +69,7 @@
 			android:singleLine="true"
 			android:ellipsize="end"
 			android:text="TEST"
-			android:paddingStart="10dip"
+			android:paddingStart="14dip"
 			android:textAppearance="?android:attr/textAppearanceMedium"/>
 
 	</androidx.constraintlayout.widget.ConstraintLayout>

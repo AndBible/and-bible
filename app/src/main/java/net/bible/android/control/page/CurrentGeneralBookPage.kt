@@ -53,7 +53,7 @@ class CurrentGeneralBookPage internal constructor(
 
     override val documentCategory = DocumentCategory.GENERAL_BOOK
 
-    private val isSpecialDoc get() = setOf(FakeBookFactory.journalDocument, FakeBookFactory.multiDocument).contains(currentDocument)
+    val isSpecialDoc get() = setOf(FakeBookFactory.journalDocument, FakeBookFactory.multiDocument).contains(currentDocument)
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
     override fun getKeyChooserIntent(context: Context): Intent? = when (currentDocument) {
@@ -73,7 +73,8 @@ class CurrentGeneralBookPage internal constructor(
                     val bookmarks = pageManager.bookmarkControl.getBookmarksWithLabel(key.label, addData = true)
                     val journalTextEntries = pageManager.bookmarkControl.getJournalTextEntriesForLabel(key.label)
                     val bookmarkToLabels = bookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it.id, key.label.id) }
-                    StudyPadDocument(key.label, bookmarks, bookmarkToLabels, journalTextEntries)
+                    val bookmarkId = key.bookmarkId
+                    StudyPadDocument(key.label, bookmarkId, bookmarks, bookmarkToLabels, journalTextEntries)
                 }
                 is BookAndKeyList -> {
                     val frags = key.filterIsInstance<BookAndKey>().map {
@@ -157,6 +158,7 @@ class CurrentGeneralBookPage internal constructor(
                 if (label != null) {
                     doSetKey(StudyPadKey(label))
                     localSetCurrentDocument(FakeBookFactory.journalDocument)
+                    anchorOrdinal = entity.anchorOrdinal
                 }
             }
             FakeBookFactory.multiDocument.initials -> {

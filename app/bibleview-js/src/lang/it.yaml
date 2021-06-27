@@ -1,7 +1,7 @@
 openMyNotes: Apri in Le mie note
 openStudyPad: Apri in Appunti di studio (%s)
 noteText: Note a piè di pagina (%s)
-noteTextWithoutType: ""
+noteTextWithoutType: Note a piè di pagina
 crossReferenceText: Riferimenti incrociati
 findAllOccurrences: Trova tutte le occorrenze
 reportError: Segnala un errore
@@ -16,7 +16,7 @@ footnoteTypeAlternative: Alternativa
 footnoteTypeTranslation: Traduzione
 clearLog: Pulisci il registro degli errori
 editNote: Modifica
-editNotePlaceholder: Modifica una nota del segnalibro
+editNotePlaceholder: Modifica nota
 editTextPlaceholder: Tocca per modificare il testo
 inputPlaceholder: Scrivi qui
 inputReference: Inserisci un riferimento biblico
@@ -25,7 +25,7 @@ bookmarkAccurate: Segnalibro creato in %s
 bookmarkInaccurate: "Informazioni del segnalibro non salvate, il contenuto è mostrato in %s."
 defaultBook: documento Bibbia di default
 ok: OK
-yes: Yes
+yes: "Si"
 ambiguousSelection: "Quale azione vuoi eseguire?"
 cancel: Annulla
 removeBookmarkConfirmationTitle: "Cancellare il segnalibro?"
@@ -45,9 +45,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Appunti di studio vuoti. Inizia aggiungendo una voce qui, o creando dei segnalibri con un'etichetta che corrisponda a questi appunti.
 studyPadModalTitle: Modifica voce degli appunti di studio
-doYouWantToDeleteEntry: "Sei sicuro di voler eliminare questa voce dagli appunti di studio?"
+doYouWantToDeleteEntry: "Eliminare voce degli appunti di studio?"
 removeStudyPadConfirmationTitle: "Eliminare voce degli appunti di studio?"
-dragHelp: Puoi trascinare e rilasciare gli elementi per riordinare gli appunti di studio
+dragHelp: Trascina per riordinare
 saved: salvato
 openAll: Apri tutti i riferimenti
 editBookmarkPlaceholder: Tocca per modificare Le mie note per questo segnalibro
@@ -55,13 +55,14 @@ onlyLabel: Solo etichetta
 wholeBookmark: Intero segnalibro
 otherNoteText: Altra nota
 assignLabelsMenuEntry: Assegna etichette
-assignLabelsMenuEntry1: ""
+assignLabelsMenuEntry1: Scegli o modifica etichette...
 jumpToStudyPad: Salta agli Appunti di studio
 setAsPrimaryLabel: Imposta come etichetta principale
-removeBookmarkLabel: Rimuovi etichetta dal segnalibro
-addBookmarkLabel: Aggiungi etichetta al segnalibro
+removeBookmarkLabel: Elimina etichetta
+addBookmarkLabel: Aggiungi etichetta
 favouriteLabels: Etichette preferite
 recentLabels: Etichette recenti
 frequentlyUsedLabels: Etichette usate più spesso
-bookmarkLabels: ""
-restoreCompareTitle: ""
+bookmarkLabels: Etichette dei segnalibri
+refParserHelp: Per favore installa il modulo %s per usare riferimenti in lingue diverse dall'inglese.
+openDownloads: Scarica estensioni

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   ~
@@ -16,8 +17,18 @@
   ~
   -->
 
-<vector android:height="24dp" android:tint="#FF0000"
-    android:viewportHeight="24" android:viewportWidth="24"
-    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillColor="@android:color/white" android:pathData="M19,13H5v-2h14v2z"/>
-</vector>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+	<group android:id="@+id/bookmark_group">
+		<item android:id="@+id/add_bookmark_selection"
+			android:title="@string/add_bookmark3"
+			android:orderInCategory="1"
+			app:showAsAction="always"
+			/>
+		<item android:id="@+id/add_bookmark_whole_verse"
+			android:title="@string/add_bookmark_whole_verse1"
+			android:orderInCategory="1"
+			app:showAsAction="always"
+			/>
+	</group>
+</menu>

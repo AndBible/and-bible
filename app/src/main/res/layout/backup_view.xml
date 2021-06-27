@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:layout_height="wrap_content"
-    android:layout_width="match_parent"
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:paddingBottom="?android:attr/scrollbarSize"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
     >
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="10dip"
         >
         <Button
             android:layout_width="match_parent"
@@ -26,6 +27,18 @@
             android:layout_height="wrap_content"
             android:id="@+id/backup_modules"
             android:text="@string/backup_modules"
+            />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/restore_app_database"
+            android:text="@string/restore_app_database"
+            />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/restore_modules"
+            android:text="@string/restore_modules"
             />
     </LinearLayout>
 </ScrollView>

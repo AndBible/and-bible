@@ -59,21 +59,16 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.sword.SwordEnvironmentInitialisation
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Books
 
-import javax.inject.Inject
 
 /** Called first to show download screen if no documents exist
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 open class StartupActivity : CustomTitlebarActivityBase() {
-
-    @Inject lateinit var errorReportControl: ErrorReportControl
-    @Inject lateinit var backupControl: BackupControl
     private lateinit var spinnerBinding: SpinnerBinding
     private lateinit var startupViewBinding: StartupViewBinding
 
@@ -145,7 +140,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     private suspend fun checkWebView(): Boolean {
         val info = WebViewCompat.getCurrentWebViewPackage(applicationContext)
-        val versionNum = info?.versionName?.split(".")?.first()?.split(" ")?.first()?.toInt() ?: 0
+        val versionNum = info?.versionName?.split(".")?.first()?.split(" ")?.first()?.toInt() ?: return true // null -> can't check
         val minimumVersion = 69 // tested with Android Emulator API 24
         if(versionNum < minimumVersion) {
             val playUrl = "https://play.google.com/store/apps/details?id=com.google.android.webview"
@@ -190,7 +185,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         BackupControl.setupDirs(this)
         GlobalScope.launch {
-            errorReportControl.checkCrash(this@StartupActivity)
+            ErrorReportControl.checkCrash(this@StartupActivity)
             // switch back to ui thread to continue
             withContext(Dispatchers.Main) {
                 postBasicInitialisationControl()
@@ -220,14 +215,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             Log.i(TAG, "Going to main bible view")
 
             // When I mess up database, I can re-create database like this.
-            // backupControl.resetDatabase()
-
+            // BackupControl.resetDatabase()
             initializeDatabase()
 
-            docDao.getUnlocked().forEach {
-                val book = Books.installed().getBook(it.initials)
-                book.unlock(it.cipherKey)
-            }
+            CommonUtils.initializeApp()
 
             gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)
@@ -350,7 +341,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     GlobalScope.launch(Dispatchers.IO) {
                         hourglass.show()
                         val inputStream = contentResolver.openInputStream(data!!.data!!)
-                        if (backupControl.restoreDatabaseViaIntent(inputStream!!)) {
+                        if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {
                             Log.d(TAG, "Restored database successfully")
 
                             withContext(Dispatchers.Main) {
@@ -366,7 +357,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     companion object {
-
         private val TAG = "StartupActivity"
 
         private val DOWNLOAD_DOCUMENT_REQUEST = 2

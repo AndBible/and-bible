@@ -55,7 +55,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.MainBibleViewBinding
@@ -84,6 +83,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
+import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
@@ -103,8 +103,8 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
-import net.bible.android.view.util.Hourglass
 import net.bible.android.view.util.UiUtils
+import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
@@ -116,7 +116,6 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
-import java.io.FileNotFoundException
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -139,12 +138,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var errorReportControl: ErrorReportControl
 
     // handle requests from main menu
     @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
     @Inject lateinit var bibleKeyHandler: BibleKeyHandler
-    @Inject lateinit var backupControl: BackupControl
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var documentControl: DocumentControl
     @Inject lateinit var navigationControl: NavigationControl
@@ -159,6 +156,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var hasHwKeys: Boolean = false
 
     private var transportBarVisible = false
+        set(value) {
+            binding.speakButton.alpha = if(value) 0.7F else 1.0F
+            field = value
+        }
 
     val dao get() = DatabaseContainer.db.workspaceDao()
     val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
@@ -198,7 +199,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Creating MainBibleActivity")
-
+        CommonUtils.initializeApp()
         // This is singleton so we can do this.
         if(_mainBibleActivity != null) {
             throw RuntimeException("MainBibleActivity was created second time!")
@@ -221,7 +222,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // use context to setup backup control dirs
         BackupControl.setupDirs(this)
 
-        backupControl.clearBackupDir()
+        BackupControl.clearBackupDir()
 
         windowRepository.initialize()
 
@@ -305,7 +306,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         if(!initialized) {
             GlobalScope.launch(Dispatchers.Main) {
-                errorReportControl.checkCrash(this@MainBibleActivity)
+                ErrorReportControl.checkCrash(this@MainBibleActivity)
                 showBetaNotice()
                 showStableNotice()
                 showFirstTimeHelp()
@@ -597,7 +598,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 true
             }
 
-            speakButton.setOnClickListener { speakControl.toggleSpeak() }
+            speakButton.setOnClickListener {
+                if(transportBarVisible) {
+                    if(speakControl.isStopped) {
+                       transportBarVisible = false
+                    }
+                } else {
+                    transportBarVisible = true
+                }
+                updateBottomBars()
+            }
+
             speakButton.setOnLongClickListener {
                 val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
                 val intent = Intent(this@MainBibleActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
@@ -607,6 +618,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE) }
             bookmarkButton.setOnClickListener { startActivityForResult(Intent(this@MainBibleActivity, Bookmarks::class.java), STD_REQUEST_CODE) }
         }
+    }
+
+    fun onEvent(event: SpeakEvent) {
+        if(event.isSpeaking) {
+            transportBarVisible = true
+            updateBottomBars()
+        } else if(event.isStopped) {
+            transportBarVisible = false
+            updateBottomBars()
+        }
+    }
+
+    fun onEvent(event: SpeakTransportWidget.HideTransportEvent) {
+        transportBarVisible = false
+        updateBottomBars()
     }
 
     private val dummyStrongsPrefOption
@@ -660,9 +686,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             updateTitle()
         }
 
-    private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface {
+    private fun getItemOptions(itemId: Int, order: Int = 0): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceName = windowRepository.name, workspaceSettings = windowRepository.textDisplaySettings)
-        return when(item.itemId) {
+        return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
                 val intent = Intent(this, TextDisplaySettingsActivity::class.java)
                 intent.putExtra("settingsBundle", settingsBundle.toJson())
@@ -670,11 +696,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }, opensDialog = true)
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository.workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
-            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
+            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[order])
             R.id.splitMode -> SplitModePreference()
             R.id.autoPinMode -> WindowPinningPreference()
             R.id.tiltToScroll -> TiltToScrollPreference()
             R.id.nightMode -> NightModePreference()
+            R.id.fullscreen -> CommandPreference(launch = { _, _, _ ->
+                fullScreen = true
+            })
             R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
                 val intent = Intent(this, WorkspaceSelectorActivity::class.java)
                 startActivityForResult(intent, WORKSPACE_CHANGED)
@@ -682,6 +711,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             else -> throw RuntimeException("Illegal menu item")
         }
     }
+    private fun getItemOptions(item: MenuItem) = getItemOptions(item.itemId, item.order)
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
@@ -689,7 +719,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val lastSettings = CommonUtils.lastDisplaySettings
         if(lastSettings.isNotEmpty()) {
             for ((idx, t) in lastSettings.withIndex()) {
-                menu.add(R.id.textOptionsGroup, R.id.textOptionItem, idx, t.name)
+                val itm = getItemOptions(R.id.textOptionItem, idx)
+                if(itm.enabled && itm.visible) {
+                    menu.add(R.id.textOptionsGroup, R.id.textOptionItem, idx, t.name)
+                }
             }
         }
         MenuCompat.setGroupDividerEnabled(menu, true)
@@ -831,7 +864,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val approximateSize = 53 * resources.displayMetrics.density
         val maxWidth = (screenWidth * 0.5).roundToInt()
         val maxButtons: Int = (maxWidth / approximateSize).toInt()
-        val showSearch = documentControl.isBibleBook || documentControl.isCommentary
+        val showSearch = documentControl.currentPage.currentPage.isSearchable
+        val showSpeak = documentControl.currentPage.currentPage.isSpeakable
 
         fun shouldShowBibleButton(): Boolean =
             toolbarButtonSetting?.let {
@@ -934,8 +968,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             invalidateOptionsMenu()
 
-            val btn = navigationView.menu.findItem(R.id.searchButton)
-            btn.isEnabled = showSearch
+            navigationView.menu.findItem(R.id.searchButton).isEnabled = showSearch
+            navigationView.menu.findItem(R.id.speakButton).isEnabled = showSpeak
         }
     }
 
@@ -1004,6 +1038,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         ABEventBus.getDefault().post(FullScreenEvent(isFullScreen))
         updateToolbar()
         updateBottomBars()
+        if(isFullScreen) {
+            ABEventBus.getDefault().post(ToastEvent(R.string.exit_fullscreen))
+        }
     }
 
     fun resetSystemUi() {
@@ -1059,15 +1096,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateBottomBars() {
         Log.d(TAG, "updateBottomBars")
-        if(isFullScreen || speakControl.isStopped) {
-            transportBarVisible = false
+        if(isFullScreen || !transportBarVisible) {
             binding.speakTransport.animate()
                 .translationY(binding.speakTransport.height.toFloat())
                 .setInterpolator(AccelerateInterpolator())
                 .withEndAction { binding.speakTransport.visibility = View.GONE }
                 .start()
         } else {
-            transportBarVisible = true
             binding.speakTransport.visibility = View.VISIBLE
             binding.speakTransport.animate()
                 .translationY(-bottomOffset1.toFloat())
@@ -1222,50 +1257,23 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return super.onKeyUp(keyCode, event)
     }
 
+    fun afterRestore() {
+        bookmarkControl.reset()
+        documentViewManager.removeView()
+        bibleViewFactory.clear()
+        windowControl.windowSync.setResyncRequired()
+        Dialogs.instance.showMsg(R.string.restore_success)
+        currentWorkspaceId = 0
+    }
+
+    fun updateDocuments() {
+        documentControl.checkIfAnyPageDocumentsDeleted()
+        updateActions()
+    }
+
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.d(TAG, "Activity result:$resultCode")
         when(requestCode) {
-            REQUEST_PICK_FILE_FOR_BACKUP_RESTORE -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    CurrentActivityHolder.getInstance().currentActivity = this
-                    Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
-                        ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
-                        val hourglass = Hourglass(this)
-                        GlobalScope.launch(Dispatchers.IO) {
-                            hourglass.show()
-                            val inputStream = try {contentResolver.openInputStream(data!!.data!!)} catch (e: FileNotFoundException) {null}
-                            if (inputStream != null && backupControl.restoreDatabaseViaIntent(inputStream)) {
-                                Log.d(TAG, "Restored database successfully")
-                                withContext(Dispatchers.Main) {
-                                    bookmarkControl.reset()
-                                    documentViewManager.removeView()
-                                    bibleViewFactory.clear()
-                                    windowControl.windowSync.setResyncRequired()
-                                    Dialogs.instance.showMsg(R.string.restore_success)
-                                    currentWorkspaceId = 0
-                                }
-                            } else {
-                                Dialogs.instance.showMsg(R.string.restore_unsuccessfull)
-                            }
-                            hourglass.dismiss()
-                        }
-                    }
-                }
-            }
-            REQUEST_PICK_FILE_FOR_BACKUP_DB -> {
-                if (data?.data == null) return // is null when user selects no file
-                mainBibleActivity.windowRepository.saveIntoDb()
-                DatabaseContainer.db.sync()
-                GlobalScope.launch(Dispatchers.IO) {
-                    backupControl.backupDatabaseToUri(data.data!!)
-                }
-            }
-            REQUEST_PICK_FILE_FOR_BACKUP_MODULES -> {
-                if (data?.data == null) return // is null when user selects no file
-                GlobalScope.launch(Dispatchers.IO) {
-                    backupControl.backupModulesToUri(data.data!!)
-                }
-            }
             WORKSPACE_CHANGED -> {
                 val extras = data?.extras
                 val workspaceId = extras?.getLong("workspaceId")
@@ -1345,8 +1353,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
             }
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {
-                documentControl.checkIfAnyPageDocumentsDeleted()
-                updateActions()
+                updateDocuments()
                 return
             }
         }
@@ -1496,12 +1503,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
 
-        const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 91
         const val TEXT_DISPLAY_SETTINGS_CHANGED = 92
         const val COLORS_CHANGED = 93
         const val WORKSPACE_CHANGED = 94
-        const val REQUEST_PICK_FILE_FOR_BACKUP_DB = 95
-        const val REQUEST_PICK_FILE_FOR_BACKUP_MODULES = 96
 
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"

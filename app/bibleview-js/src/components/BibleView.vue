@@ -34,6 +34,7 @@
       <div class="bottom-right-corner"/>
     </div>
     <div id="top"/>
+    <div class="loading" v-if="documents.length === 0"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
     <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
       <Document v-for="document in documents" :key="document.id" :document="document"/>
@@ -181,7 +182,6 @@ export default {
           margin-right: auto;
           color: ${textColor.hsl().string()};
           hyphens: ${config.hyphenation ? "auto": "none"};
-          noise-opacity: ${config.noiseOpacity/100};
           line-spacing: ${config.lineSpacing / 10}em;
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
@@ -208,9 +208,12 @@ export default {
     });
 
     const topStyle = computed(() => {
+      const noiseOpacity = appSettings.nightMode ? config.colors.nightNoise : config.colors.dayNoise;
       return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
+          --noise-opacity: ${noiseOpacity/100};
+          --text-max-width: ${config.marginSize.maxWidth}mm;
           `;
     });
 
@@ -233,6 +236,51 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+$ring-size: 40px;
+.loading {
+  position: absolute;
+  left: calc(50% - #{$ring-size}/2);
+  top: calc(50% - #{$ring-size}/2);
+}
+
+$ring-blue: rgb(129, 164, 255, 1.0);
+.lds-ring {
+  display: inline-block;
+  position: relative;
+  width: $ring-size;
+  height: $ring-size;
+  & div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: $ring-size;
+    height: $ring-size;
+    margin: 8px;
+    border: 4px solid $ring-blue;
+    border-radius: 50%;
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: $ring-blue transparent transparent transparent;
+    &:nth-child(1) {
+      animation-delay: -0.45s;
+    }
+    &:nth-child(2) {
+      animation-delay: -0.3s;
+    }
+    &:nth-child(3) {
+      animation-delay: -0.15s;
+    }
+  }
+}
+
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .background {
   z-index: -3;
   position: fixed;
@@ -240,6 +288,8 @@ export default {
   top: 0;
   right: 0;
   bottom: 0;
+  opacity: var(--noise-opacity);
+  background-image: url("~@/assets/noise.svg");
 }
 
 $dayAlpha: 0.07;

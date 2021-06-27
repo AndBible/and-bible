@@ -1,7 +1,7 @@
 openMyNotes: Malfermi en miaj notoj
 openStudyPad: Malfermi en notbloko (%s)
 noteText: Piednoto (%s)
-noteTextWithoutType: ""
+noteTextWithoutType: Piednotoj
 crossReferenceText: Internaj referencoj
 findAllOccurrences: Montri ĉiujn aperojn
 reportError: Raporti eraron
@@ -16,7 +16,7 @@ footnoteTypeAlternative: alternativo
 footnoteTypeTranslation: traduko
 clearLog: Forviŝi erar‑protokolon
 editNote: Redakti
-editNotePlaceholder: Redakti noton kiel legosignon
+editNotePlaceholder: Redakti noton
 editTextPlaceholder: Frapetu por redakti tekston
 inputPlaceholder: Skribu tien ĉi
 inputReference: Enigi biblian referencon
@@ -25,7 +25,7 @@ bookmarkAccurate: Legosigno kreita en %s
 bookmarkInaccurate: "Informo pri libro ne konservita en legosigno, montras enhavon en %s."
 defaultBook: implicita dokumento de Biblio
 ok: Bone
-yes: Yes
+yes: "Jes"
 ambiguousSelection: "Kion vi volas fari?"
 cancel: Nuligi
 removeBookmarkConfirmationTitle: "Ĉu forigi legosignon?"
@@ -45,9 +45,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Malplena notbloko. Por komenci plenigi tiun ĉi notblokon, kreu notojn tie ĉi aŭ kreu legosignojn kun legosignaj etikedoj ligitaj al tiu ĉi notbloko.
 studyPadModalTitle: Redakti noton
-doYouWantToDeleteEntry: "Ĉu vi certe volas forigi tiun ĉi enskribon en notbloko?"
+doYouWantToDeleteEntry: "Ĉu forigi tiun ĉi enskribon en notbloko?"
 removeStudyPadConfirmationTitle: "Ĉu forigi enskribon en notbloko?"
-dragHelp: Vi povas ŝovi kaj demeti elementojn en notbloko por ŝanĝi ilian ordon.
+dragHelp: Ŝovu por reordigi
 saved: konservita
 openAll: Malfermi ĉiujn referencojn
 editBookmarkPlaceholder: Frapetu por redakti noton pri tiu ĉi legosigno
@@ -55,13 +55,14 @@ onlyLabel: Nur etikedo
 wholeBookmark: Tuta legosigno
 otherNoteText: alia noto
 assignLabelsMenuEntry: Asigni etikedojn
-assignLabelsMenuEntry1: ""
+assignLabelsMenuEntry1: Elekti aŭ redakti etikedojn…
 jumpToStudyPad: Iri al notbloko
 setAsPrimaryLabel: Agordi kiel ĉefan etikedon
-removeBookmarkLabel: Forigi etikedon de legosigno
-addBookmarkLabel: Aldoni etikedon al legosigno
+removeBookmarkLabel: Forigi etikedon
+addBookmarkLabel: Aldoni etikedon
 favouriteLabels: Ŝatataj etikedoj
 recentLabels: Antaŭaj etikedoj
 frequentlyUsedLabels: Ofte uzataj etikedoj
-bookmarkLabels: ""
-restoreCompareTitle: ""
+bookmarkLabels: Legosignaj etikedoj
+refParserHelp: ""
+openDownloads: ""

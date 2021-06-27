@@ -17,7 +17,6 @@
   <string name="other">Outro</string>
   <string name="help_and_tips">Ajuda e dicas</string>
   <string name="administration">Administração</string>
-  <string name="rate_application">Avaliação e análise no Google Play</string>
   <string name="chooce_document">Escolher Documento</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Escolher o livro</string>
@@ -54,6 +53,7 @@
   <string name="search_current_book">Livro atual</string>
   <string name="error_executing_search">Pesquisa inválida</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">Números dos versículos</string>
   <string name="prefs_verse_per_line_summary">Mostrar cada versículo na sua linha</string>
   <string name="prefs_show_bookmarks_summary">Apague seleção para esconder favoritos</string>
   <string name="prefs_show_mynotes_summary">Mostrar o icon nos versículos com As Minhas Anotações</string>
@@ -66,6 +66,7 @@
   <string name="prefs_verse_per_line_title">Um versículo por linha</string>
   <string name="prefs_show_bookmarks_title">Mostrar marcadores</string>
   <string name="prefs_show_mynotes_title">Mostrar ícones das Minhas Notas</string>
+  <string name="prefs_show_footnotes_title">Notas de rodapé</string>
   <string name="prefs_show_notes_title">Notas de rodapé e referências cruzadas</string>
   <string name="prefs_show_strongs_title">Números de acordo com Strong</string>
   <string name="prefs_show_morphology_title">Códigos morfológicos</string>
@@ -73,15 +74,12 @@
   <string name="prefs_red_letter_title">Letras vermelhas</string>
   <string name="prefs_tilt_to_scroll_title">Inclinar para rolar página</string>
   <string name="prefs_night_mode_title">Comutação do modo noturno</string>
-  <string name="prefs_night_mode_summary">Se desejar alternar para o modo noturno automaticamente (se o dispositivo suportar), manualmente ou por meio da configuração do sistema (Android 10+).</string>
   <string name="prefs_night_mode_manual">Manual</string>
   <string name="prefs_night_mode_automatic">Automático</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Modo noturno</string>
   <string name="prefs_navigate_to_verse_title">Navegue até o versículo</string>
   <string name="prefs_navigate_to_verse_summary">Escolher o versículo (e capítulo) quando selecionar uma passagem</string>
-  <string name="prefs_open_links_in_special_window_title">Abrir atalhos numa janela especial</string>
-  <string name="prefs_open_links_in_special_window_summary">Para uma rápida exibição das referências cruzadas e números segundo Strong</string>
   <string name="prefs_text_size_sample_text">Texto de exemplo</string>
   <string name="prefs_screen_keep_on_title">Manter o ecran ligado</string>
   <string name="prefs_screen_keep_on_summary">Impedir que o ecran se desligue enquanto usa esta aplicação</string>
@@ -249,9 +247,12 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="bookmarks">Marcadores</string>
   <string name="bookmark_added">O marcador foi adicionado</string>
   <string name="assign_labels">Atribuir etiquetas</string>
+  <string name="new_item">Novo</string>
   <string name="new_label">Nova etiqueta</string>
   <string name="label_name_prompt">Nome</string>
   <string name="label_unlabelled">Sem etiqueta</string>
+  <string name="remove_bookmark">Remover</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordem de data</string>
   <string name="sort_by_bible_book">Ordem bíblica</string>
@@ -359,6 +360,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <!--User Notes-->
   <string name="mynotes">Anotações</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Backup e Restauro</string>
   <string name="loading_backup">Carregando a base de dados a partir do backup...</string>
   <string name="backup_modules_email_subject_2">%sbackup de módulos</string>
   <string name="backup_modules_email_message_2">Em anexo estão %sdos módulos em backup, que contêm os seguintes módulos:%s</string>
@@ -395,9 +397,11 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="yes">Sim</string>
   <string name="no">Não</string>
   <string name="error">Erro</string>
+  <string name="delete_generic">Apagar</string>
   <string name="please_wait">Por favor espere</string>
   <string name="all">Todos</string>
   <string name="edit">Editar</string>
+  <string name="reset_generic">Reiniciar</string>
   <string name="watch_tutorial_video">Veja o video de instruções (em Inglês)</string>
   <string name="verse_not_found">Não foi encontrado o versículo</string>
   <!--Errors-->
@@ -480,8 +484,14 @@ Pressione e segure o botão Voltar para ter acesso  lista do Histórico.</string
   <string name="something_with_parenthesis">%s(%s)</string>
   <string name="first_time_help_do_not_show_again">Compreendo</string>
   <string name="first_time_help_show_next_time">Mostrar de novo na próxima vez</string>
+  <string name="my_notes_abbreviation">Anotações</string>
+  <string name="compare_description">Compare as traduções</string>
+  <string name="verse_action_copy">Copiar</string>
+  <string name="show_versenumbers">Mostrar números dos versículos</string>
+  <string name="backup_button">Backup</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">Mais</string>
 </resources>

@@ -26,7 +26,7 @@
     <string name="contact">Contact</string>
     <string name="help_and_tips">Help &amp; tips</string>
     <string name="administration">Administration</string>
-    <string name="rate_application">Rate &amp; Review in Google Play</string>
+    <string name="rate_application">Rate &amp; Review</string>
     <string name="chooce_document">Choose Document</string>
 
     <!-- Passage navigation -->
@@ -68,7 +68,23 @@
     <string name="error_executing_search">Invalid search query</string>
 
     <!-- Preferences -->
+    <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
     <string name="prefs_show_verseno_summary">Show chapter &amp; verse numbers</string>
+
+    <string name="prefs_e_ink_mode_title">Black &amp; white mode</string>
+    <string name="prefs_eink_mode_summary">Use application in monochrome mode (no colors), making it more suitable for E-ink devices.</string>
+
+    <string name="prefs_disable_animations_title">Disable animations</string>
+    <string name="prefs_disable_animations_summary">Disable various animations such as smooth scrolling. </string>
+
+    <string name="prefs_paragraph_spacing_title">Paragraph spacing (%s mm)</string>
+    <string name="prefs_paragraph_spacing_summary">Adjust space between paragraphs.</string>
+
+    <string name="prefs_show_verseno_title1">Verse numbers</string>
+
+    <string name="prefs_show_chapter_no_title">Chapter numbers</string>
+    <string name="prefs_show_chapter_no_summary">Show chapter numbers</string>
+
     <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
     <string name="prefs_show_bookmarks_summary">Untick to hide all bookmarks</string>
 
@@ -80,10 +96,14 @@
     <string name="prefs_red_letter_summary">Show words of Christ in red</string>
     <string name="prefs_text_size_title">Font preferences</string>
 
-    <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
     <string name="prefs_show_bookmarks_title">Show bookmarks</string>
     <string name="prefs_show_mynotes_title">Show My Note icons</string>
+    <string name="prefs_show_footnotes_title">Footnotes</string>
+    <string name="prefs_show_xrefs_title">Cross references</string>
+    <string name="prefs_show_footnotes_summary">Show footnotes, if they are available in the document</string>
+    <string name="prefs_show_xrefs_summary">Show cross references, if they are available in the document</string>
+
     <string name="prefs_show_notes_title">Footnotes and x-refs</string>
     <string name="prefs_show_strongs_title">Strong\'s numbers</string>
     <string name="prefs_show_morphology_title">Morphological codes</string>
@@ -98,7 +118,7 @@
     <string name="prefs_toolbar_button_action_swap_activity">Press to open next document, long press for documents screen</string>
 
     <string name="prefs_night_mode_title">Night mode switching</string>
-    <string name="prefs_night_mode_summary">Whether to switch to night mode automatically (if device supports), manually or via system setting (Android 10+).</string>
+    <string name="prefs_night_mode_summary">Whether to switch to night mode automatically (if device supports), manually or via system setting (Android 10+). Manual switching can be done from the 3-dot options menu on the main screen. </string>
     <string name="prefs_night_mode_manual">Manual</string>
     <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_night_mode_system">System</string>
@@ -106,8 +126,8 @@
 
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
-    <string name="prefs_open_links_in_special_window_title">Open links in special window</string>
-    <string name="prefs_open_links_in_special_window_summary">For quicker display of cross-references and Strongs</string>
+    <string name="prefs_open_links_in_special_window_title">Links window</string>
+    <string name="prefs_open_links_in_special_window_summary">Open links in special window, for quicker display of cross-references and Strongs</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
     <string name="prefs_screen_keep_on_title">Keep screen on</string>
     <string name="prefs_screen_keep_on_summary">Prevent screen sleeping while using this app</string>
@@ -367,12 +387,17 @@
     <string name="label_name_prompt">Name</string>
     <string name="label_unlabelled">Unlabelled</string>
     <string name="add_bookmark1">Bookmark</string>
+    <string name="add_bookmark2">Bookmark Selection</string>
+    <string name="add_bookmark3">Selection</string>
     <string name="add_bookmark_whole_verse">Bookmark Verse</string>
+    <string name="add_bookmark_whole_verse1">Verses</string>
+    <string name="add_bookmark_whole_verse2">Full verses</string>
     <string name="remove_bookmark">Remove</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
+    <string name="auto_assign_labels_title">Label settings</string>
     <string name="auto_assign_labels">Auto-assign &amp; Favourite labels</string>
-    <string name="auto_assign_labels1">Auto-assign to new bookmarks</string>
+    <string name="auto_assign_labels1">Auto-assign label to new bookmarks</string>
     <string name="auto_assign_labels_primary">Auto-assign as primary</string>
     <string name="label_color">Label color</string>  <!-- can be removed -->
     <string name="label_color_example">Example</string>
@@ -453,6 +478,14 @@
     <string name="speak_autobookmarking_disabled">Autobookmarking disabled!</string>
     <string name="system_speak_settings">Open system TTS settings</string>
 
+    <string name="assing_labels_help1">Each bookmark can be assigned multiple labels. </string>
+    <!-- param is bookmark icon -->
+    <string name="assing_labels_help2">Use %s to specify which label color is shown.</string>
+    <!-- param is auto-assign label icon -->
+    <string name="assing_labels_help3">Tap %s icon to have that label is assigned automatically to new bookmarks.</string>
+    <!-- param is heart icon -->
+    <string name="assing_labels_help4">Tap %s to add label to your favourite list for quick access.</string>
+
     <string name="speak_bookmark_help">Speak bookmark help</string>
 
     <string name="speak_help_auto_bookmark">
@@ -519,15 +552,19 @@
     <string name="mynotes">My Notes</string>
 
     <!-- Backup and restore -->
-    <string name="backup_and_restore">Share, Backup &amp; Restore data</string>
+    <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup_modules">Share or Backup Documents to…</string>
     <string name="backup_app_database">Share or Backup app database to…</string>
 
     <string name="backup_app">Share or Backup app (.apk file) to …</string>
 
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
+    <string name="restore_what">What do you want to restore?</string>
+
     <string name="restore_app_database">Restore app database from…</string>
     <string name="restore_database">Restore Database File</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces?</string>
+    <string name="reading_plans_plural">Reading Plans</string>
     <string name="restore_success">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces restored successfully</string>
     <string name="loading_backup">Loading database from backup…</string>
     <string name="backup_success2">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces backed up successfully.</string>
@@ -753,10 +790,10 @@
     <string name="multi_abbreviation">Multiple</string>
     <string name="compare_description">Compare translations</string>
     <string name="compare_abbreviation">Compare</string>
+    <string name="compare">Compare</string>
     <string name="http_forbidden">Forbidden</string>
     <string name="http_not_found">Not found</string>
     <string name="http_unknown">Other error</string>
-    <string name="compare">Compare</string>
     <string name="give_passphrase_for_module">Document %s is encrypted and needs passphrase to be unlocked</string>
     <string name="unlocking_failed">Unlocking failed, invalid passphrase</string>
     <string name="unlock_module">Set module passphrase</string>
@@ -780,12 +817,15 @@
     <string name="tell_friend_message3">Install it from Play Store: %s</string>
     <string name="tell_friend_message4">Read more &amp; more install options: %s</string>
     <string name="share_verse_ok">Share / Copy</string>
+    <string name="verse_action_copy">Copy</string>
     <string name="share_verse_menu_title">Share / copy…</string>
     <string name="show_versenumbers">Show verse numbers</string>
     <string name="show_full_verses">Show full verses</string>
     <string name="advertise_app">Advertise app</string>
     <string name="verse_share_advertise">Shared using %s.</string>
     <string name="abbreviate_reference">Abbreviate reference</string>
+    <string name="version_name">Version name</string>
+
     <string name="backup_button">Backup</string>
     <string name="back_button">Back</string>
     <string name="upgrading_database">Upgrading database. Please wait…</string>
@@ -841,14 +881,47 @@
     <string name="primary_label">Primary label</string>
     <string name="highlight_entire_verse">Highlight entire verse</string>
     <string name="favourite_label">Favourite label</string>
-    <string name="edit_label">Edit bookmark label</string>
+    <string name="edit_label">Edit label</string>
     <string name="delete_label_confirmation">Do you want to remove bookmark label "%s"? Also all associated Study Pad notes will be removed.</string>
-    <string name="bookmark_underline_style_arbitrary">Underline style for normal bookmarks</string>
+    <string name="bookmark_underline_style_arbitrary">Underline style for selection bookmarks</string>
     <string name="bookmark_underline_style_whole_verse">Underline style for whole verse bookmarks</string>
-    <string name="active_labels">Active labels</string>
+    <string name="active_labels">Selected labels</string>
     <string name="recent_labels">Recent labels</string>
     <string name="other_labels">Other labels</string>
     <string name="book_menu_sort_row_opt">Order books horizontally</string>
     <string name="reset_workspace_labels">Do you want to reset auto-assign and favorite settings for this workspace?</string>
-    <string name="reset_hide_labels">Do you want to reset label hide settings?</string>
+    <string name="reset_hide_labels">Do you want to reset setting for hiding specified labels settings?</string>
+    <string name="reorder">Re-order</string>
+    <string name="system_items">System actions</string>
+    <string name="system_items1">More</string>
+    <string name="system_action2">Android actions</string>
+    <string name="text_copied_to_clicpboard">Text copied to clipboard</string>
+    <string name="prefs_disable_two_step_bookmarking_title">One-step bookmarking</string>
+    <string name="prefs_disable_two_step_bookmarking_summary">Show \"Selection\" and \"Verses\" items directly in Bible view Selection menu</string>
+    <string name="prefs_double_tap_to_fullscreen_title">Double-tap to Fullscreen</string>
+    <string name="prefs_double_tap_to_fullscreen_summary">Enter fullscreen mode by double-tapping window</string>
+    <string name="toggle_fullscreen">Fullscreen</string>
+    <string name="exit_fullscreen">Double-tap screen to exit fullscreen</string>
+    <string name="reset_app_prefs">Do you want to reset all global application preferences that are displayed on this screen to their default values?</string>
+    <string name="label_red">Red</string>
+    <string name="label_green">Green</string>
+    <string name="label_blue">Blue</string>
+    <string name="label_salvation">Salvation</string>
+    <string name="label_underline">Underline</string>
+    <string name="import_menu">Import &amp; Export</string>
+    <string name="export_fileformat">Export as %s</string>
+    <string name="import_items">Import %s</string>
+    <string name="import_from_db">Import from App Database file</string>
+    <string name="import_error">Importing from App Database failed. Database file could be wrong format or made with too old version of %s.</string>
+    <string name="chooser_range">Range</string>
+    <string name="chooser_jump">Jump</string>
+    <string name="chooser_OT_abbrev">OT</string>
+    <string name="chooser_NT_abbrev">NT</string>
+    <string name="chooser_style_grid">Grid</string>
+    <string name="chooser_style_lists">Lists</string>
+    <string name="chooser_select">Select %s</string>
+    <string name="chooser_pref_reset">Do not reset chapter/verse to 1 when book/chapter is selected</string>
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+    <string name="incomplete_translation">We are sorry, but we have only partial user interface translation in %s language. That is because %s is entirely developed by volunteers. If you can help in translating, please see %s.</string>
+    <string name="instructions_for_translators">instructions for translators</string>
 </resources>

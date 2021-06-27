@@ -26,6 +26,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
+import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
 import net.bible.android.view.activity.base.RecommendedDocuments
@@ -72,7 +73,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
     }
 
     fun onEventMainThread(event: DocumentDownloadEvent) {
-        if (event.initials == document.initials) {
+        if (event.id == document.repoIdentity) {
             updateControlState(event.documentStatus)
         }
     }

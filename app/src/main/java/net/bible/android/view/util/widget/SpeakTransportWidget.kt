@@ -27,6 +27,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpeakTransportWidgetBinding
 import net.bible.android.control.bookmark.BookmarkControl
@@ -36,6 +37,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
+import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -62,6 +64,18 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         buildActivityComponent().inject(this)
 
         binding.apply {
+            speed.progress = SpeakSettings.load().playbackSettings.speed
+            speed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    SpeakSettings.load().run {
+                        playbackSettings.speed = progress
+                        save()
+                    }
+                }
+            })
+
             speakPauseButton.setOnClickListener { onButtonClick(it) }
             prevButton.setOnClickListener { onButtonClick(it) }
             nextButton.setOnClickListener { onButtonClick(it) }
@@ -100,6 +114,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         super.onAttachedToWindow()
         resetView(SpeakSettings.load())
     }
+    class HideTransportEvent
 
     private fun onButtonClick(button: View) {
         try {
@@ -108,7 +123,13 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                     prevButton -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
                     nextButton -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
                     rewindButton -> speakControl.rewind()
-                    stopButton -> speakControl.stop()
+                    stopButton -> {
+                        if(speakControl.isStopped) {
+                            ABEventBus.getDefault().post(HideTransportEvent())
+                        } else {
+                            speakControl.stop()
+                        }
+                    }
                     speakPauseButton ->
                         when {
                             speakControl.isPaused -> speakControl.continueAfterPause()

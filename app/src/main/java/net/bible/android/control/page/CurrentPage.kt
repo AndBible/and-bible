@@ -17,7 +17,6 @@
  */
 package net.bible.android.control.page
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.view.Menu

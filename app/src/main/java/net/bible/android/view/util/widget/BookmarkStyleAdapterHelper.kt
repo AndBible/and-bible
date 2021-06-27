@@ -63,7 +63,6 @@ class BookmarkStyleAdapterHelper {
         }
         val imgText: CharSequence
         if (label.isSpeakLabel) {
-            view.setTextColor(getThemeTextColour(context))
             imgText = addImageAtStart("* $baseText", R.drawable.ic_baseline_headphones_24, context)
             view.setText(imgText, TextView.BufferType.SPANNABLE)
         } else {

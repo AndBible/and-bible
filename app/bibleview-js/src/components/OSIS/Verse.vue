@@ -16,13 +16,16 @@
   -->
 
 <template>
-  <span
-    :id="`o-${ordinal}`"
-    class="verse ordinal"
-    :data-ordinal="ordinal"
-  >
-    <span class="highlight-transition" :class="{timeout, isHighlighted: !timeout && highlighted}">
-      <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/> <span/>
+  <span :id="`v-${ordinal}`">
+    <span
+      :id="fromBibleDocument ? `o-${ordinal}` : null"
+      class="verse"
+      :class="{ordinal: fromBibleDocument}"
+      :data-ordinal="ordinal"
+    >
+      <span class="highlight-transition" :class="{timeout, isHighlighted: !timeout && highlighted}">
+        <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/> <span/>
+      </span>
     </span>
   </span>
   <span :class="{linebreak: config.showVersePerLine}"/>
@@ -70,7 +73,9 @@ export default {
       return parseInt(props.osisID.split(".")[2])
     });
 
-    const {originalOrdinalRange} = inject("bibleDocumentInfo", {})
+    const {originalOrdinalRange, ordinalRange} = inject("bibleDocumentInfo", {})
+
+    const fromBibleDocument = computed(() => !!ordinalRange);
 
     const timeout = ref(false);
     const cancelFuncs = [];
@@ -97,10 +102,9 @@ export default {
       verseMap.registerEndHighlight(endHighlight);
     }
 
-    if(originalOrdinalRange &&
-      ordinal.value <= originalOrdinalRange[1] &&
-      ordinal.value >= originalOrdinalRange[0])
+    if(originalOrdinalRange && ordinal.value <= originalOrdinalRange[1] && ordinal.value >= originalOrdinalRange[0]) {
       highlight()
+    }
 
     const common = useCommon();
     return {
@@ -111,6 +115,7 @@ export default {
       verse,
       shown,
       highlighted,
+      fromBibleDocument,
       ...common,
     }
   },

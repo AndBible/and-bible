@@ -1,7 +1,7 @@
 openMyNotes: Odpri v Mojih zaznamkih
 openStudyPad: Odpri v Moji beležnici (%s)
 noteText: Zaznamki (%s)
-noteTextWithoutType: ""
+noteTextWithoutType: Opombe
 crossReferenceText: Sklici
 findAllOccurrences: Najdi vse pojavitve
 reportError: Prijavite napako
@@ -16,7 +16,7 @@ footnoteTypeAlternative: Druga možnost
 footnoteTypeTranslation: Prevod
 clearLog: Počisti dnevnik napak
 editNote: Uredi
-editNotePlaceholder: "Uredite opombo za zaznamek "
+editNotePlaceholder: Uredi zaznamek
 editTextPlaceholder: Dotaknite se za urejanje besedila
 inputPlaceholder: Pišite tukaj
 inputReference: Vnesite biblijsko referenco
@@ -25,7 +25,7 @@ bookmarkAccurate: Zaznamek je bil ustvarjen v %s
 bookmarkInaccurate: "Informacije o zaznamkih niso shranjene, vsebina je prikazana v %s."
 defaultBook: privzeti biblijski dokument
 ok: OK
-yes: Yes
+yes: "Da"
 ambiguousSelection: "Katero dejanje želite izvesti?"
 cancel: Prekliči
 removeBookmarkConfirmationTitle: "Zaznamek odstranim?"
@@ -45,9 +45,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Prazna beležnica. Začnite dodajati na to beležnico z ustvarjanjem besedilnih vnosov ali z ustvarjanjem zaznamkov z oznako zaznamka, ki ustreza tej beležnici.
 studyPadModalTitle: Uredite vnos v beležnici
-doYouWantToDeleteEntry: "Ali ste prepričani, da želite v beležnici izbrisati ta vnos?"
+doYouWantToDeleteEntry: "Želite izbrisati ta vnos v beležnici? "
 removeStudyPadConfirmationTitle: "Želite odstraniti vnos beležnice?"
-dragHelp: "Element lahko povlečete in spustite, da znova naročite beležnico"
+dragHelp: Povlecite za prerazporeditev
 saved: shranjeno
 openAll: Odpri vse sklice
 editBookmarkPlaceholder: "Dotaknite se, če želite urediti Moje opombe za ta zaznamek"
@@ -55,13 +55,14 @@ onlyLabel: Samo oznaka
 wholeBookmark: Celoten zaznamek
 otherNoteText: Drug zaznamek
 assignLabelsMenuEntry: Dodelite oznake
-assignLabelsMenuEntry1: ""
+assignLabelsMenuEntry1: "Izberite ali uredite oznake... "
 jumpToStudyPad: Skoči na beležnico
 setAsPrimaryLabel: Nastavi kot primarno oznako
-removeBookmarkLabel: "Iz zaznamka odstrani oznako "
-addBookmarkLabel: Zaznamku dodaj oznako
+removeBookmarkLabel: Odstranite oznake
+addBookmarkLabel: Dodajte oznako
 favouriteLabels: Priljubljene oznake
 recentLabels: Nedavne oznake
 frequentlyUsedLabels: Pogosto uporabljene oznake
-bookmarkLabels: ""
-restoreCompareTitle: ""
+bookmarkLabels: Oznake zaznamkov
+refParserHelp: "Namestite %s modul za uporabo referenc v jezikih, ki niso angleščina. "
+openDownloads: Pojdite na Prenose dodatkov

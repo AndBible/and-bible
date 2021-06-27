@@ -19,22 +19,25 @@
 package net.bible.android.view.util.widget
 
 import android.app.AlertDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.text.method.ScrollingMovementMethod
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ShareVersesBinding
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
 import javax.inject.Inject
 
-class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: BibleView.Selection):
+class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: Selection):
     LinearLayout(context, attributeSet) {
     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val bindings = ShareVersesBinding.inflate(inflater, this, true)
@@ -78,11 +81,11 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
     }
 
     companion object {
-        fun dialog(context: Context, selection: BibleView.Selection) {
+        fun dialog(context: Context, selection: Selection) {
             AlertDialog.Builder(context).apply {
                 val layout = ShareWidget(context, null, selection)
                 setView(layout)
-                setPositiveButton(R.string.share_verse_ok) {
+                setPositiveButton(R.string.backup_share) {
                     _, _ ->
 
                     val emailIntent = Intent(Intent.ACTION_SEND).apply {
@@ -93,12 +96,19 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
                     context.startActivity(chooserIntent)
 
                 }
-                setNegativeButton(R.string.cancel, null)
+                setCancelable(true)
+                setNeutralButton(R.string.cancel, null)
+                setNegativeButton(R.string.verse_action_copy) { _, _ ->
+                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val clip = ClipData.newPlainText(selection.verseRange.name, layout.bindings.preview.text)
+                    clipboard.setPrimaryClip(clip)
+                    ABEventBus.getDefault().post(ToastEvent(context.getString(R.string.text_copied_to_clicpboard)))
+                }
                 setTitle(R.string.share_verse_widget_title)
                 create().show()
             }
         }
         fun dialog(context: Context, bookmark: BookmarkEntities.Bookmark) =
-            dialog(context, BibleView.Selection(bookmark))
+            dialog(context, Selection(bookmark))
     }
 }

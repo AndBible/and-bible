@@ -42,7 +42,7 @@
       <div class="journal-button" @click="deleteEntry">
         <FontAwesomeIcon icon="trash"/>
       </div>
-      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="editBookmark">
+      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click.stop="editBookmark">
         <FontAwesomeIcon icon="bookmark"/>
       </div>
     </ButtonRow>
@@ -50,8 +50,9 @@
   <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
     <b><a :href="journalEntry.bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
     <BookmarkText :expanded="journalEntry.expandContent" @change-expanded="changeExpanded" :bookmark="journalEntry"/>
+    <div v-if="journalEntry.hasNote && journalEntry.expandContent" class="separator"/>
   </template>
-  <div class="notes">
+  <div :class="{'studypad-text-entry': journalEntry.type === JournalEntryTypes.JOURNAL_TEXT, notes: journalEntry.type === JournalEntryTypes.BOOKMARK}">
     <EditableText
       ref="editor"
       :show-placeholder="journalEntry.type === JournalEntryTypes.JOURNAL_TEXT"
@@ -166,5 +167,8 @@ export default {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
-
+.notes {
+  text-indent: 2pt;
+  margin-top: 4pt;
+}
 </style>

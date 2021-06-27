@@ -171,9 +171,9 @@ export function useAndroid({bookmarks}, config) {
         return await deferredCall((callId) => android.requestNextChapter(callId));
     }
 
-    function scrolledToVerse(ordinal) {
+    function scrolledToOrdinal(ordinal) {
         if(ordinal < 0) return;
-        android.scrolledToVerse(ordinal)
+        android.scrolledToOrdinal(ordinal)
     }
 
     function saveBookmarkNote(bookmarkId, noteText) {
@@ -224,8 +224,12 @@ export function useAndroid({bookmarks}, config) {
         android.shareBookmarkVerse(bookmarkId);
     }
 
-    function openStudyPad(labelId) {
-        android.openStudyPad(labelId);
+    function openStudyPad(labelId, bookmarkId) {
+        android.openStudyPad(labelId, bookmarkId);
+    }
+
+    function openMyNotes(bookmarkId) {
+        android.openMyNotes(bookmarkId);
     }
 
     function updateOrderNumber(labelId, bookmarks, journals) {
@@ -276,7 +280,7 @@ export function useAndroid({bookmarks}, config) {
         saveBookmarkNote,
         requestPreviousChapter,
         requestNextChapter,
-        scrolledToVerse,
+        scrolledToOrdinal,
         setClientReady,
         querySelection,
         removeBookmark,
@@ -295,6 +299,7 @@ export function useAndroid({bookmarks}, config) {
         reportModalState,
         setBookmarkWholeVerse,
         toggleCompareDocument,
+        openMyNotes,
     }
 
     if(config.developmentMode) return {

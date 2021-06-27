@@ -20,7 +20,7 @@
   <string name="contact">Contacto</string>
   <string name="help_and_tips">Ayuda &amp; consejos</string>
   <string name="administration">Administración</string>
-  <string name="rate_application">Valorar y comentar en Google Play</string>
+  <string name="rate_application">Valorar y comentar</string>
   <string name="chooce_document">Elegir documento</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Elige Libro</string>
@@ -57,7 +57,13 @@
   <string name="search_current_book">Libro actual</string>
   <string name="error_executing_search">Criterio de búsqueda inválido</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Números de capítulo y versículo</string>
   <string name="prefs_show_verseno_summary">Mostrar números de capítulo y versículo</string>
+  <string name="prefs_e_ink_mode_title">Modo negro &amp; blanco</string>
+  <string name="prefs_eink_mode_summary">Utilice la aplicación en modo monocromo (sin colores), lo que la hace más adecuada para dispositivos de E-ink.</string>
+  <string name="prefs_show_verseno_title1">Numeros de verso</string>
+  <string name="prefs_show_chapter_no_title">Numeros de capítulos</string>
+  <string name="prefs_show_chapter_no_summary">Mostrar numeros de capítulos</string>
   <string name="prefs_verse_per_line_summary">Muestra cada verso en una línea diferente</string>
   <string name="prefs_show_bookmarks_summary">Desmarcar para ocultar todos los marcadores</string>
   <string name="prefs_show_mynotes_summary">Mostrar icono en versículos con Mi Nota</string>
@@ -67,10 +73,13 @@
   <string name="prefs_section_title_summary">Muestra los títulos de sección no canónicos.</string>
   <string name="prefs_red_letter_summary">Muestra las palabras de Cristo en rojo</string>
   <string name="prefs_text_size_title">Preferencias de tipografía</string>
-  <string name="prefs_show_verseno_title">Números de capítulo y versículo</string>
   <string name="prefs_verse_per_line_title">Un verso por linea</string>
   <string name="prefs_show_bookmarks_title">Mostrar marcadores</string>
   <string name="prefs_show_mynotes_title">Mostrar iconos de Mis Notas</string>
+  <string name="prefs_show_footnotes_title">Notas al pie</string>
+  <string name="prefs_show_xrefs_title">Referencias cruzadas</string>
+  <string name="prefs_show_footnotes_summary">Mostrar notas al pie, si están disponibles en el documento</string>
+  <string name="prefs_show_xrefs_summary">Mostrar referencias cruzadas, si están disponibles en el documento</string>
   <string name="prefs_show_notes_title">Pies de página y x-refs</string>
   <string name="prefs_show_strongs_title">Números de Strong</string>
   <string name="prefs_show_morphology_title">Códigos morfológicos</string>
@@ -83,15 +92,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Pulsar para abrir el siguiente documento, pulsación larga para abrir menú</string>
   <string name="prefs_toolbar_button_action_swap_activity">Pulsar para abrir el siguiente documento, pulsación larga para pantalla de documentos</string>
   <string name="prefs_night_mode_title">Cambio de modo nocturno</string>
-  <string name="prefs_night_mode_summary">Ya sea para cambiar al modo nocturno automáticamente (si el dispositivo lo admite), manualmente o mediante la configuración del sistema (Android 10+).</string>
+  <string name="prefs_night_mode_summary">Ya sea para cambiar al modo nocturno automáticamente (si el dispositivo lo admite), manualmente o mediante la configuración del sistema (Android 10+). El cambio manual se puede realizar desde el menú de opciones de 3 puntos en la pantalla principal.</string>
   <string name="prefs_night_mode_manual">Manualmente</string>
   <string name="prefs_night_mode_automatic">Automático</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Modo nocturno</string>
   <string name="prefs_navigate_to_verse_title">Navegar al versículo</string>
   <string name="prefs_navigate_to_verse_summary">Escoger versículo (y capítulo) al seleccionar un pasaje</string>
-  <string name="prefs_open_links_in_special_window_title">Abrir enlaces en ventana especial</string>
-  <string name="prefs_open_links_in_special_window_summary">Para mostrar más rápido las referencias cruzadas o negritas</string>
+  <string name="prefs_open_links_in_special_window_title">Ventana de enlaces</string>
+  <string name="prefs_open_links_in_special_window_summary">Abrir enlaces en una ventana especial, para una visualización más rápida de referencias cruzadas y Strongs</string>
   <string name="prefs_text_size_sample_text">Texto de ejemplo</string>
   <string name="prefs_screen_keep_on_title">Mantener encendida la pantalla</string>
   <string name="prefs_screen_keep_on_summary">Evita que la pantalla se apague mientras se está usando esta aplicación</string>
@@ -327,11 +336,20 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="label_name_prompt">Nombre</string>
   <string name="label_unlabelled">Sin etiquetar</string>
   <string name="add_bookmark1">Marcador</string>
+  <string name="add_bookmark2">Marcar Selección</string>
+  <string name="add_bookmark3">Selección</string>
   <string name="add_bookmark_whole_verse">Marcar versículo</string>
+  <string name="add_bookmark_whole_verse1">Versos</string>
+  <string name="add_bookmark_whole_verse2">Versos completos</string>
   <string name="remove_bookmark">Eliminar</string>
   <string name="bookmark_settings_hide_labels_title">Ocultar etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que se marcaron con la(s) etiqueta(s) especificada(s)</string>
+  <string name="auto_assign_labels_title">Configurar etiquetas</string>
+  <string name="auto_assign_labels">Auto-asignar &amp; etiquetas favoritas</string>
+  <string name="auto_assign_labels1">Auto-asignar etiqueta a nuevos marcadores</string>
+  <string name="auto_assign_labels_primary">Auto-asignar como principal</string>
   <string name="label_color">Color de etiqueta</string>
+  <!--can be removed-->
   <string name="label_color_example">Ejemplo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Orden de fecha</string>
@@ -455,7 +473,7 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <!--User Notes-->
   <string name="mynotes">Mis Notas</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Compartir, Copia de seguridad y restauración</string>
+  <string name="backup_and_restore">Copia de seguridad y restauración</string>
   <string name="backup_modules">Compartir o Guardar copia de seguridad de documentos en...</string>
   <string name="backup_app_database">Compartir o Guardar copia de seguridad de la base de datos de la aplicación en...</string>
   <string name="backup_app">Compartir o Guardar copia de seguridad de aplicación (archivo .apk) en...</string>
@@ -609,8 +627,6 @@ Los pizarras de estudio están diseñados para facilitar la redacción de notas 
 escriba notas personales de estudio bíblico que tengan múltiples referencias bíblicas. Cada pizarra de estudio está asociado con una etiqueta de marcador.
 Todos los marcadores que se han creado con esa etiqueta respectiva aparecen automáticamente en el documento de la libreta de estudio.
 Además de los marcadores, puede haber entradas de texto personalizadas en un pizarra de estudio.
-Consejo: use el menú Espacio de trabajo -&gt; Todas las opciones de texto -&gt; Asignar etiquetas para asignar automáticamente todas las
-marcadores a la libreta de estudio.
 </string>
   <string name="help_search_title">Búsqueda</string>
   <string name="help_search_text">La búsqueda de texto puede incluir caracteres especiales como *, ?, AND, OR, NOT
@@ -664,10 +680,10 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="multi_abbreviation">Múltiple</string>
   <string name="compare_description">Comparar traducciones</string>
   <string name="compare_abbreviation">Comparar</string>
+  <string name="compare">Comparar</string>
   <string name="http_forbidden">Prohibido</string>
   <string name="http_not_found">No encontrado</string>
   <string name="http_unknown">Otro error</string>
-  <string name="compare">Comparar</string>
   <string name="give_passphrase_for_module">El documento %s está cifrado y se necesita una contraseña para desbloquearlo</string>
   <string name="unlocking_failed">Desbloqueo fallido, contraseña no válida</string>
   <string name="unlock_module">Establecer contraseña del módulo</string>
@@ -682,7 +698,6 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="app_licence_title">Licencia de software libre</string>
   <string name="how_to_contribute">¿Cómo contribuir?</string>
   <string name="confirm_delete_bookmarks">¿Desea eliminar %d marcadores y sus notas?</string>
-  <string name="confirm_delete_study_pads">¿Desea eliminar %d etiquetas de marcadores / pizarras de estudio? Todos los marcadores y pizarras de estudio asociados también se eliminarán.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recomendar a las amistades</string>
   <string name="tell_friend_message1">Me gustaría recomendarte %s.</string>
@@ -690,12 +705,14 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="tell_friend_message3">Instálala desde Play Store: %s</string>
   <string name="tell_friend_message4">Leer más y otras opciones de instalación: %s</string>
   <string name="share_verse_ok">Compartir / Copia</string>
+  <string name="verse_action_copy">Copiar</string>
   <string name="share_verse_menu_title">Compartir / copia…</string>
   <string name="show_versenumbers">Mostrar números de verso</string>
   <string name="show_full_verses">Mostrar los versículos completos</string>
   <string name="advertise_app">Anunciar la aplicación</string>
   <string name="verse_share_advertise">Compartido con %s.</string>
   <string name="abbreviate_reference">Abreviar referencia</string>
+  <string name="version_name">Nombre de la versión</string>
   <string name="backup_button">Copia de seguridad</string>
   <string name="back_button">Atrás</string>
   <string name="upgrading_database">Actualizando la base de datos. Por favor espere…</string>
@@ -745,4 +762,49 @@ informe los problemas a los mantenedores de texto
   <string name="does_not_exist_abbreviation">No existe</string>
   <string name="cant_change_wholeverse">No se puede desactivar la marcación de verso completo para este marcador</string>
   <string name="whole_verse_turned_on">El marcador ahora está marcado para todo el verso</string>
+  <string name="this_bookmark">Este marcador</string>
+  <string name="this_workspace">Este espacio</string>
+  <string name="primary_label">Etiqueta principal</string>
+  <string name="highlight_entire_verse">Resalta el verso completo</string>
+  <string name="favourite_label">Etiqueta favorita</string>
+  <string name="edit_label">Editar etiqueta</string>
+  <string name="delete_label_confirmation">¿Quieres eliminar la etiqueta de marcador \"%s\"? Además, se eliminarán todas las notas de la pizarra de estudio asociadas.</string>
+  <string name="bookmark_underline_style_arbitrary">Estilo de subrayado para marcadores de selección</string>
+  <string name="bookmark_underline_style_whole_verse">Estilo de subrayado para marcadores de verso completo</string>
+  <string name="active_labels">Etiquetas seleccionadas</string>
+  <string name="recent_labels">Etiquetas recientes</string>
+  <string name="other_labels">Otras etiquetas</string>
+  <string name="book_menu_sort_row_opt">Pedir libros horizontal</string>
+  <string name="reset_workspace_labels">¿Desea restablecer la configuración de asignación automática y favorita para este espacio?</string>
+  <string name="reset_hide_labels">¿Desea restablecer la configuración para ocultar la configuración de etiquetas especificadas?</string>
+  <string name="reorder">Reordenar</string>
+  <string name="system_items">Acciones sistema</string>
+  <string name="system_items1">Más</string>
+  <string name="system_action2">Acciones Android</string>
+  <string name="text_copied_to_clicpboard">Se ha copiado el texto</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Marcador de un paso</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Mostrar elementos de \"Selección\" y \"Versos\" directamente en el menú de selección de la vista de la Biblia</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Toca dos veces para pantalla completa</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Ingrese al modo de pantalla completa tocando dos veces la ventana</string>
+  <string name="toggle_fullscreen">Pantalla completa</string>
+  <string name="exit_fullscreen">Toca dos veces la pantalla para salir de la pantalla completa</string>
+  <string name="reset_app_prefs">¿Desea restablecer todas las preferencias de la aplicación global que se muestran en esta pantalla a sus valores predeterminados?</string>
+  <string name="label_red">Rojo</string>
+  <string name="label_green">Verde</string>
+  <string name="label_blue">Azul</string>
+  <string name="label_salvation">Salvación</string>
+  <string name="label_underline">Subrayar</string>
+  <string name="import_menu">Importar &amp; Exportar</string>
+  <string name="export_fileformat">Exportar cómo %s</string>
+  <string name="import_items">Importar %s</string>
+  <string name="import_from_db">Importar desde el archivo de la base de datos de la aplicación</string>
+  <string name="import_error">Error al importar desde la base de datos de la aplicación. El archivo de base de datos puede tener un formato incorrecto o estar hecho con una versión demasiado antigua de %s.</string>
+  <string name="chooser_range">Distancia</string>
+  <string name="chooser_jump">Saltar</string>
+  <string name="chooser_OT_abbrev">AT</string>
+  <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_grid">Cuadrícula</string>
+  <string name="chooser_style_lists">Listas</string>
+  <string name="chooser_select">Seleccione %s</string>
+  <string name="chooser_pref_reset">No restablezca el capítulo/versículo a 1 cuando se selecciona libro/capítulo</string>
 </resources>

@@ -37,8 +37,9 @@ import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
-import net.bible.android.view.activity.base.NO_OPTIONS_MENU
 import net.bible.android.view.activity.base.RecommendedDocuments
+import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.db.DatabaseContainer
@@ -66,7 +67,7 @@ import kotlin.coroutines.suspendCoroutine
  */
 
 
-open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_documents_context_menu) {
+open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R.menu.download_documents_context_menu) {
     @Inject lateinit var downloadControl: DownloadControl
 
     override var recommendedDocuments : RecommendedDocuments? = null
@@ -310,7 +311,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
         }
     }
 
-    private fun doDownload(document: Book) {
+    private fun doDownload(document: Book) = GlobalScope.launch (Dispatchers.Main) {
         try {
             // the download happens in another thread
             downloadControl.downloadDocument(repoFactory, document)
@@ -319,7 +320,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
             notifyDataSetChanged()
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to download", e)
-            Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@DownloadActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -335,8 +336,6 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
-        val inflater = menuInflater
-        inflater.inflate(R.menu.download_documents, menu)
         menu.findItem(R.id.errors).isVisible = hasErrors
         menu.findItem(R.id.refresh).isVisible = !isRefreshing
         return true
@@ -391,6 +390,15 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
                     .setMessage(message)
                     .setPositiveButton(R.string.okay, null)
                     .create().show()
+            }
+            R.id.installZip -> {
+                GlobalScope.launch (Dispatchers.Main){
+                    val intent = Intent(this@DownloadActivity, InstallZip::class.java)
+                    awaitIntent(intent)
+                    mainBibleActivity.updateDocuments()
+                }
+
+                isHandled  = true
             }
         }
         if (!isHandled) {

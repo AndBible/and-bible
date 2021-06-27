@@ -138,25 +138,25 @@ $border-radius2: $border-radius - 1.5pt;
     z-index: 15;
   }
   position: absolute;
-  background-color: #fefefe;
+  background-color: $modal-content-background-color;
   padding: 0;
   border: 1px solid #888;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
   animation-name: animatetop;
   animation-duration: 0.2s;
   .night & {
-    background-color: black;
+    background-color: $modal-content-background-color-night;
     color: #bdbdbd;
   }
   border-radius: $border-radius;
+  width: var(--modal-width);
 
-  width: 80%;
-  --modal-left: calc(20% / 2);
+  --modal-left: calc((100% - var(--modal-width)) / 2);
+  --modal-width: calc(min(80%, var(--text-max-width)));
   --modal-top: 30px;
 
   &.wide {
-    width: calc(100% - 60px);
-    --modal-left: calc(60px / 2);
+    --modal-width: calc(min(var(--text-max-width) + 20px, 100% - 60px));
     --modal-top: 25px;
   }
 }

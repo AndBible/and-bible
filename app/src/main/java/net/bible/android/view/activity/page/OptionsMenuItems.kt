@@ -241,6 +241,11 @@ class NightModePreference : SharedPreferencesPreference("night_mode_pref", false
     override val visible: Boolean get() = super.visible && ScreenSettings.manualMode
 }
 
+class MyNotesPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.MYNOTES) {
+    override val visible: Boolean get() = !pageManager.isMyNotesShown
+}
+
+
 class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.STRONGS) {
     override val enabled: Boolean get() = pageManager.hasStrongs
     override var value get() = if (enabled) super.value else 0
@@ -295,7 +300,7 @@ class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDis
 
 class TopMarginPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.TOPMARGIN) {
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_top_margin_title_mm, valueInt)
-    override val visible = true
+    override val visible = pageManager.isBibleShown
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         TopMarginWidget.dialog(activity, value as Int, {
             setNonSpecific()

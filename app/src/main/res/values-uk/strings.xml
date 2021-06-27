@@ -20,7 +20,6 @@
   <string name="contact">Контакти</string>
   <string name="help_and_tips">Довідка і поради</string>
   <string name="administration">Адміністрування</string>
-  <string name="rate_application">Оцінити і Написати відгук в Google Play</string>
   <string name="chooce_document">Вибрати ресурс</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Вибрати книгу</string>
@@ -57,7 +56,9 @@
   <string name="search_current_book">Поточна книга</string>
   <string name="error_executing_search">Неприпустимий запит пошуку</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Номери розділів та віршів</string>
   <string name="prefs_show_verseno_summary">Показати номери розділів та віршів</string>
+  <string name="prefs_show_verseno_title1">Номери віршів</string>
   <string name="prefs_verse_per_line_summary">Показати один вірш на рядок</string>
   <string name="prefs_show_bookmarks_summary">Зніміть прапорець, щоб сховати всі закладки</string>
   <string name="prefs_show_mynotes_summary">Показати піктограму у віршах з Моєю Заміткою</string>
@@ -67,10 +68,11 @@
   <string name="prefs_section_title_summary">Показати неканонічні назви розділів</string>
   <string name="prefs_red_letter_summary">Показати слова Христа червоним кольором</string>
   <string name="prefs_text_size_title">Налаштування шрифту</string>
-  <string name="prefs_show_verseno_title">Номери розділів та віршів</string>
   <string name="prefs_verse_per_line_title">Один вірш на рядок</string>
   <string name="prefs_show_bookmarks_title">Показати піктограми закладок</string>
   <string name="prefs_show_mynotes_title">Показати піктограми приміток</string>
+  <string name="prefs_show_footnotes_title">Виноски</string>
+  <string name="prefs_show_xrefs_title">Перехресні посилання</string>
   <string name="prefs_show_notes_title">Виноски і ссилки</string>
   <string name="prefs_show_strongs_title">Відобразити номери Стронга</string>
   <string name="prefs_show_morphology_title">Морфологічні коди</string>
@@ -83,15 +85,12 @@
   <string name="prefs_toolbar_button_action_swap_menu">Натисніть, щоб відкрити наступний ресурс, тривале натискання, щоб відкрити меню</string>
   <string name="prefs_toolbar_button_action_swap_activity">Натисніть, щоб відкрити наступний ресурс, тривале натискання для екрану ресурсів</string>
   <string name="prefs_night_mode_title">Перемикання нічного режиму</string>
-  <string name="prefs_night_mode_summary">Перехід до нічного режиму автоматично (якщо підтримується пристроєм), вручну або за допомогою системних налаштувань (Android 10+).</string>
   <string name="prefs_night_mode_manual">Вручну</string>
   <string name="prefs_night_mode_automatic">Автоматично</string>
   <string name="prefs_night_mode_system">Система</string>
   <string name="options_menu_night_mode">Нічний режим</string>
   <string name="prefs_navigate_to_verse_title">Перейти до вірша</string>
   <string name="prefs_navigate_to_verse_summary">Вибір вірша (і розділу) при виборі місця з Біблії</string>
-  <string name="prefs_open_links_in_special_window_title">Відкрити посилання в окремому вікні</string>
-  <string name="prefs_open_links_in_special_window_summary">Для швидкого відображення взаємних посилань і номерів Стронга</string>
   <string name="prefs_text_size_sample_text">Зразок тексту</string>
   <string name="prefs_screen_keep_on_title">Не виключати екран</string>
   <string name="prefs_screen_keep_on_summary">Запобігти засипанню екрана під час користування додатком</string>
@@ -329,6 +328,7 @@
   <string name="bookmark_settings_hide_labels_title">Сховати вказані мітки</string>
   <string name="bookmark_settings_hide_labels_summary">Сховати закладки, позначені зазначеними мітками</string>
   <string name="label_color">Колір мітки</string>
+  <!--can be removed-->
   <string name="label_color_example">Приклад</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Сортувати за датою</string>
@@ -450,7 +450,7 @@
   <!--User Notes-->
   <string name="mynotes">Мої примітки</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Обмін, резервне копіювання та відновлення даних</string>
+  <string name="backup_and_restore">Резервне копіювання та відновлення</string>
   <string name="backup_modules">Поділитися або резервне копіювання ресурсів у…</string>
   <string name="backup_app_database">Поділитися або резервне копіювання бази даних додатку у…</string>
   <string name="backup_app">Поділитися або резервне копіювання додатку (файл .apk) у…</string>
@@ -598,13 +598,6 @@
 виділений текст у перегляді Біблії. У коментарях також є спеціальний ресурс \"Мої примітки\", який дозволяє вам
 переглянути свої нотатки в окремому вікні.</string>
   <string name="help_studypads_title">Блокноти</string>
-  <string name="help_studypads_text">
-Блокноти призначені щоб легко писати конспекти проповідей, для підготовки проповідей або просто
-для запису особистих приміток при вивченні Біблії, які містять кілька біблійних посилань. Кожний блокнот пов’язаний з однією міткою закладки.
-Усі закладки, створені з відповідною міткою, автоматично відображаються в документі блокноту.
-Окрім закладок, у блокноті можуть бути власні текстові записи.
-Порада: Використовуйте меню Робоча область -&gt; Усі Параметри Тексту -&gt; Призначити Мітки для автоматичного призначення всіх створених
-закладок в блокнот.</string>
   <string name="help_search_title">Пошук</string>
   <string name="help_search_text">Текст пошуку може містити спеціальні символи, такі як *, ?, AND, OR, NOT
 (див. \"Apache Lucene - Query Parser Syntax\" для більш детальнішої інформації)</string>
@@ -654,10 +647,10 @@
   <string name="multi_abbreviation">Кілька</string>
   <string name="compare_description">Порівняти переклади</string>
   <string name="compare_abbreviation">Порівняти</string>
+  <string name="compare">Порівняти</string>
   <string name="http_forbidden">Заборонено</string>
   <string name="http_not_found">Не знайдено</string>
   <string name="http_unknown">Інша помилка</string>
-  <string name="compare">Порівняти</string>
   <string name="give_passphrase_for_module">Ресурс %s зашифрований, потрібно парольну фразу для розблокування</string>
   <string name="unlocking_failed">Помилка розблокування, недійсна парольна фраза</string>
   <string name="unlock_module">Встановити парольну фразу модуля</string>
@@ -672,7 +665,6 @@
   <string name="app_licence_title">Ліцензія з відкритим кодом</string>
   <string name="how_to_contribute">Як внести свій внесок?</string>
   <string name="confirm_delete_bookmarks">Видалити %d закладки та їх примітки?</string>
-  <string name="confirm_delete_study_pads">Ви хочете видалити %d мітки закладок / блокнотів? Також буде видалено всі пов’язані закладки та примітки блокноту.</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Порекомендувати другові</string>
   <string name="tell_friend_message1">Рекомендую тобі додаток %s для глибокого і зручного вивчення Біблії.</string>
@@ -680,6 +672,7 @@
   <string name="tell_friend_message3">Встановіть його з Play Store: %s</string>
   <string name="tell_friend_message4">Детальніше і більше варіантів інсталяції: %s</string>
   <string name="share_verse_ok">Поділитися / скопіювати</string>
+  <string name="verse_action_copy">Скопіювати</string>
   <string name="share_verse_menu_title">Поділитися / скопіювати...</string>
   <string name="show_versenumbers">Показати номери віршів</string>
   <string name="show_full_verses">Показати повні вірші</string>

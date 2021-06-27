@@ -16,22 +16,50 @@
   -->
 
 <template>
-  <div style="display: flex; justify-content: space-between;" @click.stop>
+  <div class="button-container" :class="{ambiguous: !inBookmarkModal}">
     <div class="bookmark-buttons">
-      <div v-if="!inBookmarkModal" class="bookmark-button" :class="{highlighted: bookmark.hasNote}" @click="$emit('edit-clicked')">
+      <div
+        v-if="!inBookmarkModal"
+        class="bookmark-button"
+        :style="buttonColor(primaryLabel.color)"
+      >
+        <FontAwesomeIcon icon="bookmark"/>
+      </div>
+      <div
+        v-if="!inBookmarkModal"
+        class="bookmark-button"
+        @click.stop="$emit('edit-clicked')"
+        :class="{highlighted: inBookmarkModal && bookmark.hasNote}"
+        :style="buttonColor(primaryLabel.color, bookmark.hasNote)"
+      >
         <FontAwesomeIcon icon="edit"/>
       </div>
-      <div class="bookmark-button" @click="shareVerse">
+      <div
+        class="bookmark-button"
+        @click.stop="shareVerse"
+        :style="buttonColor(primaryLabel.color)"
+      >
         <FontAwesomeIcon icon="share-alt"/>
       </div>
-      <div :class="{highlighted: bookmark.wholeVerse}" class="bookmark-button" @click="toggleWholeVerse">
+      <div
+        class="bookmark-button"
+        @click.stop="toggleWholeVerse"
+        :class="{highlighted: inBookmarkModal && bookmark.wholeVerse}"
+        :style="buttonColor(primaryLabel.color, bookmark.wholeVerse)"
+      >
         <FontAwesomeIcon icon="text-width"/>
       </div>
       <template v-if="showStudyPadButtons">
         <div
+          class="bookmark-button"
+          @click.stop="openMyNotes"
+        >
+          <FontAwesomeIcon icon="file-alt"/>
+        </div>
+        <div
           v-for="label of labels.filter(l => l.isRealLabel)"
           :key="label.id"
-          :style="`color: ${adjustedColor(label.color)};`"
+          :style="buttonColor(label.color)"
           class="bookmark-button"
           @click.stop="openStudyPad(label.id)"
         >
@@ -40,7 +68,7 @@
       </template>
     </div>
     <div class="bookmark-buttons" style="align-self: end;">
-      <div class="bookmark-button end" @click="removeBookmark">
+      <div class="bookmark-button end" @click.stop="removeBookmark">
         <FontAwesomeIcon icon="trash"/>
       </div>
     </div>
@@ -59,6 +87,7 @@ import {computed, ref} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
 import AreYouSure from "@/components/modals/AreYouSure";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import Color from "color";
 
 export default {
   name: "BookmarkButtons",
@@ -71,9 +100,7 @@ export default {
   components: {AreYouSure, FontAwesomeIcon},
   setup(props, {emit}) {
     const areYouSure = ref(null);
-
     const bookmark = computed(() => props.bookmark);
-
     const android = inject("android");
 
     function toggleWholeVerse() {
@@ -94,8 +121,17 @@ export default {
       return bookmark.value.labels.map(id => bookmarkLabels.get(id));
     });
 
+    const primaryLabel = computed(() => {
+      const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
+      return bookmarkLabels.get(primaryLabelId);
+    });
+
     function openStudyPad(labelId) {
-      android.openStudyPad(labelId);
+      android.openStudyPad(labelId, bookmark.value.id);
+    }
+
+    function openMyNotes() {
+      android.openMyNotes(bookmark.value.id);
     }
 
     async function removeBookmark() {
@@ -105,14 +141,49 @@ export default {
       }
     }
 
+    function buttonColor(color, highlighted = false) {
+      if(props.inBookmarkModal) {
+        return ""
+      }
+      let col = Color(color);
+      if(highlighted) {
+        col = col.alpha(0.7);
+      }
+      return `color:${col.hsl().string()};`;
+    }
+
     return {
-      toggleWholeVerse, shareVerse, assignLabels, removeBookmark, areYouSure, labels, openStudyPad,
+      toggleWholeVerse, shareVerse, assignLabels, removeBookmark, areYouSure, labels, openStudyPad, primaryLabel, buttonColor, openMyNotes,
       ...useCommon()
     }
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import "~@/common.scss";
+.button-container {
+  display: flex;
+  justify-content: space-between;
 
+  &.ambiguous {
+    border-radius: 0 0 $button-border-radius $button-border-radius;
+    background-color: $modal-content-background-color;
+    margin: calc(-#{$button-padding} + 1.5px);
+    .night & {
+      background-color: $modal-content-background-color-night;
+    }
+  }
+}
+.bookmark-button {
+  font-size: 25px;
+  color: $button-grey;
+  padding: 5px;
+  &.end {
+    align-self: flex-end;
+  }
+  &.highlighted {
+    opacity: 0.7;
+  }
+}
 </style>

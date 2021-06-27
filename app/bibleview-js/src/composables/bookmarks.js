@@ -21,14 +21,15 @@ import {
     addEventFunction,
     arrayEq,
     colorLightness,
-    findNodeAtOffsetWithNullOffset, intersection,
+    findNodeAtOffsetWithNullOffset,
+    intersection,
     mixColors,
     rangesOverlap
 } from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
-import {faEdit, faBookmark, faHeadphones} from "@fortawesome/free-solid-svg-icons";
+import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
 import {bookmarkingModes, testMode} from "@/composables/index";
@@ -97,7 +98,7 @@ export function useGlobalBookmarks(config, documentType) {
     })
 
     const filteredBookmarks = computed(() => {
-        if(documentType.value === DocumentTypes.BIBLE_DOCUMENT && !config.showBookmarks) return [];
+        if(documentType.value === DocumentTypes.BIBLE_DOCUMENT && !config.showBookmarks && !config.showMyNotes) return [];
         const allBookmarks = Array.from(bookmarks.values());
         if(documentType.value === DocumentTypes.JOURNAL || config.bookmarksHideLabels.length === 0) return allBookmarks;
         const hideLabels = new Set(config.bookmarksHideLabels);
@@ -234,11 +235,24 @@ export function useBookmarks(documentId,
     }
 
     function showHighlight(b) {
-        return b.offsetRange == null || b.bookInitials === bookInitials
+        return b.offsetRange == null || b.bookInitials === bookInitials;
     }
 
-    const highlightBookmarks = computed(() => documentBookmarks.value.filter(b => showHighlight(b)))
-    const markerBookmarks = computed(() => documentBookmarks.value.filter(b => !showHighlight(b) && checkOrdinalEnd(b)))
+    const highlightBookmarks = computed(() => {
+        return documentBookmarks.value.filter(b => showHighlight(b))
+    })
+
+    const markerBookmarks = computed(
+        () => {
+            isMounted.value;
+            return documentBookmarks.value
+                .filter(b =>
+                    !showHighlight(b) &&
+                    checkOrdinalEnd(b) &&
+                    ((b.hasNote && config.showMyNotes) || config.showBookmarks)
+                )
+        }
+    )
 
     const styleRanges = computed(function styleRanges() {
         isMounted.value;
@@ -328,7 +342,8 @@ export function useBookmarks(documentId,
     function underlineStyleForLabels(labels, underlineLabelCount) {
         if(labels.length === 0) return "";
 
-        const color = new Color(labels[0].label.color).hsl().string();
+        const label = labels.filter(l => l.label.isRealLabel)[0] || labels[0];
+        const color = new Color(label.label.color).hsl().string();
         if(labels.length === 1 && underlineLabelCount.get(labels[0].id) === 1) {
             return `text-decoration: underline; text-decoration-style: solid; text-decoration-color: ${color};`;
         } else {
@@ -393,6 +408,7 @@ export function useBookmarks(documentId,
     }
 
     const undoHighlights = [];
+    const undoMarkers = [];
 
     function getIconElement(faIcon, iconColor) {
         const icon = document.createElement("span")
@@ -406,8 +422,7 @@ export function useBookmarks(documentId,
     function highlightStyleRange(styleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
         let firstElement, lastElement;
-        const style = styleForStyleRange(styleRange)
-
+        const style = config.showBookmarks ? styleForStyleRange(styleRange) : "";
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId));
 
         function addBookmarkEventFunctions(event) {
@@ -455,17 +470,18 @@ export function useBookmarks(documentId,
                 console.error("Highlight range failed!", {first, second, firstElem, secondElem, startOff, endOff, startOff1, endOff1})
             }
         }
+        if(config.showBookmarks) {
+            for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
+                const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.icon === "headphones");
+                if (speakLabel) {
+                    const color = adjustedColor("red").string()
+                    const iconElement = getIconElement(speakIcon, color);
 
-        for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
-            const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.icon === "headphones");
-            if (speakLabel) {
-                const color = adjustedColor("red").string()
-                const iconElement = getIconElement(speakIcon, color);
-
-                iconElement.addEventListener("click", event => addEventFunction(event,
-                    null, {bookmarkId: b.id}));
-                firstElement.parentElement.insertBefore(iconElement, firstElement);
-                undoHighlights.push(() => iconElement.remove());
+                    iconElement.addEventListener("click", event => addEventFunction(event,
+                        null, {bookmarkId: b.id}));
+                    firstElement.parentElement.insertBefore(iconElement, firstElement);
+                    undoHighlights.push(() => iconElement.remove());
+                }
             }
         }
         if(config.showMyNotes) {
@@ -495,7 +511,7 @@ export function useBookmarks(documentId,
             const b = bookmarkList[0];
             const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || b.labels[0]);
             const color = adjustedColor(bookmarkLabel.color).string();
-            const iconElement = getIconElement(bookmarkIcon, color);
+            const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
             iconElement.addEventListener("click", event => {
                 for(const b of bookmarkList) {
                     addEventFunction(event, null, {bookmarkId: b.id});
@@ -506,21 +522,24 @@ export function useBookmarks(documentId,
             }
             lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
 
-            undoHighlights.push(() => iconElement.remove());
+            undoMarkers.push(() => iconElement.remove());
         }
     }
 
     function removeHighLights() {
-        undoHighlights.reverse();
         undoHighlights.forEach(v => v())
         undoHighlights.splice(0);
+    }
+
+    function removeMarkers() {
+        undoMarkers.forEach(v => v())
+        undoMarkers.splice(0);
     }
 
     function addHighLights() {
         for (const s of styleRanges.value) {
             highlightStyleRange(s);
         }
-        addMarkers();
     }
 
     window.bibleViewDebug.removeHighLights = removeHighLights;
@@ -530,6 +549,12 @@ export function useBookmarks(documentId,
         if(!isMounted.value) return;
         removeHighLights();
         addHighLights();
+    }, {flush: 'post'});
+
+    watch(markerBookmarks, () => {
+        if(!isMounted.value) return;
+        removeMarkers();
+        addMarkers();
     }, {flush: 'post'});
 
     onMounted(() => {

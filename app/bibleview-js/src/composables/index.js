@@ -35,14 +35,13 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {
     faBookmark, faChevronCircleDown,
     faEdit,
-    faEllipsisH,
+    faEllipsisH, faEye, faEyeSlash,
     faFileAlt, faFireAlt,
     faHeadphones, faHeart, faHistory,
     faIndent,
     faInfoCircle,
     faOutdent,
-    faPlusCircle,
-    faShareAlt,
+    faPlusCircle, faShareAlt,
     faSort,
     faTags, faTextWidth,
     faTimes,
@@ -60,9 +59,9 @@ if(process.env.NODE_ENV === "test") {
     testMode = true;
 }
 
-export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToVerse}, topElement, {isScrolling}) {
+export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToOrdinal}, topElement, {isScrolling}) {
     const currentVerse = ref(null);
-    watch(() => currentVerse.value,  value => scrolledToVerse(value));
+    watch(() => currentVerse.value,  value => scrolledToOrdinal(value));
 
     const lineHeight = computed(() => {
         config; // Update also when font settings etc are changed
@@ -169,7 +168,6 @@ export function useConfig(documentType) {
         },
 
         hyphenation: true,
-        noiseOpacity: 50,
         lineSpacing: 10,
         justifyText: false,
         marginSize: {
@@ -179,11 +177,12 @@ export function useConfig(documentType) {
         },
         topMargin: 0,
     });
-    const rtl = new URLSearchParams(window.location.search).get("rtl");
+    const rtl = new URLSearchParams(window.location.search).get("rtl") === "true";
+    const nightMode = new URLSearchParams(window.location.search).get("night") === "true";
     const appSettings = reactive({
         topOffset: 0,
         bottomOffset: 100,
-        nightMode: false,
+        nightMode: nightMode,
         errorBox: false,
         favouriteLabels: [],
         recentLabels: [],
@@ -253,7 +252,8 @@ export function useConfig(documentType) {
 
     setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: newConfig, appSettings: newAppSettings, initial = false} = {}) {
         const defer = new Deferred();
-        const oldValue = config.showBookmarks;
+        const oldShowBookmarks = config.showBookmarks;
+        const oldMyNotes = config.showMyNotes;
         const isBible = documentType.value === DocumentTypes.BIBLE_DOCUMENT
         const needsRefreshLocation = !initial && (isBible || documentType.value === DocumentTypes.OSIS_DOCUMENT) && getNeedRefreshLocation(newConfig);
         const needBookmarkRefresh = getNeedBookmarkRefresh(newConfig);
@@ -262,6 +262,7 @@ export function useConfig(documentType) {
 
         if(isBible && needBookmarkRefresh) {
             config.showBookmarks = false
+            config.showMyNotes = false
             await nextTick();
         }
         for (const i in newConfig) {
@@ -286,7 +287,11 @@ export function useConfig(documentType) {
         if(isBible && needBookmarkRefresh) {
             if (newConfig.showBookmarks === undefined) {
                 // eslint-disable-next-line require-atomic-updates
-                config.showBookmarks = oldValue;
+                config.showBookmarks = oldShowBookmarks;
+            }
+            if (newConfig.showMyNotes === undefined) {
+                // eslint-disable-next-line require-atomic-updates
+                config.showMyNotes = oldMyNotes;
             }
         }
 
@@ -342,7 +347,6 @@ export function useCommon() {
 
 export function useFontAwesome() {
     library.add(faTextWidth)
-    library.add(faShareAlt)
     library.add(faHeadphones)
     library.add(faEdit)
     library.add(faTags)
@@ -360,6 +364,9 @@ export function useFontAwesome() {
     library.add(faHeart)
     library.add(faHistory)
     library.add(faFireAlt)
+    library.add(faEyeSlash);
+    library.add(faEye);
+    library.add(faShareAlt);
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {

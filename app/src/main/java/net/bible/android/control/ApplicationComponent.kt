@@ -18,7 +18,6 @@
 package net.bible.android.control
 
 import dagger.Component
-import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
@@ -29,7 +28,6 @@ import net.bible.android.control.page.PageTiltScrollControlFactory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
-import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
@@ -55,7 +53,6 @@ import net.bible.service.sword.SwordDocumentFacade
 interface ApplicationComponent {
 
     //Exposed to sub-graphs.
-    fun errorReportControl(): ErrorReportControl
 
     fun swordDocumentFacade(): SwordDocumentFacade
     fun swordContentFacade(): SwordContentFacade
@@ -70,7 +67,6 @@ interface ApplicationComponent {
     fun bibleKeyHandler(): BibleKeyHandler
 
     fun documentControl(): DocumentControl
-    fun backupControl(): BackupControl
     fun bookmarkControl(): BookmarkControl
     fun downloadControl(): DownloadControl
     fun pageControl(): PageControl

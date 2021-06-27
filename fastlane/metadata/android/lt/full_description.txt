@@ -14,7 +14,7 @@ Programėlėje yra daug sumanių, išskirtinių ypatybių, kurios sudėtingą ir
  * Darbo sritys leidžia turėti kelias Biblijos studijų sąrankas su savo atskirais nustatymais
  * Strongo integracija leidžia nagrinėti graikiškus ir hebrajiškus žodžius
  * Susijusios kryžminės nuorodos, išnašos bei dokumentai; pereikite prie kryžminių nuorodų ar išnašų, tiesiog, baksteldami ant nuorodos; atlikite nuodugnų Šventojo Rašto nagrinėjimą naudodami saitais susietus komentarus (Gill, Matthew Henry ir t.t.), kryžminių nuorodų kolekcijas (Treasure of Scripture Knowledge, TSKe) bei kitus išteklius.
- * Išplėstinis garsinio teksto atkūrimas su šnekamosiomis žymėmis, leidžiantis sklandžiai klausytis Biblijos teksto
+ * Išplėstinis garsinio teksto atkūrimas su kalbėjimo žymėmis, leidžiantis sklandžiai klausytis Biblijos teksto
  * Lanksti paieška
  * Išplėstinės žymių ir paryškinimo ypatybės kartu su asmeninio studijavimo pastabomis
  * Skaitymo planai: nusistatykite Biblijos skaitymo tikslus

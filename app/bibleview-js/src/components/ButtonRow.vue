@@ -24,7 +24,7 @@
   >
     <div class="between" v-if="expanded">
       <slot/>
-      <div v-if="showDragHandle" class="drag-handle journal-button" @click.stop="showHelp" @touchend="expanded=false">
+      <div v-if="showDragHandle" class="drag-handle journal-button" @touchstart="dragStart" @touchend="dragEnd">
         <FontAwesomeIcon icon="sort"/>
       </div>
       <div class="journal-button">
@@ -88,7 +88,22 @@ export default {
     function showHelp() {
       android.toast(strings.dragHelp);
     }
-    return {expanded, showHelp, strings, clicked, element, ...common};
+
+    let startTime = 0;
+    function dragEnd() {
+      const delta = Date.now() - startTime;
+      if(delta > 200) {
+        expanded.value = false;
+      } else {
+        showHelp();
+      }
+    }
+
+    function dragStart() {
+      startTime = Date.now();
+    }
+
+    return {expanded, strings, clicked, dragStart, dragEnd, element, ...common};
   }
 }
 </script>

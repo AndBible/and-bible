@@ -32,7 +32,7 @@ import org.crosswire.jsword.versification.VersificationsMapper
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BookInstallWatcher {
+object BookInstallWatcher {
     private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
     fun startListening() {
         Books.installed().addBooksListener(object : BooksListener {
@@ -59,7 +59,7 @@ class BookInstallWatcher {
             book.name,
             book.abbreviation,
             book.language.name,
-            book.getProperty(DownloadManager.REPOSITORY_KEY) ?: ""
+            ""
         ))
     }
 
@@ -82,7 +82,5 @@ class BookInstallWatcher {
         }
     }
 
-    companion object {
-        private const val TAG = "VersificatnMappingInit"
-    }
+    private const val TAG = "BookInstallWatcher"
 }

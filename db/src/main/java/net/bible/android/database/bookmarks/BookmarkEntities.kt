@@ -71,7 +71,7 @@ enum class BookmarkStyle(val backgroundColor: Int) {
 
     // Special hard-coded style for Speak bookmarks. This must be last one here.
     // This is removed from the style lists.
-    SPEAK(Color.argb(0, 255, 255, 255));
+    SPEAK(Color.argb(255, 255, 0, 0));
     val colorArray: List<Int> get() = intToColorArray(backgroundColor)
 }
 
@@ -270,5 +270,6 @@ class BookmarkEntities {
         override fun toString() = name
         val isSpeakLabel get() = name == SPEAK_LABEL_NAME
         val isUnlabeledLabel get() = name == UNLABELED_NAME
+        val isSpecialLabel get() = isSpeakLabel || isUnlabeledLabel
     }
 }

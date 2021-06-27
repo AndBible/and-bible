@@ -19,12 +19,16 @@
 package net.bible.service.sword
 
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.service.common.displayName
 import org.crosswire.common.util.ItemIterator
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RestrictionType
 import java.lang.UnsupportedOperationException
 
-class StudyPadKey(@Transient val label: BookmarkEntities.Label): Key {
+class StudyPadKey(
+    @Transient val label: BookmarkEntities.Label,
+    @Transient val bookmarkId: Long? = null,
+): Key {
     private val labelId = label.id
 
     override fun compareTo(other: Key?): Int {
@@ -41,7 +45,7 @@ class StudyPadKey(@Transient val label: BookmarkEntities.Label): Key {
     }
 
     override fun getName(): String {
-        return label.name
+        return label.displayName
     }
 
     override fun getName(base: Key?): String {

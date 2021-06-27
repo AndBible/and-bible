@@ -31,15 +31,21 @@
     group="journal-entries"
     ghost-class="drag-ghost"
     chosen-class="drag-chosen"
-    :item-key="(e) => `${e.type}-${e.id}`"
+    :item-key="(e) => `studypad-${e.type}-${e.id}`"
   >
     <template #item="{element: j}">
-      <div class="studypad-container" :style="indentStyle(j)" :id="`${j.type}-${j.id}`">
-        <StudyPadRow
-          :journal-entry="j"
-          :label="document.label"
-          @add="adding=true"
-        />
+      <div
+        :id="`o-${studyPadOrdinal(j)}`"
+        :data-ordinal="studyPadOrdinal(j)"
+        class="ordinal"
+      >
+        <div class="studypad-container" :style="indentStyle(j)" :id="`studypad-${j.type}-${j.id}`">
+          <StudyPadRow
+            :journal-entry="j"
+            :label="document.label"
+            @add="adding=true"
+          />
+        </div>
       </div>
     </template>
   </draggable>
@@ -134,7 +140,7 @@ export default {
       }
       await nextTick();
       if(journal && journal.new) {
-        scrollToId(`${journal.type}-${journal.id}`, {duration: 300})
+        scrollToId(`studypad-${journal.type}-${journal.id}`, {duration: 300})
       }
     })
 
@@ -168,10 +174,17 @@ export default {
       return `background-color: ${color};`;
     });
 
+    function studyPadOrdinal(journalEntry) {
+      if(journalEntry.type === JournalEntryTypes.BOOKMARK) {
+        return journalEntry.id;
+      } else {
+        return journalEntry.id + 10000;
+      }
+    }
+
     return {
-      journalEntries, editNotes, adding, indentStyle,
-      editableJournalEntry,  addNewEntry, labelNameStyle,
-      ...useCommon()
+      journalEntries, editNotes, adding, indentStyle, editableJournalEntry,  addNewEntry, labelNameStyle,
+      studyPadOrdinal, ...useCommon()
     }
   }
 }
@@ -203,10 +216,6 @@ div.journal-name {
   font-style: italic;
 }
 
-.notes {
-  text-indent: 2pt;
-  margin-top: 4pt;
-}
 </style>
 
 <style lang="scss">

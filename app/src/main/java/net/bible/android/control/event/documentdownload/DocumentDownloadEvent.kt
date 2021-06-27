@@ -15,12 +15,16 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.event.documentdownload
 
-package net.bible.android.activity;
+import net.bible.android.control.download.DocumentStatus
+import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 
-/** Legacy - this was moved but having this here prevents old shortcuts breaking
- * 
+/** Event raised when a change related to document download occurs
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class StartupActivity extends net.bible.android.view.activity.StartupActivity {
+class DocumentDownloadEvent(id: String, status: DocumentInstallStatus, percentDone: Int) {
+    val documentStatus = DocumentStatus(id, status, percentDone)
+    val id: String get() = documentStatus.id
 }

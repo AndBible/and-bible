@@ -90,6 +90,9 @@ open class CurrentPageManager @Inject constructor(
 
 
     val hasStrongs: Boolean get() {
+        if(isGenBookShown) {
+            return currentGeneralBook.isSpecialDoc
+        }
         return try {
             val currentBook = currentPage.currentDocument
             currentBook!!.bookMetaData.hasFeature(FeatureType.STRONGS_NUMBERS)

@@ -16,7 +16,7 @@ footnoteTypeAlternative: Vaihtoehtoinen
 footnoteTypeTranslation: Käännös
 clearLog: Tyhjennä virheloki
 editNote: Muokkaa
-editNotePlaceholder: Muokkaa merkintää kirjanmerkissä
+editNotePlaceholder: Muokkaa merkintää
 editTextPlaceholder: Napsauta muokataksesi tekstiä
 inputPlaceholder: Kirjoita tähän
 inputReference: Anna raamattuviite
@@ -25,7 +25,7 @@ bookmarkAccurate: Kirjanmerkki luotiin dokumentissa %s
 bookmarkInaccurate: "Kirjanmerkin kirjatietoa ei ole tallennettu, sisältö näytetään dokumentissa %s."
 defaultBook: oletusraamattudokumentti
 ok: Ok
-yes: Yes
+yes: "Kyllä"
 ambiguousSelection: "Minkä toiminteen haluat tehdä?"
 cancel: Peruuta
 removeBookmarkConfirmationTitle: "Poista kirjanmerkki?"
@@ -45,9 +45,9 @@ noMyNotesDescription: >-
 emptyStudyPad: >
   Tyhjä opintoalusta. Aloita lisäämällä opintoalustaan tekstimerkintöjä tästä tai tekemällä kirjanmerkkejä tätä opintoalustaa vastaavaan kirjanmerkkiryhmään. 
 studyPadModalTitle: Muokkaa opintoalustan merkintää
-doYouWantToDeleteEntry: "Oletko varma että haluat poistaa tämän opintoalustan merkinnän?"
+doYouWantToDeleteEntry: "Poista opintoalustan merkintä?"
 removeStudyPadConfirmationTitle: "Poista opintoalustan merkintä?"
-dragHelp: Voit raahata merkintöjä muuttaaksesi niiden järjestystä opintoalustassa
+dragHelp: Raahaa järjestääksesi uudelleen
 saved: tallennettu
 openAll: Avaa kaikki viittaukset
 editBookmarkPlaceholder: "Napsauta muokataksesi tähän kirjanmerkkiin liittyviä merkintöjä "
@@ -55,13 +55,14 @@ onlyLabel: Vain ryhmämerkintä
 wholeBookmark: Koko kirjanmerkki
 otherNoteText: Muu huomio
 assignLabelsMenuEntry: Sijoita ryhmiin
-assignLabelsMenuEntry1: Valitse tai muokkaa kirjanmerkkiryhmiä listalta...
+assignLabelsMenuEntry1: Valitse tai muokkaa kirjanmerkkiryhmiä...
 jumpToStudyPad: Hyppää opintoalustaan
 setAsPrimaryLabel: Aseta pääasialliseksi kirjanmerkkiryhmäksi
-removeBookmarkLabel: Poista kirjanmerkkiryhmä kirjanmerkistä
-addBookmarkLabel: Lisää kirjanmerkkiryhmä kirjanmerkille
+removeBookmarkLabel: Poista kirjanmerkkiryhmä
+addBookmarkLabel: Lisää kirjanmerkkiryhmä
 favouriteLabels: Suosikkiryhmät
 recentLabels: Viimeaikaiset ryhmät
 frequentlyUsedLabels: Usein käytetyt ryhmät
 bookmarkLabels: Kirjanmerkkiryhmät
-restoreCompareTitle: Palauta
+refParserHelp: Asenna moduuli %s tehdäksesi viittauksia muilla kuin englannin kielellä.
+openDownloads: Siirry lisäosien latauksiin

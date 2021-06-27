@@ -45,12 +45,18 @@ export default {
     // eslint-disable-next-line vue/no-setup-props-destructure
     const {bookmarks} = props.document;
 
+    const config = inject("config");
+
     const globalBookmarks = inject("globalBookmarks");
 
     globalBookmarks.updateBookmarks(...bookmarks);
 
     const notes = computed(() => {
-      return sortBy(globalBookmarks.bookmarks.value, [o => o.ordinalRange[0], o => o.offsetRange && o.offsetRange[0]])
+      let bs = globalBookmarks.bookmarks.value;
+      if(!config.showBookmarks) {
+        bs = bs.filter(v => v.hasNote)
+      }
+      return sortBy(bs, [o => o.ordinalRange[0], o => o.offsetRange && o.offsetRange[0]])
     });
 
     return {notes, ...useCommon()}

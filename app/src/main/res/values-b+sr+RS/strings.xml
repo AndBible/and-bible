@@ -17,7 +17,6 @@
   <string name="other">Друго</string>
   <string name="help_and_tips">Помоћ и савети</string>
   <string name="administration">Управљање</string>
-  <string name="rate_application">Оцените и опишите у Гугл Продавници</string>
   <string name="chooce_document">Изабери документ</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Изабери књигу</string>
@@ -54,6 +53,7 @@
   <string name="search_current_book">Тренутна књига</string>
   <string name="error_executing_search">Нерегуларан упит за претрагу</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">Бројеви стихова</string>
   <string name="prefs_verse_per_line_summary">Прикажи сваки стих у посебном реду</string>
   <string name="prefs_show_bookmarks_summary">Одштриклирај да се сакрију сви обележивачи</string>
   <string name="prefs_show_mynotes_summary">Прикажи иконицу у стиховима са Мојом белешком</string>
@@ -66,6 +66,7 @@
   <string name="prefs_verse_per_line_title">Један стих у реду</string>
   <string name="prefs_show_bookmarks_title">Прикажи обележиваче</string>
   <string name="prefs_show_mynotes_title">Прикажи иконице Моје белешке</string>
+  <string name="prefs_show_footnotes_title">Фусноте</string>
   <string name="prefs_show_notes_title">Фусноте и унакресне референце</string>
   <string name="prefs_show_strongs_title">Стронгови бројеви</string>
   <string name="prefs_show_morphology_title">Морфолошки кодови</string>
@@ -73,15 +74,12 @@
   <string name="prefs_red_letter_title">Црвено Писмо</string>
   <string name="prefs_tilt_to_scroll_title">Нагни за скроловање</string>
   <string name="prefs_night_mode_title">Контрола ноћног режима</string>
-  <string name="prefs_night_mode_summary">Пребаци на ноћни режим аутоматски (уколико уређај подржава), ручно или путем системских поставки (Андроид 10+).</string>
   <string name="prefs_night_mode_manual">Ручна</string>
   <string name="prefs_night_mode_automatic">Аутоматски</string>
   <string name="prefs_night_mode_system">Системска</string>
   <string name="options_menu_night_mode">Ноћни режим</string>
   <string name="prefs_navigate_to_verse_title">Иди на стих</string>
   <string name="prefs_navigate_to_verse_summary">Изабери стих (и поглавље) када се означи одломак.</string>
-  <string name="prefs_open_links_in_special_window_title">Отвори везе у прозору за посебне везе</string>
-  <string name="prefs_open_links_in_special_window_summary">За бржи приказ унакрсних референци и Стронгова</string>
   <string name="prefs_text_size_sample_text">Узорак текста</string>
   <string name="prefs_screen_keep_on_title">Држи екран укљученим</string>
   <string name="prefs_screen_keep_on_summary">Спречи екран да оде у спавање током коришћења апликације</string>
@@ -257,9 +255,12 @@
   <string name="bookmarks">Обележивачи</string>
   <string name="bookmark_added">Додат обележивач</string>
   <string name="assign_labels">Додели налепнице</string>
+  <string name="new_item">Нови</string>
   <string name="new_label">Нова налепница</string>
   <string name="label_name_prompt">Име</string>
   <string name="label_unlabelled">Неозначено</string>
+  <string name="remove_bookmark">Уклони</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Датумски редослед</string>
   <string name="sort_by_bible_book">Библијски редослед</string>
@@ -385,6 +386,7 @@
   <!--User Notes-->
   <string name="mynotes">Моје белешке</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Резервна копија и враћање</string>
   <string name="loading_backup">Учитавање базе података из резервне копије...</string>
   <string name="backup_modules_email_subject_2">Резервна копија модула %s </string>
   <string name="backup_modules_email_message_2">Закачена је резервна копија %s модула, која садржи следеће модуле: %s</string>
@@ -421,9 +423,11 @@
   <string name="yes">Да</string>
   <string name="no">Не</string>
   <string name="error">Грешка</string>
+  <string name="delete_generic">Обриши</string>
   <string name="please_wait">Молим сачекајте...</string>
   <string name="all">Све</string>
   <string name="edit">Измени</string>
+  <string name="reset_generic">Ресет</string>
   <string name="watch_tutorial_video">Погледајте видео са упутствима (на енглеском)</string>
   <string name="verse_not_found">Стих није пронађен</string>
   <!--Errors-->
@@ -512,6 +516,10 @@
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Разумем</string>
   <string name="first_time_help_show_next_time">Прикажи и следећи пут</string>
+  <string name="my_notes_abbreviation">Моје белешке</string>
+  <string name="compare_description">Упореди преводе</string>
+  <string name="verse_action_copy">Копирај</string>
+  <string name="show_versenumbers">Прикажи бројеве стихова</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
