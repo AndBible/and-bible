@@ -595,6 +595,8 @@
     <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
+    <string name="send_bug_report_title1">Bug report</string>
+    <string name="send_feedback_title">Feedback</string>
     <string name="send_bug_report_title">Feedback / bug report</string>
     <string name="report_bug_email_subject_3">[%s] Bug report for %s %s</string>
 
@@ -926,4 +928,5 @@
     <string name="incomplete_translation">We are sorry, but we have only partial user interface translation in %s language. That is because %s is entirely developed by volunteers. If you can help in translating, please see %s.</string>
     <string name="instructions_for_translators">instructions for translators</string>
     <string name="questions_title">Questions?</string>
+    <string name="questions_title2">Need help?</string>
 </resources>
