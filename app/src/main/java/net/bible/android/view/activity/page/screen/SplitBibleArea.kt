@@ -21,6 +21,7 @@ package net.bible.android.view.activity.page.screen
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Rect
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -42,6 +43,7 @@ import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.MenuItemCompat
 import androidx.core.view.children
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -735,7 +737,11 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                         item.setIcon(R.drawable.ic_sync_disabled_green_24dp)
                     }
                 }
-
+                if(item.itemId != R.id.textOptionItem) {
+                    MenuItemCompat.setIconTintList(item,
+                        ColorStateList.valueOf(CommonUtils.getResourceColor(R.color.grey_500))
+                    )
+                }
                 if(item.hasSubMenu()) {
                     handleMenu(item.subMenu)
                     continue
