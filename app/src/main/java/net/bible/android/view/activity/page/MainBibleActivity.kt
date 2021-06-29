@@ -41,11 +41,13 @@ import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ActionMode
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuPopupHelper
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
@@ -577,6 +579,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun setupToolbarButtons() {
         binding.apply {
+            optionsMenu.setOnClickListener {
+                showOptionsMenu()
+            }
             homeButton.setOnClickListener {
                 if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
                     drawerLayout.closeDrawers()
@@ -713,7 +718,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
     private fun getItemOptions(item: MenuItem) = getItemOptions(item.itemId, item.order)
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+    @SuppressLint("RestrictedApi")
+    fun showOptionsMenu() {
+        val popup = PopupMenu(this, binding.optionsMenu)
+        val menu = popup.menu
+        val menuHelper = MenuPopupHelper(this, menu as MenuBuilder, binding.optionsMenu)
+        popup.setOnMenuItemClickListener { menuItem ->
+            handlePrefItem(menuItem)
+            true
+        }
+        menuHelper.setForceShowIcon(true)
+
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
 
         val lastSettings = CommonUtils.lastDisplaySettings
@@ -749,7 +764,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
         }
         handleMenu(menu)
-        return true
+        menuHelper.show()
     }
 
     private fun handlePrefItem(item: MenuItem) {
@@ -780,11 +795,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
             itemOptions.openDialog(this, {onReady()}, onReset)
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        handlePrefItem(item)
-        return true
     }
 
     private val documentTitleText: String

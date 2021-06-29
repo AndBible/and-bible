@@ -136,6 +136,15 @@
                         android:contentDescription="@string/doc_type_commentary"
                         app:srcCompat="@drawable/ic_commentary"
                         />
+                    <ImageButton
+                        android:id="@+id/optionsMenu"
+                        style="@style/MyActionButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/system_items1"
+                        app:srcCompat="@drawable/ic_more_vert_black_24dp"
+                        />
+
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.appcompat.widget.Toolbar>
