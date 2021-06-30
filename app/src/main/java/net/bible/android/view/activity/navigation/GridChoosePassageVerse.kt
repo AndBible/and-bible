@@ -29,6 +29,7 @@ import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
+import net.bible.service.common.CommonUtils
 
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -72,7 +73,7 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
 
         val grid = ButtonGrid(this)
         grid.setOnButtonGridActionListener(this)
-
+        grid.isLeftToRightEnabled = CommonUtils.sharedPreferences.getBoolean(GridChoosePassageBook.BOOK_GRID_FLOW_PREFS, false)
         grid.addButtons(getBibleVersesButtonInfo(mBibleBook, mBibleChapterNo))
         setContentView(grid)
     }

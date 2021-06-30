@@ -313,7 +313,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         private val REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF)
         private val OTHER_COLOR = ACTS_COLOR
 
-        private const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
+        public const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
         private const val TAG = "GridChoosePassageBook"
     }
 }
