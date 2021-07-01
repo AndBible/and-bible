@@ -24,9 +24,12 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.SpannableString
+import android.text.TextUtils
+import android.text.method.LinkMovementMethod
 import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
@@ -59,6 +62,8 @@ import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.activity.page.TopMarginPreference
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.htmlToSpan
+import net.bible.service.common.textDisplaySettingsVideo
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 
@@ -263,6 +268,8 @@ class TextDisplaySettingsActivity: ActivityBase() {
         val resetIcon = ImageSpan(getTintedDrawable(R.drawable.ic_baseline_undo_24, R.color.grey_500))
         val length = 9
 
+        val videoSpan = htmlToSpan("<i><a href=\"$textDisplaySettingsVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br><br>")
+
         val text = if(isWindow) {
             val w1 = getString(R.string.window_text_options_help1, "__ICON1__")
             val w2 = getString(R.string.window_text_options_help2, "__ICON2__")
@@ -270,6 +277,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
             val w4 = getString(R.string.text_options_reset_help, "__ICON3__", getString(R.string.reset_workspace_defaults))
             val icon1 = ImageSpan(this, R.drawable.ic_sync_white_24dp)
             val icon2 = ImageSpan(this, R.drawable.ic_sync_disabled_green_24dp)
+
             val text = "$w1 \n\n$w2 $w3\n\n$w4"
             val start1 = text.indexOf("__ICON1__")
             val start2 = text.indexOf("__ICON2__")
@@ -278,7 +286,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
             span.setSpan(icon1, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
             span.setSpan(icon2, start2, start2 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
             span.setSpan(resetIcon, start3, start3 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            span
+            TextUtils.concat(videoSpan, span)
         } else {
             val h1 = getString(R.string.workspace_text_options_help1)
             val h2 = getString(R.string.workspace_text_options_help2)
@@ -287,18 +295,20 @@ class TextDisplaySettingsActivity: ActivityBase() {
             val start1 = text.indexOf("__ICON1__")
             val span = SpannableString(text)
             span.setSpan(resetIcon, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            span
+            TextUtils.concat(videoSpan, span)
         }
 
         val title = if(isWindow) getString(R.string.window_text_options_help_title)
                     else getString(R.string.workspace_text_options_help_title)
 
-        AlertDialog.Builder(this)
+        val d = AlertDialog.Builder(this)
             .setPositiveButton(R.string.okay, null)// {_, _ -> undoTint()}
             .setTitle(title)
             .setMessage(text)
             .create()
-            .show()
+
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     override fun onBackPressed() {

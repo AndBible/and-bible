@@ -31,6 +31,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
+import net.bible.service.common.automaticSpeakBookmarkingVideo
 
 @ActivityScope
 class SpeakSettingsActivity : AbstractSpeakActivity() {
@@ -95,7 +96,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
     fun onHelpButtonClick(button: View) {
         val htmlMessage = (
                 "<b>${getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
-                + "<b><a href=\"https://www.youtube.com/watch?v=1HFXLeTERcs\">"
+                + "<b><a href=\"$automaticSpeakBookmarkingVideo\">"
                 + "${getString(R.string.watch_tutorial_video)}</a></b><br><br>"
                 + getString(R.string.speak_help_auto_bookmark)
                 + "<br><br><b>${getString(R.string.conf_save_playback_settings_to_bookmarks)}</b><br><br>"

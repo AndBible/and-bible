@@ -85,7 +85,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
-import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
@@ -108,6 +107,8 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.beta34introVideo
+import net.bible.service.common.pinningHelpVideo
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
@@ -369,7 +370,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val pinningTitle = getString(R.string.help_window_pinning_title)
                 var pinningText = getString(R.string.help_window_pinning_text)
 
-                pinningText += "<br><i><a href=\"https://youtu.be/27b1g-D3ibA\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
+                pinningText += "<br><i><a href=\"$pinningHelpVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
                 
                 val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Html.fromHtml(pinningText, Html.FROM_HTML_MODE_LEGACY)
@@ -404,9 +405,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val displayedVer = preferences.getString("stable-notice-displayed", "")
 
         if(displayedVer != ver) {
-            val videoUrl = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // For 3.4 beta intro
             val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-            val videoMessageLink = "<a href=\"$videoUrl\"><b>$videoMessage</b></a>"
+            val videoMessageLink = "<a href=\"$beta34introVideo\"><b>$videoMessage</b></a>"
             val appName = getString(R.string.app_name_long)
             val par1 = getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
 
@@ -447,9 +447,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val displayedVer = preferences.getString("beta-notice-displayed", "")
 
         if(displayedVer != ver) {
-            val videoUrl = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // For 3.4 beta intro
             val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-            val videoMessageLink = "<a href=\"$videoUrl\"><b>$videoMessage</b></a>"
+            val videoMessageLink = "<a href=\"${beta34introVideo}\"><b>$videoMessage</b></a>"
 
             val par1 = getString(R.string.beta_notice_content_1)
             val par2 = getString(R.string.beta_notice_content_2,

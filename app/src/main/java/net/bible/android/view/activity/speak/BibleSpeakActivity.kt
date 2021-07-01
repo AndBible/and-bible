@@ -42,6 +42,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.service.common.speakHelpVideo
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
@@ -124,7 +125,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     fun onHelpButtonClick(widget: View) {
         val htmlMessage = (
                 "<b>${getString(R.string.speak)}</b><br><br>"
-                + "<b><a href=\"https://youtu.be/_wWnS-pjv2A\">"
+                + "<b><a href=\"$speakHelpVideo\">"
                 + "${getString(R.string.watch_tutorial_video)}</a></b>"
                 )
 
