@@ -33,7 +33,9 @@ removeBookmarkConfirmation: "Sei sicuro di voler eliminare questo segnalibro?"
 closeModal: Chiudi
 createdAt: "Creato: %s"
 lastUpdatedOn: "Ultimo aggiornamento: %s"
-strongsLink: Apri Strong (%s)
+strongsLink: Definizioni Strong (%s)
+morphLink: Codice morfologico (%s)
+strongsAndMorph: Definizione & Morfologia
 studyPadLink: Apri appunti di studio
 externalLink: Apri link esterno
 referenceLink: Apri link di riferimento
@@ -66,3 +68,13 @@ frequentlyUsedLabels: Etichette usate più spesso
 bookmarkLabels: Etichette dei segnalibri
 refParserHelp: Per favore installa il modulo %s per usare riferimenti in lingue diverse dall'inglese.
 openDownloads: Scarica estensioni
+verseShare: Condividi
+verseCompare: Confronta
+verseNote: Nota
+verseMyNotes: Le mie note
+verseSpeak: Parla/Audio
+verseShareLong: Condividi questo verso
+verseCompareLong: Confronta verso
+verseNoteLong: Scrivi una nota
+verseSpeakLong: Comincia l'ascolto da questo verso
+verseTip: "Per scegliere versi parziali o multipli, puoi tenere premuto a lungo il testo biblico"

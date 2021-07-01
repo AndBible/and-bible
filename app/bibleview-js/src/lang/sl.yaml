@@ -33,7 +33,9 @@ removeBookmarkConfirmation: "Ali ste prepričani, da želite odstraniti ta zazna
 closeModal: Zapri
 createdAt: "Ustvarjeno: %s"
 lastUpdatedOn: "Nazadnje posodobljeno: %s"
-strongsLink: Odpri Strong-a (%s)
+strongsLink: ""
+morphLink: ""
+strongsAndMorph: ""
 studyPadLink: Odpri beležnico
 externalLink: Odpri zunanjo povezavo
 referenceLink: Odpri zunanjo povezavo
@@ -66,3 +68,13 @@ frequentlyUsedLabels: Pogosto uporabljene oznake
 bookmarkLabels: Oznake zaznamkov
 refParserHelp: "Namestite %s modul za uporabo referenc v jezikih, ki niso angleščina. "
 openDownloads: Pojdite na Prenose dodatkov
+verseShare: Deli
+verseCompare: Primerjaj
+verseNote: ""
+verseMyNotes: Moje opombe
+verseSpeak: Govor
+verseShareLong: ""
+verseCompareLong: ""
+verseNoteLong: ""
+verseSpeakLong: ""
+verseTip: ""

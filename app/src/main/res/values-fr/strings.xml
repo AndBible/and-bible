@@ -20,6 +20,7 @@
   <string name="contact">Contact</string>
   <string name="help_and_tips">Aide &amp; astuces</string>
   <string name="administration">Gérer</string>
+  <string name="rate_application">Évaluer &amp; commenter</string>
   <string name="chooce_document">Ouvrir un document</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Sélectionner un livre</string>
@@ -58,7 +59,15 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Chapitre et numéros de versets</string>
   <string name="prefs_show_verseno_summary">Montrer le chapitre et les numéros de versets</string>
+  <string name="prefs_e_ink_mode_title">Mode noir &amp; blanc</string>
+  <string name="prefs_eink_mode_summary">Utilisez l\'application en mode monochrome (sans couleurs), ce qui la rend plus adaptée aux appareils à encre électronique.</string>
+  <string name="prefs_disable_animations_title">Désactiver les animations</string>
+  <string name="prefs_disable_animations_summary">Désactiver diverses animations telles que le défilement fluide.</string>
+  <string name="prefs_paragraph_spacing_title">Espacement des paragraphes (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Ajuster l\'espace entre les paragraphes.</string>
   <string name="prefs_show_verseno_title1">Numéros de versets</string>
+  <string name="prefs_show_chapter_no_title">Numéros de chapitre</string>
+  <string name="prefs_show_chapter_no_summary">Montrer les numéros de chapitre</string>
   <string name="prefs_verse_per_line_summary">Affiche chaque verset sur une ligne différente</string>
   <string name="prefs_show_bookmarks_summary">Affiche les signets dans le texte</string>
   <string name="prefs_show_mynotes_summary">Les notes sont signalées par une icône dans les versets</string>
@@ -72,6 +81,9 @@
   <string name="prefs_show_bookmarks_title">Afficher les signets</string>
   <string name="prefs_show_mynotes_title">Afficher les icônes des notes</string>
   <string name="prefs_show_footnotes_title">Note de bas de page</string>
+  <string name="prefs_show_xrefs_title">Références croisées</string>
+  <string name="prefs_show_footnotes_summary">Afficher les notes de bas de page, si elles sont disponibles dans le document</string>
+  <string name="prefs_show_xrefs_summary">Afficher les références croisées, si elles sont disponibles dans le document</string>
   <string name="prefs_show_notes_title">Notes et références croisées</string>
   <string name="prefs_show_strongs_title">Nombres de Strong</string>
   <string name="prefs_show_morphology_title">Codes morphologiques</string>
@@ -84,12 +96,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Appuyer pour ouvrir le document suivant, appui long pour ouvrir le menu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Appuyer pour ouvrir le document suivant, appui long pour l\'affichage des documents</string>
   <string name="prefs_night_mode_title">Passe en mode nuit</string>
+  <string name="prefs_night_mode_summary">Si vous souhaitez passer en mode nuit automatiquement (si l\'appareil le permet), manuellement ou via les paramètres du système (Android 10+). La commutation manuelle peut être effectuée à partir du menu options à 3 points de l\'écran principal. </string>
   <string name="prefs_night_mode_manual">Manuel</string>
   <string name="prefs_night_mode_automatic">Automatique</string>
   <string name="prefs_night_mode_system">Système</string>
   <string name="options_menu_night_mode">Mode nuit</string>
   <string name="prefs_navigate_to_verse_title">Aller au verset</string>
   <string name="prefs_navigate_to_verse_summary">Sélectionne aussi le verset (après le chapitre) lors du choix d\'un passage</string>
+  <string name="prefs_open_links_in_special_window_title">Fenêtres liées</string>
+  <string name="prefs_open_links_in_special_window_summary">Ouvrir les liens dans une fenêtre spéciale, pour un affichage plus rapide des références croisées et des nombres de Strongs.</string>
   <string name="prefs_text_size_sample_text">Exemple de texte</string>
   <string name="prefs_screen_keep_on_title">Maintenir activé</string>
   <string name="prefs_screen_keep_on_summary">Bloque la mise en veille automatique</string>
@@ -314,11 +329,17 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="label_name_prompt">Nom de l\'étiquette</string>
   <string name="label_unlabelled">Indéfini</string>
   <string name="add_bookmark1">Signets</string>
+  <string name="add_bookmark2">Sélection des signets</string>
+  <string name="add_bookmark3">Sélection</string>
   <string name="add_bookmark_whole_verse">Signet de verset</string>
+  <string name="add_bookmark_whole_verse1">Versets</string>
+  <string name="add_bookmark_whole_verse2">Tous les versets</string>
   <string name="remove_bookmark">Supprimer</string>
   <string name="bookmark_settings_hide_labels_title">Masquer les étiquettes spécifiées</string>
   <string name="bookmark_settings_hide_labels_summary">Cachez les signets qui sont marqués avec une ou plusieurs étiquettes spécifiées</string>
+  <string name="auto_assign_labels_title">Paramètres des étiquettes</string>
   <string name="auto_assign_labels">Auto-assignation &amp; étiquettes favorites</string>
+  <string name="auto_assign_labels1">Attribution automatique d\'une étiquette aux nouveaux signets</string>
   <string name="auto_assign_labels_primary">Auto-assignation comme première</string>
   <string name="label_color">Couleur des étiquettes</string>
   <!--can be removed-->
@@ -389,6 +410,13 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="speak_status_stopped">arrêt</string>
   <string name="speak_autobookmarking_disabled">Mise en signet automatique désactivée! </string>
   <string name="system_speak_settings">Paramètres de la synthèse vocale</string>
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Aide des signets audio</string>
   <string name="speak_help_auto_bookmark">
 Un Signet audio est automatiquement généré lorsque la Lecture audio est mise sur pause ou arrétée. Ces signets ont pour label Lecture audio.
@@ -440,12 +468,15 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="backup_modules">Partager ou sauvegarde les documents vers...</string>
   <string name="backup_app_database">Partager ou sauvegarde la base de données de l\'application vers…</string>
   <string name="backup_app">Partagez ou sauvegardez l\'application (fichier .apk) sur…</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Que voulez-vous restaurer ?</string>
   <string name="restore_app_database">Restaurer la base de données de l\'application depuis…</string>
   <string name="restore_database">Restaurer le fichier de base de données</string>
-  <string name="restore_confirmation">Écraser mes notes, signets, fiches d\'étude, plans de lecture et espaces de travail ?</string>
-  <string name="restore_success">Mes notes, signets, fiches d\'étude, plans de lecture et espaces de travail ont été restaurés avec succès.</string>
+  <string name="restore_confirmation">Écraser mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ?</string>
+  <string name="reading_plans_plural">Plans de lecture</string>
+  <string name="restore_success">Mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ont été restaurés avec succès.</string>
   <string name="loading_backup">Chargement de la base de données depuis la sauvegarde...</string>
-  <string name="backup_success2">Mes notes, signets, fiches d\'étude, plans de lecture et espaces de travail ont été sauvegardés avec succès.</string>
+  <string name="backup_success2">Mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ont été sauvegardés avec succès.</string>
   <string name="backup_modules_success">Les modules sélectionnés ont été sauvegardés avec succès.</string>
   <string name="backup_modules_email_subject_2">%s sauvegarde de modules</string>
   <string name="backup_modules_email_message_2">Vous trouverez ci-joint la sauvegarde de vos modules %s, qui contient les modules suivants : %s</string>
@@ -579,7 +610,12 @@ Appuyez longuement sur les liens pour choisir si vous souhaitez les ouvrir dans 
   menu contextuel. Vous pouvez ajouter vos notes personnalisées au nouveau signet en tapant
  sur le texte en surbrillance dans l\'affichage de la Bible. Il existe également un document spécial « Mes notes » dans les commentaires qui vous permet
 d\'afficher vos notes dans une fenêtre séparée.</string>
-  <string name="help_studypads_title">Fiches d\'étude</string>
+  <string name="help_studypads_title">Bloc-notes</string>
+  <string name="help_studypads_text">
+ Les bloc-notes sont conçus pour faciliter l\'écriture de notes de sermon, la préparation de sermons ou simplement pour
+  écrire des notes personnelles d\'études bibliques comportant plusieurs références bibliques. Chaque bloc-notes est associé à une étiquette de signet.
+  Tous les signets qui ont été créés avec cette étiquette respective apparaissent automatiquement dans le document du bloc-note.
+En plus des signets, un bloc-note peut contenir des entrées de texte personnalisées.</string>
   <string name="help_search_title">Rechercher</string>
   <string name="help_search_text">La recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND, OR, NOT
  (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
@@ -623,10 +659,10 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="strongs_mode_title">Choisir le mode Strongs</string>
   <string name="download_dialog_message">Les livres suivants ne peuvent pas être téléchargés :</string>
   <string name="select_multiple">Sélectionner plusieurs</string>
-  <string name="journal_description">Fichier d\'étude modifiables par l\'utilisateur avec du texte et des signets personnalisés</string>
+  <string name="journal_description">Bloc-notes modifiables par l\'utilisateur avec du texte et des signets personnalisés</string>
   <string name="my_notes_description">Fichier d\'étude modifiables par l\'utilisateur joints à des signets</string>
   <string name="my_notes_abbreviation">Mes notes</string>
-  <string name="studypads">Fiches d\'étude</string>
+  <string name="studypads">Bloc-notes</string>
   <string name="multi_description">références multiples</string>
   <string name="multi_abbreviation">Multiple</string>
   <string name="compare_description">Comparer les traductions</string>
@@ -663,6 +699,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="advertise_app">Promouvoir l\'app</string>
   <string name="verse_share_advertise">Partagé en utilisant %s.</string>
   <string name="abbreviate_reference">Référence abrégée</string>
+  <string name="version_name">Nom de version</string>
   <string name="backup_button">Sauvegarde</string>
   <string name="back_button">Retour</string>
   <string name="upgrading_database">Mise à jour de la base de données. Veuillez patienter...</string>
@@ -716,8 +753,48 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="primary_label">Première étiquette</string>
   <string name="highlight_entire_verse">Surligner tout le verset</string>
   <string name="favourite_label">Étiquette favorite</string>
+  <string name="edit_label">Éditer l\'étiquette</string>
+  <string name="delete_label_confirmation">Voulez-vous supprimer l\'étiquette du signet « %s » ? Toutes les notes du bloc-notes associées seront également supprimées.</string>
+  <string name="bookmark_underline_style_arbitrary">Style de soulignement pour la sélection de signets</string>
   <string name="bookmark_underline_style_whole_verse">Style de soulignement pour les signets de verset entier</string>
+  <string name="active_labels">Étiquettes sélectionnées</string>
   <string name="recent_labels">Étiquettes récentes</string>
   <string name="other_labels">Autres étiquettes</string>
+  <string name="book_menu_sort_row_opt">Ranger les livres horizontalement</string>
+  <string name="reset_workspace_labels">Voulez-vous réinitialiser les paramètres d\'auto-assignation et de favoris pour cet espace de travail ?</string>
+  <string name="reset_hide_labels">Voulez-vous réinitialiser les paramètres de masquage des étiquettes spécifiées ?</string>
+  <string name="reorder">Réordonner</string>
+  <string name="system_items">Actions du système</string>
   <string name="system_items1">Plus</string>
+  <string name="system_action2">Action d\'Android</string>
+  <string name="text_copied_to_clicpboard">Texte copié depuis le presse-papier</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Signet en une seule étape</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Afficher les éléments « Sélection » et « Versets » directement dans le menu « Sélection » de l\'affichage de la Bible</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Appuyez deux fois pour le plein écran</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Appuyez deux fois sur l\'écran pour activer le mode plein écran</string>
+  <string name="toggle_fullscreen">Plein écran</string>
+  <string name="exit_fullscreen">Appuyez deux fois sur l\'écran pour quitter le mode plein écran</string>
+  <string name="reset_app_prefs">Voulez-vous réinitialiser toutes les préférences globales de l\'application qui sont affichées sur cet écran à leurs valeurs par défaut ?</string>
+  <string name="label_red">Rouge</string>
+  <string name="label_green">Vert</string>
+  <string name="label_blue">Bleu</string>
+  <string name="label_salvation">Salut</string>
+  <string name="label_underline">Surligner</string>
+  <string name="import_menu">Importer &amp; exporter</string>
+  <string name="export_fileformat">Exporter comme %s</string>
+  <string name="import_items">Importer %s</string>
+  <string name="import_from_db">Importer le fichier depuis la base de données de l\'App.</string>
+  <string name="import_error">L\'importation à partir de la base de données de l\'application a échoué. Le fichier de la base de données peut être d\'un format incorrect ou créé avec une version trop ancienne de %s.</string>
+  <string name="chooser_range">Plage</string>
+  <string name="chooser_jump">Sauter</string>
+  <string name="chooser_OT_abbrev">AT</string>
+  <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_grid">grille</string>
+  <string name="chooser_style_lists">Listes</string>
+  <string name="chooser_select">Sélectionner %s</string>
+  <string name="chooser_pref_reset">Ne pas remettre le chapitre/verset à 1 lorsque le livre/chapitre est sélectionné.</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Nous sommes désolés, mais nous n\'avons qu\'une traduction partielle de l\'interface utilisateur en langue %s. C\'est parce que %s est entièrement développé par des volontaires. Si vous pouvez aider à la traduction, veuillez voir %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">instructions pour les traducteurs</string>
 </resources>

@@ -33,7 +33,9 @@ removeBookmarkConfirmation: "Вы уверены, что хотите удали
 closeModal: Закрыть
 createdAt: "Созданный: %s"
 lastUpdatedOn: "Последнее обновление: %s"
-strongsLink: Открыть Стронга (%s)
+strongsLink: ""
+morphLink: ""
+strongsAndMorph: ""
 studyPadLink: Открыть блокнот
 externalLink: Открыть внешнюю ссылку
 referenceLink: Открыть справочную ссылку
@@ -66,3 +68,13 @@ frequentlyUsedLabels: Часто используемые ярлыки
 bookmarkLabels: ""
 refParserHelp: ""
 openDownloads: ""
+verseShare: Поделиться
+verseCompare: Сравнить
+verseNote: ""
+verseMyNotes: Мои заметки
+verseSpeak: Прослушать
+verseShareLong: ""
+verseCompareLong: ""
+verseNoteLong: ""
+verseSpeakLong: ""
+verseTip: ""

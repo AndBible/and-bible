@@ -33,7 +33,9 @@ removeBookmarkConfirmation: "Oletko varma että haluat poistaa tämän kirjanmer
 closeModal: Sulje
 createdAt: "Luotu: %s"
 lastUpdatedOn: "Viimeksi päivitetty: %s"
-strongsLink: Avaa Strongs (%s)
+strongsLink: Strongin määritelmä (%s)
+morphLink: Morfologinen koodi (%s)
+strongsAndMorph: Määritelmä & Morfologia
 studyPadLink: Avaa opintoalusta
 externalLink: Avaa ulkoinen linkki
 referenceLink: Avaa viittaus
@@ -66,3 +68,13 @@ frequentlyUsedLabels: Usein käytetyt ryhmät
 bookmarkLabels: Kirjanmerkkiryhmät
 refParserHelp: Asenna moduuli %s tehdäksesi viittauksia muilla kuin englannin kielellä.
 openDownloads: Siirry lisäosien latauksiin
+verseShare: Jaa
+verseCompare: Vertaa
+verseNote: Muistiinpano
+verseMyNotes: Omat merkinnät
+verseSpeak: Puhe
+verseShareLong: Jaa tämä jae
+verseCompareLong: Vertaa jaetta
+verseNoteLong: Kirjoita muistiinpano
+verseSpeakLong: Aloita kuuntelu tästä jakeesta
+verseTip: "Valitaksesi osittaisia tai useita jakeita, napauta pitkään Raamatun tekstiä"

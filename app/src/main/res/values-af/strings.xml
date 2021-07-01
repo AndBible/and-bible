@@ -396,6 +396,13 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="speak_status_stopped">Gestop.</string>
   <string name="speak_autobookmarking_disabled">Outo-boekmerke gedeaktiveer!</string>
   <string name="system_speak_settings">Maak oop stelsel TTS instellings</string>
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Praat Boekmeke hulp</string>
   <string name="speak_help_auto_bookmark">
 \'n Praat boekmerk sal outomaties bygevoeg word wanneer Praat geplaas of gestop word. 
@@ -446,6 +453,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="backup_modules">Deel of rugsteun dokumente na ...</string>
   <string name="backup_app_database">Deel of rugsteun toep databasis na ...</string>
   <string name="backup_app">Deel of rugsteun toep (.apk-lêer) na ...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_app_database">Rugsteun toep databasis vanaf ...</string>
   <string name="restore_database">Rugsteun databasis leer ...</string>
   <string name="restore_confirmation">Herskryf My notas, boekmerke, studie blokkies, lees planne en werkruimtes?</string>
@@ -711,4 +719,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="cant_change_wholeverse">Kan nie hele vers merking vir hierdie boekmerk afskakel nie</string>
   <string name="whole_verse_turned_on">Boekmerk is nou gemerk vir hele vers</string>
   <string name="system_items1">Meer</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
 </resources>

@@ -382,6 +382,13 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="speak_status_stopped">angehalten</string>
   <string name="speak_autobookmarking_disabled">Automatische Lesezeichen sind deaktiviert!</string>
   <string name="system_speak_settings">Öffne die Systemsteuerung für Sprachausgabe</string>
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Sprachhilfe</string>
   <string name="speak_help_auto_bookmark">
 Ein Sprachlesezeichen wird automatisch hinzugefügt, wenn die Vorlesefunktion pausiert oder angehalten wird. Automatische Lesezeichen erhalten die Spezialmarkierung. Wenn die Vorlesefunktion an einem Sprachlesezeichen gestartet wird, wird das Lesezeichen automatisch an den Ort verschoben, an dem die Wiedergabe pausiert oder gestoppt wird. Nur Sprachlesezeichen werden verschoben, alle anderen Lesezeichen bleiben unberührt.</string>
@@ -430,6 +437,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="backup_modules">Teilen oder Sichern von Dokumenten nach...</string>
   <string name="backup_app_database">Teilen oder Sichern der App-Datenbank nach...</string>
   <string name="backup_app">Teilen oder Sichern der App-Datei (.apk) nach...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_app_database">Wiederherstellen der Datenbank von...</string>
   <string name="restore_database">Wiederherstellen der Datenbankdatei</string>
   <string name="restore_confirmation">Überschreiben von eigenen Notizen, Lesezeichen, Studienmappen, Leseplänen und Arbeitsräumen?</string>
@@ -685,4 +693,6 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="recent_labels">Kürzliche Kategorien</string>
   <string name="other_labels">Andere Kategorien</string>
   <string name="system_items1">Mehr</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
 </resources>

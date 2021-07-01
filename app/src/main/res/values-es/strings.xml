@@ -205,6 +205,7 @@
   <string name="strongs_not_installed">Por favor descargue los diccionarios de griego y hebreo de Strong</string>
   <string name="no_indexed_bible_with_strongs_ref">Debe descargar una Biblia que contenga números de Strong y descargar su índice por medio de Buscar</string>
   <string name="morph_robinson_not_installed">Por favor descargue el diccionario \'Códigos de análisis morfológicos de Robinson\'</string>
+  <string name="go_to_downloads">Ir a Descargas</string>
   <!--Module download-->
   <string name="download">Descarga Documentos</string>
   <string name="redownload">Volver a descargar Documentos</string>
@@ -417,6 +418,13 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="speak_status_stopped">parado</string>
   <string name="speak_autobookmarking_disabled">¡Marcadores automáticos deshabilitados!</string>
   <string name="system_speak_settings">Abrir los ajustes del sistema de Texto a Voz</string>
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Ayuda de marcadores de voz</string>
   <string name="speak_help_auto_bookmark">
 Un marcador de voz se agregará automáticamente cuando la voz está pausada o parada.
@@ -477,9 +485,11 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="backup_modules">Compartir o Guardar copia de seguridad de documentos en...</string>
   <string name="backup_app_database">Compartir o Guardar copia de seguridad de la base de datos de la aplicación en...</string>
   <string name="backup_app">Compartir o Guardar copia de seguridad de aplicación (archivo .apk) en...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_app_database">Restaurar la base de datos de la aplicación desde...</string>
   <string name="restore_database">Restaurar archivo de la base de datos desde...</string>
   <string name="restore_confirmation">¿Sobreescribir Mis Notas, Marcadores, Blocs de Estudio, Planes de Lectura y Espacios?</string>
+  <string name="reading_plans_plural">Planes de lectura</string>
   <string name="restore_success">Mis notas, marcadores, blocs de estudio, planes de lectura y espacios restaurados con éxito</string>
   <string name="loading_backup">Cargando base de datos desde la copia de seguridad...</string>
   <string name="backup_success2">Mis notas, marcadores, blocs de estudio, planes de lectura y espacios guardados con éxito.</string>
@@ -807,4 +817,10 @@ informe los problemas a los mantenedores de texto
   <string name="chooser_style_lists">Listas</string>
   <string name="chooser_select">Seleccione %s</string>
   <string name="chooser_pref_reset">No restablezca el capítulo/versículo a 1 cuando se selecciona libro/capítulo</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">instrucciones para traductoras</string>
+  <string name="questions_title">¿Preguntas?</string>
+  <string name="questions_title2">¿Necesitas ayuda?</string>
+  <string name="bookmark_style">Estilo de marcador</string>
 </resources>

@@ -20,6 +20,7 @@
   <string name="contact">Контакти</string>
   <string name="help_and_tips">Довідка і поради</string>
   <string name="administration">Адміністрування</string>
+  <string name="rate_application">Оцінка &amp; Огдяд</string>
   <string name="chooce_document">Вибрати ресурс</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Вибрати книгу</string>
@@ -58,7 +59,15 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номери розділів та віршів</string>
   <string name="prefs_show_verseno_summary">Показати номери розділів та віршів</string>
+  <string name="prefs_e_ink_mode_title">Чорний та білий режим</string>
+  <string name="prefs_eink_mode_summary">Використовувати програму в монохромному режимі (без кольорів), що робить її більш придатною для пристроїв E-ink.</string>
+  <string name="prefs_disable_animations_title">Вимкнути анімацію</string>
+  <string name="prefs_disable_animations_summary">Вимкнути різні анімації, такі як плавне прокручування.</string>
+  <string name="prefs_paragraph_spacing_title">Інтервал між абзацами (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Налаштувати інтервал між абзацами.</string>
   <string name="prefs_show_verseno_title1">Номери віршів</string>
+  <string name="prefs_show_chapter_no_title">Номери розділів</string>
+  <string name="prefs_show_chapter_no_summary">Показати номери розділів</string>
   <string name="prefs_verse_per_line_summary">Показати один вірш на рядок</string>
   <string name="prefs_show_bookmarks_summary">Зніміть прапорець, щоб сховати всі закладки</string>
   <string name="prefs_show_mynotes_summary">Показати піктограму у віршах з Моєю Заміткою</string>
@@ -73,6 +82,8 @@
   <string name="prefs_show_mynotes_title">Показати піктограми приміток</string>
   <string name="prefs_show_footnotes_title">Виноски</string>
   <string name="prefs_show_xrefs_title">Перехресні посилання</string>
+  <string name="prefs_show_footnotes_summary">Показати виноски, якщо вони є в документі</string>
+  <string name="prefs_show_xrefs_summary">Показати перехресні посилання, якщо вони є в ресурсі</string>
   <string name="prefs_show_notes_title">Виноски і ссилки</string>
   <string name="prefs_show_strongs_title">Відобразити номери Стронга</string>
   <string name="prefs_show_morphology_title">Морфологічні коди</string>
@@ -85,12 +96,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Натисніть, щоб відкрити наступний ресурс, тривале натискання, щоб відкрити меню</string>
   <string name="prefs_toolbar_button_action_swap_activity">Натисніть, щоб відкрити наступний ресурс, тривале натискання для екрану ресурсів</string>
   <string name="prefs_night_mode_title">Перемикання нічного режиму</string>
+  <string name="prefs_night_mode_summary">Чи потрібно автоматично переходити в нічний режим (якщо пристрій підтримує), вручну або через налаштування системи (Android 10+). Перемикання вручну можна здійснити з меню параметрів із 3 крапками на головному екрані.</string>
   <string name="prefs_night_mode_manual">Вручну</string>
   <string name="prefs_night_mode_automatic">Автоматично</string>
   <string name="prefs_night_mode_system">Система</string>
   <string name="options_menu_night_mode">Нічний режим</string>
   <string name="prefs_navigate_to_verse_title">Перейти до вірша</string>
   <string name="prefs_navigate_to_verse_summary">Вибір вірша (і розділу) при виборі місця з Біблії</string>
+  <string name="prefs_open_links_in_special_window_title">Вікно посилань</string>
+  <string name="prefs_open_links_in_special_window_summary">Відкрити посилання в спеціальному вікні, для швидшого відображення перехресних посилань та Стронга</string>
   <string name="prefs_text_size_sample_text">Зразок тексту</string>
   <string name="prefs_screen_keep_on_title">Не виключати екран</string>
   <string name="prefs_screen_keep_on_summary">Запобігти засипанню екрана під час користування додатком</string>
@@ -194,6 +208,7 @@
   <string name="strongs_not_installed">Завантажте єврейський і грецький словники Стронга</string>
   <string name="no_indexed_bible_with_strongs_ref">Ви повинні завантажити Біблію, що містить номера Стронга і завантажити її індекс за допомогою пошуку</string>
   <string name="morph_robinson_not_installed">Завантажте словник Робінсона з кодами морфологічного аналізу</string>
+  <string name="go_to_downloads">Перейти до Завантаження</string>
   <!--Module download-->
   <string name="download">Завантажити ресурси</string>
   <string name="redownload">Перезавантажити ресурси</string>
@@ -323,10 +338,18 @@
   <string name="label_name_prompt">Назва</string>
   <string name="label_unlabelled">Без мітки</string>
   <string name="add_bookmark1">Закладка</string>
+  <string name="add_bookmark2">Створити закладку виділеного тексту</string>
+  <string name="add_bookmark3">Виділення</string>
   <string name="add_bookmark_whole_verse">Додати вірш у закладки</string>
+  <string name="add_bookmark_whole_verse1">Вірші</string>
+  <string name="add_bookmark_whole_verse2">Повні вірші</string>
   <string name="remove_bookmark">Видалити</string>
   <string name="bookmark_settings_hide_labels_title">Сховати вказані мітки</string>
   <string name="bookmark_settings_hide_labels_summary">Сховати закладки, позначені зазначеними мітками</string>
+  <string name="auto_assign_labels_title">Налаштування міток</string>
+  <string name="auto_assign_labels">Автопризначення та улюблені мітки</string>
+  <string name="auto_assign_labels1">Автоматично призначати мітку новим закладкам</string>
+  <string name="auto_assign_labels_primary">Автоматично призначити як основну</string>
   <string name="label_color">Колір мітки</string>
   <!--can be removed-->
   <string name="label_color_example">Приклад</string>
@@ -396,6 +419,17 @@
   <string name="speak_status_stopped">зупинено</string>
   <string name="speak_autobookmarking_disabled">Автоматичне створення закладок вимкнуто!</string>
   <string name="system_speak_settings">Відкрити системні налаштування TTS</string>
+  <string name="assing_labels_help1">Кожній закладці можна призначити кілька міток</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Використовуйте %s щоб вказати колір мітки.</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Торкніться %s значка, щоб ця мітка автоматично призначалася новим закладкам.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Натисніть%s щоб додати мітку до улюбленого списку для швидкого доступу.</string>
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Довідка про закладки прослуховування</string>
   <string name="speak_help_auto_bookmark">
 Закладка буде автоматично добавлена, коли прослуховування буде (при-)зупинене.
@@ -454,9 +488,12 @@
   <string name="backup_modules">Поділитися або резервне копіювання ресурсів у…</string>
   <string name="backup_app_database">Поділитися або резервне копіювання бази даних додатку у…</string>
   <string name="backup_app">Поділитися або резервне копіювання додатку (файл .apk) у…</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Що ви хочете відновити?</string>
   <string name="restore_app_database">Відновити базу даних додатку з…</string>
   <string name="restore_database">Відновити файл бази даних</string>
   <string name="restore_confirmation">Перезаписати Мої примітки, Закладки, Блокноти, Плани Читання та Робочі Області?</string>
+  <string name="reading_plans_plural">Плани читання</string>
   <string name="restore_success">Мої примітки, Закладки, Блокноти, Плани Читання та Робочі Області відновлено успішно</string>
   <string name="loading_backup">Завантаження бази даних із резервної копії…</string>
   <string name="backup_success2">Мої примітки, Закладки, Блокноти, Плани Читання та Робочі Області, резервне копіювання яких успішно виконано.</string>
@@ -468,7 +505,7 @@
   <string name="restore_unsuccessfull">Відновити базу даних не вдалося. Можливо, ви дали недійсний файл бази даних.</string>
   <string name="backup_phone_storage">Пам\'ять телефону</string>
   <string name="backup_backup_title">Резервне копіювання куди?</string>
-  <string name="backup_backup_message">Резервне копіювання на телефон або в інше місці за допомогою функції Поділитись (електронна пошта, Google Drive тощо)?</string>
+  <string name="backup_backup_message">Резервне копіювання на телефон або в інше місце за допомогою функції Поділитись (електронна пошта, Google Drive тощо)?</string>
   <string name="backup_share">Поділитись</string>
   <string name="restore_modules">Відновити ресурси з…</string>
   <string name="send_backup_file">Надіслати файл резервної копії</string>
@@ -482,6 +519,8 @@
   <string name="module_about_repository">Сервер розповсюдження: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Повідомлення про помилку</string>
+  <string name="send_feedback_title">Відгук</string>
   <string name="send_bug_report_title">Відгук / звіт про помилку</string>
   <string name="report_bug_email_subject_3">[%s] Звіт про помилку для %s %s</string>
   <string name="report_bug_big_heading">БУДЬ ЛАСКА, НАПИШІТЬ ВІДГУК АБО ЗВІТ ПРО ПОМИЛКУ НАД ЦИМ РЯДКОМ</string>
@@ -598,6 +637,11 @@
 виділений текст у перегляді Біблії. У коментарях також є спеціальний ресурс \"Мої примітки\", який дозволяє вам
 переглянути свої нотатки в окремому вікні.</string>
   <string name="help_studypads_title">Блокноти</string>
+  <string name="help_studypads_text">
+Блокноти призначені для спрощення написання конспектів, підготовки проповідей або 
+запису особистих приміток при вивчення Біблії, у яких є кілька біблійних посилань. Кожний блокнот пов’язаний з однією міткою закладки.
+Усі закладки, створені з відповідною міткою, автоматично відображаються в документі блокноту.
+Окрім закладок, у блокноті можуть бути власні текстові записи.</string>
   <string name="help_search_title">Пошук</string>
   <string name="help_search_text">Текст пошуку може містити спеціальні символи, такі як *, ?, AND, OR, NOT
 (див. \"Apache Lucene - Query Parser Syntax\" для більш детальнішої інформації)</string>
@@ -679,6 +723,7 @@
   <string name="advertise_app">Рекламуйте додаток</string>
   <string name="verse_share_advertise">Надіслано за допомогою %s.</string>
   <string name="abbreviate_reference">Скоротити посилання</string>
+  <string name="version_name">Назва перекладу</string>
   <string name="backup_button">Резервне копіювання</string>
   <string name="back_button">Назад</string>
   <string name="upgrading_database">Оновлення бази даних. Зачекайте, будь ласка ...</string>
@@ -728,4 +773,56 @@
   <string name="does_not_exist_abbreviation">Немає</string>
   <string name="cant_change_wholeverse">Не вдається вимкнути позначення цілого вірша для цієї закладки</string>
   <string name="whole_verse_turned_on">Закладка тепер позначена для цілого вірша</string>
+  <string name="this_bookmark">Ця закладка</string>
+  <string name="this_workspace">Ця робоча область</string>
+  <string name="primary_label">Основна мітка</string>
+  <string name="highlight_entire_verse">Виділити цілий вірш</string>
+  <string name="favourite_label">Улюблена мітка</string>
+  <string name="edit_label">Редагувати мітку</string>
+  <string name="delete_label_confirmation">Видалити мітку закладки \"%s\"? Також будуть видалені всі блокнотні примітки пов’язані з цею міткою.</string>
+  <string name="bookmark_underline_style_arbitrary">Стиль підкреслення закладок для виділеного тексту</string>
+  <string name="bookmark_underline_style_whole_verse">Стиль підкреслення закладок для цілих віршів</string>
+  <string name="active_labels">Вибрані мітки</string>
+  <string name="recent_labels">Останні мітки</string>
+  <string name="other_labels">Інші мітки</string>
+  <string name="book_menu_sort_row_opt">Упорядкувати книги по горизонталі</string>
+  <string name="reset_workspace_labels">Скинути налаштування автоматичного призначення та налаштування улюблених для цієї робочої області?</string>
+  <string name="reset_hide_labels">Скинути налаштування для приховування заданих налаштувань мітків?</string>
+  <string name="reorder">Змінити порядок</string>
+  <string name="system_items">Дії системи</string>
+  <string name="system_items1">Більше</string>
+  <string name="system_action2">Дії Android</string>
+  <string name="text_copied_to_clicpboard">Текст скопійовано в буфер обміну</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Однокрокове створення закладки</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Показати \"Виділення\" та \"Вірші\" безпосередньо в меню перегляду Біблії</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Подвійний дотик на весь екран</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Увійдіть у повноекранний режим, двічі торкнувшись вікна</string>
+  <string name="toggle_fullscreen">На весь екран</string>
+  <string name="exit_fullscreen">Двічі торкніться екрана, щоб вийти з повноекранного режиму</string>
+  <string name="reset_app_prefs">Ви хочете скинути всі загальні налаштування програми, які відображаються на цьому екрані, до значень за замовчуванням?</string>
+  <string name="label_red">Червона</string>
+  <string name="label_green">Зелена</string>
+  <string name="label_blue">Синя</string>
+  <string name="label_salvation">Спасіння</string>
+  <string name="label_underline">Підкреслити</string>
+  <string name="import_menu">Імпорт та експорт</string>
+  <string name="export_fileformat">Експортувати як %s</string>
+  <string name="import_items">Імпортувати як %s</string>
+  <string name="import_from_db">Імпорт із файлу бази даних програми</string>
+  <string name="import_error">Не вдалося імпортувати з бази даних програми. Файл бази даних може бути неправильного формату або зроблений занадто старою версією %s.</string>
+  <string name="chooser_range">Діапазон</string>
+  <string name="chooser_jump">Перейти</string>
+  <string name="chooser_OT_abbrev">СЗ</string>
+  <string name="chooser_NT_abbrev">НЗ</string>
+  <string name="chooser_style_grid">Сітка</string>
+  <string name="chooser_style_lists">Список</string>
+  <string name="chooser_select">Вибрати %s</string>
+  <string name="chooser_pref_reset">Не скидати розділ/вірш на 1, коли вибрано книгу/розділ</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">На жаль, у нас є лише частковий переклад інтерфейсу на %s мові. Це тому, що %s повністю розроблено волонтерами. Якщо ви можете допомогти у перекладі, будь ласка, див. %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">інструкція для перекладачів</string>
+  <string name="questions_title">Маєте запитання?</string>
+  <string name="questions_title2">Потрібна допомога?</string>
+  <string name="bookmark_style">Стиль закладки</string>
 </resources>

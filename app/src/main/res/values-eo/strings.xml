@@ -61,6 +61,10 @@
   <string name="prefs_show_verseno_summary">Montri numerojn de versoj kaj ĉapitroj</string>
   <string name="prefs_e_ink_mode_title">Blank-nigra reĝimo</string>
   <string name="prefs_eink_mode_summary">Vidigi la aplikaĵon sen koloroj por igi ĝin pli taŭga por elektronikaj librolegiloj (E Ink).</string>
+  <string name="prefs_disable_animations_title">Malaktivigi movbildojn</string>
+  <string name="prefs_disable_animations_summary">Malaktivigi diversajn animaciojn, kiel glatan rulumadon.</string>
+  <string name="prefs_paragraph_spacing_title">Alinea distanco (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Alĝustigi spacon inter alineoj.</string>
   <string name="prefs_show_verseno_title1">Numeroj de versoj</string>
   <string name="prefs_show_chapter_no_title">Numeroj de ĉapitroj</string>
   <string name="prefs_show_chapter_no_summary">Montri numerojn de ĉapitroj</string>
@@ -75,7 +79,7 @@
   <string name="prefs_text_size_title">Agordi tiparojn</string>
   <string name="prefs_verse_per_line_title">Po unu verso en linio</string>
   <string name="prefs_show_bookmarks_title">Montri legosignojn</string>
-  <string name="prefs_show_mynotes_title">Montri piktogramojn de miaj notoj</string>
+  <string name="prefs_show_mynotes_title">Montri emblemojn de miaj notoj</string>
   <string name="prefs_show_footnotes_title">Piednotoj</string>
   <string name="prefs_show_xrefs_title">Internaj referencoj</string>
   <string name="prefs_show_footnotes_summary">Montri piednotojn (se disponeblaj en la dokumento)</string>
@@ -92,12 +96,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Frapeti por malfermi sekvan dokumenton, frapetadi por malfermi menuon</string>
   <string name="prefs_toolbar_button_action_swap_activity">Frapeti por malfermi sekvan dokumenton, frapetadi por montri ekranon de dokumentoj</string>
   <string name="prefs_night_mode_title">Aktivigi noktan reĝimon</string>
+  <string name="prefs_night_mode_summary">Agordi ĉu aŭtomate (mal)ŝalti noktan reĝimon (se subtenata de aparato), ĉu permane, ĉu permesi al la operaciumo decidi (Android 10+). Vi povas permane ŝanĝi la reĝimon per la tripunkta menuo.</string>
   <string name="prefs_night_mode_manual">Permane</string>
   <string name="prefs_night_mode_automatic">Aŭtomate</string>
   <string name="prefs_night_mode_system">Laŭ operaciumo</string>
   <string name="options_menu_night_mode">Nokta reĝimo</string>
   <string name="prefs_navigate_to_verse_title">Navigi al verso</string>
   <string name="prefs_navigate_to_verse_summary">Montri elekton de verso (kaj ĉapitro) je elekto de alineo</string>
+  <string name="prefs_open_links_in_special_window_title">Fenestro de ligiloj</string>
+  <string name="prefs_open_links_in_special_window_summary">Malfermi ligilojn en aparta fenestro por pli rapide vidigi internajn referencojn kaj numeroj de Strong</string>
   <string name="prefs_text_size_sample_text">Ekzempla teksto</string>
   <string name="prefs_screen_keep_on_title">Teni ekranon enŝaltita</string>
   <string name="prefs_screen_keep_on_summary">Ne permesi malŝalti ekranon dum uzi tiun ĉi aplikaĵon</string>
@@ -161,7 +168,7 @@
   <string name="font_size_title_pt">Grando de tiparo (%d p.)</string>
   <string name="prefs_font_text_size_summary">Alĝustigi grandon de tiparo</string>
   <string name="pref_font_family_label_name">Familio de tiparo (%s)</string>
-  <string name="prefs_font_family_summary">Elekti specon de tiparo. Konsilo: vi povas instali pliajn tiparojn per la menuo “elŝuti dokumentojn” → “aldonaĵoj”.</string>
+  <string name="prefs_font_family_summary">Elekti specon de tiparo. Konsilo: vi povas instali pliajn tiparojn per la menuo “elŝuti dokumentojn” → “aldonaĵo”.</string>
   <string name="prefs_text_bookmarks_title">Legosignoj kaj notoj</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Agordoj pri koloroj</string>
@@ -200,6 +207,7 @@
   <string name="strongs_not_installed">Bonvolu elŝuti grekan kaj hebrean vortarojn de Strong</string>
   <string name="no_indexed_bible_with_strongs_ref">Vi devas elŝuti Biblion enhavantan numerojn de Strong kaj elŝuti ĝian indekson per “serĉi”</string>
   <string name="morph_robinson_not_installed">Bonvolu elŝuti la vortaron “Morfologiaj analizaj kodoj de Robinson”</string>
+  <string name="go_to_downloads">Malfermi elŝutojn</string>
   <!--Module download-->
   <string name="download">Elŝuti dokumentojn</string>
   <string name="redownload">Reelŝuti dokumentojn</string>
@@ -316,8 +324,8 @@ laŭ ilia permeso.</string>
   <string name="label_name_prompt">Nomo</string>
   <string name="label_unlabelled">Senetikeda</string>
   <string name="add_bookmark1">Legosigno</string>
-  <string name="add_bookmark2">Legosigno (elekto)</string>
-  <string name="add_bookmark3">Elekto</string>
+  <string name="add_bookmark2">Legosigno (fragmento)</string>
+  <string name="add_bookmark3">Fragmento</string>
   <string name="add_bookmark_whole_verse">Legosigno (versoj)</string>
   <string name="add_bookmark_whole_verse1">Versoj</string>
   <string name="add_bookmark_whole_verse2">Plenaj versoj</string>
@@ -397,6 +405,17 @@ laŭ ilia permeso.</string>
   <string name="speak_status_stopped">haltigita</string>
   <string name="speak_autobookmarking_disabled">Aŭtomata legosignado malaktiva!</string>
   <string name="system_speak_settings">Sistemaj agordoj pri parolsintezo</string>
+  <string name="assing_labels_help1">Ĉiu legosigno povas havi plurajn etikedojn.</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Uzu %s por elekti koloron de etikedoj por montri.</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Frapetu la emblemon %s por aŭtomate asigni la etikedon al novaj legosignoj.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Frapetu %s por aldoni etikedon al la listo de ŝatataj por rapide aliri ĝin.</string>
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Helpo pri parola legosigno</string>
   <string name="speak_help_auto_bookmark">
 Parola legosigno estos aŭtomate kreita kiam vi paŭzigos/haltigos parolon. Aŭtomate kreitaj legosignoj estas markitaj per speciala etikedo. Kiam vi pluigos parolan legosignon, ĝi aŭtomate moviĝos al la verso kie vi paŭzigos/haltigos la venonta foje. Nur parolaj legosignoj moviĝos, ĉiuj aliaj legosignoj ne estos movitaj.</string>
@@ -445,9 +464,12 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="backup_modules">Kunhavigi aŭ sekurkopii dokumentojn al…</string>
   <string name="backup_app_database">Kunhavigi aŭ sekurkopii datumbazon al…</string>
   <string name="backup_app">Kunhavigi aŭ sekurkopii aplikaĵon (dosieron .apk) al…</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Kion vi volas restarigi?</string>
   <string name="restore_app_database">Restarigi datumbazon el…</string>
   <string name="restore_database">Dosiero de datumbazo</string>
   <string name="restore_confirmation">Ĉu anstataŭigi miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn?</string>
+  <string name="reading_plans_plural">Legplanoj</string>
   <string name="restore_success">Sukcese restarigis miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn</string>
   <string name="loading_backup">Ŝargado de datumbazo el sekurkopio…</string>
   <string name="backup_success2">Sukcese sekurkopiis miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn.</string>
@@ -473,6 +495,8 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="module_about_repository">Deponejo: %s</string>
   <string name="module_about_osisId">OSIS-identigilo: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Erar-raporto</string>
+  <string name="send_feedback_title">Opinio</string>
   <string name="send_bug_report_title">Raporti eraron / sendi opinion</string>
   <string name="report_bug_email_subject_3">[%s] Erar‑raporto pri %s %s</string>
   <string name="report_bug_big_heading">SKRIBU VIAN OPINION AŬ ERAR‑RAPORTON SUPER TIU ĈI LINIO</string>
@@ -497,7 +521,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="doc_type_dictionary">Vortaro</string>
   <string name="doc_type_book">Libro</string>
   <string name="doc_type_map">Mapo</string>
-  <string name="doc_type_addons">Aldonaĵoj</string>
+  <string name="doc_type_addons">Aldonaĵo</string>
   <!--Languages-->
   <string name="lang_default">Implicita</string>
   <!--General-->
@@ -638,7 +662,7 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekomendi al amiko</string>
   <string name="tell_friend_message1">Mi volus rekomendi al vi la aplikaĵon %s.</string>
-  <string name="tell_friend_message2">Ĝi estas potenca – kvankam facile uzebla – aplikaĵo por studi Biblio por Android.</string>
+  <string name="tell_friend_message2">Ĝi estas potenca – kvankam facile uzebla – aplikaĵo por studi Biblion por Android.</string>
   <string name="tell_friend_message3">Vi povas instali ĝin el la vendejo Play: %s</string>
   <string name="tell_friend_message4">Pliaj informoj (en la angla) troviĝas ĉe: %s</string>
   <string name="share_verse_ok">Kunhavigi / kopii</string>
@@ -648,7 +672,8 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="show_full_verses">Montri plenajn versojn</string>
   <string name="advertise_app">Reklami la apon</string>
   <string name="verse_share_advertise">Kunhavigita per la aplikaĵo %s.</string>
-  <string name="abbreviate_reference">Mallongigi referencojn</string>
+  <string name="abbreviate_reference">Mallongigi referencon</string>
+  <string name="version_name">Nomo de eldonaĵo</string>
   <string name="backup_button">Konservi</string>
   <string name="back_button">Reen</string>
   <string name="upgrading_database">Ĝisdatigado de datumbazo. Bonvolu atendi…</string>
@@ -665,13 +690,13 @@ Detalaj favoraj recenzoj multe helpas al la malfermkoda projekto And Bible. Dank
 Antaŭ skribi malfavoran recenzon, bonvolu konsideri:</string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
-se vi spertas problemon pri la aplikaĵo, %s aŭ %s;</string>
+• se vi spertas problemon pri la aplikaĵo, %s aŭ %s;</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
-se iu biblia teksto aŭ traduko enhavas eraron, %s;</string>
+• se iu biblia teksto aŭ traduko enhavas eraron, %s;</string>
   <!--param is "please read what you can do"-->
   <string name="rate_message3">
-se iu konkreta teksto ne estas disponebla per la aplikaĵo, %s –</string>
+• se iu konkreta teksto ne estas disponebla per la aplikaĵo, %s –</string>
   <string name="rate_message4">
 programistoj de la aplikaĵo ne respondumas pri prizorgi dokumentojn.</string>
   <string name="bug_report">
@@ -694,9 +719,9 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="favourite_label">Ŝatata etikedo</string>
   <string name="edit_label">Redakti etikedon</string>
   <string name="delete_label_confirmation">Ĉu vi volas forigi la legosignan etikedon “%s”? Ĉiuj rilataj notblokoj perdiĝos.</string>
-  <string name="bookmark_underline_style_arbitrary">Substreki legosignojn (elektoj)</string>
-  <string name="bookmark_underline_style_whole_verse">Substreki legosignojn (tutaj versoj)</string>
-  <string name="active_labels">Elektitaj legosignoj</string>
+  <string name="bookmark_underline_style_arbitrary">Substreki legosignojn de speco “fragmento”</string>
+  <string name="bookmark_underline_style_whole_verse">Substreki legosignojn de speco “tutaj versoj”</string>
+  <string name="active_labels">Elektitaj etikedoj</string>
   <string name="recent_labels">Antaŭaj etikedoj</string>
   <string name="other_labels">Aliaj etikedoj</string>
   <string name="book_menu_sort_row_opt">Ordigi librojn horizontale</string>
@@ -708,7 +733,7 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="system_action2">Agoj de Android</string>
   <string name="text_copied_to_clicpboard">Kopiis tekston al tondujo</string>
   <string name="prefs_disable_two_step_bookmarking_title">Aldoni legosignon per unu frapeto</string>
-  <string name="prefs_disable_two_step_bookmarking_summary">Montri la agojn “elekto” kaj “versoj” anstataŭ la etendita menuo “legosigno”</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Montri la agojn “fragmento” kaj “versoj” anstataŭ la etendita menuo “legosigno”</string>
   <string name="prefs_double_tap_to_fullscreen_title">Plenekranigi per duobla frapeto</string>
   <string name="prefs_double_tap_to_fullscreen_summary">Enigi plenekranon per duoble frapeti la fenestron</string>
   <string name="toggle_fullscreen">Plenekrano</string>
@@ -717,10 +742,25 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="label_red">Ruĝa</string>
   <string name="label_green">Verda</string>
   <string name="label_blue">Blua</string>
+  <string name="label_salvation">Saviĝo</string>
   <string name="label_underline">Substrekita</string>
   <string name="import_menu">Enporti aŭ elporti</string>
   <string name="export_fileformat">Elporti kiel %s</string>
   <string name="import_items">Enporti %s</string>
   <string name="import_from_db">Enporti el dosiero de aplikaĵa datumbazo</string>
   <string name="import_error">Fiaskis enporti datumojn el aplikaĵa datumbazo. La dosiero povas esti en malĝusta formo aŭ povas esti farita per tro malnova versio de la aplikaĵo %s.</string>
+  <string name="chooser_range">Amplekso</string>
+  <string name="chooser_jump">Salti</string>
+  <string name="chooser_OT_abbrev">MT</string>
+  <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_grid">Krado</string>
+  <string name="chooser_style_lists">Listoj</string>
+  <string name="chooser_select">Elekti %s</string>
+  <string name="chooser_pref_reset">Ne agordi ĉapitron/verson al 1 dum elekti libron/ĉapitron</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Bedaŭrinde la fasado de la aplikaĵo estas nur parte tradukita al %s. La aplikaĵo %s estas evoluigata nur de volontuloj. Se vi volus helpi traduki ĝin, bonvolu ekkoni kun %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">instrukcioj por tradukantoj</string>
+  <string name="questions_title">Demandoj?</string>
+  <string name="questions_title2">Ĉu vi bezonas helpon?</string>
 </resources>

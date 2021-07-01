@@ -33,7 +33,9 @@ removeBookmarkConfirmation: "Is jy seker jy wil hierdie boekmerk verwyder?"
 closeModal: Sluit
 createdAt: "Geskep: %s"
 lastUpdatedOn: "Laas opgedateer: %s"
-strongsLink: Maak Strongs oop (%s)
+strongsLink: ""
+morphLink: ""
+strongsAndMorph: ""
 studyPadLink: Maak studieblok oop
 externalLink: Maak eksterne skakel oop
 referenceLink: Maak verwysings skakel oop
@@ -66,3 +68,13 @@ frequentlyUsedLabels: Dikwels gebruik etikette
 bookmarkLabels: ""
 refParserHelp: ""
 openDownloads: ""
+verseShare: Deel
+verseCompare: Vergelyk
+verseNote: ""
+verseMyNotes: My Notas
+verseSpeak: Praat
+verseShareLong: ""
+verseCompareLong: ""
+verseNoteLong: ""
+verseSpeakLong: ""
+verseTip: ""

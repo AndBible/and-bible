@@ -33,7 +33,9 @@ removeBookmarkConfirmation: "Bist du sicher, dass du dieses Lesezeichen entferne
 closeModal: Schließen
 createdAt: "Erstellt: %s"
 lastUpdatedOn: "Zuletzt aktualisiert: %s"
-strongsLink: Strongs Wörterbuch öffnen (%s)
+strongsLink: ""
+morphLink: ""
+strongsAndMorph: ""
 studyPadLink: Studiermappe öffnen
 externalLink: Externe Verknüpfung öffnen
 referenceLink: Querverweis öffnen
@@ -66,3 +68,13 @@ frequentlyUsedLabels: Häufig verwendete Kategorien
 bookmarkLabels: Lesezeichenkategorien
 refParserHelp: ""
 openDownloads: ""
+verseShare: Teilen
+verseCompare: Vergleiche
+verseNote: ""
+verseMyNotes: Eigene Notizen
+verseSpeak: Vorlesen
+verseShareLong: ""
+verseCompareLong: ""
+verseNoteLong: ""
+verseSpeakLong: ""
+verseTip: ""

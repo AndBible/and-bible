@@ -33,7 +33,9 @@ removeBookmarkConfirmation: "Ar tikrai norite pašalinti šią žymę?"
 closeModal: Užverti
 createdAt: "Sukurta: %s"
 lastUpdatedOn: "Paskiausiai atnaujinta: %s"
-strongsLink: Atverti Strongo peržiūrą (%s)
+strongsLink: Strongo apibrėžimas (%s)
+morphLink: Morfologinis kodas (%s)
+strongsAndMorph: Apibrėžimas ir morfologija
 studyPadLink: Atverti bloknotą
 externalLink: Atverti išorinę nuorodą
 referenceLink: Atverti nuorodos adresą
@@ -66,3 +68,13 @@ frequentlyUsedLabels: Dažniausios etiketės
 bookmarkLabels: Žymės etiketės
 refParserHelp: "Norėdami naudotis nuorodomis kitokia nei anglų kalba, įsidiekite %s modulį."
 openDownloads: Pereiti į papildinių atsiuntimus
+verseShare: Bendrinti
+verseCompare: Lyginti
+verseNote: Pastaba
+verseMyNotes: Mano pastabos
+verseSpeak: Klausytis
+verseShareLong: Bendrinti šią eilutę
+verseCompareLong: Lyginti eilutę
+verseNoteLong: Rašyti pastabą
+verseSpeakLong: Pradėti klausytis nuo šios eilutės
+verseTip: "Norėdami žymėti kelias eilutes ar eilutės dalį, paspauskite ir palaikykite ant Biblijos teksto"

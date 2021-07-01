@@ -61,6 +61,10 @@
   <string name="prefs_show_verseno_summary">Mostra numeri di capitolo &amp; verso</string>
   <string name="prefs_e_ink_mode_title">Modalità bianco e nero</string>
   <string name="prefs_eink_mode_summary">Usa l\'app in modalità monocromatica (senza colori), più adatta ai dispositivi E-ink.</string>
+  <string name="prefs_disable_animations_title">Disabilita animazioni</string>
+  <string name="prefs_disable_animations_summary">Disabilita varie animazioni come lo scorrimento fluido</string>
+  <string name="prefs_paragraph_spacing_title">Spaziatura paragrafo (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Regola la spaziatura tra i paragrafi.</string>
   <string name="prefs_show_verseno_title1">Numeri dei versi</string>
   <string name="prefs_show_chapter_no_title">Numeri di capitolo</string>
   <string name="prefs_show_chapter_no_summary">Mostra i numeri di capitolo</string>
@@ -203,6 +207,7 @@
   <string name="strongs_not_installed">Scarica il dizionario ebraico e greco di Strong </string>
   <string name="no_indexed_bible_with_strongs_ref">Devi scaricare una Bibbia che contenga i numeri di Strong e scaricarne l\'indice attraverso \'Cerca\'</string>
   <string name="morph_robinson_not_installed">Scarica il dizionario dei codici di analisi morfologica di Robinson</string>
+  <string name="go_to_downloads">Vai ai Download</string>
   <!--Module download-->
   <string name="download">Scarica i documenti</string>
   <string name="redownload">Riscarica i documenti</string>
@@ -393,6 +398,17 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="speak_status_stopped">fermato</string>
   <string name="speak_autobookmarking_disabled">Segnalibri automatici disabilitato!</string>
   <string name="system_speak_settings">Apri le impostazioni del sistema TTS</string>
+  <string name="assing_labels_help1">A ogni segnalibro si possono assegnare etichette multiple.</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Usa %s per specificare quale colore di etichetta mostrare.</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Tocca l\'icona %s se vuoi che l\'etichetta sia assegnata automaticamente ai nuovi segnalibri.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Tocca %s per aggiungere l\'etichetta all\'elenco dei tuoi preferiti per accesso rapido.</string>
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Legge la guida dei segnalibri</string>
   <string name="speak_help_auto_bookmark">
 Un segnalibro Audio verrà aggiunto automaticamente quando Parla/Audio viene messo in pausa o interrotto. I segnalibri generati automaticamente sono etichettati con l\'etichetta speciale Audio. Se inizi da un segnalibro di Audio, il segnalibro verrà spostato nel versetto stesso interrompere o mettere in pausa alla prossima volta. Verranno spostate solo le etichette Audio, tutte le altre etichette saranno lasciate solo.</string>
@@ -445,9 +461,12 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="backup_modules">Condividi o esegui il backup dei documenti su...</string>
   <string name="backup_app_database">Condividi o fai il backup del database dell\'app su...</string>
   <string name="backup_app">Condividi o esegui il backup dell\'app (file .apk) su...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Cosa vuoi ripristinare?</string>
   <string name="restore_app_database">Ripristina il database dell\'app da...</string>
   <string name="restore_database">Ripristina il file del database</string>
   <string name="restore_confirmation">Sovrascrivere Le mie note, i Segnalibri, gli Appunti di studio, i Piani di lettura e gli Spazi di lavoro?</string>
+  <string name="reading_plans_plural">Piani di lettura</string>
   <string name="restore_success">Eseguito con successo il ripristino di Mie note, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro</string>
   <string name="loading_backup">Carico il database dal backup...</string>
   <string name="backup_success2">Eseguita con successo la copia di backup di Le mie note, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro.</string>
@@ -473,6 +492,8 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="module_about_repository">Server di distribuzione: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Segnalazione errori</string>
+  <string name="send_feedback_title">Feedback</string>
   <string name="send_bug_report_title">Segnalazione errori</string>
   <string name="report_bug_email_subject_3">[%s] Segnalazione errori per %s %s</string>
   <string name="report_bug_big_heading">PER FAVORE SCRIVI LA TUA SEGNALAZIONE AL DI SOPRA DI QUESTA RIGA</string>
@@ -755,4 +776,11 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="chooser_style_lists">Elenchi</string>
   <string name="chooser_select">Seleziona %s</string>
   <string name="chooser_pref_reset">Non reimpostare il capitolo/verso a 1 quando un libro o capitolo viene selezionato</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Spiacente, abbiamo solo una traduzione parziale dell\'interfaccia nella lingua %s . Questo perché %s è sviluppato interamente da volontari. Se puoi aiutarci nelle traduzioni, per favore vedi %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">istruzioni per i traduttori</string>
+  <string name="questions_title">Domande?</string>
+  <string name="questions_title2">Serve aiuto?</string>
+  <string name="bookmark_style">Stile dei segnalibri</string>
 </resources>

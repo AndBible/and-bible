@@ -33,7 +33,9 @@ removeBookmarkConfirmation: "¿Seguro que quiere eliminar este marcador?"
 closeModal: Cerrar
 createdAt: "Creado: %s"
 lastUpdatedOn: "Última actualización: %s"
-strongsLink: Abrir Strongs (%s)
+strongsLink: ""
+morphLink: Código morfológico (%s)
+strongsAndMorph: ""
 studyPadLink: Abrir bloc de estudio
 externalLink: Abrir enlace externo
 referenceLink: Abrir enlace de referencia
@@ -66,3 +68,13 @@ frequentlyUsedLabels: Etiquetas uso frecuente
 bookmarkLabels: Etiquetas de marcador
 refParserHelp: Instale el módulo %s para utilizar referencias en idiomas distintos del Inglés.
 openDownloads: Ir a descargas de complementos
+verseShare: Compartir
+verseCompare: Comparar
+verseNote: Nota
+verseMyNotes: Mis Notas
+verseSpeak: Con voz
+verseShareLong: ""
+verseCompareLong: ""
+verseNoteLong: ""
+verseSpeakLong: ""
+verseTip: ""

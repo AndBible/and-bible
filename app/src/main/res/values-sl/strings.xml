@@ -415,6 +415,13 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="speak_status_stopped">ustavljeno</string>
   <string name="speak_autobookmarking_disabled">Avtomatski zaznamki onemogočeni!</string>
   <string name="system_speak_settings">Odpri nastavitve besedila v govor...</string>
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Govori zaznamki pomoč</string>
   <string name="speak_help_auto_bookmark">
 Govorni zaznamek bo samodejno dodan, ko bo govor zaustavljen ali ustavljen.
@@ -476,6 +483,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="backup_modules">Deli ali Arhiviraj dokumente v...</string>
   <string name="backup_app_database">Deli ali Arhiviraj bazo aplikacije v...</string>
   <string name="backup_app">Deli ali Arhiviraj aplikacijo (.apk datoteko) v...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_app_database">Obnovitev baze aplikacije iz…</string>
   <string name="restore_database">Obnovitev baze aplikacije</string>
   <string name="restore_confirmation">Prepišem Zaznamke, Moje opombe, Beležnice, Načrte branja in Delovne prostore?</string>
@@ -796,4 +804,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="chooser_style_lists">Seznami</string>
   <string name="chooser_select">Izberi %s</string>
   <string name="chooser_pref_reset">Poglavja ali vrstice ne ponastavite na 1, medtem ko je izbrana knjiga ali poglavje</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
 </resources>
