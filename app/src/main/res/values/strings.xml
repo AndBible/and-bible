@@ -956,4 +956,5 @@
     <string name="questions_title">Questions?</string>
     <string name="questions_title2">Need help?</string>
     <string name="bookmark_style">Bookmark style</string>
+    <string name="added_to_bookmark">Assigned to this bookmark</string>
 </resources>
