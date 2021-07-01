@@ -34,7 +34,7 @@
       <div class="bottom-right-corner"/>
     </div>
     <div id="top"/>
-    <div class="loading" v-if="documents.length === 0"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
+    <div class="loading" v-if="isLoading"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
     <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
       <Document v-for="document in documents" :key="document.id" :document="document"/>
@@ -226,10 +226,12 @@ export default {
       verseMap.resetHighlights();
     }
 
+    const isLoading = computed(() => documents.length === 0);
+
     return {
       makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
       updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
-      config, strings, documents, topElement, currentVerse, mounted, emit, Events,
+      config, strings, documents, topElement, currentVerse, mounted, emit, Events, isLoading,
       contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings, backClicked,
     };
   },
@@ -238,7 +240,7 @@ export default {
 <style lang="scss" scoped>
 $ring-size: 40px;
 .loading {
-  position: absolute;
+  position: fixed;
   left: calc(50% - #{$ring-size}/2);
   top: calc(50% - #{$ring-size}/2);
 }
