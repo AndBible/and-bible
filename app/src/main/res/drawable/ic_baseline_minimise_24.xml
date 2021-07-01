@@ -1,0 +1,23 @@
+<!--
+  ~ Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<vector android:height="24dp" android:tint="#FF0000"
+    android:viewportHeight="1693" android:viewportWidth="1693"
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="@android:color/white" android:pathData="M1141 0l51 0c20,4 34,21 34,42 0,23 -19,42 -42,42l0 1 -43 0 -43 0 -5 0c-20,-3 -36,-21 -36,-42 0,-24 19,-43 42,-43l0 0 42 0zm246 0l179 0c35,0 67,14 90,37 1,1 2,2 3,3 21,23 34,53 34,87l0 169 -1 0c0,23 -19,42 -42,42 -20,0 -37,-13 -41,-31l0 -180c0,-11 -4,-21 -11,-28l-2 -2c-7,-8 -18,-12 -30,-12l-171 0 0 -1c-23,0 -42,-19 -42,-43 0,-20 15,-37 34,-41zm306 508l0 84 0 0c0,24 -19,43 -42,43 -23,0 -41,-18 -42,-40l0 -98c4,-18 21,-32 41,-32 23,0 42,19 42,43l1 0zm0 296l0 85 0 0c0,23 -19,42 -42,42 -23,0 -41,-18 -42,-40l0 -89c1,-22 19,-40 42,-40 23,0 42,19 42,42l0 0zm0 296l0 85 0 0c0,23 -19,42 -42,42 -23,0 -41,-17 -42,-40l0 -89c1,-22 19,-40 42,-40 23,0 42,19 42,42l0 0zm0 297l0 169c0,35 -14,67 -37,90l0 0 0 0c-23,23 -55,37 -90,37l-171 0 0 -1c-23,0 -42,-19 -42,-43 0,-19 13,-35 30,-40l183 0c12,0 23,-5 30,-13l0 0c8,-7 13,-18 13,-30l0 -172c1,-22 19,-40 42,-40 23,0 42,19 42,43l0 0zm-509 296l-85 0 0 0c-23,0 -42,-19 -42,-42 0,-22 16,-39 36,-42l103 0c17,5 30,21 30,40 0,24 -19,43 -42,43l0 1zm-297 0l-84 0 0 0c-24,0 -43,-19 -43,-42 0,-22 16,-39 37,-42l96 0c21,2 37,20 37,42 0,23 -19,42 -43,42l0 0zm-296 0l-85 0 0 0c-23,0 -42,-19 -42,-42 0,-22 16,-39 36,-42l97 0c21,3 36,20 36,42 0,23 -19,42 -42,42l0 0zm-296 0l-168 0c-35,0 -67,-14 -90,-37 -23,-23 -37,-55 -37,-90l0 -181c5,-18 21,-31 41,-31 23,0 42,19 42,43l2 0 0 169c0,12 4,23 12,30 8,8 18,13 30,13l174 0c20,3 36,20 36,42 0,23 -19,42 -42,42l0 0zm-295 -496l0 -108c5,-18 21,-31 41,-31 23,0 42,19 42,42l2 0 0 85 -2 0c0,23 -19,42 -42,42 -20,0 -36,-13 -41,-30zm1101 285c-24,0 -43,-19 -43,-43 0,-23 19,-42 43,-42l236 0 -351 -351c-16,-17 -16,-43 0,-60 17,-16 43,-16 60,0l351 351 0 -236c0,-24 19,-43 42,-43 24,0 43,19 43,43l0 338c0,24 -19,43 -43,43l-338 0zm-974 -1482l677 0c35,0 67,14 90,37l0 0 0 0c23,24 37,55 37,90l0 677c0,35 -14,67 -37,90l0 0 0 0c-23,23 -55,37 -90,37l-677 0c-35,0 -66,-14 -90,-37l0 0 0 0c-23,-23 -37,-55 -37,-90l0 -677c0,-35 14,-66 37,-90l0 0 0 0c24,-23 55,-37 90,-37zm677 85l-677 0c-12,0 -22,4 -30,12l0 0c-8,8 -12,18 -12,30l0 677c0,12 4,23 12,30l0 0c8,8 18,13 30,13l677 0c12,0 23,-5 30,-13l0 0c8,-7 13,-18 13,-30l0 -677c0,-12 -5,-22 -13,-30l0 0c-7,-8 -18,-12 -30,-12z"/>
+</vector>
