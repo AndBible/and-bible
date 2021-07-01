@@ -45,7 +45,7 @@ import {
     faSort,
     faTags, faTextWidth,
     faTimes,
-    faTrash, faUndoAlt
+    faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import {DocumentTypes} from "@/constants";
 
@@ -367,7 +367,6 @@ export function useFontAwesome() {
     library.add(faEyeSlash);
     library.add(faEye);
     library.add(faShareAlt);
-    library.add(faUndoAlt);
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
