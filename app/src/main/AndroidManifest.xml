@@ -315,6 +315,7 @@
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+        <package android:name="com.diotek.sec.lookup.dictionary"/>
         <package android:name="com.google.android.apps.translate" />
     </queries>
 </manifest> 
