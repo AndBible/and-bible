@@ -61,7 +61,7 @@ import {useGlobalBookmarks} from "@/composables/bookmarks";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {useScroll} from "@/composables/scroll";
 import {clearLog, useAndroid} from "@/composables/android";
-import {setupWindowEventListener, sleep, waitNextAnimationFrame} from "@/utils";
+import {setupWindowEventListener, waitNextAnimationFrame} from "@/utils";
 import ErrorBox from "@/components/ErrorBox";
 import BookmarkModal from "@/components/modals/BookmarkModal";
 import DevelopmentMode from "@/components/DevelopmentMode";
@@ -116,7 +116,7 @@ export default {
         loadingCount.value ++;
         await document.fonts.ready;
         await nextTick();
-        // 2 animation frames seem to make sure that loading indicator is visible. 
+        // 2 animation frames seem to make sure that loading indicator is visible.
         await waitNextAnimationFrame();
         await waitNextAnimationFrame();
         documents.push(...docs);
