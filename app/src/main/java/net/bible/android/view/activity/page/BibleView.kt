@@ -69,6 +69,7 @@ import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.StudyPadOrderEvent
 import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
+import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
@@ -173,7 +174,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 private val pageControl: PageControl,
                 private val pageTiltScrollControl: PageTiltScrollControl,
                 val linkControl: LinkControl,
-                internal val bookmarkControl: BookmarkControl
+                internal val bookmarkControl: BookmarkControl,
+                internal val downloadControl: DownloadControl,
 ) : WebView(mainBibleActivity.applicationContext), DocumentView
 {
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface

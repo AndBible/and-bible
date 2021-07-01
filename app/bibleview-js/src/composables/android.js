@@ -239,6 +239,10 @@ export function useAndroid({bookmarks}, config) {
         android.openMyNotes(bookmarkId);
     }
 
+    function openDownloads() {
+        android.openDownloads();
+    }
+
     function updateOrderNumber(labelId, bookmarks, journals) {
         const orderNumberPairs = l => l.map(v=>[v.id, v.orderNumber])
         android.updateOrderNumber(labelId, JSON.stringify(
@@ -308,6 +312,7 @@ export function useAndroid({bookmarks}, config) {
         setBookmarkWholeVerse,
         toggleCompareDocument,
         openMyNotes,
+        openDownloads,
     }
 
     if(config.developmentMode) return {

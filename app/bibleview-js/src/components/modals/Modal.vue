@@ -27,11 +27,14 @@
               <slot name="title"/>
             </div>
           </slot>
-          <slot name="buttons">
-            <button class="modal-action-button right" @touchstart.stop @click.stop="$emit('close')">
-              <FontAwesomeIcon icon="times"/>
-            </button>
-          </slot>
+          <div class="modal-toolbar">
+            <slot name="buttons">
+              <slot name="extra-buttons"/>
+              <button class="modal-action-button right" @touchstart.stop @click.stop="$emit('close')">
+                <FontAwesomeIcon icon="times"/>
+              </button>
+            </slot>
+          </div>
         </div>
         <div v-if="ready" class="modal-body">
           <slot/>
@@ -187,6 +190,11 @@ $border-radius2: $border-radius - 1.5pt;
     --header-backround: #{$night-modal-header-background-color};
     color: #e2e2e2;
   }
+}
+
+.modal-toolbar {
+  align-self: flex-end;
+  display: flex;
 }
 
 .modal-body {

@@ -36,6 +36,8 @@ import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
@@ -46,6 +48,7 @@ class BibleJavascriptInterface(
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
     val bookmarkControl get() = bibleView.bookmarkControl
+    val downloadControl get() = bibleView.downloadControl
 
     var notificationsEnabled = false
 
@@ -117,6 +120,14 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openExternalLink(link: String) {
         mainBibleActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+    }
+
+    @JavascriptInterface
+    fun openDownloads() {
+        if (!downloadControl.checkDownloadOkay()) return
+        val activity = CurrentActivityHolder.getInstance().currentActivity
+        val intent = Intent(activity, DownloadActivity::class.java)
+        activity.startActivity(intent)
     }
 
     @JavascriptInterface

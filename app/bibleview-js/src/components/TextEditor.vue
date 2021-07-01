@@ -18,6 +18,15 @@
 <template>
   <InputText ref="inputText">
     {{strings.inputReference}}
+    <template #buttons>
+      <button class="modal-action-button right" @touchstart.stop v-on:click="bibleref_info()">
+        <FontAwesomeIcon icon="question-circle"/>
+      </button>
+    </template>
+    <template #content v-if="show_help">
+        {{sprintf(strings.refParserHelp, "RefParser")}}
+        <a v-on:click="open_downloads()">{{strings.openDownloads}}</a>
+    </template>
   </InputText>
   <div @click.stop class="edit-area pell">
     <div ref="editorElement"/>
@@ -32,6 +41,9 @@ import {useCommon} from "@/composables";
 import {init, exec, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText";
 import {useStrings} from "@/composables/strings";
+import {library} from "@fortawesome/fontawesome-svg-core";
+import {faQuestionCircle} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {
   faBible,
   faIndent,
@@ -42,22 +54,32 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
+library.add(faQuestionCircle)
 
 
 export default {
   name: "TextEditor",
-  components: {InputText},
+  components: {InputText, FontAwesomeIcon},
   props: {
     text: {type: String, required: true}
   },
+  methods: {
+    bibleref_info() {
+      this.show_help = !this.show_help;
+    },
+    open_downloads() {
+      this.android.openDownloads();
+    }
+  },
   emits: ['save', "close"],
-  setup(props, {emit}) {
+  setup(props, {emit: $emit}) {
     const android = inject("android");
     const {parse} = inject('customFeatures')
     const editorElement = ref(null);
     const editor = ref(null);
     const inputText = ref(null);
     const strings = useStrings();
+    const show_help = ref(false);
 
     // TODO: probably this hack can be removed.
     function setFocus(value) {
@@ -176,7 +198,7 @@ export default {
       android.setEditing(false);
     })
 
-    return {setFocus, editorElement, ...useCommon(), dirty, inputText}
+    return {setFocus, editorElement, ...useCommon(), dirty, inputText, show_help, android}
   }
 }
 </script>
@@ -244,6 +266,12 @@ export default {
 .edit-area {
   width: 100%;
   position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 
 
