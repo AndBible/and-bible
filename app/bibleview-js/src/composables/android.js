@@ -145,7 +145,10 @@ export function useAndroid({bookmarks}, config) {
 
         const deleteBookmarks = union(filteredBookmarks.map(b => b.id));
 
-        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks: deleteBookmarks};
+        return {
+            bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks: deleteBookmarks,
+            text: selection.toString()
+        };
     }
 
     window.bibleView.response = response;

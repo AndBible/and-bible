@@ -137,7 +137,8 @@ class AppSettingsUpdated
 class Selection(val bookInitials: String?, val startOrdinal: Int,
                 val startOffset: Int?, val endOrdinal: Int, val endOffset: Int?,
                 val bookmarks: List<Long>,
-                val notes: String? = null
+                val notes: String? = null,
+                val text: String = ""
 )
 {
     constructor(bookmark: BookmarkEntities.Bookmark):
@@ -276,6 +277,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     ShareWidget.dialog(mainBibleActivity, sel)
                 return true
             }
+            R.id.system_items -> {
+                showSystem = true
+                mode.menu.clear()
+                mode.invalidate()
+                return false
+            }
             else -> false
         }
     }
@@ -337,6 +344,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun createProcessTextIntent() = Intent()
         .setAction(Intent.ACTION_PROCESS_TEXT)
         .setType("text/plain")
+        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        .putExtra(Intent.EXTRA_PROCESS_TEXT, currentSelection!!.text)
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun getSupportedActivities(): List<ResolveInfo> {
@@ -350,11 +359,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun createProcessTextIntentForResolveInfo(info: ResolveInfo): Intent {
-        return createProcessTextIntent()
+    private fun createProcessTextIntentForResolveInfo(info: ResolveInfo) =
+        createProcessTextIntent()
             .putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, true)
             .setClassName(info.activityInfo.packageName, info.activityInfo.name)
-    }
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
         Log.d(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
@@ -401,6 +409,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         .setIntent(createProcessTextIntentForResolveInfo(resolveInfo))
                         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
                 }
+                menu.findItem(R.id.system_items).isVisible = false
             }
 
             menuPrepared = false
