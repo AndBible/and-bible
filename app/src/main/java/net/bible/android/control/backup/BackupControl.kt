@@ -477,7 +477,7 @@ class BackupActivity: ActivityBase() {
         binding = BackupViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.apply {
-            restoreModules.text = "${getString(R.string.install_zip)} / \n ${getString(R.string.restore_modules)}"
+            restoreModules.text = "${getString(R.string.install_zip)} / ${getString(R.string.restore_modules)}"
 
             backupApp.setOnClickListener { GlobalScope.launch { BackupControl.backupApp(this@BackupActivity) } }
             backupAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) } }
