@@ -117,10 +117,8 @@ open class WindowControl @Inject constructor(
 
         linksWindow.initialisePageStateIfClosed(activeWindow)
 
-        windowRepository.activeWindow = linksWindow
-
-        // redisplay the current page
         if (!linksWindowWasVisible) {
+            windowRepository.activeWindow = linksWindow
             linksWindow.windowState = WindowState.SPLIT
         }
 
