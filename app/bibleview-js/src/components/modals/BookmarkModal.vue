@@ -70,14 +70,17 @@
         </div>
       </div>
       <div class="info-text">
+        <div class="separator"/>
         <div v-if="bookmark.bookName">
           <span v-html="sprintf(strings.bookmarkAccurate, originalBookLink)"/>
         </div>
         <div v-else>
           <span v-html="sprintf(strings.bookmarkInaccurate, originalBookLink)"/>
         </div>
+        <div v-if="bookmark.createdAt !== bookmark.lastUpdatedOn">
+          {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
+        </div>
         {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
-        {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
       </div>
     </div>
     <template #footer>
@@ -97,6 +100,7 @@ import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
 import BookmarkButtons from "@/components/BookmarkButtons";
 import {clickWaiter} from "@/utils";
+import {sortBy} from "lodash";
 
 export default {
   name: "BookmarkModal",
@@ -116,7 +120,7 @@ export default {
 
     const labels = computed(() => {
       if(!bookmark.value) return [];
-      return bookmark.value.labels.map(l => bookmarkLabels.get(l))
+      return sortBy(bookmark.value.labels.map(l => bookmarkLabels.get(l)), ["name"])
     });
 
     const label = computed(() => labels.value[0]);
