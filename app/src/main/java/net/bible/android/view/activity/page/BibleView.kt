@@ -59,7 +59,6 @@ import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
-import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
@@ -382,7 +381,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 step2 = false
                 return true
             }
-            if (showSystem || firstDocument !is BibleDocument) {
+            if (showSystem || firstDocument !is BibleDocument || editingTextInJs) {
                 showSystem = false
                 return true
             } else {
@@ -405,7 +404,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    var actionModeEnabled: Boolean = true
+    var editingTextInJs: Boolean = false
 
     fun stopSelection(removeRanges: Boolean = false) {
         currentSelection = null
@@ -422,7 +421,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-            if(!actionModeEnabled) return true
             val wasUpdated2 = callback.onPrepareActionMode(mode, menu)
             val wasUpdated1 = onPrepareActionMenu(mode, menu)
             return wasUpdated1 || wasUpdated2
@@ -468,7 +466,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-            if(!actionModeEnabled) return true
             val wasUpdated1 = callback.onPrepareActionMode(mode, menu)
             val wasUpdated2 = onPrepareActionMenu(mode, menu)
             return wasUpdated1 || wasUpdated2

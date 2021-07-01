@@ -120,8 +120,8 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun setActionMode(enabled: Boolean) {
-        bibleView.actionModeEnabled = enabled
+    fun setEditing(enabled: Boolean) {
+        bibleView.editingTextInJs = enabled
     }
 
     @JavascriptInterface

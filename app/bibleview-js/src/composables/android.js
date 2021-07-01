@@ -204,8 +204,8 @@ export function useAndroid({bookmarks}, config) {
         android.openExternalLink(link);
     }
 
-    function setActionMode(value) {
-        android.setActionMode(value);
+    function setEditing(value) {
+        android.setEditing(value);
     }
 
     function createNewJournalEntry(labelId, afterEntryType = "none", afterEntryId = 0) {
@@ -275,7 +275,7 @@ export function useAndroid({bookmarks}, config) {
     }
 
     const exposed = {
-        setActionMode,
+        setEditing,
         reportInputFocus,
         saveBookmarkNote,
         requestPreviousChapter,

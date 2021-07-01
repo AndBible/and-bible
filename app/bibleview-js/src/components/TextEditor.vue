@@ -147,7 +147,7 @@ export default {
       });
       editor.value.content.innerHTML = editText.value;
       editor.value.content.focus();
-      //android.setActionMode(false);
+      android.setEditing(true);
     });
 
     onBeforeUnmount(() => {
@@ -155,8 +155,7 @@ export default {
     });
 
     onUnmounted(() => {
-      // TODO: remove setActionMode
-      //android.setActionMode(true);
+      android.setEditing(false);
     })
 
     return {setFocus, editorElement, ...useCommon(), dirty, inputText}
