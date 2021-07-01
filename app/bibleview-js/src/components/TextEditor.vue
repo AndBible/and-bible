@@ -24,8 +24,8 @@
       </button>
     </template>
     <template #content v-if="show_help">
-        {{sprintf(strings.refParserHelp, "RefParser")}}
-        <a v-on:click="open_downloads()">{{strings.openDownloads}}</a>
+      {{sprintf(strings.refParserHelp, "RefParser")}}
+      <a v-on:click="open_downloads()">{{strings.openDownloads}}</a>
     </template>
   </InputText>
   <div @click.stop class="edit-area pell">
@@ -72,7 +72,7 @@ export default {
     }
   },
   emits: ['save', "close"],
-  setup(props, {emit: $emit}) {
+  setup(props, {emit}) {
     const android = inject("android");
     const {parse} = inject('customFeatures')
     const editorElement = ref(null);

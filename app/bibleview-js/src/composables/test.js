@@ -5,7 +5,7 @@ fs.readFile('./refparser.js', 'utf8', (err, data) => {
     import(dataUri).then((module) => {
         console.log(module)
     })*/
-    var module = {}
+    let module = {}
     Function(data).call(module)
     console.log(new module.bcv_parser)
 })

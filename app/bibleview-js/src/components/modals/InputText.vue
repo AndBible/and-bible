@@ -21,10 +21,10 @@
       <slot/>
     </template>
     <template #extra-buttons>
-        <slot name="buttons"/>
+      <slot name="buttons"/>
     </template>
     <slot name="content">
-        <input class="text-input" ref="inputElement" :placeholder="strings.inputPlaceholder" v-model="text"/>
+      <input class="text-input" ref="inputElement" :placeholder="strings.inputPlaceholder" v-model="text"/>
     </slot>
     <template #footer>
       <button class="button" @click="ok">{{strings.ok}}</button>

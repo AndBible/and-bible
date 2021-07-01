@@ -41,7 +41,7 @@ export function stubsFor(object, defaults={}) {
     const stubs = {};
     for(const key in object) {
         //Implement a separate stub for getActiveLanguages, since it needs to return data
-        if (defaults.hasOwnProperty(key)) {
+        if (key in defaults) {
             let value = defaults[key]
             if (typeof value != "function") {
                 value = () => {
