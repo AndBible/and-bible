@@ -213,6 +213,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                 updateData()
                 updateUI()
             }
+            if(data.label.name == "") {
+                labelName.requestFocus()
+            }
         }
     }
 
