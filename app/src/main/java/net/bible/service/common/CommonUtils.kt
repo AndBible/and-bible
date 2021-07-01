@@ -34,9 +34,11 @@ import android.os.Build
 import android.os.Environment
 import android.os.StatFs
 import android.text.Html
+import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
+import android.text.style.ImageSpan
 import android.util.Log
 import android.widget.EditText
 import android.widget.TextView
@@ -384,6 +386,13 @@ object CommonUtils {
             }
         }
         return ResourcesCompat.getDrawable(context?.resources?:resources, resourceId, theme)
+    }
+
+    fun getTintedDrawable(res: Int, color: Int = R.color.grey_500): Drawable {
+        val d = getResourceDrawable(res)!!
+        d.mutate().setTint(getResourceColor(color))
+        d.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
+        return d
     }
 
     /**

@@ -70,7 +70,7 @@ class ColorSettingsActivity: ActivityBase() {
     private var dirty = false
     private var reset = false
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.text_options_opts, menu)
         return true
     }

@@ -258,14 +258,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
     }
 
     fun help() {
-        fun getTintedDrawable(res: Int, color: Int): Drawable {
-            val d = CommonUtils.getResourceDrawable(res, context = this)!!
-            d.mutate().setTint(CommonUtils.getResourceColor(color))
-            d.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
-            return d
-        }
-
-        val resetIcon = ImageSpan(getTintedDrawable(R.drawable.ic_baseline_undo_24, R.color.grey_500))
+        val resetIcon = ImageSpan(CommonUtils.getTintedDrawable(R.drawable.ic_baseline_undo_24))
         val length = 9
 
         val videoSpan = htmlToSpan("<i><a href=\"$textDisplaySettingsVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br><br>")
@@ -302,7 +295,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
                     else getString(R.string.workspace_text_options_help_title)
 
         val d = AlertDialog.Builder(this)
-            .setPositiveButton(R.string.okay, null)// {_, _ -> undoTint()}
+            .setPositiveButton(R.string.okay, null)
             .setTitle(title)
             .setMessage(text)
             .create()

@@ -479,6 +479,12 @@
     <string name="speak_autobookmarking_disabled">Autobookmarking disabled!</string>
     <string name="system_speak_settings">Open system TTS settings</string>
 
+    <string name="auto_assing_labels_help1">Here you can adjust which labels are assigned automatically to bookmarks that you create. </string>
+
+    <string name="setting_scope">This setting applies to this %s.</string>
+    <string name="setting_scope_window">window</string>
+    <string name="setting_scope_workspace">workspace</string>
+
     <string name="assing_labels_help1">Each bookmark can be assigned multiple labels. </string>
     <!-- param is bookmark icon -->
     <string name="assing_labels_help2">Use %s to specify which label color is shown.</string>
@@ -486,6 +492,9 @@
     <string name="assing_labels_help3">Tap %s icon to have that label is assigned automatically to new bookmarks.</string>
     <!-- param is heart icon -->
     <string name="assing_labels_help4">Tap %s to add label to your favourite list for quick access.</string>
+
+    <!-- param is refresh icon -->
+    <string name="assing_labels_help5">Tap %s to re-order the list based on your selections.</string>
 
     <string name="workspace_text_options_help_title">Workspace text options</string>
     <string name="workspace_text_options_help1">These settings determine the default for all workspace windows.</string>

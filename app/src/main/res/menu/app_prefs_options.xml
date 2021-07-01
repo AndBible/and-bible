@@ -21,6 +21,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/reset"
         android:title="@string/reset_settings"
-        app:showAsAction="never"
+        android:icon="@drawable/ic_baseline_undo_24"
+        app:showAsAction="ifRoom"
         />
 </menu>

@@ -361,6 +361,7 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.HIDELABELS,
             selectedLabels = originalValues.toMutableSet(),
+            isWindow = settings.windowId != null
         ).applyFrom(mainBibleActivity.workspaceSettings).toJSON())
         GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)

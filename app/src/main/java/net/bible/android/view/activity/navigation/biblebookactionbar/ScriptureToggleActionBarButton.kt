@@ -31,7 +31,7 @@ import javax.inject.Inject
 @ApplicationScope
 class ScriptureToggleActionBarButton @Inject
 constructor(private val navigationControl: NavigationControl) :
-    ToggleActionBarButton(R.drawable.ic_action_new, R.drawable.ic_action_undo)
+    ToggleActionBarButton(R.drawable.ic_action_new, R.drawable.ic_baseline_undo_24)
 {
     override fun getTitle(): String {
         return if (isOn) {
