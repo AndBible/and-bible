@@ -29,6 +29,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
@@ -38,6 +39,7 @@ import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -353,6 +355,17 @@ object CommonUtils {
         } else {
             resources.getColor(resourceId)
         }
+
+    fun getResourceDrawable(resourceId: Int, context: Context? = null): Drawable? {
+        val theme = try {
+            mainBibleActivity.theme
+        } catch (e: NullPointerException) {
+            resources.newTheme().apply {
+                applyStyle(R.style.AppTheme, true)
+            }
+        }
+        return ResourcesCompat.getDrawable(context?.resources?:resources, resourceId, theme)
+    }
 
     /**
      * convert dip measurements to pixels
