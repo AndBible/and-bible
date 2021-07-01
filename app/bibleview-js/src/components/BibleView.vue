@@ -61,7 +61,7 @@ import {useGlobalBookmarks} from "@/composables/bookmarks";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {useScroll} from "@/composables/scroll";
 import {clearLog, useAndroid} from "@/composables/android";
-import {setupWindowEventListener} from "@/utils";
+import {setupWindowEventListener, sleep, waitNextAnimationFrame} from "@/utils";
 import ErrorBox from "@/components/ErrorBox";
 import BookmarkModal from "@/components/modals/BookmarkModal";
 import DevelopmentMode from "@/components/DevelopmentMode";
@@ -109,11 +109,21 @@ export default {
     provide("customFeatures", customFeatures);
 
     useInfiniteScroll(android, documents);
+    const loadingCount = ref(0);
 
     function addDocuments(...docs) {
-      documentPromise.value = document.fonts.ready
-        .then(() => nextTick())
-        .then(() => documents.push(...docs));
+      async function doAddDocuments() {
+        loadingCount.value ++;
+        await document.fonts.ready;
+        await nextTick();
+        // 2 animation frames seem to make sure that loading indicator is visible. 
+        await waitNextAnimationFrame();
+        await waitNextAnimationFrame();
+        documents.push(...docs);
+        await nextTick();
+        loadingCount.value --;
+      }
+      documentPromise.value = doAddDocuments()
     }
 
     setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
@@ -226,7 +236,7 @@ export default {
       verseMap.resetHighlights();
     }
 
-    const isLoading = computed(() => documents.length === 0);
+    const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
 
     return {
       makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,

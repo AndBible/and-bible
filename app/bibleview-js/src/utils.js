@@ -249,6 +249,12 @@ export async function sleep(ms) {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export async function waitNextAnimationFrame() {
+    const defer = new Deferred();
+    window.requestAnimationFrame(() => defer.resolve())
+    await defer.wait();
+}
+
 export function cancellableTimer(ms) {
     if(ms < 0) return [new Promise(() => {}), () => {}];
     let cancel = false;
