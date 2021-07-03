@@ -32,7 +32,7 @@ import {computed} from "@vue/reactivity";
 import {isEqual, throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {bcv_parser as BcvParser} from "bible-passage-reference-parser/js/en_BcvParser.min";
+import {bcv_parser as BcvParser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
 import {
     faBookmark, faChevronCircleDown,
     faEdit,
