@@ -74,12 +74,16 @@
         <menu>
             <item android:id="@+id/helpButton"
                 android:title="@string/help_and_tips"
-                android:icon="@drawable/ic_help_white_24dp"/>
-
+                android:icon="@drawable/ic_help_white_24dp"
+                />
             <item android:id="@+id/howToContribute"
                 android:title="@string/how_to_contribute"
                 android:icon="@drawable/ic_baseline_emoji_people_24"/>
 
+            <item android:id="@+id/needHelp"
+                android:title="@string/questions_title2"
+                android:icon="@drawable/ic_help_white_24dp"
+                />
             <item android:id="@+id/appLicence"
                 android:title="@string/app_licence_title"
                 android:icon="@drawable/ic_baseline_copyright_24"/>
@@ -97,6 +101,7 @@
             <item android:id="@+id/bugReport"
                 android:title="@string/send_bug_report_title"
                 android:icon="@drawable/ic_bug_report_white_24dp"/>
+
         </menu>
     </item>
 </menu>
