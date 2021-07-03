@@ -32,7 +32,7 @@ import {computed} from "@vue/reactivity";
 import {isEqual, throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {bcv_parser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
+import {bcv_parser as BcvParser} from "bible-passage-reference-parser/js/en_BcvParser.min";
 import {
     faBookmark, faChevronCircleDown,
     faEdit,
@@ -466,8 +466,8 @@ export function useVerseMap() {
 
 
 function useParsers(android) {
-    const en_parser = new bcv_parser;
-    const parsers = [en_parser];
+    const enParser = new BcvParser;
+    const parsers = [enParser];
 
     let languages = null;
 
@@ -480,11 +480,11 @@ function useParsers(android) {
 
     async function loadParser(lang) {
         console.log(`Loading parser for ${lang}`)
-        const url = `/features/RefParser/${lang}_bcv_parser.js`
+        const url = `/features/RefParser/${lang}_BcvParser.js`
         const content = await (await fetch(url)).text();
         const module = {}
         Function(content).call(module)
-        return new module.bcv_parser;
+        return new module.BcvParser;
     }
 
     async function initialize() {
@@ -503,8 +503,8 @@ function useParsers(android) {
     function parse(text) {
         let parsed = ""
         //Try each of the parsers until one succeeds
-        parsers.some(bcv_parser => {
-            parsed = bcv_parser.parse(text).osis();
+        parsers.some(BcvParser => {
+            parsed = BcvParser.parse(text).osis();
             if (parsed !== "") return true
         })
         return parsed;

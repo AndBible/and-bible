@@ -19,13 +19,13 @@
   <InputText ref="inputText">
     {{strings.inputReference}}
     <template #buttons>
-      <button class="modal-action-button right" @touchstart.stop v-on:click="bibleref_info()">
+      <button class="modal-action-button right" @touchstart.stop v-on:click="showHelp = !showHelp">
         <FontAwesomeIcon icon="question-circle"/>
       </button>
     </template>
-    <template #content v-if="show_help">
+    <template #content v-if="showHelp">
       {{sprintf(strings.refParserHelp, "RefParser")}}
-      <a v-on:click="open_downloads()">{{strings.openDownloads}}</a>
+      <a v-on:click="openDownloads()">{{strings.openDownloads}}</a>
     </template>
   </InputText>
   <div @click.stop class="edit-area pell">
@@ -63,14 +63,6 @@ export default {
   props: {
     text: {type: String, required: true}
   },
-  methods: {
-    bibleref_info() {
-      this.show_help = !this.show_help;
-    },
-    open_downloads() {
-      this.android.openDownloads();
-    }
-  },
   emits: ['save', "close"],
   setup(props, {emit}) {
     const android = inject("android");
@@ -79,7 +71,7 @@ export default {
     const editor = ref(null);
     const inputText = ref(null);
     const strings = useStrings();
-    const show_help = ref(false);
+    const showHelp = ref(false);
 
     // TODO: probably this hack can be removed.
     function setFocus(value) {
@@ -174,6 +166,10 @@ export default {
 
     const divider = {divider: true};
 
+    function openDownloads() {
+      android.openDownloads();
+    }
+
     onMounted(() => {
       editor.value = init({
         element: editorElement.value,
@@ -198,7 +194,7 @@ export default {
       android.setEditing(false);
     })
 
-    return {setFocus, editorElement, ...useCommon(), dirty, inputText, show_help, android}
+    return {setFocus, editorElement, dirty, inputText, showHelp, openDownloads, ...useCommon()}
   }
 }
 </script>
