@@ -65,6 +65,7 @@
     },
     "rules": {
       "strict": 1,
+      "camelcase": ["error"],
       "no-var": [
         "error"
       ],
