@@ -41,26 +41,6 @@
 			android:summary="@string/auto_fullscreen_summary"
 			android:defaultValue="false"
 			/>
-		<SwitchPreferenceCompat android:key="full_screen_hide_buttons_pref"
-			android:title="@string/full_screen_hide_buttons_pref_title"
-			android:summary="@string/full_screen_hide_buttons_pref_summary"
-			android:defaultValue="true"
-			/>
-		<SwitchPreferenceCompat android:key="hide_window_buttons"
-			android:title="@string/hide_window_buttons_title"
-			android:summary="@string/hide_window_buttons_summary"
-			android:defaultValue="false"
-			/>
-		<SwitchPreferenceCompat android:key="hide_bible_reference_overlay"
-			android:title="@string/hide_bible_reference_overlay_title"
-			android:summary="@string/hide_bible_reference_overlay_summary"
-			android:defaultValue="false"
-			/>
-		<SwitchPreferenceCompat android:key="show_active_window_indicator"
-			android:title="@string/active_window_indicator_title"
-			android:summary="@string/active_window_indicator_summary"
-			android:defaultValue="true"
-			/>
 
 		<ListPreference android:key="toolbar_button_actions"
 			android:title="@string/prefs_toolbar_button_action_title"
@@ -94,6 +74,27 @@
 			android:entries="@array/prefs_interface_locale_descriptions"
 			android:entryValues="@array/prefs_interface_locale_values"
 			android:defaultValue=""/>
+
+		<SwitchPreferenceCompat android:key="full_screen_hide_buttons_pref"
+			android:title="@string/full_screen_hide_buttons_pref_title"
+			android:summary="@string/full_screen_hide_buttons_pref_summary"
+			android:defaultValue="true"
+			/>
+		<SwitchPreferenceCompat android:key="hide_window_buttons"
+			android:title="@string/hide_window_buttons_title"
+			android:summary="@string/hide_window_buttons_summary"
+			android:defaultValue="false"
+			/>
+		<SwitchPreferenceCompat android:key="hide_bible_reference_overlay"
+			android:title="@string/hide_bible_reference_overlay_title"
+			android:summary="@string/hide_bible_reference_overlay_summary"
+			android:defaultValue="false"
+			/>
+		<SwitchPreferenceCompat android:key="show_active_window_indicator"
+			android:title="@string/active_window_indicator_title"
+			android:summary="@string/active_window_indicator_summary"
+			android:defaultValue="true"
+			/>
 
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
