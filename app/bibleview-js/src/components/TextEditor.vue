@@ -124,19 +124,22 @@ export default {
       result: async () => {
         const originalRange = document.getSelection().getRangeAt(0);
         //Always add the "en" language, so at least the english parser always exists.
+        let error = ""
 
         if(originalRange) {
-          let text = "";
+          let text = originalRange.toString();
           let parsed = "";
           //Keep trying to get a bible reference until either
           //    * It is successfully parsed (parsed != "") or
           //    * The user cancels (text === null)
           while (parsed === "" && text !== null) {
-            text = await inputText.value.inputText(text);
+            text = await inputText.value.inputText(text, error);
             if (text !== null) {
               parsed = parse(text)
               if (parsed === "") {
-                android.toast(strings.invalidReference)
+                error = strings.invalidReference;
+              } else {
+                error = "";
               }
             }
           }

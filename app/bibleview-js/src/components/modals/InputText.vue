@@ -25,6 +25,7 @@
     </template>
     <slot name="content">
       <input class="text-input" ref="inputElement" :placeholder="strings.inputPlaceholder" v-model="text"/>
+      <div v-if="error" class="error">{{ error }}</div>
     </slot>
     <template #footer>
       <button class="button" @click="ok">{{strings.ok}}</button>
@@ -44,11 +45,13 @@ export default {
   components: {Modal},
   setup() {
     const text = ref("");
+    const error = ref("");
     const show = ref(false);
     const inputElement = ref(null);
     let promise = null;
-    async function inputText(initialValue="") {
+    async function inputText(initialValue="", _error = "") {
       text.value =initialValue;
+      error.value = _error;
       show.value = true;
       promise = new Deferred();
       await nextTick();
@@ -63,7 +66,7 @@ export default {
     function cancel() {
       promise.resolve(null);
     }
-    return {show, inputText, ok, cancel, text, inputElement, ...useCommon()};
+    return {show, inputText, ok, cancel, text, error, inputElement, ...useCommon()};
   }
 }
 </script>
@@ -72,5 +75,8 @@ export default {
 .text-input {
   padding: 5pt;
   margin: 5pt;
+}
+.error {
+  color:red;
 }
 </style>
