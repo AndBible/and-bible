@@ -16,16 +16,22 @@
   -->
 
 <template>
+  <Modal v-if="showHelp" @close="showHelp = false" blocking>
+    {{sprintf(strings.refParserHelp, "RefParser")}}
+    <a @click="openDownloads">{{strings.openDownloads}}</a>
+    <template #title>
+      {{strings.inputReference}}
+    </template>
+    <template #footer>
+      <button class="button" @click="showHelp = false">{{strings.closeModal}}</button>
+    </template>
+  </Modal>
   <InputText ref="inputText">
     {{strings.inputReference}}
     <template #buttons>
-      <button class="modal-action-button right" @touchstart.stop v-on:click="showHelp = !showHelp">
+      <button v-if="!hasRefParser" class="modal-action-button right" @touchstart.stop @click="showHelp = !showHelp">
         <FontAwesomeIcon icon="question-circle"/>
       </button>
-    </template>
-    <template #content v-if="showHelp">
-      {{sprintf(strings.refParserHelp, "RefParser")}}
-      <a v-on:click="openDownloads()">{{strings.openDownloads}}</a>
     </template>
   </InputText>
   <div @click.stop class="edit-area pell">
@@ -36,13 +42,11 @@
 
 <script>
 import {inject, onBeforeUnmount, onMounted, onUnmounted, watch} from "@vue/runtime-core";
-import {ref} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {init, exec, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText";
 import {useStrings} from "@/composables/strings";
-import {library} from "@fortawesome/fontawesome-svg-core";
-import {faQuestionCircle} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {
   faBible,
@@ -54,19 +58,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
-library.add(faQuestionCircle)
-
+import Modal from "@/components/modals/Modal";
 
 export default {
   name: "TextEditor",
-  components: {InputText, FontAwesomeIcon},
+  components: {InputText, FontAwesomeIcon, Modal},
   props: {
     text: {type: String, required: true}
   },
   emits: ['save', "close"],
   setup(props, {emit}) {
     const android = inject("android");
-    const {parse} = inject('customFeatures')
+    const {parse, features} = inject('customFeatures')
+    const hasRefParser = computed(() => features.has("RefParser"));
     const editorElement = ref(null);
     const editor = ref(null);
     const inputText = ref(null);
@@ -194,7 +198,7 @@ export default {
       android.setEditing(false);
     })
 
-    return {setFocus, editorElement, dirty, inputText, showHelp, openDownloads, ...useCommon()}
+    return {setFocus, editorElement, dirty, inputText, showHelp, openDownloads, hasRefParser, ...useCommon()}
   }
 }
 </script>

@@ -42,7 +42,7 @@ import {
     faIndent,
     faInfoCircle,
     faOutdent,
-    faPlusCircle, faShareAlt,
+    faPlusCircle, faQuestionCircle, faShareAlt,
     faSort,
     faTags, faTextWidth,
     faTimes,
@@ -370,6 +370,7 @@ export function useFontAwesome() {
     library.add(faEyeSlash);
     library.add(faEye);
     library.add(faShareAlt);
+    library.add(faQuestionCircle)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
@@ -514,7 +515,7 @@ function useParsers(android) {
 }
 
 export function useCustomFeatures(android) {
-    const features = {}
+    const features = reactive(new Set())
 
     const defer = new Deferred();
     const featuresLoaded = ref(false);
@@ -525,6 +526,7 @@ export function useCustomFeatures(android) {
     async function reloadFeatures(featureModuleNames) {
          if(featureModuleNames.includes("RefParser")) {
              await initialize();
+             features.add("RefParser");
         }
     }
 
