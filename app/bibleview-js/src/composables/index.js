@@ -32,6 +32,7 @@ import {computed} from "@vue/reactivity";
 import {isEqual, throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
+import {bcv_parser as BcvParser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
 import {
     faBookmark, faChevronCircleDown,
     faEdit,
@@ -41,12 +42,13 @@ import {
     faIndent,
     faInfoCircle,
     faOutdent,
-    faPlusCircle, faShareAlt,
+    faPlusCircle, faQuestionCircle, faShareAlt,
     faSort,
     faTags, faTextWidth,
     faTimes,
     faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+
 import {DocumentTypes} from "@/constants";
 
 let developmentMode = false;
@@ -368,6 +370,7 @@ export function useFontAwesome() {
     library.add(faEyeSlash);
     library.add(faEye);
     library.add(faShareAlt);
+    library.add(faQuestionCircle)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
@@ -462,23 +465,69 @@ export function useVerseMap() {
     return {register, getVerses, registerEndHighlight, resetHighlights}
 }
 
-export function useCustomFeatures() {
-    const features = {}
+
+function useParsers(android) {
+    const enParser = new BcvParser;
+    const parsers = [enParser];
+
+    let languages = null;
+
+    function getLanguages() {
+        if (!languages) {
+            languages = android.getActiveLanguages()
+        }
+        return languages
+    }
+
+    async function loadParser(lang) {
+        console.log(`Loading parser for ${lang}`)
+        const url = `/features/RefParser/${lang}_BcvParser.js`
+        const content = await (await fetch(url)).text();
+        const module = {}
+        Function(content).call(module)
+        return new module.BcvParser;
+    }
+
+    async function initialize() {
+        //Get the active languages and create a bible reference parser for each language
+        const languages = getLanguages()
+        console.log(`Enabling parsers for ${languages.join(",")}`)
+        await Promise.all(languages.filter(l => l !== "en").map(async (lang) => {
+            try {
+                parsers.push(await loadParser(lang))
+            } catch (error) {
+                console.log(`Could not load parser for language: ${lang} due to ${error}`)
+            }
+        }))
+    }
+
+    function parse(text) {
+        let parsed = ""
+        //Try each of the parsers until one succeeds
+        parsers.some(BcvParser => {
+            parsed = BcvParser.parse(text).osis();
+            if (parsed !== "") return true
+        })
+        return parsed;
+    }
+
+    return {initialize, parsers, parse}
+}
+
+export function useCustomFeatures(android) {
+    const features = reactive(new Set())
 
     const defer = new Deferred();
     const featuresLoaded = ref(false);
     const featuresLoadedPromise = ref(defer.wait());
+    const {parse, initialize} = useParsers(android);
 
     // eslint-disable-next-line no-unused-vars
     async function reloadFeatures(featureModuleNames) {
-        /*
-         TODO: implement loading and usage properly in #981
          if(featureModuleNames.includes("RefParser")) {
-            const url = "/features/RefParser/en_bcv_parser.js"
-            const content = await (await fetch(url)).text();
-            features.refParser = Function(content);
+             await initialize();
+             features.add("RefParser");
         }
-        */
     }
 
     onBeforeMount(() => {
@@ -488,10 +537,11 @@ export function useCustomFeatures() {
             .then(() => {
                 defer.resolve()
                 featuresLoaded.value = true;
+                console.log("Features loading finished");
             });
     })
 
-    return {features, featuresLoadedPromise, featuresLoaded};
+    return {features, featuresLoadedPromise, featuresLoaded, parse};
 }
 
 export function useCustomCss() {

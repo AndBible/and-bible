@@ -20,7 +20,12 @@
     <template #title>
       <slot/>
     </template>
-    <input class="text-input" ref="inputElement" :placeholder="strings.inputPlaceholder" v-model="text"/>
+    <template #extra-buttons>
+      <slot name="buttons"/>
+    </template>
+    <slot name="content">
+      <input class="text-input" ref="inputElement" :placeholder="strings.inputPlaceholder" v-model="text"/>
+    </slot>
     <template #footer>
       <button class="button" @click="ok">{{strings.ok}}</button>
       <button class="button" @click="cancel">{{strings.cancel}}</button>

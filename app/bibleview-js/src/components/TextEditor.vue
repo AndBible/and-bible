@@ -16,8 +16,23 @@
   -->
 
 <template>
+  <Modal v-if="showHelp" @close="showHelp = false" blocking>
+    {{sprintf(strings.refParserHelp, "RefParser")}}
+    <a @click="openDownloads">{{strings.openDownloads}}</a>
+    <template #title>
+      {{strings.inputReference}}
+    </template>
+    <template #footer>
+      <button class="button" @click="showHelp = false">{{strings.closeModal}}</button>
+    </template>
+  </Modal>
   <InputText ref="inputText">
     {{strings.inputReference}}
+    <template #buttons>
+      <button v-if="!hasRefParser" class="modal-action-button right" @touchstart.stop @click="showHelp = !showHelp">
+        <FontAwesomeIcon icon="question-circle"/>
+      </button>
+    </template>
   </InputText>
   <div @click.stop class="edit-area pell">
     <div ref="editorElement"/>
@@ -27,10 +42,12 @@
 
 <script>
 import {inject, onBeforeUnmount, onMounted, onUnmounted, watch} from "@vue/runtime-core";
-import {ref} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {init, exec, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText";
+import {useStrings} from "@/composables/strings";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {
   faBible,
   faIndent,
@@ -41,19 +58,24 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
+import Modal from "@/components/modals/Modal";
 
 export default {
   name: "TextEditor",
-  components: {InputText},
+  components: {InputText, FontAwesomeIcon, Modal},
   props: {
     text: {type: String, required: true}
   },
   emits: ['save', "close"],
   setup(props, {emit}) {
     const android = inject("android");
+    const {parse, features} = inject('customFeatures')
+    const hasRefParser = computed(() => features.has("RefParser"));
     const editorElement = ref(null);
     const editor = ref(null);
     const inputText = ref(null);
+    const strings = useStrings();
+    const showHelp = ref(false);
 
     // TODO: probably this hack can be removed.
     function setFocus(value) {
@@ -101,18 +123,32 @@ export default {
       title: 'Insert bible reference',
       result: async () => {
         const originalRange = document.getSelection().getRangeAt(0);
+        //Always add the "en" language, so at least the english parser always exists.
 
         if(originalRange) {
-          const text = await inputText.value.inputText();
-          if(text !== null) {
+          let text = "";
+          let parsed = "";
+          //Keep trying to get a bible reference until either
+          //    * It is successfully parsed (parsed != "") or
+          //    * The user cancels (text === null)
+          while (parsed === "" && text !== null) {
+            text = await inputText.value.inputText(text);
+            if (text !== null) {
+              parsed = parse(text)
+              if (parsed === "") {
+                android.toast(strings.invalidReference)
+              }
+            }
+          }
+          if (text !== null) {
             document.getSelection().removeAllRanges();
             if(originalRange) {
               document.getSelection().addRange(originalRange);
             }
             if(!originalRange || originalRange.collapsed) {
-              exec('insertHTML', `<a href="osis://?osis=${text}">${text}</a>`);
+              exec('insertHTML', `<a href="osis://?osis=${parsed}">${text}</a>`);
             } else {
-              exec('createLink', `osis://?osis=${text}`)
+              exec('createLink', `osis://?osis=${parsed}`)
             }
           }
           editor.value.content.focus();
@@ -133,6 +169,10 @@ export default {
     watch(editText, debounce(save, 2000))
 
     const divider = {divider: true};
+
+    function openDownloads() {
+      android.openDownloads();
+    }
 
     onMounted(() => {
       editor.value = init({
@@ -158,7 +198,7 @@ export default {
       android.setEditing(false);
     })
 
-    return {setFocus, editorElement, ...useCommon(), dirty, inputText}
+    return {setFocus, editorElement, dirty, inputText, showHelp, openDownloads, hasRefParser, ...useCommon()}
   }
 }
 </script>
@@ -226,6 +266,12 @@ export default {
 .edit-area {
   width: 100%;
   position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 
 

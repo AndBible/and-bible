@@ -30,13 +30,11 @@
     </template>
 
     <template #buttons>
-      <div class="modal-toolbar">
-        <div class="modal-action-button" :class="{toggled: !infoShown}" @click="toggleInfo" @touchstart="toggleInfo">
-          <FontAwesomeIcon icon="edit"/>
-        </div>
-        <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
-          <FontAwesomeIcon icon="times"/>
-        </div>
+      <div class="modal-action-button" :class="{toggled: !infoShown}" @click="toggleInfo" @touchstart="toggleInfo">
+        <FontAwesomeIcon icon="edit"/>
+      </div>
+      <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
+        <FontAwesomeIcon icon="times"/>
       </div>
     </template>
 

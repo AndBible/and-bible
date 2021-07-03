@@ -36,6 +36,8 @@ import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
@@ -46,6 +48,7 @@ class BibleJavascriptInterface(
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
     val bookmarkControl get() = bibleView.bookmarkControl
+    val downloadControl get() = bibleView.downloadControl
 
     var notificationsEnabled = false
 
@@ -120,6 +123,14 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun openDownloads() {
+        if (!downloadControl.checkDownloadOkay()) return
+        val activity = CurrentActivityHolder.getInstance().currentActivity
+        val intent = Intent(activity, DownloadActivity::class.java)
+        activity.startActivity(intent)
+    }
+
+    @JavascriptInterface
     fun setEditing(enabled: Boolean) {
         bibleView.editingTextInJs = enabled
     }
@@ -147,6 +158,13 @@ class BibleJavascriptInterface(
         val journalTextEntries = deserialized["journals"]!!.map { bookmarkControl.getJournalById(it[0])!!.apply { orderNumber = it[1].toInt() } }
         val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(it[0], labelId)!!.apply { orderNumber = it[1].toInt() } }
         bookmarkControl.updateOrderNumbers(labelId, bookmarksToLabels, journalTextEntries)
+    }
+
+    @JavascriptInterface
+    fun getActiveLanguages(): String {
+        //Get the languages for each of the installed bibles and return the language codes as a json list.
+        val languages = bibleView.mainBibleActivity.swordDocumentFacade.bibles.map { "\"" + it.bookMetaData.language.code + "\""}
+        return "[" + languages.distinct().joinToString(",") + "]"
     }
 
     @JavascriptInterface

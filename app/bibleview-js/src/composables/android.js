@@ -219,6 +219,10 @@ export function useAndroid({bookmarks}, config) {
         android.deleteJournalEntry(journalId);
     }
 
+    function getActiveLanguages() {
+        return JSON.parse(android.getActiveLanguages());
+    }
+
     function removeBookmarkLabel(bookmarkId, labelId) {
         android.removeBookmarkLabel(bookmarkId, labelId);
     }
@@ -233,6 +237,10 @@ export function useAndroid({bookmarks}, config) {
 
     function openMyNotes(bookmarkId) {
         android.openMyNotes(bookmarkId);
+    }
+
+    function openDownloads() {
+        android.openDownloads();
     }
 
     function updateOrderNumber(labelId, bookmarks, journals) {
@@ -294,6 +302,7 @@ export function useAndroid({bookmarks}, config) {
         removeBookmarkLabel,
         updateOrderNumber,
         updateJournalEntry,
+        getActiveLanguages,
         toast,
         shareBookmarkVerse,
         openStudyPad,
@@ -303,10 +312,13 @@ export function useAndroid({bookmarks}, config) {
         setBookmarkWholeVerse,
         toggleCompareDocument,
         openMyNotes,
+        openDownloads,
     }
 
     if(config.developmentMode) return {
-        ...stubsFor(exposed),
+        ...stubsFor(exposed, {
+            getActiveLanguages: ['he', 'nl', 'en'],
+        }),
         querySelection
     }
 
