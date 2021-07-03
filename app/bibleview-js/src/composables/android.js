@@ -174,6 +174,10 @@ export function useAndroid({bookmarks}, config) {
         return await deferredCall((callId) => android.requestNextChapter(callId));
     }
 
+    async function refChooserDialog() {
+        return await deferredCall((callId) => android.refChooserDialog(callId));
+    }
+
     function scrolledToOrdinal(ordinal) {
         if(ordinal < 0) return;
         android.scrolledToOrdinal(ordinal)
@@ -313,6 +317,7 @@ export function useAndroid({bookmarks}, config) {
         toggleCompareDocument,
         openMyNotes,
         openDownloads,
+        refChooserDialog,
     }
 
     if(config.developmentMode) return {

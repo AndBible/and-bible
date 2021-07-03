@@ -32,6 +32,9 @@
       <button v-if="!hasRefParser" class="modal-action-button right" @touchstart.stop @click="showHelp = !showHelp">
         <FontAwesomeIcon icon="question-circle"/>
       </button>
+      <button class="modal-action-button right" @touchstart.stop @click="refChooserDialog">
+        <FontAwesomeIcon icon="hand-pointer"/>
+      </button>
     </template>
   </InputText>
   <div @click.stop class="edit-area pell">
@@ -177,6 +180,10 @@ export default {
       android.openDownloads();
     }
 
+    async function refChooserDialog() {
+      inputText.value.text = await android.refChooserDialog();
+    }
+
     onMounted(() => {
       editor.value = init({
         element: editorElement.value,
@@ -201,7 +208,7 @@ export default {
       android.setEditing(false);
     })
 
-    return {setFocus, editorElement, dirty, inputText, showHelp, openDownloads, hasRefParser, ...useCommon()}
+    return {setFocus, editorElement, dirty, inputText, showHelp, openDownloads, hasRefParser, refChooserDialog, ...useCommon()}
   }
 }
 </script>

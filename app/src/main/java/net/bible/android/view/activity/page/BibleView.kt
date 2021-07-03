@@ -1376,7 +1376,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
     }
 
-    private fun executeJavascriptOnUiThread(javascript: String) {
+    fun executeJavascriptOnUiThread(javascript: String) {
         runOnUiThread { executeJavascript(javascript) }
     }
 

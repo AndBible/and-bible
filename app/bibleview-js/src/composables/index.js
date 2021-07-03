@@ -37,7 +37,7 @@ import {
     faBookmark, faChevronCircleDown,
     faEdit,
     faEllipsisH, faEye, faEyeSlash,
-    faFileAlt, faFireAlt,
+    faFileAlt, faFireAlt, faHandPointer,
     faHeadphones, faHeart, faHistory,
     faIndent,
     faInfoCircle,
@@ -371,6 +371,7 @@ export function useFontAwesome() {
     library.add(faEye);
     library.add(faShareAlt);
     library.add(faQuestionCircle)
+    library.add(faHandPointer)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {

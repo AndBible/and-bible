@@ -38,9 +38,13 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
+import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.Versifications
 
 
 class BibleJavascriptInterface(
@@ -83,6 +87,18 @@ class BibleJavascriptInterface(
     fun requestNextChapter(callId: Long) {
         Log.d(TAG, "Request more text at end")
         bibleView.requestNextChapter(callId)
+    }
+
+    @JavascriptInterface
+    fun refChooserDialog(callId: Long) {
+        GlobalScope.launch {
+            val intent = Intent(mainBibleActivity, GridChoosePassageBook::class.java)
+            intent.putExtra("navigateToVerse", true)
+            val result = mainBibleActivity.awaitIntent(intent)
+            val verseStr = result?.resultData?.getStringExtra("verse")
+            val verse = VerseFactory.fromString(KJVA, verseStr).name
+            bibleView.executeJavascriptOnUiThread("bibleView.response($callId, '$verse');")
+        }
     }
 
     @JavascriptInterface
