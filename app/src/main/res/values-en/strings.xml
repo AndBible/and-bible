@@ -38,6 +38,7 @@
   <!--Speak - Dictionary and other-->
   <!--Speak - Common-->
   <!--Speak - Bible-->
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <!--param is bookmark icon-->
   <!--param is auto-assign label icon-->
   <!--param is heart icon-->

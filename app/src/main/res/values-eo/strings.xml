@@ -405,6 +405,11 @@ laŭ ilia permeso.</string>
   <string name="speak_status_stopped">haltigita</string>
   <string name="speak_autobookmarking_disabled">Aŭtomata legosignado malaktiva!</string>
   <string name="system_speak_settings">Sistemaj agordoj pri parolsintezo</string>
+  <string name="auto_assing_labels_help1">Tie ĉi vi povas elekti etikedojn, kiuj estos aŭtomate asignitaj al kreataj legosignoj.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Tiu ĉi agordo aplikiĝas al %s.</string>
+  <string name="setting_scope_window">tiu ĉi fenestro</string>
+  <string name="setting_scope_workspace">tiu ĉi laborspaco</string>
   <string name="assing_labels_help1">Ĉiu legosigno povas havi plurajn etikedojn.</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Uzu %s por elekti koloron de etikedoj por montri.</string>
@@ -413,6 +418,9 @@ laŭ ilia permeso.</string>
   <!--param is heart icon-->
   <string name="assing_labels_help4">Frapetu %s por aldoni etikedon al la listo de ŝatataj por rapide aliri ĝin.</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">Frapetu %s por reordigi la liston surbaze de viaj elektoj.</string>
+  <string name="workspace_text_options_help_title">Tekstaj agordoj de laborspaco</string>
+  <string name="workspace_text_options_help1">La jenaj agordoj aplikiĝas al ĉiuj fenestroj de tiu ĉi laborspaco.</string>
   <!--Parameter is actual icon-->
   <!--Parameter is actual icon-->
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->

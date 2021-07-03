@@ -20,7 +20,7 @@
   <string name="contact">Контакти</string>
   <string name="help_and_tips">Довідка і поради</string>
   <string name="administration">Адміністрування</string>
-  <string name="rate_application">Оцінка &amp; Огдяд</string>
+  <string name="rate_application">Оцінка та огдяд</string>
   <string name="chooce_document">Вибрати ресурс</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Вибрати книгу</string>
@@ -70,7 +70,7 @@
   <string name="prefs_show_chapter_no_summary">Показати номери розділів</string>
   <string name="prefs_verse_per_line_summary">Показати один вірш на рядок</string>
   <string name="prefs_show_bookmarks_summary">Зніміть прапорець, щоб сховати всі закладки</string>
-  <string name="prefs_show_mynotes_summary">Показати піктограму у віршах з Моєю Заміткою</string>
+  <string name="prefs_show_mynotes_summary">Показати піктограму у віршах з Мої примітки</string>
   <string name="prefs_show_notes_summary">Показати виноски та перехресні посилання</string>
   <string name="prefs_show_strongs_summary">Посилання на грецькі та івритські визначення</string>
   <string name="prefs_show_morphology_summary">Показати грецьку морфологію Робінсона</string>
@@ -135,7 +135,7 @@
   <string name="prefs_text_display_settings_title">Форматування</string>
   <string name="prefs_text_appearance_title">Вигляд</string>
   <string name="prefs_justify_title">Вирівняти текст</string>
-  <string name="prefs_justify_summary">Вирівняйте текст у стилі \"justify\", тобто ліве і праве поле тексту відповідають рядку</string>
+  <string name="prefs_justify_summary">Вирівняйте текст, тобто ліве і праве поле тексту відповідають рядку</string>
   <string name="pref_left_margin_label_mm">Ліве поле (%d мм)</string>
   <string name="pref_right_margin_label_mm">Праве поле (%d мм)</string>
   <string name="pref_maximum_width_of_text_label_mm">Максимальна ширина тексту (%d мм)</string>
@@ -277,7 +277,7 @@
          jsword/readingplan з тією ж назвою, що і внутрішній план. Неможливо показати тут.
          Перейменуйте файл на щось інше, залишивши його розширення як .properties
     </string>
-  <string name="plan_name_y1ntpspr">НЗ, Псалми &amp; Приповісті за рік</string>
+  <string name="plan_name_y1ntpspr">НЗ, Псалми та Приповісті за рік</string>
   <string name="plan_description_y1ntpspr">
         Надано дозволом HEARTLIGHT Internet Magazine,
         http://www.heartlight.org.
@@ -419,6 +419,11 @@
   <string name="speak_status_stopped">зупинено</string>
   <string name="speak_autobookmarking_disabled">Автоматичне створення закладок вимкнуто!</string>
   <string name="system_speak_settings">Відкрити системні налаштування TTS</string>
+  <string name="auto_assing_labels_help1">Тут ви можете налаштувати, які мітки автоматично призначаються створеним вами закладкам.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Цей параметр застосовується до %s.</string>
+  <string name="setting_scope_window">це вікно</string>
+  <string name="setting_scope_workspace">ця робоча область</string>
   <string name="assing_labels_help1">Кожній закладці можна призначити кілька міток</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Використовуйте %s щоб вказати колір мітки.</string>
@@ -427,9 +432,20 @@
   <!--param is heart icon-->
   <string name="assing_labels_help4">Натисніть%s щоб додати мітку до улюбленого списку для швидкого доступу.</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">Натисніть %s щоб змінити порядок списку на основі вашого вибору.</string>
+  <string name="workspace_text_options_help_title">Параметри тексту робочої області</string>
+  <string name="workspace_text_options_help1">Ці параметри визначають значення за замовчуванням для всіх вікон робочої області.</string>
+  <string name="workspace_text_options_help2">Ви можете замінити їх, змінивши налаштування окремих вікон.</string>
+  <string name="window_text_options_help_title">Параметри тексту вікна</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s піктограма вказує на те, що налаштування походять із налаштувань робочої області.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s піктограма означає, що це налаштування було змінено для цього конкретного вікна.</string>
+  <string name="window_text_options_help3">Налаштування робочої області не вплине на це вікно.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Використовуйте %s кнопку, щоб повернути всі ці налаштування назад до %s.</string>
+  <string name="reset_defaults">значення за замовчуванням</string>
+  <string name="reset_workspace_defaults">значення за замовчуванням робочої області</string>
   <string name="speak_bookmark_help">Довідка про закладки прослуховування</string>
   <string name="speak_help_auto_bookmark">
 Закладка буде автоматично добавлена, коли прослуховування буде (при-)зупинене.
@@ -825,4 +841,5 @@
   <string name="questions_title">Маєте запитання?</string>
   <string name="questions_title2">Потрібна допомога?</string>
   <string name="bookmark_style">Стиль закладки</string>
+  <string name="added_to_bookmark">Призначено цій закладці</string>
 </resources>

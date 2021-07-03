@@ -33,9 +33,9 @@ removeBookmarkConfirmation: "¿Seguro que quiere eliminar este marcador?"
 closeModal: Cerrar
 createdAt: "Creado: %s"
 lastUpdatedOn: "Última actualización: %s"
-strongsLink: ""
+strongsLink: Definición de Strong (%s)
 morphLink: Código morfológico (%s)
-strongsAndMorph: ""
+strongsAndMorph: Definición y morfología
 studyPadLink: Abrir bloc de estudio
 externalLink: Abrir enlace externo
 referenceLink: Abrir enlace de referencia
@@ -73,8 +73,8 @@ verseCompare: Comparar
 verseNote: Nota
 verseMyNotes: Mis Notas
 verseSpeak: Con voz
-verseShareLong: ""
-verseCompareLong: ""
-verseNoteLong: ""
-verseSpeakLong: ""
-verseTip: ""
+verseShareLong: Compartir este versículo
+verseCompareLong: Comparar versículo
+verseNoteLong: Escribir una nota
+verseSpeakLong: Empezar a escuchar a partir de este versículo
+verseTip: Para hace una selección parcial o de muchos versículos puede mantener presionado el texto de la Biblia

@@ -20,6 +20,7 @@
   <string name="contact">Kontak</string>
   <string name="help_and_tips">Hulp &amp; wenke</string>
   <string name="administration">Administrasie</string>
+  <string name="rate_application">Beoordeel &amp; hersien</string>
   <string name="chooce_document">Kies Dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kies \'n Boek</string>
@@ -58,7 +59,15 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Hoofstuk &amp; vers nommers</string>
   <string name="prefs_show_verseno_summary">Wys hoofstuk &amp; vers nommers</string>
+  <string name="prefs_e_ink_mode_title">Swart &amp; wit modus</string>
+  <string name="prefs_eink_mode_summary">Gebruik die toep in monochroom-modus (geen kleure nie), wat dit meer geskik maak vir E-ink-toestelle.</string>
+  <string name="prefs_disable_animations_title">Deaktiveer animasies</string>
+  <string name="prefs_disable_animations_summary">Deaktiveer verskeie animasies soos gladde blaai.</string>
+  <string name="prefs_paragraph_spacing_title">Paragraaf spasiëring (%smm)</string>
+  <string name="prefs_paragraph_spacing_summary">Verstel spasie tussen paragrawe.</string>
   <string name="prefs_show_verseno_title1">Vers nommers</string>
+  <string name="prefs_show_chapter_no_title">Hoofstuk getalle</string>
+  <string name="prefs_show_chapter_no_summary">Wys hoofstuk nommers</string>
   <string name="prefs_verse_per_line_summary">Wys elke vers op \'n ander lyn</string>
   <string name="prefs_show_bookmarks_summary">Onmerk om alle boekmerke te verberg</string>
   <string name="prefs_show_mynotes_summary">Wys ikoon in verse met My nota</string>
@@ -73,6 +82,8 @@
   <string name="prefs_show_mynotes_title">Wys My Nota ikone</string>
   <string name="prefs_show_footnotes_title">Voet Notas</string>
   <string name="prefs_show_xrefs_title">Kruis verwysings</string>
+  <string name="prefs_show_footnotes_summary">Wys voetnote, as hulle in die dokument beskikbaar is</string>
+  <string name="prefs_show_xrefs_summary">Wys kruisverwysings, as hulle in die dokument beskikbaar is</string>
   <string name="prefs_show_notes_title">Voetnotas en kruis-verwysings</string>
   <string name="prefs_show_strongs_title">Strong\'s getalle</string>
   <string name="prefs_show_morphology_title">Morfologiese kodes</string>
@@ -85,12 +96,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Druk om volgende dokument oop te maak, lang druk om kieslys oop te maak</string>
   <string name="prefs_toolbar_button_action_swap_activity">Druk om volgende dokument oop te maak, lang druk vir dokumente skerm</string>
   <string name="prefs_night_mode_title">Nag mode skakel</string>
+  <string name="prefs_night_mode_summary">Of jy nou outomaties na nagmodus oorskakel (as toestel dit ondersteun), handmatig of via stelselinstelling (Android 10). Handleidingwisseling kan gedoen word uit die 3-dot opsies kieslys op die hoofskerm.</string>
   <string name="prefs_night_mode_manual">handleiding</string>
   <string name="prefs_night_mode_automatic">Outomaties</string>
   <string name="prefs_night_mode_system">Stelsel</string>
   <string name="options_menu_night_mode">Nag mode</string>
   <string name="prefs_navigate_to_verse_title">Gaan na vers</string>
   <string name="prefs_navigate_to_verse_summary">Kies vers (en hoofstuk) wanneer \'n teks gekies word</string>
+  <string name="prefs_open_links_in_special_window_title">Skakels venster</string>
+  <string name="prefs_open_links_in_special_window_summary">Open skakels in spesiale venster, vir vinniger vertoning van kruisverwysings en Srongs</string>
   <string name="prefs_text_size_sample_text">Teks voorbeeld</string>
   <string name="prefs_screen_keep_on_title">Hou skerm aan</string>
   <string name="prefs_screen_keep_on_summary">Voorkom dat skerm gaan slaap tydens die gebruik van hierdie program</string>
@@ -195,6 +209,7 @@ Woordafbreking</string>
   <string name="strongs_not_installed">Laai asseblief Strong\'s Hebreeuse en Griekse woordeboeke af</string>
   <string name="no_indexed_bible_with_strongs_ref">Jy moet \'n Bybel met die Strong\'s nommers aflaai, en dan, laai sy indeks volgens Soek funksie af</string>
   <string name="morph_robinson_not_installed">Laai asseblief \'Robinson se morfologiese analise Kodes\' woordeboek af</string>
+  <string name="go_to_downloads">Gaan na Aflaaie</string>
   <!--Module download-->
   <string name="download">Laai Dokumente af</string>
   <string name="redownload">Herlaai Dokumente</string>
@@ -323,10 +338,18 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="label_name_prompt">Naam</string>
   <string name="label_unlabelled">Die etiket is verwyder</string>
   <string name="add_bookmark1">Boekmerke</string>
+  <string name="add_bookmark2">Boekmerk Seleksie</string>
+  <string name="add_bookmark3">Seleksie</string>
   <string name="add_bookmark_whole_verse">Boekmerk Vers</string>
+  <string name="add_bookmark_whole_verse1">Verse</string>
+  <string name="add_bookmark_whole_verse2">Volle verse</string>
   <string name="remove_bookmark">Verwyder</string>
   <string name="bookmark_settings_hide_labels_title">Versteek gespesifiseerde etikette</string>
   <string name="bookmark_settings_hide_labels_summary">Versteek boekmerke wat met gespesifiseerde etiket(e) gemerk is</string>
+  <string name="auto_assign_labels_title">Etiketteer instellings</string>
+  <string name="auto_assign_labels">Outo-toewys &amp; Gunsteling etikette</string>
+  <string name="auto_assign_labels1">Outo-toewys etiket aan nuwe boekmerke</string>
+  <string name="auto_assign_labels_primary">Outo-toewys as primêre</string>
   <string name="label_color">Etiketteer kleur</string>
   <!--can be removed-->
   <string name="label_color_example">Voorbeeld</string>
@@ -396,13 +419,33 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="speak_status_stopped">Gestop.</string>
   <string name="speak_autobookmarking_disabled">Outo-boekmerke gedeaktiveer!</string>
   <string name="system_speak_settings">Maak oop stelsel TTS instellings</string>
+  <string name="auto_assing_labels_help1">Hier kan jy aanpas watter etikette outomaties toegeken word aan boekmerke wat jy skep.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Hierdie instelling is van toepassing op %s.</string>
+  <string name="setting_scope_window">hierdie venster</string>
+  <string name="setting_scope_workspace">hierdie werkruimte</string>
+  <string name="assing_labels_help1">Elke boekmerk kan aan verskeie etikette toegeken word.</string>
   <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Gebruik %s om te spesifiseer watter etiketkleur gewys word.</string>
   <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Tik op %s ikoon om daardie etiket te kry, word outomaties aan nuwe boekmerke toegeken.</string>
   <!--param is heart icon-->
+  <string name="assing_labels_help4">Tik op %s om etiket by jou gunstelinglys te voeg vir vinnige toegang..</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">Tik op %s om die lys weer te bestel op grond van jou keuses.</string>
+  <string name="workspace_text_options_help_title">Werkruimte teks opsies</string>
+  <string name="workspace_text_options_help1">Hierdie instellings bepaal die opsie vir alle werkruimtevensters.</string>
+  <string name="workspace_text_options_help2">Jy kan dit oorheers deur die individuele vensterinstellings te verander.</string>
+  <string name="window_text_options_help_title">Venster teks opsies</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s ikoon dui aan dat die instelling van die werkruimte-instellings kom.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%sikoon dui aan dat hierdie instelling vir hierdie spesifieke venster verander is.</string>
+  <string name="window_text_options_help3">Die werkruimte instelling sal nie hierdie venster beïnvloed nie.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Gebruik %s knoppie om al hierdie instellings terug te stel na %s.</string>
+  <string name="reset_defaults">Staande waardes</string>
+  <string name="reset_workspace_defaults">werkruimte staande waardes</string>
   <string name="speak_bookmark_help">Praat Boekmeke hulp</string>
   <string name="speak_help_auto_bookmark">
 \'n Praat boekmerk sal outomaties bygevoeg word wanneer Praat geplaas of gestop word. 
@@ -454,9 +497,11 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="backup_app_database">Deel of rugsteun toep databasis na ...</string>
   <string name="backup_app">Deel of rugsteun toep (.apk-lêer) na ...</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Wat wil jy herstel?</string>
   <string name="restore_app_database">Rugsteun toep databasis vanaf ...</string>
   <string name="restore_database">Rugsteun databasis leer ...</string>
   <string name="restore_confirmation">Herskryf My notas, boekmerke, studie blokkies, lees planne en werkruimtes?</string>
+  <string name="reading_plans_plural">Lees Planne</string>
   <string name="restore_success">My Notas, Boekmerke, Studie blokkies, Lees planne en Werkruimtes suksesvol herstel</string>
   <string name="loading_backup">Laai databasis vanaf rugsteun ...</string>
   <string name="backup_success2">My Notas, Boekmerke, Studie Blokkies, Lees Planne en Werkruimtes is suksesvol gerugsteun.</string>
@@ -483,6 +528,8 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="module_about_repository">Verspreidings bediener: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Fout verslag</string>
+  <string name="send_feedback_title">Terugvoer</string>
   <string name="send_bug_report_title">Terugvoer / fout verslag</string>
   <string name="report_bug_email_subject_3">[%s]Fout verslag vir %s %s</string>
   <string name="report_bug_big_heading">HUUR SKRYF JOU TERUGVOER OF FOUTVERSLAG BO HIERDIE LYN</string>
@@ -599,6 +646,11 @@ die opspring kieslys. Jy kan jou persoonlike notas by die nuwe boekmerk voeg deu
 Uitgeligte teks in die Bybel beskouing. Daar is ook \'n spesiale dokument \'My Notes\' in kommentare wat u toelaat
 Om u notas in \'n aparte venster te sien.</string>
   <string name="help_studypads_title">Bestudeer blokies</string>
+  <string name="help_studypads_text">
+Studie blokies is ontwerp om dit maklik te maak om preek notas te skryf, voor te bere vir preke of net
+persoonlike Bybelstudienotas neer te skry wat veelvuldige Bybelverwysings het. Elke studieblok word geassosieer met een boekmerk etieket.
+Alle Boekmerke wat met daardie onderskeie etiket geskep is, verskyn outomaties in die studiepaddokument.
+Benewens boekmerke, kan daar persoonlike teksinskrywings in \'n studieblok wees.</string>
   <string name="help_search_title">Soek</string>
   <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
 (sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
@@ -681,6 +733,7 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="advertise_app">Adverteer  toep</string>
   <string name="verse_share_advertise">Deel toep met %s.</string>
   <string name="abbreviate_reference">Verkorte verwysing</string>
+  <string name="version_name">Naam van Weergawe </string>
   <string name="backup_button">Rugsteun</string>
   <string name="back_button">Terug</string>
   <string name="upgrading_database">Opgradering van databasis. Wag asseblief...</string>
@@ -718,7 +771,57 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="does_not_exist_abbreviation">Bestaan ​​nie</string>
   <string name="cant_change_wholeverse">Kan nie hele vers merking vir hierdie boekmerk afskakel nie</string>
   <string name="whole_verse_turned_on">Boekmerk is nou gemerk vir hele vers</string>
+  <string name="this_bookmark">Hierdie boekmerk</string>
+  <string name="this_workspace">Hierdie werkruimte</string>
+  <string name="primary_label">Primêre etiket</string>
+  <string name="highlight_entire_verse">Lig die hele vers uit</string>
+  <string name="favourite_label">Gunsteling etiket</string>
+  <string name="edit_label">Wysig etiket</string>
+  <string name="delete_label_confirmation">Wil jy die boekmerk  etiket  verwyder \"%s\"? Ook alle verwante Studiebloknotas sal verwyder word.</string>
+  <string name="bookmark_underline_style_arbitrary">Onderstreep styl vir keurings boekmerke</string>
+  <string name="bookmark_underline_style_whole_verse">Onderstreep styl vir alle vers boekmerke</string>
+  <string name="active_labels">Geselekteerde etikette</string>
+  <string name="recent_labels">Onlangse etikette</string>
+  <string name="other_labels">Ander etikette</string>
+  <string name="book_menu_sort_row_opt">Maak boeke horisontaal</string>
+  <string name="reset_workspace_labels">Wil jy outo-toewysing en gunsteling instellings vir hierdie werkruimte terugstel?</string>
+  <string name="reset_hide_labels">Wil jy instelling terugstel om gespesifiseerde etikette instellings weg te steek?</string>
+  <string name="reorder">Herbestelling</string>
+  <string name="system_items">Stelsel aksies</string>
   <string name="system_items1">Meer</string>
+  <string name="system_action2">Android aksies</string>
+  <string name="text_copied_to_clicpboard">Teks na knipbord gekopieer</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Een-stap boekmerk</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Wys \'Seleksie\' en \'Verse\' items direk in Bybel beskouings keurings kieslys</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Dubbel-tik op Volskerm</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Gaan volle skerm in om deur om op die venster dubbel te tik</string>
+  <string name="toggle_fullscreen">Volskerm</string>
+  <string name="exit_fullscreen">Dubbel tik op die skerm om die volle skerm te verlaat</string>
+  <string name="reset_app_prefs">Wil jy alle globale toepassing voorkeure terugstel wat op hierdie skerm na hul oorspronklike plek?</string>
+  <string name="label_red">Rooi</string>
+  <string name="label_green">Groen</string>
+  <string name="label_blue">Blou</string>
+  <string name="label_salvation">Redding</string>
+  <string name="label_underline">Onderlyn</string>
+  <string name="import_menu">Invoer &amp; Uitvoer</string>
+  <string name="export_fileformat">Voer uit as %s</string>
+  <string name="import_items">Invoer %s</string>
+  <string name="import_from_db">Voer in uit Program databasis lêer</string>
+  <string name="import_error">Invoer vanaf Program databasis het misluk. Databasis lêer kan verkeerde formaat wees of gemaak word met te ou weergawe van %s.</string>
+  <string name="chooser_range">Reeks</string>
+  <string name="chooser_jump">Spring</string>
+  <string name="chooser_OT_abbrev">OT</string>
+  <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_grid">Rooster</string>
+  <string name="chooser_style_lists">Lyste</string>
+  <string name="chooser_select">Kies %s</string>
+  <string name="chooser_pref_reset">Moenie hoofstuk/vers na 1 terugstel wanneer boek/hoofstuk gekies word nie</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Ons is jammer, maar ons het net gedeeltelike gebruikers koppelvlak vertaling in %s taal. Dit is omdat %s heeltemal deur vrywilligers ontwikkel word. As jy kan help om te vertaal, sien asseblief %s.</string>
   <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">instruksies vir vertalers</string>
+  <string name="questions_title">Vrae?</string>
+  <string name="questions_title2">Het jy hulp nodig?</string>
+  <string name="bookmark_style">Boekmerk styl</string>
+  <string name="added_to_bookmark">Toegewys aan hierdie boekmerk</string>
 </resources>
