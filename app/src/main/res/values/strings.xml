@@ -481,9 +481,10 @@
 
     <string name="auto_assing_labels_help1">Here you can adjust which labels are assigned automatically to bookmarks that you create. </string>
 
-    <string name="setting_scope">This setting applies to this %s.</string>
-    <string name="setting_scope_window">window</string>
-    <string name="setting_scope_workspace">workspace</string>
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+    <string name="setting_scope">This setting applies to %s.</string>
+    <string name="setting_scope_window">this window</string>
+    <string name="setting_scope_workspace">this workspace</string>
 
     <string name="assing_labels_help1">Each bookmark can be assigned multiple labels. </string>
     <!-- param is bookmark icon -->
