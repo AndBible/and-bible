@@ -404,9 +404,10 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="speak_autobookmarking_disabled">Automaattiset kirjanmerkit poissa päältä!</string>
   <string name="system_speak_settings">Avaa järjestelmän puheasetukset</string>
   <string name="auto_assing_labels_help1">Tästä voit määrittää mitkä kirjanmerkkiryhmät asetetaan automaattisesti luomiisi kirjanmerkkeihin.</string>
-  <string name="setting_scope">Tämä asetus on voimassa tässä %s.</string>
-  <string name="setting_scope_window">ikkunassa</string>
-  <string name="setting_scope_workspace">työtilassa</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Tämä asetus on voimassa %s.</string>
+  <string name="setting_scope_window">tässä ikkunassa</string>
+  <string name="setting_scope_workspace">tässä työtilassa</string>
   <string name="assing_labels_help1">Kuhunkin kirjamerkkiin voi liittää useita kirjanmerkkiryhmiä.</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Valitsemalla %s voit määrittää minkä kirjanmerkkiryhmän väriä käytetään.</string>

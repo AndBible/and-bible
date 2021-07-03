@@ -382,6 +382,7 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="speak_status_stopped">angehalten</string>
   <string name="speak_autobookmarking_disabled">Automatische Lesezeichen sind deaktiviert!</string>
   <string name="system_speak_settings">Öffne die Systemsteuerung für Sprachausgabe</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <!--param is bookmark icon-->
   <!--param is auto-assign label icon-->
   <!--param is heart icon-->

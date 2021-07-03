@@ -398,6 +398,7 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="speak_status_stopped">wstrzymano</string>
   <string name="speak_autobookmarking_disabled">Wyłączono automatyczne tworzenie zakładek!</string>
   <string name="system_speak_settings">Systemowe ustawienia syntezy mowy</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="assing_labels_help1">Każda zakładka może posiadać po kilka etykiet.</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Użyj %s, aby wybrać zakładki określonego koloru do wyświetlenia.</string>

@@ -207,6 +207,7 @@
   <string name="strongs_not_installed">Merci de télécharger un lexique Hébreu/Araméen et Grec de Strong</string>
   <string name="no_indexed_bible_with_strongs_ref">Merci de télécharger une bible contenant les codes de Strong,  puis de télécharger son index via la page Rechercher</string>
   <string name="morph_robinson_not_installed">Merci de télécharger le lexique « Robinson\'s Morphological Analysis Codes »</string>
+  <string name="go_to_downloads">Aller au téléchargements</string>
   <!--Module download-->
   <string name="download">Télécharger des documents</string>
   <string name="redownload">Retélécharger les documents</string>
@@ -410,13 +411,20 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="speak_status_stopped">arrêt</string>
   <string name="speak_autobookmarking_disabled">Mise en signet automatique désactivée! </string>
   <string name="system_speak_settings">Paramètres de la synthèse vocale</string>
+  <string name="auto_assing_labels_help1">Vous pouvez régler ici les étiquettes qui sont attribuées automatiquement aux signets que vous créez.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="assing_labels_help1">Plusieurs étiquettes peuvent être attribuées à chaque signet.</string>
   <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Utilisez %s pour spécifier la couleur de l\'étiquette à afficher.</string>
   <!--param is auto-assign label icon-->
   <!--param is heart icon-->
   <!--param is refresh icon-->
+  <string name="workspace_text_options_help1">Ces paramètres déterminent la valeur par défaut de toutes les fenêtres de l\'espace de travail.</string>
   <!--Parameter is actual icon-->
   <!--Parameter is actual icon-->
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="reset_defaults">Valeurs par défaut</string>
+  <string name="reset_workspace_defaults">Valeur par défaut des espaces</string>
   <string name="speak_bookmark_help">Aide des signets audio</string>
   <string name="speak_help_auto_bookmark">
 Un Signet audio est automatiquement généré lorsque la Lecture audio est mise sur pause ou arrétée. Ces signets ont pour label Lecture audio.
@@ -500,6 +508,8 @@ Le fichier est peut-être invalide.</string>
   <string name="module_about_repository">Serveur de distribution : %s</string>
   <string name="module_about_osisId">OSIS ID : %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Reporter un bogue</string>
+  <string name="send_feedback_title">Commentaires</string>
   <string name="send_bug_report_title">Commentaire / rapport de bogue</string>
   <string name="report_bug_email_subject_3">[%s] Rapport de bogues pour %s %s</string>
   <string name="report_bug_big_heading">VEUILLEZ ÉCRIRE VOS COMMENTAIRES OU VOTRE RAPPORT DE BOGUE AU-DESSUS DE CETTE LIGNE.</string>
@@ -797,4 +807,8 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="incomplete_translation">Nous sommes désolés, mais nous n\'avons qu\'une traduction partielle de l\'interface utilisateur en langue %s. C\'est parce que %s est entièrement développé par des volontaires. Si vous pouvez aider à la traduction, veuillez voir %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instructions pour les traducteurs</string>
+  <string name="questions_title">Questions ?</string>
+  <string name="questions_title2">Besoin d\'aide ?</string>
+  <string name="bookmark_style">Style du signet</string>
+  <string name="added_to_bookmark">Assigner à ce signet</string>
 </resources>

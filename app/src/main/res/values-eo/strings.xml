@@ -405,6 +405,7 @@ laŭ ilia permeso.</string>
   <string name="speak_status_stopped">haltigita</string>
   <string name="speak_autobookmarking_disabled">Aŭtomata legosignado malaktiva!</string>
   <string name="system_speak_settings">Sistemaj agordoj pri parolsintezo</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="assing_labels_help1">Ĉiu legosigno povas havi plurajn etikedojn.</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Uzu %s por elekti koloron de etikedoj por montri.</string>

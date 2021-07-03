@@ -415,6 +415,7 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="speak_status_stopped">ustavljeno</string>
   <string name="speak_autobookmarking_disabled">Avtomatski zaznamki onemogočeni!</string>
   <string name="system_speak_settings">Odpri nastavitve besedila v govor...</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <!--param is bookmark icon-->
   <!--param is auto-assign label icon-->
   <!--param is heart icon-->

@@ -419,6 +419,8 @@
   <string name="speak_status_stopped">sustabdyta</string>
   <string name="speak_autobookmarking_disabled">Automatinis žymių dėjimas išjungtas!</string>
   <string name="system_speak_settings">Atverti sistemos TTS nustatymus</string>
+  <string name="auto_assing_labels_help1">Čia galite reguliuoti, kurios etiketės bus automatiškai priskiriamos jūsų kuriamoms žymėms.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="assing_labels_help1">Kiekvienai žymei gali būti priskirtos kelios etiketės.</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Naudokite %s norėdami nurodyti, kuri etiketės spalva bus rodoma.</string>
@@ -427,9 +429,20 @@
   <!--param is heart icon-->
   <string name="assing_labels_help4">Bakstelėkite %s norėdami pridėti etiketę prie savo mėgstamų sąrašo.</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">Bakstelėkite %s norėdami pertvarkyti sąrašą pagal savo pasirinkimus.</string>
+  <string name="workspace_text_options_help_title">Darbo srities teksto parinktys</string>
+  <string name="workspace_text_options_help1">Šie nustatymai nustato numatytąsias reikšmes visiems darbo srities langams.</string>
+  <string name="workspace_text_options_help2">Galite juos nustelbti keisdami kiekvieno atskiro lango nustatymus.</string>
+  <string name="window_text_options_help_title">Lango teksto parinktys</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s piktograma nurodo, kad nustatymas yra perimamas iš darbo srities nustatymų.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s piktograma nurodo, kad šis nustatymas buvo pakeistas šiam konkrečiam langui.</string>
+  <string name="window_text_options_help3">Darbo srities nustatymas nepaveiks šio lango.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Naudokite mygtuką %s norėdami atstatyti visus šiuos nustatymus į %s.</string>
+  <string name="reset_defaults">numatytąsias reikšmes</string>
+  <string name="reset_workspace_defaults">darbo srities numatytąsias reikšmes</string>
   <string name="speak_bookmark_help">Kalbėjimo žymių pagalba</string>
   <string name="speak_help_auto_bookmark">
 Kalbos žymė bus automatiškai pridėta, kai kalbėjimas bus pristabdytas arba baigtas.
@@ -827,4 +840,5 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="questions_title">Turite klausimų?</string>
   <string name="questions_title2">Reikia pagalbos?</string>
   <string name="bookmark_style">Žymės stilius</string>
+  <string name="added_to_bookmark">Priskirta šiai žymei</string>
 </resources>

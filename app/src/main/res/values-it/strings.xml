@@ -398,6 +398,11 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="speak_status_stopped">fermato</string>
   <string name="speak_autobookmarking_disabled">Segnalibri automatici disabilitato!</string>
   <string name="system_speak_settings">Apri le impostazioni del sistema TTS</string>
+  <string name="auto_assing_labels_help1">Qui puoi impostare quali etichette assegnare automaticamente ai segnalibri creati.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Questa impostazione si applica a %s.</string>
+  <string name="setting_scope_window">questa finestra</string>
+  <string name="setting_scope_workspace">questo spazio di lavoro</string>
   <string name="assing_labels_help1">A ogni segnalibro si possono assegnare etichette multiple.</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Usa %s per specificare quale colore di etichetta mostrare.</string>
@@ -406,9 +411,20 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <!--param is heart icon-->
   <string name="assing_labels_help4">Tocca %s per aggiungere l\'etichetta all\'elenco dei tuoi preferiti per accesso rapido.</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">Tocca %s per riordinare l\'elenco in base alle tue scelte.</string>
+  <string name="workspace_text_options_help_title">Opzioni testo dello spazio di lavoro</string>
+  <string name="workspace_text_options_help1">Queste impostazioni determinano il default per tutte le finestre dello spazio di lavoro.</string>
+  <string name="workspace_text_options_help2">Per definire delle eccezioni puoi cambiare le impostazioni individuali delle finestre.</string>
+  <string name="window_text_options_help_title">Opzioni testo delle finestre</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">L\'icona %s indica che l\'impostazione deriva da quelle dello spazio di lavoro.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">L\'icona %s indica che questa impostazione è stata cambiata per questa specifica finestra.</string>
+  <string name="window_text_options_help3">Le impostazioni dello spazio di lavoro non influiranno su questa finestra.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Usa il bottone %s per reimpostare tutte queste impostazioni ai %s.</string>
+  <string name="reset_defaults">valori di default</string>
+  <string name="reset_workspace_defaults">valori di default dello spazio di lavoro</string>
   <string name="speak_bookmark_help">Legge la guida dei segnalibri</string>
   <string name="speak_help_auto_bookmark">
 Un segnalibro Audio verrà aggiunto automaticamente quando Parla/Audio viene messo in pausa o interrotto. I segnalibri generati automaticamente sono etichettati con l\'etichetta speciale Audio. Se inizi da un segnalibro di Audio, il segnalibro verrà spostato nel versetto stesso interrompere o mettere in pausa alla prossima volta. Verranno spostate solo le etichette Audio, tutte le altre etichette saranno lasciate solo.</string>
@@ -783,4 +799,5 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="questions_title">Domande?</string>
   <string name="questions_title2">Serve aiuto?</string>
   <string name="bookmark_style">Stile dei segnalibri</string>
+  <string name="added_to_bookmark">Assegnato a questo segnalibro</string>
 </resources>

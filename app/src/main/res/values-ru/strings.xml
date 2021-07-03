@@ -20,6 +20,7 @@
   <string name="contact">Контакт</string>
   <string name="help_and_tips">Помощь и советы</string>
   <string name="administration">Управление</string>
+  <string name="rate_application">Оценка и отзыв</string>
   <string name="chooce_document">Выбрать модуль</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Выбрать книгу</string>
@@ -58,7 +59,15 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номера глав и стихов</string>
   <string name="prefs_show_verseno_summary">Показать номера глав и стихов</string>
+  <string name="prefs_e_ink_mode_title">Черно-белый режим</string>
+  <string name="prefs_eink_mode_summary">Используйте приложение в монохромном режиме (без цветов), что делает его более подходящим для устройств E-ink.</string>
+  <string name="prefs_disable_animations_title">Отключить анимацию</string>
+  <string name="prefs_disable_animations_summary">Отключить различные анимации, например плавную прокрутку.</string>
+  <string name="prefs_paragraph_spacing_title">Интервал между абзацами (%s мм)</string>
+  <string name="prefs_paragraph_spacing_summary">Отрегулировать расстояние между абзацами.</string>
   <string name="prefs_show_verseno_title1">Нумерация стихов</string>
+  <string name="prefs_show_chapter_no_title">Номера глав</string>
+  <string name="prefs_show_chapter_no_summary">Показать номера глав</string>
   <string name="prefs_verse_per_line_summary">Показать каждый стих на отдельной строке</string>
   <string name="prefs_show_bookmarks_summary">Снять галочку, чтобы скрыть все закладки</string>
   <string name="prefs_show_mynotes_summary">Показать значок в стихах с Моей Заметкой</string>
@@ -73,6 +82,8 @@
   <string name="prefs_show_mynotes_title">Показать ярлык с моей заметкой в стихе</string>
   <string name="prefs_show_footnotes_title">Примечаний</string>
   <string name="prefs_show_xrefs_title">Перекрестные ссылки</string>
+  <string name="prefs_show_footnotes_summary">Показывать сноски, если они есть в документе</string>
+  <string name="prefs_show_xrefs_summary">Показать перекрестные ссылки, если они есть в документе</string>
   <string name="prefs_show_notes_title">Заметки</string>
   <string name="prefs_show_strongs_title">Номера Стронга</string>
   <string name="prefs_show_morphology_title">Морфологические коды</string>
@@ -85,12 +96,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Нажмите, чтобы открыть следующий ресурс, нажмите и удерживайте, чтобы открыть меню</string>
   <string name="prefs_toolbar_button_action_swap_activity">Нажмите, чтобы открыть следующий ресурс, нажмите и удерживайте, чтобы открыть экран ресурсов</string>
   <string name="prefs_night_mode_title">Переключение ночного режима</string>
+  <string name="prefs_night_mode_summary">Следует ли переключаться в ночной режим автоматически (если устройство поддерживает), вручную или через системные настройки (Android 10+). Ручное переключение может быть выполнено из 3-точечного меню опций на главном экране.</string>
   <string name="prefs_night_mode_manual">Вручную</string>
   <string name="prefs_night_mode_automatic">Автоматически</string>
   <string name="prefs_night_mode_system">Система</string>
   <string name="options_menu_night_mode">Ночной режим</string>
   <string name="prefs_navigate_to_verse_title">Перейти к стиху</string>
   <string name="prefs_navigate_to_verse_summary">Перейти на уровень стиха при выборе отрывка</string>
+  <string name="prefs_open_links_in_special_window_title">Окно ссылок</string>
+  <string name="prefs_open_links_in_special_window_summary">Открыть ссылки в специальном окне, для более быстрого отображения перекрестных ссылок и номеров Стронга</string>
   <string name="prefs_text_size_sample_text">Образец текста</string>
   <string name="prefs_screen_keep_on_title">Не выключать экран</string>
   <string name="prefs_screen_keep_on_summary">Предотвращение засыпания экрана при использовании этого приложения</string>
@@ -121,7 +135,7 @@
   <string name="prefs_text_display_settings_title">Форматирование</string>
   <string name="prefs_text_appearance_title">Внешность</string>
   <string name="prefs_justify_title">Выровнять текст</string>
-  <string name="prefs_justify_summary">Выровняйте текст в стиле «Выровнять», чтобы левый и правый поля текста были в строке</string>
+  <string name="prefs_justify_summary">Выровнять текст, чтобы левый и правый поля текста были в строке</string>
   <string name="pref_left_margin_label_mm">Левое поле (%d mm)</string>
   <string name="pref_right_margin_label_mm">Правое поле (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Максимальная ширина текста (%d mm)</string>
@@ -194,6 +208,7 @@
   <string name="strongs_not_installed">Скачать словари Стронга на греческом и иврите</string>
   <string name="no_indexed_bible_with_strongs_ref">Необходимо скачать Библию с числами Стронга и скачать индекс через Поиск.</string>
   <string name="morph_robinson_not_installed">Пожалуйста скачайте словарь \'Морфолочические коды анализа Робинсона\'.</string>
+  <string name="go_to_downloads">Перейти к Загрузке</string>
   <!--Module download-->
   <string name="download">Скачать ресурсы</string>
   <string name="redownload">Повторно скачать ресурсы</string>
@@ -323,10 +338,18 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="label_name_prompt">Название</string>
   <string name="label_unlabelled">Без ярлыка</string>
   <string name="add_bookmark1">Закладка</string>
+  <string name="add_bookmark2">Добавить в закладку выделенный фрагмент</string>
+  <string name="add_bookmark3">Выделение</string>
   <string name="add_bookmark_whole_verse">Стих закладки</string>
+  <string name="add_bookmark_whole_verse1">Стихи</string>
+  <string name="add_bookmark_whole_verse2">Полные стихи</string>
   <string name="remove_bookmark">Удалить</string>
   <string name="bookmark_settings_hide_labels_title">Скрыть указанные метки</string>
   <string name="bookmark_settings_hide_labels_summary">Скрыть закладки, отмеченные указанными ярлыками</string>
+  <string name="auto_assign_labels_title">Настройки ярлыка</string>
+  <string name="auto_assign_labels">Автоматическое назначение и любимые якрлыки</string>
+  <string name="auto_assign_labels1">Автоматически назначать ярлык новым закладкам</string>
+  <string name="auto_assign_labels_primary">Автоматически назначать основным</string>
   <string name="label_color">Цвет ярлыка</string>
   <!--can be removed-->
   <string name="label_color_example">Пример</string>
@@ -396,13 +419,33 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="speak_status_stopped">остановлено</string>
   <string name="speak_autobookmarking_disabled">Авто установка закладкок отключена!</string>
   <string name="system_speak_settings">Открыть системные настройки TTS</string>
+  <string name="auto_assing_labels_help1">Здесь вы можете настроить, какие ярлыки автоматически назначаются закладкам, которые вы создаете.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Этот параметр применяется к %s.</string>
+  <string name="setting_scope_window">это окно</string>
+  <string name="setting_scope_workspace">эта рабочая область</string>
+  <string name="assing_labels_help1">Каждой закладке можно назначить несколько ярлыков.</string>
   <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Используйте %s, чтобы указать цвет метки</string>
   <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Нажмите %s значок, чтобы этот ярлык автоматически назначался новым закладкам.</string>
   <!--param is heart icon-->
+  <string name="assing_labels_help4">Нажмите %s, чтобы добавить ярлык в список для быстрого доступа.</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">Нажмите %s, чтобы изменить порядок списка.</string>
+  <string name="workspace_text_options_help_title">Параметры текста рабочей области</string>
+  <string name="workspace_text_options_help1">Эти настройки определяют настройки по умолчанию для всех окон рабочей области.</string>
+  <string name="workspace_text_options_help2">Вы можете переопределить их, изменив индивидуальные настройки окна.</string>
+  <string name="window_text_options_help_title">Параметры текста окна</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s значок указывает, что параметр взят из настроек рабочей области.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s значок указывает, что этот параметр был изменен для этого конкретного окна.</string>
+  <string name="window_text_options_help3">Настройка рабочей области не повлияет на это окно.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Используйте %s кнопку, чтобы сбросить все эти настройки обратно на %s.</string>
+  <string name="reset_defaults">значения по умолчанию</string>
+  <string name="reset_workspace_defaults">значения по умолчанию для рабочей области</string>
   <string name="speak_bookmark_help">Помощь по закладкам прослушивания</string>
   <string name="speak_help_auto_bookmark">
 Закладка будет автоматически добавлена, когда прослушивание (при-)остановлено.
@@ -467,9 +510,11 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_app_database">Отправить или создать резервную копию базы данных приложения в…</string>
   <string name="backup_app">Отправить или создать резервную копию приложения (файл .apk) в…</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Что вы хотите восстановить?</string>
   <string name="restore_app_database">Восстановить базу данных приложения из…</string>
   <string name="restore_database">Восстановить файл базы данных</string>
   <string name="restore_confirmation">Перезаписать Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области?</string>
+  <string name="reading_plans_plural">Планы чтения</string>
   <string name="restore_success">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно восстановлены.</string>
   <string name="loading_backup">Загрузка базы данных из резервной копии...</string>
   <string name="backup_success2">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно скопированы.</string>
@@ -495,6 +540,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="module_about_repository">Сервер распространения : %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Отчет об ошибке</string>
+  <string name="send_feedback_title">Отзыв</string>
   <string name="send_bug_report_title">Отзыв / отчет об ошибке</string>
   <string name="report_bug_email_subject_3">[%s] Отчет об ошибке для %s %s</string>
   <string name="report_bug_big_heading">ПОЖАЛУЙСТА, НАПИШИТЕ ОТЗЫВЫ ИЛИ ОТЧЕТ ОБ ОШИБКЕ ВЫШЕ ЭТОЙ СТРОКИ</string>
@@ -610,6 +657,11 @@ http://www.heartlight.org, разрешение предоставлено
 выделенный текст в режиме просмотра Библии. В комментариях также есть специальный ресурс «Мои заметки», который позволяет вам
 для просмотра заметок в отдельном окне.</string>
   <string name="help_studypads_title">Блокноты</string>
+  <string name="help_studypads_text">
+Блокноты предназначены для облегчения написания заметок к проповеди, подготовки проповедей или просто
+для записей личных заметок по изучению Библии, в которых есть несколько ссылок на Библию. Каждый блокнот связан с одной меткой закладки.
+Все закладки, созданные с соответствующим ярлыком, автоматически появляются в блокноте.
+Помимо закладок, в блокноте могут быть пользовательские текстовые записи.</string>
   <string name="help_search_title">Поиск</string>
   <string name="help_search_text">Текст поиска может содержать специальные символы, такие как *, ?, AND, OR, NOT
 (см. \"Apache Lucene - Query Parser Syntax\" для более подробной информации)</string>
@@ -689,6 +741,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="advertise_app">Рекламировать приложение</string>
   <string name="verse_share_advertise">Отправлено используя %s.</string>
   <string name="abbreviate_reference">Сокращенная ссылка</string>
+  <string name="version_name">Название перевода</string>
   <string name="backup_button">Резервное копирование</string>
   <string name="back_button">Назад</string>
   <string name="upgrading_database">Обновление базы данных. Пожалуйста, подождите…</string>
@@ -738,7 +791,57 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="does_not_exist_abbreviation">Нету</string>
   <string name="cant_change_wholeverse">Невозможно отключить выделение всего стиха для этой закладки</string>
   <string name="whole_verse_turned_on">Закладка теперь выделена для всего стиха</string>
+  <string name="this_bookmark">Эта закладка</string>
+  <string name="this_workspace">Эта рабочая область</string>
+  <string name="primary_label">Первичный ярлык</string>
+  <string name="highlight_entire_verse">Выделите стих целиком</string>
+  <string name="favourite_label">Любимый ярлык</string>
+  <string name="edit_label">Изменить ярлык</string>
+  <string name="delete_label_confirmation">Вы хотите удалить ярлык закладки \"%s\"? Также будут удалены все связанные записи в блокноте.</string>
+  <string name="bookmark_underline_style_arbitrary">Стиль подчеркивания для выделения закладок</string>
+  <string name="bookmark_underline_style_whole_verse">Стиль подчеркивания для закладок всего стиха</string>
+  <string name="active_labels">Выбранные ярлыки</string>
+  <string name="recent_labels">Недавние ярлыки</string>
+  <string name="other_labels">Другие ярлыки</string>
+  <string name="book_menu_sort_row_opt">Упорядочить книги по горизонтали</string>
+  <string name="reset_workspace_labels">Вы хотите сбросить настройки автоматического назначения и любимых ярлыков для этой рабочей области?</string>
+  <string name="reset_hide_labels">Сбросить настройку скрытия настроек ярлыков?</string>
+  <string name="reorder">Изменение порядка</string>
+  <string name="system_items">Системные действия</string>
   <string name="system_items1">Еще</string>
+  <string name="system_action2">Действия Android</string>
+  <string name="text_copied_to_clicpboard">Текст скопирован в буфер обмена</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Одношаговое создание закладок</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Показывать элементы «Выделение» и «Стихи» непосредственно в меню Выделение в режиме просмотра Библии</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Дважды коснитесь для перехода в полноэкранный режим</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Войдите в полноэкранный режим двойным касанием окна</string>
+  <string name="toggle_fullscreen">Полноэкранный</string>
+  <string name="exit_fullscreen">Дважды коснитесь экрана, чтобы выйти из полноэкранного режима</string>
+  <string name="reset_app_prefs">Сбросить все глобальные настройки приложения, отображаемые на этом экране, до значений по умолчанию?</string>
+  <string name="label_red">Красный</string>
+  <string name="label_green">Зеленый</string>
+  <string name="label_blue">Синий</string>
+  <string name="label_salvation">Спасение</string>
+  <string name="label_underline">Подчеркивание</string>
+  <string name="import_menu">Импорт и экспорт</string>
+  <string name="export_fileformat">Экспорт как %s</string>
+  <string name="import_items">Импорт как %s</string>
+  <string name="import_from_db">Импорт из файла базы данных приложения</string>
+  <string name="import_error">Не удалось выполнить импорт из базы данных приложения. Файл базы данных может иметь неправильный формат или создан слишком старой версии %s.</string>
+  <string name="chooser_range">Диапазон</string>
+  <string name="chooser_jump">Перейти </string>
+  <string name="chooser_OT_abbrev">СЗ</string>
+  <string name="chooser_NT_abbrev">НЗ</string>
+  <string name="chooser_style_grid">Сетка</string>
+  <string name="chooser_style_lists">Списки</string>
+  <string name="chooser_select">Выбрать %s</string>
+  <string name="chooser_pref_reset">Не сбрасывать главу/стих на 1, когда выбрана книга/глава</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Мы сожалеем, но у нас есть только частичный перевод пользовательского интерфейса на %s языке. Это потому, что %s полностью разработана волонтерами. Если вы можете помочь с переводом, смотрите %s.</string>
   <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">инструкции для переводчиков</string>
+  <string name="questions_title">Вопросы?</string>
+  <string name="questions_title2">Нужна помощь?</string>
+  <string name="bookmark_style">Стиль закладки</string>
+  <string name="added_to_bookmark">Назначено к этой закладке</string>
 </resources>
