@@ -40,7 +40,7 @@
     "eslint-plugin-vue": "~7.1.0-0",
     "jsdom": "~16.6.0",
     "json-loader": "^0.5.7",
-    "npm": "^7.16.0",
+    "npm": "^7.19.1",
     "sass": "~1.29.0",
     "sass-loader": "^10.2.0",
     "stylus": "~0.54.8",
@@ -65,7 +65,9 @@
     },
     "rules": {
       "strict": 1,
-      "camelcase": ["error"],
+      "camelcase": [
+        "error"
+      ],
       "no-var": [
         "error"
       ],
