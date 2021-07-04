@@ -18,9 +18,9 @@
   <string name="information">Informazioni</string>
   <string name="other">Altro</string>
   <string name="contact">Contatti</string>
-  <string name="help_and_tips">Aiuto &amp; suggerimenti</string>
+  <string name="help_and_tips">Aiuto e suggerimenti</string>
   <string name="administration">Amministrazione </string>
-  <string name="rate_application">Vota &amp; recensisci</string>
+  <string name="rate_application">Vota e recensisci</string>
   <string name="chooce_document">Scegli un documento</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Scegli un libro</string>
@@ -33,7 +33,7 @@
   <string name="index_creation_required">È richiesto un indice per la ricerca.</string>
   <string name="create_index_for">È richiesto un indice per la ricerca. \n\nCreare indice per %s?</string>
   <string name="rebuild_index_for">Ricostruire l\'indice di %s?</string>
-  <string name="indexing_wait_msg">Quando l\'indice è completo puoi passare alla schermata di ricerca.</string>
+  <string name="indexing_wait_msg">Quando l\'indice sarà completo passerai alla schermata di ricerca.</string>
   <string name="index_create">Crea</string>
   <string name="rebuild_index">Ricostruisci indice</string>
   <string name="search_in">Trova in %s</string>
@@ -57,8 +57,8 @@
   <string name="search_current_book">Libro attuale</string>
   <string name="error_executing_search">Ricerca non valida</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_title">Numeri di capitolo &amp; verso</string>
-  <string name="prefs_show_verseno_summary">Mostra numeri di capitolo &amp; verso</string>
+  <string name="prefs_show_verseno_title">Numeri di capitolo e verso</string>
+  <string name="prefs_show_verseno_summary">Mostra numeri di capitolo e verso</string>
   <string name="prefs_e_ink_mode_title">Modalità bianco e nero</string>
   <string name="prefs_eink_mode_summary">Usa l\'app in modalità monocromatica (senza colori), più adatta ai dispositivi E-ink.</string>
   <string name="prefs_disable_animations_title">Disabilita animazioni</string>
@@ -68,11 +68,11 @@
   <string name="prefs_show_verseno_title1">Numeri dei versi</string>
   <string name="prefs_show_chapter_no_title">Numeri di capitolo</string>
   <string name="prefs_show_chapter_no_summary">Mostra i numeri di capitolo</string>
-  <string name="prefs_verse_per_line_summary">Mostra ogni versetto su una riga diversa</string>
+  <string name="prefs_verse_per_line_summary">Mostra ciascun verso su una riga diversa</string>
   <string name="prefs_show_bookmarks_summary">Deseleziona per nascondere tutti i segnalibri</string>
   <string name="prefs_show_mynotes_summary">Mostra l\'icona nei versetti con Le mie note</string>
   <string name="prefs_show_notes_summary">Mostra note a piè di pagina e riferimenti incrociati</string>
-  <string name="prefs_show_strongs_summary">Collegamenti alle definizioni in greco &amp; ebraico</string>
+  <string name="prefs_show_strongs_summary">Collegamenti alle definizioni in greco ed ebraico</string>
   <string name="prefs_show_morphology_summary">Mostra la morfologia greca di Robinson</string>
   <string name="prefs_section_title_summary">Mostra i titoli delle sezioni non canoniche</string>
   <string name="prefs_red_letter_summary">Mostra le parole di Cristo in rosso</string>
@@ -84,11 +84,11 @@
   <string name="prefs_show_xrefs_title">Riferimenti incrociati</string>
   <string name="prefs_show_footnotes_summary">Mostra le note a piè di pagina, se sono disponibili nel documento</string>
   <string name="prefs_show_xrefs_summary">Mostra i riferimenti incrociati, se sono disponibili nel documento</string>
-  <string name="prefs_show_notes_title">Note e rif. incrociati</string>
+  <string name="prefs_show_notes_title">Note e riferimenti incrociati</string>
   <string name="prefs_show_strongs_title">Numeri di Strong</string>
   <string name="prefs_show_morphology_title">Codici morfologici</string>
   <string name="prefs_section_title_title">Titoli delle sezioni</string>
-  <string name="prefs_red_letter_title">Lettera Rossa</string>
+  <string name="prefs_red_letter_title">Lettere rosse</string>
   <string name="prefs_tilt_to_scroll_title">Inclina per scorrere</string>
   <string name="prefs_toolbar_button_action_title">Azioni dei pulsanti della barra strumenti</string>
   <string name="prefs_toolbar_button_action_summary">Azione da eseguire quando si premono o si tengono premuti i pulsanti Bibbia o Commentario della barra strumenti</string>
@@ -96,7 +96,7 @@
   <string name="prefs_toolbar_button_action_swap_menu">Premi per aprire il documento successivo, premi a lungo per aprire il menù</string>
   <string name="prefs_toolbar_button_action_swap_activity">Premi per il documento successivo, premi a lungo per la schermata documenti</string>
   <string name="prefs_night_mode_title">Passaggio alla modalità notturna</string>
-  <string name="prefs_night_mode_summary">Passa alla modalità notturna automaticamente (se supportata), manualmente, o tramite impostazioni (Android 10+). Il passaggio manuale può essere fatto dal menù opzioni con i 3 puntini, sullo schermo principale.</string>
+  <string name="prefs_night_mode_summary">Passa alla modalità notturna automaticamente (se supportata), o manualmente, o basandosi sulle impostazioni (Android 10+). Il passaggio manuale può essere fatto dal menù opzioni con i 3 puntini, sullo schermo principale.</string>
   <string name="prefs_night_mode_manual">Manuale</string>
   <string name="prefs_night_mode_automatic">Automatico</string>
   <string name="prefs_night_mode_system">Sistema</string>
@@ -115,12 +115,12 @@
   <string name="prefs_request_sdcard_permission_summary">Abilita l\'uso di documenti installati manualmente dalla cartella jsword/sword sulla memoria interna</string>
   <string name="all_text_options_window_menutitle">Tutte le opzioni di testo</string>
   <string name="text_options_window_menutitle">Opzioni di testo</string>
-  <string name="auto_fullscreen">Schermo intero scorrendo</string>
+  <string name="auto_fullscreen">Scorrimento a schermo intero</string>
   <string name="reversed_split_mode">Inversa modalità dividere </string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
-  <string name="auto_fullscreen_summary">Passa automaticamente a schermo intero durante lo scorrimento del testo. Suggerimento: puoi sempre passare allo schermo intero facendo doppio clic sullo schermo.</string>
+  <string name="auto_fullscreen_summary">Passa automaticamente alla modalità a schermo intero durante lo scorrimento del testo. Suggerimento: puoi sempre passare allo schermo intero toccando due volte lo schermo.</string>
   <string name="prefs_margin_size_title">Cambia la dimensione del margine</string>
   <string name="prefs_margin_size_mm_title">Dimensione del margine (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Impostazioni avanzate</string>
@@ -133,7 +133,7 @@
   <string name="window_text_display_settings_title">Opzioni di testo - Finestra %d</string>
   <string name="prefs_text_display_settings_title">Impaginazione</string>
   <string name="prefs_text_appearance_title">Aspetto</string>
-  <string name="prefs_justify_title">Giustifica-allinea il testo</string>
+  <string name="prefs_justify_title">Giustifica il testo</string>
   <string name="prefs_justify_summary">Allinea il testo in stile «giustificato», ovvero i margini sinistro e destro del testo sono allineati</string>
   <string name="pref_left_margin_label_mm">Margine sinistro (%d mm)</string>
   <string name="pref_right_margin_label_mm">Margine destro (%d mm)</string>
@@ -151,10 +151,10 @@
   <string name="reset_are_you_sure">Sei sicuro di voler ripristinare tutti questi valori?</string>
   <string name="window_pinning_menutitle">Fissa le finestre</string>
   <string name="hide_window_buttons_title">Nascondi i pulsanti della finestra</string>
-  <string name="hide_window_buttons_summary">I pulsanti della finestra visualizzati sul lato destro delle viste della Bibbia sono nascosti. La barra di navigazione della finestra in basso è ancora visualizzata e puoi aprire il menu a comparsa della finestra facendo clic a lungo.</string>
-  <string name="hide_bible_reference_overlay_title">Nascondi i riferimenti biblici in sovrimpressione</string>
+  <string name="hide_window_buttons_summary">I pulsanti della finestra visualizzati sul lato destro delle viste della Bibbia sono nascosti. La barra di navigazione della finestra in basso resta visualizzata e puoi aprire il menù a comparsa della finestra premendo a lungo.</string>
+  <string name="hide_bible_reference_overlay_title">Nascondi overlay riferimenti biblici</string>
   <string name="hide_bible_reference_overlay_summary">Non mostrare i riferimenti biblici semi-trasparenti in sovraimpressione quando l\'app è a schermo intero</string>
-  <string name="full_screen_hide_buttons_pref_title">Nascondi barra pulsanti a schermo intero</string>
+  <string name="full_screen_hide_buttons_pref_title">Nascondi pulsanti a schermo intero</string>
   <string name="full_screen_hide_buttons_pref_summary">Quando si passa alla modalità a schermo intero, nasconde automaticamente la barra dei pulsanti della finestra che si trova nella parte inferiore dello schermo</string>
   <string name="prefs_dictionaries_cat">Dizionari</string>
   <string name="choose_strongs_greek_dictionary_title">Dizionario greco di Strong</string>
@@ -268,7 +268,7 @@ Suggerimento: se hai bisogno di aggiornare il piano puoi semplicemente importarl
     </string>
   <string name="plan_duplicate_user_plan">
 C\'è un piano di lettura dell\'utente nella sdcard in jsword/readingplan con lo stesso nome di un piano interno. Non può essere elencato qui. Rinomina il file con un nome diverso, ma lasciandogli l\'estensione .properties</string>
-  <string name="plan_name_y1ntpspr">NT, Salmi &amp; Proverbi in un anno</string>
+  <string name="plan_name_y1ntpspr">NT, Salmi e Proverbi in un anno</string>
   <string name="plan_description_y1ntpspr">
 Per gentile concessione di HEARTLIGHT Internet Magazine,
 http://www.heartlight.org, autorizzazione concessa</string>
@@ -364,7 +364,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="speak_repeat">Ripeti</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Velocità del testo parlato</string>
-  <string name="speak_and_play_earcons_title">Parla e riproduci suoni per auricolari</string>
+  <string name="speak_and_play_earcons_title">Parla e riproduci effetti acustici per</string>
   <string name="playback_settings_title">Impostazioni di riproduzione</string>
   <string name="speak_settings_title">Impostazioni generali di Parla/Audio</string>
   <string name="speak_bookmarking_settings_title">Impostazioni dei segnalibri</string>
@@ -473,7 +473,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <!--User Notes-->
   <string name="mynotes">Le mie note</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Backup &amp; Ripristino</string>
+  <string name="backup_and_restore">Backup e ripristino</string>
   <string name="backup_modules">Condividi o esegui il backup dei documenti su...</string>
   <string name="backup_app_database">Condividi o fai il backup del database dell\'app su...</string>
   <string name="backup_app">Condividi o esegui il backup dell\'app (file .apk) su...</string>
@@ -587,7 +587,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <!--Beta notice-->
   <string name="beta_notice_title">Questa è la versione beta!</string>
   <string name="beta_notice_content_1">
-Nella versione beta, ci sono nuove funzionalità che non sono ancora state testate correttamente, e quindi l\'uso della beta potrebbe introdurre comportamenti imprevisti, ad esempio bug. Si consiglia ai normali lettori biblici di utilizzare la versione stabile.</string>
+Nella versione beta, ci sono nuove funzionalità che non sono ancora state testate del tutto, e quindi l\'uso della beta potrebbe introdurre comportamenti imprevisti o bug. Si consiglia ai normali lettori di utilizzare la versione stabile.</string>
   <string name="beta_notice_content_2">
 Gli utenti beta sono incoraggiati a segnalare bug tramite Google Play o
  (preferibilmente) via %s.
@@ -641,13 +641,13 @@ quello di scorrere verso il basso dalla barra degli strumenti. Puoi anche usare 
   <string name="help_window_pinning_title">Fissa le finestre</string>
   <string name="help_window_pinning_text">
 Puoi fissare le finestre dal menù opzioni (icona con tre punti, angolo in alto a destra).
-Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella visualizzazione Bibbia, ma solo una finestra non fissa. Le finestre fisse vengono mostrate per prime, e dopo quelle non fisse. Potresti trovare utile aprire i documenti della Bibbia come finestre fisse, mentre i commentari, mappe, ecc. come finestre non fisse. In questo modo puoi facilmente avere i documenti biblici sempre aperti, e passare rapidamente ai commentari e ad altro materiale extra durante lo studio della Bibbia.</string>
+Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vista Bibbia, ma solo una finestra non fissa. Le finestre fisse vengono mostrate per prime, e dopo quelle non fisse. Potresti trovare utile aprire i documenti della Bibbia come finestre fisse, mentre i commentari, mappe, ecc. come finestre non fisse. In questo modo puoi facilmente avere i documenti biblici sempre aperti, e passare rapidamente ai commentari e ad altro materiale extra durante lo studio della Bibbia.</string>
   <!--Welcome text-->
   <string name="redownload_documents">Riscarica rapidamente</string>
   <string name="welcome_message">Grazie per aver scaricato %s. Al momento non hai Bibbie o documenti installati. Per continuare, per favore installa almeno 1 documento scaricandolo da internet, oppure caricandolo da un backup su file zip.
     </string>
   <string name="redownload_message">
-        E\' stato trovato un elenco di libri/documenti precedenti. Clicca qui sotto per riscaricarli facilmente.
+        E\' stato trovato un elenco di libri/documenti precedenti. Tocca qui sotto per riscaricarli facilmente.
     </string>
   <!--Uncategorized-->
   <string name="close">Chiudi</string>
@@ -675,8 +675,8 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="unlock_info">Info sullo sblocco del modulo cifrato</string>
   <string name="try_again_passphrase">La password non ha funzionato, vuoi riprovare?</string>
   <string name="cant_delete_last_bible">Impossibile rimuovere l\'ultimo documento biblico</string>
-  <string name="show_unlock_info">Info su modulo &amp; sblocco</string>
-  <string name="prefs_show_error_box_title">Mostra errore Javascript</string>
+  <string name="show_unlock_info">Info su modulo e sblocco</string>
+  <string name="prefs_show_error_box_title">Mostra finestra errori Javascript</string>
   <string name="prefs_show_error_box_summary">Utile agli sviluppatori per trovare gli errori javascript in BibleView. Questo rallenterà l\'app.</string>
   <string name="active_window_indicator_title">Mostra indicatore di finestra attiva</string>
   <string name="active_window_indicator_summary">Evidenzia i bordi della finestra per rendere più facile identificare quale finestra è attiva</string>
@@ -688,7 +688,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="tell_friend_message1">Vorrei consigliarti %s</string>
   <string name="tell_friend_message2">E\' un programma potente ma facile da usare per lo studio della Bibbia offline su Android.</string>
   <string name="tell_friend_message3">Puoi installarlo da Play Store: %s</string>
-  <string name="tell_friend_message4">Altre informazioni &amp; opzioni di installazioni: %s</string>
+  <string name="tell_friend_message4">Altre informazioni e opzioni di installazione: %s</string>
   <string name="share_verse_ok">Condividi / Copia</string>
   <string name="verse_action_copy">Copia</string>
   <string name="share_verse_menu_title">Condividi / copia...</string>
@@ -779,7 +779,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="label_blue">Blu</string>
   <string name="label_salvation">Salvezza</string>
   <string name="label_underline">Sottolinea</string>
-  <string name="import_menu">Importa &amp; Esporta</string>
+  <string name="import_menu">Importa &amp; esporta</string>
   <string name="export_fileformat">Esporta come %s</string>
   <string name="import_items">Importa %s</string>
   <string name="import_from_db">Importazione del database da file</string>

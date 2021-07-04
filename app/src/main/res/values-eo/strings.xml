@@ -421,9 +421,17 @@ laŭ ilia permeso.</string>
   <string name="assing_labels_help5">Frapetu %s por reordigi la liston surbaze de viaj elektoj.</string>
   <string name="workspace_text_options_help_title">Tekstaj agordoj de laborspaco</string>
   <string name="workspace_text_options_help1">La jenaj agordoj aplikiĝas al ĉiuj fenestroj de tiu ĉi laborspaco.</string>
+  <string name="workspace_text_options_help2">Vi povas transpasi ilin per ŝanĝi agordojn de specifa fenestro.</string>
+  <string name="window_text_options_help_title">Tekstaj agordoj de fenestro</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">La emblemo %s signifas, ke la agordo estas heredata post agordoj de la laborspaco.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">La emblemo %s signifas, ke la agordo estas ŝanĝita por tiu ĉi fenestro.</string>
+  <string name="window_text_options_help3">La agordo de laborspaco ne aplikiĝos al tiu ĉi fenestro.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Uzu la butonon %s por reagordi ĉiujn tiujn agordojn al %s.</string>
+  <string name="reset_defaults">implicitaj valoroj</string>
+  <string name="reset_workspace_defaults">implicitaj valoroj de la laborspaco</string>
   <string name="speak_bookmark_help">Helpo pri parola legosigno</string>
   <string name="speak_help_auto_bookmark">
 Parola legosigno estos aŭtomate kreita kiam vi paŭzigos/haltigos parolon. Aŭtomate kreitaj legosignoj estas markitaj per speciala etikedo. Kiam vi pluigos parolan legosignon, ĝi aŭtomate moviĝos al la verso kie vi paŭzigos/haltigos la venonta foje. Nur parolaj legosignoj moviĝos, ĉiuj aliaj legosignoj ne estos movitaj.</string>
@@ -771,4 +779,6 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="instructions_for_translators">instrukcioj por tradukantoj</string>
   <string name="questions_title">Demandoj?</string>
   <string name="questions_title2">Ĉu vi bezonas helpon?</string>
+  <string name="bookmark_style">Stilo de legosignoj</string>
+  <string name="added_to_bookmark">Asignita al tiu ĉi legosigno</string>
 </resources>

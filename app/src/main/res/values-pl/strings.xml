@@ -398,7 +398,11 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="speak_status_stopped">wstrzymano</string>
   <string name="speak_autobookmarking_disabled">Wyłączono automatyczne tworzenie zakładek!</string>
   <string name="system_speak_settings">Systemowe ustawienia syntezy mowy</string>
+  <string name="auto_assing_labels_help1">Tutaj możesz wybrać etykiety, które zostaną automatycznie przypisane do tworzonych zakładek.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">To ustawienie ma wpływ na %s.</string>
+  <string name="setting_scope_window">to okno</string>
+  <string name="setting_scope_workspace">ten obszar roboczy</string>
   <string name="assing_labels_help1">Każda zakładka może posiadać po kilka etykiet.</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Użyj %s, aby wybrać zakładki określonego koloru do wyświetlenia.</string>
@@ -407,9 +411,20 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <!--param is heart icon-->
   <string name="assing_labels_help4">Stuknij w %s, aby dodać etykietę do ulubionych, aby mieć do niej szybki dostęp.</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">Stuknij %s, aby uszeregować listę według Twojego wyboru.</string>
+  <string name="workspace_text_options_help_title">Ustawienia tekstu obszaru roboczego</string>
+  <string name="workspace_text_options_help1">Następujące ustawienia mają wpływ na wszystkie okna tego obszaru roboczego.</string>
+  <string name="workspace_text_options_help2">Możesz je przeskoczyć zmieniając ustawienia konkretnego okna.</string>
+  <string name="window_text_options_help_title">Ustawienia tekstu okna</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">Ikona %s oznacza, że wybrane ustawienie jest dziedziczone po ustawieniu obszaru roboczego.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">Ikona %s oznacza, że wybrane ustawienie zostało zmienione dla tego okna.</string>
+  <string name="window_text_options_help3">Ustawienie obszaru roboczego nie ma wpływu na to okno.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Użyj przycisku %s, aby zresetować wszystkie wyświetlane ustawienia do %s.</string>
+  <string name="reset_defaults">wartości domyślnych</string>
+  <string name="reset_workspace_defaults">wartości domyślnych tego obszaru roboczego</string>
   <string name="speak_bookmark_help">Pomoc zakładek czytania</string>
   <string name="speak_help_auto_bookmark">
 Zakładki czytania są tworzone automatycznie przy wstrzymaniu/zatrzymaniu odtwarzania. Automatycznie tworzone zakładki są oznaczane specjalną etykietą. Kiedy rozpoczniesz odtwarzanie od zakładki, zakładka ta przesunie się do wersetu na którym wstrzymasz/zatrzymasz odtwarzanie. Tylko głosowe zakładki czytania ulegną przesunięciu, wszystkie inne zakładki pozostaną niezmienione.</string>
@@ -754,4 +769,6 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="instructions_for_translators">instrukcją tłumaczeń</string>
   <string name="questions_title">Czy masz pytanie?</string>
   <string name="questions_title2">Czy potrzebujesz pomocy?</string>
+  <string name="bookmark_style">Styl zakładek</string>
+  <string name="added_to_bookmark">Przypisano do tej zakładki</string>
 </resources>
