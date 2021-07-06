@@ -3,6 +3,7 @@
   <string name="app_name_short">Киелі Кітапті Зерттеу</string>
   <string name="app_name_medium">Киелі Кітапті Зерттеу (And Bible)</string>
   <string name="app_name_long">Киелі Кітапті Зерртеу қолданбасы, And Bible - ашық көзді жобасы арқылы болып табылады</string>
+  <string name="project">And Bible Ашық Ақпарат көзді Жоба</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">SD картаны салыңыз және қолданбаны қайта іске қосыңыз.</string>
   <!--Main menu-->
@@ -14,9 +15,12 @@
   <string name="history">Тарих</string>
   <string name="speak">Дауыстап оқу</string>
   <string name="help">Көмек</string>
+  <string name="information">Ақпарат</string>
   <string name="other">Басқасы</string>
+  <string name="contact">Байланыс</string>
   <string name="help_and_tips">Көмек пен кеңестер</string>
   <string name="administration">Басқару</string>
+  <string name="rate_application">Бағалау мен Қайта шолу</string>
   <string name="chooce_document">Құжатты таңдаңыз</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Кітапті Таңдаңыз</string>
@@ -53,6 +57,9 @@
   <string name="search_current_book">Қазіргі кітап</string>
   <string name="error_executing_search">Іздеу сауалы қате</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Тарау мен аят нөмерлері</string>
+  <string name="prefs_show_verseno_summary">Тарау көрсету мен аят нөмерлері</string>
+  <string name="prefs_e_ink_mode_title">Қара мен ақ тәртіптемесі</string>
   <string name="prefs_show_verseno_title1">Аят нөмірлері</string>
   <string name="prefs_verse_per_line_summary">Әр аятты әр түрлі жолда көрсету</string>
   <string name="prefs_show_bookmarks_summary">Бар кітап белгілерін жасыру үшін таңдауды алыңыз</string>
@@ -317,6 +324,14 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="speak_status_stopped">Тоқтатылған</string>
   <string name="speak_autobookmarking_disabled">Автоматты кітап белгілеу өшірілген!</string>
   <string name="system_speak_settings">TTS жүйесінің ашық параметрлері</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Сөйлеу Кітап белгісінің көмегі</string>
   <string name="speak_help_auto_bookmark">
 Сөйлеу пауза не тоқтатылған кезінде, Сөйлеу кітап белгісі автоматты түрде қосылады.
@@ -360,6 +375,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="mynotes">Менің Ескертпелерім</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Сақтық көшіру мен Қалпына келтіру</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="loading_backup">Деректер базасы сақтық көшірмеден жүктелуде…</string>
   <string name="backup_modules_email_subject_2">%s модульдерді сақтыққа көшіру</string>
   <string name="backup_modules_email_message_2">Қосылып бекітілген сіздің %s модульдердің сақтық көшірмесі, онда келесі модульдер бар:%s</string>
@@ -489,4 +505,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
   <string name="system_items1">Көбірек</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
 </resources>

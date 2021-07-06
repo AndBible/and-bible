@@ -33,9 +33,9 @@ removeBookmarkConfirmation: "Ali ste prepričani, da želite odstraniti ta zazna
 closeModal: Zapri
 createdAt: "Ustvarjeno: %s"
 lastUpdatedOn: "Nazadnje posodobljeno: %s"
-strongsLink: ""
-morphLink: ""
-strongsAndMorph: ""
+strongsLink: Strong (%s)
+morphLink: Oblikoslovne kode (%s)
+strongsAndMorph: Strong in oblikoslovje
 studyPadLink: Odpri beležnico
 externalLink: Odpri zunanjo povezavo
 referenceLink: Odpri zunanjo povezavo
@@ -70,11 +70,11 @@ refParserHelp: "Namestite %s modul za uporabo referenc v jezikih, ki niso angle�
 openDownloads: Pojdite na Prenose dodatkov
 verseShare: Deli
 verseCompare: Primerjaj
-verseNote: ""
+verseNote: Beležka
 verseMyNotes: Moje opombe
 verseSpeak: Govor
-verseShareLong: ""
-verseCompareLong: ""
-verseNoteLong: ""
-verseSpeakLong: ""
-verseTip: ""
+verseShareLong: Deli to vrstico
+verseCompareLong: Primerjaj vrstico
+verseNoteLong: Zapiši beležko
+verseSpeakLong: Prični poslušati od te vrstice
+verseTip: Za delno izbiro vrstice ali izbiro več vrstic dolgo pritisnete na biblijsko besedilo
