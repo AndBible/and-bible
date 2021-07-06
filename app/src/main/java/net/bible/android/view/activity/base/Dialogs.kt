@@ -22,6 +22,7 @@ import android.os.Build
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
@@ -128,7 +129,11 @@ class Dialogs private constructor() {
                         dlgBuilder.setNeutralButton(R.string.report_error) { dialog, buttonId -> reportCallback.okay() }
                     }
                     val d = dlgBuilder.show()
-                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                    d.findViewById<TextView>(android.R.id.message)!!.apply {
+                        movementMethod = LinkMovementMethod.getInstance()
+                        textDirection = View.TEXT_DIRECTION_LOCALE
+                        textAlignment = View.TEXT_ALIGNMENT_GRAVITY
+                    }
                 }
             } else {
                 Toast.makeText(application.applicationContext, msg, Toast.LENGTH_LONG).show()
@@ -171,7 +176,11 @@ class Dialogs private constructor() {
                         dlgBuilder.setNeutralButton(R.string.report_error) { _, _ -> it.resume(Result.REPORT) }
                     }
                     val d = dlgBuilder.show()
-                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                    d.findViewById<TextView>(android.R.id.message)!!.apply {
+                        movementMethod = LinkMovementMethod.getInstance()
+                        textDirection = View.TEXT_DIRECTION_LOCALE
+                        textAlignment = View.TEXT_ALIGNMENT_GRAVITY
+                    }
                 }
             }
         } catch (e: Exception) {

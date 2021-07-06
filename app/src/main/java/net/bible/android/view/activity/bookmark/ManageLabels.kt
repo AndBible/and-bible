@@ -281,7 +281,11 @@ class ManageLabels : ListActivityBase() {
             .create()
 
         d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        d.findViewById<TextView>(android.R.id.message)!!.apply {
+            movementMethod = LinkMovementMethod.getInstance()
+            textDirection = View.TEXT_DIRECTION_LOCALE
+            textAlignment = View.TEXT_ALIGNMENT_GRAVITY
+        }
     }
 
     private fun studyPadSelected(journal: BookmarkEntities.Label) {

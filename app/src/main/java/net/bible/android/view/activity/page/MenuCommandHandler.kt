@@ -27,6 +27,7 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.GlobalScope
@@ -219,7 +220,11 @@ constructor(private val callingActivity: MainBibleActivity,
                         .create()
 
                     d.show()
-                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                    d.findViewById<TextView>(android.R.id.message)!!.apply {
+                        movementMethod = LinkMovementMethod.getInstance()
+                        textDirection = View.TEXT_DIRECTION_LOCALE
+                        textAlignment = View.TEXT_ALIGNMENT_GRAVITY
+                    }
                     isHandled = true
                 }
                 R.id.bugReport -> {

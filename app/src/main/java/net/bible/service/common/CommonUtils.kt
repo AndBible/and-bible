@@ -42,6 +42,7 @@ import android.text.method.LinkMovementMethod
 import android.text.style.ImageSpan
 import android.util.LayoutDirection
 import android.util.Log
+import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
@@ -770,7 +771,12 @@ object CommonUtils {
             .create()
 
         d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        d.findViewById<TextView>(android.R.id.message)!!.apply {
+            movementMethod = LinkMovementMethod.getInstance()
+            textDirection = View.TEXT_DIRECTION_LOCALE
+            textAlignment = View.TEXT_ALIGNMENT_GRAVITY
+
+        }
     }
 
     fun verifySignature(file: File, signatureFile: File): Boolean {

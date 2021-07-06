@@ -386,7 +386,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     }
                     .show()
 
-                d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                d.findViewById<TextView>(android.R.id.message)!!.apply {
+                    movementMethod = LinkMovementMethod.getInstance()
+                    textDirection = View.TEXT_DIRECTION_LOCALE
+                    textAlignment = View.TEXT_ALIGNMENT_GRAVITY
+                }
             }
             if(save) {
                 preferences.edit().putBoolean("pinning-help-shown", true).apply()
@@ -429,7 +433,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setOnCancelListener {_ -> it.resume(false)}
                 .create()
             d.show()
-            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+            d.findViewById<TextView>(android.R.id.message)!!.apply {
+                movementMethod = LinkMovementMethod.getInstance()
+                textDirection = View.TEXT_DIRECTION_LOCALE
+                textAlignment = View.TEXT_ALIGNMENT_GRAVITY
+            }
         } else {
             it.resume(false)
         }
@@ -479,7 +487,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setOnCancelListener {_ -> it.resume(false)}
                 .create()
             d.show()
-            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+            d.findViewById<TextView>(android.R.id.message)!!.apply {
+                movementMethod = LinkMovementMethod.getInstance()
+                textDirection = View.TEXT_DIRECTION_LOCALE
+                textAlignment = View.TEXT_ALIGNMENT_GRAVITY
+            }
         } else {
             it.resume(false)
         }
