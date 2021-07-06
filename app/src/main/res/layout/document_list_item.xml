@@ -7,6 +7,8 @@
 	android:layout_height="wrap_content"
 	android:minHeight="?android:attr/listPreferredItemHeight"
 	android:mode="twoLine"
+	android:textDirection="locale"
+	android:textAlignment="gravity"
 	android:paddingStart="16dp"
 	android:paddingEnd="16dp"
 	android:background="@drawable/selectable_background">
