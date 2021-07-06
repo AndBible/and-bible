@@ -48,8 +48,8 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_below="@id/top_text"
-		android:layout_marginLeft="10dip"
-		android:layout_marginRight="10dip"
+		android:layout_marginStart="10dip"
+		android:layout_marginEnd="10dip"
 		android:layout_marginBottom="60dip">
 
 		<TableLayout

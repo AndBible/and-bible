@@ -535,13 +535,20 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         if(firstTime) {
             firstTime = false
         }
-
+        val isRtl = CommonUtils.isRtl
         binding.apply {
+            val screenWidth = biblesLinearLayout.width
             val transX =
+                if(isRtl)
                 (if (restoreButtonsVisible) 0 else
-                    restoreButtonsContainer.width -
-                        (hideRestoreButton.width + hideRestoreButtonExtension.width)).toFloat() - mainBibleActivity.rightOffset1
-
+                    screenWidth - restoreButtonsContainer.width +
+                        (hideRestoreButton.width + hideRestoreButtonExtension.width)
+                    ).toFloat() + mainBibleActivity.leftOffset1
+                else
+                    (if (restoreButtonsVisible) 0 else
+                        restoreButtonsContainer.width -
+                            (hideRestoreButton.width + hideRestoreButtonExtension.width)
+                        ).toFloat() - mainBibleActivity.rightOffset1
             Log.d(TAG, "updateRestoreButtons $animate $transX")
 
             if (restoreButtonsVisible) {

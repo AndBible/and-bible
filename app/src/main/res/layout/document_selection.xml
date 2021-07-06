@@ -26,9 +26,9 @@
 		android:layout_width="match_parent"
 		android:layout_height="55dip"
 		android:orientation="horizontal"
-		android:paddingLeft="8dip"
+		android:paddingStart="8dip"
 		android:paddingTop="8dip"
-		android:paddingRight="8dip"
+		android:paddingEnd="8dip"
 		android:paddingBottom="5dip"
 		app:layout_constraintTop_toTopOf="parent">
 

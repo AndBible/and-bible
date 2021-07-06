@@ -37,12 +37,15 @@ import android.text.Html
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.text.style.ImageSpan
+import android.util.LayoutDirection
 import android.util.Log
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.text.layoutDirection
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -154,6 +157,10 @@ object CommonUtils {
         val verFull = applicationVersionName
         val numbers = verFull.split(".")
         return "${numbers[0]}.${numbers[1]}"
+    }
+
+    val isRtl get(): Boolean {
+        return TextUtils.getLayoutDirectionFromLocale(Locale.getDefault()) == LayoutDirection.RTL
     }
 
     val mainVersionFloat: Float get() {
