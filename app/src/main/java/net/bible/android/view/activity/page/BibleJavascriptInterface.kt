@@ -36,15 +36,12 @@ import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
 import org.crosswire.jsword.passage.VerseFactory
-import org.crosswire.jsword.versification.Versification
-import org.crosswire.jsword.versification.system.Versifications
 
 
 class BibleJavascriptInterface(
@@ -96,7 +93,7 @@ class BibleJavascriptInterface(
             intent.putExtra("navigateToVerse", true)
             val result = mainBibleActivity.awaitIntent(intent)
             val verseStr = result?.resultData?.getStringExtra("verse")
-            val verse = VerseFactory.fromString(KJVA, verseStr).name
+            val verse = if(verseStr == null) "" else VerseFactory.fromString(KJVA, verseStr).name
             bibleView.executeJavascriptOnUiThread("bibleView.response($callId, '$verse');")
         }
     }
@@ -141,9 +138,9 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openDownloads() {
         if (!downloadControl.checkDownloadOkay()) return
-        val activity = CurrentActivityHolder.getInstance().currentActivity
-        val intent = Intent(activity, DownloadActivity::class.java)
-        activity.startActivity(intent)
+        val intent = Intent(mainBibleActivity, DownloadActivity::class.java)
+        intent.putExtra("addons", true)
+        mainBibleActivity.startActivity(intent)
     }
 
     @JavascriptInterface

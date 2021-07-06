@@ -558,7 +558,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     /** allow selection of initial doc type
      */
     protected open fun setInitialDocumentType() {
-        selectedDocumentFilterNo = 0
+        selectedDocumentFilterNo = if(intent?.getBooleanExtra("addons", false) == true) 6 else 0
     }
 
     fun setShowOkButtonBar(visible: Boolean) {
