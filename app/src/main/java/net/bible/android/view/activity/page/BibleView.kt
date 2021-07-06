@@ -595,7 +595,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
      fun onEvent(e: ReloadAddonsEvent) {
         val fontModuleNames = json.encodeToString(serializer(), AndBibleAddons.fontModuleNames)
-        executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames});")
+        val featureModuleNames = json.encodeToString(serializer(), AndBibleAddons.featureModuleNames)
+        executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames, featureModuleNames: $featureModuleNames});")
     }
 
     override fun destroy() {

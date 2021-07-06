@@ -525,11 +525,16 @@ export function useCustomFeatures(android) {
 
     // eslint-disable-next-line no-unused-vars
     async function reloadFeatures(featureModuleNames) {
-         if(featureModuleNames.includes("RefParser")) {
-             await initialize();
-             features.add("RefParser");
+        features.clear();
+        if(featureModuleNames.includes("RefParser")) {
+            await initialize();
+            features.add("RefParser");
         }
     }
+
+    setupEventBusListener(Events.RELOAD_ADDONS, ({featureModuleNames}) => {
+        reloadFeatures(featureModuleNames)
+    })
 
     onBeforeMount(() => {
         const featureModuleNames = new URLSearchParams(window.location.search).get("featureModuleNames");

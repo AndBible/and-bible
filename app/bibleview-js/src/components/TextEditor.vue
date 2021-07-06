@@ -177,6 +177,7 @@ export default {
     const divider = {divider: true};
 
     function openDownloads() {
+      showHelp.value = false;
       android.openDownloads();
     }
 
