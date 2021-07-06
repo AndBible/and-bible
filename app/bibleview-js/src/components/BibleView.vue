@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div @click="ambiguousSelection.handle" :class="{night: appSettings.nightMode}" :style="topStyle">
+  <div @click="ambiguousSelection.handle" :class="{night: appSettings.nightMode}" :style="topStyle" :dir="direction">
     <div class="background" :style="backgroundStyle"/>
     <div :style="`height:${calculatedConfig.topOffset}px`"/>
     <div :style="modalStyle" id="modals"/>
@@ -239,6 +239,7 @@ export default {
     const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
 
     return {
+      direction: computed(() => appSettings.rightToLeft ? "rtl": "ltr"),
       makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
       updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
       config, strings, documents, topElement, currentVerse, mounted, emit, Events, isLoading,
