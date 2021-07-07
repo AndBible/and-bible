@@ -117,11 +117,6 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
                 .create()
 
         d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.apply {
-            movementMethod = LinkMovementMethod.getInstance()
-            textDirection = View.TEXT_DIRECTION_LOCALE
-            textAlignment = View.TEXT_ALIGNMENT_GRAVITY
-
-        }
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 }

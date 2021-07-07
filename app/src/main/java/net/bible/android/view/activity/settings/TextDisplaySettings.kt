@@ -29,7 +29,6 @@ import android.text.method.LinkMovementMethod
 import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.TextView
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
@@ -302,11 +301,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
             .create()
 
         d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.apply {
-            movementMethod = LinkMovementMethod.getInstance()
-            textDirection = View.TEXT_DIRECTION_LOCALE
-            textAlignment = View.TEXT_ALIGNMENT_GRAVITY
-        }
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     override fun onBackPressed() {
