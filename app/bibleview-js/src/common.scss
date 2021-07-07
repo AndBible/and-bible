@@ -17,7 +17,13 @@
 
 .menu {
   position: absolute;
-  right: 0;
+  [dir=ltr] & {
+    right: 0;
+  }
+  [dir=rtl] & {
+    left: 0;
+  }
+
   top: 0;
   z-index: 1;
 }

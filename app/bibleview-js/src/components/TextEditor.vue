@@ -231,9 +231,19 @@ export default {
   }
   &.end {
     position: absolute;
-    right: 0;
+    [dir=ltr] & {
+      right: 0;
+    }
+    [dir=rtl] & {
+      left: 0;
+    }
     .studypad-text-entry & {
-      right: 40px;
+      [dir=ltr] & {
+        right: 40px;
+      }
+      [dir=rtl] & {
+        left: 40px;
+      }
     }
   }
 }

@@ -38,8 +38,9 @@
 		<item name="separatorBackgroundColor">#B1B1B1</item>
 		<item name="separatorActiveBackgroundColor">#FF6B6B6B</item>
 		<item name="separatorDragBackgroundColor">@color/yellow_500</item>
-
 		<item name="android:navigationBarColor" tools:targetApi="o_mr1">@color/navigation_bar</item>
+		<item name="android:textAlignment">gravity</item>
+		<item name="android:textDirection">locale</item>
 	</style>
 
 
@@ -75,12 +76,12 @@
 	<style name="BibleTitle1" parent="ActionBarTitle">
 		<item name="android:textColor">?attr/toolbarTextColor</item>
 		<item name="android:textSize">15sp</item>
-		<item name="android:gravity">bottom|left</item>
+		<item name="android:gravity">bottom|start</item>
 	</style>
 	<style name="BibleTitle2" parent="ActionBarTitle">
 		<item name="android:textColor">?attr/toolbarTextColor</item>
 		<item name="android:textSize">10sp</item>
-		<item name="android:gravity">top|left</item>
+		<item name="android:gravity">top|start</item>
 	</style>
 	<style name="MyActionButton" parent="@style/Widget.AppCompat.ActionButton">
 		<item name="android:tint">?attr/toolbarTextColor</item>
