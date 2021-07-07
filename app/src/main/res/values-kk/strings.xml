@@ -60,6 +60,7 @@
   <string name="prefs_show_verseno_title">Тарау мен аят нөмерлері</string>
   <string name="prefs_show_verseno_summary">Тарау көрсету мен аят нөмерлері</string>
   <string name="prefs_e_ink_mode_title">Қара мен ақ тәртіптемесі</string>
+  <string name="prefs_eink_mode_summary">Монохром режимінде қолданбаны падаланып (түстері жетімсіз), оны неғұрлым электрондық сия құрал жабдықтарына қолайлы ету.</string>
   <string name="prefs_show_verseno_title1">Аят нөмірлері</string>
   <string name="prefs_verse_per_line_summary">Әр аятты әр түрлі жолда көрсету</string>
   <string name="prefs_show_bookmarks_summary">Бар кітап белгілерін жасыру үшін таңдауды алыңыз</string>

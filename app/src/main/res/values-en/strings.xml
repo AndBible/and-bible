@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_medium">Bible Study app (And Bible)</string>
   <!--Main menu-->
   <!--Passage navigation-->
   <!--Search-->
