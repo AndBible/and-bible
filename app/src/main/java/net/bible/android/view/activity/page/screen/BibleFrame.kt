@@ -129,7 +129,7 @@ class BibleFrame(
         windowButton = button
         addView(button,
             LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                if (isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT else Gravity.TOP or Gravity.RIGHT))
+                if (isSingleWindow) Gravity.BOTTOM or Gravity.END else Gravity.TOP or Gravity.END))
     }
 
     private fun createCloseButton(window: Window): WindowButtonWidget {
