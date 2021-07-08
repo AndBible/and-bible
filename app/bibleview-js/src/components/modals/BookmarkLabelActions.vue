@@ -30,14 +30,14 @@
         <FontAwesomeIcon icon="heart"/>
         {{strings.favouriteLabels}}
       </div>
-      <div class="item">
+      <div class="item" v-show="hasFavourites">
         <LabelList :bookmark-id="bookmarkId" favourites only-assign @has-entries="hasFavourites = $event"/>
       </div>
       <div class="item title" v-if="hasRecent">
         <FontAwesomeIcon icon="history"/>
         {{strings.recentLabels}}
       </div>
-      <div class="item">
+      <div class="item" v-show="hasRecent">
         <LabelList :bookmark-id="bookmarkId" recent only-assign @has-entries="hasRecent = $event" />
       </div>
       <!--div class="item title">
