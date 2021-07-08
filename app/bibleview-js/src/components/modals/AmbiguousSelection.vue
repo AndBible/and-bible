@@ -23,14 +23,14 @@
     </template>
   </Modal>
   <Modal :blocking="blocking" v-if="showModal" @close="cancelled">
-    <template #extra-buttons v-if="showLong">
+    <template #extra-buttons v-if="noActions">
       <button class="modal-action-button right" @touchstart.stop @click="showHelp = !showHelp">
         <FontAwesomeIcon icon="question-circle"/>
       </button>
     </template>
 
     <div class="buttons">
-      <AmbiguousActionButtons v-if="showLong" vertical :verse-info="verseInfo" @close="cancelled"/>
+      <AmbiguousActionButtons v-if="noActions" :verse-info="verseInfo" @close="cancelled"/>
       <template v-for="(s, index) of selections" :key="index">
         <template v-if="!s.options.bookmarkId">
           <button class="button light" @click.stop="selected(s)">
@@ -44,7 +44,7 @@
           @selected="selected(s)"
         />
       </template>
-      <AmbiguousActionButtons v-if="!showLong" :verse-info="verseInfo" @close="cancelled"/>
+      <AmbiguousActionButtons v-if="!noActions" :verse-info="verseInfo" @close="cancelled"/>
     </div>
     <template #title>
       <template v-if="verseInfo">
@@ -125,11 +125,11 @@ export default {
       }
     }
 
-    const showLong = computed(() => selections.value.length === 0);
+    const noActions = computed(() => selections.value.length === 0);
 
     return {
       showHelp: ref(false),
-      bibleBookName, verseInfo, selected, handle, cancelled, showLong,
+      bibleBookName, verseInfo, selected, handle, cancelled, noActions,
       showModal, selections, bookmarkMap, ...useCommon()
     };
   }
