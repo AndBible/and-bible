@@ -1,0 +1,21 @@
+name: Assign to projects based on labeling
+
+on:
+  issues:
+    types: [labeled]
+  pull_request:
+    types: [labeled]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  assign_to_tuomas_project:
+    runs-on: ubuntu-latest
+    name: Add discussions to Discussions project board
+    steps:
+    - uses: srggrs/assign-one-project-github-action@42352f30e8f3608e29350741411ab7061c953972 # 1.2.1
+      if: "contains(github.event.issue.labels.*.name, 'Type: Discussion')"
+      with:
+        project: 'https://github.com/AndBible/and-bible/projects/6'
+        column_name: 'Ongoing'
