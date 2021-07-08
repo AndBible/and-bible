@@ -36,7 +36,7 @@
 
 <script>
 import {useCommon} from "@/composables";
-import {inject} from "@vue/runtime-core";
+import {inject, watch} from "@vue/runtime-core";
 import {computed, ref} from "@vue/reactivity";
 import {addAll, clickWaiter, removeAll} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -54,9 +54,10 @@ export default {
     onlyAssign: {type: Boolean, default: false},
     singleLine: {type: Boolean, default: false},
   },
+  emits: ["has-entries"],
   components: {FontAwesomeIcon},
   name: "LabelList",
-  setup(props) {
+  setup(props, {emit}) {
     const {adjustedColor, ...common} = useCommon();
     const appSettings = inject("appSettings");
     const android = inject("android");
@@ -107,6 +108,10 @@ export default {
       // TODO: add frequent
       return sortBy(Array.from(shown).map(labelId => bookmarkLabels.get(labelId)).filter(v => v), ["name"]);
     });
+
+    watch(labels, v => {
+      emit("has-entries", v.length > 0);
+    }, {immediate: true});
 
     function assignLabels() {
       if(bookmark.value) {
