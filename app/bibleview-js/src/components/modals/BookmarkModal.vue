@@ -21,7 +21,7 @@
       <div class="bookmark-title" style="width: calc(100% - 80px);">
         <div class="overlay"/>
         <div style="overflow-x: auto">
-          <LabelList single-line handle-touch in-bookmark :bookmark-id="bookmark.id"/>
+          <LabelList single-line handle-touch in-bookmark :bookmark-id="bookmark.id" ref="labelList"/>
         </div>
         <div class="title-text">
           {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 25)}}</i></q>
@@ -91,7 +91,7 @@ import Modal from "@/components/modals/Modal";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
-import {inject} from "@vue/runtime-core";
+import {inject, nextTick} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import EditableText from "@/components/EditableText";
 import LabelList from "@/components/LabelList";
@@ -109,6 +109,7 @@ export default {
     const areYouSure = ref(null);
     const infoShown = ref(false);
     const bookmarkId = ref(null);
+    const labelList = ref(null);
 
     const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
 
@@ -125,12 +126,16 @@ export default {
     const bookmarkNotes = computed(() => bookmark.value.notes);
     let originalNotes = null;
 
-    setupEventBusListener(Events.BOOKMARK_CLICKED, (bookmarkId_, {openInfo = false, openNotes = false} = {}) => {
+    setupEventBusListener(Events.BOOKMARK_CLICKED, async (bookmarkId_, {openLabels = false, openInfo = false, openNotes = false} = {}) => {
       bookmarkId.value = bookmarkId_;
       originalNotes = bookmarkNotes.value;
       infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);
       editDirectly.value = !infoShown.value && !bookmarkNotes.value;
       showBookmark.value = true;
+      if(openLabels) {
+        await nextTick();
+        labelList.value.openActions();
+      }
     });
 
     function closeBookmark() {
@@ -166,7 +171,7 @@ export default {
 
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,  bookmark, labelColor,
-      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, toggleInfo, ...common
+      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, toggleInfo, labelList, ...common
     };
   },
 }

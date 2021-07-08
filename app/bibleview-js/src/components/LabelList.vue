@@ -138,9 +138,13 @@ export default {
       }
     }
 
+    function openActions() {
+      actions.value.showActions()
+    }
+
     return {
       labelStyle, assignLabels, actions, labelClicked, labels, isPrimary,
-      isAssigned, ...common
+      isAssigned, openActions, ...common
     }
   }
 }
