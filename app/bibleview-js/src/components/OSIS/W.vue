@@ -83,7 +83,6 @@ export default {
       return "ab-w://?" + linkBodies.join("&")
     }
     function goToLink(event, url) {
-      console.log("asdf", config, config.strongsMode);
       addEventFunction(event, () => window.location.assign(url), {title: strings.strongsAndMorph});
     }
     const showStrongs = computed(() => config.strongsMode !== strongsModes.off);

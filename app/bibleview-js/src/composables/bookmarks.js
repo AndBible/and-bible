@@ -501,6 +501,15 @@ export function useBookmarks(documentId,
     function addMarkers() {
         const bookmarkMap = new Map();
         for (const b of markerBookmarks.value) {
+            for(let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
+                const elem = document.querySelector(`#doc-${documentId} #o-${ordinal}`);
+                const func = event => {
+                    addEventFunction(event, null, {bookmarkId: b.id})
+                };
+                elem.addEventListener("click", func)
+                undoMarkers.push(() => elem.removeEventListener("click", func));
+            }
+
             const key = b.ordinalRange[1];
             const value = bookmarkMap.get(key) || [];
             value.push(b);
