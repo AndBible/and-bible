@@ -108,11 +108,15 @@ export default {
     flex-direction: column;
     font-size: 60%;
   }
+  .vertical & {
+    @extend .light;
+    @extend .button;
+  }
 
   .fa-layers, .svg-inline--fa {
-    color: $button-grey;
     padding-inline-end: 14px;
     .horizontal & {
+      color: $button-grey;
       margin: 0 auto 0 auto;
       padding-bottom: 5px;
     $size: 20px;

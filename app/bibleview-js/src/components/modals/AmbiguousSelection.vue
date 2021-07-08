@@ -30,7 +30,7 @@
     </template>
 
     <div class="buttons">
-      <AmbiguousActionButtons v-if="showLong" show-long :verse-info="verseInfo" @close="cancelled"/>
+      <AmbiguousActionButtons v-if="showLong" vertical :verse-info="verseInfo" @close="cancelled"/>
       <template v-for="(s, index) of selections" :key="index">
         <template v-if="!s.options.bookmarkId">
           <button class="button light" @click.stop="selected(s)">
