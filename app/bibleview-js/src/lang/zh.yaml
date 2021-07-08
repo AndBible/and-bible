@@ -20,6 +20,7 @@ editNotePlaceholder: 編輯筆記
 editTextPlaceholder: 按一下編輯文字
 inputPlaceholder: 在此輸入
 inputReference: 輸入聖經參考
+invalidReference: 找不到節
 assignLabels: 標籤
 bookmarkAccurate: 書籤已在 %s 建立
 bookmarkInaccurate: ""
@@ -76,3 +77,4 @@ verseCompareLong: 比較經文
 verseNoteLong: 增加筆記
 verseSpeakLong: 從此節開始聆聽
 verseTip: 長按以選擇部份或多節經文
+addBookmark: ""

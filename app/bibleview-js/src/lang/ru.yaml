@@ -20,6 +20,7 @@ editNotePlaceholder: Редактировать заметку
 editTextPlaceholder: "Нажмите, чтобы отредактировать текст"
 inputPlaceholder: Пишите здесь
 inputReference: Введите ссылку
+invalidReference: Стих не найден
 assignLabels: Метки
 bookmarkAccurate: Закладка создана в %s
 bookmarkInaccurate: "Информация о закладке не сохраняется, содержимое отображается в %s."
@@ -78,3 +79,4 @@ verseCompareLong: Сравнить стих
 verseNoteLong: Написать заметку
 verseSpeakLong: Начать слушать с этого стиха
 verseTip: "Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии."
+addBookmark: Закладка

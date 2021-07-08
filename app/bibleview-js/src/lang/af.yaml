@@ -20,6 +20,7 @@ editNotePlaceholder: Redigeer nota
 editTextPlaceholder: Tik om teks te wysig
 inputPlaceholder: Skryf hier
 inputReference: oer Bybel verwysing in
+invalidReference: Vers nie gevind
 assignLabels: Etikette
 bookmarkAccurate: Boekmerk is in %s geskep
 bookmarkInaccurate: "Boekmerk boek inligting wat nie gestoor is nie, inhoud word in %s vertoon."
@@ -78,3 +79,4 @@ verseCompareLong: Vergelyk vers
 verseNoteLong: Skryf 'n nota
 verseSpeakLong: Begin luister vanaf hierdie vers
 verseTip: "Om gedeeltelike of baie verse te kies, kan jy Bybel teks lank druk"
+addBookmark: Boekmerke

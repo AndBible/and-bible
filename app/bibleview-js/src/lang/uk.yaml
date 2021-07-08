@@ -20,6 +20,7 @@ editNotePlaceholder: Редагувати примітку
 editTextPlaceholder: "Торкніться, щоб редагувати текст"
 inputPlaceholder: Пишіть тут
 inputReference: Введіть біблійне посилання
+invalidReference: Вірш не знайдено
 assignLabels: Мітки
 bookmarkAccurate: Закладка була створена в %s
 bookmarkInaccurate: "Закладка інформації про книгу не збереглась, вміст відображається в %s."
@@ -78,3 +79,4 @@ verseCompareLong: Порівняти вірш
 verseNoteLong: Написати нотатку
 verseSpeakLong: Почати слухати з цього вірша
 verseTip: "Щоб вибрати часткові або багато віршів, довго натисніть текст Біблії"
+addBookmark: Закладка

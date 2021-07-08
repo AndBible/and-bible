@@ -20,6 +20,7 @@ editNotePlaceholder: Uredi zaznamek
 editTextPlaceholder: Dotaknite se za urejanje besedila
 inputPlaceholder: Pišite tukaj
 inputReference: Vnesite biblijsko referenco
+invalidReference: Vrstice ni mogoče najti
 assignLabels: Oznake
 bookmarkAccurate: Zaznamek je bil ustvarjen v %s
 bookmarkInaccurate: "Informacije o zaznamkih niso shranjene, vsebina je prikazana v %s."
@@ -78,3 +79,4 @@ verseCompareLong: Primerjaj vrstico
 verseNoteLong: Zapiši beležko
 verseSpeakLong: Prični poslušati od te vrstice
 verseTip: Za delno izbiro vrstice ali izbiro več vrstic dolgo pritisnete na biblijsko besedilo
+addBookmark: Zaznamek

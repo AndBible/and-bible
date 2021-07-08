@@ -20,6 +20,7 @@ editNotePlaceholder: Éditer la note
 editTextPlaceholder: Tapez pour éditer le texte
 inputPlaceholder: Écrire ici
 inputReference: Entrer les références bibliques
+invalidReference: Verset non trouvé
 assignLabels: Étiquettes
 bookmarkAccurate: Le signet a été créé dans %s
 bookmarkInaccurate: "Les informations sur le livre de signets ne sont pas enregistrées, le contenu est affiché dans %s."
@@ -78,3 +79,4 @@ verseCompareLong: Comparer ce verset
 verseNoteLong: Écrire une note
 verseSpeakLong: Commencez à écouter à partir de ce verset
 verseTip: "Pour sélectionner un ou plusieurs versets, vous pouvez appuyer longuement sur le texte biblique."
+addBookmark: Signets

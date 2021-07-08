@@ -20,6 +20,7 @@ editNotePlaceholder: Editar nota
 editTextPlaceholder: Toca para editar el texto
 inputPlaceholder: Escriba aqui
 inputReference: Ingrese la referencia de la Biblia
+invalidReference: Verso no encontrado
 assignLabels: Etiquetas
 bookmarkAccurate: El marcador se creó en %s
 bookmarkInaccurate: "La información del libro de marcadores no se almacena, el contenido se muestra en %s."
@@ -78,3 +79,4 @@ verseCompareLong: Comparar versículo
 verseNoteLong: Escribir una nota
 verseSpeakLong: Empezar a escuchar a partir de este versículo
 verseTip: Para hace una selección parcial o de muchos versículos puede mantener presionado el texto de la Biblia
+addBookmark: Marcador

@@ -20,6 +20,7 @@ editNotePlaceholder: Taisyti pastabą
 editTextPlaceholder: "Bakstelėkite, norėdami taisyti tekstą"
 inputPlaceholder: Rašykite čia
 inputReference: Įveskite Biblijos nuorodą
+invalidReference: Eilutė nerasta
 assignLabels: Etiketės
 bookmarkAccurate: Žymė buvo sukurta dokumente %s
 bookmarkInaccurate: "Žymės knygos informacija nėra saugoma, turinys yra rodomas čia: %s."
@@ -78,3 +79,4 @@ verseCompareLong: Lyginti eilutę
 verseNoteLong: Rašyti pastabą
 verseSpeakLong: Pradėti klausytis nuo šios eilutės
 verseTip: "Norėdami žymėti kelias eilutes ar eilutės dalį, paspauskite ir palaikykite ant Biblijos teksto"
+addBookmark: Pridėti žymę

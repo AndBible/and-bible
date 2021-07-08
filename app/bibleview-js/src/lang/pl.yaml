@@ -20,6 +20,7 @@ editNotePlaceholder: Edytuj notatkę
 editTextPlaceholder: "Stuknij, aby edytować"
 inputPlaceholder: Pisz tutaj
 inputReference: Wprowadź odsyłacz biblijny
+invalidReference: Nie znaleziono wersetu
 assignLabels: Etykiety
 bookmarkAccurate: Zakładka utworzona w %s
 bookmarkInaccurate: "Brak informacji o księdze w zakładce, wyświetlanie zawartości w: %s."
@@ -78,3 +79,4 @@ verseCompareLong: Porównaj werset
 verseNoteLong: Napisz notatkę
 verseSpeakLong: Odsłuchaj od tego wersetu
 verseTip: "Aby wybrać część bądź kilka wersetów, stuknij i przytrzymaj tekst Biblii"
+addBookmark: Zakładka

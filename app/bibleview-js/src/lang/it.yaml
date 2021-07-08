@@ -20,6 +20,7 @@ editNotePlaceholder: Modifica nota
 editTextPlaceholder: Tocca per modificare il testo
 inputPlaceholder: Scrivi qui
 inputReference: Inserisci un riferimento biblico
+invalidReference: Versetto non trovato
 assignLabels: Etichette
 bookmarkAccurate: Segnalibro creato in %s
 bookmarkInaccurate: "Informazioni del segnalibro non salvate, il contenuto è mostrato in %s."
@@ -78,3 +79,4 @@ verseCompareLong: Confronta verso
 verseNoteLong: Scrivi una nota
 verseSpeakLong: Comincia l'ascolto da questo verso
 verseTip: "Per scegliere versi parziali o multipli, puoi tenere premuto a lungo il testo biblico"
+addBookmark: Segnalibro

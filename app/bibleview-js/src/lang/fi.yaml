@@ -20,6 +20,7 @@ editNotePlaceholder: Muokkaa merkintää
 editTextPlaceholder: Napsauta muokataksesi tekstiä
 inputPlaceholder: Kirjoita tähän
 inputReference: Anna raamattuviite
+invalidReference: Jaetta ei löytynyt
 assignLabels: Ryhmät
 bookmarkAccurate: Kirjanmerkki luotiin dokumentissa %s
 bookmarkInaccurate: "Kirjanmerkin kirjatietoa ei ole tallennettu, sisältö näytetään dokumentissa %s."
@@ -78,3 +79,4 @@ verseCompareLong: Vertaa jaetta
 verseNoteLong: Kirjoita muistiinpano
 verseSpeakLong: Aloita kuuntelu tästä jakeesta
 verseTip: "Valitaksesi osittaisia tai useita jakeita, napauta pitkään Raamatun tekstiä"
+addBookmark: Kirjanmerkki

@@ -20,6 +20,7 @@ editNotePlaceholder: Notiz bearbeiten
 editTextPlaceholder: Antippen um Text zu bearbeiten
 inputPlaceholder: Hier schreiben
 inputReference: Querverweis einfügen
+invalidReference: Vers wurde nicht gefunden
 assignLabels: Kategorien
 bookmarkAccurate: Lesezeichen wurde in %s erstellt
 bookmarkInaccurate: "Lesezeicheninformation wurde nicht gespeichert, der Inhalt wird in %s angezeigt."
@@ -78,3 +79,4 @@ verseCompareLong: Vers vergleichen
 verseNoteLong: Eine Notiz schreiben
 verseSpeakLong: Von diesem Vers an anhören
 verseTip: "Um Versteile oder mehrere Verse zu markieren, den Bibeltext drücken und halten"
+addBookmark: Lesezeichen

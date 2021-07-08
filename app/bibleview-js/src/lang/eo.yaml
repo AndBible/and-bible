@@ -20,6 +20,7 @@ editNotePlaceholder: Redakti noton
 editTextPlaceholder: Frapetu por redakti tekston
 inputPlaceholder: Skribu tien ĉi
 inputReference: Enigi biblian referencon
+invalidReference: Ne trovis verson
 assignLabels: Etikedoj
 bookmarkAccurate: Legosigno kreita en %s
 bookmarkInaccurate: "Informo pri libro ne konservita en legosigno, montras enhavon en %s."
@@ -78,3 +79,4 @@ verseCompareLong: Kompari verson
 verseNoteLong: Skribi noton
 verseSpeakLong: Paroli ekde tiu ĉi verso
 verseTip: "Por elekti parton aŭ plurajn versojn, frapetadu la tekston de Biblio"
+addBookmark: Legosigno

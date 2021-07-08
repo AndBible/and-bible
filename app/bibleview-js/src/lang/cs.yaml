@@ -20,6 +20,7 @@ editNotePlaceholder: Upravit poznámku
 editTextPlaceholder: ""
 inputPlaceholder: Psát zde
 inputReference: Vložit biblický odkaz
+invalidReference: Verš nebyl nalezen
 assignLabels: Štítky
 bookmarkAccurate: Záložka vytvořena v %s
 bookmarkInaccurate: ""
@@ -76,3 +77,4 @@ verseCompareLong: Porovnat verš
 verseNoteLong: Napsat poznámku
 verseSpeakLong: Poslouchat od tohoto veršw
 verseTip: ""
+addBookmark: ""
