@@ -16,7 +16,19 @@
   -->
 
 <template>
+  <Modal v-if="showHelp" @close="showHelp = false" blocking>
+    {{strings.verseTip}}
+    <template #title>
+      {{ strings.addBookmark}}
+    </template>
+  </Modal>
   <Modal :blocking="blocking" v-if="showModal" @close="cancelled">
+    <template #extra-buttons v-if="showLong">
+      <button class="modal-action-button right" @touchstart.stop @click="showHelp = !showHelp">
+        <FontAwesomeIcon icon="question-circle"/>
+      </button>
+    </template>
+
     <div class="buttons">
       <AmbiguousActionButtons v-if="showLong" show-long :verse-info="verseInfo" @close="cancelled"/>
       <template v-for="(s, index) of selections" :key="index">
@@ -118,6 +130,7 @@ export default {
     const showLong = computed(() => selections.value.length === 0);
 
     return {
+      showHelp: ref(false),
       bibleBookName, verseInfo, selected, handle, cancelled, showLong,
       showModal, selections, bookmarkMap, ...useCommon()
     };

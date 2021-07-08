@@ -64,6 +64,7 @@ export default {
   },
   emits: ["close"],
   setup(props, {emit}) {
+    const {strings, ...common} = useCommon()
     const verseInfo = computed(() => props.verseInfo);
     const android = inject("android");
 
@@ -76,6 +77,7 @@ export default {
 
     function addBookmark() {
       android.addBookmark(bookInitials.value, ordinal.value, false);
+      android.toast(strings.verseTip);
       emit("close");
     }
 
@@ -85,13 +87,14 @@ export default {
 
     function addNote() {
       android.addBookmark(bookInitials.value, ordinal.value, true);
+      android.toast(strings.verseTip);
       emit("close");
     }
 
     function openMyNotes() {
       android.openMyNotes(bookInitials.value, ordinal.value);
     }
-    return {share, addBookmark, addNote, compare, openMyNotes, ...useCommon()}
+    return {share, addBookmark, addNote, compare, openMyNotes, strings, ...common}
   }
 }
 </script>

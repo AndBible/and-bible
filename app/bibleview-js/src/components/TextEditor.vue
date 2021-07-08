@@ -22,9 +22,6 @@
     <template #title>
       {{strings.inputReference}}
     </template>
-    <template #footer>
-      <button class="button" @click="showHelp = false">{{strings.closeModal}}</button>
-    </template>
   </Modal>
   <InputText ref="inputText">
     {{strings.inputReference}}
