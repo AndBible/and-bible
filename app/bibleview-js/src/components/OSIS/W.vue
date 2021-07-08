@@ -37,6 +37,7 @@
 <script>
 import {checkUnsupportedProps, strongsModes, useCommon} from "@/composables";
 import {addEventFunction} from "@/utils";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "W",
@@ -53,6 +54,7 @@ export default {
     checkUnsupportedProps(props, "src")
     checkUnsupportedProps(props, "type", ["x-split"])
     checkUnsupportedProps(props, "subType")
+    const {strings, config, ...common} = useCommon();
     function prep(string) {
       let remainingString = string;
       const res = []
@@ -80,20 +82,15 @@ export default {
       // ab-w://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.
       return "ab-w://?" + linkBodies.join("&")
     }
-    const {strings, sprintf, ...common} = useCommon();
     function goToLink(event, url) {
-      addEventFunction(event, () => window.location.assign(url), {title: sprintf(strings.strongsLink, formatName(props.lemma))});
+      console.log("asdf", config, config.strongsMode);
+      addEventFunction(event, () => window.location.assign(url), {title: strings.strongsAndMorph});
     }
-    return {formatLink, formatName, goToLink, strings, ...common};
+    const showStrongs = computed(() => config.strongsMode !== strongsModes.off);
+    const showStrongsSeparately = computed(() => config.strongsMode === strongsModes.links);
+
+    return {formatLink, formatName, goToLink, config, strings, showStrongs, showStrongsSeparately, ...common};
   },
-  computed: {
-    showStrongs() {
-      return this.config.strongsMode !== strongsModes.off
-    },
-    showStrongsSeparately() {
-      return this.config.strongsMode === strongsModes.links
-    },
-  }
 }
 </script>
 

@@ -109,18 +109,16 @@ export default {
       const eventFunctions = getEventFunctions(event);
       verseInfo.value = getEventVerseInfo(event);
       if(eventFunctions.length > 0 || verseInfo.value != null) {
-        if(eventFunctions.length === 1) {
+        if(eventFunctions.length === 1 && eventFunctions[0].options.priority > 0) {
           if (eventFunctions[0].options.bookmarkId) {
             emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId);
           } else {
             eventFunctions[0].callback();
           }
         }
-        else if(eventFunctions.length > 1) {
+        else {
           const s = await select(eventFunctions);
           if(s && s.callback) s.callback();
-        } else {
-          await select([]);
         }
       } else {
         $emit("back-clicked")
