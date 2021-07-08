@@ -1,9 +1,9 @@
-name: Assign to project
+name: Assign to projects
 
 on:
   issues:
     types: [opened, labeled]
-  pull_request:
+  pull_request_target:
     types: [opened, labeled]
 
 env:
