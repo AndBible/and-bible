@@ -35,18 +35,12 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {bcv_parser as BcvParser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
 import {
     faBookmark, faChevronCircleDown, faCompressArrowsAlt,
-    faEdit,
-    faEllipsisH, faEye, faEyeSlash,
+    faEdit, faEllipsisH, faEye, faEyeSlash,
     faFileAlt, faFireAlt, faHandPointer,
     faHeadphones, faHeart, faHistory,
-    faIndent,
-    faInfoCircle,
-    faOutdent, faPlus,
-    faPlusCircle, faPlusSquare, faQuestionCircle, faShareAlt,
-    faSort,
-    faTags, faTextWidth,
-    faTimes,
-    faTrash,
+    faIndent, faInfoCircle, faOutdent, faPlus,
+    faPlusCircle, faQuestionCircle, faShareAlt, faSort,
+    faTags, faTextWidth, faTimes, faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {DocumentTypes} from "@/constants";
