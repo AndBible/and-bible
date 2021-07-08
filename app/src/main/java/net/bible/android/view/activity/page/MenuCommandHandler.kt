@@ -173,11 +173,6 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.historyButton -> handlerIntent = Intent(callingActivity, History::class.java)
                 R.id.bookmarksButton -> handlerIntent = Intent(callingActivity, Bookmarks::class.java)
-                R.id.manageLabels -> {
-                    handlerIntent = Intent(callingActivity, ManageLabels::class.java)
-                    handlerIntent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.MANAGELABELS).toJSON())
-                    requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
-                }
                 R.id.myJournalsButton -> {
                     handlerIntent = Intent(callingActivity, ManageLabels::class.java)
                     handlerIntent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD).toJSON())
