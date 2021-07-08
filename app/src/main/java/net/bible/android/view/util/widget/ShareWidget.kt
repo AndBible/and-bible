@@ -35,6 +35,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
+import org.crosswire.jsword.passage.Verse
 import javax.inject.Inject
 
 class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: Selection):
@@ -110,5 +111,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
         }
         fun dialog(context: Context, bookmark: BookmarkEntities.Bookmark) =
             dialog(context, Selection(bookmark))
+        fun dialog(context: Context, bookInitials: String, verseOrdinal: Int) =
+            dialog(context, Selection(bookInitials, verseOrdinal))
     }
 }

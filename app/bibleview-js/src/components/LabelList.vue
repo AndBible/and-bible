@@ -84,6 +84,7 @@ export default {
     }
 
     const labels = computed(() => {
+      if(!bookmark.value) return [];
       const shown = new Set();
       const earlier = new Set();
       if(props.inBookmark) {

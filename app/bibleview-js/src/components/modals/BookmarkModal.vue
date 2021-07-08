@@ -60,7 +60,7 @@
       <div class="links">
         <div class="link-line">
           <span class="link-icon"><FontAwesomeIcon icon="file-alt"/></span>
-          <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
+          <a :href="`my-notes://?ordinal=${bookmark.originalOrdinalRange[0]}&bookInitials=${bookmark.bookInitials}`">{{ strings.openMyNotes }}</a>
         </div>
         <div v-for="label in labels.filter(l => l.isRealLabel)" :key="`label-${bookmark.id}-${label.id}`" class="link-line">
           <span class="link-icon" :style="`color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon icon="file-alt"/></span>
@@ -132,7 +132,7 @@ export default {
       infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);
       editDirectly.value = !infoShown.value && !bookmarkNotes.value;
       showBookmark.value = true;
-      if(openLabels) {
+      if(openLabels && !openNotes) {
         await nextTick();
         labelList.value.openActions();
       }

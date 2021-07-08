@@ -18,6 +18,7 @@
 <template>
   <Modal :blocking="blocking" v-if="showModal" @close="cancelled">
     <div class="buttons">
+      <AmbiguousActionButtons v-if="showLong" show-long :verse-info="verseInfo" @close="cancelled"/>
       <template v-for="(s, index) of selections" :key="index">
         <template v-if="!s.options.bookmarkId">
           <button class="button light" @click.stop="selected(s)">
@@ -31,9 +32,15 @@
           @selected="selected(s)"
         />
       </template>
+      <AmbiguousActionButtons v-if="!showLong" :verse-info="verseInfo" @close="cancelled"/>
     </div>
     <template #title>
-      {{ strings.ambiguousSelection }}
+      <template v-if="verseInfo">
+        {{ bibleBookName }} {{ verseInfo.chapter}}:{{verseInfo.verse}}
+      </template>
+      <template v-else>
+        {{ strings.ambiguousSelection }}
+      </template>
     </template>
   </Modal>
 </template>
@@ -43,9 +50,11 @@ import Modal from "@/components/modals/Modal";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {inject, ref} from "@vue/runtime-core";
-import {Deferred, getEventFunctions} from "@/utils";
+import {Deferred, getEventFunctions, getEventVerseInfo} from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton";
 import {emit, Events} from "@/eventbus";
+import {computed} from "@vue/reactivity";
+import AmbiguousActionButtons from "@/components/AmbiguousActionButtons";
 
 export default {
   name: "AmbiguousSelection",
@@ -53,7 +62,7 @@ export default {
   props: {
     blocking: {type: Boolean, default: false}
   },
-  components: {Modal, FontAwesomeIcon, AmbiguousSelectionBookmarkButton},
+  components: {Modal, FontAwesomeIcon, AmbiguousSelectionBookmarkButton, AmbiguousActionButtons},
   setup(props, {emit: $emit}) {
     const showModal = ref(false);
     const selections = ref(null);
@@ -80,26 +89,38 @@ export default {
 
     const {bookmarkMap} = inject("globalBookmarks");
 
+    const verseInfo = ref(null);
+
+    const bibleBookName = computed(() => verseInfo.value && verseInfo.value.bibleBookName);
+
     async function handle(event) {
       const eventFunctions = getEventFunctions(event);
-      if(eventFunctions.length > 0) {
+      verseInfo.value = getEventVerseInfo(event);
+      if(eventFunctions.length > 0 || verseInfo.value != null) {
         if(eventFunctions.length === 1) {
-          if(eventFunctions[0].options.bookmarkId) {
+          if (eventFunctions[0].options.bookmarkId) {
             emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId);
           } else {
             eventFunctions[0].callback();
           }
         }
-        else {
+        else if(eventFunctions.length > 1) {
           const s = await select(eventFunctions);
           if(s && s.callback) s.callback();
+        } else {
+          await select([]);
         }
       } else {
         $emit("back-clicked")
       }
     }
 
-    return {selected, handle, cancelled, showModal, selections, bookmarkMap, ...useCommon()};
+    const showLong = computed(() => selections.value.length === 0);
+
+    return {
+      bibleBookName, verseInfo, selected, handle, cancelled, showLong,
+      showModal, selections, bookmarkMap, ...useCommon()
+    };
   }
 }
 </script>
@@ -113,5 +134,4 @@ export default {
   flex-direction: column;
   overflow-y: auto;
 }
-
 </style>

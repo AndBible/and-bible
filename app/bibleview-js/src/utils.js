@@ -291,6 +291,14 @@ export function colorLightness(color) {
     return yiq / 255;
 }
 
+export function addEventVerseInfo(event, verseInfo) {
+    event.verseInfo = verseInfo;
+}
+
+export function getEventVerseInfo(event) {
+    return event.verseInfo || null;
+}
+
 export function addEventFunction(event, callback, options) {
     if(!event.eventFunctions)
         event.eventFunctions = {};

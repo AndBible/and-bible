@@ -34,15 +34,15 @@ import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {bcv_parser as BcvParser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
 import {
-    faBookmark, faChevronCircleDown,
+    faBookmark, faChevronCircleDown, faCompressArrowsAlt,
     faEdit,
     faEllipsisH, faEye, faEyeSlash,
     faFileAlt, faFireAlt, faHandPointer,
     faHeadphones, faHeart, faHistory,
     faIndent,
     faInfoCircle,
-    faOutdent,
-    faPlusCircle, faQuestionCircle, faShareAlt,
+    faOutdent, faPlus,
+    faPlusCircle, faPlusSquare, faQuestionCircle, faShareAlt,
     faSort,
     faTags, faTextWidth,
     faTimes,
@@ -349,6 +349,7 @@ export function useCommon() {
 }
 
 export function useFontAwesome() {
+    library.add(faCompressArrowsAlt)
     library.add(faTextWidth)
     library.add(faHeadphones)
     library.add(faEdit)
@@ -359,6 +360,7 @@ export function useFontAwesome() {
     library.add(faFileAlt)
     library.add(faInfoCircle)
     library.add(faTimes)
+    library.add(faPlus)
     library.add(faEllipsisH)
     library.add(faChevronCircleDown)
     library.add(faSort)

@@ -87,9 +87,11 @@
 
 $button-border-radius: 8px;
 $button-padding: 6px;
+$button-grey: #8e8e8e;
+
 .button {
   font-size: 90%;
-  background-color: #717171;
+  background-color: $button-grey;
   + .toggled {
     background-color: #474747;
     &.light {
@@ -136,4 +138,3 @@ $night-modal-header-background-color: rgba(69,69,69,1);
 $modal-content-background-color: #fefefe;
 $modal-content-background-color-night: black;
 
-$button-grey: #8e8e8e;

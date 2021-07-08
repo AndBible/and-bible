@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span :id="`v-${ordinal}`">
+  <span :id="`v-${ordinal}`" @click="verseClicked">
     <span
       :id="fromBibleDocument ? `o-${ordinal}` : null"
       class="verse"
@@ -35,7 +35,7 @@
 import {inject, provide, reactive, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
-import {cancellableTimer, getVerseInfo} from "@/utils";
+import {addEventVerseInfo, cancellableTimer, getVerseInfo} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {fadeReferenceDelay} from "@/constants";
 
@@ -73,7 +73,7 @@ export default {
       return parseInt(props.osisID.split(".")[2])
     });
 
-    const {originalOrdinalRange, ordinalRange} = inject("bibleDocumentInfo", {})
+    const {bookInitials, bibleBookName, originalOrdinalRange, ordinalRange} = inject("bibleDocumentInfo", {})
 
     const fromBibleDocument = computed(() => !!ordinalRange);
 
@@ -106,6 +106,11 @@ export default {
       highlight()
     }
 
+    function verseClicked(event) {
+      if(!fromBibleDocument.value) return;
+      addEventVerseInfo(event, {bookInitials, bibleBookName, ...verseInfo})
+    }
+
     const common = useCommon();
     return {
       timeout,
@@ -116,6 +121,7 @@ export default {
       shown,
       highlighted,
       fromBibleDocument,
+      verseClicked,
       ...common,
     }
   },

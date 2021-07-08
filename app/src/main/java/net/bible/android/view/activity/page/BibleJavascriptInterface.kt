@@ -207,6 +207,25 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun shareVerse(bookInitials: String, verseOrdinal: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            ShareWidget.dialog(mainBibleActivity, bookInitials, verseOrdinal)
+        }
+    }
+
+    @JavascriptInterface
+    fun addBookmark(bookInitials: String, verseOrdinal: Int, addNote: Boolean) {
+        bibleView.makeBookmark(Selection(bookInitials, verseOrdinal), true, addNote)
+    }
+
+    @JavascriptInterface
+    fun compare(bookInitials: String, verseOrdinal: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            bibleView.compareSelection(Selection(bookInitials, verseOrdinal))
+        }
+    }
+
+    @JavascriptInterface
     fun openStudyPad(labelId: Long, bookmarkId: Long) {
         GlobalScope.launch(Dispatchers.Main) {
             bibleView.linkControl.openJournal(labelId, bookmarkId)
@@ -214,9 +233,9 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun openMyNotes(bookmarkId: Long) {
+    fun openMyNotes(bookInitials: String?, ordinal: Int) {
         GlobalScope.launch(Dispatchers.Main) {
-            bibleView.linkControl.openMyNotes(bookmarkId)
+            bibleView.linkControl.openMyNotes(bookInitials, ordinal)
         }
     }
 

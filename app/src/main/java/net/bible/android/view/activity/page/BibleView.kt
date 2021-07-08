@@ -152,6 +152,18 @@ class Selection(val bookInitials: String?, val startOrdinal: Int,
             emptyList(),
             bookmark.notes
         )
+
+    constructor(bookInitials: String, verseOrdinal: Int):
+        this(
+            bookInitials,
+            verseOrdinal,
+            0,
+            verseOrdinal,
+            null,
+            emptyList(),
+            null
+        )
+
     @Transient @Inject lateinit var windowControl: WindowControl
 
     init {
@@ -257,7 +269,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             R.id.add_bookmark_whole_verse -> {
-                makeBookmark(true)
+                makeBookmark(wholeVerse = true)
                 mode.finish()
                 return true
             }
@@ -289,8 +301,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private fun makeBookmark(wholeVerse: Boolean = false) {
-        val selection = currentSelection?: return
+    fun makeBookmark(selection: Selection? = currentSelection, wholeVerse: Boolean = false, openNotes: Boolean = false) {
+        selection?: return
         Log.d(TAG, "makeBookmark")
         val book = Books.installed().getBook(selection.bookInitials)
         if(book !is SwordBook) {
@@ -300,21 +312,24 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val v11n = book.versification
         val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
-        val textRange = BookmarkEntities.TextRange(selection.startOffset!!, selection.endOffset!!)
+        val textRange =
+            if(selection.startOffset != null && selection.endOffset != null)
+                BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
+            else null
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, wholeVerse, book)
         val initialLabels = workspaceSettings.autoAssignLabels
         bookmark.primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
         if(initialLabels.isEmpty()) {
             executeJavascriptOnUiThread(
-                "bibleView.emit('bookmark_clicked', ${bookmark.id}, {openLabels: true});"
+                "bibleView.emit('bookmark_clicked', ${bookmark.id}, {openLabels: true, openNotes: $openNotes});"
             )
         }
     }
 
-    private fun compareSelection() {
-        val selection = currentSelection?: return
-        Log.d(TAG, "makeBookmark")
+    internal fun compareSelection(selection: Selection? = currentSelection) {
+        selection?: return
+        Log.d(TAG, "compareSelection")
         val book = Books.installed().getBook(selection.bookInitials)
         if(book !is SwordBook) {
             return
@@ -748,10 +763,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             true
         }
         UriConstants.SCHEME_MYNOTES -> {
-            val id = uri.getQueryParameter("id")?.toLongOrNull()
-            if (id != null) {
-                linkControl.openMyNotes(id)
-            } else false
+            val ordinal = uri.getQueryParameter("ordinal")?.toInt()!!
+            val bookInitials = uri.getQueryParameter("bookInitials")
+            linkControl.openMyNotes(bookInitials, ordinal)
         }
         UriConstants.MULTI_REFERENCE -> {
             val osisRefs = uri.getQueryParameters("osis")

@@ -43,7 +43,9 @@ import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
@@ -51,6 +53,7 @@ import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import java.net.URLDecoder
@@ -283,10 +286,14 @@ class LinkControl @Inject constructor(
         this.windowMode = windowMode
     }
 
-    fun openMyNotes(id: Long): Boolean {
-        val bookmark = bookmarkControl.bookmarksByIds(listOf(id)).firstOrNull() ?: return false
-        val key = bookmark.verseRange
-        showLink(currentPageManager.currentMyNotePage.currentDocument, key)
+    fun openMyNotes(bookInitials: String?, ordinal: Int): Boolean {
+        val v11n = if(bookInitials != null) {
+            (Books.installed().getBook(bookInitials) as SwordBook).versification
+        } else {
+            (currentPageManager.currentBible.currentDocument as SwordBook).versification
+        }
+        val verse = Verse(v11n, ordinal)
+        showLink(currentPageManager.currentMyNotePage.currentDocument, verse)
         return true
     }
 

@@ -235,12 +235,24 @@ export function useAndroid({bookmarks}, config) {
         android.shareBookmarkVerse(bookmarkId);
     }
 
+    function shareVerse(bookInitials, ordinal) {
+        android.shareVerse(bookInitials, ordinal);
+    }
+
+    function addBookmark(bookInitials, ordinal, addNote = false) {
+        android.addBookmark(bookInitials, ordinal, addNote);
+    }
+
+    function compare(bookInitials, ordinal) {
+        android.compare(bookInitials, ordinal);
+    }
+
     function openStudyPad(labelId, bookmarkId) {
         android.openStudyPad(labelId, bookmarkId);
     }
 
-    function openMyNotes(bookmarkId) {
-        android.openMyNotes(bookmarkId);
+    function openMyNotes(bookInitials, ordinal) {
+        android.openMyNotes(bookInitials, ordinal);
     }
 
     function openDownloads() {
@@ -318,6 +330,9 @@ export function useAndroid({bookmarks}, config) {
         openMyNotes,
         openDownloads,
         refChooserDialog,
+        shareVerse,
+        addBookmark,
+        compare,
     }
 
     if(config.developmentMode) return {
