@@ -26,14 +26,14 @@
         <LabelList :bookmark-id="bookmarkId" only-assign in-bookmark />
         <hr/>
       </div>
-      <div class="item title top">
+      <div class="item title top" v-if="hasFavourites">
         <FontAwesomeIcon icon="heart"/>
         {{strings.favouriteLabels}}
       </div>
       <div class="item">
         <LabelList :bookmark-id="bookmarkId" favourites only-assign />
       </div>
-      <div class="item title">
+      <div class="item title" v-if="hasRecent">
         <FontAwesomeIcon icon="history"/>
         {{strings.recentLabels}}
       </div>
@@ -79,11 +79,14 @@ export default {
         android.assignLabels(bookmark.value.id);
       }
     }
+    const appSettings = inject("appSettings");
+    const hasFavourites = computed(() => appSettings.favouriteLabels.length > 0)
+    const hasRecent = computed(() => appSettings.recentLabels.length > 0)
 
     async function showActions() {
       showModal.value = true;
     }
-    return {showModal, showActions, assignLabels, ...useCommon()}
+    return {showModal, showActions, assignLabels, hasFavourites, hasRecent, ...useCommon()}
   }
 }
 </script>
