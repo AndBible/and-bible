@@ -17,7 +17,7 @@
 
 <template>
   <div v-if="verseInfo">
-    <div :class="{'action-row': !showLong}">
+    <div :class="{horizontal: !vertical, vertical}">
       <div class="large-action" @click="addBookmark">
         <FontAwesomeLayers>
           <FontAwesomeIcon icon="bookmark"/>
@@ -30,15 +30,15 @@
           <FontAwesomeIcon icon="edit"/>
           <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
         </FontAwesomeLayers>
-        <div class="title">{{ showLong ? strings.verseNoteLong: strings.verseNote }}</div>
+        <div class="title">{{ vertical ? strings.verseNoteLong: strings.verseNote }}</div>
       </div>
       <div class="large-action" @click="share">
         <FontAwesomeIcon icon="share-alt"/>
-        <div class="title">{{ showLong? strings.verseShareLong: strings.verseShare }}</div>
+        <div class="title">{{ vertical? strings.verseShareLong: strings.verseShare }}</div>
       </div>
       <div class="large-action" @click="compare">
         <FontAwesomeIcon icon="compress-arrows-alt"/>
-        <div class="title">{{ showLong? strings.verseCompareLong: strings.verseCompare }}</div>
+        <div class="title">{{ vertical? strings.verseCompareLong: strings.verseCompare }}</div>
       </div>
     </div>
   </div>
@@ -57,7 +57,7 @@ export default {
       type: Object,
       default: null,
     },
-    showLong: {type: Boolean, default: false},
+    vertical: {type: Boolean, default: false},
   },
   components: {
     FontAwesomeIcon, FontAwesomeLayers,
@@ -104,7 +104,7 @@ export default {
 .large-action {
   display: flex;
   flex-direction: row;
-  .action-row & {
+  .horizontal & {
     flex-direction: column;
     font-size: 60%;
   }
@@ -112,7 +112,7 @@ export default {
   .fa-layers, .svg-inline--fa {
     color: $button-grey;
     padding-inline-end: 14px;
-    .action-row & {
+    .horizontal & {
       margin: 0 auto 0 auto;
       padding-bottom: 5px;
     $size: 20px;
@@ -124,12 +124,12 @@ export default {
 
   }
   padding-bottom: 0.5em;
-  .action-row & {
+  .horizontal & {
     padding-top: 10px;
     padding-bottom: 0;
   }
 }
-.action-row {
+.horizontal {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
