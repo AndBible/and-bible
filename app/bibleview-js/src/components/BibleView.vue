@@ -240,7 +240,10 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-$ring-size: 40px;
+
+$ring-size: 35px;
+$ring-thickness: $ring-size/12;
+
 .loading {
   position: fixed;
   left: calc(50% - #{$ring-size}/2);
@@ -260,7 +263,7 @@ $ring-blue: rgb(129, 164, 255, 1.0);
     width: $ring-size;
     height: $ring-size;
     margin: 8px;
-    border: 4px solid $ring-blue;
+    border: $ring-thickness solid $ring-blue;
     border-radius: 50%;
     animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
     border-color: $ring-blue transparent transparent transparent;
