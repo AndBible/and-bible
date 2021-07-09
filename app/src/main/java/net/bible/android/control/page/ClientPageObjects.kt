@@ -217,9 +217,16 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
 
     companion object{
         fun getUrl(bookmark: BookmarkEntities.Bookmark): String {
+            val initials = bookmark.book?.initials
+            val prefix =
+                if(initials != null)
+                    "${initials}:"
+                else
+                    ""
+
             val ref = bookmark.verseRange.osisRef
             val v11n = bookmark.book?.versification?.name
-            return "osis://?osis=$ref" + if(v11n !== null) "&v11n=$v11n" else ""
+            return "osis://?osis=$prefix$ref" + if(v11n !== null) "&v11n=$v11n" else ""
         }
     }
 }
