@@ -825,12 +825,12 @@ object CommonUtils {
         val circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, R.color.background_color)
         val d1 = getTintedDrawable(syncIcon, if(syncOn) R.color.sync_on_green else R.color.sync_off_grey)
 
-        return LayerDrawable(arrayOf(iconDrawable, circleDrawable, d1)).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            LayerDrawable(arrayOf(iconDrawable, circleDrawable, d1)).apply {
                 val s = sizeMultiplier?:1.0F
                 val size = (d1.intrinsicWidth * s).toInt()
                 val s1 = (d1.intrinsicWidth * 0.6*s).toInt()
-                val s2 = (d1.intrinsicWidth * 0.5*s).toInt()
+                val s2 = (d1.intrinsicWidth * 0.45*s).toInt()
                 val d = (s1-s2) / 2
                 setLayerSize(0, size, size)
                 setLayerSize(1, s1, s1)
@@ -840,21 +840,22 @@ object CommonUtils {
                 setLayerInsetEnd(2, d)
                 setLayerInsetBottom(2, d)
             }
-        }
+        else
+            d1
     }
 
     fun combineIcons(icon: Int, icon2: Int, sizeMultiplier: Float? = null): Drawable {
         val d1 = getTintedDrawable(icon)
-        val d2 = getTintedDrawable(icon2, R.color.red)
+        val d2 = getTintedDrawable(icon2)
         val circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, R.color.background_color)
 
-        return LayerDrawable(arrayOf(d1, circleDrawable, d2)).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val s = sizeMultiplier?:1.0F
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            LayerDrawable(arrayOf(d1, circleDrawable, d2)).apply {
+                val s = sizeMultiplier ?: 1.0F
                 val size = (d1.intrinsicWidth * s).toInt()
-                val s1 = (d1.intrinsicWidth * 0.6*s).toInt()
-                val s2 = (d1.intrinsicWidth * 0.5*s).toInt()
-                val d = (s1-s2) / 2
+                val s1 = (d1.intrinsicWidth * 0.6 * s).toInt()
+                val s2 = (d1.intrinsicWidth * 0.45 * s).toInt()
+                val d = (s1 - s2) / 2
                 setLayerSize(0, size, size)
                 setLayerSize(1, s1, s1)
                 setLayerSize(2, s2, s2)
@@ -863,8 +864,8 @@ object CommonUtils {
                 setLayerInsetEnd(2, d)
                 setLayerInsetBottom(2, d)
             }
-        }
-
+        else
+            d1
     }
 }
 

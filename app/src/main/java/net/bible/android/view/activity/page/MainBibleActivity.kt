@@ -752,7 +752,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
                 if(itmOptions.icon != null) {
                     item.setIcon(itmOptions.icon!!)
-                    item.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_fast_rewind_black_24dp)
+                    item.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_baseline_workspace_24)
                 }
                 if(item.hasSubMenu()) {
                     handleMenu(item.subMenu)

@@ -146,7 +146,7 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         if(windowId != null) {
             p.icon = CommonUtils.iconWithSync(itmOptions.icon!!, itmOptions.inherited,  1.5F)
         } else {
-            p.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_fast_rewind_black_24dp, 1.5F)
+            p.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_baseline_workspace_24, 1.5F)
         }
         if(itmOptions.title != null) {
             p.title = itmOptions.title
