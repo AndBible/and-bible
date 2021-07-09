@@ -86,7 +86,7 @@ jobs:
         rm -f keystore.jks
 
     - run: git push origin ${{github.event.inputs.tag}}
-      if: github.event.action == 'workflow_dispatch'
+      if: github.event.type == 'WorkflowDispatch'
 
     - name: Create release
       if: contains(github.ref, 'refs/tags/')
