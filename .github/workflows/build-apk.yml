@@ -5,8 +5,8 @@ on:
     inputs:
       tag:
         description: "Build tag to be created"
-          required: true
-            default: "beta-"
+        required: true
+        default: "beta-"
 
 jobs:
   build:
