@@ -39,7 +39,7 @@ const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
 const bookmarkIcon = icon(faBookmark);
 const visibleBookmarkPriority = 5;
-const hiddenBookmarkPriority = 5;
+const hiddenBookmarkPriority = 0;
 
 const allStyleRangeArrays = reactive(new Set());
 const allStyleRanges = computed(() => {
