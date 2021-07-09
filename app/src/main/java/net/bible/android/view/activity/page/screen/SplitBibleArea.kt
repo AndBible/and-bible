@@ -739,13 +739,8 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                 item.isEnabled = itmOptions.enabled
                 item.isCheckable = itmOptions.isBoolean
                 if(itmOptions is Preference) {
-                    if (itmOptions.inherited) {
-                        item.setIcon(R.drawable.ic_sync_white_24dp)
-                    } else {
-                        item.setIcon(R.drawable.ic_sync_disabled_green_24dp)
-                    }
-                }
-                if(item.itemId != R.id.textOptionItem) {
+                    item.icon = CommonUtils.iconWithSync(itmOptions.icon!!, itmOptions.inherited)
+                } else {
                     MenuItemCompat.setIconTintList(item,
                         ColorStateList.valueOf(CommonUtils.getResourceColor(R.color.grey_500))
                     )

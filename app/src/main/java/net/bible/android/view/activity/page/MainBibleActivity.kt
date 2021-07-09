@@ -750,7 +750,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 if(itmOptions.title != null) {
                     item.title = itmOptions.title
                 }
-
+                if(itmOptions.icon != null) {
+                    item.setIcon(itmOptions.icon!!)
+                    item.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_fast_rewind_black_24dp)
+                }
                 if(item.hasSubMenu()) {
                     handleMenu(item.subMenu)
                     continue;

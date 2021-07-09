@@ -30,22 +30,21 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
 import android.text.Html
-import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
-import android.text.style.ImageSpan
 import android.util.LayoutDirection
 import android.util.Log
+import android.view.Gravity
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.text.layoutDirection
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -813,6 +812,59 @@ object CommonUtils {
 
             initialized = true
         }
+    }
+
+    fun iconWithSync(icon: Int, syncOn: Boolean, sizeMultiplier: Float? = null): Drawable {
+        val syncIcon = if (syncOn) {
+            R.drawable.ic_sync_white_24dp
+        } else {
+            R.drawable.ic_sync_disabled_green_24dp
+        }
+
+        val iconDrawable = getTintedDrawable(icon)
+        val circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, R.color.background_color)
+        val d1 = getTintedDrawable(syncIcon, if(syncOn) R.color.sync_on_green else R.color.sync_off_grey)
+
+        return LayerDrawable(arrayOf(iconDrawable, circleDrawable, d1)).apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val s = sizeMultiplier?:1.0F
+                val size = (d1.intrinsicWidth * s).toInt()
+                val s1 = (d1.intrinsicWidth * 0.6*s).toInt()
+                val s2 = (d1.intrinsicWidth * 0.5*s).toInt()
+                val d = (s1-s2) / 2
+                setLayerSize(0, size, size)
+                setLayerSize(1, s1, s1)
+                setLayerSize(2, s2, s2)
+                setLayerGravity(1, Gravity.BOTTOM or Gravity.END)
+                setLayerGravity(2, Gravity.BOTTOM or Gravity.END)
+                setLayerInsetEnd(2, d)
+                setLayerInsetBottom(2, d)
+            }
+        }
+    }
+
+    fun combineIcons(icon: Int, icon2: Int, sizeMultiplier: Float? = null): Drawable {
+        val d1 = getTintedDrawable(icon)
+        val d2 = getTintedDrawable(icon2, R.color.red)
+        val circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, R.color.background_color)
+
+        return LayerDrawable(arrayOf(d1, circleDrawable, d2)).apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val s = sizeMultiplier?:1.0F
+                val size = (d1.intrinsicWidth * s).toInt()
+                val s1 = (d1.intrinsicWidth * 0.6*s).toInt()
+                val s2 = (d1.intrinsicWidth * 0.5*s).toInt()
+                val d = (s1-s2) / 2
+                setLayerSize(0, size, size)
+                setLayerSize(1, s1, s1)
+                setLayerSize(2, s2, s2)
+                setLayerGravity(1, Gravity.BOTTOM or Gravity.END)
+                setLayerGravity(2, Gravity.BOTTOM or Gravity.END)
+                setLayerInsetEnd(2, d)
+                setLayerInsetBottom(2, d)
+            }
+        }
+
     }
 }
 

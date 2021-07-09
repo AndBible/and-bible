@@ -21,7 +21,6 @@ package net.bible.android.view.activity.settings
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.TextUtils
@@ -145,18 +144,14 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
     private fun updateItem(p: Preference) {
         val itmOptions = getPrefItem(settingsBundle, p.key)
         if(windowId != null) {
-            if (itmOptions.inherited) {
-                p.setIcon(R.drawable.ic_sync_white_24dp)
-            } else {
-                p.setIcon(R.drawable.ic_sync_disabled_green_24dp)
-            }
-        }
-        if(itmOptions is MorphologyPreference) {
-            p.isEnabled = StrongsPreference(settingsBundle).value as Int > 0
+            p.icon = CommonUtils.iconWithSync(itmOptions.icon!!, itmOptions.inherited,  1.5F)
+        } else {
+            p.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_fast_rewind_black_24dp, 1.5F)
         }
         if(itmOptions.title != null) {
             p.title = itmOptions.title
         }
+        p.isEnabled = itmOptions.enabled
         p.isVisible = itmOptions.visible
     }
 

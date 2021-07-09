@@ -31,4 +31,6 @@
     <color name="window_button_text_colour">#32FFFFFF</color>
 
     <color name="navigation_bar">@color/black</color>
+    <color name="high_contrast">@color/white</color>
+    <color name="background_color">@color/black</color>
 </resources>
