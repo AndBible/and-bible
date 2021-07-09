@@ -22,12 +22,12 @@
     <div :style="modalStyle" id="modals"/>
     <template v-if="mounted">
       <BookmarkModal/>
-      <AmbiguousSelection ref="ambiguousSelection" @back-clicked="backClicked"/>
+      <AmbiguousSelection ref="ambiguousSelection"/>
     </template>
     <ErrorBox v-if="appSettings.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
-    <div v-if="appSettings.activeWindow">
+    <div v-if="appSettings.hasActiveIndicator">
       <div class="top-left-corner"/>
       <div class="top-right-corner"/>
       <div class="bottom-left-corner"/>
@@ -227,15 +227,6 @@ export default {
           `;
     });
 
-    setupEventBusListener(Events.BOOKMARK_CLICKED, () => {
-      verseMap.resetHighlights();
-    })
-
-    function backClicked() {
-      emit(Events.CLOSE_MODALS)
-      verseMap.resetHighlights();
-    }
-
     const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
 
     return {
@@ -243,7 +234,7 @@ export default {
       makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
       updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
       config, strings, documents, topElement, currentVerse, mounted, emit, Events, isLoading,
-      contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings, backClicked,
+      contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings,
     };
   },
 }

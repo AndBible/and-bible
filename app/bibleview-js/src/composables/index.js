@@ -27,7 +27,7 @@ import {
     watch
 } from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
-import {adjustedColor, Deferred, setupWindowEventListener} from "@/utils";
+import {adjustedColor, Deferred, setupWindowEventListener, sleep} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {isEqual, throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
@@ -184,8 +184,10 @@ export function useConfig(documentType) {
         recentLabels: [],
         frequentLabels: [],
         hideCompareDocuments: [],
+        rightToLeft: rtl,
         activeWindow: false,
-        rightToLeft: rtl
+        hasActiveIndicator: false,
+        activeSince: 0,
     });
 
     function calcMmInPx() {
@@ -213,8 +215,12 @@ export function useConfig(documentType) {
     window.bibleViewDebug.config = config;
     window.bibleViewDebug.appSettings = appSettings;
 
-    setupEventBusListener(Events.SET_ACTIVE, newActive => {
-        appSettings.activeWindow = newActive;
+    setupEventBusListener(Events.SET_ACTIVE, ({hasActiveIndicator, isActive}) => {
+        appSettings.activeWindow = isActive;
+        appSettings.hasActiveIndicator = hasActiveIndicator;
+        if(isActive) {
+            appSettings.activeSince = performance.now();
+        }
     });
 
     function compareConfig(newConfig, checkedKeys) {
@@ -448,7 +454,8 @@ export function useVerseMap() {
         return verses.get(ordinal) || []
     }
 
-    const highlights = [];
+    const highlights = reactive([]);
+    const hasHighlights = computed(() => highlights.length > 0);
 
     function registerEndHighlight(fn) {
         highlights.push(fn);
@@ -459,7 +466,7 @@ export function useVerseMap() {
         highlights.splice(0);
     }
 
-    return {register, getVerses, registerEndHighlight, resetHighlights}
+    return {register, getVerses, registerEndHighlight, resetHighlights, hasHighlights}
 }
 
 
@@ -623,20 +630,29 @@ export function useAddonFonts() {
 }
 
 export function useModal(android) {
-    const modalCount = ref(0);
-    const modalOpen = computed(() => modalCount.value > 0);
+    const modalOptArray = reactive([]);
+    const modalOpen = computed(() => modalOptArray.length > 0);
 
-    function register() {
-        onMounted(() => {
-            modalCount.value++;
-        })
+    function register(opts) {
+        if(!opts.blocking) {
+            closeModals();
+        }
+
+        modalOptArray.push(opts);
 
         onUnmounted(() => {
-            modalCount.value--;
+            const idx = modalOptArray.indexOf(opts);
+            modalOptArray.splice(idx, 1);
         });
     }
 
-    watch(modalOpen, v => android.reportModalState(v), {flush: "sync"})
+    function closeModals() {
+        for(const {close} of modalOptArray.filter(o => !o.blocking))
+            close();
+    }
 
-    return {register}
+    watch(modalOpen, v => android.reportModalState(v), {flush: "sync"})
+    setupEventBusListener(Events.CLOSE_MODALS, closeModals);
+
+    return {register, closeModals, modalOpen}
 }

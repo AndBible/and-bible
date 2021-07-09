@@ -961,11 +961,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         updateConfig(onAttach)
     }
 
-    private val isActive get() =
+    private val hasActiveIndicator get() =
         CommonUtils.sharedPreferences.getBoolean("show_active_window_indicator", true)
             && windowControl.activeWindow.id == window.id && windowControl.windowRepository.visibleWindows.size > 1
 
-    private fun updateActive() = executeJavascriptOnUiThread("""bibleView.emit('set_active', $isActive)""")
+    private val isActive get() = windowControl.activeWindow.id == window.id
+
+    private fun updateActive() =
+        executeJavascriptOnUiThread("""bibleView.emit('set_active', {isActive: $isActive, hasActiveIndicator: $hasActiveIndicator})""")
 
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.sharedPreferences.getBoolean("show_errorbox", false) else false
 
@@ -1460,6 +1463,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(latestDocumentStr != null && needsDocument) {
             replaceDocument()
         }
+        updateActive()
     }
 
     var modalOpen = false

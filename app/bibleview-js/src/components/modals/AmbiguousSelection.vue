@@ -39,7 +39,7 @@
           </button>
         </template>
         <AmbiguousSelectionBookmarkButton
-          v-else-if="bookmarkMap.has(s.options.bookmarkId)"
+          v-else
           :bookmark-id="s.options.bookmarkId"
           @selected="selected(s)"
         />
@@ -70,18 +70,34 @@ import AmbiguousActionButtons from "@/components/AmbiguousActionButtons";
 
 export default {
   name: "AmbiguousSelection",
-  emits: ["back-clicked"],
   props: {
     blocking: {type: Boolean, default: false}
   },
   components: {Modal, FontAwesomeIcon, AmbiguousSelectionBookmarkButton, AmbiguousActionButtons},
-  setup(props, {emit: $emit}) {
+  setup() {
+    const appSettings = inject("appSettings");
+    const {bookmarkMap} = inject("globalBookmarks");
+    const {resetHighlights} = inject("verseMap");
+    const {modalOpen, closeModals} = inject("modal");
+
     const showModal = ref(false);
-    const selections = ref(null);
+    const verseInfo = ref(null);
+    const originalSelections = ref(null);
+    const bibleBookName = computed(() => verseInfo.value && verseInfo.value.bibleBookName);
+
+    const selections = computed(() => {
+      if(originalSelections.value === null) return null;
+      return originalSelections.value.filter(v => {
+        if(v.options.bookmarkId) {
+          return bookmarkMap.has(v.options.bookmarkId);
+        }
+        return true;
+      });
+    });
     let deferred = null;
 
     async function select(sel) {
-      selections.value = sel;
+      originalSelections.value = sel;
       showModal.value = true;
       deferred = new Deferred();
       return await deferred.wait();
@@ -99,15 +115,17 @@ export default {
       showModal.value = false;
     }
 
-    const {bookmarkMap} = inject("globalBookmarks");
-
-    const verseInfo = ref(null);
-
-    const bibleBookName = computed(() => verseInfo.value && verseInfo.value.bibleBookName);
-
     async function handle(event) {
       const eventFunctions = getEventFunctions(event);
       verseInfo.value = getEventVerseInfo(event);
+
+      const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
+      const hasParticularClicks = eventFunctions.filter(f => !f.options.backClick).length > 0; // not only "back" clicks
+
+      if(!isActive && !hasParticularClicks) return;
+
+      resetHighlights();
+
       if(eventFunctions.length > 0 || verseInfo.value != null) {
         if(eventFunctions.length === 1 && eventFunctions[0].options.priority > 0) {
           if (eventFunctions[0].options.bookmarkId) {
@@ -117,11 +135,13 @@ export default {
           }
         }
         else {
-          const s = await select(eventFunctions);
-          if(s && s.callback) s.callback();
+          if (modalOpen.value && !hasParticularClicks) {
+            closeModals();
+          } else {
+            const s = await select(eventFunctions);
+            if (s && s.callback) s.callback();
+          }
         }
-      } else {
-        $emit("back-clicked")
       }
     }
 
