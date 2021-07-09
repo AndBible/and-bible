@@ -83,7 +83,8 @@ export default {
       return "ab-w://?" + linkBodies.join("&")
     }
     function goToLink(event, url) {
-      addEventFunction(event, () => window.location.assign(url), {title: strings.strongsAndMorph});
+      const priority = showStrongsSeparately.value ? 10: 0;
+      addEventFunction(event, () => window.location.assign(url), {priority, title: strings.strongsAndMorph});
     }
     const showStrongs = computed(() => config.strongsMode !== strongsModes.off);
     const showStrongsSeparately = computed(() => config.strongsMode === strongsModes.links);
