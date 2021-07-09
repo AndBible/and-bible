@@ -50,9 +50,11 @@ export default {
     const verseInfo = getVerseInfo(props);
 
     const shown = ref(true);
-    verseInfo.showStack = reactive([shown]);
+    if(verseInfo) {
+      verseInfo.showStack = reactive([shown]);
+      provide("verseInfo", verseInfo);
+    }
 
-    provide("verseInfo", verseInfo);
     const verseMap = inject("verseMap");
 
     const ordinal = computed(() => {
