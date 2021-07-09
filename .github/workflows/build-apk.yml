@@ -23,7 +23,7 @@ jobs:
       with:
         fetch-depth: 10 # so that recent tags can be found
     - run: git tag ${{github.event.inputs.tag}}
-      if: github.event.action == 'workflow_dispatch'
+      if: github.event_name == 'workflow_dispatch'
     - name: Set up JDK
       uses: actions/setup-java@v1
       with:
@@ -86,7 +86,7 @@ jobs:
         rm -f keystore.jks
     - run: echo ${{ toJson(github.event) }}
     - run: git push origin ${{github.event.inputs.tag}}
-      if: github.event.event_name == 'workflow_dispatch'
+      if: github.event_name == 'workflow_dispatch'
 
     - name: Create release
       if: contains(github.ref, 'refs/tags/')
