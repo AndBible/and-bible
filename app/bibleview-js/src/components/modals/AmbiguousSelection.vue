@@ -123,6 +123,7 @@ export default {
       if(!isActive && !hasParticularClicks) return;
       const _verseInfo = getEventVerseInfo(event);
       resetHighlights();
+      emit(Events.WINDOW_CLICKED);
 
       if(eventFunctions.length > 0 || _verseInfo != null) {
         if(eventFunctions.length === 1 && eventFunctions[0].options.priority > 0) {

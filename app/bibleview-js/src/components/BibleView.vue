@@ -97,6 +97,7 @@ export default {
 
     const modal = useModal(android);
     provide("modal", modal);
+    const {closeModals} = modal;
 
     const mounted = ref(false);
     onMounted(() => mounted.value = true)
@@ -133,7 +134,7 @@ export default {
     })
 
     setupEventBusListener(Events.CLEAR_DOCUMENT, function clearDocument() {
-      emit(Events.CLOSE_MODALS);
+      closeModals();
       clearLog();
       globalBookmarks.clearBookmarks();
       documents.splice(0)

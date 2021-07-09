@@ -651,7 +651,6 @@ export function useModal(android) {
     }
 
     watch(modalOpen, v => android.reportModalState(v), {flush: "sync"})
-    setupEventBusListener(Events.CLOSE_MODALS, closeModals);
 
     return {register, closeModals, modalOpen}
 }

@@ -73,13 +73,14 @@ export default {
       event.stopPropagation();
       expanded.value = !expanded.value;
     }
+
     watch(expanded, v => {
       if(v) {
         cancel()
-        eventBus.on(Events.CLOSE_MODALS, close);
+        eventBus.on(Events.WINDOW_CLICKED, close);
         cancel = close
       } else {
-        eventBus.off(Events.CLOSE_MODALS, close);
+        eventBus.off(Events.WINDOW_CLICKED, close);
         if(cancel === close) {
           cancel = () => {}
         }
