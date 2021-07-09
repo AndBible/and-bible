@@ -78,7 +78,7 @@ export default {
         cancelFunc = () => lastClicked.value = false;
         registerEndHighlight(cancelFunc);
         sleep(fadeReferenceDelay).then(() => cancelFunc());
-      }, {title: strings.referenceLink});
+      }, {title: strings.referenceLink, priority: 10});
     }
     return {openLink, clicked, lastClicked, content, link, ...common};
   },
