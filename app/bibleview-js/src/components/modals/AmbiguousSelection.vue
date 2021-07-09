@@ -116,17 +116,15 @@ export default {
     }
 
     async function handle(event) {
-      const eventFunctions = getEventFunctions(event);
-      verseInfo.value = getEventVerseInfo(event);
-
+      console.log("AmbiguousSelection handling", event);
       const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
+      const eventFunctions = getEventFunctions(event);
       const hasParticularClicks = eventFunctions.filter(f => !f.options.backClick).length > 0; // not only "back" clicks
-
       if(!isActive && !hasParticularClicks) return;
-
+      const _verseInfo = getEventVerseInfo(event);
       resetHighlights();
 
-      if(eventFunctions.length > 0 || verseInfo.value != null) {
+      if(eventFunctions.length > 0 || _verseInfo != null) {
         if(eventFunctions.length === 1 && eventFunctions[0].options.priority > 0) {
           if (eventFunctions[0].options.bookmarkId) {
             emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId);
@@ -138,6 +136,7 @@ export default {
           if (modalOpen.value && !hasParticularClicks) {
             closeModals();
           } else {
+            verseInfo.value = _verseInfo;
             const s = await select(eventFunctions);
             if (s && s.callback) s.callback();
           }
