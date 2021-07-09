@@ -240,6 +240,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+@import "~@/common.scss";
 
 $ring-size: 35px;
 $ring-thickness: $ring-size/12;
@@ -250,7 +251,8 @@ $ring-thickness: $ring-size/12;
   top: calc(50% - #{$ring-size}/2);
 }
 
-$ring-blue: rgb(129, 164, 255, 1.0);
+$ring-color: $button-grey;
+
 .lds-ring {
   display: inline-block;
   position: relative;
@@ -263,10 +265,10 @@ $ring-blue: rgb(129, 164, 255, 1.0);
     width: $ring-size;
     height: $ring-size;
     margin: 8px;
-    border: $ring-thickness solid $ring-blue;
+    border: $ring-thickness solid $ring-color;
     border-radius: 50%;
     animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: $ring-blue transparent transparent transparent;
+    border-color: $ring-color transparent transparent transparent;
     &:nth-child(1) {
       animation-delay: -0.45s;
     }
