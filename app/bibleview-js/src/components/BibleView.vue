@@ -417,9 +417,4 @@ a {
   text-decoration: none;
   display: inline-block;
 }
-.strongs {
-  font-size: 0.6em;
-  text-decoration: none;
-  color: coral;
-}
 </style>
