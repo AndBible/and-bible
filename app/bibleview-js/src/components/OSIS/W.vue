@@ -97,4 +97,9 @@ export default {
   .link-style {
     text-decoration: underline dotted;
   }
+.strongs {
+  font-size: 0.6em;
+  text-decoration: none;
+  color: coral;
+}
 </style>
