@@ -31,7 +31,7 @@ export default {
     const {openExternalLink} = inject("android");
     const {strings, ...common} = useCommon()
     function openLink(event, url) {
-      addEventFunction(event, () => openExternalLink(url), {title: strings.externalLink});
+      addEventFunction(event, () => openExternalLink(url), {title: strings.externalLink, priority: 10});
     }
     return {openLink, ...common};
   },
