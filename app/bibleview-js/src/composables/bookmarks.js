@@ -38,6 +38,8 @@ import {DocumentTypes} from "@/constants";
 const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
 const bookmarkIcon = icon(faBookmark);
+const visibleBookmarkPriority = 5;
+const hiddenBookmarkPriority = 5;
 
 const allStyleRangeArrays = reactive(new Set());
 const allStyleRanges = computed(() => {
@@ -427,7 +429,7 @@ export function useBookmarks(documentId,
 
         function addBookmarkEventFunctions(event) {
             for (const b of bookmarks) {
-                addEventFunction(event, null, {bookmarkId: b.id});
+                addEventFunction(event, null, {bookmarkId: b.id, priority: visibleBookmarkPriority});
             }
         }
 
@@ -478,7 +480,7 @@ export function useBookmarks(documentId,
                     const iconElement = getIconElement(speakIcon, color);
 
                     iconElement.addEventListener("click", event => addEventFunction(event,
-                        null, {bookmarkId: b.id}));
+                        null, {bookmarkId: b.id, priority: visibleBookmarkPriority}));
                     firstElement.parentElement.insertBefore(iconElement, firstElement);
                     undoHighlights.push(() => iconElement.remove());
                 }
@@ -491,7 +493,7 @@ export function useBookmarks(documentId,
                 const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    null, {bookmarkId: b.id}));
+                    null, {bookmarkId: b.id, priority: visibleBookmarkPriority}));
                 lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
                 undoHighlights.push(() => iconElement.remove());
             }
@@ -504,7 +506,7 @@ export function useBookmarks(documentId,
             for(let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ordinal}`);
                 const func = event => {
-                    addEventFunction(event, null, {bookmarkId: b.id, backClick: true})
+                    addEventFunction(event, null, {bookmarkId: b.id, backClick: true, priority: hiddenBookmarkPriority})
                 };
                 elem.addEventListener("click", func)
                 undoMarkers.push(() => elem.removeEventListener("click", func));
@@ -523,7 +525,7 @@ export function useBookmarks(documentId,
             const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
             iconElement.addEventListener("click", event => {
                 for(const b of bookmarkList) {
-                    addEventFunction(event, null, {bookmarkId: b.id});
+                    addEventFunction(event, null, {bookmarkId: b.id, priority: visibleBookmarkPriority});
                 }
             });
             if(bookmarkList.length>1) {
