@@ -311,11 +311,20 @@ export function addEventFunction(event, callback, options) {
     array.push({callback, options});
 }
 
-export function getEventFunctions(event) {
+export function getHighestPriorityEventFunctions(event) {
     if(!event.eventFunctions) return [];
     const priorities = Object.keys(event.eventFunctions);
     priorities.sort();
     return event.eventFunctions[priorities[priorities.length -1]];
+}
+
+export function getAllEventFunctions(event) {
+    if(!event.eventFunctions) return [];
+    const all = [];
+    for(const [, items] of Object.entries(event.eventFunctions)) {
+        all.push(...items);
+    }
+    return all;
 }
 
 export function draggableElement(element, dragHandle) {

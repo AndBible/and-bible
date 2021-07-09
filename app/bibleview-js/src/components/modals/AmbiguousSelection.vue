@@ -62,7 +62,7 @@ import Modal from "@/components/modals/Modal";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {inject, ref} from "@vue/runtime-core";
-import {Deferred, getEventFunctions, getEventVerseInfo} from "@/utils";
+import {Deferred, getHighestPriorityEventFunctions, getEventVerseInfo, getAllEventFunctions} from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton";
 import {emit, Events} from "@/eventbus";
 import {computed} from "@vue/reactivity";
@@ -118,7 +118,7 @@ export default {
     async function handle(event) {
       console.log("AmbiguousSelection handling", event);
       const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
-      const eventFunctions = getEventFunctions(event);
+      const eventFunctions = getHighestPriorityEventFunctions(event);
       const hasParticularClicks = eventFunctions.filter(f => !f.options.backClick).length > 0; // not only "back" clicks
       if(!isActive && !hasParticularClicks) return;
       const _verseInfo = getEventVerseInfo(event);
@@ -137,7 +137,7 @@ export default {
             closeModals();
           } else {
             verseInfo.value = _verseInfo;
-            const s = await select(eventFunctions);
+            const s = await select(getAllEventFunctions(event));
             if (s && s.callback) s.callback();
           }
         }
