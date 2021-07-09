@@ -7,6 +7,12 @@ on:
         description: "Build tag to be created"
         required: true
         default: "beta-"
+  push:
+    tags:
+      - 'build-*'
+      - 'alpha-*'
+      - 'beta-*'
+      - 'production-*'
 
 jobs:
   build:
@@ -17,6 +23,7 @@ jobs:
       with:
         fetch-depth: 10 # so that recent tags can be found
     - run: git tag ${{github.event.inputs.tag}}
+      if: github.event.action == 'workflow_dispatch'
     - name: Set up JDK
       uses: actions/setup-java@v1
       with:
@@ -79,6 +86,7 @@ jobs:
         rm -f keystore.jks
 
     - run: git push origin ${{github.event.inputs.tag}}
+      if: github.event.action == 'workflow_dispatch'
 
     - name: Create release
       if: contains(github.ref, 'refs/tags/')
