@@ -199,11 +199,11 @@ open class Preference(val settings: SettingsBundle,
 
     override val icon: Int?
         get() = when(type) {
-            TextDisplaySettings.Types.VERSENUMBERS -> R.drawable.ic_baseline_favorite_24
             TextDisplaySettings.Types.STRONGS -> if(mainBibleActivity.documentControl.isNewTestament) R.drawable.ic_strongs_greek else R.drawable.ic_strongs_hebrew
             TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.drawable.ic_baseline_bookmark_24
             TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.drawable.ic_baseline_bookmark_24
             else -> R.drawable.ic_baseline_star_24
+            //TextDisplaySettings.Types.VERSENUMBERS -> R.drawable.ic_baseline_favorite_24
             //TextDisplaySettings.Types.MORPH -> R.string.prefs_show_morphology_title
             //TextDisplaySettings.Types.FOOTNOTES -> R.string.prefs_show_notes_title
             //TextDisplaySettings.Types.REDLETTERS -> R.string.prefs_red_letter_title
