@@ -20,14 +20,13 @@ import {
     inject,
     nextTick,
     onBeforeMount,
-    onMounted,
     onUnmounted,
     reactive,
     ref,
     watch
 } from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
-import {adjustedColor, Deferred, setupWindowEventListener, sleep} from "@/utils";
+import {adjustedColor, Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {isEqual, throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
