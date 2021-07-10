@@ -191,9 +191,8 @@ class AddNewWindowButtonWidget(
             windowButton.setTextColor(getResourceColor(R.color.window_button_text_colour))
             windowButtonIcon.visibility = View.VISIBLE
             windowButtonIcon.setImageDrawable(
-                CommonUtils.getTintedDrawable(R.drawable.ic_window_add_outline_black_24dp)
+                CommonUtils.getTintedDrawable(R.drawable.ic_window_add_outline_black_24dp, R.color.window_button_text_colour)
             )
-            windowButtonIcon.setColorFilter(R.color.window_button_text_colour)
             buttonText.text = ""
             synchronize.visibility = View.GONE
             docType.visibility = View.GONE
