@@ -504,7 +504,7 @@ export function useBookmarks(documentId,
             for(let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ordinal}`);
                 const func = event => {
-                    addEventFunction(event, null, {bookmarkId: b.id, backClick: true, priority: EventPriorities.HIDDEN_BOOKMARK})
+                    addEventFunction(event, null, {bookmarkId: b.id, hidden: true, priority: EventPriorities.HIDDEN_BOOKMARK})
                 };
                 elem.addEventListener("click", func)
                 undoMarkers.push(() => elem.removeEventListener("click", func));

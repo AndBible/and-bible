@@ -119,7 +119,7 @@ export default {
       console.log("AmbiguousSelection handling", event);
       const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
       const eventFunctions = getHighestPriorityEventFunctions(event);
-      const hasParticularClicks = eventFunctions.filter(f => !f.options.backClick).length > 0; // not only "back" clicks
+      const hasParticularClicks = eventFunctions.filter(f => !f.options.hidden).length > 0; // let's not show only "hidden" items
       if(appSettings.actionMode) return;
       if(!isActive && !hasParticularClicks) return;
       const _verseInfo = getEventVerseInfo(event);
