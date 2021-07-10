@@ -23,7 +23,11 @@
     <div v-if="bookmark.hasNote">
       {{ abbreviated(htmlToString(bookmark.notes), 30)}}
     </div>
-    <LabelList in-bookmark :bookmark-id="bookmarkId"/>
+
+    <div style="overflow-x: auto">
+      <LabelList in-bookmark single-line :bookmark-id="bookmark.id"/>
+    </div>
+
     <div style="height: 7px"/>
     <BookmarkButtons
       :bookmark="bookmark"
