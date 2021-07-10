@@ -20,7 +20,7 @@ import {sortBy, uniqWith} from "lodash";
 import {
     addEventFunction,
     arrayEq,
-    colorLightness,
+    colorLightness, EventPriorities,
     findNodeAtOffsetWithNullOffset,
     intersection,
     mixColors,
@@ -38,8 +38,6 @@ import {DocumentTypes} from "@/constants";
 const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
 const bookmarkIcon = icon(faBookmark);
-const visibleBookmarkPriority = 5;
-const hiddenBookmarkPriority = 0;
 
 const allStyleRangeArrays = reactive(new Set());
 const allStyleRanges = computed(() => {
@@ -429,7 +427,7 @@ export function useBookmarks(documentId,
 
         function addBookmarkEventFunctions(event) {
             for (const b of bookmarks) {
-                addEventFunction(event, null, {bookmarkId: b.id, priority: visibleBookmarkPriority});
+                addEventFunction(event, null, {bookmarkId: b.id, priority: EventPriorities.VISIBLE_BOOKMARK});
             }
         }
 
@@ -480,7 +478,7 @@ export function useBookmarks(documentId,
                     const iconElement = getIconElement(speakIcon, color);
 
                     iconElement.addEventListener("click", event => addEventFunction(event,
-                        null, {bookmarkId: b.id, priority: visibleBookmarkPriority}));
+                        null, {bookmarkId: b.id, priority: EventPriorities.VISIBLE_BOOKMARK}));
                     firstElement.parentElement.insertBefore(iconElement, firstElement);
                     undoHighlights.push(() => iconElement.remove());
                 }
@@ -493,7 +491,7 @@ export function useBookmarks(documentId,
                 const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    null, {bookmarkId: b.id, priority: visibleBookmarkPriority}));
+                    null, {bookmarkId: b.id, priority: EventPriorities.VISIBLE_BOOKMARK}));
                 lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
                 undoHighlights.push(() => iconElement.remove());
             }
@@ -506,7 +504,7 @@ export function useBookmarks(documentId,
             for(let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ordinal}`);
                 const func = event => {
-                    addEventFunction(event, null, {bookmarkId: b.id, backClick: true, priority: hiddenBookmarkPriority})
+                    addEventFunction(event, null, {bookmarkId: b.id, backClick: true, priority: EventPriorities.HIDDEN_BOOKMARK})
                 };
                 elem.addEventListener("click", func)
                 undoMarkers.push(() => elem.removeEventListener("click", func));
@@ -525,7 +523,7 @@ export function useBookmarks(documentId,
             const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
             iconElement.addEventListener("click", event => {
                 for(const b of bookmarkList) {
-                    addEventFunction(event, null, {bookmarkId: b.id, priority: visibleBookmarkPriority});
+                    addEventFunction(event, null, {bookmarkId: b.id, priority: EventPriorities.VISIBLE_BOOKMARK});
                 }
             });
             if(bookmarkList.length>1) {

@@ -44,7 +44,7 @@ import {checkUnsupportedProps, useCommon, useReferenceCollector} from "@/composa
 import Modal from "@/components/modals/Modal";
 import {get} from "lodash";
 import {ref, provide, inject} from "@vue/runtime-core";
-import {addEventFunction} from "@/utils";
+import {addEventFunction, EventPriorities} from "@/utils";
 import OpenAllLink from "@/components/OpenAllLink";
 
 let count = 0;
@@ -93,7 +93,7 @@ export default {
                            showNote.value = true;
                          }
                        },
-                       {title: strings.openFootnote, priority: 10});
+                       {title: strings.openFootnote, priority: EventPriorities.FOOTNOTE});
     }
     const typeStrings = {
       explanation: strings.footnoteTypeExplanation,

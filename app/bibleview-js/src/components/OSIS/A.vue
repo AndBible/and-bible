@@ -22,7 +22,7 @@
 <script>
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
-import {addEventFunction} from "@/utils";
+import {addEventFunction, EventPriorities} from "@/utils";
 
 export default {
   name: "A",
@@ -31,7 +31,7 @@ export default {
     const {openExternalLink} = inject("android");
     const {strings, ...common} = useCommon()
     function openLink(event, url) {
-      addEventFunction(event, () => openExternalLink(url), {title: strings.externalLink, priority: 10});
+      addEventFunction(event, () => openExternalLink(url), {title: strings.externalLink, priority: EventPriorities.EXTERNAL_LINK});
     }
     return {openLink, ...common};
   },

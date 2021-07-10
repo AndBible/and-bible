@@ -299,6 +299,18 @@ export function getEventVerseInfo(event) {
     return event.verseInfo || null;
 }
 
+export const EventPriorities = {
+    HIDDEN_BOOKMARK: 0,
+    VISIBLE_BOOKMARK: 5,
+    FOOTNOTE: 15,
+    STRONGS_DOTTED: 5,
+
+    // "link-style"
+    EXTERNAL_LINK: 10,
+    REFERENCE: 10,
+    STRONGS_LINK: 10,
+}
+
 export function addEventFunction(event, callback, options) {
     if(!event.eventFunctions)
         event.eventFunctions = {};

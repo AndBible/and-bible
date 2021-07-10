@@ -36,7 +36,7 @@
 
 <script>
 import {checkUnsupportedProps, strongsModes, useCommon} from "@/composables";
-import {addEventFunction} from "@/utils";
+import {addEventFunction, EventPriorities} from "@/utils";
 import {computed} from "@vue/reactivity";
 
 export default {
@@ -83,7 +83,7 @@ export default {
       return "ab-w://?" + linkBodies.join("&")
     }
     function goToLink(event, url) {
-      const priority = showStrongsSeparately.value ? 10: 0;
+      const priority = showStrongsSeparately.value ? EventPriorities.STRONGS_LINK: EventPriorities.STRONGS_DOTTED;
       addEventFunction(event, () => window.location.assign(url), {priority, title: strings.strongsAndMorph});
     }
     const showStrongs = computed(() => config.strongsMode !== strongsModes.off);

@@ -21,7 +21,7 @@
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {addEventFunction, sleep} from "@/utils";
+import {addEventFunction, EventPriorities, sleep} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
 import {fadeReferenceDelay} from "@/constants";
@@ -78,7 +78,7 @@ export default {
         cancelFunc = () => lastClicked.value = false;
         registerEndHighlight(cancelFunc);
         sleep(fadeReferenceDelay).then(() => cancelFunc());
-      }, {title: strings.referenceLink, priority: 10});
+      }, {title: strings.referenceLink, priority: EventPriorities.REFERENCE});
     }
     return {openLink, clicked, lastClicked, content, link, ...common};
   },
