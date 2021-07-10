@@ -32,6 +32,7 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.download.imageResource
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceColor
 
 @SuppressLint("ViewConstructor")
@@ -188,7 +189,11 @@ class AddNewWindowButtonWidget(
     init {
         binding.apply {
             windowButton.setTextColor(getResourceColor(R.color.window_button_text_colour))
-            windowButton.text = "⊕"
+            windowButtonIcon.visibility = View.VISIBLE
+            windowButtonIcon.setImageDrawable(
+                CommonUtils.getTintedDrawable(R.drawable.ic_window_add_outline_black_24dp)
+            )
+            windowButtonIcon.setColorFilter(R.color.window_button_text_colour)
             buttonText.text = ""
             synchronize.visibility = View.GONE
             docType.visibility = View.GONE
