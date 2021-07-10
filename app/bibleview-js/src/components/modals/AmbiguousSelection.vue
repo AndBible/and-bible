@@ -83,7 +83,7 @@ export default {
   setup() {
     const appSettings = inject("appSettings");
     const {bookmarkMap} = inject("globalBookmarks");
-    const {resetHighlights, hasHighlights} = inject("verseHighlight");
+    const {resetHighlights, highlightVerse, hasHighlights} = inject("verseHighlight");
     const {modalOpen, closeModals} = inject("modal");
 
     const showModal = ref(false);
@@ -131,7 +131,7 @@ export default {
       const eventFunctions = getHighestPriorityEventFunctions(event);
       const hasParticularClicks = eventFunctions.filter(f => !f.options.hidden).length > 0; // let's not show only "hidden" items
       if(appSettings.actionMode) return;
-      if(hasHighlights.value) {
+      if(hasHighlights.value && !showModal.value) {
         resetHighlights();
         return;
       }
@@ -152,8 +152,10 @@ export default {
             closeModals();
           } else {
             verseInfo.value = _verseInfo;
+            highlightVerse(_verseInfo.ordinal);
             const s = await select(getAllEventFunctions(event));
             if (s && s.callback) s.callback();
+            resetHighlights();
           }
         }
       }
