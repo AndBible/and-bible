@@ -67,7 +67,7 @@ export default {
       referenceCollector.collect(osisRef);
     }
 
-    const {registerEndHighlight} = inject("verseMap");
+    const {registerEndHighlight} = inject("verseHighlight");
 
     function openLink(event, url) {
       addEventFunction(event, () => {

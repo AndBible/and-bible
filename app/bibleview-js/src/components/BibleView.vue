@@ -51,7 +51,7 @@ import {
   useCustomCss,
   useCustomFeatures,
   useFontAwesome, useModal,
-  useVerseMap,
+  useVerseHighlight,
   useVerseNotifier
 } from "@/composables";
 import {testBookmarkLabels, testData} from "@/testdata";
@@ -87,9 +87,9 @@ export default {
     window.bibleViewDebug.documents = documents;
     const topElement = ref(null);
     const documentPromise = ref(null);
-    const verseMap = useVerseMap();
-    provide("verseMap", verseMap);
-    const scroll = useScroll(config, appSettings, calculatedConfig, verseMap, documentPromise);
+    const verseHighlight = useVerseHighlight();
+    provide("verseHighlight", verseHighlight);
+    const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
     const {scrollToId} = scroll;
     provide("scroll", scroll);
     const globalBookmarks = useGlobalBookmarks(config, documentType);

@@ -444,7 +444,7 @@ export function useReferenceCollector() {
     return {references, collect, clear}
 }
 
-export function useVerseMap() {
+export function useVerseHighlight() {
     const verses = new Map();
     function register(ordinal, obj) {
         let array = verses.get(ordinal);

@@ -55,13 +55,13 @@ export default {
       provide("verseInfo", verseInfo);
     }
 
-    const verseMap = inject("verseMap");
+    const {register, registerEndHighlight} = inject("verseHighlight");
 
     const ordinal = computed(() => {
       return parseInt(props.verseOrdinal);
     });
 
-    verseMap.register(ordinal.value, {highlight});
+    register(ordinal.value, {highlight});
 
     const book = computed(() => {
       return props.osisID.split(".")[0]
@@ -101,7 +101,7 @@ export default {
       endHighlight();
       highlighted.value = true;
       setupEndHighlight();
-      verseMap.registerEndHighlight(endHighlight);
+      registerEndHighlight(endHighlight);
     }
 
     if(originalOrdinalRange && ordinal.value <= originalOrdinalRange[1] && ordinal.value >= originalOrdinalRange[0]) {

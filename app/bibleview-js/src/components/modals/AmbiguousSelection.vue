@@ -83,7 +83,7 @@ export default {
   setup() {
     const appSettings = inject("appSettings");
     const {bookmarkMap} = inject("globalBookmarks");
-    const {resetHighlights} = inject("verseMap");
+    const {resetHighlights} = inject("verseHighlight");
     const {modalOpen, closeModals} = inject("modal");
 
     const showModal = ref(false);
