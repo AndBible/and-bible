@@ -1,0 +1,23 @@
+<!--
+  ~ Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<vector android:height="24dp"
+    android:viewportHeight="500" android:viewportWidth="500"
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="@android:color/darker_gray" android:pathData="M448 0H21.3C9.6 0 0 9.6 0 21.3V448c0 11.8 9.6 21.3 21.3 21.3H448c11.8 0 21.3-9.6 21.3-21.3V21.3C469.3 9.6 459.8 0 448 0zM138.7 426.7h-96v-384h96V426.7zM288 426.7H181.3v-384H288V426.7zM426.7 426.7h-96v-384h96V426.7z"/>
+</vector>

@@ -41,7 +41,7 @@
                 android:icon="@drawable/ic_baseline_studypads_24"/>
             <item android:id="@+id/dailyReadingPlanButton"
                 android:title="@string/rdg_plan_title"
-                android:icon="@drawable/ic_format_list_numbered_white_24dp"/>
+                android:icon="@drawable/ic_reading_plan_24dp"/>
             <item 	android:id="@+id/historyButton"
                 android:title="@string/history"
                 android:icon="@drawable/ic_history_white_24dp"/>
