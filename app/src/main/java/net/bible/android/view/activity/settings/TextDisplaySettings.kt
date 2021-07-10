@@ -153,6 +153,10 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         }
         p.isEnabled = itmOptions.enabled
         p.isVisible = itmOptions.visible
+
+        if(itmOptions is StrongsPreference) {
+            updateItem(findPreference(Types.MORPH.name)!!)
+        }
     }
 
     private fun getPreferenceList(p_: Preference? = null, list_: ArrayList<Preference>? = null): ArrayList<Preference> {
