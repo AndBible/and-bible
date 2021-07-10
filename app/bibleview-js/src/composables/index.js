@@ -185,6 +185,7 @@ export function useConfig(documentType) {
         hideCompareDocuments: [],
         rightToLeft: rtl,
         activeWindow: false,
+        actionMode: false,
         hasActiveIndicator: false,
         activeSince: 0,
     });
@@ -213,6 +214,10 @@ export function useConfig(documentType) {
 
     window.bibleViewDebug.config = config;
     window.bibleViewDebug.appSettings = appSettings;
+
+    setupEventBusListener(Events.SET_ACTION_MODE, value => {
+        appSettings.actionMode = value;
+    });
 
     setupEventBusListener(Events.SET_ACTIVE, ({hasActiveIndicator, isActive}) => {
         appSettings.activeWindow = isActive;

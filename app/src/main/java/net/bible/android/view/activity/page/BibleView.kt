@@ -478,6 +478,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @RequiresApi(Build.VERSION_CODES.M)
     private inner class ActionModeCallback2(val callback: ActionMode.Callback): ActionMode.Callback2() {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            executeJavascriptOnUiThread("bibleView.emit('set_action_mode', true);")
             val wasUpdated2 = callback.onCreateActionMode(mode, menu)
             val wasUpdated1 = false
             return wasUpdated1 || wasUpdated2
@@ -497,6 +498,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onDestroyActionMode(mode: ActionMode) {
+            executeJavascriptOnUiThread("bibleView.emit('set_action_mode', false);")
             return callback.onDestroyActionMode(mode)
         }
 
@@ -524,6 +526,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     // This can be removed after Lollipop support is dropped.
     private inner class ActionModeCallback(val callback: ActionMode.Callback): ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            executeJavascriptOnUiThread("bibleView.emit('set_action_mode', true);")
             callback.onCreateActionMode(mode, menu)
             return true
         }
@@ -539,6 +542,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onDestroyActionMode(mode: ActionMode?) {
+            executeJavascriptOnUiThread("bibleView.emit('set_action_mode', false);")
             return callback.onDestroyActionMode(mode)
         }
     }

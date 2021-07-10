@@ -120,6 +120,7 @@ export default {
       const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
       const eventFunctions = getHighestPriorityEventFunctions(event);
       const hasParticularClicks = eventFunctions.filter(f => !f.options.backClick).length > 0; // not only "back" clicks
+      if(appSettings.actionMode) return;
       if(!isActive && !hasParticularClicks) return;
       const _verseInfo = getEventVerseInfo(event);
       resetHighlights();
