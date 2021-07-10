@@ -15,7 +15,6 @@
   ~ If not, see http://www.gnu.org/licenses/.
   ~
 
-  File was used for New Window menu option.
   -->
 
 <vector android:height="24dp" android:tint="@color/black"

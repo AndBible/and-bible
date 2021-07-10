@@ -1,0 +1,23 @@
+<!--
+  ~ Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<vector android:height="24dp"
+    android:viewportHeight="100" android:viewportWidth="100"
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="@android:color/darker_gray" android:pathData="m24.9 0v0C24.8 0 24.5 0.1 24.2 0.1 17.6 0.2 10.9 0 4.3 0.3h-0.1l-0.1 0C0.7 1-0.3 4.6 0.1 7.3V7.2C0.2 13.7 0 20 0.2 26.4v0.2h0C1.5 33.3 12.1 30.7 10.5 24.2v0.2-6.6c8 8 16.1 16.2 24.2 24v0.1h0.1c5.8 4.1 11.4-5.2 5.6-8.7l0.1 0.1C33 25.7 25.5 18.1 17.8 10.5c3.2 0 6.4 0.2 9.6-0.3h0.1l0.1-0.1C33.2 7.8 30.5-0.4 24.9 0ZM94 0.1c0 0 0 0 0 0 0 0 0 0 0 0zm0 0c-0.5 0-0.6 0-1 0.1-6.7 0.1-13.3-0.1-19.4 0.1H73L72.9 0.2C66.8 1.5 69.7 12.1 75.8 10.5H75.6 82c-7.8 8-15.5 16.1-23.7 24.2h-0.1v0.1c-3.7 5.1 3.6 11 7.8 6.4H65.9L89.6 17.8c-0.1 3.2-0.3 6.4 0.6 9.7v0 0.1c2.4 5.9 10.8 2.6 9.6-3.5l0.1 0.1c0-6.6 0-13.3-0.5-19.9C99.4 1.2 96.3 0 94 0.1ZM37.6 57c-1.2 0-2.7 0.7-3.5 1.9l0.1-0.1C26.3 66.5 18.4 74.2 10.5 82c0-3 0.2-6.1-0.3-9.5V72.4L10.1 72.3C7.6 66.9-1.4 70.3 0.2 75.8L0.1 75.6C0.2 82.3 0 89.4 0.3 96v0.1l0 0.1C1 99.3 4.7 99.9 7.2 99.9H26.4 27.3V99.1C33 97.8 30.5 88 24.2 89.7l0.2-0.1h-6.6c8-8.2 16.2-16.4 24-24.2h0.1v0C44.6 61.9 41.3 57 37.6 57Zm24.8 0h-0.1c-4.8 0.6-7.1 7.2-2.4 10L59.8 66.9 82 89.6c-3.1-0.1-6.2-0.3-9.6 0.6h-0.1v0c-5.4 2.5-2.1 10.8 3.4 9.6l-0.1 0.1c6.7 0 13.8 0 20.4-0.5 1 0 2.6 0 3.3-1.5v0 0c0.7-2.8 0.1-6.5 0.5-8.9h0.1V73.6 72.3H99.1C97.7 67.2 87.9 69.9 89.7 75.8L89.6 75.6V82C81.4 74.3 73.2 66.5 65.4 58.3v0 0C64.2 57 62.9 57 62.4 57Z"/>
+</vector>
