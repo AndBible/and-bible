@@ -62,7 +62,13 @@ import Modal from "@/components/modals/Modal";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {inject, ref} from "@vue/runtime-core";
-import {Deferred, getHighestPriorityEventFunctions, getEventVerseInfo, getAllEventFunctions} from "@/utils";
+import {
+  Deferred,
+  getHighestPriorityEventFunctions,
+  getEventVerseInfo,
+  getAllEventFunctions,
+  createDoubleClickDetector
+} from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton";
 import {emit, Events} from "@/eventbus";
 import {computed} from "@vue/reactivity";
@@ -86,9 +92,9 @@ export default {
     const bibleBookName = computed(() => verseInfo.value && verseInfo.value.bibleBookName);
 
     const selections = computed(() => {
-      if(originalSelections.value === null) return null;
+      if (originalSelections.value === null) return null;
       return originalSelections.value.filter(v => {
-        if(v.options.bookmarkId) {
+        if (v.options.bookmarkId) {
           return bookmarkMap.has(v.options.bookmarkId);
         }
         return true;
@@ -109,13 +115,17 @@ export default {
     }
 
     function cancelled() {
-      if(deferred) {
+      if (deferred) {
         deferred.resolve(null);
       }
       showModal.value = false;
     }
 
+    const {isDoubleClick} = createDoubleClickDetector();
+
     async function handle(event) {
+      if(await isDoubleClick()) return;
+
       console.log("AmbiguousSelection handling", event);
       const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
       const eventFunctions = getHighestPriorityEventFunctions(event);
