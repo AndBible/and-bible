@@ -161,6 +161,7 @@ export default {
         }
       } else {
         $emit("back-clicked");
+        closeModals();
       }
     }
 
