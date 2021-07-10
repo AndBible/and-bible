@@ -19,7 +19,7 @@ import {nextTick} from "@vue/runtime-core";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 
-export function useScroll(config, appSettings, calculatedConfig, {getVerses, resetHighlights}, documentPromise) {
+export function useScroll(config, appSettings, calculatedConfig, {highlightVerse, resetHighlights}, documentPromise) {
     let currentScrollAnimation = ref(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
@@ -98,7 +98,7 @@ export function useScroll(config, appSettings, calculatedConfig, {getVerses, res
                 ordinalEnd = ordinalStart;
             }
             for(let ordinal = ordinalStart; ordinal <= ordinalEnd; ordinal ++) {
-                getVerses(ordinal).forEach(o => o.highlight())
+                highlightVerse(ordinal);
             }
         }
         let toElement = document.getElementById(toId)

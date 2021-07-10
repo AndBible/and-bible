@@ -21,10 +21,10 @@
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {addEventFunction, EventPriorities, sleep} from "@/utils";
+import {addEventFunction, EventPriorities} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
-import {fadeReferenceDelay} from "@/constants";
+import {eventBus, Events} from "@/eventbus";
 
 let cancelFunc = () => {};
 
@@ -67,17 +67,17 @@ export default {
       referenceCollector.collect(osisRef);
     }
 
-    const {registerEndHighlight} = inject("verseHighlight");
-
     function openLink(event, url) {
       addEventFunction(event, () => {
         window.location.assign(url)
         cancelFunc();
         clicked.value = true;
         lastClicked.value = true;
-        cancelFunc = () => lastClicked.value = false;
-        registerEndHighlight(cancelFunc);
-        sleep(fadeReferenceDelay).then(() => cancelFunc());
+        cancelFunc = () => {
+          lastClicked.value = false;
+          eventBus.off(Events.WINDOW_CLICKED, cancelFunc);
+        }
+        eventBus.on(Events.WINDOW_CLICKED, cancelFunc);
       }, {title: strings.referenceLink, priority: EventPriorities.REFERENCE});
     }
     return {openLink, clicked, lastClicked, content, link, ...common};

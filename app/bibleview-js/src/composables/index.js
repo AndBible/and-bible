@@ -445,32 +445,19 @@ export function useReferenceCollector() {
 }
 
 export function useVerseHighlight() {
-    const verses = new Map();
-    function register(ordinal, obj) {
-        let array = verses.get(ordinal);
-        if(array === undefined) {
-            array = [];
-            verses.set(ordinal, array);
-        }
-        array.push(obj);
-    }
-    function getVerses(ordinal) {
-        return verses.get(ordinal) || []
-    }
+    const highlightedVerses = reactive(new Set());
 
-    const highlights = reactive([]);
-    const hasHighlights = computed(() => highlights.length > 0);
-
-    function registerEndHighlight(fn) {
-        highlights.push(fn);
-    }
+    const hasHighlights = computed(() => highlightedVerses.size > 0);
 
     function resetHighlights() {
-        highlights.forEach(f => f())
-        highlights.splice(0);
+        highlightedVerses.clear();
     }
 
-    return {register, getVerses, registerEndHighlight, resetHighlights, hasHighlights}
+    function highlightVerse(ordinal) {
+        highlightedVerses.add(ordinal);
+    }
+
+    return {highlightVerse, highlightedVerses, resetHighlights, hasHighlights}
 }
 
 
