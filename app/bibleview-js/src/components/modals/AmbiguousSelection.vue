@@ -67,7 +67,7 @@ import {
   getHighestPriorityEventFunctions,
   getEventVerseInfo,
   getAllEventFunctions,
-  createDoubleClickDetector
+  //createDoubleClickDetector
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton";
 import {emit, Events} from "@/eventbus";
@@ -122,10 +122,10 @@ export default {
       showModal.value = false;
     }
 
-    const {isDoubleClick} = createDoubleClickDetector();
+    //const {isDoubleClick} = createDoubleClickDetector();
 
     async function handle(event) {
-      if(await isDoubleClick()) return;
+      //if(await isDoubleClick()) return;
 
       console.log("AmbiguousSelection handling", event);
       const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
