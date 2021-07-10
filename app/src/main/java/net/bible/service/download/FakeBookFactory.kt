@@ -125,6 +125,7 @@ Versification=KJVA"""
 Description=${application.getString(R.string.my_notes_description)}
 Abbreviation=${application.getString(R.string.my_notes_abbreviation)}
 Category=Commentaries
+Feature=StrongsNumbers
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
 Versification=KJVA"""

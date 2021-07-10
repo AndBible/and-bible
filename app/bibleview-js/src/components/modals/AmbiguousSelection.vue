@@ -79,8 +79,9 @@ export default {
   props: {
     blocking: {type: Boolean, default: false}
   },
+  emits: ["back-clicked"],
   components: {Modal, FontAwesomeIcon, AmbiguousSelectionBookmarkButton, AmbiguousActionButtons},
-  setup() {
+  setup(props, {emit: $emit}) {
     const appSettings = inject("appSettings");
     const {bookmarkMap} = inject("globalBookmarks");
     const {resetHighlights, highlightVerse, hasHighlights} = inject("verseHighlight");
@@ -158,6 +159,8 @@ export default {
             resetHighlights();
           }
         }
+      } else {
+        $emit("back-clicked");
       }
     }
 

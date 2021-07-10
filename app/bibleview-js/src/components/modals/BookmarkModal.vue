@@ -229,9 +229,9 @@ font-size: 85%;
 }
 .overlay {
   position: absolute;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0), $modal-header-background-color);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), $modal-header-background-color 75%, $modal-header-background-color 100%);
   .night & {
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0), $night-modal-header-background-color);
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0), $night-modal-header-background-color 75%, $night-modal-header-background-color 100%);
   }
   [dir=ltr] & {
     right: 80px;
@@ -240,11 +240,7 @@ font-size: 85%;
     left: 80px;
   }
   top: 0;
-  width: 30px;
+  width: 20px;
   height: 2em;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #c1c1c1
 }
 </style>
