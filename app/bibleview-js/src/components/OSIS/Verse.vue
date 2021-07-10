@@ -113,9 +113,9 @@ export default {
 }
 
 .isHighlighted {
-  background-color: rgba(255, 230, 0, 0.4);
+  background-color: rgba(187, 187, 187, 0.4);
   .night & {
-    background-color: rgba(255, 230, 0, 0.6);
+    background-color: rgba(255, 255, 255, 0.6);
   }
 }
 </style>
