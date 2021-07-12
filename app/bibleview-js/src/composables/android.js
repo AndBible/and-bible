@@ -255,6 +255,10 @@ export function useAndroid({bookmarks}, config) {
         android.openMyNotes(bookInitials, ordinal);
     }
 
+    function speak(bookInitials, ordinal) {
+        android.speak(bookInitials, ordinal);
+    }
+
     function openDownloads() {
         android.openDownloads();
     }
@@ -333,6 +337,7 @@ export function useAndroid({bookmarks}, config) {
         shareVerse,
         addBookmark,
         compare,
+        speak,
     }
 
     if(config.developmentMode) return {

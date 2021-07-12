@@ -41,6 +41,9 @@ import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 
 
@@ -236,6 +239,15 @@ class BibleJavascriptInterface(
     fun openMyNotes(bookInitials: String?, ordinal: Int) {
         GlobalScope.launch(Dispatchers.Main) {
             bibleView.linkControl.openMyNotes(bookInitials, ordinal)
+        }
+    }
+
+    @JavascriptInterface
+    fun speak(bookInitials: String?, ordinal: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            val book = Books.installed().getBook(bookInitials) as SwordBook
+            val verse = Verse(book.versification, ordinal)
+            mainBibleActivity.speakControl.speakBible(book, verse)
         }
     }
 
