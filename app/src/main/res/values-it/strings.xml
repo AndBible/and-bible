@@ -169,7 +169,7 @@
   <string name="prefs_font_text_size_summary">Cambia la dimensione del carattere principale</string>
   <string name="pref_font_family_label_name">Famiglia di carattere (%s)</string>
   <string name="prefs_font_family_summary">Cambia la famiglia del carattere. Suggerimento: altri caratteri possono essere installati da Download Documenti / Componenti aggiuntivi</string>
-  <string name="prefs_text_bookmarks_title">Impostazioni di Segnalibri &amp; Le mie note</string>
+  <string name="prefs_text_bookmarks_title">Impostazioni di Segnalibri e Annotazioni</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Impostazioni colore</string>
   <string name="window_color_settings_title">Impostazioni del colore della finestra</string>
@@ -306,8 +306,8 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="open_link_in_new_window">Apri il link in una nuova finestra</string>
   <string name="open_link_in_special_window">Apri il link in una finestra speciale</string>
   <!--Bookmarks-->
-  <string name="bookmarks_and_mynotes_title">Segnalibri &amp; Le mie note</string>
-  <string name="migrated_my_notes">Migrazione di Le mie note</string>
+  <string name="bookmarks_and_mynotes_title">Segnalibri e Annotazioni</string>
+  <string name="migrated_my_notes">Migrazione di Annotazioni</string>
   <string name="bookmarks">Segnalibri</string>
   <string name="bookmark_added">Segnalibri aggiunti</string>
   <string name="manage_labels">Gestisci etichette</string>
@@ -471,7 +471,7 @@ quando queste impostazioni vengono salvate nei segnalibri corrispondenti.</strin
   <string name="verse_range_mode_disabled">
 La ripetizione del passaggio è stata disattivata automaticamente perché il dialogo è iniziato al di fuori della gamma di versi definita.</string>
   <!--User Notes-->
-  <string name="mynotes">Le mie note</string>
+  <string name="mynotes">Annotazioni</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Backup e ripristino</string>
   <string name="backup_modules">Condividi o esegui il backup dei documenti su...</string>
@@ -481,16 +481,16 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="restore_what">Cosa vuoi ripristinare?</string>
   <string name="restore_app_database">Ripristina il database dell\'app da...</string>
   <string name="restore_database">Ripristina il file del database</string>
-  <string name="restore_confirmation">Sovrascrivere Le mie note, i Segnalibri, gli Appunti di studio, i Piani di lettura e gli Spazi di lavoro?</string>
+  <string name="restore_confirmation">Sovrascrivere le Annotazioni, i Segnalibri, gli Appunti di studio, i Piani di lettura e gli Spazi di lavoro?</string>
   <string name="reading_plans_plural">Piani di lettura</string>
-  <string name="restore_success">Eseguito con successo il ripristino di Mie note, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro</string>
+  <string name="restore_success">Eseguito con successo il ripristino di Annotazioni, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro</string>
   <string name="loading_backup">Carico il database dal backup...</string>
-  <string name="backup_success2">Eseguita con successo la copia di backup di Le mie note, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro.</string>
+  <string name="backup_success2">Eseguita con successo la copia di backup di Annotazioni, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro.</string>
   <string name="backup_modules_success">Copia di backup dei moduli selezionati eseguita con successo.</string>
   <string name="backup_modules_email_subject_2">%s moduli salvati</string>
   <string name="backup_modules_email_message_2">In allegato il backup dei moduli %s, che contiene i seguenti moduli: %s</string>
   <string name="backup_email_subject_2">Backup del database %s</string>
-  <string name="backup_email_message_2">Il tuo database %s contenente segnalibri, note, piani di lettura e spazi di lavoro è allegato</string>
+  <string name="backup_email_message_2">Il tuo database %s contenente segnalibri, annotazioni, piani di lettura e spazi di lavoro è allegato</string>
   <string name="restore_unsuccessfull">Il ripristino del database non ha avuto esito positivo. Forse hai fornito un file di database non valido.</string>
   <string name="backup_phone_storage">Memoria del telefono</string>
   <string name="backup_backup_title">Dove salvare?</string>
@@ -614,8 +614,8 @@ Premi a lungo sulla vista della Bibbia per aprire la modalità di azione per le 
 Premi a lungo su un elemento del documento nella visualizzazione elenco di Scegli documento o Scarica per eliminare il documento o visualizzare le informazioni.
 Premi a lungo un segnalibro nell\'elenco dei segnalibri per aggiungere etichette o eliminare un segnalibro.
 Premi a lungo i collegamenti per scegliere se desideri aprirli nella finestra corrente, in una nuova finestra o nella finestra dei collegamenti speciali.</string>
-  <string name="help_bookmarks_title">Segnalibri &amp; Le mie note</string>
-  <string name="help_bookmarks_text">I segnalibri possono essere creati selezionando del testo e scegliendo \"Segnalibri\" dal menù popup. Puoi aggiungere note personali al nuovo segnalibro toccando il testo ora evidenziato della Bibbia. C\'è anche un documento speciale \"Le mie note\" nei commentari che ti consente di vedere le tue note in una finestra separata.</string>
+  <string name="help_bookmarks_title">Segnalibri e Annotazioni</string>
+  <string name="help_bookmarks_text">I segnalibri possono essere creati selezionando del testo e scegliendo \"Segnalibri\" dal menù popup. Puoi aggiungere note personali al nuovo segnalibro toccando il testo ora evidenziato della Bibbia. C\'è anche un documento speciale \"Annotazioni\" tra i commentari che ti consente di vedere le tue note in una finestra separata.</string>
   <string name="help_studypads_title">Appunti di studio</string>
   <string name="help_studypads_text">
 Gli Appunti di studio sono progettati per facilitare la scrittura di appunti per la preparazione di sermoni, o semplicemente per annotare note personali di studio della Bibbia con riferimenti biblici multipli. Ogni Appunto di studio è associato a un\'etichetta di Segnalibro. Tutti i Segnalibri creati con una specifica etichetta appaiono automaticamente nel documento dell\'appunto di studio. Oltre ai Segnalibri, si possono inserire voci di testo personalizzate negli Appunti di studio.</string>
@@ -658,8 +658,8 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="download_dialog_message">Non è stato possibile scaricare i seguenti libri:</string>
   <string name="select_multiple">Selezione multipla</string>
   <string name="journal_description">Appunti di studio modificabili con testo e segnalibri personali</string>
-  <string name="my_notes_description">Note modificabili allegate ai segnalibri</string>
-  <string name="my_notes_abbreviation">Le mie note</string>
+  <string name="my_notes_description">Annotazioni modificabili allegate ai segnalibri</string>
+  <string name="my_notes_abbreviation">Annotazioni</string>
   <string name="studypads">Appunti di studio</string>
   <string name="multi_description">Riferimenti multipli</string>
   <string name="multi_abbreviation">Multipli</string>
@@ -682,7 +682,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="active_window_indicator_summary">Evidenzia i bordi della finestra per rendere più facile identificare quale finestra è attiva</string>
   <string name="app_licence_title">Licenza Open Source</string>
   <string name="how_to_contribute">Come contribuire?</string>
-  <string name="confirm_delete_bookmarks">Vuoi rimuovere %d segnalibri e le loro note?</string>
+  <string name="confirm_delete_bookmarks">Vuoi rimuovere %d segnalibri e le loro annotazioni?</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Consiglia a un amico</string>
   <string name="tell_friend_message1">Vorrei consigliarti %s</string>
@@ -702,7 +702,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="back_button">Indietro</string>
   <string name="upgrading_database">Sto aggiornando il database. Attendi...</string>
   <string name="initializing_app">Inizializzo l\'applicazione...</string>
-  <string name="show_notes">Mostra note</string>
+  <string name="show_notes">Mostra annotazioni</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Il pacchetto Android WebView è troppo vecchio (%s). Devi aggiornare il tuo Android WebView almeno alla versione %s per usare %s. Per la maggior parte dei dispositivi è possibile farlo da %s.</string>
   <string name="play">Google Play</string>

@@ -248,7 +248,7 @@
   <string name="overwrite_files">Šie failai jau yra: %s Perrašyti?</string>
   <string name="overwrite_files_title">Perrašyti failus?</string>
   <!--Daily Reading Plan-->
-  <string name="rdg_plan_title">Skaitomas planas</string>
+  <string name="rdg_plan_title">Skaitymo planas</string>
   <string name="rdg_plan_selector_title">Pasirinkite „Skaitomą planą“</string>
   <string name="rdg_plan_day">Diena %s</string>
   <string name="rdg_plan_set_start_date">Nustatyti pradžios datą</string>
@@ -339,7 +339,7 @@
   <string name="label_unlabelled">Nėra etiketės</string>
   <string name="add_bookmark1">Žymė</string>
   <string name="add_bookmark2">Pažymėti žymėjimą</string>
-  <string name="add_bookmark3">Žymėjimas</string>
+  <string name="add_bookmark3">Pridėti žymę</string>
   <string name="add_bookmark_whole_verse">Pažymėti eilutę</string>
   <string name="add_bookmark_whole_verse1">Eilutės</string>
   <string name="add_bookmark_whole_verse2">Pilnos eilutės</string>

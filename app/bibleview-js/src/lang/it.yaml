@@ -1,4 +1,4 @@
-openMyNotes: Apri in Le mie note
+openMyNotes: Apri in Annotazioni
 openStudyPad: Apri in Appunti di studio (%s)
 noteText: Note a piè di pagina (%s)
 noteTextWithoutType: Note a piè di pagina
@@ -42,9 +42,9 @@ externalLink: Apri link esterno
 referenceLink: Apri link di riferimento
 openFootnote: Apri nota a piè di pagina
 openBookmark: Apri segnalibro (%s)
-noMyNotesTitle: Le mie note per questo capitolo sono vuote.
+noMyNotesTitle: Le Annotazioni per questo capitolo sono vuote.
 noMyNotesDescription: >
-  Inizia creando dei segnalibri in un documento della Bibbia. I segnalibri appariranno qui e potrai aggiungere le tue note personali.
+  Inizia creando dei segnalibri in un documento della Bibbia. I segnalibri appariranno qui e potrai aggiungere le tue annotazioni personali.
 emptyStudyPad: >
   Appunti di studio vuoti. Inizia aggiungendo una voce qui, o creando dei segnalibri con un'etichetta che corrisponda a questi appunti.
 studyPadModalTitle: Modifica voce degli appunti di studio
@@ -53,7 +53,7 @@ removeStudyPadConfirmationTitle: "Eliminare voce degli appunti di studio?"
 dragHelp: Trascina per riordinare
 saved: salvato
 openAll: Apri tutti i riferimenti
-editBookmarkPlaceholder: Tocca per modificare Le mie note per questo segnalibro
+editBookmarkPlaceholder: Tocca per modificare le Annotazioni per questo segnalibro
 onlyLabel: Solo etichetta
 wholeBookmark: Intero segnalibro
 otherNoteText: Altra nota
@@ -72,7 +72,7 @@ openDownloads: Scarica estensioni
 verseShare: Condividi
 verseCompare: Confronta
 verseNote: Nota
-verseMyNotes: Le mie note
+verseMyNotes: Annotazioni
 verseSpeak: Parla/Audio
 verseShareLong: Condividi questo verso
 verseCompareLong: Confronta verso

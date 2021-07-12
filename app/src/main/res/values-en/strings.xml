@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_medium">Bible Study app (And Bible)</string>
+  <string name="app_name_medium">Bible Study App (And Bible)</string>
+  <string name="app_name_long">Bible Study App, by And Bible Open Source Project</string>
   <!--Main menu-->
   <!--Passage navigation-->
   <!--Search-->
