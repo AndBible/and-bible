@@ -404,11 +404,14 @@ class SpeakControl @Inject constructor(
     }
 
     fun stop(willContinueAfter: Boolean=false, force: Boolean=false) {
+        // Reset page manager
+        if(!willContinueAfter) {
+            _speakPageManager = null
+        }
+
         if (!force && !isSpeaking && !isPaused) {
             return
         }
-        // Reset page manager
-        _speakPageManager = null
 
         Log.d(TAG, "Stop TTS speaking")
         ttsServiceManager.shutdown(willContinueAfter)
