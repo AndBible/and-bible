@@ -22,7 +22,6 @@ import {
     arrayEq,
     colorLightness, EventPriorities,
     findNodeAtOffsetWithNullOffset,
-    intersection,
     mixColors,
     rangesOverlap
 } from "@/utils";
@@ -99,10 +98,7 @@ export function useGlobalBookmarks(config, documentType) {
 
     const filteredBookmarks = computed(() => {
         if(documentType.value === DocumentTypes.BIBLE_DOCUMENT && !config.showBookmarks && !config.showMyNotes) return [];
-        const allBookmarks = Array.from(bookmarks.values());
-        if(documentType.value === DocumentTypes.JOURNAL || config.bookmarksHideLabels.length === 0) return allBookmarks;
-        const hideLabels = new Set(config.bookmarksHideLabels);
-        return allBookmarks.filter(v => intersection(new Set(v.labels), hideLabels).size === 0)
+        return Array.from(bookmarks.values());
     })
 
     window.bibleViewDebug.bookmarks = bookmarks;
@@ -316,14 +312,18 @@ export function useBookmarks(documentId,
 
     function styleForStyleRange(styleRange) {
         const {highlightLabelIds, underlineLabelIds, highlightLabelCount, underlineLabelCount} = styleRange;
-        const highlightLabels = Array.from(highlightLabelIds).map(v => ({
-            id: v,
-            label: bookmarkLabels.get(v)
-        })).filter(l => !l.label.noHighlight);
-        const underlineLabels = Array.from(underlineLabelIds).map(v => ({
-            id: v,
-            label: bookmarkLabels.get(v)
-        })).filter(l => !l.label.noHighlight);
+        const highlightLabels = Array.from(highlightLabelIds)
+            .filter(l => !config.bookmarksHideLabels.includes(l))
+            .map(v => ({
+                id: v,
+                label: bookmarkLabels.get(v)
+            })).filter(l => !l.label.noHighlight);
+        const underlineLabels = Array.from(underlineLabelIds)
+            .filter(l => !config.bookmarksHideLabels.includes(l))
+            .map(v => ({
+                id: v,
+                label: bookmarkLabels.get(v)
+            })).filter(l => !l.label.noHighlight);
 
         let style = "";
         switch(config.bookmarkingMode) {

@@ -34,6 +34,7 @@ import {useCommon} from "@/composables";
 import MyNoteRow from "@/components/MyNoteRow";
 import {computed} from "@vue/reactivity";
 import {sortBy} from "lodash";
+import {intersection} from "@/utils";
 
 export default {
   name: "MyNotesDocument",
@@ -53,6 +54,10 @@ export default {
 
     const notes = computed(() => {
       let bs = globalBookmarks.bookmarks.value;
+
+      const hideLabels = new Set(config.bookmarksHideLabels);
+      bs = bs.filter(v => intersection(new Set(v.labels), hideLabels).size === 0)
+
       if(!config.showBookmarks) {
         bs = bs.filter(v => v.hasNote)
       }
