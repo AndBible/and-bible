@@ -31,6 +31,7 @@
       <span v-if="isPrimary(label)" class="icon"><FontAwesomeIcon icon="bookmark"/></span>
       {{label.name}}
     </div>
+    <div style="width: 30px;"/>
   </div>
 </template>
 
@@ -157,10 +158,9 @@ export default {
   font-size: 10px;
 }
 .label {
-  $padding: 2px;
-  height: calc(12px + #{2*$padding});
-  padding-top: $padding;
-  margin-bottom: 3px;
+  position: relative;
+  top: -2px;
+  margin-top: 3px;
   margin-right: 3px;
   font-weight: normal;
   color: #e8e8e8;
@@ -192,7 +192,7 @@ export default {
   border-color: rgba(0, 0, 0, 0);
 }
 .label-list {
-  line-height: 1em;
+  line-height: 0.9em;
   display: inline-flex;
   flex-wrap: wrap;
   &.singleLine {

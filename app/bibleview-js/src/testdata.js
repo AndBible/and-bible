@@ -258,7 +258,7 @@ if(process.env.NODE_ENV === "development") {
             indentLevel: 1,
         }))
 
-    const mode = "bible"
+    const mode = "notes"
 
     if(mode === "bible") {
         testData = testData.map(
