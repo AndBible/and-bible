@@ -17,7 +17,7 @@
 
 <template>
   <div v-if="verseInfo">
-    <div :class="{horizontal: !vertical, vertical}">
+    <div :class="{hasActions, horizontal: !vertical, vertical}">
       <div class="large-action" @click="addBookmark">
         <FontAwesomeLayers>
           <FontAwesomeIcon icon="bookmark"/>
@@ -31,6 +31,10 @@
           <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
         </FontAwesomeLayers>
         <div class="title">{{ vertical ? strings.verseNoteLong: strings.verseNote }}</div>
+      </div>
+      <div class="large-action" @click="openMyNotes">
+        <FontAwesomeIcon icon="file-alt"/>
+        <div class="title">{{ strings.verseMyNotes }}</div>
       </div>
       <div class="large-action" @click="share">
         <FontAwesomeIcon icon="share-alt"/>
@@ -58,6 +62,7 @@ export default {
       default: null,
     },
     vertical: {type: Boolean, default: false},
+    hasActions: {type: Boolean, default: false},
   },
   components: {
     FontAwesomeIcon, FontAwesomeLayers,
@@ -129,8 +134,9 @@ export default {
   }
   padding-bottom: 0.5em;
   .horizontal & {
-    padding-top: 10px;
-    padding-bottom: 0;
+    .hasActions & {
+      padding-bottom: 5px;
+    }
   }
 }
 .horizontal {

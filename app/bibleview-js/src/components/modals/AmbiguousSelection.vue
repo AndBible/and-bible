@@ -30,7 +30,7 @@
     </template>
 
     <div class="buttons">
-      <AmbiguousActionButtons v-if="noActions" :verse-info="verseInfo" @close="cancelled"/>
+      <AmbiguousActionButtons :has-actions="!noActions" :verse-info="verseInfo" @close="cancelled"/>
       <template v-for="(s, index) of selections" :key="index">
         <template v-if="!s.options.bookmarkId">
           <button class="button light" @click.stop="selected(s)">
@@ -44,7 +44,6 @@
           @selected="selected(s)"
         />
       </template>
-      <AmbiguousActionButtons v-if="!noActions" :verse-info="verseInfo" @close="cancelled"/>
     </div>
     <template #title>
       <template v-if="verseInfo">
