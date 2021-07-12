@@ -131,8 +131,9 @@ export default {
       const eventFunctions = getHighestPriorityEventFunctions(event);
       const hasParticularClicks = eventFunctions.filter(f => !f.options.hidden).length > 0; // let's not show only "hidden" items
       if(appSettings.actionMode) return;
-      if(hasHighlights.value && !showModal.value) {
-        resetHighlights();
+      const hadHighlights = hasHighlights.value;
+      resetHighlights();
+      if(hadHighlights && !showModal.value) {
         return;
       }
       if(!isActive && !hasParticularClicks) return;
