@@ -269,7 +269,7 @@ open class WindowRepository @Inject constructor(
             (sourceWindow?.entity?.copy()
                 ?: WorkspaceEntities.Window(
                     isLinksWindow = false,
-                    isPinMode = false,
+                    isPinMode = true,
                     isSynchronized = true,
                     windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString()),
                     workspaceId = id
