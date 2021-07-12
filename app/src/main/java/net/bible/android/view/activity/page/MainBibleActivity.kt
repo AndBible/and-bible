@@ -951,7 +951,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 } else View.GONE
             }
             fun addSpeak() {
-                speakButton.visibility = if (visibleButtonCount < maxButtons && speakControl.isStopped)
+                speakButton.visibility = if (visibleButtonCount < maxButtons && speakControl.isStopped && showSpeak)
                 {
                     visibleButtonCount += 1
                     View.VISIBLE
@@ -979,6 +979,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             invalidateOptionsMenu()
+            if(!showSpeak && transportBarVisible && speakControl.isStopped) {
+                transportBarVisible = false
+                updateBottomBars()
+            }
 
             navigationView.menu.findItem(R.id.searchButton).isEnabled = showSearch
             navigationView.menu.findItem(R.id.speakButton).isEnabled = showSpeak
