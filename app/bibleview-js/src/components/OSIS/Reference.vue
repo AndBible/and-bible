@@ -70,12 +70,13 @@ export default {
     function openLink(event, url) {
       addEventFunction(event, () => {
         window.location.assign(url)
-        cancelFunc();
         clicked.value = true;
+        cancelFunc();
         isHighlighted.value = true;
         cancelFunc = () => {
           isHighlighted.value = false;
           eventBus.off(Events.WINDOW_CLICKED, cancelFunc);
+          cancelFunc = () => {};
         }
         eventBus.on(Events.WINDOW_CLICKED, cancelFunc);
       }, {title: strings.referenceLink, priority: EventPriorities.REFERENCE});
@@ -89,7 +90,7 @@ export default {
 <style lang="scss" scoped>
 @import "~@/common.scss";
 .reference {
-  transition: background-color 1s ease;
+  @extend .highlight-transition;
   border-radius: 5pt;
 }
 a {

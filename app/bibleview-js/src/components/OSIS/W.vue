@@ -18,18 +18,18 @@
 <template>
   <template v-if="showStrongsSeparately">
     <template v-if="(showStrongs && lemma) && (config.showMorphology && morph)">
-      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a>-<a class="morph" :href="formatLink(morph)" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
+      <slot/><span class="skip-offset">&nbsp;<a :class="{isHighlighted}" class="strongs highlight-transition" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a>-<a :class="{isHighlighted}" class="morph highlight-transition" :href="formatLink(morph)" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else-if="(showStrongs && lemma) && (!config.showMorphology || !morph)">
-      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a></span>
+      <slot/><span class="skip-offset">&nbsp;<a class="strongs highlight-transition" :class="{isHighlighted}" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a></span>
     </template>
     <template v-else-if="(!showStrongs || !lemma) && (config.showMorphology && morph)">
-      <slot/><span class="skip-offset">&nbsp;<a class="morph" :href="formatLink(morph)" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
+      <slot/><span class="skip-offset">&nbsp;<a class="morph highlight-transition" :href="formatLink(morph)" :class="{isHighlighted}" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else><slot/></template>
   </template>
   <template v-else>
-    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)" class="link-style" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span>
+    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)" :class="{isHighlighted}"  class="highlight-transition link-style" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span>
     <span v-else><slot/></span>
   </template>
 </template>
@@ -37,7 +37,9 @@
 <script>
 import {checkUnsupportedProps, strongsModes, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
-import {computed} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
+import {eventBus, Events} from "@/eventbus";
+let cancelFunc = () => {};
 
 export default {
   name: "W",
@@ -55,6 +57,7 @@ export default {
     checkUnsupportedProps(props, "type", ["x-split"])
     checkUnsupportedProps(props, "subType")
     const {strings, config, ...common} = useCommon();
+    const isHighlighted = ref(false);
     function prep(string) {
       let remainingString = string;
       const res = []
@@ -84,17 +87,28 @@ export default {
     }
     function goToLink(event, url) {
       const priority = showStrongsSeparately.value ? EventPriorities.STRONGS_LINK: EventPriorities.STRONGS_DOTTED;
-      addEventFunction(event, () => window.location.assign(url), {priority, title: strings.strongsAndMorph});
+      addEventFunction(event, () => {
+        window.location.assign(url)
+        cancelFunc();
+        isHighlighted.value = true;
+        cancelFunc = () => {
+          isHighlighted.value = false;
+          eventBus.off(Events.WINDOW_CLICKED, cancelFunc);
+          cancelFunc = () => {};
+        }
+        eventBus.on(Events.WINDOW_CLICKED, cancelFunc);
+      }, {priority, title: strings.strongsAndMorph});
     }
     const showStrongs = computed(() => config.strongsMode !== strongsModes.off);
     const showStrongsSeparately = computed(() => config.strongsMode === strongsModes.links);
 
-    return {formatLink, formatName, goToLink, config, strings, showStrongs, showStrongsSeparately, ...common};
+    return {formatLink, formatName, isHighlighted, goToLink, config, strings, showStrongs, showStrongsSeparately, ...common};
   },
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import "~@/common.scss";
   .link-style {
     text-decoration: underline dotted;
   }
