@@ -99,7 +99,7 @@ class WindowSynchronisationTest {
     fun testWindowSyncInMaxMode() { // old max mode is in practive new normal mode with no pinned windows
         // Issue #371 and #536
 
-        val window0 = windowControl!!.activeWindow
+        val window0 = windowControl!!.activeWindow.apply { isPinMode = false }
         val window1 = windowControl!!.addNewWindow(window0)
         val window2 = windowControl!!.addNewWindow(window0).apply { isSynchronised = false }
         val window3 = windowControl!!.addNewWindow(window0).apply { isSynchronised = true }
