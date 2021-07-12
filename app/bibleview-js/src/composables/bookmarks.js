@@ -478,7 +478,7 @@ export function useBookmarks(documentId,
                     const iconElement = getIconElement(speakIcon, color);
 
                     iconElement.addEventListener("click", event => addEventFunction(event,
-                        null, {bookmarkId: b.id, priority: EventPriorities.VISIBLE_BOOKMARK}));
+                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
                     firstElement.parentElement.insertBefore(iconElement, firstElement);
                     undoHighlights.push(() => iconElement.remove());
                 }
@@ -491,7 +491,7 @@ export function useBookmarks(documentId,
                 const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    null, {bookmarkId: b.id, priority: EventPriorities.VISIBLE_BOOKMARK}));
+                    null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
                 lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
                 undoHighlights.push(() => iconElement.remove());
             }
@@ -523,7 +523,7 @@ export function useBookmarks(documentId,
             const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
             iconElement.addEventListener("click", event => {
                 for(const b of bookmarkList) {
-                    addEventFunction(event, null, {bookmarkId: b.id, priority: EventPriorities.VISIBLE_BOOKMARK});
+                    addEventFunction(event, null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER});
                 }
             });
             if(bookmarkList.length>1) {

@@ -301,7 +301,8 @@ export function getEventVerseInfo(event) {
 
 export const EventPriorities = {
     HIDDEN_BOOKMARK: 0,
-    VISIBLE_BOOKMARK: 5,
+    VISIBLE_BOOKMARK: 0,
+    BOOKMARK_MARKER: 5,
     FOOTNOTE: 15,
     STRONGS_DOTTED: 5,
 
