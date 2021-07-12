@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <a class="reference" :class="{clicked, 'last-clicked': lastClicked}" @click.prevent="openLink($event, link)" :href="link" ref="content"><slot/></a>
+  <a class="reference" :class="{clicked, isHighlighted}" @click.prevent="openLink($event, link)" :href="link" ref="content"><slot/></a>
 </template>
 
 <script>
@@ -38,7 +38,7 @@ export default {
   setup(props) {
     checkUnsupportedProps(props, "type");
     const clicked = ref(false);
-    const lastClicked = ref(false);
+    const isHighlighted = ref(false);
     const {strings, ...common} = useCommon();
     const referenceCollector = inject("referenceCollector", null);
     const content = ref(null);
@@ -72,21 +72,22 @@ export default {
         window.location.assign(url)
         cancelFunc();
         clicked.value = true;
-        lastClicked.value = true;
+        isHighlighted.value = true;
         cancelFunc = () => {
-          lastClicked.value = false;
+          isHighlighted.value = false;
           eventBus.off(Events.WINDOW_CLICKED, cancelFunc);
         }
         eventBus.on(Events.WINDOW_CLICKED, cancelFunc);
       }, {title: strings.referenceLink, priority: EventPriorities.REFERENCE});
     }
-    return {openLink, clicked, lastClicked, content, link, ...common};
+    return {openLink, clicked, isHighlighted, content, link, ...common};
   },
 }
 
 </script>
 
 <style lang="scss" scoped>
+@import "~@/common.scss";
 .reference {
   transition: background-color 1s ease;
   border-radius: 5pt;
@@ -95,15 +96,9 @@ a {
   &.clicked {
     color: #8b00ee;
   }
-  &.last-clicked {
-    background-color: rgba(255, 230, 0, 0.4);
-  }
   .night & {
     &.clicked {
       color: #8b00ee;
-    }
-    &.last-clicked {
-      background-color: rgba(255, 230, 0, 0.6);
     }
   }
 }
