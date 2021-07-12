@@ -17,64 +17,11 @@
   ~
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/settingsDialogContainer"
+    android:id="@+id/settings_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    >
-    <LinearLayout
-        android:id="@+id/settings_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="20dp"
-        app:layout_constrainedHeight="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/buttons"
-        />
-    <LinearLayout
-        android:id="@+id/buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/settings_container"
-        app:layout_constraintBottom_toBottomOf="parent"
-        >
-        <Button
-            android:id="@+id/resetButton"
-            style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/reset_settings"
-            />
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="3" />
-
-        <Button
-            android:id="@+id/cancelButton"
-            style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/cancel"
-            />
-
-        <Button
-            android:id="@+id/okButton"
-            style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/okay" />
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    android:orientation="vertical"
+    />
 

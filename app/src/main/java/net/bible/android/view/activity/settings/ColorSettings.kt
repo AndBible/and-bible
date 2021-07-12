@@ -89,12 +89,27 @@ class ColorSettingsActivity: ActivityBase() {
         return isHandled
     }
 
-    fun reset() {
+    fun help() {
 
     }
 
-    fun help() {
+    fun cancel() {
+        dirty = false
+        setResult()
+        finish()
+    }
 
+    fun reset() {
+        AlertDialog.Builder(this)
+            .setPositiveButton(R.string.yes) {_, _ ->
+                reset = true
+                setResult()
+                finish()
+            }
+            .setNegativeButton(R.string.no,null)
+            .setMessage(getString(R.string.reset_are_you_sure))
+            .create()
+            .show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -117,24 +132,6 @@ class ColorSettingsActivity: ActivityBase() {
             title = getString(R.string.window_color_settings_title)
         } else {
             title = getString(R.string.workspace_color_settings_title)
-        }
-        binding.okButton.setOnClickListener {finish()}
-        binding.cancelButton.setOnClickListener {
-            dirty = false
-            setResult()
-            finish()
-        }
-        binding.resetButton.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setPositiveButton(R.string.yes) {_, _ ->
-                    reset = true
-                    setResult()
-                    finish()
-                }
-                .setNegativeButton(R.string.no,null)
-                .setMessage(getString(R.string.reset_are_you_sure))
-                .create()
-                .show()
         }
 
         setResult()

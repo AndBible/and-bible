@@ -334,15 +334,6 @@ class TextDisplaySettingsActivity: ActivityBase() {
             .replace(R.id.settings_container, fragment)
             .commit()
         this.fragment = fragment
-        binding.okButton.setOnClickListener {finish()}
-        binding.cancelButton.setOnClickListener {
-            dirtyTypes.clear()
-            setResult()
-            finish()
-        }
-        binding.resetButton.setOnClickListener {
-            reset()
-        }
         setResult()
     }
 
