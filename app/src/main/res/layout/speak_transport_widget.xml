@@ -32,16 +32,20 @@
             android:paddingTop="5dip"
             android:paddingEnd="@dimen/speak_row_padding"
             android:paddingBottom="5dip"
+            android:lines="1"
+            android:ellipsize="end"
             android:text="test"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/speed"
+            />
 
 
         <SeekBar
             android:id="@+id/speed"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintWidth_percent="0.5"
+            app:layout_constraintWidth_percent="0.33"
             android:min="10"
             android:max="300"
             app:layout_constraintBottom_toBottomOf="@+id/statusText"
