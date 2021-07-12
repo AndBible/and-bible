@@ -48,6 +48,10 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
         CommonUtils.buildActivityComponent().inject(this)
         bindings.run {
             toggleFullVerses.isChecked = CommonUtils.sharedPreferences.getBoolean("share_toggle_full", false)
+            if(!selection.hasRange) {
+                toggleFullVerses.isChecked = true
+                toggleFullVerses.visibility = View.GONE
+            }
             toggleVersenumbers.isChecked = CommonUtils.sharedPreferences.getBoolean("share_verse_numbers", true)
             advertise.isChecked = CommonUtils.sharedPreferences.getBoolean("share_show_add", true)
             abbreviateReference.isChecked = CommonUtils.sharedPreferences.getBoolean("share_abbreviate_reference", true)

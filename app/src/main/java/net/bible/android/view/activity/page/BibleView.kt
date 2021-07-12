@@ -170,6 +170,8 @@ class Selection(val bookInitials: String?, val startOrdinal: Int,
         buildActivityComponent().inject(this)
     }
 
+    val hasRange get() = startOffset != null && endOffset != null
+
     val book: SwordBook get() = (Books.installed().getBook(bookInitials) as SwordBook?) ?: windowControl.defaultBibleDoc(false)
     val verseRange: VerseRange get() {
         val v11n = book.versification ?: KJVA
