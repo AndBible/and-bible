@@ -320,7 +320,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val initialLabels = workspaceSettings.autoAssignLabels
         bookmark.primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
-        if(initialLabels.isEmpty()) {
+        if(initialLabels.isEmpty() || openNotes) {
             executeJavascriptOnUiThread(
                 "bibleView.emit('bookmark_clicked', ${bookmark.id}, {openLabels: true, openNotes: $openNotes});"
             )
