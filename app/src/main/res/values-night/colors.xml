@@ -33,4 +33,5 @@
     <color name="navigation_bar">@color/black</color>
     <color name="high_contrast">@color/white</color>
     <color name="background_color">@color/black</color>
+    <color name="disabled_background">#454545</color>
 </resources>

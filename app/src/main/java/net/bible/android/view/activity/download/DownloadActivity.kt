@@ -44,6 +44,7 @@ import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.RepoFactory
 import org.crosswire.common.progress.JobManager
@@ -56,6 +57,8 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
+val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != null
 
 /**
  * Choose Document (Book) to download
@@ -260,7 +263,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     }
 
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
-        return downloadControl.getDownloadableDocuments(repoFactory, refresh)
+        return downloadControl.getDownloadableDocuments(repoFactory, refresh) + FakeBookFactory.downloadPseudoDocuments
     }
 
     override fun onStart() {
@@ -299,10 +302,11 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         instance.showErrorMsg(R.string.too_many_jobs)
     }
 
-    protected fun manageDownload(documentToDownload: Book?) {
+    private fun manageDownload(documentToDownload: Book?) {
         if (documentToDownload != null
-            && downloadControl.getDocumentStatus(documentToDownload).documentInstallStatus
-            != DocumentStatus.DocumentInstallStatus.BEING_INSTALLED) {
+            && downloadControl.getDocumentStatus(documentToDownload).documentInstallStatus  != DocumentStatus.DocumentInstallStatus.BEING_INSTALLED
+            && !documentToDownload.isPseudoBook
+        ) {
             AlertDialog.Builder(this)
                 .setMessage(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name)
                 .setCancelable(false)

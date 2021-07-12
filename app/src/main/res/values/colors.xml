@@ -128,4 +128,5 @@
 	<color name="sync_off_grey">@color/grey_500</color>
 	<color name="high_contrast">@color/black</color>
 	<color name="background_color">@color/white</color>
+	<color name="disabled_background">#D3D3D3</color>
 </resources>
