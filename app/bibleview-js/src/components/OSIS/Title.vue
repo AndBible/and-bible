@@ -21,6 +21,8 @@
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {computed} from "@vue/reactivity";
+import {inject} from "@vue/runtime-core";
 
 export default {
   name: "Title",
@@ -30,21 +32,25 @@ export default {
     canonical: {type: String, default: "false"},
     short: {type: String, default: null},
   },
-  computed: {
-    show:  ({type, subType, config, isCanonical}) =>
-      config.showSectionTitles
-      && ((config.showNonCanonical && !isCanonical) || isCanonical)
-      && !(type === "sub" && subType === "x-Chapter")
-      && !(type === "chapter")
-      && type !== "x-gen",
-    isCanonical: ({canonical}) => canonical === "true",
-    isSubTitle: ({type}) => type === "sub",
-  },
   setup(props) {
     checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
     checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
     checkUnsupportedProps(props, "canonical", ["true", "false"]);
-    return useCommon();
+    const config = inject("config");
+    const hideTitles = inject("hideTitles", false);
+
+    const isCanonical = computed(() => props.canonical === "true");
+
+    const show = computed(() =>
+      !hideTitles && config.showSectionTitles
+      && ((config.showNonCanonical && !isCanonical) || isCanonical)
+      && !(props.type === "sub" && props.subType === "x-Chapter")
+      && !(props.type === "chapter")
+      && props.type !== "x-gen",
+    );
+
+    const isSubTitle = computed(() => props.type === "sub");
+    return {show, isCanonical, isSubTitle, ...useCommon()};
   },
 }
 </script>

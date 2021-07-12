@@ -47,6 +47,10 @@ export default {
     } = props.fragment;
     const uniqueId = ref(Date.now().toString());
 
+    if(props.hideTitles) {
+      provide("hideTitles", true);
+    }
+
     const strings = useStrings();
     provide("osisFragment", props.fragment)
     const {registerBook} = inject("customCss");
