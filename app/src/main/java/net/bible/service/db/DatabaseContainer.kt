@@ -911,7 +911,7 @@ private val MIGRATION_53_54_booleanSettings = object : Migration(53, 54) {
             execSQL("CREATE TABLE IF NOT EXISTS `StringSetting` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))")
             execSQL("CREATE TABLE IF NOT EXISTS `LongSetting` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))")
             execSQL("CREATE TABLE IF NOT EXISTS `DoubleSetting` (`key` TEXT NOT NULL, `value` REAL NOT NULL, PRIMARY KEY(`key`))")
-            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(BibleApplication.application.applicationContext)
+            val sharedPreferences = CommonUtils.realSharedPreferences
             for((k, v) in sharedPreferences.all) {
                 when(v) {
                     is Long -> {
