@@ -495,11 +495,11 @@ class TestPersistence : AbstractSpeakTests() {
     @Test
     fun readPersistence() {
         val sharedPreferences = CommonUtils.settings
-        sharedPreferences.edit().putString("SpeakBibleBook", "FinRK").apply()
-        sharedPreferences.edit().putString("SpeakBibleVerse", "Ps.14.1").apply()
+        sharedPreferences.setString("SpeakBibleBook", "FinRK")
+        sharedPreferences.setString("SpeakBibleVerse", "Ps.14.1")
         provider.setupReading(book, getVerse("Ps.14.1"))
-        sharedPreferences.edit().putString("SpeakBibleBook", "FinRK").apply()
-        sharedPreferences.edit().putString("SpeakBibleVerse", "Rom.5.1").apply()
+        sharedPreferences.setString("SpeakBibleBook", "FinRK")
+        sharedPreferences.setString("SpeakBibleVerse", "Rom.5.1")
         provider.restoreState()
         assertThat(range(), equalTo("Rom.5.1"))
         text = nextText()
