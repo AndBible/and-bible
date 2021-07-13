@@ -145,7 +145,7 @@ export default {
         const firstFunc = eventFunctions[0];
         if(
           (eventFunctions.length === 1 && firstFunc.options.priority > 0 && !firstFunc.options.dottedStrongs)
-          || (firstFunc.options.dottedStrongs && allEventFunctions.length === 1)
+          || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs)
         ) {
           if (eventFunctions[0].options.bookmarkId) {
             emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId);
