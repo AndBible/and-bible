@@ -32,7 +32,7 @@ public class SpeakTiming {
 	private int lastSpeakTextLength;
 	private long lastSpeakStartTime;
 	
-	private float cpms = DEFAULT_CPMS;
+	private double cpms = DEFAULT_CPMS;
 	private static final float DEFAULT_CPMS = 0.016f;
 	private static final String SPEAK_CPMS_KEY = "SpeakCPMS";
 	
@@ -72,8 +72,8 @@ public class SpeakTiming {
 	
 	/** estimate how much of the last string sent to TTS has been spoken 
 	 */
-	public float getFractionCompleted() {
-		float fractionCompleted = 1;
+	public double getFractionCompleted() {
+		double fractionCompleted = 1;
 		if (cpms >0 && lastSpeakTextLength>0) {
 			fractionCompleted = (float)milliSecsSinceStart()/((float)lastSpeakTextLength/cpms);
 			Log.d(TAG, "Fraction completed:"+fractionCompleted);
@@ -107,9 +107,9 @@ public class SpeakTiming {
 	}
 	
 	private void loadCpms() {
-		cpms = CommonUtils.INSTANCE.getSharedPreferences().getFloat(SPEAK_CPMS_KEY, DEFAULT_CPMS);
+		cpms = CommonUtils.INSTANCE.getSettings().getDouble(SPEAK_CPMS_KEY, DEFAULT_CPMS);
 	}
 	private void saveCpms() {
-		CommonUtils.INSTANCE.getSharedPreferences().edit().putFloat(SPEAK_CPMS_KEY, cpms).commit();
+		CommonUtils.INSTANCE.getSettings().setDouble(SPEAK_CPMS_KEY, cpms);
 	}
 }

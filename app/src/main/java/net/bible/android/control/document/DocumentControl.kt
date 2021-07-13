@@ -161,7 +161,7 @@ class DocumentControl @Inject constructor(
     }
 
     fun turnOffManualInstallFolderSetting() {
-        CommonUtils.sharedPreferences.edit().putBoolean("request_sdcard_permission_pref", false).apply()
+        CommonUtils.settings.setBoolean("request_sdcard_permission_pref", false)
     }
 
     /**

@@ -189,7 +189,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Bottom offset with navigation bar and transport bar and window buttons
     val bottomOffset3 get() = bottomOffset2 + if (restoreButtonsVisible) windowButtonHeight else 0
 
-    private val preferences = CommonUtils.sharedPreferences
+    private val preferences = CommonUtils.settings
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
     private var isPaused = false
@@ -389,7 +389,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
             }
             if(save) {
-                preferences.edit().putBoolean("pinning-help-shown", true).apply()
+                preferences.setBoolean("pinning-help-shown", true)
             }
         }
     }
@@ -423,7 +423,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setMessage(spanned)
                 .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
-                    preferences.edit().putString("stable-notice-displayed", ver).apply()
+                    preferences.setString("stable-notice-displayed", ver)
                     it.resume(true)
                 }
                 .setOnCancelListener {_ -> it.resume(false)}
@@ -473,7 +473,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setMessage(spanned)
                 .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
-                    preferences.edit().putString("beta-notice-displayed", ver).apply()
+                    preferences.setString("beta-notice-displayed", ver)
                     it.resume(true)
                 }
                 .setOnCancelListener {_ -> it.resume(false)}
@@ -679,7 +679,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             bibleViewFactory.clear()
             windowRepository.loadFromDb(value)
 
-            preferences.edit().putLong("current_workspace_id", windowRepository.id).apply()
+            preferences.setLong("current_workspace_id", windowRepository.id)
             documentViewManager.buildView(forceUpdate = true)
             windowControl.windowSync.reloadAllWindows()
             windowRepository.updateAllWindowsTextDisplaySettings()
@@ -1033,7 +1033,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(book != null) {
             val bookCategory = book.bookCategory
             // see net.bible.android.control.page.CurrentPageBase.getDefaultBook
-            CommonUtils.sharedPreferences.edit().putString("default-${bookCategory.name}", book.initials).apply()
+            CommonUtils.settings.setString("default-${bookCategory.name}", book.initials)
         }
     }
 

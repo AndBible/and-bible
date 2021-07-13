@@ -172,7 +172,7 @@ abstract class CurrentPageBase protected constructor(
     private fun getDefaultBook(): Book? {
         // see net.bible.android.view.activity.page.MainBibleActivity.setCurrentDocument
         val savedDefaultBook = swordDocumentFacade.getDocumentByInitials(
-            CommonUtils.sharedPreferences.getString("default-${documentCategory.bookCategory.name}", ""))
+            CommonUtils.settings.getString("default-${documentCategory.bookCategory.name}", ""))
 
         return savedDefaultBook ?: {
             val books = swordDocumentFacade.getBooks(documentCategory.bookCategory).filter { !it.isLocked }

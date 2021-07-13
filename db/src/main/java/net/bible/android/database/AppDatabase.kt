@@ -44,7 +44,7 @@ import java.io.ObjectOutputStream
 
 import java.util.*
 
-const val DATABASE_VERSION = 53
+const val DATABASE_VERSION = 54
 
 class Converters {
     @TypeConverter
@@ -192,7 +192,11 @@ class Converters {
         WorkspaceEntities.HistoryItem::class,
         WorkspaceEntities.PageManager::class,
         DocumentSearch::class,
-        SwordDocumentInfo::class
+        SwordDocumentInfo::class,
+        BooleanSetting::class,
+        StringSetting::class,
+        LongSetting::class,
+        DoubleSetting::class,
     ],
     version = DATABASE_VERSION
 )
@@ -203,6 +207,10 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun documentDao(): DocumentSearchDao
     abstract fun swordDocumentInfoDao(): SwordDocumentInfoDao
+    abstract fun booleanSettingDao(): BooleanSettingDao
+    abstract fun stringSettingDao(): StringSettingDao
+    abstract fun longSettingDao(): LongSettingDao
+    abstract fun doubleSettingDao(): DoubleSettingDao
 
     fun sync() { // Sync all data so far into database file
         val cur = openHelper.writableDatabase

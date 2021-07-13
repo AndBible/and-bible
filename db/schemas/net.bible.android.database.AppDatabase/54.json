@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 53,
-    "identityHash": "3ced43413976c8a0a7ac3bfb3dab22d9",
+    "version": 54,
+    "identityHash": "13e1645f672fea4e61bf88a1d7112e42",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -125,6 +125,14 @@
               "kjvOrdinalEnd"
             ],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalEnd` ON `${TABLE_NAME}` (`kjvOrdinalEnd`)"
+          },
+          {
+            "name": "index_Bookmark_primaryLabelId",
+            "unique": false,
+            "columnNames": [
+              "primaryLabelId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Bookmark_primaryLabelId` ON `${TABLE_NAME}` (`primaryLabelId`)"
           }
         ],
         "foreignKeys": [
@@ -1391,12 +1399,90 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "StringSetting",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))",
+        "fields": [
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "key"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "LongSetting",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))",
+        "fields": [
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "key"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "DoubleSetting",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `value` REAL NOT NULL, PRIMARY KEY(`key`))",
+        "fields": [
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "key"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3ced43413976c8a0a7ac3bfb3dab22d9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '13e1645f672fea4e61bf88a1d7112e42')"
     ]
   }
 }

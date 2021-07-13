@@ -93,7 +93,7 @@ class BookmarkEntities {
 
     @Entity(
         indices = [
-            Index("kjvOrdinalStart"), Index("kjvOrdinalEnd")
+            Index("kjvOrdinalStart"), Index("kjvOrdinalEnd"), Index("primaryLabelId"),
         ],
         foreignKeys = [
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),

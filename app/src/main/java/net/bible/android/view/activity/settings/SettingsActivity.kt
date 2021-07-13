@@ -25,6 +25,7 @@ import android.view.MenuItem
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
@@ -33,6 +34,41 @@ import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.device.ScreenSettings.systemModeAvailable
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
+
+class PreferenceStore: PreferenceDataStore() {
+    private val prefs = CommonUtils.settings
+    override fun putInt(key: String, value: Int) {
+        prefs.setInt(key, value)
+    }
+
+    override fun getInt(key: String, defValue: Int): Int = prefs.getInt(key, defValue)
+
+    override fun getBoolean(key: String, defValue: Boolean): Boolean = prefs.getBoolean(key, defValue)
+
+    override fun putBoolean(key: String, value: Boolean) = prefs.setBoolean(key, value)
+
+    override fun putString(key: String, value: String?) =
+        if(key == "locale_pref") CommonUtils.realSharedPreferences.edit().putString("locale_pref", value).apply()
+        else prefs.setString(key, value)
+
+    override fun getString(key: String, defValue: String?): String? =
+        if (key == "locale_pref") CommonUtils.realSharedPreferences.getString("locale_pref", null)
+        else prefs.getString(key, defValue)
+
+    override fun getLong(key: String, defValue: Long): Long = prefs.getLong(key, defValue)
+
+    override fun putLong(key: String, value: Long) = prefs.setLong(key, value)
+
+    override fun getFloat(key: String, defValue: Float): Float = prefs.getFloat(key, defValue)
+
+    override fun putFloat(key: String, value: Float) = prefs.setFloat(key, value)
+
+    override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? =
+        throw RuntimeException("Not supported")
+
+    override fun putStringSet(key: String?, values: MutableSet<String>?): Unit = throw RuntimeException("Not supported")
+}
+
 
 class SettingsActivity: ActivityBase() {
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +105,7 @@ class SettingsActivity: ActivityBase() {
             .setMessage(R.string.reset_app_prefs).setCancelable(true)
             .setPositiveButton(R.string.yes
             ) { _, _ ->
-                val editor = CommonUtils.sharedPreferences.edit()
+                val editor = CommonUtils.settings
                 val keys = listOf(
                     "strongs_greek_dictionary",
                     "strongs_hebrew_dictionary",
@@ -86,14 +122,16 @@ class SettingsActivity: ActivityBase() {
                     "disable_two_step_bookmarking",
                     "double_tap_to_fullscreen",
                     "night_mode_pref3",
-                    "locale_pref",
                     "request_sdcard_permission_pref",
                     "show_errorbox"
                 )
                 for(key in keys) {
-                    editor.remove(key)
+                    editor.removeString(key)
+                    editor.removeBoolean(key)
+                    editor.removeLong(key)
+                    editor.removeDouble(key)
                 }
-                editor.apply()
+                CommonUtils.realSharedPreferences.edit().remove("locale_pref").apply()
                 recreate()
             }
             .setNegativeButton(R.string.cancel, null)
@@ -127,6 +165,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings, rootKey)
+        preferenceManager.preferenceDataStore = PreferenceStore()
 
         //If no light sensor exists switch to old boolean check box
         // see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen

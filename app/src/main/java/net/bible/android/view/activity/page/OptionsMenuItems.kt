@@ -90,7 +90,7 @@ abstract class SharedPreferencesPreference(
     private val defaultString: String = falseValue,
     subMenu: Boolean = false
 ) : GeneralPreference(onlyBibles, subMenu) {
-    private val preferences = CommonUtils.sharedPreferences
+    private val preferences = CommonUtils.settings
     override val inherited = false
 
     override var value: Any
@@ -100,9 +100,9 @@ abstract class SharedPreferencesPreference(
             preferences.getString(preferenceName, defaultString) == trueValue
         }
         set(value) = if (isBooleanPreference) {
-            preferences.edit().putBoolean(preferenceName, value == true).apply()
+            preferences.setBoolean(preferenceName, value == true)
         } else {
-            preferences.edit().putString(preferenceName, if (value == true) trueValue else falseValue).apply()
+            preferences.setString(preferenceName, if (value == true) trueValue else falseValue)
         }
 
     protected open val automatic: Boolean

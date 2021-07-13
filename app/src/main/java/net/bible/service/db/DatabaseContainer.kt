@@ -20,6 +20,7 @@ package net.bible.service.db
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.util.Log
+import androidx.preference.PreferenceManager
 import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
@@ -29,6 +30,7 @@ import net.bible.android.database.AppDatabase
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
@@ -901,6 +903,44 @@ private val MIGRATION_52_53_underline = object : Migration(52, 53) {
     }
 }
 
+private val MIGRATION_53_54_booleanSettings = object : Migration(53, 54) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_primaryLabelId` ON `Bookmark` (`primaryLabelId`)")
+            execSQL("CREATE TABLE IF NOT EXISTS `BooleanSetting` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))");
+            execSQL("CREATE TABLE IF NOT EXISTS `StringSetting` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))")
+            execSQL("CREATE TABLE IF NOT EXISTS `LongSetting` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))")
+            execSQL("CREATE TABLE IF NOT EXISTS `DoubleSetting` (`key` TEXT NOT NULL, `value` REAL NOT NULL, PRIMARY KEY(`key`))")
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(BibleApplication.application.applicationContext)
+            for((k, v) in sharedPreferences.all) {
+                when(v) {
+                    is Long -> {
+                        execSQL("INSERT INTO LongSetting VALUES('$k', $v)")
+                    }
+                    is Int -> {
+                        execSQL("INSERT INTO LongSetting VALUES('$k', $v)")
+                    }
+                    is Boolean -> {
+                        execSQL("INSERT INTO BooleanSetting VALUES('$k', ${if(v) 1 else 0})")
+                    }
+                    is String -> {
+                        execSQL("INSERT INTO StringSetting VALUES('$k', '$v')")
+                    }
+                    is Float -> {
+                        execSQL("INSERT INTO DoubleSetting VALUES('$k', $v)")
+                    }
+                    is Double -> {
+                        execSQL("INSERT INTO DoubleSetting VALUES('$k', $v)")
+                    }
+                    else -> {
+                        Log.e(TAG, "Illegal value '$k', $v")
+                    }
+                }
+            }
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -967,6 +1007,7 @@ object DatabaseContainer {
                         MIGRATION_50_51_underlineStyleAndRecentLabels,
                         MIGRATION_51_52_compareDocuments,
                         MIGRATION_52_53_underline,
+                        MIGRATION_53_54_booleanSettings,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

@@ -298,10 +298,10 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     internal val hideWindowButtons get() =
-        CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)
+        CommonUtils.settings.getBoolean("hide_window_buttons", false)
     private var buttonsWillAnimate = false;
     private val autoHideWindowButtonBarInFullScreen get() =
-        CommonUtils.sharedPreferences.getBoolean("full_screen_hide_buttons_pref", true)
+        CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)
 
     private fun rebuildRestoreButtons() {
         Log.d(TAG, "rebuildRestoreButtons")
@@ -578,15 +578,15 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         }
     }
 
-    private var restoreButtonsVisible = CommonUtils.sharedPreferences.getBoolean("restoreButtonsVisible", true)
+    private var restoreButtonsVisible = CommonUtils.settings.getBoolean("restoreButtonsVisible", true)
         set(value) {
-            CommonUtils.sharedPreferences.edit().putBoolean("restoreButtonsVisible", value).apply()
+            CommonUtils.settings.setBoolean("restoreButtonsVisible", value)
             ABEventBus.getDefault().post(RestoreButtonsVisibilityChanged())
             field = value
         }
 
     private fun updateBibleReferenceOverlay(_show: Boolean) {
-        val isSettingDisabled = CommonUtils.sharedPreferences.getBoolean("hide_bible_reference_overlay", false)
+        val isSettingDisabled = CommonUtils.settings.getBoolean("hide_bible_reference_overlay", false)
         if (isSettingDisabled) return
 
         val show = mainBibleActivity.fullScreen && _show

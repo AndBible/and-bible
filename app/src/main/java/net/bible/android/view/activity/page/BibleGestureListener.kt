@@ -24,7 +24,6 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.view.util.TouchOwner
 import net.bible.service.common.CommonUtils
 
@@ -37,7 +36,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
     private val scaledMinimumFullScreenScrollDistance: Int
 
     private var minScaledVelocity: Int = 0
-    private val autoFullScreen: Boolean get() = CommonUtils.sharedPreferences.getBoolean("auto_fullscreen_pref", false)
+    private val autoFullScreen: Boolean get() = CommonUtils.settings.getBoolean("auto_fullscreen_pref", false)
     private var lastFullScreenByDoubleTap = false
 
     private lateinit var scrollEv: MotionEvent
@@ -137,7 +136,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         return super.onSingleTapUp(e)
     }
 
-    private val doubleTapToFullscreen get() = CommonUtils.sharedPreferences.getBoolean("double_tap_to_fullscreen", true)
+    private val doubleTapToFullscreen get() = CommonUtils.settings.getBoolean("double_tap_to_fullscreen", true)
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         if (mainBibleActivity.fullScreen) {

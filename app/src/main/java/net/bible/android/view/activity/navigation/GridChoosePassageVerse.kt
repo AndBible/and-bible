@@ -73,7 +73,7 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
 
         val grid = ButtonGrid(this)
         grid.setOnButtonGridActionListener(this)
-        grid.isLeftToRightEnabled = CommonUtils.sharedPreferences.getBoolean(GridChoosePassageBook.BOOK_GRID_FLOW_PREFS, false)
+        grid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(GridChoosePassageBook.BOOK_GRID_FLOW_PREFS, false)
         grid.addButtons(getBibleVersesButtonInfo(mBibleBook, mBibleChapterNo))
         setContentView(grid)
     }

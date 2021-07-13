@@ -216,23 +216,43 @@ object CommonUtils {
             return megAvailable
         }
 
-    val localePref: String?
-        get() = sharedPreferences.getString("locale_pref", null)
+    val booleanSettings get() = DatabaseContainer.db.booleanSettingDao()
+    val longSettings get() = DatabaseContainer.db.longSettingDao()
+    val stringSettings get() = DatabaseContainer.db.stringSettingDao()
+    val doubleSettings get() = DatabaseContainer.db.doubleSettingDao()
 
-    /** get preferences used by User Prefs screen
-     *
-     * @return
-     */
-    val sharedPreferences: SharedPreferences
+    class AndBibleSettings {
+        fun getString(key: String, default: String? = null) = stringSettings.get(key, default)
+        fun getLong(key: String, default: Long) = longSettings.get(key, default)
+        fun getInt(key: String, default: Int) = longSettings.get(key, default.toLong()).toInt()
+        fun getBoolean(key: String, default: Boolean) = booleanSettings.get(key, default)
+        fun getDouble(key: String, default: Double) = doubleSettings.get(key, default)
+        fun getFloat(key: String, default: Float): Float = doubleSettings.get(key, default.toDouble()).toFloat()
+
+        fun setString(key: String, value: String?) = stringSettings.set(key, value)
+        fun setLong(key: String, value: Long?) = longSettings.set(key, value)
+        fun setInt(key: String, value: Int?) = longSettings.set(key, value?.toLong())
+        fun setBoolean(key: String, value: Boolean?) = booleanSettings.set(key, value)
+        fun setDouble(key: String, value: Double?) = doubleSettings.set(key, value)
+        fun setFloat(key: String, value: Float?) = doubleSettings.set(key, value?.toDouble())
+
+        fun removeString(key: String) = setString(key, null)
+        fun removeDouble(key: String) = setDouble(key, null)
+        fun removeLong(key: String) = setLong(key, null)
+        fun removeBoolean(key: String) = setBoolean(key, null)
+    }
+
+    val settings = AndBibleSettings()
+
+    val localePref: String?
+        get() = realSharedPreferences.getString("locale_pref", null)
+
+    // Note: use And BibleSettings always if possible to save preferences. They are persisted in DB.
+    val realSharedPreferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 
     val truncatedDate: Date
         get() = DateUtils.truncate(Date(), Calendar.DAY_OF_MONTH)
-
-    /** enable performance adjustments for slow devices
-     */
-    val isSlowDevice: Boolean
-        get() = Runtime.getRuntime().availableProcessors() == 1
 
     init {
         try {
@@ -343,15 +363,8 @@ object CommonUtils {
 
     }
 
-    fun getSharedPreference(key: String, defaultValue: String): String? {
-        return sharedPreferences.getString(key, defaultValue)
-    }
-
-    fun saveSharedPreference(key: String, value: String) {
-        sharedPreferences.edit()
-                .putString(key, value)
-                .apply()
-    }
+    fun getSharedPreference(key: String, defaultValue: String): String? = settings.getString(key, defaultValue)
+    fun saveSharedPreference(key: String, value: String) = settings.setString(key, value)
 
     fun getResourceString(resourceId: Int, vararg formatArgs: Any): String {
         return resources.getString(resourceId, *formatArgs)
@@ -534,7 +547,7 @@ object CommonUtils {
     }
 
     val lastDisplaySettings: List<WorkspaceEntities.TextDisplaySettings.Types> get() {
-        val lastDisplaySettingsString = sharedPreferences.getString("lastDisplaySettings", null)
+        val lastDisplaySettingsString = settings.getString("lastDisplaySettings", null)
         var lastTypes = mutableListOf<WorkspaceEntities.TextDisplaySettings.Types>()
         if(lastDisplaySettingsString!= null) {
             try {
@@ -553,7 +566,7 @@ object CommonUtils {
             lastTypes.removeAt(lastTypes.size - 1)
         }
         lastTypes.add(0, type)
-        sharedPreferences.edit().putString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson()).apply()
+        settings.setString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson())
     }
 
     private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()

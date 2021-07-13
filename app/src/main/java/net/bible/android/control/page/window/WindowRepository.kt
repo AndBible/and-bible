@@ -26,13 +26,12 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
-import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.service.common.CommonUtils.settings
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils.getResourceString
@@ -106,10 +105,10 @@ open class WindowRepository @Inject constructor(
         if(initialized) return
         var firstTime = false
         if(id == 0L) {
-            id = sharedPreferences.getLong("current_workspace_id", 0)
+            id = settings.getLong("current_workspace_id", 0)
             if (id == 0L || dao.workspace(id) == null) {
                 id = dao.insertWorkspace(WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1)))
-                sharedPreferences.edit().putLong("current_workspace_id", id).apply()
+                settings.setLong("current_workspace_id", id)
                 firstTime = true
             }
         }

@@ -394,7 +394,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             mode.menu.clear()
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
             // For some reason, these do not seem to be correct from XML, even though specified there
-            if(CommonUtils.sharedPreferences.getBoolean("disable_two_step_bookmarking", false)) {
+            if(CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false)) {
                 menu.findItem(R.id.add_bookmark_selection).run {
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     setVisible(true)
@@ -884,7 +884,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInflater: MenuInflater) {
             menuInflater.inflate(R.menu.link_context_menu, menu)
-            val openLinksInSpecialWindowByDefault = CommonUtils.sharedPreferences.getBoolean("open_links_in_special_window_pref", true)
+            val openLinksInSpecialWindowByDefault = CommonUtils.settings.getBoolean("open_links_in_special_window_pref", true)
             val item =
                 if(openLinksInSpecialWindowByDefault)
                     menu.findItem(R.id.open_link_in_special_window)
@@ -968,7 +968,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private val hasActiveIndicator get() =
-        CommonUtils.sharedPreferences.getBoolean("show_active_window_indicator", true)
+        CommonUtils.settings.getBoolean("show_active_window_indicator", true)
             && windowControl.activeWindow.id == window.id && windowControl.windowRepository.visibleWindows.size > 1
 
     private val isActive get() = windowControl.activeWindow.id == window.id
@@ -976,7 +976,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun updateActive() =
         executeJavascriptOnUiThread("""bibleView.emit('set_active', {isActive: $isActive, hasActiveIndicator: $hasActiveIndicator})""")
 
-    private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.sharedPreferences.getBoolean("show_errorbox", false) else false
+    private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.settings.getBoolean("show_errorbox", false) else false
 
     private fun getUpdateConfigCommand(initial: Boolean): String {
         val favouriteLabels = json.encodeToString(serializer(), workspaceSettings.favouriteLabels)
