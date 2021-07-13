@@ -17,11 +17,11 @@
 
 <template>
   <div class="ambiguous-button" :style="buttonStyle" @click.stop="openBookmark">
-    <div>
-      {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 30)}}</i></q>
+    <div class="one-liner">
+      {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ bookmark.text}}</i></q>
     </div>
-    <div v-if="bookmark.hasNote">
-      {{ abbreviated(htmlToString(bookmark.notes), 30)}}
+    <div v-if="bookmark.hasNote" class="one-liner">
+      {{ htmlToString(bookmark.notes)}}
     </div>
 
     <div style="overflow-x: auto">

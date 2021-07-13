@@ -23,8 +23,8 @@
         <div style="overflow-x: auto">
           <LabelList single-line handle-touch in-bookmark :bookmark-id="bookmark.id" ref="labelList"/>
         </div>
-        <div class="title-text">
-          {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 25)}}</i></q>
+        <div class="title-text one-liner">
+          {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ bookmark.text }}</i></q>
         </div>
       </div>
     </template>
