@@ -129,6 +129,7 @@ export default {
       console.log("AmbiguousSelection handling", event);
       const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
       const eventFunctions = getHighestPriorityEventFunctions(event);
+      const allEventFunctions = getAllEventFunctions(event);
       const hasParticularClicks = eventFunctions.filter(f => !f.options.hidden).length > 0; // let's not show only "hidden" items
       if(appSettings.actionMode) return;
       const hadHighlights = hasHighlights.value;
@@ -141,7 +142,11 @@ export default {
       emit(Events.WINDOW_CLICKED);
 
       if(eventFunctions.length > 0 || _verseInfo != null) {
-        if(eventFunctions.length === 1 && eventFunctions[0].options.priority > 0) {
+        const firstFunc = eventFunctions[0];
+        if(
+          (eventFunctions.length === 1 && firstFunc.options.priority > 0 && !firstFunc.options.dottedStrongs)
+          || (firstFunc.options.dottedStrongs && allEventFunctions.length === 1)
+        ) {
           if (eventFunctions[0].options.bookmarkId) {
             emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId);
           } else {
@@ -154,7 +159,7 @@ export default {
           } else {
             verseInfo.value = _verseInfo;
             highlightVerse(_verseInfo.ordinal);
-            const s = await select(getAllEventFunctions(event));
+            const s = await select(allEventFunctions);
             if (s && s.callback) s.callback();
             resetHighlights();
           }

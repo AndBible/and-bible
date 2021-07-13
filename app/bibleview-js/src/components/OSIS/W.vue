@@ -97,7 +97,7 @@ export default {
           cancelFunc = () => {};
         }
         eventBus.on(Events.WINDOW_CLICKED, cancelFunc);
-      }, {priority, title: strings.strongsAndMorph});
+      }, {priority, title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
     }
     const showStrongs = computed(() => config.strongsMode !== strongsModes.off);
     const showStrongsSeparately = computed(() => config.strongsMode === strongsModes.links);

@@ -18,7 +18,7 @@
 import {onBeforeUnmount, onMounted, onUnmounted} from "@vue/runtime-core";
 import Color from "color";
 import {rybColorMixer} from "@/lib/ryb-color-mixer";
-import {get} from "lodash";
+import {get, sortBy} from "lodash";
 import {highlightRange} from "@/lib/highlight-range";
 import {findNodeAtOffset, lastTextNode} from "@/dom";
 
@@ -337,7 +337,7 @@ export function getAllEventFunctions(event) {
     for(const [, items] of Object.entries(event.eventFunctions)) {
         all.push(...items);
     }
-    return all;
+    return sortBy(all, [v => -v.options.priority, v => v.options.title]);
 }
 
 export function draggableElement(element, dragHandle) {

@@ -431,12 +431,13 @@ export function useBookmarks(documentId,
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
         let firstElement, lastElement;
         const style = config.showBookmarks ? styleForStyleRange(styleRange) : "";
-        const priority = style === "" ? EventPriorities.HIDDEN_BOOKMARK : EventPriorities.VISIBLE_BOOKMARK;
+        const hidden =  style === "";
+        const priority = hidden ? EventPriorities.HIDDEN_BOOKMARK : EventPriorities.VISIBLE_BOOKMARK;
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId));
 
         function addBookmarkEventFunctions(event) {
             for (const b of bookmarks) {
-                addEventFunction(event, null, {bookmarkId: b.id, priority});
+                addEventFunction(event, null, {bookmarkId: b.id, priority, hidden});
             }
         }
 
