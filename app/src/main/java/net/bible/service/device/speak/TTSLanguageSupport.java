@@ -37,10 +37,8 @@ public class TTSLanguageSupport {
 		if (!isLangKnownToBeSupported(locale.getLanguage())) {
 			String langCode = locale.getLanguage();
 			String langList = getSupportedLangList();
-			CommonUtils.INSTANCE.getSharedPreferences()
-						.edit()
-						.putString(TTS_LANG_SUPPORTED_KEY, langList+LANG_SEPERATOR+langCode)
-						.commit();
+			CommonUtils.INSTANCE.getSettings()
+						.setString(TTS_LANG_SUPPORTED_KEY, langList+LANG_SEPERATOR+langCode);
 		}
 	}
 	
@@ -48,10 +46,8 @@ public class TTSLanguageSupport {
 		if (isLangKnownToBeSupported(locale.getLanguage())) {
 			String langCode = locale.getLanguage();
 			String langList = getSupportedLangList();
-			CommonUtils.INSTANCE.getSharedPreferences()
-						.edit()
-						.putString(TTS_LANG_SUPPORTED_KEY, langList.replace(LANG_SEPERATOR+langCode, ""))
-						.commit();
+			CommonUtils.INSTANCE.getSettings()
+						.setString(TTS_LANG_SUPPORTED_KEY, langList.replace(LANG_SEPERATOR+langCode, ""));
 		}
 	}
 	
@@ -61,6 +57,6 @@ public class TTSLanguageSupport {
 	}
 	
 	private String getSupportedLangList() {
-		return CommonUtils.INSTANCE.getSharedPreferences().getString(TTS_LANG_SUPPORTED_KEY, "");
+		return CommonUtils.INSTANCE.getSettings().getString(TTS_LANG_SUPPORTED_KEY, "");
 	}
 }

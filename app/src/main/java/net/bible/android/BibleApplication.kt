@@ -88,7 +88,7 @@ open class BibleApplication : Application() {
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             BugReport.saveScreenshot()
-            CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", true).commit()
+            CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
             defaultExceptionHandler.uncaughtException(t, e)
         }
         ABEventBus.getDefault().register(this)
@@ -155,7 +155,7 @@ open class BibleApplication : Application() {
     }
 
     private fun upgradeSharedPreferences() {
-        val prefs = CommonUtils.sharedPreferences
+        val prefs = CommonUtils.realSharedPreferences
         val prevInstalledVersion = prefs.getInt("version", -1)
         val newInstall = prevInstalledVersion == -1
 

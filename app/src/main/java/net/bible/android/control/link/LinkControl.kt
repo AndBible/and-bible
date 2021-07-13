@@ -34,7 +34,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
-import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.service.common.CommonUtils.settings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
@@ -274,8 +274,8 @@ class LinkControl @Inject constructor(
         return when (windowMode) {
             WINDOW_MODE_SPECIAL -> true
             WINDOW_MODE_THIS -> false
-            WINDOW_MODE_UNDEFINED -> sharedPreferences.getBoolean("open_links_in_special_window_pref", true)
-            else -> sharedPreferences.getBoolean("open_links_in_special_window_pref", true)
+            WINDOW_MODE_UNDEFINED -> settings.getBoolean("open_links_in_special_window_pref", true)
+            else -> settings.getBoolean("open_links_in_special_window_pref", true)
         }
     }
 

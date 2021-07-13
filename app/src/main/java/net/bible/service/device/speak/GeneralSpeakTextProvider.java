@@ -18,7 +18,6 @@
 
 package net.bible.service.device.speak;
 
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import net.bible.android.control.event.ABEventBus;
@@ -51,9 +50,9 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 
 	private final SwordContentFacade swordContentFacade;
     private List<String> mTextToSpeak = new ArrayList<String>();
-    private int nextTextToSpeak = 0;
+    private long nextTextToSpeak = 0;
     // this fraction supports pause/rew/ff; if o then speech occurs normally, if 0.5 then next speech chunk is half completed...
-    private float fractionOfNextSentenceSpoken = 0;
+    private double fractionOfNextSentenceSpoken = 0;
     private String currentText = "";
     
     // Before ICS Android would split up long text for you but since ICS this error occurs:
@@ -225,14 +224,14 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 			Log.e(TAG, "Error: passed end of Speaktext.  nextText:"+nextTextToSpeak+" textToSpeak size:"+mTextToSpeak.size());
 			return "";
 		}
-        return mTextToSpeak.get(nextTextToSpeak);
+        return mTextToSpeak.get((int) nextTextToSpeak);
 	}
 	
 	/** fractionCompleted may be a fraction of a fraction of the current block if this is not the first pause in this block
 	 * 
 	 * @param fractionCompleted of last block of text returned by getNextSpeakCommand
 	 */
-	public void savePosition(float fractionCompleted) {
+	public void savePosition(double fractionCompleted) {
 		Log.d(TAG, "Pause CurrentSentence:"+nextTextToSpeak);
 
         // accumulate these fractions until we reach the end of a chunk of text
@@ -336,12 +335,14 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	 */
 	public void persistState() {
 		if (mTextToSpeak.size()>0) {
-			CommonUtils.INSTANCE.getSharedPreferences()
-						.edit()
-						.putString(PERSIST_SPEAK_TEXT, StringUtils.join(mTextToSpeak, PERSIST_SPEAK_TEXT_SEPARATOR))
-						.putInt(PERSIST_NEXT_TEXT, nextTextToSpeak)
-						.putFloat(PERSIST_FRACTION_SPOKEN, fractionOfNextSentenceSpoken)
-						.apply();
+			CommonUtils.INSTANCE.getSettings()
+						.setString(PERSIST_SPEAK_TEXT, StringUtils.join(mTextToSpeak, PERSIST_SPEAK_TEXT_SEPARATOR));
+
+			CommonUtils.INSTANCE.getSettings()
+						.setLong(PERSIST_NEXT_TEXT, nextTextToSpeak);
+
+			CommonUtils.INSTANCE.getSettings()
+						.setDouble(PERSIST_FRACTION_SPOKEN, fractionOfNextSentenceSpoken);
 		}
 	}
 
@@ -351,11 +352,11 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	 */
 	public boolean restoreState() {
 		boolean isRestored = false;
-		SharedPreferences sharedPreferences = CommonUtils.INSTANCE.getSharedPreferences();
-		if (sharedPreferences.contains(PERSIST_SPEAK_TEXT)) {
-			mTextToSpeak = new ArrayList<String>(Arrays.asList(sharedPreferences.getString(PERSIST_SPEAK_TEXT, "").split(PERSIST_SPEAK_TEXT_SEPARATOR)));
-			nextTextToSpeak = sharedPreferences.getInt(PERSIST_NEXT_TEXT, 0);
-			fractionOfNextSentenceSpoken = sharedPreferences.getFloat(PERSIST_FRACTION_SPOKEN, 0);
+		CommonUtils.AndBibleSettings sharedPreferences = CommonUtils.INSTANCE.getSettings();
+		if (sharedPreferences.getString(PERSIST_SPEAK_TEXT, null) != null) {
+			mTextToSpeak = new ArrayList(Arrays.asList(sharedPreferences.getString(PERSIST_SPEAK_TEXT, "").split(PERSIST_SPEAK_TEXT_SEPARATOR)));
+			nextTextToSpeak = sharedPreferences.getLong(PERSIST_NEXT_TEXT, 0);
+			fractionOfNextSentenceSpoken = sharedPreferences.getDouble(PERSIST_FRACTION_SPOKEN, 0);
 			clearPersistedState();
 			isRestored = true;
 		}
@@ -363,13 +364,12 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 		return isRestored;
 	}
 	public void clearPersistedState() {
-		CommonUtils.INSTANCE.getSharedPreferences().edit().remove(PERSIST_SPEAK_TEXT)
-												.remove(PERSIST_NEXT_TEXT)
-												.remove(PERSIST_FRACTION_SPOKEN)
-												.apply();
+		CommonUtils.INSTANCE.getSettings().removeString(PERSIST_SPEAK_TEXT);
+		CommonUtils.INSTANCE.getSettings().removeString(PERSIST_NEXT_TEXT);
+		CommonUtils.INSTANCE.getSettings().removeString(PERSIST_FRACTION_SPOKEN);
 	}
 
-	private StartPos getPrevTextStartPos(String text, float fraction) {
+	private StartPos getPrevTextStartPos(String text, double fraction) {
 		StartPos retVal = new StartPos();
 		
     	int allTextLength = text.length();
@@ -398,7 +398,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
     	return retVal;
 	}
 	
-	private StartPos getForwardTextStartPos(String text, float fraction) {
+	private StartPos getForwardTextStartPos(String text, double fraction) {
 		StartPos retVal = new StartPos();
 		
     	int allTextLength = text.length();
@@ -511,7 +511,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 			}
 			
 			if (nextTextToSpeak<mTextToSpeak.size()) {
-				spokenChars += fractionOfNextSentenceSpoken * (float)mTextToSpeak.get(nextTextToSpeak).length();
+				spokenChars += fractionOfNextSentenceSpoken * (float)mTextToSpeak.get((int) nextTextToSpeak).length();
 			}
 		}		
 		return spokenChars;

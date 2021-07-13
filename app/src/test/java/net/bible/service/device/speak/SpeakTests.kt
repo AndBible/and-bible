@@ -2,8 +2,6 @@ package net.bible.service.device.speak
 
 import net.bible.android.BibleApplication
 import net.bible.android.TestBibleApplication
-import net.bible.android.activity.databinding.SpeakBibleBinding
-import net.bible.android.activity.databinding.SpeakSettingsBinding
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
@@ -488,7 +486,7 @@ class TestPersistence : AbstractSpeakTests() {
     @Test
     fun storePersistence() {
         provider.setupReading(book, getVerse("Ps.14.1"))
-        val sharedPreferences = CommonUtils.sharedPreferences
+        val sharedPreferences = CommonUtils.settings
         provider.persistState()
         assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Ps.14.1"))
         assertThat(sharedPreferences.getString("SpeakBibleBook", ""), equalTo("FinRK"))
@@ -496,7 +494,7 @@ class TestPersistence : AbstractSpeakTests() {
 
     @Test
     fun readPersistence() {
-        val sharedPreferences = CommonUtils.sharedPreferences
+        val sharedPreferences = CommonUtils.settings
         sharedPreferences.edit().putString("SpeakBibleBook", "FinRK").apply()
         sharedPreferences.edit().putString("SpeakBibleVerse", "Ps.14.1").apply()
         provider.setupReading(book, getVerse("Ps.14.1"))

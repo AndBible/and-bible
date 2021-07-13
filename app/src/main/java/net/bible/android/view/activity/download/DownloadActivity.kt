@@ -41,7 +41,7 @@ import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils.json
-import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.service.common.CommonUtils.settings
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.FakeBookFactory
@@ -101,7 +101,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     }
 
     private suspend fun askIfWantToProceed(): Boolean = withContext(Dispatchers.Main) {
-        if(sharedPreferences.getBoolean("download_do_not_ask", false))
+        if(settings.getBoolean("download_do_not_ask", false))
             true
 
         else
@@ -111,7 +111,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                     .setMessage(getString(R.string.download_question_message))
                     .setPositiveButton(R.string.yes) {_, _ -> it.resume(true)}
                     .setNegativeButton(R.string.do_not_ask_again) {_, _ ->
-                        sharedPreferences.edit().putBoolean("download_do_not_ask", true).apply()
+                        settings.setBoolean("download_do_not_ask", true)
                         it.resume(true)
                     }
                     .setNeutralButton(R.string.cancel) {_, _ -> it.resume(false)}
@@ -231,14 +231,14 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
      */
     private val isRepoBookListOld: Boolean
         get() {
-            val repoRefreshDate = sharedPreferences.getLong(REPO_REFRESH_DATE, 0)
+            val repoRefreshDate = settings.getLong(REPO_REFRESH_DATE, 0)
             val today = Date()
             return (today.time - repoRefreshDate) / MILLISECS_IN_DAY > REPO_LIST_STALE_AFTER_DAYS
         }
 
     private fun updateLastRepoRefreshDate() {
         val today = Date()
-        sharedPreferences.edit().putLong(REPO_REFRESH_DATE, today.time).apply()
+        settings.setLong(REPO_REFRESH_DATE, today.time)
     }
 
     override fun showPreLoadMessage(refresh: Boolean) {
@@ -250,7 +250,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                 https://andbible.github.io
                 """.trimIndent()
 
-        val repoRefreshDate = sharedPreferences.getLong(REPO_REFRESH_DATE, 0)
+        val repoRefreshDate = settings.getLong(REPO_REFRESH_DATE, 0)
         val date = SimpleDateFormat.getDateInstance().format(Date(repoRefreshDate))
 
         val message = (

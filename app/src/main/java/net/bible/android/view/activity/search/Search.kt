@@ -19,7 +19,6 @@
 package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -101,7 +100,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         Log.i(TAG, "Displaying Search view")
         binding = SearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        CommonUtils.sharedPreferences.edit().putLong("search-last-used", System.currentTimeMillis()).apply()
+        CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
         buildActivityComponent().inject(this)
 
         if (!searchControl.validateIndex(documentToSearch)) {

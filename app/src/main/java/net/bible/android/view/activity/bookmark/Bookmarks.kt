@@ -46,14 +46,12 @@ import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
-import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.service.common.CommonUtils.settings
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
-import net.bible.service.sword.SwordContentFacade
 import java.lang.IllegalArgumentException
 import java.util.*
 import javax.inject.Inject
@@ -96,7 +94,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         super.onCreate(savedInstanceState, true)
         binding = BookmarksBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        sharedPreferences.edit().putLong("bookmarks-last-used", System.currentTimeMillis()).apply()
+        settings.setLong("bookmarks-last-used", System.currentTimeMillis())
         buildActivityComponent().inject(this)
 
         // if coming Back using History then the LabelNo will be in the intent allowing the correct label to be pre-selected

@@ -35,7 +35,6 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
-import org.crosswire.jsword.passage.Verse
 import javax.inject.Inject
 
 class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: Selection):
@@ -47,16 +46,16 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
     init {
         CommonUtils.buildActivityComponent().inject(this)
         bindings.run {
-            toggleFullVerses.isChecked = CommonUtils.sharedPreferences.getBoolean("share_toggle_full", false)
+            toggleFullVerses.isChecked = CommonUtils.settings.getBoolean("share_toggle_full", false)
             if(!selection.hasRange) {
                 toggleFullVerses.isChecked = true
                 toggleFullVerses.visibility = View.GONE
             }
-            toggleVersenumbers.isChecked = CommonUtils.sharedPreferences.getBoolean("share_verse_numbers", true)
-            advertise.isChecked = CommonUtils.sharedPreferences.getBoolean("share_show_add", true)
-            abbreviateReference.isChecked = CommonUtils.sharedPreferences.getBoolean("share_abbreviate_reference", true)
+            toggleVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_verse_numbers", true)
+            advertise.isChecked = CommonUtils.settings.getBoolean("share_show_add", true)
+            abbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
             toggleNotes.visibility = if(selection.notes!= null) View.VISIBLE else View.GONE
-            toggleNotes.isChecked = CommonUtils.sharedPreferences.getBoolean("show_notes", true)
+            toggleNotes.isChecked = CommonUtils.settings.getBoolean("show_notes", true)
 
             toggleFullVerses.setOnClickListener { updateText()}
             toggleVersenumbers.setOnClickListener { updateText()}
@@ -76,13 +75,13 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             showNotes = bindings.toggleNotes.isChecked,
         )
         bindings.preview.text = text
-        CommonUtils.sharedPreferences.edit()
-            .putBoolean("share_toggle_full", bindings.toggleFullVerses.isChecked)
-            .putBoolean("share_verse_numbers", bindings.toggleVersenumbers.isChecked)
-            .putBoolean("share_show_add", bindings.advertise.isChecked)
-            .putBoolean("share_abbreviate_reference", bindings.abbreviateReference.isChecked)
-            .putBoolean("show_notes", bindings.toggleNotes.isChecked)
-            .apply()
+        CommonUtils.settings.apply {
+            setBoolean("share_toggle_full", bindings.toggleFullVerses.isChecked)
+            setBoolean("share_verse_numbers", bindings.toggleVersenumbers.isChecked)
+            setBoolean("share_show_add", bindings.advertise.isChecked)
+            setBoolean("share_abbreviate_reference", bindings.abbreviateReference.isChecked)
+            setBoolean("show_notes", bindings.toggleNotes.isChecked)
+        }
     }
 
     companion object {

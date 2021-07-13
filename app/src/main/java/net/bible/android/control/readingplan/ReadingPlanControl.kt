@@ -126,7 +126,7 @@ class ReadingPlanControl @Inject constructor(
      */
     private val currentPlanCode: String
         get() {
-            val prefs = CommonUtils.sharedPreferences
+            val prefs = CommonUtils.settings
             return prefs.getString(READING_PLAN, "") as String
         }
 
@@ -155,10 +155,8 @@ class ReadingPlanControl @Inject constructor(
      */
     fun setReadingPlan(planCode: String) {
         // set default plan to this
-        val prefs = CommonUtils.sharedPreferences
-        prefs.edit()
-                .putString(READING_PLAN, planCode)
-                .apply()
+        val prefs = CommonUtils.settings
+        prefs.setString(READING_PLAN, planCode)
     }
 
     /** get read status of this days readings
@@ -324,7 +322,7 @@ class ReadingPlanControl @Inject constructor(
     fun reset(plan: ReadingPlanInfoDto) {
         // if resetting default plan then remove default
         if (plan.planCode == currentPlanCode) {
-            CommonUtils.sharedPreferences.edit().remove(READING_PLAN).apply()
+            CommonUtils.settings.removeString(READING_PLAN)
         }
 
         readingPlanRepo.resetPlan(plan.planCode)
