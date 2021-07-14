@@ -29,6 +29,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Build
@@ -59,6 +60,9 @@ import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkType
+import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
@@ -79,6 +83,7 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
 import org.spongycastle.util.io.pem.PemReader
 import java.io.File
 import java.io.FileInputStream
@@ -110,6 +115,7 @@ const val beta34introVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // Fo
 const val speakHelpVideo = "https://youtu.be/_wWnS-pjv2A"
 const val automaticSpeakBookmarkingVideo = "https://www.youtube.com/watch?v=1HFXLeTERcs"
 
+class DataBaseNotReady: Exception()
 
 val BookmarkEntities.Label.displayName get() =
     when {
@@ -242,7 +248,16 @@ object CommonUtils {
         fun removeBoolean(key: String) = setBoolean(key, null)
     }
 
-    val settings = AndBibleSettings()
+    private var _settings: AndBibleSettings? = null
+    val settings: AndBibleSettings get() {
+        val s = _settings
+        if(s != null) return s
+        if(DatabaseContainer.initialized) {
+            return AndBibleSettings().apply { _settings = this }
+        } else {
+            throw DataBaseNotReady()
+        }
+    }
 
     val localePref: String?
         get() = realSharedPreferences.getString("locale_pref", null)
@@ -812,6 +827,8 @@ object CommonUtils {
 
     fun initializeApp() {
         if(!initialized) {
+            DatabaseContainer.db
+
             docDao.getUnlocked().forEach {
                 val book = Books.installed().getBook(it.initials)
                 book.unlock(it.cipherKey)
@@ -823,7 +840,61 @@ object CommonUtils {
             //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
             //}
 
+            prepareData()
+
             initialized = true
+        }
+    }
+
+    private fun prepareData() {
+        val dataVersionNow = 1L
+        val dataVersion = settings.getLong("data-version", 0)
+
+        if(dataVersion < 1) {
+            val workspaceDao = DatabaseContainer.db.workspaceDao()
+            val bookmarkDao = DatabaseContainer.db.bookmarkDao()
+
+            val highlightLabels = listOf(
+                BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false),
+                BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false),
+                BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false),
+                BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 255, 0), underlineStyle = true, underlineStyleWholeVerse = true),
+            )
+            val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255, 255, 0, 255))
+            val highlightIds = bookmarkDao.insertLabels(highlightLabels)
+            val salvationId = bookmarkDao.insert(salvationLabel)
+
+            listOf("Gen.1.1", "Joh.3.16", "Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.2.17")
+                .map { VerseRangeFactory.fromString(KJVA, it) }
+                .map {
+                    BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
+                }.forEach {
+                    val bid = bookmarkDao.insert(it)
+                    bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationId))
+                }
+
+            val ws = workspaceDao.allWorkspaces()
+            if(ws.isNotEmpty()) {
+                ws.forEach {
+                    it.workspaceSettings?.favouriteLabels?.addAll(highlightIds)
+                }
+                workspaceDao.updateWorkspaces(ws)
+                settings.setBoolean("first-time", false)
+
+            } else {
+                val workspaceSettings = WorkspaceEntities.WorkspaceSettings(favouriteLabels = highlightIds.toMutableSet())
+                val workspaceIds = listOf(
+                    WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
+                    WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
+                ).map {
+                    workspaceDao.insertWorkspace(it)
+                }
+                settings.setLong("current_workspace_id", workspaceIds[0])
+            }
+        }
+
+        if(dataVersion != dataVersionNow) {
+            settings.setLong("data-version", dataVersionNow)
         }
     }
 

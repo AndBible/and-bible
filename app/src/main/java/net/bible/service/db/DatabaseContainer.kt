@@ -944,6 +944,7 @@ private val MIGRATION_53_54_booleanSettings = object : Migration(53, 54) {
 private val MIGRATION_54_55_bookmarkType = object : Migration(54, 55) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
+            execSQL("ALTER TABLE Label ADD COLUMN type TEXT DEFAULT NULL")
             execSQL("ALTER TABLE Bookmark ADD COLUMN type TEXT DEFAULT NULL")
         }
     }
@@ -951,6 +952,8 @@ private val MIGRATION_54_55_bookmarkType = object : Migration(54, 55) {
 
 object DatabaseContainer {
     private var instance: AppDatabase? = null
+
+    val initialized get() = instance != null
 
     val db: AppDatabase
         get () {

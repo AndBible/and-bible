@@ -85,7 +85,8 @@ interface VerseRangeUser {
     val verseRange: VerseRange
 }
 
-enum class BookmarkType {HIGHLIGHT}
+enum class LabelType {HIGHLIGHT, EXAMPLE}
+enum class BookmarkType {EXAMPLE}
 
 class BookmarkEntities {
     @Serializable
@@ -270,6 +271,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
         @ColumnInfo(defaultValue = "0") var underlineStyle: Boolean = false,
         @ColumnInfo(defaultValue = "0") var underlineStyleWholeVerse: Boolean = true,
+        @ColumnInfo(defaultValue = "NULL") var type: LabelType? = null,
     ) {
         override fun toString() = name
         val isSpeakLabel get() = name == SPEAK_LABEL_NAME

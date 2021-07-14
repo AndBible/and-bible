@@ -215,7 +215,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             Log.i(TAG, "Going to main bible view")
 
             // When I mess up database, I can re-create database like this.
-            // BackupControl.resetDatabase()
+            //BackupControl.resetDatabase()
             initializeDatabase()
 
             CommonUtils.initializeApp()

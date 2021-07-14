@@ -168,6 +168,7 @@ interface BookmarkDao {
     @Update fun update(entity: BookmarkEntities.StudyPadTextEntry)
 
     @Insert fun insert(entity: Label): Long
+    @Insert fun insertLabels(entity: List<Label>): List<Long>
 
     @Update fun update(entity: Label)
 

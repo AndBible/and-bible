@@ -51,7 +51,7 @@ object ScreenSettings {
     private const val DARK_READING_THRESHOLD = 15
     private const val MIN_LIGHT_READING = 50
 
-	val preferences get() = CommonUtils.settings
+	val preferences get() = CommonUtils.realSharedPreferences
 
     val isScreenOn: Boolean
         get() {

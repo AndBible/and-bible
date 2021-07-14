@@ -47,12 +47,14 @@ class PreferenceStore: PreferenceDataStore() {
 
     override fun putBoolean(key: String, value: Boolean) = prefs.setBoolean(key, value)
 
+    private fun useRealShared(key: String): Boolean = key == "locale_pref" || key.startsWith("night_mode")
+
     override fun putString(key: String, value: String?) =
-        if(key == "locale_pref") CommonUtils.realSharedPreferences.edit().putString("locale_pref", value).apply()
+        if(useRealShared(key)) CommonUtils.realSharedPreferences.edit().putString(key, value).apply()
         else prefs.setString(key, value)
 
     override fun getString(key: String, defValue: String?): String? =
-        if (key == "locale_pref") CommonUtils.realSharedPreferences.getString("locale_pref", null)
+        if (useRealShared(key)) CommonUtils.realSharedPreferences.getString(key, defValue)
         else prefs.getString(key, defValue)
 
     override fun getLong(key: String, defValue: Long): Long = prefs.getLong(key, defValue)

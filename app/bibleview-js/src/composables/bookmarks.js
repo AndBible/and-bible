@@ -446,6 +446,10 @@ export function useBookmarks(documentId,
             const lastOrdinal = (endOff === null ? endOrdinal : endOrdinal - 1)
             for(let ord = startOrdinal; ord <= lastOrdinal; ord ++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ord}`);
+                if(elem == null) {
+                    console.error("Element is not found!", documentId, ord);
+                    return;
+                }
                 lastElement = elem;
                 const oldStyle = elem.style;
                 elem.style = style;

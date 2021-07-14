@@ -910,7 +910,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                              anchorOrdinal: Int? = null)
     {
         val currentPage = window.pageManager.currentPage
-        bookmarkLabels = bookmarkControl.assignableLabels
+
+        // make sure this has been created
+        bookmarkControl.labelUnlabelled
+
+        bookmarkLabels = bookmarkControl.assignableLabels.toMutableList()
         initialVerse = verse
 
         initialAnchorOrdinal = anchorOrdinal
