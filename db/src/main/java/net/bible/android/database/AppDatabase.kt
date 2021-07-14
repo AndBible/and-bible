@@ -26,6 +26,7 @@ import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkStyle
+import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.readingplan.ReadingPlanDao
@@ -44,9 +45,16 @@ import java.io.ObjectOutputStream
 
 import java.util.*
 
-const val DATABASE_VERSION = 54
+const val DATABASE_VERSION = 55
 
 class Converters {
+    @TypeConverter
+    fun toBookmarkType(value: String?) = if(value==null) null else BookmarkType.valueOf(value)
+
+    @TypeConverter
+    fun fromBookmarkType(value: BookmarkType?) = value?.name
+
+
     @TypeConverter
     fun toBookmarkStyle(value: String?) = if(value==null) null else BookmarkStyle.valueOf(value)
 

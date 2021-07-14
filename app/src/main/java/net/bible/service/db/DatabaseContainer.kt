@@ -941,6 +941,14 @@ private val MIGRATION_53_54_booleanSettings = object : Migration(53, 54) {
     }
 }
 
+private val MIGRATION_54_55_bookmarkType = object : Migration(54, 55) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE Bookmark ADD COLUMN type TEXT DEFAULT NULL")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -1008,6 +1016,7 @@ object DatabaseContainer {
                         MIGRATION_51_52_compareDocuments,
                         MIGRATION_52_53_underline,
                         MIGRATION_53_54_booleanSettings,
+                        MIGRATION_54_55_bookmarkType,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

@@ -85,6 +85,8 @@ interface VerseRangeUser {
     val verseRange: VerseRange
 }
 
+enum class BookmarkType {HIGHLIGHT}
+
 class BookmarkEntities {
     @Serializable
     class TextRange(val start: Int, val end: Int) {
@@ -128,6 +130,8 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") var wholeVerse: Boolean = false,
+        @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
+
         ): VerseRangeUser {
         constructor(verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?): this(
             verseRange.toV11n(KJVA).start.ordinal,
