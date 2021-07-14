@@ -1,0 +1,17 @@
+# remove the leading '#' to uncomment lines
+
+app_package_name('net.bible.android.activity.debug')
+use_tests_in_packages(['net.bible.android.activity'])
+
+app_apk_path('app/build/outputs/apk/debug/app-debug.apk')
+tests_apk_path('app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk')
+
+use_adb_root(true)
+
+locales(['en-US', 'fr-FR', 'fi-FI'])
+
+# clear all previously generated screenshots in your local output directory before creating new ones
+clear_previous_screenshots(true)
+
+# For more information about all available options run
+#   fastlane screengrab --help
