@@ -8,8 +8,8 @@ import net.bible.android.control.event.EventManager
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.AbstractSpeakTests
-import net.bible.service.download.RepoFactory
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -54,6 +54,7 @@ class WindowSynchronisationTest {
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
+        CommonUtils.settings.setBoolean("first-time", false)
         windowRepository!!.initialize()
     }
 
