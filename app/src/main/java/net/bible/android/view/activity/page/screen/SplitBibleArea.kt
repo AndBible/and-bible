@@ -607,7 +607,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
             text = getDocumentAbbreviation(window)
             setOnClickListener { windowControl.restoreWindow(window) }
-            setOnLongClickListener { v-> showPopupWindow(window, v); true }
+            setOnLongClickListener { v-> showPopupMenu(window, v); true }
         }
     }
 
@@ -620,7 +620,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         ).apply {
             setOnClickListener { windowControl.unMaximise() }
             text = ""
-            setOnLongClickListener { v-> showPopupWindow(window, v); true }
+            setOnLongClickListener { v-> showPopupMenu(window, v); true }
         }
     }
 
@@ -651,7 +651,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     @SuppressLint("RestrictedApi")
-    internal fun showPopupWindow(window: Window, view: View) {
+    internal fun showPopupMenu(window: Window, view: View) {
         // ensure actions affect the right window
         timerTask?.cancel()
         toggleWindowButtonVisibility(true)

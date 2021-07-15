@@ -135,7 +135,7 @@ class BibleFrame(
     private fun createCloseButton(window: Window): WindowButtonWidget {
         val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="
         return createTextButton(text,
-            { v -> allViews.showPopupWindow(window, v)},
+            { v -> allViews.showPopupMenu(window, v)},
             { v -> windowControl.closeWindow(window); true},
             window
         )
@@ -144,7 +144,7 @@ class BibleFrame(
     private fun createWindowMenuButton(window: Window): WindowButtonWidget {
         val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="
         return createTextButton(text,
-            { v -> allViews.showPopupWindow(window, v) },
+            { v -> allViews.showPopupMenu(window, v) },
             { v -> windowControl.minimiseWindow(window); true },
             window
         )
