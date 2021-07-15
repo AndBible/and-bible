@@ -189,7 +189,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Bottom offset with navigation bar and transport bar and window buttons
     val bottomOffset3 get() = bottomOffset2 + if (restoreButtonsVisible) windowButtonHeight else 0
 
-    private val preferences = CommonUtils.settings
+    private val preferences get() = CommonUtils.settings
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
     private var isPaused = false

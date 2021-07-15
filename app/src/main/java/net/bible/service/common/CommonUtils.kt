@@ -97,6 +97,7 @@ import java.security.spec.X509EncodedKeySpec
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.system.exitProcess
 
 fun htmlToSpan(html: String): Spanned {
     val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -554,12 +555,11 @@ object CommonUtils {
         val intent = Intent(callingActivity, StartupActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-        val pendingIntent: PendingIntent
-        pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, 0)
+        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, 0)
 
         val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
-        System.exit(2)
+        exitProcess(2)
     }
 
     val lastDisplaySettings: List<WorkspaceEntities.TextDisplaySettings.Types> get() {
