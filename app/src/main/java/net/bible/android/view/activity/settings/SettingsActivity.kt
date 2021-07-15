@@ -166,8 +166,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.settings, rootKey)
         preferenceManager.preferenceDataStore = PreferenceStore()
+        setPreferencesFromResource(R.xml.settings, rootKey)
 
         //If no light sensor exists switch to old boolean check box
         // see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
