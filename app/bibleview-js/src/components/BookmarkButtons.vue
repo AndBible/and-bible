@@ -140,6 +140,9 @@ export default {
         return ""
       }
       let col = Color(color);
+      if(col.isLight()) {
+        col = col.darken(0.5);
+      }
       if(highlighted) {
         col = col.alpha(0.7);
       }
