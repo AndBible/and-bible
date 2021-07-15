@@ -869,7 +869,7 @@ object CommonUtils {
                 if(bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isEmpty()) {
                     val salvationId = bookmarkDao.insert(salvationLabel)
 
-                    listOf("Gen.1.1", "Joh.3.16", "Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.2.17")
+                    listOf("Gen.1.1", "Joh.3.16", "Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
                         .map { VerseRangeFactory.fromString(KJVA, it) }
                         .map {
                             BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
