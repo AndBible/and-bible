@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve --port 8085",
     "test:unit": "vue-cli-service test:unit",
-    "lint:ci": "vue-cli-service lint --no-fix",
+    "test:ci": "vue-cli-service test:unit --no-color > js-test-results.txt",
+    "lint:ci": "vue-cli-service lint --no-fix -o lint-results.txt",
     "lint": "vue-cli-service lint",
     "andbible-build-old": "vue-cli-service build --target app --formats umd-min --inline-vue --name BibleView src/main.js",
     "build-debug": "cross-env NODE_ENV=debug vue-cli-service build --target app --inline-vue",
