@@ -65,11 +65,12 @@ export default {
     const actions = ref(null);
 
     function labelStyle(label) {
-      const color = adjustedColor(label.color).string();
+      const color = adjustedColor(label.color);
       if (isAssigned(label.id)) {
-        return `background-color: ${color};`;
+        const textColor = color.isLight() ? "black": "white";
+        return `background-color: ${color.string()}; color: ${textColor};`;
       } else {
-        return `border-color: ${color};`;
+        return `border-color: ${color.string()};`;
       }
     }
 

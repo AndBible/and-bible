@@ -40,6 +40,7 @@
     "cross-env": "^7.0.3",
     "eslint": "~6.7.2",
     "eslint-plugin-vue": "~7.1.0-0",
+    "jest-html-reporter": "^3.4.1",
     "jsdom": "~16.6.0",
     "json-loader": "^0.5.7",
     "npm": "^7.19.1",
@@ -51,7 +52,6 @@
     "vue-cli-plugin-webpack-bundle-analyzer": "^4.0.0",
     "vue-cli-plugin-yaml-loader": "~1.0.0",
     "vue-jest": "^5.0.0-alpha.9",
-    "jest-html-reporter": "^3.4.1",
     "yaml-loader": "^0.6.0"
   },
   "eslintConfig": {
