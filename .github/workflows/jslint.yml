@@ -34,15 +34,8 @@ jobs:
         working-directory: app/bibleview-js
         run: npm run test:ci
 
-      - name: Upload lint results
+      - name: Upload results
         uses: actions/upload-artifact@v2
         with:
           name: js-results
-          path: app/bibleview-js/lint-results.txt
-
-      - name: Upload js unit test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: js-results
-          path: app/bibleview-js/js-test-results.txt
-
+          path: app/bibleview-js/*results.txt
