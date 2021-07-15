@@ -20,9 +20,8 @@ import {sortBy, uniqWith} from "lodash";
 import {
     addEventFunction,
     arrayEq,
-    colorLightness,
-    findNodeAtOffsetWithNullOffset,
-    intersection,
+    colorLightness, EventPriorities,
+    findNodeAtOffsetWithNullOffset, intersection,
     mixColors,
     rangesOverlap
 } from "@/utils";
@@ -99,10 +98,7 @@ export function useGlobalBookmarks(config, documentType) {
 
     const filteredBookmarks = computed(() => {
         if(documentType.value === DocumentTypes.BIBLE_DOCUMENT && !config.showBookmarks && !config.showMyNotes) return [];
-        const allBookmarks = Array.from(bookmarks.values());
-        if(documentType.value === DocumentTypes.JOURNAL || config.bookmarksHideLabels.length === 0) return allBookmarks;
-        const hideLabels = new Set(config.bookmarksHideLabels);
-        return allBookmarks.filter(v => intersection(new Set(v.labels), hideLabels).size === 0)
+        return Array.from(bookmarks.values());
     })
 
     window.bibleViewDebug.bookmarks = bookmarks;
@@ -273,6 +269,7 @@ export function useBookmarks(documentId,
         splitPoints = sortedUniqueSplitPoints(splitPoints)
 
         const styleRanges = [];
+        const hideLabels = new Set(config.bookmarksHideLabels);
 
         for(let i = 0; i < splitPoints.length-1; i++) {
             const ordinalAndOffsetRange = [startPoint(splitPoints[i]), endPoint(splitPoints[i+1])];
@@ -282,6 +279,9 @@ export function useBookmarks(documentId,
             const highlightLabelCount = new Map();
             const underlineLabelCount = new Map();
 
+            const hiddenLabels = new Set();
+            const hiddenLabelCount = new Map();
+
             const filteredBookmarks = bookmarks
                 .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange));
 
@@ -289,7 +289,11 @@ export function useBookmarks(documentId,
                 const labelId = b.primaryLabelId || b.labels[0];
                 const label = bookmarkLabels.get(labelId);
 
-                if((b.wholeVerse && label.underlineWholeVerse) || (!b.wholeVerse && label.underline)) {
+                if(intersection(new Set(b.labels), hideLabels).size > 0) {
+                    hiddenLabels.add(labelId);
+                    hiddenLabelCount.set(labelId, (hiddenLabelCount.get(labelId) || 0) + 1);
+                }
+                else if((b.wholeVerse && label.underlineWholeVerse) || (!b.wholeVerse && label.underline)) {
                     underlineLabels.add(labelId);
                     underlineLabelCount.set(labelId, (underlineLabelCount.get(labelId) || 0) + 1);
                 } else {
@@ -300,13 +304,15 @@ export function useBookmarks(documentId,
 
             const containedBookmarks = filteredBookmarks.map(b => b.id);
 
-            if(highlightLabels.size > 0 || underlineLabels.size > 0) {
+            if(highlightLabels.size > 0 || underlineLabels.size > 0 || hiddenLabels.size > 0) {
                 styleRanges.push({
                     ordinalAndOffsetRange,
                     highlightLabelCount,
                     underlineLabelCount,
+                    hiddenLabelCount,
                     highlightLabelIds: Array.from(highlightLabels),
                     underlineLabelIds: Array.from(underlineLabels),
+                    hiddenLabelIds: Array.from(hiddenLabels),
                     bookmarks: containedBookmarks,
                 });
             }
@@ -316,14 +322,16 @@ export function useBookmarks(documentId,
 
     function styleForStyleRange(styleRange) {
         const {highlightLabelIds, underlineLabelIds, highlightLabelCount, underlineLabelCount} = styleRange;
-        const highlightLabels = Array.from(highlightLabelIds).map(v => ({
-            id: v,
-            label: bookmarkLabels.get(v)
-        })).filter(l => !l.label.noHighlight);
-        const underlineLabels = Array.from(underlineLabelIds).map(v => ({
-            id: v,
-            label: bookmarkLabels.get(v)
-        })).filter(l => !l.label.noHighlight);
+        const highlightLabels = Array.from(highlightLabelIds)
+            .map(v => ({
+                id: v,
+                label: bookmarkLabels.get(v)
+            })).filter(l => !l.label.noHighlight);
+        const underlineLabels = Array.from(underlineLabelIds)
+            .map(v => ({
+                id: v,
+                label: bookmarkLabels.get(v)
+            })).filter(l => !l.label.noHighlight);
 
         let style = "";
         switch(config.bookmarkingMode) {
@@ -423,11 +431,13 @@ export function useBookmarks(documentId,
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
         let firstElement, lastElement;
         const style = config.showBookmarks ? styleForStyleRange(styleRange) : "";
+        const hidden =  style === "";
+        const priority = hidden ? EventPriorities.HIDDEN_BOOKMARK : EventPriorities.VISIBLE_BOOKMARK;
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId));
 
         function addBookmarkEventFunctions(event) {
             for (const b of bookmarks) {
-                addEventFunction(event, null, {bookmarkId: b.id});
+                addEventFunction(event, null, {bookmarkId: b.id, priority, hidden});
             }
         }
 
@@ -436,6 +446,10 @@ export function useBookmarks(documentId,
             const lastOrdinal = (endOff === null ? endOrdinal : endOrdinal - 1)
             for(let ord = startOrdinal; ord <= lastOrdinal; ord ++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ord}`);
+                if(elem == null) {
+                    console.error("Element is not found!", documentId, ord);
+                    return;
+                }
                 lastElement = elem;
                 const oldStyle = elem.style;
                 elem.style = style;
@@ -478,7 +492,7 @@ export function useBookmarks(documentId,
                     const iconElement = getIconElement(speakIcon, color);
 
                     iconElement.addEventListener("click", event => addEventFunction(event,
-                        null, {bookmarkId: b.id}));
+                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
                     firstElement.parentElement.insertBefore(iconElement, firstElement);
                     undoHighlights.push(() => iconElement.remove());
                 }
@@ -491,7 +505,7 @@ export function useBookmarks(documentId,
                 const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    null, {bookmarkId: b.id}));
+                    null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
                 lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
                 undoHighlights.push(() => iconElement.remove());
             }
@@ -501,6 +515,15 @@ export function useBookmarks(documentId,
     function addMarkers() {
         const bookmarkMap = new Map();
         for (const b of markerBookmarks.value) {
+            for(let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
+                const elem = document.querySelector(`#doc-${documentId} #o-${ordinal}`);
+                const func = event => {
+                    addEventFunction(event, null, {bookmarkId: b.id, hidden: true, priority: EventPriorities.HIDDEN_BOOKMARK})
+                };
+                elem.addEventListener("click", func)
+                undoMarkers.push(() => elem.removeEventListener("click", func));
+            }
+
             const key = b.ordinalRange[1];
             const value = bookmarkMap.get(key) || [];
             value.push(b);
@@ -514,7 +537,7 @@ export function useBookmarks(documentId,
             const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
             iconElement.addEventListener("click", event => {
                 for(const b of bookmarkList) {
-                    addEventFunction(event, null, {bookmarkId: b.id});
+                    addEventFunction(event, null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER});
                 }
             });
             if(bookmarkList.length>1) {

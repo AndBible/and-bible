@@ -43,7 +43,7 @@ interface SpeakTextProvider {
     fun restoreState(): Boolean
     fun clearPersistedState()
     fun prepareForStartSpeaking()
-    fun savePosition(fractionCompleted: Float)
+    fun savePosition(fractionCompleted: Double)
     fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {}
     fun getCurrentlyPlayingVerse(): Verse? = null
     fun getCurrentlyPlayingBook(): Book? = null

@@ -26,13 +26,13 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
-import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.android.control.speak.save
+import net.bible.service.common.CommonUtils.settings
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils.getResourceString
@@ -104,18 +104,18 @@ open class WindowRepository @Inject constructor(
 
     fun initialize() {
         if(initialized) return
-        var firstTime = false
         if(id == 0L) {
-            id = sharedPreferences.getLong("current_workspace_id", 0)
+            id = settings.getLong("current_workspace_id", 0)
             if (id == 0L || dao.workspace(id) == null) {
                 id = dao.insertWorkspace(WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1)))
-                sharedPreferences.edit().putLong("current_workspace_id", id).apply()
-                firstTime = true
+                settings.setLong("current_workspace_id", id)
             }
         }
         loadFromDb(id)
+        val firstTime = settings.getBoolean("first-time", true)
         if(firstTime) {
             activeWindow.pageManager.setFirstUseDefaultVerse()
+            settings.setBoolean("first-time", false)
         }
     }
 
@@ -269,7 +269,7 @@ open class WindowRepository @Inject constructor(
             (sourceWindow?.entity?.copy()
                 ?: WorkspaceEntities.Window(
                     isLinksWindow = false,
-                    isPinMode = false,
+                    isPinMode = true,
                     isSynchronized = true,
                     windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString()),
                     workspaceId = id
@@ -322,6 +322,8 @@ open class WindowRepository @Inject constructor(
         Log.d(TAG, "saveIntoDb")
         if(stopSpeak) mainBibleActivity.speakControl.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
+        SpeakSettings.currentSettings?.save()
+
         dao.updateWorkspace(WorkspaceEntities.Workspace(
             name = name,
             contentsText = contentText,

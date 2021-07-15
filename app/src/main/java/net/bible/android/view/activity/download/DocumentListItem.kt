@@ -30,6 +30,7 @@ import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
 import net.bible.android.view.activity.base.RecommendedDocuments
+import net.bible.service.common.CommonUtils
 import net.bible.service.download.DownloadManager
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -81,6 +82,11 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
     fun setIcons(downloadScreen: Boolean = false) = binding.apply {
         val docImage = document.imageResource
         documentTypeIcon.setImageResource(docImage)
+        if(document.isPseudoBook) {
+            item.setBackgroundColor(CommonUtils.getResourceColor(R.color.disabled_background))
+        } else {
+            item.setBackgroundColor(CommonUtils.getResourceColor(R.color.background_color))
+        }
 
         val isRecommended = document.isRecommended(recommendedDocuments)
         recommendedIcon.visibility = if(isRecommended) View.VISIBLE else View.INVISIBLE

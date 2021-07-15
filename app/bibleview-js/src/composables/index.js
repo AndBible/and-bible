@@ -20,7 +20,6 @@ import {
     inject,
     nextTick,
     onBeforeMount,
-    onMounted,
     onUnmounted,
     reactive,
     ref,
@@ -32,21 +31,17 @@ import {computed} from "@vue/reactivity";
 import {isEqual, throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
+import {bcv_parser as BcvParser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
 import {
-    faBookmark, faChevronCircleDown,
-    faEdit,
-    faEllipsisH, faEye, faEyeSlash,
-    faFileAlt, faFireAlt,
+    faBookmark, faChevronCircleDown, faCompressArrowsAlt,
+    faEdit, faEllipsisH, faEye, faEyeSlash,
+    faFileAlt, faFireAlt, faHandPointer,
     faHeadphones, faHeart, faHistory,
-    faIndent,
-    faInfoCircle,
-    faOutdent,
-    faPlusCircle, faShareAlt,
-    faSort,
-    faTags, faTextWidth,
-    faTimes,
-    faTrash
+    faIndent, faInfoCircle, faOutdent, faPlus,
+    faPlusCircle, faQuestionCircle, faShareAlt, faSort,
+    faTags, faTextWidth, faTimes, faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+
 import {DocumentTypes} from "@/constants";
 
 let developmentMode = false;
@@ -188,8 +183,11 @@ export function useConfig(documentType) {
         recentLabels: [],
         frequentLabels: [],
         hideCompareDocuments: [],
+        rightToLeft: rtl,
         activeWindow: false,
-        rightToLeft: rtl
+        actionMode: false,
+        hasActiveIndicator: false,
+        activeSince: 0,
     });
 
     function calcMmInPx() {
@@ -217,8 +215,16 @@ export function useConfig(documentType) {
     window.bibleViewDebug.config = config;
     window.bibleViewDebug.appSettings = appSettings;
 
-    setupEventBusListener(Events.SET_ACTIVE, newActive => {
-        appSettings.activeWindow = newActive;
+    setupEventBusListener(Events.SET_ACTION_MODE, value => {
+        appSettings.actionMode = value;
+    });
+
+    setupEventBusListener(Events.SET_ACTIVE, ({hasActiveIndicator, isActive}) => {
+        appSettings.activeWindow = isActive;
+        appSettings.hasActiveIndicator = hasActiveIndicator;
+        if(isActive) {
+            appSettings.activeSince = performance.now();
+        }
     });
 
     function compareConfig(newConfig, checkedKeys) {
@@ -337,7 +343,8 @@ export function useCommon() {
     }
 
     function formatTimestamp(timestamp) {
-        return new Date(timestamp).toLocaleString()
+        let options = { year:'numeric', month:'numeric', day: 'numeric', hour:'numeric', minute:'2-digit'};
+        return new Date(timestamp).toLocaleString([],options)
     }
 
     return {config, appSettings, calculatedConfig, strings, sprintf, split,
@@ -346,6 +353,7 @@ export function useCommon() {
 }
 
 export function useFontAwesome() {
+    library.add(faCompressArrowsAlt)
     library.add(faTextWidth)
     library.add(faHeadphones)
     library.add(faEdit)
@@ -356,6 +364,7 @@ export function useFontAwesome() {
     library.add(faFileAlt)
     library.add(faInfoCircle)
     library.add(faTimes)
+    library.add(faPlus)
     library.add(faEllipsisH)
     library.add(faChevronCircleDown)
     library.add(faSort)
@@ -367,6 +376,8 @@ export function useFontAwesome() {
     library.add(faEyeSlash);
     library.add(faEye);
     library.add(faShareAlt);
+    library.add(faQuestionCircle)
+    library.add(faHandPointer)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
@@ -433,52 +444,91 @@ export function useReferenceCollector() {
     return {references, collect, clear}
 }
 
-export function useVerseMap() {
-    const verses = new Map();
-    function register(ordinal, obj) {
-        let array = verses.get(ordinal);
-        if(array === undefined) {
-            array = [];
-            verses.set(ordinal, array);
-        }
-        array.push(obj);
-    }
-    function getVerses(ordinal) {
-        return verses.get(ordinal) || []
-    }
+export function useVerseHighlight() {
+    const highlightedVerses = reactive(new Set());
 
-    const highlights = [];
-
-    function registerEndHighlight(fn) {
-        highlights.push(fn);
-    }
+    const hasHighlights = computed(() => highlightedVerses.size > 0);
 
     function resetHighlights() {
-        highlights.forEach(f => f())
-        highlights.splice(0);
+        highlightedVerses.clear();
     }
 
-    return {register, getVerses, registerEndHighlight, resetHighlights}
+    function highlightVerse(ordinal) {
+        highlightedVerses.add(ordinal);
+    }
+
+    return {highlightVerse, highlightedVerses, resetHighlights, hasHighlights}
 }
 
-export function useCustomFeatures() {
-    const features = {}
+
+function useParsers(android) {
+    const enParser = new BcvParser;
+    const parsers = [enParser];
+
+    let languages = null;
+
+    function getLanguages() {
+        if (!languages) {
+            languages = android.getActiveLanguages()
+        }
+        return languages
+    }
+
+    async function loadParser(lang) {
+        console.log(`Loading parser for ${lang}`)
+        const url = `/features/RefParser/${lang}_bcv_parser.js`
+        const content = await (await fetch(url)).text();
+        const module = {}
+        Function(content).call(module)
+        return new module["bcv_parser"];
+    }
+
+    async function initialize() {
+        //Get the active languages and create a bible reference parser for each language
+        const languages = getLanguages()
+        console.log(`Enabling parsers for ${languages.join(",")}`)
+        await Promise.all(languages.filter(l => l !== "en").map(async (lang) => {
+            try {
+                parsers.push(await loadParser(lang))
+            } catch (error) {
+                console.log(`Could not load parser for language: ${lang} due to ${error}`)
+            }
+        }))
+    }
+
+    function parse(text) {
+        let parsed = ""
+        //Try each of the parsers until one succeeds
+        parsers.some(parser => {
+            parsed = parser.parse(text).osis();
+            if (parsed !== "") return true
+        })
+        return parsed;
+    }
+
+    return {initialize, parsers, parse}
+}
+
+export function useCustomFeatures(android) {
+    const features = reactive(new Set())
 
     const defer = new Deferred();
     const featuresLoaded = ref(false);
     const featuresLoadedPromise = ref(defer.wait());
+    const {parse, initialize} = useParsers(android);
 
     // eslint-disable-next-line no-unused-vars
     async function reloadFeatures(featureModuleNames) {
-        /*
-         TODO: implement loading and usage properly in #981
-         if(featureModuleNames.includes("RefParser")) {
-            const url = "/features/RefParser/en_bcv_parser.js"
-            const content = await (await fetch(url)).text();
-            features.refParser = Function(content);
+        features.clear();
+        if(featureModuleNames.includes("RefParser")) {
+            await initialize();
+            features.add("RefParser");
         }
-        */
     }
+
+    setupEventBusListener(Events.RELOAD_ADDONS, ({featureModuleNames}) => {
+        reloadFeatures(featureModuleNames)
+    })
 
     onBeforeMount(() => {
         const featureModuleNames = new URLSearchParams(window.location.search).get("featureModuleNames");
@@ -487,10 +537,11 @@ export function useCustomFeatures() {
             .then(() => {
                 defer.resolve()
                 featuresLoaded.value = true;
+                console.log("Features loading finished");
             });
     })
 
-    return {features, featuresLoadedPromise, featuresLoaded};
+    return {features, featuresLoadedPromise, featuresLoaded, parse};
 }
 
 export function useCustomCss() {
@@ -570,20 +621,28 @@ export function useAddonFonts() {
 }
 
 export function useModal(android) {
-    const modalCount = ref(0);
-    const modalOpen = computed(() => modalCount.value > 0);
+    const modalOptArray = reactive([]);
+    const modalOpen = computed(() => modalOptArray.length > 0);
 
-    function register() {
-        onMounted(() => {
-            modalCount.value++;
-        })
+    function register(opts) {
+        if(!opts.blocking) {
+            closeModals();
+        }
+
+        modalOptArray.push(opts);
 
         onUnmounted(() => {
-            modalCount.value--;
+            const idx = modalOptArray.indexOf(opts);
+            modalOptArray.splice(idx, 1);
         });
+    }
+
+    function closeModals() {
+        for(const {close} of modalOptArray.filter(o => !o.blocking))
+            close();
     }
 
     watch(modalOpen, v => android.reportModalState(v), {flush: "sync"})
 
-    return {register}
+    return {register, closeModals, modalOpen}
 }

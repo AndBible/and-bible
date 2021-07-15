@@ -145,7 +145,10 @@ export function useAndroid({bookmarks}, config) {
 
         const deleteBookmarks = union(filteredBookmarks.map(b => b.id));
 
-        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks: deleteBookmarks};
+        return {
+            bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks: deleteBookmarks,
+            text: selection.toString()
+        };
     }
 
     window.bibleView.response = response;
@@ -169,6 +172,10 @@ export function useAndroid({bookmarks}, config) {
 
     async function requestNextChapter() {
         return await deferredCall((callId) => android.requestNextChapter(callId));
+    }
+
+    async function refChooserDialog() {
+        return await deferredCall((callId) => android.refChooserDialog(callId));
     }
 
     function scrolledToOrdinal(ordinal) {
@@ -204,8 +211,8 @@ export function useAndroid({bookmarks}, config) {
         android.openExternalLink(link);
     }
 
-    function setActionMode(value) {
-        android.setActionMode(value);
+    function setEditing(value) {
+        android.setEditing(value);
     }
 
     function createNewJournalEntry(labelId, afterEntryType = "none", afterEntryId = 0) {
@@ -216,6 +223,10 @@ export function useAndroid({bookmarks}, config) {
         android.deleteJournalEntry(journalId);
     }
 
+    function getActiveLanguages() {
+        return JSON.parse(android.getActiveLanguages());
+    }
+
     function removeBookmarkLabel(bookmarkId, labelId) {
         android.removeBookmarkLabel(bookmarkId, labelId);
     }
@@ -224,12 +235,32 @@ export function useAndroid({bookmarks}, config) {
         android.shareBookmarkVerse(bookmarkId);
     }
 
+    function shareVerse(bookInitials, ordinal) {
+        android.shareVerse(bookInitials, ordinal);
+    }
+
+    function addBookmark(bookInitials, ordinal, addNote = false) {
+        android.addBookmark(bookInitials, ordinal, addNote);
+    }
+
+    function compare(bookInitials, ordinal) {
+        android.compare(bookInitials, ordinal);
+    }
+
     function openStudyPad(labelId, bookmarkId) {
         android.openStudyPad(labelId, bookmarkId);
     }
 
-    function openMyNotes(bookmarkId) {
-        android.openMyNotes(bookmarkId);
+    function openMyNotes(bookInitials, ordinal) {
+        android.openMyNotes(bookInitials, ordinal);
+    }
+
+    function speak(bookInitials, ordinal) {
+        android.speak(bookInitials, ordinal);
+    }
+
+    function openDownloads() {
+        android.openDownloads();
     }
 
     function updateOrderNumber(labelId, bookmarks, journals) {
@@ -275,7 +306,7 @@ export function useAndroid({bookmarks}, config) {
     }
 
     const exposed = {
-        setActionMode,
+        setEditing,
         reportInputFocus,
         saveBookmarkNote,
         requestPreviousChapter,
@@ -291,6 +322,7 @@ export function useAndroid({bookmarks}, config) {
         removeBookmarkLabel,
         updateOrderNumber,
         updateJournalEntry,
+        getActiveLanguages,
         toast,
         shareBookmarkVerse,
         openStudyPad,
@@ -300,10 +332,18 @@ export function useAndroid({bookmarks}, config) {
         setBookmarkWholeVerse,
         toggleCompareDocument,
         openMyNotes,
+        openDownloads,
+        refChooserDialog,
+        shareVerse,
+        addBookmark,
+        compare,
+        speak,
     }
 
     if(config.developmentMode) return {
-        ...stubsFor(exposed),
+        ...stubsFor(exposed, {
+            getActiveLanguages: ['he', 'nl', 'en'],
+        }),
         querySelection
     }
 

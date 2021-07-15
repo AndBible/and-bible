@@ -29,15 +29,23 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
 import android.text.Html
 import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextUtils
 import android.text.method.LinkMovementMethod
+import android.util.LayoutDirection
 import android.util.Log
+import android.view.Gravity
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -52,6 +60,10 @@ import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkSortOrder
+import net.bible.android.database.bookmarks.BookmarkType
+import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
@@ -72,6 +84,7 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
 import org.spongycastle.util.io.pem.PemReader
 import java.io.File
 import java.io.FileInputStream
@@ -84,7 +97,27 @@ import java.security.spec.X509EncodedKeySpec
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.system.exitProcess
 
+fun htmlToSpan(html: String): Spanned {
+    val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
+    } else {
+        Html.fromHtml(html)
+    }
+    return spanned
+}
+
+const val textDisplaySettingsVideo = "https://youtu.be/rz0zyEK9qBk"
+const val pinningHelpVideo = "https://youtu.be/27b1g-D3ibA"
+const val bookmarksMyNotesVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY&t=90s" // beta 3.4 video
+const val studyPadsVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY&t=652s" // beta 3.4 video
+const val workspacesVideo = "https://youtu.be/rz0zyEK9qBk"
+const val beta34introVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // For 3.4 beta intro
+const val speakHelpVideo = "https://youtu.be/_wWnS-pjv2A"
+const val automaticSpeakBookmarkingVideo = "https://www.youtube.com/watch?v=1HFXLeTERcs"
+
+class DataBaseNotReady: Exception()
 
 val BookmarkEntities.Label.displayName get() =
     when {
@@ -131,6 +164,10 @@ object CommonUtils {
         val verFull = applicationVersionName
         val numbers = verFull.split(".")
         return "${numbers[0]}.${numbers[1]}"
+    }
+
+    val isRtl get(): Boolean {
+        return TextUtils.getLayoutDirectionFromLocale(Locale.getDefault()) == LayoutDirection.RTL
     }
 
     val mainVersionFloat: Float get() {
@@ -187,23 +224,52 @@ object CommonUtils {
             return megAvailable
         }
 
-    val localePref: String?
-        get() = sharedPreferences.getString("locale_pref", null)
+    val booleanSettings get() = DatabaseContainer.db.booleanSettingDao()
+    val longSettings get() = DatabaseContainer.db.longSettingDao()
+    val stringSettings get() = DatabaseContainer.db.stringSettingDao()
+    val doubleSettings get() = DatabaseContainer.db.doubleSettingDao()
 
-    /** get preferences used by User Prefs screen
-     *
-     * @return
-     */
-    val sharedPreferences: SharedPreferences
+    class AndBibleSettings {
+        fun getString(key: String, default: String? = null) = stringSettings.get(key, default)
+        fun getLong(key: String, default: Long) = longSettings.get(key, default)
+        fun getInt(key: String, default: Int) = longSettings.get(key, default.toLong()).toInt()
+        fun getBoolean(key: String, default: Boolean) = booleanSettings.get(key, default)
+        fun getDouble(key: String, default: Double) = doubleSettings.get(key, default)
+        fun getFloat(key: String, default: Float): Float = doubleSettings.get(key, default.toDouble()).toFloat()
+
+        fun setString(key: String, value: String?) = stringSettings.set(key, value)
+        fun setLong(key: String, value: Long?) = longSettings.set(key, value)
+        fun setInt(key: String, value: Int?) = longSettings.set(key, value?.toLong())
+        fun setBoolean(key: String, value: Boolean?) = booleanSettings.set(key, value)
+        fun setDouble(key: String, value: Double?) = doubleSettings.set(key, value)
+        fun setFloat(key: String, value: Float?) = doubleSettings.set(key, value?.toDouble())
+
+        fun removeString(key: String) = setString(key, null)
+        fun removeDouble(key: String) = setDouble(key, null)
+        fun removeLong(key: String) = setLong(key, null)
+        fun removeBoolean(key: String) = setBoolean(key, null)
+    }
+
+    private var _settings: AndBibleSettings? = null
+    val settings: AndBibleSettings get() {
+        val s = _settings
+        if(s != null) return s
+        if(DatabaseContainer.ready || application.isRunningTests) {
+            return AndBibleSettings().apply { _settings = this }
+        } else {
+            throw DataBaseNotReady()
+        }
+    }
+
+    val localePref: String?
+        get() = realSharedPreferences.getString("locale_pref", null)
+
+    // Note: use And BibleSettings always if possible to save preferences. They are persisted in DB.
+    val realSharedPreferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 
     val truncatedDate: Date
         get() = DateUtils.truncate(Date(), Calendar.DAY_OF_MONTH)
-
-    /** enable performance adjustments for slow devices
-     */
-    val isSlowDevice: Boolean
-        get() = Runtime.getRuntime().availableProcessors() == 1
 
     init {
         try {
@@ -314,15 +380,8 @@ object CommonUtils {
 
     }
 
-    fun getSharedPreference(key: String, defaultValue: String): String? {
-        return sharedPreferences.getString(key, defaultValue)
-    }
-
-    fun saveSharedPreference(key: String, value: String) {
-        sharedPreferences.edit()
-                .putString(key, value)
-                .apply()
-    }
+    fun getSharedPreference(key: String, defaultValue: String): String? = settings.getString(key, defaultValue)
+    fun saveSharedPreference(key: String, value: String) = settings.setString(key, value)
 
     fun getResourceString(resourceId: Int, vararg formatArgs: Any): String {
         return resources.getString(resourceId, *formatArgs)
@@ -353,6 +412,24 @@ object CommonUtils {
         } else {
             resources.getColor(resourceId)
         }
+
+    fun getResourceDrawable(resourceId: Int, context: Context? = null): Drawable? {
+        val theme = try {
+            mainBibleActivity.theme
+        } catch (e: NullPointerException) {
+            resources.newTheme().apply {
+                applyStyle(R.style.AppTheme, true)
+            }
+        }
+        return ResourcesCompat.getDrawable(context?.resources?:resources, resourceId, theme)
+    }
+
+    fun getTintedDrawable(res: Int, color: Int = R.color.grey_500): Drawable {
+        val d = getResourceDrawable(res)!!
+        d.mutate().setTint(getResourceColor(color))
+        d.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
+        return d
+    }
 
     /**
      * convert dip measurements to pixels
@@ -478,16 +555,15 @@ object CommonUtils {
         val intent = Intent(callingActivity, StartupActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-        val pendingIntent: PendingIntent
-        pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, 0)
+        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, 0)
 
         val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
-        System.exit(2)
+        exitProcess(2)
     }
 
     val lastDisplaySettings: List<WorkspaceEntities.TextDisplaySettings.Types> get() {
-        val lastDisplaySettingsString = sharedPreferences.getString("lastDisplaySettings", null)
+        val lastDisplaySettingsString = settings.getString("lastDisplaySettings", null)
         var lastTypes = mutableListOf<WorkspaceEntities.TextDisplaySettings.Types>()
         if(lastDisplaySettingsString!= null) {
             try {
@@ -506,7 +582,7 @@ object CommonUtils {
             lastTypes.removeAt(lastTypes.size - 1)
         }
         lastTypes.add(0, type)
-        sharedPreferences.edit().putString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson()).apply()
+        settings.setString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson())
     }
 
     private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
@@ -683,11 +759,11 @@ object CommonUtils {
         val help = listOf(
             HelpItem(R.string.help_nav_title, R.string.help_nav_text),
             HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
-            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, "https://youtu.be/27b1g-D3ibA"),
-            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, "https://www.youtube.com/watch?v=ZpZ25uqR_BY&t=90s"), // beta video
-            HelpItem(R.string.help_studypads_title, R.string.help_studypads_text, "https://www.youtube.com/watch?v=ZpZ25uqR_BY&t=652s"), // beta video
+            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, pinningHelpVideo),
+            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesVideo), // beta video
+            HelpItem(R.string.help_studypads_title, R.string.help_studypads_text, studyPadsVideo), // beta video
             HelpItem(R.string.help_search_title, R.string.help_search_text),
-            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, "https://youtu.be/rz0zyEK9qBk"),
+            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo),
             HelpItem(R.string.help_hidden_features_title, R.string.help_hidden_features_text)
         ).run {
             if(filterItems != null) {
@@ -752,6 +828,9 @@ object CommonUtils {
 
     fun initializeApp() {
         if(!initialized) {
+            DatabaseContainer.ready = true
+            DatabaseContainer.db
+
             docDao.getUnlocked().forEach {
                 val book = Books.installed().getBook(it.initials)
                 book.unlock(it.cipherKey)
@@ -763,8 +842,121 @@ object CommonUtils {
             //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
             //}
 
+            prepareData()
+
             initialized = true
         }
+    }
+
+    private fun prepareData() {
+        val dataVersionNow = 1L
+        val dataVersion = settings.getLong("data-version", 0)
+
+        if(dataVersion < 1) {
+            val workspaceDao = DatabaseContainer.db.workspaceDao()
+            val bookmarkDao = DatabaseContainer.db.bookmarkDao()
+            var highlightIds = listOf<Long>()
+
+            if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") }) {
+                val highlightLabels = listOf(
+                    BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false),
+                    BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false),
+                    BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false),
+                    BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 255, 0), underlineStyle = true, underlineStyleWholeVerse = true),
+                )
+                val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255, 255, 0, 255))
+                highlightIds = bookmarkDao.insertLabels(highlightLabels)
+
+                if(bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isEmpty()) {
+                    val salvationId = bookmarkDao.insert(salvationLabel)
+
+                    listOf("Gen.1.1", "Joh.3.16", "Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
+                        .map { VerseRangeFactory.fromString(KJVA, it) }
+                        .map {
+                            BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
+                        }.forEach {
+                            val bid = bookmarkDao.insert(it)
+                            bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationId))
+                        }
+                }
+            }
+
+            val ws = workspaceDao.allWorkspaces()
+            if(ws.isNotEmpty()) {
+                ws.forEach {
+                    it.workspaceSettings?.favouriteLabels?.addAll(highlightIds)
+                }
+                workspaceDao.updateWorkspaces(ws)
+                settings.setBoolean("first-time", false)
+            } else {
+                val workspaceSettings = WorkspaceEntities.WorkspaceSettings(favouriteLabels = highlightIds.toMutableSet())
+                val workspaceIds = listOf(
+                    WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
+                    WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
+                ).map {
+                    workspaceDao.insertWorkspace(it)
+                }
+                settings.setLong("current_workspace_id", workspaceIds[0])
+            }
+        }
+
+        if(dataVersion != dataVersionNow) {
+            settings.setLong("data-version", dataVersionNow)
+        }
+    }
+
+    fun iconWithSync(icon: Int, syncOn: Boolean, sizeMultiplier: Float? = null): Drawable {
+        val syncIcon = if (syncOn) {
+            R.drawable.ic_sync_white_24dp
+        } else {
+            R.drawable.ic_sync_disabled_green_24dp
+        }
+
+        val iconDrawable = getTintedDrawable(icon)
+        val circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, R.color.background_color)
+        val d1 = getTintedDrawable(syncIcon, if(syncOn) R.color.sync_on_green else R.color.sync_off_grey)
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            LayerDrawable(arrayOf(iconDrawable, circleDrawable, d1)).apply {
+                val s = sizeMultiplier?:1.0F
+                val size = (d1.intrinsicWidth * s).toInt()
+                val s1 = (d1.intrinsicWidth * 0.6*s).toInt()
+                val s2 = (d1.intrinsicWidth * 0.45*s).toInt()
+                val d = (s1-s2) / 2
+                setLayerSize(0, size, size)
+                setLayerSize(1, s1, s1)
+                setLayerSize(2, s2, s2)
+                setLayerGravity(1, Gravity.BOTTOM or Gravity.END)
+                setLayerGravity(2, Gravity.BOTTOM or Gravity.END)
+                setLayerInsetEnd(2, d)
+                setLayerInsetBottom(2, d)
+            }
+        else
+            d1
+    }
+
+    fun combineIcons(icon: Int, icon2: Int, sizeMultiplier: Float? = null): Drawable {
+        val d1 = getTintedDrawable(icon)
+        val d2 = getTintedDrawable(icon2)
+        val circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, R.color.background_color)
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            LayerDrawable(arrayOf(d1, circleDrawable, d2)).apply {
+                val s = sizeMultiplier ?: 1.0F
+                val size = (d1.intrinsicWidth * s).toInt()
+                val s1 = (d1.intrinsicWidth * 0.6 * s).toInt()
+                val s2 = (d1.intrinsicWidth * 0.45 * s).toInt()
+                val d = (s1 - s2) / 2
+                setLayerSize(0, size, size)
+                setLayerSize(1, s1, s1)
+                setLayerSize(2, s2, s2)
+                setLayerGravity(1, Gravity.BOTTOM or Gravity.END)
+                setLayerGravity(2, Gravity.BOTTOM or Gravity.END)
+                setLayerInsetEnd(2, d)
+                setLayerInsetBottom(2, d)
+            }
+        else
+            d1
     }
 }
 

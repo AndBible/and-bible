@@ -10,6 +10,8 @@ class TestBibleApplication : BibleApplication() {
         println("TestBibleApplication BibleApplication subclass being used.")
     }
 
+    override val isRunningTests: Boolean = true
+
     override fun getLocalizedResources(language: String): Resources {
         return application.getResources()
     }

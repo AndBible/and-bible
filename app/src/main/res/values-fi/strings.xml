@@ -61,6 +61,10 @@
   <string name="prefs_show_verseno_summary">Näytä luku- ja jaenumerot</string>
   <string name="prefs_e_ink_mode_title">Mustavalkoinen tila</string>
   <string name="prefs_eink_mode_summary">Käytä sovellusta kaksivärisessä tilassa, joka soveltuu paremmin E-ink-näytöllä varustettuihin laitteisiin.</string>
+  <string name="prefs_disable_animations_title">Kytke animaatiot pois</string>
+  <string name="prefs_disable_animations_summary">Kytke erilaiset animaatio pois, kuten pehmeä tekstin vieritys</string>
+  <string name="prefs_paragraph_spacing_title">Kappaleen välit (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Määritä kappaleiden välinen etäisyys</string>
   <string name="prefs_show_verseno_title1">Jaenumerot</string>
   <string name="prefs_show_chapter_no_title">Luvun numerot</string>
   <string name="prefs_show_chapter_no_summary">Näytä luvun numerot</string>
@@ -203,6 +207,7 @@
   <string name="strongs_not_installed">Ole hyvä ja lataa ensin Strongin heprean- ja kreikankielen sanakirjat</string>
   <string name="no_indexed_bible_with_strongs_ref">Lataa ensin Raamattu, joka sisältää Strongin numeroinnin ja ladata myös sen indeksi Haku-toiminnossa</string>
   <string name="morph_robinson_not_installed">Lataa \'Robinsonin muoto-opilliset koodit\' -sanakirja</string>
+  <string name="go_to_downloads">Siirry latauksiin</string>
   <!--Module download-->
   <string name="download">Lataa teoksia</string>
   <string name="redownload">Lataa dokumentit uudelleen</string>
@@ -398,6 +403,33 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="speak_status_stopped">pysäytetty</string>
   <string name="speak_autobookmarking_disabled">Automaattiset kirjanmerkit poissa päältä!</string>
   <string name="system_speak_settings">Avaa järjestelmän puheasetukset</string>
+  <string name="auto_assing_labels_help1">Tästä voit määrittää mitkä kirjanmerkkiryhmät asetetaan automaattisesti luomiisi kirjanmerkkeihin.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Tämä asetus on voimassa %s.</string>
+  <string name="setting_scope_window">tässä ikkunassa</string>
+  <string name="setting_scope_workspace">tässä työtilassa</string>
+  <string name="assing_labels_help1">Kuhunkin kirjamerkkiin voi liittää useita kirjanmerkkiryhmiä.</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Valitsemalla %s voit määrittää minkä kirjanmerkkiryhmän väriä käytetään.</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Napauta %s ikonia jos haluat että kirjanmerkkiryhmä liitetään automaattisesti uusiin kirjanmerkkeihin.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Napauta %s lisätäksesi kirjanmerkkiryhmän suosikkilistaan.</string>
+  <!--param is refresh icon-->
+  <string name="assing_labels_help5">Napauta %s järjestääksesi uudelleen listan valintojesi perusteella.</string>
+  <string name="workspace_text_options_help_title">Työtilan tekstiasetukset</string>
+  <string name="workspace_text_options_help1">Nämä asetukset määrittävät oletusarvot kaikkiin työtilassa oleviin ikkunoiden vastaaviin asetuksiin.</string>
+  <string name="workspace_text_options_help2">Voit yliajaa näitä asetuksia muuttamalla yksittäisten ikkunoiden vastaavia asetuksia.</string>
+  <string name="window_text_options_help_title">Ikkunan tekstivalinnat</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s kertoo että asetus tulee työtilan asetuksista.</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s kertoo että asetusta on muutettu tälle ikkunalle.</string>
+  <string name="window_text_options_help3">Työtilan asetukset eivät vaikuta tähän ikkunaan.</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Käytä %s alustaaksesi kaikki nämä asetukset takaisin %s.</string>
+  <string name="reset_defaults">oletusarvoihinsa</string>
+  <string name="reset_workspace_defaults">työtilan oletusarvoihin</string>
   <string name="speak_bookmark_help">Puheen kirjanmerkkien ohje</string>
   <string name="speak_help_auto_bookmark">
 Puheen kirjanmerkki lisätään automaattisesti kun puhe on keskeytetty tai lopetettu. 
@@ -456,9 +488,12 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="backup_modules">Jaa tai varmuuskopioi dokumentit...</string>
   <string name="backup_app_database">Jaa tai varmuuskopioi sovelluksen tietokanta…</string>
   <string name="backup_app">Jaa tai varmuuskopioi ohjelmisto (.apk-tiedosto)...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Mitä haluat palauttaa?</string>
   <string name="restore_app_database">Palauta sovelluksen tietokanta...</string>
   <string name="restore_database">Palauta tietokantatiedosto</string>
   <string name="restore_confirmation">Palauta omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat nykyisten päälle?</string>
+  <string name="reading_plans_plural">Lukusuunnitelmat</string>
   <string name="restore_success">Omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat on palautettu onnistuneesti</string>
   <string name="loading_backup">Lataan tietokantaa varmuuskopiosta…</string>
   <string name="backup_success2">Omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat on varmuuskopioitu onnistuneesti.</string>
@@ -484,6 +519,8 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="module_about_repository">Jakelupalvelin: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Bugiraportti</string>
+  <string name="send_feedback_title">Palaute</string>
   <string name="send_bug_report_title">Palaute / bugiraportti</string>
   <string name="report_bug_email_subject_3">[%s] Bugiraportti sovellukselle %s %s</string>
   <string name="report_bug_big_heading">KIRJOITA PALAUTE TAI BUGIRAPORTTI TÄMÄN RIVIN YLÄPUOLELLE</string>
@@ -726,4 +763,12 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="chooser_style_lists">Lista</string>
   <string name="chooser_select">Valitse %s</string>
   <string name="chooser_pref_reset">Älä tyhjennä luvun/jakeen valitsinta 1:n kirjaa/lukua valittaessa</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Olemme pahoillamme, mutta käyttöliittymä on käännetty vain osittain kielellä %s. Tämä johtuu siitä että %s on kehitetty täysin vapaaehtoisten voimin. Jos voit auttaa kääntämisessä, katso %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">ohjeet kääntäjille</string>
+  <string name="questions_title">Kysymyksiä?</string>
+  <string name="questions_title2">Tarvitsetko apua?</string>
+  <string name="bookmark_style">Kirjanmerkin tyyli</string>
+  <string name="added_to_bookmark">Sijoitettu tähän kirjanmerkkiin</string>
 </resources>

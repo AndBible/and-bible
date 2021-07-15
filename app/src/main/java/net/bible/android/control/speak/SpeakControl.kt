@@ -291,14 +291,14 @@ class SpeakControl @Inject constructor(
 
     }
 
-    fun speakBible(book: SwordBook, verse: Verse) {
+    fun speakBible(book: SwordBook, verse: Verse, force: Boolean = false) {
         // if a previous speak request is paused clear the cached text
         if (isPaused) {
             stop()
         }
 
         prepareForSpeaking()
-        if(SpeakSettings.load().synchronize) {
+        if(SpeakSettings.load().synchronize || force) {
             speakPageManager.setCurrentDocumentAndKey(book, verse)
         }
         try {
@@ -404,11 +404,14 @@ class SpeakControl @Inject constructor(
     }
 
     fun stop(willContinueAfter: Boolean=false, force: Boolean=false) {
+        // Reset page manager
+        if(!willContinueAfter) {
+            _speakPageManager = null
+        }
+
         if (!force && !isSpeaking && !isPaused) {
             return
         }
-        // Reset page manager
-        _speakPageManager = null
 
         Log.d(TAG, "Stop TTS speaking")
         ttsServiceManager.shutdown(willContinueAfter)
@@ -422,7 +425,7 @@ class SpeakControl @Inject constructor(
         // ensure volume controls adjust correct stream - not phone which is the default
         // STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead:
         // http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
-        CommonUtils.sharedPreferences.edit().putLong("speak-last-used", System.currentTimeMillis()).apply()
+        CommonUtils.settings.setLong("speak-last-used", System.currentTimeMillis())
         val activity = CurrentActivityHolder.getInstance().currentActivity
         if (activity != null) {
             activity.volumeControlStream = AudioManager.STREAM_MUSIC

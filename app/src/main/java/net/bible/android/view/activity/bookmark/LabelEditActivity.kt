@@ -40,6 +40,7 @@ import net.bible.android.activity.databinding.BookmarkLabelEditBinding
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.displayName
 import kotlin.coroutines.resume
@@ -65,8 +66,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         saveAndExit()
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.clear()
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.edit_label_options_menu, menu)
         if(data.label.isSpecialLabel) {
             menu.findItem(R.id.removeLabel).isVisible = false
@@ -213,6 +213,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                 updateData()
                 updateUI()
             }
+            if(data.label.name == "") {
+                labelName.requestFocus()
+            }
         }
     }
 
@@ -223,18 +226,10 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun addImage(view: AppCompatCheckBox, icon: Int) {
-        val imageSpan = ImageSpan(this, icon, ImageSpan.ALIGN_BASELINE)
-        imageSpan.drawable.setTint(view.currentHintTextColor)
-        val h = imageSpan.drawable.intrinsicHeight / 2
-        val w = imageSpan.drawable.intrinsicWidth / 2
-        imageSpan.drawable.setBounds(0, 0, w, h)
+        val imageSpan = ImageSpan(getTintedDrawable(icon))
         val spannableString = SpannableString("${view.text} *")
         val l = view.text.length+1
         spannableString.setSpan(imageSpan, l, l+1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
         view.setText(spannableString, TextView.BufferType.SPANNABLE)
-    }
-
-    companion object {
-        const val RESULT_REMOVE = 999
     }
 }

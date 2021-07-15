@@ -20,6 +20,7 @@ editNotePlaceholder: Edit note
 editTextPlaceholder: Tap to edit text
 inputPlaceholder: Write here
 inputReference: Enter Bible reference
+invalidReference: Verse not found
 assignLabels: Labels
 bookmarkAccurate: Bookmark was created in %s
 bookmarkInaccurate: Bookmark book information not stored, content is displayed in %s.
@@ -80,3 +81,4 @@ verseCompareLong: Compare verse
 verseNoteLong: Write a note
 verseSpeakLong: Start listening from this verse
 verseTip: To select partial or many verses, you can long-press Bible text
+addBookmark: Bookmark

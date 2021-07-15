@@ -116,9 +116,8 @@ open class BookmarkControl @Inject constructor(
 
             val addBookmarkToLabels = toBeAdded.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) }
             dao.insert(addBookmarkToLabels)
-
-            if(addBookmarkToLabels.find { it.labelId == bookmark.primaryLabelId } == null) {
-                bookmark.primaryLabelId = addBookmarkToLabels.firstOrNull()?.labelId
+            if(labels.find { it == bookmark.primaryLabelId } == null) {
+                bookmark.primaryLabelId = labels.firstOrNull()
                 dao.update(bookmark)
             }
             windowControl.windowRepository?.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests ?.

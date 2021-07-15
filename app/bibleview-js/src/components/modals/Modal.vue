@@ -17,7 +17,7 @@
 
 <template>
   <teleport to="#modals">
-    <div v-if="blocking" @click.stop="backdropClick" class="modal-backdrop"/>
+    <div v-if="blocking" @click.stop="$emit('close')" class="modal-backdrop"/>
     <div :class="{blocking}">
       <div ref="modal" @click.stop class="modal-content" :class="{blocking, wide}"
       >
@@ -27,11 +27,14 @@
               <slot name="title"/>
             </div>
           </slot>
-          <slot name="buttons">
-            <button class="modal-action-button right" @touchstart.stop @click.stop="$emit('close')">
-              <FontAwesomeIcon icon="times"/>
-            </button>
-          </slot>
+          <div class="modal-toolbar">
+            <slot name="buttons">
+              <slot name="extra-buttons"/>
+              <button class="modal-action-button right" @touchstart.stop @click.stop="$emit('close')">
+                <FontAwesomeIcon icon="times"/>
+              </button>
+            </slot>
+          </div>
         </div>
         <div v-if="ready" class="modal-body">
           <slot/>
@@ -47,7 +50,6 @@
 
 import {inject, onMounted} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
-import {Events, emit, setupEventBusListener} from "@/eventbus";
 import {ref} from "@vue/reactivity";
 import {
   draggableElement,
@@ -66,7 +68,7 @@ export default {
     wide: {type: Boolean, default: false}
   },
   components: {FontAwesomeIcon},
-  setup: function (props, {emit: $emit}) {
+  setup: function (props, {emit}) {
     const config = inject("config");
     const modal = ref(null);
     const header = ref(null);
@@ -78,7 +80,7 @@ export default {
     }
 
     const {register} = inject("modal");
-    register();
+    register({blocking: props.blocking, close: () => emit("close")});
 
     setupWindowEventListener("resize", resetPosition)
     setupWindowEventListener("scroll", throttle(() => {
@@ -88,7 +90,7 @@ export default {
     }, 50));
     setupDocumentEventListener("keyup", event => {
       if(event.key === "Escape") {
-        $emit("close");
+        emit("close");
       }
     })
 
@@ -97,17 +99,8 @@ export default {
       draggableElement(modal.value, header.value);
       ready.value = true;
     });
-    if (!props.blocking) {
-      emit(Events.CLOSE_MODALS);
-      setupEventBusListener(Events.CLOSE_MODALS, () => $emit('close'))
-    }
 
-    function backdropClick(event) {
-      console.log("backdrop clicked", event);
-      $emit("close");
-    }
-
-    return {config, modal, header, ready, backdropClick, ...useCommon()}
+    return {config, modal, header, ready, ...useCommon()}
   }
 }
 </script>
@@ -187,6 +180,11 @@ $border-radius2: $border-radius - 1.5pt;
     --header-backround: #{$night-modal-header-background-color};
     color: #e2e2e2;
   }
+}
+
+.modal-toolbar {
+  align-self: flex-end;
+  display: flex;
 }
 
 .modal-body {

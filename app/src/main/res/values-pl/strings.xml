@@ -20,6 +20,7 @@
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Pomoc i wskazówki</string>
   <string name="administration">Zarządzanie</string>
+  <string name="rate_application">Oceń / recenzuj</string>
   <string name="chooce_document">Wybór dokumentu</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Wybierz księgę</string>
@@ -58,6 +59,12 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numery wersetów i rozdziałów</string>
   <string name="prefs_show_verseno_summary">Wyświetl numery wersetów i rozdziałów</string>
+  <string name="prefs_e_ink_mode_title">Tryb czarno-biały</string>
+  <string name="prefs_eink_mode_summary">Wyświetl aplikację bez użycia kolorów w celu lepszego dostosowania do czytników e-książek (E Ink).</string>
+  <string name="prefs_disable_animations_title">Wyłącz animacje</string>
+  <string name="prefs_disable_animations_summary">Wyłącz różne animacje takie jak płynne przewijanie.</string>
+  <string name="prefs_paragraph_spacing_title">Odstęp między akapitami (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Dostosuj odstęp między akapitami.</string>
   <string name="prefs_show_verseno_title1">Numery wersetów</string>
   <string name="prefs_show_chapter_no_title">Numery rozdziałów</string>
   <string name="prefs_show_chapter_no_summary">Wyświetl numery rozdziałów</string>
@@ -89,12 +96,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Naciśnij, aby otworzyć następny dokument; przytrzymaj, aby otworzyć menu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Naciśnij, aby otworzyć następny dokument; przytrzymaj, aby otworzyć wybór dokumentu</string>
   <string name="prefs_night_mode_title">Włącz tryb nocny</string>
+  <string name="prefs_night_mode_summary">Ustaw, czy włączać tryb nocny automatycznie (jeżeli wspierane przez urządzenie), ręcznie, czy korzystając z ustawień systemu (Android 10+). Możesz ręcznie zmienić tryb poprzez menu trzech kropek na ekranie głównym.</string>
   <string name="prefs_night_mode_manual">Ręcznie</string>
   <string name="prefs_night_mode_automatic">Automatycznie</string>
   <string name="prefs_night_mode_system">Systemowy</string>
   <string name="options_menu_night_mode">Tryb nocny</string>
   <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
   <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
+  <string name="prefs_open_links_in_special_window_title">Okno odsyłaczy</string>
+  <string name="prefs_open_links_in_special_window_summary">Otwieraj odsyłacze w osobnym oknie, aby szybciej wyświetlać odsyłacze wewnętrzne i numery Stronga.</string>
   <string name="prefs_text_size_sample_text">Zwykły tekst</string>
   <string name="prefs_screen_keep_on_title">Trzymaj ekran włączony</string>
   <string name="prefs_screen_keep_on_summary">Nie wyłączaj ekranu podczas korzystania z aplikacji</string>
@@ -197,6 +207,7 @@
   <string name="strongs_not_installed">Pobierz hebrajski i grecki słownik Stronga</string>
   <string name="no_indexed_bible_with_strongs_ref">Należy pobrać Biblię zawierającą numery Stronga i następnie pobierać ich spis poprzez „wyszukiwanie”</string>
   <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
+  <string name="go_to_downloads">Otwórz pobierania</string>
   <!--Module download-->
   <string name="download">Pobierz dokumenty</string>
   <string name="redownload">Ponownie pobierz dokumenty</string>
@@ -387,6 +398,33 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="speak_status_stopped">wstrzymano</string>
   <string name="speak_autobookmarking_disabled">Wyłączono automatyczne tworzenie zakładek!</string>
   <string name="system_speak_settings">Systemowe ustawienia syntezy mowy</string>
+  <string name="auto_assing_labels_help1">Tutaj możesz wybrać etykiety, które zostaną automatycznie przypisane do tworzonych zakładek.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">To ustawienie ma wpływ na %s.</string>
+  <string name="setting_scope_window">to okno</string>
+  <string name="setting_scope_workspace">ten obszar roboczy</string>
+  <string name="assing_labels_help1">Każda zakładka może posiadać po kilka etykiet.</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Użyj %s, aby wybrać zakładki określonego koloru do wyświetlenia.</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Stuknij w ikonę %s, aby automatycznie przydzielać wybraną etykietę do nowych zakładek.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Stuknij w %s, aby dodać etykietę do ulubionych, aby mieć do niej szybki dostęp.</string>
+  <!--param is refresh icon-->
+  <string name="assing_labels_help5">Stuknij %s, aby uszeregować listę według Twojego wyboru.</string>
+  <string name="workspace_text_options_help_title">Ustawienia tekstu obszaru roboczego</string>
+  <string name="workspace_text_options_help1">Następujące ustawienia mają wpływ na wszystkie okna tego obszaru roboczego.</string>
+  <string name="workspace_text_options_help2">Możesz je przeskoczyć zmieniając ustawienia konkretnego okna.</string>
+  <string name="window_text_options_help_title">Ustawienia tekstu okna</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">Ikona %s oznacza, że wybrane ustawienie jest dziedziczone po ustawieniu obszaru roboczego.</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">Ikona %s oznacza, że wybrane ustawienie zostało zmienione dla tego okna.</string>
+  <string name="window_text_options_help3">Ustawienie obszaru roboczego nie ma wpływu na to okno.</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Użyj przycisku %s, aby zresetować wszystkie wyświetlane ustawienia do %s.</string>
+  <string name="reset_defaults">wartości domyślnych</string>
+  <string name="reset_workspace_defaults">wartości domyślnych tego obszaru roboczego</string>
   <string name="speak_bookmark_help">Pomoc zakładek czytania</string>
   <string name="speak_help_auto_bookmark">
 Zakładki czytania są tworzone automatycznie przy wstrzymaniu/zatrzymaniu odtwarzania. Automatycznie tworzone zakładki są oznaczane specjalną etykietą. Kiedy rozpoczniesz odtwarzanie od zakładki, zakładka ta przesunie się do wersetu na którym wstrzymasz/zatrzymasz odtwarzanie. Tylko głosowe zakładki czytania ulegną przesunięciu, wszystkie inne zakładki pozostaną niezmienione.</string>
@@ -435,9 +473,12 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="backup_modules">Udostępnij / kopiuj dokumenty do…</string>
   <string name="backup_app_database">Udostępnij / kopiuj bazę danych aplikacji do…</string>
   <string name="backup_app">Udostępnij / kopiuj aplikację (plik .apk) do…</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Co przywrócić?</string>
   <string name="restore_app_database">Przywróć bazę danych z…</string>
   <string name="restore_database">Plik bazy danych</string>
   <string name="restore_confirmation">Czy nadpisać notatki, zakładki, bloczki notatek, plany czytania i obszary robocze?</string>
+  <string name="reading_plans_plural">Plany czytania</string>
   <string name="restore_success">Pomyślnie przywrócono notatki, zakładki, bloczki notatek, plany czytania i obszary robocze</string>
   <string name="loading_backup">Wczytywanie bazy danych z kopii zapasowej…</string>
   <string name="backup_success2">Pomyślnie utworzono kopię zapasową notatek, zakładek, bloczków notatek, planów czytania i obszarów roboczych.</string>
@@ -463,6 +504,8 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="module_about_repository">Repozytorium: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Raport o błędzie</string>
+  <string name="send_feedback_title">Opinia</string>
   <string name="send_bug_report_title">Zgłoś błąd / wyślij opinię</string>
   <string name="report_bug_email_subject_3">[%s] Zgłoszenie błędu: %s %s</string>
   <string name="report_bug_big_heading">NAPISZ OPINIĘ LUB ZGŁOSZENIE BŁĘDU NAD TĄ LINIĄ</string>
@@ -623,12 +666,109 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="app_licence_title">Licencja</string>
   <string name="how_to_contribute">Jak pomóc?</string>
   <string name="confirm_delete_bookmarks">Czy na pewno chcesz usunąć %d zakładek i powiązanych notatek?</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Poleć znajomemu</string>
+  <string name="tell_friend_message1">Chciał(a)bym polecić Ci aplikację %s.</string>
+  <string name="tell_friend_message2">Jest to potężna – ale łatwa w obsłudze – aplikacja do czytania Biblii na Androida.</string>
+  <string name="tell_friend_message3">Możesz ją zainstalować ze sklepu Play: %s</string>
+  <string name="tell_friend_message4">Więcej informacji (w j. angielskim) znajdziesz na stronie: %s</string>
+  <string name="share_verse_ok">Udostępnij / kopiuj</string>
   <string name="verse_action_copy">Kopiuj</string>
+  <string name="share_verse_menu_title">Udostępnij / kopiuj…</string>
   <string name="show_versenumbers">Wyświetl numery wersetów</string>
+  <string name="show_full_verses">Wyświetl pełne wersety</string>
+  <string name="advertise_app">Reklamuj aplikację</string>
+  <string name="verse_share_advertise">Udostępniono poprzez aplikację %s.</string>
+  <string name="abbreviate_reference">Skróć źródło</string>
+  <string name="version_name">Nazwa przekładu</string>
   <string name="backup_button">Backup</string>
+  <string name="back_button">Cofnij</string>
+  <string name="upgrading_database">Aktualizacja bazy danych. Proszę czekać…</string>
+  <string name="initializing_app">Uruchamianie aplikacji…</string>
+  <string name="show_notes">Wyświetl notatki</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Komponent Android WebView jest zbyt stary (%s). Powinieneś zaktualizować pakiet Android WebView do wersji %s lub nowszej, aby móc dalej korzystać z aplikacji %s. Na większości urządzeń można do zrobić poprzez sklep %s.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Kontynuuj mimo to</string>
+  <string name="rate_title">Oceń i recenzuj aplikację</string>
+  <string name="rate_message5">
+Szczegółowe i zachęcające recenzje są niezwykle pomocne dla projektu And Bible. Dziękujemy!</string>
+  <string name="rate_message6">
+Przed napisaniem niepochlebnej opinii, prosimy rozważyć:</string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+• jeżeli doświadczasz jakiegoś błędu w aplikacji, prosimy %s lub %s;</string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+• jeżeli jakiś tekst bądź przekład biblijny zawiera błąd, %s;</string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+• jeżeli jakiś konkretny tekst nie jest dostępny w aplikacji, %s –</string>
+  <string name="rate_message4">programiści aplikacji nie są odpowiedzialni za troskę nad dokumentami.</string>
+  <string name="bug_report">
+wysłać zgłoszenie błędu (z menu głównego)</string>
+  <string name="how_to_help">
+przeczytaj w jaki sposób możesz pomóc dodać dokument</string>
+  <string name="send_email">
+wysłać e-list do programistów</string>
+  <string name="proceed_google_play">
+Otwórz sklep Play</string>
+  <string name="text_maintainers">
+zgłoś go do opiekuna tego modułu</string>
+  <string name="does_not_exist_abbreviation">Nie istnieje</string>
+  <string name="cant_change_wholeverse">Dla tej zakładki musi być zaznaczony cały werset</string>
+  <string name="whole_verse_turned_on">Cały werset został oznaczony jako zakładka</string>
+  <string name="this_bookmark">Ta zakładka</string>
+  <string name="this_workspace">Ten obszar roboczy</string>
+  <string name="primary_label">Główna etykieta</string>
+  <string name="highlight_entire_verse">Wyróżnij cały werset</string>
+  <string name="favourite_label">Ulubiona etykieta</string>
+  <string name="edit_label">Edytuj etykietę</string>
+  <string name="delete_label_confirmation">Czy usunąć etykietę zakładek „%s”? Wszystkie powiązane notatki w bloczku notatek zostaną usunięte.</string>
+  <string name="bookmark_underline_style_arbitrary">Podkreśl zakładki typu „fragment”</string>
+  <string name="bookmark_underline_style_whole_verse">Podkreśl zakładki typu „całe wersety”</string>
+  <string name="active_labels">Wybrane etykiety</string>
+  <string name="recent_labels">Ostatnie etykiety</string>
+  <string name="other_labels">Inne etykiety</string>
+  <string name="book_menu_sort_row_opt">Uszereguj księgi poziomo</string>
+  <string name="reset_workspace_labels">Czy chcesz zresetować ustawienia automatycznego przypisywania i ulubionych dla tego obszaru roboczego?</string>
+  <string name="reset_hide_labels">Czy chcesz zresetować ustawienia ukrywania określonych etykiet?</string>
+  <string name="reorder">Zmień kolejność</string>
+  <string name="system_items">Akcje systemowe</string>
   <string name="system_items1">Więcej</string>
+  <string name="system_action2">Akcje Androida</string>
+  <string name="text_copied_to_clicpboard">Skopiowano tekst do schowka</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Dodawanie zakładek pojedynczym stuknięciem</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Wyświetl elementy „fragment” i „wersety” zamiast rozwijanego menu „zakładka”.</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Pełny ekran podwójnym stuknięciem</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Przejdź do trybu pełnoekranowego podwójnym stuknięciem w okno</string>
+  <string name="toggle_fullscreen">Pełny ekran</string>
+  <string name="exit_fullscreen">Stuknij podwójnie, aby wyjść z trybu pełnoekranowego</string>
+  <string name="reset_app_prefs">Czy chcesz zresetować wszystkie ogólne ustawienia aplikacji wyświetlane na tym ekranie do wartości domyślnych?</string>
+  <string name="label_red">Czerwony</string>
+  <string name="label_green">Zielony</string>
+  <string name="label_blue">Niebieski</string>
+  <string name="label_salvation">Zbawienie</string>
+  <string name="label_underline">Podkreślony</string>
+  <string name="import_menu">Importuj / eksportuj</string>
+  <string name="export_fileformat">Eksportuj jako %s</string>
+  <string name="import_items">Importuj %s</string>
+  <string name="import_from_db">Importuj z pliku bazy danych aplikacji</string>
+  <string name="import_error">Nie udało się zaimportować z bazy danych aplikacji. Plik bazy danych może być w złym formacie bądź być utworzony przez bardzo starą wersję aplikacji %s.</string>
+  <string name="chooser_range">Zakres</string>
+  <string name="chooser_jump">Przeskocz</string>
+  <string name="chooser_OT_abbrev">ST</string>
+  <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_grid">Siatka</string>
+  <string name="chooser_style_lists">Listy</string>
+  <string name="chooser_select">Wybierz %s</string>
+  <string name="chooser_pref_reset">Nie ustawiaj rozdziału/wersetu na 1. podczas wyboru księgi/rozdziału</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Niestety interfejs aplikacji został tylko częściowo przetłumaczony na język %s. Aplikacja %s jest rozwijana tylko i wyłącznie przez wolontariuszy. Jeżeli chciał(a)byś pomóc tłumaczyć interfejs programu, zapoznaj się z %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">instrukcją tłumaczeń</string>
+  <string name="questions_title">Czy masz pytanie?</string>
+  <string name="questions_title2">Czy potrzebujesz pomocy?</string>
+  <string name="bookmark_style">Styl zakładek</string>
+  <string name="added_to_bookmark">Przypisano do tej zakładki</string>
 </resources>

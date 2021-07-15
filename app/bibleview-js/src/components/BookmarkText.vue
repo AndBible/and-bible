@@ -26,9 +26,9 @@
         hide-titles
       />
     </div>
-    <span class="bookmark-text" v-if="!expanded">
-      <q @click.stop="$emit('change-expanded', true)" class="bible-text">{{abbreviated(bookmark.text, 50)}}</q>
-    </span>
+    <div class="bookmark-text one-liner" v-if="!expanded">
+      <q @click.stop="$emit('change-expanded', true)" class="bible-text">{{bookmark.text}}</q>
+    </div>
   </template>
 </template>
 
@@ -59,7 +59,9 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import "~@/common.scss";
+
 .bookmark-text {
   font-style: italic;
 }

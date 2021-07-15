@@ -85,6 +85,9 @@ interface VerseRangeUser {
     val verseRange: VerseRange
 }
 
+enum class LabelType {HIGHLIGHT, EXAMPLE}
+enum class BookmarkType {EXAMPLE}
+
 class BookmarkEntities {
     @Serializable
     class TextRange(val start: Int, val end: Int) {
@@ -93,7 +96,7 @@ class BookmarkEntities {
 
     @Entity(
         indices = [
-            Index("kjvOrdinalStart"), Index("kjvOrdinalEnd")
+            Index("kjvOrdinalStart"), Index("kjvOrdinalEnd"), Index("primaryLabelId"),
         ],
         foreignKeys = [
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
@@ -128,6 +131,8 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") var wholeVerse: Boolean = false,
+        @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
+
         ): VerseRangeUser {
         constructor(verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?): this(
             verseRange.toV11n(KJVA).start.ordinal,
@@ -266,6 +271,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
         @ColumnInfo(defaultValue = "0") var underlineStyle: Boolean = false,
         @ColumnInfo(defaultValue = "0") var underlineStyleWholeVerse: Boolean = true,
+        @ColumnInfo(defaultValue = "NULL") var type: LabelType? = null,
     ) {
         override fun toString() = name
         val isSpeakLabel get() = name == SPEAK_LABEL_NAME

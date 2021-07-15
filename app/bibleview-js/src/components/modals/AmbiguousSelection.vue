@@ -16,8 +16,21 @@
   -->
 
 <template>
+  <Modal v-if="showHelp" @close="showHelp = false" blocking>
+    {{strings.verseTip}}
+    <template #title>
+      {{ strings.addBookmark}}
+    </template>
+  </Modal>
   <Modal :blocking="blocking" v-if="showModal" @close="cancelled">
+    <template #extra-buttons v-if="noActions">
+      <button class="modal-action-button right" @touchstart.stop @click="showHelp = !showHelp">
+        <FontAwesomeIcon icon="question-circle"/>
+      </button>
+    </template>
+
     <div class="buttons">
+      <AmbiguousActionButtons :has-actions="!noActions" :verse-info="verseInfo" @close="cancelled"/>
       <template v-for="(s, index) of selections" :key="index">
         <template v-if="!s.options.bookmarkId">
           <button class="button light" @click.stop="selected(s)">
@@ -26,14 +39,19 @@
           </button>
         </template>
         <AmbiguousSelectionBookmarkButton
-          v-else-if="bookmarkMap.has(s.options.bookmarkId)"
+          v-else
           :bookmark-id="s.options.bookmarkId"
           @selected="selected(s)"
         />
       </template>
     </div>
     <template #title>
-      {{ strings.ambiguousSelection }}
+      <template v-if="verseInfo">
+        {{ bibleBookName }} {{ verseInfo.chapter}}:{{verseInfo.verse}}
+      </template>
+      <template v-else>
+        {{ strings.ambiguousSelection }}
+      </template>
     </template>
   </Modal>
 </template>
@@ -43,24 +61,49 @@ import Modal from "@/components/modals/Modal";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {inject, ref} from "@vue/runtime-core";
-import {Deferred, getEventFunctions} from "@/utils";
+import {
+  Deferred,
+  getHighestPriorityEventFunctions,
+  getEventVerseInfo,
+  getAllEventFunctions,
+  //createDoubleClickDetector
+} from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton";
 import {emit, Events} from "@/eventbus";
+import {computed} from "@vue/reactivity";
+import AmbiguousActionButtons from "@/components/AmbiguousActionButtons";
 
 export default {
   name: "AmbiguousSelection",
-  emits: ["back-clicked"],
   props: {
     blocking: {type: Boolean, default: false}
   },
-  components: {Modal, FontAwesomeIcon, AmbiguousSelectionBookmarkButton},
+  emits: ["back-clicked"],
+  components: {Modal, FontAwesomeIcon, AmbiguousSelectionBookmarkButton, AmbiguousActionButtons},
   setup(props, {emit: $emit}) {
+    const appSettings = inject("appSettings");
+    const {bookmarkMap} = inject("globalBookmarks");
+    const {resetHighlights, highlightVerse, hasHighlights} = inject("verseHighlight");
+    const {modalOpen, closeModals} = inject("modal");
+
     const showModal = ref(false);
-    const selections = ref(null);
+    const verseInfo = ref(null);
+    const originalSelections = ref(null);
+    const bibleBookName = computed(() => verseInfo.value && verseInfo.value.bibleBookName);
+
+    const selections = computed(() => {
+      if (originalSelections.value === null) return null;
+      return originalSelections.value.filter(v => {
+        if (v.options.bookmarkId) {
+          return bookmarkMap.has(v.options.bookmarkId);
+        }
+        return true;
+      });
+    });
     let deferred = null;
 
     async function select(sel) {
-      selections.value = sel;
+      originalSelections.value = sel;
       showModal.value = true;
       deferred = new Deferred();
       return await deferred.wait();
@@ -72,34 +115,68 @@ export default {
     }
 
     function cancelled() {
-      if(deferred) {
+      if (deferred) {
         deferred.resolve(null);
       }
       showModal.value = false;
     }
 
-    const {bookmarkMap} = inject("globalBookmarks");
+    //const {isDoubleClick} = createDoubleClickDetector();
 
     async function handle(event) {
-      const eventFunctions = getEventFunctions(event);
-      if(eventFunctions.length > 0) {
-        if(eventFunctions.length === 1) {
-          if(eventFunctions[0].options.bookmarkId) {
+      //if(await isDoubleClick()) return;
+
+      console.log("AmbiguousSelection handling", event);
+      const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
+      const eventFunctions = getHighestPriorityEventFunctions(event);
+      const allEventFunctions = getAllEventFunctions(event);
+      const hasParticularClicks = eventFunctions.filter(f => !f.options.hidden).length > 0; // let's not show only "hidden" items
+      if(appSettings.actionMode) return;
+      const hadHighlights = hasHighlights.value;
+      resetHighlights();
+      if(hadHighlights && !showModal.value) {
+        return;
+      }
+      if(!isActive && !hasParticularClicks) return;
+      const _verseInfo = getEventVerseInfo(event);
+      emit(Events.WINDOW_CLICKED);
+
+      if(eventFunctions.length > 0 || _verseInfo != null) {
+        const firstFunc = eventFunctions[0];
+        if(
+          (eventFunctions.length === 1 && firstFunc.options.priority > 0 && !firstFunc.options.dottedStrongs)
+          || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs)
+        ) {
+          if (eventFunctions[0].options.bookmarkId) {
             emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId);
           } else {
             eventFunctions[0].callback();
           }
         }
         else {
-          const s = await select(eventFunctions);
-          if(s && s.callback) s.callback();
+          if (modalOpen.value && !hasParticularClicks) {
+            closeModals();
+          } else {
+            verseInfo.value = _verseInfo;
+            highlightVerse(_verseInfo.ordinal);
+            const s = await select(allEventFunctions);
+            if (s && s.callback) s.callback();
+            resetHighlights();
+          }
         }
       } else {
-        $emit("back-clicked")
+        $emit("back-clicked");
+        closeModals();
       }
     }
 
-    return {selected, handle, cancelled, showModal, selections, bookmarkMap, ...useCommon()};
+    const noActions = computed(() => selections.value.length === 0);
+
+    return {
+      showHelp: ref(false),
+      bibleBookName, verseInfo, selected, handle, cancelled, noActions,
+      showModal, selections, bookmarkMap, ...useCommon()
+    };
   }
 }
 </script>
@@ -113,5 +190,4 @@ export default {
   flex-direction: column;
   overflow-y: auto;
 }
-
 </style>

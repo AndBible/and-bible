@@ -61,6 +61,10 @@
   <string name="prefs_show_verseno_summary">Pokaži poglavje in številke vrstic</string>
   <string name="prefs_e_ink_mode_title">Črno-bel način</string>
   <string name="prefs_eink_mode_summary">Aplikacijo uporabljate v enobarvnem načinu (brez barv), zato je primernejša za naprave z e-črnilom.</string>
+  <string name="prefs_disable_animations_title">Izklopi animacije</string>
+  <string name="prefs_disable_animations_summary">Onemogočite različne animacije, na primer gladko drsenje.</string>
+  <string name="prefs_paragraph_spacing_title">Presledek med odstavki (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Prilagodi razmik med odstavki.</string>
   <string name="prefs_show_verseno_title1">Številke vrstic</string>
   <string name="prefs_show_chapter_no_title">Številke poglavij</string>
   <string name="prefs_show_chapter_no_summary">Pokaži številke poglavij</string>
@@ -205,6 +209,7 @@
   <string name="strongs_not_installed">Prosim prenesi Strong-ove hebrejske in grške slovarje</string>
   <string name="no_indexed_bible_with_strongs_ref">Potreben je prenos biblije, ki vsebuje Strong-ove številke in prenos njegovega indeksa preko Iskanja</string>
   <string name="morph_robinson_not_installed">Prenesite slovar \'Robinson\ove analize oblikoslovnih kod\'</string>
+  <string name="go_to_downloads">Pojdi na Prenose</string>
   <!--Module download-->
   <string name="download">Prenos dokumentov</string>
   <string name="redownload">Ponoven prenos dokumentov</string>
@@ -415,6 +420,33 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="speak_status_stopped">ustavljeno</string>
   <string name="speak_autobookmarking_disabled">Avtomatski zaznamki onemogočeni!</string>
   <string name="system_speak_settings">Odpri nastavitve besedila v govor...</string>
+  <string name="auto_assing_labels_help1">Tu lahko nastavite, katere oznake se samodejno dodelijo zaznamkom, ki jih ustvarite.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Ta nastavitev velja za %s.</string>
+  <string name="setting_scope_window">to okno</string>
+  <string name="setting_scope_workspace">ta delovni prostor</string>
+  <string name="assing_labels_help1">Vsakemu zaznamku je mogoče dodeliti več oznak.</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Uporabi %s za določitev barve prikazane oznake.</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Tapnite %sda se ta oznaka samodejno dodeli novim zaznamkom.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Tapnite %s da dodate oznako na seznam priljubljenih za hiter dostop. .</string>
+  <!--param is refresh icon-->
+  <string name="assing_labels_help5">Tapnite %s da spremenite vrstni red glede na vašo izbiro.</string>
+  <string name="workspace_text_options_help_title">Možnosti besedila na delovnem prostoru</string>
+  <string name="workspace_text_options_help1">Te nastavitve določajo privzete nastavitve za vsa okna delovnih prostorov.</string>
+  <string name="workspace_text_options_help2">Te lahko preglasite s spreminjanjem posameznih nastavitev okna.</string>
+  <string name="window_text_options_help_title">Možnosti besedila okna</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s ikona pomeni, da nastavitev izvira iz nastavitev delovnega prostora.</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s ikona pomeni, da je bila ta nastavitev spremenjena za to okno.</string>
+  <string name="window_text_options_help3">Nastavitev delovnega prostora ne bo vplivala na to okno.</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Uporabite %s gumb za ponastavitev vseh teh nastavitev nazaj na %s.</string>
+  <string name="reset_defaults">privzete vrednosti</string>
+  <string name="reset_workspace_defaults">privzete vrednosti delovnega prostora</string>
   <string name="speak_bookmark_help">Govori zaznamki pomoč</string>
   <string name="speak_help_auto_bookmark">
 Govorni zaznamek bo samodejno dodan, ko bo govor zaustavljen ali ustavljen.
@@ -476,9 +508,12 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="backup_modules">Deli ali Arhiviraj dokumente v...</string>
   <string name="backup_app_database">Deli ali Arhiviraj bazo aplikacije v...</string>
   <string name="backup_app">Deli ali Arhiviraj aplikacijo (.apk datoteko) v...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Kaj želite obnoviti?</string>
   <string name="restore_app_database">Obnovitev baze aplikacije iz…</string>
   <string name="restore_database">Obnovitev baze aplikacije</string>
   <string name="restore_confirmation">Prepišem Zaznamke, Moje opombe, Beležnice, Načrte branja in Delovne prostore?</string>
+  <string name="reading_plans_plural">Načrti branja </string>
   <string name="restore_success">Zaznamki, Moje opombe, Beležnice, Načrti branja in Delovni prostori so uspešno obnovljeni.</string>
   <string name="loading_backup">Nalaganje baze podatkov iz varnostne kopije...</string>
   <string name="backup_success2">Zaznamki, Moje opombe, Beležnice, Načrti branja in Delovni prostori so uspešno arhivirani.</string>
@@ -504,6 +539,8 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="module_about_repository">Distribucijski strežnik: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Poročilo o napaki</string>
+  <string name="send_feedback_title">Povratne informacije </string>
   <string name="send_bug_report_title">Povratne informacije / poročilo o napaki</string>
   <string name="report_bug_email_subject_3">[%s] Poročilo o napaki za%s %s</string>
   <string name="report_bug_big_heading">PROSIMO, DA NAD TO VRSTICO NAPIŠETE POVRATNE INFORMACIJE ALI POROČILO O NAPAKI</string>
@@ -552,7 +589,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="error_no_content">Izbrana vrstica je brez vsebine</string>
   <string name="error_page_too_large">Stran je prevelika, da bi se prikazala</string>
   <string name="error_key_not_in_document">Ni najti v dokumentu</string>
-  <string name="error_key_not_in_document2">%sni bilo mogoče najti v dokumentu %s.</string>
+  <string name="error_key_not_in_document2">%s ni bilo mogoče najti v dokumentu %s.</string>
   <string name="empty_list">Za prikaz ni nobenega predmeta</string>
   <string name="error_skip">Preskoči</string>
   <!--Notifications-->
@@ -796,4 +833,12 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="chooser_style_lists">Seznami</string>
   <string name="chooser_select">Izberi %s</string>
   <string name="chooser_pref_reset">Poglavja ali vrstice ne ponastavite na 1, medtem ko je izbrana knjiga ali poglavje</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Žal nam je, vendar imamo le delni prevod uporabniškega vmesnika v %s jezik. To je zato, ker  %s v celoti razvijajo prostovoljci. Če želite pomagati pri prevajanju, si poglejte %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">navodila za prevajalce</string>
+  <string name="questions_title">Vprašanja?</string>
+  <string name="questions_title2">Potrebujete pomoč?</string>
+  <string name="bookmark_style">Stil zaznamka</string>
+  <string name="added_to_bookmark">Dodeljeno temu zaznamku</string>
 </resources>

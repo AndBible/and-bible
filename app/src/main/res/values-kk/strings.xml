@@ -3,6 +3,7 @@
   <string name="app_name_short">Киелі Кітапті Зерттеу</string>
   <string name="app_name_medium">Киелі Кітапті Зерттеу (And Bible)</string>
   <string name="app_name_long">Киелі Кітапті Зерртеу қолданбасы, And Bible - ашық көзді жобасы арқылы болып табылады</string>
+  <string name="project">And Bible Ашық Ақпарат көзді Жоба</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">SD картаны салыңыз және қолданбаны қайта іске қосыңыз.</string>
   <!--Main menu-->
@@ -14,9 +15,12 @@
   <string name="history">Тарих</string>
   <string name="speak">Дауыстап оқу</string>
   <string name="help">Көмек</string>
+  <string name="information">Ақпарат</string>
   <string name="other">Басқасы</string>
+  <string name="contact">Байланыс</string>
   <string name="help_and_tips">Көмек пен кеңестер</string>
   <string name="administration">Басқару</string>
+  <string name="rate_application">Бағалау мен Қайта шолу</string>
   <string name="chooce_document">Құжатты таңдаңыз</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Кітапті Таңдаңыз</string>
@@ -53,6 +57,10 @@
   <string name="search_current_book">Қазіргі кітап</string>
   <string name="error_executing_search">Іздеу сауалы қате</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Тарау мен аят нөмерлері</string>
+  <string name="prefs_show_verseno_summary">Тарау көрсету мен аят нөмерлері</string>
+  <string name="prefs_e_ink_mode_title">Қара мен ақ тәртіптемесі</string>
+  <string name="prefs_eink_mode_summary">Монохром режимінде қолданбаны падаланып (түстері жетімсіз), оны неғұрлым электрондық сия құрал жабдықтарына қолайлы ету.</string>
   <string name="prefs_show_verseno_title1">Аят нөмірлері</string>
   <string name="prefs_verse_per_line_summary">Әр аятты әр түрлі жолда көрсету</string>
   <string name="prefs_show_bookmarks_summary">Бар кітап белгілерін жасыру үшін таңдауды алыңыз</string>
@@ -74,12 +82,15 @@
   <string name="prefs_red_letter_title">Қызыл Хат</string>
   <string name="prefs_tilt_to_scroll_title">Бұрау үшін еңістеу</string>
   <string name="prefs_night_mode_title">Түнгі режиміне қосу</string>
+  <string name="prefs_night_mode_summary">Түнгі режимге автоматты түрде (егер құрылғы қолдаса), не мануальді немесе жүйенің баптауы арқылы ауысу керек (Андроид 10+). Негізгі бейнеде мануальді ауыстырылуы 3 нүктелі опциялар мәзірінен жасауға болады.</string>
   <string name="prefs_night_mode_manual">Қолмен жасау</string>
   <string name="prefs_night_mode_automatic">Автоматты</string>
   <string name="prefs_night_mode_system">Жүйе</string>
   <string name="options_menu_night_mode">Түнгі режим</string>
   <string name="prefs_navigate_to_verse_title">Аятқа навигация жүргізу</string>
   <string name="prefs_navigate_to_verse_summary">Үзіндіні таңдап белгілегенде аятты (әрі тарауды) таңдаңыз</string>
+  <string name="prefs_open_links_in_special_window_title">Сілтемелер арқылы терезеге қосылады</string>
+  <string name="prefs_open_links_in_special_window_summary">Стронг әрі айқас нұсқау-түсіндірмелерді тезірек көрсету үшін, сілтемелерді аранайы терезеде ашады</string>
   <string name="prefs_text_size_sample_text">Мысалы мәтін</string>
   <string name="prefs_screen_keep_on_title">Экранды қосулы сақтау</string>
   <string name="prefs_screen_keep_on_summary">Осы қолданбаны пайдаланып отырғанда, экранды өшіп қалудан сақтау. </string>
@@ -115,6 +126,7 @@
   <string name="pref_maximum_width_of_text_label_mm">Мәтінің максимум ені (%dмм)</string>
   <string name="prefs_line_spacing_pt">Жол арасын кеңейту %1.1fх</string>
   <string name="pref_font_family_label">Шрифттер тобы</string>
+  <string name="prefs_top_margin_summary">Киелі Кітап құжаты бар терезенің жоғарғы жағына (көзмөлшерлік индикация арқылы) шекара қосыңыз. Киелі Кітап бұралып жылжытылады, осылайша кәзіргі аят шекарадан төмен басталады.</string>
   <string name="prefs_hyphenation_title">Дефистеу</string>
   <string name="prefs_hyphenation_summary">Егер тіл қолдауға ие болса, сөздерді автоматты түрде дефистеу</string>
   <string name="prefs_line_spacing_pt_title">Жол арасын кеңейту (%1.1fx)</string>
@@ -123,6 +135,8 @@
   <string name="select_none">Ешқайсысын таңдамау</string>
   <string name="window_pinning_menutitle">Терезені бекіту</string>
   <string name="hide_window_buttons_title">Терезе түймелерін жасырыңыз</string>
+  <string name="hide_window_buttons_summary">Киелі Кітаптың көріністерінің оң жағында көрсетілген терезенің түймелері жасырылған.</string>
+  <string name="hide_bible_reference_overlay_summary">Қолданба толық бейне режимінде болғанда, Киелі Кітапқа жартылай мөлдір, үстінен қабатталған сілтеме көрсетпеңіз</string>
   <string name="full_screen_hide_buttons_pref_title">Толық бейнеде терезенің батырма түймесін жасыру</string>
   <string name="full_screen_hide_buttons_pref_summary">Толық бейне режиміне ауысқан кезде, бейненің төмендегі терезенің батырма жолағын автоматты түрде жасырыңыз</string>
   <string name="font_size_title">Шрифт көлемі</string>
@@ -240,8 +254,8 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="compare_translations">Аудармаларды салыстыру</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Линкті мұнда ашу</string>
-  <string name="open_link_in_new_window">Линкті жаңа терезеде ашу</string>
-  <string name="open_link_in_special_window">Линкті айрықша арнайы терезеде ашу</string>
+  <string name="open_link_in_new_window">Жаңа терезеде линк сілтемені ашыңыз</string>
+  <string name="open_link_in_special_window">Айрықша арнайы терезеде линк сілтемені ашыңыз</string>
   <!--Bookmarks-->
   <string name="bookmarks">Кітап белгілері</string>
   <string name="bookmark_added">Кітап белгісі қосылды</string>
@@ -317,6 +331,20 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="speak_status_stopped">Тоқтатылған</string>
   <string name="speak_autobookmarking_disabled">Автоматты кітап белгілеу өшірілген!</string>
   <string name="system_speak_settings">TTS жүйесінің ашық параметрлері</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope_window">Осы терезе</string>
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <string name="workspace_text_options_help1">Бұл баптаулар  әдепкі қалпы бойынша барлық жұмыс кеңістігінің терезелерінің анықтатады.</string>
+  <string name="workspace_text_options_help2"> Жеке терезенің баптауларын өзегрту арқылы, осылардың алдыңғысын қайта жоя аласыз.</string>
+  <string name="window_text_options_help_title">Терезе мәтінінің опциялары</string>
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s белгішесі бұл баптаудың осы арнайы нақты терезе үшін өзгертілгенің көрсетеді.</string>
+  <string name="window_text_options_help3">Жұмыс кеңістігінің баптауы бұл терезеге әсер етпейді.</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Сөйлеу Кітап белгісінің көмегі</string>
   <string name="speak_help_auto_bookmark">
 Сөйлеу пауза не тоқтатылған кезінде, Сөйлеу кітап белгісі автоматты түрде қосылады.
@@ -360,6 +388,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="mynotes">Менің Ескертпелерім</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Сақтық көшіру мен Қалпына келтіру</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="loading_backup">Деректер базасы сақтық көшірмеден жүктелуде…</string>
   <string name="backup_modules_email_subject_2">%s модульдерді сақтыққа көшіру</string>
   <string name="backup_modules_email_message_2">Қосылып бекітілген сіздің %s модульдердің сақтық көшірмесі, онда келесі модульдер бар:%s</string>
@@ -381,6 +410,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="module_about_versification">Аятты растау: %s</string>
   <string name="module_about_osisId">OSIS Идентификациясы:%s</string>
   <!--Bug reporting-->
+  <string name="report_bug_instructions2">2. Басылған терезе мәзірі</string>
   <!--Document types-->
   <string name="doc_type_all">Барлық түрлері</string>
   <string name="doc_type_bible">Киелі Кітап</string>
@@ -479,8 +509,11 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="something_with_parenthesis">%s(%s)</string>
   <string name="first_time_help_do_not_show_again">Мен түсінемін</string>
   <string name="first_time_help_show_next_time">Келесі рет қайтадан көрсет</string>
+  <string name="strongs_mode_title">Стронг режимін таңдаңыз</string>
   <string name="my_notes_abbreviation">Менің Ескертпелерім</string>
   <string name="compare_description">Аудармаларды салыстыру</string>
+  <string name="active_window_indicator_title">Белсенді терезенің индикаторын көрсет</string>
+  <string name="active_window_indicator_summary">Қай терезенің белсенді екенін анықтауға көмектесу үшін, терезенің бұрыштарын бөлекте</string>
   <string name="verse_action_copy">Көшіріңіз</string>
   <string name="show_versenumbers">Аят санын көрсету</string>
   <string name="backup_button">Резерв Көшірмесі</string>
@@ -489,4 +522,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
   <string name="system_items1">Көбірек</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Терезені екі рет түртіп толық бейне режиміне өтіңіз</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
 </resources>

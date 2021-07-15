@@ -16,12 +16,12 @@ L'applicazione ha molte caratteristiche intuitive e originali, che rendono una c
  * Riferimenti incrociati, note a piè di pagina, e documenti collegati; passa ai riferimenti incrociati e alle note semplicemente toccando un collegamento; esegui uno studio approfondito delle Scritture usando i commentari collegati (Gill, Matthew Henry, ecc.), le raccolte di riferimenti incrociati (Treasure of Scripture Knowledge, TSKe) e altre risorse.
  * Sintesi vocale avanzata con segnalibri parlati, che permette una comoda esperienza di ascolto della Bibbia
  * Ricerca flessibile
- * Segnalibri & evidenziazione avanzata con note di studio personali
+ * Segnalibri ed evidenziazione avanzata con note di studio personali
  * Piani di lettura: fissa degli obiettivi di lettura della Bibbia
  * Vasta biblioteca di documenti: traduzioni della Bibbia, commentari teologici, dizionari, mappe e libri cristiani, per un totale di oltre 1500 documenti in oltre 700 lingue, distribuiti legalmente da Crosswire e altri repository SWORD.
  * La provenienza di tutti i documenti viene controllata per garantire che tutti i documenti possano essere distribuiti legalmente o che il permesso sia stato concesso dal titolare del copyright. Questo è anche il motivo per cui questa applicazione non include documenti come ESV, NIV e NKJV.
  * Offline: l'unica volta che hai bisogno di internet è per scaricare i documenti.
- * Appunti di studio per aggiungere note e riferimenti biblici durante l'ascolto dei sermoni.
+ * Appunti di studio per aggiungere annotazioni e riferimenti biblici durante l'ascolto dei sermoni.
 
 <b>Creiamo insieme la migliore app della Bibbia!</b>
 

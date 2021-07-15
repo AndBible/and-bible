@@ -61,6 +61,10 @@
   <string name="prefs_show_verseno_summary">Rodyti skyrių &amp; eilučių numerius</string>
   <string name="prefs_e_ink_mode_title">Nespalvotoji veiksena</string>
   <string name="prefs_eink_mode_summary">Naudoti programėlę nespalvotoje veiksenoje (be spalvų), taip paverčiant ją labiau tinkamą elektroninio popieriaus įrenginiams.</string>
+  <string name="prefs_disable_animations_title">Išjungti animacijas</string>
+  <string name="prefs_disable_animations_summary">Išjungti įvairias animacijas, tokias kaip, glotnus slinkimas.</string>
+  <string name="prefs_paragraph_spacing_title">Tarpai tarp pastraipų (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Reguliuoti tarpus tarp pastraipų.</string>
   <string name="prefs_show_verseno_title1">Eilučių numeriai</string>
   <string name="prefs_show_chapter_no_title">Skyrių numeriai</string>
   <string name="prefs_show_chapter_no_summary">Rodyti skyrių numerius</string>
@@ -203,6 +207,7 @@
   <string name="strongs_not_installed">Atsisiųskite Strongo hebrajų ir graikų žodynus</string>
   <string name="no_indexed_bible_with_strongs_ref">Jums per „Paiešką“ reikia atsisiųsti Bibliją su Strongo numeriais, o taip pat ir jos indeksus</string>
   <string name="morph_robinson_not_installed">Atsisiųskite žodyną „Robinson\'s Morphological Analysis Codes“</string>
+  <string name="go_to_downloads">Pereiti į Atsiuntimus</string>
   <!--Module download-->
   <string name="download">Atsisiųsti dokumentus</string>
   <string name="redownload">Iš naujo atsisiųsti dokumentus</string>
@@ -243,7 +248,7 @@
   <string name="overwrite_files">Šie failai jau yra: %s Perrašyti?</string>
   <string name="overwrite_files_title">Perrašyti failus?</string>
   <!--Daily Reading Plan-->
-  <string name="rdg_plan_title">Skaitomas planas</string>
+  <string name="rdg_plan_title">Skaitymo planas</string>
   <string name="rdg_plan_selector_title">Pasirinkite „Skaitomą planą“</string>
   <string name="rdg_plan_day">Diena %s</string>
   <string name="rdg_plan_set_start_date">Nustatyti pradžios datą</string>
@@ -334,7 +339,7 @@
   <string name="label_unlabelled">Nėra etiketės</string>
   <string name="add_bookmark1">Žymė</string>
   <string name="add_bookmark2">Pažymėti žymėjimą</string>
-  <string name="add_bookmark3">Žymėjimas</string>
+  <string name="add_bookmark3">Pridėti žymę</string>
   <string name="add_bookmark_whole_verse">Pažymėti eilutę</string>
   <string name="add_bookmark_whole_verse1">Eilutės</string>
   <string name="add_bookmark_whole_verse2">Pilnos eilutės</string>
@@ -414,6 +419,33 @@
   <string name="speak_status_stopped">sustabdyta</string>
   <string name="speak_autobookmarking_disabled">Automatinis žymių dėjimas išjungtas!</string>
   <string name="system_speak_settings">Atverti sistemos TTS nustatymus</string>
+  <string name="auto_assing_labels_help1">Čia galite reguliuoti, kurios etiketės bus automatiškai priskiriamos jūsų kuriamoms žymėms.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Šis nustatymas taikomas %s.</string>
+  <string name="setting_scope_window">šiam langui</string>
+  <string name="setting_scope_workspace">šiai darbo sričiai</string>
+  <string name="assing_labels_help1">Kiekvienai žymei gali būti priskirtos kelios etiketės.</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Naudokite %s norėdami nurodyti, kuri etiketės spalva bus rodoma.</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Bakstelėkite %s piktogramą, kad ta etiketė būtų automatiškai priskiriama naujoms žymėms.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Bakstelėkite %s norėdami pridėti etiketę prie savo mėgstamų sąrašo.</string>
+  <!--param is refresh icon-->
+  <string name="assing_labels_help5">Bakstelėkite %s norėdami pertvarkyti sąrašą pagal savo pasirinkimus.</string>
+  <string name="workspace_text_options_help_title">Darbo srities teksto parinktys</string>
+  <string name="workspace_text_options_help1">Šie nustatymai nustato numatytąsias reikšmes visiems darbo srities langams.</string>
+  <string name="workspace_text_options_help2">Galite juos nustelbti keisdami kiekvieno atskiro lango nustatymus.</string>
+  <string name="window_text_options_help_title">Lango teksto parinktys</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s piktograma nurodo, kad nustatymas yra perimamas iš darbo srities nustatymų.</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s piktograma nurodo, kad šis nustatymas buvo pakeistas šiam konkrečiam langui.</string>
+  <string name="window_text_options_help3">Darbo srities nustatymas nepaveiks šio lango.</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Naudokite mygtuką %s norėdami atstatyti visus šiuos nustatymus į %s.</string>
+  <string name="reset_defaults">numatytąsias reikšmes</string>
+  <string name="reset_workspace_defaults">darbo srities numatytąsias reikšmes</string>
   <string name="speak_bookmark_help">Kalbėjimo žymių pagalba</string>
   <string name="speak_help_auto_bookmark">
 Kalbos žymė bus automatiškai pridėta, kai kalbėjimas bus pristabdytas arba baigtas.
@@ -471,9 +503,12 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="backup_modules">Bendrinti arba saugoti dokumentų atsargines kopijas į...</string>
   <string name="backup_app_database">Bendrinti arba saugoti programėlės duomenų bazės atsarginę kopiją į...</string>
   <string name="backup_app">Bendrinti arba saugoti programėlę (.apk failą) į...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Ką norite atkurti?</string>
   <string name="restore_app_database">Atkurti programėlės duomenų bazę iš…</string>
   <string name="restore_database">Atkurti duomenų bazės failą</string>
   <string name="restore_confirmation">Perrašyti mano pastabas, žymes, bloknotus, skaitymo planus ir darbo sritis?</string>
+  <string name="reading_plans_plural">Skaitymo planai</string>
   <string name="restore_success">Mano pastabos, žymės, bloknotai, skaitymo planai ir darbo sritys sėkmingai atkurtos</string>
   <string name="loading_backup">Įkeliama duomenų bazė iš atsarginės kopijos…</string>
   <string name="backup_success2">Sėkmingai padaryta mano pastabų, žymių, bloknotų, skaitymo planų ir darbo sričių atsarginė kopija.</string>
@@ -499,6 +534,8 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="module_about_repository">Platinimo serveris: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Pranešimas apie klaidą</string>
+  <string name="send_feedback_title">Atsiliepimas</string>
   <string name="send_bug_report_title">Atsiliepimas / pranešimas apie klaidą</string>
   <string name="report_bug_email_subject_3">[%s] Pranešimas apie klaidą %s %s</string>
   <string name="report_bug_big_heading">RAŠYKITE ATSILIEPIMĄ AR PRANEŠIMĄ APIE KLAIDĄ VIRŠ ŠIOS LINIJOS</string>
@@ -799,4 +836,12 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="chooser_style_lists">Sąrašai</string>
   <string name="chooser_select">Pasirinkti %s</string>
   <string name="chooser_pref_reset">Pasirinkus knygą/skyrių, neatstatyti skyriaus/eilutės į 1</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Atleiskite, bet naudotojo sąsajos vertimas %s kalba yra tik dalinis. Taip yra todėl, kad %s yra pilnai plėtojama tik savanorių. Jei galite padėti išversti, žiūrėkite %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">instrukciją vertėjams</string>
+  <string name="questions_title">Turite klausimų?</string>
+  <string name="questions_title2">Reikia pagalbos?</string>
+  <string name="bookmark_style">Žymės stilius</string>
+  <string name="added_to_bookmark">Priskirta šiai žymei</string>
 </resources>

@@ -37,7 +37,7 @@ public class ScriptureToggleActionBarButton extends ToggleActionBarButton {
 
 	@Inject
 	public ScriptureToggleActionBarButton(SearchControl searchControl) {
-		super(R.drawable.ic_action_new, R.drawable.ic_action_undo);
+		super(R.drawable.ic_action_new, R.drawable.ic_baseline_undo_24);
 
 		this.searchControl = searchControl;
 	}

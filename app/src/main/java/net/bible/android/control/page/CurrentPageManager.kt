@@ -284,7 +284,7 @@ open class CurrentPageManager @Inject constructor(
                 Verse(versification, BibleBook.GEN, 1, 1),
                 Verse(versification, BibleBook.PS, 1, 1))
             val bibles = swordDocumentFacade.bibles
-            if (bibles.size == 1) {
+            if (bibles.isNotEmpty()) {
                 val bible = bibles[0]
                 for (verse in defaultVerses) {
                     if (bible.contains(verse)) {

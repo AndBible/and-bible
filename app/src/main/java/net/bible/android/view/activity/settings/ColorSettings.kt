@@ -22,6 +22,8 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
@@ -68,6 +70,48 @@ class ColorSettingsActivity: ActivityBase() {
     private var dirty = false
     private var reset = false
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.text_options_opts, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        var isHandled = true
+        when(item.itemId) {
+            R.id.reset -> reset()
+            R.id.help -> help()
+            android.R.id.home -> onBackPressed()
+            else -> isHandled = false
+        }
+        if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item)
+        }
+        return isHandled
+    }
+
+    fun help() {
+
+    }
+
+    fun cancel() {
+        dirty = false
+        setResult()
+        finish()
+    }
+
+    fun reset() {
+        AlertDialog.Builder(this)
+            .setPositiveButton(R.string.yes) {_, _ ->
+                reset = true
+                setResult()
+                finish()
+            }
+            .setNegativeButton(R.string.no,null)
+            .setMessage(getString(R.string.reset_are_you_sure))
+            .create()
+            .show()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
         colors = settingsBundle.actualSettings.colors!!
@@ -88,24 +132,6 @@ class ColorSettingsActivity: ActivityBase() {
             title = getString(R.string.window_color_settings_title)
         } else {
             title = getString(R.string.workspace_color_settings_title)
-        }
-        binding.okButton.setOnClickListener {finish()}
-        binding.cancelButton.setOnClickListener {
-            dirty = false
-            setResult()
-            finish()
-        }
-        binding.resetButton.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setPositiveButton(R.string.yes) {_, _ ->
-                    reset = true
-                    setResult()
-                    finish()
-                }
-                .setNegativeButton(R.string.no,null)
-                .setMessage(getString(R.string.reset_are_you_sure))
-                .create()
-                .show()
         }
 
         setResult()

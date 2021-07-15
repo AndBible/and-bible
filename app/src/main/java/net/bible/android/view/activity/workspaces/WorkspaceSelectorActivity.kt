@@ -138,7 +138,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
     internal lateinit var dataSet: MutableList<WorkspaceEntities.Workspace>
     private lateinit var workspaceAdapter: WorkspaceAdapter
 
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.workspace_options_menu, menu)
         return true
     }

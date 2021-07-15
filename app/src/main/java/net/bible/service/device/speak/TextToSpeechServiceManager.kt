@@ -575,24 +575,23 @@ class TextToSpeechServiceManager @Inject constructor(
         val isBible = mSpeakTextProvider === bibleSpeakTextProvider
 
         mSpeakTextProvider.persistState()
-        CommonUtils.sharedPreferences
-                .edit()
-                .putString(PERSIST_LOCALE_KEY, currentLocale.toString())
-                .putBoolean(PERSIST_BIBLE_PROVIDER, isBible)
-                .apply()
+        CommonUtils.settings.apply {
+            setString(PERSIST_LOCALE_KEY, currentLocale.toString())
+            setBoolean(PERSIST_BIBLE_PROVIDER, isBible)
+        }
     }
 
     private fun restorePauseState() {
         // ensure no relevant current state is overwritten accidentally
         if (!isSpeaking && !isPaused) {
             Log.d(TAG, "Attempting to restore any Persisted Pause state")
-            val isBible = CommonUtils.sharedPreferences.getBoolean(PERSIST_BIBLE_PROVIDER, true)
+            val isBible = CommonUtils.settings.getBoolean(PERSIST_BIBLE_PROVIDER, true)
             switchProvider(if (isBible) bibleSpeakTextProvider else generalSpeakTextProvider)
 
             isPaused = mSpeakTextProvider.restoreState()
 
             // restore locale information so tts knows which voice to load when it initialises
-            currentLocale = Locale(CommonUtils.sharedPreferences.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString()))
+            currentLocale = Locale(CommonUtils.settings.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString()))
             localePreferenceList = ArrayList()
             localePreferenceList.add(currentLocale)
         }
@@ -601,7 +600,7 @@ class TextToSpeechServiceManager @Inject constructor(
     private fun clearPauseState() {
         Log.d(TAG, "Clearing Persisted Pause state")
         mSpeakTextProvider.clearPersistedState()
-        CommonUtils.sharedPreferences.edit().remove(PERSIST_LOCALE_KEY).apply()
+        CommonUtils.settings.removeString(PERSIST_LOCALE_KEY)
     }
 
     private fun setRate(speechRate: Int) {

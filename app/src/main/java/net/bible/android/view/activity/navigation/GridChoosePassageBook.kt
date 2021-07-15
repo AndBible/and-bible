@@ -138,7 +138,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         val workspaceName = SharedActivityState.currentWorkspaceName
         title = "${title} (${workspaceName})"
 
-        val navigateToVerseDefault = CommonUtils.sharedPreferences.getBoolean("navigate_to_verse_pref", false)
+        val navigateToVerseDefault = CommonUtils.settings.getBoolean("navigate_to_verse_pref", false)
         navigateToVerse = intent?.extras?.getBoolean("navigateToVerse", navigateToVerseDefault)?:navigateToVerseDefault
 
         bibleBookActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
@@ -152,7 +152,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
 
         buttonGrid = ButtonGrid(this)
         buttonGrid.setOnButtonGridActionListener(this)
-        buttonGrid.isLeftToRightEnabled = CommonUtils.sharedPreferences.getBoolean(BOOK_GRID_FLOW_PREFS, false)
+        buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
         buttonGrid.addButtons(bibleBookButtonInfo)
 
         setContentView(buttonGrid)
@@ -162,7 +162,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         val sortOptionItem = menu.children.first { it.itemId == R.id.alphabetical_order_opt }
         sortOptionItem.isChecked = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
         val rowDistributionItem = menu.children.first { it.itemId == R.id.row_order_opt }
-        buttonGrid.isLeftToRightEnabled = CommonUtils.sharedPreferences.getBoolean(BOOK_GRID_FLOW_PREFS, false)
+        buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
         rowDistributionItem.isChecked  = buttonGrid.isLeftToRightEnabled
         return super.onPrepareOptionsMenu(menu)
     }
@@ -180,9 +180,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                 item.isChecked = buttonGrid.isLeftToRightEnabled
                 buttonGrid.clear()
                 buttonGrid.addButtons(bibleBookButtonInfo)
-                CommonUtils.sharedPreferences.edit()
-                    .putBoolean(BOOK_GRID_FLOW_PREFS, item.isChecked)
-                    .apply()
+                CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS, item.isChecked)
                 true
             }
             android.R.id.home -> {
@@ -313,7 +311,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         private val REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF)
         private val OTHER_COLOR = ACTS_COLOR
 
-        private const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
+        public const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
         private const val TAG = "GridChoosePassageBook"
     }
 }

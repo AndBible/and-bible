@@ -16,10 +16,11 @@ footnoteTypeAlternative: Alternative
 footnoteTypeTranslation: Übersetzung
 clearLog: Lösche Fehlerprotokoll
 editNote: Bearbeiten
-editNotePlaceholder: ""
+editNotePlaceholder: Notiz bearbeiten
 editTextPlaceholder: Antippen um Text zu bearbeiten
 inputPlaceholder: Hier schreiben
 inputReference: Querverweis einfügen
+invalidReference: Vers wurde nicht gefunden
 assignLabels: Kategorien
 bookmarkAccurate: Lesezeichen wurde in %s erstellt
 bookmarkInaccurate: "Lesezeicheninformation wurde nicht gespeichert, der Inhalt wird in %s angezeigt."
@@ -33,7 +34,9 @@ removeBookmarkConfirmation: "Bist du sicher, dass du dieses Lesezeichen entferne
 closeModal: Schließen
 createdAt: "Erstellt: %s"
 lastUpdatedOn: "Zuletzt aktualisiert: %s"
-strongsLink: Strongs Wörterbuch öffnen (%s)
+strongsLink: Begriffserklärung in Strong (%s)
+morphLink: Morphologischer Code (%s)
+strongsAndMorph: Begriffserklärungen und Morphologie
 studyPadLink: Studiermappe öffnen
 externalLink: Externe Verknüpfung öffnen
 referenceLink: Querverweis öffnen
@@ -45,9 +48,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Leere Studienmappe. Füge dieser Studienmappe Text hinzu oder erstelle Lesezeichen in einer Kategorien, die mit dieser Studienmappe verknüpft ist.
 studyPadModalTitle: Studienmappeneintrag bearbeiten
-doYouWantToDeleteEntry: ""
+doYouWantToDeleteEntry: "Diesen Studienmappeneintrag löschen?"
 removeStudyPadConfirmationTitle: "Studienmappeneintrag entfernen?"
-dragHelp: ""
+dragHelp: Zum Umordnen Ziehen
 saved: Gespeichert
 openAll: Öffne alle Querverweise
 editBookmarkPlaceholder: Tippen um die eigene Notiz für dieses Lesezeichen zu bearbeiten
@@ -55,14 +58,25 @@ onlyLabel: Einzige Kategorie
 wholeBookmark: Gesamtes Lesezeichen
 otherNoteText: Andere Notiz
 assignLabelsMenuEntry: Lesezeichen hinzufügen
-assignLabelsMenuEntry1: ""
+assignLabelsMenuEntry1: Kategorie auswählen oder bearbeiten...
 jumpToStudyPad: Gehe zur Studiermappe
 setAsPrimaryLabel: Setze als Primärkategorie
-removeBookmarkLabel: ""
-addBookmarkLabel: ""
+removeBookmarkLabel: Kategorie entfernen
+addBookmarkLabel: Kategorie hinzufügen
 favouriteLabels: Lieblingskategorien
 recentLabels: Kürzliche Kategorien
 frequentlyUsedLabels: Häufig verwendete Kategorien
 bookmarkLabels: Lesezeichenkategorien
-refParserHelp: ""
-openDownloads: ""
+refParserHelp: Bitte installiere Modul %s um Querverweise in anderen Sprachen als Englisch zu verwenden.
+openDownloads: Zu Add-on Download gehen
+verseShare: Teilen
+verseCompare: Vergleiche
+verseNote: Notiz
+verseMyNotes: Eigene Notizen
+verseSpeak: Vorlesen
+verseShareLong: Diesen Vers teilen
+verseCompareLong: Vers vergleichen
+verseNoteLong: Eine Notiz schreiben
+verseSpeakLong: Von diesem Vers an anhören
+verseTip: "Um Versteile oder mehrere Verse zu markieren, den Bibeltext drücken und halten"
+addBookmark: Lesezeichen

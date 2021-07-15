@@ -121,7 +121,12 @@ export default {
   position: absolute;
   height: 20pt;
   width: 20pt;
-  right: 0;
+  [dir=ltr] & {
+    right: 0;
+  }
+  [dir=rtl] & {
+    left: 0;
+  }
   top: 0;
 }
 .editable-text {

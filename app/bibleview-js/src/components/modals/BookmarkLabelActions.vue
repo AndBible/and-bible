@@ -26,19 +26,19 @@
         <LabelList :bookmark-id="bookmarkId" only-assign in-bookmark />
         <hr/>
       </div>
-      <div class="item title top">
+      <div class="item title top" v-if="hasFavourites">
         <FontAwesomeIcon icon="heart"/>
         {{strings.favouriteLabels}}
       </div>
-      <div class="item">
-        <LabelList :bookmark-id="bookmarkId" favourites only-assign />
+      <div class="item" v-show="hasFavourites">
+        <LabelList :bookmark-id="bookmarkId" favourites only-assign @has-entries="hasFavourites = $event"/>
       </div>
-      <div class="item title">
+      <div class="item title" v-if="hasRecent">
         <FontAwesomeIcon icon="history"/>
         {{strings.recentLabels}}
       </div>
-      <div class="item">
-        <LabelList :bookmark-id="bookmarkId" recent only-assign />
+      <div class="item" v-show="hasRecent">
+        <LabelList :bookmark-id="bookmarkId" recent only-assign @has-entries="hasRecent = $event" />
       </div>
       <!--div class="item title">
         <FontAwesomeIcon icon="fire-alt"/>
@@ -79,11 +79,12 @@ export default {
         android.assignLabels(bookmark.value.id);
       }
     }
-
+    const hasFavourites = ref(false);
+    const hasRecent = ref(false);
     async function showActions() {
       showModal.value = true;
     }
-    return {showModal, showActions, assignLabels, ...useCommon()}
+    return {showModal, showActions, assignLabels, hasFavourites, hasRecent, ...useCommon()}
   }
 }
 </script>

@@ -20,6 +20,7 @@ editNotePlaceholder: Redakti noton
 editTextPlaceholder: Frapetu por redakti tekston
 inputPlaceholder: Skribu tien ĉi
 inputReference: Enigi biblian referencon
+invalidReference: Ne trovis verson
 assignLabels: Etikedoj
 bookmarkAccurate: Legosigno kreita en %s
 bookmarkInaccurate: "Informo pri libro ne konservita en legosigno, montras enhavon en %s."
@@ -33,7 +34,9 @@ removeBookmarkConfirmation: "Ĉu vi certe volas forigi tiun ĉi legosignon?"
 closeModal: Fermi
 createdAt: "Kreita: %s"
 lastUpdatedOn: "Ĝisdatigita: %s"
-strongsLink: Malfermi Strong-vortaron (%s)
+strongsLink: Difino de Strong (%s)
+morphLink: Morfologia kodo (%s)
+strongsAndMorph: Difino k morfologio
 studyPadLink: Malfermi notblokon
 externalLink: Malfermi eksteran ligilon
 referenceLink: Malfermi referencan ligilon
@@ -64,5 +67,16 @@ favouriteLabels: Ŝatataj etikedoj
 recentLabels: Antaŭaj etikedoj
 frequentlyUsedLabels: Ofte uzataj etikedoj
 bookmarkLabels: Legosignaj etikedoj
-refParserHelp: ""
-openDownloads: ""
+refParserHelp: Instalu la modulon %s por uzi referencojn en aliaj lingvoj ol la angla.
+openDownloads: Malfermi elŝutojn
+verseShare: Kunhavigi
+verseCompare: Kompari
+verseNote: Noto
+verseMyNotes: Notoj
+verseSpeak: Paroli
+verseShareLong: Kunhavigi verson
+verseCompareLong: Kompari verson
+verseNoteLong: Skribi noton
+verseSpeakLong: Paroli ekde tiu ĉi verso
+verseTip: "Por elekti parton aŭ plurajn versojn, frapetadu la tekston de Biblio"
+addBookmark: Legosigno

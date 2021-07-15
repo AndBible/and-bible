@@ -61,6 +61,10 @@
   <string name="prefs_show_verseno_summary">Mostrar números de capítulo y versículo</string>
   <string name="prefs_e_ink_mode_title">Modo negro &amp; blanco</string>
   <string name="prefs_eink_mode_summary">Utilice la aplicación en modo monocromo (sin colores), lo que la hace más adecuada para dispositivos de E-ink.</string>
+  <string name="prefs_disable_animations_title">Deshabilitar animaciones</string>
+  <string name="prefs_disable_animations_summary">Deshabilitar varias animaciones tales como el desplazamiento suave.</string>
+  <string name="prefs_paragraph_spacing_title">Espaciamiento entre párrafos (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Ajustar espacio entre párrafos.</string>
   <string name="prefs_show_verseno_title1">Numeros de verso</string>
   <string name="prefs_show_chapter_no_title">Numeros de capítulos</string>
   <string name="prefs_show_chapter_no_summary">Mostrar numeros de capítulos</string>
@@ -205,6 +209,7 @@
   <string name="strongs_not_installed">Por favor descargue los diccionarios de griego y hebreo de Strong</string>
   <string name="no_indexed_bible_with_strongs_ref">Debe descargar una Biblia que contenga números de Strong y descargar su índice por medio de Buscar</string>
   <string name="morph_robinson_not_installed">Por favor descargue el diccionario \'Códigos de análisis morfológicos de Robinson\'</string>
+  <string name="go_to_downloads">Ir a Descargas</string>
   <!--Module download-->
   <string name="download">Descarga Documentos</string>
   <string name="redownload">Volver a descargar Documentos</string>
@@ -417,6 +422,33 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="speak_status_stopped">parado</string>
   <string name="speak_autobookmarking_disabled">¡Marcadores automáticos deshabilitados!</string>
   <string name="system_speak_settings">Abrir los ajustes del sistema de Texto a Voz</string>
+  <string name="auto_assing_labels_help1">Aquí puede ajustar cuáles etiquetas son asignadas automáticamente a los marcadores que cree.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Ésta configuración aplica a %s.</string>
+  <string name="setting_scope_window">este ventana</string>
+  <string name="setting_scope_workspace">este espacio</string>
+  <string name="assing_labels_help1">A cada marcador se le pueden asignar múltiples etiquetas.</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Use %s para especificar el color de etiqueta mostrado</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Pulse el icono %s para asignar esa etiqueta automáticamente a nuevos marcadores.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Pulse %s para añadir la etiqueta a su lista de favoritos para acceso rápido.  </string>
+  <!--param is refresh icon-->
+  <string name="assing_labels_help5">Pulse %s para reordenar la lista basada en sus selecciones.</string>
+  <string name="workspace_text_options_help_title">Opciones de texto de espacio</string>
+  <string name="workspace_text_options_help1">Estas configuraciones determinan los valores por defecto de todas las ventanas del espacio.</string>
+  <string name="workspace_text_options_help2">Puede anular estos cambiando las configuraciones individuales de ventana.</string>
+  <string name="window_text_options_help_title">Opciones de texto de ventana.</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">El icono %s indica que la configuración proviene de las configuraciones de espacio.</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">El icono %s indica que esta configuración ha sido cambiada para esta ventana particular.</string>
+  <string name="window_text_options_help3">Esta configuración de espacio no afectará a esta ventana.</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Use el botón %s para restablecer todas estas configuraciones a los %s.</string>
+  <string name="reset_defaults">valores por defecto</string>
+  <string name="reset_workspace_defaults">valores por defecto del espacio</string>
   <string name="speak_bookmark_help">Ayuda de marcadores de voz</string>
   <string name="speak_help_auto_bookmark">
 Un marcador de voz se agregará automáticamente cuando la voz está pausada o parada.
@@ -477,12 +509,15 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="backup_modules">Compartir o Guardar copia de seguridad de documentos en...</string>
   <string name="backup_app_database">Compartir o Guardar copia de seguridad de la base de datos de la aplicación en...</string>
   <string name="backup_app">Compartir o Guardar copia de seguridad de aplicación (archivo .apk) en...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">¿Qué quiere restaurar?</string>
   <string name="restore_app_database">Restaurar la base de datos de la aplicación desde...</string>
   <string name="restore_database">Restaurar archivo de la base de datos desde...</string>
-  <string name="restore_confirmation">¿Sobreescribir Mis Notas, Marcadores, Blocs de Estudio, Planes de Lectura y Espacios?</string>
-  <string name="restore_success">Mis notas, marcadores, blocs de estudio, planes de lectura y espacios restaurados con éxito</string>
+  <string name="restore_confirmation">¿Sobreescribir Mis Notas, Marcadores, Pizarras de Estudio, Planes de Lectura y Espacios?</string>
+  <string name="reading_plans_plural">Planes de lectura</string>
+  <string name="restore_success">Mis notas, marcadores, pizarras de estudio, planes de lectura y espacios restaurados con éxito</string>
   <string name="loading_backup">Cargando base de datos desde la copia de seguridad...</string>
-  <string name="backup_success2">Mis notas, marcadores, blocs de estudio, planes de lectura y espacios guardados con éxito.</string>
+  <string name="backup_success2">Mis notas, marcadores, pizarras de estudio, planes de lectura y espacios guardados con éxito.</string>
   <string name="backup_modules_success">Se ha hecho copia de seguridad correctamente de los módulos seleccionados.</string>
   <string name="backup_modules_email_subject_2">Copia de seguridad de módulos de %s</string>
   <string name="backup_modules_email_message_2">Se adjunta la copia de seguridad de sus módulos de %s, que contiene los siguientes módulos: %s</string>
@@ -505,6 +540,8 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="module_about_repository">Servidor de distribución: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Reporte de fallo</string>
+  <string name="send_feedback_title">Retroalimentación</string>
   <string name="send_bug_report_title">Comentarios / informe de fallo</string>
   <string name="report_bug_email_subject_3">[%s] Informe de fallo sobre %s %s</string>
   <string name="report_bug_big_heading">POR FAVOR ESCRIBA SU COMENTARIO O INFORME DE FALLO POR ENCIMA DE ESTA LÍNEA</string>
@@ -675,7 +712,7 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="journal_description">Pizarras de estudio editables por el usuario con texto personalizado y marcadores</string>
   <string name="my_notes_description">Notas editables por el usuario adjuntas a los marcadores</string>
   <string name="my_notes_abbreviation">Mis Notas</string>
-  <string name="studypads">Blocs de Estudio</string>
+  <string name="studypads">Pizarras de Estudio</string>
   <string name="multi_description">Referencias múltiples</string>
   <string name="multi_abbreviation">Múltiple</string>
   <string name="compare_description">Comparar traducciones</string>
@@ -807,4 +844,12 @@ informe los problemas a los mantenedores de texto
   <string name="chooser_style_lists">Listas</string>
   <string name="chooser_select">Seleccione %s</string>
   <string name="chooser_pref_reset">No restablezca el capítulo/versículo a 1 cuando se selecciona libro/capítulo</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Lo sentimos, sólo tenemos una traducción parcial de la interfaz de usuario en el idioma %s. Esto es debido a que %s es completamente desarrollado por voluntarios. Si usted puede ayudar traduciendo por favor vea %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">instrucciones para traductoras</string>
+  <string name="questions_title">¿Preguntas?</string>
+  <string name="questions_title2">¿Necesitas ayuda?</string>
+  <string name="bookmark_style">Estilo de marcador</string>
+  <string name="added_to_bookmark">Asignado a este marcador</string>
 </resources>

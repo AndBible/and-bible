@@ -79,6 +79,8 @@ open class BibleApplication : Application() {
     private var ttsNotificationManager: TextToSpeechNotificationManager? = null
     private var ttsWidgetManager: SpeakWidgetManager? = null
 
+    open val isRunningTests: Boolean = false
+
     private val appStateSharedPreferences: SharedPreferences
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
@@ -88,7 +90,7 @@ open class BibleApplication : Application() {
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             BugReport.saveScreenshot()
-            CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", true).commit()
+            CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
             defaultExceptionHandler.uncaughtException(t, e)
         }
         ABEventBus.getDefault().register(this)
@@ -103,9 +105,6 @@ open class BibleApplication : Application() {
         Log.i(TAG, "Java home:" + System.getProperty("java.home")!!)
         Log.i(TAG, "User dir:" + System.getProperty("user.dir") + " Timezone:" + System.getProperty("user.timezone"))
         logSqliteVersion()
-        // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
-        // this affected jsword dynamic classloading
-        Thread.currentThread().contextClassLoader = javaClass.classLoader
 
         // This must be done before accessing JSword to prevent default folders being used
         SwordEnvironmentInitialisation.initialiseJSwordFolders()
@@ -155,7 +154,7 @@ open class BibleApplication : Application() {
     }
 
     private fun upgradeSharedPreferences() {
-        val prefs = CommonUtils.sharedPreferences
+        val prefs = CommonUtils.realSharedPreferences
         val prevInstalledVersion = prefs.getInt("version", -1)
         val newInstall = prevInstalledVersion == -1
 

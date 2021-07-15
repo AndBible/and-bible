@@ -320,7 +320,7 @@ class WorkspaceEntities {
             val default get() = WorkspaceSettings(
                 enableTiltToScroll = false,
                 enableReverseSplitMode = false,
-                autoPin = true
+                autoPin = false
             )
         }
     }

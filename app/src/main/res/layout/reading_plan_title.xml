@@ -32,7 +32,7 @@
         android:layout_height="fill_parent"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:layout_marginLeft="5dip">
+        android:layout_marginStart="5dip">
         <TextView android:id="@+id/pageTitle"
             style="@style/ActionBarTitle1"/>
         <TextView android:id="@+id/pageSubtitle"

@@ -21,6 +21,7 @@ package net.bible.android.view.activity.page.screen
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Rect
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -42,6 +43,7 @@ import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.MenuItemCompat
 import androidx.core.view.children
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -296,10 +298,10 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     internal val hideWindowButtons get() =
-        CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)
+        CommonUtils.settings.getBoolean("hide_window_buttons", false)
     private var buttonsWillAnimate = false;
     private val autoHideWindowButtonBarInFullScreen get() =
-        CommonUtils.sharedPreferences.getBoolean("full_screen_hide_buttons_pref", true)
+        CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)
 
     private fun rebuildRestoreButtons() {
         Log.d(TAG, "rebuildRestoreButtons")
@@ -533,22 +535,30 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         if(firstTime) {
             firstTime = false
         }
-
+        val isRtl = CommonUtils.isRtl
         binding.apply {
+            val screenWidth = biblesLinearLayout.width
             val transX =
-                (if (restoreButtonsVisible) 0 else
-                    restoreButtonsContainer.width -
-                        (hideRestoreButton.width + hideRestoreButtonExtension.width)).toFloat() - mainBibleActivity.rightOffset1
+                if(isRtl)
+                    (if (restoreButtonsVisible) 0 else
+                        -restoreButtonsContainer.width + (hideRestoreButton.width + hideRestoreButtonExtension.width)
+                        ).toFloat() + mainBibleActivity.leftOffset1
+                else
+                    (if (restoreButtonsVisible) 0 else
+                        restoreButtonsContainer.width - (hideRestoreButton.width + hideRestoreButtonExtension.width)
+                        ).toFloat() - mainBibleActivity.rightOffset1
+            Log.d(TAG, "updateRestoreButtons $animate $transX $restoreButtonsVisible $screenWidth")
 
-            Log.d(TAG, "updateRestoreButtons $animate $transX")
+            val closeRes = if(isRtl) R.drawable.ic_keyboard_arrow_left_black_24dp else R.drawable.ic_keyboard_arrow_right_black_24dp
+            val openRes = if(!isRtl) R.drawable.ic_keyboard_arrow_left_black_24dp else R.drawable.ic_keyboard_arrow_right_black_24dp
 
             if (restoreButtonsVisible) {
                 restoreButtonsContainer.isScrollable = true
-                hideRestoreButton.setBackgroundResource(R.drawable.ic_keyboard_arrow_right_black_24dp)
+                hideRestoreButton.setBackgroundResource(closeRes)
             } else {
-                restoreButtonsContainer.scrollX = 0
+                restoreButtonsContainer.fullScroll(if(isRtl) View.FOCUS_RIGHT else View.FOCUS_LEFT)
                 restoreButtonsContainer.isScrollable = false
-                hideRestoreButton.setBackgroundResource(R.drawable.ic_keyboard_arrow_left_black_24dp)
+                hideRestoreButton.setBackgroundResource(openRes)
             }
             if (animate) {
                 Log.d(TAG, "animate started")
@@ -568,15 +578,15 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         }
     }
 
-    private var restoreButtonsVisible = CommonUtils.sharedPreferences.getBoolean("restoreButtonsVisible", true)
+    private var restoreButtonsVisible = CommonUtils.settings.getBoolean("restoreButtonsVisible", true)
         set(value) {
-            CommonUtils.sharedPreferences.edit().putBoolean("restoreButtonsVisible", value).apply()
+            CommonUtils.settings.setBoolean("restoreButtonsVisible", value)
             ABEventBus.getDefault().post(RestoreButtonsVisibilityChanged())
             field = value
         }
 
     private fun updateBibleReferenceOverlay(_show: Boolean) {
-        val isSettingDisabled = CommonUtils.sharedPreferences.getBoolean("hide_bible_reference_overlay", false)
+        val isSettingDisabled = CommonUtils.settings.getBoolean("hide_bible_reference_overlay", false)
         if (isSettingDisabled) return
 
         val show = mainBibleActivity.fullScreen && _show
@@ -597,7 +607,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
             text = getDocumentAbbreviation(window)
             setOnClickListener { windowControl.restoreWindow(window) }
-            setOnLongClickListener { v-> showPopupWindow(window, v); true }
+            setOnLongClickListener { v-> showPopupMenu(window, v); true }
         }
     }
 
@@ -610,7 +620,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         ).apply {
             setOnClickListener { windowControl.unMaximise() }
             text = ""
-            setOnLongClickListener { v-> showPopupWindow(window, v); true }
+            setOnLongClickListener { v-> showPopupMenu(window, v); true }
         }
     }
 
@@ -641,7 +651,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     @SuppressLint("RestrictedApi")
-    internal fun showPopupWindow(window: Window, view: View) {
+    internal fun showPopupMenu(window: Window, view: View) {
         // ensure actions affect the right window
         timerTask?.cancel()
         toggleWindowButtonVisibility(true)
@@ -729,13 +739,12 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                 item.isEnabled = itmOptions.enabled
                 item.isCheckable = itmOptions.isBoolean
                 if(itmOptions is Preference) {
-                    if (itmOptions.inherited) {
-                        item.setIcon(R.drawable.ic_sync_white_24dp)
-                    } else {
-                        item.setIcon(R.drawable.ic_sync_disabled_green_24dp)
-                    }
+                    item.icon = CommonUtils.iconWithSync(itmOptions.icon!!, itmOptions.inherited)
+                } else {
+                    MenuItemCompat.setIconTintList(item,
+                        ColorStateList.valueOf(CommonUtils.getResourceColor(R.color.grey_500))
+                    )
                 }
-
                 if(item.hasSubMenu()) {
                     handleMenu(item.subMenu)
                     continue

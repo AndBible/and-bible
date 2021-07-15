@@ -401,7 +401,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                                         BookCategory.GENERAL_BOOK -> 4
                                         BookCategory.MAPS -> 5
                                         BookCategory.AND_BIBLE -> 6
-                                        else -> 6
+                                        else -> 7
                                     }
                                 },
                                 { it.abbreviation.toLowerCase(Locale(it.language.code)) }
@@ -558,7 +558,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     /** allow selection of initial doc type
      */
     protected open fun setInitialDocumentType() {
-        selectedDocumentFilterNo = 0
+        selectedDocumentFilterNo = if(intent?.getBooleanExtra("addons", false) == true) 6 else 0
     }
 
     fun setShowOkButtonBar(visible: Boolean) {
@@ -567,7 +567,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     companion object {
         private val DOCUMENT_TYPE_SPINNER_FILTERS = arrayOf(
-            BookFilters.getAll(),
+            BookFilter { it.bookCategory != BookCategory.AND_BIBLE },
             BookFilter { it.bookCategory == BookCategory.BIBLE },
             BookFilter { it.bookCategory == BookCategory.COMMENTARY },
             BookFilter { it.bookCategory == BookCategory.DICTIONARY },

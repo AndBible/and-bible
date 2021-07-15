@@ -16,10 +16,11 @@ footnoteTypeAlternative: Альтернативный
 footnoteTypeTranslation: Перевод
 clearLog: Очистить журнал ошибок
 editNote: Редактировать
-editNotePlaceholder: ""
+editNotePlaceholder: Редактировать заметку
 editTextPlaceholder: "Нажмите, чтобы отредактировать текст"
 inputPlaceholder: Пишите здесь
 inputReference: Введите ссылку
+invalidReference: Стих не найден
 assignLabels: Метки
 bookmarkAccurate: Закладка создана в %s
 bookmarkInaccurate: "Информация о закладке не сохраняется, содержимое отображается в %s."
@@ -33,7 +34,9 @@ removeBookmarkConfirmation: "Вы уверены, что хотите удали
 closeModal: Закрыть
 createdAt: "Созданный: %s"
 lastUpdatedOn: "Последнее обновление: %s"
-strongsLink: Открыть Стронга (%s)
+strongsLink: Определение Сторонга (%s)
+morphLink: Морфологический код (%s)
+strongsAndMorph: Определение и морфология
 studyPadLink: Открыть блокнот
 externalLink: Открыть внешнюю ссылку
 referenceLink: Открыть справочную ссылку
@@ -45,9 +48,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Пустой блокнот. Начните добавлять в этот блокнот, создавая текстовые записи или создавая закладки с меткой закладки, которая соответствует этому блокноту.
 studyPadModalTitle: Редактировать запись в блокноте
-doYouWantToDeleteEntry: ""
+doYouWantToDeleteEntry: "Удалить эту запись в блокноте?"
 removeStudyPadConfirmationTitle: "Удалить запись в блокноте?"
-dragHelp: ""
+dragHelp: "Перетащите, чтобы изменить порядок"
 saved: сохранено
 openAll: Открыть все ссылки
 editBookmarkPlaceholder: "Нажмите, чтобы изменить \"Мои заметки\" для этой закладки"
@@ -55,14 +58,25 @@ onlyLabel: Только ярлык
 wholeBookmark: Всю закладку
 otherNoteText: Прочие примечания
 assignLabelsMenuEntry: Назначить ярлыки
-assignLabelsMenuEntry1: ""
+assignLabelsMenuEntry1: Выбрать или изменить ярлыки…
 jumpToStudyPad: Перейти к блокноту
 setAsPrimaryLabel: Сделать основной меткой
-removeBookmarkLabel: ""
-addBookmarkLabel: ""
+removeBookmarkLabel: Удалить ярлык
+addBookmarkLabel: Добавить ярлык
 favouriteLabels: Любимые ярлыки
 recentLabels: Недавние ярлыки
 frequentlyUsedLabels: Часто используемые ярлыки
-bookmarkLabels: ""
-refParserHelp: ""
-openDownloads: ""
+bookmarkLabels: Ярлыки закладок
+refParserHelp: "Установите модуль %, чтобы использовать ссылки на других языках, кроме английского."
+openDownloads: Перейти к загрузке дополнительных компонентов
+verseShare: Поделиться
+verseCompare: Сравнить
+verseNote: Заметка
+verseMyNotes: Мои заметки
+verseSpeak: Прослушать
+verseShareLong: Поделиться этим стихом
+verseCompareLong: Сравнить стих
+verseNoteLong: Написать заметку
+verseSpeakLong: Начать слушать с этого стиха
+verseTip: "Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии."
+addBookmark: Закладка

@@ -17,7 +17,13 @@
 
 .menu {
   position: absolute;
-  right: 0;
+  [dir=ltr] & {
+    right: 0;
+  }
+  [dir=rtl] & {
+    left: 0;
+  }
+
   top: 0;
   z-index: 1;
 }
@@ -81,9 +87,11 @@
 
 $button-border-radius: 8px;
 $button-padding: 6px;
+$button-grey: #8e8e8e;
+
 .button {
   font-size: 90%;
-  background-color: #717171;
+  background-color: $button-grey;
   + .toggled {
     background-color: #474747;
     &.light {
@@ -130,4 +138,20 @@ $night-modal-header-background-color: rgba(69,69,69,1);
 $modal-content-background-color: #fefefe;
 $modal-content-background-color-night: black;
 
-$button-grey: #8e8e8e;
+.highlight-transition {
+  transition: background-color 0.5s ease;
+}
+
+.isHighlighted {
+  background-color: rgba(187, 187, 187, 0.4);
+  .night & {
+    background-color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.one-liner {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+  overflow: hidden;
+}

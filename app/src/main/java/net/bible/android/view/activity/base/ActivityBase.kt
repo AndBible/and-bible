@@ -114,10 +114,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         // Register current activity in onCreate and onResume
         CurrentActivityHolder.getInstance().currentActivity = this
 
-        // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
-        // this affected jsword dynamic classloading
-        Thread.currentThread().contextClassLoader = javaClass.classLoader
-
         // if locale is overridden then have to force title to be translated here
         LocaleHelper.translateTitle(this)
     }

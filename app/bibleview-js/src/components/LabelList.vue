@@ -31,12 +31,13 @@
       <span v-if="isPrimary(label)" class="icon"><FontAwesomeIcon icon="bookmark"/></span>
       {{label.name}}
     </div>
+    <div style="width: 30px;"/>
   </div>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
-import {inject} from "@vue/runtime-core";
+import {inject, watch} from "@vue/runtime-core";
 import {computed, ref} from "@vue/reactivity";
 import {addAll, clickWaiter, removeAll} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -54,20 +55,22 @@ export default {
     onlyAssign: {type: Boolean, default: false},
     singleLine: {type: Boolean, default: false},
   },
+  emits: ["has-entries"],
   components: {FontAwesomeIcon},
   name: "LabelList",
-  setup(props) {
+  setup(props, {emit}) {
     const {adjustedColor, ...common} = useCommon();
     const appSettings = inject("appSettings");
     const android = inject("android");
     const actions = ref(null);
 
     function labelStyle(label) {
-      const color = adjustedColor(label.color).string();
+      const color = adjustedColor(label.color);
       if (isAssigned(label.id)) {
-        return `background-color: ${color};`;
+        const textColor = color.isLight() ? "black": "white";
+        return `background-color: ${color.string()}; color: ${textColor};`;
       } else {
-        return `border-color: ${color};`;
+        return `border-color: ${color.string()};`;
       }
     }
 
@@ -83,6 +86,7 @@ export default {
     }
 
     const labels = computed(() => {
+      if(!bookmark.value) return [];
       const shown = new Set();
       const earlier = new Set();
       if(props.inBookmark) {
@@ -107,6 +111,10 @@ export default {
       // TODO: add frequent
       return sortBy(Array.from(shown).map(labelId => bookmarkLabels.get(labelId)).filter(v => v), ["name"]);
     });
+
+    watch(labels, v => {
+      emit("has-entries", v.length > 0);
+    }, {immediate: true});
 
     function assignLabels() {
       if(bookmark.value) {
@@ -133,9 +141,13 @@ export default {
       }
     }
 
+    function openActions() {
+      actions.value.showActions()
+    }
+
     return {
       labelStyle, assignLabels, actions, labelClicked, labels, isPrimary,
-      isAssigned, ...common
+      isAssigned, openActions, ...common
     }
   }
 }
@@ -147,10 +159,9 @@ export default {
   font-size: 10px;
 }
 .label {
-  $padding: 2px;
-  height: calc(12px + #{2*$padding});
-  padding-top: $padding;
-  margin-bottom: 3px;
+  position: relative;
+  top: -2px;
+  margin-top: 3px;
   margin-right: 3px;
   font-weight: normal;
   color: #e8e8e8;
@@ -182,7 +193,7 @@ export default {
   border-color: rgba(0, 0, 0, 0);
 }
 .label-list {
-  line-height: 1em;
+  line-height: 0.9em;
   display: inline-flex;
   flex-wrap: wrap;
   &.singleLine {

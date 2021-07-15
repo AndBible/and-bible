@@ -125,6 +125,7 @@ Versification=KJVA"""
 Description=${application.getString(R.string.my_notes_description)}
 Abbreviation=${application.getString(R.string.my_notes_abbreviation)}
 Category=Commentaries
+Feature=StrongsNumbers
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
 Versification=KJVA"""
@@ -137,8 +138,25 @@ Encoding=UTF-8
 LCSH=Bible--Commentaries.
 Versification=KJVA"""
 
+    private fun getPseudoBookConf(modName: String, suggested: String) = """[$modName]
+Description=This popular translation is not available due to Copyright Holder not granting us distribution permission. $suggested
+Abbreviation=$modName
+Category=Biblical Texts
+AndBiblePseudoBook=1
+Language=en
+Version=0.0
+Encoding=UTF-8
+LCSH=Bible
+Versification=KJVA"""
 
+    private fun getPseudoBook(modName: String, suggested: String) = createFakeRepoSwordBook(modName, getPseudoBookConf(modName, suggested), "Not Available")
 
+    val downloadPseudoDocuments: List<Book> get() = listOf(
+        getPseudoBook("ESV", "You might like NASB translation as an option."),
+        getPseudoBook("NIV", "You might like NASB translation as an option."),
+        getPseudoBook("Message", "The GNB is a natural language like the Message Bible."),
+        getPseudoBook("Amplified", "Tip: You can perform deep word meanings study by installing a module that supports Strongs (NASB or KJV for example) and installing Strongs dictionary modules (for example, StrongsRealHebrew and StrongsRealGreek)."),
+    )
     val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
 }
 

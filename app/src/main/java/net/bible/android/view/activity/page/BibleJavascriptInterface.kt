@@ -36,9 +36,15 @@ import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseFactory
 
 
 class BibleJavascriptInterface(
@@ -46,6 +52,7 @@ class BibleJavascriptInterface(
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
     val bookmarkControl get() = bibleView.bookmarkControl
+    val downloadControl get() = bibleView.downloadControl
 
     var notificationsEnabled = false
 
@@ -80,6 +87,18 @@ class BibleJavascriptInterface(
     fun requestNextChapter(callId: Long) {
         Log.d(TAG, "Request more text at end")
         bibleView.requestNextChapter(callId)
+    }
+
+    @JavascriptInterface
+    fun refChooserDialog(callId: Long) {
+        GlobalScope.launch {
+            val intent = Intent(mainBibleActivity, GridChoosePassageBook::class.java)
+            intent.putExtra("navigateToVerse", true)
+            val result = mainBibleActivity.awaitIntent(intent)
+            val verseStr = result?.resultData?.getStringExtra("verse")
+            val verse = if(verseStr == null) "" else VerseFactory.fromString(KJVA, verseStr).name
+            bibleView.executeJavascriptOnUiThread("bibleView.response($callId, '$verse');")
+        }
     }
 
     @JavascriptInterface
@@ -120,8 +139,16 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun setActionMode(enabled: Boolean) {
-        bibleView.actionModeEnabled = enabled
+    fun openDownloads() {
+        if (!downloadControl.checkDownloadOkay()) return
+        val intent = Intent(mainBibleActivity, DownloadActivity::class.java)
+        intent.putExtra("addons", true)
+        mainBibleActivity.startActivity(intent)
+    }
+
+    @JavascriptInterface
+    fun setEditing(enabled: Boolean) {
+        bibleView.editingTextInJs = enabled
     }
 
     @JavascriptInterface
@@ -147,6 +174,13 @@ class BibleJavascriptInterface(
         val journalTextEntries = deserialized["journals"]!!.map { bookmarkControl.getJournalById(it[0])!!.apply { orderNumber = it[1].toInt() } }
         val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(it[0], labelId)!!.apply { orderNumber = it[1].toInt() } }
         bookmarkControl.updateOrderNumbers(labelId, bookmarksToLabels, journalTextEntries)
+    }
+
+    @JavascriptInterface
+    fun getActiveLanguages(): String {
+        //Get the languages for each of the installed bibles and return the language codes as a json list.
+        val languages = bibleView.mainBibleActivity.swordDocumentFacade.bibles.map { "\"" + it.bookMetaData.language.code + "\""}
+        return "[" + languages.distinct().joinToString(",") + "]"
     }
 
     @JavascriptInterface
@@ -176,6 +210,25 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun shareVerse(bookInitials: String, verseOrdinal: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            ShareWidget.dialog(mainBibleActivity, bookInitials, verseOrdinal)
+        }
+    }
+
+    @JavascriptInterface
+    fun addBookmark(bookInitials: String, verseOrdinal: Int, addNote: Boolean) {
+        bibleView.makeBookmark(Selection(bookInitials, verseOrdinal), true, addNote)
+    }
+
+    @JavascriptInterface
+    fun compare(bookInitials: String, verseOrdinal: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            bibleView.compareSelection(Selection(bookInitials, verseOrdinal))
+        }
+    }
+
+    @JavascriptInterface
     fun openStudyPad(labelId: Long, bookmarkId: Long) {
         GlobalScope.launch(Dispatchers.Main) {
             bibleView.linkControl.openJournal(labelId, bookmarkId)
@@ -183,9 +236,18 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun openMyNotes(bookmarkId: Long) {
+    fun openMyNotes(bookInitials: String?, ordinal: Int) {
         GlobalScope.launch(Dispatchers.Main) {
-            bibleView.linkControl.openMyNotes(bookmarkId)
+            bibleView.linkControl.openMyNotes(bookInitials, ordinal)
+        }
+    }
+
+    @JavascriptInterface
+    fun speak(bookInitials: String?, ordinal: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            val book = Books.installed().getBook(bookInitials) as SwordBook
+            val verse = Verse(book.versification, ordinal)
+            mainBibleActivity.speakControl.speakBible(book, verse, force = true)
         }
     }
 

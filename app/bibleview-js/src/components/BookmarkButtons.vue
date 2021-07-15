@@ -16,63 +16,60 @@
   -->
 
 <template>
-  <div class="button-container" :class="{ambiguous: !inBookmarkModal}">
-    <div class="bookmark-buttons">
-      <div
-        v-if="!inBookmarkModal"
-        class="bookmark-button"
-        :style="buttonColor(primaryLabel.color)"
-      >
-        <FontAwesomeIcon icon="bookmark"/>
-      </div>
-      <div
-        v-if="!inBookmarkModal"
-        class="bookmark-button"
-        @click.stop="$emit('edit-clicked')"
-        :class="{highlighted: inBookmarkModal && bookmark.hasNote}"
-        :style="buttonColor(primaryLabel.color, bookmark.hasNote)"
-      >
-        <FontAwesomeIcon icon="edit"/>
-      </div>
-      <div
-        class="bookmark-button"
-        @click.stop="shareVerse"
-        :style="buttonColor(primaryLabel.color)"
-      >
-        <FontAwesomeIcon icon="share-alt"/>
-      </div>
-      <div
-        class="bookmark-button"
-        @click.stop="toggleWholeVerse"
-        :class="{highlighted: inBookmarkModal && bookmark.wholeVerse}"
-        :style="buttonColor(primaryLabel.color, bookmark.wholeVerse)"
-      >
-        <FontAwesomeIcon icon="text-width"/>
-      </div>
-      <template v-if="showStudyPadButtons">
+  <div :class="{ambiguous: !inBookmarkModal}">
+    <div class="button-container">
+      <div class="bookmark-buttons">
         <div
+          v-if="!inBookmarkModal"
           class="bookmark-button"
-          @click.stop="openMyNotes"
+          :style="buttonColor(primaryLabel.color)"
         >
-          <FontAwesomeIcon icon="file-alt"/>
+          <FontAwesomeIcon icon="bookmark"/>
         </div>
         <div
-          v-for="label of labels.filter(l => l.isRealLabel)"
-          :key="label.id"
-          :style="buttonColor(label.color)"
+          v-if="!inBookmarkModal"
           class="bookmark-button"
-          @click.stop="openStudyPad(label.id)"
+          @click.stop="$emit('edit-clicked')"
+          :class="{highlighted: inBookmarkModal && bookmark.hasNote}"
+          :style="buttonColor(primaryLabel.color, bookmark.hasNote)"
         >
-          <FontAwesomeIcon icon="file-alt"/>
+          <FontAwesomeIcon icon="edit"/>
         </div>
-      </template>
-    </div>
-    <div class="bookmark-buttons" style="align-self: end;">
-      <div class="bookmark-button end" @click.stop="removeBookmark">
-        <FontAwesomeIcon icon="trash"/>
+        <div
+          class="bookmark-button"
+          @click.stop="shareVerse"
+          :style="buttonColor(primaryLabel.color)"
+        >
+          <FontAwesomeIcon icon="share-alt"/>
+        </div>
+        <div
+          class="bookmark-button"
+          @click.stop="toggleWholeVerse"
+          :class="{highlighted: inBookmarkModal && bookmark.wholeVerse}"
+          :style="buttonColor(primaryLabel.color, bookmark.wholeVerse)"
+        >
+          <FontAwesomeIcon icon="text-width"/>
+        </div>
+        <template v-if="showStudyPadButtons">
+          <div
+            v-for="label of labels.filter(l => l.isRealLabel)"
+            :key="label.id"
+            :style="buttonColor(label.color)"
+            class="bookmark-button"
+            @click.stop="openStudyPad(label.id)"
+          >
+            <FontAwesomeIcon icon="file-alt"/>
+          </div>
+        </template>
+      </div>
+      <div class="bookmark-buttons" style="align-self: end;">
+        <div class="bookmark-button end" @click.stop="removeBookmark">
+          <FontAwesomeIcon icon="trash"/>
+        </div>
       </div>
     </div>
   </div>
+
   <AreYouSure ref="areYouSure">
     <template #title>
       {{ strings.removeBookmarkConfirmationTitle }}
@@ -88,6 +85,7 @@ import {inject} from "@vue/runtime-core";
 import AreYouSure from "@/components/modals/AreYouSure";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Color from "color";
+import {sortBy} from "lodash";
 
 export default {
   name: "BookmarkButtons",
@@ -118,7 +116,7 @@ export default {
     const {bookmarkLabels} = inject("globalBookmarks");
 
     const labels = computed(() => {
-      return bookmark.value.labels.map(id => bookmarkLabels.get(id));
+      return sortBy(bookmark.value.labels.map(id => bookmarkLabels.get(id)), ["name"]);
     });
 
     const primaryLabel = computed(() => {
@@ -128,10 +126,6 @@ export default {
 
     function openStudyPad(labelId) {
       android.openStudyPad(labelId, bookmark.value.id);
-    }
-
-    function openMyNotes() {
-      android.openMyNotes(bookmark.value.id);
     }
 
     async function removeBookmark() {
@@ -146,6 +140,9 @@ export default {
         return ""
       }
       let col = Color(color);
+      if(col.isLight()) {
+        col = col.darken(0.5);
+      }
       if(highlighted) {
         col = col.alpha(0.7);
       }
@@ -153,8 +150,8 @@ export default {
     }
 
     return {
-      toggleWholeVerse, shareVerse, assignLabels, removeBookmark, areYouSure, labels, openStudyPad, primaryLabel, buttonColor, openMyNotes,
-      ...useCommon()
+      toggleWholeVerse, shareVerse, assignLabels, removeBookmark, areYouSure, labels, openStudyPad,
+      primaryLabel, buttonColor, ...useCommon()
     }
   }
 }
@@ -165,16 +162,19 @@ export default {
 .button-container {
   display: flex;
   justify-content: space-between;
+}
 
-  &.ambiguous {
-    border-radius: 0 0 $button-border-radius $button-border-radius;
-    background-color: $modal-content-background-color;
-    margin: calc(-#{$button-padding} + 1.5px);
-    .night & {
-      background-color: $modal-content-background-color-night;
-    }
+.ambiguous {
+  @extend .visible-scrollbar;
+  overflow-x: auto;
+  border-radius: 0 0 $button-border-radius $button-border-radius;
+  background-color: $modal-content-background-color;
+  margin: calc(-#{$button-padding} + 1.5px);
+  .night & {
+    background-color: $modal-content-background-color-night;
   }
 }
+
 .bookmark-button {
   font-size: 25px;
   color: $button-grey;

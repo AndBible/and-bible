@@ -20,6 +20,7 @@
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Hilfe &amp; Tipps</string>
   <string name="administration">Verwaltung</string>
+  <string name="rate_application">Bewerten &amp; Review schreiben</string>
   <string name="chooce_document">Dokument auswählen</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Buchauswahl</string>
@@ -58,7 +59,15 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel- &amp; Versnummern</string>
   <string name="prefs_show_verseno_summary">Zeige Kapitel- &amp; Versnummern</string>
+  <string name="prefs_e_ink_mode_title">Schwarz/Weiß Modus</string>
+  <string name="prefs_eink_mode_summary">Die Applikation im Monochrommodus (ohne Farben) benutzen, um sie bequemer auf E-Ink - Geräten benutzen zu können.</string>
+  <string name="prefs_disable_animations_title">Animationen deaktivieren</string>
+  <string name="prefs_disable_animations_summary">Verschiedene Animationen, wie etwa flüssigen Bildvorlauf, deaktivieren.</string>
+  <string name="prefs_paragraph_spacing_title">Absatzabstand (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Den Absatzabstand anpassen.</string>
   <string name="prefs_show_verseno_title1">Versnummer</string>
+  <string name="prefs_show_chapter_no_title">Kapitelnummerierung</string>
+  <string name="prefs_show_chapter_no_summary">Kapitelnummern ein- oder ausblenden</string>
   <string name="prefs_verse_per_line_summary">Jeden Vers in einer neuen Zeile anzeigen</string>
   <string name="prefs_show_bookmarks_summary">Anklicken um alle Lesezeichen zu verbergen</string>
   <string name="prefs_show_mynotes_summary">Symbol in Versen mit eigenen Notizen anzeigen</string>
@@ -73,6 +82,8 @@
   <string name="prefs_show_mynotes_title">Eigene Notizen</string>
   <string name="prefs_show_footnotes_title">Fußnoten</string>
   <string name="prefs_show_xrefs_title">Querverweise</string>
+  <string name="prefs_show_footnotes_summary">Fußnummern anzeigen, sofern im Dokument vorhanden</string>
+  <string name="prefs_show_xrefs_summary">Querverweise anzeigen, sofern im Dokument vorhanden</string>
   <string name="prefs_show_notes_title">Fußnoten &amp; Querverweise</string>
   <string name="prefs_show_strongs_title">Strong\'s numbers</string>
   <string name="prefs_show_morphology_title">Morphologie anzeigen</string>
@@ -85,12 +96,15 @@
   <string name="prefs_toolbar_button_action_swap_menu">Antippen um das nächste Dokument zu öffnen, gedrückt halten um das Menü zu öffnen</string>
   <string name="prefs_toolbar_button_action_swap_activity">Antippen um das nächste Dokument zu öffnen, gedrückt halten um die Dokumentauswahl zu öffnen</string>
   <string name="prefs_night_mode_title">Nachtmodus an- und ausschalten</string>
+  <string name="prefs_night_mode_summary">Auswählen, ob der Nachtmodus automatisch eingeschaltet werden soll (sofern vom Gerät unterstützt), manuell, oder ob den Systemvorgaben gefolgt werden soll (ab Android 10). Manuelle Einstellung kann vom Optionen-Menü (3 Punkte) ausgewählt werden.</string>
   <string name="prefs_night_mode_manual">Manuell</string>
   <string name="prefs_night_mode_automatic">Automatisch</string>
   <string name="prefs_night_mode_system">System</string>
   <string name="options_menu_night_mode">Nachtmodus</string>
   <string name="prefs_navigate_to_verse_title">Versauswahl</string>
   <string name="prefs_navigate_to_verse_summary">Bis zu einem bestimmten Vers navigieren</string>
+  <string name="prefs_open_links_in_special_window_title">Fenster für Verweise</string>
+  <string name="prefs_open_links_in_special_window_summary">Verweise in eigenem Fenster öffnen - für die schnellere Anzeige von Querverweisen und Lexikoneinträgen</string>
   <string name="prefs_text_size_sample_text">Beispieltext</string>
   <string name="prefs_screen_keep_on_title">Bildschirm nicht ausschalten</string>
   <string name="prefs_screen_keep_on_summary">Ruhemodus während dem Gebrauch dieser Anwendung verhindern</string>
@@ -193,6 +207,7 @@
   <string name="strongs_not_installed">Bitte laden Sie die Strong\'s Wörterbücher für Griechisch und Hebräisch herunter</string>
   <string name="no_indexed_bible_with_strongs_ref">Sie müssen zuerst ein Bibelmodul mit Strongs Nummer sowie den Suchindex dazu herunterladen</string>
   <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
+  <string name="go_to_downloads">Gehe zu Downloads</string>
   <!--Module download-->
   <string name="download">Module herunterladen</string>
   <string name="redownload">Dokumente neu herunterladen</string>
@@ -307,11 +322,17 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="label_name_prompt">Name</string>
   <string name="label_unlabelled">Nicht kategorisiert</string>
   <string name="add_bookmark1">Lesezeichen</string>
+  <string name="add_bookmark2">Lesezeichenauswahl</string>
+  <string name="add_bookmark3">Auswahl</string>
   <string name="add_bookmark_whole_verse">Lesezeichen f. Vers</string>
+  <string name="add_bookmark_whole_verse1">Verse</string>
+  <string name="add_bookmark_whole_verse2">Ganzen Vers als Lesezeichen speichern</string>
   <string name="remove_bookmark">Entfernen</string>
   <string name="bookmark_settings_hide_labels_title">Bestimmte Kategorien verbergen</string>
   <string name="bookmark_settings_hide_labels_summary">Lesezeichen aus gekennzeichenten Kategorien verbergen</string>
+  <string name="auto_assign_labels_title">Einstellungen für Kategorien</string>
   <string name="auto_assign_labels">Lesezeichen-Kategorie automatisch zuweisen</string>
+  <string name="auto_assign_labels1">Kategorie neuen Lesezeichen automatisch zuweisen</string>
   <string name="auto_assign_labels_primary">Automatisch als Primärgruppe zuweisen</string>
   <string name="label_color">Kategorienfarbe</string>
   <!--can be removed-->
@@ -382,6 +403,33 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="speak_status_stopped">angehalten</string>
   <string name="speak_autobookmarking_disabled">Automatische Lesezeichen sind deaktiviert!</string>
   <string name="system_speak_settings">Öffne die Systemsteuerung für Sprachausgabe</string>
+  <string name="auto_assing_labels_help1">Hier kannst du einstellen, welche Kategorien den Lesezeichen, die du erstellst, automatisch zugewiesen werden.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Diese Einstellung betrifft %s.</string>
+  <string name="setting_scope_window">dieses Fenster</string>
+  <string name="setting_scope_workspace">diesen Arbeitsbereich</string>
+  <string name="assing_labels_help1">Jedes Lesezeichen kann mehreren Kategorien zugewiesen werden.</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Verwende %s um festzulegen, welche Kategoriefarbe angezeigt wird.</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Tippe auf %s, um diese Kategorie automatisch neuen Lesezeichen zuzuweisen.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Tippe auf %s, um die Kategorie für schnelleren Zugriff der Liste an Favoriten zuzuweisen. </string>
+  <!--param is refresh icon-->
+  <string name="assing_labels_help5">Tippe auf %s, um die Liste entsprechend deiner Auswahl neu anzuordnen.</string>
+  <string name="workspace_text_options_help_title">Textoptionen für den Arbeitsbereich</string>
+  <string name="workspace_text_options_help1">Diese Einstellungen legen die Vorgaben für alle Fenster des Arbeitsbereiches fest.</string>
+  <string name="workspace_text_options_help2">Du kannst diese Einstellungen in den individuellen Fenstereinstellungen anpassen.</string>
+  <string name="window_text_options_help_title">Fenstertextoptionen</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s zeigt an, dass die Einstellungen von den Arbeitsbereichseinstellungen stammen.</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s zeigt an, dass diese Einstellungen für dieses spezielle Fenster angepasst wurden.</string>
+  <string name="window_text_options_help3">Die Arbeitsbereichseinstellungen beinflussen dieses Fenster nicht.</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Tippe auf %s, um alle diese Einstellungen auf %s zurückzusetzen.</string>
+  <string name="reset_defaults">Standardwerte</string>
+  <string name="reset_workspace_defaults">Standardeinstellungen f. d. Arbeitsbereich</string>
   <string name="speak_bookmark_help">Sprachhilfe</string>
   <string name="speak_help_auto_bookmark">
 Ein Sprachlesezeichen wird automatisch hinzugefügt, wenn die Vorlesefunktion pausiert oder angehalten wird. Automatische Lesezeichen erhalten die Spezialmarkierung. Wenn die Vorlesefunktion an einem Sprachlesezeichen gestartet wird, wird das Lesezeichen automatisch an den Ort verschoben, an dem die Wiedergabe pausiert oder gestoppt wird. Nur Sprachlesezeichen werden verschoben, alle anderen Lesezeichen bleiben unberührt.</string>
@@ -430,12 +478,15 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="backup_modules">Teilen oder Sichern von Dokumenten nach...</string>
   <string name="backup_app_database">Teilen oder Sichern der App-Datenbank nach...</string>
   <string name="backup_app">Teilen oder Sichern der App-Datei (.apk) nach...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Was möchtest du wiederherstellen?</string>
   <string name="restore_app_database">Wiederherstellen der Datenbank von...</string>
   <string name="restore_database">Wiederherstellen der Datenbankdatei</string>
   <string name="restore_confirmation">Überschreiben von eigenen Notizen, Lesezeichen, Studienmappen, Leseplänen und Arbeitsräumen?</string>
-  <string name="restore_success">Eigene Notizen, Lesezeichen, Studienmappen, Lesezeichen und Arbeitsräume erfolgreich wiederhergestellt</string>
+  <string name="reading_plans_plural">Lesepläne</string>
+  <string name="restore_success">Eigene Notizen, Lesezeichen, Studienmappen, Lesezeichen und Arbeitsbereiche erfolgreich wiederhergestellt</string>
   <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
-  <string name="backup_success2">Eigene Notizen, Lesezeichen, Studienmappen, Lesezeichen und Arbeitsräume erfolgreich gesichert</string>
+  <string name="backup_success2">Eigene Notizen, Lesezeichen, Studienmappen, Lesezeichen und Arbeitsbereiche erfolgreich gesichert</string>
   <string name="backup_modules_success">Aufgewählte Module erfolgreich gesichert</string>
   <string name="backup_modules_email_subject_2">%s Modulbackup</string>
   <string name="backup_modules_email_message_2">Angehängt finden Sie ihr %s Modulbackup, das folgende Module enthält: %s</string>
@@ -458,6 +509,8 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="module_about_repository">Quellverzeichnis: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Fehlerbericht</string>
+  <string name="send_feedback_title">Rückmeldung</string>
   <string name="send_bug_report_title">Rückmeldung / Fehlermeldung</string>
   <string name="report_bug_email_subject_3">[%s] Fehlermeldung für %s %s</string>
   <string name="report_bug_big_heading">BITTE SCHREIBE DEINE RÜCKMELDUNG ODER ODER FEHLERMELDUNG OBERHALB DIESER LINIE</string>
@@ -567,6 +620,10 @@ Langes Drücken auf Verweise ermöglicht die Auswahl, den Verweis im gleichen Fe
   <string name="help_bookmarks_text">Lesezeichen können erzeugt werden, indem man Text auswählt und \"Lesezeichen vom Pop-up Menü auswählt.
 Du kannst deine eigenen Notizen hinzufügen, indem du den jetzt hervorgehobenen Text anklickst. Es gibt auch ein spezielles Dokument \"eigene Notizen\" unter den Kommentaren, in dem du deine Notizen in einem eigenen Fenster ansehen kannst.</string>
   <string name="help_studypads_title">Studienmappen</string>
+  <string name="help_studypads_text">
+Studienmappen sollen das Niederschreiben von Predigtnotizen, ganzen Predigten oder einfach persönlichen Notizen fürs Bibelstudium zu erleichtern, die mehrere biblische Querverweise beinhalten. Jede Studienmappe ist mit einer Lesezeichenkategorie verbunden.
+Alle Lesezeichen, die zu dieser Kaegorie hinzugefügt worden sind, erscheinen automatisch in der Studienmappe.
+Neben Lesezeichen können auch andere Einträge händisch hinzugefügt werden.</string>
   <string name="help_search_title">Suche</string>
   <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
   <string name="help_workspaces_title">Arbeitsbereich</string>
@@ -637,6 +694,7 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="advertise_app">Programm bewerben</string>
   <string name="verse_share_advertise">Geteilt mit %s.</string>
   <string name="abbreviate_reference">Querverweis abkürzen</string>
+  <string name="version_name">Versionsname</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Zurück</string>
   <string name="upgrading_database">Datenbank wird erneuert. Bitte warten...</string>
@@ -681,8 +739,52 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="primary_label">Primärkategorie</string>
   <string name="highlight_entire_verse">Den ganzen Vers hervorheben</string>
   <string name="favourite_label">Lieblingskategorie</string>
+  <string name="edit_label">Kategorie bearbeiten</string>
+  <string name="delete_label_confirmation">Möchtest du die Lesezeichenkategorie \"%s\" entfernen? Alle zugewiesenen Studienmappen werden ebenfalls entfernt.</string>
+  <string name="bookmark_underline_style_arbitrary">Unterstreichungsstil für Auswahl-Lesezeichen</string>
   <string name="bookmark_underline_style_whole_verse">Unterstreichungsstil für Lesezeichen für ganze Verse</string>
+  <string name="active_labels">Ausgewählte Kategorien</string>
   <string name="recent_labels">Kürzliche Kategorien</string>
   <string name="other_labels">Andere Kategorien</string>
+  <string name="book_menu_sort_row_opt">Sortiere Bücher horizontal</string>
+  <string name="reset_workspace_labels">Möchtest du die automatische Zuweisung und Favoriteneinstellung für diesen Arbeitsbereich auf Standardwerte zurücksetzen?</string>
+  <string name="reset_hide_labels">Möchtest du die Einstellung zum Verstecken bestimmter Kategorien zurücksetzen?</string>
+  <string name="reorder">Neu sortieren</string>
+  <string name="system_items">Systemaktionen</string>
   <string name="system_items1">Mehr</string>
+  <string name="system_action2">Android-Aktionen</string>
+  <string name="text_copied_to_clicpboard">Text wurde in die Zwischenablage eingefügt</string>
+  <string name="prefs_disable_two_step_bookmarking_title">direktes Hinzufügen zu Lesezeichen</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">\"Auswahl\" und \"Verse\" direkt im Auswahlmenü der Bibelansicht anzeigen</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Doppelt antippen für Vollbildschirm</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Durch doppeltes Antippen des Fensters den Vollbildschirmmodus aktivieren</string>
+  <string name="toggle_fullscreen">Vollbildschirm</string>
+  <string name="exit_fullscreen">Doppelt Antippen, um den Vollbildschirm zu verlassen</string>
+  <string name="reset_app_prefs">Möchtest du alle hier angezeigten globalen Einstellungen auf ihre Standardwerte zurücksetzen?</string>
+  <string name="label_red">Rot</string>
+  <string name="label_green">Grün</string>
+  <string name="label_blue">Blau</string>
+  <string name="label_salvation">Errettung</string>
+  <string name="label_underline">Unterstreichung</string>
+  <string name="import_menu">Import &amp; Export</string>
+  <string name="export_fileformat">Exportiere als %s</string>
+  <string name="import_items">Importiere %s</string>
+  <string name="import_from_db">Importiere von der Datenbankdatei der Applikation</string>
+  <string name="import_error">Das Importieren von der Datenbankdatei ist fehlgeschlagen. Evtl war die Datei im falschen Format oder wurde mit einer zu alten Version von %s erstellt.</string>
+  <string name="chooser_range">Bereich</string>
+  <string name="chooser_jump">Gehe zu</string>
+  <string name="chooser_OT_abbrev">AT</string>
+  <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_grid">Raster</string>
+  <string name="chooser_style_lists">Listen</string>
+  <string name="chooser_select">Auswahl %s</string>
+  <string name="chooser_pref_reset">Kapitel und Vers nach Auswahl eines Buches oder Kapitels nicht auf 1 zurücksetzen</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Es tut uns leid, aber es gibt nur eine teilweise Übersetzung der Benutzeroberfläche in die Sprache %s. %s wird vollkommen von Freiwilligen betreut. Wenn du bei der Übersetzung helfen kannst, dann bitte lies %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">Anweisungen für Übersetzer</string>
+  <string name="questions_title">Fragen?</string>
+  <string name="questions_title2">Brauchst du Hilfe?</string>
+  <string name="bookmark_style">Lesezeichenstil</string>
+  <string name="added_to_bookmark">Diesem Lesezeichen zugewiesen</string>
 </resources>

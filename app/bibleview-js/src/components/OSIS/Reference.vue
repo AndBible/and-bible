@@ -16,15 +16,15 @@
   -->
 
 <template>
-  <a class="reference" :class="{clicked, 'last-clicked': lastClicked}" @click.prevent="openLink($event, link)" :href="link" ref="content"><slot/></a>
+  <a class="reference" :class="{clicked, isHighlighted}" @click.prevent="openLink($event, link)" :href="link" ref="content"><slot/></a>
 </template>
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {addEventFunction, sleep} from "@/utils";
+import {addEventFunction, EventPriorities} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
-import {fadeReferenceDelay} from "@/constants";
+import {eventBus, Events} from "@/eventbus";
 
 let cancelFunc = () => {};
 
@@ -38,7 +38,7 @@ export default {
   setup(props) {
     checkUnsupportedProps(props, "type");
     const clicked = ref(false);
-    const lastClicked = ref(false);
+    const isHighlighted = ref(false);
     const {strings, ...common} = useCommon();
     const referenceCollector = inject("referenceCollector", null);
     const content = ref(null);
@@ -67,43 +67,39 @@ export default {
       referenceCollector.collect(osisRef);
     }
 
-    const {registerEndHighlight} = inject("verseMap");
-
     function openLink(event, url) {
       addEventFunction(event, () => {
         window.location.assign(url)
-        cancelFunc();
         clicked.value = true;
-        lastClicked.value = true;
-        cancelFunc = () => lastClicked.value = false;
-        registerEndHighlight(cancelFunc);
-        sleep(fadeReferenceDelay).then(() => cancelFunc());
-      }, {title: strings.referenceLink});
+        cancelFunc();
+        isHighlighted.value = true;
+        cancelFunc = () => {
+          isHighlighted.value = false;
+          eventBus.off(Events.WINDOW_CLICKED, cancelFunc);
+          cancelFunc = () => {};
+        }
+        eventBus.on(Events.WINDOW_CLICKED, cancelFunc);
+      }, {title: strings.referenceLink, priority: EventPriorities.REFERENCE});
     }
-    return {openLink, clicked, lastClicked, content, link, ...common};
+    return {openLink, clicked, isHighlighted, content, link, ...common};
   },
 }
 
 </script>
 
 <style lang="scss" scoped>
+@import "~@/common.scss";
 .reference {
-  transition: background-color 1s ease;
+  @extend .highlight-transition;
   border-radius: 5pt;
 }
 a {
   &.clicked {
     color: #8b00ee;
   }
-  &.last-clicked {
-    background-color: rgba(255, 230, 0, 0.4);
-  }
   .night & {
     &.clicked {
       color: #8b00ee;
-    }
-    &.last-clicked {
-      background-color: rgba(255, 230, 0, 0.6);
     }
   }
 }

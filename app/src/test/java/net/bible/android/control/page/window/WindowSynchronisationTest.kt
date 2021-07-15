@@ -8,8 +8,8 @@ import net.bible.android.control.event.EventManager
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.AbstractSpeakTests
-import net.bible.service.download.RepoFactory
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -54,6 +54,7 @@ class WindowSynchronisationTest {
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
+        CommonUtils.settings.setBoolean("first-time", false)
         windowRepository!!.initialize()
     }
 
@@ -99,7 +100,7 @@ class WindowSynchronisationTest {
     fun testWindowSyncInMaxMode() { // old max mode is in practive new normal mode with no pinned windows
         // Issue #371 and #536
 
-        val window0 = windowControl!!.activeWindow
+        val window0 = windowControl!!.activeWindow.apply { isPinMode = false }
         val window1 = windowControl!!.addNewWindow(window0)
         val window2 = windowControl!!.addNewWindow(window0).apply { isSynchronised = false }
         val window3 = windowControl!!.addNewWindow(window0).apply { isSynchronised = true }

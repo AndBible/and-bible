@@ -16,25 +16,25 @@
   -->
 
 <template>
-  <div @click="ambiguousSelection.handle" :class="{night: appSettings.nightMode}" :style="topStyle">
+  <div @click="ambiguousSelection.handle" :class="{night: appSettings.nightMode}" :style="topStyle" :dir="direction">
     <div class="background" :style="backgroundStyle"/>
     <div :style="`height:${calculatedConfig.topOffset}px`"/>
     <div :style="modalStyle" id="modals"/>
     <template v-if="mounted">
       <BookmarkModal/>
-      <AmbiguousSelection ref="ambiguousSelection" @back-clicked="backClicked"/>
+      <AmbiguousSelection ref="ambiguousSelection"/>
     </template>
     <ErrorBox v-if="appSettings.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
-    <div v-if="appSettings.activeWindow">
+    <div v-if="appSettings.hasActiveIndicator">
       <div class="top-left-corner"/>
       <div class="top-right-corner"/>
       <div class="bottom-left-corner"/>
       <div class="bottom-right-corner"/>
     </div>
     <div id="top"/>
-    <div class="loading" v-if="documents.length === 0"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
+    <div class="loading" v-if="isLoading"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
     <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
       <Document v-for="document in documents" :key="document.id" :document="document"/>
@@ -51,7 +51,7 @@ import {
   useCustomCss,
   useCustomFeatures,
   useFontAwesome, useModal,
-  useVerseMap,
+  useVerseHighlight,
   useVerseNotifier
 } from "@/composables";
 import {testBookmarkLabels, testData} from "@/testdata";
@@ -61,7 +61,7 @@ import {useGlobalBookmarks} from "@/composables/bookmarks";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {useScroll} from "@/composables/scroll";
 import {clearLog, useAndroid} from "@/composables/android";
-import {setupWindowEventListener} from "@/utils";
+import {setupWindowEventListener, waitNextAnimationFrame} from "@/utils";
 import ErrorBox from "@/components/ErrorBox";
 import BookmarkModal from "@/components/modals/BookmarkModal";
 import DevelopmentMode from "@/components/DevelopmentMode";
@@ -87,9 +87,9 @@ export default {
     window.bibleViewDebug.documents = documents;
     const topElement = ref(null);
     const documentPromise = ref(null);
-    const verseMap = useVerseMap();
-    provide("verseMap", verseMap);
-    const scroll = useScroll(config, appSettings, calculatedConfig, verseMap, documentPromise);
+    const verseHighlight = useVerseHighlight();
+    provide("verseHighlight", verseHighlight);
+    const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
     const {scrollToId} = scroll;
     provide("scroll", scroll);
     const globalBookmarks = useGlobalBookmarks(config, documentType);
@@ -97,6 +97,7 @@ export default {
 
     const modal = useModal(android);
     provide("modal", modal);
+    const {closeModals} = modal;
 
     const mounted = ref(false);
     onMounted(() => mounted.value = true)
@@ -105,15 +106,25 @@ export default {
     const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll);
     const customCss = useCustomCss();
     provide("customCss", customCss);
-    const customFeatures = useCustomFeatures();
+    const customFeatures = useCustomFeatures(android);
     provide("customFeatures", customFeatures);
 
     useInfiniteScroll(android, documents);
+    const loadingCount = ref(0);
 
     function addDocuments(...docs) {
-      documentPromise.value = document.fonts.ready
-        .then(() => nextTick())
-        .then(() => documents.push(...docs));
+      async function doAddDocuments() {
+        loadingCount.value ++;
+        await document.fonts.ready;
+        await nextTick();
+        // 2 animation frames seem to make sure that loading indicator is visible.
+        await waitNextAnimationFrame();
+        await waitNextAnimationFrame();
+        documents.push(...docs);
+        await nextTick();
+        loadingCount.value --;
+      }
+      documentPromise.value = doAddDocuments()
     }
 
     setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
@@ -123,7 +134,7 @@ export default {
     })
 
     setupEventBusListener(Events.CLEAR_DOCUMENT, function clearDocument() {
-      emit(Events.CLOSE_MODALS);
+      closeModals();
       clearLog();
       globalBookmarks.clearBookmarks();
       documents.splice(0)
@@ -217,33 +228,32 @@ export default {
           `;
     });
 
-    setupEventBusListener(Events.BOOKMARK_CLICKED, () => {
-      verseMap.resetHighlights();
-    })
-
-    function backClicked() {
-      emit(Events.CLOSE_MODALS)
-      verseMap.resetHighlights();
-    }
+    const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
 
     return {
+      direction: computed(() => appSettings.rightToLeft ? "rtl": "ltr"),
       makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
       updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
-      config, strings, documents, topElement, currentVerse, mounted, emit, Events,
-      contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings, backClicked,
+      config, strings, documents, topElement, currentVerse, mounted, emit, Events, isLoading,
+      contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings,
     };
   },
 }
 </script>
 <style lang="scss" scoped>
-$ring-size: 40px;
+@import "~@/common.scss";
+
+$ring-size: 35px;
+$ring-thickness: $ring-size/12;
+
 .loading {
-  position: absolute;
+  position: fixed;
   left: calc(50% - #{$ring-size}/2);
   top: calc(50% - #{$ring-size}/2);
 }
 
-$ring-blue: rgb(129, 164, 255, 1.0);
+$ring-color: $button-grey;
+
 .lds-ring {
   display: inline-block;
   position: relative;
@@ -256,10 +266,10 @@ $ring-blue: rgb(129, 164, 255, 1.0);
     width: $ring-size;
     height: $ring-size;
     margin: 8px;
-    border: 4px solid $ring-blue;
+    border: $ring-thickness solid $ring-color;
     border-radius: 50%;
     animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: $ring-blue transparent transparent transparent;
+    border-color: $ring-color transparent transparent transparent;
     &:nth-child(1) {
       animation-delay: -0.45s;
     }

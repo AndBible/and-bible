@@ -26,6 +26,8 @@ import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkStyle
+import net.bible.android.database.bookmarks.BookmarkType
+import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.readingplan.ReadingPlanDao
@@ -44,9 +46,22 @@ import java.io.ObjectOutputStream
 
 import java.util.*
 
-const val DATABASE_VERSION = 53
+const val DATABASE_VERSION = 55
 
 class Converters {
+    @TypeConverter
+    fun toLabelType(value: String?) = if(value==null) null else LabelType.valueOf(value)
+
+    @TypeConverter
+    fun fromLabelType(value: LabelType?) = value?.name
+
+    @TypeConverter
+    fun toBookmarkType(value: String?) = if(value==null) null else BookmarkType.valueOf(value)
+
+    @TypeConverter
+    fun fromBookmarkType(value: BookmarkType?) = value?.name
+
+
     @TypeConverter
     fun toBookmarkStyle(value: String?) = if(value==null) null else BookmarkStyle.valueOf(value)
 
@@ -192,7 +207,11 @@ class Converters {
         WorkspaceEntities.HistoryItem::class,
         WorkspaceEntities.PageManager::class,
         DocumentSearch::class,
-        SwordDocumentInfo::class
+        SwordDocumentInfo::class,
+        BooleanSetting::class,
+        StringSetting::class,
+        LongSetting::class,
+        DoubleSetting::class,
     ],
     version = DATABASE_VERSION
 )
@@ -203,6 +222,10 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun documentDao(): DocumentSearchDao
     abstract fun swordDocumentInfoDao(): SwordDocumentInfoDao
+    abstract fun booleanSettingDao(): BooleanSettingDao
+    abstract fun stringSettingDao(): StringSettingDao
+    abstract fun longSettingDao(): LongSettingDao
+    abstract fun doubleSettingDao(): DoubleSettingDao
 
     fun sync() { // Sync all data so far into database file
         val cur = openHelper.writableDatabase

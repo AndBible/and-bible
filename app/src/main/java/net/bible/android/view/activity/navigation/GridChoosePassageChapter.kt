@@ -77,12 +77,12 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
             Log.e(TAG, "Error in selected book no", nsve)
         }
 
-        val navigateToVerseDefault = CommonUtils.sharedPreferences.getBoolean("navigate_to_verse_pref", false)
+        val navigateToVerseDefault = CommonUtils.settings.getBoolean("navigate_to_verse_pref", false)
         navigateToVerse = intent?.extras?.getBoolean("navigateToVerse", navigateToVerseDefault)?:navigateToVerseDefault
 
         val grid = ButtonGrid(this)
         grid.setOnButtonGridActionListener(this)
-
+        grid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(GridChoosePassageBook.BOOK_GRID_FLOW_PREFS, false)
         grid.addButtons(getBibleChaptersButtonInfo(mBibleBook))
         setContentView(grid)
     }

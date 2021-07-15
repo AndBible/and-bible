@@ -18,7 +18,7 @@
 import {onBeforeUnmount, onMounted, onUnmounted} from "@vue/runtime-core";
 import Color from "color";
 import {rybColorMixer} from "@/lib/ryb-color-mixer";
-import {get} from "lodash";
+import {get, sortBy} from "lodash";
 import {highlightRange} from "@/lib/highlight-range";
 import {findNodeAtOffset, lastTextNode} from "@/dom";
 
@@ -37,11 +37,22 @@ export function setupElementEventListener(elementRef, eventType, handler, option
     onBeforeUnmount(() => elementRef.value.removeEventListener(eventType, handler, options))
 }
 
-export function stubsFor(object) {
+export function stubsFor(object, defaults={}) {
     const stubs = {};
     for(const key in object) {
-        stubs[key] = (...args) => {
-            console.log(`Stub for ${key}(${args}) called`)
+        //Implement a separate stub for getActiveLanguages, since it needs to return data
+        if (key in defaults) {
+            let value = defaults[key]
+            if (typeof value != "function") {
+                value = () => {
+                    return defaults[key]
+                }
+            }
+            stubs[key] = value
+        } else {
+            stubs[key] = (...args) => {
+                console.log(`Stub for ${key}(${args}) called`)
+            }
         }
     }
     return stubs;
@@ -249,6 +260,12 @@ export async function sleep(ms) {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export async function waitNextAnimationFrame() {
+    const defer = new Deferred();
+    window.requestAnimationFrame(() => defer.resolve())
+    await defer.wait();
+}
+
 export function cancellableTimer(ms) {
     if(ms < 0) return [new Promise(() => {}), () => {}];
     let cancel = false;
@@ -274,6 +291,27 @@ export function colorLightness(color) {
     return yiq / 255;
 }
 
+export function addEventVerseInfo(event, verseInfo) {
+    event.verseInfo = verseInfo;
+}
+
+export function getEventVerseInfo(event) {
+    return event.verseInfo || null;
+}
+
+export const EventPriorities = {
+    HIDDEN_BOOKMARK: 0,
+    VISIBLE_BOOKMARK: 0,
+    BOOKMARK_MARKER: 5,
+    FOOTNOTE: 15,
+    STRONGS_DOTTED: 5,
+
+    // "link-style"
+    EXTERNAL_LINK: 10,
+    REFERENCE: 10,
+    STRONGS_LINK: 10,
+}
+
 export function addEventFunction(event, callback, options) {
     if(!event.eventFunctions)
         event.eventFunctions = {};
@@ -286,11 +324,20 @@ export function addEventFunction(event, callback, options) {
     array.push({callback, options});
 }
 
-export function getEventFunctions(event) {
+export function getHighestPriorityEventFunctions(event) {
     if(!event.eventFunctions) return [];
     const priorities = Object.keys(event.eventFunctions);
     priorities.sort();
     return event.eventFunctions[priorities[priorities.length -1]];
+}
+
+export function getAllEventFunctions(event) {
+    if(!event.eventFunctions) return [];
+    const all = [];
+    for(const [, items] of Object.entries(event.eventFunctions)) {
+        all.push(...items);
+    }
+    return sortBy(all, [v => -v.options.priority, v => v.options.title]);
 }
 
 export function draggableElement(element, dragHandle) {
@@ -423,4 +470,18 @@ export function clickWaiter(handleTouch = true) {
         }
     }
     return {waitForClick}
+}
+
+export function createDoubleClickDetector(waitMs = 300) {
+    let counter = 0;
+    async function isDoubleClick() {
+        counter ++;
+        if(counter > 1) return true;
+        await sleep(waitMs);
+        const manyClicks = counter > 1
+        // eslint-disable-next-line require-atomic-updates
+        counter = 0;
+        return manyClicks;
+    }
+    return {isDoubleClick};
 }

@@ -249,6 +249,7 @@
     <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
     <string name="no_indexed_bible_with_strongs_ref">You must download a Bible containing Strong\'s numbers and download its index via Search</string>
     <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
+    <string name="go_to_downloads">Go to Downloads</string>
 
     <!-- Module download -->
     <string name="download">Download Documents</string>
@@ -478,6 +479,13 @@
     <string name="speak_autobookmarking_disabled">Autobookmarking disabled!</string>
     <string name="system_speak_settings">Open system TTS settings</string>
 
+    <string name="auto_assing_labels_help1">Here you can adjust which labels are assigned automatically to bookmarks that you create. </string>
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+    <string name="setting_scope">This setting applies to %s.</string>
+    <string name="setting_scope_window">this window</string>
+    <string name="setting_scope_workspace">this workspace</string>
+
     <string name="assing_labels_help1">Each bookmark can be assigned multiple labels. </string>
     <!-- param is bookmark icon -->
     <string name="assing_labels_help2">Use %s to specify which label color is shown.</string>
@@ -485,6 +493,25 @@
     <string name="assing_labels_help3">Tap %s icon to have that label is assigned automatically to new bookmarks.</string>
     <!-- param is heart icon -->
     <string name="assing_labels_help4">Tap %s to add label to your favourite list for quick access.</string>
+
+    <!-- param is refresh icon -->
+    <string name="assing_labels_help5">Tap %s to re-order the list based on your selections.</string>
+
+    <string name="workspace_text_options_help_title">Workspace text options</string>
+    <string name="workspace_text_options_help1">These settings determine the default for all workspace windows.</string>
+    <string name="workspace_text_options_help2">You can override these by changing the individual window settings.</string>
+
+    <string name="window_text_options_help_title">Window text options</string>
+    <!-- Parameter is actual icon -->
+    <string name="window_text_options_help1">%s icon indicates that the setting comes from the workspace settings.</string>
+    <!-- Parameter is actual icon -->
+    <string name="window_text_options_help2">%s icon indicates that this setting has been changed for this specific window.</string>
+    <string name="window_text_options_help3">The workspace setting will not affect this window.</string>
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+    <string name="text_options_reset_help">Use %s button to reset all these settings back to %s.</string>
+    <string name="reset_defaults">default values</string>
+    <string name="reset_workspace_defaults">workspace default values</string>
 
     <string name="speak_bookmark_help">Speak bookmark help</string>
 
@@ -594,6 +621,8 @@
     <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
+    <string name="send_bug_report_title1">Bug report</string>
+    <string name="send_feedback_title">Feedback</string>
     <string name="send_bug_report_title">Feedback / bug report</string>
     <string name="report_bug_email_subject_3">[%s] Bug report for %s %s</string>
 
@@ -923,5 +952,10 @@
     <string name="chooser_pref_reset">Do not reset chapter/verse to 1 when book/chapter is selected</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
     <string name="incomplete_translation">We are sorry, but we have only partial user interface translation in %s language. That is because %s is entirely developed by volunteers. If you can help in translating, please see %s.</string>
+    <!-- will be added to incomplete_translation as a link -->
     <string name="instructions_for_translators">instructions for translators</string>
+    <string name="questions_title">Questions?</string>
+    <string name="questions_title2">Need help?</string>
+    <string name="bookmark_style">Bookmark style</string>
+    <string name="added_to_bookmark">Assigned to this bookmark</string>
 </resources>

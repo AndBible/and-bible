@@ -20,6 +20,7 @@ editNotePlaceholder: Uredi zaznamek
 editTextPlaceholder: Dotaknite se za urejanje besedila
 inputPlaceholder: Pišite tukaj
 inputReference: Vnesite biblijsko referenco
+invalidReference: Vrstice ni mogoče najti
 assignLabels: Oznake
 bookmarkAccurate: Zaznamek je bil ustvarjen v %s
 bookmarkInaccurate: "Informacije o zaznamkih niso shranjene, vsebina je prikazana v %s."
@@ -33,7 +34,9 @@ removeBookmarkConfirmation: "Ali ste prepričani, da želite odstraniti ta zazna
 closeModal: Zapri
 createdAt: "Ustvarjeno: %s"
 lastUpdatedOn: "Nazadnje posodobljeno: %s"
-strongsLink: Odpri Strong-a (%s)
+strongsLink: Strong (%s)
+morphLink: Oblikoslovne kode (%s)
+strongsAndMorph: Strong in oblikoslovje
 studyPadLink: Odpri beležnico
 externalLink: Odpri zunanjo povezavo
 referenceLink: Odpri zunanjo povezavo
@@ -66,3 +69,14 @@ frequentlyUsedLabels: Pogosto uporabljene oznake
 bookmarkLabels: Oznake zaznamkov
 refParserHelp: "Namestite %s modul za uporabo referenc v jezikih, ki niso angleščina. "
 openDownloads: Pojdite na Prenose dodatkov
+verseShare: Deli
+verseCompare: Primerjaj
+verseNote: Beležka
+verseMyNotes: Moje opombe
+verseSpeak: Govor
+verseShareLong: Deli to vrstico
+verseCompareLong: Primerjaj vrstico
+verseNoteLong: Zapiši beležko
+verseSpeakLong: Prični poslušati od te vrstice
+verseTip: Za delno izbiro vrstice ali izbiro več vrstic dolgo pritisnete na biblijsko besedilo
+addBookmark: Zaznamek

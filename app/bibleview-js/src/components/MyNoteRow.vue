@@ -36,12 +36,13 @@
     </ButtonRow>
   </div>
   <div>
-    <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b>&nbsp;
-    <LabelList v-if="expanded" in-bookmark :bookmark-id="bookmark.id"/>
+    <div class="overlay"/>
+    <div style="white-space: nowrap; overflow-x: auto">
+      <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b>&nbsp;
+      <LabelList in-bookmark single-line :bookmark-id="bookmark.id"/>
+    </div>
     <BookmarkText :bookmark="bookmark" :expanded="expanded" @change-expanded="expanded = $event"/>
-    <template v-if="!expanded">"&nbsp;</template>
     <div v-if="bookmark.hasNote && expanded" class="separator"/>
-    <LabelList v-if="!expanded" in-bookmark :bookmark-id="bookmark.id"/>
     <div class="notes">
       <EditableText
         ref="editor"
@@ -101,5 +102,17 @@ export default {
 .notes {
   text-indent: 2pt;
   margin-top: 4pt;
+}
+
+.overlay {
+  position: absolute;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), var(--background-color) 50%, var(--background-color) 100%);
+  .night & {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0), var(--background-color) 75%, var(--background-color) 100%);
+  }
+  right: 0;
+  top: 0;
+  width: 50px;
+  height: 2em;
 }
 </style>

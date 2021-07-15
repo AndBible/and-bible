@@ -29,7 +29,7 @@ data class SpeakSettingsChangedEvent(val speakSettings: SpeakSettings, val updat
 
 fun SpeakSettings.save(updateBookmark: Boolean = false) {
     if(SpeakSettings.Companion.currentSettings?.equals(this) != true) {
-        CommonUtils.sharedPreferences.edit().putString(PERSIST_SETTINGS, toJson()).apply()
+        CommonUtils.realSharedPreferences.edit().putString(PERSIST_SETTINGS, toJson()).apply()
         Log.d(TAG, "SpeakSettings saved! $this")
         val oldSettings = SpeakSettings.Companion.currentSettings
         SpeakSettings.Companion.currentSettings = this.makeCopy()
@@ -41,7 +41,10 @@ fun SpeakSettings.save(updateBookmark: Boolean = false) {
 
 fun SpeakSettings.Companion.load(): SpeakSettings {
     val rv = currentSettings?.makeCopy()?: {
-        val sharedPreferences = CommonUtils.sharedPreferences
+        // Excuse of using realSharedPreferences here is that this is loaded early because of widgets. But in practice,
+        // these are persisted to workspace in WindowRepository and loaded from there.
+        // This code could be therefore cleaned up.
+        val sharedPreferences = CommonUtils.realSharedPreferences
         val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, "")!!)
         settings }()
     Log.d(TAG, "SpeakSettings loaded! $rv")

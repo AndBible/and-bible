@@ -20,6 +20,7 @@ editNotePlaceholder: Editar nota
 editTextPlaceholder: Toca para editar el texto
 inputPlaceholder: Escriba aqui
 inputReference: Ingrese la referencia de la Biblia
+invalidReference: Verso no encontrado
 assignLabels: Etiquetas
 bookmarkAccurate: El marcador se creó en %s
 bookmarkInaccurate: "La información del libro de marcadores no se almacena, el contenido se muestra en %s."
@@ -33,7 +34,9 @@ removeBookmarkConfirmation: "¿Seguro que quiere eliminar este marcador?"
 closeModal: Cerrar
 createdAt: "Creado: %s"
 lastUpdatedOn: "Última actualización: %s"
-strongsLink: Abrir Strongs (%s)
+strongsLink: Definición de Strong (%s)
+morphLink: Código morfológico (%s)
+strongsAndMorph: Definición y morfología
 studyPadLink: Abrir bloc de estudio
 externalLink: Abrir enlace externo
 referenceLink: Abrir enlace de referencia
@@ -66,3 +69,14 @@ frequentlyUsedLabels: Etiquetas uso frecuente
 bookmarkLabels: Etiquetas de marcador
 refParserHelp: Instale el módulo %s para utilizar referencias en idiomas distintos del Inglés.
 openDownloads: Ir a descargas de complementos
+verseShare: Compartir
+verseCompare: Comparar
+verseNote: Nota
+verseMyNotes: Mis Notas
+verseSpeak: Con voz
+verseShareLong: Compartir este versículo
+verseCompareLong: Comparar versículo
+verseNoteLong: Escribir una nota
+verseSpeakLong: Empezar a escuchar a partir de este versículo
+verseTip: Para hace una selección parcial o de muchos versículos puede mantener presionado el texto de la Biblia
+addBookmark: Marcador

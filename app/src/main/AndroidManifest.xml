@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="529"
-    android:versionName="3.4.529-beta">
+    android:versionCode="534"
+    android:versionName="4.0.534-beta">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -29,7 +29,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        android:supportsRtl="true"
+        >
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
@@ -162,14 +164,12 @@
             />
         <activity
             android:name="net.bible.android.view.activity.settings.ColorSettingsActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/workspace_color_settings_title"
             android:parentActivityName="net.bible.android.view.activity.settings.TextDisplaySettingsActivity" />
         <activity
             android:name="net.bible.android.view.activity.settings.TextDisplaySettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:label="@string/text_display_settings_activity_title"
             android:launchMode="singleTop"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
@@ -316,6 +316,10 @@
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT" />
+            <data android:mimeType="text/plain"/>
         </intent>
     </queries>
 </manifest> 

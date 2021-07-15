@@ -13,6 +13,16 @@
 		android:layout_height="wrap_content"
 		android:padding="20dip">
 
+		<TextView
+			android:id="@+id/bookmarkStyleTitle"
+			style="@style/EditBookmarkLabelCategoryTitle"
+			android:layout_marginTop="0dp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/bookmark_style"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
 		<ImageView
 			android:id="@+id/titleIcon"
 			android:layout_width="30dip"
@@ -20,7 +30,7 @@
 			android:src="@drawable/ic_label_24dp"
 			app:layout_constraintBottom_toBottomOf="@id/labelName"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
+			app:layout_constraintTop_toBottomOf="@+id/bookmarkStyleTitle" />
 
 		<EditText
 			android:id="@+id/labelName"
@@ -30,7 +40,7 @@
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toEndOf="@id/titleIcon"
-			app:layout_constraintTop_toTopOf="parent" />
+			app:layout_constraintTop_toBottomOf="@+id/bookmarkStyleTitle" />
 
 		<Space
 			android:id="@+id/space3"
@@ -63,9 +73,8 @@
 			android:layout_height="wrap_content"
 			app:layout_constraintTop_toBottomOf="@+id/underLineStyleWholeVerse"
 			tools:layout_editor_absoluteX="20dp">
-
-			<androidx.appcompat.widget.AppCompatCheckBox
-				android:id="@+id/selectedLabelCheckBox"
+			<TextView
+				android:id="@+id/selectedLabelTitle"
 				style="@style/EditBookmarkLabelCategoryTitle"
 				android:layout_width="wrap_content"
 				android:layout_height="0dp"
@@ -74,14 +83,23 @@
 				app:layout_constraintTop_toTopOf="parent" />
 
 			<androidx.appcompat.widget.AppCompatCheckBox
+				android:id="@+id/selectedLabelCheckBox"
+				style="@style/EditBookmarkLabelItemTitle"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				android:text="@string/added_to_bookmark"
+				app:layout_constraintTop_toBottomOf="@+id/selectedLabelTitle"
+				app:layout_constraintStart_toStartOf="parent" />
+
+			<androidx.appcompat.widget.AppCompatCheckBox
 				android:id="@+id/primaryLabelCheckBox"
 				style="@style/EditBookmarkLabelItemTitle"
-				android:layout_marginStart="15dip"
 				android:layout_width="wrap_content"
 				android:layout_height="0dp"
 				android:text="@string/primary_label"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/selectedLabelCheckBox" />
+				app:layout_constraintTop_toBottomOf="@id/selectedLabelCheckBox"
+				tools:layout_editor_absoluteY="36dp" />
 		</androidx.constraintlayout.widget.ConstraintLayout>
 
 		<TextView

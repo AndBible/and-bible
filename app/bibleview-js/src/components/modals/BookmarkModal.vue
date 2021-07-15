@@ -21,22 +21,20 @@
       <div class="bookmark-title" style="width: calc(100% - 80px);">
         <div class="overlay"/>
         <div style="overflow-x: auto">
-          <LabelList single-line handle-touch in-bookmark :bookmark-id="bookmark.id"/>
+          <LabelList single-line handle-touch in-bookmark :bookmark-id="bookmark.id" ref="labelList"/>
         </div>
-        <div class="title-text">
-          {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ abbreviated(bookmark.text, 25)}}</i></q>
+        <div class="title-text one-liner">
+          {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ bookmark.text }}</i></q>
         </div>
       </div>
     </template>
 
     <template #buttons>
-      <div class="modal-toolbar">
-        <div class="modal-action-button" :class="{toggled: !infoShown}" @click="toggleInfo" @touchstart="toggleInfo">
-          <FontAwesomeIcon icon="edit"/>
-        </div>
-        <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
-          <FontAwesomeIcon icon="times"/>
-        </div>
+      <div class="modal-action-button" :class="{toggled: !infoShown}" @click="toggleInfo" @touchstart="toggleInfo">
+        <FontAwesomeIcon icon="edit"/>
+      </div>
+      <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
+        <FontAwesomeIcon icon="times"/>
       </div>
     </template>
 
@@ -62,7 +60,7 @@
       <div class="links">
         <div class="link-line">
           <span class="link-icon"><FontAwesomeIcon icon="file-alt"/></span>
-          <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
+          <a :href="`my-notes://?ordinal=${bookmark.originalOrdinalRange[0]}&bookInitials=${bookmark.bookInitials}`">{{ strings.openMyNotes }}</a>
         </div>
         <div v-for="label in labels.filter(l => l.isRealLabel)" :key="`label-${bookmark.id}-${label.id}`" class="link-line">
           <span class="link-icon" :style="`color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon icon="file-alt"/></span>
@@ -70,14 +68,17 @@
         </div>
       </div>
       <div class="info-text">
+        <div class="separator"/>
         <div v-if="bookmark.bookName">
           <span v-html="sprintf(strings.bookmarkAccurate, originalBookLink)"/>
         </div>
         <div v-else>
           <span v-html="sprintf(strings.bookmarkInaccurate, originalBookLink)"/>
         </div>
+        <div v-if="bookmark.createdAt !== bookmark.lastUpdatedOn">
+          {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
+        </div>
         {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
-        {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
       </div>
     </div>
     <template #footer>
@@ -90,13 +91,14 @@ import Modal from "@/components/modals/Modal";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
-import {inject} from "@vue/runtime-core";
+import {inject, nextTick} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import EditableText from "@/components/EditableText";
 import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
 import BookmarkButtons from "@/components/BookmarkButtons";
 import {clickWaiter} from "@/utils";
+import {sortBy} from "lodash";
 
 export default {
   name: "BookmarkModal",
@@ -107,6 +109,7 @@ export default {
     const areYouSure = ref(null);
     const infoShown = ref(false);
     const bookmarkId = ref(null);
+    const labelList = ref(null);
 
     const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
 
@@ -116,19 +119,23 @@ export default {
 
     const labels = computed(() => {
       if(!bookmark.value) return [];
-      return bookmark.value.labels.map(l => bookmarkLabels.get(l))
+      return sortBy(bookmark.value.labels.map(l => bookmarkLabels.get(l)), ["name"])
     });
 
     const label = computed(() => labels.value[0]);
     const bookmarkNotes = computed(() => bookmark.value.notes);
     let originalNotes = null;
 
-    setupEventBusListener(Events.BOOKMARK_CLICKED, (bookmarkId_, {openInfo = false, openNotes = false} = {}) => {
+    setupEventBusListener(Events.BOOKMARK_CLICKED, async (bookmarkId_, {openLabels = false, openInfo = false, openNotes = false} = {}) => {
       bookmarkId.value = bookmarkId_;
       originalNotes = bookmarkNotes.value;
       infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);
       editDirectly.value = !infoShown.value && !bookmarkNotes.value;
       showBookmark.value = true;
+      if(openLabels && !openNotes) {
+        await nextTick();
+        labelList.value.openActions();
+      }
     });
 
     function closeBookmark() {
@@ -164,7 +171,7 @@ export default {
 
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,  bookmark, labelColor,
-      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, toggleInfo, ...common
+      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, toggleInfo, labelList, ...common
     };
   },
 }
@@ -222,16 +229,18 @@ font-size: 85%;
 }
 .overlay {
   position: absolute;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0), $modal-header-background-color);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), $modal-header-background-color 75%, $modal-header-background-color 100%);
   .night & {
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0), $night-modal-header-background-color);
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0), $night-modal-header-background-color 75%, $night-modal-header-background-color 100%);
   }
-  right: 80px; top: 0;
-  width: 30px;
+  [dir=ltr] & {
+    right: 80px;
+  }
+  [dir=rtl] & {
+    left: 80px;
+  }
+  top: 0;
+  width: 20px;
   height: 2em;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #c1c1c1
 }
 </style>

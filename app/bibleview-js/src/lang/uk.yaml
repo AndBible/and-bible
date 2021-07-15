@@ -16,10 +16,11 @@ footnoteTypeAlternative: Альтернативний
 footnoteTypeTranslation: Переклад
 clearLog: Очистити журнал помилок
 editNote: Редагувати
-editNotePlaceholder: ""
+editNotePlaceholder: Редагувати примітку
 editTextPlaceholder: "Торкніться, щоб редагувати текст"
 inputPlaceholder: Пишіть тут
 inputReference: Введіть біблійне посилання
+invalidReference: Вірш не знайдено
 assignLabels: Мітки
 bookmarkAccurate: Закладка була створена в %s
 bookmarkInaccurate: "Закладка інформації про книгу не збереглась, вміст відображається в %s."
@@ -33,7 +34,9 @@ removeBookmarkConfirmation: "Ви впевнені, що хочете видал
 closeModal: Закрити
 createdAt: "Створено: %s"
 lastUpdatedOn: "Останнє оновлення: %s"
-strongsLink: Відкрити Стронга (%s)
+strongsLink: Визначення Стронга (%s)
+morphLink: Морфологічний код (%s)
+strongsAndMorph: Визначення та морфологія
 studyPadLink: Відкрити блокнот
 externalLink: Відкрити зовнішнє посилання
 referenceLink: Відкрити посилання
@@ -45,9 +48,9 @@ noMyNotesDescription: >
 emptyStudyPad: >
   Порожній блокнот. Почніть додавати до цього блокноту, створюючи тут текстові записи або закладки з мітками, яка відповідає цему блокноту.
 studyPadModalTitle: Редагувати запис у блокноті
-doYouWantToDeleteEntry: ""
+doYouWantToDeleteEntry: "Видалити цей запис в блокноті?"
 removeStudyPadConfirmationTitle: "Видалити запис у блокноті?"
-dragHelp: ""
+dragHelp: "Перетягніть, щоб змінити порядок"
 saved: збережено
 openAll: Відкрити всі посилання
 editBookmarkPlaceholder: "Торкніться, щоб редагувати Мої примітки для цієї закладки"
@@ -55,14 +58,25 @@ onlyLabel: Тільки мітку
 wholeBookmark: Всю закладку
 otherNoteText: Інша примітка
 assignLabelsMenuEntry: Призначити мітки
-assignLabelsMenuEntry1: ""
+assignLabelsMenuEntry1: Вибір або редагування міток…
 jumpToStudyPad: Перейти до блокноту
 setAsPrimaryLabel: Встановити як основну мітку
-removeBookmarkLabel: ""
-addBookmarkLabel: ""
+removeBookmarkLabel: Видалити мітку
+addBookmarkLabel: Додати мітку
 favouriteLabels: Улюблені мітки
 recentLabels: Недавні мітки
 frequentlyUsedLabels: "Мітки, що часто використовуються"
-bookmarkLabels: ""
-refParserHelp: ""
-openDownloads: ""
+bookmarkLabels: Мітки закладок
+refParserHelp: "Будь ласка, встановіть модуль %s, щоб використовувати посилання іншими мовами, крім англійської. "
+openDownloads: Перейти до завантаження додаткових компонентів
+verseShare: Поділитись
+verseCompare: Порівняти
+verseNote: Примітка
+verseMyNotes: Мої примітки
+verseSpeak: Озвучити
+verseShareLong: Поділіться віршем
+verseCompareLong: Порівняти вірш
+verseNoteLong: Написати нотатку
+verseSpeakLong: Почати слухати з цього вірша
+verseTip: "Щоб вибрати часткові або багато віршів, довго натисніть текст Біблії"
+addBookmark: Закладка

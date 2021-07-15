@@ -23,11 +23,16 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.TextUtils.concat
+import android.text.method.LinkMovementMethod
+import android.text.style.ImageSpan
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ListView
+import android.widget.TextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -45,6 +50,7 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
@@ -88,14 +94,17 @@ class ManageLabels : ListActivityBase() {
         var autoAssignPrimaryLabel: Long? = null,
         var bookmarkPrimaryLabel: Long? = null,
 
+        val isWindow: Boolean = false,
+
         var reset: Boolean = false,
     ) {
         val showUnassigned: Boolean get() = setOf(Mode.HIDELABELS, Mode.MANAGELABELS).contains(mode)
         val showCheckboxes: Boolean get() = setOf(Mode.HIDELABELS, Mode.ASSIGN).contains(mode)
         val hasResetButton: Boolean get() = setOf(Mode.WORKSPACE, Mode.HIDELABELS).contains(mode)
+        val hasReOrderButton: Boolean get() = setOf(Mode.HIDELABELS, Mode.ASSIGN, Mode.WORKSPACE).contains(mode)
         val workspaceEdits: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
         val primaryShown: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
-        val showActiveCategory: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
+        val showActiveCategory: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN, Mode.HIDELABELS).contains(mode)
         val hideCategories: Boolean get() = setOf(Mode.STUDYPAD).contains(mode)
 
         val contextSelectedItems: MutableSet<Long> get() =
@@ -121,7 +130,7 @@ class ManageLabels : ListActivityBase() {
             return when(mode) {
                 Mode.ASSIGN -> R.string.assign_labels
                 Mode.STUDYPAD -> R.string.studypads
-                Mode.WORKSPACE -> R.string.auto_assign_labels
+                Mode.WORKSPACE -> R.string.auto_assign_labels_title
                 Mode.HIDELABELS -> R.string.bookmark_settings_hide_labels_title
                 Mode.MANAGELABELS -> R.string.manage_labels
             }
@@ -179,19 +188,19 @@ class ManageLabels : ListActivityBase() {
         listAdapter = ManageLabelItemAdapter(this, shownLabels, this)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.clear()
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.manage_labels_options_menu, menu)
         menu.findItem(R.id.resetButton).isVisible = data.hasResetButton
-        menu.findItem(R.id.help).isVisible = !data.showCheckboxes
+        menu.findItem(R.id.reOrder).isVisible = data.hasReOrderButton
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isHandled = true
         when(item.itemId){
-            R.id.help -> CommonUtils.showHelp(this, listOf(R.string.help_studypads_title, R.string.help_bookmarks_title))
+            R.id.help -> help()
             R.id.newLabel -> newLabel()
+            R.id.resetButton -> reset()
             R.id.reOrder -> updateLabelList(reOrder = true)
             android.R.id.home -> saveAndExit()
             else -> isHandled = false
@@ -200,6 +209,79 @@ class ManageLabels : ListActivityBase() {
             isHandled = super.onOptionsItemSelected(item)
         }
         return isHandled
+    }
+
+    private fun help() {
+        when(data.mode) {
+            Mode.STUDYPAD -> CommonUtils.showHelp(this, listOf(R.string.help_studypads_title))
+            Mode.MANAGELABELS -> CommonUtils.showHelp(this, listOf(R.string.help_bookmarks_title))
+            Mode.ASSIGN -> help(HelpMode.ASSIGN)
+            Mode.WORKSPACE -> help(HelpMode.WORKSPACE)
+            Mode.HIDELABELS -> help(HelpMode.HIDE)
+        }
+    }
+
+    enum class HelpMode {WORKSPACE, ASSIGN, HIDE}
+
+    private fun getIconString(id: Int, iconId: Int): SpannableString {
+        val s = getString(id,"__ICON__")
+        val start = s.indexOf("__ICON__")
+        val length = 8
+        val icon = ImageSpan(getTintedDrawable(iconId))
+        val span = SpannableString(s)
+        span.setSpan(icon, start, start + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+        return span
+    }
+
+    private fun help(helpMode: HelpMode) {
+        val length = 9
+        val h1 = when(helpMode) {
+            HelpMode.WORKSPACE -> getString(R.string.auto_assing_labels_help1)
+            HelpMode.ASSIGN -> getString(R.string.assing_labels_help1)
+            HelpMode.HIDE -> getString(R.string.bookmark_settings_hide_labels_summary)
+        }
+
+        val h11 =  "\n\n" + getString(R.string.setting_scope, getString(
+            if(data.isWindow) R.string.setting_scope_window
+            else R.string.setting_scope_workspace)
+        )
+
+        val h2 = concat("\n\n", getIconString(R.string.assing_labels_help2, R.drawable.ic_baseline_bookmark_24))
+        val text = getString(R.string.assing_labels_help3, "__ICON2__ __ICON3__")
+
+        val start2 = text.indexOf("__ICON2__")
+        val start3 = text.indexOf("__ICON3__")
+        val h3 = concat("\n\n", SpannableString(text).apply {
+            val icon2 = ImageSpan(getTintedDrawable(R.drawable.ic_label_24dp))
+            val icon3 = ImageSpan(getTintedDrawable(R.drawable.ic_label_circle))
+            setSpan(icon2, start2, start2 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(icon3, start3, start3 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+        })
+
+        val h4 = concat("\n\n", getIconString(R.string.assing_labels_help4, R.drawable.ic_baseline_favorite_24))
+        val h5 = concat("\n\n", getIconString(R.string.assing_labels_help5, R.drawable.ic_baseline_refresh_24))
+
+        val span = concat(
+            h1,
+            if(listOf(HelpMode.HIDE, HelpMode.WORKSPACE).contains(helpMode)) h11 else "",
+            *if(helpMode != HelpMode.HIDE) arrayOf(h2, h3, h4) else arrayOf(""),
+            h5
+        )
+
+        val title = getString(when(helpMode) {
+            HelpMode.ASSIGN -> R.string.assign_labels
+            HelpMode.WORKSPACE -> R.string.auto_assign_labels_title
+            HelpMode.HIDE -> R.string.bookmark_settings_hide_labels_title
+        })
+
+        val d = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay, null)
+            .setTitle(title)
+            .setMessage(span)
+            .create()
+
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     private fun studyPadSelected(journal: BookmarkEntities.Label) {

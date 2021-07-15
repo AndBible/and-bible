@@ -24,10 +24,10 @@
 <script>
 import {computed, ref} from "@vue/reactivity";
 import {inject, onMounted, provide, watch} from "@vue/runtime-core";
-import {useCommon} from "@/composables";
 import {highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment";
 import {useStrings} from "@/composables/strings";
+import {useCommon} from "@/composables";
 
 export default {
   name: "OsisFragment",
@@ -46,15 +46,10 @@ export default {
       osisRef,
     } = props.fragment;
     const uniqueId = ref(Date.now().toString());
-    const {config} = useCommon()
-    const customConfig = computed(() => {
-      const changes = {};
-      if(props.hideTitles) {
-        changes.showSectionTitles = false;
-      }
-      return {...config, ...changes};
-    });
-    provide("config", customConfig);
+
+    if(props.hideTitles) {
+      provide("hideTitles", true);
+    }
 
     const strings = useStrings();
     provide("osisFragment", props.fragment)
@@ -83,7 +78,7 @@ export default {
     });
 
     watch(props, () => refreshHighlight());
-    return {template, strings, uniqueId}
+    return {template, strings, uniqueId, ...useCommon()}
   }
 }
 </script>

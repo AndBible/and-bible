@@ -56,6 +56,7 @@ interface OptionsMenuItemInterface {
     fun setNonSpecific() {}
 
     val title: String?
+    val icon: Int?
 }
 
 abstract class GeneralPreference(
@@ -71,6 +72,7 @@ abstract class GeneralPreference(
     override var value: Any = false
     override fun handle() {}
     override val title: String? = null
+    override val icon: Int? = null
     override val opensDialog get()  = !isBoolean
 }
 
@@ -88,7 +90,7 @@ abstract class SharedPreferencesPreference(
     private val defaultString: String = falseValue,
     subMenu: Boolean = false
 ) : GeneralPreference(onlyBibles, subMenu) {
-    private val preferences = CommonUtils.sharedPreferences
+    private val preferences = CommonUtils.settings
     override val inherited = false
 
     override var value: Any
@@ -98,9 +100,9 @@ abstract class SharedPreferencesPreference(
             preferences.getString(preferenceName, defaultString) == trueValue
         }
         set(value) = if (isBooleanPreference) {
-            preferences.edit().putBoolean(preferenceName, value == true).apply()
+            preferences.setBoolean(preferenceName, value == true)
         } else {
-            preferences.edit().putString(preferenceName, if (value == true) trueValue else falseValue).apply()
+            preferences.setString(preferenceName, if (value == true) trueValue else falseValue)
         }
 
     protected open val automatic: Boolean
@@ -194,6 +196,30 @@ open class Preference(val settings: SettingsBundle,
             }
             return mainBibleActivity.getString(id)
         }
+
+    override val icon: Int?
+        get() = when(type) {
+            TextDisplaySettings.Types.STRONGS -> if(mainBibleActivity.documentControl.isNewTestament) R.drawable.ic_strongs_greek else R.drawable.ic_strongs_hebrew
+            TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.drawable.ic_baseline_bookmark_24
+            TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.drawable.ic_baseline_bookmark_24
+            else -> R.drawable.ic_baseline_star_24
+            //TextDisplaySettings.Types.VERSENUMBERS -> R.drawable.ic_baseline_favorite_24
+            //TextDisplaySettings.Types.MORPH -> R.string.prefs_show_morphology_title
+            //TextDisplaySettings.Types.FOOTNOTES -> R.string.prefs_show_notes_title
+            //TextDisplaySettings.Types.REDLETTERS -> R.string.prefs_red_letter_title
+            //TextDisplaySettings.Types.SECTIONTITLES -> R.string.prefs_section_title_title
+            //TextDisplaySettings.Types.VERSENUMBERS -> R.string.prefs_show_verseno_title
+            //TextDisplaySettings.Types.VERSEPERLINE -> R.string.prefs_verse_per_line_title
+            //TextDisplaySettings.Types.MYNOTES -> R.string.prefs_show_mynotes_title
+            //TextDisplaySettings.Types.COLORS -> R.string.prefs_text_colors_menutitle
+            //TextDisplaySettings.Types.JUSTIFY -> R.string.prefs_justify_title
+            //TextDisplaySettings.Types.HYPHENATION -> R.string.prefs_hyphenation_title
+            //TextDisplaySettings.Types.TOPMARGIN -> R.string.prefs_top_margin_title
+            //TextDisplaySettings.Types.FONTSIZE -> R.string.font_size_title
+            //TextDisplaySettings.Types.FONTFAMILY -> R.string.pref_font_family_label
+            //TextDisplaySettings.Types.MARGINSIZE -> R.string.prefs_margin_size_title
+            //TextDisplaySettings.Types.LINE_SPACING -> R.string.line_spacing_title
+        }
 }
 
 class TiltToScrollPreference:
@@ -227,6 +253,7 @@ class CommandPreference(
     }
 
     override val title: String? = null
+    override val icon: Int? = null
     override val isBoolean get() = handle != null && value is Boolean
 }
 
@@ -258,10 +285,13 @@ class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDi
         var newChoice = value
         val dialog = AlertDialog.Builder(activity)
             .setTitle(R.string.strongs_mode_title)
-            .setSingleChoiceItems(items, value as Int) { d, value ->
-                newChoice = value
+            .setSingleChoiceItems(items, value as Int) { _, v ->
+                newChoice = v
             }
-            .setPositiveButton(R.string.okay) { _,_ -> this.value = newChoice; onChanged?.invoke(newChoice) }
+            .setPositiveButton(R.string.okay) { _,_ ->
+                value = newChoice
+                onChanged?.invoke(newChoice)
+            }
             .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); onReset?.invoke() }
             .setNegativeButton(R.string.cancel, null)
         dialog.show()
@@ -273,7 +303,7 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
     override val enabled: Boolean
         get() {
             val itm = StrongsPreference(settings)
-            return itm.enabled && itm.value == true
+            return itm.enabled && itm.value as Int > 0
         }
 
     override var value: Any
@@ -361,6 +391,7 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.HIDELABELS,
             selectedLabels = originalValues.toMutableSet(),
+            isWindow = settings.windowId != null
         ).applyFrom(mainBibleActivity.workspaceSettings).toJSON())
         GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)

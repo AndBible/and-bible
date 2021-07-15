@@ -40,6 +40,8 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.Logger
 
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 
@@ -102,12 +104,13 @@ open class WindowControl @Inject constructor(
         val bibleDoc = windowRepository.activeWindow.pageManager.currentBible.currentDocument
 
         // default either to links window bible or if closed then active window bible
-        val defaultBible = if (useLinks && currentBiblePage.isCurrentDocumentSet) {
-            currentBiblePage.currentDocument
+        val defaultBible: Book = if (useLinks && currentBiblePage.isCurrentDocumentSet) {
+            currentBiblePage.currentDocument!!
         } else {
             windowRepository.activeWindow.pageManager.currentBible.currentDocument
+                ?: Books.installed().books.first { it.bookCategory == BookCategory.BIBLE }
         }
-        return (if (isBible && bibleDoc != null) bibleDoc else defaultBible!!) as SwordBook
+        return (if (isBible && bibleDoc != null) bibleDoc else defaultBible) as SwordBook
     }
 
     fun showLink(document: Book, key: Key) {
@@ -117,10 +120,8 @@ open class WindowControl @Inject constructor(
 
         linksWindow.initialisePageStateIfClosed(activeWindow)
 
-        windowRepository.activeWindow = linksWindow
-
-        // redisplay the current page
         if (!linksWindowWasVisible) {
+            windowRepository.activeWindow = linksWindow
             linksWindow.windowState = WindowState.SPLIT
         }
 
@@ -262,7 +263,9 @@ open class WindowControl @Inject constructor(
         if(value == window.isSynchronised) return
         if(value) {
             window.isSynchronised = true
-            windowSync.synchronizeWindows()
+            windowSync.synchronizeWindows(
+                windowRepository.visibleWindows.firstOrNull { it.id != window.id && it.isSynchronised && it.isSyncable }
+            )
         } else {
             window.isSynchronised = false
         }

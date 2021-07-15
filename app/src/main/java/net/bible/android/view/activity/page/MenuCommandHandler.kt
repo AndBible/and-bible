@@ -59,6 +59,7 @@ import net.bible.service.common.CommonUtils
 import javax.inject.Inject
 
 const val contributeLink = "https://github.com/AndBible/and-bible/wiki/How-to-contribute"
+const val needHelpLink = "https://github.com/AndBible/and-bible/wiki/Support"
 const val howToAdd = "https://github.com/AndBible/and-bible/wiki/FAQ#please-add-module-x-to-and-bible"
 const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-text-issue-in-one-of-the-bible--commentary-etc-modules-in-and-bible"
 
@@ -172,11 +173,6 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.historyButton -> handlerIntent = Intent(callingActivity, History::class.java)
                 R.id.bookmarksButton -> handlerIntent = Intent(callingActivity, Bookmarks::class.java)
-                R.id.manageLabels -> {
-                    handlerIntent = Intent(callingActivity, ManageLabels::class.java)
-                    handlerIntent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.MANAGELABELS).toJSON())
-                    requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
-                }
                 R.id.myJournalsButton -> {
                     handlerIntent = Intent(callingActivity, ManageLabels::class.java)
                     handlerIntent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD).toJSON())
@@ -258,6 +254,11 @@ constructor(private val callingActivity: MainBibleActivity,
                    callingActivity.startActivity(Intent(Intent.ACTION_VIEW,
                        Uri.parse(contributeLink)))
                    isHandled = true
+                }
+                R.id.needHelp -> {
+                    callingActivity.startActivity(Intent(Intent.ACTION_VIEW,
+                        Uri.parse(needHelpLink)))
+                    isHandled = true
                 }
             }
 

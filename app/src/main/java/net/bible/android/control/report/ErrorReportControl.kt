@@ -103,9 +103,9 @@ object ErrorReportControl {
     }
 
     suspend fun checkCrash(activity: ActivityBase) {
-        val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
+        val crashed = CommonUtils.realSharedPreferences.getBoolean("app-crashed", false)
         if (crashed) {
-            CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", false).commit() // Yes, we want this to be flushed to file immediately
+            CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", false).commit() // Yes, we want this to be flushed to file immediately
             val msg = activity.getString(R.string.error_occurred_crash_last_time)
             showErrorDialog(activity, msg)
         }

@@ -16,14 +16,14 @@
   -->
 
 <template>
-  <span :id="`v-${ordinal}`">
+  <span :id="`v-${ordinal}`" @click="verseClicked">
     <span
       :id="fromBibleDocument ? `o-${ordinal}` : null"
       class="verse"
       :class="{ordinal: fromBibleDocument}"
       :data-ordinal="ordinal"
     >
-      <span class="highlight-transition" :class="{timeout, isHighlighted: !timeout && highlighted}">
+      <span class="highlight-transition" :class="{isHighlighted: highlighted}">
         <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/> <span/>
       </span>
     </span>
@@ -35,9 +35,8 @@
 import {inject, provide, reactive, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
-import {cancellableTimer, getVerseInfo} from "@/utils";
+import {addEventVerseInfo, getVerseInfo} from "@/utils";
 import {computed} from "@vue/reactivity";
-import {fadeReferenceDelay} from "@/constants";
 
 export default {
   name: "Verse",
@@ -50,16 +49,16 @@ export default {
     const verseInfo = getVerseInfo(props);
 
     const shown = ref(true);
-    verseInfo.showStack = reactive([shown]);
+    if(verseInfo) {
+      verseInfo.showStack = reactive([shown]);
+      provide("verseInfo", verseInfo);
+    }
 
-    provide("verseInfo", verseInfo);
-    const verseMap = inject("verseMap");
+    const {highlightedVerses, highlightVerse} = inject("verseHighlight");
 
     const ordinal = computed(() => {
       return parseInt(props.verseOrdinal);
     });
-
-    verseMap.register(ordinal.value, {highlight});
 
     const book = computed(() => {
       return props.osisID.split(".")[0]
@@ -73,42 +72,23 @@ export default {
       return parseInt(props.osisID.split(".")[2])
     });
 
-    const {originalOrdinalRange, ordinalRange} = inject("bibleDocumentInfo", {})
+    const {bookInitials, bibleBookName, originalOrdinalRange, ordinalRange} = inject("bibleDocumentInfo", {})
 
     const fromBibleDocument = computed(() => !!ordinalRange);
 
-    const timeout = ref(false);
-    const cancelFuncs = [];
-
-    function endHighlight() {
-      cancelFuncs.forEach(f => f());
-      cancelFuncs.splice(0);
-      timeout.value = false;
-      highlighted.value = false;
-    }
-
-    const highlighted = ref(false);
-
-    function setupEndHighlight() {
-      const [promise, cancel] = cancellableTimer(fadeReferenceDelay);
-      promise.then(() => timeout.value = true)
-      cancelFuncs.push(cancel);
-    }
-
-    function highlight() {
-      endHighlight();
-      highlighted.value = true;
-      setupEndHighlight();
-      verseMap.registerEndHighlight(endHighlight);
-    }
+    const highlighted = computed(() => highlightedVerses.has(ordinal.value))
 
     if(originalOrdinalRange && ordinal.value <= originalOrdinalRange[1] && ordinal.value >= originalOrdinalRange[0]) {
-      highlight()
+      highlightVerse(ordinal.value)
+    }
+
+    function verseClicked(event) {
+      if(!fromBibleDocument.value) return;
+      addEventVerseInfo(event, {bookInitials, bibleBookName, ...verseInfo})
     }
 
     const common = useCommon();
     return {
-      timeout,
       ordinal,
       book,
       chapter,
@@ -116,6 +96,7 @@ export default {
       shown,
       highlighted,
       fromBibleDocument,
+      verseClicked,
       ...common,
     }
   },
@@ -123,21 +104,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "~@/common.scss";
 .linebreak {
   display: block;
-}
-
-.highlight-transition {
-  transition: background-color 0.5s ease;
-  &.timeout {
-    transition: background-color 5s ease;
-  }
-}
-
-.isHighlighted {
-  background-color: rgba(255, 230, 0, 0.4);
-  .night & {
-    background-color: rgba(255, 230, 0, 0.6);
-  }
 }
 </style>

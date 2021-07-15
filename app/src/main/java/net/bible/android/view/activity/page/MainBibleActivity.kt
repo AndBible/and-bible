@@ -41,11 +41,13 @@ import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ActionMode
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuPopupHelper
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
@@ -83,7 +85,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
-import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
@@ -106,6 +107,8 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.beta34introVideo
+import net.bible.service.common.pinningHelpVideo
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
@@ -186,7 +189,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Bottom offset with navigation bar and transport bar and window buttons
     val bottomOffset3 get() = bottomOffset2 + if (restoreButtonsVisible) windowButtonHeight else 0
 
-    private val preferences = CommonUtils.sharedPreferences
+    private val preferences get() = CommonUtils.settings
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
     private var isPaused = false
@@ -367,7 +370,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val pinningTitle = getString(R.string.help_window_pinning_title)
                 var pinningText = getString(R.string.help_window_pinning_text)
 
-                pinningText += "<br><i><a href=\"https://youtu.be/27b1g-D3ibA\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
+                pinningText += "<br><i><a href=\"$pinningHelpVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
                 
                 val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Html.fromHtml(pinningText, Html.FROM_HTML_MODE_LEGACY)
@@ -386,7 +389,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
             }
             if(save) {
-                preferences.edit().putBoolean("pinning-help-shown", true).apply()
+                preferences.setBoolean("pinning-help-shown", true)
             }
         }
     }
@@ -402,9 +405,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val displayedVer = preferences.getString("stable-notice-displayed", "")
 
         if(displayedVer != ver) {
-            val videoUrl = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // For 3.4 beta intro
             val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-            val videoMessageLink = "<a href=\"$videoUrl\"><b>$videoMessage</b></a>"
+            val videoMessageLink = "<a href=\"$beta34introVideo\"><b>$videoMessage</b></a>"
             val appName = getString(R.string.app_name_long)
             val par1 = getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
 
@@ -421,7 +423,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setMessage(spanned)
                 .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
-                    preferences.edit().putString("stable-notice-displayed", ver).apply()
+                    preferences.setString("stable-notice-displayed", ver)
                     it.resume(true)
                 }
                 .setOnCancelListener {_ -> it.resume(false)}
@@ -445,9 +447,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val displayedVer = preferences.getString("beta-notice-displayed", "")
 
         if(displayedVer != ver) {
-            val videoUrl = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // For 3.4 beta intro
             val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-            val videoMessageLink = "<a href=\"$videoUrl\"><b>$videoMessage</b></a>"
+            val videoMessageLink = "<a href=\"${beta34introVideo}\"><b>$videoMessage</b></a>"
 
             val par1 = getString(R.string.beta_notice_content_1)
             val par2 = getString(R.string.beta_notice_content_2,
@@ -472,7 +473,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setMessage(spanned)
                 .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
-                    preferences.edit().putString("beta-notice-displayed", ver).apply()
+                    preferences.setString("beta-notice-displayed", ver)
                     it.resume(true)
                 }
                 .setOnCancelListener {_ -> it.resume(false)}
@@ -577,6 +578,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun setupToolbarButtons() {
         binding.apply {
+            optionsMenu.setOnClickListener {
+                showOptionsMenu()
+            }
             homeButton.setOnClickListener {
                 if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
                     drawerLayout.closeDrawers()
@@ -675,7 +679,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             bibleViewFactory.clear()
             windowRepository.loadFromDb(value)
 
-            preferences.edit().putLong("current_workspace_id", windowRepository.id).apply()
+            preferences.setLong("current_workspace_id", windowRepository.id)
             documentViewManager.buildView(forceUpdate = true)
             windowControl.windowSync.reloadAllWindows()
             windowRepository.updateAllWindowsTextDisplaySettings()
@@ -713,7 +717,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
     private fun getItemOptions(item: MenuItem) = getItemOptions(item.itemId, item.order)
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+    @SuppressLint("RestrictedApi")
+    fun showOptionsMenu() {
+        val popup = PopupMenu(this, binding.optionsMenu)
+        val menu = popup.menu
+        val menuHelper = MenuPopupHelper(this, menu as MenuBuilder, binding.optionsMenu)
+        popup.setOnMenuItemClickListener { menuItem ->
+            handlePrefItem(menuItem)
+            true
+        }
+        menuHelper.setForceShowIcon(true)
+
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
 
         val lastSettings = CommonUtils.lastDisplaySettings
@@ -736,7 +750,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 if(itmOptions.title != null) {
                     item.title = itmOptions.title
                 }
-
+                if(itmOptions.icon != null) {
+                    item.setIcon(itmOptions.icon!!)
+                    item.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_baseline_workspace_24)
+                }
                 if(item.hasSubMenu()) {
                     handleMenu(item.subMenu)
                     continue;
@@ -749,7 +766,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
         }
         handleMenu(menu)
-        return true
+        menuHelper.show()
     }
 
     private fun handlePrefItem(item: MenuItem) {
@@ -780,11 +797,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
             itemOptions.openDialog(this, {onReady()}, onReset)
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        handlePrefItem(item)
-        return true
     }
 
     private val documentTitleText: String
@@ -939,7 +951,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 } else View.GONE
             }
             fun addSpeak() {
-                speakButton.visibility = if (visibleButtonCount < maxButtons && speakControl.isStopped)
+                speakButton.visibility = if (visibleButtonCount < maxButtons && speakControl.isStopped && showSpeak)
                 {
                     visibleButtonCount += 1
                     View.VISIBLE
@@ -967,6 +979,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             invalidateOptionsMenu()
+            if(!showSpeak && transportBarVisible && speakControl.isStopped) {
+                transportBarVisible = false
+                updateBottomBars()
+            }
 
             navigationView.menu.findItem(R.id.searchButton).isEnabled = showSearch
             navigationView.menu.findItem(R.id.speakButton).isEnabled = showSpeak
@@ -1017,7 +1033,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(book != null) {
             val bookCategory = book.bookCategory
             // see net.bible.android.control.page.CurrentPageBase.getDefaultBook
-            CommonUtils.sharedPreferences.edit().putString("default-${bookCategory.name}", book.initials).apply()
+            CommonUtils.settings.setString("default-${bookCategory.name}", book.initials)
         }
     }
 

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 53,
-    "identityHash": "77365bc8620e5d4ed508d9b0d485c1f8",
+    "identityHash": "3ced43413976c8a0a7ac3bfb3dab22d9",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -1365,12 +1365,38 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "BooleanSetting",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))",
+        "fields": [
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "key"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '77365bc8620e5d4ed508d9b0d485c1f8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3ced43413976c8a0a7ac3bfb3dab22d9')"
     ]
   }
 }

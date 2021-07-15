@@ -49,7 +49,7 @@
 			app:showAsAction="always"
 			/>
 		<item android:id="@+id/share_verses"
-			android:title="@string/backup_share"
+			android:title="@string/share_verse_ok"
 			android:orderInCategory="2"
 			app:showAsAction="always"
 			/>

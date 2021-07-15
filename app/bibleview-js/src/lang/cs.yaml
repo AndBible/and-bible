@@ -1,0 +1,80 @@
+openMyNotes: Otevřít Mé poznámky
+openStudyPad: ""
+noteText: Poznámky pod čarou (%s)
+noteTextWithoutType: Poznámky pod čarou
+crossReferenceText: Křížová reference
+findAllOccurrences: Najít všechny výskyty
+reportError: Nahlásit chybu
+errorTitle: Vznikla chyba
+warningTitle: Upozornění
+normalTitle: ""
+footnoteTypeUndefined: Nedefinovaný typ
+footnoteTypeStudy: Studovat
+footnoteTypeExplanation: Vysvětlení
+footnoteTypeVariant: Varianta
+footnoteTypeAlternative: Alternativa
+footnoteTypeTranslation: Překlad
+clearLog: Smazal záznam chyb
+editNote: Upravit
+editNotePlaceholder: Upravit poznámku
+editTextPlaceholder: ""
+inputPlaceholder: Psát zde
+inputReference: Vložit biblický odkaz
+invalidReference: Verš nebyl nalezen
+assignLabels: Štítky
+bookmarkAccurate: Záložka vytvořena v %s
+bookmarkInaccurate: ""
+defaultBook: základní dokument
+ok: OK
+yes: "Ano"
+ambiguousSelection: "Co chcete provést?"
+cancel: Zrušit
+removeBookmarkConfirmationTitle: "Odstranit záložku?"
+removeBookmarkConfirmation: "Jste si jisti, že chcete odstranit tuto záložku?"
+closeModal: Zavřít
+createdAt: "Vytvořeno: %s"
+lastUpdatedOn: "Aktualizováno: %s"
+strongsLink: Strongova definice (%s)
+morphLink: Morfologická značka (%s)
+strongsAndMorph: Definice & Morfologie
+studyPadLink: ""
+externalLink: Otevřít externí link
+referenceLink: Otevřít referenční link
+openFootnote: Otevřít poznámku pod čarou
+openBookmark: Otevřít záložku (%s)
+noMyNotesTitle: ""
+noMyNotesDescription: >
+emptyStudyPad: >
+studyPadModalTitle: ""
+doYouWantToDeleteEntry: ""
+removeStudyPadConfirmationTitle: ""
+dragHelp: ""
+saved: uloženo
+openAll: Otevřít všechny odkazy
+editBookmarkPlaceholder: ""
+onlyLabel: Pouze štítek
+wholeBookmark: Celá záložka
+otherNoteText: Jiná poznámka
+assignLabelsMenuEntry: Přiřadit popisky
+assignLabelsMenuEntry1: Vybrat nebo upravit štítky…
+jumpToStudyPad: ""
+setAsPrimaryLabel: Nastavit jako primární štítek
+removeBookmarkLabel: Odstranit štítek
+addBookmarkLabel: Přidat štítek
+favouriteLabels: Oblíbené štítky
+recentLabels: Poslední štítky
+frequentlyUsedLabels: Často používané štítky
+bookmarkLabels: Popisky záložky
+refParserHelp: ""
+openDownloads: Přejít na stažení doplňků
+verseShare: Sdílet
+verseCompare: Porovnat
+verseNote: Poznámka
+verseMyNotes: Poznámky
+verseSpeak: Mluvení
+verseShareLong: Sdílet verš
+verseCompareLong: Porovnat verš
+verseNoteLong: Napsat poznámku
+verseSpeakLong: Poslouchat od tohoto veršw
+verseTip: ""
+addBookmark: ""

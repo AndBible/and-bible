@@ -331,7 +331,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         saveBookmark()
     }
 
-    override fun savePosition(fractionCompleted: Float) {}
+    override fun savePosition(fractionCompleted: Double) {}
 
     override var isSpeaking: Boolean = false
 
@@ -559,23 +559,22 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun persistState() {
-        with (CommonUtils.sharedPreferences.edit() ) {
-            putString(PERSIST_BOOK, book.abbreviation)
-            putString(PERSIST_VERSE, startVerse.osisID)
-            apply()
+        CommonUtils.settings.apply {
+            setString(PERSIST_BOOK, book.abbreviation)
+            setString(PERSIST_VERSE, startVerse.osisID)
         }
     }
 
     override fun restoreState(): Boolean {
-        val sharedPreferences = CommonUtils.sharedPreferences
-        if(sharedPreferences.contains(PERSIST_BOOK)) {
+        val sharedPreferences = CommonUtils.settings
+        if(sharedPreferences.getString(PERSIST_BOOK) != null) {
             val bookStr = sharedPreferences.getString(PERSIST_BOOK, "")
             val book = Books.installed().getBook(bookStr)
             if(book is SwordBook) {
                 this.book = book
             }
         }
-        if(sharedPreferences.contains(PERSIST_VERSE)) {
+        if(sharedPreferences.getString(PERSIST_VERSE) != null) {
             val verseStr = sharedPreferences.getString(PERSIST_VERSE, "")!!
             startVerse = osisIdToVerse(verseStr)?: return false
             endVerse = startVerse
@@ -591,10 +590,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun clearPersistedState() {
-        with (CommonUtils.sharedPreferences.edit() ) {
-            remove(PERSIST_BOOK)
-            remove(PERSIST_VERSE)
-            apply()
+        CommonUtils.settings.apply {
+            removeString(PERSIST_BOOK)
+            removeString(PERSIST_VERSE)
         }
     }
 

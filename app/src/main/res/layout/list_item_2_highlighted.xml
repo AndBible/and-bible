@@ -4,8 +4,8 @@
     android:layout_height="wrap_content"
     android:minHeight="60dp"
     android:mode="twoLine"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
     android:background="@drawable/selectable_background">
 
     <TextView android:id="@+id/text1"
