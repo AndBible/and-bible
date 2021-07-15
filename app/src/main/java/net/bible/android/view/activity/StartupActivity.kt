@@ -197,6 +197,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         val oldText = spinnerBinding.progressText.text
         spinnerBinding.progressText.text = getString(R.string.upgrading_database)
         withContext(Dispatchers.IO) {
+            DatabaseContainer.ready = true
             DatabaseContainer.db
         }
         spinnerBinding.progressText.text = oldText

@@ -254,7 +254,7 @@ object CommonUtils {
     val settings: AndBibleSettings get() {
         val s = _settings
         if(s != null) return s
-        if(DatabaseContainer.initialized || application.isRunningTests) {
+        if(DatabaseContainer.ready || application.isRunningTests) {
             return AndBibleSettings().apply { _settings = this }
         } else {
             throw DataBaseNotReady()
@@ -828,6 +828,7 @@ object CommonUtils {
 
     fun initializeApp() {
         if(!initialized) {
+            DatabaseContainer.ready = true
             DatabaseContainer.db
 
             docDao.getUnlocked().forEach {

@@ -31,6 +31,7 @@ import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.DataBaseNotReady
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
@@ -953,10 +954,12 @@ private val MIGRATION_54_55_bookmarkType = object : Migration(54, 55) {
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
-    val initialized get() = instance != null
+    var ready: Boolean = false
 
     val db: AppDatabase
         get () {
+            if(!ready) throw DataBaseNotReady()
+
             return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
                     BibleApplication.application, AppDatabase::class.java, DATABASE_NAME
