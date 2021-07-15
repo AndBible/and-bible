@@ -37,12 +37,12 @@ jobs:
       - name: Upload lint results
         uses: actions/upload-artifact@v2
         with:
-          name: lint-results
-          path: lint-results.txt
+          name: js-results
+          path: app/bibleview-js/lint-results.txt
 
       - name: Upload js unit test results
         uses: actions/upload-artifact@v2
         with:
-          name: js-test-results
-          path: js-test-results.txt
+          name: js-results
+          path: app/bibleview-js/js-test-results.txt
 
