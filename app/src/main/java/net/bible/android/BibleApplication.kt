@@ -105,9 +105,6 @@ open class BibleApplication : Application() {
         Log.i(TAG, "Java home:" + System.getProperty("java.home")!!)
         Log.i(TAG, "User dir:" + System.getProperty("user.dir") + " Timezone:" + System.getProperty("user.timezone"))
         logSqliteVersion()
-        // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
-        // this affected jsword dynamic classloading
-        Thread.currentThread().contextClassLoader = javaClass.classLoader
 
         // This must be done before accessing JSword to prevent default folders being used
         SwordEnvironmentInitialisation.initialiseJSwordFolders()
