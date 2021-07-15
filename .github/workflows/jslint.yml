@@ -38,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: js-results
-          path: app/bibleview-js/*results.txt
+          path: app/bibleview-js/lint-results.txt app/bibleview-js/test-report.html
