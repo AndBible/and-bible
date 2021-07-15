@@ -958,7 +958,7 @@ object DatabaseContainer {
 
     val db: AppDatabase
         get () {
-            if(!ready) throw DataBaseNotReady()
+            if(!ready && !BibleApplication.application.isRunningTests) throw DataBaseNotReady()
 
             return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
