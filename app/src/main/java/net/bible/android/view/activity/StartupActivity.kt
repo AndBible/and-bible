@@ -210,6 +210,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
+            initializeDatabase()
             showFirstLayout()
         } else {
             Log.i(TAG, "Going to main bible view")
