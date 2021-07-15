@@ -60,6 +60,7 @@ import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.LabelType
@@ -864,16 +865,19 @@ object CommonUtils {
                 )
                 val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255, 255, 0, 255))
                 highlightIds = bookmarkDao.insertLabels(highlightLabels)
-                val salvationId = bookmarkDao.insert(salvationLabel)
 
-                listOf("Gen.1.1", "Joh.3.16", "Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.2.17")
-                    .map { VerseRangeFactory.fromString(KJVA, it) }
-                    .map {
-                        BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
-                    }.forEach {
-                        val bid = bookmarkDao.insert(it)
-                        bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationId))
-                    }
+                if(bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isEmpty()) {
+                    val salvationId = bookmarkDao.insert(salvationLabel)
+
+                    listOf("Gen.1.1", "Joh.3.16", "Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.2.17")
+                        .map { VerseRangeFactory.fromString(KJVA, it) }
+                        .map {
+                            BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
+                        }.forEach {
+                            val bid = bookmarkDao.insert(it)
+                            bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationId))
+                        }
+                }
             }
 
             val ws = workspaceDao.allWorkspaces()
