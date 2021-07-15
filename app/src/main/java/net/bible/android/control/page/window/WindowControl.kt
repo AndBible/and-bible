@@ -263,7 +263,9 @@ open class WindowControl @Inject constructor(
         if(value == window.isSynchronised) return
         if(value) {
             window.isSynchronised = true
-            windowSync.synchronizeWindows()
+            windowSync.synchronizeWindows(
+                windowRepository.visibleWindows.filterNot { it.id == window.id }.firstOrNull()
+            )
         } else {
             window.isSynchronised = false
         }
