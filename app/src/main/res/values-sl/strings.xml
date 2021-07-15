@@ -589,7 +589,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="error_no_content">Izbrana vrstica je brez vsebine</string>
   <string name="error_page_too_large">Stran je prevelika, da bi se prikazala</string>
   <string name="error_key_not_in_document">Ni najti v dokumentu</string>
-  <string name="error_key_not_in_document2">%sni bilo mogoče najti v dokumentu %s.</string>
+  <string name="error_key_not_in_document2">%s ni bilo mogoče najti v dokumentu %s.</string>
   <string name="empty_list">Za prikaz ni nobenega predmeta</string>
   <string name="error_skip">Preskoči</string>
   <!--Notifications-->
