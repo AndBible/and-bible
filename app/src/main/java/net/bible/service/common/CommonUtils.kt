@@ -253,7 +253,7 @@ object CommonUtils {
     val settings: AndBibleSettings get() {
         val s = _settings
         if(s != null) return s
-        if(DatabaseContainer.initialized) {
+        if(DatabaseContainer.initialized || application.isRunningTests) {
             return AndBibleSettings().apply { _settings = this }
         } else {
             throw DataBaseNotReady()
