@@ -1076,6 +1076,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /** prevent swipe right if the user is scrolling the page right  */
     override val isPageNextOkay: Boolean get () {
         var isOkay = true
+        if(modalOpen) return false
         if (window.pageManager.isMapShown) {
             // allow swipe right if at right side of map
             val isAtRightEdge = if(CommonUtils.isRtl) scrollX == 0 else scrollX >= maxHorizontalScroll
@@ -1091,6 +1092,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /** prevent swipe left if the user is scrolling the page left  */
     override val isPagePreviousOkay: Boolean get () {
         var isOkay = true
+        if(modalOpen) return false
         if (window.pageManager.isMapShown) {
             // allow swipe left if at left edge of map
             val isAtLeftEdge = if(!CommonUtils.isRtl) scrollX == 0 else scrollX >= maxHorizontalScroll
