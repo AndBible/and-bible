@@ -154,7 +154,8 @@ Versification=KJVA"""
     val downloadPseudoDocuments: List<Book> get() = listOf(
         getPseudoBook("ESV", "You might like NASB translation as an option."),
         getPseudoBook("NIV", "You might like NASB translation as an option."),
-        getPseudoBook("Message", "The GNB is a natural language like the Message Bible.")
+        getPseudoBook("Message", "The GNB is a natural language like the Message Bible."),
+        getPseudoBook("Amplified", "Tip: You can perform deep word meanings study by installing a module that supports Strongs (NASB or KJV for example) and installing Strongs dictionary modules (for example, StrongsRealHebrew and StrongsRealGreek)."),
     )
     val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
 }
