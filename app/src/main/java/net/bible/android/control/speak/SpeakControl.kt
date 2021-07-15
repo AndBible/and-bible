@@ -291,14 +291,14 @@ class SpeakControl @Inject constructor(
 
     }
 
-    fun speakBible(book: SwordBook, verse: Verse) {
+    fun speakBible(book: SwordBook, verse: Verse, force: Boolean = false) {
         // if a previous speak request is paused clear the cached text
         if (isPaused) {
             stop()
         }
 
         prepareForSpeaking()
-        if(SpeakSettings.load().synchronize) {
+        if(SpeakSettings.load().synchronize || force) {
             speakPageManager.setCurrentDocumentAndKey(book, verse)
         }
         try {

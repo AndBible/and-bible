@@ -913,6 +913,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         // make sure this has been created
         bookmarkControl.labelUnlabelled
+        bookmarkControl.speakLabel
 
         bookmarkLabels = bookmarkControl.assignableLabels.toMutableList()
         initialVerse = verse

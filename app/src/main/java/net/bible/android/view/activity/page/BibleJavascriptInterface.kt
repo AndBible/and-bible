@@ -247,7 +247,7 @@ class BibleJavascriptInterface(
         GlobalScope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials) as SwordBook
             val verse = Verse(book.versification, ordinal)
-            mainBibleActivity.speakControl.speakBible(book, verse)
+            mainBibleActivity.speakControl.speakBible(book, verse, force = true)
         }
     }
 
