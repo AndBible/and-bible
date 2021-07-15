@@ -853,25 +853,28 @@ object CommonUtils {
         if(dataVersion < 1) {
             val workspaceDao = DatabaseContainer.db.workspaceDao()
             val bookmarkDao = DatabaseContainer.db.bookmarkDao()
+            var highlightIds = listOf<Long>()
 
-            val highlightLabels = listOf(
-                BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false),
-                BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false),
-                BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false),
-                BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 255, 0), underlineStyle = true, underlineStyleWholeVerse = true),
-            )
-            val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255, 255, 0, 255))
-            val highlightIds = bookmarkDao.insertLabels(highlightLabels)
-            val salvationId = bookmarkDao.insert(salvationLabel)
+            if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") }) {
+                val highlightLabels = listOf(
+                    BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false),
+                    BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false),
+                    BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false),
+                    BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 255, 0), underlineStyle = true, underlineStyleWholeVerse = true),
+                )
+                val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255, 255, 0, 255))
+                highlightIds = bookmarkDao.insertLabels(highlightLabels)
+                val salvationId = bookmarkDao.insert(salvationLabel)
 
-            listOf("Gen.1.1", "Joh.3.16", "Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.2.17")
-                .map { VerseRangeFactory.fromString(KJVA, it) }
-                .map {
-                    BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
-                }.forEach {
-                    val bid = bookmarkDao.insert(it)
-                    bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationId))
-                }
+                listOf("Gen.1.1", "Joh.3.16", "Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.2.17")
+                    .map { VerseRangeFactory.fromString(KJVA, it) }
+                    .map {
+                        BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
+                    }.forEach {
+                        val bid = bookmarkDao.insert(it)
+                        bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationId))
+                    }
+            }
 
             val ws = workspaceDao.allWorkspaces()
             if(ws.isNotEmpty()) {
@@ -880,7 +883,6 @@ object CommonUtils {
                 }
                 workspaceDao.updateWorkspaces(ws)
                 settings.setBoolean("first-time", false)
-
             } else {
                 val workspaceSettings = WorkspaceEntities.WorkspaceSettings(favouriteLabels = highlightIds.toMutableSet())
                 val workspaceIds = listOf(
