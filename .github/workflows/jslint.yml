@@ -41,6 +41,7 @@ jobs:
           path: app/bibleview-js/lint-results.txt
 
       - name: Upload jest results
+        if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: js-results
