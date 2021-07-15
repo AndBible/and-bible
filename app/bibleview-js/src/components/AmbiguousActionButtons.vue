@@ -122,6 +122,7 @@ export default {
   .horizontal & {
     flex-direction: column;
     font-size: 60%;
+    margin: 0 auto 0 auto;
   }
   .vertical & {
     @extend .light;
