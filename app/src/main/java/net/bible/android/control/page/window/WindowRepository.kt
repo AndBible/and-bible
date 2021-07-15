@@ -26,6 +26,7 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.android.control.speak.save
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
@@ -321,6 +322,8 @@ open class WindowRepository @Inject constructor(
         Log.d(TAG, "saveIntoDb")
         if(stopSpeak) mainBibleActivity.speakControl.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
+        SpeakSettings.currentSettings?.save()
+
         dao.updateWorkspace(WorkspaceEntities.Workspace(
             name = name,
             contentsText = contentText,

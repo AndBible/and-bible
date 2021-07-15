@@ -61,7 +61,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 
 import org.apache.commons.lang3.StringUtils
-import org.crosswire.jsword.book.Books
 
 
 /** Called first to show download screen if no documents exist
@@ -72,15 +71,15 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private lateinit var spinnerBinding: SpinnerBinding
     private lateinit var startupViewBinding: StartupViewBinding
 
-    val docs get() = DatabaseContainer.db.swordDocumentInfoDao()
-    private val previousInstallDetected: Boolean get() = docs.getKnownInstalled().isNotEmpty();
+    private val docsDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val previousInstallDetected: Boolean get() = docsDao.getKnownInstalled().isNotEmpty();
 
 
     private suspend fun getListOfBooksUserWantsToRedownload(context: Context) : List<String>? {
         var result: List<String>?;
         withContext(Dispatchers.Main) {
             result = suspendCoroutine {
-                val books = docs.getKnownInstalled().sortedBy { it.language }
+                val books = docsDao.getKnownInstalled().sortedBy { it.language }
                 val bookNames = books.map {
                     context.getString(R.string.something_with_parenthesis, it.name, it.language)
                 }.toTypedArray()
