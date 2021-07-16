@@ -73,11 +73,19 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, true)
+        super.buildActivityComponent().inject(this)
+
+        if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists) {
+            val intent = Intent(this, ReadingPlanSelectorList::class.java)
+            startActivity(intent)
+            finish()
+            return
+        }
+
         Log.i(TAG, "Displaying one day reading plan")
         binding = ReadingPlanOneDayBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        super.buildActivityComponent().inject(this)
         super.setActionBarManager(readingPlanActionBarManager)
 
         try {

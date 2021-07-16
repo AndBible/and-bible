@@ -36,6 +36,7 @@ import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.versification.VersificationConverter
+import java.lang.Exception
 
 import java.util.ArrayList
 import java.util.Calendar
@@ -88,6 +89,11 @@ class ReadingPlanControl @Inject constructor(
      */
     val currentPlansReadingList: List<OneDaysReadingsDto>
         get() = readingPlanTextDao.getReadingList(currentPlanCode)
+
+    val currentPlanExists: Boolean get() = try {
+        readingPlanTextDao.getReading(currentPlanCode, 1)
+        true
+    } catch (e: Exception) { false }
 
     var currentPlanDay: Int
         get() {
