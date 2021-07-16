@@ -272,13 +272,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         return intent
     }
 
-    @SuppressLint("MissingSuperCall")
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            returnToPreviousScreen()
-        }
-    }
-
     private fun showDay(dayNo: Int) {
         Log.i(TAG, "ShowDay $dayNo")
         val handlerIntent = Intent(this, DailyReading::class.java)
@@ -396,25 +389,23 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             true
         }
         R.id.import_reading_plan -> {
-            val intent = Intent(Intent.ACTION_GET_CONTENT)
-            intent.type = "application/zip"
-            importPlanLauncher.launch(intent)
-
+            importPlanLauncher.launch("application/zip")
             true
         }
         else -> super.onOptionsItemSelected(item)
     }
 
-    val importPlanLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        val data = result?.data?.data
-        if (result.resultCode != RESULT_OK || data == null) return@registerForActivityResult
-        Log.d(TAG, "Importing plan")
+    val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uriResult ->
+        Log.d(TAG, "Importing plan. Result uri is${if (uriResult != null) " not" else ""} null")
+        val uri = uriResult ?: return@registerForActivityResult
 
-        val intent = Intent(Intent.ACTION_VIEW, data, this, InstallZip::class.java)
+        val intent = Intent(Intent.ACTION_VIEW, uri, this, InstallZip::class.java)
         installZipLauncher.launch(intent)
     }
 
-    val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
+    val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        // TODO load imported plan if result is OK
+    }
 
     companion object {
 

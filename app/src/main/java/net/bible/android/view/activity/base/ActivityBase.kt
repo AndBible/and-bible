@@ -310,6 +310,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     private var resultByCode = mutableMapOf<Int, CompletableDeferred<Instrumentation.ActivityResult?>>()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d(TAG, "onActivityResult: requestCode = $requestCode, resultCode = $resultCode, data is${if (data != null) " not" else ""} null")
         resultByCode[requestCode - ASYNC_REQUEST_CODE_START]?.let {
             it.complete(Instrumentation.ActivityResult(resultCode, data))
             resultByCode.remove(requestCode)
