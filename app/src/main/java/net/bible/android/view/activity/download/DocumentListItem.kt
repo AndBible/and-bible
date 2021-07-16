@@ -38,13 +38,13 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 
 val Book.imageResource: Int
     get() = when(bookCategory) {
-        BookCategory.BIBLE -> R.drawable.ic_bible
+        BookCategory.BIBLE -> R.drawable.ic_bible_24dp
         BookCategory.COMMENTARY -> R.drawable.ic_commentary
-        BookCategory.DICTIONARY -> R.drawable.ic_dictionary
+        BookCategory.DICTIONARY -> R.drawable.ic_dictionary_24dp
         BookCategory.MAPS -> R.drawable.ic_map_black_24dp
-        BookCategory.GENERAL_BOOK -> R.drawable.ic_book
-        BookCategory.AND_BIBLE -> R.drawable.ic_baseline_star_24
-        else -> R.drawable.ic_book
+        BookCategory.GENERAL_BOOK -> R.drawable.ic_book_24dp
+        BookCategory.AND_BIBLE -> R.drawable.ic_addon_24dp
+        else -> R.drawable.ic_book_24dp
     }
 
 fun Book.isRecommended(recommendedDocuments: RecommendedDocuments?): Boolean
