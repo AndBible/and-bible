@@ -63,13 +63,13 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     private var imageTickList: MutableList<ImageView> = ArrayList()
 
     private var dayLoaded: Int = 0
+    private var planCodeLoaded: String? = null
 
     private lateinit var readingsDto: OneDaysReadingsDto
 
     @Inject lateinit var readingPlanControl: ReadingPlanControl
     @Inject lateinit var readingPlanActionBarManager: ReadingPlanActionBarManager
 
-    /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, true)
@@ -93,11 +93,12 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             dayLoaded = readingPlanControl.currentPlanDay
             val extras = intent.extras
             if (extras != null) {
-
                 val plan = extras.getString(PLAN)
                 if(plan != null) readingPlanControl.setReadingPlan(plan)
                 dayLoaded = extras.getInt(DAY, dayLoaded)
             }
+
+            planCodeLoaded = readingPlanControl.currentPlanCode
 
             // get readings for chosen day
             readingsDto = readingPlanControl.getDaysReading(dayLoaded)
@@ -271,9 +272,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         return intent
     }
 
-
-    /** I don't think this is used because of hte finish() in onSearch()
-     */
     @SuppressLint("MissingSuperCall")
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
@@ -358,10 +356,16 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             true
         }
         R.id.reset -> {
-            Dialogs.instance.showMsg(R.string.reset_plan_question, true)
-            {
-                readingPlanControl.reset(readingsDto.readingPlanInfo)
-                finish()
+            val code = planCodeLoaded
+            if (code.isNullOrEmpty()) {
+                Log.e(TAG, "Could not reset plan because no plan is properly loaded")
+                Dialogs.instance.showErrorMsg(R.string.error_occurred)
+            } else {
+                Dialogs.instance.showMsg(R.string.reset_plan_question, true)
+                {
+                    readingPlanControl.reset(code)
+                    finish()
+                }
             }
 
             true

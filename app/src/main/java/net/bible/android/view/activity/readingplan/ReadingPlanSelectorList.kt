@@ -108,7 +108,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
         Log.d(TAG, "Selected " + plan.planCode)
 		when (item.itemId) {
 			R.id.reset -> {
-				readingPlanControl.reset(plan)
+				readingPlanControl.reset(plan.planCode)
 				return true
 			}
 		}

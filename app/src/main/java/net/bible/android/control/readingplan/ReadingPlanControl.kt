@@ -130,7 +130,7 @@ class ReadingPlanControl @Inject constructor(
 
     /** keep track of which plan the user has currently.  This can be safely changed and reverted to without losing track
      */
-    private val currentPlanCode: String
+    val currentPlanCode: String
         get() {
             val prefs = CommonUtils.settings
             return prefs.getString(READING_PLAN, "") as String
@@ -223,7 +223,7 @@ class ReadingPlanControl @Inject constructor(
             // was this the last day in the plan
             if (readingPlanTextDao.getNumberOfPlanDays(currentPlanCode) == day) {
                 // last plan day is just Done so clear all plan status
-                reset(planInfo)
+                reset(planInfo.planCode)
                 nextDayToShow = -1
             } else {
                 // move to next plan day
@@ -325,13 +325,13 @@ class ReadingPlanControl @Inject constructor(
         }
     }
 
-    fun reset(plan: ReadingPlanInfoDto) {
+    fun reset(planCode: String) {
         // if resetting default plan then remove default
-        if (plan.planCode == currentPlanCode) {
+        if (planCode == currentPlanCode) {
             CommonUtils.settings.removeString(READING_PLAN)
         }
 
-        readingPlanRepo.resetPlan(plan.planCode)
+        readingPlanRepo.resetPlan(planCode)
     }
 
     private fun convertReadingVersification(readingKey: Key, bibleToBeUsed: AbstractPassageBook): List<Key> {
