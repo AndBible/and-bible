@@ -1289,90 +1289,94 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.d(TAG, "Activity result:$resultCode")
-        when(requestCode) {
-            WORKSPACE_CHANGED -> {
-                val extras = data?.extras
-                val workspaceId = extras?.getLong("workspaceId")
-                val changed = extras?.getBoolean("changed")
+        val extras = data?.extras
+        if (extras != null) {
+            when (requestCode) {
+                WORKSPACE_CHANGED -> {
+                    val workspaceId = extras.getLong("workspaceId")
+                    val changed = extras.getBoolean("changed")
 
-                if(resultCode == Activity.RESULT_OK) {
-                    if(workspaceId != 0L && workspaceId != currentWorkspaceId) {
-                        currentWorkspaceId = workspaceId!!
-                    } else if(changed == true) {
-                        currentWorkspaceId = currentWorkspaceId
+                    if (resultCode == Activity.RESULT_OK) {
+                        if (workspaceId != 0L && workspaceId != currentWorkspaceId) {
+                            currentWorkspaceId = workspaceId
+                        } else if (changed) {
+                            currentWorkspaceId = currentWorkspaceId
+                        }
                     }
-                }
-                return
-            }
-            COLORS_CHANGED -> {
-                val extras = data?.extras!!
-                val edited = extras.getBoolean("edited")
-                val reset = extras.getBoolean("reset")
-                val windowId = extras.getLong("windowId")
-                val colorsStr = extras.getString("colors")
-
-                if(!edited && !reset) return
-
-                val colors = if(reset)
-                    if(windowId != 0L) {
-                        null
-                    } else TextDisplaySettings.default.colors
-                else
-                    WorkspaceEntities.Colors.fromJson(colorsStr!!)
-
-                if(windowId != 0L) {
-                    val window = windowRepository.getWindow(windowId)!!
-                    window.pageManager.textDisplaySettings.colors = colors
-                    window.bibleView?.updateTextDisplaySettings()
-                } else {
-                    windowRepository.textDisplaySettings.colors = colors
-                    windowRepository.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), windowRepository.textDisplaySettings)
-                    windowRepository.updateAllWindowsTextDisplaySettings()
-                }
-                resetSystemUi()
-                invalidateOptionsMenu()
-            }
-            TEXT_DISPLAY_SETTINGS_CHANGED -> {
-                val extras = data?.extras!!
-
-                val edited = extras.getBoolean("edited")
-                val reset = extras.getBoolean("reset")
-
-                val settingsBundle = SettingsBundle.fromJson(extras.getString("settingsBundle")!!)
-                val requiresReload = extras.getBoolean("requiresReload")
-
-                if(!edited && !reset) return
-
-                val dirtyTypes = DirtyTypesSerializer.fromJson(extras.getString("dirtyTypes")!!).dirtyTypes
-
-                workspaceSettingsChanged(settingsBundle, requiresReload, reset, dirtyTypes)
-                return
-            }
-            STD_REQUEST_CODE -> {
-                val classes = arrayOf(GridChoosePassageBook::class.java.name, Bookmarks::class.java.name)
-                val className = data?.component?.className
-                if (className != null && classes.contains(className)) {
-                    val isFromBookmark = className == Bookmarks::class.java.name
-                    val verseStr = data.extras!!.getString("verse")
-                    val verse = try {
-                        VerseFactory.fromString(navigationControl.versification, verseStr)
-                    } catch (e: NoSuchVerseException) {
-                        ABEventBus.getDefault().post(ToastEvent(getString(R.string.verse_not_found)))
-                        return
-                    }
-                    val pageManager = windowControl.activeWindowPageManager
-                    if(isFromBookmark && !pageManager.isBibleShown) {
-                        pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
-                    } else
-                        pageManager.currentPage.setKey( verse)
                     return
                 }
-            }
-            IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {
-                updateDocuments()
-                return
+                COLORS_CHANGED -> {
+                    val edited = extras.getBoolean("edited")
+                    val reset = extras.getBoolean("reset")
+                    val windowId = extras.getLong("windowId")
+                    val colorsStr = extras.getString("colors")
+
+                    if (!edited && !reset) return
+
+                    val colors = if (reset)
+                        if (windowId != 0L) {
+                            null
+                        } else TextDisplaySettings.default.colors
+                    else
+                        WorkspaceEntities.Colors.fromJson(colorsStr!!)
+
+                    if (windowId != 0L) {
+                        val window = windowRepository.getWindow(windowId)!!
+                        window.pageManager.textDisplaySettings.colors = colors
+                        window.bibleView?.updateTextDisplaySettings()
+                    } else {
+                        windowRepository.textDisplaySettings.colors = colors
+                        windowRepository.updateWindowTextDisplaySettingsValues(
+                            setOf(TextDisplaySettings.Types.COLORS),
+                            windowRepository.textDisplaySettings
+                        )
+                        windowRepository.updateAllWindowsTextDisplaySettings()
+                    }
+                    resetSystemUi()
+                    invalidateOptionsMenu()
+                }
+                TEXT_DISPLAY_SETTINGS_CHANGED -> {
+                    val edited = extras.getBoolean("edited")
+                    val reset = extras.getBoolean("reset")
+
+                    val settingsBundle = SettingsBundle.fromJson(extras.getString("settingsBundle")!!)
+                    val requiresReload = extras.getBoolean("requiresReload")
+
+                    if (!edited && !reset) return
+
+                    val dirtyTypes = DirtyTypesSerializer.fromJson(extras.getString("dirtyTypes")!!).dirtyTypes
+
+                    workspaceSettingsChanged(settingsBundle, requiresReload, reset, dirtyTypes)
+                    return
+                }
+                STD_REQUEST_CODE -> {
+                    val classes = arrayOf(GridChoosePassageBook::class.java.name, Bookmarks::class.java.name)
+                    val className = data.component?.className
+                    if (className != null && classes.contains(className)) {
+                        val isFromBookmark = className == Bookmarks::class.java.name
+                        val verseStr = extras.getString("verse")
+                        val verse = try {
+                            VerseFactory.fromString(navigationControl.versification, verseStr)
+                        } catch (e: NoSuchVerseException) {
+                            ABEventBus.getDefault().post(ToastEvent(getString(R.string.verse_not_found)))
+                            return
+                        }
+                        val pageManager = windowControl.activeWindowPageManager
+                        if (isFromBookmark && !pageManager.isBibleShown) {
+                            pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
+                        } else
+                            pageManager.currentPage.setKey(verse)
+                        return
+                    }
+                }
             }
         }
+
+        if (requestCode == IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH) {
+            updateDocuments()
+            return
+        }
+
         super.onActivityResult(requestCode, resultCode, data)
         when {
             mainMenuCommandHandler.restartIfRequiredOnReturn(requestCode) -> {
