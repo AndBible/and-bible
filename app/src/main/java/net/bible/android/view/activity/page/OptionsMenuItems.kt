@@ -200,25 +200,24 @@ open class Preference(val settings: SettingsBundle,
     override val icon: Int?
         get() = when(type) {
             TextDisplaySettings.Types.STRONGS -> if(mainBibleActivity.documentControl.isNewTestament) R.drawable.ic_strongs_greek else R.drawable.ic_strongs_hebrew
-            TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.drawable.ic_baseline_bookmark_24
-            TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.drawable.ic_baseline_bookmark_24
+            TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.drawable.ic_bookmarks_show_24dp
+            TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.drawable.ic_labels_hide_24dp
+            TextDisplaySettings.Types.MORPH -> R.drawable.ic_morphology_24dp
+            TextDisplaySettings.Types.FOOTNOTES -> R.drawable.ic_footnotes_24dp
+            TextDisplaySettings.Types.SECTIONTITLES -> R.drawable.ic_section_titles_24dp
+            TextDisplaySettings.Types.VERSENUMBERS -> R.drawable.ic_chapter_verse_numbers_24dp
+            TextDisplaySettings.Types.COLORS -> R.drawable.ic_color_settings_24dp
+            TextDisplaySettings.Types.FONTSIZE -> R.drawable.ic_font_size_24dp
+            TextDisplaySettings.Types.FONTFAMILY -> R.drawable.ic_font_family_24dp
+            TextDisplaySettings.Types.MARGINSIZE -> R.drawable.ic_margin_size_24dp
+            TextDisplaySettings.Types.TOPMARGIN -> R.drawable.ic_margin_top_24dp
+            TextDisplaySettings.Types.LINE_SPACING -> R.drawable.ic_line_spacing_24dp
+            TextDisplaySettings.Types.REDLETTERS -> R.drawable.ic_red_letter_24dp
+            TextDisplaySettings.Types.VERSEPERLINE -> R.drawable.ic_one_verse_per_line_24dp
+            TextDisplaySettings.Types.JUSTIFY -> R.drawable.ic_justify_text_24dp
+            TextDisplaySettings.Types.HYPHENATION -> R.drawable.ic_hyphenation_24dp
+            TextDisplaySettings.Types.MYNOTES -> R.drawable.ic_note_regular_24dp
             else -> R.drawable.ic_baseline_star_24
-            //TextDisplaySettings.Types.VERSENUMBERS -> R.drawable.ic_baseline_favorite_24
-            //TextDisplaySettings.Types.MORPH -> R.string.prefs_show_morphology_title
-            //TextDisplaySettings.Types.FOOTNOTES -> R.string.prefs_show_notes_title
-            //TextDisplaySettings.Types.REDLETTERS -> R.string.prefs_red_letter_title
-            //TextDisplaySettings.Types.SECTIONTITLES -> R.string.prefs_section_title_title
-            //TextDisplaySettings.Types.VERSENUMBERS -> R.string.prefs_show_verseno_title
-            //TextDisplaySettings.Types.VERSEPERLINE -> R.string.prefs_verse_per_line_title
-            //TextDisplaySettings.Types.MYNOTES -> R.string.prefs_show_mynotes_title
-            //TextDisplaySettings.Types.COLORS -> R.string.prefs_text_colors_menutitle
-            //TextDisplaySettings.Types.JUSTIFY -> R.string.prefs_justify_title
-            //TextDisplaySettings.Types.HYPHENATION -> R.string.prefs_hyphenation_title
-            //TextDisplaySettings.Types.TOPMARGIN -> R.string.prefs_top_margin_title
-            //TextDisplaySettings.Types.FONTSIZE -> R.string.font_size_title
-            //TextDisplaySettings.Types.FONTFAMILY -> R.string.pref_font_family_label
-            //TextDisplaySettings.Types.MARGINSIZE -> R.string.prefs_margin_size_title
-            //TextDisplaySettings.Types.LINE_SPACING -> R.string.line_spacing_title
         }
 }
 

@@ -17,6 +17,8 @@
   ~
   -->
 
+<!-- Icons are dynamically set in app/src/main/java/net/bible/android/view/activity/page/OptionsMenuItems.kt -->
+
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         android:title="@string/prefs_text_display_settings_title"
