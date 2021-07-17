@@ -723,7 +723,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         } else {
             menu.removeItem(R.id.textOptionsSubMenu)
             val item = menu.add(Menu.NONE, R.id.allTextOptions, 1000, R.string.all_text_options_window_menutitle)
-            item.setIcon(R.drawable.ic_text_format_white_24dp)
+            item.setIcon(R.drawable.ic_text_options_24dp)
         }
 
         fun handleMenu(menu: Menu) {
