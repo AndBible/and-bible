@@ -129,4 +129,6 @@
 	<color name="high_contrast">@color/black</color>
 	<color name="background_color">@color/white</color>
 	<color name="disabled_background">#D3D3D3</color>
+	<color name="transparent">#00ffffff</color>
+
 </resources>
