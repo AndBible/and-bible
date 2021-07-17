@@ -30,7 +30,7 @@
 
 .journal-button {
   z-index: 1;
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(0, 0, 0, 0.5);
   .night & {
     color: rgba(255, 255, 255, 0.6);
   }
@@ -49,14 +49,14 @@
   min-height: 2em;
   position: relative;
   margin: 4pt 2pt 2pt;
-  border-style: solid;
+  border-style: dashed;
   border-color: rgba(0, 0, 0, 0.1);
   .night & {
     border-color: rgba(255, 255, 255, 0.3);
   }
-  border-width: 1pt;
-  border-radius: 5pt;
-  padding: 2pt;
+  border-width: 1pt 0pt 0pt 0pt;
+  border-radius: 1pt;
+  padding: 0pt 0pt 5pt 1pt;
 }
 
 .superscript {

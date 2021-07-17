@@ -117,6 +117,7 @@ export default {
 <style scoped lang="scss">
 @import "~@/common.scss";
 .large-action {
+  min-width: 40px;  // Ensures dynamic plus icon has sufficient space to be appended
   display: flex;
   flex-direction: row;
   .horizontal & {
@@ -130,7 +131,7 @@ export default {
   }
 
   .fa-layers, .svg-inline--fa {
-    padding-inline-end: 14px;
+//    padding-inline-end: 14px;  // Causes non-alignment of the icons in the verse action dialog.
     .horizontal & {
       color: $button-grey;
       margin: 0 auto 0 auto;
@@ -141,7 +142,7 @@ export default {
     }
   }
   .title {
-
+    margin: 0 auto 0 auto;
   }
   padding-bottom: 0.5em;
   .horizontal & {

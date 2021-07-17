@@ -200,7 +200,7 @@ div.journal-name {
     font-size: 180%;
     border-radius: 10px;
     padding: 5px;
-    margin-inline-start: 15px;
+    margin-inline-start: 0px;
     font-weight: bold;
   }
 }
