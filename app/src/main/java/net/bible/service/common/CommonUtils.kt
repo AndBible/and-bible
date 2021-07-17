@@ -944,16 +944,18 @@ object CommonUtils {
             LayerDrawable(arrayOf(d1, circleDrawable, d2)).apply {
                 val s = sizeMultiplier ?: 1.0F
                 val size = (d1.intrinsicWidth * s).toInt()
-                val s1 = (d1.intrinsicWidth * 0.6 * s).toInt()
-                val s2 = (d1.intrinsicWidth * 0.45 * s).toInt()
+                val s1 = (d1.intrinsicWidth * 0.8 * s).toInt()
+                val s2 = (d1.intrinsicWidth * 0.6 * s).toInt()
                 val d = (s1 - s2) / 2
                 setLayerSize(0, size, size)
                 setLayerSize(1, s1, s1)
                 setLayerSize(2, s2, s2)
                 setLayerGravity(1, Gravity.BOTTOM or Gravity.END)
                 setLayerGravity(2, Gravity.BOTTOM or Gravity.END)
-                setLayerInsetEnd(2, d)
-                setLayerInsetBottom(2, d)
+                setLayerInsetEnd(1, -d)
+                setLayerInsetBottom(1, -d)
+                setLayerInsetEnd(2, 0)
+                setLayerInsetBottom(2, 0)
             }
         else
             d1
