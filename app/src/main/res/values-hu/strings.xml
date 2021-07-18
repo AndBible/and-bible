@@ -3,6 +3,7 @@
   <string name="app_name_short">Biblia</string>
   <string name="app_name_medium">Biblia (And Bible)</string>
   <string name="app_name_long">Bibliatanulmányozó alkalmazás, készítette az And Bible Open Source Project</string>
+  <string name="project">And Bible Nyílt Forráskódú Projekt</string>
   <string name="version_text">Verzió: %s</string>
   <string name="no_sdcard_error">Helyezzen be egy SD-kártyát és indítsa újra az alkalmazást!</string>
   <!--Main menu-->
@@ -14,9 +15,12 @@
   <string name="history">Előzmények</string>
   <string name="speak">Felolvasás</string>
   <string name="help">Súgó</string>
+  <string name="information">Információ</string>
   <string name="other">Egyéb</string>
+  <string name="contact">Kapcsolat</string>
   <string name="help_and_tips">Sugó és tippek</string>
   <string name="administration">Kezelés</string>
+  <string name="rate_application">Értékelés</string>
   <string name="chooce_document">Dokumentumválasztás</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Könyv kiválasztása</string>
@@ -53,6 +57,12 @@
   <string name="search_current_book">Jelenlegi könyv</string>
   <string name="error_executing_search">Érvénytelen keresési feltétel</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Fejezet- és versszámok</string>
+  <string name="prefs_show_verseno_summary">Fejezet- és versszámok mutatása</string>
+  <string name="prefs_e_ink_mode_title">Fekete-fehér mód</string>
+  <string name="prefs_eink_mode_summary">Az alkalmazás használata színek nélkül, jobb olvashatóság e-ink képernyőn.</string>
+  <string name="prefs_disable_animations_title">Animációk kikapcsolása</string>
+  <string name="prefs_disable_animations_summary">Különböző animációk kikapcsolása, mint például a sima görgetés.</string>
   <string name="prefs_show_verseno_title1">Versszámozás</string>
   <string name="prefs_verse_per_line_summary">Minden vers külön sorban</string>
   <string name="prefs_show_bookmarks_summary">Könyvjelzők megjelenítése</string>
@@ -314,6 +324,14 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="speak_status_stopped">leállítva</string>
   <string name="speak_autobookmarking_disabled">A könyvjelzők automatikus mentése ki van kapcsolva!</string>
   <string name="system_speak_settings">TTS (Text-To-Speech) rendszerbeállítások megnyitása</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Segítség a felolvasási könyvjelzőkhöz</string>
   <string name="speak_help_auto_bookmark">
 Ha a felolvasást szünetelteti vagy leállítja, automatikusan elmentésre kerül egy felolvasási könyvjelző. 
@@ -368,6 +386,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="mynotes">Jegyzeteim</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Biztonsági mentés és helyreállítás</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="loading_backup">Adatbázis visszaállítása...</string>
   <string name="backup_modules_email_subject_2">%s modul biztonsági mentés</string>
   <string name="backup_modules_email_message_2">Felcsatolva a %s modul biztonsági mentés, amely a következő modulokat tartalmazza: %s</string>
@@ -500,4 +519,6 @@ Nyomja hosszan a Vissza gombot az Előzmények listájának előhívásához. </
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
   <string name="system_items1">Tovább</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
 </resources>

@@ -10,7 +10,7 @@
   <string name="chooseBook">文件</string>
   <string name="selectPassage">聖經段落</string>
   <string name="search">尋找</string>
-  <string name="settings">程式偏好</string>
+  <string name="settings">偏好設定</string>
   <string name="history">閱讀歷史</string>
   <string name="speak">朗讀</string>
   <string name="help">幫助</string>
@@ -128,6 +128,7 @@
   <string name="full_screen_hide_buttons_pref_title">在全螢幕中隱藏視窗按鍵</string>
   <string name="full_screen_hide_buttons_pref_summary">當切換至全螢幕模式時，自動隱藏下方的視窗按鍵列</string>
   <string name="font_size_title">字型大小</string>
+  <string name="prefs_text_bookmarks_title">書籤 &amp; 我的筆記設定</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">顏色設定</string>
   <string name="window_color_settings_title">視窗顏色設定</string>
@@ -225,6 +226,7 @@ http://www.heartlight.org 准予使用
   <string name="open_link_in_new_window">在新視窗開啟連結</string>
   <string name="open_link_in_special_window">在特殊視窗開啟連結</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">書籤 &amp; 我的筆記</string>
   <string name="bookmarks">書籤</string>
   <string name="bookmark_added">書籤已保存</string>
   <string name="assign_labels">分配標籤</string>
@@ -232,7 +234,12 @@ http://www.heartlight.org 准予使用
   <string name="new_label">新標籤</string>
   <string name="label_name_prompt">標籤名稱</string>
   <string name="label_unlabelled">未有標籤</string>
+  <string name="add_bookmark1">書籤</string>
+  <string name="add_bookmark2">將選取部份標記書籤</string>
+  <string name="add_bookmark_whole_verse">將經文標記書籤</string>
   <string name="remove_bookmark">移除</string>
+  <string name="bookmark_settings_hide_labels_summary">隱藏特定書籤</string>
+  <string name="auto_assign_labels1">自動將標記至新書籤</string>
   <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">日期順序</string>
@@ -281,7 +288,7 @@ http://www.heartlight.org 准予使用
   <string name="speak_verse_range_to_repeat">設定重複節數範圍</string>
   <string name="speak_ending_verse_must_be_later">結束節數必須在開始節數之後</string>
   <string name="conf_speak_synchronize">文字跟隨語音</string>
-  <string name="conf_speak_auto_bookmark">自動標籤</string>
+  <string name="conf_speak_auto_bookmark">自動標記書籤</string>
   <string name="conf_save_playback_settings_to_bookmarks">儲存播放設定至書籤</string>
   <string name="conf_replace_divinename">以Yahweh取代聖名</string>
   <string name="conf_change_chapter">章節改變</string>
@@ -299,6 +306,17 @@ http://www.heartlight.org 准予使用
   <string name="speak_status_stopped">已停止</string>
   <string name="speak_autobookmarking_disabled">自動書籤已停止！</string>
   <string name="system_speak_settings">開啟系統文字轉語音(TTS)設定</string>
+  <string name="auto_assing_labels_help1">你可以調整自動分配標籤至你定義的書籤。</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="assing_labels_help1">每個書籤可以標記多個標籤。</string>
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">點選 %s 圖示以自動增加該標籤至新書籤。</string>
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">朗讀書籤幫助</string>
   <string name="speak_help_auto_bookmark">
 當暫停或停止朗讀時，將自動加入朗讀書籤。
@@ -355,7 +373,11 @@ http://www.heartlight.org 准予使用
   <string name="mynotes">筆記列表</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">備份及回復</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_confirmation">覆寫我的筆記、書籤、個人筆記、閱讀計劃及工作檢視嗎？</string>
+  <string name="restore_success">成功回復我的筆記、書籤、個人筆記、閱讀計劃及工作檢視</string>
   <string name="loading_backup">正在從備份載入資料庫</string>
+  <string name="backup_success2">成功備份我的筆記、書籤、個人筆記、閱讀計劃及工作檢視</string>
   <string name="backup_modules_email_subject_2">%s 模組備份</string>
   <string name="backup_modules_email_message_2">此附你的 %s 模組備份，包含了以下模組: %s</string>
   <string name="backup_email_subject_2">%s 資料庫備份</string>
@@ -442,6 +464,11 @@ Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
   <!--Help-->
   <string name="help_nav_title">導航</string>
   <string name="help_contextmenus_title">內文選單</string>
+  <string name="help_bookmarks_title">書籤 &amp; 我的筆記</string>
+  <string name="help_studypads_title">個人筆記</string>
+  <string name="help_studypads_text">
+個人筆記可方便使用者編寫及準備講道筆記、或者作個人的多經文研究。每一個個人筆記都有專屬的書籤。所有標記了該書籤的經文，均會自動出現在對應的個人筆記中。除了書籤以外，使用者亦可自行增添文字。
+</string>
   <string name="help_search_title">搜尋</string>
   <string name="help_search_text">搜尋字詞可以加入特殊字符如 * , ?, AND, OR, NOT
 (有關詳細信息請參「Apache Lucene - Query Parser Syntax」)</string>
@@ -454,8 +481,13 @@ Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">我明白</string>
   <string name="first_time_help_show_next_time">下次再顯示</string>
+  <string name="journal_description">使用者可自行編輯個人筆記及標記書籤</string>
   <string name="my_notes_abbreviation">筆記列表</string>
+  <string name="studypads">個人筆記</string>
   <string name="compare_description">譯本比較</string>
+  <string name="compare_abbreviation">比較</string>
+  <string name="compare">比較</string>
+  <string name="confirm_delete_bookmarks">你希望移除 %d 書籤及它的筆記嗎？</string>
   <string name="verse_action_copy">複製</string>
   <string name="show_versenumbers">顯示節數</string>
   <string name="backup_button">備份</string>
@@ -463,5 +495,14 @@ Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="whole_verse_turned_on">整節經文已標記書籤</string>
+  <string name="this_bookmark">此書籤</string>
+  <string name="delete_label_confirmation">你希望移除書籤「%s」嗎？對應的個人筆記亦會被移除。</string>
+  <string name="bookmark_underline_style_arbitrary">選取書籤的底線樣式</string>
   <string name="system_items1">更多</string>
+  <string name="reset_app_prefs">你希望重設所有偏好嗎？</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
+  <string name="bookmark_style">書籤樣式</string>
+  <string name="added_to_bookmark">分配至此書籤</string>
 </resources>
