@@ -1,0 +1,781 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name_short">ကျမ်းစာလေ့လာခြင်း</string>
+  <string name="app_name_medium">ကျမ်းစာလေ့လာခြင်း (And Bible) </string>
+  <string name="app_name_long">And သမ္မာကျမ်းစာ အခမဲ့ အရင်းအမြစ် လုပ်ငန်း၏ သမ္မာကျမ်းစာလေ့လာခြင်း အက်ပ်</string>
+  <string name="project">And သမ္မာကျမ်းစာ အခမဲ့ အရင်းအမြစ် လုပ်ငန်း </string>
+  <string name="version_text">ဗားရှင်း %s</string>
+  <string name="no_sdcard_error">ကျေးဇူးပြုပြီး အက်စ်ဒီကဒ်ကို ထည့်ပါ၊ ထို့နောက် အက်ပ်ကို ပိတ်ပြီးပြန်ဖွင့်ပါ။</string>
+  <!--Main menu-->
+  <string name="menu">မီနူး</string>
+  <string name="chooseBook">မှတ်တမ်း</string>
+  <string name="selectPassage">ကျမ်းပိုဒ်</string>
+  <string name="search">ရှာပါ</string>
+  <string name="settings">စိတ်ကြိုက် အက်ပ်ရွေးချယ်မှု</string>
+  <string name="history">သုံးခဲ့သည့်မှတ်တမ်း</string>
+  <string name="speak">စကားပြောပါ</string>
+  <string name="help">ကူညီပါ</string>
+  <string name="information">သတင်းအချက်အလက်</string>
+  <string name="other">အခြား</string>
+  <string name="contact">အဆက်အစပ်</string>
+  <string name="help_and_tips">&amp; ကိုကူညီပါ; အကြံပြုချက်များ</string>
+  <string name="administration">အုပ်ချုပ်မှု</string>
+  <string name="rate_application">&amp; အားအဆင့်သတ်မှတ်ပါ၊ သုံးသပ်ပါ</string>
+  <string name="chooce_document">မှတ်တမ်းရွေးချယ်ပါ</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">စာအုပ်ရွေးချယ်ပါ</string>
+  <string name="choosePassageChapterName">အခန်းကြီးရွေးချယ်ပါ</string>
+  <string name="choosePassageVerseName">အခန်းငယ်ရွေးချယ်ပါ</string>
+  <string name="bible">သမ္မာကျမ်းစာ</string>
+  <string name="deuterocanonical">တရားဟောရာကျမ်းဆိုင်ရာ စည်းမျဉ်း</string>
+  <!--Search-->
+  <string name="search_index">အညွှန်း ရွေးချယ်ပါ</string>
+  <string name="index_creation_required">ရှာဖွေရန် အညွှန်းတစ်ခု လိုအပ်သည်</string>
+  <string name="create_index_for">ရှာဖွေရန် အညွှန်းတစ်ခု လိုအပ်ပါသည်။ \n\nCreate %sအတွက် အညွှန်း ဖန်တီးလိုပါသလား။</string>
+  <string name="rebuild_index_for">%s အတွက် အညွှန်းကို ပြန်လည်တည်ဆောက်ချင်ပါသလား။</string>
+  <string name="indexing_wait_msg">အညွှန်းစီပြီးသည့်နောက် သင်သည်မျက်နှာပြင်ရှာဖွေခြင်းသို့  ပြန်လည်ရောက်ရှိပါလိမ့်မည်။ </string>
+  <string name="index_create">ဖန်တီးပါ</string>
+  <string name="rebuild_index">အညွှန်း ပြန်လည်တည်ဆောက်ပါ။</string>
+  <string name="search_in">%s တွင် ရှာဖွေပါ</string>
+  <string name="do_in_background">နောက်ခံတွင် ဆက်အသုံးပြုပါ</string>
+  <string name="rebuild_index_button">ပြန်လည်တည်ဆောက်ပါ</string>
+  <!--Tasks-->
+  <string name="progress_status">လုပ်ငန်းစဉ် </string>
+  <string name="task_kill_warning">လည်ပတ်နေသောလုပ်ငန်းများသည် မပြီးဆုံးသေးခင် အခြားအက်ပ်များ ပြောင်းလဲအသုံးပြုပါက ရပ်တန့်သွားနိုင်သည်။ </string>
+  <string name="no_tasks_running">မည်သည့်လုပ်ငန်းမှ ယခုလက်ရှိအသုံးပြုခြင်းမရှိပါ။ </string>
+  <!--Search-->
+  <string name="search_words_group_prompt">အခန်းငယ်များကို ရှာဖွေပါ</string>
+  <string name="search_all_words">စကားလုံးများ အားလုံး</string>
+  <string name="search_any_word">မည်သည့်စကားလုံး မဆို</string>
+  <string name="search_phrase">စကားစု</string>
+  <string name="search_result_count">%d ကိုက်ညီမှု တွေ့ရှိသည်</string>
+  <string name="search_showing_first">ကိုက်ညီမှုအလွန်များပြား။ %d ကို ရှေ့တွင်ပြသခြင်း</string>
+  <string name="search_bible_section_group_prompt">ဘယ်နေရာတွင် ရှာဖွေပါ</string>
+  <string name="search_all_bible">ကျမ်းစာတစ်အုပ်လုံး</string>
+  <string name="search_new_testament">ဓမ္မသစ်ကျမ်း</string>
+  <string name="search_old_testament">ဓမ္မဟောင်းကျမ်း</string>
+  <string name="search_current_book">လက်ရှိစာအုပ်</string>
+  <string name="error_executing_search">စုံစမ်းရှာဖွေမှု မမှန်ကန်ပါ</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">အခန်းကြီး &amp; အခန်းငယ်နံပါတ်များ</string>
+  <string name="prefs_show_verseno_summary">အခန်းကြီး &amp;အားပြပါ; အခန်းငယ်နံပါတ်များ</string>
+  <string name="prefs_e_ink_mode_title">အနက်ရောင် &amp; အဖြူရောင် အသွင်</string>
+  <string name="prefs_eink_mode_summary">အက်ပ်ပလီကေးရှင်းကို အရောင်မဲ့အသွင် (အရောင်မပါ) ဖြင့်အသုံးပြုပါ၊ E-ink စက်များအတွက် ပိုမိုသင့်လျော်စေသည်။ </string>
+  <string name="prefs_disable_animations_title">အယ်နီမေးရှင်းများကို ပိတ်ရန်</string>
+  <string name="prefs_disable_animations_summary">ချောမွေ့သည့် ရွေ့လျားခလုတ် ကဲ့သို့သော အယ်နီမေးရှင်း အမျိုးအစားများကို ပိတ်ရန်</string>
+  <string name="prefs_paragraph_spacing_title">စာပိုဒ် အကွာအဝေး (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">စာပိုဒ်များအကြားရှိ အကွာအဝေးကို ချိန်ညှိရန် </string>
+  <string name="prefs_show_verseno_title1">အခန်းငယ် နံပါတ်များ</string>
+  <string name="prefs_show_chapter_no_title">အခန်းကြီး နံပါတ်များ</string>
+  <string name="prefs_show_chapter_no_summary">အခန်းကြီး နံပါတ်များကို ပြပါ</string>
+  <string name="prefs_verse_per_line_summary">အခန်းငယ်တစ်ခုစီကို အခြားမျဉ်းတစ်ခုပေါ်တွင် ပြပါ</string>
+  <string name="prefs_show_bookmarks_summary">စာမျက်နှာမှတ်သားခြင်းများအားလုံးကို ဖျောက်ရန် အမှန်ခြစ်ကိုဖြတ်ပါ</string>
+  <string name="prefs_show_mynotes_summary">ကိုယ်ပိုင်မှတ်စုရှိ အခန်းငယ်များတွင် တင်္ကေတကိုပြပါ</string>
+  <string name="prefs_show_notes_summary">အောက်ခြေမှတ်တမ်းနှင့် ပြန်လှန်ကိုးကားချက်များကို ပြပါ</string>
+  <string name="prefs_show_strongs_summary">ဂရိ  &amp; လင့်ခ်များ၊ ဟီဘရူး အဓိပ္ပါယ်ဖွင့်ဆိုချက်များ</string>
+  <string name="prefs_show_morphology_summary">Robinson ၏ ဂရိ စာလုံးပုံသဏ္ဌာန်လေ့လာခြင်းကို ပြပါ</string>
+  <string name="prefs_section_title_summary">စည်းမျဉ်းဘောင်တွင်မပါသည့် အကြောင်းအရာခေါင်းစဉ်များကို ပြပါ</string>
+  <string name="prefs_red_letter_summary">ခရစ်တော်၏ စကားလုံးများကို အနီရောင်ပြပါ</string>
+  <string name="prefs_text_size_title">စိတ်ကြိုက်စကားလုံးများ</string>
+  <string name="prefs_verse_per_line_title">တစ်ကြောင်းတွင် အခန်းငယ်တစ်ခုစီ</string>
+  <string name="prefs_show_bookmarks_title">စာမျက်နှာမှတ်သားခြင်းများကို ပြပါ</string>
+  <string name="prefs_show_mynotes_title">ကိုယ်ပိုင်မှတ်စု တင်္ကေတများကို ပြပါ</string>
+  <string name="prefs_show_footnotes_title">အောက်ခြေမှတ်စု</string>
+  <string name="prefs_show_xrefs_title">ပြန်လှန်ကိုးကားချက်များ</string>
+  <string name="prefs_show_footnotes_summary">မှတ်တမ်းတွင်ရှိလျှင် အောက်ခြေမှတ်စုများကို ပြပါ</string>
+  <string name="prefs_show_xrefs_summary">မှတ်တမ်းတွင်ရှိလျှင် ပြန်လှန်ကိုးကားချက်များကို ပြပါ</string>
+  <string name="prefs_show_notes_title">အောက်ခြေမှတ်တမ်းနှင့် ပြန်လှန်ကိုးကားချက်များ</string>
+  <string name="prefs_show_strongs_title">Strong နံပါတ်များ</string>
+  <string name="prefs_show_morphology_title">စကားလုံးပုံစံလေ့လာမှု စည်းမျဉ်းများ</string>
+  <string name="prefs_section_title_title">အစိတ်အပိုင်း ခေါင်းစဉ်များ</string>
+  <string name="prefs_red_letter_title">အနီရောင်စာလုံး</string>
+  <string name="prefs_tilt_to_scroll_title">အပေါ်အောက်ရွေ့ရန် တိမ်းစောင်းပါ</string>
+  <string name="prefs_toolbar_button_action_title">အသုံးပြုရန် ကိရိယာခလုတ်ကို နှိပ်ပါ</string>
+  <string name="prefs_toolbar_button_action_summary">အသုံးပြုရန် အနက်ဖွင့်ကျမ်း ကိရိယာခလုတ် သို့မဟုတ် ကျမ်းစာကို ဖိထားရန်/ကြာကြာဖိထားရန်</string>
+  <string name="prefs_toolbar_button_action_default">မီနူးကိုဖွင့်ရန် ဖိထားပါ၊ မှတ်တမ်း မျက်နှာပြင်(ပုံသေ) အတွက် ကြာကြာဖိထားပါ</string>
+  <string name="prefs_toolbar_button_action_swap_menu">မှတ်တမ်းအသစ်ကိုဖွင့်ရန် ဖိထားပါ၊ မီနူးကိုဖွင့်ရန် ကြာကြာဖိထားပါ</string>
+  <string name="prefs_toolbar_button_action_swap_activity">မှတ်တမ်းအသစ်ကိုဖွင့်ရန် ဖိထားပါ၊ မှတ်တမ်းမျက်နှာပြင်ကိုဖွင့်ရန် ကြာကြာဖိထားပါ</string>
+  <string name="prefs_night_mode_title">ညအသွင်သို့ ပြောင်းလဲခြင်း</string>
+  <string name="prefs_night_mode_summary">ညအသွင်သို့ အလိုအလျောက်ပြောင်းလဲခြင်း (စက်မှထောက်ပံ့လျှင်), ကိုယ်တိုင်ပြောင်းလဲခြင်း သို့မဟုတ် စနစ် ဆက်တင် (Android 10+)မှ ပြောင်းလဲခြင်းများ။ ကိုယ်တိုင်ပြောင်းလဲခြင်းအား ဗဟိုမျက်နှာပြင်ရှိ အစက် 3 စက်ပါ ရွေးချယ်စရာ မီနူးတွင် ပြုလုပ်နိုင်ပါသည်။ </string>
+  <string name="prefs_night_mode_manual">ကိုယ်တိုင်</string>
+  <string name="prefs_night_mode_automatic">အလိုအလျောက်</string>
+  <string name="prefs_night_mode_system">စနစ်</string>
+  <string name="options_menu_night_mode">ညအသွင်</string>
+  <string name="prefs_navigate_to_verse_title">အခန်းငယ်သို့ သွားပါ</string>
+  <string name="prefs_navigate_to_verse_summary">ကျမ်းပိုဒ်ကို ထောက်ကြည့်သည့်အခါ အခန်းငယ် (နှင့်အခန်းကြီး)ကို ရွေးချယ်ပါ</string>
+  <string name="prefs_open_links_in_special_window_title">ဝင်းဒိုးနှင့်ချိတ်ဆက်ပါ</string>
+  <string name="prefs_open_links_in_special_window_summary">Strongs နှင့် ပြန်လှန်ကိုးကားချက်များကို ပိုမိုလျင်မြန်စွာ ပေါ်လာစေရန် အထူးဝင်းဒိုးတွင် လင့်ခ်များကို ဖွင့်ပါ။ </string>
+  <string name="prefs_text_size_sample_text">နမူနာ စာသား</string>
+  <string name="prefs_screen_keep_on_title">မျက်နှာပြင်ကို ဖွင့်ထားပါ</string>
+  <string name="prefs_screen_keep_on_summary">ဤအက်ပ်ကိုအသုံးပြုနေစဉ် မျက်နှာပြင်မှိတ်သွားခြင်းမှ ကာကွယ်ပါ</string>
+  <string name="prefs_interface_locale_title">အက်ပ်ပလီကေးရှင်း ဘာသာစကား</string>
+  <string name="prefs_interface_locale_summary">သုံးစွဲသူ စိတ်ကြိုက် ကြားခံဘာသာစကား ရွေးချယ်ပါ</string>
+  <string name="reset_fontsize">ပြန်လည်သတ်မှတ်ပါ</string>
+  <string name="prefs_request_sdcard_permission_title">ကိုယ်တိုင်ထည့်သွင်းထားသည့် မှတ်တမ်းများ ကျန်ရှိသည်</string>
+  <string name="prefs_request_sdcard_permission_summary">Internal storage တွင်ရှိသည့် jsword/sword folder မှ ကိုယ်တိုင်ထည့်သွင်းထားသည့် မှတ်တမ်းများအသုံးပြုခြင်းကို ခွင့်ပြုပါ</string>
+  <string name="all_text_options_window_menutitle">စာသားအားလုံး ရွေးချယ်စရာများ</string>
+  <string name="text_options_window_menutitle">စာသား ရွေးချယ်စရာများ</string>
+  <string name="auto_fullscreen">အပေါ်အောက်ရွေ့လျားခြင်းဖြင့် မျက်မှာပြင်အပြည့်ထားခြင်း</string>
+  <string name="reversed_split_mode">ခွဲခြမ်းခြင်းအသွင် ပြောင်းလဲခြင်း</string>
+  <string name="add_ellipsis">%s ...</string>
+  <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d mm</string>
+  <string name="auto_fullscreen_summary">စာများကို အပေါ်အောက်ဆွဲစဉ်တွင် အလိုအလျေက် မျက်နှာပြင်အပြည့်သို့ ပြောင်းပါ။ အရိပ်အမြွက်: မျက်နှာပြင်ကို နှစ်ချက်ထိ၍လည်း မျက်နှာပြင်အပြည့် ပြောင်းနိုင်သည်။ </string>
+  <string name="prefs_margin_size_title">မာဂျင် အရွယ်အစား ပြောင်းလဲပါ</string>
+  <string name="prefs_margin_size_mm_title">မာဂျင် အရွယ်အစား (%d/%d/%d mm)</string>
+  <string name="prefs_advanced_settings_cat">အဆင့်မြင့် ဆက်တင်များ</string>
+  <string name="prefs_display_customization_cat">&amp; ကြည့်ပါ; ခံစားကြည့်ပါ</string>
+  <string name="prefs_behavior_customization_cat">အက်ပ်ပလီကေးရှင်း အပြုအမူ</string>
+  <string name="prefs_margin_size_summary">စာသားမြင်ကွင်း၏ ဘယ်နှင့်ညာမာဂျင်ကို ညီအောင်ထားပါ။ စာသား၏ အကြီးဆုံးအနံကိုလည်း ညီအောင်ညှိနိုင်ပါသည်။  </string>
+  <string name="prefs_text_colors_summary">စာသား၊ နောက်ခံအရောင်များနှင့် ဝါးစေသည့် effect များကို ချိန်ညှိပါ</string>
+  <string name="text_display_settings_activity_title">စာသား ပေါ်လွင်ပုံ ဆက်တင်များ</string>
+  <string name="workspace_text_display_settings_title">စာသား ရွေးချယ်စရာများ %s</string>
+  <string name="window_text_display_settings_title">စာသား ရွေးချယ်စရာများ - ဝင်းဒိုး %d</string>
+  <string name="prefs_text_display_settings_title">ပုံစံ ဖွဲ့စည်းခြင်း</string>
+  <string name="prefs_text_appearance_title">အသွင်အပြင်</string>
+  <string name="prefs_justify_title">စာသားအစွန်းကို ညီအောင်ထားပါ</string>
+  <string name="prefs_justify_summary">စာကြောင်းညီအောင်ထားသည့်ပုံစံဆိုရာတွင် စာသားများ၏ ဘယ်နှင့်ညာဘက်မာဂျင်များ ညီနေသည်ကို ဆိုလိုသည်</string>
+  <string name="pref_left_margin_label_mm">ဘယ်မာဂျင် (%d mm)</string>
+  <string name="pref_right_margin_label_mm">ညာမာဂျင် (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">စာသား၏ အကြီးဆုံးအနံ (%d mm)</string>
+  <string name="prefs_line_spacing_pt">စာကြောင်းအကွာအဝေး %1.1f x</string>
+  <string name="pref_font_family_label">စာလုံးဖောင့် မိသားစု</string>
+  <string name="prefs_top_margin_title">အပေါ်မာဂျင်</string>
+  <string name="prefs_top_margin_summary">ကျမ်းစာမှတ်စုပါဝင်သည့် ဝင်းဒိုး၏ထိပ်တွင် မာဂျင် (မြင်နိုင်သည့် အညွှန်းနှင့်အတူ)ကို ပေါင်းထည့်ပါ။ ဖွင့်ထားသည့်အခန်းငယ်များ မာဂျင်၏အောက်တွင် ပေါ်လာစေရန် ကျမ်းစာကိုပွတ်ဆွဲပေးရပါမည်။ </string>
+  <string name="prefs_hyphenation_title">တုံးတို</string>
+  <string name="prefs_hyphenation_summary">ဘာသာစကားတွင်ရှိလျှင် စကားလုံးများတွင် တုံးတိုအလိုအလျောက်ထည့်သွင်းပါ</string>
+  <string name="prefs_line_spacing_pt_title">စာကြောင်းအကွာအဝေး (%1.1f x)</string>
+  <string name="line_spacing_title">စာကြောင်းအကွာအဝေး</string>
+  <string name="line_spacing_summary">စာကြောင်းများအကြားတွင် အကွာအဝေး သတ်မှတ်ပါ</string>
+  <string name="select_none">တစ်ခုမှ မရွေးချယ်ပါနှင့်</string>
+  <string name="reset_are_you_sure">ဤတန်ဖိုးများအားလုံးကို မူလပုံစံအတိုင်းပြန်ထားချင်ပါသလား။</string>
+  <string name="window_pinning_menutitle">ဝင်းဒိုးတွင် တွဲထားခြင်း</string>
+  <string name="hide_window_buttons_title">ဝင်းဒိုးခလုတ်ကို ဖျောက်ထားပါ</string>
+  <string name="hide_window_buttons_summary">ကျမ်းစာမြင်ကွင်း၏ ညာဖက်တွင် ပေါ်နေသည့် ဝင်းဒိုးခလုတ်များကို ဖျောက်ထားပါသည်။ အောက်ခြေတွင်ရှိသည့် ဝင်းဒိုးလမ်းညွှန်းပြဘားသည် ပေါ်နေဆဲဖြစ်ပြီး ဝင်းဒိုး popup မီနူးကို ကြာကြာဖိထားခြင်းဖြင့် ဖွင့်နိုင်သည်။ </string>
+  <string name="hide_bible_reference_overlay_title">ကျမ်းစာကိုးကားချက် အလွှာကို ဖျောက်ထားပါ</string>
+  <string name="hide_bible_reference_overlay_summary">အက်ပ်သည် မျက်နှာပြင်အပြည့် အသွင်တွင်ရှိစဉ် တစ်ခြမ်း-အကြည်မြင်ရသည့် ကျမ်းစာအလွှာ ကိုးကားချက်အား မပြပါနှင့်</string>
+  <string name="full_screen_hide_buttons_pref_title">မျက်နှာပြင်အပြည့်တွင် ဝင်းဒိုးခလုတ်အတန်းကို ဖျောက်ထားပါ</string>
+  <string name="full_screen_hide_buttons_pref_summary">မျက်နှာပြင်အပြည့် အသွင်သို့ ပြောင်းရာတွင် မျက်နှာပြင်၏အောက်ခြေတွင်ရှိသည့် ဝင်းဒိုး ခလုတ်ဘားကို အလိုအလျောက် ဖျောက်ထားပါ</string>
+  <string name="prefs_dictionaries_cat">အဘိဓာန်များ</string>
+  <string name="choose_strongs_greek_dictionary_title">Strongs ဂရိ အဘိဓာန်</string>
+  <string name="choose_strongs_greek_dictionary_summary">ဂရိ စကားလုံး အဓိပ္ပါယ်ဖွင့်ဆိုချက်များအတွက် Strongs အဘိဓာန်ကိုရွေးပါ</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strongs ​ဟီဘရူး အဘိဓာန်</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">ဟီဘရူး စကားလုံး အဓိပ္ပါယ်ဖွင့်ဆိုချက်များအတွက် Strongs အဘိဓာန်ကိုရွေးပါ</string>
+  <string name="choose_strongs_greek_morphology_title">Robinson ဂရိ စာလုံးပုံသဏ္ဌာန်လေ့လာခြင်း</string>
+  <string name="choose_strongs_greek_morphology_summary">Robinson ဂရိ စာလုံးပုံသဏ္ဌာန်လေ့လာခြင်းဆိုင်ရာ အဓိပ္ပါယ်ဖွင့်ဆိုချက်များအတွက် အဘိဓာန်ကို ရွေးပါ</string>
+  <string name="prefs_top_margin_title_mm">အပေါ်မာဂျင် (%d mm)</string>
+  <string name="font_size_title">ဖောင့်စာလုံး အရွယ်အစား</string>
+  <string name="font_size_title_pt">ဖောင့်စာလုံးအရွယ်အစား (%d pt) </string>
+  <string name="prefs_font_text_size_summary">ပင်မဖောင့်စာလုံး အရွယ်အစားကို ညှိပါ</string>
+  <string name="pref_font_family_label_name">ဖောင့်စာလုံး မိသားစု (%s)</string>
+  <string name="prefs_font_family_summary">မိသားစု ဖောင့်စာလုံးကို ပြောင်းပါ။ အကြံပေးချက်: Download Documents / Add-ons မှတစ်ဆင့် အခြားဖောင့်များကို ထည့်သွင်းနိုင်ပါသည်။ </string>
+  <string name="prefs_text_bookmarks_title">စာညှပ် &amp; ကိုယ်ပိုင်မှတ်စု ဆက်တင်များ</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">အရောင်ဆက်တင်များ</string>
+  <string name="window_color_settings_title">ဝင်းဒိုး အရောင် ဆက်တင်များ</string>
+  <string name="workspace_color_settings_title">အလုပ်ခွင် အရောင်ဆက်တင်များကို မူလနေရာထားရှိခြင်း</string>
+  <string name="color_text">စာသားအရောင်</string>
+  <string name="color_background">နောက်ခံအရောင်</string>
+  <string name="colors_day_mode_title">နေ့အသွင်</string>
+  <string name="colors_night_mode_title">ညအသွင်</string>
+  <string name="prefs_noise_title">နောက်ခံ ဝေဝါးခြင်း</string>
+  <string name="prefs_noise_summary">နောက်ခံကို ဝေဝါးမှုအနည်းငယ်ထည့်သွင်းခြင်းဖြင့် မျက်စိအတွက် ပိုပြီးသက်တောင့်သက်သာ ဖြစ်စေနိုင်ပါသည်။ </string>
+  <string name="cpv_default_title">အရောင်ရွေးပါ</string>
+  <string name="cpv_presets">ကြိုတင်သတ်မှတ်ခြင်းများ</string>
+  <string name="cpv_custom">မိမိအကြိုက်ပြောင်းလဲခြင်း</string>
+  <string name="cpv_select">ရွေးချယ်ပါ</string>
+  <string name="cpv_transparency">ဖောက်ထွင်းမြင်တွေ့ရခြင်း</string>
+  <!--Window-->
+  <string name="new_window">ဝင်းဒိုးအသစ်</string>
+  <string name="windowClose">ပိတ်ပါ</string>
+  <string name="windowMaximise">အကြီးချဲ့ပါ</string>
+  <string name="windowMinimise">ချုံ့ပါ</string>
+  <string name="windowSynchronise">ထပ်တူကျအောင်ပြုပါ</string>
+  <string name="move_window">...သို့ရွှေ့ပြောင်းပါ</string>
+  <string name="move_window_to_position2">တည်နေရာ %d (%s:%s)</string>
+  <string name="copy_settings">...သို့ ဆက်တင်များကို ကော်ပီကူးခြင်း</string>
+  <string name="copy_settings_to_workspace">အလုပ်ခွင်</string>
+  <string name="copy_settings_to_window">ဝင်းဒိုး %d (%s:%s)</string>
+  <string name="change_to_normal">ပုံမှန် ဝင်းဒိုးသို့ ပြောင်းပါ</string>
+  <string name="window_pin_mode">တွဲပါ</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">ဤအခန်းကြီးတွင် မှတ်စုများမရှိပါ</string>
+  <string name="no_verse_notes">ဤအခန်းငယ်တွင် မှတ်စုများမရှိပါ</string>
+  <string name="previous">ယခင်</string>
+  <string name="next"> နောက်တစ်ခု</string>
+  <!--Strongs-->
+  <string name="strongs_not_installed">Strong ဟီဘရူးနှင့် ဂရိ အဘိဓာန်များကို ကျေးဇူးပြု၍ ဒေါင်းလုပ်ဆွဲပါ</string>
+  <string name="no_indexed_bible_with_strongs_ref">Strong နံပါတ်များပါဝင်သည့် ကျမ်းစာတစ်အုပ်ကို ဒေါင်းလုပ်ဆွဲရမည်ဖြစ်ပြီး ၎င်း၏အညွှန်းကို ရှာဖွေခြင်းတွင် ဒေါင်းလုပ်ဆွဲပါ။ </string>
+  <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\' အဘိဓာန်ကို ကျေးဇူးပြု၍ ဒေါင်းလုပ်ဆွဲပါ</string>
+  <string name="go_to_downloads">ဒေါင်းလုပ်များဆီသို့ သွားပါ</string>
+  <!--Module download-->
+  <string name="download">မှတ်တမ်းများကို ဒေါင်းလုပ်ဆွဲပါ</string>
+  <string name="redownload">မှတ်တမ်းများကို ထပ်ခါဒေါင်းလုပ်ဆွဲပါ</string>
+  <string name="download_confirmation">သမ္မာကျမ်းစာကို အင်တာနက်မှ ဒေါင်းလုပ်ဆွဲလိုပါသလား။</string>
+  <string name="download_source_last_updated">မှတ်တမ်း စာရင်းများ နောက်ဆုံးအပ်ပ်ဒိတ်လုပ်ပြီး %s။</string>
+  <string name="download_refreshing_book_list">မှတ်စုဆာဗာများမှတစ်ဆင့် ရနိုင်သည့်မှတ်စုစာရင်းကို ပြန်လည်လန်းဆန်းစေပါ</string>
+  <string name="download_source_message1">မှတ်စုများကို အောက်ပါအရင်းအမြစ်များမှ ဒေါင်းလုပ်ဆွဲထားပါသည်</string>
+  <string name="download_document_confirm_prefix">ဒေါင်းလုပ်ဆွဲပါ</string>
+  <string name="download_refresh_book_list_menu_item">ပြန်လည်လန်းဆန်းစေပါ</string>
+  <string name="error_downloading">ဒေါင်းလုပ်ဆွဲနေစဉ်အတွင်း မှားယွင်းမှုတစ်ခု ဖြစ်ပေါ်ခဲ့သည်။ သင်၏အင်တာနက် ဆက်သွယ်မှုကို စစ်ဆေးပါ။ </string>
+  <string name="error_downloading_status"> %sကိုလက်ခံပေးသော ဆာဗာသည်  %s (%d) ကြောင့်ချို့ယွင်းမှု ဖြစ်ပေါ်ခဲ့သည်။</string>
+  <string name="storage_space_warning">သင်၏ သိုလှောင်နေရာ မလုံလောက်ပါ</string>
+  <string name="too_many_jobs">လုပ်ငန်းထမ်းဆောင်မှုများ များပြားလွန်းနေသည်။ အချို့ကိုပြီးစီးအောင်စောင့်ပြီး ပြန်ကြိုးစားကြည့်ပါ။ </string>
+  <string name="document_not_installed">ကျေးဇူးပြုပြီး ဒေါင်းလုပ်ဆွဲပါ \'%s\'</string>
+  <string name="free_text_search_documents">ရှာဖွေပါ</string>
+  <string name="chooce_language_hint">ဘာသာစကား</string>
+  <string name="one_more_back_press">အက်ပ်ကိုပိတ်ရန် နောက်ပြန်ခလုတ်ကို ပြန်နှိပ်ပါ</string>
+  <string name="document_filter_results">%d မှတ်တမ်းများ</string>
+  <string name="download_question_title">မှတ်တမ်းများကို ဒေါင်းလုပ်ဆွဲရန် ရှေ့ဆက်လိုပါသလား။ </string>
+  <string name="download_question_message">သင်သည် ညှင်းပန်းနှိပ်စက်ခံတိုင်းပြည်တွင် နေထိုင်ပါက အင်တာနက်မှတစ်ဆင့် ခရစ်ယာန် အချက်အလက်များ 
+ဒေါင်းလုပ်ဆွဲခြင်းကို သတိထားရန်လိုပါသည်။ ၎င်းအစား ပိုမိုစိတ်ချရသည့် zip ဖိုင်သင်ခန်းစာများကို ရယူပြီး 
+\"Load Documents From Zip\"မှ ၎င်းတို့ကို ထည့်သွင်းသင့်ပါသည်။ ဆက်လက် ဒေါင်းလုပ်ဆွဲရန် သေချာပါ 
+သလား။ သင်ခန်းစာ ဆာဗာများမှ ဒေါင်းလုပ်ဆွဲခြင်းများကို စကားဝှက် ခံပေးထားပါသည် (HTTPS)။ </string>
+  <string name="do_not_ask_again">ဟုတ်ပါတယ်၊ ထပ်မမေးပါနဲ့</string>
+  <string name="recommended_document">ထောက်ခံအကြံပြုပါသည်</string>
+  <string name="about_version_history">သုံးခဲ့သည့် ဗားရှင်းမှတ်တမ်း %s</string>
+  <string name="download_errors">ဒေါင်းလုပ် မှားယွင်းချက်များ</string>
+  <string name="failed_repositories_message">အောက်ပါမှတ်တမ်းဆာဗာနှင့် ဆက်သွယ်၍မရပါ: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">အောက်ပါဖိုင်များကို ဒေါင်းလုပ်ဆွဲ၍မရပါ: \n\n%s\n\n</string>
+  <!--Install zip file-->
+  <string name="install_zip">မှတ်တမ်းကို Zip မှ ဖွင့်ပါ</string>
+  <string name="install_zip_module">Bible Module ကို ထည့်သွင်းအသုံးပြုပါ</string>
+  <string name="install_zip_successfull">Module အား အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ</string>
+  <string name="extracting_zip_file">Zip ဖိုင်ကို ယခုထုတ်ယူပါ...</string>
+  <string name="checking_zip_file">ပေးထားသည့်ဖိုင်ကို စစ်ဆေးနေသည်...</string>
+  <string name="invalid_module">ဖိုင်တွင် တရားဝင် SWORD module မပါဝင်ပါ</string>
+  <string name="install_zip_title">Zip ဖိုင်ကို ဖွင့်နေပါသည်။ ကျေးဇူးပြု၍ စောင့်ဆိုင်းပါ။</string>
+  <string name="overwrite_files">အောက်ပါဖိုင်များသည် ရှိပြီးသားဖြစ်သည်: %s ထပ်ရေးချင်ပါသလား။</string>
+  <string name="overwrite_files_title">ဖိုင်များကို ထပ်ရေးချင်ပါသလား။ </string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">စာဖတ်ခြင်း အစီအစဉ်</string>
+  <string name="rdg_plan_selector_title">စာဖတ်ခြင်း အစီအစဉ်တစ်ခုကို ရွေးချယ်ပါ</string>
+  <string name="rdg_plan_day">နေ့ရက် %s</string>
+  <string name="rdg_plan_set_start_date">အစပြုနေ့ရက် သတ်မှတ်ပါ</string>
+  <string name="set_current_day">ယနေ့ကို သတ်မှတ်ပါ</string>
+  <string name="msg_set_current_day_reading_plan">ယနေ့အားဤအစီအစဉ်၏ လက်ရှိနေ့အဖြစ်ထားပြီး ယခင်နေ့များအား ဖတ်ပြီးသားအဖြစ် သတ်မှတ်မည်ဖြစ်သည်။ ဆက်လုပ်မှာလား။</string>
+  <string name="done">ပြီးပါပြီ</string>
+  <string name="reset_plan_question">အစီအစဉ်ကို အစမှပြန်လည်သတ်မှတ်လိုပါသလား။</string>
+  <string name="import_reading_plan">စာဖတ်ခြင်း အစီအစဉ်ကို ထည့်သွင်းပါ</string>
+  <string name="import_reading_plan_error">ထည့်သွင်းရာ၌ မှားယွင်းမှုဖြစ်ပေါ်</string>
+  <string name="import_reading_plan_error_duplicate">အောက်ပါနေ့ရက်များသည် ပုံစံတူများဖြစ်သည် %s</string>
+  <string name="import_reading_plan_error_days">အောက်ပါနေ့ရက်များ၌ မှားယွင်းမှုများ ပါဝင်နေသည်: %s</string>
+  <string name="import_reading_plan_anyway">မည်သို့ပင်ဆိုစေ ထည့်သွင်းပါ</string>
+  <string name="overwrite_reading_plan">ထပ်ခါရေးချင်ပါသလား %s။</string>
+  <string name="delete_reading_plan">အစီအစဉ်ကို ဖျက်ပါ</string>
+  <string name="reading_plan_deleted">စာဖတ်ခြင်းအစီအစဉ်ကို ဖျက်ပြီးပါပြီ</string>
+  <string name="reading_plan_ships_with_ab">စာဖတ်ခြင်းအစီအစဉ်သည် %sနှင့်လုပ်ဆောင်သည်</string>
+  <string name="confirm_delete_reading_plan">
+        %s နှင့်အတူ ၎င်း၏စာဖတ်ခြင်း နောက်ခံမှတ်တမ်းကိုဖျက်ရန် သေချာပါသလား။
+        အရိပ်အမြွက်: အစီအစဉ်ကို အဆင့်မြှင့်လိုလျှင် တူညီသည့်ဖိုင်အမည်ဖြင့် ထည့်သွင်းနိုင်ပါသည်။
+        ထိုသို့ပြုလုပ်လျှင် နောက်ခံမှတ်တမ်းကို ထိန်းသိမ်းပေးထားပါမည်။
+    </string>
+  <string name="plan_name_y1ntpspr">တစ်နှစ်တာ ဓမ္မသစ်ကျမ်း၊ ဆာလံကျမ်း &amp; နှင့် သုတ္တံကျမ်း</string>
+  <string name="plan_description_y1ntpspr">
+        Courtesy of HEARTLIGHT Internet Magazine,
+        http://www.heartlight.org, ခွင့်ပြုချက်ပေးအပ်ပြီး
+    </string>
+  <string name="plan_name_y1ot1nt1_chronological">1 နှစ်တာ ကျမ်းစာတစ်အုပ်လုံး အစဉ်လိုက်</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+ကျမ်းစာရှိ နှစ်အစဉ်လိုက် အဖြစ်အပျက်များအပေါ် အခြေခံထားသည့် အစီအစဉ်။ နှစ်အစဉ်လိုက် အဖြစ်အပျက်ပြအချိန်ဇယားသည်ခန့်မှန်းခြေဖြစ်သည်။ </string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1 နှစ် သမ္မာကျမ်းစာဟောင်း+သစ် တစ်ချိန်တည်း </string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+     ကျမ်းစာထဲမှ အခန်းကြီးများကို 1 နှစ်တာ ဖတ်ပါ
+        နေ့စဉ် ဓမ္မဟောင်းနှင့် ဓမ္မသစ် ထဲမှ
+    </string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">1 နှစ်တာ ကျမ်းစာထဲမှ</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+        ကမ္ဘာဦးကျမ်းမှစပြီး ကျမ်းစာကို 1 နှစ်အတွင်းဖတ်ပါ
+       ဗျာဒိတ်ကျမ်းတွင် ဆုံးရန်။ ဓမ္မဟောင်းကျမ်းကို အရင်ဖတ်ပြီးမှ ဓမ္မသစ်ကျမ်းကိုဖတ်ပါ။
+    </string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 နှစ် အခန်းကြီး 4 ခု/တစ်ရက်</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+ဤအစီအစဉ်ကို M\'Cheyne ဖတ်စာစနစ်မှ အခြေခံထားပြီး မိသားစုနှင့် တစ်ဦးချင်း ဆက်ကပ်ဝတ်ပြုခြင်းအတွက် မတူညီသည့် ဖတ်စာလေးမျိုးကို တင်ပေးထားပါသည်။ နေ့စဉ် ဓမ္မဟောင်းကျမ်းမှ နှစ်ခု၊ ဓမ္မသစ်ကျမ်းမှ တစ်ခုနှင့် ဆာလံ သို့မဟုတ် သတင်းကောင်း ၄ အုပ်မှ တစ်ခုစီတို့ ပါဝင်ပါမည်။ တစ်နှစ်အတွင်း ဓမ္မဟောင်းကိုတစ်ကြိမ်၊ ဓမ္မသစ်နှင့်ဆာလံတို့ကို နှစ်ကြိမ် ဖတ်ပြီးသားဖြစ်သွားပါမည်။ </string>
+  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner အခန်းကြီး 10ခု/နေ့စဉ် ဖတ်ရှုခြင်း အစီအစဉ် </string>
+  <string name="plan_description_y1ot6nt4_profHorner">Prof. Horner ၏ လောကဝတ်, ခွင့်ပြုချက် ပေးထားပြီး</string>
+  <string name="plan_name_y2ot1ntps2">ကျမ်းစာထဲမှ 2 နှစ်၊ ဓမ္မသစ် + ဆာလံအား နှစ်ကြိမ်</string>
+  <string name="plan_description_y2ot1ntps2">
+        ကျမ်းစာထဲမှ 2 နှစ်ဖတ်ပြီး၊  ဓမ္မသစ်နှင့် ဆာလံအား နှစ်ကြိမ်ဖတ်ရန်
+         Wholesome Words ၏လောကဝတ်,  http://www.wholesomewords.org/, permission granted
+    </string>
+  <!--Document context menu-->
+  <string name="delete">ဖျက်ပါ</string>
+  <string name="delete_index">အညွှန်း ရှာဖွေမှုကို ဖျက်ပါ</string>
+  <string name="about">အကြောင်း</string>
+  <string name="delete_doc">ဖျက်ချင်ပါသလား %s။</string>
+  <string name="delete_search_index_doc">အညွှန်းကို ဖျက်ချင်ပါသလား %s။</string>
+  <!--Verse context menu-->
+  <string name="notes">အောက်ခြေမှတ်တမ်းနှင့် ကိုးကားချက်များ</string>
+  <string name="share_verse">ဝေမျှပါ...</string>
+  <string name="share_verse_widget_title">ရွေးချယ်မှုကို ဝေမျှပါ</string>
+  <string name="share_verse_subject_2">%s ကိုအသုံးပြုပြီး သင့်အား ကျမ်းစာတစ်ပိုဒ် ဝေမျှထားပါသည်။</string>
+  <string name="compare_translations">ဘာသာပြန်များကို နှိုင်းယှဉ်ပါ</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">လင့်ကိုဤနေရာတွင် ဖွင့်ပါ</string>
+  <string name="open_link_in_new_window">လင့်ကို ဝင်းဒိုးအသစ်တွင် ဖွင့်ပါ</string>
+  <string name="open_link_in_special_window">လင့်ကို အထူးဝင်းဒိုးတွင် ဖွင့်ပါ</string>
+  <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">စာညှပ် &amp; ကိုယ်ပိုင်မှတ်စုများ</string>
+  <string name="migrated_my_notes">ကိုယ်ပိုင် မှတ်စုများရွှေ့ပြောင်းပြီး</string>
+  <string name="bookmarks">စာမျက်နှာမှတ်သားခြင်းများ</string>
+  <string name="bookmark_added">စာမျက်နှာမှတ်သားခြင်း ပေါင်းထည့်ပြီး</string>
+  <string name="manage_labels">လေဘယ်လ်များကို စီမံခန့်ခွဲပါ</string>
+  <string name="assign_labels">လေဘယ်လ်များကို တာဝန်ပေးအပ်ပါ</string>
+  <string name="new_item">အသစ် </string>
+  <string name="new_label">လေဘယ်လ် အသစ်</string>
+  <string name="label_name_prompt">အမည်</string>
+  <string name="label_unlabelled">လေဘယ်လ်ကို ဖယ်ရှားပြီးပါပြီ</string>
+  <string name="add_bookmark1">စာမျက်နှာမှတ်သားခြင်းများ</string>
+  <string name="add_bookmark2">ရွေးချယ်ထားသည်များကို စာမျက်နှာမှတ်သားထားပါ</string>
+  <string name="add_bookmark3">ရွေးချယ်မှု</string>
+  <string name="add_bookmark_whole_verse">အခန်းငယ်ကို စာမျက်နှာမှတ်သားထားပါ</string>
+  <string name="add_bookmark_whole_verse1">အခန်းငယ်များ</string>
+  <string name="add_bookmark_whole_verse2">အခန်းငယ်များ အပြည့်</string>
+  <string name="remove_bookmark">ဖယ်ရှားပါ</string>
+  <string name="bookmark_settings_hide_labels_title">အထူးပြုထားသော လေဘယ်လ်များကို ဖျောက်ထားပါ</string>
+  <string name="bookmark_settings_hide_labels_summary">သတ်မှတ်ထားသော လေဘယ်လ်များဖြင့် မှတ်သားထားသည့် စာမျက်နှာအမှတ်အသား (များ)ကို ဖျောက်ပါ</string>
+  <string name="auto_assign_labels_title">လေဘယ်လ် ဆက်တင်များ</string>
+  <string name="auto_assign_labels">အလိုအလျောက်စေခိုင်းထားသည့် &amp; အနှစ်သက်ဆုံး လေဘယ်လ်များ</string>
+  <string name="auto_assign_labels1">စာညှပ်အသစ်များကို အလိုအလျောက် လေဘယ်လ်တပ်ရန် တာဝန်ပေးပါ</string>
+  <string name="auto_assign_labels_primary">အလိုအလျောက်စနစ်အား ဦးစားပေးထားခြင်း</string>
+  <string name="label_color">လေဘယ်လ် အရောင်</string>
+  <!--can be removed-->
+  <string name="label_color_example">ဥပမာ</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">နေ့ရက် အစီအစဉ်</string>
+  <string name="sort_by_bible_book">သမ္မာကျမ်းစာဆိုင်ရာ အစီအစဉ်</string>
+  <string name="sort_by_alphabetical">အက္ခရာစဉ်</string>
+  <!--Dictionary-->
+  <string name="dictionary">အဘိဓာန်များ</string>
+  <string name="search_dictionary_hint">အဘိဓာန်တွင် ရှာပါ</string>
+  <!--General Book-->
+  <string name="general_book">စာအုပ်</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d အခန်းကြီး</string>
+  <string name="some_chapters">%d အခန်းကြီးများ</string>
+  <string name="rest_of_book">စာအုပ်၏ အဆုံး</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d အခန်းငယ်</string>
+  <string name="some_verses">%d အခန်းငယ်များ</string>
+  <string name="rest_of_chapter">အခန်းကြီး၏ အဆုံး</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d စာမျက်နှာ</string>
+  <string name="some_pages">%d စာမျက်နှာများ</string>
+  <!--Speak - Common-->
+  <string name="stop">ရပ်ပါ</string>
+  <string name="pause">ခေတ္တရပ်တန့်ရန်</string>
+  <string name="rewind">နောက်ပြန်လှည့်ပါ</string>
+  <string name="forward">ရှေ့သို့သွားပါ</string>
+  <string name="tts_lang_not_available">ဤဘာသာစကား မရနိုင်သေးပါ</string>
+  <string name="speak_queue">တန်းစီပါ</string>
+  <string name="speak_repeat">ထပ်လုပ်ပါ</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">စကားပြော အမြန်နှုန်း</string>
+  <string name="speak_and_play_earcons_title">...အတွက် အတိုကောက်အသံကို ပြောပါ၊ ဖွင့်ပါ</string>
+  <string name="playback_settings_title">ပြန်လည်ဖွင့်ခြင်း ဆက်တင်များ</string>
+  <string name="speak_settings_title">အထွေထွေ စကားပြော ဆက်တင်များ</string>
+  <string name="speak_bookmarking_settings_title">စာမျက်နှာမှတ်သားခြင်း ဆက်တင်များ</string>
+  <string name="speak_bookmarks_menu_title">စာမျက်နှာအမှတ်အသားမှ စကားပြောပါ</string>
+  <string name="speak_advanced_settings">အဆင့်မြင့် ဆက်တင်များ</string>
+  <string name="speak_sleep_timer_title">အိပ်ချိန် သတ်မှတ်ချက်</string>
+  <string name="speak_no_books_available">စကားပြောရန် စာအုပ်မရနိုင်သေးပါ</string>
+  <string name="speak_general_error">ဤစာအုပ်အတွက် စကားပြော၍ မရနိုင်ပါ</string>
+  <string name="repeat_passage">စာကြောင်းကို ထပ်ရွတ်ပါ</string>
+  <string name="set_repeat_passage_range">စာကြောင်းထပ်ရွတ်သည့်နှုန်းကို သတ်မှတ်ပါ</string>
+  <string name="speak_beginning_of_passage">စာကြောင်းအစကို ရွေးချယ်ပါ</string>
+  <string name="speak_ending_of_passage">စာကြောင်းအဆုံးကို ရွေးချယ်ပါ</string>
+  <string name="speak_verse_range_to_repeat">ထပ်ရွတ်ရန် အခန်းငယ်၏နှုန်းကို ရွေးချယ်ပါ</string>
+  <string name="speak_ending_verse_must_be_later">အဆုံးသတ်အခန်းငယ်သည် အစပြုအခန်းငယ်ထက် နောက်ကျနေရမည်</string>
+  <string name="conf_speak_synchronize">စကားပြောနောက်တွင် စာသားပါလာမည်</string>
+  <string name="conf_speak_auto_bookmark">အလိုအလျောက် စာမျက်နှာမှတ်သားခြင်း</string>
+  <string name="conf_save_playback_settings_to_bookmarks">ပြန်လည်ဖွင့်ခြင်းဆက်တင်မှ စာမျက်နှာအမှတ်အသားများသို့ သိမ်းထားပါ</string>
+  <string name="conf_replace_divinename">ဘုရား၏အမည်များကို Yahweh ဖြင့်အစားထိုးပါ</string>
+  <string name="conf_change_chapter">အခန်းကြီး အပြောင်းအလဲများ</string>
+  <string name="conf_change_title">ခေါင်းစဉ်များ</string>
+  <string name="conf_speak_footnotes">အောက်ခြေမှတ်စု</string>
+  <string name="conf_speak_sleep_timer">အိပ်ချိန်သတ်မှတ်ချက်ကို ထားပါ</string>
+  <string name="sleep_timer_title">မိနစ်အနည်းငယ်အတွင်း အိပ်ချိန် သတ်မှတ်ခြင်း</string>
+  <string name="sleep_timer_set">အိပ်ချိန်သတ်မှတ်ချက်ထားပါ၊ အချိန်သတ်မှတ်ပြီး: %d မိနစ်</string>
+  <string name="sleep_timer_started">အိပ်ချိန်သတ်မှတ်ခြင်း စတင်ပါပြီ %d မိနစ်</string>
+  <string name="sleep_timer_active_at">အိပ်ချိန်သတ်မှတ်ခြင်း: %s မိနစ်ကျန်</string>
+  <string name="speak_next"> နောက်တစ်ခု</string>
+  <string name="speak_previous">ယခင်</string>
+  <string name="widget_toggle_sleep_timer">Toggle အိပ်ချိန်သတ်မှတ်ချက်</string>
+  <string name="widget_bookmark_helptext">စာညှပ်စကားပြောအတွက် ဖြတ်လမ်းခလုတ်များသည် ဤနေရာတွင် ပေါ်လာမည်။</string>
+  <string name="speak_status_stopped">ရပ်တန့်နေပါပြီ</string>
+  <string name="speak_autobookmarking_disabled">အလိုအလျောက် စာမျက်နှာမှတ်သားခြင်းကို ပိတ်လိုက်ပါပြီ</string>
+  <string name="system_speak_settings">Open system TTS ဆက်တင်များ</string>
+  <string name="auto_assing_labels_help1">သင်ဖန်တီးထားသည့် စာညှပ်များတွင် အလိုအလျာက်အလုပ်လုပ်သည့် လေဘယ်လ်များကို ဤနေရာတွင် ပြုပြင်နိုင်သည်။ </string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">ဤဆက်တင်သည် %s သို့လည်း အကျုံးဝင်သည် </string>
+  <string name="setting_scope_window">ဤဝင်းဒိုး</string>
+  <string name="setting_scope_workspace">ဤအလုပ်ခွင်</string>
+  <string name="assing_labels_help1">စာညှပ်တစ်ခုစီကို လေဘယ်လ်များစွာ တပ်စေနိုင်ပါသည်။</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">အသုံးပြုပါ %sမည်သည့် လေဘယ်လ်အရောင် ပေါ်သည်ကို အတိအကျပြောရန် </string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">နှိပ်ပါ %s  ထိုလေဘယ်လ်မှ စာညှပ်အသစ်များအား အလိုအလျောက် လေဘယ်လ်တပ်စေရန် တင်္ကေတကိုနှိပ်ပါ။</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">နှိပ်ပါ %s လျင်မြန်စွာ ဝင်ရောက်ခွင့်အတွက် သင်၏အနှစ်သက်ဆုံးစာရင်းကို လေဘယ်လ်ထည့်ရန်။</string>
+  <!--param is refresh icon-->
+  <string name="assing_labels_help5">သင်၏ရွေးချယ်မှုများအတိုင်း စာရင်းကို ပြန်စီရန် %sကိုနှိပ်ပါ။ </string>
+  <string name="workspace_text_options_help_title">အလုပ်ခွင် စာသား ရွေးချယ်စရာများ</string>
+  <string name="workspace_text_options_help1">အလုပ်ခွင်တွင်ရှိသည့် ဝင်းဒိုးအားလုံး မူလနေရာသို့ပြန်လည်ထားရှိခြင်းကို ဤဆက်တင်များက ထိန်းချုပ်သည်။ </string>
+  <string name="workspace_text_options_help2">သီးခြားဝင်းဒိုး ဆက်တင်များကို ပြောင်းလဲခြင်းဖြင့် ဤအရာများကို ပြန်လည်ပယ်ဖျက်နိုင်သည်။ </string>
+  <string name="window_text_options_help_title">ဝင်းဒိုး စာသား ရွေးချယ်စရာများ</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">ဆက်တင်များသည် အလုပ်ခွင်ရှိဆက်တင်များမှ လာသည်ဟု %s တင်္ကေတမှ ဖော်ပြသည်။</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">ဤဆက်တင်သည် သီးသန့်ဝင်းဒိုးတစ်ခုအတွက် ပြောင်းလဲထားပြီဟု %s တင်္ကေတမှ ဖော်ပြသည်။</string>
+  <string name="window_text_options_help3">အလုပ်ခွင်ဆက်တင်သည် ဤဝင်းဒိုးအပေါ်အကျိုးသက်ရောက်စေမည် မဟုတ်ပါ။ </string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">ဤဆက်တင်များအားလုံးကို မူလနေရာ %sသို့ပြန်လည်ထားရန် %s ခလုတ်ကို အသုံးပြုပါ။ </string>
+  <string name="reset_defaults">ပုံသေ တန်ဖိုးများ</string>
+  <string name="reset_workspace_defaults">အလုပ်ခွင် ပုံသေ တန်ဖိုးများ</string>
+  <string name="speak_bookmark_help">စာညှပ်အကူအညီကို အသံဖြင့်ပြောပါ</string>
+  <string name="speak_help_auto_bookmark">
+စကားပြောကို ခေတ္တရပ်တန့်စဉ် သို့မဟုတ် ရပ်လိုက်သည့်အခါ စာညှပ်စကားပြောသည် အလိုအလျောက် ပေါင်းထည့်ပြီးသား ဖြစ်ပါမည်။ အလိုအလျောက်ထုတ်လုပ်ပေးသည့် စာညှပ်များကို အထူးစကားပြောလေဘယ်လ်တွင် လေဘယ်လ် တပ်ထားပါမည်။ အကယ်၍ သင်သည် စာညှပ်စကား ပြောမှ စဖွင့်ခဲ့လျှင် စာညှပ်သည် အခန်းငယ်ကို ရပ်ထား သို့မဟုတ် ခေတ္တရပ်တန့်ထားသည့်နေရာသို့  ရွေ့သွားပါလိမ့်မည်။ စကားပြောလေဘယ်လ် တစ်ခုသာ ရွေ့သွားမည်ဖြစ်ပြီး အခြားလေဘယ်လ်များ ကျန်ခဲ့ပါလိမ့်မည်။   </string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>သခင်</item>
+    <item>ဘုရားသခင်</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Yahweh</item>
+    <item>Yahweh</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">စာအုပ်ပြောင်းလဲပြီး</string>
+  <string name="speak_chapter_changed">အခန်းကြီး</string>
+  <string name="speak_first">ပထမ</string>
+  <string name="speak_second">ဒုတိယ</string>
+  <string name="speak_third">တတိယ</string>
+  <string name="speak_fourth">စတုတ္ထ</string>
+  <string name="speak_fifth">ပဉ္စမ</string>
+  <string name="verse_range_mode_disabled">
+        ကျမ်းပိုဒ် ထပ်ကျာ့ခြင်း အသွင်အပြင်အား​ ပိတ်ထားပါသည်။
+        အကြောင်းမှာ အခန်းငယ်အတွက် သတ်မှတ်ထားသည့်နှုန်းအား ကျော်လွန်၍အသံကိုဖွင့်ထားသောကြောင့်ဖြစ်သည်။
+    </string>
+  <!--User Notes-->
+  <string name="mynotes">ကိုယ်ပိုင်မှတ်စုများ</string>
+  <!--Backup and restore-->
+  <string name="backup_and_restore">&amp; အားအရန်ဖိုင် ပြုလုပ်ပါ; ပြန်ယူပါ</string>
+  <string name="backup_modules">မှတ်တမ်းများအား... သို့ ဝေမျှပါ သို့မဟုတ် အရန်ဖိုင် ပြုလုပ်ပါ</string>
+  <string name="backup_app_database">အက်ပ် ဒေတာဘေ့စ်အား... သို့ ဝေမျှပါ သို့မဟုတ် အရန်ဖိုင် ပြုလုပ်ပါ</string>
+  <string name="backup_app">အက်ပ် (.apk file) အား... သို့ ဝေမျှပါ သို့မဟုတ် အရန်ဖိုင် ပြုလုပ်ပါ</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">မည်သည့်အရာကို ပြန်ယူလိုပါသနည်း။ </string>
+  <string name="restore_app_database">အက်ပ် ဒေတာဘေ့စ်အား ...မှ ပြန်ယူပါ</string>
+  <string name="restore_database">ဒေတာဘေ့စ်ဖိုင်ကို ပြန်ယူပါ</string>
+  <string name="restore_confirmation">ကိုယ်ပိုင်မှတ်စုများ၊ စာညှပ်များ၊ လေ့လာရေးစာရွက်များ၊ စာဖတ်အစီအစဉ်များနှင့် အလုပ်ခွင်များအား အသစ်ပြန်ရေးလိုပါသလား။ </string>
+  <string name="reading_plans_plural">စာဖတ်ခြင်း အစီအစဉ်များ</string>
+  <string name="restore_success">ကိုယ်ပိုင်မှတ်စုများ၊ စာညှပ်များ၊ လေ့လာရေးစာရွက်များ၊ စာဖတ်အစီအစဉ်များနှင့် အလုပ်ခွင်များအား အောင်မြင်စွာ ပြန်ယူပြီးပါပြီ</string>
+  <string name="loading_backup">ဒေတာဘေ့စ်အား အရန်ဖိုင်မှ ဖွင့်နေပါသည်</string>
+  <string name="backup_success2">ကိုယ်ပိုင်မှတ်စုများ၊စာညှပ်များ၊လေ့လာရေးစာရွက်များ၊ စာဖတ်အစီအစဉ်များနှင့်အလုပ်ခွင်များအား အောင်မြင်စွာ အရန်ဖိုင်လုပ်ပြီးပါပြီ။</string>
+  <string name="backup_modules_success">ရွေးချယ်ထားသော သင်ခန်းစာများအား အောင်မြင်စွာအရန်ဖိုင်လုပ်ပြီးပါပြီ။</string>
+  <string name="backup_modules_email_subject_2">%s သင်ခန်းစာများအား အရန်ဖိုင်လုပ်ခြင်း</string>
+  <string name="backup_modules_email_message_2">အောက်ပါသင်ခန်းစာများ :%s ပါဝင်သည့် သင်၏ %s သင်ခန်းစာများ အရန်ဖိုင်အား ဖိုင်တွဲပေးထားပါသည်။ </string>
+  <string name="backup_email_subject_2">%s ဒေတာဘေ့စ် အရန်ဖိုင်လုပ်ခြင်း</string>
+  <string name="backup_email_message_2">စာညှပ်များ၊ မှတ်စုများ၊ စာဖတ်ခြင်းအစီအစဉ်များနှင့် အလုပ်ခွင်များပါဝင်သည့် သင်၏ %s ဒေတာဘေ့စ်အား ဖိုင်တွဲထားပါသည်</string>
+  <string name="restore_unsuccessfull">ဒေတာဘေ့စ်ပြန်ယူခြင်း မအောင်မြင်ပါ။ သင်က မမှန်သည့် ဒေတာဘေ့စ်ဖိုင် ပေးထားသောကြောင့် ဖြစ်နိုင်ပါသည်။ </string>
+  <string name="backup_phone_storage">ဖုန်းသိုလှောင်ပမာဏ</string>
+  <string name="backup_backup_title">ဘယ်နေရာတွင် အရန်ဖိုင်လုပ်မည်နည်း။ </string>
+  <string name="backup_backup_message">ဖုန်း သို့မဟုတ် အခြားနေရာများဖြစ်တဲ့ ဝေမျှ လုပ်ဆောင်ချက် (email, Google Drive etc.)တို့တွင် အရန်ဖိုင် လုပ်လိုပါသလား။ </string>
+  <string name="backup_share">မျှဝေပါ</string>
+  <string name="restore_modules">မှတ်စုများအား ...မှ ပြန်ယူပါ</string>
+  <string name="send_backup_file">အရန်ဖိုင်တစ်ခုကို ပို့ပါ</string>
+  <string name="backup_modules_title">အရန်ဖိုင်လုပ်မည့် သင်ခန်းစာများကို ရွေးချယ်ပါ</string>
+  <string name="install_zip_canceled">သင်ခန်းစာ ထည့်သွင်းခြင်းအား ပယ်ဖျက်လိုက်ပါပြီ</string>
+  <!--About-->
+  <string name="module_about_copyright">မူပိုင်ခွင့်: %s</string>
+  <string name="module_about_installed_version">ဗားရှင်းထည့်သွင်းပြီးပါပြီ: %s (%s)</string>
+  <string name="module_about_latest_version">နောက်ဆုံးထွက် ဗားရှင်း: %s (%s)</string>
+  <string name="module_about_versification">ဗားရှင်းဖွဲ့နွဲ့နည်း: %s</string>
+  <string name="module_about_repository">ဖြန့်ဖြူးခြင်း ဆာဗာ: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title1">စက်ချို့ယွင်းမှု သတင်းပို့ခြင်း</string>
+  <string name="send_feedback_title">တုံ့ပြန်ချက်</string>
+  <string name="send_bug_report_title">တုံ့ပြန်ချက် / စက်ချို့ယွင်းမှု သတင်းပို့ခြင်း</string>
+  <string name="report_bug_email_subject_3">[%s] ...အတွက် စက်ချို့ယွင်းမှု သတင်းပို့ခြင်း %s %s</string>
+  <string name="report_bug_big_heading">ဤမျဉ်းအပေါ်တွင် သင်၏တုံ့ပြန်ချက် သို့မဟုတ် စက်ချို့ယွင်းမှုကို ကျေးဇူးပြုပြီး သတင်းပို့ပါ</string>
+  <string name="report_bug_heading1">လမ်းညွှန်ချက်များ</string>
+  <string name="report_bug_line_1">စက်ချို့ယွင်းမှုဖြစ်ပေါ်စဉ် မည်သို့ဖြစ်နေပြီး / သင်ဘာလုပ်သည်ကို ကျွန်တော်တို့အား အကျဉ်းချုံးပြောပြပေးပါ။</string>
+  <string name="report_bug_heading2">ဥပမာအားဖြင့်</string>
+  <string name="report_bug_instructions1">1. ဖွင့်ထားသည့် အက်ပ်</string>
+  <string name="report_bug_instructions2">2. နှိပ်ထားသည့် ဝင်းဒိုး မီနူး</string>
+  <string name="report_bug_instructions3">-&gt; ပျက်နေသည်</string>
+  <string name="report_bug_line_2">ပြဿနာများကို ဖြေရှင်းရာတွင် ကိုယ်တိုင်ရိုက်ယူထားသည် screenshot များသည် တစ်ခါတစ်ရံတွင် အထောက်အကူဖြစ်စေပါသည်။ </string>
+  <string name="report_bug_line_3">ပြဿနာဖြစ်သည်ကို သိသိချင်း ကျေးဇူးပြုပြီး ဤလုပ်ဆောင်ချက်ကိုအသုံးပြု၍ သတင်းပို့ပေးပါ။</string>
+  <string name="report_bug_line_4">စက်ချို့ယွင်းမှုဖြစ်ပေါ်ပြီးချိန်နှင့် ဤအက်ပ်ကို ဖွင့်ပြီးချိန်တို့တွင်လည်း ဤလုပ်ဆောင်ချက်ကို အသုံးပြုနိုင်သည်။</string>
+  <string name="report_bug_heading_3">ဖိုင်တွဲများ:</string>
+  <string name="bug_report_logcat">ဤအက်ပ်မှထုတ်သည့် မှတ်တမ်းဖိုင်။ ဤအက်ပ်တွင် အခြားအက်ပ်များ၏ သတင်းအချက်အလက်များ မပါဝင်ပါ။ </string>
+  <string name="bug_report_screenshot">စက်ချို့ယွင်းမှုဖြစ်ပေါ်ချိန် သို့မဟုတ် စက်ချို့ယွင်းမှု သတင်းပို့ထားသည့် အက်ပ်၏ screenshot </string>
+  <string name="bug_report_attachment_line_1">ဤဖိုင်များကိုတွဲပေးခြင်းဖြင့် သတင်းပို့ထားသည့်ချို့ယွင်းမှုများ ပြပြင်ရာတွင် ဖန်တီးသူများအား အထောက်အကူ ဖြစ်စေပါသည်။</string>
+  <string name="report_bug_heading_4">ကိရိယာ သတင်းအချက်အလက်</string>
+  <!--Document types-->
+  <string name="doc_type_all">အမျိုးအစားအားလုံး</string>
+  <string name="doc_type_bible">သမ္မာကျမ်းစာ</string>
+  <string name="doc_type_commentary">အနက်ဖွင့်ကျမ်း</string>
+  <string name="doc_type_dictionary">အဘိဓာန်များ</string>
+  <string name="doc_type_book">စာအုပ်</string>
+  <string name="doc_type_map">မြေပုံ</string>
+  <string name="doc_type_addons">Add-ons</string>
+  <!--Languages-->
+  <string name="lang_default">ပုံသေ</string>
+  <!--General-->
+  <string name="okay">အိုကေ</string>
+  <string name="cancel">ပယ်ဖျက်ပါ</string>
+  <string name="yes">ဟုတ်တယ်</string>
+  <string name="no">မဟုတ်ပါ</string>
+  <string name="error">မှားယွင်းချက်များ</string>
+  <string name="delete_generic">ဖျက်ပါ</string>
+  <string name="please_wait">ကျေးဇူးပြု၍ စောင့်ပါ...</string>
+  <string name="all">အားလုံး</string>
+  <string name="edit">တည်းဖြတ်ပါ</string>
+  <string name="reset_generic">ပြန်လည်သတ်မှတ်ပါ</string>
+  <string name="watch_tutorial_video">လမ်းညွှန် ဗီဒီယိုကိုကြည့်ပါ (အင်္ဂလိပ်)</string>
+  <string name="verse_not_found">အခန်းငယ် ရှာမတွေ့ပါ</string>
+  <!--Errors-->
+  <string name="report_error">သတင်းပို့ပါ</string>
+  <string name="error_occurred">မှားယွင်းမှုတစ်ခု ဖြစ်ပေါ်သည်</string>
+  <string name="error_occurred_crash_last_time">ဤအက်ပ်ကို နောက်ဆုံး သင်သုံးခဲ့စဉ်တွင် ပျက်သွားပါသည်။ ချို့ယွင်းမှုကိုပြုပြင်ရန် ချို့ယွင်းမှုသတင်းပို့ပေးနိုင်ပါက ကျွန်တော်တို့ကျေးဇူးတင်ရှိပါမည်။ </string>
+  <string name="error_occurred_with_link">မှားယွင်းမှုတစ်ခု ဖြစ်ပေါ်သည်။ %s</string>
+  <string name="error_no_content">ရွေးထားသည့် အခန်းငယ်အတွက် မည်သည့်အကြောင်းအရာမှ မရှိပါ</string>
+  <string name="error_page_too_large">စာမျက်နှာကြီးလွန်းသည့်အတွက် ဖွင့်မရပါ</string>
+  <string name="error_key_not_in_document">မှတ်တမ်းတွင် ရှာမတွေ့ပါ</string>
+  <string name="error_key_not_in_document2">%s မှတ်တမ်းတွင် ရှာမတွေ့ပါ %s.</string>
+  <string name="empty_list">ဖော်ပြရန် မည်သည့်အကြောင်းအရာမှမရှိပါ</string>
+  <string name="error_skip">ကျော်သွားပါ</string>
+  <!--Notifications-->
+  <string name="notification_channel_tts_status">အသံဖြင့်ပြောရန် စာသား</string>
+  <string name="notification_channel_progress_status">မှတ်တမ်း ဒေါင်းလုပ်ဆွဲခြင်းများ.. အစရှိသည်များ အတွက် လုပ်ငန်းစဉ် အခြေအနေပြ သတိပေးချက်</string>
+  <!--Workspaces-->
+  <string name="new_workspace">အသစ် </string>
+  <string name="switch_to_workspace">အလုပ်ခွင်များ</string>
+  <string name="delete_workspace">ဖယ်ရှားပါ</string>
+  <string name="new_copied_workspace">အသစ် ကော်ပီကူးပါ</string>
+  <string name="workspace_number">အလုပ်ခွင် %d</string>
+  <string name="rename_workspace">အမည်အသစ်ပေးပါ</string>
+  <string name="workspace_selector_title">အလုပ်ခွင် ရွေးချယ်ပါ</string>
+  <string name="workspace_settings">ဆက်တင်များ...</string>
+  <string name="give_name_workspace">အလုပ်ခွင်အသစ်အတွက် အမည်ပေးပါ</string>
+  <string name="save_and_exit">သိမ်းဆည်းပါ</string>
+  <string name="workspace_save_changes">အလုပ်ခွန်များပြောင်းလဲခြင်းကို အတည်ပြုပါ</string>
+  <string name="copy_of_workspace">...၏ ကော်ပီ %s</string>
+  <string name="copy_workspace_settings">ကော်ပီ ဆက်တင်များ...</string>
+  <string name="copy_settings_title">မည်သည့်ဆက်တင်များကို သင်ကော်ပီကူးလိုသနည်း။</string>
+  <string name="select_all">အားလုံးကို ရွေးချယ်ပါ</string>
+  <string name="copy_settings_workspaces_title">မည်သည့်အလုပ်ခွင်များသို့ ဆက်တင်များကို ကော်ပီကူးလိုသနည်း။ </string>
+  <string name="reset_settings">ပြန်လည်သတ်မှတ်ပါ</string>
+  <string name="workspace_dismiss">ပယ်ချပါ</string>
+  <string name="workspace_listing_with_current">%s (လက်ရှိ)</string>
+  <!--Beta notice-->
+  <string name="beta_notice_title">beta ဗားရှင်းဖြစ်သည်။ </string>
+  <string name="beta_notice_content_2">
+        Beta အသုံးပြုသူများသည် Google Play သို့မဟုတ်
+        (ဖြစ်နိုင်လျှင်) %sမှ ချို့ယွင်းမှုသတင်း ပေးပို့စေလိုပါသည်။
+    </string>
+  <string name="beta_notice_content_3">သင်သည် ပရိုဂရမ်မာတစ်ယောက်ဖြစ်ခဲ့လျှင် စက်ချို့ယွင်းမှုကို ကျေးဇူးပြုပြီး ကူညီဖြေရှင်းစေလိုပါသည်၊
+        သင်ကိုယ်တိုင် %s မှ ပြုပြင်ပါ။ :-)</string>
+  <string name="beta_notice_github_issues">Github ပြဿနာများ</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">ပယ်ချပါ</string>
+  <string name="beta_notice_dismiss_until_update">နောက် အပ်ပ်ဒိတ် မတိုင်မီအထိ ပယ်ချပါ</string>
+  <string name="stable_notice_title">အက်ပ်ပလီကေးရှင်းကို အဆင့်မြှင့်တင်ပြီးပါပြီ။</string>
+  <string name="upgrade_video_message">ဤအသစ်ထုတ်ထားသည့် (%s)၏ အသွင်အပြင်အသစ်များကို တင်ထားသည့် ဗီဒီကိုအသစ်ကို ကျေးဇူးပြုပြီး ကြည့်ပါ။ </string>
+  <string name="stable_notice_par1">ဗားရှင်းအသစ် %s ၏ %s အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။</string>
+  <!--History-->
+  <string name="history_for">သုံးခဲ့သည့်မှတ်တမ်း (%s: ဝင်းဒိုး %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">ညွှန်ကြားပြသခြင်း</string>
+  <string name="help_nav_text">မျက်နှာပြင်ကို သင်၏လက်မနှင့် ပွတ်ဆွဲခြင်းဖြင့် ရှေ့နှင့်နောက် အခန်းကြီးသို့ သွားပါ။ မျက်နှာပြင် အပြည့်အသွင်ကို ပြောင်းရန် ကျမ်းစာစာသားအား နှစ်ချက်နှိပ်ပါ။ မျက်နှာပြင်ခွဲခြင်းများ (ဝင်းဒိုးများဟု လည်းခေါ်)တွင် ညာဖက် အပေါ်ထောင့်၌ မီနူးခလုတ် ရှိပြီး ၎င်းသည် ဝင်းဒိုးသီးသန့် လုပ်ဆာင်ချက် အများအပြားကို အသုံးပြုခွင့်အပါအဝင် ဝင်းဒိုးသွင်ပြင်နှင့် အပြုအမူများအား စိတ်ကြိုက် ဖန်တီးခွင့်ကို ပေးသည်။  </string>
+  <string name="help_contextmenus_title">အကြောင်းအရာ မီနူးများ</string>
+  <string name="help_contextmenus_text">
+open context menu သို့မဟုတ် action mode ကိုကြာကြာဖိထားခြင်းဖြင့်မြင်ကွင်းမျိုးစုံပြောင်းလဲခြင်း။  action mode ကိုဖွင့်ခြင်းဖြင့် ယခုအခန်းငယ်ကို အပြောင်းအလဲပြုလုပ်ရန် ကျမ်းစာမြင်ကွင်းအား ကြာကြာဖိထားပါ။ မှတ်တမ်းကိုဖျက်ရန် သို့မဟုတ် သတင်းအချက်အလက်ကို ကြည့်ရန်  စာရင်းမြင်ကွင်း တွင်ပါသည့် မှတ်တမ်းကိုရွေးပါ သို့မဟုတ် ဒေါင်းလုပ်ဆွဲပါဆိုသည့်  မှတ်တမ်းအချက် အလက်ကို ကြာကြာဖိထားပါ။ လေဘယ်လ်ထပ်ထည့်ရန် သို့မဟုတ် စာညှပ်ကိုဖျက်ရန် စာညှပ်စာရင်းတွင်ပါသည့် စာညှပ်တစ်ခုကို ကြာကြာဖိထားပါ။ လက်ရှိဝင်းဒိုး သို့မဟုတ် ဝင်းဒိုးအသစ် သို့မဟုတ် အထူးဝင်းဒိုးလင့်ခ် တစ်ခုခုတွင် လင့်ခ်ဖွင့်ရန်ရွေးချယ်လိုလျှင် ထိုလင့်ခ်အား ကြာကြာဖိထားပါ။ </string>
+  <string name="help_bookmarks_title">စာညှပ် &amp; ကိုယ်ပိုင်မှတ်စုများ</string>
+  <string name="help_bookmarks_text">စာသားအချို့ကိုမှတ်သားပြီး၊ popup မီနူးမှ \"စာညှပ်\"ကိုရွေးချယ်ခြင်းဖြင့် စာညှပ်များကို ဖန်တီးနိုင်သည်။ ကျမ်းစာမြင်ကွင်းတွင် ဟိုက်လိုက်လုပ်ထားသည့်စာသားကို နှိပ်ခြင်းဖြင့် စာညှပ်အသစ်တွင် စိတ်ကြိုက်မှတ်စာ များကို ပေါင်းထည့်နိုင်သည်။ အနက်ဖွင့်ကျမ်းများတွင်လည်း သင်၏မှတ်စုများကို သီးသန့်ဝင်းဒိုးတစ်ခုတွင် ကြည့်ရှုနိုင်ရန် ခွင့်ပြုထားပါသည်။ 
+    </string>
+  <string name="help_studypads_title">လေ့လာရေးစာရွက်များ</string>
+  <string name="help_search_title">ရှာဖွေပါ</string>
+  <string name="help_search_text">စာသားရှာဖွေရာတွင် အထူးတင်္ကေတများဖြစ်သည့် *, ?, AND, OR, NOT တို့ပါဝင်နိုင်သည်
+        (အသေးစိတ်ကို \"Apache Lucene - Query Parser Syntax\" တွင် ကြည့်ပါ)
+    </string>
+  <string name="help_workspaces_title">အလုပ်ခွင်များ</string>
+  <string name="help_hidden_features_title">ဖျောက်ထားသည့် ဖြတ်လမ်းများ</string>
+  <string name="help_window_pinning_title">ဝင်းဒိုးတွင် တွဲထားခြင်း</string>
+  <!--Welcome text-->
+  <string name="redownload_documents">အမြန် ပြန်လည်ဒေါင်းလုပ်ဆွဲပါ</string>
+  <string name="welcome_message">%s ဒေါင်းလုပ်ဆွဲသည့်အတွက် ကျေးဇူးတင်ပါသည်။ လက်ရှိတွင် သမ္မာကျမ်းစာနှင့် မှတ်စုများ ထည့်သွင်းထားခြင်း မရှိပါ။ ဆက်လက် လုပ်ဆောင်ရန် အနည်းဆုံး မှတ်စု 1 ခုကို အင်တာနက်မှ ဒေါင်းလုပ်ဆွဲခြင်း သို့မဟုတ် အရန် zip ဖိုင်မှတ်စုတစ်ခုကို ဖွင့်ခြင်းဖြင့် ထည့်သွင်းပေးပါ။ </string>
+  <string name="redownload_message">
+        ယခင်က စာအုပ်များ /မှတ်စုများစာရင်းကို တွေ့ရှိထားပါသည်။ သူတို့ကို အလွယ်တကူ ထပ်ဒေါင်းလုပ်ဆွဲရန် အောက်တွင် နှိပ်ပါ။
+    </string>
+  <!--Uncategorized-->
+  <string name="close">ပိတ်ပါ</string>
+  <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="first_time_help_do_not_show_again">နားလည်ပါသည်</string>
+  <string name="first_time_help_show_next_time">နောက်တစ်ကြိမ်တွင် ထပ်ဖော်ပြပါ</string>
+  <string name="strongs_mode_title">Strong အသွင်အား ရွေးချယ်ပါ</string>
+  <string name="download_dialog_message">အောက်ပါစာအုပ်များကို ဒေါင်းလုပ်ဆွဲ၍မရနိုင်ပါ:</string>
+  <string name="select_multiple">အများအပြား ရွေးချယ်ပါ</string>
+  <string name="journal_description">အသုံးပြုသူမှ တည်းဖြတ်နိုင်သည့် လေ့လာရေးစာရွက်များအား စိတ်ကြိုက်စာသားနှင့်တကွ စာညှပ်များ</string>
+  <string name="my_notes_description">အသုံးပြုသူမှတည်းဖြတ်နိုင်သည့် စာညှပ်တွင် ဖိုင်တွဲထားသည့် မှတ်စုများ</string>
+  <string name="my_notes_abbreviation">ကိုယ်ပိုင်မှတ်စုများ</string>
+  <string name="studypads">လေ့လာရေးစာရွက်များ</string>
+  <string name="multi_description">ကိုးကားချက် အများအပြား</string>
+  <string name="multi_abbreviation">အများအပြား</string>
+  <string name="compare_description">ဘာသာပြန်များကို နှိုင်းယှဉ်ပါ</string>
+  <string name="compare_abbreviation">နှိုင်းယှဉ်ပါ</string>
+  <string name="compare">နှိုင်းယှဉ်ပါ</string>
+  <string name="http_forbidden">တားမြစ်ထားသည်</string>
+  <string name="http_not_found">မတွေ့ရှိပါ</string>
+  <string name="http_unknown">အခြားမှားယွင်းမှုများ</string>
+  <string name="give_passphrase_for_module">မှတ်တမ်း %sကို စကားဝှက် ခံထားသည့်အတွက် သော့ဖွင့်ရန် စကားဝှက်လိုအပ်ပါသည်။ </string>
+  <string name="unlocking_failed">သော့ဖွင့်ခြင်းမအောင်မြင်ပါ၊ စကားဝှက် မမှန်ကန်ပါ</string>
+  <string name="unlock_module">သင်ခန်းစာအတွက် စကားဝှက် လုပ်ပါ</string>
+  <string name="unlock_info">စကားဝှက်ခံထားသည့်သင်ခန်းစာများ သော့ဖွင့်ခြင်း သတင်းအချက်အလက်</string>
+  <string name="try_again_passphrase">သော့ဖွင့်ခြင်း မအောင်မြင်ပါ၊ ထပ်လုပ်မှာလား။</string>
+  <string name="cant_delete_last_bible">နောက်ဆုံးသုံးခဲ့သည့် ကျမ်းစာမှတ်တမ်းကို ဖယ်ရှားမရပါ</string>
+  <string name="show_unlock_info">&amp; သင်ခန်းစာ; သော့ဖွင့်ခြင်း သတင်းအချက်အလက်</string>
+  <string name="prefs_show_error_box_title">Javascript မှားယွင်းမှုသေတ္တာကို ပြပါ</string>
+  <string name="prefs_show_error_box_summary">ဖန်တီးသူများအတွက် ကျမ်းစာမြင်ကွင်း javascript မှချို့ယွင်းချက်များကို ရှာဖွေဖယ်ရှားရာ၌  အသုံး ဝင်သည်။ ၎င်းသည် အက်ပ်ကိုနှေးကွေးစေလိမ့်မည်။ </string>
+  <string name="active_window_indicator_title">အလုပ်လုပ်နေသည့် ဝင်းဒိုးအချက်ပြကို ပြပါ</string>
+  <string name="active_window_indicator_summary">မည်သည့်ဝင်းဒိုး အလုပ်လုပ်နေသည်ကို သိရှိစေနိုင်ရန် ဝင်းဒိုး၏ထောင့်များကို ဟိုက်လိုက်ပေးပါ။</string>
+  <string name="app_licence_title">လိုင်စင်အကြောင်းအရာကို ဖွင့်ပါ</string>
+  <string name="how_to_contribute">ဘယ်လိုပံ့ပိုးကူညီမလဲ။</string>
+  <string name="confirm_delete_bookmarks">%d စာညှပ်များနှင့် ကိုယ်ပိုင်မှတ်စုများကို ဖယ်ရှားလိုပါသလား။</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">သူငယ်ချင်းတစ်ယောက်ထံ အကြံပြုထောက်ခံပေးပါ</string>
+  <string name="tell_friend_message1"> %s ကို သင့်အား အကြံပြုထောက်ခံလိုပါသည်။</string>
+  <string name="tell_friend_message2">၎င်းသည် စွမ်းအားမြင့်သလောက် အသုံးပြုရ လွယ်ကူသည့် လိုင်းမလိုကျမ်းစာလေ့လာခြင်း Android အက်ပလီကေးရှင်းတစ်ခု ဖြစ်ပါသည်။  </string>
+  <string name="tell_friend_message3">Play Store မှထည့်သွင်းအသုံးပြုပါ။ %s</string>
+  <string name="tell_friend_message4">အခြား &amp; များကိုလည်းဖတ်ပါ; အခြား ထည့်သွင်းရသည့် ရွေးချယ်စရာများ: %s</string>
+  <string name="share_verse_ok">ဝေမျှပါ / ကော်ပီကူးပါ</string>
+  <string name="verse_action_copy">ကော်ပီကူးပါ</string>
+  <string name="share_verse_menu_title">ဝေမျှပါ / ကော်ပီကူးပါ ... </string>
+  <string name="show_versenumbers">အခန်းငယ် နံပါတ်များကိုပြပါ</string>
+  <string name="show_full_verses">အခန်းငယ်များကို အပြည့်ပြပါ / အခန်းငယ်အားလုံးကို ပြပါ။ </string>
+  <string name="advertise_app">အက်ပ်ကို ကြော်ငြာပါ</string>
+  <string name="verse_share_advertise">%sကို အသုံးပြုပြီး ဝေမျှပြီးပါပြီ</string>
+  <string name="abbreviate_reference">ကိုးကားချက် အတိုကောက်</string>
+  <string name="version_name">ဗားရှင်း အမည်</string>
+  <string name="backup_button">Backup</string>
+  <string name="back_button">နောက်သို့</string>
+  <string name="upgrading_database">ဒေတာဘေ့စ်ကို အဆင့်မြှင့်တင်ခြင်း။ ကျေးဇူးပြု၍ စောင့်ပါ...</string>
+  <string name="initializing_app">အက်ပလီကေးရှင်းကို စတင်ခြင်း... </string>
+  <string name="show_notes">မှတ်စုများကို ပြပါ</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Android ကွန်ယက်မြင်ကွင်း ပက်ကေ့ချ်သည် အလွန်ဟောင်းနေသည် (%s)။  %s ကို အသုံးပြုရန် Android ကွန်ယက်မြင်ကွင်းအား အနည်းဆုံး %s သို့ အဆင့်မြှင့်တင်ရန် လိုအပ်ပါသည်။ စက်အများစုအား  %sမှတစ်ဆင့် ပြုလုပ်နိုင်ပါသည်။ </string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">မည်သို့ပင်ဆိုစေ ဆက်သွားပါ</string>
+  <string name="rate_title">အက်ပ်အား နှုန်းသတ်မှတ်ခြင်းနှင့်သုံးသပ်ခြင်း</string>
+  <string name="rate_message5">
+အသေးစိတ်ပြီး အပြုသဘောဆောင်သည့် သုံးသပ်ချက်များသည် And Bible Open Source Project အား များစွာအကျိုးပြုပါသည်။ ကျေးဇူးတင်ပါသည်။
+    </string>
+  <string name="rate_message6">
+        အနုတ်သဘောမသုံးသပ်ခင် ကျေးဇူးပြုပြီး အောက်ပါအချက်ကိုထည့်သွင်းစဉ်းစားစေလိုပါသည်။
+    </string>
+  <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+       အက်ပ်နှင့်ပတ်သက်ပြီး ပြဿနာရှိလျှင် %s သို့မဟုတ် %s ...သာလုပ်ပေးပါ။
+    </string>
+  <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+        အချို့စာသား / ကျမ်းစာဘာသာပြန်တွင် မှားယွင်းချက် ရှိလျှင်%s.
+    </string>
+  <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+        အက်ပ်တွင် အချို့စာသားများ မရှိလျှင်%s.
+    </string>
+  <string name="rate_message4">
+        မှတ်တမ်းများထိန်းသိမ်းရန် ဤအက်ပ်တီထွင်သူများတွင် တာဝန်မရှိပါ။
+    </string>
+  <string name="bug_report">
+        စက်ချို့ယွင်းမှုအတွက် သတင်းပို့ပါ (ဗဟိုမီနူးမှ)
+    </string>
+  <string name="how_to_help">
+        ကျွန်တော်တို့အား အကူအညီပေးနိုင်ရန် ကျေးဇူးပြုပြီး ဖတ်ပေးပါ
+    </string>
+  <string name="send_email">
+       တီထွင်သူများထံ အီးမေးလ်ပို့ပါ
+    </string>
+  <string name="proceed_google_play">
+        Google Play သို့ဆက်သွားပါ
+    </string>
+  <string name="text_maintainers">
+      ပြဿနာများအတွက် စာသားထိန်းသိမ်းသူများထံသို့ ကျေးဇူးပြုပြီး သတင်းပို့ပါ
+    </string>
+  <string name="does_not_exist_abbreviation">မရှိပါ</string>
+  <string name="cant_change_wholeverse">ဤစာမျက်နှာအမှတ်အသားတွင် အခန်းငယ်တစ်ခုလုံးမှတ်သားခြင်းအား ပိတ်၍မရပါ</string>
+  <string name="whole_verse_turned_on">အခန်းငယ်တစ်ခုလုံးအတွက် စာမျက်နှာအမှတ်အသားကို ယခုမှတ်သားပြီးပါပြီ</string>
+  <string name="this_bookmark">ဤစာမျက်နှာအမှတ်အသား</string>
+  <string name="this_workspace">ဤအလုပ်ခွင်</string>
+  <string name="primary_label">မူလ လေဘယ်လ်</string>
+  <string name="highlight_entire_verse">အခန်းငယ်တစ်ခုလုံးကို ဟိုက်လိုက်ပေးပါ</string>
+  <string name="favourite_label">အနှစ်သက်ဆုံး လေဘယ်လ်</string>
+  <string name="edit_label">လေဘယ်လ်ကို တည်းဖြတ်ပါ</string>
+  <string name="delete_label_confirmation">စာညှပ်လေဘယ်လ်ကို ဖျက်လိုပါသလား \"%s\" Study Pad နှင့်သက်ဆိုင်သည့် မှတ်စုများအားလုံးသည်လည်း ပျက်သွားပါမည်။</string>
+  <string name="bookmark_underline_style_arbitrary">စာညှပ်ရွေးချယ်မှုများအတွက် အန်ဒါလိုင်း ပုံစံ</string>
+  <string name="bookmark_underline_style_whole_verse">အခန်းငယ်တစ်ခုလုံး၏စာညှပ်များအတွက် အန်ဒါလိုင်း ပုံစံ</string>
+  <string name="active_labels">ရွေးချယ်ထားသည့် လေဘယ်လ်များ</string>
+  <string name="recent_labels">မကြာမီက လေဘယ်လ်များ</string>
+  <string name="other_labels">အခြား လေဘယ်လ်များ</string>
+  <string name="book_menu_sort_row_opt">စာအုပ်များကို အလျားလိုက်စီပါ</string>
+  <string name="reset_workspace_labels">ဤဝင်းဒိုးအတွက် အလိုအလျောက်စေခိုင်းချက်နှင့် အနှစ်သက်ဆုံးဆက်တင်များကို မူလနေရာသို့ ပြန်လည်ထားရှိလိုပါသလား။ </string>
+  <string name="reset_hide_labels">အထူးပြုထားသည့် လေဘယ်လ်များဆက်တင်ကို ဖျောက်ထားရန် ဆက်တင်ကို ပြန်လည်အစပြုလိုပါသလား။</string>
+  <string name="reorder">ထပ်ပြီး ညွှန်ကြားပါ</string>
+  <string name="system_items">စနစ် လုပ်ဆောင်ချက်များ</string>
+  <string name="system_items1">နောက်ထပ်</string>
+  <string name="system_action2">Android လုပ်ဆောင်ချက်များ</string>
+  <string name="text_copied_to_clicpboard">clipboard သို့စာသားကို ကော်ပီကူးပြီးပါပြီ</string>
+  <string name="prefs_disable_two_step_bookmarking_title">တိုက်ရိုက် စာညှပ်ခြင်း</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">ကျမ်းစာမြင်ကွင်း ရွေးချယ်မှု မီနူးတွင် \"ရွေးချယ်မှု\" နှင့် \"အခန်းငယ်များ\" အကြောင်းကို တိုက်ရိုက်ပြပါ။</string>
+  <string name="prefs_double_tap_to_fullscreen_title">မျက်နှာပြင်အပြည့်ပေါ်ရန် နှစ်ချက်နှိပ်ပါ</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">ဝင်းဒိုးကို နှစ်ကြိမ်နှိပ်ခြင်းဖြင့် မျက်နှာပြင်အပြည့် အသွင်အပြင်အား ဖွင့်ပါ</string>
+  <string name="toggle_fullscreen">မျက်နှာပြင်အပြည့်</string>
+  <string name="exit_fullscreen">မျက်နှာပြင်အပြည့်မှထွက်ရန် မျက်နှာပြင်ကို နှစ်ချက်နှိပ်ပါ</string>
+  <string name="reset_app_prefs">ဤမျက်နှာပြင်တွင် ဖော်ပြထားသည့် ကမ္ဘာလုံးဆိုင်ရာ အက်ပ်ပလီကေးရှင်း စိတ်ကြိုက်ရွေးချယ်မှုကို မူလတန်ဖိုးများသို့ ပြန်လည်ထားရှိလိုပါသလား။</string>
+  <string name="label_red">အနီရောင်</string>
+  <string name="label_green">အစိမ်းရောင်</string>
+  <string name="label_blue">အပြာရောင်</string>
+  <string name="label_salvation">ကယ်တင်ခြင်း</string>
+  <string name="label_underline">မျဉ်းတားပါ</string>
+  <string name="import_menu">&amp; သွင်းပါ; ပို့ပါ</string>
+  <string name="export_fileformat"> %sအဖြစ် ပို့ပါ</string>
+  <string name="import_items">%sသွင်းပါ</string>
+  <string name="import_from_db">အက်ပ် ​ဒေတာဘေ့စ်ဖိုင်မှ သွင်းပါ</string>
+  <string name="import_error">အက်ပ်ဒေတာဘေ့စ်မှ ထည့်သွင်းခြင်း မအောင်မြင်ပါ။ ဒေတာဘေ့စ်ဖိုင်သည် ဖွဲ့စည်းမှုပုံစံ မှားယွင်းခြင်း သို့မဟုတ် အလွန်ဟောင်းသည့်ဗားရှင်း %s ဖြင့်လုပ်ထားခြင်းကြောင့် ဖြစ်နိုင်သည်။ </string>
+  <string name="chooser_range">အတိုင်းအတာ</string>
+  <string name="chooser_jump">ခုန်ပါ</string>
+  <string name="chooser_OT_abbrev">ဓမ္မဟောင်းကျမ်း</string>
+  <string name="chooser_NT_abbrev">ဓမ္မသစ်ကျမ်း</string>
+  <string name="chooser_style_grid">ဇယားကွက်</string>
+  <string name="chooser_style_lists">စာရင်းများ</string>
+  <string name="chooser_select"> %sကို ရွေးပါ</string>
+  <string name="chooser_pref_reset">စာအုပ်/အခန်းကြီးကို ရွေးချယ်ထားသည့်အခါ အခန်းကြီး/အခန်းငယ်ကို 1 သို့ ပြန်လည်မသတ်မှတ်ပါနှင့်</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">%s ဘာသာစကားတွင် ကြားခံစနစ် ဘာသာပြန် အသုံးပြုသူ တစ်စိတ်တစ်ပိုင်းသာရှိပါသဖြင့် စိတ်မကောင်းပါခင်ဗျာ။ %sကို တည်ဆောက် သူများသည် စေတနာ့ဝန်ထမ်း သက်သက်မျှသာ ဖြစ်သောကြောင့် ဖြစ်ပါသည်။ ဘာသာ ကူပြန်ပေးနိုင်ပါလျှင် ကျေးဇူးပြုပြီး %s ကို ကြည့်ပါ။ </string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">ဘာသာပြန်သူများအတွက် လမ်းညွှန်ချက်များ</string>
+  <string name="questions_title">မေးခွန်းမေးလိုပါသလား။</string>
+  <string name="questions_title2">အကူအညီ လိုပါသလား။</string>
+  <string name="bookmark_style">စာမျက်နှာအမှတ်အသားပုံစံ</string>
+  <string name="added_to_bookmark">ဤစာမျက်နှာအမှတ်အသားကို တာဝန်ပေးပါ</string>
+</resources>
