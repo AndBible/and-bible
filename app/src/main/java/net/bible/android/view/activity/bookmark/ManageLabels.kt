@@ -79,7 +79,7 @@ class ManageLabels : ListActivityBase() {
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
-    enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS, MANAGELABELS}
+    enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS, MANAGELABELS} // TODO: MANAGELABELS deprecated
 
     @Serializable
     data class ManageLabelsData(

@@ -303,9 +303,21 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             }
             R.id.manageLabels -> {
                 isHandled = true
-                val intent = Intent(this, ManageLabels::class.java)
-                intent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.MANAGELABELS).toJSON())
-                startActivityForResult(intent, REQUEST_MANAGE_LABELS)
+                GlobalScope.launch(Dispatchers.Main) {
+                    val intent = Intent(this@Bookmarks, ManageLabels::class.java)
+                    intent.putExtra("data", ManageLabels.ManageLabelsData(
+                        mode = ManageLabels.Mode.WORKSPACE,
+                    ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
+                    val result = awaitIntent(intent)
+                    if(result?.resultCode == RESULT_OK) {
+                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                        windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
+                        withContext(Dispatchers.Main) {
+                            loadLabelList()
+                            loadBookmarkList()
+                        }
+                    }
+                }
             }
         }
         if (!isHandled) {
