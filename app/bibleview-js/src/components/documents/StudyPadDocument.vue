@@ -16,8 +16,8 @@
   -->
 
 <template>
-  <div class="journal-name">
-    <span :style="labelNameStyle">{{ document.label.name }}</span>
+  <div class="journal-name" :style="labelNameStyle">
+    {{ document.label.name }}
   </div>
   <div v-if="journalEntries.length === 0">
     {{strings.emptyStudyPad}}
@@ -196,13 +196,10 @@ export default {
 div.journal-name {
   padding-top: 15px;
   padding-bottom: 15px;
-  span {
-    font-size: 180%;
-    border-radius: 10px;
-    padding: 5px;
-    margin-inline-start: 0px;
-    font-weight: bold;
-  }
+  font-size: 180%;
+  border-radius: 10px;
+  margin-inline-start: 0px;
+  font-weight: bold;
 }
 
 .studypad-container {
