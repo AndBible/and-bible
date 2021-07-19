@@ -18,10 +18,13 @@
 
 package net.bible.android.view.activity.speak
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import android.view.View
 import android.widget.TextView
@@ -93,7 +96,24 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         settings.save(updateBookmark = true)
     }
 
-    fun onHelpButtonClick(button: View) {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.speak_bible_actionbar_menu, menu)
+        menu.findItem(R.id.systemSettings).isVisible = false
+        menu.findItem(R.id.advancedSettings).isVisible = false
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.help -> {
+                onHelpButtonClick()
+                return true
+            }
+        }
+        return false
+    }
+
+    fun onHelpButtonClick() {
         val htmlMessage = (
                 "<b>${getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
                 + "<b><a href=\"$automaticSpeakBookmarkingVideo\">"

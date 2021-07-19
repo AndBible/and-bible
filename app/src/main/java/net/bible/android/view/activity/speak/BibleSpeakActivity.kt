@@ -113,6 +113,10 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 startActivity(Intent("com.android.settings.TTS_SETTINGS"))
                 return true
             }
+            R.id.help -> {
+                onHelpButtonClick()
+                return true
+            }
         }
         return false
     }
@@ -122,7 +126,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         resetView(ev.speakSettings)
     }
 
-    fun onHelpButtonClick(widget: View) {
+    fun onHelpButtonClick() {
         val htmlMessage = (
                 "<b>${getString(R.string.speak)}</b><br><br>"
                 + "<b><a href=\"$speakHelpVideo\">"
