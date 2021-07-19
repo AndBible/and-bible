@@ -36,7 +36,7 @@
                 android:title="@string/bookmarks"
                 android:icon="@drawable/ic_baseline_bookmark_24"
                 />
-            <item android:id="@+id/myJournalsButton"
+            <item android:id="@+id/studyPadsButton"
                 android:title="@string/studypads"
                 android:icon="@drawable/ic_baseline_studypads_24"/>
             <item android:id="@+id/dailyReadingPlanButton"

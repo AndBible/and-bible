@@ -17,15 +17,22 @@
  */
 package net.bible.android.control.page
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.Menu
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
@@ -56,13 +63,22 @@ class CurrentGeneralBookPage internal constructor(
     val isSpecialDoc get() = setOf(FakeBookFactory.journalDocument, FakeBookFactory.multiDocument).contains(currentDocument)
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
-    override fun getKeyChooserIntent(context: Context): Intent? = when (currentDocument) {
-        FakeBookFactory.journalDocument -> {
-            Intent(context, ManageLabels::class.java)
-                .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD).toJSON())
+    override fun startKeyChooser(context: ActivityBase) {
+        GlobalScope.launch(Dispatchers.Main) {
+            when (currentDocument) {
+                FakeBookFactory.journalDocument -> {
+                    val result = context.awaitIntent(Intent(context, ManageLabels::class.java)
+                        .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD).toJSON())
+                    )
+                    if(result?.resultCode == Activity.RESULT_OK) {
+                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                        MainBibleActivity.mainBibleActivity.workspaceSettings.updateFrom(resultData)
+                    }
+                }
+                FakeBookFactory.multiDocument -> {}
+                else -> context.startActivity(Intent(context, ChooseGeneralBookKey::class.java))
+            }
         }
-        FakeBookFactory.multiDocument -> null
-        else -> Intent(context, ChooseGeneralBookKey::class.java)
     }
 
     override val currentPageContent: Document

@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.view.Menu
 import net.bible.android.activity.R
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -39,7 +40,7 @@ class CurrentDictionaryPage internal constructor(
 {
     override val documentCategory = DocumentCategory.DICTIONARY
 
-    override fun getKeyChooserIntent(context: Context): Intent = Intent(context, ChooseDictionaryWord::class.java)
+    override fun startKeyChooser(context: ActivityBase) = context.startActivity(Intent(context, ChooseDictionaryWord::class.java))
 
     override fun doSetKey(key: Key?) {
         this._key = key

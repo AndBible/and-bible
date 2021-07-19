@@ -19,6 +19,7 @@
 package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -46,6 +47,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
@@ -173,9 +175,16 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.historyButton -> handlerIntent = Intent(callingActivity, History::class.java)
                 R.id.bookmarksButton -> handlerIntent = Intent(callingActivity, Bookmarks::class.java)
-                R.id.myJournalsButton -> {
-                    handlerIntent = Intent(callingActivity, ManageLabels::class.java)
-                    handlerIntent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD).toJSON())
+                R.id.studyPadsButton -> {
+                    val intent = Intent(callingActivity, ManageLabels::class.java)
+                    intent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD).toJSON())
+                    GlobalScope.launch (Dispatchers.Main) {
+                        val result = callingActivity.awaitIntent(intent)
+                        if(result?.resultCode == Activity.RESULT_OK) {
+                            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                            MainBibleActivity.mainBibleActivity.workspaceSettings.updateFrom(resultData)
+                        }
+                    }
                 }
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {

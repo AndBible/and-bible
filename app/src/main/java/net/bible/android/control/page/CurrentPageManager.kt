@@ -166,10 +166,7 @@ open class CurrentPageManager @Inject constructor(
             } else {
                 val context = CurrentActivityHolder.getInstance().currentActivity
                 // pop up a key selection screen
-                val intent = nextPage.getKeyChooserIntent(context)
-                if(intent != null) {
-                    context.startActivity(intent)
-                }
+                nextPage.startKeyChooser(context)
             }
         } else {
             // should never get here because a doc should always be passed in but I have seen errors lie this once or twice

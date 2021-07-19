@@ -30,7 +30,7 @@ import android.util.Log;
  */
 public class CurrentActivityHolder {
 	
-	private Activity currentActivity;
+	private ActivityBase currentActivity;
 	
 	private boolean appIsInForeground = false;
 	
@@ -42,14 +42,14 @@ public class CurrentActivityHolder {
 		return singleton;
 	}
 	
-	public void setCurrentActivity(Activity activity) {
+	public void setCurrentActivity(ActivityBase activity) {
 		currentActivity = activity;
 		
 		// if activity changes then app must be in foreground so use this to trigger appToForeground event if it was in background
 		appIsNowInForeground();
 	}
 	
-	public Activity getCurrentActivity() {
+	public ActivityBase getCurrentActivity() {
 		return currentActivity;
 	}
 
