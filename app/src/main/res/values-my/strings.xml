@@ -270,6 +270,8 @@
         အရိပ်အမြွက်: အစီအစဉ်ကို အဆင့်မြှင့်လိုလျှင် တူညီသည့်ဖိုင်အမည်ဖြင့် ထည့်သွင်းနိုင်ပါသည်။
         ထိုသို့ပြုလုပ်လျှင် နောက်ခံမှတ်တမ်းကို ထိန်းသိမ်းပေးထားပါမည်။
     </string>
+  <string name="plan_duplicate_user_plan">
+Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readingplan ထဲတွင်  အသုံးပြုသူ ဖတ်စာအစီအစဉ်တစ်ခုရှိသည်။ ၎င်းစာရင်းကို ဤနေရာတွင် မဖော်ပြနိုင်ပါ။ ကျေးဇူးပြုပြီး အခြားအမည်ဖြင့် ဖိုင်အမည် ထပ်ပေးပြီး တိုးချဲ့ဖိုင်များအား properties အဖြစ်ထားရှိပါ။ </string>
   <string name="plan_name_y1ntpspr">တစ်နှစ်တာ ဓမ္မသစ်ကျမ်း၊ ဆာလံကျမ်း &amp; နှင့် သုတ္တံကျမ်း</string>
   <string name="plan_description_y1ntpspr">
         Courtesy of HEARTLIGHT Internet Magazine,
@@ -374,7 +376,7 @@
   <!--Speak - Bible-->
   <string name="speak_speed_title">စကားပြော အမြန်နှုန်း</string>
   <string name="speak_and_play_earcons_title">...အတွက် အတိုကောက်အသံကို ပြောပါ၊ ဖွင့်ပါ</string>
-  <string name="playback_settings_title">ပြန်လည်ဖွင့်ခြင်း ဆက်တင်များ</string>
+  <string name="playback_settings_title">Playback ဆက်တင်များ</string>
   <string name="speak_settings_title">အထွေထွေ စကားပြော ဆက်တင်များ</string>
   <string name="speak_bookmarking_settings_title">စာမျက်နှာမှတ်သားခြင်း ဆက်တင်များ</string>
   <string name="speak_bookmarks_menu_title">စာမျက်နှာအမှတ်အသားမှ စကားပြောပါ</string>
@@ -390,7 +392,7 @@
   <string name="speak_ending_verse_must_be_later">အဆုံးသတ်အခန်းငယ်သည် အစပြုအခန်းငယ်ထက် နောက်ကျနေရမည်</string>
   <string name="conf_speak_synchronize">စကားပြောနောက်တွင် စာသားပါလာမည်</string>
   <string name="conf_speak_auto_bookmark">အလိုအလျောက် စာမျက်နှာမှတ်သားခြင်း</string>
-  <string name="conf_save_playback_settings_to_bookmarks">ပြန်လည်ဖွင့်ခြင်းဆက်တင်မှ စာမျက်နှာအမှတ်အသားများသို့ သိမ်းထားပါ</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Playback ဆက်တင်ကို စာမျက်နှာအမှတ်အသားများသို့ သိမ်းထားပါ</string>
   <string name="conf_replace_divinename">ဘုရား၏အမည်များကို Yahweh ဖြင့်အစားထိုးပါ</string>
   <string name="conf_change_chapter">အခန်းကြီး အပြောင်းအလဲများ</string>
   <string name="conf_change_title">ခေါင်းစဉ်များ</string>
@@ -437,6 +439,10 @@
   <string name="speak_bookmark_help">စာညှပ်အကူအညီကို အသံဖြင့်ပြောပါ</string>
   <string name="speak_help_auto_bookmark">
 စကားပြောကို ခေတ္တရပ်တန့်စဉ် သို့မဟုတ် ရပ်လိုက်သည့်အခါ စာညှပ်စကားပြောသည် အလိုအလျောက် ပေါင်းထည့်ပြီးသား ဖြစ်ပါမည်။ အလိုအလျောက်ထုတ်လုပ်ပေးသည့် စာညှပ်များကို အထူးစကားပြောလေဘယ်လ်တွင် လေဘယ်လ် တပ်ထားပါမည်။ အကယ်၍ သင်သည် စာညှပ်စကား ပြောမှ စဖွင့်ခဲ့လျှင် စာညှပ်သည် အခန်းငယ်ကို ရပ်ထား သို့မဟုတ် ခေတ္တရပ်တန့်ထားသည့်နေရာသို့  ရွေ့သွားပါလိမ့်မည်။ စကားပြောလေဘယ်လ် တစ်ခုသာ ရွေ့သွားမည်ဖြစ်ပြီး အခြားလေဘယ်လ်များ ကျန်ခဲ့ပါလိမ့်မည်။   </string>
+  <string name="speak_help_playback_settings">
+ဤ setting ကိုရွေးချယ်သည့်အခါ စာညှပ်များ စကားသံထွက်ရန် Special playback settings (စကားပြော မျက်နှာပြင် ပေါ်ရှိ \"Playback Settings\")ကို သိမ်းဆည်းထားပါသည်။ စကားပြော စာညှပ်တစ်ခုမှ စကားပြောခြင်းကို ပြန်စတင်လိုက်သည့်အခါ သိမ်းဆည်းထားသည့် playback settings သည် စာညှပ်မှ တစ်ဆင့် ရွေးဖွင့်ပါသည်။ </string>
+  <string name="speak_help_playback_settings_example">
+ဥပမာအနေဖြင့် သင်သည် ကမ္ဘာဦးကျမ်းမှ ရောမဩဝါဒစာအထိ နားထောင်မည်ဆိုစို့။ ကမ္ဘာဦးကျမ်းကို အခန်းကြီးအပြောင်းအလဲ အသိပေးစာများမပါပဲ  အသံမြန်မြန်ဖြင့်ဖွင့်ပြီး၊ ရောမဩဝါဒစာကိုမူ အခန်းကြီးအပြောင်းအလဲကို အသံဖြင့်အသိပေးပြီး ပိုနှေးစွာဖွင့်လိုပါက ၎င်းစာအုပ်များအတွက် သီးခြား playback setting များကိုချိန်ပြီး ၎င်း setting များကို သက်ဆိုင်ရာစာညှပ်များတွင် သိမ်းထားခြင်းဖြင့် ပြုလုပ်နိုင်သည်။ </string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -589,6 +595,8 @@
   <string name="workspace_listing_with_current">%s (လက်ရှိ)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">beta ဗားရှင်းဖြစ်သည်။ </string>
+  <string name="beta_notice_content_1">
+Beta ဗားရှင်းတွင် စနစ်တကျမစမ်းသပ် ရသေးသည့် အသွင်အပြင်သစ်များစွာရှိသည့်အတွက် beta အသုံးပြုရာတွင် ချွတ်ယွင်းချက် ကဲ့သို့သော မထင်မှတ်ထားသည့် အပြုအမူများတွေ့ကြုံ ရနိုင်သည်။ ထို့ကြောင့် သာမန်ကျမ်းစာ အသုံးပြုသူများသည် တည်ငြိမ်သည့် ဗားရှင်းကိုသာ အသုံးပြုရန် အကြုံပြုလိုပါသည်။ </string>
   <string name="beta_notice_content_2">
         Beta အသုံးပြုသူများသည် Google Play သို့မဟုတ်
         (ဖြစ်နိုင်လျှင်) %sမှ ချို့ယွင်းမှုသတင်း ပေးပို့စေလိုပါသည်။
@@ -614,12 +622,16 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="help_bookmarks_text">စာသားအချို့ကိုမှတ်သားပြီး၊ popup မီနူးမှ \"စာညှပ်\"ကိုရွေးချယ်ခြင်းဖြင့် စာညှပ်များကို ဖန်တီးနိုင်သည်။ ကျမ်းစာမြင်ကွင်းတွင် ဟိုက်လိုက်လုပ်ထားသည့်စာသားကို နှိပ်ခြင်းဖြင့် စာညှပ်အသစ်တွင် စိတ်ကြိုက်မှတ်စာ များကို ပေါင်းထည့်နိုင်သည်။ အနက်ဖွင့်ကျမ်းများတွင်လည်း သင်၏မှတ်စုများကို သီးသန့်ဝင်းဒိုးတစ်ခုတွင် ကြည့်ရှုနိုင်ရန် ခွင့်ပြုထားပါသည်။ 
     </string>
   <string name="help_studypads_title">လေ့လာရေးစာရွက်များ</string>
+  <string name="help_studypads_text">
+လေ့လာရေးစာရွက်များသည် တရားဟောချက် မှတ်စုများကို အလွယ်တကူ ရေးနိုင်ရန်၊ တရားဟော ချက် ပြင်ဆင်နိုင်ရန် သို့မဟုတ် ကျမ်းစာအညွှန်း များစွာပါဝင်သည့် ကိုယ်ပိုင်ကျမ်းစာလေ့လာချက် မှတ်စုများကို ရေးချနိုင်ရန် ဖန်တီးထားခြင်းဖြစ်သည်။ လေ့လာရေးစာရွက်တစ်ရွက်စီကို စာညှပ်လေ ဘယ်လ်တစ်ခုနှင့် ဆက်စပ်ထားပါသည်။ ထိုသက်ဆိုင်ရာလေဘယ်လ်များဖြင့် ဖန်တီးပြီးသော စာညှပ်များအားလုံးသည် လေ့လာရေး စာရွက်မှတ်တမ်းတွင် ပေါ်လာမည်ဖြစ်သည်။ လေ့လာရေးစာရွက်တစ်ရွက်တွင် စာညှပ်များအပြင် စိတ်ကြိုက်ဖန်တီးနိုင်သည့် စာသားထည့်သွင်းခြင်း များလည်း ပါဝင်နိုင်သည်။  </string>
   <string name="help_search_title">ရှာဖွေပါ</string>
   <string name="help_search_text">စာသားရှာဖွေရာတွင် အထူးတင်္ကေတများဖြစ်သည့် *, ?, AND, OR, NOT တို့ပါဝင်နိုင်သည်
         (အသေးစိတ်ကို \"Apache Lucene - Query Parser Syntax\" တွင် ကြည့်ပါ)
     </string>
   <string name="help_workspaces_title">အလုပ်ခွင်များ</string>
   <string name="help_hidden_features_title">ဖျောက်ထားသည့် ဖြတ်လမ်းများ</string>
+  <string name="help_hidden_features_text">
+အလုပ်ခွင် selector ပေါ်လာစေရန် Toolbar မှ ပွတ်ဆွဲချပါ။ အမြန်ချုံ့ကြည့်ရန် ဝင်းဒိုးခလုတ်ကို ကြာကြာဖိထားပါ။ စကားပြောဆက်တင်ကို အမြန်သွားရန် စကားပြော toolbar ခလုတ်ကို ကြာကြာဖိထားပါ။ မှတ်တမ်း selector သို့ခုန်ရန် toolbar ရှိ အခန်းငယ် တည်နေရာ ခေါင်းစဉ်ကို ကြာကြာဖိထားပါ။ နောက်ခံမှတ်တမ်းစာရင်းသို့ သွားရန် နောက်ပြန်ခလုတ်ကို ကြာကြာဖိထားပါ။ </string>
   <string name="help_window_pinning_title">ဝင်းဒိုးတွင် တွဲထားခြင်း</string>
   <!--Welcome text-->
   <string name="redownload_documents">အမြန် ပြန်လည်ဒေါင်းလုပ်ဆွဲပါ</string>
