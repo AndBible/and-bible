@@ -39,6 +39,7 @@ jobs:
         with:
           name: js-results
           path: app/bibleview-js/lint-results.txt
+          retention-days: 5
 
       - name: Upload jest results
         if: ${{ always() }}
@@ -46,3 +47,4 @@ jobs:
         with:
           name: js-results
           path: app/bibleview-js/test-report.html
+          retention-days: 5

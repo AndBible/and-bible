@@ -60,6 +60,7 @@ jobs:
       with:
         name: test-results
         path: app/build/reports/tests/testReleaseUnitTest/index.html
+        retention-days: 5
 
     - name: Before saving cache
       run: |
