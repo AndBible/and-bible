@@ -20,7 +20,7 @@
   <div v-for="(fragment, index) in filteredOsisFragments" :key="fragment.key">
     <div class="ref-link">
       <div class="flex">
-        <a :href="link(fragment)">
+        <a :href="link(fragment, document.compare)">
           <template v-if="document.compare">{{fragment.bookAbbreviation}}</template>
           <template v-else>{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookInitials)}}</template>
         </a>
@@ -75,9 +75,9 @@ export default {
       return osisFragments.filter(v => appSettings.hideCompareDocuments.includes(v.bookInitials))
     });
 
-    function link(frag) {
-      const osis = encodeURI(`${frag.bookInitials}:${frag.osisRef}`)
-      return `osis://?osis=${osis}`
+    function link(frag, compare = false) {
+      const osis = compare ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) : encodeURI(frag.osisRef);
+      return `osis://?osis=${osis}&v11n=${frag.v11n}`
     }
 
     return {hiddenOsisFragments, filteredOsisFragments, osisFragments, link, ...useCommon()}

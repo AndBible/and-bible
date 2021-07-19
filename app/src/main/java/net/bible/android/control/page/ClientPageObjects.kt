@@ -206,29 +206,15 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
         "verseRangeOnlyNumber" to wrapString(bookmark.verseRange.onlyNumber),
         "verseRangeAbbreviated" to wrapString(bookmark.verseRange.abbreviated),
         "text" to wrapString(bookmark.text),
+        "osisRef" to wrapString(bookmark.verseRange.osisRef),
+        "v11n" to wrapString((bookmark.book?.versification?: KJVA).name),
         "fullText" to wrapString(bookmark.fullText),
-        "bibleUrl" to wrapString(getUrl(bookmark)),
         "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
         "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
         "type" to wrapString("bookmark"),
         "primaryLabelId" to bookmark.primaryLabelId.toString(),
         "wholeVerse" to bookmark.wholeVerse.toString(),
     )
-
-    companion object{
-        fun getUrl(bookmark: BookmarkEntities.Bookmark): String {
-            val initials = bookmark.book?.initials
-            val prefix =
-                if(initials != null)
-                    "${initials}:"
-                else
-                    ""
-
-            val ref = bookmark.verseRange.osisRef
-            val v11n = bookmark.book?.versification?.name
-            return "osis://?osis=$prefix$ref" + if(v11n !== null) "&v11n=$v11n" else ""
-        }
-    }
 }
 
 @Serializable

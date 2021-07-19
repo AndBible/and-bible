@@ -156,8 +156,11 @@ export default {
       android.saveBookmarkNote(bookmark.value.id, text);
     }
 
-    const originalBookLink = computed(() =>
-      `<a href="${bookmark.value.bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`)
+    const originalBookLink = computed(() => {
+      const prefix = bookmark.value.bookinitials ? bookmark.value.bookInitials: "";
+      const bibleUrl = encodeURI(`osis://?osis=${prefix}:${bookmark.value.osisRef}&v11n=${bookmark.value.v11n}`)
+      return `<a href="${bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`;
+    })
 
     const editDirectly = ref(false);
 

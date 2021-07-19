@@ -48,7 +48,7 @@
     </ButtonRow>
   </div>
   <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
-    <b><a :href="journalEntry.bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
+    <b><a :href="bibleUrl">{{ journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
     <BookmarkText :expanded="journalEntry.expandContent" @change-expanded="changeExpanded" :bookmark="journalEntry"/>
     <div v-if="journalEntry.hasNote && journalEntry.expandContent" class="separator"/>
   </template>
@@ -84,21 +84,22 @@ export default {
     journalEntry: {type: Object, required:true},
     label: {type: Object, required:true}
   },
-  setup(props, {emit}) {
+  setup: function (props, {emit}) {
     const android = inject("android");
     const areYouSureDelete = ref(null);
     const {strings, ...common} = useCommon();
 
     function journalTextChanged(newText) {
-      if(props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
+      if (props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
         android.saveBookmarkNote(props.journalEntry.id, newText);
-      } else if(props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) {
+      } else if (props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) {
         android.updateJournalEntry(props.journalEntry, {text: newText});
       }
     }
+
     const journalText = computed(() => {
-      if(props.journalEntry.type === JournalEntryTypes.BOOKMARK) return props.journalEntry.notes;
-      else if(props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) return props.journalEntry.text;
+      if (props.journalEntry.type === JournalEntryTypes.BOOKMARK) return props.journalEntry.notes;
+      else if (props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) return props.journalEntry.text;
     });
 
     function editBookmark() {
@@ -114,10 +115,9 @@ export default {
       if (props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) {
         const answer = await areYouSureDelete.value.areYouSure();
         if (answer) android.deleteJournalEntry(props.journalEntry.id);
-      }
-      else if (props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
+      } else if (props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
         let answer;
-        if(props.journalEntry.labels.length > 1) {
+        if (props.journalEntry.labels.length > 1) {
           const buttons = [{
             title: strings.onlyLabel,
             result: "only_label",
@@ -128,12 +128,12 @@ export default {
             class: "warning",
           }];
           answer = await areYouSureDelete.value.areYouSure(buttons);
-        } else if(await areYouSureDelete.value.areYouSure()) {
+        } else if (await areYouSureDelete.value.areYouSure()) {
           answer = "bookmark"
         }
-        if(answer === "only_label") {
+        if (answer === "only_label") {
           android.removeBookmarkLabel(props.journalEntry.id, props.label.id);
-        } else if(answer === "bookmark") {
+        } else if (answer === "bookmark") {
           android.removeBookmark(props.journalEntry.id);
         }
       }
@@ -147,7 +147,12 @@ export default {
       android.updateJournalEntry(props.journalEntry, {expandContent: newValue})
     }
 
+    const bibleUrl = computed(
+      () => `osis://?osis=${props.journalEntry.osisRef}&v11n=${props.journalEntry.v11n}`
+    );
+
     return {
+      bibleUrl,
       addNewEntryAfter,
       editBookmark,
       journalText,

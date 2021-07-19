@@ -38,7 +38,7 @@
   <div>
     <div class="overlay"/>
     <div style="white-space: nowrap; overflow-x: auto">
-      <b><a :href="bookmark.bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b>&nbsp;
+      <b><a :href="bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b>&nbsp;
       <LabelList in-bookmark single-line :bookmark-id="bookmark.id"/>
     </div>
     <BookmarkText :bookmark="bookmark" :expanded="expanded" @change-expanded="expanded = $event"/>
@@ -60,7 +60,7 @@ import LabelList from "@/components/LabelList";
 import BookmarkText from "@/components/BookmarkText";
 import {useCommon} from "@/composables";
 import {emit as ebEmit, Events} from "@/eventbus";
-import {ref} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
 import EditableText from "@/components/EditableText";
 import AreYouSure from "@/components/modals/AreYouSure";
@@ -71,7 +71,7 @@ export default {
   props: {
     bookmark: {type: Object, required: true},
   },
-  setup(props) {
+  setup: function (props) {
     const android = inject("android");
     const expanded = ref(false);
 
@@ -92,7 +92,11 @@ export default {
       }
     }
 
-    return {save, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), expanded, ...useCommon()}
+    const bibleUrl = computed(
+      () => `osis://?osis=${props.bookmark.osisRef}&v11n=${props.bookmark.v11n}`
+    );
+
+    return {save, bibleUrl, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), expanded, ...useCommon()}
   },
 }
 </script>
