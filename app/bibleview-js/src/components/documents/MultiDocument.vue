@@ -22,7 +22,7 @@
       <div class="flex">
         <a :href="link(fragment, document.compare)">
           <template v-if="document.compare">{{fragment.bookAbbreviation}}</template>
-          <template v-else>{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookInitials)}}</template>
+          <template v-else>{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookAbbreviation )}}</template>
         </a>
         <div v-if="document.compare" class="hide-button" @click="android.toggleCompareDocument(fragment.bookInitials)">
           <FontAwesomeIcon icon="eye-slash"/>
