@@ -73,6 +73,7 @@
 		<item>@string/lang_azerbaijani</item>
 		<item>@string/lang_bengali</item>
 		<item>@string/lang_bulgarian</item>
+		<item>@string/lang_burmese</item>
 		<item>@string/lang_czech</item>
 		<item>@string/lang_german</item>
 		<item>@string/lang_english</item>
@@ -110,6 +111,7 @@
 		<item>az</item>
 		<item>bn</item>
 		<item>bg</item>
+		<item>my</item>
 		<item>cs</item>
 		<item>de</item>
 		<item>en</item>
