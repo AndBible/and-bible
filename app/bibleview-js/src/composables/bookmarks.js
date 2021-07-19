@@ -514,6 +514,8 @@ export function useBookmarks(documentId,
 
     function addMarkers() {
         const bookmarkMap = new Map();
+        const hideLabels = new Set(config.bookmarksHideLabels);
+
         for (const b of markerBookmarks.value) {
             for(let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ordinal}`);
@@ -525,9 +527,11 @@ export function useBookmarks(documentId,
             }
 
             const key = b.ordinalRange[1];
-            const value = bookmarkMap.get(key) || [];
-            value.push(b);
-            bookmarkMap.set(key, value);
+            if(intersection(new Set(b.labels), hideLabels).size === 0) {
+                const value = bookmarkMap.get(key) || [];
+                value.push(b);
+                bookmarkMap.set(key, value);
+            }
         }
         for(const [lastOrdinal, bookmarkList] of bookmarkMap) {
             const lastElement = document.querySelector(`#doc-${documentId} #o-${lastOrdinal}`);
