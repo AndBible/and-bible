@@ -23,6 +23,7 @@ import android.content.Intent
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -43,7 +44,7 @@ class CurrentMapPage internal constructor(
 
     override val documentCategory = DocumentCategory.MAPS
 
-    override fun startKeyChooser(context: ActivityBase) = context.startActivity(Intent(context, ChooseMapKey::class.java))
+    override fun startKeyChooser(context: ActivityBase) = context.startActivityForResult(Intent(context, ChooseMapKey::class.java), STD_REQUEST_CODE)
 
     /** set key without notification
      *
