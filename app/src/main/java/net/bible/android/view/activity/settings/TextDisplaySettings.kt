@@ -61,6 +61,7 @@ import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.activity.page.TopMarginPreference
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.textDisplaySettingsVideo
 import java.lang.IllegalArgumentException
@@ -257,26 +258,22 @@ class TextDisplaySettingsActivity: ActivityBase() {
     }
 
     fun help() {
-        val resetIcon = ImageSpan(CommonUtils.getTintedDrawable(R.drawable.ic_baseline_undo_24))
+        val resetIcon = ImageSpan(getTintedDrawable(R.drawable.ic_baseline_undo_24))
         val length = 9
 
         val videoSpan = htmlToSpan("<i><a href=\"$textDisplaySettingsVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br><br>")
 
         val text = if(isWindow) {
             val w1 = getString(R.string.window_text_options_help1, "__ICON1__")
-            val w2 = getString(R.string.window_text_options_help2, "__ICON2__")
             val w3 = getString(R.string.window_text_options_help3)
             val w4 = getString(R.string.text_options_reset_help, "__ICON3__", getString(R.string.reset_workspace_defaults))
-            val icon1 = ImageSpan(this, R.drawable.ic_sync_white_24dp)
-            val icon2 = ImageSpan(this, R.drawable.ic_sync_disabled_green_24dp)
+            val icon1 = ImageSpan(getTintedDrawable(R.drawable.ic_workspace_overlay_24dp))
 
-            val text = "$w1 \n\n$w2 $w3\n\n$w4"
+            val text = "$w1 $w3\n\n$w4"
             val start1 = text.indexOf("__ICON1__")
-            val start2 = text.indexOf("__ICON2__")
             val start3 = text.indexOf("__ICON3__")
             val span = SpannableString(text)
             span.setSpan(icon1, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            span.setSpan(icon2, start2, start2 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
             span.setSpan(resetIcon, start3, start3 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
             TextUtils.concat(videoSpan, span)
         } else {
