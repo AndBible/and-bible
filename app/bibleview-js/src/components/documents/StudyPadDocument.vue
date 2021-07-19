@@ -49,6 +49,11 @@
       </div>
     </template>
   </draggable>
+  <div v-if="journalEntries.length > 0">
+    <span class="journal-button" @click="appendNewEntry">
+      <FontAwesomeIcon icon="plus-circle"/>
+    </span>
+  </div>
 </template>
 
 <script>
@@ -128,6 +133,8 @@ export default {
     });
     const adding = ref(false);
 
+    const lastEntry = computed(() => journalEntries.value[journalEntries.value.length - 1]);
+
     setupEventBusListener(Events.ADD_OR_UPDATE_JOURNAL, async ({journal, bookmarkToLabelsOrdered, journalsOrdered}) => {
       if(journal && adding.value) {
         journal.new = true
@@ -167,6 +174,10 @@ export default {
       android.createNewJournalEntry(label.id);
     }
 
+    function appendNewEntry() {
+      android.createNewJournalEntry(label.id, lastEntry.value.type, lastEntry.value.id);
+    }
+
     const appSettings = inject("appSettings");
 
     const labelNameStyle = computed(() => {
@@ -183,7 +194,7 @@ export default {
     }
 
     return {
-      journalEntries, editNotes, adding, indentStyle, editableJournalEntry,  addNewEntry, labelNameStyle,
+      journalEntries, editNotes, adding, indentStyle, editableJournalEntry,  addNewEntry, appendNewEntry, labelNameStyle,
       studyPadOrdinal, ...useCommon()
     }
   }
