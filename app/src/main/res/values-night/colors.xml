@@ -34,4 +34,5 @@
     <color name="high_contrast">@color/white</color>
     <color name="background_color">@color/black</color>
     <color name="disabled_background">#454545</color>
+    <color name="background_color_60">#99000000</color>
 </resources>

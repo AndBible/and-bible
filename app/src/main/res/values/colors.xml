@@ -124,11 +124,11 @@
 
 	<color name="navigation_bar">@color/white</color>
     <color name="red">#ff0000</color>
-	<color name="sync_on_green">#00B300</color>
-	<color name="sync_off_grey">@color/grey_500</color>
+	<color name="sync_on_green">#9C00B300</color>
 	<color name="high_contrast">@color/black</color>
 	<color name="background_color">@color/white</color>
 	<color name="disabled_background">#D3D3D3</color>
 	<color name="transparent">#00ffffff</color>
+	<color name="background_color_60">#99FFFFFF</color>
 
 </resources>

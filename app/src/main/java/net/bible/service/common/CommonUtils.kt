@@ -913,13 +913,13 @@ object CommonUtils {
         }
         val iconDrawable = getTintedDrawable(icon)
         val d1 = getTintedDrawable(R.drawable.ic_workspace_overlay_24dp, syncColor)
-        var circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, circleColor)
+        val circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, circleColor)
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             LayerDrawable(arrayOf(iconDrawable, circleDrawable, d1)).apply {
                 val s = sizeMultiplier?:1.0F
                 val size = (d1.intrinsicWidth * s).toInt()
-                val s1 = (d1.intrinsicWidth * 0.8 * s).toInt()
+                val s1 = (d1.intrinsicWidth * 0.7 * s).toInt()
                 val s2 = (d1.intrinsicWidth * 0.6 * s).toInt()
                 val d = (s1-s2) / 2
                 setLayerSize(0, size, size)
@@ -939,13 +939,13 @@ object CommonUtils {
     fun combineIcons(icon: Int, icon2: Int, sizeMultiplier: Float? = null): Drawable {
         val d1 = getTintedDrawable(icon)
         val d2 = getTintedDrawable(icon2)
-        val circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, R.color.background_color)
+        val circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, R.color.background_color_60)
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             LayerDrawable(arrayOf(d1, circleDrawable, d2)).apply {
                 val s = sizeMultiplier ?: 1.0F
                 val size = (d1.intrinsicWidth * s).toInt()
-                val s1 = (d1.intrinsicWidth * 0.8 * s).toInt()
+                val s1 = (d1.intrinsicWidth * 0.7 * s).toInt()
                 val s2 = (d1.intrinsicWidth * 0.6 * s).toInt()
                 val d = (s1 - s2) / 2
                 setLayerSize(0, size, size)
