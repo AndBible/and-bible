@@ -153,7 +153,6 @@ constructor(private val callingActivity: MainBibleActivity,
                     d.show()
                     d.findViewById<TextView>(android.R.id.message)?.run {
                         movementMethod = LinkMovementMethod.getInstance()
-                        setTextIsSelectable(true)
                     }
 
                 }

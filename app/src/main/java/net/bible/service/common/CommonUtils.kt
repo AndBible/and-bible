@@ -746,7 +746,6 @@ object CommonUtils {
             d.show()
             val textView = d.findViewById<TextView>(android.R.id.message)!!
             textView.movementMethod = LinkMovementMethod.getInstance()
-            textView.setTextIsSelectable(true)
         }
     }
 
