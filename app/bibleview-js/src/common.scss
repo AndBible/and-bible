@@ -121,10 +121,13 @@ $button-grey: #8e8e8e;
 }
 
 .separator {
+  border-width: 1pt 0 0 0;
+  border-style: dashed;
+
   height: 1pt;
   width: calc(100% - 10pt);
   margin: 10pt 5pt 5pt;
-  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 .bookmark-buttons {
