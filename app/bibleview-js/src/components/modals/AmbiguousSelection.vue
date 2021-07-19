@@ -16,15 +16,9 @@
   -->
 
 <template>
-  <Modal v-if="showHelp" @close="showHelp = false" blocking>
-    {{strings.verseTip}}
-    <template #title>
-      {{ strings.addBookmark}}
-    </template>
-  </Modal>
   <Modal :blocking="blocking" v-if="showModal" @close="cancelled">
     <template #extra-buttons v-if="noActions">
-      <button class="modal-action-button right" @touchstart.stop @click="showHelp = !showHelp">
+      <button class="modal-action-button right" @touchstart.stop @click="help()">
         <FontAwesomeIcon icon="question-circle"/>
       </button>
     </template>
@@ -83,6 +77,9 @@ export default {
   setup(props, {emit: $emit}) {
     const appSettings = inject("appSettings");
     const {bookmarkMap} = inject("globalBookmarks");
+    const {strings, ...common} = useCommon();
+    const android = inject("android");
+
     const {resetHighlights, highlightVerse, hasHighlights} = inject("verseHighlight");
     const {modalOpen, closeModals} = inject("modal");
 
@@ -172,10 +169,14 @@ export default {
 
     const noActions = computed(() => selections.value.length === 0);
 
+    function help() {
+      android.helpDialog(strings.verseTip, strings.addBookmark);
+    }
+
     return {
-      showHelp: ref(false),
+      help,
       bibleBookName, verseInfo, selected, handle, cancelled, noActions,
-      showModal, selections, bookmarkMap, ...useCommon()
+      showModal, selections, bookmarkMap, common, strings,
     };
   }
 }

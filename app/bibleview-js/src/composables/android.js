@@ -305,6 +305,10 @@ export function useAndroid({bookmarks}, config) {
         android.toggleCompareDocument(docId);
     }
 
+    function helpDialog(content, title = null) {
+        android.helpDialog(content, title);
+    }
+
     const exposed = {
         setEditing,
         reportInputFocus,
@@ -338,6 +342,7 @@ export function useAndroid({bookmarks}, config) {
         addBookmark,
         compare,
         speak,
+        helpDialog,
     }
 
     if(config.developmentMode) return {

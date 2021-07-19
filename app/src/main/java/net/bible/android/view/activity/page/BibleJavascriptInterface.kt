@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.page
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -27,6 +28,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 import net.bible.android.activity.R
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.BibleDocument
@@ -45,6 +47,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
+import kotlin.coroutines.resume
 
 
 class BibleJavascriptInterface(
@@ -301,6 +304,15 @@ class BibleJavascriptInterface(
             hideDocs.add(documentId)
         }
         ABEventBus.getDefault().post(AppSettingsUpdated())
+    }
+
+    @JavascriptInterface
+    fun helpDialog(content: String, title: String?) {
+        AlertDialog.Builder(mainBibleActivity)
+            .setTitle(title)
+            .setMessage(content)
+            .setPositiveButton(mainBibleActivity.getString(R.string.okay), null)
+            .show()
     }
 
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
