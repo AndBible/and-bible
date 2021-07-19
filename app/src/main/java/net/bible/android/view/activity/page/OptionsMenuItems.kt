@@ -76,7 +76,7 @@ abstract class GeneralPreference(
     override val opensDialog get()  = !isBoolean
 }
 
-abstract class SharedPreferencesPreference(
+abstract class RealSharedPreferencesPreference(
     private val preferenceName: String,
     private val default: Boolean = false,
     onlyBibles: Boolean = false,
@@ -90,7 +90,7 @@ abstract class SharedPreferencesPreference(
     private val defaultString: String = falseValue,
     subMenu: Boolean = false
 ) : GeneralPreference(onlyBibles, subMenu) {
-    private val preferences = CommonUtils.settings
+    private val preferences = CommonUtils.realSharedPreferences
     override val inherited = false
 
     override var value: Any
@@ -100,9 +100,9 @@ abstract class SharedPreferencesPreference(
             preferences.getString(preferenceName, defaultString) == trueValue
         }
         set(value) = if (isBooleanPreference) {
-            preferences.setBoolean(preferenceName, value == true)
+            preferences.edit().putBoolean(preferenceName, value == true).apply()
         } else {
-            preferences.setString(preferenceName, if (value == true) trueValue else falseValue)
+            preferences.edit().putString(preferenceName, if (value == true) trueValue else falseValue).apply()
         }
 
     protected open val automatic: Boolean
@@ -262,7 +262,7 @@ open class SubMenuPreference(onlyBibles: Boolean = false, enabled: Boolean = tru
     override val isBoolean: Boolean = false
 }
 
-class NightModePreference : SharedPreferencesPreference("night_mode_pref", false) {
+class NightModePreference : RealSharedPreferencesPreference("night_mode_pref", false) {
     override fun handle() { mainBibleActivity.refreshIfNightModeChange() }
     override val visible: Boolean get() = super.visible && ScreenSettings.manualMode
 }
