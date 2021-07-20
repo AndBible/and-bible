@@ -6,7 +6,13 @@ on:
       - develop
       - 'current-stable'
       - 'release/*'
+    paths:
+      - '**/*.java'
+      - '**/*.kt'
   pull_request:
+    paths:
+      - '**/*.java'
+      - '**/*.kt'
 
 jobs:
   build:

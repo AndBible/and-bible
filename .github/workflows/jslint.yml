@@ -6,7 +6,13 @@ on:
       - develop
       - 'current-stable'
       - 'release/*'
+    paths:
+      - '**/*.vue'
+      - '**/*.js'
   pull_request:
+    paths:
+    - '**/*.vue'
+    - '**/*.js'
 
 jobs:
   build:
