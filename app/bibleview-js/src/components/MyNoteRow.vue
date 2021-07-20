@@ -93,7 +93,12 @@ export default {
     }
 
     const bibleUrl = computed(
-      () => `osis://?osis=${props.bookmark.osisRef}&v11n=${props.bookmark.v11n}`
+      () => {
+        const osis = props.bookmark.wholeVerse
+          ? props.bookmark.osisRef
+          : `${props.bookmark.bookInitials}:${props.bookmark.osisRef}`;
+        return `osis://?osis=${osis}&v11n=${props.bookmark.v11n}`;
+      }
     );
 
     return {save, bibleUrl, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), expanded, ...useCommon()}

@@ -148,7 +148,12 @@ export default {
     }
 
     const bibleUrl = computed(
-      () => `osis://?osis=${props.journalEntry.osisRef}&v11n=${props.journalEntry.v11n}`
+      () => {
+        const osis = props.journalEntry.wholeVerse
+          ? props.journalEntry.osisRef
+          : `${props.journalEntry.bookInitials}:${props.journalEntry.osisRef}`;
+        return `osis://?osis=${osis}&v11n=${props.journalEntry.v11n}`;
+      }
     );
 
     return {
