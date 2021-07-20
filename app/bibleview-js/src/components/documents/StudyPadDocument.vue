@@ -207,6 +207,8 @@ export default {
 div.journal-name {
   padding-top: 15px;
   padding-bottom: 15px;
+  margin-bottom: 30px;
+  line-height: normal;
   font-size: 180%;
   border-radius: 10px;
   margin-inline-start: 0px;
