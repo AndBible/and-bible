@@ -131,7 +131,7 @@ export default {
       if(appSettings.actionMode) return;
       const hadHighlights = hasHighlights.value;
       resetHighlights();
-      if(hadHighlights && !showModal.value) {
+      if(hadHighlights && !showModal.value && !hasParticularClicks) {
         return;
       }
       if(!isActive && !hasParticularClicks) return;
