@@ -1513,6 +1513,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    val isSplitVertically: Boolean get() {
+        val reverse = windowRepository.workspaceSettings.enableReverseSplitMode
+        return if(reverse) !CommonUtils.isPortrait else CommonUtils.isPortrait
+    }
 
     companion object {
         var _mainBibleActivity: MainBibleActivity? = null

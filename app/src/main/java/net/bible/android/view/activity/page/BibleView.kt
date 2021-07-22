@@ -1307,10 +1307,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private val isTopWindow
-        get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
+        get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
 
     private val isBottomWindow
-        get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
+        get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
 
     val topOffset
         get() =
@@ -1331,7 +1331,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: WindowSizeChangedEvent) {
         Log.d(TAG, "window size changed")
         separatorMoving = !event.isFinished
-        if(!separatorMoving && !CommonUtils.isSplitVertically) {
+        if(!separatorMoving && !mainBibleActivity.isSplitVertically) {
             doCheckWindows(true)
         }
     }

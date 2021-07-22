@@ -72,10 +72,10 @@ class BibleFrame(
     }
 
     private val isLeftWindow
-        get() = CommonUtils.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
+        get() = mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
 
     private val isRightWindow
-        get() = CommonUtils.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
+        get() = mainBibleActivity.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
 
     private val windowRepository = windowControl.windowRepository
 

@@ -70,7 +70,7 @@ import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.DownloadActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.db.DataBaseNotReady
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
@@ -208,10 +208,6 @@ object CommonUtils {
 
     val isFirstInstall get() = packageInfo.firstInstallTime == packageInfo.lastUpdateTime
 
-    val isSplitVertically: Boolean get() {
-        val reverse = mainBibleActivity.windowRepository.workspaceSettings.enableReverseSplitMode
-        return if(reverse) !isPortrait else isPortrait
-    }
 
     val isPortrait: Boolean get() {
         val res = CurrentActivityHolder.getInstance().currentActivity?.resources?: BibleApplication.application.resources
@@ -403,26 +399,20 @@ object CommonUtils {
 
     fun getResourceColor(resourceId: Int): Int =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val theme = try {
-                mainBibleActivity.theme
-            } catch (e: NullPointerException) {
-                resources.newTheme().apply {
-                    applyStyle(R.style.AppTheme, true)
-                }
+            val theme = _mainBibleActivity?.theme?: resources.newTheme().apply {
+                applyStyle(R.style.AppTheme, true)
             }
+
             resources.getColor(resourceId, theme)
         } else {
             resources.getColor(resourceId)
         }
 
-    fun getResourceDrawable(resourceId: Int, context: Context? = null): Drawable? {
-        val theme = try {
-            mainBibleActivity.theme
-        } catch (e: NullPointerException) {
-            resources.newTheme().apply {
-                applyStyle(R.style.AppTheme, true)
-            }
+    private fun getResourceDrawable(resourceId: Int, context: Context? = null): Drawable? {
+        val theme = _mainBibleActivity?.theme?: resources.newTheme().apply {
+            applyStyle(R.style.AppTheme, true)
         }
+
         return ResourcesCompat.getDrawable(context?.resources?:resources, resourceId, theme)
     }
 

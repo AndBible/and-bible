@@ -81,7 +81,7 @@ import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-internal val isSplitVertically get() = CommonUtils.isSplitVertically
+internal val isSplitVertically get() = mainBibleActivity.isSplitVertically
 
 class LockableHorizontalScrollView(context: Context, attributeSet: AttributeSet):
     HorizontalScrollView(context, attributeSet) {
@@ -500,7 +500,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                     // When switching to/from fullscreen, take into account the toolbar offset.
                     translationY(
                         (
-                            if(CommonUtils.isSplitVertically) {
+                            if(mainBibleActivity.isSplitVertically) {
                                 if(idx == 0)
                                     mainBibleActivity.topOffset2
                                 else 0
