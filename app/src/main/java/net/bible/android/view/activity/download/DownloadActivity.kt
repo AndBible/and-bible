@@ -414,7 +414,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
     companion object {
         private const val REPO_REFRESH_DATE = "repoRefreshDate"
-        private const val REPO_LIST_STALE_AFTER_DAYS: Long = 10
+        private const val REPO_LIST_STALE_AFTER_DAYS: Long = 1
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
         const val DOCUMENT_IDS_EXTRA = "documentIds"
         const val DOWNLOAD_FINISH = 1
