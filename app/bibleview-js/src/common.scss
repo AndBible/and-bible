@@ -127,6 +127,9 @@ $button-grey: #8e8e8e;
   width: calc(100% - 10pt);
   margin: 10pt 5pt 5pt;
   border-color: rgba(0, 0, 0, 0.15);
+  .night & {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
 }
 
 .bookmark-buttons {
