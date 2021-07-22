@@ -55,6 +55,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             if(lastForceSyncAll > window.lastUpdated || (isBible && lastForceSyncBibles > window.lastUpdated))
                 window.updateText()
         }
+        lastSynchWasInNightMode = ScreenSettings.nightMode
         ABEventBus.getDefault().post(DecrementBusyCount())
     }
 
@@ -77,7 +78,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
 
         if(lastSynchWasInNightMode != ScreenSettings.nightMode) {
-            lastForceSyncAll = System.currentTimeMillis()
+            setResyncRequired()
         }
 
         if(isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
@@ -116,7 +117,6 @@ class WindowSync(private val windowRepository: WindowRepository) {
             }
         }
 
-        lastSynchWasInNightMode = ScreenSettings.nightMode
         ABEventBus.getDefault().post(DecrementBusyCount())
     }
 
