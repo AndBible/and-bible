@@ -4,7 +4,7 @@ on:
   push:
     branches: [ current-stable ] # do not trigger on branches that are pushed below, unless additional checking is done, or else it will cause endless loop
 
-permissions:
+permissions: {}
 
 jobs:
   build:
