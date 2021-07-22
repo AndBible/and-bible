@@ -15,7 +15,7 @@ on:
       - '**/*.kt'
 
 permissions:
-  content: read
+  contents: read
 
 jobs:
   build:
