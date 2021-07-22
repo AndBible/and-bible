@@ -28,7 +28,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 import net.bible.android.activity.R
-import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.BibleDocument
@@ -47,7 +46,6 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
-import kotlin.coroutines.resume
 
 
 class BibleJavascriptInterface(
@@ -212,22 +210,27 @@ class BibleJavascriptInterface(
         }
     }
 
+    private fun positiveOrNull(value: Int): Int? {
+        if(value < 0) return null
+        return value
+    }
+
     @JavascriptInterface
-    fun shareVerse(bookInitials: String, verseOrdinal: Int) {
+    fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         GlobalScope.launch(Dispatchers.Main) {
-            ShareWidget.dialog(mainBibleActivity, bookInitials, verseOrdinal)
+            ShareWidget.dialog(mainBibleActivity, Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
         }
     }
 
     @JavascriptInterface
-    fun addBookmark(bookInitials: String, verseOrdinal: Int, addNote: Boolean) {
-        bibleView.makeBookmark(Selection(bookInitials, verseOrdinal), true, addNote)
+    fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
+        bibleView.makeBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
     }
 
     @JavascriptInterface
-    fun compare(bookInitials: String, verseOrdinal: Int) {
+    fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         GlobalScope.launch(Dispatchers.Main) {
-            bibleView.compareSelection(Selection(bookInitials, verseOrdinal))
+            bibleView.compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
         }
     }
 

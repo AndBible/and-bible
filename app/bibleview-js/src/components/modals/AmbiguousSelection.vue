@@ -17,14 +17,17 @@
 
 <template>
   <Modal :blocking="blocking" v-if="showModal" @close="cancelled">
-    <template #extra-buttons v-if="noActions">
-      <button class="modal-action-button right" @touchstart.stop @click="help()">
+    <template #extra-buttons>
+      <button class="modal-action-button right" :class="{toggled: multiSelectionMode}" @touchstart.stop @click="toggleMultiSelectionMode">
+        <FontAwesomeIcon icon="plus-circle"/>
+      </button>
+      <button  v-if="noActions" class="modal-action-button right" @touchstart.stop @click="help">
         <FontAwesomeIcon icon="question-circle"/>
       </button>
     </template>
 
     <div class="buttons">
-      <AmbiguousActionButtons :has-actions="!noActions" :verse-info="verseInfo" @close="cancelled"/>
+      <AmbiguousActionButtons v-if="selectionInfo" :has-actions="!noActions" :selection-info="selectionInfo" @close="cancelled"/>
       <template v-for="(s, index) of selections" :key="index">
         <template v-if="!s.options.bookmarkId">
           <button class="button light" @click.stop="selected(s)">
@@ -79,12 +82,23 @@ export default {
     const {bookmarkMap} = inject("globalBookmarks");
     const {strings, ...common} = useCommon();
     const android = inject("android");
+    const multiSelectionMode = ref(false);
 
     const {resetHighlights, highlightVerse, hasHighlights} = inject("verseHighlight");
     const {modalOpen, closeModals} = inject("modal");
 
     const showModal = ref(false);
     const verseInfo = ref(null);
+
+    const selectionInfo = computed(() => {
+      if(!verseInfo.value) return null;
+      return {
+        ...verseInfo.value,
+        startOrdinal: startOrdinal.value,
+        endOrdinal: endOrdinal.value,
+      }
+    });
+
     const originalSelections = ref(null);
     const bibleBookName = computed(() => verseInfo.value && verseInfo.value.bibleBookName);
 
@@ -120,6 +134,46 @@ export default {
 
     //const {isDoubleClick} = createDoubleClickDetector();
 
+    function updateHighlight() {
+      resetHighlights();
+      highlightVerse(startOrdinal.value);
+      if(endOrdinal.value) {
+        for(let i  = startOrdinal.value + 1; i<=endOrdinal.value; i++) {
+          highlightVerse(i);
+        }
+      }
+    }
+
+    function multiSelect(_verseInfo) {
+      if(!_verseInfo) return false;
+      if(_verseInfo.ordinal < startOrdinal.value) {
+        endOrdinal.value = null;
+        return false
+      } else {
+        endOrdinal.value = _verseInfo.ordinal;
+      }
+      updateHighlight();
+      return true;
+    }
+
+    const startOrdinal = ref(null);
+    const endOrdinal = ref(null);
+
+    function setInitialVerse(_verseInfo) {
+      verseInfo.value = _verseInfo;
+      startOrdinal.value = _verseInfo.ordinal;
+      endOrdinal.value = null;
+      updateHighlight();
+    }
+
+    function toggleMultiSelectionMode() {
+      multiSelectionMode.value = !multiSelectionMode.value;
+      if(!multiSelectionMode.value) {
+        endOrdinal.value = null;
+        updateHighlight();
+      }
+    }
+
     async function handle(event) {
       //if(await isDoubleClick()) return;
 
@@ -135,8 +189,12 @@ export default {
         return;
       }
       if(!isActive && !hasParticularClicks) return;
-      const _verseInfo = getEventVerseInfo(event);
       emit(Events.WINDOW_CLICKED);
+      const _verseInfo = getEventVerseInfo(event);
+      if (multiSelectionMode.value && multiSelect(_verseInfo)) {
+        return;
+      }
+      multiSelectionMode.value = false;
 
       if(eventFunctions.length > 0 || _verseInfo != null) {
         const firstFunc = eventFunctions[0];
@@ -154,10 +212,11 @@ export default {
           if (modalOpen.value && !hasParticularClicks) {
             closeModals();
           } else {
-            verseInfo.value = _verseInfo;
-            highlightVerse(_verseInfo.ordinal);
+            setInitialVerse(_verseInfo);
             const s = await select(allEventFunctions);
             if (s && s.callback) s.callback();
+            // eslint-disable-next-line require-atomic-updates
+            multiSelectionMode.value = false;
             resetHighlights();
           }
         }
@@ -174,9 +233,9 @@ export default {
     }
 
     return {
-      help,
+      help, selectionInfo,
       bibleBookName, verseInfo, selected, handle, cancelled, noActions,
-      showModal, selections, bookmarkMap, common, strings,
+      showModal, selections, bookmarkMap, common, strings, multiSelectionMode, toggleMultiSelectionMode,
     };
   }
 }

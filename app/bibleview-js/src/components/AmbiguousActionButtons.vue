@@ -16,38 +16,36 @@
   -->
 
 <template>
-  <div v-if="verseInfo">
-    <div :class="{hasActions, horizontal: !vertical, vertical}">
-      <div class="large-action" @click="addBookmark">
-        <FontAwesomeLayers>
-          <FontAwesomeIcon icon="bookmark"/>
-          <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
-        </FontAwesomeLayers>
-        <div class="title">{{ strings.addBookmark }}</div>
-      </div>
-      <div class="large-action" @click="addNote">
-        <FontAwesomeLayers>
-          <FontAwesomeIcon icon="edit"/>
-          <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
-        </FontAwesomeLayers>
-        <div class="title">{{ vertical ? strings.verseNoteLong: strings.verseNote }}</div>
-      </div>
-      <div class="large-action" @click="openMyNotes">
-        <FontAwesomeIcon icon="file-alt"/>
-        <div class="title">{{ strings.verseMyNotes }}</div>
-      </div>
-      <div class="large-action" @click="speak">
-        <FontAwesomeIcon icon="headphones"/>
-        <div class="title">{{ vertical? strings.verseSpeakLong: strings.verseSpeak }}</div>
-      </div>
-      <div class="large-action" @click="share">
-        <FontAwesomeIcon icon="share-alt"/>
-        <div class="title">{{ vertical? strings.verseShareLong: strings.verseShare }}</div>
-      </div>
-      <div class="large-action" @click="compare">
-        <FontAwesomeIcon icon="compress-arrows-alt"/>
-        <div class="title">{{ vertical? strings.verseCompareLong: strings.verseCompare }}</div>
-      </div>
+  <div :class="{hasActions, horizontal: !vertical, vertical}">
+    <div class="large-action" @click="addBookmark">
+      <FontAwesomeLayers>
+        <FontAwesomeIcon icon="bookmark"/>
+        <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
+      </FontAwesomeLayers>
+      <div class="title">{{ strings.addBookmark }}</div>
+    </div>
+    <div class="large-action" @click="addNote">
+      <FontAwesomeLayers>
+        <FontAwesomeIcon icon="edit"/>
+        <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
+      </FontAwesomeLayers>
+      <div class="title">{{ vertical ? strings.verseNoteLong: strings.verseNote }}</div>
+    </div>
+    <div class="large-action" @click="openMyNotes">
+      <FontAwesomeIcon icon="file-alt"/>
+      <div class="title">{{ strings.verseMyNotes }}</div>
+    </div>
+    <div class="large-action" @click="speak">
+      <FontAwesomeIcon icon="headphones"/>
+      <div class="title">{{ vertical? strings.verseSpeakLong: strings.verseSpeak }}</div>
+    </div>
+    <div class="large-action" @click="share">
+      <FontAwesomeIcon icon="share-alt"/>
+      <div class="title">{{ vertical? strings.verseShareLong: strings.verseShare }}</div>
+    </div>
+    <div class="large-action" @click="compare">
+      <FontAwesomeIcon icon="compress-arrows-alt"/>
+      <div class="title">{{ vertical? strings.verseCompareLong: strings.verseCompare }}</div>
     </div>
   </div>
 </template>
@@ -61,9 +59,9 @@ import {useCommon} from "@/composables";
 export default {
   name: "AmbiguousActionButtons",
   props: {
-    verseInfo: {
+    selectionInfo: {
       type: Object,
-      default: null,
+      required: true,
     },
     vertical: {type: Boolean, default: false},
     hasActions: {type: Boolean, default: false},
@@ -74,38 +72,39 @@ export default {
   emits: ["close"],
   setup(props, {emit}) {
     const {strings, ...common} = useCommon()
-    const verseInfo = computed(() => props.verseInfo);
+    const selectionInfo = computed(() => props.selectionInfo);
     const android = inject("android");
 
-    const bookInitials = computed(() => verseInfo.value && verseInfo.value.bookInitials);
-    const ordinal = computed(() => verseInfo.value && verseInfo.value.ordinal);
+    const bookInitials = computed(() => selectionInfo.value && selectionInfo.value.bookInitials);
+    const startOrdinal = computed(() => selectionInfo.value && selectionInfo.value.startOrdinal);
+    const endOrdinal = computed(() => selectionInfo.value && selectionInfo.value.endOrdinal);
 
     function share() {
-      android.shareVerse(bookInitials.value, ordinal.value);
+      android.shareVerse(bookInitials.value, startOrdinal.value, endOrdinal.value);
     }
 
     function addBookmark() {
-      android.addBookmark(bookInitials.value, ordinal.value, false);
+      android.addBookmark(bookInitials.value, startOrdinal.value, endOrdinal.value, false);
       android.toast(strings.verseTip);
       emit("close");
     }
 
     function compare() {
-      android.compare(bookInitials.value, ordinal.value);
+      android.compare(bookInitials.value, startOrdinal.value, endOrdinal.value);
     }
 
     function addNote() {
-      android.addBookmark(bookInitials.value, ordinal.value, true);
+      android.addBookmark(bookInitials.value, startOrdinal.value, endOrdinal.value, true);
       android.toast(strings.verseTip);
       emit("close");
     }
 
     function openMyNotes() {
-      android.openMyNotes(bookInitials.value, ordinal.value);
+      android.openMyNotes(bookInitials.value, startOrdinal.value);
     }
 
     function speak() {
-      android.speak(bookInitials.value, ordinal.value);
+      android.speak(bookInitials.value, startOrdinal.value);
       emit("close");
     }
 

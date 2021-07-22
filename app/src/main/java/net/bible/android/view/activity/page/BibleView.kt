@@ -153,12 +153,12 @@ class Selection(val bookInitials: String?, val startOrdinal: Int,
             bookmark.notes
         )
 
-    constructor(bookInitials: String, verseOrdinal: Int):
+    constructor(bookInitials: String, startOrdinal: Int, endOrdinal: Int?):
         this(
             bookInitials,
-            verseOrdinal,
+            startOrdinal,
             0,
-            verseOrdinal,
+            endOrdinal?: startOrdinal,
             null,
             emptyList(),
             null

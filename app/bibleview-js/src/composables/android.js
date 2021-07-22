@@ -235,16 +235,16 @@ export function useAndroid({bookmarks}, config) {
         android.shareBookmarkVerse(bookmarkId);
     }
 
-    function shareVerse(bookInitials, ordinal) {
-        android.shareVerse(bookInitials, ordinal);
+    function shareVerse(bookInitials, startOrdinal, endOrdinal) {
+        android.shareVerse(bookInitials, startOrdinal, endOrdinal ? endOrdinal: -1);
     }
 
-    function addBookmark(bookInitials, ordinal, addNote = false) {
-        android.addBookmark(bookInitials, ordinal, addNote);
+    function addBookmark(bookInitials, startOrdinal, endOrdinal, addNote = false) {
+        android.addBookmark(bookInitials, startOrdinal, endOrdinal ? endOrdinal: -1, addNote);
     }
 
-    function compare(bookInitials, ordinal) {
-        android.compare(bookInitials, ordinal);
+    function compare(bookInitials, startOrdinal, endOrdinal) {
+        android.compare(bookInitials, startOrdinal, endOrdinal ? endOrdinal: -1);
     }
 
     function openStudyPad(labelId, bookmarkId) {
