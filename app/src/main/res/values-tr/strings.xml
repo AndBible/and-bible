@@ -15,9 +15,9 @@
   <string name="speak">Sesli Oku</string>
   <string name="help">Yardım</string>
   <string name="other">Diğer</string>
+  <string name="contact">İletişim</string>
   <string name="help_and_tips">Yardım &amp; ipucuları</string>
   <string name="administration">Yönetici</string>
-  <string name="rate_application">Google Play\'da Değerlendir</string>
   <string name="chooce_document">Belge Seç</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitabı Seç</string>
@@ -27,12 +27,15 @@
   <string name="deuterocanonical">Döterokanonik</string>
   <!--Search-->
   <string name="search_index">Arama Dizini</string>
-  <string name="index_creation_required">Arama yapmak için indeks gereklidir.</string>
-  <string name="create_index_for">Arama yapmak için indeks gereklidir. \n\n%s için indeks oluşturulsun mu?</string>
+  <string name="index_creation_required">Arama yapmak için dizin gerekir.</string>
+  <string name="create_index_for">Arama yapmak için dizin gerekir. \n\n%s için dizin oluşturulsun mu?</string>
+  <string name="rebuild_index_for">%s için dizin yeniden oluşturulsun mu?</string>
   <string name="indexing_wait_msg">Dizin yaratıldıktan sonra arama sayfası açılacaktır.</string>
   <string name="index_create">Oluştur</string>
+  <string name="rebuild_index">Dizini yeniden oluştur</string>
   <string name="search_in">%s içinde bul</string>
   <string name="do_in_background">Arkaplanda devam et</string>
+  <string name="rebuild_index_button">Yeniden oluşur</string>
   <!--Tasks-->
   <string name="progress_status">İlerleme</string>
   <string name="task_kill_warning">Bu işlem zaman alacaktır. Eğer uygulamadan çıkarsanız, işlem bitmeden sonlandırılabilir.</string>
@@ -51,16 +54,24 @@
   <string name="search_current_book">Seçili Kitapta</string>
   <string name="error_executing_search">Arama metini geçersiz</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Ayet numarıları göster</string>
+  <string name="prefs_show_verseno_title">Bölüm ve ayet rakamları</string>
+  <string name="prefs_show_verseno_summary">Bölüm ve ayet rakamlarını göster</string>
+  <string name="prefs_e_ink_mode_title">Siyah beyaz kipi</string>
+  <string name="prefs_show_verseno_title1">Ayet numaraları</string>
+  <string name="prefs_show_chapter_no_title">Bölüm rakamları</string>
+  <string name="prefs_verse_per_line_summary">Her ayet yeni bir satırda gösterilir</string>
+  <string name="prefs_show_bookmarks_summary">Yer imleri gösterilsin mi?</string>
+  <string name="prefs_show_mynotes_summary">Hakkında not yazdığım ayetleri simge ile belirle</string>
+  <string name="prefs_show_notes_summary">Dipnotlar ve iç göndermeler gösterilir</string>
+  <string name="prefs_show_strongs_summary">Grekçe ve İbranice kelimelerin tanımlarına bağlantılar gösterilir</string>
+  <string name="prefs_show_morphology_summary">Robinson\'un Grekçe morfolojik kısaltmaları gösterilir</string>
   <string name="prefs_section_title_summary">Kanonik olmayan bölüm başlıklarını göster</string>
   <string name="prefs_red_letter_summary">Mesih\'in sözlerini kırmızı göster</string>
   <string name="prefs_text_size_title">Font Tercihi</string>
-  <string name="prefs_show_verseno_title">Ayet numaraları</string>
   <string name="prefs_verse_per_line_title">Satır başına tek ayet</string>
   <string name="prefs_show_bookmarks_title">Yer imleri göster</string>
-  <string name="prefs_default_bookmark_style_title">Yer imleri için ön tanımlı biçim</string>
-  <string name="prefs_default_bookmark_style_summary">İşaretlemek için renk veya simge</string>
   <string name="prefs_show_mynotes_title">Notlarım simgelerini göster</string>
+  <string name="prefs_show_footnotes_title">Dipnotlar</string>
   <string name="prefs_show_notes_title">Dipnotlar</string>
   <string name="prefs_show_strongs_title">Strong Referansları</string>
   <string name="prefs_show_morphology_title">Morfolojik kodlar</string>
@@ -73,9 +84,6 @@
   <string name="options_menu_night_mode">Gece modu</string>
   <string name="prefs_navigate_to_verse_title">Ayet seçimi</string>
   <string name="prefs_navigate_to_verse_summary">Kısım seçerken bölümden sonra ayet de seçilir</string>
-  <string name="prefs_open_links_in_special_window_title">Linkler özel pencerede açılsın</string>
-  <string name="prefs_open_links_in_special_window_summary">Strongs numaralar ve dipnotların daha hızlı gösterilmesi için</string>
-  <string name="prefs_text_size_summary">Font ailesi ve boyut belirle</string>
   <string name="prefs_text_size_sample_text">Metin örneği</string>
   <string name="prefs_screen_keep_on_title">Ekranı açık tut</string>
   <string name="prefs_screen_keep_on_summary">Bu uygulamayı kullanırken ekranın kapanmasını önleyin</string>
@@ -97,6 +105,7 @@
   <string name="prefs_line_spacing_pt_title">Satır aralığı (%1.1fx)</string>
   <string name="line_spacing_title">Satır aralığı</string>
   <string name="line_spacing_summary">Satırlar arasındaki mesafeyi ayarla</string>
+  <string name="window_pinning_menutitle">Pencere iğneleme</string>
   <string name="font_size_title">Yazı tipi boyutu</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Renk ayarları</string>
@@ -124,19 +133,14 @@
   <string name="next">Sonraki</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Lütfen \iStrong\'s Grekçe ve İbranice sözlüklerini indiriniz</string>
-  <string name="all_greek_occurrences">Kelimenin tüm oluşlarını bul</string>
-  <string name="all_hebrew_occurrences">Kelimenin tüm oluşlarını bul</string>
   <string name="no_indexed_bible_with_strongs_ref">Strong Numaraları içeren bir Kutsal Kitap çevirisini ve ona ait dizini indirmeniz gerekir. Dizinler Arama sayfasından indirilir.</string>
   <string name="morph_robinson_not_installed">Lütfen \'Robinson\'s Morphological Analysis Codes\' sözlüğünü indirin.</string>
   <!--Module download-->
   <string name="download">Belge İndir</string>
   <string name="download_confirmation">İnternet üzerinden Kutsal Kitap indirilsin mi?</string>
   <string name="download_document_confirm_prefix">İndir</string>
-  <string name="download_refreshing_book_list">Mevcut belgelerinin listesi yenileniyor</string>
   <string name="download_refresh_book_list_menu_item">Yenilen</string>
-  <string name="error_downloading">İndirirken bir hata oldu. İnternet bağlantınızı kontrol edin.</string>
   <string name="storage_space_warning">Yerel depo yetersiz</string>
-  <string name="too_many_jobs">Şu anda çok fazla görev işleniyor. Birinin bitmesini bekleyip tekrar deneyin.</string>
   <string name="document_not_installed">Lütfen \'%s\' dosyasını indirin</string>
   <string name="free_text_search_documents">Ara</string>
   <string name="chooce_language_hint">Dil</string>
@@ -146,14 +150,12 @@
   <string name="install_zip">Zip\'ten Dökumanı Aç</string>
   <string name="install_zip_successfull">Modül başarıyla yüklenmiştir</string>
   <string name="invalid_module">Dosya geçerli SWORD modülü içermiyor</string>
-  <string name="module_already_installed">Dosya zaten yüklenmiş bir modül içeriyor</string>
   <string name="install_zip_title">Lütfen bekleyin. Zip dosyası yükleniyor.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Okuma Planı</string>
   <string name="rdg_plan_selector_title">Okuma Planını Seçin</string>
   <string name="rdg_plan_day">%s. Gün</string>
   <string name="done">Bitti</string>
-  <string name="reset">Sıfırla</string>
   <!--Document context menu-->
   <string name="delete">Sil</string>
   <string name="delete_index">Arama dizinini sil</string>
@@ -162,24 +164,20 @@
   <string name="delete_search_index_doc">%s\'in dizini silinsin mi?</string>
   <!--Verse context menu-->
   <string name="notes">Dipnotlar ve iç göndermeler</string>
-  <string name="verse_action_copy">Kopyala</string>
   <string name="share_verse">Paylaş</string>
   <string name="compare_translations">Çevirileri karşılaştır</string>
   <!--Link context menu-->
   <string name="open_link_in_new_window">Bağlantıyı yeni pencerede aç</string>
   <!--Bookmarks-->
   <string name="bookmarks">Yer İmleri</string>
-  <string name="add_bookmark">Yer İmlerine ekle</string>
-  <string name="delete_bookmark">Yer imi sil</string>
   <string name="bookmark_added">Yer imi eklendi</string>
-  <string name="bookmark_deleted">Yer imi silindi</string>
-  <string name="bookmark_labels">Yer İmi Etiketleri</string>
-  <string name="manage_labels">Yer İmi Etiketleri Yönet</string>
   <string name="assign_labels">Etiketle</string>
+  <string name="new_item">Yeni</string>
   <string name="new_label">Yeni Etiket</string>
   <string name="label_name_prompt">Etiket</string>
   <string name="label_unlabelled">Etiketlenmemiş</string>
-  <string name="style">Biçim</string>
+  <string name="remove_bookmark">Kaldır</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Tarih Sırası</string>
   <string name="sort_by_bible_book">Kutsal Kitap Sırası</string>
@@ -211,6 +209,7 @@
   <string name="speak_queue">Sıra</string>
   <string name="speak_repeat">Tekrar</string>
   <!--Speak - Bible-->
+  <string name="speak_speed_title">Sesli okuma hızı</string>
   <string name="speak_advanced_settings">Gelişmiş Ayarlar</string>
   <string name="speak_sleep_timer_title">Uyku süre ayarlayıcı</string>
   <string name="conf_speak_synchronize">Metin seslendirmeyi takip etsin</string>
@@ -227,6 +226,14 @@
   <string name="speak_previous">Önceki</string>
   <string name="widget_toggle_sleep_timer">Uygu süre ayarlayıcı değiştir</string>
   <string name="speak_status_stopped">durduruldu</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -246,17 +253,11 @@
   <string name="speak_fifth">Beşinci</string>
   <!--User Notes-->
   <string name="mynotes">Notlarım</string>
-  <string name="mynote_add">Notlarıma ekle</string>
-  <string name="mynote_saved">Notlarım kaydedildi</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Yedekle &amp; Geri Al</string>
-  <string name="backup_modules">Belgeler yedekleme hedefi...</string>
-  <string name="backup_app_database">Uygulama veritabanı yedekleme hedefi...</string>
-  <string name="restore_app_database">Uygulama veritabanı nereden geri getirilsin...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="loading_backup">Veritabanı yedeklemeden yükleniyor...</string>
-  <string name="backup_restore_title">Nereden geri getirilsin?</string>
   <string name="backup_phone_storage">Telefon hafıza</string>
-  <string name="backup_manually">Dosya seç</string>
   <string name="backup_backup_title">Nereye yedeklensin?</string>
   <string name="backup_share">Paylaş</string>
   <string name="send_backup_file">Yedekleme dosyasını gönder</string>
@@ -266,8 +267,6 @@
   <string name="module_about_latest_version">Son çıkan sürüm: %s (%s)</string>
   <string name="module_about_versification">Ayet düzeni: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Arıza bilgilendir</string>
-  <string name="report_bug_email_subject_2">%s için sorun bildirmesi: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Kutsal Kitap</string>
   <string name="doc_type_commentary">Yorum Kitabı</string>
@@ -282,10 +281,11 @@
   <string name="yes">Evet</string>
   <string name="no">Hayır</string>
   <string name="error">Hata</string>
+  <string name="delete_generic">Sil</string>
   <string name="please_wait">Lütfen bekleyin...</string>
   <string name="all">Hepsi</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">Düzelt</string>
+  <string name="reset_generic">Sıfırla</string>
   <string name="watch_tutorial_video">Kullanma rehber videosu izle (İngilizce)</string>
   <string name="verse_not_found">Ayet bulunamadı</string>
   <!--Errors-->
@@ -324,13 +324,24 @@
   <!--History-->
   <!--Help-->
   <string name="help_nav_title">Navigasyon</string>
-  <string name="help_mynote_title">Notum</string>
-  <string name="help_bookmarks_title">Yer İmleri</string>
   <string name="help_search_title">Arama</string>
   <string name="help_workspaces_title">Çalışma Alanları</string>
   <string name="help_window_pinning_title">Pencere iğneleme</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Kapat</string>
   <string name="first_time_help_do_not_show_again">Anladım</string>
   <string name="first_time_help_show_next_time">Bir daha sefere tekrar göster</string>
+  <string name="my_notes_abbreviation">Notlarım</string>
+  <string name="compare_description">Çevirileri karşılaştır</string>
+  <string name="verse_action_copy">Kopyala</string>
+  <string name="show_versenumbers">Ayet numarıları göster</string>
+  <string name="backup_button">Yedekle</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <!--parameters are actions (file a bug, send email)-->
+  <!--param is "please report maintainers"-->
+  <!--param is "please read what you can do"-->
+  <string name="system_items1">Daha Fazla</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
 </resources>

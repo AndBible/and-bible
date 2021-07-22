@@ -1,0 +1,56 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: 研經工具 - 由 And Bible 開源計劃開發
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: ""
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: 功能強大的的研經工具
+paragraph_1_1: >
+paragraph_1_2: >
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+subtitle_2: ""
+paragraph_2_1: >
+feature_01: ""
+feature_02: ""
+feature_03: ""
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: ""
+# Examples of cross-reference collections.
+cross_reference_examples: ""
+feature_05: ""
+feature_06: ""
+feature_07: ""
+feature_09: >
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: ESV、NIV 及 NKJV
+feature_12: >
+  離線可用：只有下載文件時需要上網。
+feature_13: >
+subtitle_3: ""
+paragraph_3_1: >
+contr_1: ""
+contr_2: ""
+contr_3: ""
+contr_4: ""
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: ""
+subtitle_4: 連結
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  主頁：{{homepage_url}}
+link_2: >
+  在 Facebook 上讚好 And Bible：{{facebook_url}}
+link_3: >
+  我們的 Youtube 頻道：{{youtube_url}}
+link_4: >
+  常見問題：{{faq_url}}
+link_5: >
+  Github Project 頁面：{{github_url}}
