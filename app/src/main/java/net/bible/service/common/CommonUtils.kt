@@ -71,6 +71,7 @@ import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.service.db.DataBaseNotReady
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
@@ -119,8 +120,6 @@ const val workspacesVideo = "https://youtu.be/rz0zyEK9qBk"
 const val beta34introVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // For 3.4 beta intro
 const val speakHelpVideo = "https://youtu.be/_wWnS-pjv2A"
 const val automaticSpeakBookmarkingVideo = "https://www.youtube.com/watch?v=1HFXLeTERcs"
-
-class DataBaseNotReady: Exception()
 
 val BookmarkEntities.Label.displayName get() =
     when {

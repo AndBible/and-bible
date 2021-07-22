@@ -20,7 +20,6 @@ package net.bible.service.db
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.util.Log
-import androidx.preference.PreferenceManager
 import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
@@ -31,7 +30,6 @@ import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.DataBaseNotReady
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
@@ -950,6 +948,8 @@ private val MIGRATION_54_55_bookmarkType = object : Migration(54, 55) {
         }
     }
 }
+
+class DataBaseNotReady: Exception()
 
 object DatabaseContainer {
     private var instance: AppDatabase? = null
