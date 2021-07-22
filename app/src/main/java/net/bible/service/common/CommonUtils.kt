@@ -73,11 +73,13 @@ import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
+import net.bible.service.sword.SwordContentFacade
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateUtils
 import org.crosswire.common.util.IOUtil
 import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
@@ -97,6 +99,7 @@ import java.security.spec.X509EncodedKeySpec
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
 fun htmlToSpan(html: String): Spanned {
@@ -847,34 +850,85 @@ object CommonUtils {
         }
     }
 
+    const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
     private fun prepareData() {
         val dataVersionNow = 1L
         val dataVersion = settings.getLong("data-version", 0)
-
+        var bid: Long
         if(dataVersion < 1) {
             val workspaceDao = DatabaseContainer.db.workspaceDao()
             val bookmarkDao = DatabaseContainer.db.bookmarkDao()
             var highlightIds = listOf<Long>()
-
+            val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
             if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") }) {
+                val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false)
+                val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false)
+                val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false)
+                val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), underlineStyle = true, underlineStyleWholeVerse = true)
+
                 val highlightLabels = listOf(
-                    BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false),
-                    BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false),
-                    BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false),
-                    BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 255, 0), underlineStyle = true, underlineStyleWholeVerse = true),
+                    redLabel,
+                    greenLabel,
+                    underlineLabel,
+                    blueLabel,
                 )
-                val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255, 255, 0, 255))
+
+                val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255,  100, 0, 150))
                 highlightIds = bookmarkDao.insertLabels(highlightLabels)
+                highlightLabels.zip(highlightIds) { label, id -> label.id = id }
 
-                if(bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isEmpty()) {
+                val defaultBible = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE } [0] as SwordBook
+
+                val (otVerse, ntVerse, psVerse) = listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3").map { VerseRangeFactory.fromString(defaultBible.versification, it) }
+
+                // Choose verse similarly as in setFirstUseDefaultVerse
+                val useVerse = when {
+                    defaultBible.contains(ntVerse.start) -> ntVerse
+                    defaultBible.contains(otVerse.start) -> otVerse
+                    else -> psVerse
+                }
+
+                fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.Bookmark {
+                    val v1 = verseRange.toVerseArray()[start.toInt()]
+                    val v2 = verseRange.toVerseArray()[end.toInt()]
+                    val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true).length
+                    val l2 = SwordContentFacade.getCanonicalText(defaultBible, v2, true).length
+                    val tr = BookmarkEntities.TextRange(((start - start.toInt())*l1).roundToInt(), ((end-end.toInt()) * l2).roundToInt())
+                    val v = VerseRange(v1.versification, v1, v2)
+
+                    return BookmarkEntities.Bookmark(v, textRange = tr, wholeVerse = false, book = defaultBible)
+                }
+
+                if(!hasExistingBookmarks) {
                     val salvationId = bookmarkDao.insert(salvationLabel)
+                    salvationLabel.id = salvationId
 
-                    listOf("Gen.1.1", "Joh.3.16", "Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
+                    // first bookmark, full verses, with underline
+                    bid = bookmarkDao.insert(BookmarkEntities.Bookmark(useVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id } )
+                    bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, underlineLabel.id))
+                    bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationLabel.id))
+
+                    // second bookmark, red
+                    bid = bookmarkDao.insert(getBookmark(useVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id } )
+                    bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, redLabel.id))
+
+                    // third bookmark, green
+                    bid = bookmarkDao.insert(getBookmark(useVerse, 1.2, 1.4).apply {
+                        primaryLabelId = greenLabel.id
+                        notes = lorem
+                    } )
+
+                    bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, greenLabel.id))
+
+                    val salvationVerses = listOf("Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
                         .map { VerseRangeFactory.fromString(KJVA, it) }
+
+                    salvationVerses
                         .map {
                             BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
                         }.forEach {
-                            val bid = bookmarkDao.insert(it)
+                            bid = bookmarkDao.insert(it)
                             bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationId))
                         }
                 }
