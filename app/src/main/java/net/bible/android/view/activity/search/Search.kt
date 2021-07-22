@@ -30,11 +30,11 @@ import android.widget.RadioGroup
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SearchBinding
+import net.bible.android.control.page.PageControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils
 
 import org.apache.commons.lang3.StringUtils
@@ -56,9 +56,10 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private lateinit var currentBookName: String
 
     @Inject lateinit var searchControl: SearchControl
+    @Inject lateinit var pageControl: PageControl
 
     private val documentToSearch: Book?
-        get() = mainBibleActivity.pageControl.currentPageManager.currentPage.currentDocument
+        get() = pageControl.currentPageManager.currentPage.currentDocument
 
     /** get all, any, phrase query limitation
      */
