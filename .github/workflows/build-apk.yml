@@ -1,12 +1,6 @@
-name: Build APK
+name: Build APK when adding tag
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Build tag to be created"
-        required: true
-        default: "beta-"
   push:
     tags:
       - 'build-*'
@@ -26,8 +20,6 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 10 # so that recent tags can be found
-    - run: git tag ${{github.event.inputs.tag}}
-      if: github.event_name == 'workflow_dispatch'
     - name: Set up JDK
       uses: actions/setup-java@v1
       with:
@@ -88,9 +80,6 @@ jobs:
         echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > keystore.jks
         $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-release-unsigned.apk
         rm -f keystore.jks
-    - run: git push origin ${{github.event.inputs.tag}}
-      if: github.event_name == 'workflow_dispatch'
-
     - name: Create release
       if: contains(github.ref, 'refs/tags/')
       id: create_release
