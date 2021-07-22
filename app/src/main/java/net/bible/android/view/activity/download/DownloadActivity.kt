@@ -263,7 +263,8 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     }
 
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
-        return downloadControl.getDownloadableDocuments(repoFactory, refresh) + FakeBookFactory.downloadPseudoDocuments
+        val docs = downloadControl.getDownloadableDocuments(repoFactory, refresh)
+        return if(docs.isNotEmpty()) docs + FakeBookFactory.downloadPseudoDocuments else docs
     }
 
     override fun onStart() {
