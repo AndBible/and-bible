@@ -38,6 +38,7 @@ import androidx.preference.PreferenceScreen
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
@@ -53,7 +54,6 @@ import net.bible.android.view.activity.page.FontSizePreference
 import net.bible.android.view.activity.page.HideLabelsPreference
 import net.bible.android.view.activity.page.LineSpacingPreference
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.MorphologyPreference
 import net.bible.android.view.activity.page.MyNotesPreference
@@ -306,6 +306,8 @@ class TextDisplaySettingsActivity: ActivityBase() {
 
     private val isWindow get() = settingsBundle.windowId != null
 
+    lateinit var windowControl: WindowControl
+
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
 
@@ -320,7 +322,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
 
         val windowId = settingsBundle.windowId
         title = if(windowId != null) {
-            getString(R.string.window_text_display_settings_title, mainBibleActivity.windowControl.windowPosition(windowId) + 1)
+            getString(R.string.window_text_display_settings_title, windowControl.windowPosition(windowId) + 1)
         } else {
             getString(R.string.workspace_text_display_settings_title, settingsBundle.workspaceName)
         }
