@@ -39,7 +39,7 @@ import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.db.DatabaseContainer
@@ -400,7 +400,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                 GlobalScope.launch (Dispatchers.Main){
                     val intent = Intent(this@DownloadActivity, InstallZip::class.java)
                     awaitIntent(intent)
-                    mainBibleActivity.updateDocuments()
+                    _mainBibleActivity?.updateDocuments()
                 }
 
                 isHandled  = true
