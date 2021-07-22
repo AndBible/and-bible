@@ -405,6 +405,11 @@ export function highlightVerseRange(selectorPrefix, [startOrdinal, endOrdinal], 
     const [first, startOff1] = findNodeAtOffsetWithNullOffset(firstElem, startOff);
     const [second, endOff1] = findNodeAtOffsetWithNullOffset(secondElem, endOff);
 
+    if(!(first instanceof Node && second instanceof Node)) {
+        console.error("Node not found!");
+        return;
+    }
+
     const range = new Range();
     range.setStart(first, startOff1);
     range.setEnd(second, endOff1);
