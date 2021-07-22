@@ -399,6 +399,7 @@ export function useBookmarks(documentId,
         if(colors.length === 1) {
             colors.push(colors[0]);
         }
+        if(colors.length === 0) return "";
         const span = 100/colors.length;
         const colorStr = colors.map((v, idx) => {
             let percent;
