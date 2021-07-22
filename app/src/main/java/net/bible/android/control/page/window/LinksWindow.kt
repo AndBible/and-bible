@@ -29,7 +29,6 @@ class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageMana
     Window(window, pageManager, windowRepository)
 {
     override val isLinksWindow = true
-    override var isSynchronised = false
     override var isPinMode: Boolean = true
         get() = windowRepository.workspaceSettings.autoPin
 
