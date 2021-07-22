@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_short">Studium Bible</string>
-  <string name="app_name_medium">Studium Bible (And Bible)</string>
+  <string name="app_name_short">Bible</string>
+  <string name="app_name_medium">Bible (And Bible)</string>
   <string name="app_name_long">Aplikace ke studiu Bible od And Bible Open Source projektu</string>
   <string name="project">And Bible Open Source Projekt</string>
   <string name="version_text">Verze %s</string>
@@ -104,7 +104,7 @@
   <string name="all_text_options_window_menutitle">Všechna nastavení textu</string>
   <string name="text_options_window_menutitle">Nastavení textu</string>
   <string name="auto_fullscreen">Posunem textu na celou obrazovku</string>
-  <string name="reversed_split_mode">Obrácené rozdělení okna</string>
+  <string name="reversed_split_mode">Vertikální rozdělení okna</string>
   <string name="prefs_advanced_settings_cat">Rozšířená nastavení</string>
   <string name="workspace_text_display_settings_title">Nastavení textu - %s</string>
   <string name="window_text_display_settings_title">Nastavení textu - Okno %d</string>
@@ -142,6 +142,10 @@
   <string name="free_text_search_documents">Hledat</string>
   <string name="chooce_language_hint">Jazyk</string>
   <string name="document_filter_results">%d document(ů)</string>
+  <string name="download_question_title">Chcete přistoupit ke stažení dokumentů?</string>
+  <string name="download_question_message">Pokud žijete v nedemokratické zemi, může stažení křesťanského obsahu být sankcionováno. Pokud je tomu tak, zvažte použití instalace pomocí ZIP souboru. 
+Opravdu chce pokračovat?
+Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="do_not_ask_again">Ano, již se nedotazovat</string>
   <string name="download_errors">Chyby stahování</string>
   <!--Install zip file-->
@@ -220,6 +224,7 @@
   <string name="new_label">Nový popisek</string>
   <string name="label_name_prompt">Název</string>
   <string name="label_unlabelled">Neoznačený</string>
+  <string name="add_bookmark1">Záložka</string>
   <string name="remove_bookmark">Odstranit</string>
   <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -353,6 +358,9 @@ bylo spuštěno mluvení mimo stanovený rozsah veršů.</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="loading_backup">Načítání databáze ze zálohy...</string>
   <string name="restore_unsuccessfull">Obnova databáze se nezdařila. Možná jste zadali nesprávný soubor s databází.</string>
+  <string name="backup_phone_storage">Úložiště telefonu</string>
+  <string name="backup_backup_title">Umístění zálohy</string>
+  <string name="backup_backup_message">Zálohovat do telefonu nebo pomocí sdílení (email, Google Drive apod.)?</string>
   <string name="backup_share">Sdílet</string>
   <string name="restore_modules">Načíst dokumenty z...</string>
   <!--About-->
@@ -463,7 +471,11 @@ bylo spuštěno mluvení mimo stanovený rozsah veršů.</string>
   <string name="proceed_google_play">
         Přejít do Google Play
     </string>
+  <string name="book_menu_sort_row_opt">Horizontální pořadí</string>
   <string name="system_items1">Více</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Dvojklik zapne celoobrazovkový režim</string>
+  <string name="toggle_fullscreen">Celoobrazovkový režim</string>
+  <string name="exit_fullscreen">Dvojklik ukončí celoobrazovkový režim</string>
   <string name="label_red">Červená</string>
   <string name="label_green">Zelená</string>
   <string name="label_blue">Modrá</string>
