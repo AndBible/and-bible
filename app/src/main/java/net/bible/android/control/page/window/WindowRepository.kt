@@ -34,7 +34,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.AppSettingsUpdated
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
@@ -320,7 +320,7 @@ open class WindowRepository @Inject constructor(
 
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.d(TAG, "saveIntoDb")
-        if(stopSpeak) mainBibleActivity.speakControl.stop()
+        if(stopSpeak) _mainBibleActivity?.speakControl?.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()
 
