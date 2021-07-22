@@ -43,12 +43,12 @@ import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.page.AppSettingsUpdated
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.CommonUtils.json
@@ -523,7 +523,8 @@ class ManageLabels : ListActivityBase() {
             }
             shownLabels.addAll(allLabels)
         }
-        val recentLabelIds = mainBibleActivity.workspaceSettings.recentLabels.map { it.labelId }
+
+        val recentLabelIds = bookmarkControl.windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId }
         shownLabels.myRemoveIf { it is BookmarkEntities.Label && data.deletedLabels.contains(it.id) }
         if(fromDb || reOrder) {
             shownLabels.sortWith(compareBy({

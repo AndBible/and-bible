@@ -69,7 +69,7 @@ const val LABEL_ALL_ID = -999L
 
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
-    private val windowControl: WindowControl,
+    val windowControl: WindowControl,
     resourceProvider: ResourceProvider,
 ) {
     // Dummy labels for all / unlabelled
