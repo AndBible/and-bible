@@ -19,6 +19,7 @@ package net.bible.android.view.activity.download
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.View
 import android.widget.Button
 import net.bible.android.activity.R
@@ -35,9 +36,16 @@ class FirstDownload : DownloadActivity() {
     private var okayButton: Button? = null
     private var okayButtonEnabled = false
     private val downloadCompletionListener: WorkListener
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         okayButton = findViewById<View>(R.id.okayButton) as Button
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        super.onCreateOptionsMenu(menu)
+        menu.findItem(R.id.installZip).isVisible = false
+        return true
     }
 
     override fun onStart() {

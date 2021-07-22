@@ -73,6 +73,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     private val docsDao get() = DatabaseContainer.db.swordDocumentInfoDao()
     private val previousInstallDetected: Boolean get() = docsDao.getKnownInstalled().isNotEmpty();
+    override val doNotInitializeApp = true
 
 
     private suspend fun getListOfBooksUserWantsToRedownload(context: Context) : List<String>? {
@@ -202,8 +203,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         spinnerBinding.progressText.text = oldText
     }
 
-    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
-
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if(!checkWebView()) return@withContext
 
@@ -286,7 +285,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
      */
     fun onLoadFromZip(v: View) {
         Log.i(TAG, "Load from Zip clicked")
-        val handlerIntent = Intent(this, InstallZip::class.java)
+        val handlerIntent = Intent(this, InstallZip::class.java).apply { putExtra("doNotInitializeApp", true) }
         startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
     }
 

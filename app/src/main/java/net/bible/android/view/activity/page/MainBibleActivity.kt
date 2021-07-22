@@ -202,7 +202,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Creating MainBibleActivity")
-        CommonUtils.initializeApp()
         // This is singleton so we can do this.
         if(_mainBibleActivity != null) {
             throw RuntimeException("MainBibleActivity was created second time!")

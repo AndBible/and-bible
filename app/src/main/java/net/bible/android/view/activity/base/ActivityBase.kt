@@ -59,10 +59,14 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     @Inject lateinit var swordDocumentFacade: SwordDocumentFacade
 
     protected open val customTheme = true
+    open val doNotInitializeApp = false
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
+        if(!doNotInitializeApp) {
+            CommonUtils.initializeApp()
+        }
         this.onCreate(savedInstanceState, false)
     }
 
