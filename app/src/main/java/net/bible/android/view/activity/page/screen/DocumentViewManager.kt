@@ -27,10 +27,8 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
-import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import javax.inject.Inject
 
 class WebViewsBuiltEvent
@@ -43,7 +41,7 @@ class AfterRemoveWebViewEvent
  */
 @MainBibleActivityScope
 class DocumentViewManager @Inject constructor(
-	mainBibleActivity: MainBibleActivity,
+	val mainBibleActivity: MainBibleActivity,
 	private val windowControl: WindowControl
 ) {
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
