@@ -74,7 +74,6 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class TextToSpeechServiceManager @Inject constructor(
-		swordContentFacade: SwordContentFacade,
 		bibleTraverser: BibleTraverser,
 		windowControl: WindowControl,
 		bookmarkControl: BookmarkControl,
@@ -107,13 +106,12 @@ class TextToSpeechServiceManager @Inject constructor(
 
     init {
         Log.d(TAG, "Creating TextToSpeechServiceManager")
-        generalSpeakTextProvider = GeneralSpeakTextProvider(swordContentFacade)
+        generalSpeakTextProvider = GeneralSpeakTextProvider()
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
         val verse = windowControl.activeWindowPageManager.currentBible.singleKey
 
         bibleSpeakTextProvider = BibleSpeakTextProvider(
-                swordContentFacade, bibleTraverser, bookmarkControl,
-                windowControl.windowRepository, book, verse
+            bibleTraverser, bookmarkControl, windowControl.windowRepository, book, verse
         )
         mSpeakTextProvider = bibleSpeakTextProvider
 

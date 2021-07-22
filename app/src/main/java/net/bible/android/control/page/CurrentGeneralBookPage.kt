@@ -51,10 +51,9 @@ import java.lang.Exception
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentGeneralBookPage internal constructor(
-    swordContentFacade: SwordContentFacade,
     swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade, pageManager),
+) : CachedKeyPage(false, swordDocumentFacade, pageManager),
     CurrentPage
 {
 
@@ -95,7 +94,7 @@ class CurrentGeneralBookPage internal constructor(
                 is BookAndKeyList -> {
                     val frags = key.filterIsInstance<BookAndKey>().map {
                         try {
-                            OsisFragment(swordContentFacade.readOsisFragment(it.document, it.key), it.key, it.document)
+                            OsisFragment(SwordContentFacade.readOsisFragment(it.document, it.key), it.key, it.document)
                         } catch (e: OsisError) {
                             Log.e(TAG, "Fragment could not be read")
                             null

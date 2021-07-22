@@ -47,8 +47,7 @@ import org.crosswire.jsword.versification.BibleNames
 import java.util.Locale
 import kotlin.collections.HashMap
 
-class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
-                             private val bibleTraverser: BibleTraverser,
+class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
                              private val bookmarkControl: BookmarkControl,
                              private val windowRepository: WindowRepository,
                              initialBook: SwordBook,
@@ -313,7 +312,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val book_ = book ?: this.book
         var cmds = verseRenderLruCache.get(Pair(book_, verse))
         if(cmds == null) {
-            cmds = swordContentFacade.getSpeakCommands(settings, book_, verse)
+            cmds = SwordContentFacade.getSpeakCommands(settings, book_, verse)
             verseRenderLruCache.put(Pair(book_, verse), cmds)
         }
         return cmds.copy()

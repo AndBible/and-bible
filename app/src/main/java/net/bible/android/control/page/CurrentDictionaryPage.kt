@@ -17,14 +17,12 @@
  */
 package net.bible.android.control.page
 
-import android.content.Context
 import android.content.Intent
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.passage.Key
 
@@ -33,10 +31,9 @@ import org.crosswire.jsword.passage.Key
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentDictionaryPage internal constructor(
-    swordContentFacade: SwordContentFacade,
     swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade, pageManager),
+) : CachedKeyPage(false, swordDocumentFacade, pageManager),
     CurrentPage
 {
     override val documentCategory = DocumentCategory.DICTIONARY

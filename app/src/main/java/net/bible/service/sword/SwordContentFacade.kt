@@ -24,13 +24,8 @@ import android.util.LayoutDirection
 import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.common.toV11n
-import net.bible.android.control.ApplicationScope
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.Selection
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 import net.bible.service.common.ParseException
 import net.bible.service.device.speak.SpeakCommand
@@ -62,7 +57,6 @@ import org.xml.sax.ContentHandler
 import java.io.Writer
 import java.lang.RuntimeException
 import java.util.*
-import javax.inject.Inject
 import kotlin.math.min
 
 open class OsisError(message: String): Exception(message)
@@ -72,10 +66,8 @@ class DocumentNotFound(message: String): OsisError(message)
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-open class SwordContentFacade @Inject constructor(
-    private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
-) {
+
+object SwordContentFacade {
 
     /** top level method to fetch html from the raw document data
      */
@@ -323,7 +315,7 @@ open class SwordContentFacade @Inject constructor(
     }
 
     @Throws(BookException::class)
-    fun search(bible: Book, searchText: String): Key {
+    fun search(bible: Book, searchText: String?): Key {
 		// example of fetching Strongs ref - only works with downloaded indexes!
 		// Book book = getDocumentByInitials("KJV");
 		// Key key1 = book.find("strong:h3068");
@@ -353,27 +345,12 @@ open class SwordContentFacade @Inject constructor(
         return false
     }
 
-    fun getBookmarkVerseText(bookmark: BookmarkEntities.Bookmark): String? {
-        var verseText: String? = ""
-        try {
-            val currentBible = activeWindowPageManagerProvider.activeWindowPageManager.currentBible
-            val versification = currentBible.versification
-            verseText = getPlainText(currentBible.currentDocument, bookmark.verseRange.toV11n(versification))
-            verseText = CommonUtils.limitTextLength(verseText)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting verse text", e)
-        }
-        return verseText
-    }
-
-    companion object {
-        private const val TAG = "SwordContentFacade"
-        // set to false for testing
-        private var isAndroid = true //CommonUtils.isAndroid();
-        private val log = Logger(SwordContentFacade::class.java.name)
-        fun setAndroid(isAndroid: Boolean) {
-            Companion.isAndroid = isAndroid
-        }
+    private const val TAG = "SwordContentFacade"
+    // set to false for testing
+    private var isAndroid = true //CommonUtils.isAndroid();
+    private val log = Logger(SwordContentFacade::class.java.name)
+    fun setAndroid(isAndroid: Boolean) {
+        this.isAndroid = isAndroid
     }
 
 }

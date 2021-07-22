@@ -28,7 +28,6 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 
 import org.crosswire.jsword.book.Book
@@ -70,7 +69,6 @@ val BookCategory.documentCategory: DocumentCategory get() {
 }
 
 open class CurrentPageManager @Inject constructor(
-        swordContentFacade: SwordContentFacade,
         val swordDocumentFacade: SwordDocumentFacade,
         bibleTraverser: BibleTraverser,
         val bookmarkControl: BookmarkControl,
@@ -79,12 +77,12 @@ open class CurrentPageManager @Inject constructor(
 {
     // use the same verse in the commentary and bible to keep them in sync
     val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
-    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
-    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
-    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
-    val currentDictionary = CurrentDictionaryPage(swordContentFacade, swordDocumentFacade, this)
-    val currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade, this)
-    val currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade, this)
+    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
+    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
+    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
+    val currentDictionary = CurrentDictionaryPage(swordDocumentFacade, this)
+    val currentGeneralBook = CurrentGeneralBookPage(swordDocumentFacade, this)
+    val currentMap = CurrentMapPage(swordDocumentFacade, this)
 
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
 
@@ -308,7 +306,6 @@ open class CurrentPageManager @Inject constructor(
             return isCurrentBibleBookScripture ||
                 !currentVersification.containsBook(currentBibleBook)
         }
-
 
     val TAG get() = "PageManager[${window.id}]"
 }

@@ -41,7 +41,6 @@ import org.crosswire.jsword.passage.NoSuchKeyException
  */
 abstract class CurrentPageBase protected constructor(
 	shareKeyBetweenDocs: Boolean,
-	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade,
     override val pageManager: CurrentPageManager
 ) : CurrentPage {
@@ -81,7 +80,6 @@ abstract class CurrentPageBase protected constructor(
     // all bibles and commentaries share the same key
     override var isShareKeyBetweenDocs: Boolean = false
 
-    val swordContentFacade: SwordContentFacade
     val swordDocumentFacade: SwordDocumentFacade
 
     /** notify mediator that page has changed and a lot of things need to update themselves
@@ -132,7 +130,7 @@ abstract class CurrentPageBase protected constructor(
                 book = currentDocument,
                 key = key,
                 osisFragment = synchronized(currentDocument) {
-                    val frag = swordContentFacade.readOsisFragment(currentDocument, key)
+                    val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
                     if (frag.isEmpty()) throw OsisError(application.getString(R.string.error_no_content))
                     else OsisFragment(frag, key, currentDocument)
                 }
@@ -274,7 +272,6 @@ abstract class CurrentPageBase protected constructor(
 
     init {
         isShareKeyBetweenDocs = shareKeyBetweenDocs
-        this.swordContentFacade = swordContentFacade
         this.swordDocumentFacade = swordDocumentFacade
     }
 }

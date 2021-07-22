@@ -47,10 +47,9 @@ import org.crosswire.jsword.passage.VerseRange
 open class CurrentCommentaryPage internal constructor(
     currentBibleVerse: CurrentBibleVerse,
     bibleTraverser: BibleTraverser,
-    swordContentFacade: SwordContentFacade,
     swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage
+) : VersePage(true, currentBibleVerse, bibleTraverser, swordDocumentFacade, pageManager), CurrentPage
 {
 
     override val documentCategory = DocumentCategory.COMMENTARY
@@ -70,7 +69,7 @@ open class CurrentCommentaryPage internal constructor(
 
                 val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
                     try {
-                        OsisFragment(swordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification)), key, it)
+                        OsisFragment(SwordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification)), key, it)
                     } catch (e: OsisError) {
                         null
                     }

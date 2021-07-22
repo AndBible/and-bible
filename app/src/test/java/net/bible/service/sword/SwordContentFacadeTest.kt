@@ -33,15 +33,12 @@ import org.robolectric.RobolectricTestRunner
 @Config(application = TestBibleApplication::class, sdk=[28])
 class SwordContentFacadeTest {
 
-    private lateinit var swordContentFacade: SwordContentFacade
-
     @Before
     @Throws(Exception::class)
     fun setUp() {
         val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
         val windowControl = Mockito.mock(WindowControl::class.java)
-        val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(SwordContentFacade::class.java),Mockito.mock(AndroidResourceProvider::class.java))
-        swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
+        val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(AndroidResourceProvider::class.java))
     }
 
     @After
@@ -68,7 +65,7 @@ class SwordContentFacadeTest {
         //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Gen 1:1")
         val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Gen 1:1")
 
-        val html = swordContentFacade.getCanonicalText(esv, key)
+        val html = SwordContentFacade.getCanonicalText(esv, key)
         assertThat("Wrong canonical text", html, equalTo("In the beginning, God created the heavens and the earth. "))
     }
 
@@ -86,7 +83,7 @@ class SwordContentFacadeTest {
         val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Matt 18")
 
         val html = try {
-            swordContentFacade.readOsisFragment(esv, key)
+            SwordContentFacade.readOsisFragment(esv, key)
         } catch (e: ParseException) {
             "broken"
         }
@@ -101,7 +98,7 @@ class SwordContentFacadeTest {
         val verse = getVerse(esv, "Matt.18.11")
 
         val html = try {
-            swordContentFacade.readOsisFragment(esv, verse)
+            SwordContentFacade.readOsisFragment(esv, verse)
         } catch (e: Exception) {
             if(e is OsisError) "fixed" else "broken"
         }
@@ -117,7 +114,7 @@ class SwordContentFacadeTest {
             val verse = getVerse(esv, "Matt.18.$i")
 
             val html = try {
-                swordContentFacade.readOsisFragment(esv, verse)
+                SwordContentFacade.readOsisFragment(esv, verse)
             } catch (e: Exception) {
                 if(e is OsisError) "fixed" else "broken"
             }
@@ -128,7 +125,7 @@ class SwordContentFacadeTest {
 
     @Throws(Exception::class)
     private fun getHtml(book: Book, key: Key): String {
-        return swordContentFacade.readOsisFragment(book, key)
+        return SwordContentFacade.readOsisFragment(book, key)
     }
 
     private fun getBook(initials: String): Book {
@@ -140,15 +137,6 @@ class SwordContentFacadeTest {
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk=[28])
 class TestShare {
-    private lateinit var swordContentFacade: SwordContentFacade
-
-    @Before
-    @Throws(Exception::class)
-    fun setUp() {
-        val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
-        swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
-    }
-
     private fun testShare(initials: String, verseRangeStr: String, offsetRange: IntRange,
                           showVerseNumbers: Boolean, showFull: Boolean,
                           compareText: String,
@@ -166,7 +154,7 @@ class TestShare {
             offsetRange.last,
             emptyList())
 
-        val text = swordContentFacade.getSelectionText(sel,
+        val text = SwordContentFacade.getSelectionText(sel,
             showVerseNumbers = showVerseNumbers,
             showFull = showFull,
             showReference = true,

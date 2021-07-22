@@ -35,13 +35,11 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
-import javax.inject.Inject
 
 class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: Selection):
     LinearLayout(context, attributeSet) {
     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val bindings = ShareVersesBinding.inflate(inflater, this, true)
-    @Inject lateinit var swordContentFacade: SwordContentFacade
 
     init {
         CommonUtils.buildActivityComponent().inject(this)
@@ -67,7 +65,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
     }
 
     private fun updateText() {
-        val text = swordContentFacade.getSelectionText(selection,
+        val text = SwordContentFacade.getSelectionText(selection,
             showVerseNumbers = bindings.toggleVersenumbers.isChecked,
             showFull = bindings.toggleFullVerses.isChecked,
             advertiseApp = bindings.advertise.isChecked,

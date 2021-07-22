@@ -45,11 +45,9 @@ import org.crosswire.jsword.versification.Versification
 class CurrentBiblePage(
     currentBibleVerse: CurrentBibleVerse,
     bibleTraverser: BibleTraverser,
-    swordContentFacade: SwordContentFacade,
     swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade,
-        swordDocumentFacade, pageManager), CurrentPage {
+) : VersePage(true, currentBibleVerse, bibleTraverser, swordDocumentFacade, pageManager), CurrentPage {
 
     override val documentCategory = DocumentCategory.BIBLE
 

@@ -67,7 +67,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         buildActivityComponent().inject(this)
         searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
         setActionBarManager(searchResultsActionBarManager)
-        isScriptureResultsCurrentlyShown = searchControl.isCurrentDefaultScripture
+        isScriptureResultsCurrentlyShown = searchControl.isCurrentlyShowingScripture
         GlobalScope.launch {
             prepareResults()
         }

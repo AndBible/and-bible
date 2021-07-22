@@ -597,7 +597,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             strongsButton.setOnLongClickListener {
-                startActivityForResult(Intent(this@MainBibleActivity, ChooseDictionaryWord::class.java), ActivityBase.STD_REQUEST_CODE)
+                startActivityForResult(Intent(this@MainBibleActivity, ChooseDictionaryWord::class.java), STD_REQUEST_CODE)
                 true
             }
 
@@ -618,7 +618,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 startActivity(intent)
                 true
             }
-            searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE) }
+            searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), STD_REQUEST_CODE) }
             bookmarkButton.setOnClickListener { startActivityForResult(Intent(this@MainBibleActivity, Bookmarks::class.java), STD_REQUEST_CODE) }
         }
     }
@@ -1263,9 +1263,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             return true
         } else if (keyCode == KeyEvent.KEYCODE_SEARCH && windowControl.activeWindowPageManager.currentPage.isSearchable) {
             val intent = searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument)
-            if (intent != null) {
-                startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
-            }
+            startActivityForResult(intent, STD_REQUEST_CODE)
             return true
         }
 

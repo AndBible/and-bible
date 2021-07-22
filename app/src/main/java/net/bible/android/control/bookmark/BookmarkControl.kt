@@ -70,7 +70,6 @@ const val LABEL_ALL_ID = -999L
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
     private val windowControl: WindowControl,
-    private val swordContentFacade: SwordContentFacade,
     resourceProvider: ResourceProvider,
 ) {
     // Dummy labels for all / unlabelled
@@ -273,13 +272,13 @@ open class BookmarkControl @Inject constructor(
         val book = b.book ?: windowControl.defaultBibleDoc(false) as SwordBook? ?: return // last ?: return is needed for tests
         b.osisFragment =
             try {
-                OsisFragment(swordContentFacade.readOsisFragment(book, b.verseRange.toV11n(book.versification)), b.verseRange, book)
+                OsisFragment(SwordContentFacade.readOsisFragment(book, b.verseRange.toV11n(book.versification)), b.verseRange, book)
             }
             catch (e: OsisError) {
                 Log.e(TAG, "Error in getting content from $book for ${b.verseRange}")
                 null
             }
-        val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(book, it, true) }
+        val verseTexts = b.verseRange.map {  SwordContentFacade.getCanonicalText(book, it, true) }
         val wholeVerse = b.wholeVerse || b.book == null
         val startOffset = if(wholeVerse) 0 else b.startOffset ?: 0
         var startVerse = verseTexts.first()

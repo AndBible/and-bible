@@ -28,10 +28,9 @@ import org.crosswire.jsword.versification.Versification
 class CurrentMyNotePage internal constructor(
 	currentVerse: CurrentBibleVerse,
 	bibleTraverser: BibleTraverser,
-	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : CurrentCommentaryPage(currentVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage
+) : CurrentCommentaryPage(currentVerse, bibleTraverser, swordDocumentFacade, pageManager), CurrentPage
 {
     override val currentPageContent: Document get() {
         val verseRange = CommonUtils.getWholeChapter(currentBibleVerse.verse, false)

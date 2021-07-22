@@ -40,7 +40,6 @@ import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBar
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.history.HistoryManager
 import net.bible.service.history.HistoryTraversalFactory
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 
 /**
@@ -55,7 +54,6 @@ interface ApplicationComponent {
     //Exposed to sub-graphs.
 
     fun swordDocumentFacade(): SwordDocumentFacade
-    fun swordContentFacade(): SwordContentFacade
     fun bibleTraverser(): BibleTraverser
     fun navigationControl(): NavigationControl
     fun windowControl(): WindowControl
