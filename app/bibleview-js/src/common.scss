@@ -49,7 +49,7 @@
   position: relative;
   margin: 4pt 2pt 2pt;
   border-style: dashed;
-  border-color: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.15);
   .night & {
     border-color: rgba(255, 255, 255, 0.3);
   }
@@ -126,7 +126,7 @@ $button-grey: #8e8e8e;
   height: 1pt;
   width: calc(100% - 10pt);
   margin: 10pt 5pt 5pt;
-  border-color: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.15);
 }
 
 .bookmark-buttons {
