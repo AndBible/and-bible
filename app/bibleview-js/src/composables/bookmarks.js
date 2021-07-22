@@ -470,7 +470,10 @@ export function useBookmarks(documentId,
             }
             const [first, startOff1] = findNodeAtOffsetWithNullOffset(firstElem, startOff);
             const [second, endOff1] = findNodeAtOffsetWithNullOffset(secondElem, endOff);
-
+            if(!(first instanceof Node && second instanceof Node)) {
+                console.error("Node not found!");
+                return;
+            }
             const range = new Range();
             range.setStart(first, startOff1);
             range.setEnd(second, endOff1);
@@ -483,6 +486,7 @@ export function useBookmarks(documentId,
                 undoHighlights.push(undo);
             } else {
                 console.error("Highlight range failed!", {first, second, firstElem, secondElem, startOff, endOff, startOff1, endOff1})
+                return;
             }
         }
         if(config.showBookmarks) {
