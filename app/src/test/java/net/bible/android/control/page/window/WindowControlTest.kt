@@ -60,12 +60,10 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun setUp() {
         eventManager = mock(EventManager::class.java)
-        val swordContentFactory = mock(SwordContentFacade::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
-        val mockedContentFacade = Mockito.mock(SwordContentFacade::class.java)
-        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mockedContentFacade, mock(AndroidResourceProvider::class.java))
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
+        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
+        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
         windowRepository!!.initialize()

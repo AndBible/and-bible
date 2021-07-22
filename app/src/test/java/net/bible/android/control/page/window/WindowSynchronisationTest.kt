@@ -46,11 +46,10 @@ class WindowSynchronisationTest {
     fun setUp() {
         eventManager = ABEventBus.getDefault()
 
-        val swordContentFactory = mock(SwordContentFacade::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
 
-        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, Mockito.mock(SwordContentFacade::class.java),mock(AndroidResourceProvider::class.java))
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
+        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
+        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)

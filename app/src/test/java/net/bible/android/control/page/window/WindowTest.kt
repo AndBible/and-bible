@@ -10,7 +10,6 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.device.speak.AbstractSpeakTests
 import net.bible.service.history.HistoryManager
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.test.DatabaseResetter
 import net.bible.test.PassageTestData
@@ -24,7 +23,6 @@ import org.robolectric.annotation.Config
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import javax.inject.Provider
@@ -40,12 +38,11 @@ class WindowTest {
     @Throws(Exception::class)
     fun setUp() {
         val eventManager = ABEventBus.getDefault()
-        val swordContentFactory = mock(SwordContentFacade::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
 
-        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, Mockito.mock(SwordContentFacade::class.java),mock(AndroidResourceProvider::class.java))
+        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
         mockCurrentPageManagerProvider = Provider {
-            CurrentPageManager(swordContentFactory, SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!)
+            CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!)
         }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)

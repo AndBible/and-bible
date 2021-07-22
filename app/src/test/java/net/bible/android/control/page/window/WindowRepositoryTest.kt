@@ -24,7 +24,6 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers.contains
 import org.junit.Assert.assertThat
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -39,11 +38,10 @@ class WindowRepositoryTest {
     @Throws(Exception::class)
     fun setUp() {
         val eventManager = EventManagerStub()
-        val swordContentFactory = mock(SwordContentFacade::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
 
-        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, Mockito.mock(SwordContentFacade::class.java),mock(AndroidResourceProvider::class.java))
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
+        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
+        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager)

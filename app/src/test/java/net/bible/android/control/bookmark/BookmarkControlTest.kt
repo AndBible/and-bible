@@ -36,10 +36,8 @@ class BookmarkControlTest {
 
     @Before
     fun setUp() {
-        val mockedSwordContentFacade = Mockito.mock(SwordContentFacade::class.java)
-        Mockito.`when`(mockedSwordContentFacade.getCanonicalText(Mockito.any(), Mockito.any(), Mockito.anyBoolean())).thenReturn("test")
         val mockedWindowControl = Mockito.mock(WindowControl::class.java)
-        bookmarkControl = BookmarkControl(mockedWindowControl, mockedSwordContentFacade, Mockito.mock(AndroidResourceProvider::class.java))
+        bookmarkControl = BookmarkControl(mockedWindowControl, Mockito.mock(AndroidResourceProvider::class.java))
     }
 
     @After

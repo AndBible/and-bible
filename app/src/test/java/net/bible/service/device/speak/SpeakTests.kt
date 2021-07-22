@@ -223,7 +223,6 @@ open class AbstractSpeakTests {
     @Before
     open fun setup() {
         ShadowLog.stream = System.out
-        Mockito.`when`(mockedSwordContentFacade.getCanonicalText(Mockito.any(), Mockito.any(), Mockito.anyBoolean())).thenReturn("test")
         book = Books.installed().getBook("FinRK") as SwordBook
     }
 
@@ -258,10 +257,8 @@ open class AbstractSpeakTests {
         val windowControl = mock(WindowControl::class.java)
         val windowRepository = mock(WindowRepository::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
-        val mockedSwordContentFacade = Mockito.mock(SwordContentFacade::class.java)
-        val bookmarkControl = BookmarkControl(windowControl, mockedSwordContentFacade ,mock(AndroidResourceProvider::class.java))
+        val bookmarkControl = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java))
         val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
-        val swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
     }
 }
 
@@ -326,8 +323,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testTitleFinRK() {
         val cmds = SpeakCommandArray()
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
@@ -340,7 +337,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         val cmds = SpeakCommandArray()
         val s = SpeakSettings(playbackSettings = PlaybackSettings(speakTitles = true, speakFootnotes = true))
 
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Gen.1.1")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Gen.1.1")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
@@ -360,8 +357,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     fun testTitleEsv() {
         book = Books.installed().getBook("ESV2011") as SwordBook
         val cmds = SpeakCommandArray()
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
@@ -373,7 +370,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     fun testTitle2STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Jer.11.1")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Jer.11.1")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat((cmds[1] as TextCommand).type, equalTo(TextCommand.TextType.TITLE))
@@ -386,8 +383,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     fun testTitleSTLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
@@ -398,8 +395,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testParagraphChangeRK() {
         val cmds = SpeakCommandArray()
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
@@ -412,8 +409,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         book = Books.installed().getBook("ESV2011") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.clear();
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
@@ -424,8 +421,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     fun testParagraphChangeSTLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.25")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.26")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.25")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.26")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
@@ -435,7 +432,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testQuotationMarkAnomalySTLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
         provider.setupReading(book, getVerse("Exod.31.8"))
         val cmd = provider.getNextSpeakCommand("id-1") as TextCommand
         assertThat(cmd.text, startsWith("pöydän varusteineen"))
@@ -454,7 +451,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), replaceDivineName = true)
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
-        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.1")))
+        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.1")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat((cmds[1] as TextCommand).text, equalTo("Saapuminen Siinaille. Jahve ilmestyy"))
@@ -467,7 +464,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), replaceDivineName = true)
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
 
-        val cmds = swordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.3"))
+        val cmds = SwordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.3"))
         assertThat((cmds[0] as TextCommand).text, containsString("ja Jahve huusi"))
     }
 
@@ -478,7 +475,7 @@ class TestPersistence : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl,
                 windowRepository, book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
@@ -514,8 +511,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
-                windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
         bookmarkControl.speakLabel
         provider.settings = SpeakSettings(autoBookmark = true)
 
@@ -847,8 +843,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
-                windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 
