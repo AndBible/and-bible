@@ -191,13 +191,10 @@ constructor(private val callingActivity: MainBibleActivity,
                         handlerIntent = Intent(callingActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
                     }
                 }
-                R.id.dailyReadingPlanButton ->
-                    // show todays plan or allow plan selection
-                    handlerIntent = if (readingPlanControl.isReadingPlanSelected) {
-                        Intent(callingActivity, DailyReading::class.java)
-                    } else {
-                        Intent(callingActivity, ReadingPlanSelectorList::class.java)
-                    }
+                R.id.dailyReadingPlanButton -> {
+                    handlerIntent = Intent(callingActivity, DailyReading::class.java)
+                    isHandled = true
+                }
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
                     handlerIntent = Intent(callingActivity, DownloadActivity::class.java)
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
