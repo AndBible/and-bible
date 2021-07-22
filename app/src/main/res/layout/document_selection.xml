@@ -88,7 +88,7 @@
 		android:id="@+id/loadingIndicator"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintBottom_toTopOf="@id/ok_button_panel"
 		/>
 
 	<!-- Button bar with OK button -->

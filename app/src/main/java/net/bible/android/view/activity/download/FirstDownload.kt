@@ -53,7 +53,7 @@ class FirstDownload : DownloadActivity() {
 
     private fun enableOkayButtonIfBibles() {
         if (!okayButtonEnabled) {
-            val enable = swordDocumentFacade.bibles.size > 0
+            val enable = swordDocumentFacade.bibles.isNotEmpty()
             okayButtonEnabled = enable
             runOnUiThread { okayButton!!.isEnabled = enable }
         }
