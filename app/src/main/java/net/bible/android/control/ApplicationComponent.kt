@@ -31,7 +31,6 @@ import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager
 import net.bible.android.view.activity.page.BibleKeyHandler
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
@@ -78,5 +77,4 @@ interface ApplicationComponent {
     fun speakStopActionBarButton(): SpeakStopActionBarButton
     fun readingPlanActionBarManager(): ReadingPlanActionBarManager
     fun searchResultsActionBarManager(): SearchResultsActionBarManager
-    fun bibleBookActionBarManager(): BibleBookActionBarManager
 }

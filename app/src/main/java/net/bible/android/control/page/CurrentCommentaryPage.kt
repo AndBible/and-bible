@@ -54,7 +54,8 @@ open class CurrentCommentaryPage internal constructor(
 
     override val documentCategory = DocumentCategory.COMMENTARY
 
-    override fun startKeyChooser(context: ActivityBase) = context.startActivityForResult(Intent(context, GridChoosePassageBook::class.java), STD_REQUEST_CODE)
+    override fun startKeyChooser(context: ActivityBase) =
+        context.startActivityForResult(Intent(context, GridChoosePassageBook::class.java).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
 
     private val isSpecialDoc: Boolean get() = currentDocument == FakeBookFactory.compareDocument
 

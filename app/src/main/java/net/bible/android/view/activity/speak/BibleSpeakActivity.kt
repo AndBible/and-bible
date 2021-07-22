@@ -158,6 +158,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         }
         else {
             val intent = Intent(this, GridChoosePassageBook::class.java)
+            intent.putExtra("isScripture", true)
             intent.putExtra("navigateToVerse", true)
             intent.putExtra("title", getString(R.string.speak_beginning_of_passage))
             startVerse = null
@@ -179,9 +180,10 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             if(startVerse == null) {
                 startVerse = verse
                 val intent = Intent(this, GridChoosePassageBook::class.java)
+                intent.putExtra("isScripture", true)
                 intent.putExtra("navigateToVerse", true)
                 intent.putExtra("title", getString(R.string.speak_ending_of_passage))
-                startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                startActivityForResult(intent, STD_REQUEST_CODE)
             }
             else {
                 endVerse = verse

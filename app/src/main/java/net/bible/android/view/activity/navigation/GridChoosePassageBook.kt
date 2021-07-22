@@ -35,8 +35,6 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
@@ -62,11 +60,10 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
 
     private lateinit var buttonGrid: ButtonGrid
 
-    private var isCurrentlyShowingScripture = true
+    private var isCurrentlyShowingScripture = false
 
     @Inject lateinit var navigationControl: NavigationControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
-    @Inject lateinit var bibleBookActionBarManager: BibleBookActionBarManager
 
     private// this is used for preview
     val bibleBookButtonInfo: List<ButtonInfo>
@@ -117,8 +114,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
 
         buttonGrid.clear()
         buttonGrid.addButtons(bibleBookButtonInfo)
-
-        bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture)
     }
 
     private var navigateToVerse: Boolean = false
@@ -136,18 +131,9 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
             title = customTitle
 
         val workspaceName = SharedActivityState.currentWorkspaceName
-        title = "${title} (${workspaceName})"
-
-        val navigateToVerseDefault = CommonUtils.settings.getBoolean("navigate_to_verse_pref", false)
-        navigateToVerse = intent?.extras?.getBoolean("navigateToVerse", navigateToVerseDefault)?:navigateToVerseDefault
-
-        bibleBookActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
-
-        setActionBarManager(bibleBookActionBarManager)
-
-        isCurrentlyShowingScripture = mainBibleActivity.pageControl.currentPageManager.isCurrentPageScripture
-        bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture)
-
+        title = "$title (${workspaceName})"
+        navigateToVerse = intent.getBooleanExtra("navigateToVerse", CommonUtils.settings.getBoolean("navigate_to_verse_pref", false))
+        isCurrentlyShowingScripture = intent?.getBooleanExtra("isScripture", false)!!
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buttonGrid = ButtonGrid(this)

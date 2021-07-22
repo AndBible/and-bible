@@ -33,6 +33,7 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
@@ -71,7 +72,7 @@ class CurrentGeneralBookPage internal constructor(
                     )
                     if(result?.resultCode == Activity.RESULT_OK) {
                         val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
-                        MainBibleActivity.mainBibleActivity.workspaceSettings.updateFrom(resultData)
+                        mainBibleActivity.workspaceSettings.updateFrom(resultData)
                     }
                 }
                 FakeBookFactory.multiDocument -> {}

@@ -93,8 +93,10 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun refChooserDialog(callId: Long) {
         GlobalScope.launch {
-            val intent = Intent(mainBibleActivity, GridChoosePassageBook::class.java)
-            intent.putExtra("navigateToVerse", true)
+            val intent = Intent(mainBibleActivity, GridChoosePassageBook::class.java).apply {
+                putExtra("isScripture", true)
+                putExtra("navigateToVerse", true)
+            }
             val result = mainBibleActivity.awaitIntent(intent)
             val verseStr = result?.resultData?.getStringExtra("verse")
             val verse = if(verseStr == null) "" else VerseFactory.fromString(KJVA, verseStr).name
