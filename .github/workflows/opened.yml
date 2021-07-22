@@ -11,6 +11,9 @@ env:
 
 jobs:
   assign_to_tuomas_project:
+    permissions:
+      repository-projects: write
+      issues: read
     runs-on: ubuntu-latest
     name: Add all new issues to Tuomas' project board
     steps:

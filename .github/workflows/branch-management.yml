@@ -4,6 +4,9 @@ on:
   push:
     branches: [ current-stable ] # do not trigger on branches that are pushed below, unless additional checking is done, or else it will cause endless loop
 
+permissions:
+  contents: write
+
 jobs:
   build:
     environment: And Bible branch management
@@ -12,7 +15,6 @@ jobs:
     - name: Checkout current-stable branch
       uses: actions/checkout@v2
       with:
-        token: ${{ secrets.TOKEN_CI }}
         fetch-depth: 50
 
     - name: Get variables

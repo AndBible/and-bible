@@ -14,6 +14,10 @@ on:
       - 'beta-*'
       - 'production-*'
 
+
+permissions:
+  contents: write
+
 jobs:
   build:
     environment: And Bible Builds
