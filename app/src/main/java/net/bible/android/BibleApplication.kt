@@ -258,5 +258,3 @@ open class BibleApplication : Application() {
         private const val TAG = "BibleApplication"
     }
 }
-
-// test
