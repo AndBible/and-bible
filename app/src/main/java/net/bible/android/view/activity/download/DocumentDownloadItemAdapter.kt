@@ -60,7 +60,7 @@ class DocumentDownloadItemAdapter(
         view.document = document
         view.recommendedDocuments = recommendedDocuments
 
-        view.setIcons(true)
+        view.setIcons(downloadScreen = true)
         view.updateControlState(downloadControl.getDocumentStatus(document))
 
         // Set value for the first text field

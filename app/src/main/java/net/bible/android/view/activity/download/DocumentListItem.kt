@@ -82,10 +82,11 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
     fun setIcons(downloadScreen: Boolean = false) = binding.apply {
         val docImage = document.imageResource
         documentTypeIcon.setImageResource(docImage)
+
         if(document.isPseudoBook) {
             item.setBackgroundColor(CommonUtils.getResourceColor(R.color.disabled_background))
         } else {
-            item.setBackgroundColor(CommonUtils.getResourceColor(R.color.background_color))
+            item.setBackgroundResource(R.drawable.selectable_background)
         }
 
         val isRecommended = document.isRecommended(recommendedDocuments)
