@@ -105,6 +105,10 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?, integrateWithHistoryManager: Boolean) {
+        if(!doNotInitializeApp) {
+            CommonUtils.initializeApp()
+        }
+        
         if (allowThemeChange) {
             applyTheme()
         }

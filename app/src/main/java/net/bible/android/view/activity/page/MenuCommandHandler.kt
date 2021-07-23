@@ -72,12 +72,10 @@ const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-te
 @MainBibleActivityScope
 class MenuCommandHandler @Inject
 constructor(private val callingActivity: MainBibleActivity,
-            private val readingPlanControl: ReadingPlanControl,
             private val searchControl: SearchControl,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
 ) {
-
     /**
      * on Click handlers
      */
