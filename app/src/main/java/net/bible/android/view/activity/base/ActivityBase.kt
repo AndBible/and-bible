@@ -108,7 +108,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         if(!doNotInitializeApp) {
             CommonUtils.initializeApp()
         }
-        
+
         if (allowThemeChange) {
             applyTheme()
         }
