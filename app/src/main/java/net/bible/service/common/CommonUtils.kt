@@ -833,13 +833,11 @@ object CommonUtils {
             //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
             //}
 
-            prepareData()
-
             initialized = true
         }
     }
 
-    private fun prepareData() {
+    fun prepareData() {
         val dataVersionNow = 1L
         val dataVersion = settings.getLong("data-version", 0)
         if(dataVersion < 1) {
