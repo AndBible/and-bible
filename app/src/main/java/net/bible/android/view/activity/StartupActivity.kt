@@ -218,8 +218,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             //BackupControl.resetDatabase()
             initializeDatabase()
 
-            CommonUtils.initializeApp()
-
             gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)
         }

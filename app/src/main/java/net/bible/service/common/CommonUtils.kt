@@ -823,11 +823,11 @@ object CommonUtils : CommonUtilsBase() {
         signatureData.read(signatureBytes)
         return signature.verify(signatureBytes)
     }
-
-    var initialized = false
-
+    
     private var ttsNotificationManager: TextToSpeechNotificationManager? = null
     private var ttsWidgetManager: SpeakWidgetManager? = null
+
+    var initialized = false
 
     fun initializeApp() {
         if(!initialized) {
