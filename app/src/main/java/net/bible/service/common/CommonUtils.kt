@@ -834,14 +834,17 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.ready = true
             DatabaseContainer.db
 
-            docDao.getUnlocked().forEach {
-                val book = Books.installed().getBook(it.initials)
-                book.unlock(it.cipherKey)
+            if(!application.isRunningTests) {
+                docDao.getUnlocked().forEach {
+                    val book = Books.installed().getBook(it.initials)
+                    book.unlock(it.cipherKey)
+                }
             }
             
             buildActivityComponent().inject(this)
-
-            windowControl.windowRepository.initialize()
+            if(!application.isRunningTests) {
+                windowControl.windowRepository.initialize()
+            }
 
             ttsNotificationManager = TextToSpeechNotificationManager()
             ttsWidgetManager = SpeakWidgetManager()
