@@ -124,8 +124,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     private fun checkForExternalStorage(): Boolean {
         var abortErrorMsgId = 0
+        val state = Environment.getExternalStorageState()
+        Log.d(TAG, "External storage state is $state")
 
-        if (Environment.MEDIA_MOUNTED != Environment.getExternalStorageState()) {
+        if (Environment.MEDIA_MOUNTED != state) {
             abortErrorMsgId = R.string.no_sdcard_error
         }
 
