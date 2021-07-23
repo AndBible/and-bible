@@ -194,13 +194,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     private suspend fun initializeDatabase() {
-        val oldText = spinnerBinding.progressText.text
-        spinnerBinding.progressText.text = getString(R.string.upgrading_database)
         withContext(Dispatchers.IO) {
             DatabaseContainer.ready = true
             DatabaseContainer.db
         }
-        spinnerBinding.progressText.text = oldText
     }
 
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
