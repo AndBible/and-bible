@@ -839,111 +839,113 @@ object CommonUtils {
         }
     }
 
-    const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-
     private fun prepareData() {
         val dataVersionNow = 1L
         val dataVersion = settings.getLong("data-version", 0)
-        var bid: Long
         if(dataVersion < 1) {
-            val workspaceDao = DatabaseContainer.db.workspaceDao()
-            val bookmarkDao = DatabaseContainer.db.bookmarkDao()
-            var highlightIds = listOf<Long>()
-            val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
-            if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") }) {
-                val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false)
-                val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false)
-                val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false)
-                val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), underlineStyle = true, underlineStyleWholeVerse = true)
-
-                val highlightLabels = listOf(
-                    redLabel,
-                    greenLabel,
-                    underlineLabel,
-                    blueLabel,
-                )
-
-                val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255,  100, 0, 150))
-                highlightIds = bookmarkDao.insertLabels(highlightLabels)
-                highlightLabels.zip(highlightIds) { label, id -> label.id = id }
-
-                val defaultBible = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE } [0] as SwordBook
-
-                val (otVerse, ntVerse, psVerse) = listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3").map { VerseRangeFactory.fromString(defaultBible.versification, it) }
-
-                // Choose verse similarly as in setFirstUseDefaultVerse
-                val useVerse = when {
-                    defaultBible.contains(ntVerse.start) -> ntVerse
-                    defaultBible.contains(otVerse.start) -> otVerse
-                    else -> psVerse
-                }
-
-                fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.Bookmark {
-                    val v1 = verseRange.toVerseArray()[start.toInt()]
-                    val v2 = verseRange.toVerseArray()[end.toInt()]
-                    val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true).length
-                    val l2 = SwordContentFacade.getCanonicalText(defaultBible, v2, true).length
-                    val tr = BookmarkEntities.TextRange(((start - start.toInt())*l1).roundToInt(), ((end-end.toInt()) * l2).roundToInt())
-                    val v = VerseRange(v1.versification, v1, v2)
-
-                    return BookmarkEntities.Bookmark(v, textRange = tr, wholeVerse = false, book = defaultBible)
-                }
-
-                if(!hasExistingBookmarks) {
-                    val salvationId = bookmarkDao.insert(salvationLabel)
-                    salvationLabel.id = salvationId
-
-                    // first bookmark, full verses, with underline
-                    bid = bookmarkDao.insert(BookmarkEntities.Bookmark(useVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id } )
-                    bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, underlineLabel.id))
-                    bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationLabel.id))
-
-                    // second bookmark, red
-                    bid = bookmarkDao.insert(getBookmark(useVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id } )
-                    bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, redLabel.id))
-
-                    // third bookmark, green
-                    bid = bookmarkDao.insert(getBookmark(useVerse, 1.2, 1.4).apply {
-                        primaryLabelId = greenLabel.id
-                        notes = lorem
-                    } )
-
-                    bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, greenLabel.id))
-
-                    val salvationVerses = listOf("Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
-                        .map { VerseRangeFactory.fromString(KJVA, it) }
-
-                    salvationVerses
-                        .map {
-                            BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
-                        }.forEach {
-                            bid = bookmarkDao.insert(it)
-                            bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationId))
-                        }
-                }
-            }
-
-            val ws = workspaceDao.allWorkspaces()
-            if(ws.isNotEmpty()) {
-                ws.forEach {
-                    it.workspaceSettings?.favouriteLabels?.addAll(highlightIds)
-                }
-                workspaceDao.updateWorkspaces(ws)
-                settings.setBoolean("first-time", false)
-            } else {
-                val workspaceSettings = WorkspaceEntities.WorkspaceSettings(favouriteLabels = highlightIds.toMutableSet())
-                val workspaceIds = listOf(
-                    WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
-                    WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
-                ).map {
-                    workspaceDao.insertWorkspace(it)
-                }
-                settings.setLong("current_workspace_id", workspaceIds[0])
-            }
+            prepareExampleBookmarksAndWorkspaces()
         }
-
         if(dataVersion != dataVersionNow) {
             settings.setLong("data-version", dataVersionNow)
+        }
+    }
+
+    const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+    private fun prepareExampleBookmarksAndWorkspaces() {
+        var bid: Long
+        val bookmarkDao = DatabaseContainer.db.bookmarkDao()
+        var highlightIds = listOf<Long>()
+        val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
+        if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") }) {
+            val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false)
+            val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false)
+            val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false)
+            val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), underlineStyle = true, underlineStyleWholeVerse = true)
+
+            val highlightLabels = listOf(
+                redLabel,
+                greenLabel,
+                underlineLabel,
+                blueLabel,
+            )
+
+            val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255,  100, 0, 150))
+            highlightIds = bookmarkDao.insertLabels(highlightLabels)
+            highlightLabels.zip(highlightIds) { label, id -> label.id = id }
+
+            val defaultBible = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE } [0] as SwordBook
+
+            val (otVerse, ntVerse, psVerse) = listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3").map { VerseRangeFactory.fromString(defaultBible.versification, it) }
+
+            // Choose verse similarly as in setFirstUseDefaultVerse
+            val useVerse = when {
+                defaultBible.contains(ntVerse.start) -> ntVerse
+                defaultBible.contains(otVerse.start) -> otVerse
+                else -> psVerse
+            }
+
+            fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.Bookmark {
+                val v1 = verseRange.toVerseArray()[start.toInt()]
+                val v2 = verseRange.toVerseArray()[end.toInt()]
+                val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true).length
+                val l2 = SwordContentFacade.getCanonicalText(defaultBible, v2, true).length
+                val tr = BookmarkEntities.TextRange(((start - start.toInt())*l1).roundToInt(), ((end-end.toInt()) * l2).roundToInt())
+                val v = VerseRange(v1.versification, v1, v2)
+
+                return BookmarkEntities.Bookmark(v, textRange = tr, wholeVerse = false, book = defaultBible)
+            }
+
+            if(!hasExistingBookmarks) {
+                val salvationId = bookmarkDao.insert(salvationLabel)
+                salvationLabel.id = salvationId
+
+                // first bookmark, full verses, with underline
+                bid = bookmarkDao.insert(BookmarkEntities.Bookmark(useVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id } )
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, underlineLabel.id))
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationLabel.id))
+
+                // second bookmark, red
+                bid = bookmarkDao.insert(getBookmark(useVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id } )
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, redLabel.id))
+
+                // third bookmark, green
+                bid = bookmarkDao.insert(getBookmark(useVerse, 1.2, 1.4).apply {
+                    primaryLabelId = greenLabel.id
+                    notes = lorem
+                } )
+
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, greenLabel.id))
+
+                val salvationVerses = listOf("Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
+                    .map { VerseRangeFactory.fromString(KJVA, it) }
+
+                salvationVerses
+                    .map {
+                        BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
+                    }.forEach {
+                        bid = bookmarkDao.insert(it)
+                        bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationId))
+                    }
+            }
+        }
+        val workspaceDao = DatabaseContainer.db.workspaceDao()
+        val ws = workspaceDao.allWorkspaces()
+        if(ws.isNotEmpty()) {
+            ws.forEach {
+                it.workspaceSettings?.favouriteLabels?.addAll(highlightIds)
+            }
+            workspaceDao.updateWorkspaces(ws)
+            settings.setBoolean("first-time", false)
+        } else {
+            val workspaceSettings = WorkspaceEntities.WorkspaceSettings(favouriteLabels = highlightIds.toMutableSet())
+            val workspaceIds = listOf(
+                WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
+                WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
+            ).map {
+                workspaceDao.insertWorkspace(it)
+            }
+            settings.setLong("current_workspace_id", workspaceIds[0])
         }
     }
 
