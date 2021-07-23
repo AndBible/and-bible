@@ -73,6 +73,7 @@
 			android:summary="@string/prefs_interface_locale_summary"
 			android:entries="@array/prefs_interface_locale_descriptions"
 			android:entryValues="@array/prefs_interface_locale_values"
+			android:icon="@drawable/ic_application_language_24dp"/>
 			android:defaultValue=""/>
 
 		<SwitchPreferenceCompat android:key="full_screen_hide_buttons_pref"
