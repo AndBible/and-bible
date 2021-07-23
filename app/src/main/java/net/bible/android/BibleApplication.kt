@@ -219,16 +219,6 @@ open class BibleApplication : Application() {
         editor.putInt("version", CommonUtils.applicationVersionNumber).apply()
     }
 
-    /**
-     * This is never called in real system (only in tests). See parent documentation.
-     */
-    override fun onTerminate() {
-        Log.i(TAG, "onTerminate")
-        CommonUtils.destroy()
-        super.onTerminate()
-        ABEventBus.getDefault().unregisterAll()
-    }
-
     open fun getLocalizedResources(language: String): Resources {
         val app = application
         val oldConf = app.resources.configuration

@@ -860,6 +860,9 @@ object CommonUtils : CommonUtilsBase() {
     fun destroy() {
         ttsNotificationManager?.destroy()
         ttsWidgetManager?.destroy()
+        ttsNotificationManager = null
+        ttsWidgetManager = null
+        initialized = false
     }
 
     fun prepareData() {
