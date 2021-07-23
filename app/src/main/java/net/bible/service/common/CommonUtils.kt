@@ -58,6 +58,8 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.BuildConfig.BuildDate
 import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
+import net.bible.android.activity.SpeakWidgetManager
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -73,6 +75,7 @@ import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.db.DataBaseNotReady
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
 import org.apache.commons.lang3.StringUtils
@@ -97,6 +100,7 @@ import java.security.Signature
 import java.util.*
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
+import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -128,10 +132,15 @@ val BookmarkEntities.Label.displayName get() =
         else -> name
     }
 
+
+open class CommonUtilsBase {
+    @Inject lateinit var windowControl: WindowControl
+}
+
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-object CommonUtils {
+object CommonUtils : CommonUtilsBase() {
 
     private const val COLON = ":"
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
@@ -817,6 +826,9 @@ object CommonUtils {
 
     var initialized = false
 
+    private var ttsNotificationManager: TextToSpeechNotificationManager? = null
+    private var ttsWidgetManager: SpeakWidgetManager? = null
+
     fun initializeApp() {
         if(!initialized) {
             DatabaseContainer.ready = true
@@ -826,6 +838,14 @@ object CommonUtils {
                 val book = Books.installed().getBook(it.initials)
                 book.unlock(it.cipherKey)
             }
+            
+            buildActivityComponent().inject(this)
+
+            windowControl.windowRepository.initialize()
+
+            ttsNotificationManager = TextToSpeechNotificationManager()
+            ttsWidgetManager = SpeakWidgetManager()
+
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -835,6 +855,11 @@ object CommonUtils {
 
             initialized = true
         }
+    }
+
+    fun destroy() {
+        ttsNotificationManager?.destroy()
+        ttsWidgetManager?.destroy()
     }
 
     fun prepareData() {
