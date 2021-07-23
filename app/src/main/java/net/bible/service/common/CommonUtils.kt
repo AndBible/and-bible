@@ -834,15 +834,12 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.ready = true
             DatabaseContainer.db
 
+            buildActivityComponent().inject(this)
             if(!application.isRunningTests) {
                 docDao.getUnlocked().forEach {
                     val book = Books.installed().getBook(it.initials)
                     book.unlock(it.cipherKey)
                 }
-            }
-            
-            buildActivityComponent().inject(this)
-            if(!application.isRunningTests) {
                 windowControl.windowRepository.initialize()
             }
 
