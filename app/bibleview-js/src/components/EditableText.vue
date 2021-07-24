@@ -95,7 +95,7 @@ export default {
 @import "~@/common.scss";
 .notes-display {
 //  width: 100%;
-  padding: 1px 7px 0px 7px;
+  padding: 1px 7px 10px 7px;
   &.constraintDisplayHeight {
     @extend .visible-scrollbar;
     overflow-y: auto;
