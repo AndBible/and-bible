@@ -30,8 +30,13 @@
     </template>
 
     <template #buttons>
-      <div class="modal-action-button" :class="{toggled: !infoShown}" @click="toggleInfo" @touchstart="toggleInfo">
-        <FontAwesomeIcon icon="edit"/>
+      <div class="modal-action-button" @click="toggleInfo" @touchstart="toggleInfo">
+        <template v-if="infoShown">
+          <FontAwesomeIcon icon="edit"/>
+        </template>
+        <template v-else>
+          <FontAwesomeIcon icon="info-circle"/>
+        </template>
       </div>
       <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
         <FontAwesomeIcon icon="times"/>
