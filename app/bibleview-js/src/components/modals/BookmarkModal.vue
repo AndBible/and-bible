@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal v-if="showBookmark && bookmark" @close="closeBookmark" wide>
+  <Modal v-if="showBookmark && bookmark" @close="closeBookmark" wide :edit="!infoShown ? true : false">
     <template #title-div>
       <div class="bookmark-title" style="width: calc(100% - 80px);">
         <div class="overlay"/>
@@ -30,8 +30,13 @@
     </template>
 
     <template #buttons>
-      <div class="modal-action-button" :class="{toggled: !infoShown}" @click="toggleInfo" @touchstart="toggleInfo">
-        <FontAwesomeIcon icon="edit"/>
+      <div class="modal-action-button" @click="toggleInfo" @touchstart="toggleInfo">
+        <template v-if="infoShown">
+          <FontAwesomeIcon icon="edit"/>
+        </template>
+        <template v-else>
+          <FontAwesomeIcon icon="info-circle"/>
+        </template>
       </div>
       <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
         <FontAwesomeIcon icon="times"/>

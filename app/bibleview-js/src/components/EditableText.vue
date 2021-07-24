@@ -94,7 +94,8 @@ export default {
 @import '~@/lib/pell/pell.scss';
 @import "~@/common.scss";
 .notes-display {
-  width: 100%;
+//  width: 100%;
+  padding: 1px 7px 0px 7px;
   &.constraintDisplayHeight {
     @extend .visible-scrollbar;
     overflow-y: auto;
@@ -110,7 +111,7 @@ export default {
   max-width: 100%;
   padding-top: 8pt;
   padding-bottom: 3pt;
-  padding-inline-start: 2pt;
+  padding-inline-start: 0pt;
   &.constraintDisplayHeight {
     padding-top: 0;
     padding-bottom: 0;
@@ -131,9 +132,13 @@ export default {
 }
 .editable-text {
   position: relative;
+  line-height: 1.25em;
 }
 </style>
 <style lang="scss">
+div.pell-content, .pell-content div, .notes-display div {
+  margin-top: 5px;
+}
 .editable-text ul,ol,blockquote {
   margin-top: 5pt;
   margin-bottom: 5pt;
@@ -144,5 +149,8 @@ export default {
     margin-top: 0;
     margin-bottom: 0;
   }
+}
+.editable-text ul {
+  padding-left: 10pt!important;
 }
 </style>
