@@ -359,7 +359,7 @@ export function useBookmarks(documentId,
                 const label2 = (label == labels[0]) ? labels[1] : labels[0];
                 const color2 = new Color(label2.label.color).hsl().string();
                 const borderStyle = (labels.length === 2) ? 'solid' : 'double';
-                const borderWidth = (labels.length === 2) ? '2px' : '4px';
+                const borderWidth = (labels.length === 2) ? '0.1em' : '0.25em';
                 return `${baseDecoration}; border-bottom: ${borderWidth} ${borderStyle} ${color2};`;
             }
     }
