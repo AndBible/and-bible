@@ -348,20 +348,15 @@ export function useBookmarks(documentId,
     }
 
     function underlineStyleForLabels(labels, underlineLabelCount) {
-            if(labels.length === 0) return "";
+        if(labels.length === 0) return "";
 
-            const label = labels.filter(l => l.label.isRealLabel)[0] || labels[0];
-            const color = new Color(label.label.color).hsl().string();
-            let baseDecoration = `text-decoration: underline; text-decoration-style: solid; text-decoration-color: ${color};`;
-            if(labels.length === 1 && underlineLabelCount.get(labels[0].id) === 1) {
-                return baseDecoration;
-            } else {
-                const label2 = (label == labels[0]) ? labels[1] : labels[0];
-                const color2 = new Color(label2.label.color).hsl().string();
-                const borderStyle = (labels.length === 2) ? 'solid' : 'double';
-                const borderWidth = (labels.length === 2) ? '0.1em' : '0.25em';
-                return `${baseDecoration}; border-bottom: ${borderWidth} ${borderStyle} ${color2};`;
-            }
+        const label = labels.filter(l => l.label.isRealLabel)[0] || labels[0];
+        const color = new Color(label.label.color).hsl().string();
+        if(labels.length === 1 && underlineLabelCount.get(labels[0].id) === 1) {
+            return `text-decoration: underline; text-decoration-style: solid; text-decoration-color: ${color};`;
+        } else {
+            return `text-decoration: underline; text-decoration-style: double; text-decoration-color: ${color};`;
+        }
     }
 
     function blendingStyleForLabels(bookmarkLabels, labelCount) {
