@@ -76,8 +76,6 @@ open class BibleApplication : Application() {
 
     var localeOverrideAtStartUp: String? = null
         private set
-    private var ttsNotificationManager: TextToSpeechNotificationManager? = null
-    private var ttsWidgetManager: SpeakWidgetManager? = null
 
     open val isRunningTests: Boolean = false
 
@@ -124,9 +122,6 @@ open class BibleApplication : Application() {
         // various initialisations required every time at app startup
 
         localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
-
-        ttsNotificationManager = TextToSpeechNotificationManager()
-        ttsWidgetManager = SpeakWidgetManager()
     }
 
     var sqliteVersion = ""
@@ -222,17 +217,6 @@ open class BibleApplication : Application() {
 
         Log.d(TAG, "Finished all Upgrading")
         editor.putInt("version", CommonUtils.applicationVersionNumber).apply()
-    }
-
-    /**
-     * This is never called in real system (only in tests). See parent documentation.
-     */
-    override fun onTerminate() {
-        Log.i(TAG, "onTerminate")
-        ttsNotificationManager!!.destroy()
-        ttsWidgetManager!!.destroy()
-        super.onTerminate()
-        ABEventBus.getDefault().unregisterAll()
     }
 
     open fun getLocalizedResources(language: String): Resources {
