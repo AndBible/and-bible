@@ -143,28 +143,16 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                     // in the basic flow we force the user to download a bible
                     binding.documentTypeSpinner.isEnabled = true
                 }
-                val firstTime = swordDocumentFacade.bibles.isEmpty()
-                when {
-                    firstTime -> {
-                        populateMasterDocumentList(true)
-                        updateLastRepoRefreshDate()
-                    }
-                    isRepoBookListOld -> {
-                        // normal user downloading but need to refresh the document list
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(this@DownloadActivity, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
-                        }
+                if (isRepoBookListOld) {
+                    // prepare the document list view - done in another thread
+                    populateMasterDocumentList(true)
 
-                        // prepare the document list view - done in another thread
-                        populateMasterDocumentList(true)
-
-                        // restart refresh timeout
-                        updateLastRepoRefreshDate()
-                    }
-                    else -> {
-                        // normal user downloading with recent doc list
-                        populateMasterDocumentList(false)
-                    }
+                    // restart refresh timeout
+                    updateLastRepoRefreshDate()
+                }
+                else {
+                    // normal user downloading with recent doc list
+                    populateMasterDocumentList(false)
                 }
                 withContext(Dispatchers.Main) {
                     isRefreshing = false
@@ -253,11 +241,9 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         val repoRefreshDate = settings.getLong(REPO_REFRESH_DATE, 0)
         val date = SimpleDateFormat.getDateInstance().format(Date(repoRefreshDate))
 
-        val message = (
-            if(refresh) getString(R.string.download_refreshing_book_list)
+        val message =
+            if(refresh) getString(R.string.download_refreshing_book_list) + "\n\n" + getString(R.string.download_source_message1) + "\n" + repositories
             else getString(R.string.download_source_last_updated, date)
-            ) +
-            "\n\n" + getString(R.string.download_source_message1) + "\n" + repositories
 
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
