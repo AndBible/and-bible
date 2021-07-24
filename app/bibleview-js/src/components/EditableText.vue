@@ -94,7 +94,8 @@ export default {
 @import '~@/lib/pell/pell.scss';
 @import "~@/common.scss";
 .notes-display {
-  width: 100%;
+//  width: 100%;
+  padding: 9px;
   &.constraintDisplayHeight {
     @extend .visible-scrollbar;
     overflow-y: auto;
@@ -110,7 +111,7 @@ export default {
   max-width: 100%;
   padding-top: 8pt;
   padding-bottom: 3pt;
-  padding-inline-start: 2pt;
+  padding-inline-start: 0pt;
   &.constraintDisplayHeight {
     padding-top: 0;
     padding-bottom: 0;

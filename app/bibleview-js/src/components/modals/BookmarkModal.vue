@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal v-if="showBookmark && bookmark" @close="closeBookmark" wide>
+  <Modal v-if="showBookmark && bookmark" @close="closeBookmark" wide :edit="!infoShown ? true : false">
     <template #title-div>
       <div class="bookmark-title" style="width: calc(100% - 80px);">
         <div class="overlay"/>
