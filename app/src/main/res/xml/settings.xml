@@ -31,6 +31,7 @@
 		<SwitchPreferenceCompat android:key="open_links_in_special_window_pref"
 			android:title="@string/prefs_open_links_in_special_window_title"
 			android:summary="@string/prefs_open_links_in_special_window_summary"
+			android:icon="@drawable/ic_link_window_24dp"/>
 			android:defaultValue="true"/>
 		<SwitchPreferenceCompat android:key="screen_keep_on_pref"
 			android:title="@string/prefs_screen_keep_on_title"
@@ -39,6 +40,7 @@
 		<SwitchPreferenceCompat android:key="double_tap_to_fullscreen"
 			android:title="@string/prefs_double_tap_to_fullscreen_title"
 			android:summary="@string/prefs_double_tap_to_fullscreen_summary"
+			android:icon="@drawable/ic_full_screen_24"/>
 			android:defaultValue="true"
 			/>
 		<SwitchPreferenceCompat android:key="auto_fullscreen_pref"
@@ -63,6 +65,7 @@
 			android:summary="@string/prefs_night_mode_summary"
 			android:entries="@array/prefs_night_mode_descriptions"
 			android:entryValues="@array/prefs_night_mode_values"
+			android:icon="@drawable/ic_night_mode_24"/>
 			android:defaultValue="@string/prefs_night_mode_manual"/>
 	</PreferenceCategory>
 	<PreferenceCategory
@@ -73,6 +76,7 @@
 			android:summary="@string/prefs_interface_locale_summary"
 			android:entries="@array/prefs_interface_locale_descriptions"
 			android:entryValues="@array/prefs_interface_locale_values"
+			android:icon="@drawable/ic_application_language_24dp"/>
 			android:defaultValue=""/>
 
 		<SwitchPreferenceCompat android:key="full_screen_hide_buttons_pref"
@@ -93,6 +97,7 @@
 		<SwitchPreferenceCompat android:key="show_active_window_indicator"
 			android:title="@string/active_window_indicator_title"
 			android:summary="@string/active_window_indicator_summary"
+			android:icon="@drawable/ic_active_window_24dp"/>
 			android:defaultValue="true"
 			/>
 
