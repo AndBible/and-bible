@@ -66,6 +66,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.common.textDisplaySettingsVideo
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
+import javax.inject.Inject
 
 
 class TextDisplaySettingsDataStore(
@@ -306,7 +307,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
 
     private val isWindow get() = settingsBundle.windowId != null
 
-    lateinit var windowControl: WindowControl
+    @Inject lateinit var windowControl: WindowControl
 
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)

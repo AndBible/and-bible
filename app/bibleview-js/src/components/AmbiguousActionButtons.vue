@@ -44,7 +44,7 @@
       <div class="title">{{ vertical? strings.verseShareLong: strings.verseShare }}</div>
     </div>
     <div class="large-action" @click="compare">
-      <FontAwesomeIcon icon="compress-arrows-alt"/>
+      <FontAwesomeIcon icon="custom-compress"/>
       <div class="title">{{ vertical? strings.verseCompareLong: strings.verseCompare }}</div>
     </div>
   </div>

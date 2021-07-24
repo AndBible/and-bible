@@ -124,8 +124,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     private fun checkForExternalStorage(): Boolean {
         var abortErrorMsgId = 0
+        val state = Environment.getExternalStorageState()
+        Log.d(TAG, "External storage state is $state")
 
-        if (Environment.MEDIA_MOUNTED != Environment.getExternalStorageState()) {
+        if (Environment.MEDIA_MOUNTED != state) {
             abortErrorMsgId = R.string.no_sdcard_error
         }
 
@@ -194,13 +196,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     private suspend fun initializeDatabase() {
-        val oldText = spinnerBinding.progressText.text
-        spinnerBinding.progressText.text = getString(R.string.upgrading_database)
         withContext(Dispatchers.IO) {
             DatabaseContainer.ready = true
             DatabaseContainer.db
         }
-        spinnerBinding.progressText.text = oldText
     }
 
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
@@ -217,8 +216,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             // When I mess up database, I can re-create database like this.
             //BackupControl.resetDatabase()
             initializeDatabase()
-
-            CommonUtils.initializeApp()
 
             gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)

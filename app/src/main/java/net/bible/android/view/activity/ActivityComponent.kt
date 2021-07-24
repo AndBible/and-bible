@@ -46,6 +46,7 @@ import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.android.view.util.widget.SpeakTransportWidget
+import net.bible.service.common.CommonUtilsBase
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 
 /**
@@ -98,6 +99,7 @@ interface ActivityComponent {
     // Services
     fun inject(m: TextToSpeechNotificationManager)
     fun inject(w: SpeakWidgetManager)
+    fun inject(c: CommonUtilsBase)
 
     // progress status screens
     fun inject(searchIndexProgressStatus: SearchIndexProgressStatus)

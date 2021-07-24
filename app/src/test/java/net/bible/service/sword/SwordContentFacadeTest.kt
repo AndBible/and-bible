@@ -5,7 +5,6 @@ import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.ParseException
 import net.bible.test.DatabaseResetter
@@ -33,13 +32,13 @@ import org.robolectric.RobolectricTestRunner
 @Config(application = TestBibleApplication::class, sdk=[28])
 class SwordContentFacadeTest {
 
-    @Before
-    @Throws(Exception::class)
-    fun setUp() {
-        val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
-        val windowControl = Mockito.mock(WindowControl::class.java)
-        val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(AndroidResourceProvider::class.java))
-    }
+    //@Before
+    //@Throws(Exception::class)
+    //fun setUp() {
+    //    val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
+    //    val windowControl = Mockito.mock(WindowControl::class.java)
+    //    val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(AndroidResourceProvider::class.java))
+    //}
 
     @After
     fun finishComponentTesting() {
