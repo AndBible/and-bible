@@ -30,10 +30,14 @@
           v-if="!inBookmarkModal"
           class="bookmark-button"
           @click.stop="$emit('edit-clicked')"
-          :class="{highlighted: inBookmarkModal && bookmark.hasNote}"
-          :style="buttonColor(primaryLabel.color, bookmark.hasNote)"
+          :style="buttonColor(primaryLabel.color)"
         >
-          <FontAwesomeIcon icon="edit"/>
+          <template v-if="bookmark.hasNote">
+            <FontAwesomeIcon icon="edit"/>
+          </template>
+          <template v-else>
+            <FontAwesomeIcon icon="custom-note-false"/>
+          </template>
         </div>
         <div
           class="bookmark-button"
@@ -45,10 +49,14 @@
         <div
           class="bookmark-button"
           @click.stop="toggleWholeVerse"
-          :class="{highlighted: inBookmarkModal && bookmark.wholeVerse}"
-          :style="buttonColor(primaryLabel.color, bookmark.wholeVerse)"
+          :style="buttonColor(primaryLabel.color)"
         >
-          <FontAwesomeIcon icon="text-width"/>
+          <template v-if="bookmark.wholeVerse">
+            <FontAwesomeIcon icon="custom-whole-verse-true"/>
+          </template>
+          <template v-else>
+            <FontAwesomeIcon icon="custom-whole-verse-false"/>
+          </template>
         </div>
         <template v-if="showStudyPadButtons">
           <div
