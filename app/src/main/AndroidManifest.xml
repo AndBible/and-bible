@@ -198,9 +198,7 @@
         <activity
             android:name="net.bible.android.view.activity.download.FirstDownload"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/download"
-            android:parentActivityName=".StartupActivity"
-            />
+            android:label="@string/download" />
         <activity
             android:name="net.bible.android.view.activity.download.DownloadActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
