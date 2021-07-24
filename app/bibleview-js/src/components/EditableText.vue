@@ -96,7 +96,6 @@ export default {
 .notes-display {
 //  width: 100%;
   padding: 1px 7px 0px 7px;
-  width: 100%;
   &.constraintDisplayHeight {
     @extend .visible-scrollbar;
     overflow-y: auto;
@@ -113,7 +112,6 @@ export default {
   padding-top: 8pt;
   padding-bottom: 3pt;
   padding-inline-start: 0pt;
-  padding-inline-start: 2pt;
   &.constraintDisplayHeight {
     padding-top: 0;
     padding-bottom: 0;
