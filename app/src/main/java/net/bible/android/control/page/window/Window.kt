@@ -189,7 +189,10 @@ open class Window (
             val doc = fetchDocument()
             val checksum = if(pageManager.isCommentaryShown && doc is OsisDocument) {
                 val checksum = doc.osisFragment.xml.hashCode()
-                if (lastChecksum == checksum) return@launch
+                if (lastChecksum == checksum) {
+                    pageManager.currentCommentary.anchorOrdinal = pageManager.currentCommentary._anchorOrdinal
+                    return@launch
+                }
                 checksum
             } else -1
 

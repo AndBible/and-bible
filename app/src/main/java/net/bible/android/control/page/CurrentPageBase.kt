@@ -52,28 +52,31 @@ abstract class CurrentPageBase protected constructor(
     // just pretend we are at the top of the page if error occurs
     // if key has changed then offsetRatio must be reset because user has changed page
 
+    var _anchorOrdinal: Int? = 0
+
     /** how far down the page was the user - allows Back to go to correct line on non-Bible pages (Bibles use verse number for positioning)
      */
-    override var anchorOrdinal: Int? = 0
+    override var anchorOrdinal: Int?
         get() {
             try { // if key has changed then offsetRatio must be reset because user has changed page
                 if (key == null || key != keyWhenAnchorOrdinalSet || currentDocument != docWhenAnchorOrdinalSet) {
-                    field = 0
+                    return 0
                 }
             } catch (e: Exception) {
                 // cope with occasional NPE thrown by above if statement
                 // just pretend we are at the top of the page if error occurs
-                field = 0
                 Log.w(TAG, "NPE getting currentYOffsetRatio")
+                return 0
             }
-            return field
+            return _anchorOrdinal
         }
-        set(currentYOffsetRatio) {
+        set(newValue) {
             key ?: return
             docWhenAnchorOrdinalSet = currentDocument
             keyWhenAnchorOrdinalSet = key
-            field = currentYOffsetRatio
+            _anchorOrdinal = newValue
         }
+
     private var keyWhenAnchorOrdinalSet: Key? = null
     private var docWhenAnchorOrdinalSet: Book? = null
 
