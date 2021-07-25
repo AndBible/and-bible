@@ -207,11 +207,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             throw RuntimeException("MainBibleActivity was created second time!")
         }
         _mainBibleActivity = this
-        CommonUtils.prepareData()
 
         ScreenSettings.refreshNightMode()
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState, true)
+
+        CommonUtils.prepareData()
 
         binding = MainBibleViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
