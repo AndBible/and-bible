@@ -40,10 +40,19 @@
   <!--Speak - Dictionary and other-->
   <!--Speak - Common-->
   <!--Speak - Bible-->
+  <string name="auto_assing_labels_help1">Here you can add, edit and remove labels. 
+
+Selected labels: labels that apply to the current bookmark
+Recent labels: recently used labels
+Other labels: all other labels</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">This setting applies only to %s.</string>
   <!--param is bookmark icon-->
+  <string name="assing_labels_help2">%s indicates that this label\'s colour will be used to highlight the verse.</string>
   <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Tap %s icon to have that label assigned automatically to new bookmarks.</string>
   <!--param is heart icon-->
+  <string name="assing_labels_help4">Tap %s to add the label to your favourite labels list for easy access.</string>
   <!--param is refresh icon-->
   <!--Parameter is actual icon-->
   <!--Parameter is actual icon-->
@@ -120,11 +129,7 @@ provides easy access to manipulate and customize the window.</string>
         (see \"Apache Lucene - Query Parser Syntax\" for more details)
     </string>
   <string name="help_workspaces_text">
-        Workspaces allow having multiple context-dependent working environments. Workspace functions
-        can be accessed via the Workspaces item in the options menu (top-right corner). Quick way to access workspaces is
-        by a swipe-down gesture from the toolbar. You may also use swipe-left and swipe-right gestures over toolbar to
-        switch to previous / next workspace.
-    </string>
+Workspaces allow having multiple working environments. Workspace functions can be accessed via the Workspaces item in the options menu (top-right corner). A quick way to access workspaces is by a swipe-down gesture from the Bible reference text in the toolbar. You may also use swipe-left and swipe-right gestures over the Bible reference text in the toolbar to switch to previous or next workspace.  </string>
   <string name="help_hidden_features_text">
         Swipe down starting on the bible verse selector to show the workspace selector.
         Long press the window button to quickly minimize.
