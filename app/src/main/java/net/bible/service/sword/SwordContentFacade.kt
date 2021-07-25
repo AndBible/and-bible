@@ -103,7 +103,18 @@ object SwordContentFacade {
                 }
             }
             val outputter = XMLOutputter(format, processor)
-            outputter.outputString(data.osisFragment)
+            if(book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
+                val div = data.osisFragment
+                val verse = div.getChild("verse")
+                val verseContent = verse.content.toList()
+                verse.removeContent()
+                div.removeContent()
+                div.addContent(verseContent)
+                outputter.outputString(div)
+
+            } else {
+                outputter.outputString(data.osisFragment)
+            }
         } catch (e: Exception) {
             log.error("Parsing error", e)
             throw ParseException("Parsing error", e)
