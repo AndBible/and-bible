@@ -50,6 +50,28 @@ const allStyleRanges = computed(() => {
 export function useGlobalBookmarks(config, documentType) {
     const bookmarkLabels = reactive(new Map());
     const bookmarks = reactive(new Map());
+    const bookmarkIdsByOrdinal = reactive(new Map());
+
+    function addBookmarkToOrdinalMap(b) {
+        for(let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
+            let bSet = bookmarkIdsByOrdinal.get(o);
+            if(!bSet) {
+                bSet = new reactive(new Set());
+                bookmarkIdsByOrdinal.set(o, bSet);
+            }
+            bSet.add(b.id);
+        }
+    }
+
+    function removeBookmarkFromOrdinalMap(b) {
+        for(let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
+            const bSet = bookmarkIdsByOrdinal.get(o)
+            if(bSet) {
+                bSet.delete(b.id);
+            }
+        }
+    }
+
     let count = 1;
 
     const labelsUpdated = ref(0);
@@ -64,12 +86,15 @@ export function useGlobalBookmarks(config, documentType) {
 
     function updateBookmarks(...inputData) {
         for(const v of inputData) {
-            bookmarks.set(v.id, {...v, hasNote: !!v.notes})
+            const bmark = {...v, hasNote: !!v.notes};
+            bookmarks.set(v.id, bmark);
+            addBookmarkToOrdinalMap(bmark);
         }
     }
 
     function clearBookmarks() {
         bookmarks.clear();
+        bookmarkIdsByOrdinal.clear();
     }
 
     setupEventBusListener(Events.REMOVE_RANGES, function removeRanges() {
@@ -77,7 +102,11 @@ export function useGlobalBookmarks(config, documentType) {
     })
 
     setupEventBusListener(Events.DELETE_BOOKMARKS, function deleteBookmarks(bookmarkIds) {
-        for (const bId of bookmarkIds) bookmarks.delete(bId)
+        for (const bId of bookmarkIds) {
+            const bookmark = bookmarks.get(bId);
+            removeBookmarkFromOrdinalMap(bookmark);
+            bookmarks.delete(bId)
+        }
     });
 
     setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, function addOrUpdateBookmarks(bookmarks) {
@@ -107,7 +136,7 @@ export function useGlobalBookmarks(config, documentType) {
 
     return {
         bookmarkLabels, bookmarkMap: bookmarks, bookmarks: filteredBookmarks, labelsUpdated,
-        updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks,
+        updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks, bookmarkIdsByOrdinal,
     }
 }
 
