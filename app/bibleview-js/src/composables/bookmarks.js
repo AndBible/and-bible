@@ -171,7 +171,10 @@ export function useBookmarks(documentId,
     });
 
     function truncateToOrdinalRange(bookmark) {
-        const b = {ordinalRange: bookmark.ordinalRange, offsetRange: bookmark.offsetRange};
+        const b = {
+            ordinalRange: bookmark.ordinalRange && bookmark.ordinalRange.slice(),
+            offsetRange: bookmark.offsetRange && bookmark.offsetRange.slice(),
+        };
         b.offsetRange = b.offsetRange || [0, null]
         if(b.ordinalRange[0] < ordinalRange[0]) {
             b.ordinalRange[0] = ordinalRange[0];
