@@ -21,7 +21,7 @@
       <button class="modal-action-button right" :class="{toggled: multiSelectionMode}" @touchstart.stop @click="toggleMultiSelectionMode">
         <FontAwesomeIcon icon="plus-circle"/>
       </button>
-      <button  v-if="noActions" class="modal-action-button right" @touchstart.stop @click="help">
+      <button  class="modal-action-button right" @touchstart.stop @click="help">
         <FontAwesomeIcon icon="question-circle"/>
       </button>
     </template>
