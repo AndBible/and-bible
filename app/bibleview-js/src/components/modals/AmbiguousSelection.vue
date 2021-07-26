@@ -180,7 +180,8 @@ export default {
       const result = [];
       for(const o of ordinalRange()) {
         for(const bId of Array.from(bookmarkIdsByOrdinal.get(o) || []).filter(bId => !clickedIds.has(bId))){
-          result.push(bookmarkMap.get(bId));
+          const b = bookmarkMap.get(bId)
+          if(b) result.push(b);
         }
       }
       return result;
