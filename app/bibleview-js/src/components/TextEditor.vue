@@ -218,11 +218,13 @@ export default {
   @extend .visible-scrollbar;
   max-height: calc(var(--max-height) - #{$pell-button-height} - 2*#{$pell-content-padding});
   height: inherit;
+  padding: 0px 7px 0px 7px;
 }
-
 .pell-button {
   color: inherit;
   width: $pell-button-width *0.9;
+  height: $pell-button-height *0.9;
+  margin: 0px 1px 0px 1px;
   .night & {
     color: inherit;
   }
@@ -247,6 +249,7 @@ export default {
 
 .pell-button-selected {
   background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
   .night & {
     background-color: rgba(255, 255, 255, 0.2);
   }
@@ -285,7 +288,9 @@ export default {
   width: 100%;
   position: relative;
 }
-
+.edit-area,.pell {
+  margin: 0px;
+}
 .header {
   display: flex;
   justify-content: space-between;
