@@ -32,7 +32,6 @@ import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icon
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
 import {bookmarkingModes, testMode} from "@/composables/index";
-import {DocumentTypes} from "@/constants";
 
 const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
@@ -47,7 +46,7 @@ const allStyleRanges = computed(() => {
     return allStyles;
 });
 
-export function useGlobalBookmarks(config, documentType) {
+export function useGlobalBookmarks() {
     const bookmarkLabels = reactive(new Map());
     const bookmarks = reactive(new Map());
     const bookmarkIdsByOrdinal = reactive(new Map());
@@ -125,17 +124,15 @@ export function useGlobalBookmarks(config, documentType) {
         return updateBookmarkLabels(...labels);
     })
 
-    const filteredBookmarks = computed(() => {
-        if(documentType.value === DocumentTypes.BIBLE_DOCUMENT && !config.showBookmarks && !config.showMyNotes) return [];
-        return Array.from(bookmarks.values());
-    })
-
     window.bibleViewDebug.bookmarks = bookmarks;
     window.bibleViewDebug.allStyleRanges = allStyleRanges;
     window.bibleViewDebug.bookmarkLabels = bookmarkLabels;
 
     return {
-        bookmarkLabels, bookmarkMap: bookmarks, bookmarks: filteredBookmarks, labelsUpdated,
+        bookmarkLabels,
+        bookmarkMap: bookmarks,
+        bookmarks: computed(() => Array.from(bookmarks.values())),
+        labelsUpdated,
         updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks, bookmarkIdsByOrdinal,
     }
 }
