@@ -46,7 +46,6 @@ import android.view.Gravity
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.scaleMatrix
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -996,10 +995,10 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    fun makeLarger(icon: Drawable): Drawable = LayerDrawable(arrayOf(icon)).apply {
+    fun makeLarger(icon: Drawable, sizeMultiplier: Float = 1.0f): Drawable = LayerDrawable(arrayOf(icon)).apply {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val multiplier = 1.5f
-            setLayerSize(0, (icon.intrinsicWidth*multiplier).toInt(), (icon.intrinsicHeight*multiplier).toInt())
+            val m = sizeMultiplier
+            setLayerSize(0, (icon.intrinsicWidth*m).toInt(), (icon.intrinsicHeight*m).toInt())
         }
     }
 

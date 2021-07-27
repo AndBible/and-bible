@@ -212,7 +212,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         for(p in getPreferenceList()) {
             if(p.icon != null) {
-                p.icon = makeLarger(p.icon)
+                p.icon = makeLarger(p.icon, 1.5f)
             }
         }
 
