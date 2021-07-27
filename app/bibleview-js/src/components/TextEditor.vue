@@ -265,7 +265,7 @@ export default {
 
 .saved-notice {
   position: absolute;
-  right: 0;
+  right: 5px;
   bottom: $pell-button-height;
   padding-inline-end: 3pt;
   color: hsla(0, 0%, 0%, 0.2);
