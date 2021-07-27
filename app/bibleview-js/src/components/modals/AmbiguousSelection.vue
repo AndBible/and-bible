@@ -134,14 +134,18 @@ export default {
 
     function selected(s) {
       deferred.resolve(s);
-      showModal.value = false;
     }
 
     function cancelled() {
       if (deferred) {
         deferred.resolve(null);
       }
+    }
+
+    function close() {
+      multiSelectionMode.value = false;
       showModal.value = false;
+      resetHighlights();
     }
 
     //const {isDoubleClick} = createDoubleClickDetector();
@@ -246,15 +250,13 @@ export default {
             setInitialVerse(_verseInfo);
             const s = await select(allEventFunctions);
             if (s && s.callback) s.callback();
-            // eslint-disable-next-line require-atomic-updates
-            multiSelectionMode.value = false;
-            resetHighlights();
           }
         }
       } else {
         $emit("back-clicked");
         closeModals();
       }
+      close();
     }
 
     const noActions = computed(() => selectedActions.value.length === 0);
