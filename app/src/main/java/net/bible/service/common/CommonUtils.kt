@@ -848,6 +848,7 @@ object CommonUtils : CommonUtilsBase() {
     private var ttsWidgetManager: SpeakWidgetManager? = null
 
     var initialized = false
+    var booksInitialized = false
 
     fun initializeApp() {
         if(!initialized) {
@@ -855,13 +856,6 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.db
 
             buildActivityComponent().inject(this)
-            if(!application.isRunningTests) {
-                docDao.getUnlocked().forEach {
-                    val book = Books.installed().getBook(it.initials)
-                    book.unlock(it.cipherKey)
-                }
-                windowControl.windowRepository.initialize()
-            }
 
             ttsNotificationManager = TextToSpeechNotificationManager()
             ttsWidgetManager = SpeakWidgetManager()
@@ -874,6 +868,17 @@ object CommonUtils : CommonUtilsBase() {
             //}
 
             initialized = true
+        }
+
+        if(!booksInitialized && Books.installed().books.isNotEmpty()) {
+            if(!application.isRunningTests) {
+                docDao.getUnlocked().forEach {
+                    val book = Books.installed().getBook(it.initials)
+                    book.unlock(it.cipherKey)
+                }
+                windowControl.windowRepository.initialize()
+            }
+            booksInitialized = true
         }
     }
 
@@ -898,6 +903,16 @@ object CommonUtils : CommonUtilsBase() {
 
     const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
+    val defaultBible get() = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }[0] as SwordBook
+    val defaultVerse: VerseRange get() {
+        val (otVerse, ntVerse, psVerse) = listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3").map { VerseRangeFactory.fromString(defaultBible.versification, it) }
+        return when {
+            defaultBible.contains(ntVerse.start) -> ntVerse
+            defaultBible.contains(otVerse.start) -> otVerse
+            else -> psVerse
+        }
+    }
+
     private fun prepareExampleBookmarksAndWorkspaces() {
         var bid: Long
         val bookmarkDao = DatabaseContainer.db.bookmarkDao()
@@ -920,17 +935,6 @@ object CommonUtils : CommonUtilsBase() {
             highlightIds = bookmarkDao.insertLabels(highlightLabels)
             highlightLabels.zip(highlightIds) { label, id -> label.id = id }
 
-            val defaultBible = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE } [0] as SwordBook
-
-            val (otVerse, ntVerse, psVerse) = listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3").map { VerseRangeFactory.fromString(defaultBible.versification, it) }
-
-            // Choose verse similarly as in setFirstUseDefaultVerse
-            val useVerse = when {
-                defaultBible.contains(ntVerse.start) -> ntVerse
-                defaultBible.contains(otVerse.start) -> otVerse
-                else -> psVerse
-            }
-
             fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.Bookmark {
                 val v1 = verseRange.toVerseArray()[start.toInt()]
                 val v2 = verseRange.toVerseArray()[end.toInt()]
@@ -947,16 +951,16 @@ object CommonUtils : CommonUtilsBase() {
                 salvationLabel.id = salvationId
 
                 // first bookmark, full verses, with underline
-                bid = bookmarkDao.insert(BookmarkEntities.Bookmark(useVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id } )
+                bid = bookmarkDao.insert(BookmarkEntities.Bookmark(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id } )
                 bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, underlineLabel.id))
                 bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationLabel.id))
 
                 // second bookmark, red
-                bid = bookmarkDao.insert(getBookmark(useVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id } )
+                bid = bookmarkDao.insert(getBookmark(defaultVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id } )
                 bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, redLabel.id))
 
                 // third bookmark, green
-                bid = bookmarkDao.insert(getBookmark(useVerse, 1.2, 1.4).apply {
+                bid = bookmarkDao.insert(getBookmark(defaultVerse, 1.2, 1.4).apply {
                     primaryLabelId = greenLabel.id
                     notes = lorem
                 } )
