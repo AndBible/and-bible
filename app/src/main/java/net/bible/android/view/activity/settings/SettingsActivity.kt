@@ -30,6 +30,8 @@ import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.makeLarger
+import net.bible.service.common.getPreferenceList
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.device.ScreenSettings.systemModeAvailable
 import org.crosswire.jsword.book.Books
@@ -207,6 +209,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             val pref = preferenceScreen.findPreference<ListPreference>("request_sdcard_permission_pref") as Preference
             pref.isVisible = false
         }
+
+        for(p in getPreferenceList()) {
+            if(p.icon != null) {
+                p.icon = makeLarger(p.icon)
+            }
+        }
+
+
     }
 
     companion object {

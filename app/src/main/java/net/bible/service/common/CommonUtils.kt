@@ -46,7 +46,13 @@ import android.view.Gravity
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.scaleMatrix
+import androidx.preference.Preference
+import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceManager
+import androidx.preference.PreferenceScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -114,6 +120,21 @@ fun htmlToSpan(html: String): Spanned {
         Html.fromHtml(html)
     }
     return spanned
+}
+
+fun PreferenceFragmentCompat.getPreferenceList(p_: Preference? = null, list_: ArrayList<Preference>? = null): ArrayList<Preference> {
+    val p = p_?: preferenceScreen
+    val list = list_?: ArrayList()
+    if (p is PreferenceCategory || p is PreferenceScreen) {
+        val pGroup: PreferenceGroup = p as PreferenceGroup
+        val pCount: Int = pGroup.preferenceCount
+        for (i in 0 until pCount) {
+            getPreferenceList(pGroup.getPreference(i), list) // recursive call
+        }
+    } else {
+        list.add(p)
+    }
+    return list
 }
 
 const val textDisplaySettingsVideo = "https://youtu.be/rz0zyEK9qBk"
@@ -972,6 +993,13 @@ object CommonUtils : CommonUtilsBase() {
                 workspaceDao.insertWorkspace(it)
             }
             settings.setLong("current_workspace_id", workspaceIds[0])
+        }
+    }
+
+    fun makeLarger(icon: Drawable): Drawable = LayerDrawable(arrayOf(icon)).apply {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val multiplier = 1.5f
+            setLayerSize(0, (icon.intrinsicWidth*multiplier).toInt(), (icon.intrinsicHeight*multiplier).toInt())
         }
     }
 
