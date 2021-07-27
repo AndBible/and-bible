@@ -596,6 +596,8 @@ object CommonUtils : CommonUtilsBase() {
         return lastTypes
     }
 
+    val lastDisplaySettingsSorted get() = lastDisplaySettings.sortedBy { it.name }
+
     fun displaySettingChanged(type: WorkspaceEntities.TextDisplaySettings.Types) {
         val lastTypes = lastDisplaySettings.toMutableList()
         lastTypes.remove(type)

@@ -700,7 +700,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }, opensDialog = true)
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository.workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
-            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[order])
+            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
             R.id.splitMode -> SplitModePreference()
             R.id.autoPinMode -> WindowPinningPreference()
             R.id.tiltToScroll -> TiltToScrollPreference()
@@ -730,7 +730,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
 
-        val lastSettings = CommonUtils.lastDisplaySettings
+        val lastSettings = CommonUtils.lastDisplaySettingsSorted
         if(lastSettings.isNotEmpty()) {
             for ((idx, t) in lastSettings.withIndex()) {
                 val itm = getItemOptions(R.id.textOptionItem, idx)

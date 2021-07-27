@@ -712,7 +712,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             BookName.setFullBookName(oldValue)
         }
 
-        val lastSettings = CommonUtils.lastDisplaySettings
+        val lastSettings = CommonUtils.lastDisplaySettingsSorted
         if(lastSettings.isNotEmpty()) {
             for ((idx, t) in lastSettings.withIndex()) {
                 val itm = getItemOptions(window, R.id.textOptionItem, idx)
@@ -835,7 +835,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             },
                 visible = !window.isLinksWindow
             )
-            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[order])
+            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
             R.id.copySettingsTo -> SubMenuPreference()
             R.id.copySettingsToWorkspace -> CommandPreference({_, _, _ ->
                 windowControl.copySettingsToWorkspace(window)
