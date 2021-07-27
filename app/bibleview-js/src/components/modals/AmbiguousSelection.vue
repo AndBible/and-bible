@@ -196,10 +196,13 @@ export default {
 
     function toggleMultiSelectionMode() {
       multiSelectionMode.value = !multiSelectionMode.value;
-      if(!multiSelectionMode.value) {
-        endOrdinal.value = null;
-        updateHighlight();
+      if(multiSelectionMode.value) {
+        endOrdinal.value = startOrdinal.value + 1;
       }
+      else {
+        endOrdinal.value = null;
+      }
+      updateHighlight();
     }
 
     async function handle(event) {
