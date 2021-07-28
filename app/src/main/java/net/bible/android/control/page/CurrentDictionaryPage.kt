@@ -52,14 +52,6 @@ class CurrentDictionaryPage internal constructor(
         setKey(getKeyPlus(-1))
     }
 
-    override fun updateOptionsMenu(menu: Menu) {
-        super.updateOptionsMenu(menu)
-        val menuItem = menu.findItem(R.id.bookmarksButton)
-        if (menuItem != null) {
-            menuItem.isEnabled = false
-        }
-    }
-
     override val isSingleKey = true
 	override val key: Key? get() = _key
 

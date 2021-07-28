@@ -1419,7 +1419,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowRepository.updateAllWindowsTextDisplaySettings()
             }
         }
-        invalidateOptionsMenu()
         resetSystemUi()
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -1439,7 +1438,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         resetSystemUi()
         if(!refreshIfNightModeChange()) {
             requestSdcardPermission()
-            invalidateOptionsMenu()
             documentViewManager.buildView()
             ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
         }
@@ -1459,7 +1457,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
-        invalidateOptionsMenu()
         setSoftKeyboardMode()
     }
 
@@ -1483,20 +1480,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         isPaused = false
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()
-    }
-
-    /**
-     * Some menu items must be hidden for certain document types
-     */
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        // construct the options menu
-        super.onPrepareOptionsMenu(menu)
-
-        // disable some options depending on document type
-        windowControl.activeWindowPageManager.currentPage.updateOptionsMenu(menu)
-
-        // must return true for menu to be displayed
-        return true
     }
 
     private var actionMode: ActionMode? = null

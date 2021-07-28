@@ -74,8 +74,6 @@ interface CurrentPage {
 
     fun getPageContent(key: Key): Document
 
-    fun updateOptionsMenu(menu: Menu)
-
     var isInhibitChangeNotifications: Boolean
     val isSearchable: Boolean
     val isSpeakable: Boolean

@@ -217,21 +217,6 @@ abstract class CurrentPageBase protected constructor(
         localSetCurrentDocument(doc)
     }
 
-    override fun updateOptionsMenu(menu: Menu) { // these are fine for Bible and commentary
-        var menuItem = menu.findItem(R.id.searchButton)
-        if (menuItem != null) {
-            menuItem.isEnabled = isSearchable
-        }
-        menuItem = menu.findItem(R.id.bookmarksButton)
-        if (menuItem != null) {
-            menuItem.isEnabled = true
-        }
-        menuItem = menu.findItem(R.id.speakButton)
-        if (menuItem != null) {
-            menuItem.isEnabled = isSpeakable
-        }
-    }
-
     val pageEntity: WorkspaceEntities.Page get() {
             return WorkspaceEntities.Page(
                 currentDocument?.initials,
