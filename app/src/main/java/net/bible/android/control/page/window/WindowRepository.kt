@@ -24,6 +24,7 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.speak.save
@@ -400,6 +401,7 @@ open class WindowRepository @Inject constructor(
             historyManager.restoreFrom(window, dao.historyItems(it.id))
         }
         setDefaultActiveWindow()
+        ABEventBus.getDefault().post(NumberOfWindowsChangedEvent())
     }
 
     fun clear(destroy: Boolean = false) {

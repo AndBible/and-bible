@@ -301,6 +301,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         setupToolbarButtons()
         setupToolbarFlingDetection()
+        setSoftKeyboardMode()
 
         refreshScreenKeepOn()
         if(!initialized)
@@ -1459,6 +1460,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         invalidateOptionsMenu()
+        setSoftKeyboardMode()
+    }
+
+    private fun setSoftKeyboardMode() {
+        if (windowControl.isMultiWindow) {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        } else {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        }
     }
 
     /**
