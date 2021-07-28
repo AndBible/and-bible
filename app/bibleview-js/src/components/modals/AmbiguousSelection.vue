@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal :blocking="blocking" v-if="showModal" @close="cancelled">
+  <Modal :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled">
     <template #extra-buttons>
       <button class="modal-action-button right" :class="{toggled: multiSelectionMode}" @touchstart.stop @click="toggleMultiSelectionMode">
         <FontAwesomeIcon icon="plus-circle"/>
@@ -96,6 +96,7 @@ export default {
     const {modalOpen, closeModals} = inject("modal");
 
     const showModal = ref(false);
+    const locateTop = ref(false);
     const verseInfo = ref(null);
 
     const selectionInfo = computed(() => {
@@ -125,9 +126,16 @@ export default {
 
     let deferred = null;
 
-    async function select(sel) {
+    function isBottomHalfClicked(event) {
+      console.log(event);
+      return event.clientY > (window.innerHeight / 2);
+    }
+
+    async function select(event, sel) {
       originalSelections.value = sel;
+      locateTop.value = isBottomHalfClicked(event);
       showModal.value = true;
+
       deferred = new Deferred();
       return await deferred.wait();
     }
@@ -248,7 +256,7 @@ export default {
             closeModals();
           } else {
             setInitialVerse(_verseInfo);
-            const s = await select(allEventFunctions);
+            const s = await select(event, allEventFunctions);
             if (s && s.callback) s.callback();
           }
         }
@@ -266,7 +274,7 @@ export default {
     }
 
     return {
-      help, selectionInfo,
+      help, selectionInfo, locateTop,
       bibleBookName, verseInfo, selected, handle, cancelled, noActions,
       showModal, selectedActions, selectedBookmarks, clickedBookmarks,
       bookmarkMap, common, strings, multiSelectionMode, toggleMultiSelectionMode,

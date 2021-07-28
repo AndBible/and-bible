@@ -64,7 +64,8 @@ export default {
   props: {
     blocking: {type: Boolean, default: false},
     wide: {type: Boolean, default: false},
-    edit: {type: Boolean, default: false}
+    edit: {type: Boolean, default: false},
+    locateTop: {type: Boolean, default: false},
   },
   components: {FontAwesomeIcon},
   setup: function (props, {emit}) {
@@ -75,12 +76,17 @@ export default {
 
     async function resetPosition() {
       console.log("resetPosition");
-      modal.value.style.top = null;
-      modal.value.style.bottom = `calc(var(--bottom-offset) + var(--modal-top))`;
       modal.value.style.left = `var(--modal-left)`;
-      await nextTick();
-      modal.value.style.top = `${modal.value.offsetTop}px`;
-      modal.value.style.bottom = null;
+
+      if(props.locateTop) {
+        modal.value.style.top = `calc(var(--top-offset) + var(--modal-top))`;
+      } else {
+        modal.value.style.top = null;
+        modal.value.style.bottom = `calc(var(--bottom-offset) + var(--modal-top))`;
+        await nextTick();
+        modal.value.style.top = `${modal.value.offsetTop}px`;
+        modal.value.style.bottom = null;
+      }
     }
 
     const {register} = inject("modal");
