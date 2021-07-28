@@ -26,11 +26,8 @@ import android.content.pm.ApplicationInfo
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.os.Bundle
-import android.util.AttributeSet
 import android.util.Log
-import android.view.LayoutInflater
 import android.widget.Button
-import android.widget.LinearLayout
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -40,7 +37,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BackupViewBinding
-import net.bible.android.activity.databinding.ChooseDictionaryPageBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
@@ -48,7 +44,6 @@ import net.bible.android.database.DATABASE_VERSION
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils

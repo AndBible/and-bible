@@ -330,14 +330,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     suspend fun awaitIntent(intent: Intent) : Instrumentation.ActivityResult?
     {
         val activityResult = CompletableDeferred<Instrumentation.ActivityResult?>()
-
-        if (intent.resolveActivity(packageManager) != null) {
-            val resultCode = currentCode++
-            resultByCode[resultCode] = activityResult
-            startActivityForResult(intent, resultCode + ASYNC_REQUEST_CODE_START)
-        } else {
-            activityResult.complete(null)
-        }
+        val resultCode = currentCode++
+        resultByCode[resultCode] = activityResult
+        startActivityForResult(intent, resultCode + ASYNC_REQUEST_CODE_START)
         return activityResult.await()
     }
 
