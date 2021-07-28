@@ -48,17 +48,15 @@
 </template>
 <script>
 
-import {inject, onMounted} from "@vue/runtime-core";
+import {inject, nextTick, onMounted, onUnmounted} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import {ref} from "@vue/reactivity";
 import {
   draggableElement,
-  isInViewport, setupDocumentEventListener,
-  setupWindowEventListener
+  setupDocumentEventListener,
+  setupWindowEventListener,
 } from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {throttle} from "lodash";
-
 
 export default {
   name: "Modal",
@@ -75,30 +73,39 @@ export default {
     const header = ref(null);
     const ready = ref(false);
 
-    function resetPosition() {
-      modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + var(--modal-top))`;
+    async function resetPosition() {
+      console.log("resetPosition");
+      modal.value.style.top = null;
+      modal.value.style.bottom = `calc(var(--bottom-offset) + var(--modal-top))`;
       modal.value.style.left = `var(--modal-left)`;
+      await nextTick();
+      modal.value.style.top = `${modal.value.offsetTop}px`;
+      modal.value.style.bottom = null;
     }
 
     const {register} = inject("modal");
     register({blocking: props.blocking, close: () => emit("close")});
 
     setupWindowEventListener("resize", resetPosition)
-    setupWindowEventListener("scroll", throttle(() => {
-      if(!isInViewport(modal.value)) {
-        resetPosition()
-      }
-    }, 50));
     setupDocumentEventListener("keyup", event => {
       if(event.key === "Escape") {
         emit("close");
       }
     })
 
+    const observer = new ResizeObserver(() => {
+      resetPosition();
+    });
+
     onMounted(async () => {
       resetPosition()
       draggableElement(modal.value, header.value);
+      observer.observe(modal.value);
       ready.value = true;
+    });
+
+    onUnmounted(() => {
+      observer.disconnect();
     });
 
     return {config, modal, header, ready, ...useCommon()}
@@ -131,7 +138,7 @@ $border-radius2: $border-radius - 1.5pt;
   .blocking & {
     z-index: 15;
   }
-  position: absolute;
+  position: fixed;
   background-color: $modal-content-background-color;
   padding: 0;
   border: 1px solid #888;
