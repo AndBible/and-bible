@@ -74,9 +74,10 @@ export default {
     const header = ref(null);
     const ready = ref(false);
 
-    async function resetPosition() {
-      console.log("resetPosition");
-      modal.value.style.left = `var(--modal-left)`;
+    async function resetPosition(horizontal = false) {
+      if(horizontal) {
+        modal.value.style.left = `var(--modal-left)`;
+      }
 
       if(props.locateTop) {
         modal.value.style.top = `calc(var(--top-offset) + var(--modal-top))`;
@@ -92,7 +93,7 @@ export default {
     const {register} = inject("modal");
     register({blocking: props.blocking, close: () => emit("close")});
 
-    setupWindowEventListener("resize", resetPosition)
+    setupWindowEventListener("resize", () => resetPosition(true))
     setupDocumentEventListener("keyup", event => {
       if(event.key === "Escape") {
         emit("close");
@@ -104,7 +105,7 @@ export default {
     });
 
     onMounted(async () => {
-      resetPosition()
+      await resetPosition(true)
       draggableElement(modal.value, header.value);
       observer.observe(modal.value);
       ready.value = true;
