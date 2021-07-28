@@ -490,3 +490,7 @@ export function createDoubleClickDetector(waitMs = 300) {
     }
     return {isDoubleClick};
 }
+
+export function isBottomHalfClicked(event) {
+    return event.clientY > (window.innerHeight / 2);
+}

@@ -70,7 +70,7 @@ import {
   Deferred,
   getHighestPriorityEventFunctions,
   getEventVerseInfo,
-  getAllEventFunctions,
+  getAllEventFunctions, isBottomHalfClicked,
   //createDoubleClickDetector
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton";
@@ -125,11 +125,6 @@ export default {
     });
 
     let deferred = null;
-
-    function isBottomHalfClicked(event) {
-      console.log(event);
-      return event.clientY > (window.innerHeight / 2);
-    }
 
     async function select(event, sel) {
       originalSelections.value = sel;
@@ -246,7 +241,7 @@ export default {
           || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs)
         ) {
           if (eventFunctions[0].options.bookmarkId) {
-            emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId);
+            emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId, {locateTop: isBottomHalfClicked(event)});
           } else {
             eventFunctions[0].callback();
           }

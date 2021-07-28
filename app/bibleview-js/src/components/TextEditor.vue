@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal v-if="showHelp" @close="showHelp = false" blocking>
+  <Modal v-if="showHelp" @close="showHelp = false" blocking locate-top>
     {{sprintf(strings.refParserHelp, "RefParser")}}
     <a @click="openDownloads">{{strings.openDownloads}}</a>
     <template #title>
