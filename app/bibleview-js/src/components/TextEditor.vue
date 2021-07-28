@@ -218,13 +218,13 @@ export default {
   @extend .visible-scrollbar;
   max-height: calc(var(--max-height) - #{$pell-button-height} - 2*#{$pell-content-padding});
   height: inherit;
-  padding: 0px 7px 0px 7px;
+  padding: 0 7px 5px 7px;
 }
 .pell-button {
   color: inherit;
   width: $pell-button-width *0.9;
   height: $pell-button-height *0.9;
-  margin: 0px 1px 0px 1px;
+  margin: 0 1px 0 1px;
   .night & {
     color: inherit;
   }
@@ -236,14 +236,14 @@ export default {
     [dir=rtl] & {
       left: 0;
     }
-    .studypad-text-entry & {
-      [dir=ltr] & {
-        right: 40px;
-      }
-      [dir=rtl] & {
-        left: 40px;
-      }
-    }
+    //.studypad-text-entry & {
+    //  [dir=ltr] & {
+    //    right: 40px;
+    //  }
+    //  [dir=rtl] & {
+    //    left: 40px;
+    //  }
+    //}
   }
 }
 
