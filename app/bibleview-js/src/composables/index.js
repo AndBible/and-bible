@@ -470,18 +470,27 @@ export function useReferenceCollector() {
 
 export function useVerseHighlight() {
     const highlightedVerses = reactive(new Set());
+    const undoCustomHighlights = reactive([]);
 
-    const hasHighlights = computed(() => highlightedVerses.size > 0);
+    const hasHighlights = computed(() => highlightedVerses.size > 0 || undoCustomHighlights.length > 0);
 
-    function resetHighlights() {
+    function resetHighlights(onlyVerses = false) {
         highlightedVerses.clear();
+        if(!onlyVerses) {
+            undoCustomHighlights.forEach(f => f())
+            undoCustomHighlights.splice(0);
+        }
     }
 
     function highlightVerse(ordinal) {
         highlightedVerses.add(ordinal);
     }
 
-    return {highlightVerse, highlightedVerses, resetHighlights, hasHighlights}
+    function addCustom(f) {
+        undoCustomHighlights.push(f);
+    }
+
+    return {highlightVerse, addCustom, highlightedVerses, resetHighlights, hasHighlights}
 }
 
 

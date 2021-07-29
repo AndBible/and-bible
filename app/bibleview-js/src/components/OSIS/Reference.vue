@@ -24,9 +24,6 @@ import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
-import {eventBus, Events} from "@/eventbus";
-
-let cancelFunc = () => {};
 
 export default {
   name: "Reference",
@@ -40,6 +37,7 @@ export default {
     const clicked = ref(false);
     const isHighlighted = ref(false);
     const {strings, ...common} = useCommon();
+    const {addCustom, resetHighlights} = inject("verseHighlight");
     const referenceCollector = inject("referenceCollector", null);
     const content = ref(null);
     const osisFragment = inject("osisFragment");
@@ -71,14 +69,9 @@ export default {
       addEventFunction(event, () => {
         window.location.assign(url)
         clicked.value = true;
-        cancelFunc();
+        resetHighlights();
         isHighlighted.value = true;
-        cancelFunc = () => {
-          isHighlighted.value = false;
-          eventBus.off(Events.WINDOW_CLICKED, cancelFunc);
-          cancelFunc = () => {};
-        }
-        eventBus.on(Events.WINDOW_CLICKED, cancelFunc);
+        addCustom(() => isHighlighted.value = false);
       }, {title: strings.referenceLink, priority: EventPriorities.REFERENCE});
     }
     return {openLink, clicked, isHighlighted, content, link, ...common};

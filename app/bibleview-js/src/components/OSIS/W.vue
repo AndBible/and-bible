@@ -38,8 +38,7 @@
 import {checkUnsupportedProps, strongsModes, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
-import {eventBus, Events} from "@/eventbus";
-let cancelFunc = () => {};
+import {inject} from "@vue/runtime-core";
 
 export default {
   name: "W",
@@ -58,6 +57,7 @@ export default {
     checkUnsupportedProps(props, "subType")
     const {strings, config, ...common} = useCommon();
     const isHighlighted = ref(false);
+    const {addCustom, resetHighlights} = inject("verseHighlight");
     function prep(string) {
       let remainingString = string;
       const res = []
@@ -89,14 +89,9 @@ export default {
       const priority = showStrongsSeparately.value ? EventPriorities.STRONGS_LINK: EventPriorities.STRONGS_DOTTED;
       addEventFunction(event, () => {
         window.location.assign(url)
-        cancelFunc();
+        resetHighlights();
         isHighlighted.value = true;
-        cancelFunc = () => {
-          isHighlighted.value = false;
-          eventBus.off(Events.WINDOW_CLICKED, cancelFunc);
-          cancelFunc = () => {};
-        }
-        eventBus.on(Events.WINDOW_CLICKED, cancelFunc);
+        addCustom(() => isHighlighted.value = false);
       }, {priority, title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
     }
     const showStrongs = computed(() => config.strongsMode !== strongsModes.off);

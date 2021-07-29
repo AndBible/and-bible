@@ -33,7 +33,7 @@
   <span
     v-if="(config.showFootNotes && isCrossReference) || config.showFootNotes"
     class="skip-offset">
-    <span :class="{noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
+    <span class="highlight-transition" :class="{isHighlighted: showNote, noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
       {{handle}}
     </span>
   </span>

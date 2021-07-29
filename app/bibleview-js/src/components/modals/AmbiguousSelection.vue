@@ -148,7 +148,7 @@ export default {
     function close() {
       multiSelectionMode.value = false;
       showModal.value = false;
-      resetHighlights();
+      resetHighlights(true);
     }
 
     //const {isDoubleClick} = createDoubleClickDetector();
