@@ -920,7 +920,10 @@ object CommonUtils : CommonUtilsBase() {
         val bookmarkDao = DatabaseContainer.db.bookmarkDao()
         var highlightIds = listOf<Long>()
         val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
-        if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") }) {
+
+        val migratedNotesName = application.getString(R.string.migrated_my_notes)
+
+        if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") && it.name != migratedNotesName }) {
             val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false)
             val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false)
             val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false)
