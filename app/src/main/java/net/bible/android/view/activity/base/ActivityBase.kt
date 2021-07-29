@@ -23,7 +23,6 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -68,18 +67,11 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     fun applyTheme() {
-        var newNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        if (!ScreenSettings.systemMode) {
-            newNightMode = if (ScreenSettings.nightMode) {
-                AppCompatDelegate.MODE_NIGHT_YES
-            } else {
-                AppCompatDelegate.MODE_NIGHT_NO
-            }
+        val newNightMode = if (ScreenSettings.nightMode) {
+            AppCompatDelegate.MODE_NIGHT_YES
+        } else {
+            AppCompatDelegate.MODE_NIGHT_NO
         }
-        val currentNightMode = this.resources.configuration.uiMode and
-            Configuration.UI_MODE_NIGHT_MASK
-
-        val oldNightMode = AppCompatDelegate.getDefaultNightMode()
         AppCompatDelegate.setDefaultNightMode(newNightMode)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {
@@ -87,18 +79,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
                 window.decorView.systemUiVisibility = uiFlags
             }
         }
-        // force recreate activity to immediately apply changes
-        // if night mode changed
-        Log.d(TAG, "Night mode: old $oldNightMode, new: $newNightMode")
-        if (oldNightMode != newNightMode) {
-            // and if thew new mode does not match the current mode
-            if (currentNightMode == Configuration.UI_MODE_NIGHT_NO && newNightMode == AppCompatDelegate.MODE_NIGHT_YES
-                || currentNightMode == Configuration.UI_MODE_NIGHT_YES && newNightMode == AppCompatDelegate.MODE_NIGHT_NO) {
-                // then recreate
-                this.recreate()
-            }
-        }
-
     }
 
     /** Called when the activity is first created.  */
