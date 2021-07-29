@@ -42,6 +42,6 @@ export default {
   @extend .superscript;
   font-size: 60%;
   margin-right: 1pt;
-  color: gray;
+  color: var(--verse-number-color);
 }
 </style>
