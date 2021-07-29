@@ -69,11 +69,9 @@ val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != 
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-
 open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R.menu.download_documents_context_menu) {
     @Inject lateinit var downloadControl: DownloadControl
 
-    override var recommendedDocuments : RecommendedDocuments? = null
     private val genericFileDownloader = GenericFileDownloader {
         invalidateOptionsMenu()
     }
@@ -94,7 +92,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         genericFileDownloader.downloadFile(source, target, "Recommendations", reportError = !target.canRead())
         if(target.canRead()) {
             val jsonString = String(target.readBytes())
-            recommendedDocuments = json.decodeFromString(RecommendedDocuments.serializer(), jsonString)
+            recommendedDocuments.value = json.decodeFromString(RecommendedDocuments.serializer(), jsonString)
         } else {
             Log.e(TAG, "Could not load recommendations")
         }
@@ -352,11 +350,10 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
                 // prepare the document list view - done in another thread
                 GlobalScope.launch {
+                    loadRecommendedDocuments()
                     populateMasterDocumentList(true)
-                    // restart refresh timeout
                     updateLastRepoRefreshDate()
 
-                    // update screen
                     withContext(Dispatchers.Main) {
                         notifyDataSetChanged()
 

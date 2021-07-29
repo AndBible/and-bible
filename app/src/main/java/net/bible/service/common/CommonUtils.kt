@@ -157,6 +157,8 @@ open class CommonUtilsBase {
     @Inject lateinit var windowControl: WindowControl
 }
 
+class Ref<T>(var value: T? = null)
+
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */

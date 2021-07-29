@@ -31,7 +31,6 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -49,6 +48,7 @@ import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.Ref
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.AndBibleAddonFilter
@@ -57,7 +57,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
-import org.crosswire.jsword.book.BookFilters
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
 import javax.inject.Inject
@@ -108,7 +107,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private var isPopulated = false
     private val dao get() = DatabaseContainer.db.documentDao()
 
-    open val recommendedDocuments: RecommendedDocuments? = null
+    val recommendedDocuments = Ref<RecommendedDocuments>()
 
     private var allDocuments = ArrayList<Book>()
     var displayedDocuments = ArrayList<Book>()
@@ -393,7 +392,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                         displayedDocuments.sortWith(
                             compareBy(
                                 { swordDocumentFacade.getDocumentByInitials(it.initials) == null },
-                                { if (lang != null) !it.isRecommended(recommendedDocuments) else false },
+                                { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
                                 {
                                     when (it.bookCategory) {
                                         BookCategory.BIBLE -> 0
