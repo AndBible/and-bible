@@ -222,9 +222,8 @@ export default {
       const noiseOpacity = appSettings.nightMode ? config.colors.nightNoise : config.colors.dayNoise;
       const textColor = Color(appSettings.nightMode ? config.colors.nightTextColor : config.colors.dayTextColor);
       const verseNumberColor = appSettings.nightMode ?
-        textColor.darken(0.3).hsl().string():
-        textColor.lighten(0.5).hsl().string();
-
+        textColor.fade(0.5).hsl().string():
+        textColor.fade(0.5).hsl().string();
       return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
