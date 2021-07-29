@@ -49,7 +49,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     private var isScreenOn = true
 
     // some screens are highly customised and the theme looks odd if it changes
-    private var allowThemeChange = true
+    open val allowThemeChange = true
 
     private lateinit var _contentView: View
     protected lateinit var historyTraversal: HistoryTraversal
@@ -64,9 +64,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
-        if(!doNotInitializeApp) {
-            CommonUtils.initializeApp()
-        }
         this.onCreate(savedInstanceState, false)
     }
 
@@ -183,18 +180,14 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     }
 
-    override fun isIntegrateWithHistoryManager(): Boolean {
-        return historyTraversal.isIntegrateWithHistoryManager
-    }
-
-    override fun setIntegrateWithHistoryManager(integrateWithHistoryManager: Boolean) {
-        historyTraversal.isIntegrateWithHistoryManager = integrateWithHistoryManager
-    }
+    override var isIntegrateWithHistoryManager: Boolean
+        get() = historyTraversal.isIntegrateWithHistoryManager
+        set(value) {
+            historyTraversal.isIntegrateWithHistoryManager = value
+        }
 
     /** allow activity to enhance intent to correctly restore state  */
-    override fun getIntentForHistoryList(): Intent {
-        return intent
-    }
+    override val intentForHistoryList: Intent get() = intent
 
     fun showErrorMsg(msgResId: Int) {
         Dialogs.instance.showErrorMsg(msgResId)
@@ -286,10 +279,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
             // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
             CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this)
         }
-    }
-
-    fun setAllowThemeChange(allowThemeChange: Boolean) {
-        this.allowThemeChange = allowThemeChange
     }
 
     /** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView

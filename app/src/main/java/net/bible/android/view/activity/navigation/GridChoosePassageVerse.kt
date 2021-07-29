@@ -51,10 +51,11 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
     @Inject lateinit var navigationControl: NavigationControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
+    // background goes white in some circumstances if theme changes so prevent theme change
+    override val allowThemeChange = false
+
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
-        // background goes white in some circumstances if theme changes so prevent theme change
-        setAllowThemeChange(false)
         super.onCreate(savedInstanceState)
 
         buildActivityComponent().inject(this)

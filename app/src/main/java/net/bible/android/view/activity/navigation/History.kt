@@ -49,8 +49,7 @@ class History : ListActivityBase() {
     private var mHistoryItemList: List<HistoryItem>? = null
     @Inject lateinit var historyManager: HistoryManager
     @Inject lateinit var windowControl: WindowControl
-    override val customTheme: Boolean
-        get() = false
+    override val customTheme = false
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {

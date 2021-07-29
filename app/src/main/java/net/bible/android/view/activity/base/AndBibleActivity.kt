@@ -15,25 +15,21 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.view.activity.base
 
-package net.bible.android.view.activity.base;
-
-import android.content.Intent;
-import android.os.Bundle;
+import android.os.Bundle
+import android.content.Intent
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public interface AndBibleActivity {
-	/** facilitate History List integration */ 
-    public void onCreate(Bundle savedInstanceState, boolean integrateWithHistoryManager);
-    
-    /** allow HistoryManager to know if integration is required */
-	public boolean isIntegrateWithHistoryManager();
-	
-    /** allow HistoryManager to know if integration is required */
-	public void setIntegrateWithHistoryManager(boolean integrateWithHistoryManager);
+interface AndBibleActivity {
+    /** facilitate History List integration  */
+    fun onCreate(savedInstanceState: Bundle?, integrateWithHistoryManager: Boolean)
+    /** allow HistoryManager to know if integration is required  */
+    /** allow HistoryManager to know if integration is required  */
+    var isIntegrateWithHistoryManager: Boolean
 
-    /** allow activity to enhance intent to correctly restore state */
-	public Intent getIntentForHistoryList();
+    /** allow activity to enhance intent to correctly restore state  */
+    val intentForHistoryList: Intent
 }

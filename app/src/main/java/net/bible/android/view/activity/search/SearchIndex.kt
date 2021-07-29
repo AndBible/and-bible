@@ -61,8 +61,8 @@ class SearchIndex : CustomTitlebarActivityBase() {
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
-        buildActivityComponent().inject(this)
         super.onCreate(savedInstanceState)
+        buildActivityComponent().inject(this)
         Log.i(TAG, "Displaying SearchIndex view")
         binding = SearchIndexBinding.inflate(layoutInflater)
         setContentView(binding.root)
