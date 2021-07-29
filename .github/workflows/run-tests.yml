@@ -68,7 +68,7 @@ jobs:
       if: ${{ always() }}
       with:
         name: test-results
-        path: app/build/reports/
+        path: app/build/reports/**/*.html
         retention-days: 5
 
     - name: Before saving cache
