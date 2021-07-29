@@ -68,7 +68,10 @@ class OsisFragment(
 ) {
     private val xmlStr = elementToString(xml)
     private val keyStr: String get () = "${book.initials}--${key.uniqueId}"
-    val features: Map<String, String> get () {
+
+    val hasChapter: Boolean get() = xml.getChild("div")?.getChild("chapter") != null
+
+    private val features: Map<String, String> get () {
         val type = when {
             book.hasFeature(FeatureType.HEBREW_DEFINITIONS) -> "hebrew"
             book.hasFeature(FeatureType.GREEK_DEFINITIONS) -> "greek"

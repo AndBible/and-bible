@@ -125,7 +125,7 @@ class BibleDocument(
             put("type", wrapString("bible"))
             put("bibleBookName", wrapString(swordBook.versification.getPreferredNameInLocale(verseRange.start.book, Locale.getDefault())))
             put("ordinalRange", json.encodeToString(serializer(), listOf(vrInV11n.start.ordinal, vrInV11n.end.ordinal)))
-            put("addChapter", json.encodeToString(serializer(), swordBook.getProperty(KEY_SOURCE_TYPE).toString().toLowerCase(Locale.getDefault()) == "gbf"))
+            put("addChapter", json.encodeToString(serializer(), swordBook.getProperty(KEY_SOURCE_TYPE).toString().toLowerCase(Locale.getDefault()) == "gbf" || !osisFragment.hasChapter))
             put("chapterNumber", json.encodeToString(serializer(), verseRange.start.chapter))
             put("originalOrdinalRange", originalOrdinalRange)
             put("v11n", wrapString(swordBook.versification.name))
