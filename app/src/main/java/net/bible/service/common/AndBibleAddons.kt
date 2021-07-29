@@ -88,5 +88,8 @@ object AndBibleAddons {
 
     val featureModuleNames: List<String> get() =
         addons.filter { it.bookMetaData.getValues("AndBibleProvidesFeature") !== null }.map { it.initials }
+
+    val styleModuleNames: List<String> get() =
+        addons.filter { it.bookMetaData.getValues("AndBibleProvidesStyle") !== null }.map { it.initials }
 }
 

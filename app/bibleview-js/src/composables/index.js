@@ -582,6 +582,7 @@ export function useCustomCss() {
     const count = new Map();
     const customCssPromises = [];
     function addCss(bookInitials) {
+        console.log(`Adding style for ${bookInitials}`);
         const c = count.get(bookInitials) || 0;
         if (!c) {
             const link = document.createElement("link");
@@ -604,10 +605,11 @@ export function useCustomCss() {
     }
 
     function removeCss(bookInitials) {
-        const c = count.get(bookInitials);
+        console.log(`Removing style for ${bookInitials}`)
+        const c = count.get(bookInitials) || 0;
         if(c > 1) {
             count.set(bookInitials, c-1);
-        } else {
+        } else if(c === 1){
             count.delete(bookInitials);
             cssNodes.get(bookInitials).remove();
             cssNodes.delete(bookInitials);
@@ -620,6 +622,29 @@ export function useCustomCss() {
             removeCss(bookInitials);
         });
     }
+
+    const customStyles = reactive([]);
+
+    function reloadStyles(styleModuleNames) {
+        customStyles.forEach(moduleName => {
+            removeCss(moduleName);
+        });
+        customStyles.splice(0);
+
+        styleModuleNames.forEach(moduleName => {
+            customStyles.push(moduleName);
+            addCss(moduleName);
+        });
+    }
+
+    const styleModuleNames = new URLSearchParams(window.location.search).get("styleModuleNames");
+    if (styleModuleNames) {
+        reloadStyles(styleModuleNames.split(","))
+    }
+
+    setupEventBusListener(Events.RELOAD_ADDONS, ({styleModuleNames}) => {
+        reloadStyles(styleModuleNames)
+    })
 
     return {registerBook, customCssPromises}
 }
