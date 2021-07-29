@@ -229,6 +229,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         if (!isScreenOn && ScreenSettings.isScreenOn) {
             onScreenTurnedOn()
         }
+        if (allowThemeChange) {
+            applyTheme()
+        }
     }
 
     override fun onPause() {
