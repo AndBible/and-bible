@@ -45,8 +45,8 @@ object AndBibleAddons {
 
     val providedFonts: Map<String, ProvidedFont> get() {
         val fontsByName = mutableMapOf<String, ProvidedFont>()
-        addons.forEach { book ->
-            book.bookMetaData.getValues("AndBibleProvidesFont")?.forEach {
+        for (book in addons) {
+            for (it in book.bookMetaData.getValues("AndBibleProvidesFont")?: emptyList()) {
                 val values = it.split(";")
                 val name = values[0]
                 val filename = values[1]
@@ -58,7 +58,7 @@ object AndBibleAddons {
 
     val fontsByModule: Map<String, List<ProvidedFont>> get() {
         val fontsByModule = mutableMapOf<String, MutableList<ProvidedFont>>()
-        providedFonts.values.forEach {
+        for (it in providedFonts.values) {
             val fonts = fontsByModule[it.book.initials] ?: mutableListOf<ProvidedFont>()
                 .apply {fontsByModule[it.book.initials] = this}
             fonts.add(it)
@@ -68,8 +68,8 @@ object AndBibleAddons {
 
     val providedReadingPlans: Map<String, ProvidedReadingPlan> get() {
         val readingPlansByFileName = mutableMapOf<String, ProvidedReadingPlan>()
-        addons.forEach { book ->
-            book.bookMetaData.getValues("AndBibleProvidesReadingPlan")?.forEach { fileName ->
+        for (book in addons) {
+            for (fileName in book.bookMetaData.getValues("AndBibleProvidesReadingPlan")?: emptyList()) {
                 val isDateBased = book.bookMetaData.getProperty("AndBibleReadingPlanDateBased")?.equals("True", ignoreCase = true) == true
                 val planCode = File(File(book.bookMetaData.location), fileName).nameWithoutExtension
                 readingPlansByFileName[planCode] = ProvidedReadingPlan(book, fileName, isDateBased)
