@@ -61,15 +61,15 @@
   <string name="prefs_show_verseno_summary">အခန်းကြီး &amp;အားပြပါ; အခန်းငယ်နံပါတ်များ</string>
   <string name="prefs_e_ink_mode_title">အနက်ရောင် &amp; အဖြူရောင် အသွင်</string>
   <string name="prefs_eink_mode_summary">အက်ပ်ပလီကေးရှင်းကို အရောင်မဲ့အသွင် (အရောင်မပါ) ဖြင့်အသုံးပြုပါ၊ E-ink စက်များအတွက် ပိုမိုသင့်လျော်စေသည်။ </string>
-  <string name="prefs_disable_animations_title">အယ်နီမေးရှင်းများကို ပိတ်ရန်</string>
-  <string name="prefs_disable_animations_summary">ချောမွေ့သည့် ရွေ့လျားခလုတ် ကဲ့သို့သော အယ်နီမေးရှင်း အမျိုးအစားများကို ပိတ်ရန်</string>
+  <string name="prefs_disable_animations_title">အယ်နီမေးရှင်းများကို ပိတ်ပါ</string>
+  <string name="prefs_disable_animations_summary">ချောမွေ့သည့် ရွေ့လျားခလုတ် ကဲ့သို့သော အယ်နီမေးရှင်း အမျိုးအစားများကို ပိတ်ပါ။</string>
   <string name="prefs_paragraph_spacing_title">စာပိုဒ် အကွာအဝေး (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">စာပိုဒ်များအကြားရှိ အကွာအဝေးကို ချိန်ညှိရန် </string>
+  <string name="prefs_paragraph_spacing_summary">စာပိုဒ်များအကြားရှိ အကွာအဝေးကို ချိန်ညှိပါ။</string>
   <string name="prefs_show_verseno_title1">အခန်းငယ် နံပါတ်များ</string>
   <string name="prefs_show_chapter_no_title">အခန်းကြီး နံပါတ်များ</string>
   <string name="prefs_show_chapter_no_summary">အခန်းကြီး နံပါတ်များကို ပြပါ</string>
   <string name="prefs_verse_per_line_summary">အခန်းငယ်တစ်ခုစီကို အခြားမျဉ်းတစ်ခုပေါ်တွင် ပြပါ</string>
-  <string name="prefs_show_bookmarks_summary">စာမျက်နှာမှတ်သားခြင်းများအားလုံးကို ဖျောက်ရန် အမှန်ခြစ်ကိုဖြတ်ပါ</string>
+  <string name="prefs_show_bookmarks_summary">စာညှပ်များအားလုံးကိုဖျောက်ရန် အမှန်ခြစ်ကိုဖြတ်ပါ</string>
   <string name="prefs_show_mynotes_summary">ကိုယ်ပိုင်မှတ်စုရှိ အခန်းငယ်များတွင် တင်္ကေတကိုပြပါ</string>
   <string name="prefs_show_notes_summary">အောက်ခြေမှတ်တမ်းနှင့် ပြန်လှန်ကိုးကားချက်များကို ပြပါ</string>
   <string name="prefs_show_strongs_summary">ဂရိ  &amp; လင့်ခ်များ၊ ဟီဘရူး အဓိပ္ပါယ်ဖွင့်ဆိုချက်များ</string>
@@ -78,7 +78,7 @@
   <string name="prefs_red_letter_summary">ခရစ်တော်၏ စကားလုံးများကို အနီရောင်ပြပါ</string>
   <string name="prefs_text_size_title">စိတ်ကြိုက်စကားလုံးများ</string>
   <string name="prefs_verse_per_line_title">တစ်ကြောင်းတွင် အခန်းငယ်တစ်ခုစီ</string>
-  <string name="prefs_show_bookmarks_title">စာမျက်နှာမှတ်သားခြင်းများကို ပြပါ</string>
+  <string name="prefs_show_bookmarks_title">စာညှပ်များကို ပြပါ</string>
   <string name="prefs_show_mynotes_title">ကိုယ်ပိုင်မှတ်စု တင်္ကေတများကို ပြပါ</string>
   <string name="prefs_show_footnotes_title">အောက်ခြေမှတ်စု</string>
   <string name="prefs_show_xrefs_title">ပြန်လှန်ကိုးကားချက်များ</string>
@@ -262,7 +262,7 @@
   <string name="import_reading_plan_error_days">အောက်ပါနေ့ရက်များ၌ မှားယွင်းမှုများ ပါဝင်နေသည်: %s</string>
   <string name="import_reading_plan_anyway">မည်သို့ပင်ဆိုစေ ထည့်သွင်းပါ</string>
   <string name="overwrite_reading_plan">ထပ်ခါရေးချင်ပါသလား %s။</string>
-  <string name="delete_reading_plan">အစီအစဉ်ကို ဖျက်ပါ</string>
+  <string name="delete_reading_plan">ဤအစီအစဉ်ကို ဖျက်ပါ</string>
   <string name="reading_plan_deleted">စာဖတ်ခြင်းအစီအစဉ်ကို ဖျက်ပြီးပါပြီ</string>
   <string name="reading_plan_ships_with_ab">စာဖတ်ခြင်းအစီအစဉ်သည် %sနှင့်လုပ်ဆောင်သည်</string>
   <string name="confirm_delete_reading_plan">
@@ -292,7 +292,7 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
     </string>
   <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 နှစ် အခန်းကြီး 4 ခု/တစ်ရက်</string>
   <string name="plan_description_y1ot1nt2_mcheyne">
-ဤအစီအစဉ်ကို M\'Cheyne ဖတ်စာစနစ်မှ အခြေခံထားပြီး မိသားစုနှင့် တစ်ဦးချင်း ဆက်ကပ်ဝတ်ပြုခြင်းအတွက် မတူညီသည့် ဖတ်စာလေးမျိုးကို တင်ပေးထားပါသည်။ နေ့စဉ် ဓမ္မဟောင်းကျမ်းမှ နှစ်ခု၊ ဓမ္မသစ်ကျမ်းမှ တစ်ခုနှင့် ဆာလံ သို့မဟုတ် သတင်းကောင်း ၄ အုပ်မှ တစ်ခုစီတို့ ပါဝင်ပါမည်။ တစ်နှစ်အတွင်း ဓမ္မဟောင်းကိုတစ်ကြိမ်၊ ဓမ္မသစ်နှင့်ဆာလံတို့ကို နှစ်ကြိမ် ဖတ်ပြီးသားဖြစ်သွားပါမည်။ </string>
+ဤအစီအစဉ်ကို M\'Cheyne ဖတ်စာစနစ်မှ အခြေခံထားပြီး မိသားစုနှင့် တစ်ဦးချင်း ဆက်ကပ်ဝတ်ပြုခြင်းအတွက် မတူညီသည့် ဖတ်စာလေးမျိုးကို တင်ပေးထားပါသည်။ နေ့စဉ် ဓမ္မဟောင်းကျမ်းမှ နှစ်ခု၊ ဓမ္မသစ်ကျမ်းမှ တစ်ခုနှင့် ဆာလံ သို့မဟုတ် ခရစ်ဝင်ကျမ်း ၄ အုပ်မှ တစ်ခုစီတို့ ပါဝင်ပါမည်။ တစ်နှစ်အတွင်း ဓမ္မဟောင်းကို တစ်ကြိမ်၊ ဓမ္မသစ်နှင့်ဆာလံတို့ကို နှစ်ကြိမ် ဖတ်ပြီးသားဖြစ်သွားပါမည်။ </string>
   <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner အခန်းကြီး 10ခု/နေ့စဉ် ဖတ်ရှုခြင်း အစီအစဉ် </string>
   <string name="plan_description_y1ot6nt4_profHorner">Prof. Horner ၏ လောကဝတ်, ခွင့်ပြုချက် ပေးထားပြီး</string>
   <string name="plan_name_y2ot1ntps2">ကျမ်းစာထဲမှ 2 နှစ်၊ ဓမ္မသစ် + ဆာလံအား နှစ်ကြိမ်</string>
@@ -319,23 +319,23 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <!--Bookmarks-->
   <string name="bookmarks_and_mynotes_title">စာညှပ် &amp; ကိုယ်ပိုင်မှတ်စုများ</string>
   <string name="migrated_my_notes">ကိုယ်ပိုင် မှတ်စုများရွှေ့ပြောင်းပြီး</string>
-  <string name="bookmarks">စာမျက်နှာမှတ်သားခြင်းများ</string>
-  <string name="bookmark_added">စာမျက်နှာမှတ်သားခြင်း ပေါင်းထည့်ပြီး</string>
+  <string name="bookmarks">စာညှပ်များ</string>
+  <string name="bookmark_added">စာညှပ်များ ပေါင်းထည့်ပြီး</string>
   <string name="manage_labels">လေဘယ်လ်များကို စီမံခန့်ခွဲပါ</string>
   <string name="assign_labels">လေဘယ်လ်များကို တာဝန်ပေးအပ်ပါ</string>
   <string name="new_item">အသစ် </string>
   <string name="new_label">လေဘယ်လ် အသစ်</string>
   <string name="label_name_prompt">အမည်</string>
   <string name="label_unlabelled">လေဘယ်လ်ကို ဖယ်ရှားပြီးပါပြီ</string>
-  <string name="add_bookmark1">စာမျက်နှာမှတ်သားခြင်းများ</string>
-  <string name="add_bookmark2">ရွေးချယ်ထားသည်များကို စာမျက်နှာမှတ်သားထားပါ</string>
+  <string name="add_bookmark1">စာညှပ်များ</string>
+  <string name="add_bookmark2">ရွေးချယ်ထားသည်များကို စာညှပ်ထည့်ပါ</string>
   <string name="add_bookmark3">ရွေးချယ်မှု</string>
-  <string name="add_bookmark_whole_verse">အခန်းငယ်ကို စာမျက်နှာမှတ်သားထားပါ</string>
+  <string name="add_bookmark_whole_verse">အခန်းငယ်ကို စာညှပ်ထည့်ပါ</string>
   <string name="add_bookmark_whole_verse1">အခန်းငယ်များ</string>
   <string name="add_bookmark_whole_verse2">အခန်းငယ်များ အပြည့်</string>
   <string name="remove_bookmark">ဖယ်ရှားပါ</string>
-  <string name="bookmark_settings_hide_labels_title">အထူးပြုထားသော လေဘယ်လ်များကို ဖျောက်ထားပါ</string>
-  <string name="bookmark_settings_hide_labels_summary">သတ်မှတ်ထားသော လေဘယ်လ်များဖြင့် မှတ်သားထားသည့် စာမျက်နှာအမှတ်အသား (များ)ကို ဖျောက်ပါ</string>
+  <string name="bookmark_settings_hide_labels_title">သတ်မှတ်ထားသော လေဘယ်လ်များကို ဖျောက်ထားပါ</string>
+  <string name="bookmark_settings_hide_labels_summary">သတ်မှတ်ထားသော လေဘယ်လ်များဖြင့် မှတ်သားထားသည့် စာညှပ် (များ)ကို ဖျောက်ပါ</string>
   <string name="auto_assign_labels_title">လေဘယ်လ် ဆက်တင်များ</string>
   <string name="auto_assign_labels">အလိုအလျောက်စေခိုင်းထားသည့် &amp; အနှစ်သက်ဆုံး လေဘယ်လ်များ</string>
   <string name="auto_assign_labels1">စာညှပ်အသစ်များကို အလိုအလျောက် လေဘယ်လ်တပ်ရန် တာဝန်ပေးပါ</string>
@@ -378,8 +378,8 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="speak_and_play_earcons_title">...အတွက် အတိုကောက်အသံကို ပြောပါ၊ ဖွင့်ပါ</string>
   <string name="playback_settings_title">Playback ဆက်တင်များ</string>
   <string name="speak_settings_title">အထွေထွေ စကားပြော ဆက်တင်များ</string>
-  <string name="speak_bookmarking_settings_title">စာမျက်နှာမှတ်သားခြင်း ဆက်တင်များ</string>
-  <string name="speak_bookmarks_menu_title">စာမျက်နှာအမှတ်အသားမှ စကားပြောပါ</string>
+  <string name="speak_bookmarking_settings_title">စာညှပ်ခြင်း ဆက်တင်များ</string>
+  <string name="speak_bookmarks_menu_title">စာညှပ်မှအသံဖြင့်ပြောပါ</string>
   <string name="speak_advanced_settings">အဆင့်မြင့် ဆက်တင်များ</string>
   <string name="speak_sleep_timer_title">အိပ်ချိန် သတ်မှတ်ချက်</string>
   <string name="speak_no_books_available">စကားပြောရန် စာအုပ်မရနိုင်သေးပါ</string>
@@ -391,8 +391,8 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="speak_verse_range_to_repeat">ထပ်ရွတ်ရန် အခန်းငယ်၏နှုန်းကို ရွေးချယ်ပါ</string>
   <string name="speak_ending_verse_must_be_later">အဆုံးသတ်အခန်းငယ်သည် အစပြုအခန်းငယ်ထက် နောက်ကျနေရမည်</string>
   <string name="conf_speak_synchronize">စကားပြောနောက်တွင် စာသားပါလာမည်</string>
-  <string name="conf_speak_auto_bookmark">အလိုအလျောက် စာမျက်နှာမှတ်သားခြင်း</string>
-  <string name="conf_save_playback_settings_to_bookmarks">Playback ဆက်တင်ကို စာမျက်နှာအမှတ်အသားများသို့ သိမ်းထားပါ</string>
+  <string name="conf_speak_auto_bookmark">အလိုအလျောက် စာညှပ်ခြင်း</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Playback ဆက်တင်များကို စာညှပ်များတွင် သိမ်းထားပါ</string>
   <string name="conf_replace_divinename">ဘုရား၏အမည်များကို Yahweh ဖြင့်အစားထိုးပါ</string>
   <string name="conf_change_chapter">အခန်းကြီး အပြောင်းအလဲများ</string>
   <string name="conf_change_title">ခေါင်းစဉ်များ</string>
@@ -407,7 +407,7 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="widget_toggle_sleep_timer">Toggle အိပ်ချိန်သတ်မှတ်ချက်</string>
   <string name="widget_bookmark_helptext">စာညှပ်စကားပြောအတွက် ဖြတ်လမ်းခလုတ်များသည် ဤနေရာတွင် ပေါ်လာမည်။</string>
   <string name="speak_status_stopped">ရပ်တန့်နေပါပြီ</string>
-  <string name="speak_autobookmarking_disabled">အလိုအလျောက် စာမျက်နှာမှတ်သားခြင်းကို ပိတ်လိုက်ပါပြီ</string>
+  <string name="speak_autobookmarking_disabled">အလိုအလျောက် စာညှပ်ခြင်းကို ပိတ်လိုက်ပါပြီ</string>
   <string name="system_speak_settings">Open system TTS ဆက်တင်များ</string>
   <string name="auto_assing_labels_help1">သင်ဖန်တီးထားသည့် စာညှပ်များတွင် အလိုအလျာက်အလုပ်လုပ်သည့် လေဘယ်လ်များကို ဤနေရာတွင် ပြုပြင်နိုင်သည်။ </string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
@@ -623,14 +623,14 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
     </string>
   <string name="help_studypads_title">လေ့လာရေးစာရွက်များ</string>
   <string name="help_studypads_text">
-လေ့လာရေးစာရွက်များသည် တရားဟောချက် မှတ်စုများကို အလွယ်တကူ ရေးနိုင်ရန်၊ တရားဟော ချက် ပြင်ဆင်နိုင်ရန် သို့မဟုတ် ကျမ်းစာအညွှန်း များစွာပါဝင်သည့် ကိုယ်ပိုင်ကျမ်းစာလေ့လာချက် မှတ်စုများကို ရေးချနိုင်ရန် ဖန်တီးထားခြင်းဖြစ်သည်။ လေ့လာရေးစာရွက်တစ်ရွက်စီကို စာညှပ်လေ ဘယ်လ်တစ်ခုနှင့် ဆက်စပ်ထားပါသည်။ ထိုသက်ဆိုင်ရာလေဘယ်လ်များဖြင့် ဖန်တီးပြီးသော စာညှပ်များအားလုံးသည် လေ့လာရေး စာရွက်မှတ်တမ်းတွင် ပေါ်လာမည်ဖြစ်သည်။ လေ့လာရေးစာရွက်တစ်ရွက်တွင် စာညှပ်များအပြင် စိတ်ကြိုက်ဖန်တီးနိုင်သည့် စာသားထည့်သွင်းခြင်း များလည်း ပါဝင်နိုင်သည်။  </string>
+လေ့လာရေးစာရွက်များသည် တရားဟောချက် မှတ်စုများကို အလွယ်တကူ ရေးနိုင်ရန်၊ တရားဟော ချက် ပြင်ဆင်နိုင်ရန် သို့မဟုတ် ကျမ်းစာအညွှန်း များစွာပါဝင်သည့် ကိုယ်ပိုင်ကျမ်းစာလေ့လာချက် မှတ်စုများကို ရေးချနိုင်ရန် ဖန်တီးထားခြင်း ဖြစ်သည်။ လေ့လာရေးစာရွက်တစ်ရွက်စီကို စာညှပ်လေ ဘယ်လ်တစ်ခုနှင့် ဆက်စပ်ထားပါသည်။ ထိုသက်ဆိုင်ရာလေဘယ်လ်များဖြင့် ဖန်တီးပြီးသော စာညှပ်များအားလုံးသည် လေ့လာရေး စာရွက်မှတ်တမ်းတွင် ပေါ်လာမည်ဖြစ်သည်။ လေ့လာရေးစာရွက်တစ်ရွက်တွင် စာညှပ်များအပြင် စိတ်ကြိုက်ဖန်တီးနိုင်သည့် စာသားထည့်သွင်းခြင်း များလည်း ပါဝင်နိုင်သည်။  </string>
   <string name="help_search_title">ရှာဖွေပါ</string>
   <string name="help_search_text">စာသားရှာဖွေရာတွင် အထူးတင်္ကေတများဖြစ်သည့် *, ?, AND, OR, NOT တို့ပါဝင်နိုင်သည်
         (အသေးစိတ်ကို \"Apache Lucene - Query Parser Syntax\" တွင် ကြည့်ပါ)
     </string>
   <string name="help_workspaces_title">အလုပ်ခွင်များ</string>
   <string name="help_workspaces_text">
-လုပ်ငန်းခွင်များသည် context အခြေပြု လုပ်ငန်းဝန်းကျင် အများအပြားထားရှိ ခြင်းကို ခွင့်ပြုပေးသည်။ လုပ်ငန်းခွင်လုပ်ဆောင်ချက်များကို ရွေးချယ်စရာများ မီနူ (ညာဖက်ပေါ်ထောင့်)ရှိ လုပ်ငန်းခွင်များအချက် အလက်တွင် ဖွင့်နိုင်သည်။ လုပ်ငန်းခွင်ကို ကိရိယာပေါ် ရှိ အောက်လှည့် အမူအရာမှ အမြန်ဖွင့်နိုင်သည်။ ရှေ့/နောက် လုပ်ငန်းခွင်သို့ သွားလိုလျှင် ကိရိယာပေါ်ရှိ ဘယ်လှည့် နှင့် ညာလှည့် အမူအရာများကို သုံးခြင်းဖြင့်လည်း လုပ်နိုင်သည်။</string>
+လုပ်ငန်းခွင်များသည် context အခြေပြု လုပ်ငန်းဝန်းကျင် အများအပြားထားရှိ ခြင်းကို ခွင့်ပြုပေးသည်။ လုပ်ငန်းခွင်လုပ်ဆောင်ချက်များကို ရွေးချယ်စရာများ မီနူး (ညာဖက်ပေါ်ထောင့်)ရှိ လုပ်ငန်းခွင်များအချက် အလက်တွင် ဖွင့်နိုင်သည်။ လုပ်ငန်းခွင်ကို ကိရိယာပေါ် ရှိ အောက်လှည့် အမူအရာမှ အမြန်ဖွင့်နိုင်သည်။ ရှေ့/နောက် လုပ်ငန်းခွင်သို့ သွားလိုလျှင် ကိရိယာပေါ်ရှိ ဘယ်လှည့် နှင့် ညာလှည့် အမူအရာများကို သုံးခြင်းဖြင့်လည်း လုပ်နိုင်သည်။</string>
   <string name="help_hidden_features_title">ဖျောက်ထားသည့် ဖြတ်လမ်းများ</string>
   <string name="help_hidden_features_text">
 အလုပ်ခွင် selector ပေါ်လာစေရန် ကိရိယာမှ ပွတ်ဆွဲချပါ။ အမြန်ချုံ့ကြည့်ရန် ဝင်းဒိုးခလုတ်ကို ကြာကြာဖိထားပါ။ စကားပြောဆက်တင်ကို အမြန်သွားရန် စကားပြော ကိရိယာခလုတ်ကို ကြာကြာဖိထားပါ။ မှတ်တမ်း selector သို့ခုန်ရန် toolbar ရှိ အခန်းငယ် တည်နေရာ ခေါင်းစဉ်ကို ကြာကြာဖိထားပါ။ နောက်ခံမှတ်တမ်းစာရင်းသို့ သွားရန် နောက်ပြန်ခလုတ်ကို ကြာကြာဖိထားပါ။ </string>
@@ -692,7 +692,7 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="verse_share_advertise">%sကို အသုံးပြုပြီး ဝေမျှပြီးပါပြီ</string>
   <string name="abbreviate_reference">ကိုးကားချက် အတိုကောက်</string>
   <string name="version_name">ဗားရှင်း အမည်</string>
-  <string name="backup_button">Backup</string>
+  <string name="backup_button">အရန်ဖိုင်</string>
   <string name="back_button">နောက်သို့</string>
   <string name="upgrading_database">ဒေတာဘေ့စ်ကို အဆင့်မြှင့်တင်ခြင်း။ ကျေးဇူးပြု၍ စောင့်ပါ...</string>
   <string name="initializing_app">အက်ပလီကေးရှင်းကို စတင်ခြင်း... </string>
@@ -748,8 +748,8 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="favourite_label">အနှစ်သက်ဆုံး လေဘယ်လ်</string>
   <string name="edit_label">လေဘယ်လ်ကို တည်းဖြတ်ပါ</string>
   <string name="delete_label_confirmation">စာညှပ်လေဘယ်လ်ကို ဖျက်လိုပါသလား \"%s\" Study Pad နှင့်သက်ဆိုင်သည့် မှတ်စုများအားလုံးသည်လည်း ပျက်သွားပါမည်။</string>
-  <string name="bookmark_underline_style_arbitrary">စာညှပ်ရွေးချယ်မှုများအတွက် အန်ဒါလိုင်း ပုံစံ</string>
-  <string name="bookmark_underline_style_whole_verse">အခန်းငယ်တစ်ခုလုံး၏စာညှပ်များအတွက် အန်ဒါလိုင်း ပုံစံ</string>
+  <string name="bookmark_underline_style_arbitrary">စာညှပ်ရွေးချယ်မှုများအတွက် မျဉ်းတားပုံစံ</string>
+  <string name="bookmark_underline_style_whole_verse">အခန်းငယ်တစ်ခုလုံး၏စာညှပ်များအတွက် မျဉ်းတားပုံစံ</string>
   <string name="active_labels">ရွေးချယ်ထားသည့် လေဘယ်လ်များ</string>
   <string name="recent_labels">မကြာမီက လေဘယ်လ်များ</string>
   <string name="other_labels">အခြား လေဘယ်လ်များ</string>
@@ -792,6 +792,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="instructions_for_translators">ဘာသာပြန်သူများအတွက် လမ်းညွှန်ချက်များ</string>
   <string name="questions_title">မေးခွန်းမေးလိုပါသလား။</string>
   <string name="questions_title2">အကူအညီ လိုပါသလား။</string>
-  <string name="bookmark_style">စာမျက်နှာအမှတ်အသားပုံစံ</string>
-  <string name="added_to_bookmark">ဤစာမျက်နှာအမှတ်အသားကို တာဝန်ပေးပါ</string>
+  <string name="bookmark_style">စာညှပ်ပုံစံ</string>
+  <string name="added_to_bookmark">ဤစာညှပ်ကို တာဝန်ပေးပါ</string>
 </resources>

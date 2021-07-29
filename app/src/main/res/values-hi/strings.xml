@@ -836,6 +836,22 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="import_menu">आयात &amp; निर्यात</string>
   <string name="export_fileformat">%s के रूप में निर्यात करें</string>
   <string name="import_items">%s के रूप में आयात करें</string>
+  <string name="import_from_db">ऐप डेटाबेस फ़ाइल से आयात करें</string>
+  <string name="import_error">ऐप डेटाबेस से आयात करना विफल रहा। डेटाबेस फ़ाइल गलत प्रारूप हो सकती है या %s के बहुत पुराने संस्करण के साथ बनाई गई हो सकती है।</string>
+  <string name="chooser_range">सीमा</string>
+  <string name="chooser_jump">जाएं</string>
+  <string name="chooser_OT_abbrev">प.न.</string>
+  <string name="chooser_NT_abbrev">न.न</string>
+  <string name="chooser_style_grid">ग्रिड</string>
+  <string name="chooser_style_lists">सूचियों</string>
+  <string name="chooser_select">%s का चयन करें</string>
+  <string name="chooser_pref_reset">पुस्तक/अध्याय का चयन होने पर अध्याय/छंद को 1 पर रीसेट न करें</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">हमें खेद है, लेकिन हमारे पास %s भाषा में केवल अधूरा यूजर इंटरफेस अनुवाद है। ऐसा इसलिए है क्योंकि %s पूरी तरह से स्वयंसेवकों द्वारा विकसित किया गया है। यदि आप अनुवाद करने में सहायता कर सकते हैं, तो कृपया %s देखें।</string>
   <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">अनुवादकों के लिए निर्देश</string>
+  <string name="questions_title">कोई सवाल?</string>
+  <string name="questions_title2">मदद की ज़रूरत है?</string>
+  <string name="bookmark_style">बुकमार्क शैली</string>
+  <string name="added_to_bookmark">इस बुकमार्क को असाइन किया गया</string>
 </resources>
