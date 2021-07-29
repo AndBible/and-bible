@@ -237,7 +237,6 @@ dependencies {
 
     implementation "com.github.AndBible:jsword:$jsword_version"
 
-    // make sure this is same version as in jsword!
     implementation "org.jdom:jdom2:$jdom_version"
 
     debugImplementation 'com.facebook.stetho:stetho:1.6.0'
