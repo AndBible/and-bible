@@ -83,6 +83,8 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?, integrateWithHistoryManager: Boolean) {
+        CurrentActivityHolder.getInstance().currentActivity = this
+
         if(!doNotInitializeApp) {
             CommonUtils.initializeApp()
         }
@@ -96,9 +98,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         Log.i(localClassName, "onCreate:" + this)
 
         this.integrateWithHistoryManagerInitialValue = integrateWithHistoryManager
-
-        // Register current activity in onCreate and onResume
-        CurrentActivityHolder.getInstance().currentActivity = this
 
         // if locale is overridden then have to force title to be translated here
         LocaleHelper.translateTitle(this)
@@ -195,9 +194,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     override fun onResume() {
+        CurrentActivityHolder.getInstance().currentActivity = this
         super.onResume()
         Log.i(localClassName, "onResume:" + this)
-        CurrentActivityHolder.getInstance().currentActivity = this
 
         //allow action to be called on screen being turned on
         if (!isScreenOn && ScreenSettings.isScreenOn) {
