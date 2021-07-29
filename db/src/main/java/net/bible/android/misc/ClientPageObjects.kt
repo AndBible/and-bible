@@ -20,11 +20,19 @@ package net.bible.android.misc
 
 import kotlinx.serialization.serializer
 import net.bible.android.database.json
+import org.apache.commons.text.StringEscapeUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
+import org.jdom2.Element
+import org.jdom2.Text
+import org.jdom2.output.Format
+import org.jdom2.output.XMLOutputter
+import org.jdom2.output.support.AbstractXMLOutputProcessor
+import org.jdom2.output.support.FormatStack
+import java.io.Writer
 
 // Unique identifier that can be used as ID in DOM
 val Key.uniqueId: String get() {
@@ -37,11 +45,28 @@ val Key.uniqueId: String get() {
 
 fun wrapString(str: String?): String = if(str == null) "null" else "`${str.replace("`", "\\`")}`"
 
+
+fun elementToString(e: Element): String {
+    val format = Format.getRawFormat()
+    val processor = object: AbstractXMLOutputProcessor() {
+        override fun printText(out: Writer, fstack: FormatStack, text: Text) {
+            // We might have html-encoded characters in OSIS text.
+            // Let's un-encode them first, lest we will end up with double-encoded strings
+            // such as &amp;quot;
+            text.text = StringEscapeUtils.unescapeHtml4(text.text)
+            super.printText(out, fstack, text)
+        }
+    }
+    return XMLOutputter(format, processor).outputString(e)
+}
+
+
 class OsisFragment(
-    val xml: String,
+    val xml: Element,
     val key: Key,
     private val book: Book
 ) {
+    private val xmlStr = elementToString(xml)
     private val keyStr: String get () = "${book.initials}--${key.uniqueId}"
     val features: Map<String, String> get () {
         val type = when {
@@ -60,7 +85,7 @@ class OsisFragment(
             if(key is VerseRange) listOf(key.start.ordinal, key.end.ordinal) else null
         )
         return mapOf(
-            "xml" to wrapString(xml),
+            "xml" to wrapString(xmlStr),
             "key" to wrapString(keyStr),
             "keyName" to wrapString(key.name),
             "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),

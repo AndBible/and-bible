@@ -134,8 +134,7 @@ abstract class CurrentPageBase protected constructor(
                 key = key,
                 osisFragment = synchronized(currentDocument) {
                     val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
-                    if (frag.isEmpty()) throw OsisError(application.getString(R.string.error_no_content))
-                    else OsisFragment(frag, key, currentDocument)
+                    OsisFragment(frag, key, currentDocument)
                 }
             )
         } catch (e: Exception) {
