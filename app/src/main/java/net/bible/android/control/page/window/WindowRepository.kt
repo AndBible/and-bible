@@ -310,7 +310,7 @@ open class WindowRepository @Inject constructor(
             val prevFullBookNameValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
 
-            windowList.forEach {
+            for (it in windowList) {
                 keyTitle.add("${it.pageManager.currentPage.singleKey?.name} (${it.pageManager.currentPage.currentDocument?.abbreviation})")
             }
 

@@ -146,7 +146,9 @@ open class BookmarkControl @Inject constructor(
 
     fun deleteBookmarks(bookmarks: List<Bookmark>) {
         dao.deleteBookmarks(bookmarks)
-        bookmarks.forEach { sanitizeJournalOrder(it) }
+        for (it in bookmarks) {
+            sanitizeJournalOrder(it)
+        }
         ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks.map { it.id }))
     }
 
@@ -382,7 +384,11 @@ open class BookmarkControl @Inject constructor(
             )
     }
 
-    private fun sanitizeJournalOrder(bookmark: Bookmark) = labelsForBookmark(bookmark).forEach { sanitizeJournalOrder(it) }
+    private fun sanitizeJournalOrder(bookmark: Bookmark) {
+        for (it in labelsForBookmark(bookmark)) {
+            sanitizeJournalOrder(it)
+        }
+    }
 
     fun createJournalEntry(labelId: Long, entryOrderNumber: Int) {
         val entry = StudyPadTextEntry(labelId = labelId, orderNumber = entryOrderNumber + 1)

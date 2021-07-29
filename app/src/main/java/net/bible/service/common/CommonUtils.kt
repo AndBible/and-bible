@@ -874,7 +874,7 @@ object CommonUtils : CommonUtilsBase() {
 
         if(!booksInitialized && Books.installed().books.isNotEmpty()) {
             if(!application.isRunningTests) {
-                docDao.getUnlocked().forEach {
+                for (it in docDao.getUnlocked()) {
                     val book = Books.installed().getBook(it.initials)
                     book.unlock(it.cipherKey)
                 }
@@ -987,7 +987,7 @@ object CommonUtils : CommonUtilsBase() {
         val workspaceDao = DatabaseContainer.db.workspaceDao()
         val ws = workspaceDao.allWorkspaces()
         if(ws.isNotEmpty()) {
-            ws.forEach {
+            for (it in ws) {
                 it.workspaceSettings?.favouriteLabels?.addAll(highlightIds)
             }
             workspaceDao.updateWorkspaces(ws)

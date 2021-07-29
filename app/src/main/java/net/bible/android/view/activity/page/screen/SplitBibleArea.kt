@@ -700,7 +700,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
             val windowList2 = windowRepository.visibleWindows
             count = 0
-            windowList2.forEach {
+            for (it in windowList2) {
                 if (it.id != window.id) {
                     val p = it.pageManager.currentPage
                     val copySettingsTitle = BibleApplication.application.getString(R.string.copy_settings_to_window, count + 1, p.currentDocument?.abbreviation, p.key?.name)

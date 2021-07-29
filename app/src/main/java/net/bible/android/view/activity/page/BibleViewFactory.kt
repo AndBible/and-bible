@@ -83,7 +83,7 @@ class BibleViewFactory @Inject constructor(
 
     fun clear() {
         Log.d(TAG, "clear")
-        windowBibleViewMap.forEach { it ->
+        for (it in windowBibleViewMap) {
             val bw = it.value
             bw.onDestroy = null
             bw.doDestroy()

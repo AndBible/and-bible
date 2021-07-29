@@ -78,7 +78,7 @@ class ReadingPlanControl @Inject constructor(
     get() {
         val userPlanList = readingPlanTextDao.userPlanCodes(false) ?: return false
         val internalPlanList = readingPlanTextDao.internalPlanCodes
-        userPlanList.forEach { userPlan ->
+        for (userPlan in userPlanList) {
             if (internalPlanList.find { internalPlan -> internalPlan == userPlan } != null)
                 return true
         }

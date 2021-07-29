@@ -202,7 +202,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
      * Downloads the requested books, given a list of osisIds
      */
     private fun downloadRequestedBooks(osisIds: ArrayList<String>) {
-        osisIds.forEach {
+        for (it in osisIds) {
             Log.i(TAG, "User request to redownload $it")
             val book: Book? = findBookByOsisID(it)
             if (book != null) {
