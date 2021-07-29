@@ -148,9 +148,9 @@ $modal-content-background-color-night: black;
 }
 
 .isHighlighted {
-  background-color: rgba(187, 187, 187, 0.4);
+  background-color: rgba(0, 0, 0, 0.1);
   .night & {
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.3);
   }
 }
 
