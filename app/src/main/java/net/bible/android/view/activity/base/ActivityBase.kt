@@ -92,6 +92,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
         // force recreate activity to immediately apply changes
         // if night mode changed
+        Log.d(TAG, "Night mode: old $oldNightMode, new: $newNightMode")
         if (oldNightMode != newNightMode) {
             // and if thew new mode does not match the current mode
             if (currentNightMode == Configuration.UI_MODE_NIGHT_NO && newNightMode == AppCompatDelegate.MODE_NIGHT_YES
@@ -228,9 +229,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         //allow action to be called on screen being turned on
         if (!isScreenOn && ScreenSettings.isScreenOn) {
             onScreenTurnedOn()
-        }
-        if (allowThemeChange) {
-            applyTheme()
         }
     }
 
