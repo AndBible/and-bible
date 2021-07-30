@@ -86,8 +86,6 @@
         {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
       </div>
     </div>
-    <template #footer>
-    </template>
   </Modal>
 </template>
 
