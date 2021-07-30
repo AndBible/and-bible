@@ -185,7 +185,16 @@ class CurrentBiblePage(
         currentBibleVerse.restoreFrom(entity.verse)
     }
 
-    val currentChapterVerse get() = currentBibleVerse.chapterVerse
+    @Deprecated("Used by test only!!! use setCurrentVerseOrdinal instead")
+    var currentChapterVerse
+        get() = currentBibleVerse.chapterVerse
+        set(chapterVerse) {
+            val oldChapterVerse = currentBibleVerse.chapterVerse
+            if(chapterVerse != oldChapterVerse) {
+                currentBibleVerse.chapterVerse = chapterVerse
+                //onVerseChange()
+            }
+    }
     val currentVerseOrdinal: Int get() = currentBibleVerse.verse.ordinal
 
     fun setCurrentVerseOrdinal(value: Int, versification: Versification?, window: Window) {
