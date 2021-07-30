@@ -766,6 +766,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
             }
         }
+        menu.findItem(R.id.allTextOptions).icon = CommonUtils.combineIcons(R.drawable.ic_text_options_24dp, R.drawable.ic_workspace_overlay_24dp)
         handleMenu(menu)
         menuHelper.show()
     }
