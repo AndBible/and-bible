@@ -46,6 +46,7 @@
 		<SwitchPreferenceCompat android:key="auto_fullscreen_pref"
 			android:title="@string/auto_fullscreen"
 			android:summary="@string/auto_fullscreen_summary"
+			android:icon="@drawable/ic_full_screen_by_scrolling_24dp"/>
 			android:defaultValue="false"
 			/>
 		<ListPreference android:key="toolbar_button_actions"
@@ -65,7 +66,7 @@
 			android:summary="@string/prefs_night_mode_summary"
 			android:entries="@array/prefs_night_mode_descriptions"
 			android:entryValues="@array/prefs_night_mode_values"
-			android:icon="@drawable/ic_night_mode_24"/>
+			android:icon="@drawable/ic_night_mode_switching_24dp"/>
 			android:defaultValue="@string/prefs_night_mode_manual"/>
 	</PreferenceCategory>
 	<PreferenceCategory
@@ -88,11 +89,13 @@
 			android:title="@string/hide_window_buttons_title"
 			android:summary="@string/hide_window_buttons_summary"
 			android:defaultValue="false"
+			android:icon="@drawable/ic_hide_window_button_bar_24dp"/>
 			/>
 		<SwitchPreferenceCompat android:key="hide_bible_reference_overlay"
 			android:title="@string/hide_bible_reference_overlay_title"
 			android:summary="@string/hide_bible_reference_overlay_summary"
-			android:defaultValue="false"
+			android:icon="@drawable/ic_hide_bible_reference_overlay_24dp"/>
+		android:defaultValue="false"
 			/>
 		<SwitchPreferenceCompat android:key="show_active_window_indicator"
 			android:title="@string/active_window_indicator_title"
