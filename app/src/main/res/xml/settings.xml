@@ -100,7 +100,6 @@
 			android:summary="@string/hide_window_buttons_summary"
 			android:icon="@drawable/ic_hide_window_buttons_24dp"
 			android:defaultValue="false"
-			android:icon="@drawable/ic_hide_window_button_bar_24dp"
 			/>
 		<SwitchPreferenceCompat android:key="hide_bible_reference_overlay"
 			android:title="@string/hide_bible_reference_overlay_title"
