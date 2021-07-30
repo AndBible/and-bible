@@ -63,7 +63,11 @@
   <string name="prefs_eink_mode_summary">Az alkalmazás használata színek nélkül, jobb olvashatóság e-ink képernyőn.</string>
   <string name="prefs_disable_animations_title">Animációk kikapcsolása</string>
   <string name="prefs_disable_animations_summary">Különböző animációk kikapcsolása, mint például a sima görgetés.</string>
+  <string name="prefs_paragraph_spacing_title">Bekezdések közötti sorköz (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">A bekezdések közötti sorköz beállítása.</string>
   <string name="prefs_show_verseno_title1">Versszámozás</string>
+  <string name="prefs_show_chapter_no_title">Fejezetszámok</string>
+  <string name="prefs_show_chapter_no_summary">Fejezetszámok megjelenítése</string>
   <string name="prefs_verse_per_line_summary">Minden vers külön sorban</string>
   <string name="prefs_show_bookmarks_summary">Könyvjelzők megjelenítése</string>
   <string name="prefs_show_mynotes_summary">Ikon a saját jegyzettel ellátott verseknél</string>
@@ -77,19 +81,30 @@
   <string name="prefs_show_bookmarks_title">Könyvjelzők megjelenítése</string>
   <string name="prefs_show_mynotes_title">Jegyzetjelző ikonok</string>
   <string name="prefs_show_footnotes_title">Lábjegyezetek</string>
+  <string name="prefs_show_xrefs_title">Kereszthivatkozások</string>
+  <string name="prefs_show_footnotes_summary">Lábjegyzetek megjelenítése (ha a dokumentum tartalmaz lábjegyzeteket)</string>
+  <string name="prefs_show_xrefs_summary">Kereszthivatkozások megjelenítése (ha a dokumentum tartalmaz kereszthivatkozásokat)</string>
   <string name="prefs_show_notes_title">Lábjegyzetek és hivatkozások</string>
   <string name="prefs_show_strongs_title">Strong-számok</string>
   <string name="prefs_show_morphology_title">Morfológiai kódok</string>
   <string name="prefs_section_title_title">Fejezetcímek</string>
   <string name="prefs_red_letter_title">Piros betűk</string>
   <string name="prefs_tilt_to_scroll_title">Görgetés billentéssel</string>
+  <string name="prefs_toolbar_button_action_title">Eszköztár gomb funkciója</string>
+  <string name="prefs_toolbar_button_action_summary">Mi történjen a Biblia vagy Kommentár eszköztár gomb lenyomása vagy hosszan-lenyomásakor.</string>
+  <string name="prefs_toolbar_button_action_default">Menü megnyitása lenyomásra, dokumentumok képernyő megnyitása hosszan-lenyomásra (alapértelmezett)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Következő dokumentum megnyitása lenyomásra, menü megnyitása hosszan-lenyomásra.</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Következő dokumentum megnyitása lenyomásra, dokumentumok képernyő megnyitása hosszan-lenyomásra.</string>
   <string name="prefs_night_mode_title">Éjszakai mód</string>
+  <string name="prefs_night_mode_summary">Éjszakai mód kapcsolása automatikusan (ha a készülék támogatja), kézzel vagy a rendszerbeállításoknak megfelelően (Android 10+). A kézi kapcsolás a főképernyő 3 pont opció menüjében található.</string>
   <string name="prefs_night_mode_manual">Kézi beállítás</string>
   <string name="prefs_night_mode_automatic">Automatikus</string>
   <string name="prefs_night_mode_system">Rendszerbeállítás</string>
   <string name="options_menu_night_mode">Éjszakai mód</string>
   <string name="prefs_navigate_to_verse_title">Navigálás versig</string>
   <string name="prefs_navigate_to_verse_summary">Válaszd ki a verset is (és a fejezetet) navigálásnál</string>
+  <string name="prefs_open_links_in_special_window_title">Hivatkozások ablak</string>
+  <string name="prefs_open_links_in_special_window_summary">Linkek megnyitása speciális ablakban, a kereszthivatkozások és a Strong-konkordanciák gyorsabb megjelenítéséhez.</string>
   <string name="prefs_text_size_sample_text">Mintaszöveg</string>
   <string name="prefs_screen_keep_on_title">Képernyő mindig maradjon bekapcsolva</string>
   <string name="prefs_screen_keep_on_summary">Képernyő kikapcsolásának megakadályozása az alkalmazás használata közben</string>
@@ -104,6 +119,7 @@
   <string name="reversed_split_mode">Megfordított osztott képernyős mód</string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pont</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Teljesképernyős mód automatikus bekapccsolása lapozáskor. TIpp: a teljesképernyős mód bakpcsolható duplakattintással a kepernyőre.</string>
   <string name="prefs_margin_size_title">Margó méret megváltoztatása</string>
   <string name="prefs_margin_size_mm_title">Margó méret (%d/%d/%d mm)</string>
@@ -124,17 +140,36 @@
   <string name="pref_maximum_width_of_text_label_mm">Szöveg maximális szélessége (%d mm)</string>
   <string name="prefs_line_spacing_pt">Sorköz %1.1f</string>
   <string name="pref_font_family_label">Betűtípus</string>
+  <string name="prefs_top_margin_title">Felső margó</string>
+  <string name="prefs_top_margin_summary">Felső margó a Biblia olvasásakor. Lapozáskor az aktuális vers a margó alatt jelenik meg. </string>
   <string name="prefs_hyphenation_title">Elválasztás</string>
   <string name="prefs_hyphenation_summary">Automatikus elválasztás támogatott nyelveknél</string>
   <string name="prefs_line_spacing_pt_title">Sorköz (%1.1f x)</string>
   <string name="line_spacing_title">Sorköz</string>
   <string name="line_spacing_summary">A sorok távolsága egymástól</string>
   <string name="select_none">Kijelölés megszüntetése</string>
+  <string name="reset_are_you_sure">Biztos, hogy visszaállítja az alapbeállításokat?</string>
   <string name="window_pinning_menutitle">Ablak kitűzése</string>
   <string name="hide_window_buttons_title">Ablakvezérlő gombok elrejtése</string>
+  <string name="hide_window_buttons_summary">A Biblia nézeteinek jobb oldalán megjelenő ablakgombok el vannak rejtve. Az alsó ablak navigációs sávja továbbra is megjelenik, és hosszú kattintással megnyithatja az ablak felbukkanó menüjét.</string>
+  <string name="hide_bible_reference_overlay_title">Biblia referenciák elrejtése</string>
+  <string name="hide_bible_reference_overlay_summary">A félig átlátszó Biblia referenciák elrejtése teljes képernyős módban</string>
   <string name="full_screen_hide_buttons_pref_title">Ablakvezérlő gombok sávjának elrejtése teljes képernyős módban</string>
   <string name="full_screen_hide_buttons_pref_summary">Ablakvezérlőgombok elrejtése teljesképernyős módban</string>
+  <string name="prefs_dictionaries_cat">Szótárak</string>
+  <string name="choose_strongs_greek_dictionary_title">Strongs görög szótár</string>
+  <string name="choose_strongs_greek_dictionary_summary">Strong szótár kiválasztása görög szó definíciókhoz</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strongs héber szótár</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Strongs szótár kiválasztása héber szó definíciókhoz</string>
+  <string name="choose_strongs_greek_morphology_title">Robinson görög morfológia</string>
+  <string name="choose_strongs_greek_morphology_summary">Szótár kiválasztása Robinson görög morfológia definíciókhoz</string>
+  <string name="prefs_top_margin_title_mm">Felső margó (%d mm)</string>
   <string name="font_size_title">Betűméret</string>
+  <string name="font_size_title_pt">Betűméret (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Fő szövegméret beállítása</string>
+  <string name="pref_font_family_label_name">Betűtípus (%s)</string>
+  <string name="prefs_font_family_summary">Betűtípus megváltozatása. Tipp: további betűtípusokat a Letöltés Dokumentumok/Kiegészítők menüben lehet letölteni.</string>
+  <string name="prefs_text_bookmarks_title">Könyvjelzők és Saját Jegyzetek beállításai</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Színbeállítások</string>
   <string name="window_color_settings_title">Ablak színeinek beállítása</string>
@@ -250,6 +285,8 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="open_link_in_new_window">Hivatkozás megnyitása új ablakban</string>
   <string name="open_link_in_special_window">Hivatkozás megnyitása speciális ablakban</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Könyvjelzők és Jegyzeteim beállításai</string>
+  <string name="migrated_my_notes">Előző verzióból származó jegyzeteim</string>
   <string name="bookmarks">Könyvjelzők</string>
   <string name="bookmark_added">Könyvjelző hozzáadva</string>
   <string name="assign_labels">Címke hozzárendelése</string>
@@ -387,6 +424,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Biztonsági mentés és helyreállítás</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_confirmation">Jegyzetek, könyvjelzők, tanulmányok, olvasási tervek felülírása?</string>
   <string name="loading_backup">Adatbázis visszaállítása...</string>
   <string name="backup_modules_email_subject_2">%s modul biztonsági mentés</string>
   <string name="backup_modules_email_message_2">Felcsatolva a %s modul biztonsági mentés, amely a következő modulokat tartalmazza: %s</string>
@@ -415,6 +453,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="doc_type_dictionary">Szótár</string>
   <string name="doc_type_book">Könyv</string>
   <string name="doc_type_map">Térkép</string>
+  <string name="doc_type_addons">Kiegészítők</string>
   <!--Languages-->
   <string name="lang_default">Alapértelmezett</string>
   <!--General-->
@@ -486,6 +525,7 @@ A Biblia nézetben az éppen olvasott verssel kapcsolatos akciókat lehet előh�
 A dokumentumok kiválasztásánál vagy letöltésénél a dokumentum törlése vagy a bővebb dokumentum információk érhetőek el.
 A könyvjelzők listájában a címkék adhatóak egy könyvjelzőhöz vagy törölhetjük az adott könyvelzőt.
 Hivatkozások hosszan nyomásäval kiválaszthatjuk, hogy a hivatkozás a jelenlegi vagy új ablakban vagy a speciális hivatkozások ablakban nyíljon meg.</string>
+  <string name="help_bookmarks_title">Könyvjelzők és Jegyzeteim beállításai</string>
   <string name="help_search_title">Keresés</string>
   <string name="help_search_text">A keresési kifejezés spciális karaktereket és kifejezéseket is tartalmazhat, például: \", ?, AND, OR, NOT
 (további információkért keresse az \"Apache Lucence - Query Parser\" szintaxisát)</string>
