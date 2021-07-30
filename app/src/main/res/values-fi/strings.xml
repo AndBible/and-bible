@@ -320,7 +320,7 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="new_item">Uusi</string>
   <string name="new_label">Uusi ryhmä</string>
   <string name="label_name_prompt">Nimi</string>
-  <string name="label_unlabelled">Nimetön</string>
+  <string name="label_unlabelled">Ei kirjanmerkkiryhmää</string>
   <string name="add_bookmark1">Kirjanmerkki</string>
   <string name="add_bookmark2">Kirjanmerkki valinnalle</string>
   <string name="add_bookmark3">Valinta</string>

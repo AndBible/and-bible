@@ -42,9 +42,9 @@
   <!--Speak - Bible-->
   <string name="auto_assing_labels_help1">Here you can add, edit and remove labels. 
 
-Selected labels: labels that apply to the current bookmark
-Recent labels: recently used labels
-Other labels: all other labels</string>
+Selected labels: labels that apply to the current bookmark.
+Recent labels: recently used labels.
+Other labels: all other labels.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">This setting applies only to %s.</string>
   <!--param is bookmark icon-->
