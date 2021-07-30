@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal v-if="showHelp" @close="showHelp = false" blocking>
+  <Modal v-if="showHelp" @close="showHelp = false" blocking locate-top>
     {{sprintf(strings.refParserHelp, "RefParser")}}
     <a @click="openDownloads">{{strings.openDownloads}}</a>
     <template #title>
@@ -218,11 +218,13 @@ export default {
   @extend .visible-scrollbar;
   max-height: calc(var(--max-height) - #{$pell-button-height} - 2*#{$pell-content-padding});
   height: inherit;
+  padding: 0 7px 5px 7px;
 }
-
 .pell-button {
   color: inherit;
   width: $pell-button-width *0.9;
+  height: $pell-button-height *0.9;
+  margin: 0 1px 0 1px;
   .night & {
     color: inherit;
   }
@@ -234,19 +236,20 @@ export default {
     [dir=rtl] & {
       left: 0;
     }
-    .studypad-text-entry & {
-      [dir=ltr] & {
-        right: 40px;
-      }
-      [dir=rtl] & {
-        left: 40px;
-      }
-    }
+    //.studypad-text-entry & {
+    //  [dir=ltr] & {
+    //    right: 40px;
+    //  }
+    //  [dir=rtl] & {
+    //    left: 40px;
+    //  }
+    //}
   }
 }
 
 .pell-button-selected {
   background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
   .night & {
     background-color: rgba(255, 255, 255, 0.2);
   }
@@ -262,8 +265,8 @@ export default {
 
 .saved-notice {
   position: absolute;
-  right: 0;
-  bottom: 0;
+  right: 5px;
+  bottom: $pell-button-height;
   padding-inline-end: 3pt;
   color: hsla(0, 0%, 0%, 0.2);
   .night & {
@@ -285,7 +288,9 @@ export default {
   width: 100%;
   position: relative;
 }
-
+.edit-area,.pell {
+  margin: 0px;
+}
 .header {
   display: flex;
   justify-content: space-between;

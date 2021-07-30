@@ -47,10 +47,6 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
     private val progressNotificationQueue: Queue<Progress> = ConcurrentLinkedQueue()
     private var taskKillWarningView: TextView? = null
     private var noTasksMessageView: TextView? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        applyTheme()
-    }
 
     /** Wait until subclass has setContentView before looking for controls.  */
     public override fun onResume() {

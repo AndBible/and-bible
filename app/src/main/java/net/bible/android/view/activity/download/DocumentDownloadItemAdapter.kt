@@ -26,6 +26,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.RecommendedDocuments
+import net.bible.service.common.Ref
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.versification.system.SystemKJV
@@ -38,7 +39,7 @@ import org.crosswire.jsword.versification.system.SystemKJV
 class DocumentDownloadItemAdapter(
     context: Context,
     private val downloadControl: DownloadControl,
-    private val recommendedDocuments: RecommendedDocuments?
+    private val recommendedDocuments: Ref<RecommendedDocuments>
 ) : ArrayAdapter<Book>(context, R.layout.document_list_item, ArrayList<Book>())
 {
     private lateinit var bindings: DocumentListItemBinding
@@ -58,7 +59,7 @@ class DocumentDownloadItemAdapter(
 
         // remember which item is being shown
         view.document = document
-        view.recommendedDocuments = recommendedDocuments
+        view.recommendedDocuments = recommendedDocuments.value
 
         view.setIcons(downloadScreen = true)
         view.updateControlState(downloadControl.getDocumentStatus(document))

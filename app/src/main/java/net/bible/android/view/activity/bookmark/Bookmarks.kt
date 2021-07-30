@@ -152,8 +152,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    /** allow activity to enhance intent to correctly restore state  */
-    override fun getIntentForHistoryList(): Intent {
+    override val intentForHistoryList: Intent get()
+    {
         Log.d(TAG, "Saving label no in History Intent")
         val intent = intent
         intent.putExtra(BookmarkControl.LABEL_NO_EXTRA, selectedLabelNo)

@@ -24,6 +24,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 dependencies {
@@ -31,6 +38,8 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
     implementation "com.github.AndBible:jsword:$jsword_version"
+    implementation "org.jdom:jdom2:$jdom_version"
+    implementation "org.apache.commons:commons-text:$commons_text_version"
 
     kapt "androidx.room:room-compiler:$room_version"
 }

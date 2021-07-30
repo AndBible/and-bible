@@ -92,7 +92,7 @@ export default {
     const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
     const {scrollToId} = scroll;
     provide("scroll", scroll);
-    const globalBookmarks = useGlobalBookmarks(config, documentType);
+    const globalBookmarks = useGlobalBookmarks();
     const android = useAndroid(globalBookmarks, config);
 
     const modal = useModal(android);
@@ -220,11 +220,16 @@ export default {
 
     const topStyle = computed(() => {
       const noiseOpacity = appSettings.nightMode ? config.colors.nightNoise : config.colors.dayNoise;
+      const textColor = Color(appSettings.nightMode ? config.colors.nightTextColor : config.colors.dayTextColor);
+      const verseNumberColor = appSettings.nightMode ?
+        textColor.fade(0.5).hsl().string():
+        textColor.fade(0.5).hsl().string();
       return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
           --noise-opacity: ${noiseOpacity/100};
           --text-max-width: ${config.marginSize.maxWidth}mm;
+          --verse-number-color: ${verseNumberColor};
           `;
     });
 

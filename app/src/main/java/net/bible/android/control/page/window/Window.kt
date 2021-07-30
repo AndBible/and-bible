@@ -33,6 +33,7 @@ import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
+import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
@@ -186,11 +187,20 @@ open class Window (
             }
 
             val doc = fetchDocument()
+            val checksum = if(pageManager.isCommentaryShown && doc is OsisDocument) {
+                val checksum = doc.osisFragment.xmlStr.hashCode()
+                if (lastChecksum == checksum && bibleView?.firstDocument != null) {
+                    pageManager.currentCommentary.anchorOrdinal = pageManager.currentCommentary._anchorOrdinal
+                    return@launch
+                }
+                checksum
+            } else -1
 
             // BibleView initialization might take more time than loading OSIS, so let's wait for it.
             waitForBibleView()
 
             lastUpdated = System.currentTimeMillis()
+            lastChecksum = checksum
 
             if(notifyLocationChange) {
                 bibleView?.loadDocument(doc, updateLocation = true)
@@ -202,6 +212,8 @@ open class Window (
                 PassageChangeMediator.getInstance().contentChangeFinished()
             }
         }
+
+    var lastChecksum = 0
 
     private suspend fun waitForBibleView() {
         var time = 0L

@@ -64,6 +64,7 @@ import {computed, ref} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
 import EditableText from "@/components/EditableText";
 import AreYouSure from "@/components/modals/AreYouSure";
+import {isBottomHalfClicked} from "@/utils";
 
 export default {
   name: "MyNoteRow",
@@ -75,8 +76,8 @@ export default {
     const android = inject("android");
     const expanded = ref(false);
 
-    function editBookmark() {
-      ebEmit(Events.BOOKMARK_CLICKED, props.bookmark.id)
+    function editBookmark(event) {
+      ebEmit(Events.BOOKMARK_CLICKED, props.bookmark.id, {locateTop: isBottomHalfClicked(event)})
     }
 
     function save(newText) {

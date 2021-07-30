@@ -58,9 +58,12 @@ import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 
 import org.apache.commons.lang3.StringUtils
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 /** Called first to show download screen if no documents exist
@@ -202,6 +205,41 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    private suspend fun checkPoorTranslations(): Boolean {
+        val langCode = Locale.getDefault().language
+        val poorLanguages = listOf(
+            "xyz"
+        )
+
+        val needCheck = poorLanguages.contains(langCode)
+
+        if(!needCheck || CommonUtils.settings.getInt("poor-translations-dismissed", 0) >= CommonUtils.applicationVersionNumber)
+            return true
+
+        return suspendCoroutine {
+            val lang = Locale.getDefault().displayLanguage
+            val instr = getString(R.string.instructions_for_translators)
+            val instructionsUrl = "https://github.com/AndBible/and-bible/wiki/Translating-User-Interface"
+            val instructionsLink = "<a href=\"$instructionsUrl\">$instr</a>"
+            val msg = htmlToSpan(getString(R.string.incomplete_translation, lang, getString(R.string.app_name_long), instructionsLink))
+            val dlgBuilder = AlertDialog.Builder(this)
+                .setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton(R.string.proceed_anyway) { _, _ -> it.resume(true) }
+                .setNegativeButton(R.string.beta_notice_dismiss_until_update) { _, _ ->
+                    CommonUtils.settings.setInt("poor-translations-dismissed", CommonUtils.applicationVersionNumber)
+                    it.resume(true)
+                }
+                .setNeutralButton(R.string.close) { _, _ ->
+                    it.resume(false)
+                    finish()
+                }
+
+            val d = dlgBuilder.show()
+            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        }
+    }
+
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if(!checkWebView()) return@withContext
 
@@ -209,6 +247,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
             initializeDatabase()
+            if(!checkPoorTranslations()) return@withContext
             showFirstLayout()
         } else {
             Log.i(TAG, "Going to main bible view")

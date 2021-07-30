@@ -470,18 +470,27 @@ export function useReferenceCollector() {
 
 export function useVerseHighlight() {
     const highlightedVerses = reactive(new Set());
+    const undoCustomHighlights = reactive([]);
 
-    const hasHighlights = computed(() => highlightedVerses.size > 0);
+    const hasHighlights = computed(() => highlightedVerses.size > 0 || undoCustomHighlights.length > 0);
 
-    function resetHighlights() {
+    function resetHighlights(onlyVerses = false) {
         highlightedVerses.clear();
+        if(!onlyVerses) {
+            undoCustomHighlights.forEach(f => f())
+            undoCustomHighlights.splice(0);
+        }
     }
 
     function highlightVerse(ordinal) {
         highlightedVerses.add(ordinal);
     }
 
-    return {highlightVerse, highlightedVerses, resetHighlights, hasHighlights}
+    function addCustom(f) {
+        undoCustomHighlights.push(f);
+    }
+
+    return {highlightVerse, addCustom, highlightedVerses, resetHighlights, hasHighlights}
 }
 
 
@@ -573,6 +582,7 @@ export function useCustomCss() {
     const count = new Map();
     const customCssPromises = [];
     function addCss(bookInitials) {
+        console.log(`Adding style for ${bookInitials}`);
         const c = count.get(bookInitials) || 0;
         if (!c) {
             const link = document.createElement("link");
@@ -595,10 +605,11 @@ export function useCustomCss() {
     }
 
     function removeCss(bookInitials) {
-        const c = count.get(bookInitials);
+        console.log(`Removing style for ${bookInitials}`)
+        const c = count.get(bookInitials) || 0;
         if(c > 1) {
             count.set(bookInitials, c-1);
-        } else {
+        } else if(c === 1){
             count.delete(bookInitials);
             cssNodes.get(bookInitials).remove();
             cssNodes.delete(bookInitials);
@@ -611,6 +622,29 @@ export function useCustomCss() {
             removeCss(bookInitials);
         });
     }
+
+    const customStyles = reactive([]);
+
+    function reloadStyles(styleModuleNames) {
+        customStyles.forEach(moduleName => {
+            removeCss(moduleName);
+        });
+        customStyles.splice(0);
+
+        styleModuleNames.forEach(moduleName => {
+            customStyles.push(moduleName);
+            addCss(moduleName);
+        });
+    }
+
+    const styleModuleNames = new URLSearchParams(window.location.search).get("styleModuleNames");
+    if (styleModuleNames) {
+        reloadStyles(styleModuleNames.split(","))
+    }
+
+    setupEventBusListener(Events.RELOAD_ADDONS, ({styleModuleNames}) => {
+        reloadStyles(styleModuleNames)
+    })
 
     return {registerBook, customCssPromises}
 }

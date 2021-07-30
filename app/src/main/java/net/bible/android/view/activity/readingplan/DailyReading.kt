@@ -263,7 +263,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     }
 
     /** allow activity to enhance intent to correctly restore state  */
-    override fun getIntentForHistoryList(): Intent {
+    override val intentForHistoryList: Intent get() {
         val intent = intent
 
         intent.putExtra(PLAN, readingsDto.readingPlanInfo.planCode)

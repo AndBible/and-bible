@@ -28,6 +28,8 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.common.CommonUtils.defaultBible
+import net.bible.service.common.CommonUtils.defaultVerse
 import net.bible.service.sword.SwordDocumentFacade
 
 import org.crosswire.jsword.book.Book
@@ -272,25 +274,8 @@ open class CurrentPageManager @Inject constructor(
      * go through a list of default verses until one is found in the first/only book installed
      */
     fun setFirstUseDefaultVerse() {
-        try {
-            val versification = currentBible.versification
-            val defaultVerses = arrayOf(
-                Verse(versification, BibleBook.JOHN, 3, 16),
-                Verse(versification, BibleBook.GEN, 1, 1),
-                Verse(versification, BibleBook.PS, 1, 1))
-            val bibles = swordDocumentFacade.bibles
-            if (bibles.isNotEmpty()) {
-                val bible = bibles[0]
-                for (verse in defaultVerses) {
-                    if (bible.contains(verse)) {
-                        currentBible.doSetKey(verse)
-                        return
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Verse error")
-        }
+        currentBible.setCurrentDocument(defaultBible)
+        currentBible.doSetKey(defaultVerse)
     }
 
     /**

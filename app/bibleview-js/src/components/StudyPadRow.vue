@@ -75,6 +75,7 @@ import {computed, ref} from "@vue/reactivity";
 import {JournalEntryTypes} from "@/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
+import {isBottomHalfClicked} from "@/utils";
 
 export default {
   name: "StudyPadRow",
@@ -102,8 +103,8 @@ export default {
       else if (props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) return props.journalEntry.text;
     });
 
-    function editBookmark() {
-      ebEmit(Events.BOOKMARK_CLICKED, props.journalEntry.id)
+    function editBookmark(event) {
+      ebEmit(Events.BOOKMARK_CLICKED, props.journalEntry.id, {locateTop: isBottomHalfClicked(event)})
     }
 
     function addNewEntryAfter() {

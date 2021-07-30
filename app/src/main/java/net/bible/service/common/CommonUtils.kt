@@ -46,7 +46,12 @@ import android.view.Gravity
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.preference.Preference
+import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceManager
+import androidx.preference.PreferenceScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -116,6 +121,21 @@ fun htmlToSpan(html: String): Spanned {
     return spanned
 }
 
+fun PreferenceFragmentCompat.getPreferenceList(p_: Preference? = null, list_: ArrayList<Preference>? = null): ArrayList<Preference> {
+    val p = p_?: preferenceScreen
+    val list = list_?: ArrayList()
+    if (p is PreferenceCategory || p is PreferenceScreen) {
+        val pGroup: PreferenceGroup = p as PreferenceGroup
+        val pCount: Int = pGroup.preferenceCount
+        for (i in 0 until pCount) {
+            getPreferenceList(pGroup.getPreference(i), list) // recursive call
+        }
+    } else {
+        list.add(p)
+    }
+    return list
+}
+
 const val textDisplaySettingsVideo = "https://youtu.be/rz0zyEK9qBk"
 const val pinningHelpVideo = "https://youtu.be/27b1g-D3ibA"
 const val bookmarksMyNotesVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY&t=90s" // beta 3.4 video
@@ -136,6 +156,8 @@ val BookmarkEntities.Label.displayName get() =
 open class CommonUtilsBase {
     @Inject lateinit var windowControl: WindowControl
 }
+
+class Ref<T>(var value: T? = null)
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -576,6 +598,8 @@ object CommonUtils : CommonUtilsBase() {
         return lastTypes
     }
 
+    val lastDisplaySettingsSorted get() = lastDisplaySettings.sortedBy { it.name }
+
     fun displaySettingChanged(type: WorkspaceEntities.TextDisplaySettings.Types) {
         val lastTypes = lastDisplaySettings.toMutableList()
         lastTypes.remove(type)
@@ -828,6 +852,7 @@ object CommonUtils : CommonUtilsBase() {
     private var ttsWidgetManager: SpeakWidgetManager? = null
 
     var initialized = false
+    var booksInitialized = false
 
     fun initializeApp() {
         if(!initialized) {
@@ -835,13 +860,6 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.db
 
             buildActivityComponent().inject(this)
-            if(!application.isRunningTests) {
-                docDao.getUnlocked().forEach {
-                    val book = Books.installed().getBook(it.initials)
-                    book.unlock(it.cipherKey)
-                }
-                windowControl.windowRepository.initialize()
-            }
 
             ttsNotificationManager = TextToSpeechNotificationManager()
             ttsWidgetManager = SpeakWidgetManager()
@@ -854,6 +872,17 @@ object CommonUtils : CommonUtilsBase() {
             //}
 
             initialized = true
+        }
+
+        if(!booksInitialized && Books.installed().books.isNotEmpty()) {
+            if(!application.isRunningTests) {
+                for (it in docDao.getUnlocked()) {
+                    val book = Books.installed().getBook(it.initials)
+                    book.unlock(it.cipherKey)
+                }
+                windowControl.windowRepository.initialize()
+            }
+            booksInitialized = true
         }
     }
 
@@ -878,12 +907,25 @@ object CommonUtils : CommonUtilsBase() {
 
     const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
+    val defaultBible get() = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }[0] as SwordBook
+    val defaultVerse: VerseRange get() {
+        val (otVerse, ntVerse, psVerse) = listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3").map { VerseRangeFactory.fromString(defaultBible.versification, it) }
+        return when {
+            defaultBible.contains(ntVerse.start) -> ntVerse
+            defaultBible.contains(otVerse.start) -> otVerse
+            else -> psVerse
+        }
+    }
+
     private fun prepareExampleBookmarksAndWorkspaces() {
         var bid: Long
         val bookmarkDao = DatabaseContainer.db.bookmarkDao()
         var highlightIds = listOf<Long>()
         val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
-        if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") }) {
+
+        val migratedNotesName = application.getString(R.string.migrated_my_notes)
+
+        if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") && it.name != migratedNotesName }) {
             val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false)
             val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false)
             val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false)
@@ -899,17 +941,6 @@ object CommonUtils : CommonUtilsBase() {
             val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255,  100, 0, 150))
             highlightIds = bookmarkDao.insertLabels(highlightLabels)
             highlightLabels.zip(highlightIds) { label, id -> label.id = id }
-
-            val defaultBible = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE } [0] as SwordBook
-
-            val (otVerse, ntVerse, psVerse) = listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3").map { VerseRangeFactory.fromString(defaultBible.versification, it) }
-
-            // Choose verse similarly as in setFirstUseDefaultVerse
-            val useVerse = when {
-                defaultBible.contains(ntVerse.start) -> ntVerse
-                defaultBible.contains(otVerse.start) -> otVerse
-                else -> psVerse
-            }
 
             fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.Bookmark {
                 val v1 = verseRange.toVerseArray()[start.toInt()]
@@ -927,16 +958,16 @@ object CommonUtils : CommonUtilsBase() {
                 salvationLabel.id = salvationId
 
                 // first bookmark, full verses, with underline
-                bid = bookmarkDao.insert(BookmarkEntities.Bookmark(useVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id } )
+                bid = bookmarkDao.insert(BookmarkEntities.Bookmark(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id } )
                 bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, underlineLabel.id))
                 bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationLabel.id))
 
                 // second bookmark, red
-                bid = bookmarkDao.insert(getBookmark(useVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id } )
+                bid = bookmarkDao.insert(getBookmark(defaultVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id } )
                 bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, redLabel.id))
 
                 // third bookmark, green
-                bid = bookmarkDao.insert(getBookmark(useVerse, 1.2, 1.4).apply {
+                bid = bookmarkDao.insert(getBookmark(defaultVerse, 1.2, 1.4).apply {
                     primaryLabelId = greenLabel.id
                     notes = lorem
                 } )
@@ -958,7 +989,7 @@ object CommonUtils : CommonUtilsBase() {
         val workspaceDao = DatabaseContainer.db.workspaceDao()
         val ws = workspaceDao.allWorkspaces()
         if(ws.isNotEmpty()) {
-            ws.forEach {
+            for (it in ws) {
                 it.workspaceSettings?.favouriteLabels?.addAll(highlightIds)
             }
             workspaceDao.updateWorkspaces(ws)
@@ -972,6 +1003,13 @@ object CommonUtils : CommonUtilsBase() {
                 workspaceDao.insertWorkspace(it)
             }
             settings.setLong("current_workspace_id", workspaceIds[0])
+        }
+    }
+
+    fun makeLarger(icon: Drawable, sizeMultiplier: Float = 1.0f): Drawable = LayerDrawable(arrayOf(icon)).apply {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val m = sizeMultiplier
+            setLayerSize(0, (icon.intrinsicWidth*m).toInt(), (icon.intrinsicHeight*m).toInt())
         }
     }
 

@@ -32,7 +32,6 @@ import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icon
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
 import {bookmarkingModes, testMode} from "@/composables/index";
-import {DocumentTypes} from "@/constants";
 
 const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
@@ -47,9 +46,31 @@ const allStyleRanges = computed(() => {
     return allStyles;
 });
 
-export function useGlobalBookmarks(config, documentType) {
+export function useGlobalBookmarks() {
     const bookmarkLabels = reactive(new Map());
     const bookmarks = reactive(new Map());
+    const bookmarkIdsByOrdinal = reactive(new Map());
+
+    function addBookmarkToOrdinalMap(b) {
+        for(let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
+            let bSet = bookmarkIdsByOrdinal.get(o);
+            if(!bSet) {
+                bSet = new reactive(new Set());
+                bookmarkIdsByOrdinal.set(o, bSet);
+            }
+            bSet.add(b.id);
+        }
+    }
+
+    function removeBookmarkFromOrdinalMap(b) {
+        for(let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
+            const bSet = bookmarkIdsByOrdinal.get(o)
+            if(bSet) {
+                bSet.delete(b.id);
+            }
+        }
+    }
+
     let count = 1;
 
     const labelsUpdated = ref(0);
@@ -64,12 +85,15 @@ export function useGlobalBookmarks(config, documentType) {
 
     function updateBookmarks(...inputData) {
         for(const v of inputData) {
-            bookmarks.set(v.id, {...v, hasNote: !!v.notes})
+            const bmark = {...v, hasNote: !!v.notes};
+            bookmarks.set(v.id, bmark);
+            addBookmarkToOrdinalMap(bmark);
         }
     }
 
     function clearBookmarks() {
         bookmarks.clear();
+        bookmarkIdsByOrdinal.clear();
     }
 
     setupEventBusListener(Events.REMOVE_RANGES, function removeRanges() {
@@ -77,7 +101,11 @@ export function useGlobalBookmarks(config, documentType) {
     })
 
     setupEventBusListener(Events.DELETE_BOOKMARKS, function deleteBookmarks(bookmarkIds) {
-        for (const bId of bookmarkIds) bookmarks.delete(bId)
+        for (const bId of bookmarkIds) {
+            const bookmark = bookmarks.get(bId);
+            removeBookmarkFromOrdinalMap(bookmark);
+            bookmarks.delete(bId)
+        }
     });
 
     setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, function addOrUpdateBookmarks(bookmarks) {
@@ -96,18 +124,16 @@ export function useGlobalBookmarks(config, documentType) {
         return updateBookmarkLabels(...labels);
     })
 
-    const filteredBookmarks = computed(() => {
-        if(documentType.value === DocumentTypes.BIBLE_DOCUMENT && !config.showBookmarks && !config.showMyNotes) return [];
-        return Array.from(bookmarks.values());
-    })
-
     window.bibleViewDebug.bookmarks = bookmarks;
     window.bibleViewDebug.allStyleRanges = allStyleRanges;
     window.bibleViewDebug.bookmarkLabels = bookmarkLabels;
 
     return {
-        bookmarkLabels, bookmarkMap: bookmarks, bookmarks: filteredBookmarks, labelsUpdated,
-        updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks,
+        bookmarkLabels,
+        bookmarkMap: bookmarks,
+        bookmarks: computed(() => Array.from(bookmarks.values())),
+        labelsUpdated,
+        updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks, bookmarkIdsByOrdinal,
     }
 }
 
@@ -142,7 +168,10 @@ export function useBookmarks(documentId,
     });
 
     function truncateToOrdinalRange(bookmark) {
-        const b = {ordinalRange: bookmark.ordinalRange, offsetRange: bookmark.offsetRange};
+        const b = {
+            ordinalRange: bookmark.ordinalRange && bookmark.ordinalRange.slice(),
+            offsetRange: bookmark.offsetRange && bookmark.offsetRange.slice(),
+        };
         b.offsetRange = b.offsetRange || [0, null]
         if(b.ordinalRange[0] < ordinalRange[0]) {
             b.ordinalRange[0] = ordinalRange[0];

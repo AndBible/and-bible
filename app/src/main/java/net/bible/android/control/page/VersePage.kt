@@ -19,6 +19,7 @@ package net.bible.android.control.page
 
 import android.util.Log
 import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
@@ -67,9 +68,9 @@ abstract class VersePage protected constructor(
 
     /** notify mediator that a detail - normally just verse no - has changed and the title need to update itself
      */
-    protected fun onVerseChange() {
+    protected fun onVerseChange(window: Window) {
         if (!isInhibitChangeNotifications) {
-            PassageChangeMediator.getInstance().onCurrentVerseChanged()
+            PassageChangeMediator.getInstance().onCurrentVerseChanged(window)
         }
     }
 

@@ -207,11 +207,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             throw RuntimeException("MainBibleActivity was created second time!")
         }
         _mainBibleActivity = this
-        CommonUtils.prepareData()
 
         ScreenSettings.refreshNightMode()
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState, true)
+
+        CommonUtils.prepareData()
 
         binding = MainBibleViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -300,6 +301,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         setupToolbarButtons()
         setupToolbarFlingDetection()
+        setSoftKeyboardMode()
 
         refreshScreenKeepOn()
         if(!initialized)
@@ -699,7 +701,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }, opensDialog = true)
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository.workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
-            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[order])
+            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
             R.id.splitMode -> SplitModePreference()
             R.id.autoPinMode -> WindowPinningPreference()
             R.id.tiltToScroll -> TiltToScrollPreference()
@@ -729,7 +731,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
 
-        val lastSettings = CommonUtils.lastDisplaySettings
+        val lastSettings = CommonUtils.lastDisplaySettingsSorted
         if(lastSettings.isNotEmpty()) {
             for ((idx, t) in lastSettings.withIndex()) {
                 val itm = getItemOptions(R.id.textOptionItem, idx)
@@ -1417,7 +1419,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowRepository.updateAllWindowsTextDisplaySettings()
             }
         }
-        invalidateOptionsMenu()
         resetSystemUi()
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -1437,7 +1438,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         resetSystemUi()
         if(!refreshIfNightModeChange()) {
             requestSdcardPermission()
-            invalidateOptionsMenu()
             documentViewManager.buildView()
             ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
         }
@@ -1457,7 +1457,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
-        invalidateOptionsMenu()
+        setSoftKeyboardMode()
+    }
+
+    private fun setSoftKeyboardMode() {
+        if (windowControl.isMultiWindow) {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        } else {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        }
     }
 
     /**
@@ -1472,20 +1480,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         isPaused = false
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()
-    }
-
-    /**
-     * Some menu items must be hidden for certain document types
-     */
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        // construct the options menu
-        super.onPrepareOptionsMenu(menu)
-
-        // disable some options depending on document type
-        windowControl.activeWindowPageManager.currentPage.updateOptionsMenu(menu)
-
-        // must return true for menu to be displayed
-        return true
     }
 
     private var actionMode: ActionMode? = null

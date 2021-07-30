@@ -113,10 +113,11 @@ class ColorSettingsActivity: ActivityBase() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
         colors = settingsBundle.actualSettings.colors!!
 
-        super.onCreate(savedInstanceState)
         binding = SettingsDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)
         super.buildActivityComponent().inject(this)

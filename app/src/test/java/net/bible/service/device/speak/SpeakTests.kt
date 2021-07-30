@@ -877,7 +877,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
 
         text = nextText()
         assertThat(range(), equalTo("Ps.14.1"))
-        assertThat(text, equalTo("Psalmit Luku 14.")) // there's title after this
+        assertThat(text, equalTo("Luku 14.")) // there's title after this
         text = nextText()
         assertThat(range(), equalTo("Ps.14.1"))
         assertThat(text, startsWith("Musiikinjohtajalle"))
@@ -1087,7 +1087,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
         text = nextText()
         assertThat(range(), equalTo("Rom.6.1"))
-        assertThat(text, equalTo("Roomalaiskirje Luku 6."))
+        assertThat(text, equalTo("Luku 6."))
         text = nextText()
         assertThat(text, startsWith("Mitä me"))
         assertThat(text, endsWith("tulisi suureksi?"))

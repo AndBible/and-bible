@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal blocking v-if="showModal" @close="showModal = false">
+  <Modal blocking v-if="showModal" @close="showModal = false" locate-top>
     <template #title>
       <FontAwesomeIcon icon="tags"/> {{ strings.bookmarkLabels }}
     </template>

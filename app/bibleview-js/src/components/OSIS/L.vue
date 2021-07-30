@@ -16,11 +16,28 @@
   -->
 
 <template>
-  <span class="poetic" :data-poetic-level="level" :data-sID="sID" :data-eID="eID"/><slot/>
+  <br v-if="type==='x-br' || eID"/>
+  <template v-else-if="type==='x-indent'">
+    <template v-for="i in levelInt" :key="i">
+      &nbsp;
+    </template>
+  </template>
+  <template v-else-if="sID">
+    <template v-for="i in levelInt-1" :key="i">
+      &nbsp;
+    </template>
+  </template>
+  <template v-else>
+    <template v-for="i in levelInt-1" :key="i">
+      &nbsp;
+    </template>
+  </template>
+  <slot/>
 </template>
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "L",
@@ -31,8 +48,9 @@ export default {
     type: {type: String, default: null},
   },
   setup(props) {
-    checkUnsupportedProps(props, "type");
-    return useCommon();
+    checkUnsupportedProps(props, "type", ["x-br", "x-indent"]);
+    const levelInt = computed(() => parseInt(props.level));
+    return {levelInt, ...useCommon()};
   },
 }
 </script>

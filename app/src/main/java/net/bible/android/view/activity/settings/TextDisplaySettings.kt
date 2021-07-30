@@ -30,11 +30,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceGroup
-import androidx.preference.PreferenceScreen
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
@@ -62,6 +59,7 @@ import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.activity.page.TopMarginPreference
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
+import net.bible.service.common.getPreferenceList
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.textDisplaySettingsVideo
 import java.lang.IllegalArgumentException
@@ -161,20 +159,6 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         }
     }
 
-    private fun getPreferenceList(p_: Preference? = null, list_: ArrayList<Preference>? = null): ArrayList<Preference> {
-        val p = p_?: preferenceScreen
-        val list = list_?: ArrayList()
-        if (p is PreferenceCategory || p is PreferenceScreen) {
-            val pGroup: PreferenceGroup = p as PreferenceGroup
-            val pCount: Int = pGroup.preferenceCount
-            for (i in 0 until pCount) {
-                getPreferenceList(pGroup.getPreference(i), list) // recursive call
-            }
-        } else {
-            list.add(p)
-        }
-        return list
-    }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         var returnValue = true
@@ -310,9 +294,9 @@ class TextDisplaySettingsActivity: ActivityBase() {
     @Inject lateinit var windowControl: WindowControl
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
-
         super.onCreate(savedInstanceState)
+
+        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
 
         binding = SettingsDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)

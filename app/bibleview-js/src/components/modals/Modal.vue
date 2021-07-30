@@ -19,7 +19,7 @@
   <teleport to="#modals">
     <div v-if="blocking" @click.stop="$emit('close')" class="modal-backdrop"/>
     <div :class="{blocking}">
-      <div ref="modal" @click.stop class="modal-content" :class="{blocking, wide}"
+      <div ref="modal" @click.stop class="modal-content" :class="{blocking, wide, edit}"
       >
         <div ref="header" class="modal-header">
           <slot name="title-div">
@@ -48,24 +48,24 @@
 </template>
 <script>
 
-import {inject, onMounted} from "@vue/runtime-core";
+import {inject, nextTick, onMounted, onUnmounted} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import {ref} from "@vue/reactivity";
 import {
   draggableElement,
-  isInViewport, setupDocumentEventListener,
-  setupWindowEventListener
+  setupDocumentEventListener,
+  setupWindowEventListener,
 } from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {throttle} from "lodash";
-
 
 export default {
   name: "Modal",
   emits: ["close"],
   props: {
     blocking: {type: Boolean, default: false},
-    wide: {type: Boolean, default: false}
+    wide: {type: Boolean, default: false},
+    edit: {type: Boolean, default: false},
+    locateTop: {type: Boolean, default: false},
   },
   components: {FontAwesomeIcon},
   setup: function (props, {emit}) {
@@ -74,30 +74,45 @@ export default {
     const header = ref(null);
     const ready = ref(false);
 
-    function resetPosition() {
-      modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + var(--modal-top))`;
-      modal.value.style.left = `var(--modal-left)`;
+    async function resetPosition(horizontal = false) {
+      if(horizontal) {
+        modal.value.style.left = `var(--modal-left)`;
+      }
+
+      if(props.locateTop) {
+        modal.value.style.top = `calc(var(--top-offset) + var(--modal-top))`;
+      } else {
+        modal.value.style.top = null;
+        modal.value.style.bottom = `calc(var(--bottom-offset) + var(--modal-top))`;
+        await nextTick();
+        modal.value.style.top = `${modal.value.offsetTop}px`;
+        modal.value.style.bottom = null;
+      }
     }
 
     const {register} = inject("modal");
     register({blocking: props.blocking, close: () => emit("close")});
 
-    setupWindowEventListener("resize", resetPosition)
-    setupWindowEventListener("scroll", throttle(() => {
-      if(!isInViewport(modal.value)) {
-        resetPosition()
-      }
-    }, 50));
+    setupWindowEventListener("resize", () => resetPosition(true))
     setupDocumentEventListener("keyup", event => {
       if(event.key === "Escape") {
         emit("close");
       }
     })
 
+    const observer = new ResizeObserver(() => {
+      resetPosition();
+    });
+
     onMounted(async () => {
-      resetPosition()
+      await resetPosition(true)
       draggableElement(modal.value, header.value);
+      observer.observe(modal.value);
       ready.value = true;
+    });
+
+    onUnmounted(() => {
+      observer.disconnect();
     });
 
     return {config, modal, header, ready, ...useCommon()}
@@ -130,7 +145,7 @@ $border-radius2: $border-radius - 1.5pt;
   .blocking & {
     z-index: 15;
   }
-  position: absolute;
+  position: fixed;
   background-color: $modal-content-background-color;
   padding: 0;
   border: 1px solid #888;
@@ -192,6 +207,10 @@ $border-radius2: $border-radius - 1.5pt;
   //min-height: 60pt;
   padding: 5px 5px;
   margin: 5pt 5pt;
+  .edit & {
+    padding: 0px 0px;
+    margin: 0pt 0pt;
+  }
 }
 
 .modal-footer {

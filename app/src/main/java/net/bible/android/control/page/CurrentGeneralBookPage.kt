@@ -145,14 +145,6 @@ class CurrentGeneralBookPage internal constructor(
         }
     }
 
-    override fun updateOptionsMenu(menu: Menu) {
-        super.updateOptionsMenu(menu)
-        val menuItem = menu.findItem(R.id.bookmarksButton)
-        if (menuItem != null) {
-            menuItem.isEnabled = false
-        }
-    }
-
     override val isSingleKey = true
 	override val key: Key? get() = _key
 

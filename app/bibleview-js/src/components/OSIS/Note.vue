@@ -16,7 +16,7 @@
   -->
 <template>
   <AmbiguousSelection ref="ambiguousSelection"/>
-  <Modal @close="showNote = false" v-if="showNote">
+  <Modal @close="showNote = false" v-if="showNote" :locate-top="locateTop">
     <div @click="ambiguousSelection.handle">
       <slot/>
       <OpenAllLink :v11n="v11n"/>
@@ -33,7 +33,7 @@
   <span
     v-if="(config.showFootNotes && isCrossReference) || config.showFootNotes"
     class="skip-offset">
-    <span :class="{noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
+    <span class="highlight-transition" :class="{isHighlighted: showNote, noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
       {{handle}}
     </span>
   </span>
@@ -44,7 +44,7 @@ import {checkUnsupportedProps, useCommon, useReferenceCollector} from "@/composa
 import Modal from "@/components/modals/Modal";
 import {get} from "lodash";
 import {ref, provide, inject} from "@vue/runtime-core";
-import {addEventFunction, EventPriorities} from "@/utils";
+import {addEventFunction, EventPriorities, isBottomHalfClicked} from "@/utils";
 import OpenAllLink from "@/components/OpenAllLink";
 
 let count = 0;
@@ -85,11 +85,14 @@ export default {
                           ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
     const {strings, ...common} = useCommon();
     const showNote = ref(false);
+    const locateTop = ref(false);
+
     function noteClicked(event) {
       addEventFunction(event,
                        () => {
                          if(!showNote.value) {
                            referenceCollector.clear();
+                           locateTop.value = isBottomHalfClicked(event);
                            showNote.value = true;
                          }
                        },
@@ -106,7 +109,7 @@ export default {
     const referenceCollector = useReferenceCollector();
     provide("referenceCollector", referenceCollector);
 
-    return {strings, typeStrings, showNote, noteClicked, ambiguousSelection, v11n, ...common};
+    return {strings, locateTop, typeStrings, showNote, noteClicked, ambiguousSelection, v11n, ...common};
   },
 }
 </script>

@@ -62,14 +62,6 @@ class CurrentMapPage internal constructor(
 		}
     }
 
-	override fun updateOptionsMenu(menu: Menu) {
-        super.updateOptionsMenu(menu)
-        val menuItem = menu.findItem(R.id.bookmarksButton)
-        if (menuItem != null) {
-            menuItem.isEnabled = false
-        }
-    }
-
     override val isSingleKey = true
 	override val key: Key? get() = _key //To change initializer of created properties use File | Settings | File Templates.
 

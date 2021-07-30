@@ -52,28 +52,31 @@ abstract class CurrentPageBase protected constructor(
     // just pretend we are at the top of the page if error occurs
     // if key has changed then offsetRatio must be reset because user has changed page
 
+    var _anchorOrdinal: Int? = 0
+
     /** how far down the page was the user - allows Back to go to correct line on non-Bible pages (Bibles use verse number for positioning)
      */
-    override var anchorOrdinal: Int? = 0
+    override var anchorOrdinal: Int?
         get() {
             try { // if key has changed then offsetRatio must be reset because user has changed page
                 if (key == null || key != keyWhenAnchorOrdinalSet || currentDocument != docWhenAnchorOrdinalSet) {
-                    field = 0
+                    return 0
                 }
             } catch (e: Exception) {
                 // cope with occasional NPE thrown by above if statement
                 // just pretend we are at the top of the page if error occurs
-                field = 0
                 Log.w(TAG, "NPE getting currentYOffsetRatio")
+                return 0
             }
-            return field
+            return _anchorOrdinal
         }
-        set(currentYOffsetRatio) {
+        set(newValue) {
             key ?: return
             docWhenAnchorOrdinalSet = currentDocument
             keyWhenAnchorOrdinalSet = key
-            field = currentYOffsetRatio
+            _anchorOrdinal = newValue
         }
+
     private var keyWhenAnchorOrdinalSet: Key? = null
     private var docWhenAnchorOrdinalSet: Book? = null
 
@@ -131,8 +134,7 @@ abstract class CurrentPageBase protected constructor(
                 key = key,
                 osisFragment = synchronized(currentDocument) {
                     val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
-                    if (frag.isEmpty()) throw OsisError(application.getString(R.string.error_no_content))
-                    else OsisFragment(frag, key, currentDocument)
+                    OsisFragment(frag, key, currentDocument)
                 }
             )
         } catch (e: Exception) {
@@ -212,21 +214,6 @@ abstract class CurrentPageBase protected constructor(
 
     protected open fun localSetCurrentDocument(doc: Book?, isMyNote: Boolean = false) {
         localSetCurrentDocument(doc)
-    }
-
-    override fun updateOptionsMenu(menu: Menu) { // these are fine for Bible and commentary
-        var menuItem = menu.findItem(R.id.searchButton)
-        if (menuItem != null) {
-            menuItem.isEnabled = isSearchable
-        }
-        menuItem = menu.findItem(R.id.bookmarksButton)
-        if (menuItem != null) {
-            menuItem.isEnabled = true
-        }
-        menuItem = menu.findItem(R.id.speakButton)
-        if (menuItem != null) {
-            menuItem.isEnabled = isSpeakable
-        }
     }
 
     val pageEntity: WorkspaceEntities.Page get() {

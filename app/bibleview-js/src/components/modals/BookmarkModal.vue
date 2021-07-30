@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal v-if="showBookmark && bookmark" @close="closeBookmark" wide>
+  <Modal v-if="showBookmark && bookmark" @close="closeBookmark" wide :locate-top="locateTop" :edit="!infoShown">
     <template #title-div>
       <div class="bookmark-title" style="width: calc(100% - 80px);">
         <div class="overlay"/>
@@ -30,8 +30,13 @@
     </template>
 
     <template #buttons>
-      <div class="modal-action-button" :class="{toggled: !infoShown}" @click="toggleInfo" @touchstart="toggleInfo">
-        <FontAwesomeIcon icon="edit"/>
+      <div class="modal-action-button" @click="toggleInfo" @touchstart="toggleInfo">
+        <template v-if="infoShown">
+          <FontAwesomeIcon icon="edit"/>
+        </template>
+        <template v-else>
+          <FontAwesomeIcon icon="info-circle"/>
+        </template>
       </div>
       <div class="modal-action-button right" @touchstart.stop @click.stop="closeBookmark">
         <FontAwesomeIcon icon="times"/>
@@ -110,6 +115,7 @@ export default {
     const infoShown = ref(false);
     const bookmarkId = ref(null);
     const labelList = ref(null);
+    const locateTop = ref(false);
 
     const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
 
@@ -126,11 +132,12 @@ export default {
     const bookmarkNotes = computed(() => bookmark.value.notes);
     let originalNotes = null;
 
-    setupEventBusListener(Events.BOOKMARK_CLICKED, async (bookmarkId_, {openLabels = false, openInfo = false, openNotes = false} = {}) => {
+    setupEventBusListener(Events.BOOKMARK_CLICKED, async (bookmarkId_, {locateTop: _locateTop = false, openLabels = false, openInfo = false, openNotes = false} = {}) => {
       bookmarkId.value = bookmarkId_;
       originalNotes = bookmarkNotes.value;
       infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);
       editDirectly.value = !infoShown.value && !bookmarkNotes.value;
+      locateTop.value = _locateTop;
       showBookmark.value = true;
       if(openLabels && !openNotes) {
         await nextTick();
@@ -173,7 +180,7 @@ export default {
     }
 
     return {
-      showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,  bookmark, labelColor,
+      locateTop, showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,  bookmark, labelColor,
       changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, toggleInfo, labelList, ...common
     };
   },

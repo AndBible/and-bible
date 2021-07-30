@@ -16,31 +16,39 @@
   -->
 
 <template>
-  <Modal :blocking="blocking" v-if="showModal" @close="cancelled">
+  <Modal :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled">
     <template #extra-buttons>
       <button class="modal-action-button right" :class="{toggled: multiSelectionMode}" @touchstart.stop @click="toggleMultiSelectionMode">
         <FontAwesomeIcon icon="plus-circle"/>
       </button>
-      <button  v-if="noActions" class="modal-action-button right" @touchstart.stop @click="help">
+      <button  class="modal-action-button right" @touchstart.stop @click="help">
         <FontAwesomeIcon icon="question-circle"/>
       </button>
     </template>
 
     <div class="buttons">
       <AmbiguousActionButtons v-if="selectionInfo" :has-actions="!noActions" :selection-info="selectionInfo" @close="cancelled"/>
-      <template v-for="(s, index) of selections" :key="index">
+      <template v-for="(s, index) of selectedActions" :key="index">
         <template v-if="!s.options.bookmarkId">
           <button class="button light" @click.stop="selected(s)">
             <span :style="`color: ${s.options.color}`"><FontAwesomeIcon v-if="s.options.icon" :icon="s.options.icon"/></span>
             {{s.options.title}}
           </button>
         </template>
-        <AmbiguousSelectionBookmarkButton
-          v-else
-          :bookmark-id="s.options.bookmarkId"
-          @selected="selected(s)"
-        />
       </template>
+      <AmbiguousSelectionBookmarkButton
+        v-for="b of clickedBookmarks"
+        :key="`b-${b.id}`"
+        :bookmark-id="b.id"
+        @selected="selected(b)"
+      />
+      <div v-if="clickedBookmarks.length > 0 && selectedBookmarks.length > 0" class="separator"/>
+      <AmbiguousSelectionBookmarkButton
+        v-for="b of selectedBookmarks"
+        :key="`b-${b.id}`"
+        :bookmark-id="b.id"
+        @selected="selected(b)"
+      />
     </div>
     <template #title>
       <template v-if="verseInfo">
@@ -62,7 +70,7 @@ import {
   Deferred,
   getHighestPriorityEventFunctions,
   getEventVerseInfo,
-  getAllEventFunctions,
+  getAllEventFunctions, isBottomHalfClicked,
   //createDoubleClickDetector
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton";
@@ -79,7 +87,7 @@ export default {
   components: {Modal, FontAwesomeIcon, AmbiguousSelectionBookmarkButton, AmbiguousActionButtons},
   setup(props, {emit: $emit}) {
     const appSettings = inject("appSettings");
-    const {bookmarkMap} = inject("globalBookmarks");
+    const {bookmarkMap, bookmarkIdsByOrdinal} = inject("globalBookmarks");
     const {strings, ...common} = useCommon();
     const android = inject("android");
     const multiSelectionMode = ref(false);
@@ -88,6 +96,7 @@ export default {
     const {modalOpen, closeModals} = inject("modal");
 
     const showModal = ref(false);
+    const locateTop = ref(false);
     const verseInfo = ref(null);
 
     const selectionInfo = computed(() => {
@@ -102,45 +111,52 @@ export default {
     const originalSelections = ref(null);
     const bibleBookName = computed(() => verseInfo.value && verseInfo.value.bibleBookName);
 
-    const selections = computed(() => {
-      if (originalSelections.value === null) return null;
-      return originalSelections.value.filter(v => {
-        if (v.options.bookmarkId) {
-          return bookmarkMap.has(v.options.bookmarkId);
-        }
-        return true;
-      });
+    const selectedActions = computed(() => {
+      if (originalSelections.value === null) return [];
+      return originalSelections.value.filter(v => !v.options.bookmarkId)
     });
+
+    const clickedBookmarks = computed(() => {
+      if (originalSelections.value === null) return [];
+
+      return originalSelections.value
+        .filter(v => v.options.bookmarkId && !v.options.hidden && bookmarkMap.has(v.options.bookmarkId))
+        .map(v => bookmarkMap.get(v.options.bookmarkId));
+    });
+
     let deferred = null;
 
-    async function select(sel) {
+    async function select(event, sel) {
       originalSelections.value = sel;
+      locateTop.value = isBottomHalfClicked(event);
       showModal.value = true;
+
       deferred = new Deferred();
       return await deferred.wait();
     }
 
     function selected(s) {
       deferred.resolve(s);
-      showModal.value = false;
     }
 
     function cancelled() {
       if (deferred) {
         deferred.resolve(null);
       }
+    }
+
+    function close() {
+      multiSelectionMode.value = false;
       showModal.value = false;
+      resetHighlights(true);
     }
 
     //const {isDoubleClick} = createDoubleClickDetector();
 
     function updateHighlight() {
       resetHighlights();
-      highlightVerse(startOrdinal.value);
-      if(endOrdinal.value) {
-        for(let i  = startOrdinal.value + 1; i<=endOrdinal.value; i++) {
-          highlightVerse(i);
-        }
+      for(let o of ordinalRange()) {
+        highlightVerse(o);
       }
     }
 
@@ -159,6 +175,25 @@ export default {
     const startOrdinal = ref(null);
     const endOrdinal = ref(null);
 
+    function* ordinalRange() {
+      const _endOrdinal = endOrdinal.value || startOrdinal.value;
+      for(let o = startOrdinal.value; o<=_endOrdinal; o++) {
+        yield o;
+      }
+    }
+
+    const selectedBookmarks = computed(() => {
+      const clickedIds = new Set(clickedBookmarks.value.map(b => b.id));
+      const result = [];
+      for(const o of ordinalRange()) {
+        for(const bId of Array.from(bookmarkIdsByOrdinal.get(o) || []).filter(bId => !clickedIds.has(bId))){
+          const b = bookmarkMap.get(bId)
+          if(b) result.push(b);
+        }
+      }
+      return result;
+    });
+
     function setInitialVerse(_verseInfo) {
       verseInfo.value = _verseInfo;
       startOrdinal.value = _verseInfo.ordinal;
@@ -168,10 +203,13 @@ export default {
 
     function toggleMultiSelectionMode() {
       multiSelectionMode.value = !multiSelectionMode.value;
-      if(!multiSelectionMode.value) {
-        endOrdinal.value = null;
-        updateHighlight();
+      if(multiSelectionMode.value) {
+        endOrdinal.value = startOrdinal.value + 1;
       }
+      else {
+        endOrdinal.value = null;
+      }
+      updateHighlight();
     }
 
     async function handle(event) {
@@ -203,7 +241,7 @@ export default {
           || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs)
         ) {
           if (eventFunctions[0].options.bookmarkId) {
-            emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId);
+            emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId, {locateTop: isBottomHalfClicked(event)});
           } else {
             eventFunctions[0].callback();
           }
@@ -213,29 +251,28 @@ export default {
             closeModals();
           } else {
             setInitialVerse(_verseInfo);
-            const s = await select(allEventFunctions);
+            const s = await select(event, allEventFunctions);
             if (s && s.callback) s.callback();
-            // eslint-disable-next-line require-atomic-updates
-            multiSelectionMode.value = false;
-            resetHighlights();
           }
         }
       } else {
         $emit("back-clicked");
         closeModals();
       }
+      close();
     }
 
-    const noActions = computed(() => selections.value.length === 0);
+    const noActions = computed(() => selectedActions.value.length === 0);
 
     function help() {
       android.helpDialog(strings.verseTip, strings.addBookmark);
     }
 
     return {
-      help, selectionInfo,
+      help, selectionInfo, locateTop,
       bibleBookName, verseInfo, selected, handle, cancelled, noActions,
-      showModal, selections, bookmarkMap, common, strings, multiSelectionMode, toggleMultiSelectionMode,
+      showModal, selectedActions, selectedBookmarks, clickedBookmarks,
+      bookmarkMap, common, strings, multiSelectionMode, toggleMultiSelectionMode,
     };
   }
 }
@@ -250,4 +287,10 @@ export default {
   flex-direction: column;
   overflow-y: auto;
 }
+
+.separator {
+  margin-top: 2pt;
+  margin-bottom: 2pt;
+}
+
 </style>

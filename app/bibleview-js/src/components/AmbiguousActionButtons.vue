@@ -35,10 +35,10 @@
       <FontAwesomeIcon icon="file-alt"/>
       <div class="title">{{ strings.verseMyNotes }}</div>
     </div>
-    <div class="large-action" @click="speak">
+    <!-- div class="large-action" @click="speak">
       <FontAwesomeIcon icon="headphones"/>
       <div class="title">{{ vertical? strings.verseSpeakLong: strings.verseSpeak }}</div>
-    </div>
+    </div -->
     <div class="large-action" @click="share">
       <FontAwesomeIcon icon="share-alt"/>
       <div class="title">{{ vertical? strings.verseShareLong: strings.verseShare }}</div>

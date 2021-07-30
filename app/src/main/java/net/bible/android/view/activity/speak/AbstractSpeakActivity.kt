@@ -39,9 +39,8 @@ abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {
     protected lateinit var currentSettings: SpeakSettings
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        currentSettings = SpeakSettings.load()
-
         super.onCreate(savedInstanceState)
+        currentSettings = SpeakSettings.load()
     }
 
     fun setSleepTime(sleepTimer: View) {

@@ -116,7 +116,6 @@ export const init = settings => {
 
   const actionbar = createElement('div')
   actionbar.className = classes.actionbar
-  appendChild(settings.element, actionbar)
 
   const content = settings.element.content = createElement('div')
   content.contentEditable = true
@@ -130,6 +129,7 @@ export const init = settings => {
     }
   }
   appendChild(settings.element, content)
+  appendChild(settings.element, actionbar)
 
   actions.forEach(action => {
     if(action.divider) {

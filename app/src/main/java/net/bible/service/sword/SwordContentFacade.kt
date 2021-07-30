@@ -33,7 +33,6 @@ import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
-import org.apache.commons.text.StringEscapeUtils
 import org.crosswire.common.xml.JDOMSAXEventProvider
 import org.crosswire.common.xml.SAXEventProvider
 import org.crosswire.jsword.book.Book
@@ -48,13 +47,8 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
-import org.jdom2.Text
-import org.jdom2.output.Format
-import org.jdom2.output.XMLOutputter
-import org.jdom2.output.support.AbstractXMLOutputProcessor
-import org.jdom2.output.support.FormatStack
+import org.jdom2.Element
 import org.xml.sax.ContentHandler
-import java.io.Writer
 import java.lang.RuntimeException
 import java.util.*
 import kotlin.math.min
@@ -72,8 +66,11 @@ object SwordContentFacade {
     /** top level method to fetch html from the raw document data
      */
     @Throws(ParseException::class, OsisError::class)
-    fun readOsisFragment(book: Book?, key: Key?,): String = when {
-        book == null || key == null -> ""
+    fun readOsisFragment(book: Book?, key: Key?,): Element = when {
+        book == null || key == null -> {
+            Log.e(TAG, "Key or book was null")
+            throw throw OsisError(application.getString(R.string.error_no_content))
+        }
         Books.installed().getBook(book.initials) == null -> {
             Log.w(TAG, "Book may have been uninstalled:$book")
             throw DocumentNotFound(application.getString(R.string.document_not_installed, book.initials))
@@ -88,22 +85,21 @@ object SwordContentFacade {
     }
 
     @Throws(ParseException::class)
-    private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): String {
+    private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
         log.debug("Using standard JSword to fetch document data")
         return try {
             val data = BookData(book, key)
-            val format = Format.getRawFormat()
-            val processor = object: AbstractXMLOutputProcessor() {
-                override fun printText(out: Writer, fstack: FormatStack, text: Text) {
-                    // We might have html-encoded characters in OSIS text.
-                    // Let's un-encode them first, lest we will end up with double-encoded strings
-                    // such as &amp;quot;
-                    text.text = StringEscapeUtils.unescapeHtml4(text.text)
-                    super.printText(out, fstack, text)
-                }
+            if(book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
+                val div = data.osisFragment
+                val verse = div.getChild("verse")
+                val verseContent = verse.content.toList()
+                verse.removeContent()
+                div.removeContent()
+                div.addContent(verseContent)
+                div
+            } else {
+                data.osisFragment
             }
-            val outputter = XMLOutputter(format, processor)
-            outputter.outputString(data.osisFragment)
         } catch (e: Exception) {
             log.error("Parsing error", e)
             throw ParseException("Parsing error", e)
