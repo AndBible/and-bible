@@ -70,8 +70,8 @@ public class PassageChangeMediator {
 
 	/** this is triggered on scroll
 	 */
-	public void onCurrentVerseChanged() {
-		ABEventBus.getDefault().post(new CurrentVerseChangedEvent());
+	public void onCurrentVerseChanged(Window window) {
+		ABEventBus.getDefault().post(new CurrentVerseChangedEvent(window));
 	}
 
 	/** The thread which fetches the new page html has started

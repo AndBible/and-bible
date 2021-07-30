@@ -66,7 +66,7 @@ class BibleJavascriptInterface(
                     is BibleDocument -> bibleView.initialVerse?.versification
                     is MyNotesDocument -> KJVA
                     else -> throw RuntimeException("Unsupported doc")
-                })
+                }, bibleView.window)
         } else if(doc is OsisDocument || doc is StudyPadDocument) {
             currentPageManager.currentPage.anchorOrdinal = ordinal
         }

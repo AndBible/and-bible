@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import net.bible.android.common.toV11n
+import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.ActivityBase
@@ -184,24 +185,15 @@ class CurrentBiblePage(
         currentBibleVerse.restoreFrom(entity.verse)
     }
 
-    var currentChapterVerse: ChapterVerse
-        get() = currentBibleVerse.chapterVerse
-        set(chapterVerse) {
-            val oldChapterVerse = currentBibleVerse.chapterVerse
-            if(chapterVerse != oldChapterVerse) {
-                currentBibleVerse.chapterVerse = chapterVerse
-                onVerseChange()
-            }
-        }
-
+    val currentChapterVerse get() = currentBibleVerse.chapterVerse
     val currentVerseOrdinal: Int get() = currentBibleVerse.verse.ordinal
 
-    fun setCurrentVerseOrdinal(value: Int, versification: Versification?) {
+    fun setCurrentVerseOrdinal(value: Int, versification: Versification?, window: Window) {
         val old = currentBibleVerse.verse.ordinal
         val newVerse = Verse(versification?: currentBibleVerse.versificationOfLastSelectedVerse, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
         if(newVerse.ordinal != old) {
             currentBibleVerse.verse = newVerse
-            onVerseChange()
+            onVerseChange(window)
         }
     }
 
