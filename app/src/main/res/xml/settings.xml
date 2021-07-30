@@ -60,6 +60,7 @@
 			android:title="@string/prefs_toolbar_button_action_title"
 			android:summary="@string/prefs_toolbar_button_action_summary"
 			android:entries="@array/prefs_toolbar_button_action_descriptions"
+			android:icon="@drawable/ic_action_for_button_press_24dp"
 			android:entryValues="@array/prefs_toolbar_button_action_values" />
 
 		<SwitchPreferenceCompat android:key="disable_two_step_bookmarking"
@@ -91,11 +92,13 @@
 		<SwitchPreferenceCompat android:key="full_screen_hide_buttons_pref"
 			android:title="@string/full_screen_hide_buttons_pref_title"
 			android:summary="@string/full_screen_hide_buttons_pref_summary"
+			android:icon="@drawable/ic_hide_window_button_bar_24dp"/>
 			android:defaultValue="true"
 			/>
 		<SwitchPreferenceCompat android:key="hide_window_buttons"
 			android:title="@string/hide_window_buttons_title"
 			android:summary="@string/hide_window_buttons_summary"
+			android:icon="@drawable/ic_hide_window_buttons_24dp"
 			android:defaultValue="false"
 			android:icon="@drawable/ic_hide_window_button_bar_24dp"
 			/>
@@ -103,7 +106,7 @@
 			android:title="@string/hide_bible_reference_overlay_title"
 			android:summary="@string/hide_bible_reference_overlay_summary"
 			android:icon="@drawable/ic_hide_bible_reference_overlay_24dp"
-		android:defaultValue="false"
+   	  android:defaultValue="false"
 			/>
 		<SwitchPreferenceCompat android:key="show_active_window_indicator"
 			android:title="@string/active_window_indicator_title"
