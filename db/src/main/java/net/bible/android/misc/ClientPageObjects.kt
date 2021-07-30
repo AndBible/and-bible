@@ -66,7 +66,7 @@ class OsisFragment(
     val key: Key,
     private val book: Book
 ) {
-    private val xmlStr = elementToString(xml)
+    val xmlStr = elementToString(xml)
     private val keyStr: String get () = "${book.initials}--${key.uniqueId}"
 
     val hasChapter: Boolean get() = xml.getChild("div")?.getChild("chapter") != null

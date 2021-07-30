@@ -188,7 +188,7 @@ open class Window (
 
             val doc = fetchDocument()
             val checksum = if(pageManager.isCommentaryShown && doc is OsisDocument) {
-                val checksum = doc.osisFragment.xml.hashCode()
+                val checksum = doc.osisFragment.xmlStr.hashCode()
                 if (lastChecksum == checksum && bibleView?.firstDocument != null) {
                     pageManager.currentCommentary.anchorOrdinal = pageManager.currentCommentary._anchorOrdinal
                     return@launch
