@@ -175,6 +175,7 @@ export default {
     }
 
     function appendNewEntry() {
+      adding.value = true;
       android.createNewJournalEntry(label.id, lastEntry.value.type, lastEntry.value.id);
     }
 
