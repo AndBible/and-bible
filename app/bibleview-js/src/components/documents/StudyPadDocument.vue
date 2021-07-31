@@ -206,9 +206,10 @@ export default {
 @import "~@/common.scss";
 
 div.journal-name {
-  padding-top: 15px;
-  padding-bottom: 15px;
-  margin-bottom: 30px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 5px;
+  margin-bottom: 10px;
   line-height: normal;
   font-size: 180%;
   border-radius: 10px;
