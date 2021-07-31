@@ -37,6 +37,7 @@
         </template>
       </template>
       <AmbiguousSelectionBookmarkButton
+        :locate-top="locateTop"
         v-for="b of clickedBookmarks"
         :key="`b-${b.id}`"
         :bookmark-id="b.id"
@@ -44,6 +45,7 @@
       />
       <div v-if="clickedBookmarks.length > 0 && selectedBookmarks.length > 0" class="separator"/>
       <AmbiguousSelectionBookmarkButton
+        :locate-top="locateTop"
         v-for="b of selectedBookmarks"
         :key="`b-${b.id}`"
         :bookmark-id="b.id"
