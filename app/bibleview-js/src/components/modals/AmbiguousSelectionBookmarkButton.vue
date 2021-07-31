@@ -54,6 +54,7 @@ export default {
   name: "AmbiguousSelectionBookmarkButton",
   props: {
     bookmarkId: {required: true, type: Number},
+    locateTop: {default: false, type: Boolean},
   },
   components: {LabelList, BookmarkButtons, FontAwesomeIcon},
   setup(props, {emit: $emit}) {
@@ -80,12 +81,12 @@ export default {
 
     function editNotes() {
       $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openNotes: true});
+      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openNotes: true, locateTop: props.locateTop});
     }
 
     function openBookmark() {
       $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id);
+      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {locateTop: props.locateTop});
     }
 
     function htmlToString(html) {
