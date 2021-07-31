@@ -112,4 +112,7 @@ export default {
   @extend .button;
   text-align: start;
 }
+.small {
+    font-size: 0.9em
+}
 </style>
