@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListAdapter
@@ -67,9 +68,20 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         buildActivityComponent().inject(this)
         searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
         setActionBarManager(searchResultsActionBarManager)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         isScriptureResultsCurrentlyShown = searchControl.isCurrentlyShowingScripture
         GlobalScope.launch {
             prepareResults()
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
