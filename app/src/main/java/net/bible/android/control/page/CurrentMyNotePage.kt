@@ -17,7 +17,9 @@
  */
 package net.bible.android.control.page
 
+import net.bible.android.common.toV11n
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordContentFacade
@@ -35,7 +37,7 @@ class CurrentMyNotePage internal constructor(
     override val currentPageContent: Document get() {
         val verseRange = CommonUtils.getWholeChapter(currentBibleVerse.verse, false)
         val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
-        return MyNotesDocument(bookmarksForChapter, verseRange)
+        return MyNotesDocument(bookmarksForChapter, verseRange.toV11n(KJVA))
     }
 
     override fun next() {
