@@ -176,7 +176,6 @@ open class Window (
         } else {
             anchorOrdinal = currentPage.anchorOrdinal
         }
-
         displayedBook = currentPage.currentDocument
         displayedKey = currentPage.key
         Log.d(TAG, "updateText ${this.hashCode()} ${Log.getStackTraceString(Exception())}")

@@ -152,8 +152,13 @@ abstract class CurrentPageBase protected constructor(
     private val errorDocument: ErrorDocument get() =
         ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.ERROR)
 
-    override fun checkCurrentDocumentStillInstalled(): Boolean {
-        if (_currentDocument != null) {
+    override fun checkCurrentDocumenInstalled(): Boolean {
+        if(_currentDocument?.doesNotExist == true) {
+            val doc = swordDocumentFacade.getDocumentByInitials(_currentDocument!!.initials)
+            if(doc != null)
+            _currentDocument = doc
+        }
+        if (_currentDocument == null) {
             Log.d(TAG, "checkCurrentDocumentStillInstalled:$currentDocument")
             _currentDocument =  FakeBookFactory.giveDoesNotExist(_currentDocument!!.initials)
         }

@@ -68,7 +68,7 @@ interface CurrentPage {
 	fun setCurrentDocument(doc: Book?)
     fun setCurrentDocumentAndKey(doc: Book, key: Key)
 
-    fun checkCurrentDocumentStillInstalled(): Boolean
+    fun checkCurrentDocumenInstalled(): Boolean
     /** get a page to display  */
     val currentPageContent: Document
 

@@ -27,6 +27,7 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.db.DatabaseContainer
@@ -143,14 +144,6 @@ class DocumentControl @Inject constructor(
         activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocument(newDocument)
     }
 
-    fun checkIfAnyPageDocumentsDeleted() {
-        windowControl.windowRepository.windows.filter {
-            !it.pageManager.currentBible.checkCurrentDocumentStillInstalled()
-        }.forEach {
-            PassageChangeMediator.getInstance().onCurrentPageChanged(it)
-        }
-    }
-
     fun enableManualInstallFolder() {
         try {
             SwordEnvironmentInitialisation.enableDefaultAndManualInstallFolder()
@@ -186,7 +179,7 @@ class DocumentControl @Inject constructor(
         if(document.bookCategory == BookCategory.AND_BIBLE) return
         documentBackupDao.deleteByOsisId(document.initials)
         val currentPage = activeWindowPageManagerProvider.activeWindowPageManager.getBookPage(document)
-        currentPage?.checkCurrentDocumentStillInstalled()
+        currentPage?.checkCurrentDocumenInstalled()
     }
 
     /**

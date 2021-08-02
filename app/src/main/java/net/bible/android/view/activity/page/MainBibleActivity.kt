@@ -1279,7 +1279,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun updateDocuments() {
-        documentControl.checkIfAnyPageDocumentsDeleted()
+        windowControl.windowSync.reloadAllWindows(true)
         updateActions()
     }
 

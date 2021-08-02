@@ -95,6 +95,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
+import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
@@ -815,7 +816,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
             val intent = Intent(MainBibleActivity.mainBibleActivity, DownloadActivity::class.java)
             intent.putExtra("search", initials)
-            mainBibleActivity.startActivity(intent)
+            mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
             true
         }
         else -> {
@@ -1454,12 +1455,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun requestPreviousChapter(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
         Log.d(TAG, "requestMoreTextAtTop")
-        val currentPage = window.pageManager.currentPage
-        if (currentPage is CurrentBiblePage) {
+        if (firstDocument is BibleDocument) {
             val newChap = minChapter - 1
 
             if(newChap < 1) return@launch
 
+            val currentPage = window.pageManager.currentBible
             val doc = currentPage.getDocumentForChapter(newChap)
             addChapter(newChap)
             executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
@@ -1468,9 +1469,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun requestNextChapter(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
         Log.d(TAG, "requestMoreTextAtEnd")
-        val currentPage = window.pageManager.currentPage
-        if (currentPage is CurrentBiblePage) {
+        if (firstDocument is BibleDocument) {
             val newChap = maxChapter + 1
+            val currentPage = window.pageManager.currentBible
             val verse = currentPage.currentBibleVerse.verse
             val lastChap = verse.versification.getLastChapter(verse.book)
 

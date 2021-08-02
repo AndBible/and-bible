@@ -23,6 +23,7 @@
 
 import {nextTick, onMounted} from "@vue/runtime-core";
 import {setupWindowEventListener} from "@/utils";
+import {DocumentTypes} from "@/constants";
 
 export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}, documents) {
     let
@@ -41,8 +42,12 @@ export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}, 
         setScrollPosition = offset => window.scrollTo(0, offset),
         loadTextAtTop = async () => insertThisTextAtTop(await requestPreviousChapter()),
         loadTextAtEnd = async () => insertThisTextAtEnd(await requestNextChapter()),
-        addMoreAtEnd = () => loadTextAtEnd(),
+        addMoreAtEnd = () => {
+            if(documents[0].type !== DocumentTypes.BIBLE_DOCUMENT) return;
+            return loadTextAtEnd();
+        },
         addMoreAtTop = () => {
+            if(documents[0].type !== DocumentTypes.BIBLE_DOCUMENT) return;
             if (touchDown) {
                 // adding at top is tricky and if the user is stil holding there seems no way to set the scroll position after insert
                 addMoreAtTopOnTouchUp = true;
