@@ -354,11 +354,10 @@ open class BookmarkControl @Inject constructor(
                 else -> 0
             }
         }
-        var count = 0
         val changedBookmarkToLabels = mutableListOf<BookmarkToLabel>()
         val changedJournalTextEntries = mutableListOf<StudyPadTextEntry>()
 
-        for (it in all) {
+        for ((count, it) in all.withIndex()) {
             when (it) {
                 is BookmarkToLabel -> {
                     if(it.orderNumber != count) {
@@ -373,7 +372,6 @@ open class BookmarkControl @Inject constructor(
                     }
                 }
             }
-            count ++
         }
         dao.updateBookmarkToLabels(changedBookmarkToLabels)
         dao.updateJournalTextEntries(changedJournalTextEntries)
