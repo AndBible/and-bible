@@ -174,12 +174,14 @@ constructor(private val callingActivity: MainBibleActivity,
                 R.id.bookmarksButton -> handlerIntent = Intent(callingActivity, Bookmarks::class.java)
                 R.id.studyPadsButton -> {
                     val intent = Intent(callingActivity, ManageLabels::class.java)
-                    intent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD).toJSON())
+                    intent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
+                        .applyFrom(windowControl.windowRepository.workspaceSettings)
+                        .toJSON())
                     GlobalScope.launch (Dispatchers.Main) {
                         val result = callingActivity.awaitIntent(intent)
                         if(result?.resultCode == Activity.RESULT_OK) {
                             val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
-                            MainBibleActivity.mainBibleActivity.workspaceSettings.updateFrom(resultData)
+                            windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         }
                     }
                 }

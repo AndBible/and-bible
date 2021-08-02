@@ -66,7 +66,9 @@ class CurrentGeneralBookPage internal constructor(
             when (currentDocument) {
                 FakeBookFactory.journalDocument -> {
                     val result = context.awaitIntent(Intent(context, ManageLabels::class.java)
-                        .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD).toJSON())
+                        .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
+                            .applyFrom(_mainBibleActivity?.workspaceSettings)
+                            .toJSON())
                     )
                     if(result?.resultCode == Activity.RESULT_OK) {
                         val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)

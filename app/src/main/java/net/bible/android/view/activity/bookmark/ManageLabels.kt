@@ -43,7 +43,6 @@ import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
@@ -137,7 +136,8 @@ class ManageLabels : ListActivityBase() {
         }
 
         fun toJSON(): String = json.encodeToString(serializer(), this)
-        fun applyFrom(workspaceSettings: WorkspaceEntities.WorkspaceSettings): ManageLabelsData {
+        fun applyFrom(workspaceSettings: WorkspaceEntities.WorkspaceSettings?): ManageLabelsData {
+            workspaceSettings?: return this
             favouriteLabels.addAll(workspaceSettings.favouriteLabels)
             autoAssignLabels.addAll(workspaceSettings.autoAssignLabels)
             autoAssignPrimaryLabel = workspaceSettings.autoAssignPrimaryLabel
