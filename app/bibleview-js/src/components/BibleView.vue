@@ -229,6 +229,9 @@ export default {
           --top-offset: ${appSettings.topOffset}px;
           --noise-opacity: ${noiseOpacity/100};
           --text-max-width: ${config.marginSize.maxWidth}mm;
+          --text-color-h: ${textColor.hsl().color[0]};
+          --text-color-s: ${textColor.hsl().color[1]}%;
+          --text-color-l: ${textColor.hsl().color[2]}%;
           --verse-number-color: ${verseNumberColor};
           `;
     });

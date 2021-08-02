@@ -61,6 +61,7 @@ const osisComponents = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,
   DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
   Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
+  Rdg: Hi,
   ...teiComponents, ...andBibleComponents
 }
 

@@ -62,7 +62,9 @@ export default {
       let remainingString = string;
       const res = []
       do {
-        const s = remainingString.match(/([^ :]+:)([^:]+)$/)[0]
+        const match = remainingString.match(/([^ :]+:)([^:]+)$/)
+        if(!match) return res;
+        const s = match[0]
         res.push(s);
         remainingString = remainingString.slice(0, remainingString.length - s.length)
       } while(remainingString.trim().length > 0)
@@ -106,6 +108,10 @@ export default {
 @import "~@/common.scss";
   .link-style {
     text-decoration: underline dotted;
+    [lang=he],[lang=hbo] & {
+      text-decoration-style: solid;
+      text-decoration-color: hsla(var(--text-color-h), var(--text-color-s), var(--text-color-l), 0.5);
+    }
   }
 .base {
   font-size: 0.6em;
