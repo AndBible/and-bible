@@ -220,6 +220,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun editColor() {
+        closeKeyboard()
         ColorPickerDialog.newBuilder()
             .setColor(data.label.color)
             .show(this@LabelEditActivity)
