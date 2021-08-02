@@ -24,6 +24,8 @@ import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
+import net.bible.android.view.activity.download.doesNotExist
+import net.bible.android.view.activity.download.isPseudoBook
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.DocumentNotFound
@@ -155,7 +157,7 @@ abstract class CurrentPageBase protected constructor(
             Log.d(TAG, "checkCurrentDocumentStillInstalled:$currentDocument")
             _currentDocument =  FakeBookFactory.giveDoesNotExist(_currentDocument!!.initials)
         }
-        return _currentDocument != null
+        return _currentDocument != null && !_currentDocument!!.doesNotExist
     }
 
     private var _currentDocument: Book? = null

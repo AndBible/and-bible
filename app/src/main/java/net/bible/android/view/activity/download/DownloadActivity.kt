@@ -59,6 +59,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != null
+val Book.doesNotExist get() = bookMetaData.getProperty("AndBibleDoesNotExist") != null
 
 /**
  * Choose Document (Book) to download

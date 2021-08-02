@@ -136,6 +136,7 @@ Abbreviation=$id
 Category=Commentaries
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
+AndBibleDoesNotExist=1
 Versification=KJVA"""
 
     private fun getPseudoBookConf(modName: String, suggested: String) = """[$modName]
