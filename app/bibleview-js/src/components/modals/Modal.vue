@@ -39,8 +39,10 @@
         <div v-if="ready" class="modal-body">
           <slot/>
         </div>
-        <div v-if="$slots.footer" class="modal-footer modal-footer-buttons">
-          <slot name="footer"/>
+        <div v-if="$slots.footer" class="modal-footer">
+          <div class="modal-footer-buttons">
+            <slot name="footer"/>
+          </div>
         </div>
       </div>
     </div>
