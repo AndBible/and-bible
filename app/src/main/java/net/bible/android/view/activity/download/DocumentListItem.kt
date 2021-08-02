@@ -32,6 +32,7 @@ import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.DownloadManager
+import net.bible.service.download.isPseudoBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBookMetaData

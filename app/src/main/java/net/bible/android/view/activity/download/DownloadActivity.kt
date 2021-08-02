@@ -47,6 +47,7 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.RepoFactory
+import net.bible.service.download.isPseudoBook
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
@@ -57,9 +58,6 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-
-val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != null
-val Book.doesNotExist get() = bookMetaData.getProperty("AndBibleDoesNotExist") != null
 
 /**
  * Choose Document (Book) to download

@@ -161,3 +161,5 @@ Versification=KJVA"""
     val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
 }
 
+val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != null
+val Book.doesNotExist get() = bookMetaData.getProperty("AndBibleDoesNotExist") != null

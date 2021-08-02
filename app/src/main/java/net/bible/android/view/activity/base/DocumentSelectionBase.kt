@@ -51,6 +51,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.Ref
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
+import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.AndBibleAddonFilter
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
@@ -347,7 +348,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 }
                 dao.clear()
                 dao.insertDocuments(allDocuments.map {
-                    DocumentSearch(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)
+                    DocumentSearch(it.osisID, it.abbreviation, if(it.isPseudoBook) "" else it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)
                         ?: "")
                 })
 

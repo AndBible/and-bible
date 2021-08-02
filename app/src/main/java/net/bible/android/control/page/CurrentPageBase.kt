@@ -24,10 +24,9 @@ import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
-import net.bible.android.view.activity.download.doesNotExist
-import net.bible.android.view.activity.download.isPseudoBook
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.doesNotExist
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
