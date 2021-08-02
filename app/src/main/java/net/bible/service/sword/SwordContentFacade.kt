@@ -73,7 +73,9 @@ object SwordContentFacade {
         }
         Books.installed().getBook(book.initials) == null -> {
             Log.w(TAG, "Book may have been uninstalled:$book")
-            throw DocumentNotFound(application.getString(R.string.document_not_installed, book.initials))
+            val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
+            val errorMsg = application.getString(R.string.document_not_installed, link)
+            throw DocumentNotFound(errorMsg)
         }
         !bookContainsAnyOf(book, key) -> {
             Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)

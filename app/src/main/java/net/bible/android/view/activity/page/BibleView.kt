@@ -98,6 +98,7 @@ import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
+import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
@@ -657,6 +658,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     object UriConstants {
+        const val SCHEME_DOWNLOAD = "download"
         const val SCHEME_ERROR = "ab-error"
         const val SCHEME_W = "ab-w"
         const val SCHEME_REFERENCE = "osis"
@@ -806,6 +808,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         UriConstants.SCHEME_ERROR -> {
             linkControl.errorLink()
+            true
+        }
+        UriConstants.SCHEME_DOWNLOAD -> {
+            val initials = uri.getQueryParameter("initials")
+
+            val intent = Intent(MainBibleActivity.mainBibleActivity, DownloadActivity::class.java)
+            intent.putExtra("search", initials)
+            mainBibleActivity.startActivity(intent)
             true
         }
         else -> {

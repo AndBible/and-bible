@@ -226,6 +226,10 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
             languageSpinner.setAdapter(langArrayAdapter)
             list.requestFocus()
+
+            intent.getStringExtra("search")?.run {
+                freeTextSearch.setText(this)
+            }
         }
         Log.d(TAG, "Initialize finished")
     }

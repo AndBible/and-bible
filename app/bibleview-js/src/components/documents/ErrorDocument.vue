@@ -20,9 +20,7 @@
     <h3 v-if="severity === ErrorSeverity.ERROR">{{strings.errorTitle}}</h3>
     <h3 v-if="severity === ErrorSeverity.WARNING">{{strings.warningTitle}}</h3>
     <h3 v-if="severity === ErrorSeverity.NORMAL">{{strings.normalTitle}}</h3>
-    <p>
-      {{document.errorMessage}}
-    </p>
+    <OsisSegment convert :osis-template="document.errorMessage"/>
     <a v-if="severity > ErrorSeverity.NORMAL" href="ab-error://">{{strings.reportError}}</a>
   </div>
 </template>
@@ -30,6 +28,7 @@
 <script>
 import {useCommon} from "@/composables";
 import {computed} from "@vue/reactivity";
+import OsisSegment from "@/components/documents/OsisSegment";
 
 const ErrorSeverity = {
   NORMAL: 1,
@@ -39,6 +38,7 @@ const ErrorSeverity = {
 
 export default {
   name: "ErrorDocument",
+  components: {OsisSegment},
   props: {
     document: {type: Object, required: true},
   },
