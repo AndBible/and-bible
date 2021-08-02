@@ -21,7 +21,6 @@ package net.bible.android.view.activity.page
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Rect
@@ -58,7 +57,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.serializer
-import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
@@ -1485,13 +1483,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var modalOpen = false
 
-    private fun closeModal() {
+    private fun closeModals() {
         executeJavascriptOnUiThread("bibleView.emit('close_modals')")
     }
 
     fun backButtonPressed(): Boolean {
         if(modalOpen) {
-            closeModal()
+            closeModals()
             return true;
         }
         return false

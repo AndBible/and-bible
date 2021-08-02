@@ -40,6 +40,7 @@ export const Events = {
     REMOVE_RANGES: "remove_ranges",
     SET_OFFSETS: "set_offsets",
     BOOKMARK_CLICKED: "bookmark_clicked",
+    CLOSE_MODALS: "close_modals",
     WINDOW_CLICKED: "back_clicked",
     ADD_OR_UPDATE_JOURNAL: "add_or_update_journal",
     ADD_OR_UPDATE_BOOKMARK_TO_LABEL: "add_or_update_bookmark_to_label",
