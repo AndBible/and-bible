@@ -140,14 +140,14 @@ open class BookmarkControl @Inject constructor(
 
     fun deleteBookmark(bookmark: Bookmark) {
         dao.delete(bookmark)
-        sanitizeJournalOrder(bookmark)
+        sanitizeStudyPadOrder(bookmark)
         ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark.id)))
     }
 
     fun deleteBookmarks(bookmarks: List<Bookmark>) {
         dao.deleteBookmarks(bookmarks)
         for (it in bookmarks) {
-            sanitizeJournalOrder(it)
+            sanitizeStudyPadOrder(it)
         }
         ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks.map { it.id }))
     }
@@ -334,14 +334,14 @@ open class BookmarkControl @Inject constructor(
     fun getJournalById(journalTextEntryId: Long): StudyPadTextEntry? = dao.journalTextEntryById(journalTextEntryId)
 
     fun updateJournalTextEntries(studyPadTextEntries: List<StudyPadTextEntry>) = dao.updateJournalTextEntries(studyPadTextEntries)
-    fun deleteJournalEntry(journalId: Long) {
-        val entry = dao.journalTextEntryById(journalId)!!
+    fun deleteStudyPadTextEntry(textEntryId: Long) {
+        val entry = dao.journalTextEntryById(textEntryId)!!
         dao.delete(entry)
-        ABEventBus.getDefault().post(StudyPadTextEntryDeleted(journalId))
-        sanitizeJournalOrder(dao.labelById(entry.labelId)!!)
+        ABEventBus.getDefault().post(StudyPadTextEntryDeleted(textEntryId))
+        sanitizeStudyPadOrder(dao.labelById(entry.labelId)!!)
     }
 
-    private fun sanitizeJournalOrder(label: Label) {
+    private fun sanitizeStudyPadOrder(label: Label) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(label.id)
         val journals = dao.journalTextEntriesByLabelId(label.id)
         val all = ArrayList<Any>()
@@ -385,9 +385,9 @@ open class BookmarkControl @Inject constructor(
             )
     }
 
-    private fun sanitizeJournalOrder(bookmark: Bookmark) {
+    private fun sanitizeStudyPadOrder(bookmark: Bookmark) {
         for (it in labelsForBookmark(bookmark)) {
-            sanitizeJournalOrder(it)
+            sanitizeStudyPadOrder(it)
         }
     }
 

@@ -167,7 +167,7 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun deleteJournalEntry(journalId: Long) = bookmarkControl.deleteJournalEntry(journalId)
+    fun deleteJournalEntry(journalId: Long) = bookmarkControl.deleteStudyPadTextEntry(journalId)
 
     @JavascriptInterface
     fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) = bookmarkControl.removeBookmarkLabel(bookmarkId, labelId)
