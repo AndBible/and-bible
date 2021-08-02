@@ -245,9 +245,9 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun openMyNotes(bookInitials: String?, ordinal: Int) {
+    fun openMyNotes(v11n: String, ordinal: Int) {
         GlobalScope.launch(Dispatchers.Main) {
-            bibleView.linkControl.openMyNotes(bookInitials, ordinal)
+            bibleView.linkControl.openMyNotes(v11n, ordinal)
         }
     }
 

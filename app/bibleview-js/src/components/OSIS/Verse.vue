@@ -46,7 +46,8 @@ export default {
     verseOrdinal: { type: String, required: true},
   },
   setup(props) {
-    const verseInfo = getVerseInfo(props);
+    const {bookInitials, bibleBookName, originalOrdinalRange, ordinalRange, v11n} = inject("bibleDocumentInfo", {})
+    const verseInfo = {...getVerseInfo(props), v11n};
 
     const shown = ref(true);
     if(verseInfo) {
@@ -71,8 +72,6 @@ export default {
     const verse = computed(() => {
       return parseInt(props.osisID.split(".")[2])
     });
-
-    const {bookInitials, bibleBookName, originalOrdinalRange, ordinalRange} = inject("bibleDocumentInfo", {})
 
     const fromBibleDocument = computed(() => !!ordinalRange);
 

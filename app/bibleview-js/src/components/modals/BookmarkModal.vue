@@ -62,7 +62,7 @@
       <div class="links">
         <div class="link-line">
           <span class="link-icon"><FontAwesomeIcon icon="file-alt"/></span>
-          <a :href="`my-notes://?ordinal=${bookmark.originalOrdinalRange[0]}&bookInitials=${bookmark.bookInitials}`">{{ strings.openMyNotes }}</a>
+          <a :href="`my-notes://?ordinal=${bookmark.originalOrdinalRange[0]}&v11n=${bookmark.v11n}`">{{ strings.openMyNotes }}</a>
         </div>
         <div v-for="label in labels.filter(l => l.isRealLabel)" :key="`label-${bookmark.id}-${label.id}`" class="link-line">
           <span class="link-icon" :style="`color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon icon="file-alt"/></span>

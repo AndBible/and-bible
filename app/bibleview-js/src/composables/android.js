@@ -251,8 +251,8 @@ export function useAndroid({bookmarks}, config) {
         android.openStudyPad(labelId, bookmarkId);
     }
 
-    function openMyNotes(bookInitials, ordinal) {
-        android.openMyNotes(bookInitials, ordinal);
+    function openMyNotes(v11n, ordinal) {
+        android.openMyNotes(v11n, ordinal);
     }
 
     function speak(bookInitials, ordinal) {

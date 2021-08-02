@@ -772,8 +772,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         UriConstants.SCHEME_MYNOTES -> {
             val ordinal = uri.getQueryParameter("ordinal")?.toInt()!!
-            val bookInitials = uri.getQueryParameter("bookInitials")
-            linkControl.openMyNotes(bookInitials, ordinal)
+            val v11n = uri.getQueryParameter("v11n")
+            linkControl.openMyNotes(v11n!!, ordinal)
         }
         UriConstants.MULTI_REFERENCE -> {
             val osisRefs = uri.getQueryParameters("osis")

@@ -56,6 +56,7 @@ import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.Versifications
 import java.net.URLDecoder
 import java.util.regex.Pattern
 import javax.inject.Inject
@@ -286,12 +287,8 @@ class LinkControl @Inject constructor(
         this.windowMode = windowMode
     }
 
-    fun openMyNotes(bookInitials: String?, ordinal: Int): Boolean {
-        val v11n = if(bookInitials != null) {
-            (Books.installed().getBook(bookInitials) as SwordBook).versification
-        } else {
-            (currentPageManager.currentBible.currentDocument as SwordBook).versification
-        }
+    fun openMyNotes(v11nName: String, ordinal: Int): Boolean {
+        val v11n = Versifications.instance().getVersification(v11nName)
         val verse = Verse(v11n, ordinal)
         showLink(currentPageManager.currentMyNotePage.currentDocument, verse)
         return true
