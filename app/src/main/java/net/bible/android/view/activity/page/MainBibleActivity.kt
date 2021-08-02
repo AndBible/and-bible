@@ -686,6 +686,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
 
+            updateBottomBars()
             updateTitle()
         }
 
