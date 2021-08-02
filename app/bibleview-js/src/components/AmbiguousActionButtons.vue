@@ -85,7 +85,6 @@ export default {
 
     function addBookmark() {
       android.addBookmark(bookInitials.value, startOrdinal.value, endOrdinal.value, false);
-      android.toast(strings.verseTip);
       emit("close");
     }
 
@@ -95,7 +94,6 @@ export default {
 
     function addNote() {
       android.addBookmark(bookInitials.value, startOrdinal.value, endOrdinal.value, true);
-      android.toast(strings.verseTip);
       emit("close");
     }
 
