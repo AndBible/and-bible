@@ -594,7 +594,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val prefOptions = dummyStrongsPrefOption
                 prefOptions.value = (prefOptions.value as Int + 1) % 3
                 prefOptions.handle()
-                invalidateOptionsMenu()
                 updateStrongsButton()
             }
 
@@ -687,7 +686,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
 
-            invalidateOptionsMenu()
             updateTitle()
         }
 
@@ -782,14 +780,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if(itemOptions is Preference) {
                 windowRepository.updateWindowTextDisplaySettingsValues(setOf(itemOptions.type), windowRepository.textDisplaySettings)
             }
-            invalidateOptionsMenu()
         } else {
             val onReady = {
                 if(itemOptions is Preference) {
                     windowRepository.updateWindowTextDisplaySettingsValues(setOf(itemOptions.type), windowRepository.textDisplaySettings)
                 }
                 windowRepository.updateAllWindowsTextDisplaySettings()
-                invalidateOptionsMenu()
             }
             val onReset = {
                 if(itemOptions is Preference) {
@@ -980,7 +976,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 p.second()
             }
 
-            invalidateOptionsMenu()
             if(!showSpeak && transportBarVisible && speakControl.isStopped) {
                 transportBarVisible = false
                 updateBottomBars()
@@ -1333,7 +1328,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         windowRepository.updateAllWindowsTextDisplaySettings()
                     }
                     resetSystemUi()
-                    invalidateOptionsMenu()
                 }
                 TEXT_DISPLAY_SETTINGS_CHANGED -> {
                     val edited = extras.getBoolean("edited")
