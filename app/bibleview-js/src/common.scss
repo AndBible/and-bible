@@ -132,6 +132,13 @@ $button-grey: #8e8e8e;
   }
 }
 
+.modal-footer-buttons {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
 .bookmark-buttons {
   display: flex;
   justify-content: flex-start;
