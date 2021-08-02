@@ -556,7 +556,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     class BibleLink(val type: String, val target: String, private val v11nName: String? = null) {
         val versification: Versification get() =
-            Versifications.instance().getVersification(v11nName ?: SystemKJVA.V11N_NAME)
+            Versifications.instance().getVersification(v11nName ?: SystemKJVA.V11N_NAME) ?: KJVA
         val url: String get() {
             return when(type) {
                 "content" -> "$type:$target"
