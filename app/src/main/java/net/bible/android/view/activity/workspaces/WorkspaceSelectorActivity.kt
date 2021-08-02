@@ -239,7 +239,9 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 finishOk()
             }
             recyclerView.adapter = workspaceAdapter
+            recyclerView.smoothScrollToPosition(dataSet.indexOf(workspace))
         }
+
     }
 
     private fun createNewWorkspace() {
