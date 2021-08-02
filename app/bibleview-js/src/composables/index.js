@@ -148,6 +148,9 @@ export function useConfig(documentType) {
         showFootNotes: true,
         fontFamily: "sans-serif",
         fontSize: 16,
+
+        disableBookmarking: false,
+
         showBookmarks: true,
         showMyNotes: true,
         bookmarksHideLabels: [],
@@ -258,8 +261,6 @@ export function useConfig(documentType) {
 
     setupEventBusListener(Events.SET_CONFIG, async function setConfig({config: newConfig, appSettings: newAppSettings, initial = false} = {}) {
         const defer = new Deferred();
-        const oldShowBookmarks = config.showBookmarks;
-        const oldMyNotes = config.showMyNotes;
         const isBible = documentType.value === DocumentTypes.BIBLE_DOCUMENT
         const needsRefreshLocation = !initial && (isBible || documentType.value === DocumentTypes.OSIS_DOCUMENT) && getNeedRefreshLocation(newConfig);
         const needBookmarkRefresh = getNeedBookmarkRefresh(newConfig);
@@ -267,8 +268,7 @@ export function useConfig(documentType) {
         if (needsRefreshLocation) emit(Events.CONFIG_CHANGED, defer)
 
         if(isBible && needBookmarkRefresh) {
-            config.showBookmarks = false
-            config.showMyNotes = false
+            config.disableBookmarking = true;
             await nextTick();
         }
         for (const i in newConfig) {
@@ -291,14 +291,8 @@ export function useConfig(documentType) {
 
         errorBox = appSettings.errorBox;
         if(isBible && needBookmarkRefresh) {
-            if (newConfig.showBookmarks === undefined) {
-                // eslint-disable-next-line require-atomic-updates
-                config.showBookmarks = oldShowBookmarks;
-            }
-            if (newConfig.showMyNotes === undefined) {
-                // eslint-disable-next-line require-atomic-updates
-                config.showMyNotes = oldMyNotes;
-            }
+            // eslint-disable-next-line require-atomic-updates
+            config.disableBookmarking = false
         }
 
         if (needsRefreshLocation) {
@@ -701,7 +695,7 @@ export function useModal(android) {
     }
 
     setupEventBusListener(Events.CLOSE_MODALS, closeModals)
-    
+
     watch(modalOpen, v => android.reportModalState(v), {flush: "sync"})
 
     return {register, closeModals, modalOpen}

@@ -46,7 +46,7 @@ const allStyleRanges = computed(() => {
     return allStyles;
 });
 
-export function useGlobalBookmarks() {
+export function useGlobalBookmarks(config) {
     const bookmarkLabels = reactive(new Map());
     const bookmarks = reactive(new Map());
     const bookmarkIdsByOrdinal = reactive(new Map());
@@ -132,7 +132,10 @@ export function useGlobalBookmarks() {
     return {
         bookmarkLabels,
         bookmarkMap: bookmarks,
-        bookmarks: computed(() => Array.from(bookmarks.values())),
+        bookmarks: computed(() => {
+            if(config.disableBookmarking) return [];
+            return Array.from(bookmarks.values());
+        }),
         labelsUpdated,
         updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks, bookmarkIdsByOrdinal,
     }
