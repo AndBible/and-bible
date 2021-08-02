@@ -153,8 +153,7 @@ abstract class CurrentPageBase protected constructor(
     override fun checkCurrentDocumentStillInstalled(): Boolean {
         if (_currentDocument != null) {
             Log.d(TAG, "checkCurrentDocumentStillInstalled:$currentDocument")
-            // this sets currentDoc to null if it does not exist
-            _currentDocument = swordDocumentFacade.getDocumentByInitials(_currentDocument!!.initials)
+            _currentDocument =  FakeBookFactory.giveDoesNotExist(_currentDocument!!.initials)
         }
         return _currentDocument != null
     }
