@@ -77,7 +77,6 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
-import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks

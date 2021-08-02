@@ -230,6 +230,7 @@ open class BookmarkControl @Inject constructor(
 
     fun reset() {
         _speakLabel = null
+        _unlabeledLabel = null
     }
 
     fun isSpeakBookmark(bookmark: Bookmark): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
