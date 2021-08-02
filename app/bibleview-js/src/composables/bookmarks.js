@@ -112,11 +112,12 @@ export function useGlobalBookmarks() {
         updateBookmarks(...bookmarks)
     });
 
-    setupEventBusListener(Events.BOOKMARK_NOTE_MODIFIED, ({id, notes}) => {
+    setupEventBusListener(Events.BOOKMARK_NOTE_MODIFIED, ({id, notes, lastUpdatedOn}) => {
         const b = bookmarks.get(id);
         if(b) {
             b.notes = notes;
             b.hasNote = !!notes;
+            b.lastUpdatedOn = lastUpdatedOn
         }
     });
 

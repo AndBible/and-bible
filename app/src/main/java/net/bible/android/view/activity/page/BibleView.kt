@@ -1223,7 +1223,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: BookmarkNoteModifiedEvent) {
         executeJavascriptOnUiThread("""
-            bibleView.emit("bookmark_note_modified", {id: ${event.bookmarkId}, notes: ${json.encodeToString(serializer(), event.notes)}});
+            bibleView.emit("bookmark_note_modified", {id: ${event.bookmarkId}, lastUpdatedOn: ${event.lastUpdatedOn}, notes: ${json.encodeToString(serializer(), event.notes)}});
         """.trimIndent())
     }
 

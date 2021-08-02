@@ -54,7 +54,7 @@ class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark): BookmarkEvent()
 class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BookmarkToLabel)
 class BookmarksDeletedEvent(val bookmarkIds: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
-class BookmarkNoteModifiedEvent(val bookmarkId: Long, val notes: String?): BookmarkEvent()
+class BookmarkNoteModifiedEvent(val bookmarkId: Long, val notes: String?, val lastUpdatedOn: Long): BookmarkEvent()
 
 class StudyPadOrderEvent(
     val labelId: Long,
@@ -245,7 +245,7 @@ open class BookmarkControl @Inject constructor(
         val bookmark = dao.bookmarkById(bookmarkId)!!
         addLabels(bookmark)
         addText(bookmark)
-        ABEventBus.getDefault().post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes))
+        ABEventBus.getDefault().post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
     }
 
     fun deleteLabels(toList: List<Long>) {
