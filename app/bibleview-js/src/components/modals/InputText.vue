@@ -55,6 +55,7 @@ export default {
       show.value = true;
       promise = new Deferred();
       await nextTick();
+      await nextTick();
       inputElement.value.focus();
       const result = await promise.wait()
       show.value = false;
