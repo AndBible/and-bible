@@ -135,7 +135,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                             speakControl.isPaused -> speakControl.continueAfterPause()
                             speakControl.isSpeaking -> speakControl.pause()
                             else -> {
-                                speakControl.speakBible()
+                                speakControl.speakAny()
                                 if (SpeakSettings.load().synchronize) {
                                     val intent = Intent(context, MainBibleActivity::class.java)
                                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP

@@ -249,6 +249,17 @@ class SpeakControl @Inject constructor(
         }
     }
 
+    fun speakAny() {
+        val page = speakPageManager.currentPage
+        val fromBook = page.currentDocument
+        if (fromBook?.bookCategory == BookCategory.BIBLE) {
+            resetPassageRepeatIfOutsideRange()
+            speakBible()
+        } else {
+            speakText()
+        }
+    }
+
     // By this checking, try to avoid issues with isSpeaking and isPaused causing crash if window is not yet available
     // (such as headphone switching in the initial startup screen)
     private val booksAvailable: Boolean get() = swordDocumentFacade.bibles.isNotEmpty()
