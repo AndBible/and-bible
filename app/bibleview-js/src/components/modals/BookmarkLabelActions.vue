@@ -18,7 +18,12 @@
 <template>
   <Modal blocking v-if="showModal" @close="showModal = false" locate-top>
     <template #title>
-      <FontAwesomeIcon icon="tags"/> {{ strings.bookmarkLabels }}
+      {{ strings.bookmarkLabels }}
+    </template>
+    <template #extra-buttons>
+      <div class="modal-action-button" @touchstart.stop @click.stop="assignLabels">
+        <FontAwesomeIcon icon="tags"/>
+      </div>
     </template>
 
     <div class="items">
