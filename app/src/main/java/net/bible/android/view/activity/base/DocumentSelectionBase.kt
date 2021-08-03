@@ -346,11 +346,13 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     allDocuments.clear()
                     allDocuments.addAll(newDocs)
                 }
-                dao.clear()
-                dao.insertDocuments(allDocuments.map {
-                    DocumentSearch(it.osisID, it.abbreviation, if(it.isPseudoBook) "" else it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)
-                        ?: "")
-                })
+                if(refresh) {
+                    dao.clear()
+                    dao.insertDocuments(allDocuments.map {
+                        DocumentSearch(it.osisID, it.abbreviation, if (it.isPseudoBook) "" else it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)
+                            ?: "")
+                    })
+                }
 
                 Log.i(TAG, "Number of documents:" + allDocuments.size)
             } catch (e: Exception) {
