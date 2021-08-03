@@ -133,6 +133,8 @@ export default {
 .editable-text {
   position: relative;
   line-height: 1.25em;
+  color: var(--text-color);
+  background-color: var(--background-color);
 }
 </style>
 <style lang="scss">
