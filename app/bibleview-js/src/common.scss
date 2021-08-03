@@ -100,6 +100,10 @@ $button-grey: #8e8e8e;
   &.light {
     background-color: #bdbdbd;
     color: black;
+    .night & {
+      background-color: #616161;
+      color: #bdbdbd;
+    }
   }
   &.warning {
     background: rgba(255, 0, 0, 0.5);
