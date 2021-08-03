@@ -10,7 +10,8 @@
 	android:mode="twoLine"
 	android:paddingStart="16dp"
 	android:paddingEnd="16dp"
-	android:background="@drawable/selectable_background">
+	android:background="@drawable/selectable_background"
+	>
     <androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
