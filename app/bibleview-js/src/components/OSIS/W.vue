@@ -94,7 +94,7 @@ export default {
         resetHighlights();
         isHighlighted.value = true;
         addCustom(() => isHighlighted.value = false);
-      }, {priority, title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
+      }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
     }
     const showStrongs = computed(() => config.strongsMode !== strongsModes.off);
     const showStrongsSeparately = computed(() => config.strongsMode === strongsModes.links);
