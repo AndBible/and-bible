@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -31,6 +32,7 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
+import androidx.appcompat.view.ActionMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -58,6 +60,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
 import javax.inject.Inject
@@ -497,7 +500,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     private fun handleDelete(documents: List<Book>) {
         for (document in documents) {
-            if (documentControl.canDelete(document)) {
+            if (documentControl.canDelete(document.installedDocument)) {
                 val msg: CharSequence = getString(R.string.delete_doc, document.name)
                 AlertDialog.Builder(this)
                     .setMessage(msg).setCancelable(true)
@@ -505,7 +508,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     ) { dialog, buttonId ->
                         try {
                             Log.d(TAG, "Deleting:$document")
-                            documentControl.deleteDocument(document)
+                            documentControl.deleteDocument(document.installedDocument)
 
                             // the doc list should now change
                             reloadDocuments()
@@ -532,7 +535,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 ) { dialog, buttonId ->
                     try {
                         Log.d(TAG, "Deleting index:$document")
-                        swordDocumentFacade.deleteDocumentIndex(document)
+                        swordDocumentFacade.deleteDocumentIndex(document.installedDocument)
                     } catch (e: Exception) {
                         Log.e(TAG, "Deleting index crashed", e)
                         instance.showErrorMsg(R.string.error_occurred, e)
@@ -588,3 +591,5 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     }
 
 }
+
+val Book.installedDocument get() = Books.installed().getBook(initials)

@@ -27,6 +27,7 @@ import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
+import androidx.appcompat.view.ActionMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -51,6 +52,7 @@ import net.bible.service.download.isPseudoBook
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
 import java.io.File
 import java.net.URI
 import java.text.SimpleDateFormat
@@ -68,8 +70,21 @@ import kotlin.coroutines.suspendCoroutine
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R.menu.download_documents_context_menu) {
+val Book.isInstalled: Boolean get() = Books.installed().getBook(initials) != null
+
+
+open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R.menu.document_context_menu) {
     @Inject lateinit var downloadControl: DownloadControl
+
+    override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
+        if(selectedItemPositions.isNotEmpty()) {
+            val isInstalled = displayedDocuments[selectedItemPositions[0]].isInstalled
+            menu.findItem(R.id.delete).isVisible = isInstalled
+            menu.findItem(R.id.delete_index).isVisible = isInstalled
+            menu.findItem(R.id.unlock).isVisible = isInstalled && displayedDocuments[selectedItemPositions[0]].isEnciphered
+        }
+        return super.onPrepareActionMode(mode, menu, selectedItemPositions)
+    }
 
     private val genericFileDownloader = GenericFileDownloader {
         invalidateOptionsMenu()
