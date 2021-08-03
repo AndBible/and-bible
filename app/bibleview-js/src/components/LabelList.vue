@@ -199,8 +199,5 @@ export default {
   &.singleLine {
     flex-wrap: nowrap;
   }
-
-  --label-text-white: white;
-  --label-text-black: #353535;
 }
 </style>

@@ -180,8 +180,9 @@ export default {
     }
 
     const labelNameStyle = computed(() => {
-      const color = adjustedColorOrig(label.style.color).alpha(0.5).hsl().string();
-      return `background-color: ${color};`;
+      const color = adjustedColorOrig(label.style.color);
+      const textColor = color.isLight() ? "var(--label-text-black)": "var(--label-text-white)";
+      return `background-color: ${color.string()}; color: ${textColor};`;
     });
 
     function studyPadOrdinal(journalEntry) {
