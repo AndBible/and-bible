@@ -1,0 +1,80 @@
+openMyNotes: ""
+openStudyPad: ""
+noteText: הערות שוליים (%s)
+noteTextWithoutType: הערות שוליים
+crossReferenceText: ""
+findAllOccurrences: מצא את כל המופעים
+reportError: ""
+errorTitle: ""
+warningTitle: אזהרה
+normalTitle: ""
+footnoteTypeUndefined: סוג שאינו מוגדר
+footnoteTypeStudy: מחקר
+footnoteTypeExplanation: הסבר
+footnoteTypeVariant: ""
+footnoteTypeAlternative: חלופה
+footnoteTypeTranslation: תרגום
+clearLog: ""
+editNote: עריכה
+editNotePlaceholder: ""
+editTextPlaceholder: ""
+inputPlaceholder: ""
+inputReference: ""
+invalidReference: הפסוק לא נמצא
+assignLabels: תוויות
+bookmarkAccurate: ""
+bookmarkInaccurate: ""
+defaultBook: ""
+ok: אישור
+yes: "כן"
+ambiguousSelection: ""
+cancel: ביטול
+removeBookmarkConfirmationTitle: "למחוק את הסימניה?"
+removeBookmarkConfirmation: ""
+closeModal: סגירה
+createdAt: ""
+lastUpdatedOn: ""
+strongsLink: ""
+morphLink: ""
+strongsAndMorph: ""
+studyPadLink: ""
+externalLink: ""
+referenceLink: ""
+openFootnote: ""
+openBookmark: ""
+noMyNotesTitle: ""
+noMyNotesDescription: >
+emptyStudyPad: >
+studyPadModalTitle: ""
+doYouWantToDeleteEntry: ""
+removeStudyPadConfirmationTitle: ""
+dragHelp: ""
+saved: ""
+openAll: ""
+editBookmarkPlaceholder: ""
+onlyLabel: ""
+wholeBookmark: ""
+otherNoteText: ""
+assignLabelsMenuEntry: הוסף תוויות
+assignLabelsMenuEntry1: ""
+jumpToStudyPad: ""
+setAsPrimaryLabel: ""
+removeBookmarkLabel: ""
+addBookmarkLabel: ""
+favouriteLabels: ""
+recentLabels: ""
+frequentlyUsedLabels: ""
+bookmarkLabels: ""
+refParserHelp: ""
+openDownloads: ""
+verseShare: שתף
+verseCompare: ""
+verseNote: ""
+verseMyNotes: הערות אישיות
+verseSpeak: הקראה
+verseShareLong: ""
+verseCompareLong: ""
+verseNoteLong: ""
+verseSpeakLong: ""
+verseTip: ""
+addBookmark: סימניה
