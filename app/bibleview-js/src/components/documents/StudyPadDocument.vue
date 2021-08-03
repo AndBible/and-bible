@@ -179,10 +179,8 @@ export default {
       android.createNewJournalEntry(label.id, lastEntry.value.type, lastEntry.value.id);
     }
 
-    const appSettings = inject("appSettings");
-
     const labelNameStyle = computed(() => {
-      const color = adjustedColorOrig(label.style.color).alpha(appSettings.nightMode ? 0.8: 0.3).hsl().string();
+      const color = adjustedColorOrig(label.style.color).alpha(0.5).hsl().string();
       return `background-color: ${color};`;
     });
 
