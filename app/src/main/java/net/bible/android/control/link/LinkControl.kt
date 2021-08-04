@@ -43,9 +43,7 @@ import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
-import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
-import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
@@ -179,12 +177,7 @@ class LinkControl @Inject constructor(
      */
 
     @Throws(NoSuchKeyException::class)
-    private fun getStrongsKey(book: Book?, key: String): BookAndKey? { // valid Strongs uri but Strongs refs not installed
-        if (book == null) {
-            Dialogs.instance.showErrorMsg(R.string.strongs_not_installed)
-            // this uri request was handled by showing an error message
-            return null
-        }
+    private fun getStrongsKey(book: Book, key: String): BookAndKey? { // valid Strongs uri but Strongs refs not installed
         val sanitizedKey = sanitizeStrongsKey(key) ?: return null
         val k = book.getKey(sanitizedKey)
         return BookAndKey(book, k)
@@ -194,13 +187,8 @@ class LinkControl @Inject constructor(
         Regex("^([0-9]+).*").find(key)?.groups?.get(1)?.value?.padStart(5, '0')
 
     @Throws(NoSuchKeyException::class)
-    private fun getRobinsonMorphologyKey(key: String): BookAndKey? {
+    private fun getRobinsonMorphologyKey(key: String): BookAndKey {
         val robinson = swordDocumentFacade.defaultRobinsonGreekMorphology
-        if (robinson == null) {
-            Dialogs.instance.showErrorMsg(R.string.morph_robinson_not_installed)
-            // this uri request was handled by showing an error message
-            return null
-        }
         val robinsonNumberKey = robinson.getKey(key)
         return BookAndKey(robinson, robinsonNumberKey)
     }

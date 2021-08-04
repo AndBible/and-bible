@@ -48,13 +48,17 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
 import org.jdom2.Element
+import org.jdom2.input.SAXBuilder
 import org.xml.sax.ContentHandler
+import java.io.StringReader
 import java.lang.RuntimeException
 import java.util.*
 import kotlin.math.min
 
-open class OsisError(message: String): Exception(message)
-class DocumentNotFound(message: String): OsisError(message)
+open class OsisError(xmlMessage: String): Exception(xmlMessage) {
+    val xml: Element = SAXBuilder().build(StringReader("<div>$xmlMessage</div>")).rootElement
+}
+class DocumentNotFound(xmlMessage: String): OsisError(xmlMessage)
 
 /** JSword facade
  *
@@ -69,7 +73,7 @@ object SwordContentFacade {
     fun readOsisFragment(book: Book?, key: Key?,): Element = when {
         book == null || key == null -> {
             Log.e(TAG, "Key or book was null")
-            throw throw OsisError(application.getString(R.string.error_no_content))
+            throw OsisError(application.getString(R.string.error_no_content))
         }
         Books.installed().getBook(book.initials) == null -> {
             Log.w(TAG, "Book may have been uninstalled:$book")

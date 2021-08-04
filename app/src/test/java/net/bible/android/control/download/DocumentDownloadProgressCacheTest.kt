@@ -74,7 +74,7 @@ class DocumentDownloadProgressCacheTest {
 
         init {
             try {
-                document = FakeBookFactory.createFakeRepoSwordBook(initials, "[KJV]\nDescription=My Test Book", "")
+                document = FakeBookFactory.createFakeRepoBook(initials, "[KJV]\nDescription=My Test Book", "")
             } catch (e: IOException) {
                 e.printStackTrace()
             } catch (e: BookException) {

@@ -24,6 +24,7 @@ import kotlinx.coroutines.coroutineScope
 import net.bible.android.control.ApplicationScope
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.index.IndexCreator
@@ -82,7 +83,7 @@ class SwordDocumentFacade @Inject constructor() {
             return allDocuments
         }
 
-    val defaultRobinsonGreekMorphology: Book?
+    val defaultRobinsonGreekMorphology: Book
         get() {
             val bookInitials = CommonUtils.settings.getString("robinson_greek_morphology", null)
             if(bookInitials != null) {
@@ -96,10 +97,10 @@ class SwordDocumentFacade @Inject constructor() {
                     return strongs
                 }
             }
-            return Defaults.getGreekParse()
+            return Defaults.getGreekParse()?: FakeBookFactory.giveDoesNotExist("Robinson", BookCategory.DICTIONARY)
         }
 
-    val defaultStrongsGreekDictionary: Book?
+    val defaultStrongsGreekDictionary: Book
         get() {
             val bookInitials = CommonUtils.settings.getString("strongs_greek_dictionary", null)
             if(bookInitials != null) {
@@ -115,10 +116,10 @@ class SwordDocumentFacade @Inject constructor() {
                     return strongs
                 }
             }
-            return Defaults.getGreekDefinitions()
+            return Defaults.getGreekDefinitions()?: FakeBookFactory.giveDoesNotExist("StrongsRealGreek", BookCategory.DICTIONARY)
         }
 
-    val defaultStrongsHebrewDictionary: Book?
+    val defaultStrongsHebrewDictionary: Book
         get() {
             val bookInitials = CommonUtils.settings.getString("strongs_hebrew_dictionary", null)
             if(bookInitials != null) {
@@ -133,7 +134,7 @@ class SwordDocumentFacade @Inject constructor() {
                     return strongs
                 }
             }
-            return Defaults.getHebrewDefinitions()
+            return Defaults.getHebrewDefinitions()?: FakeBookFactory.giveDoesNotExist("StrongsRealHebrew", BookCategory.DICTIONARY)
         }
 
     val defaultBibleWithStrongs: Book?

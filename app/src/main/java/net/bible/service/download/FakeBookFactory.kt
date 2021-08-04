@@ -21,13 +21,36 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
+import org.crosswire.jsword.book.BookMetaData
+import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
+import org.crosswire.jsword.book.sword.SwordDictionary
+import org.crosswire.jsword.book.sword.state.OpenFileState
+import org.crosswire.jsword.passage.Key
 import java.io.IOException
 import java.util.*
+
+class NullOpenFileState(val metadata: SwordBookMetaData): OpenFileState {
+    override fun close() = Unit
+    override fun getBookMetaData(): BookMetaData = metadata
+    override fun releaseResources() = Unit
+    override fun getLastAccess(): Long = 0L
+    override fun setLastAccess(lastAccess: Long) = Unit
+}
+
+class NullKeyBackend(val metadata: SwordBookMetaData): AbstractKeyBackend<NullOpenFileState>(metadata) {
+    override fun initState(): NullOpenFileState = NullOpenFileState(metadata)
+    override fun getCardinality(): Int = 1
+    override fun get(index: Int): Key = this
+    override fun indexOf(that: Key?): Int = 0
+    override fun readRawContent(state: NullOpenFileState?, key: Key?): String = ""
+}
+
 
 /** Create dummy sword Books used to download from Xiphos Repo that has unusual download file case
  *
@@ -36,14 +59,16 @@ import java.util.*
 object FakeBookFactory {
     /** create dummy Book object for file available for download from repo
      */
-    @JvmStatic
     @Throws(IOException::class, BookException::class)
-    fun createFakeRepoSwordBook(module: String?, conf: String, repo: String?): SwordBook {
+    fun createFakeRepoBook(module: String?, conf: String, repo: String?, type: BookCategory = BookCategory.COMMENTARY): Book {
         val sbmd = createRepoSBMD(module, conf)
         if (StringUtils.isNotEmpty(repo)) {
             sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repo)
         }
-        return SwordBook(sbmd, NullBackend())
+        return when(type) {
+            BookCategory.DICTIONARY -> SwordDictionary(sbmd, NullKeyBackend(sbmd))
+            else -> SwordBook(sbmd, NullBackend())
+        }
     }
 
     /** create sbmd for file available for download from repo
@@ -60,38 +85,35 @@ object FakeBookFactory {
     private var _multiDocument: Book? = null
     private var _journalDocument: Book? = null
     private var _myNotesDocument: Book? = null
-    private var _doesNotExist: Book? = null
 
     private var _doesNotExistBooks: MutableMap<String, Book> = TreeMap()
 
     val multiDocument: Book
         get() =
-            _multiDocument ?: createFakeRepoSwordBook("Multi", MULTI_DUMMY_CONF, "").apply {
+            _multiDocument ?: createFakeRepoBook("Multi", MULTI_DUMMY_CONF, "").apply {
                 _multiDocument = this
             }
 
-    fun giveDoesNotExist(id: String): Book =
-            _doesNotExistBooks[id] ?: createFakeRepoSwordBook(id, doesNotExistConf(id), "").apply {
-                _doesNotExistBooks[id] = this
+    fun giveDoesNotExist(id: String, type: BookCategory = BookCategory.COMMENTARY): Book =
+            _doesNotExistBooks["$id-$type"] ?: createFakeRepoBook(id, doesNotExistConf(id, type), "", type).apply {
+                _doesNotExistBooks["$id-$type"] = this
             }
-
-    val doesNotExist: Book get() = giveDoesNotExist("DoesNotExist")
 
     val compareDocument: Book
         get() =
-            _compareDocument ?: createFakeRepoSwordBook("Compare", COMPARE_DUMMY_CONF, "").apply {
+            _compareDocument ?: createFakeRepoBook("Compare", COMPARE_DUMMY_CONF, "").apply {
                 _compareDocument = this
             }
 
     val journalDocument: Book
         get() =
-            _journalDocument ?: createFakeRepoSwordBook("Journal", JOURNAL_DUMMY_CONF, "").apply {
+            _journalDocument ?: createFakeRepoBook("Journal", JOURNAL_DUMMY_CONF, "").apply {
                 _journalDocument = this
             }
 
     val myNotesDocument: Book
         get() =
-            _myNotesDocument ?: createFakeRepoSwordBook("My Note", MY_NOTE_DUMMY_CONF, "").apply {
+            _myNotesDocument ?: createFakeRepoBook("My Note", MY_NOTE_DUMMY_CONF, "").apply {
                 _myNotesDocument = this
             }
 
@@ -130,10 +152,10 @@ Encoding=UTF-8
 LCSH=Bible--Commentaries.
 Versification=KJVA"""
 
-    private fun doesNotExistConf(id: String) = """[$id]
+    private fun doesNotExistConf(id: String, type: BookCategory) = """[$id]
 Description=$id
 Abbreviation=$id
-Category=Commentaries
+Category=${type.name}
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
 AndBibleDoesNotExist=1
@@ -150,7 +172,7 @@ Encoding=UTF-8
 LCSH=Bible
 Versification=KJVA"""
 
-    private fun getPseudoBook(modName: String, suggested: String) = createFakeRepoSwordBook(modName, getPseudoBookConf(modName, suggested), "Not Available")
+    private fun getPseudoBook(modName: String, suggested: String) = createFakeRepoBook(modName, getPseudoBookConf(modName, suggested), "Not Available")
 
     val downloadPseudoDocuments: List<Book> get() = listOf(
         getPseudoBook("ESV", "You might like NASB translation as an option."),
