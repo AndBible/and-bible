@@ -129,6 +129,7 @@
 			app:layout_constraintBottom_toBottomOf="@id/recommendedString"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:tint="@color/red"
+			android:visibility="invisible"
 			/>
 
 		<ProgressBar android:id="@+id/progressBar"
