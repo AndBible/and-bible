@@ -43,6 +43,8 @@ import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentSelectionBinding
 import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.download.DocumentStatus
+import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.DocumentSearch
@@ -97,6 +99,7 @@ data class RecommendedDocuments(
 }
 
 abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
+    @Inject lateinit var downloadControl: DownloadControl
 
     protected lateinit var binding: DocumentSelectionBinding
 
@@ -401,6 +404,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
                         displayedDocuments.sortWith(
                             compareBy(
+                                { downloadControl.getDocumentStatus(it).documentInstallStatus != DocumentStatus.DocumentInstallStatus.BEING_INSTALLED },
                                 { swordDocumentFacade.getDocumentByInitials(it.initials) == null },
                                 { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
                                 {

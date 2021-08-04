@@ -74,8 +74,6 @@ val Book.isInstalled: Boolean get() = Books.installed().getBook(initials) != nul
 
 
 open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R.menu.document_context_menu) {
-    @Inject lateinit var downloadControl: DownloadControl
-
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
         if(selectedItemPositions.isNotEmpty()) {
             val isInstalled = displayedDocuments[selectedItemPositions[0]].isInstalled

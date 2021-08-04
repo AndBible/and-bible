@@ -874,7 +874,7 @@ object CommonUtils : CommonUtilsBase() {
             initialized = true
         }
 
-        if(!booksInitialized && Books.installed().books.isNotEmpty()) {
+        if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
             if(!application.isRunningTests) {
                 for (it in docDao.getUnlocked()) {
                     val book = Books.installed().getBook(it.initials)
