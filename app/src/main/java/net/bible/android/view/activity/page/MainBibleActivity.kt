@@ -620,7 +620,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 true
             }
             searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), STD_REQUEST_CODE) }
-            bookmarkButton.setOnClickListener { startActivityForResult(Intent(this@MainBibleActivity, Bookmarks::class.java), STD_REQUEST_CODE) }
         }
     }
 
@@ -957,20 +956,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 } else View.GONE
             }
 
-            fun addBookmarks() {
-                bookmarkButton.visibility = if (visibleButtonCount < maxButtons) {
-                    visibleButtonCount += 1
-                    View.VISIBLE
-                } else View.GONE
-            }
-
             val speakLastUsed = preferences.getLong("speak-last-used", 0)
             val searchLastUsed = preferences.getLong("search-last-used", 0)
-            val bookmarksLastUsed = preferences.getLong("bookmarks-last-used", 0)
 
-            val funs = arrayListOf(Pair(speakLastUsed, {addSpeak()}),
+            val funs = arrayListOf(
+                Pair(speakLastUsed, {addSpeak()}),
                 Pair(searchLastUsed, {addSearch()}),
-                Pair(bookmarksLastUsed, {addBookmarks()}))
+            )
             funs.sortBy { -it.first }
 
             for(p in funs) {
