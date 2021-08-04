@@ -33,7 +33,6 @@ import org.crosswire.jsword.book.install.InstallManager
 import org.crosswire.jsword.book.install.Installer
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * Originally copied from BookInstaller it calls Sword routines related to installation and removal of books and indexes
@@ -76,7 +75,7 @@ class DownloadManager(
                     log.warn("Reloading book list")
 
                     val indexLastUpdated = installer.indexLastUpdated()
-                    if(indexLastUpdated > CommonUtils.settings.getLong("repo-$repo-updated", 0)) {
+                    if(indexLastUpdated == 0L || indexLastUpdated > CommonUtils.settings.getLong("repo-$repo-updated", 0)) {
                         installer.reloadBookList()
                         CommonUtils.settings.setLong("repo-$repo-updated", indexLastUpdated)
                     }

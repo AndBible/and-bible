@@ -88,7 +88,7 @@ class GenericFileDownloader(
         }
     }
 
-    private fun lastUpdated(uri: URI): Long =
+    private fun lastUpdated(uri: URI): Long? =
         try {
             val httpsURLConnection = uri.toURL().openConnection() as HttpsURLConnection
             val lastModified: Long = httpsURLConnection.lastModified
@@ -96,7 +96,7 @@ class GenericFileDownloader(
             lastModified
         } catch (e: Exception) {
             Log.e(TAG, "Could not check last modified time for $uri")
-            0
+            null
         }
 
     suspend fun downloadFile(source: URI, target: File, description: String, reportError: Boolean = true) = withContext(Dispatchers.IO) {
@@ -104,7 +104,7 @@ class GenericFileDownloader(
         val lastUpdated = lastUpdated(source)
         if(target.canRead()) {
             val lastChecked = settings.getLong("last-downloaded-${source}", 0)
-            if (lastUpdated <= lastChecked) return@withContext;
+            if (lastUpdated != null && lastUpdated <= lastChecked) return@withContext;
         }
         settings.setLong("last-downloaded-${source}", lastUpdated)
 
