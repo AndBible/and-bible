@@ -358,8 +358,6 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
                 binding.freeTextSearch.setText("")
 
-                Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
-
                 // prepare the document list view - done in another thread
                 GlobalScope.launch {
                     loadRecommendedDocuments()
