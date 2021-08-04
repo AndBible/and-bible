@@ -3,8 +3,8 @@
   <string name="app_name_short">Киелі Кітапті Зерттеу</string>
   <string name="app_name_medium">Киелі Кітапті Зерттеу (And Bible)</string>
   <string name="app_name_long">Киелі Кітапті Зерртеу қолданбасы, And Bible - ашық көзді жобасы арқылы болып табылады</string>
-  <string name="project">And Bible Ашық Ақпарат көзді Жоба</string>
-  <string name="version_text">Версия %s</string>
+  <string name="project">And Bible Ашық Көзді Ақпаратты Жоба</string>
+  <string name="version_text">Нұсқа %s</string>
   <string name="no_sdcard_error">SD картаны салыңыз және қолданбаны қайта іске қосыңыз.</string>
   <!--Main menu-->
   <string name="menu">Мәзір</string>
@@ -58,7 +58,7 @@
   <string name="error_executing_search">Іздеу сауалы қате</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Тарау мен аят нөмерлері</string>
-  <string name="prefs_show_verseno_summary">Тарау көрсету мен аят нөмерлері</string>
+  <string name="prefs_show_verseno_summary">Тарау мен аят нөмерлерін көрсету</string>
   <string name="prefs_e_ink_mode_title">Қара мен ақ тәртіптемесі</string>
   <string name="prefs_eink_mode_summary">Монохром режимінде қолданбаны падаланып (түстері жетімсіз), оны неғұрлым электрондық сия құрал жабдықтарына қолайлы ету.</string>
   <string name="prefs_disable_animations_title">Анимация шектеулі</string>
@@ -149,13 +149,28 @@
   <string name="line_spacing_title">Жол арасын кеңейту</string>
   <string name="line_spacing_summary">Жол арасындағы бос орынды орнатыңыз</string>
   <string name="select_none">Ешқайсысын таңдамау</string>
+  <string name="reset_are_you_sure">Барлық параметрлерді қайта қалпына келтіргіңіз келетініне сенімдісіз бе? </string>
   <string name="window_pinning_menutitle">Терезені бекіту</string>
   <string name="hide_window_buttons_title">Терезе түймелерін жасырыңыз</string>
-  <string name="hide_window_buttons_summary">Киелі Кітаптың көріністерінің оң жағында көрсетілген терезенің түймелері жасырылған.</string>
+  <string name="hide_window_buttons_summary">Киелі Кітаптың көріністерінің оң жағында көрсетілген терезенің түймелері жасырылған. Төменгі жағындағы навигациялық шарлау жолағы әлі де көрсетіледі, оларды ұзақ басып терезенің қалқымалы мәзірін аша аласыз.</string>
+  <string name="hide_bible_reference_overlay_title">Киелі кітаптың сілтемелер белгісін жасыру</string>
   <string name="hide_bible_reference_overlay_summary">Қолданба толық бейне режимінде болғанда, Киелі Кітапқа жартылай мөлдір, үстінен қабатталған сілтеме көрсетпеңіз</string>
   <string name="full_screen_hide_buttons_pref_title">Толық бейнеде терезенің батырма түймесін жасыру</string>
   <string name="full_screen_hide_buttons_pref_summary">Толық бейне режиміне ауысқан кезде, бейненің төмендегі терезенің батырма жолағын автоматты түрде жасырыңыз</string>
+  <string name="prefs_dictionaries_cat">Сөздіктер</string>
+  <string name="choose_strongs_greek_dictionary_title">Стронг Грек сөздігі</string>
+  <string name="choose_strongs_greek_dictionary_summary">Грек сөзін анықтау үшін Стронг сөздігін таңдау</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Стронгтың Еврей сөздігі</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Еврей сөзін анықтау үшін Стронг сөздігін таңдау</string>
+  <string name="choose_strongs_greek_morphology_title">Робинзон Грек морфологиясы</string>
+  <string name="choose_strongs_greek_morphology_summary">Робинзонның Грек морфологиясын анықтау үшін сөздіктерді таңдау</string>
+  <string name="prefs_top_margin_title_mm">Жоғарғы шекара (%d mm)</string>
   <string name="font_size_title">Шрифт көлемі</string>
+  <string name="font_size_title_pt">Қаріп өлшемі (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Негізгі мәтіннің қаріп өлшемін келтіру</string>
+  <string name="pref_font_family_label_name">Қаріптер тобы (%s)</string>
+  <string name="prefs_font_family_summary">Қаріптер тобын өзгерту. Кеңес: қосымша қаріптерді Жүктелетін Құжаттар / қондырмалар арқылы орнатуға болады.</string>
+  <string name="prefs_text_bookmarks_title">Бетбелгілер мен жазбалар реттеулері</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Түстердің параметрлері</string>
   <string name="window_color_settings_title">Терезе түсінің параметрлері</string>
@@ -193,21 +208,33 @@
   <string name="strongs_not_installed">Стронгтің Еврей мен Грек сөздігін жүктеңіз</string>
   <string name="no_indexed_bible_with_strongs_ref">Іздеу арқылы Стронг нөмірлерін қамтитын Киелі Кітапты және оның индексін жүктеу үшін сіз жүктеуге міндеттісіз</string>
   <string name="morph_robinson_not_installed">\'Робинсонның Морфологиялық Анализ Кодтар\' сөздігін жүктеңіз</string>
+  <string name="go_to_downloads">Жүктемелерге өту</string>
   <!--Module download-->
   <string name="download">Құжаттарды Жүктеу</string>
+  <string name="redownload">Құжаттарды қайта жүктеу</string>
   <string name="download_confirmation">Интернеттен Киелі Кітапты жүктеу керек пе?</string>
+  <string name="download_source_last_updated">Құжаттар тізімі соңғы рет жаңартылды: %s.</string>
+  <string name="download_refreshing_book_list">Қол жетімді құжаттардың тізімін құжат серверлерінен жаңарту </string>
+  <string name="download_source_message1">Құжаттар келесі көздерден жүктеледі:</string>
   <string name="download_document_confirm_prefix">Жүктеу</string>
   <string name="download_refresh_book_list_menu_item">Жаңарту</string>
+  <string name="error_downloading">Жүктеу барысында қате пайда болды. Өтінеміз, интернет байланысыңызды тексеріңіз.</string>
+  <string name="error_downloading_status">Хост орналасқан сервер  %s қате болғандықтан қайтарды  %s (%d).</string>
   <string name="storage_space_warning">Компьютердің жергілікті жадының жеткіліксіздігі. </string>
+  <string name="too_many_jobs">Тым көп тапсырмалар орындалуда. Кейбіреуі аяқталғанша күтіңіз және қайта тырысып көріңіз.</string>
   <string name="document_not_installed">Жүктеңіз \'%s\'</string>
   <string name="free_text_search_documents">Іздеу</string>
   <string name="chooce_language_hint">Тіл</string>
+  <string name="one_more_back_press">Қосымшаны жабу үшін артқа батырмасын қайта басыңыз</string>
   <string name="document_filter_results">%dқұжаттар</string>
   <string name="download_question_title">Құжаттарды жүктеуді жалғастырғыңыз келе ме?</string>
+  <string name="download_question_message">Егерде сіз қудалау бар елде тұрып жатсаңыз, Мәсіхшілік материалдарды интернет желісінен жүктеу барысында абай болуыңыз қажет. Мүмкін сіз оның орнына, қауіпсіз жолмен модульдердің zip файлдарын алып, оларды орнатқыңыз келеді. Барлық жүктеулер модуль серверлерінен шифрланған (HTTPS)
+</string>
   <string name="do_not_ask_again">Иә, басқа сұрамаңыз </string>
   <string name="recommended_document">Ұсынылады!</string>
   <string name="about_version_history">Тарих нұсқасы:%s</string>
   <string name="download_errors">Жүктеу қателері</string>
+  <string name="failed_repositories_message">Келесі құжаттың серверге қосылу мүмкіндігі болмады: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Келесі файлдар жүктеле алмады:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Zip файлдан жүктеу</string>
@@ -224,8 +251,21 @@
   <string name="rdg_plan_selector_title">Оқу Жоспарын Таңдаңыз</string>
   <string name="rdg_plan_day">Күн %s</string>
   <string name="rdg_plan_set_start_date">Басталу Күнін Орнату...</string>
+  <string name="set_current_day">Ағымдағы күн ретінде орнату…</string>
+  <string name="msg_set_current_day_reading_plan">Жоспар бойынша бүгінгі күнді ағымдағы күн деп орнатып, алдыңғы күндерді оқылған деп белгілейді. Жалғастырайық па?</string>
   <string name="done">Орындалды</string>
   <string name="reset_plan_question">Осы жоспарды қайта қалпына келтіргіңіз келетініне сенімдісіз бе?</string>
+  <string name="import_reading_plan">Оқу жоспарын импорттау...</string>
+  <string name="import_reading_plan_error">Импорттау қатесі</string>
+  <string name="import_reading_plan_error_duplicate">Келесі күндер қайталанды:%s</string>
+  <string name="import_reading_plan_error_days">Келесі күндері қателер болды:%s</string>
+  <string name="import_reading_plan_anyway">Кез келген жағдайда импорттау</string>
+  <string name="overwrite_reading_plan">Қайта жазғыңыз келеді ма?%s</string>
+  <string name="delete_reading_plan">Жоспарды өшіру</string>
+  <string name="reading_plan_deleted">Оқу жоспары өшірілген</string>
+  <string name="reading_plan_ships_with_ab">Оқу жоспары жеткізіледі %s</string>
+  <string name="confirm_delete_reading_plan">Сіз оны оқу тарихымен бірге жойғыңыз келетініне сенімдісіз бе? %sКеңес: егер сізге жоспарды жаңарту қажет болса, оны сол файл атауымен қайтадан импорттауға болады және тарих сақталады
+</string>
   <string name="plan_duplicate_user_plan">
 SD картасында пайдаланушының оқу жоспары бар,
 jsword/ оқу жоспарының аталуы ішкі жоспарының аталуымен бірдей. Оны мұнда тізімдеуге болмайды.
@@ -266,6 +306,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--Verse context menu-->
   <string name="notes">Ескертпелер мен сілтемелер</string>
   <string name="share_verse">Бөлісу...</string>
+  <string name="share_verse_widget_title">Таңдаумен бөлісу</string>
   <string name="share_verse_subject_2">Киелі Кітап аяты %s пайдаланып сізбен бөлісілді</string>
   <string name="compare_translations">Аудармаларды салыстыру</string>
   <!--Link context menu-->
@@ -273,15 +314,32 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="open_link_in_new_window">Жаңа терезеде линк сілтемені ашыңыз</string>
   <string name="open_link_in_special_window">Айрықша арнайы терезеде линк сілтемені ашыңыз</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Бетбелгілер және менің жазбаларым</string>
+  <string name="migrated_my_notes">Жазбалырымды көшіру</string>
   <string name="bookmarks">Кітап белгілері</string>
   <string name="bookmark_added">Кітап белгісі қосылды</string>
+  <string name="manage_labels">Белгілерді басқару</string>
   <string name="assign_labels">Таңбаларды белгілеу</string>
   <string name="new_item">Жаңа</string>
   <string name="new_label">Жаңа таңба</string>
   <string name="label_name_prompt">Атауы</string>
   <string name="label_unlabelled">Таңбаланбаған</string>
+  <string name="add_bookmark1">Бетбелгі</string>
+  <string name="add_bookmark2">Бетбелгі таңдау</string>
+  <string name="add_bookmark3">Таңдау</string>
+  <string name="add_bookmark_whole_verse">Аят бетбелгісі</string>
+  <string name="add_bookmark_whole_verse1">Аяттар</string>
+  <string name="add_bookmark_whole_verse2">Толық аяттар</string>
   <string name="remove_bookmark">Жою</string>
+  <string name="bookmark_settings_hide_labels_title">Көрсетілген белгілерді жасыру</string>
+  <string name="bookmark_settings_hide_labels_summary">Көрсетілген таңбалармен белгіленген бетбелгілерді жасыру</string>
+  <string name="auto_assign_labels_title">Белгі реттеулері</string>
+  <string name="auto_assign_labels">Автоматты түрде тағайындау және таңдаулы белгілер</string>
+  <string name="auto_assign_labels1">Жаңа бетбелгілерге автоматты түрде белгі тағайындау</string>
+  <string name="auto_assign_labels_primary">Автоматты тағайындауды негізгі ету</string>
+  <string name="label_color">Белгі түсі</string>
   <!--can be removed-->
+  <string name="label_color_example">Үлгі</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Күн реті</string>
   <string name="sort_by_bible_book">Киелі Кітап реті</string>
@@ -347,16 +405,25 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="speak_status_stopped">Тоқтатылған</string>
   <string name="speak_autobookmarking_disabled">Автоматты кітап белгілеу өшірілген!</string>
   <string name="system_speak_settings">TTS жүйесінің ашық параметрлері</string>
+  <string name="auto_assing_labels_help1">Мұнда сіз жасайтын бетбелгілерге қандай белгілер автоматты түрде тағайындалатынын реттей аласыз.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Бұл параметр қолданылады%s.</string>
   <string name="setting_scope_window">Осы терезе</string>
+  <string name="setting_scope_workspace">осы жумыс орны</string>
+  <string name="assing_labels_help1">Әр бетбелгіге бірнеше белгі берілуі мүмкін.</string>
   <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Көрсетілген белгінің түсін көрсету үшін қолдану%s</string>
   <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Бұл белгі жаңа бетбелгілерге автоматты түрде тағайындалуы үшін батырманы басыңыз.%s</string>
   <!--param is heart icon-->
+  <string name="assing_labels_help4">Басыңыз, %s ұяшыққа жылдам өту үшін оны таңдаулы тізімге қосыңыз</string>
   <!--param is refresh icon-->
+  <string name="workspace_text_options_help_title">Жұмысорнының мәтін параметрлері</string>
   <string name="workspace_text_options_help1">Бұл баптаулар  әдепкі қалпы бойынша барлық жұмыс кеңістігінің терезелерінің анықтатады.</string>
   <string name="workspace_text_options_help2"> Жеке терезенің баптауларын өзегрту арқылы, осылардың алдыңғысын қайта жоя аласыз.</string>
   <string name="window_text_options_help_title">Терезе мәтінінің опциялары</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%sбелгі параметр жұмысорнының параметрлерінен алынғанын көрсетеді.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s белгішесі бұл баптаудың осы арнайы нақты терезе үшін өзгертілгенің көрсетеді.</string>
   <string name="window_text_options_help3">Жұмыс кеңістігінің баптауы бұл терезеге әсер етпейді.</string>
@@ -503,6 +570,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 Құжатты Таңдау тармағының тізім көрінісіндегі құжат элементін ұзақ басыңыз, не құжатты жою үшін Жүктеңіз немесе ақпаратты қараңыз.
 Таңбаларды қосу не кітап белгілерін жою үшін, кітап белгілер тізіміндегі кітап белгісін ұзақ басыңыз.
 Егер сіз байланысты линктерді қазіргі терезеде, жаңа терезеде немесе айрықша арнайы линктер терезесінде ашып таңдағыңыз келсе, ол үшін линктерді ұзақ басыңыз.</string>
+  <string name="help_bookmarks_title">Бетбелгілер және менің жазбаларым</string>
   <string name="help_search_title">Іздеу</string>
   <string name="help_search_text">Текст іздеу - осындай сияқты *, ?, ЖӘНЕ, НЕМЕСЕ, ЕМЕС арнайы таңбаларды қамтуы мүмкін
 (толығырақ мәліметтер үшін  \"Apache Lucene - Query Parser Syntax\" көріңіз)</string>
