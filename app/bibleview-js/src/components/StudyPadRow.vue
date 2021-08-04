@@ -22,7 +22,7 @@
     </template>
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
-  <div class="menu">
+  <div class="menu" :class="{isText: journalEntry.type === JournalEntryTypes.JOURNAL_TEXT}">
     <ButtonRow show-drag-handle>
       <div class="journal-button" @click="addNewEntryAfter">
         <FontAwesomeIcon icon="plus-circle"/>

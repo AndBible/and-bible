@@ -24,7 +24,10 @@
     left: 0;
   }
 
-  top: 0;
+  top: -3px;
+  &.isText {
+    top: -15px;
+  }
   z-index: 1;
 }
 
