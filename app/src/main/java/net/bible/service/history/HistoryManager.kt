@@ -47,8 +47,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class HistoryManager @Inject
-constructor(private val windowControl: WindowControl) {
+class HistoryManager @Inject constructor(private val windowControl: WindowControl) {
 
     private val windowHistoryStackMap = HashMap<Long, Stack<HistoryItem>>()
 
