@@ -176,7 +176,6 @@ open class CurrentPageManager @Inject constructor(
         return nextPage
     }
 
-    @JvmOverloads
     fun setCurrentDocumentAndKey(currentBook: Book?,
                                  key: Key,
                                  updateHistory: Boolean = true,
