@@ -806,7 +806,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val pageTitleText: String
         get() {
             val doc = pageControl.currentPageManager.currentPage.currentDocument
-            var key = pageControl.currentPageManager.currentPage.key
+            var key = pageControl.currentPageManager.currentPage.displayKey
             val isBible = doc?.bookCategory == BookCategory.BIBLE
             if(isBible) {
                 key = pageControl.currentBibleVerse

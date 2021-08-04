@@ -56,6 +56,8 @@ interface CurrentPage {
     /** get current key */
     val key: Key?
 
+    val displayKey: Key?
+
 	/** set key and update screens  */
 	fun setKey(key: Key)
 

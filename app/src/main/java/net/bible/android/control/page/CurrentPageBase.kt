@@ -18,7 +18,6 @@
 package net.bible.android.control.page
 
 import android.util.Log
-import android.view.Menu
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
@@ -35,6 +34,7 @@ import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.passage.VerseRange
 
 /** Common functionality for different document page types
  *
@@ -127,16 +127,25 @@ abstract class CurrentPageBase protected constructor(
         return if(key == null) errorDocument else getPageContent(key)
     }
 
+    var annotateKey: VerseRange? = null
+
+    override val displayKey get() = annotateKey ?: key
+
     override fun getPageContent(key: Key): Document {
         return try {
             val currentDocument = currentDocument!!
+
+            val frag = synchronized(currentDocument) {
+                val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
+                OsisFragment(frag, key, currentDocument)
+            }
+
+            annotateKey = frag.annotateRef
+
             OsisDocument(
                 book = currentDocument,
                 key = key,
-                osisFragment = synchronized(currentDocument) {
-                    val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
-                    OsisFragment(frag, key, currentDocument)
-                }
+                osisFragment = frag
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error getting bible text", e)
