@@ -64,6 +64,7 @@ import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.BibleViewInputFocusChanged
 import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.Preference
@@ -491,6 +492,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             return
         }
         Log.d(TAG, "toggleWindowButtonVisibility")
+        val mainBibleActivity = _mainBibleActivity ?: return
         mainBibleActivity.runOnUiThread {
             var atLeastOneButtonWillAnimate = false
             for ((idx, b) in windowButtons.withIndex()) {
