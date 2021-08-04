@@ -28,6 +28,7 @@ import net.bible.service.common.Logger
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoBase
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.install.DownloadCancelledException
 import org.crosswire.jsword.book.install.DownloadException
 import org.crosswire.jsword.book.install.InstallException
 import java.lang.Exception
@@ -63,6 +64,10 @@ class DownloadQueue {
                     repo.downloadDocument(document)
                     ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.INSTALLED, 100))
+                } catch (e: DownloadCancelledException) {
+                    log.error("Cancelled downloading $document", e)
+                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
+                        DocumentStatus.DocumentInstallStatus.INSTALL_CANCELLED, 0))
                 } catch (e: DownloadException) {
                     log.error("Error downloading $document", e)
                     ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,

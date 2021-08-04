@@ -62,6 +62,9 @@ class DocumentDownloadItemAdapter(
         view.recommendedDocuments = recommendedDocuments.value
 
         view.setIcons(downloadScreen = true)
+        bindings.undoButton.setOnClickListener {
+            downloadControl.cancelDownload(document)
+        }
         view.updateControlState(downloadControl.getDocumentStatus(document))
 
         // Set value for the first text field

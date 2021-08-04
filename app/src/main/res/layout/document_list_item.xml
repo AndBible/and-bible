@@ -120,6 +120,17 @@
 			android:maxLines="1"
 			android:ellipsize="end"
 			android:textAppearance="?android:textAppearanceSmall" />
+
+		<ImageView
+			android:id="@+id/undoButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_close_white_24dp"
+			app:layout_constraintBottom_toBottomOf="@id/recommendedString"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:tint="@color/red"
+			/>
+
 		<ProgressBar android:id="@+id/progressBar"
 			style="@style/Widget.AppCompat.ProgressBar.Horizontal"
 			android:layout_width="0dp"

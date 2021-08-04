@@ -26,6 +26,9 @@ import net.bible.service.common.CommonUtils.megabytesFree
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.SwordDocumentFacade
+import org.crosswire.common.progress.JobManager
+import org.crosswire.common.progress.Progress
+import org.crosswire.common.progress.Progress.INSTALL_BOOK
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.LucidException
 import org.crosswire.common.util.Version
@@ -122,6 +125,12 @@ class DownloadControl(
             val repo = repoFactory.getRepoForBook(document)
             downloadQueue.addDocumentToDownloadQueue(document, repo)
         }
+    }
+
+
+    fun cancelDownload(document: Book) {
+        val job: Progress = JobManager.findJob(INSTALL_BOOK.format(document.repoIdentity))
+        job.cancel()
     }
 
     /** return install status - installed, not inst, or upgrade  */
