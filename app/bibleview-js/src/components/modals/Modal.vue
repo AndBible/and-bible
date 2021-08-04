@@ -220,7 +220,8 @@ $border-radius2: $border-radius - 1.5pt;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  padding: 2px 16px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   background-color: #acacac;
   color: white;
   .night & {
