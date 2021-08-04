@@ -20,6 +20,7 @@ package net.bible.service.download
 import net.bible.android.activity.R
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.common.progress.Progress
@@ -58,7 +59,7 @@ class DownloadManager(
 
     @Throws(InstallException::class)
     fun getDownloadableBooks(filter: BookFilter?, repo: String, refresh: Boolean): List<Book> {
-        var documents: List<Book> = ArrayList()
+        var documents: List<Book> = emptyList()
         var installer: Installer? = null
         try {
             // If we know the name of the installer we can get it directly
@@ -70,11 +71,16 @@ class DownloadManager(
             } else {
                 // Now we can get the list of books
                 log.debug("getting downloadable books")
+
                 if (refresh || installer.books.size == 0) {
                     log.warn("Reloading book list")
-                    installer.reloadBookList()
-                }
 
+                    val indexLastUpdated = installer.indexLastUpdated()
+                    if(indexLastUpdated > CommonUtils.settings.getLong("repo-$repo-updated", 0)) {
+                        installer.reloadBookList()
+                        CommonUtils.settings.setLong("repo-$repo-updated", indexLastUpdated)
+                    }
+                }
                 // Get a list of all the available books
                 installer.getBooks(filter) //$NON-NLS-1$
             }
