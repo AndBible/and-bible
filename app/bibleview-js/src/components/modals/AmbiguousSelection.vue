@@ -188,12 +188,11 @@ export default {
       const clickedIds = new Set(clickedBookmarks.value.map(b => b.id));
       const result = [];
       for(const o of ordinalRange()) {
-        for(const bId of Array.from(bookmarkIdsByOrdinal.get(o) || []).filter(bId => !clickedIds.has(bId))){
-          const b = bookmarkMap.get(bId)
-          if(b) result.push(b);
-        }
+        result.push(
+          ...Array.from(bookmarkIdsByOrdinal.get(o) || [])
+            .filter(bId => !clickedIds.has(bId) && !result.includes(bId)))
       }
-      return result;
+      return result.map(bId => bookmarkMap.get(bId)).filter(b => b);
     });
 
     function setInitialVerse(_verseInfo) {
