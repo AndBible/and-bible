@@ -19,7 +19,7 @@
   <teleport to="#modals">
     <div v-if="blocking" @click.stop="$emit('close')" class="modal-backdrop"/>
     <div :class="{blocking}">
-      <div ref="modal" @click.stop class="modal-content" :class="{blocking, wide, edit}"
+      <div ref="modal" @click.stop class="modal-content" :class="{blocking, wide, edit, limit}"
       >
         <div ref="header" class="modal-header">
           <slot name="title-div">
@@ -68,6 +68,7 @@ export default {
     wide: {type: Boolean, default: false},
     edit: {type: Boolean, default: false},
     locateTop: {type: Boolean, default: false},
+    limit: {type: Boolean, default: true},
   },
   components: {FontAwesomeIcon},
   setup: function (props, {emit}) {
@@ -206,6 +207,9 @@ $border-radius2: $border-radius - 1.5pt;
 
 .modal-body {
   --max-height: calc(100vh - var(--top-offset) - var(--bottom-offset) - 100px);
+  .limit & {
+    --max-height: min(calc(100vh - var(--top-offset) - var(--bottom-offset) - 100px), 185px);
+  }
   //min-height: 60pt;
   padding: 5px 5px;
   margin: 5pt 5pt;
