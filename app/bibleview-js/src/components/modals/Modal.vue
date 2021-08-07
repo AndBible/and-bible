@@ -30,6 +30,9 @@
           <div class="modal-toolbar">
             <slot name="buttons">
               <slot name="extra-buttons"/>
+              <button  class="modal-action-button right" @touchstart.stop @click="maximiseWindow">
+                <FontAwesomeIcon icon="custom-maximise-window"/>
+              </button>
               <button class="modal-action-button right" @touchstart.stop @click.stop="$emit('close')">
                 <FontAwesomeIcon icon="times"/>
               </button>
@@ -117,7 +120,11 @@ export default {
       observer.disconnect();
     });
 
-    return {config, modal, header, ready, ...useCommon()}
+    function maximiseWindow() {
+      android.maximiseWindow();
+    }
+
+    return {config, modal, header, ready, maximiseWindow, ...useCommon()}
   }
 }
 </script>

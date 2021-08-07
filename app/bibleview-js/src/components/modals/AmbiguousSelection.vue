@@ -18,9 +18,6 @@
 <template>
   <Modal :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled">
     <template #extra-buttons>
-      <button class="modal-action-button right" :class="{toggled: multiSelectionMode}" @touchstart.stop @click="toggleMultiSelectionMode">
-        <FontAwesomeIcon icon="plus-circle"/>
-      </button>
       <button  class="modal-action-button right" @touchstart.stop @click="help">
         <FontAwesomeIcon icon="question-circle"/>
       </button>
@@ -55,6 +52,9 @@
     <template #title>
       <template v-if="verseInfo">
         {{ bibleBookName }} {{ verseInfo.chapter}}:{{verseInfo.verse}}
+        <button class="modal-action-button" :class="{toggled: multiSelectionMode}" @touchstart.stop @click="toggleMultiSelectionMode">
+          <FontAwesomeIcon icon="plus-circle"/>
+        </button>
       </template>
       <template v-else>
         {{ strings.ambiguousSelection }}

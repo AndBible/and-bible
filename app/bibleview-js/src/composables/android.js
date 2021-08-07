@@ -309,6 +309,10 @@ export function useAndroid({bookmarks}, config) {
         android.helpDialog(content, title);
     }
 
+    function maximiseWindow() {
+        android.maximiseWindow();
+    }
+
     const exposed = {
         setEditing,
         reportInputFocus,
@@ -343,6 +347,7 @@ export function useAndroid({bookmarks}, config) {
         compare,
         speak,
         helpDialog,
+        maximiseWindow,
     }
 
     if(config.developmentMode) return {

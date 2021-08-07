@@ -18,7 +18,7 @@
 <template>
   <Modal v-if="showBookmark && bookmark" @close="closeBookmark" wide :locate-top="locateTop" :edit="!infoShown">
     <template #title-div>
-      <div class="bookmark-title" style="width: calc(100% - 80px);">
+      <div class="bookmark-title" style="width: calc(100% - 110px);">
         <div class="overlay"/>
         <div style="overflow-x: auto">
           <LabelList single-line handle-touch in-bookmark :bookmark-id="bookmark.id" ref="labelList"/>
@@ -239,10 +239,10 @@ font-size: 85%;
     background: linear-gradient(90deg, rgba(0, 0, 0, 0), $night-modal-header-background-color 75%, $night-modal-header-background-color 100%);
   }
   [dir=ltr] & {
-    right: 80px;
+    right: 110px;
   }
   [dir=rtl] & {
-    left: 80px;
+    left: 110px;
   }
   top: 0;
   width: 20px;

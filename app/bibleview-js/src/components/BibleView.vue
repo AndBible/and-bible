@@ -421,7 +421,7 @@ a {
   border: none;
   color: white;
   border-radius: 5pt;
-  padding: 5pt 5pt;
+  padding: 5pt 4pt;
   margin: 2pt 2pt;
   text-align: center;
   text-decoration: none;

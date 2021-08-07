@@ -321,5 +321,10 @@ class BibleJavascriptInterface(
             .show()
     }
 
+    @JavascriptInterface
+    fun maximiseWindow() {
+        bibleView.windowControl.maximiseWindow(bibleView.windowControl.activeWindow)
+    }
+
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }
