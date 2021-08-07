@@ -16,10 +16,13 @@
   -->
 
 <template>
-  <Modal :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled">
+  <Modal :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled" :limit="!expand">
     <template #extra-buttons>
       <button  class="modal-action-button right" @touchstart.stop @click="help">
         <FontAwesomeIcon icon="question-circle"/>
+      </button>
+      <button class="modal-action-button right" @touchstart.stop :class="{toggled: expand}" @click="expand = !expand">
+        <FontAwesomeIcon icon="arrows-alt-v"/>
       </button>
     </template>
 
@@ -34,7 +37,6 @@
         </template>
       </template>
       <AmbiguousSelectionBookmarkButton
-        :locate-top="locateTop"
         v-for="b of clickedBookmarks"
         :key="`b-${b.id}`"
         :bookmark-id="b.id"
@@ -42,7 +44,6 @@
       />
       <div v-if="clickedBookmarks.length > 0 && selectedBookmarks.length > 0" class="separator"/>
       <AmbiguousSelectionBookmarkButton
-        :locate-top="locateTop"
         v-for="b of selectedBookmarks"
         :key="`b-${b.id}`"
         :bookmark-id="b.id"
@@ -67,7 +68,7 @@
 import Modal from "@/components/modals/Modal";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {inject, ref} from "@vue/runtime-core";
+import {provide, inject, ref} from "@vue/runtime-core";
 import {
   Deferred,
   getHighestPriorityEventFunctions,
@@ -79,6 +80,8 @@ import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelec
 import {emit, Events} from "@/eventbus";
 import {computed} from "@vue/reactivity";
 import AmbiguousActionButtons from "@/components/AmbiguousActionButtons";
+
+const expand = ref(false);
 
 export default {
   name: "AmbiguousSelection",
@@ -99,6 +102,7 @@ export default {
 
     const showModal = ref(false);
     const locateTop = ref(false);
+    provide("locateTop", locateTop);
     const verseInfo = ref(null);
 
     const selectionInfo = computed(() => {
@@ -270,7 +274,7 @@ export default {
     }
 
     return {
-      help, selectionInfo, locateTop,
+      help, selectionInfo, locateTop, expand,
       bibleBookName, verseInfo, selected, handle, cancelled, noActions,
       showModal, selectedActions, selectedBookmarks, clickedBookmarks,
       bookmarkMap, common, strings, multiSelectionMode, toggleMultiSelectionMode,

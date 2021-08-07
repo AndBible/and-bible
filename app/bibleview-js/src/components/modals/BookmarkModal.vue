@@ -91,7 +91,7 @@ import Modal from "@/components/modals/Modal";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
-import {inject, nextTick} from "@vue/runtime-core";
+import {inject, provide, nextTick} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import EditableText from "@/components/EditableText";
 import LabelList from "@/components/LabelList";
@@ -111,6 +111,7 @@ export default {
     const bookmarkId = ref(null);
     const labelList = ref(null);
     const locateTop = ref(false);
+    provide("locateTop", locateTop);
 
     const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
 

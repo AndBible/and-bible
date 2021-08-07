@@ -54,7 +54,6 @@ export default {
   name: "AmbiguousSelectionBookmarkButton",
   props: {
     bookmarkId: {required: true, type: Number},
-    locateTop: {default: false, type: Boolean},
   },
   components: {LabelList, BookmarkButtons, FontAwesomeIcon},
   setup(props, {emit: $emit}) {
@@ -79,14 +78,15 @@ export default {
       return `color: ${adjustedColor(primaryLabel.value.color)}`
     });
 
+    const locateTop = inject("locateTop");
     function editNotes() {
       $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openNotes: true, locateTop: props.locateTop});
+      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openNotes: true, locateTop: locateTop.value});
     }
 
     function openBookmark() {
       $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {locateTop: props.locateTop});
+      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {locateTop: locateTop.value});
     }
 
     function htmlToString(html) {

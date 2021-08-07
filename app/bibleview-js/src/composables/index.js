@@ -33,6 +33,7 @@ import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {bcv_parser as BcvParser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
 import {
+    faArrowsAltV,
     faBookmark, faChevronCircleDown,
     faEdit, faEllipsisH, faEye, faEyeSlash,
     faFileAlt, faFireAlt, faHandPointer,
@@ -384,6 +385,7 @@ export function useFontAwesome() {
     library.add(customWholeVerseFalse)
     library.add(customWholeVerseTrue)
     library.add(customNoteFalse)
+    library.add(faArrowsAltV)
     library.add(faTextWidth)
     library.add(faHeadphones)
     library.add(faEdit)

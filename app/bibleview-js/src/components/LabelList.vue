@@ -124,6 +124,8 @@ export default {
 
     const {waitForClick} = clickWaiter(props.handleTouch);
 
+    const locateTop = inject("locateTop", ref(true));
+
     async function labelClicked(event, label) {
       if(props.disableLinks) return;
       if(!await waitForClick(event)) return;
@@ -131,7 +133,7 @@ export default {
       if(!isAssigned(label.id)) {
         android.toggleBookmarkLabel(bookmark.value.id, label.id);
       } else if(!props.onlyAssign) {
-        actions.value.showActions()
+        actions.value.showActions({locateTop: locateTop.value})
       } else {
         if(isAssigned(label.id) && !isPrimary(label)) {
           android.setAsPrimaryLabel(bookmark.value.id, label.id);
