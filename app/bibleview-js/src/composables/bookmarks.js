@@ -375,21 +375,56 @@ export function useBookmarks(documentId,
                 style += blendingStyleForLabels(highlightLabels, highlightLabelCount);
                 break;
         }
-
-        style += underlineStyleForLabels(underlineLabels, underlineLabelCount);
+        style = verseHighlighting(highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount)
         return style;
     }
 
-    function underlineStyleForLabels(labels, underlineLabelCount) {
-        if(labels.length === 0) return "";
+    function verseHighlighting(highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount){
 
-        const label = labels.filter(l => l.label.isRealLabel)[0] || labels[0];
-        const color = new Color(label.label.color).hsl().string();
-        if(labels.length === 1 && underlineLabelCount.get(labels[0].id) === 1) {
-            return `text-decoration: underline; text-decoration-style: solid; text-decoration-color: ${color};`;
-        } else {
-            return `text-decoration: underline; text-decoration-style: double; text-decoration-color: ${color};`;
+        // Percentage heights allocated to background highlight
+        const bgHighlightPercentage = 64;
+        const bgHighlightTopMargin = 4;
+        const underlineHeight = 4;
+        const spaceBetweenLines = 2;
+        let gradientCSS = '';
+
+        // Generate background gradients
+        let colors = [];
+        let span = 0;
+        var spanSpace;
+        for(const {label: s, id} of highlightLabels) {
+            colors.push(highlightColor(s, highlightLabelCount.get(id)).hsl().string());
         }
+        if (colors.length != 0) {
+            span = (bgHighlightPercentage-bgHighlightTopMargin)/colors.length;
+            gradientCSS += `transparent 0% ${bgHighlightTopMargin}%, `;
+            gradientCSS += colors.map((v, idx) => {
+                let percent;
+                percent = `${span * idx + bgHighlightTopMargin}% ${span * (idx + 1) + bgHighlightTopMargin}%`
+                return `${v} ${percent}`;
+            }).join(", ");
+        }
+        // Generate underline gradients
+        colors = [];
+        span = 0;
+        for(const {label: s, id} of underlineLabels) {
+            colors.push(new Color(s.color).hsl().string());
+        }
+        if (colors.length != 0) {
+            span = (100-bgHighlightPercentage)/colors.length;
+            if (span > underlineHeight) {span = underlineHeight};
+            let gradientPosition = bgHighlightPercentage;
+            if (gradientCSS != '') {gradientCSS += ','};
+            gradientCSS += colors.map((v, idx) => {
+                const spacingGradient = `transparent ${gradientPosition}% ${gradientPosition + spaceBetweenLines}%`;
+                gradientPosition += spaceBetweenLines
+                const lineGradient = `${gradientPosition}% ${gradientPosition + span}%`
+                gradientPosition += span;
+                return `${spacingGradient}, ${v} ${lineGradient}`;
+            }).join(", ")
+        }
+        gradientCSS += `,transparent 0%`; // Fills the remainder of the background with a transparent color
+        return `padding-bottom: 0.5em; background-image: linear-gradient(to bottom, ${gradientCSS});`;
     }
 
     function blendingStyleForLabels(bookmarkLabels, labelCount) {
