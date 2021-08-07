@@ -177,8 +177,8 @@ $border-radius2: $border-radius - 1.5pt;
 }
 
 .title {
-  padding-top: 5pt;
-  margin-top: 2pt;
+  margin-bottom: auto;
+  margin-top: auto;
 }
 
 .modal-header {
