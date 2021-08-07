@@ -37,7 +37,6 @@
         </template>
       </template>
       <AmbiguousSelectionBookmarkButton
-        :locate-top="locateTop"
         v-for="b of clickedBookmarks"
         :key="`b-${b.id}`"
         :bookmark-id="b.id"
@@ -45,7 +44,6 @@
       />
       <div v-if="clickedBookmarks.length > 0 && selectedBookmarks.length > 0" class="separator"/>
       <AmbiguousSelectionBookmarkButton
-        :locate-top="locateTop"
         v-for="b of selectedBookmarks"
         :key="`b-${b.id}`"
         :bookmark-id="b.id"
@@ -67,7 +65,7 @@
 import Modal from "@/components/modals/Modal";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {inject, ref} from "@vue/runtime-core";
+import {provide, inject, ref} from "@vue/runtime-core";
 import {
   Deferred,
   getHighestPriorityEventFunctions,
@@ -99,6 +97,7 @@ export default {
 
     const showModal = ref(false);
     const locateTop = ref(false);
+    provide("locateTop", locateTop);
     const verseInfo = ref(null);
 
     const selectionInfo = computed(() => {

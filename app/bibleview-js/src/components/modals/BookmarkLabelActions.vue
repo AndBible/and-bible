@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal blocking v-if="showModal" @close="showModal = false" locate-top>
+  <Modal blocking v-if="showModal" @close="showModal = false" :locate-top="locateTop">
     <template #title>
       {{ strings.bookmarkLabels }}
     </template>
@@ -76,6 +76,7 @@ export default {
     const showModal = ref(false);
     const {bookmarkMap} = inject("globalBookmarks");
     const android = inject("android");
+    const locateTop = ref(true);
 
     const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
 
@@ -86,7 +87,8 @@ export default {
     }
     const hasFavourites = ref(false);
     const hasRecent = ref(false);
-    async function showActions() {
+    async function showActions({locateTop: locateTop_ = true} = {}) {
+      locateTop.value = locateTop_;
       showModal.value = true;
     }
     return {showModal, showActions, assignLabels, hasFavourites, hasRecent, ...useCommon()}
