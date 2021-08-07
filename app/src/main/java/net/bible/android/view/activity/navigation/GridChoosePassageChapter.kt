@@ -24,6 +24,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 
 import net.bible.android.control.navigation.NavigationControl
@@ -65,6 +66,8 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
         super.onCreate(savedInstanceState)
 
         buildActivityComponent().inject(this)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         val bibleBookNo = intent.getIntExtra(BOOK_NO, navigationControl.defaultBibleBookNo)
         //TODO av11n - this is done now
         mBibleBook = BibleBook.values()[bibleBookNo]
@@ -85,6 +88,16 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
         grid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(GridChoosePassageBook.BOOK_GRID_FLOW_PREFS, false)
         grid.addButtons(getBibleChaptersButtonInfo(mBibleBook))
         setContentView(grid)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun getBibleChaptersButtonInfo(book: BibleBook): List<ButtonInfo> {
