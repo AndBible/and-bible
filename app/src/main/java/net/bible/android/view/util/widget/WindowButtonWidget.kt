@@ -85,7 +85,7 @@ class WindowButtonWidget(
 
     private fun updateBackground() {
         val isPinnedWindow = window?.isPinMode == true
-        val isLinksWindow = if (window?.isLinksWindow == null) false else window?.isLinksWindow
+        val isLinksWindow = window?.isLinksWindow == true
         val isActive = windowControl.activeWindow.id == window?.id && !isMaximised
         val isWindowVisible = if(isRestoreButton) {
             window?.isVisible == true
