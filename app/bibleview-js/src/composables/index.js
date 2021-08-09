@@ -113,11 +113,6 @@ export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToO
     return {currentVerse}
 }
 
-export const bookmarkingModes = {
-    verticalColorBars: 0,
-    blend: 1,
-}
-
 export const strongsModes = {
     off: 0,
     inline: 1,
@@ -131,7 +126,6 @@ const black = -16777216;
 export function useConfig(documentType) {
     // text display settings only here. TODO: rename
     const config = reactive({
-        bookmarkingMode: bookmarkingModes.verticalColorBars,
         developmentMode,
         testMode,
 
