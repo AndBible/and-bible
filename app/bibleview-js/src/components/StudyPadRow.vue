@@ -150,9 +150,10 @@ export default {
 
     const bibleUrl = computed(
       () => {
-        const osis = props.journalEntry.wholeVerse
-          ? props.journalEntry.osisRef
-          : `${props.journalEntry.bookInitials}:${props.journalEntry.osisRef}`;
+        //const osis = props.journalEntry.wholeVerse
+        //  ? props.journalEntry.osisRef
+        //  : `${props.journalEntry.bookInitials}:${props.journalEntry.osisRef}`;
+        const osis = props.journalEntry.osisRef;
         return `osis://?osis=${osis}&v11n=${props.journalEntry.v11n}`;
       }
     );
