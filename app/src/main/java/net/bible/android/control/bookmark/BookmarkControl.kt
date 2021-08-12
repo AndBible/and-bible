@@ -145,9 +145,13 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun deleteBookmarks(bookmarks: List<Bookmark>) {
+        val labels = mutableSetOf<Long>()
+        for(b in bookmarks) {
+            labels.addAll(labelsForBookmark(b).map { it.id })
+        }
         dao.deleteBookmarks(bookmarks)
-        for (it in bookmarks) {
-            sanitizeStudyPadOrder(it)
+        for (l in labels) {
+            sanitizeStudyPadOrder(l)
         }
         ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks.map { it.id }))
     }
@@ -338,12 +342,12 @@ open class BookmarkControl @Inject constructor(
         val entry = dao.journalTextEntryById(textEntryId)!!
         dao.delete(entry)
         ABEventBus.getDefault().post(StudyPadTextEntryDeleted(textEntryId))
-        sanitizeStudyPadOrder(dao.labelById(entry.labelId)!!)
+        sanitizeStudyPadOrder(entry.labelId)
     }
 
-    private fun sanitizeStudyPadOrder(label: Label) {
-        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(label.id)
-        val journals = dao.journalTextEntriesByLabelId(label.id)
+    private fun sanitizeStudyPadOrder(labelId: Long) {
+        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId)
+        val journals = dao.journalTextEntriesByLabelId(labelId)
         val all = ArrayList<Any>()
         all.addAll(journals)
         all.addAll(bookmarkToLabels)
@@ -378,14 +382,14 @@ open class BookmarkControl @Inject constructor(
         if(changedBookmarkToLabels.size > 0 || changedJournalTextEntries.size > 0)
             ABEventBus.getDefault().post(
                 StudyPadOrderEvent(
-                    label.id, null, changedBookmarkToLabels, changedJournalTextEntries
+                    labelId, null, changedBookmarkToLabels, changedJournalTextEntries
                 )
             )
     }
 
     private fun sanitizeStudyPadOrder(bookmark: Bookmark) {
         for (it in labelsForBookmark(bookmark)) {
-            sanitizeStudyPadOrder(it)
+            sanitizeStudyPadOrder(it.id)
         }
     }
 
