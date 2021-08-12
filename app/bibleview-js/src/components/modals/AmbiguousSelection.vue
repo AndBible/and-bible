@@ -81,7 +81,7 @@ import {emit, Events} from "@/eventbus";
 import {computed} from "@vue/reactivity";
 import AmbiguousActionButtons from "@/components/AmbiguousActionButtons";
 
-const expand = ref(false);
+const expand = ref(true);
 
 export default {
   name: "AmbiguousSelection",
