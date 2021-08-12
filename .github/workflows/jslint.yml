@@ -42,9 +42,11 @@ jobs:
       - name: Run js unit tests
         working-directory: app/bibleview-js
         run: npm run test:ci
+        if: ${{ always() }}
 
       - name: Upload lint results
         uses: actions/upload-artifact@v2
+        if: ${{ always() }}
         with:
           name: js-results
           path: app/bibleview-js/lint-results.txt
