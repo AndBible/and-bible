@@ -22,7 +22,7 @@
         <FontAwesomeIcon icon="plus-circle"/>
       </button>
       <button v-if="modal && (!expand || modal.height > 196)" class="modal-action-button right" @touchstart.stop @click="expand = !expand">
-        <FontAwesomeIcon :icon="expand?'expand-arrows-alt':'compress-arrows-alt'"/>
+        <FontAwesomeIcon :icon="expand?'compress-arrows-alt':'expand-arrows-alt'"/>
       </button>
       <button class="modal-action-button right" @touchstart.stop @click="help">
         <FontAwesomeIcon icon="question-circle"/>
