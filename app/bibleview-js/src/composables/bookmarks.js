@@ -45,6 +45,59 @@ const allStyleRanges = computed(() => {
     return allStyles;
 });
 
+export function verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, highlightColorFn}) {
+    // Percentage heights allocated to background highlight
+    const bgHighlightPercentage = 64;
+    const bgHighlightTopMargin = 4;
+    const underlineHeight = 4;
+    const spaceBetweenLines = 2;
+    let gradientCSS = '';
+
+    {
+        // Generate background gradients
+        const highlightColors = [];
+        let span = 0;
+        for (const {label: s, id} of highlightLabels) {
+            highlightColors.push(highlightColorFn(s, highlightLabelCount.get(id)).hsl().string());
+        }
+        if (highlightColors.length !== 0) {
+            span = (bgHighlightPercentage - bgHighlightTopMargin) / highlightColors.length;
+            gradientCSS += `transparent 0% ${bgHighlightTopMargin}%, `;
+            gradientCSS += highlightColors.map((v, idx) => {
+                const percent = `${span * idx + bgHighlightTopMargin}% ${span * (idx + 1) + bgHighlightTopMargin}%`
+                return `${v} ${percent}`;
+            }).join(", ");
+        }
+    }
+    {
+        // Generate underline gradients
+        const underlineColors = [];
+        let span = 0;
+        for (const {label: s} of underlineLabels) {
+            underlineColors.push(new Color(s.color).hsl().string());
+        }
+        if (underlineColors.length !== 0) {
+            span = (100 - bgHighlightPercentage) / underlineColors.length;
+            if (span > underlineHeight) {
+                span = underlineHeight
+            }
+            let gradientPosition = bgHighlightPercentage;
+            if (gradientCSS !== '') {
+                gradientCSS += ','
+            }
+            gradientCSS += underlineColors.map(v => {
+                const spacingGradient = `transparent ${gradientPosition}% ${gradientPosition + spaceBetweenLines}%`;
+                gradientPosition += spaceBetweenLines
+                const lineGradient = `${gradientPosition}% ${gradientPosition + span}%`
+                gradientPosition += span;
+                return `${spacingGradient}, ${v} ${lineGradient}`;
+            }).join(", ")
+        }
+    }
+    gradientCSS += `,transparent 0%`; // Fills the remainder of the background with a transparent color
+    return `padding-bottom: 0.5em; background-image: linear-gradient(to bottom, ${gradientCSS});`;
+}
+
 export function useGlobalBookmarks(config) {
     const bookmarkLabels = reactive(new Map());
     const bookmarks = reactive(new Map());
@@ -365,60 +418,7 @@ export function useBookmarks(documentId,
                 label: bookmarkLabels.get(v)
             })).filter(l => !l.label.noHighlight);
 
-        return verseHighlighting(highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount);
-    }
-
-    function verseHighlighting(highlightLabels, highlightLabelCount, underlineLabels) {
-        // Percentage heights allocated to background highlight
-        const bgHighlightPercentage = 64;
-        const bgHighlightTopMargin = 4;
-        const underlineHeight = 4;
-        const spaceBetweenLines = 2;
-        let gradientCSS = '';
-
-        {
-            // Generate background gradients
-            const highlightColors = [];
-            let span = 0;
-            for (const {label: s, id} of highlightLabels) {
-                highlightColors.push(highlightColor(s, highlightLabelCount.get(id)).hsl().string());
-            }
-            if (highlightColors.length !== 0) {
-                span = (bgHighlightPercentage - bgHighlightTopMargin) / highlightColors.length;
-                gradientCSS += `transparent 0% ${bgHighlightTopMargin}%, `;
-                gradientCSS += highlightColors.map((v, idx) => {
-                    const percent = `${span * idx + bgHighlightTopMargin}% ${span * (idx + 1) + bgHighlightTopMargin}%`
-                    return `${v} ${percent}`;
-                }).join(", ");
-            }
-        }
-        {
-            // Generate underline gradients
-            const underlineColors = [];
-            let span = 0;
-            for (const {label: s} of underlineLabels) {
-                underlineColors.push(new Color(s.color).hsl().string());
-            }
-            if (underlineColors.length !== 0) {
-                span = (100 - bgHighlightPercentage) / underlineColors.length;
-                if (span > underlineHeight) {
-                    span = underlineHeight
-                }
-                let gradientPosition = bgHighlightPercentage;
-                if (gradientCSS !== '') {
-                    gradientCSS += ','
-                }
-                gradientCSS += underlineColors.map(v => {
-                    const spacingGradient = `transparent ${gradientPosition}% ${gradientPosition + spaceBetweenLines}%`;
-                    gradientPosition += spaceBetweenLines
-                    const lineGradient = `${gradientPosition}% ${gradientPosition + span}%`
-                    gradientPosition += span;
-                    return `${spacingGradient}, ${v} ${lineGradient}`;
-                }).join(", ")
-            }
-        }
-        gradientCSS += `,transparent 0%`; // Fills the remainder of the background with a transparent color
-        return `padding-bottom: 0.5em; background-image: linear-gradient(to bottom, ${gradientCSS});`;
+        return verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount, highlightColorFn: highlightColor});
     }
 
     function highlightColor(label, count) {

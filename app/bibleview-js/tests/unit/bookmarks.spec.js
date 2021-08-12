@@ -15,11 +15,62 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
+import {useBookmarks, useGlobalBookmarks, verseHighlighting} from "@/composables/bookmarks";
 import {abbreviated, useConfig} from "@/composables";
 import {ref} from "@vue/reactivity";
+import Color from "color";
 
 window.bibleViewDebug = {}
+
+describe("verseHighlight tests", () => {
+    function test(highlightColors, underlineColors, result) {
+        const highlightLabels = [];
+        const highlightLabelCount = new Map();
+        for(let i = 1; i<=highlightColors; i++) {
+            highlightLabels.push({label: {color: i}, id: i});
+            highlightLabelCount.set(i, 1);
+        }
+        const underlineLabels = [];
+        for(let i = 1; i<=underlineColors; i++) {
+            underlineLabels.push({label: {color: i}, id: i});
+            highlightLabelCount.set(i, 1);
+        }
+
+        const highlightColorFn = (v) => Color(v.color);
+
+        const css = verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, highlightColorFn});
+        expect(css).toBe(result);
+    }
+
+    it("test 1 highlight and 1 underline", () =>
+        test(1, 1,
+            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
+
+
+    it("test 2 highlight and 1 underline", () =>
+        test(2, 1,
+            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 34%, hsl(240, 100%, 0.4%) 34% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
+
+    it("test 3 highlight and 1 underline", () =>
+        test(3, 1,
+            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 24%, hsl(240, 100%, 0.4%) 24% 44%, hsl(240, 100%, 0.6%) 44% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
+
+    it("test 3 highlight and 2 underline", () =>
+        test(3, 2,
+            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 24%, hsl(240, 100%, 0.4%) 24% 44%, hsl(240, 100%, 0.6%) 44% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%, transparent 70% 72%, hsl(240, 100%, 0.4%) 72% 76%,transparent 0%);"));
+
+    it("test 3 highlight and 3 underline", () =>
+        test(3, 2,
+            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 24%, hsl(240, 100%, 0.4%) 24% 44%, hsl(240, 100%, 0.6%) 44% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%, transparent 70% 72%, hsl(240, 100%, 0.4%) 72% 76%,transparent 0%);"));
+
+    it("test 0 highlight and 1 underline", () =>
+        test(0, 1,
+            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
+
+    it("test 1 highlight and 0 underline", () =>
+        test(1,  0,
+            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 64%,transparent 0%);"));
+});
 
 describe("useBookmark tests", () => {
     let gb, b;
