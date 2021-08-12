@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {onBeforeUnmount, onMounted, onUnmounted} from "@vue/runtime-core";
+import {onBeforeUnmount, onMounted, onUnmounted, watch} from "@vue/runtime-core";
 import Color from "color";
 import {rybColorMixer} from "@/lib/ryb-color-mixer";
 import {get, sortBy} from "lodash";
@@ -493,4 +493,19 @@ export function createDoubleClickDetector(waitMs = 300) {
 
 export function isBottomHalfClicked(event) {
     return event.clientY > (window.innerHeight / 2);
+}
+
+export async function waitUntilRefValue(ref_) {
+    return await new Promise(resolve => {
+        if (ref_.value) {
+            resolve(ref_.value);
+            return;
+        }
+        const stop = watch(ref_, newValue => {
+            if (newValue) {
+                stop();
+                resolve(newValue);
+            }
+        });
+    });
 }
