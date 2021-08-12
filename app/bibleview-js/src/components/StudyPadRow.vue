@@ -39,6 +39,10 @@
         <FontAwesomeIcon icon="indent"/>
       </div>
 
+      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="changeExpanded(!journalEntry.expandContent)">
+        <FontAwesomeIcon :icon="journalEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
+      </div>
+
       <div class="journal-button" @click="deleteEntry">
         <FontAwesomeIcon icon="trash"/>
       </div>
@@ -49,7 +53,7 @@
   </div>
   <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
     <b><a :href="bibleUrl">{{ journalEntry.bookInitials ? sprintf(strings.multiDocumentLink, journalEntry.verseRangeAbbreviated, journalEntry.bookAbbreviation ) : journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
-    <BookmarkText :expanded="journalEntry.expandContent" @change-expanded="changeExpanded" :bookmark="journalEntry"/>
+    <BookmarkText :expanded="journalEntry.expandContent" :bookmark="journalEntry"/>
     <div v-if="journalEntry.hasNote && journalEntry.expandContent" class="separator"/>
   </template>
   <div :class="{'studypad-text-entry': journalEntry.type === JournalEntryTypes.JOURNAL_TEXT, notes: journalEntry.type === JournalEntryTypes.BOOKMARK}">
