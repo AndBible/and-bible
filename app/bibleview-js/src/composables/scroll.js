@@ -18,6 +18,7 @@
 import {nextTick} from "@vue/runtime-core";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
+import {isInViewport} from "@/utils";
 
 export function useScroll(config, appSettings, calculatedConfig, {highlightVerse, resetHighlights}, documentPromise) {
     let currentScrollAnimation = ref(null);
@@ -88,7 +89,7 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
         }
     }
 
-    function scrollToId(toId, {now = false, highlight = false, ordinalStart = null, ordinalEnd = null, force = false, duration = 1000} = {}) {
+    function scrollToId(toId, {onlyIfInvisible = false, now = false, highlight = false, ordinalStart = null, ordinalEnd = null, force = false, duration = 1000} = {}) {
         console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd});
         stopScrolling();
         let delta = calculatedConfig.value.topOffset;
@@ -101,7 +102,9 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
                 highlightVerse(ordinal);
             }
         }
-        let toElement = document.getElementById(toId)
+        let toElement = document.getElementById(toId);
+        if(onlyIfInvisible && isInViewport(toElement)) return;
+
         if(force && toElement == null) {
             toElement = document.getElementById("top")
         }
