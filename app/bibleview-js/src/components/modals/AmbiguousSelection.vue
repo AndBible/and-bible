@@ -16,16 +16,16 @@
   -->
 
 <template>
-  <Modal :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled" :limit="!expand">
+  <Modal ref="modal" :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled" :limit="!expand">
     <template #extra-buttons>
       <button class="modal-action-button right" :class="{toggled: multiSelectionMode}" @touchstart.stop @click="toggleMultiSelectionMode">
         <FontAwesomeIcon icon="plus-circle"/>
       </button>
+      <button v-if="modal && (!expand || modal.height > 196)" class="modal-action-button right" @touchstart.stop @click="expand = !expand">
+        <FontAwesomeIcon :icon="expand?'expand-arrows-alt':'compress-arrows-alt'"/>
+      </button>
       <button class="modal-action-button right" @touchstart.stop @click="help">
         <FontAwesomeIcon icon="question-circle"/>
-      </button>
-      <button class="modal-action-button right" @touchstart.stop :class="{toggled: expand}" @click="expand = !expand">
-        <FontAwesomeIcon icon="arrows-alt-v"/>
       </button>
     </template>
 
@@ -278,6 +278,7 @@ export default {
       bibleBookName, verseInfo, selected, handle, cancelled, noActions,
       showModal, selectedActions, selectedBookmarks, clickedBookmarks,
       bookmarkMap, common, strings, multiSelectionMode, toggleMultiSelectionMode,
+      modal: ref(null),
     };
   }
 }
