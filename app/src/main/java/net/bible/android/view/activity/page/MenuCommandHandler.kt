@@ -291,9 +291,6 @@ constructor(private val callingActivity: MainBibleActivity,
         return requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH
     }
 
-    fun isDocumentChanged(requestCode: Int): Boolean {
-        return requestCode == IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
-    }
 
     companion object {
 

@@ -1360,7 +1360,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         if (requestCode == IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH) {
-            updateDocuments()
+            updateActions()
             return
         }
 
@@ -1372,7 +1372,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             mainMenuCommandHandler.isDisplayRefreshRequired(requestCode) -> {
                 preferenceSettingsChanged()
             }
-            mainMenuCommandHandler.isDocumentChanged(requestCode) -> updateActions()
         }
 
     }
