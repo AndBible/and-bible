@@ -366,6 +366,7 @@ export function useBookmarks(documentId,
 
             const hiddenLabels = new Set();
             const hiddenLabelCount = new Map();
+            const highlightedBookmarkIds = new Set();
 
             const filteredBookmarks = bookmarks
                 .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange));
@@ -381,9 +382,11 @@ export function useBookmarks(documentId,
                 else if((b.wholeVerse && label.underlineWholeVerse) || (!b.wholeVerse && label.underline)) {
                     underlineLabels.add(labelId);
                     underlineLabelCount.set(labelId, (underlineLabelCount.get(labelId) || 0) + 1);
+                    highlightedBookmarkIds.add(b.id);
                 } else {
                     highlightLabels.add(labelId);
                     highlightLabelCount.set(labelId, (highlightLabelCount.get(labelId) || 0) + 1);
+                    highlightedBookmarkIds.add(b.id);
                 }
             });
 
@@ -391,6 +394,7 @@ export function useBookmarks(documentId,
 
             if(highlightLabels.size > 0 || underlineLabels.size > 0 || hiddenLabels.size > 0) {
                 styleRanges.push({
+                    highlightedBookmarkIds,
                     ordinalAndOffsetRange,
                     highlightLabelCount,
                     underlineLabelCount,
@@ -446,12 +450,12 @@ export function useBookmarks(documentId,
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
         let firstElement, lastElement;
         const style = config.showBookmarks ? styleForStyleRange(styleRange) : "";
-        const hidden =  style === "";
-        const priority = hidden ? EventPriorities.HIDDEN_BOOKMARK : EventPriorities.VISIBLE_BOOKMARK;
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId));
 
         function addBookmarkEventFunctions(event) {
             for (const b of bookmarks) {
+                const hidden = !styleRange.highlightedBookmarkIds.has(b.id);
+                const priority = hidden ? EventPriorities.HIDDEN_BOOKMARK : EventPriorities.VISIBLE_BOOKMARK;
                 addEventFunction(event, null, {bookmarkId: b.id, priority, hidden});
             }
         }
