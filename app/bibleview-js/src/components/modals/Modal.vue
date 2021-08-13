@@ -68,7 +68,7 @@ export default {
     wide: {type: Boolean, default: false},
     edit: {type: Boolean, default: false},
     locateTop: {type: Boolean, default: false},
-    limit: {type: Boolean, default: true},
+    limit: {type: Boolean, default: false},
   },
   components: {FontAwesomeIcon},
   setup: function (props, {emit}) {
