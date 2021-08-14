@@ -16,6 +16,12 @@
             android:id="@+id/backup_app"
             android:text="@string/backup_app"
             />
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/backup_button"
+            />
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -27,6 +33,12 @@
             android:layout_height="wrap_content"
             android:id="@+id/backup_modules"
             android:text="@string/backup_modules"
+            />
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/restore_what"
             />
         <Button
             android:layout_width="match_parent"
