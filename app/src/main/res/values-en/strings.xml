@@ -138,6 +138,10 @@ Workspaces allow having multiple working environments. Workspace functions can b
         Long press the Back button to access the History list.
     </string>
   <!--Welcome text-->
+  <string name="welcome_message">Thank you for downloading %s. There are currently no Bibles installed. To continue, please install
+        at least 1 Bible document by downloading from the internet, or by loading from a zip file document
+        backup.
+    </string>
   <!--Uncategorized-->
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->

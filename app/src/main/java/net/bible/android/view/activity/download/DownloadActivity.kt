@@ -319,6 +319,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
             // update screen so the icon to the left of the book changes
             notifyDataSetChanged()
+            _mainBibleActivity?.updateDocuments()
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to download", e)
             Toast.makeText(this@DownloadActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()

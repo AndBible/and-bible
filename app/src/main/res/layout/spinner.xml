@@ -29,7 +29,7 @@
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="150dip"
-            app:srcCompat="@mipmap/ic_launcher_foreground"
+            app:srcCompat="@drawable/ic_logo"
             tools:ignore="ContentDescription" />
     </LinearLayout>
 

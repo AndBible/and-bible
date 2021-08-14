@@ -380,6 +380,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="speak_advanced_settings">Озық Параметрлері</string>
   <string name="speak_sleep_timer_title">Ұйықтау өлшем таймері</string>
   <string name="speak_no_books_available">Сөйлеуге еш кітаптар қолға жетімді емес </string>
+  <string name="speak_general_error">Бұл кітап үшін сөйлеуді бастау мүмкін бола алмады</string>
   <string name="repeat_passage">Үзіндіні қайталау</string>
   <string name="set_repeat_passage_range">Үзіндісін қайталау диапазоның орнатыңыз</string>
   <string name="speak_beginning_of_passage">Аят басталуын таңдаңыз</string>
@@ -418,6 +419,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--param is heart icon-->
   <string name="assing_labels_help4">Басыңыз, %s ұяшыққа жылдам өту үшін оны таңдаулы тізімге қосыңыз</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">Таңдау негізінде тізімге қайта тапсырыс беру үшін %s түртіңіз.</string>
   <string name="workspace_text_options_help_title">Жұмысорнының мәтін параметрлері</string>
   <string name="workspace_text_options_help1">Бұл баптаулар  әдепкі қалпы бойынша барлық жұмыс кеңістігінің терезелерінің анықтатады.</string>
   <string name="workspace_text_options_help2"> Жеке терезенің баптауларын өзегрту арқылы, осылардың алдыңғысын қайта жоя аласыз.</string>
@@ -428,6 +430,9 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="window_text_options_help2">%s белгішесі бұл баптаудың осы арнайы нақты терезе үшін өзгертілгенің көрсетеді.</string>
   <string name="window_text_options_help3">Жұмыс кеңістігінің баптауы бұл терезеге әсер етпейді.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Осы параметр баптауларын барлығын %s қалпына келтіру үшін, %s батырманы пайдалаңыз.</string>
+  <string name="reset_defaults">әдепкі мәндер</string>
+  <string name="reset_workspace_defaults">жұмыс кеңістігінің әдепкі құнды мәндері</string>
   <string name="speak_bookmark_help">Сөйлеу Кітап белгісінің көмегі</string>
   <string name="speak_help_auto_bookmark">
 Сөйлеу пауза не тоқтатылған кезінде, Сөйлеу кітап белгісі автоматты түрде қосылады.
@@ -471,8 +476,19 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="mynotes">Менің Ескертпелерім</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Сақтық көшіру мен Қалпына келтіру</string>
+  <string name="backup_modules">Құжаттармен Бөлісіңіз немесе Сақтап көшіріңіз осы жерге...</string>
+  <string name="backup_app_database">Қолданбаның дерекқорымен Бөлісіңіз немесе Сақтап көшіріңіз осы жерге…</string>
+  <string name="backup_app">Қолданбамен (.apk файлмен) бөлісіңіз немесе Сақтап көшіріңіз осы жерге…</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Сіз нені қалпына келтіргіңіз келеді?</string>
+  <string name="restore_app_database">Қолданбалар дерекқорын қалпына келтіріңіз осы жерден...</string>
+  <string name="restore_database">Дерекқор Файлды Қалпына келтіріңіз</string>
+  <string name="restore_confirmation">Менің жазбаларым, бетбелгілерім, оқу планшеттерді, оқитын жоспарларымды және жұмыс кеңістіктерімді қайта жазу керек па?</string>
+  <string name="reading_plans_plural">Оқу Жоспарлары</string>
+  <string name="restore_success">Менің Жазбаларым, Бетбелгілерім, Оқу Планшеттерім, Оқу Жоспарлары мен Жұмыс Кеңістіктері қалпына сәтті келтірілді</string>
   <string name="loading_backup">Деректер базасы сақтық көшірмеден жүктелуде…</string>
+  <string name="backup_success2">Менің Жазбаларым, Бетбелгілерім, Оқу Планшеттерім, Оқу Жоспарлары мен Жұмыс Кеңістіктері сақтық көшірмесіне сәтті сақталған.</string>
+  <string name="backup_modules_success">Таңдалған модуль көрсеткіштері сақтық көшірмесіне сәтті сақталған.</string>
   <string name="backup_modules_email_subject_2">%s модульдерді сақтыққа көшіру</string>
   <string name="backup_modules_email_message_2">Қосылып бекітілген сіздің %s модульдердің сақтық көшірмесі, онда келесі модульдер бар:%s</string>
   <string name="backup_email_subject_2">%s мәліметтер базасын сақтыққа көшіру</string>
@@ -491,9 +507,24 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="module_about_installed_version">Орнатылған версия: %s (%s)</string>
   <string name="module_about_latest_version">Соңғы версия: %s (%s)</string>
   <string name="module_about_versification">Аятты растау: %s</string>
+  <string name="module_about_repository">Тарату сервері:%s</string>
   <string name="module_about_osisId">OSIS Идентификациясы:%s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Қате туралы есеп ақпарат</string>
+  <string name="send_feedback_title">Кері жауап қорытындысын беру</string>
+  <string name="send_bug_report_title">Кері жауап қорытындысын беру / Қате туралы есеп ақпараты</string>
+  <string name="report_bug_email_subject_3">[%s] Қате туралы есеп ақпараты %s%s үшін</string>
+  <string name="report_bug_big_heading">ӨТІНІШ, БҰЛ СЫЗЫҚ ҮСТІНЕН КЕРІ ЖАУАП ҚОРЫТЫНДЫСЫН НЕМЕСЕ ҚАТЕ ТУРАЛЫ ЕСЕП ЖАЗЫП БЕРІҢІЗ</string>
+  <string name="report_bug_heading1">Нұсқаулар:</string>
+  <string name="report_bug_line_1">Не істегеніңізді қысқаша айтыңыз / мәселе орын алған кезде не болды.</string>
+  <string name="report_bug_heading2">Мысалы:</string>
+  <string name="report_bug_instructions1">1. Ашылған қолданба</string>
   <string name="report_bug_instructions2">2. Басылған терезе мәзірі</string>
+  <string name="report_bug_instructions3">-&gt; Ақаулық</string>
+  <string name="report_bug_line_2">Кейде қолмен түсірілген бейне сүреттер де, мәселелерді шешуде тиімді.</string>
+  <string name="report_bug_line_3">Өтініш, егер мәселе орын алса, байқалған соң, бірден бұл функцияны хабарлау үшін қолданыңыз.</string>
+  <string name="report_bug_line_4">Қолданба ашылған соң кейін, ақаулық бұзылуы орын алса, бұл функцияны пайдалана аласыз.</string>
+  <string name="report_bug_heading_3">Бекітулер:</string>
   <!--Document types-->
   <string name="doc_type_all">Барлық түрлері</string>
   <string name="doc_type_bible">Киелі Кітап</string>

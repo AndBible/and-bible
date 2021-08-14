@@ -207,21 +207,36 @@
   <string name="strongs_not_installed">Kérlek, töltsd le a Strong héber és görög szószedeteket</string>
   <string name="no_indexed_bible_with_strongs_ref">Le kell töltened egy Strong számokat tartalmazó Bibliát és a hozzá tartozó indexet is a Keresés segítségével.</string>
   <string name="morph_robinson_not_installed">Kérlek, töltsd le Robinson morfológiai elemző szótárát</string>
+  <string name="go_to_downloads">Letöltések megnyitása</string>
   <!--Module download-->
   <string name="download">Dokumentumok letöltése</string>
+  <string name="redownload">Dokumentumok ismételt letöltése</string>
   <string name="download_confirmation">Bibliák letöltése az Internetről?</string>
+  <string name="download_source_last_updated">Dokumentumlista utolsó frissítése: %s</string>
+  <string name="download_refreshing_book_list">Elérhető dokumentumok listájának frissítése a dokumentum szerverekről...</string>
+  <string name="download_source_message1">A dokumentumok az alábbi forrásokból lesznek letöltve:</string>
   <string name="download_document_confirm_prefix">Letöltés</string>
   <string name="download_refresh_book_list_menu_item">Frissítés</string>
+  <string name="error_downloading">Hiba történt a letöltés közben. Ellenőrizze az internetkapcsolatot.</string>
+  <string name="error_downloading_status">A(z) %s dokumentumot kiszolgáló szerver hibaüzenettel tért vissza: %s (%d).</string>
   <string name="storage_space_warning">Nincs elég üres hely az eszközön.</string>
+  <string name="too_many_jobs">Túl sok feladat fut. Várjon míg néhány befejeződik és próbálja újra.</string>
   <string name="document_not_installed">Kérlek töltsd le ezt: \'%s\'</string>
   <string name="free_text_search_documents">Keresés</string>
   <string name="chooce_language_hint">Nyelv</string>
+  <string name="one_more_back_press">Nyomja meg a vissza gombot még egyszer, ha be akarja zárni az alkalmazást</string>
   <string name="document_filter_results">%d könyv</string>
   <string name="download_question_title">Biztos, hogy letölti a könyveket?</string>
+  <string name="download_question_message">Ha elnyomás alatt lévő országban él,
+legyen óvatos keresztény tartalmak letöltésével az Internetről. 
+Ehelyett szerezze be a műveket biztonságosan zip formátumban, és telepítse őket
+a \"Könyv betöltése Zip fájlból\" opcióval. Biztos, hogy letölti a dokumentumokat?
+Minden letöltés titkosított kapcsolaton (HTTPS) keresztül történik.</string>
   <string name="do_not_ask_again">Igen, és ne kérdezze többet</string>
   <string name="recommended_document">Javasolt</string>
   <string name="about_version_history">Verziótörténet: %s</string>
   <string name="download_errors">Hiba a letöltés közben</string>
+  <string name="failed_repositories_message">A kapcsolódás a dokumentum szerverhez sikertelen volt: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Az alábbi fájlokat nem sikerült letölteni: \n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Dokumentum betöltése zip fájlból</string>
@@ -238,8 +253,22 @@
   <string name="rdg_plan_selector_title">Olvasási terv választása</string>
   <string name="rdg_plan_day">%s. nap</string>
   <string name="rdg_plan_set_start_date">Kezdési dátum beállítása…</string>
+  <string name="set_current_day">Beállítás aktuális napként…</string>
+  <string name="msg_set_current_day_reading_plan">Ez a mai napot fogja aktuális napként beállítani ebben az olvasási tervben és minden korábbi napot olvasottként fog megjelölni. Folytatja?</string>
   <string name="done">Kész</string>
   <string name="reset_plan_question">Biztos, hogy űjrakezdi ezt az olvasási tervet?</string>
+  <string name="import_reading_plan">Olvasási terv importálása…</string>
+  <string name="import_reading_plan_error">Hiba történt importálás közben</string>
+  <string name="import_reading_plan_error_duplicate">Duplikált napok: %s</string>
+  <string name="import_reading_plan_error_days">Hibás napok: %s</string>
+  <string name="import_reading_plan_anyway">A hibák figyelmen kívül hagyása</string>
+  <string name="overwrite_reading_plan">Felülírja %s-t?</string>
+  <string name="delete_reading_plan">Olvasási terv törlése</string>
+  <string name="reading_plan_deleted">Az olvasási terv törlése megtörtént</string>
+  <string name="reading_plan_ships_with_ab">Az olvasás terv tartalmaz %s</string>
+  <string name="confirm_delete_reading_plan">
+Biztos, hogy törli %s-t és az olvasási előzményeit?
+Tipp: Ha módosítani szeretné az olvasási tervet, importálja ugyanezzel a fájlnévvel és az olvasási előzmények nem vesznek el.</string>
   <string name="plan_duplicate_user_plan">
 Olvasási terv található az sd kártyán
 ugyanazzal a névvel mint az alkalmazás belső
@@ -278,6 +307,7 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <!--Verse context menu-->
   <string name="notes">Lábjegyzetek és hivatkozások</string>
   <string name="share_verse">Megosztás…</string>
+  <string name="share_verse_widget_title">Kiválasztott szöveg megosztása…</string>
   <string name="share_verse_subject_2">Egy bibliai verset megosztottak veled a %s segítségével.</string>
   <string name="compare_translations">Fordítások összehasonlítása</string>
   <!--Link context menu-->
@@ -289,13 +319,28 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="migrated_my_notes">Előző verzióból származó jegyzeteim</string>
   <string name="bookmarks">Könyvjelzők</string>
   <string name="bookmark_added">Könyvjelző hozzáadva</string>
+  <string name="manage_labels">Címkék</string>
   <string name="assign_labels">Címke hozzárendelése</string>
   <string name="new_item">Új</string>
   <string name="new_label">Új címke</string>
   <string name="label_name_prompt">Név</string>
   <string name="label_unlabelled">Címke nélküli</string>
+  <string name="add_bookmark1">Könyvjelző</string>
+  <string name="add_bookmark2">Könyvjelző kiválasztott szöveghez</string>
+  <string name="add_bookmark3">Kiválasztás</string>
+  <string name="add_bookmark_whole_verse">Könyvjelző vershez</string>
+  <string name="add_bookmark_whole_verse1">Versek</string>
+  <string name="add_bookmark_whole_verse2">Teljes versek</string>
   <string name="remove_bookmark">Törlés</string>
+  <string name="bookmark_settings_hide_labels_title">Kiválasztott címkék elrejtése</string>
+  <string name="bookmark_settings_hide_labels_summary">Kiválasztott címkékkel megjelölt könyvjelzők elrejtése</string>
+  <string name="auto_assign_labels_title">Címke beállítások</string>
+  <string name="auto_assign_labels">Automatikus hozzárendelés és Kedvenc címkék</string>
+  <string name="auto_assign_labels1">Címkék automatikus hozzárendelése új könyvjelzőkhöz</string>
+  <string name="auto_assign_labels_primary">Automatikus hozzárendelés mint elsődleges címke</string>
+  <string name="label_color">Címke színe</string>
   <!--can be removed-->
+  <string name="label_color_example">Előnézet</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Hozzáadás sorrendje</string>
   <string name="sort_by_bible_book">Bibliai sorrend</string>
@@ -336,6 +381,7 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="speak_advanced_settings">Haladó beállítások</string>
   <string name="speak_sleep_timer_title">Elalvási időzítő</string>
   <string name="speak_no_books_available">Nincs felolvasható könyv</string>
+  <string name="speak_general_error">A felolvasás nem érhető el ehhez a könyvhöz</string>
   <string name="repeat_passage">Szakasz ismétlése</string>
   <string name="set_repeat_passage_range">Szakasz ismélés hossza</string>
   <string name="speak_beginning_of_passage">Szakasz kezdetének kiválasztása</string>
@@ -361,7 +407,12 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="speak_status_stopped">leállítva</string>
   <string name="speak_autobookmarking_disabled">A könyvjelzők automatikus mentése ki van kapcsolva!</string>
   <string name="system_speak_settings">TTS (Text-To-Speech) rendszerbeállítások megnyitása</string>
+  <string name="auto_assing_labels_help1">Itt állítható be, hogy milyen címkék lesznek automatikusan hozzárendelve az új könyvjelzőkhöz.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Ez a beállítás erre %s érvényes.</string>
+  <string name="setting_scope_window">az ablakra</string>
+  <string name="setting_scope_workspace">a munkaterületre</string>
+  <string name="assing_labels_help1">Mindegyik könyvjelzőhöz több címkét lehet rendelni.</string>
   <!--param is bookmark icon-->
   <!--param is auto-assign label icon-->
   <!--param is heart icon-->

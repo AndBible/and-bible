@@ -20,9 +20,8 @@ import {sortBy, uniqWith} from "lodash";
 import {
     addEventFunction,
     arrayEq,
-    colorLightness, EventPriorities,
+    EventPriorities,
     findNodeAtOffsetWithNullOffset, intersection,
-    mixColors,
     rangesOverlap
 } from "@/utils";
 import {computed, ref} from "@vue/reactivity";
@@ -31,7 +30,7 @@ import {highlightRange} from "@/lib/highlight-range";
 import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
-import {bookmarkingModes, testMode} from "@/composables/index";
+import {testMode} from "@/composables/index";
 
 const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
@@ -45,6 +44,59 @@ const allStyleRanges = computed(() => {
     }
     return allStyles;
 });
+
+export function verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, highlightColorFn}) {
+    // Percentage heights allocated to background highlight
+    const bgHighlightPercentage = 64;
+    const bgHighlightTopMargin = 4;
+    const underlineHeight = 4;
+    const spaceBetweenLines = 2;
+    let gradientCSS = '';
+
+    {
+        // Generate background gradients
+        const highlightColors = [];
+        let span = 0;
+        for (const {label: s, id} of highlightLabels) {
+            highlightColors.push(highlightColorFn(s, highlightLabelCount.get(id)).hsl().string());
+        }
+        if (highlightColors.length !== 0) {
+            span = (bgHighlightPercentage - bgHighlightTopMargin) / highlightColors.length;
+            gradientCSS += `transparent 0% ${bgHighlightTopMargin}%, `;
+            gradientCSS += highlightColors.map((v, idx) => {
+                const percent = `${span * idx + bgHighlightTopMargin}% ${span * (idx + 1) + bgHighlightTopMargin}%`
+                return `${v} ${percent}`;
+            }).join(", ");
+        }
+    }
+    {
+        // Generate underline gradients
+        const underlineColors = [];
+        let span = 0;
+        for (const {label: s} of underlineLabels) {
+            underlineColors.push(new Color(s.color).hsl().string());
+        }
+        if (underlineColors.length !== 0) {
+            span = (100 - bgHighlightPercentage) / underlineColors.length;
+            if (span > underlineHeight) {
+                span = underlineHeight
+            }
+            let gradientPosition = bgHighlightPercentage;
+            if (gradientCSS !== '') {
+                gradientCSS += ','
+            }
+            gradientCSS += underlineColors.map(v => {
+                const spacingGradient = `transparent ${gradientPosition}% ${gradientPosition + spaceBetweenLines}%`;
+                gradientPosition += spaceBetweenLines
+                const lineGradient = `${gradientPosition}% ${gradientPosition + span}%`
+                gradientPosition += span;
+                return `${spacingGradient}, ${v} ${lineGradient}`;
+            }).join(", ")
+        }
+    }
+    gradientCSS += `,transparent 0%`; // Fills the remainder of the background with a transparent color
+    return `padding-bottom: 0.5em; background-image: linear-gradient(to bottom, ${gradientCSS});`;
+}
 
 export function useGlobalBookmarks(config) {
     const bookmarkLabels = reactive(new Map());
@@ -314,6 +366,7 @@ export function useBookmarks(documentId,
 
             const hiddenLabels = new Set();
             const hiddenLabelCount = new Map();
+            const highlightedBookmarkIds = new Set();
 
             const filteredBookmarks = bookmarks
                 .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange));
@@ -329,9 +382,11 @@ export function useBookmarks(documentId,
                 else if((b.wholeVerse && label.underlineWholeVerse) || (!b.wholeVerse && label.underline)) {
                     underlineLabels.add(labelId);
                     underlineLabelCount.set(labelId, (underlineLabelCount.get(labelId) || 0) + 1);
+                    highlightedBookmarkIds.add(b.id);
                 } else {
                     highlightLabels.add(labelId);
                     highlightLabelCount.set(labelId, (highlightLabelCount.get(labelId) || 0) + 1);
+                    highlightedBookmarkIds.add(b.id);
                 }
             });
 
@@ -339,6 +394,7 @@ export function useBookmarks(documentId,
 
             if(highlightLabels.size > 0 || underlineLabels.size > 0 || hiddenLabels.size > 0) {
                 styleRanges.push({
+                    highlightedBookmarkIds,
                     ordinalAndOffsetRange,
                     highlightLabelCount,
                     underlineLabelCount,
@@ -366,53 +422,7 @@ export function useBookmarks(documentId,
                 label: bookmarkLabels.get(v)
             })).filter(l => !l.label.noHighlight);
 
-        let style = "";
-        switch(config.bookmarkingMode) {
-            case bookmarkingModes.verticalColorBars:
-                style += verticalColorbarStyleForLabels(highlightLabels, highlightLabelCount);
-                break;
-            case bookmarkingModes.blend:
-                style += blendingStyleForLabels(highlightLabels, highlightLabelCount);
-                break;
-        }
-
-        style += underlineStyleForLabels(underlineLabels, underlineLabelCount);
-        return style;
-    }
-
-    function underlineStyleForLabels(labels, underlineLabelCount) {
-        if(labels.length === 0) return "";
-
-        const label = labels.filter(l => l.label.isRealLabel)[0] || labels[0];
-        const color = new Color(label.label.color).hsl().string();
-        if(labels.length === 1 && underlineLabelCount.get(labels[0].id) === 1) {
-            return `text-decoration: underline; text-decoration-style: solid; text-decoration-color: ${color};`;
-        } else {
-            return `text-decoration: underline; text-decoration-style: double; text-decoration-color: ${color};`;
-        }
-    }
-
-    function blendingStyleForLabels(bookmarkLabels, labelCount) {
-        let colors = [];
-        let darkenCoef = 0.0;
-
-        for(const {label: s, id} of bookmarkLabels) {
-            let c = new Color(s.color)
-            darkenCoef += 0.3*(labelCount.get(id)-1);
-            for(let i = 0; i<labelCount.get(id); i++) {
-                colors.push(c);
-            }
-        }
-
-        let color = mixColors(...colors)
-            .alpha(0.4)
-            .darken(Math.min(1.0, darkenCoef));
-
-        if(colorLightness(color) > 0.9) {
-            color = color.darken(0.2);
-        }
-
-        return `background-color: ${color.hsl().string()}`
+        return verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount, highlightColorFn: highlightColor});
     }
 
     function highlightColor(label, count) {
@@ -422,31 +432,6 @@ export function useBookmarks(documentId,
             c = c.opaquer(0.3).darken(0.2);
         }
         return c;
-    }
-
-    function verticalColorbarStyleForLabels(bookmarkLabels, labelCount) {
-        let colors = [];
-        for(const {label: s, id} of bookmarkLabels) {
-            colors.push(highlightColor(s, labelCount.get(id)).hsl().string());
-        }
-        if(colors.length === 1) {
-            colors.push(colors[0]);
-        }
-        if(colors.length === 0) return "";
-        const span = 100/colors.length;
-        const colorStr = colors.map((v, idx) => {
-            let percent;
-            if (idx === 0) {
-                percent = `${span}%`
-            } else if (idx === colors.length - 1) {
-                percent = `${span * (colors.length - 1)}%`
-            } else {
-                percent = `${span * idx}% ${span * (idx + 1)}%`
-            }
-            return `${v} ${percent}`;
-        }).join(", ")
-
-        return `background-image: linear-gradient(to bottom, ${colorStr});`;
     }
 
     const undoHighlights = [];
@@ -465,12 +450,12 @@ export function useBookmarks(documentId,
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
         let firstElement, lastElement;
         const style = config.showBookmarks ? styleForStyleRange(styleRange) : "";
-        const hidden =  style === "";
-        const priority = hidden ? EventPriorities.HIDDEN_BOOKMARK : EventPriorities.VISIBLE_BOOKMARK;
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId));
 
         function addBookmarkEventFunctions(event) {
             for (const b of bookmarks) {
+                const hidden = !styleRange.highlightedBookmarkIds.has(b.id);
+                const priority = hidden ? EventPriorities.HIDDEN_BOOKMARK : EventPriorities.VISIBLE_BOOKMARK;
                 addEventFunction(event, null, {bookmarkId: b.id, priority, hidden});
             }
         }

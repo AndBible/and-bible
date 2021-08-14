@@ -147,7 +147,7 @@ export default {
       }
       await nextTick();
       if(journal && journal.new) {
-        scrollToId(`studypad-${journal.type}-${journal.id}`, {duration: 300})
+        scrollToId(`studypad-${journal.type}-${journal.id}`, {duration: 300, onlyIfInvisible: true})
       }
     })
 
@@ -171,6 +171,7 @@ export default {
     }
 
     function addNewEntry() {
+      adding.value = true;
       android.createNewJournalEntry(label.id);
     }
 

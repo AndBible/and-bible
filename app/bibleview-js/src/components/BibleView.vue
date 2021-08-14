@@ -89,6 +89,7 @@ export default {
     const documentPromise = ref(null);
     const verseHighlight = useVerseHighlight();
     provide("verseHighlight", verseHighlight);
+    const {resetHighlights} = verseHighlight;
     const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
     const {scrollToId} = scroll;
     provide("scroll", scroll);
@@ -134,6 +135,7 @@ export default {
     })
 
     setupEventBusListener(Events.CLEAR_DOCUMENT, function clearDocument() {
+      resetHighlights();
       closeModals();
       clearLog();
       globalBookmarks.clearBookmarks();

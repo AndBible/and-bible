@@ -34,7 +34,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="75sp"
 					android:layout_weight="4"
-					app:srcCompat="@mipmap/ic_launcher_foreground"
+					app:srcCompat="@drawable/ic_logo"
 					tools:ignore="ContentDescription" />
 
 				<TextView

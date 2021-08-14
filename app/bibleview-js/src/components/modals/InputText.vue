@@ -38,8 +38,7 @@
 import Modal from "@/components/modals/Modal";
 import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
-import {Deferred} from "@/utils";
-import {nextTick} from "@vue/runtime-core";
+import {Deferred, waitUntilRefValue} from "@/utils";
 export default {
   name: "InputText",
   components: {Modal},
@@ -54,8 +53,7 @@ export default {
       error.value = _error;
       show.value = true;
       promise = new Deferred();
-      await nextTick();
-      await nextTick();
+      await waitUntilRefValue(inputElement)
       inputElement.value.focus();
       const result = await promise.wait()
       show.value = false;

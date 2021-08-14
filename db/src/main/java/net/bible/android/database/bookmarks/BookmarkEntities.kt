@@ -239,7 +239,7 @@ class BookmarkEntities {
         // Journal display variables
         @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
         @ColumnInfo(defaultValue = "0") var indentLevel: Int = 0,
-        @ColumnInfo(defaultValue = "0") var expandContent: Boolean = false,
+        @ColumnInfo(defaultValue = "0") var expandContent: Boolean = true,
     )
 
     @Entity(
