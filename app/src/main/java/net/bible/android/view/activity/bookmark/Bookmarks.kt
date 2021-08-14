@@ -60,8 +60,8 @@ val BookmarkSortOrder.description get() =
     when(this) {
         BookmarkSortOrder.BIBLE_ORDER  -> CommonUtils.getResourceString(R.string.sort_by_bible_book)
         BookmarkSortOrder.LAST_UPDATED -> CommonUtils.getResourceString(R.string.sort_by_date)
-        BookmarkSortOrder.CREATED_AT -> CommonUtils.getResourceString(R.string.sort_by_date) + "🠕"
-        BookmarkSortOrder.CREATED_AT_DESC -> CommonUtils.getResourceString(R.string.sort_by_date) + "🠗"
+        BookmarkSortOrder.CREATED_AT -> CommonUtils.getResourceString(R.string.sort_by_date)
+        BookmarkSortOrder.CREATED_AT_DESC -> CommonUtils.getResourceString(R.string.sort_by_date)
         BookmarkSortOrder.ORDER_NUMBER -> "order number"
     }
 
