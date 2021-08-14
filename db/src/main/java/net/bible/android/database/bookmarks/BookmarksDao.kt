@@ -35,6 +35,7 @@ import java.util.*
 const val orderBy = """
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.kjvOrdinalStart END,
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.startOffset END,
+CASE WHEN :orderBy = 'CREATED_AT_DESC' THEN Bookmark.createdAt END DESC,
 CASE
     WHEN :orderBy = 'CREATED_AT' THEN Bookmark.createdAt
     WHEN :orderBy = 'LAST_UPDATED' THEN Bookmark.lastUpdatedOn
@@ -45,6 +46,7 @@ CASE WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.kjvOrdinalStart END,
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.startOffset END,
 CASE
     WHEN :orderBy = 'CREATED_AT' THEN Bookmark.createdAt
+    WHEN :orderBy = 'CREATED_AT_DESC' THEN Bookmark.createdAt
     WHEN :orderBy = 'LAST_UPDATED' THEN Bookmark.lastUpdatedOn
     WHEN :orderBy = 'ORDER_NUMBER' THEN BookmarkToLabel.orderNumber
 END"""
