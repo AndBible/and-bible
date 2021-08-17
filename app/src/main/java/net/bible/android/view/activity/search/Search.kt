@@ -177,6 +177,10 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 startActivity(Intent(this, SearchIndex::class.java))
                 return true
             }
+            R.id.help -> {
+                CommonUtils.showHelp(this, listOf(R.string.help_search_title))
+                return true
+            }
         }
         return false
     }
