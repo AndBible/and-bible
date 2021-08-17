@@ -817,6 +817,7 @@ object CommonUtils : CommonUtilsBase() {
 
         val d = androidx.appcompat.app.AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
+            .setIcon(R.drawable.ic_logo)
             .setMessage(spanned)
             .setPositiveButton(android.R.string.ok) { _, _ ->  }
             .create()
