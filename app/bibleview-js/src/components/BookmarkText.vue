@@ -17,7 +17,7 @@
 
 <template>
   <template v-if="bookmark.text">
-    <AmbiguousSelection ref="ambiguousSelection"/>
+    <AmbiguousSelection ref="ambiguousSelection" @back-clicked="$emit('change-expanded', false)"/>
     <div v-if="expanded" @click.stop="ambiguousSelection.handle">
       <OsisFragment
         :highlight-ordinal-range="bookmark.originalOrdinalRange"
