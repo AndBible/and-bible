@@ -1,80 +1,82 @@
-openMyNotes: ""
-openStudyPad: ""
-noteText: ""
+openMyNotes: Megnyitás Saját Jegyzetként
+openStudyPad: Megnyitás Tanulmányként (%s)
+noteText: Lábjegyzetek (%s)
 noteTextWithoutType: Lábjegyezetek
 crossReferenceText: Kereszthivatkozások
 findAllOccurrences: Összes előfordulás mutatása
-reportError: ""
-errorTitle: ""
-warningTitle: ""
-normalTitle: ""
-footnoteTypeUndefined: ""
-footnoteTypeStudy: ""
-footnoteTypeExplanation: ""
-footnoteTypeVariant: ""
-footnoteTypeAlternative: ""
-footnoteTypeTranslation: ""
-clearLog: ""
+reportError: Hibabejelentés
+errorTitle: Hiba történt
+warningTitle: Figyelmeztetés
+normalTitle: Megjegyzés
+footnoteTypeUndefined: Nem definiált típus
+footnoteTypeStudy: Tanulmány
+footnoteTypeExplanation: Magyarázat
+footnoteTypeVariant: Változat
+footnoteTypeAlternative: Alternatíva
+footnoteTypeTranslation: Fordítás
+clearLog: Hiba napló törlése
 editNote: Szerkesztés
-editNotePlaceholder: ""
-editTextPlaceholder: ""
-inputPlaceholder: ""
-inputReference: ""
+editNotePlaceholder: Jegyzet szerkesztése
+editTextPlaceholder: Koppintson a szöveg szerkesztéséhez
+inputPlaceholder: Ide írjon
+inputReference: Bibliahivatkozás megadása
 invalidReference: Vers nem található
-assignLabels: ""
-bookmarkAccurate: ""
-bookmarkInaccurate: ""
-defaultBook: ""
+assignLabels: Címkék
+bookmarkAccurate: Könyvjelző létrehozva (%s)
+bookmarkInaccurate: "A könyvjelző könyv információ nem került tárolásra, a tartalom %s-ban/ben látható."
+defaultBook: alapértelmezett Biblia
 ok: Ok
 yes: "Igen"
-ambiguousSelection: ""
+ambiguousSelection: "Mit szeretne tenni?"
 cancel: Mégsem
-removeBookmarkConfirmationTitle: ""
-removeBookmarkConfirmation: ""
+removeBookmarkConfirmationTitle: "Könyvjelző törlése?"
+removeBookmarkConfirmation: "Biztos hogy törli?"
 closeModal: Bezárás
-createdAt: ""
-lastUpdatedOn: ""
-strongsLink: ""
-morphLink: ""
-strongsAndMorph: ""
-studyPadLink: ""
-externalLink: ""
-referenceLink: ""
-openFootnote: ""
-openBookmark: ""
-noMyNotesTitle: ""
+createdAt: "Létrehozva: %s"
+lastUpdatedOn: "Útóljára módosítva: %s"
+strongsLink: Strongs definició (%s)
+morphLink: Morfológiai kód (%s)
+strongsAndMorph: Definiciók & Morfológia
+studyPadLink: Tanulmány megnyitása
+externalLink: Külső hivatkozás megnyitása
+referenceLink: Referencia megnyitása
+openFootnote: Lábjegyzet megnyitása
+openBookmark: Könyvjelző megnyitása (%s)
+noMyNotesTitle: Nincsenek Saját Jegyzetek ehhez a fejezethez.
 noMyNotesDescription: >
+  Az elmentett könyvjelzők itt fognak megjelenni, később személyes jegyzeteket is fűzhet hozzájuk.
 emptyStudyPad: >
-studyPadModalTitle: ""
-doYouWantToDeleteEntry: ""
-removeStudyPadConfirmationTitle: ""
-dragHelp: ""
-saved: ""
-openAll: ""
-editBookmarkPlaceholder: ""
-onlyLabel: ""
-wholeBookmark: ""
-otherNoteText: ""
+  Üres tanulmány. Ide egyszerűen felvehet szöveges bejegyzéseket, könyvjelzőket. A könyvjelzők automatikusan ennek a tanulmánynak megfelelő címkét fognak kapni.
+studyPadModalTitle: Tanulmány bejegyzés szerkesztése
+doYouWantToDeleteEntry: "Törli ezt a tanulmány bejegyzést?"
+removeStudyPadConfirmationTitle: "Törli a tanulmány bejegyzést?"
+dragHelp: Húzza el más sorrendbe tevéshez
+saved: mentve
+openAll: Minden hivatkozás megnyitása
+editBookmarkPlaceholder: Nyomja meg a könyvjelzőhöz tartozó Saját Jegyzet szerkesztéséhez
+onlyLabel: Csak a címke
+wholeBookmark: A teljes könyvjelző
+otherNoteText: Jegyzet
 assignLabelsMenuEntry: Címke hozzárendelése
-assignLabelsMenuEntry1: ""
-jumpToStudyPad: ""
-setAsPrimaryLabel: ""
-removeBookmarkLabel: ""
-addBookmarkLabel: ""
-favouriteLabels: ""
-recentLabels: ""
-frequentlyUsedLabels: ""
-bookmarkLabels: ""
-refParserHelp: ""
-openDownloads: ""
+assignLabelsMenuEntry1: Címkék kiválasztása és szerkesztése…
+jumpToStudyPad: Ugrás Tanulmányhoz
+setAsPrimaryLabel: Beállítás elsődleges címkeként
+removeBookmarkLabel: Címke törlése
+addBookmarkLabel: Címke hozzáadása
+favouriteLabels: Kedvenc címkék
+recentLabels: Legutóbbi címkék
+frequentlyUsedLabels: Gyakran használt címkék
+bookmarkLabels: Könyvjelző címkék
+refParserHelp: "Telepítse a %s modult, ha nem angol nyelvű hivatkozásokat szeretne használni."
+openDownloads: Kiegészítők letöltése
 verseShare: Megosztás
-verseCompare: ""
-verseNote: ""
+verseCompare: Összehasonlítás
+verseNote: Jegyzet
 verseMyNotes: Jegyzeteim
 verseSpeak: Felolvasás
-verseShareLong: ""
-verseCompareLong: ""
-verseNoteLong: ""
-verseSpeakLong: ""
-verseTip: ""
-addBookmark: ""
+verseShareLong: Vers megosztása
+verseCompareLong: Vers összehasonlítása
+verseNoteLong: Jegyzet hozzáadása
+verseSpeakLong: Lejátszás ettől a verstől
+verseTip: Versrészlet vagy több vers kiválasztásához hosszan nyomjon a Biblia szövegre
+addBookmark: Könyvjelző

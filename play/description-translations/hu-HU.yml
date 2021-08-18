@@ -11,7 +11,7 @@ paragraph_1_2: >-
    
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
-  Az applikációban magyarul a Károli Biblia 1908-as revíziója és a Magyar Bibliatársulat Újfordítású Bibliájának 1990-es változata olvasható. Angolul a népszerű KJV, NASB, NET fordítások és az ugyancsak népszerű Matthew Henry és John Gill kommentárok is elérhetőek, a több száz egyéb nyelvű bibliafordítással  és kommentárral együtt.
+  Az applikációban magyarul több fordítás érhető el: többek közt a Károli Biblia 1908-as revíziója, a Magyar Bibliatársulat Újfordítású Bibliájának 1990 és 2014-es változata és a Káldi Neovulgáta modern változata is. Angolul a népszerű KJV, NASB, NET fordítások és az ugyancsak népszerű Matthew Henry és John Gill kommentárok is elérhetőek, a több száz egyéb nyelvű bibliafordítással  és kommentárral együtt.
 subtitle_2: Bibliatanulmányozó funkciók
 paragraph_2_1: >
   Az app számos különleges funkcióval rendelkezik, amelyek az öszetett és alapos bibliatanulmányozást még egyszerűbbé teszik. A elismerésre legméltóbb funkciók:
@@ -28,7 +28,7 @@ commentary_examples: "Gill, Matthew Henry stb."
 cross_reference_examples: "Treasury of Scripture Knowledge, TSKe"
 feature_05: "Fejlett felolvasási képességek (a támogatott nyelveken), beszéd könyvjelzők, hogy tényleg akadálymentesen hallgathassa a Bibliát."
 feature_06: Rugalmas keresési lehetőségek
-feature_07: ""
+feature_07: "Fejlett könyvjelző és kijelölési lehetőségek, személyes jegyzetek "
 feature_09: >
   Olvasási tervek: olvassa a bibliát előre összeállított tervek szerint, és állítson be olvasási célokat
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
@@ -43,13 +43,14 @@ unavailable_documents: "ESV, NIV és NKJV"
 feature_12: >
   Offline: csak a bibliamodulok letöltésekor van szükség aktív internetkapcsolatra.
 feature_13: >
+  Tanulmányok készítése jegyzetekkel és biblia hivatkozásokkal: igehirdetésre készülve vagy igehirdetés hallgatása közben.
 subtitle_3: Segítsen az alkalmazás jobbá tételében!
 paragraph_3_1: >
   Az And Bible nyilt forráskódú közösségi projekt. Bárkit, aki megfelelő tudással rendelkezik, bátorítunk a közreműködésre:
 contr_1: új funkciók kifejlesztésével
 contr_2: újonnan fejlesztett funkciók tesztelésével
 contr_3: a felhasználói felület fordításainak karbantartásával és
-contr_4: ""
+contr_4: "a modulkönyvtár fejlesztésével: dokumentumok SWORD formátumba konvertálásával vagy a jogtulajdonosoktól a megfelelő engedélyek beszerzésével."
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 paragraph_4_1: "Ha hivatásos szoftverfejlesztő vagy tesztelő, kérjük vegyen részt az alkalmazás feljlesztésében! Bővebb információ: {{how_to_contribute_url}}."
 subtitle_4: Hivatkozások

@@ -5,7 +5,7 @@ noteTextWithoutType: အောက်ခြေမှတ်စုများ
 crossReferenceText: ပြန်လှန်ကိုးကားချက်များ
 findAllOccurrences: ပေါ်လာသည့်နေရာအားလုံးကို ရှာဖွေပါ
 reportError: အမှားတစ်ခုကိုသတင်းပို့ပါ
-errorTitle: အမှားတစ်ခုဖြစ်ပွားခဲ့သည်
+errorTitle: အမှားတစ်ခုဖြစ်ပေါ်ခဲ့သည်
 warningTitle: သတိပေးချက်
 normalTitle: ကျေးဇူးပြုပြီးမှတ်သားထားပါ
 footnoteTypeUndefined: သတ်မှတ်ခြင်းမရှိသည့် အမျိုးအစား
@@ -33,7 +33,7 @@ removeBookmarkConfirmationTitle: စာညှပ်ကို ဖယ်ရှာ�
 removeBookmarkConfirmation: ဤစာညှပ်ကို ဖယ်ရှားလိုပါသလား။
 closeModal: ပိတ်ပါ
 createdAt: "ဖန်တီးထားပြီးပါပြီ: %s"
-lastUpdatedOn: "နောက်ဆုံး မွမ်းမံပြီး: %s"
+lastUpdatedOn: "နောက်ဆုံး အဆင်မြှင့်တင်ပြီး: %s"
 strongsLink: Strongs အဓိပ္ပါယ်ဖွင့်ဆိုချက် (%s)
 morphLink: "စာလုံးပုံသဏ္ဌာန်လေ့လာမှုဆိုင်ရာ စည်းမျဉ်း (%s) "
 strongsAndMorph: အဓိပ္ပါယ်ဖွင့်ဆိုချက်နှင့် စာလုံးပုံသဏ္ဌာန်လေ့လာမှုဗေဒ

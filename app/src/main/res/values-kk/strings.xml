@@ -525,6 +525,10 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="report_bug_line_3">Өтініш, егер мәселе орын алса, байқалған соң, бірден бұл функцияны хабарлау үшін қолданыңыз.</string>
   <string name="report_bug_line_4">Қолданба ашылған соң кейін, ақаулық бұзылуы орын алса, бұл функцияны пайдалана аласыз.</string>
   <string name="report_bug_heading_3">Бекітулер:</string>
+  <string name="bug_report_logcat">Журнал файлы осы қолданбамен өңдірілген. Ол басқа қолданбалар туралы ақпаратты қамтымайды.</string>
+  <string name="bug_report_screenshot">Бұзылғанда немесе қате туралы есеп жасалған кездегі қолданбаның бейне сүреті.</string>
+  <string name="bug_report_attachment_line_1">Осы файлдардың тіркелуі, қолданбаларды дамытушыларға хабарланған қатені түзетуге өте көмектеседі.</string>
+  <string name="report_bug_heading_4">Құрылғы ақпараты:</string>
   <!--Document types-->
   <string name="doc_type_all">Барлық түрлері</string>
   <string name="doc_type_bible">Киелі Кітап</string>
@@ -532,6 +536,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="doc_type_dictionary">Сөздік</string>
   <string name="doc_type_book">Кітап</string>
   <string name="doc_type_map">Карта</string>
+  <string name="doc_type_addons">Қос-толықтырулар</string>
   <!--Languages-->
   <string name="lang_default">Дефолт</string>
   <!--General-->
@@ -550,11 +555,14 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--Errors-->
   <string name="report_error">Есеп Жіберу</string>
   <string name="error_occurred">Қате пайда болды</string>
+  <string name="error_occurred_crash_last_time">Қолданбаны соңғы рет қолданғанда, ол қиратылған. Бізге қатені түзетуге көмектесуде, қате туралы есеп жіберсеңіз, риза боламыз.</string>
   <string name="error_occurred_with_link">Қате пайда болды. %s</string>
   <string name="error_no_content">Таңдалған аятқа мазмұн жоқ</string>
   <string name="error_page_too_large">Жүктеу үшін бет тым үлкен</string>
   <string name="error_key_not_in_document">Құжатта табылмаған</string>
+  <string name="error_key_not_in_document2">%s құжатта табылмады%s.</string>
   <string name="empty_list">Көрсету үшін еш элемент жоқ </string>
+  <string name="error_skip">Жіберу</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Сөйлеуге текст</string>
   <string name="notification_channel_progress_status">Құжат жүктеуде және сол сияқты хабарлама растауды дамыту</string>
@@ -590,6 +598,9 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Босату</string>
   <string name="beta_notice_dismiss_until_update">Келесі жаңартуға дейін босату</string>
+  <string name="stable_notice_title">Қолданба жаңартылды!</string>
+  <string name="upgrade_video_message">Өтінеміз, ерекше видео көріңіз, бұл шығарылымда жаңа функциялар ұсынылады (%s).</string>
+  <string name="stable_notice_par1">Жаңа нұсқа %sдың %s сәтті орнатылды!</string>
   <!--History-->
   <string name="history_for">Тарих (%s: Терезе%d)</string>
   <!--Help-->
