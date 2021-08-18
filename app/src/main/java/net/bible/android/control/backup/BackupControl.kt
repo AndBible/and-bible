@@ -415,7 +415,7 @@ object BackupControl {
 
     suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "application/*"
+        intent.type = "*/*"
         val result = activity.awaitIntent(intent) ?: return
         if (result.resultCode == Activity.RESULT_OK) {
             val result2 = Dialogs.instance.showMsg2(activity, R.string.restore_confirmation, true)

@@ -249,7 +249,7 @@ class InstallZip : ActivityBase() {
             }
             else -> {
                 val intent = Intent(Intent.ACTION_GET_CONTENT)
-                intent.type = "application/zip"
+                intent.type = "*/*"
                 startActivityForResult(intent, PICK_FILE)
             }
         }
