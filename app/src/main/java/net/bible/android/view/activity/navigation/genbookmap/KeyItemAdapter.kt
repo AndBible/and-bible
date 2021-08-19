@@ -54,7 +54,7 @@ class KeyItemAdapter(
         if (ABStringUtils.isAllUpperCaseWherePossible(key)) {
             key = WordUtils.capitalizeFully(key)
         }
-        view.text = key
+        view.text = key.replace("_", " ")
         return view
     }
 
