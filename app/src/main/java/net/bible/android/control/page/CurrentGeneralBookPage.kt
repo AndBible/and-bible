@@ -168,10 +168,10 @@ class CurrentGeneralBookPage internal constructor(
                 }
             }
             FakeBookFactory.multiDocument.initials -> {
-                val refs = entity!!.key!!.split("||").map { it.split(":") }.map {
+                val refs = entity!!.key!!.split("||").map { it.split(":") }.mapNotNull {
                     try {
                         val book = Books.installed().getBook(it[0])
-                        val key = if(book is SwordBook) {
+                        val key = if (book is SwordBook) {
                             VerseRangeFactory.fromString(book.versification, it[1])
                         } else {
                             book.getKey(it[1])
@@ -181,7 +181,7 @@ class CurrentGeneralBookPage internal constructor(
                     } catch (e: Exception) {
                         null
                     }
-                }.filterNotNull()
+                }
 
                 val key = BookAndKeyList()
                 for (ref in refs) {
