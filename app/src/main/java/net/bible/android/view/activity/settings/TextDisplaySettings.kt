@@ -55,6 +55,7 @@ import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.MorphologyPreference
 import net.bible.android.view.activity.page.MyNotesPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
+import net.bible.android.view.activity.page.RedLettersPreference
 import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.activity.page.TopMarginPreference
 import net.bible.service.common.CommonUtils
@@ -104,7 +105,7 @@ fun getPrefItem(settings: SettingsBundle, key: String): OptionsMenuItemInterface
 fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface =
     when(type) {
         Types.BOOKMARKS_SHOW -> ItemPreference(settings, Types.BOOKMARKS_SHOW)
-        Types.REDLETTERS -> ItemPreference(settings, Types.REDLETTERS)
+        Types.REDLETTERS -> RedLettersPreference(settings)
         Types.SECTIONTITLES -> ItemPreference(settings, Types.SECTIONTITLES)
         Types.VERSENUMBERS -> ItemPreference(settings, Types.VERSENUMBERS)
         Types.VERSEPERLINE -> ItemPreference(settings, Types.VERSEPERLINE)

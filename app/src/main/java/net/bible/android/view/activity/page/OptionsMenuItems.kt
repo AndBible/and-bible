@@ -43,6 +43,7 @@ import net.bible.android.view.util.widget.LineSpacingWidget
 import net.bible.android.view.util.widget.TopMarginWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import org.crosswire.jsword.book.FeatureType
 
 interface OptionsMenuItemInterface {
     var value: Any
@@ -271,6 +272,9 @@ class MyNotesPreference (settings: SettingsBundle) : Preference(settings, TextDi
     override val visible: Boolean get() = !pageManager.isMyNotesShown
 }
 
+class RedLettersPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.REDLETTERS) {
+    override val enabled: Boolean get() = pageManager.isBibleShown && pageManager.currentPage.currentDocument?.hasFeature(FeatureType.WORDS_OF_CHRIST) == true
+}
 
 class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.STRONGS) {
     override val enabled: Boolean get() = pageManager.hasStrongs
