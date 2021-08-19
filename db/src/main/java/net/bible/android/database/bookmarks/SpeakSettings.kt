@@ -22,6 +22,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import net.bible.android.database.json
+import org.crosswire.jsword.passage.NoSuchVerseException
 
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
@@ -45,7 +46,7 @@ object VerseRangeSerializer: KSerializer<VerseRange?> {
         val str = decoder.decodeString()
         val splitted = str.split("::")
         val v11n = Versifications.instance().getVersification(splitted[0])
-        return VerseRangeFactory.fromString(v11n, splitted[1])
+        return try {VerseRangeFactory.fromString(v11n, splitted[1]) } catch (e: NoSuchVerseException) {null}
     }
 }
 
