@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.bookmark
 
 import android.content.Context
+import android.graphics.Typeface
 import android.util.Log
 import android.widget.ArrayAdapter
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
@@ -60,7 +61,9 @@ class ManageLabelItemAdapter(context: Context?,
         }
         else if(label is BookmarkEntities.Label) {
             bindings.apply {
-                root.setBackgroundResource(R.drawable.selectable_background)
+                val highlight = label.id == manageLabels.highlightLabel?.id
+                labelName.setTypeface(null, if(highlight) Typeface.BOLD else Typeface.NORMAL)
+                root.setBackgroundResource(if(highlight) R.drawable.selectable_background_highlight else R.drawable.selectable_background)
 
                 labelCategory.visibility = View.VISIBLE
                 categoryTitle.visibility = View.GONE

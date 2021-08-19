@@ -57,6 +57,8 @@ class CurrentGeneralBookPage internal constructor(
     override val documentCategory = DocumentCategory.GENERAL_BOOK
 
     val isSpecialDoc get() = setOf(FakeBookFactory.journalDocument, FakeBookFactory.multiDocument).contains(currentDocument)
+    val isStudyPad get() = FakeBookFactory.journalDocument == currentDocument
+
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
     override fun startKeyChooser(context: ActivityBase) {

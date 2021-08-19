@@ -127,6 +127,9 @@ open class CurrentPageManager @Inject constructor(
             }
         }
 
+    val isStudyPadShown: Boolean
+        get() = currentGeneralBook === currentPage && currentGeneralBook.isStudyPad
+
     val isCommentaryShown: Boolean
         get() = currentCommentary === currentPage
     val isBibleShown: Boolean
