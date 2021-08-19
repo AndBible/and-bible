@@ -40,12 +40,13 @@
 </template>
 
 <script>
-import {checkUnsupportedProps, useCommon, useReferenceCollector} from "@/composables";
+import {checkUnsupportedProps, useCommon, useReferenceCollector, sprintf} from "@/composables";
 import Modal from "@/components/modals/Modal";
 import {get} from "lodash";
 import {ref, provide, inject} from "@vue/runtime-core";
 import {addEventFunction, EventPriorities, isBottomHalfClicked} from "@/utils";
 import OpenAllLink from "@/components/OpenAllLink";
+import {computed} from "@vue/reactivity";
 
 let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
@@ -67,14 +68,6 @@ export default {
     n: {type: String, default: null},
     resp: {type: String, default: null},
   },
-  computed: {
-    handle: ({n}) => n || runningHandle(),
-    isFootNote: ({type}) => ["explanation", "translation", "study", "variant", "alternative", "x-editor-correction"].includes(type),
-    typeStr: ({type, typeStrings}) => get(typeStrings, type),
-    noteType: ({typeStr, sprintf, strings}) => typeStr ? sprintf(strings.noteText, typeStr) : strings.noteTextWithoutType,
-    isCrossReference: ({type}) => type === "crossReference",
-    isOther: ({isCrossReference, isFootNote}) => !isCrossReference && !isFootNote
-  },
   setup(props) {
     const ambiguousSelection = ref(null);
     checkUnsupportedProps(props, "resp");
@@ -86,6 +79,13 @@ export default {
     const {strings, ...common} = useCommon();
     const showNote = ref(false);
     const locateTop = ref(false);
+
+    const handle = computed(() => props.n || runningHandle());
+    const isFootNote = computed(() => ["explanation", "translation", "study", "variant", "alternative", "x-editor-correction"].includes(props.type));
+    const typeStr = computed(() => get(typeStrings, props.type));
+    const noteType = computed(() => typeStr.value ? sprintf(strings.noteText, typeStr.value) : strings.noteTextWithoutType);
+    const isCrossReference = computed(() => props.type === "crossReference");
+    const isOther = computed(() => !isCrossReference.value && !isFootNote.value);
 
     function noteClicked(event) {
       addEventFunction(event,
@@ -109,7 +109,10 @@ export default {
     const referenceCollector = useReferenceCollector();
     provide("referenceCollector", referenceCollector);
 
-    return {strings, locateTop, typeStrings, showNote, noteClicked, ambiguousSelection, v11n, ...common};
+    return {
+      handle, showNote, locateTop, ambiguousSelection, v11n, isCrossReference, noteType, isFootNote,
+      isOther, strings, noteClicked, ...common
+    }
   },
 }
 </script>

@@ -25,7 +25,7 @@ import {
     ref,
     watch
 } from "@vue/runtime-core";
-import {sprintf} from "sprintf-js";
+import {sprintf as sprintfOrig} from "sprintf-js";
 import {adjustedColor, Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {isEqual, throttle} from "lodash";
@@ -310,6 +310,10 @@ export function abbreviated(str, n, useWordBoundary = true) {
     return (useWordBoundary
         ? subString.substr(0, splitPoint)
         : subString) + "...";
+}
+
+export function sprintf(...args) {
+    return sprintfOrig(...args);
 }
 
 export function useCommon() {
