@@ -25,6 +25,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.jdom2.Element
@@ -86,7 +87,7 @@ class OsisFragment(
     val annotateRef: VerseRange? get() {
         val annotateRef = xml.getChild("div")?.getAttribute("annotateRef")?.value ?: return null
         if(book !is SwordBook) return null
-        return VerseRangeFactory.fromString(book.versification, annotateRef)
+        return try {VerseRangeFactory.fromString(book.versification, annotateRef) } catch (e: NoSuchVerseException) { null }
     }
 
     val toHashMap: Map<String, String> get() {
