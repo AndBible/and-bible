@@ -230,7 +230,7 @@ data class ClientBookmarkLabel(
 ) {
     constructor(label: BookmarkEntities.Label): this(
         label.id,
-        label.displayName,
+        label.displayName.trim(),
         ClientBookmarkStyle(
             label.color, if(label.isSpeakLabel) "headphones" else null, label.isSpeakLabel,
             label.underlineStyle, label.underlineStyleWholeVerse

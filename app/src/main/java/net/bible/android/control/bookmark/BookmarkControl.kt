@@ -181,6 +181,7 @@ open class BookmarkControl @Inject constructor(
         addOrUpdateBookmark(bookmark, labels.map { it.id }.toSet())
 
     fun insertOrUpdateLabel(label: Label): Label {
+        label.name = label.name.trim()
         if(label.id < 0) throw RuntimeException("Illegal negative label.id")
         if(label.id > 0L) {
             dao.update(label)
