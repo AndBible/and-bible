@@ -48,12 +48,7 @@ import {addEventFunction, EventPriorities, isBottomHalfClicked} from "@/utils";
 import OpenAllLink from "@/components/OpenAllLink";
 import {computed} from "@vue/reactivity";
 
-let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
-
-function runningHandle() {
-  return alphabets[count++%alphabets.length];
-}
 
 export default {
   name: "Note",
@@ -79,6 +74,11 @@ export default {
     const {strings, ...common} = useCommon();
     const showNote = ref(false);
     const locateTop = ref(false);
+    const {getFootNoteCount} = inject("footNoteCount");
+
+    function runningHandle() {
+      return alphabets[getFootNoteCount()%alphabets.length];
+    }
 
     const handle = computed(() => props.n || runningHandle());
     const isFootNote = computed(() => ["explanation", "translation", "study", "variant", "alternative", "x-editor-correction"].includes(props.type));

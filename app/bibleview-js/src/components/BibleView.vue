@@ -98,6 +98,15 @@ export default {
 
     const modal = useModal(android);
     provide("modal", modal);
+
+    let footNoteCount = 0;
+
+    function getFootNoteCount() {
+      return footNoteCount ++;
+    }
+
+    provide("footNoteCount", {getFootNoteCount});
+
     const {closeModals} = modal;
 
     const mounted = ref(false);
@@ -135,6 +144,7 @@ export default {
     })
 
     setupEventBusListener(Events.CLEAR_DOCUMENT, function clearDocument() {
+      footNoteCount = 0;
       resetHighlights();
       closeModals();
       clearLog();
