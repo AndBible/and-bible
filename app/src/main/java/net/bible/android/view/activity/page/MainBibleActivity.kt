@@ -229,6 +229,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         BackupControl.clearBackupDir()
 
         windowRepository.initialize()
+        ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
 
         runOnUiThread {
             postInitialize()
