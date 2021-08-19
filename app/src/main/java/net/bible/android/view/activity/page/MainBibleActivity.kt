@@ -597,11 +597,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 updateStrongsButton()
             }
 
-            strongsButton.setOnLongClickListener {
-                startActivityForResult(Intent(this@MainBibleActivity, ChooseDictionaryWord::class.java), STD_REQUEST_CODE)
-                true
-            }
-
             speakButton.setOnClickListener {
                 if(transportBarVisible) {
                     if(speakControl.isStopped) {
