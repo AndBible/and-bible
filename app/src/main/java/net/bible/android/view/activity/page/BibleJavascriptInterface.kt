@@ -47,6 +47,8 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.BookName
 
 
 class BibleJavascriptInterface(
@@ -100,8 +102,19 @@ class BibleJavascriptInterface(
             }
             val result = mainBibleActivity.awaitIntent(intent)
             val verseStr = result?.resultData?.getStringExtra("verse")
-            val verse = if(verseStr == null) "" else VerseFactory.fromString(KJVA, verseStr).name
-            bibleView.executeJavascriptOnUiThread("bibleView.response($callId, '$verse');")
+
+
+            val verse = if(verseStr == null) null else VerseFactory.fromString(KJVA, verseStr)
+
+            val verseName = synchronized(BookName::class) {
+                val oldValue = BookName.isFullBookName()
+                BookName.setFullBookName(false)
+                val text = verse?.name ?: ""
+                BookName.setFullBookName(oldValue)
+                text
+            }
+
+            bibleView.executeJavascriptOnUiThread("bibleView.response($callId, '$verseName');")
         }
     }
 
