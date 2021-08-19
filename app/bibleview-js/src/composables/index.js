@@ -40,7 +40,7 @@ import {
     faHeadphones, faHeart, faHistory,
     faIndent, faInfoCircle, faOutdent, faPlus,
     faPlusCircle, faQuestionCircle, faShareAlt, faSort,
-    faTags, faTextWidth, faTimes, faTrash,
+    faTags, faTextWidth, faTimes, faTimesCircle, faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {DocumentTypes} from "@/constants";
@@ -369,19 +369,20 @@ export function useFontAwesome() {
         icon: [14, 10, [], null, "m 8.5098921,7.1756885 c -1.462855,-1.252626 -2.9612036,-2.591747 -4.2862386,-3.632718 -0.0329,0.811234 -0.07,1.4481 -0.07,2.292376 -1.38699,0.0086 -2.69238,0.01232 -4.10399001,0.02463 9.3e-4,0.925599 -0.004,1.780274 -0.009,2.7237908 1.34541001,-0.0077 2.70264001,-0.03906 4.08349001,-0.05859 0.0279,0.829355 0.009,1.7061237 0.0181,2.3690807 1.63103,-1.3167557 2.8096476,-2.3030007 4.3674666,-3.7185685 z M 6.0973105,3.6666205 c 1.4628546,-1.252626 2.9612036,-2.591747 4.2862425,-3.63271804 0.0329,0.81123404 0.06999,1.44810004 0.06999,2.29237604 1.386984,0.0086 2.692374,0.01232 4.103984,0.02463 -9.2e-4,0.925599 0.004,1.780274 0.009,2.723791 -1.34541,-0.0077 -2.70264,-0.03906 -4.083484,-0.05859 -0.02785,0.829355 -0.0089,1.706124 -0.01813,2.369081 C 8.8338891,6.0684345 7.6552711,5.0821895 6.0974525,3.6666215 Z"]
     }
 
-    library.add(customCompare);
-    library.add(customStrongs);
-    library.add(customWholeVerseFalse);
-    library.add(customWholeVerseTrue);
-    library.add(customNoteFalse);
-    library.add(faCompressArrowsAlt);
-    library.add(faExpandArrowsAlt);
+    library.add(customCompare)
+    library.add(customStrongs)
+    library.add(customWholeVerseFalse)
+    library.add(customWholeVerseTrue)
+    library.add(customNoteFalse)
+    library.add(faCompressArrowsAlt)
+    library.add(faExpandArrowsAlt)
     library.add(faArrowsAltV)
     library.add(faTextWidth)
     library.add(faHeadphones)
     library.add(faEdit)
     library.add(faTags)
     library.add(faBookmark)
+    library.add(faTimesCircle)
     library.add(faPlusCircle)
     library.add(faTrash)
     library.add(faFileAlt)

@@ -18,8 +18,8 @@
 <template>
   <Modal ref="modal" :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled" :limit="!expand">
     <template #extra-buttons>
-      <button class="modal-action-button right" :class="{toggled: multiSelectionMode}" @touchstart.stop @click="toggleMultiSelectionMode">
-        <FontAwesomeIcon icon="plus-circle"/>
+      <button class="modal-action-button right" @touchstart.stop @click="toggleMultiSelectionMode">
+        <FontAwesomeIcon :icon="multiSelectionMode ? `times-circle`: `plus-circle`"/>
       </button>
       <button v-if="modal && (!expand || modal.height > 196)" class="modal-action-button right" @touchstart.stop @click="expand = !expand">
         <FontAwesomeIcon :icon="expand?'compress-arrows-alt':'expand-arrows-alt'"/>
