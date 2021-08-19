@@ -16,22 +16,24 @@
   -->
 
 <template>
-  <br v-if="type==='x-br' || eID"/>
-  <template v-else-if="type==='x-indent'">
-    <template v-for="i in levelInt" :key="i">
-      &nbsp;
+  <span class="skip-offset">
+    <br v-if="type==='x-br' || eID"/>
+    <template v-else-if="type==='x-indent'">
+      <template v-for="i in levelInt" :key="i">
+        &nbsp;
+      </template>
     </template>
-  </template>
-  <template v-else-if="sID">
-    <template v-for="i in levelInt-1" :key="i">
-      &nbsp;
+    <template v-else-if="sID">
+      <template v-for="i in levelInt-1" :key="i">
+        &nbsp;
+      </template>
     </template>
-  </template>
-  <template v-else>
-    <template v-for="i in levelInt-1" :key="i">
-      &nbsp;
+    <template v-else>
+      <template v-for="i in levelInt-1" :key="i">
+        &nbsp;
+      </template>
     </template>
-  </template>
+  </span>
   <slot/>
 </template>
 
