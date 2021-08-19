@@ -92,7 +92,7 @@ a {
   }
   .night & {
     &.clicked {
-      color: #8b00ee;
+      color: #a935ff;
     }
   }
 }
