@@ -605,6 +605,10 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="history_for">Тарих (%s: Терезе%d)</string>
   <!--Help-->
   <string name="help_nav_title">Навигация</string>
+  <string name="help_nav_text">Бейнені сырғытып келесі не алдыңғы тарауға өтіңіз.
+Киелі кітап мәтінін екі қайта түртіп, толық бейне көрінісіне ауыса аласыз.
+Бөлінген бейнелердің (терезелердің) жоғарғы оң бұрышында мәзір түймесі бар,
+ол бірнеше терезе функцияларын қолдануға және терезенің көрінісі мен қылығын реттеуге мүмкіндік береді.</string>
   <string name="help_contextmenus_title">Мәтінмәндік Мәзірлер</string>
   <string name="help_contextmenus_text">
 Ұзақ басуы контекстік мәзірді ашады немесе бір неше көріністегі әрекет режимі.
@@ -613,6 +617,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 Таңбаларды қосу не кітап белгілерін жою үшін, кітап белгілер тізіміндегі кітап белгісін ұзақ басыңыз.
 Егер сіз байланысты линктерді қазіргі терезеде, жаңа терезеде немесе айрықша арнайы линктер терезесінде ашып таңдағыңыз келсе, ол үшін линктерді ұзақ басыңыз.</string>
   <string name="help_bookmarks_title">Бетбелгілер және менің жазбаларым</string>
+  <string name="help_studypads_title">Оқыту планшеттері</string>
   <string name="help_search_title">Іздеу</string>
   <string name="help_search_text">Текст іздеу - осындай сияқты *, ?, ЖӘНЕ, НЕМЕСЕ, ЕМЕС арнайы таңбаларды қамтуы мүмкін
 (толығырақ мәліметтер үшін  \"Apache Lucene - Query Parser Syntax\" көріңіз)</string>
@@ -630,16 +635,30 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 Тарих тізіміне кіру үшін Артқа деген түймесін ұзақ басыңыз.</string>
   <string name="help_window_pinning_title">Терезені бекіту</string>
   <!--Welcome text-->
+  <string name="redownload_documents">Жылдам қайта жүктеуі</string>
   <!--Uncategorized-->
   <string name="close">Жабу</string>
   <string name="something_with_parenthesis">%s(%s)</string>
   <string name="first_time_help_do_not_show_again">Мен түсінемін</string>
   <string name="first_time_help_show_next_time">Келесі рет қайтадан көрсет</string>
   <string name="strongs_mode_title">Стронг режимін таңдаңыз</string>
+  <string name="select_multiple">Көптікті таңдаңыз</string>
   <string name="my_notes_abbreviation">Менің Ескертпелерім</string>
+  <string name="studypads">Оқу планшеттері</string>
+  <string name="multi_description">Бірнеше сілтемелер</string>
+  <string name="multi_abbreviation">Бірнеше</string>
   <string name="compare_description">Аудармаларды салыстыру</string>
+  <string name="compare_abbreviation">Салыстыр</string>
+  <string name="compare">Теңестір</string>
+  <string name="http_forbidden">Тыйым салынған</string>
+  <string name="http_not_found">Табылмады</string>
+  <string name="http_unknown">Бұдан басқа қате</string>
+  <string name="unlock_module">Модульдің құпия сөзін орнатыңыз</string>
+  <string name="try_again_passphrase">Құпия сөзін қабылдамады, қайталап көрдіңіз бе?</string>
+  <string name="cant_delete_last_bible">Соңғы Киелі кітап құжатты жою мүмкін емес</string>
   <string name="active_window_indicator_title">Белсенді терезенің индикаторын көрсет</string>
   <string name="active_window_indicator_summary">Қай терезенің белсенді екенін анықтауға көмектесу үшін, терезенің бұрыштарын бөлекте</string>
+  <string name="how_to_contribute">Қалай үлес қосып беруге болады?</string>
   <string name="verse_action_copy">Көшіріңіз</string>
   <string name="show_versenumbers">Аят санын көрсету</string>
   <string name="backup_button">Резерв Көшірмесі</string>
