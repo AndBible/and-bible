@@ -189,8 +189,8 @@ class ManageLabels : ListActivityBase() {
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
         updateLabelList(fromDb = true)
 
-        if(activeWindowPageManagerProvider.activeWindowPageManager.isStudyPadShown) {
-            val key = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.key as StudyPadKey
+        val key = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.key
+        if(key is StudyPadKey) {
             highlightLabel = key.label
         }
 
