@@ -1331,7 +1331,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     
     val bottomOffset
         get() =
-            if(isBottomWindow && !SharedActivityState.instance.isFullScreen)
+            if(isBottomWindow)
                 (mainBibleActivity.bottomOffset3
                     / mainBibleActivity.resources.displayMetrics.density)
             else 0F
