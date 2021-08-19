@@ -23,6 +23,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.bible.android.common.toV11n
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
@@ -30,6 +31,7 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.service.common.firstBibleDoc
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
@@ -40,6 +42,7 @@ import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.VerseRangeFactory
 import java.lang.Exception
 
@@ -81,6 +84,9 @@ class CurrentGeneralBookPage internal constructor(
         }
     }
 
+
+    private val defaultBibleDoc get() = pageManager.currentBible.currentDocument ?: firstBibleDoc
+
     override val currentPageContent: Document
         get() {
             val key = key
@@ -94,11 +100,16 @@ class CurrentGeneralBookPage internal constructor(
                 }
                 is BookAndKeyList -> {
                     val frags = key.filterIsInstance<BookAndKey>().map {
+                        val doc = it.document ?: defaultBibleDoc
+                        var k = it.key
                         try {
-                            OsisFragment(SwordContentFacade.readOsisFragment(it.document, it.key), it.key, it.document)
+                            if(doc is SwordBook && k is Passage) {
+                                k = k.toV11n(doc.versification)
+                            }
+                            OsisFragment(SwordContentFacade.readOsisFragment(doc, k), k, doc)
                         } catch (e: OsisError) {
                             Log.e(TAG, "Fragment could not be read")
-                            OsisFragment(e.xml, it.key, it.document)
+                            OsisFragment(e.xml, k, doc)
                         }
                     }
                     MultiFragmentDocument(frags)
@@ -178,7 +189,7 @@ class CurrentGeneralBookPage internal constructor(
                         } else {
                             book.getKey(it[1])
                         }
-                        BookAndKey(book, key)
+                        BookAndKey(key, book)
 
                     } catch (e: Exception) {
                         null

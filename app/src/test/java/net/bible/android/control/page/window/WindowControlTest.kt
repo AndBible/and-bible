@@ -137,9 +137,8 @@ class WindowControlTest {
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
         windowControl!!.showLinkUsingDefaultBible(PS_139_3)
 
-        // since we have clicked link when active window is bible doc, open link in same
-        // document in links window.
-        assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_ESV))
+        // Do not change bible doc in links window
+        assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
 
         // if we would have clicked from commentary, then document should not have changed
         // since links window has not been closed.. Test for that: TODO

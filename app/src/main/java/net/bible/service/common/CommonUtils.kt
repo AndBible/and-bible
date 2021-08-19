@@ -1086,3 +1086,5 @@ data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisp
         }
     }
 }
+
+val firstBibleDoc get() = Books.installed().books.first { it.bookCategory == BookCategory.BIBLE } as SwordBook

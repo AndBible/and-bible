@@ -38,10 +38,9 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.Logger
+import net.bible.service.common.firstBibleDoc
 
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 
@@ -93,24 +92,15 @@ open class WindowControl @Inject constructor(
      * Show link using whatever is the current Bible in the Links window
      */
     fun showLinkUsingDefaultBible(key: Key) {
-        showLink(defaultBibleDoc(), key)
+        showLink(defaultBibleDoc(true), key)
     }
 
     open fun defaultBibleDoc(useLinks: Boolean  = true): SwordBook {
-        val linksWindow = windowRepository.dedicatedLinksWindow
-        val currentBiblePage = linksWindow.pageManager.currentBible
+        val linksBiblePage = windowRepository.dedicatedLinksWindow.pageManager.currentBible
+        val activeWindowBibleDoc = windowRepository.activeWindow.pageManager.currentBible.currentDocument as SwordBook?
 
-        val isBible = windowRepository.activeWindow.pageManager.isBibleShown
-        val bibleDoc = windowRepository.activeWindow.pageManager.currentBible.currentDocument
-
-        // default either to links window bible or if closed then active window bible
-        val defaultBible: Book = if (useLinks && currentBiblePage.isCurrentDocumentSet) {
-            currentBiblePage.currentDocument!!
-        } else {
-            windowRepository.activeWindow.pageManager.currentBible.currentDocument
-                ?: Books.installed().books.first { it.bookCategory == BookCategory.BIBLE }
-        }
-        return (if (isBible && bibleDoc != null) bibleDoc else defaultBible) as SwordBook
+        return if (useLinks && linksBiblePage.isCurrentDocumentSet) linksBiblePage.currentDocument!! as SwordBook
+               else activeWindowBibleDoc ?: firstBibleDoc
     }
 
     fun showLink(document: Book, key: Key) {

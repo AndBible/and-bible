@@ -129,29 +129,27 @@ abstract class CurrentPageBase protected constructor(
 
     override val displayKey get() = annotateKey ?: key
 
-    override fun getPageContent(key: Key): Document {
-        return try {
-            val currentDocument = currentDocument!!
+    override fun getPageContent(key: Key): Document = try {
+        val currentDocument = currentDocument!!
 
-            val frag = synchronized(currentDocument) {
-                val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
-                OsisFragment(frag, key, currentDocument)
-            }
+        val frag = synchronized(currentDocument) {
+            val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
+            OsisFragment(frag, key, currentDocument)
+        }
 
-            annotateKey = frag.annotateRef
+        annotateKey = frag.annotateRef
 
-            OsisDocument(
-                book = currentDocument,
-                key = key,
-                osisFragment = frag
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting bible text", e)
-            when (e) {
-                is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
-                is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
-                else -> errorDocument
-            }
+        OsisDocument(
+            book = currentDocument,
+            key = key,
+            osisFragment = frag
+        )
+    } catch (e: Exception) {
+        Log.e(TAG, "Error getting bible text", e)
+        when (e) {
+            is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
+            is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
+            else -> errorDocument
         }
     }
 

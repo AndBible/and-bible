@@ -26,16 +26,16 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RestrictionType
 import java.lang.UnsupportedOperationException
 
-class BookAndKey(document: Book, val key: Key): Key {
-    private val documentInitials = document.initials
+class BookAndKey(val key: Key, document: Book? = null): Key {
+    private val documentInitials = document?.initials?: ""
 
     @Transient var _document: Book? = document
 
-    val document: Book
+    val document: Book?
         get() {
         if (_document == null)
             _document = Books.installed().getBook(documentInitials)
-        return _document!!
+        return _document
     }
 
     override fun compareTo(other: Key?): Int {
@@ -47,11 +47,11 @@ class BookAndKey(document: Book, val key: Key): Key {
     }
 
     override fun clone(): Key {
-        return BookAndKey(document, key.clone())
+        return BookAndKey(key.clone(), document)
     }
 
     override fun getName(): String {
-        return "${document.abbreviation}: ${key.name}"
+        return "${document?.abbreviation}: ${key.name}"
     }
 
     override fun getName(base: Key?): String {
@@ -63,11 +63,11 @@ class BookAndKey(document: Book, val key: Key): Key {
     }
 
     override fun getOsisRef(): String {
-        return "${document.initials}:${key.osisRef}"
+        return "${document?.initials}:${key.osisRef}"
     }
 
     override fun getOsisID(): String {
-        return "${document.initials}:${key.osisID}"
+        return "${document?.initials}:${key.osisID}"
     }
 
     override fun getParent(): Key? {

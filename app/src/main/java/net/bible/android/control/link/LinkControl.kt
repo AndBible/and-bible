@@ -42,6 +42,7 @@ import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.index.IndexStatus
@@ -117,7 +118,7 @@ class LinkControl @Inject constructor(
         if(key is Passage && key.countRanges(RestrictionType.NONE) > 1) {
             val keyList = BookAndKeyList()
             for( range in (0 until key.countRanges(RestrictionType.NONE)).map { key.getRangeAt(it, RestrictionType.NONE) }) {
-                keyList.addAll(BookAndKey(bookAndKey.document, range))
+                keyList.addAll(BookAndKey(range, bookAndKey.document))
             }
             showLink(FakeBookFactory.multiDocument, keyList)
         } else {
@@ -135,6 +136,8 @@ class LinkControl @Inject constructor(
             val document = swordDocumentFacade.getDocumentByInitials(initials)
             if (document == null) { // tell user to install book
                 Dialogs.instance.showErrorMsg(R.string.document_not_installed, initials)
+            } else if(document.bookCategory == BookCategory.BIBLE) {
+                return getBibleKey(ref, versification)
             } else { //Foreign language keys may have been URLEncoded so need to URLDecode them e.g. UZV module at Matthew 1. The first link is "David" (looks a bit like DOBYA)
                 ref = URLDecoder.decode(ref)
                 //According to the OSIS schema, the osisRef attribute can contain letters and "_", but NOT punctuation and NOT spaces
@@ -142,7 +145,7 @@ class LinkControl @Inject constructor(
 				// e.g.  UZV Matthew 1:18: The link to "Holy Spirit" (Muqaddas Ruhdan)
                 ref = replaceIBTSpecialCharacters(ref)
                 val bookKey = document.getKey(ref)
-                return BookAndKey(document, bookKey)
+                return BookAndKey(bookKey, document)
             }
         }
         return null
@@ -169,8 +172,7 @@ class LinkControl @Inject constructor(
     @Throws(NoSuchKeyException::class)
     private fun getBibleKey(keyText: String, versification: Versification): BookAndKey {
         val key: Passage = PassageKeyFactory.instance().getKey(versification, keyText)
-        val doc = windowControl.defaultBibleDoc(true)
-        return BookAndKey(doc, key.toV11n(doc.versification))
+        return BookAndKey(key)
     }
 
     /** user has selected a Strong's Number link so show Strong's page for key in link
@@ -180,7 +182,7 @@ class LinkControl @Inject constructor(
     private fun getStrongsKey(book: Book, key: String): BookAndKey? { // valid Strongs uri but Strongs refs not installed
         val sanitizedKey = sanitizeStrongsKey(key) ?: return null
         val k = book.getKey(sanitizedKey)
-        return BookAndKey(book, k)
+        return BookAndKey(k, book)
     }
 
     private fun sanitizeStrongsKey(key: String): String? =
@@ -190,7 +192,7 @@ class LinkControl @Inject constructor(
     private fun getRobinsonMorphologyKey(key: String): BookAndKey {
         val robinson = swordDocumentFacade.defaultRobinsonGreekMorphology
         val robinsonNumberKey = robinson.getKey(key)
-        return BookAndKey(robinson, robinsonNumberKey)
+        return BookAndKey(robinsonNumberKey, robinson)
     }
 
     fun showAllOccurrences(ref: String, biblesection: SearchBibleSection, refPrefix: String) {
