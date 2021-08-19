@@ -212,7 +212,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         Log.d(TAG, "Language tag $languageTag, code $languageCode")
 
         val goodLanguages = listOf(
-            "en", "af", "my", "eo", "fi", "fr", "de", "hi", "hu", "it", "lt", "pl", "ru", "sl", "es", "uk"
+            "en", "af", "my", "eo", "fi", "fr", "de", "hi", "hu", "it", "lt", "pl", "ru", "sl", "es", "uk", "zh-Hant-TW"
         )
 
         fun checkLanguage(lang: String): Boolean =
