@@ -206,15 +206,30 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     private suspend fun checkPoorTranslations(): Boolean {
-        val langCode = Locale.getDefault().language
-        val poorLanguages = listOf(
-            "xyz"
+        val languageTag = Locale.getDefault().toLanguageTag()
+        val languageCode = Locale.getDefault().language
+
+        Log.d(TAG, "Language tag $languageTag, code $languageCode")
+
+        val goodLanguages = listOf(
+            "en", "af", "my", "eo", "fi", "fr", "de", "hi", "hu", "it", "lt", "pl", "ru", "sl", "es", "uk"
         )
 
-        val needCheck = poorLanguages.contains(langCode)
+        fun checkLanguage(lang: String): Boolean =
+            if(lang.length == 2)
+                lang == languageCode
+            else
+                lang == languageTag
 
-        if(!needCheck || CommonUtils.settings.getInt("poor-translations-dismissed", 0) >= CommonUtils.applicationVersionNumber)
+
+        val languageOK = goodLanguages.any {checkLanguage(it)}
+
+        if(languageOK || (
+            CommonUtils.settings.getString("poor-translations-dismissed", "") == languageTag
+            && CommonUtils.settings.getInt("poor-translations-dismissed", 0) == CommonUtils.applicationVersionNumber))
+        {
             return true
+        }
 
         return suspendCoroutine {
             val lang = Locale.getDefault().displayLanguage
@@ -228,6 +243,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 .setPositiveButton(R.string.proceed_anyway) { _, _ -> it.resume(true) }
                 .setNegativeButton(R.string.beta_notice_dismiss_until_update) { _, _ ->
                     CommonUtils.settings.setInt("poor-translations-dismissed", CommonUtils.applicationVersionNumber)
+                    CommonUtils.settings.setString("poor-translations-dismissed", languageTag)
                     it.resume(true)
                 }
                 .setNeutralButton(R.string.close) { _, _ ->
@@ -243,18 +259,18 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if(!checkWebView()) return@withContext
 
+        // When I mess up database, I can re-create database like this.
+        //BackupControl.resetDatabase()
+
+        initializeDatabase()
+        if(!checkPoorTranslations()) return@withContext
+
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
-            initializeDatabase()
-            if(!checkPoorTranslations()) return@withContext
             showFirstLayout()
         } else {
             Log.i(TAG, "Going to main bible view")
-
-            // When I mess up database, I can re-create database like this.
-            //BackupControl.resetDatabase()
-            initializeDatabase()
 
             gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)
