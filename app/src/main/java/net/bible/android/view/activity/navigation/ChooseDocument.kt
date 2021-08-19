@@ -28,7 +28,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.IntentHelper
@@ -38,7 +37,6 @@ import net.bible.service.download.FakeBookFactory
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import java.util.*
-import javax.inject.Inject
 
 /**
  * Choose a bible or commentary to use
