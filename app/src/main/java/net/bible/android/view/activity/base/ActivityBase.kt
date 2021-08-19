@@ -96,7 +96,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
 
         super.onCreate(savedInstanceState)
-        refreshScreenKeepOn()
+        if(!doNotInitializeApp) {
+            refreshScreenKeepOn()
+        }
 
         Log.i(localClassName, "onCreate:" + this)
 
