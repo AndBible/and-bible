@@ -221,6 +221,9 @@ $border-radius2: $border-radius - 1.5pt;
     padding: 0px 0px;
     margin: 0pt 0pt;
   }
+  .night & {
+    background-color: $modal-content-background-color-night;
+  }
 }
 
 .modal-footer {
