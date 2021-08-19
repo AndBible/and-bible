@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="chapter-number ordinal" :data-ordinal="ordinal" v-if="config.showChapterNumbers && startTag">{{sprintf(strings.chapterNum, chapterNum)}}</div>
+  <div class="chapter-number ordinal" :data-ordinal="ordinal" v-if="config.showChapterNumbers && startTag && chapterNum > 0">{{sprintf(strings.chapterNum, chapterNum)}}</div>
   <slot/>
 </template>
 
@@ -47,7 +47,7 @@ export default {
   },
   computed: {
     startTag: ({eID}) => eID === null,
-    chapterNum: ({n, osisID}) => n || osisID.split(".")[1]
+    chapterNum: ({n, osisID}) => parseInt(n || osisID.split(".")[1])
   }
 }
 </script>
