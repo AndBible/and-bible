@@ -189,7 +189,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Bottom offset with navigation bar and transport bar and window buttons
     val bottomOffset3 get() = bottomOffset2 + if (restoreButtonsVisible) windowButtonHeight else 0
 
-    private val preferences get() = CommonUtils.settings
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
     private var isPaused = false
@@ -304,7 +303,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         setupToolbarFlingDetection()
         setSoftKeyboardMode()
 
-        refreshScreenKeepOn()
         if(!initialized)
             requestSdcardPermission()
 
@@ -1120,15 +1118,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     class UpdateRestoreWindowButtons
 
-    private fun refreshScreenKeepOn() {
-        val keepOn = preferences.getBoolean(SCREEN_KEEP_ON_PREF, false)
-        if (keepOn) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        } else {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-    }
-
     override fun onDestroy() {
         documentViewManager.removeView()
         bibleViewFactory.clear()
@@ -1159,7 +1148,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     override fun onRestart() {
         super.onRestart()
-        refreshScreenKeepOn()
         if (mWholeAppWasInBackground) {
             mWholeAppWasInBackground = false
             refreshIfNightModeChange()
@@ -1510,7 +1498,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         const val WORKSPACE_CHANGED = 94
 
 
-        private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"
 
         private const val TAG = "MainBibleActivity"

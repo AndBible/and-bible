@@ -28,10 +28,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.CompletableDeferred
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -94,6 +96,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
 
         super.onCreate(savedInstanceState)
+        refreshScreenKeepOn()
 
         Log.i(localClassName, "onCreate:" + this)
 
@@ -240,6 +243,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     override fun onRestart() {
         super.onRestart()
+        refreshScreenKeepOn()
         Log.i(localClassName, "onRestart:" + this)
     }
 
@@ -305,7 +309,19 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         return activityResult.await()
     }
 
+    val preferences get() = CommonUtils.settings
+
+    fun refreshScreenKeepOn() {
+        val keepOn = preferences.getBoolean(SCREEN_KEEP_ON_PREF, false)
+        if (keepOn) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+
     companion object {
+        private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
 
         // standard request code for startActivityForResult
         const val STD_REQUEST_CODE = 1
