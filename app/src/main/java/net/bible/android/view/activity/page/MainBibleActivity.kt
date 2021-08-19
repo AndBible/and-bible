@@ -1364,6 +1364,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if(listOf(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP).contains(keyCode) && !speakControl.isSpeaking) {
+            return when (keyCode) {
+                KeyEvent.KEYCODE_VOLUME_DOWN ->
+                    windowControl.activeWindow.bibleView?.pageDown(false)?: false
+                KeyEvent.KEYCODE_VOLUME_UP ->
+                    windowControl.activeWindow.bibleView?.pageUp(false)?: false
+                else -> super.onKeyDown(keyCode, event)
+            }
+        }
+
+        return super.onKeyDown(keyCode, event)
+    }
+
     private fun workspaceSettingsChanged(settingsBundle: SettingsBundle, requiresReload: Boolean = false,
                                          reset: Boolean = false, dirtyTypes: Set<TextDisplaySettings.Types>? = null) {
         val windowId = settingsBundle.windowId
