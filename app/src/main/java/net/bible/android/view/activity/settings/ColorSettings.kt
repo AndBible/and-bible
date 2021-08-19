@@ -72,6 +72,7 @@ class ColorSettingsActivity: ActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.text_options_opts, menu)
+        menu.findItem(R.id.help).isVisible = false
         return true
     }
 
