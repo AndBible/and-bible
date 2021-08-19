@@ -84,7 +84,10 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         val layout = holder.layout
         val workspaceEntity = items[position]
         var titleText = workspaceEntity.name
+
         title.typeface = Typeface.DEFAULT
+        holder.layout.setBackgroundResource(R.drawable.selectable_background)
+
         if(activity.windowControl.windowRepository.id == workspaceEntity.id) {
             holder.layout.setBackgroundResource(R.drawable.selectable_background_highlight)
             title.typeface = Typeface.DEFAULT_BOLD
