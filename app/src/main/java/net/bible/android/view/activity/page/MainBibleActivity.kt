@@ -541,6 +541,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var lastBackPressed: Long? = null
 
     override fun onBackPressed() {
+        if(fullScreen) {
+            toggleFullScreen()
+            return
+        }
         val lastBackPressed = lastBackPressed
         if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
             binding.drawerLayout.closeDrawers()
