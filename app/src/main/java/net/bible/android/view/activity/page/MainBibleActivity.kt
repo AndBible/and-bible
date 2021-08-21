@@ -1367,8 +1367,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        if(listOf(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP).contains(keyCode) && !speakControl.isSpeaking && !am.isMusicActive) {
+        val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager?
+        if(listOf(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP).contains(keyCode) && !speakControl.isSpeaking && am?.isMusicActive != true) {
             return when (keyCode) {
                 KeyEvent.KEYCODE_VOLUME_DOWN ->
                     windowControl.activeWindow.bibleView?.volumeDownPressed()?: false
