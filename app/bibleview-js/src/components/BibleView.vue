@@ -253,7 +253,7 @@ export default {
 
     function scrollUpDown(up = false) {
       const amount = window.innerHeight / 2;
-      doScrolling(window.pageYOffset + (up ? amount: -amount), 500)
+      doScrolling(window.pageYOffset + (up ? -amount: amount), 500)
     }
 
     setupEventBusListener(Events.SCROLL_DOWN, () => scrollUpDown());
