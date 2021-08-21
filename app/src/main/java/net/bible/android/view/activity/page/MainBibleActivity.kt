@@ -21,9 +21,11 @@ package net.bible.android.view.activity.page
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
@@ -1365,7 +1367,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if(listOf(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP).contains(keyCode) && !speakControl.isSpeaking) {
+        val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        if(listOf(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP).contains(keyCode) && !speakControl.isSpeaking && !am.isMusicActive) {
             return when (keyCode) {
                 KeyEvent.KEYCODE_VOLUME_DOWN ->
                     windowControl.activeWindow.bibleView?.volumeDownPressed()?: false
