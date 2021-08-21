@@ -48,6 +48,8 @@ export const Events = {
     CONFIG_CHANGED: "config_changed",
     RELOAD_ADDONS: "reload_addons",
     BOOKMARK_NOTE_MODIFIED: "bookmark_note_modified",
+    SCROLL_UP: "scroll_up",
+    SCROLL_DOWN: "scroll_down",
 }
 
 export function setupEventBusListener(eventId, callback) {

@@ -1505,6 +1505,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return false
     }
 
+    fun volumeUpPressed(): Boolean {
+        executeJavascriptOnUiThread("bibleView.emit('scroll_up')")
+        return true
+    }
+
+    fun volumeDownPressed(): Boolean {
+        executeJavascriptOnUiThread("bibleView.emit('scroll_down')")
+        return true
+    }
+
     var onDestroy: (() -> Unit)? = null
 
     private val TAG get() = "BibleView[${windowRef.get()?.id}]"

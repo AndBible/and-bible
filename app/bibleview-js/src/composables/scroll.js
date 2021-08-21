@@ -44,7 +44,7 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
         }
     }
 
-    function doScrolling(elementY, duration) {
+    function doScrolling(elementY, duration = 1000) {
         console.log("doScrolling", elementY, duration);
         stopScrolling();
         const startingY = window.pageYOffset;
@@ -153,6 +153,6 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
     setupEventBusListener(Events.SET_OFFSETS, setToolbarOffset)
     setupEventBusListener(Events.SCROLL_TO_VERSE, scrollToId)
     setupEventBusListener(Events.SETUP_CONTENT, setupContent)
-    return {scrollToId, isScrolling}
+    return {scrollToId, isScrolling, doScrolling}
 }
 

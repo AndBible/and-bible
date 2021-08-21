@@ -1368,9 +1368,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(listOf(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP).contains(keyCode) && !speakControl.isSpeaking) {
             return when (keyCode) {
                 KeyEvent.KEYCODE_VOLUME_DOWN ->
-                    windowControl.activeWindow.bibleView?.pageDown(false)?: false
+                    windowControl.activeWindow.bibleView?.volumeDownPressed()?: false
                 KeyEvent.KEYCODE_VOLUME_UP ->
-                    windowControl.activeWindow.bibleView?.pageUp(false)?: false
+                    windowControl.activeWindow.bibleView?.volumeUpPressed()?: false
                 else -> super.onKeyDown(keyCode, event)
             }
         }
