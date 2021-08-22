@@ -679,7 +679,7 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="strongs_mode_title">Strongs mód kiválasztása</string>
   <string name="download_dialog_message">Az alábbi könyvek letöltése nem sikerült:</string>
   <string name="select_multiple">Több kiválasztása</string>
-  <string name="journal_description">Szerkeszthető tanulmányok személyes jegyzetekkel és könyvjelzőkkel</string>
+  <string name="journal_description">Szerkeszthető tanulmány személyes jegyzetekkel és könyvjelzőkkel</string>
   <string name="my_notes_description">Könyvjelzőkhöz csatolt szerkeszthető jegyzetek</string>
   <string name="my_notes_abbreviation">Jegyzetek</string>
   <string name="studypads">Tanulmányok</string>
@@ -703,14 +703,14 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="active_window_indicator_title">Aktív ablak kiemelése</string>
   <string name="active_window_indicator_summary">Az aktív ablak sarkainak kiemelése, segít az aktív ablak felismerésében.</string>
   <string name="app_licence_title">Nyílt Forráskódú Licenc</string>
-  <string name="how_to_contribute">Hogyan járulhatok hozzá az app fejlesztéséhez?</string>
+  <string name="how_to_contribute">Hozzájárulás</string>
   <string name="confirm_delete_bookmarks">Eltávolítja a könyvjelzőket (%d) és a hozzájuk tartozó jegyzeteket?</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Ajánlja barátainak</string>
-  <string name="tell_friend_message1">Láttad már a %s appot? Ajánlom, nagyon jó!</string>
-  <string name="tell_friend_message2">Sok funkciója van, mégis könnyen kezelhető offline Biblia tanulmányozó app Androidra. </string>
-  <string name="tell_friend_message3">Telepíthető a Play Store-ból: %s</string>
-  <string name="tell_friend_message4">További infók és további telepítési opciók: %s</string>
+  <string name="tell_friend_message1">Láttad már a And Bible-t? (%s)</string>
+  <string name="tell_friend_message2">Praktikus bibliaolvasó alkalmazás sok hasznos funkcióval (összehasonlító mód, könyvjelzők, jegyzetek, stb.) és internetkapcsolat nélkül is működik.</string>
+  <string name="tell_friend_message3">Play Store link: %s</string>
+  <string name="tell_friend_message4">További infók és telepítési lehetőségek: %s</string>
   <string name="share_verse_ok">Megosztás / másolás</string>
   <string name="verse_action_copy">Másolás</string>
   <string name="share_verse_menu_title">Megosztás / másolás…</string>
@@ -784,7 +784,7 @@ jelentse be az észlelt problémát</string>
   <string name="prefs_double_tap_to_fullscreen_summary">Váltson teljesképernyős módba dupla koppintás után</string>
   <string name="toggle_fullscreen">Teljes képernyő</string>
   <string name="exit_fullscreen">Dupla koppintás a teljes képernyős mód bezárásához</string>
-  <string name="reset_app_prefs">Vissza szeretné állítani az itt látható összes globális alkalmazásbeállítást az alapértelmezett értékekre?</string>
+  <string name="reset_app_prefs">Vissza szeretné állítani az itt látható összes globális alkalmazásbeállítást az alapértelmezett értékre?</string>
   <string name="label_red">Piros</string>
   <string name="label_green">Zöld</string>
   <string name="label_blue">Kék</string>
@@ -807,7 +807,7 @@ jelentse be az észlelt problémát</string>
   <string name="incomplete_translation">Sajnos nem a teljes felhasználói felület érhető el %s nyelven. A %s-t önkéntesek fejlesztik, ha segíteni tud az alkalmazás fordításában, látogassa meg ezt az oldalt: %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">fordítási útmutató</string>
-  <string name="questions_title">Kérdés?</string>
+  <string name="questions_title">Támogatás</string>
   <string name="questions_title2">Segítség?</string>
   <string name="bookmark_style">Könyvjelző stílusa</string>
   <string name="added_to_bookmark">Hozzácsatolva a könyvjelzőhöz</string>

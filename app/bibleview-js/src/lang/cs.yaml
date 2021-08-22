@@ -1,5 +1,5 @@
 openMyNotes: Otevřít Mé poznámky
-openStudyPad: ""
+openStudyPad: Otevřít ve studijní složce (%s)
 noteText: Poznámky pod čarou (%s)
 noteTextWithoutType: Poznámky pod čarou
 crossReferenceText: Křížová reference
@@ -37,14 +37,16 @@ lastUpdatedOn: "Aktualizováno: %s"
 strongsLink: Strongova definice (%s)
 morphLink: Morfologická značka (%s)
 strongsAndMorph: Definice & Morfologie
-studyPadLink: ""
+studyPadLink: Otevřít studijní složku
 externalLink: Otevřít externí link
 referenceLink: Otevřít referenční link
 openFootnote: Otevřít poznámku pod čarou
 openBookmark: Otevřít záložku (%s)
-noMyNotesTitle: ""
+noMyNotesTitle: K tomuto odstavci nemáte poznámky.
 noMyNotesDescription: >
+  Vytvořte záložku v biblickém dokumentu. Ty budou následně dostupné zde a můžete si k nim přidávat své poznámky.
 emptyStudyPad: >
+  Prázdná studijní složka. Zde můžete přidávat textové poznámky, záložky a příslušné štítky.
 studyPadModalTitle: ""
 doYouWantToDeleteEntry: ""
 removeStudyPadConfirmationTitle: ""
@@ -76,5 +78,5 @@ verseShareLong: Sdílet verš
 verseCompareLong: Porovnat verš
 verseNoteLong: Napsat poznámku
 verseSpeakLong: Poslouchat od tohoto veršw
-verseTip: ""
+verseTip: Pasáž textu označíte pomocí přidržení text po delší dobu.
 addBookmark: Záložka
