@@ -676,6 +676,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="cant_delete_last_bible">Соңғы Киелі кітап құжатты жою мүмкін емес</string>
   <string name="show_unlock_info">Модуль және; ақпаратты бұғаттан шығару</string>
   <string name="prefs_show_error_box_title">Javascript қате терезесін көрсету</string>
+  <string name="prefs_show_error_box_summary">Bible View-де JavaScript қателерін түзету кезінде әзірлеушілер үшін пайдалы. Бұл қосымшаның жұмысын баяулатады.</string>
   <string name="active_window_indicator_title">Белсенді терезенің индикаторын көрсет</string>
   <string name="active_window_indicator_summary">Қай терезенің белсенді екенін анықтауға көмектесу үшін, терезенің бұрыштарын бөлекте</string>
   <string name="how_to_contribute">Қалай үлес қосып беруге болады?</string>

@@ -495,11 +495,11 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="restore_what">Mi kerüljön visszaállításra?</string>
   <string name="restore_app_database">Alkalmazás adatbázisának visszaállítása…</string>
   <string name="restore_database">Adatbázisfájl visszaállítása</string>
-  <string name="restore_confirmation">Jegyzetek, könyvjelzők, tanulmányok, olvasási tervek és munkaterületek felülírása?</string>
+  <string name="restore_confirmation">Jegyzetek, könyvjelzők, jegyzetlapok, olvasási tervek és munkaterületek felülírása?</string>
   <string name="reading_plans_plural">Olvasási tervek</string>
-  <string name="restore_success">A jegyzetek, könyvjelzők, tanulmányok, olvasási tervek és munkaterületek visszaállítása sikerült.</string>
+  <string name="restore_success">A jegyzetek, könyvjelzők, jegyzetlapok, olvasási tervek és munkaterületek visszaállítása sikerült.</string>
   <string name="loading_backup">Adatbázis visszaállítása...</string>
-  <string name="backup_success2">A jegyzetek, könyvjelzők, tanulmányok, olvasási tervek és munkaterületek biztonsági mentése sikerült.</string>
+  <string name="backup_success2">A jegyzetek, könyvjelzők, jegyzetlapok, olvasási tervek és munkaterületek biztonsági mentése sikerült.</string>
   <string name="backup_modules_success">A kiválasztott modulok biztonsági mentése sikerült.</string>
   <string name="backup_modules_email_subject_2">%s modul biztonsági mentés</string>
   <string name="backup_modules_email_message_2">Felcsatolva a %s modul biztonsági mentés, amely a következő modulokat tartalmazza: %s</string>
@@ -635,12 +635,12 @@ Hivatkozások hosszan nyomásäval kiválaszthatjuk, hogy a hivatkozás a jelenl
 a felugró menüből. Az egyedi jegyzeteket az új könyvjelzőhöz hozzáadhatja a kijelölt szövegre koppintva
 a Biblia nézetben. A kommentárokban található egy \"Jegyzetek\" speciális dokumentum is, amely lehetővé teszi
 hogy külön ablakban tekintse meg a jegyzeteit.</string>
-  <string name="help_studypads_title">Tanulmányok</string>
+  <string name="help_studypads_title">Jegyzetlapok</string>
   <string name="help_studypads_text">
-A \'Tanulmányok\' funkció megkönnyíti jegyzetek készítését prédikációkhoz és prédikációk írását,
-vagy bármilyen jegyzet készítését, amely több bibliai verse hivatkozik. Minden egyes tanulmányhoz külön könyvjelző címke tartozik.
-Az adott címkével létrehozott összes könyvjelző automatikusan megjelenik a tanulmányban.
-A könyvjelzők mellett egyéni szövegbejegyzések is felvehetőek egy tanulmányba.</string>
+A \'Jegyzetlapok\' funkció megkönnyíti jegyzetek készítését prédikációkhoz és prédikációk írását,
+vagy bármilyen jegyzet készítését, amely több bibliai verse hivatkozik. Minden egyes jegyzetlaphoz külön könyvjelző címke tartozik.
+Az adott címkével létrehozott összes könyvjelző automatikusan megjelenik a jegyzetlapon.
+A könyvjelzők mellett egyéni szövegbejegyzések is hozzáadhatók a jegyzetlapokhoz.</string>
   <string name="help_search_title">Keresés</string>
   <string name="help_search_text">A keresési kifejezés spciális karaktereket és kifejezéseket is tartalmazhat, például: \", ?, AND, OR, NOT
 (további információkért keresse az \"Apache Lucence - Query Parser\" szintaxisát)</string>
@@ -679,10 +679,10 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="strongs_mode_title">Strongs mód kiválasztása</string>
   <string name="download_dialog_message">Az alábbi könyvek letöltése nem sikerült:</string>
   <string name="select_multiple">Több kiválasztása</string>
-  <string name="journal_description">Szerkeszthető tanulmány személyes jegyzetekkel és könyvjelzőkkel</string>
+  <string name="journal_description">Szerkeszthető jegyzetlap személyes jegyzetekkel és könyvjelzőkkel</string>
   <string name="my_notes_description">Könyvjelzőkhöz csatolt szerkeszthető jegyzetek</string>
   <string name="my_notes_abbreviation">Jegyzetek</string>
-  <string name="studypads">Tanulmányok</string>
+  <string name="studypads">Jegyzetlapok</string>
   <string name="multi_description">Több hivatkozás</string>
   <string name="multi_abbreviation">Több</string>
   <string name="compare_description">Fordítások összehasonlítása</string>
@@ -764,7 +764,7 @@ jelentse be az észlelt problémát</string>
   <string name="highlight_entire_verse">A teljes vers kijelölése</string>
   <string name="favourite_label">Kedvenc címke</string>
   <string name="edit_label">Címke szerkesztás</string>
-  <string name="delete_label_confirmation">Eltávolítja a \"%s\" könyvjelző címkét? A hozzátartozó tanulmányok is el lesznek távolítva.</string>
+  <string name="delete_label_confirmation">Eltávolítja a \"%s\" könyvjelző címkét? A hozzátartozó jegyzetlap is törlésre kerül.</string>
   <string name="bookmark_underline_style_arbitrary">Aláhúzás stílusa a kiválasztott könyvjelzőkhöz</string>
   <string name="bookmark_underline_style_whole_verse">Aláhúzás stílusa teljes versre mutató könyvjelzőknél</string>
   <string name="active_labels">Kiválasztott címkék</string>
