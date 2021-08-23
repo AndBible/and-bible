@@ -16,13 +16,13 @@
   -->
 
 <template>
-  <Modal ref="modal" :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled" :limit="!expand">
+  <Modal ref="modal" :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled" :limit="limitAmbiguousModalSize">
     <template #extra-buttons>
       <button class="modal-action-button right" @touchstart.stop @click="toggleMultiSelectionMode">
         <FontAwesomeIcon :icon="multiSelectionMode ? `times-circle`: `plus-circle`"/>
       </button>
-      <button v-if="modal && (!expand || modal.height > 196)" class="modal-action-button right" @touchstart.stop @click="expand = !expand">
-        <FontAwesomeIcon :icon="expand?'compress-arrows-alt':'expand-arrows-alt'"/>
+      <button v-if="modal && (limitAmbiguousModalSize || modal.height > 196)" class="modal-action-button right" @touchstart.stop @click="limitAmbiguousModalSize = !limitAmbiguousModalSize">
+        <FontAwesomeIcon :icon="limitAmbiguousModalSize?'expand-arrows-alt':'compress-arrows-alt'"/>
       </button>
       <button class="modal-action-button right" @touchstart.stop @click="help">
         <FontAwesomeIcon icon="question-circle"/>
@@ -81,8 +81,6 @@ import {emit, Events} from "@/eventbus";
 import {computed} from "@vue/reactivity";
 import AmbiguousActionButtons from "@/components/AmbiguousActionButtons";
 
-const expand = ref(true);
-
 export default {
   name: "AmbiguousSelection",
   props: {
@@ -92,6 +90,14 @@ export default {
   components: {Modal, FontAwesomeIcon, AmbiguousSelectionBookmarkButton, AmbiguousActionButtons},
   setup(props, {emit: $emit}) {
     const appSettings = inject("appSettings");
+    const limitAmbiguousModalSize = computed({
+      get() {
+        return appSettings.limitAmbiguousModalSize;
+      },
+      set(value) {
+        android.setLimitAmbiguousModalSize(value);
+      }
+    });
     const {bookmarkMap, bookmarkIdsByOrdinal} = inject("globalBookmarks");
     const {strings, ...common} = useCommon();
     const android = inject("android");
@@ -274,7 +280,7 @@ export default {
     }
 
     return {
-      help, selectionInfo, locateTop, expand,
+      help, selectionInfo, locateTop, limitAmbiguousModalSize,
       bibleBookName, verseInfo, selected, handle, cancelled, noActions,
       showModal, selectedActions, selectedBookmarks, clickedBookmarks,
       bookmarkMap, common, strings, multiSelectionMode, toggleMultiSelectionMode,

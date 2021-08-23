@@ -315,13 +315,10 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<Long> = mutableSetOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
     ) {
         companion object {
-            val default get() = WorkspaceSettings(
-                enableTiltToScroll = false,
-                enableReverseSplitMode = false,
-                autoPin = false
-            )
+            val default get() = WorkspaceSettings()
         }
     }
 

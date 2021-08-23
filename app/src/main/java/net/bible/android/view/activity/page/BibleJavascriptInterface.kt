@@ -82,6 +82,13 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun setLimitAmbiguousModalSize(value: Boolean) {
+        Log.d(TAG, "set client ready")
+        bibleView.workspaceSettings.limitAmbiguousModalSize = value
+        ABEventBus.getDefault().post(AppSettingsUpdated())
+    }
+
+    @JavascriptInterface
     fun requestPreviousChapter(callId: Long) {
         Log.d(TAG, "Request more text at top")
         bibleView.requestPreviousChapter(callId)

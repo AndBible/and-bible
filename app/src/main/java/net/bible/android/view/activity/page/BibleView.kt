@@ -997,6 +997,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val favouriteLabels = json.encodeToString(serializer(), workspaceSettings.favouriteLabels)
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         val hideCompareDocuments = json.encodeToString(serializer(), workspaceSettings.hideCompareDocuments)
+        val limitAmbiguousModalSize = json.encodeToString(serializer(), workspaceSettings.limitAmbiguousModalSize)
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
@@ -1006,7 +1007,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         errorBox: $showErrorBox, 
                         favouriteLabels: $favouriteLabels, 
                         recentLabels: $recentLabels, 
-                        hideCompareDocuments: $hideCompareDocuments
+                        hideCompareDocuments: $hideCompareDocuments,
+                        limitAmbiguousModalSize: $limitAmbiguousModalSize,
                     }, 
                     initial: $initial
                     });

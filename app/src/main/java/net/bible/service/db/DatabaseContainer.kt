@@ -294,7 +294,7 @@ private val MIGRATION_19_20 = object : Migration(19, 20) {
 private val MIGRATION_20_21 = object : Migration(20, 21) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
-            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoPin` INTEGER DEFAULT TRUE")
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoPin` INTEGER DEFAULT 1")
         }
     }
 }
@@ -949,6 +949,13 @@ private val MIGRATION_54_55_bookmarkType = object : Migration(54, 55) {
     }
 }
 
+private val MIGRATION_55_56_limitAmbiguousSize = object : Migration(55, 56) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_limitAmbiguousModalSize` INTEGER DEFAULT 0")
+        }
+    }
+}
 class DataBaseNotReady: Exception()
 
 object DatabaseContainer {
@@ -1023,6 +1030,7 @@ object DatabaseContainer {
                         MIGRATION_52_53_underline,
                         MIGRATION_53_54_booleanSettings,
                         MIGRATION_54_55_bookmarkType,
+                        MIGRATION_55_56_limitAmbiguousSize,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

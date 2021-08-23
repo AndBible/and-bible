@@ -186,6 +186,7 @@ export function useConfig(documentType) {
         actionMode: false,
         hasActiveIndicator: false,
         activeSince: 0,
+        limitAmbiguousModalSize: false,
     });
 
     function calcMmInPx() {

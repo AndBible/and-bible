@@ -308,8 +308,12 @@ export function useAndroid({bookmarks}, config) {
     function helpDialog(content, title = null) {
         android.helpDialog(content, title);
     }
+    function setLimitAmbiguousModalSize(value) {
+        android.setLimitAmbiguousModalSize(value);
+    }
 
     const exposed = {
+        setLimitAmbiguousModalSize,
         setEditing,
         reportInputFocus,
         saveBookmarkNote,
