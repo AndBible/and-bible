@@ -638,15 +638,26 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 Құжат таңдауына секіру үшін, құралдар тақтасында аят оранласқан атауын ұзақ басыңыз.
 Тарих тізіміне кіру үшін Артқа деген түймесін ұзақ басыңыз.</string>
   <string name="help_window_pinning_title">Терезені бекіту</string>
+  <string name="help_window_pinning_text">
+Терезе дисплейін Параметрлер мәзірінен қосуға болады (үш нүкте, жоғарғы оң жақ бұрыш).
+Егер терезе дисплейі қосулы болса, Сіз Киелі кітапта көптеген бекітілген терезелерді көрсете аласыз,
+бірақ бекітілмеген терезелерден біреуін ғана көрсете аласыз. Бекітілген терезелер алдымен көрсетіледі, содан кейін
+бекітілмеген терезелер. Сіз Киелі Кітаптық құжаттарды бекітілген терезелер түрінде және пікірлер, карталар т.б. бекітілмеген терезелер түрінде ашқыңыз келуі мүмкін. Содан кейін, сіз Киелі Кітап құжаттарын, және пікір түсініктемелер арасында жеңіл ауысып, әрі Киелі Кітап зерттегенде басқада қосымша материалдарды әр-қашанда ашық ұстай аласыз.</string>
   <!--Welcome text-->
   <string name="redownload_documents">Жылдам қайта жүктеуі</string>
+  <string name="welcome_message">Жүктегеніңіз үшін рахмет%s. Қазіргі уақытта киелі кітаптар немесе құжаттар орнатылмаған. Жалғастыру үшін интернеттен жүктеу арқылы немесе zip құжат файлынан жүктеу арқылы кем дегенде бір резервтік құжат орнатыңыз.</string>
+  <string name="redownload_message">
+Алдыңғы кітаптар/құжаттар тізімі табылды. Оларды оңай жүктеу үшін төменге басыңыз.</string>
   <!--Uncategorized-->
   <string name="close">Жабу</string>
   <string name="something_with_parenthesis">%s(%s)</string>
   <string name="first_time_help_do_not_show_again">Мен түсінемін</string>
   <string name="first_time_help_show_next_time">Келесі рет қайтадан көрсет</string>
   <string name="strongs_mode_title">Стронг режимін таңдаңыз</string>
+  <string name="download_dialog_message">Келесі кітаптарды жүктеу мүмкін болмады</string>
   <string name="select_multiple">Көптікті таңдаңыз</string>
+  <string name="journal_description">Таңдалған мәтіндермен және бетбелгілермен өңделетін блокноттар</string>
+  <string name="my_notes_description">Бетбелгілерге бекітілген пайдаланушы өңдейтін жазбалар</string>
   <string name="my_notes_abbreviation">Менің Ескертпелерім</string>
   <string name="studypads">Оқу планшеттері</string>
   <string name="multi_description">Бірнеше сілтемелер</string>
@@ -657,9 +668,14 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="http_forbidden">Тыйым салынған</string>
   <string name="http_not_found">Табылмады</string>
   <string name="http_unknown">Бұдан басқа қате</string>
+  <string name="give_passphrase_for_module">Құжат %s шифрланған, бұғаттан шығару үшін кодтық сөз қажет.</string>
+  <string name="unlocking_failed">Бұғаттан шығару мүмкін емес, кодтық сөз қате </string>
   <string name="unlock_module">Модульдің құпия сөзін орнатыңыз</string>
+  <string name="unlock_info">Шифрланған модуль ақпаратты бұғаттан шығару</string>
   <string name="try_again_passphrase">Құпия сөзін қабылдамады, қайталап көрдіңіз бе?</string>
   <string name="cant_delete_last_bible">Соңғы Киелі кітап құжатты жою мүмкін емес</string>
+  <string name="show_unlock_info">Модуль және; ақпаратты бұғаттан шығару</string>
+  <string name="prefs_show_error_box_title">Javascript қате терезесін көрсету</string>
   <string name="active_window_indicator_title">Белсенді терезенің индикаторын көрсет</string>
   <string name="active_window_indicator_summary">Қай терезенің белсенді екенін анықтауға көмектесу үшін, терезенің бұрыштарын бөлекте</string>
   <string name="how_to_contribute">Қалай үлес қосып беруге болады?</string>
