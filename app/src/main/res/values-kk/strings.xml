@@ -679,10 +679,27 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="prefs_show_error_box_summary">Bible View-де JavaScript қателерін түзету кезінде әзірлеушілер үшін пайдалы. Бұл қосымшаның жұмысын баяулатады.</string>
   <string name="active_window_indicator_title">Белсенді терезенің индикаторын көрсет</string>
   <string name="active_window_indicator_summary">Қай терезенің белсенді екенін анықтауға көмектесу үшін, терезенің бұрыштарын бөлекте</string>
+  <string name="app_licence_title">Бастапқы Лицензия Ашық</string>
   <string name="how_to_contribute">Қалай үлес қосып беруге болады?</string>
+  <string name="confirm_delete_bookmarks">Бетбелгілер мен олардың жазбаларын өшіргіңіз келе ме%d?</string>
+  <string name="module_size_megabytes">%.1fМБ</string>
+  <string name="tell_friend_title">Досыңа ұсыну</string>
+  <string name="tell_friend_message1">Мен сізге ұсынғым келеді%s.</string>
+  <string name="tell_friend_message2">Бұл Андройд үшін офлайн режимінде Киелі кітапты зерттеу үшін қуатты, әрі қарапайым қосымша.</string>
+  <string name="tell_friend_message3">Оны Play Storeдан орнату: %s</string>
+  <string name="tell_friend_message4">Толығырақ оқу және қосымша қосымша параметрлері: %s</string>
+  <string name="share_verse_ok">Бөлісу / Көшіру</string>
   <string name="verse_action_copy">Көшіріңіз</string>
+  <string name="share_verse_menu_title">Бөлісу / Көшіру</string>
   <string name="show_versenumbers">Аят санын көрсету</string>
+  <string name="show_full_verses">Аяттарды толық көрсету</string>
+  <string name="advertise_app">Аяттарды толық көрсету</string>
+  <string name="verse_share_advertise">Ортақ пайдалану %s.</string>
+  <string name="abbreviate_reference">Қысқартылған сілтеме</string>
+  <string name="version_name">Нұсқаның аты</string>
   <string name="backup_button">Резерв Көшірмесі</string>
+  <string name="back_button">Артқа</string>
+  <string name="upgrading_database">Деректер базасы жаңартылуда. Өтінеміз, күте тұрыңыз…</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->

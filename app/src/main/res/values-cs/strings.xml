@@ -100,7 +100,7 @@
   <string name="prefs_open_links_in_special_window_title">Okno odkazů</string>
   <string name="prefs_open_links_in_special_window_summary">Otevřít odkazy ve zvláštním okně pro rychlejší vyhledání křížových referencí a Strogových čísel</string>
   <string name="prefs_text_size_sample_text">Příklad textu</string>
-  <string name="prefs_screen_keep_on_title">Nechat obrazovka zapnutou</string>
+  <string name="prefs_screen_keep_on_title">Nechat obrazovku zapnutou</string>
   <string name="prefs_screen_keep_on_summary">Zamezí uspání displeje během používání aplikace</string>
   <string name="prefs_interface_locale_title">Jazyk aplikace</string>
   <string name="prefs_interface_locale_summary">Vybrat jiný jazyk uživatelského rozhraní</string>
@@ -349,8 +349,8 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="speak_repeat">Opakovat</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Rychlost předčítání</string>
-  <string name="speak_and_play_earcons_title">Mluvit a ppřehrát upozorňující zvuky pro</string>
-  <string name="playback_settings_title">Nastavení přehrávání</string>
+  <string name="speak_and_play_earcons_title">Přečíst a přehrát upozorňující zvuky pro</string>
+  <string name="playback_settings_title">Nastavení předčítání</string>
   <string name="speak_settings_title">Obecné nastavení předčítání</string>
   <string name="speak_bookmarking_settings_title">Nastavení záložek</string>
   <string name="speak_bookmarks_menu_title">Předčítání podle záložek</string>
@@ -364,9 +364,9 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="speak_ending_of_passage">Vybrat ukončení pasáže</string>
   <string name="speak_verse_range_to_repeat">Vybrat rozsah veršů pro opakování</string>
   <string name="speak_ending_verse_must_be_later">Poslední verš musí být větší než první</string>
-  <string name="conf_speak_synchronize">Text následuje řeč</string>
+  <string name="conf_speak_synchronize">Synchronizovat předčítaný text</string>
   <string name="conf_speak_auto_bookmark">Automatické vytváření záložek</string>
-  <string name="conf_save_playback_settings_to_bookmarks">Uložit nastavení přehrávání do záložek</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Uložit nastavení předčítání do záložek</string>
   <string name="conf_replace_divinename">Nahradit božské jméno slovem Jahve (Yahweh)</string>
   <string name="conf_change_chapter">Změny kapitol</string>
   <string name="conf_change_title">Nadpisy</string>
@@ -404,16 +404,16 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="speak_help_auto_bookmark">
 Záložka předčítání bude automaticky vytvořena, když je předčítání zastaveno nebo pozastaveno. Automaticky generované záložky jsou označeny zvláštní  značkou předčítání. Když začnete opět záložkou předčítání, záložka se přesune k verši,  u kterého zastavíte předčítání příště. Jen značky předčítání se posunují. Všechny ostatní značky zůstanou nezměněny.</string>
   <string name="speak_help_playback_settings">
-        Speciální nastavení přehrávání (Pod \"Nastavení přehrávání\" na obrazovce Řeč)
+        Speciální nastavení předčítání (Pod \"Nastavení předčítání\" na obrazovce Předčítání)
         jsou uloženy V záložkách předčítání, když je toto nastavení vybráno.
-        Když je restartováno předčítání ze záložky předčítání,  uložené nastavení přehrávání
+        Když je restartováno předčítání ze záložky předčítání,  uložené nastavení předčítání
         je načteno z této záložky.
     </string>
   <string name="speak_help_playback_settings_example">
         Například, když posloucháte 1. Mojžíšovu a Římanům a
         chcete poslouchat 1. Mojžíšovu rychleji bez upozornění na změnu kapitoly,
         ale Římanům pomaleji se zvukovým upozorněním při změně kapitoly, pak
-        můžete mít jiné nastavení přehrávání pro tyto knihy,
+        můžete mít jiné nastavení předčítání pro tyto knihy,
         když jsou tyto nastavení uloženy v odpovídajících záložkách.
     </string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
