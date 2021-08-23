@@ -405,7 +405,13 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
                         displayedDocuments.sortWith(
                             compareBy(
-                                { downloadControl.getDocumentStatus(it).documentInstallStatus != DocumentStatus.DocumentInstallStatus.BEING_INSTALLED },
+                                {
+                                    when(downloadControl.getDocumentStatus(it).documentInstallStatus) {
+                                        DocumentStatus.DocumentInstallStatus.BEING_INSTALLED -> 0
+                                        DocumentStatus.DocumentInstallStatus.UPGRADE_AVAILABLE -> 1
+                                        else -> 2
+                                    }
+                                },
                                 { swordDocumentFacade.getDocumentByInitials(it.initials) == null },
                                 { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
                                 {
