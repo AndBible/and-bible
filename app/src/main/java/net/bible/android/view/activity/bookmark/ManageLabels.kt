@@ -230,7 +230,7 @@ class ManageLabels : ListActivityBase() {
 
     private fun help() {
         when(data.mode) {
-            Mode.STUDYPAD -> CommonUtils.showHelp(this, listOf(R.string.help_studypads_title))
+            Mode.STUDYPAD -> CommonUtils.showHelp(this, listOf(R.string.studypads))
             Mode.MANAGELABELS -> CommonUtils.showHelp(this, listOf(R.string.help_bookmarks_title))
             Mode.ASSIGN -> help(HelpMode.ASSIGN)
             Mode.WORKSPACE -> help(HelpMode.WORKSPACE)

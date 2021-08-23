@@ -753,7 +753,6 @@
         highlighted text in Bible view. There is also a "My Notes" special document in commentaries that allows you
         to view your notes in a separate window.
     </string>
-    <string name="help_studypads_title">Study Pads</string>
     <string name="help_studypads_text">
         Study pads are designed to make it easy to write sermon notes, prepare sermons or just
         write down personal Bible study notes that have multiple Bible references. Each study pad is associated with one bookmark label.
