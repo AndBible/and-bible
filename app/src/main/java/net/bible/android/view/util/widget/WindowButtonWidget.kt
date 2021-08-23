@@ -84,6 +84,8 @@ class WindowButtonWidget(
     }
 
     private fun updateBackground() {
+        val isPinnedWindow = window?.isPinMode == true
+        val isLinksWindow = window?.isLinksWindow == true
         val isActive = windowControl.activeWindow.id == window?.id && !isMaximised
         val isWindowVisible = if(isRestoreButton) {
             window?.isVisible == true
@@ -96,9 +98,12 @@ class WindowButtonWidget(
             if (isRestoreButton) {
                 windowButton.setBackgroundResource(
                     when {
-                        isActive -> R.drawable.bar_window_button_active
-                        isWindowVisible -> R.drawable.bar_window_button_visible
-                        else -> R.drawable.bar_window_button
+                        isActive && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_active
+                        isWindowVisible && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_visible
+                        isPinnedWindow || isLinksWindow -> R.drawable.bar_window_button
+                        isActive -> R.drawable.bar_window_unpinned_button_active
+                        isWindowVisible -> R.drawable.bar_window_unpinned_button_visible
+                        else -> R.drawable.bar_window_unpinned_button
                     }
                 )
             } else {
@@ -198,7 +203,7 @@ class AddNewWindowButtonWidget(
             docType.visibility = View.GONE
             pinMode.visibility = View.GONE
             unMaximiseImage.visibility = View.GONE
-            windowButton.setBackgroundResource(R.drawable.window_button)
+            windowButton.setBackgroundResource(R.drawable.new_window_button)
         }
     }
 
