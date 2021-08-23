@@ -320,8 +320,8 @@ object BackupControl {
                     type = "application/zip"
                     putExtra(Intent.EXTRA_TITLE, fileName)
                 }
-                val r = callingActivity.awaitIntent(intent) ?: return@withContext
-                ok = backupModulesToUri(r.resultData.data!!)
+                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return@withContext
+                ok = backupModulesToUri(r)
             }
             BackupResult.SHARE -> {
                 val modulesString = books.joinToString(", ") { it.abbreviation }
@@ -397,13 +397,12 @@ object BackupControl {
                     type = "application/x-sqlite3"
                     putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
                 }
-                val r = callingActivity.awaitIntent(intent)
+                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return
 
-                if (r?.resultData?.data == null) return // is null when user selects no file
                 _mainBibleActivity?.windowRepository?.saveIntoDb()
                 db.sync()
                 GlobalScope.launch(Dispatchers.IO) {
-                    backupDatabaseToUri(callingActivity, r.resultData.data!!)
+                    backupDatabaseToUri(callingActivity, r)
                 }
             }
             BackupResult.SHARE -> {
@@ -448,9 +447,9 @@ object BackupControl {
         _mainBibleActivity?.updateDocuments()
     }
 
-    suspend fun backupPopup(context: ActivityBase) {
-        val intent = Intent(context, BackupActivity::class.java)
-        context.awaitIntent(intent)
+    suspend fun backupPopup(activity: ActivityBase) {
+        val intent = Intent(activity, BackupActivity::class.java)
+        activity.awaitIntent(intent)
     }
 
     private lateinit var internalDbDir : File;
