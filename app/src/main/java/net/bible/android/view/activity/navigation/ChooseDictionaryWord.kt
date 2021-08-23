@@ -156,8 +156,7 @@ class ChooseDictionaryWord : ListActivityBase() {
         try {
             if (selectedKey != null) {
                 Log.i(TAG, "chose:$selectedKey")
-                activeWindowPageManagerProvider.activeWindowPageManager.currentDictionary.setKey(selectedKey)
-                activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocument(activeWindowPageManagerProvider.activeWindowPageManager.currentDictionary.currentDocument)
+                activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(activeWindowPageManagerProvider.activeWindowPageManager.currentDictionary.currentDocument, selectedKey)
                 doFinish()
             }
         } catch (e: Exception) {
