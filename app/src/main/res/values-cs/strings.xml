@@ -316,6 +316,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="auto_assign_labels_primary">Nastavit jako primární</string>
   <string name="label_color">Barva štítku</string>
   <!--can be removed-->
+  <string name="label_color_example">Příklad</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Řadit dle data</string>
   <string name="sort_by_bible_book">Biblické pořadí</string>
@@ -387,6 +388,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="setting_scope">Nastavení se aplikuje na %s.</string>
   <string name="setting_scope_window">toto okno</string>
   <string name="setting_scope_workspace">tuto pracovní plochu</string>
+  <string name="assing_labels_help1">Záložka může mít více štítků.</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Pomocí %s nastavíte barvu štítku.</string>
   <!--param is auto-assign label icon-->
