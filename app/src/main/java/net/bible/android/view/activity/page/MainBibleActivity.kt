@@ -87,14 +87,12 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.Bookmarks
-import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.navigation.History
@@ -600,6 +598,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 prefOptions.value = (prefOptions.value as Int + 1) % 3
                 prefOptions.handle()
                 updateStrongsButton()
+            }
+
+            strongsButton.setOnLongClickListener {
+                val prefOptions = dummyStrongsPrefOption
+                fun apply() {
+                    prefOptions.handle()
+                    updateStrongsButton()
+                }
+                prefOptions.openDialog(this@MainBibleActivity, onChanged = {apply()}, onReset = {apply()})
             }
 
             speakButton.setOnClickListener {
