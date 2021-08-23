@@ -115,16 +115,13 @@ class DownloadManager(
      */
     @Throws(BookException::class, InstallException::class)
     fun installBook(repositoryName: String, book: Book) {
-        // Delete the book, if present
-        // At the moment, JSword will not re-install. Later it will, if the
-        // remote version is greater.
         val bookInitials = book.initials
-        val installedBook = Books.installed().getBook(bookInitials)
-        installedBook?.let { unregisterBook(it) }
-        // An installer knows how to install books
+
         val installer = installManager.getInstaller(repositoryName)
         val jobId = Progress.INSTALL_BOOK.format(book.repoIdentity)
         installer.install(book, jobId)
+        // Make sure it refreshes existing doc
+
         // reload metadata to ensure the correct location is set, otherwise maps won't show
         val metadata = book.bookMetaData as SwordBookMetaData
         metadata.reload { true }
@@ -137,33 +134,6 @@ class DownloadManager(
             docDao.update(this)
         }
     }
-
-    /**
-     * Unregister a book from Sword registry.
-     *
-     * This used to delete the book but there is an mysterious bug in deletion (see below).
-     *
-     * @param book
-     * the book to delete
-     * @throws BookException
-     */
-    @Throws(BookException::class)
-    private fun unregisterBook(book: Book) {
-        // this just seems to work so leave it here
-        // I used to think that the next delete was better - what a mess
-        // see this for potential problem: http://stackoverflow.com/questions/20437626/file-exists-returns-false-for-existing-file-in-android
-        // does file.exists return an incorrect value?
-        // To see the problem, reverse the commented lines below, and try downloading 2 or more Bibles that are already installed
-        Books.installed().removeBook(book)
-
-        // Avoid deleting all dir and files because "Java is known not to delete files immediately, so mkdir may fail sometimes"
-        // http://stackoverflow.com/questions/617414/create-a-temporary-directory-in-java
-        //
-        // Actually do the delete
-        // This should be a call on installer.
-        //book.getDriver().delete(book);
-    }// Ask the Install Manager for a map of all known remote repositories
-    // sites
 
     companion object {
         const val REPOSITORY_KEY = "SourceRepository"
