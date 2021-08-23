@@ -245,7 +245,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     override fun onRestart() {
         super.onRestart()
-        refreshScreenKeepOn()
+        if(!doNotInitializeApp) {
+            refreshScreenKeepOn()
+        }
         Log.i(localClassName, "onRestart:" + this)
     }
 
