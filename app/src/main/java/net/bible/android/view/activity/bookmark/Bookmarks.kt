@@ -268,7 +268,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private fun changeBookmarkSortOrder() {
         bookmarkSortOrder = when (bookmarkSortOrder) {
             BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.CREATED_AT_DESC
-            BookmarkSortOrder.CREATED_AT_DESC -> BookmarkSortOrder.BIBLE_ORDER
+            BookmarkSortOrder.CREATED_AT_DESC -> BookmarkSortOrder.CREATED_AT            
+            BookmarkSortOrder.CREATED_AT -> BookmarkSortOrder.BIBLE_ORDER
             else -> BookmarkSortOrder.CREATED_AT_DESC
         }
     }
