@@ -78,7 +78,7 @@ enum class BookmarkStyle(val backgroundColor: Int) {
 val defaultLabelColor = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor
 
 enum class BookmarkSortOrder {
-    BIBLE_ORDER, CREATED_AT, LAST_UPDATED, ORDER_NUMBER;
+    BIBLE_ORDER, CREATED_AT, CREATED_AT_DESC, LAST_UPDATED, ORDER_NUMBER;
 }
 
 interface VerseRangeUser {
