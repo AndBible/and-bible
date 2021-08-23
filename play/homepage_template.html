@@ -5,7 +5,9 @@
  <meta charset='utf-8'>
  <meta http-equiv="X-UA-Compatible" content="chrome=1">
  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
- <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Besley:wght@500&family=Oswald:wght@300&family=Poppins:wght@300&display=swap" rel="stylesheet"> 
  <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
  <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
  <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
@@ -14,29 +16,38 @@
  <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
  <![endif]-->
 
- <title>{{title}}</title>
+ <title><img class="title-logo" src="https://raw.githubusercontent.com/AndBible/and-bible/29484843290a7e8ec494683630b5de263b2fdd7d/logo.svg"> {{title}}</title>
 </head>
 
 <body>
 <header>
  <div class="inner">
-  <h1>Bible&nbsp;for&nbsp;Android</h1>
+  <h1>Bible&nbsp;for&nbsp;Android <img src="https://raw.githubusercontent.com/AndBible/and-bible/29484843290a7e8ec494683630b5de263b2fdd7d/logo.svg"></h1>
   <h2>{{title}}</h2>
   <a href="https://github.com/AndBible/and-bible" class="button"><small>View project on</small> GitHub</a>
  </div>
 </header>
 
+ <nav class="local-links">
+  <a href="#about">About</a>	&#9679;	
+  <a href="#features">Features</a>	&#9679;	
+  <a href="#links">Links</a>	&#9679;	
+  <a href="#media">Media</a>	&#9679;	
+  <a href="#install">Install</a>	&#9679;	
+  <a href="#get-help">Get Help</a>	&#9679;	
+  <a href="#get-involved">Get Involved</a>
+ </nav>
 <div id="content-wrapper">
  <div class="inner clearfix">
   <section id="main-content">
    <h2>
     <a id="study-the-bible-on-your-android-mobile-or-tablet" class="anchor" href="#study-the-bible-on-your-android-mobile-or-tablet" aria-hidden="true"><span class="octicon octicon-link"></span></a>
-    Study the Bible on Your Android Mobile, Tablet or Chromebook
+    Study the Bible on Your Android Mobile, Tablet, Chromebook, or Kindle
    </h2>
-   <h3>{{subtitle_1}}</h3>
+   <h3 id="about">{{subtitle_1}}</h3>
    <p>{{paragraph_1_1}}</p>
    <p>{{paragraph_1_2}}</p>
-   <h3>{{subtitle_2}}</h3>
+   <h3 id="features">{{subtitle_2}}</h3>
    <p>{{paragraph_2_1}}</p>
    <ul>
     <li>{{feature_01}}</li>
@@ -64,7 +75,7 @@
     <li>{{contr_4}}</li>
    </ul>
    <p>{{paragraph_4_1}}</p>
-   <h3>{{subtitle_4}}</h3>
+   <h3 id="links">{{subtitle_4}}</h3>
    <ul>
     <li><a href="{{facebook_url}}">Like And Bible on Facebook</a></li>
     <li><a href="{{youtube_url}}">Our Youtube Channel</a></li>
@@ -72,13 +83,13 @@
     <li><a href="{{github_url}}">Project page on Github</a></li>
    </ul>
 
-   <h3>
+   <h3 id="media">
     <a id="videos" class="anchor" href="#videos" aria-hidden="true">
      <span class="octicon octicon-link"></span></a>Tutorial videos
    </h3>
    <div class="youtube">
     <iframe class="youtube"
-            src="https://www.youtube.com/embed/videoseries?list=PLD-W_Iw-N2MluVBU05tBN3lTyTxRuyhOO"
+            src="https://youtu.be/AfhAKcWLtm4"
             frameborder="0"
             allow="autoplay; encrypted-media"
             allowfullscreen>
@@ -95,7 +106,7 @@
     <img class="sshot" src="Graphics/homepage-images/blackportrait.png" alt="Portrait image with Strongs">
     <img class="sshot-landscape" src="Graphics/homepage-images/whitelandscape.png" alt="Tablet view">
    </p>
-   <h2>
+   <h2 id="install">
     <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
    <p>The easiest way is to download from
@@ -112,7 +123,7 @@
 
    <p>You may now <a href="https://andbible.uservoice.com">vote for or suggest features</a> you would like to be added to And Bible.</p-->
 
-   <h2>
+   <h2 id="get-help">
     <a id="getting-help" class="anchor" href="#getting-help" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Help</h2>
 
    <p>There are many notes, including an
@@ -125,7 +136,7 @@
 
    <p><a href="#videos">Also see the tutorial videos</a></p>
 
-   <h2>
+   <h2 id="get-involved">
     <a id="helping" class="anchor" href="#helping" aria-hidden="true"><span class="octicon octicon-link"></span></a>Helping</h2>
 
    <h3>
