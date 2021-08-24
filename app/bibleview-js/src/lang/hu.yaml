@@ -1,5 +1,5 @@
 openMyNotes: Megnyitás Saját Jegyzetként
-openStudyPad: Megnyitás Tanulmányként (%s)
+openStudyPad: Megnyitás Jegyzetlapon (%s)
 noteText: Lábjegyzetek (%s)
 noteTextWithoutType: Lábjegyezetek
 crossReferenceText: Kereszthivatkozások
@@ -9,7 +9,7 @@ errorTitle: Hiba történt
 warningTitle: Figyelmeztetés
 normalTitle: Megjegyzés
 footnoteTypeUndefined: Nem definiált típus
-footnoteTypeStudy: Tanulmány
+footnoteTypeStudy: Jegyzetlap
 footnoteTypeExplanation: Magyarázat
 footnoteTypeVariant: Változat
 footnoteTypeAlternative: Alternatíva
@@ -37,7 +37,7 @@ lastUpdatedOn: "Útóljára módosítva: %s"
 strongsLink: Strongs definició (%s)
 morphLink: Morfológiai kód (%s)
 strongsAndMorph: Definiciók & Morfológia
-studyPadLink: Tanulmány megnyitása
+studyPadLink: Jegyzetlap megnyitása
 externalLink: Külső hivatkozás megnyitása
 referenceLink: Referencia megnyitása
 openFootnote: Lábjegyzet megnyitása
@@ -46,10 +46,10 @@ noMyNotesTitle: Nincsenek Saját Jegyzetek ehhez a fejezethez.
 noMyNotesDescription: >
   Az elmentett könyvjelzők itt fognak megjelenni, később személyes jegyzeteket is fűzhet hozzájuk.
 emptyStudyPad: >
-  Üres tanulmány. Ide egyszerűen felvehet szöveges bejegyzéseket, könyvjelzőket. A könyvjelzők automatikusan ennek a tanulmánynak megfelelő címkét fognak kapni.
-studyPadModalTitle: Tanulmány bejegyzés szerkesztése
-doYouWantToDeleteEntry: "Törli ezt a tanulmány bejegyzést?"
-removeStudyPadConfirmationTitle: "Törli a tanulmány bejegyzést?"
+  Üres jegyzetlap. Ide egyszerűen felvehet jegyzeteket, könyvjelzőket. A könyvjelzők automatikusan ennek a jegyzetlapnak megfelelő címkét fognak kapni.
+studyPadModalTitle: Jegyzet szerkesztése
+doYouWantToDeleteEntry: "Törli ezt a jegyzetet?"
+removeStudyPadConfirmationTitle: "Törli ezt a jegyzetet?"
 dragHelp: Húzza el más sorrendbe tevéshez
 saved: mentve
 openAll: Minden hivatkozás megnyitása
@@ -59,7 +59,7 @@ wholeBookmark: A teljes könyvjelző
 otherNoteText: Jegyzet
 assignLabelsMenuEntry: Címke hozzárendelése
 assignLabelsMenuEntry1: Címkék kiválasztása és szerkesztése…
-jumpToStudyPad: Ugrás Tanulmányhoz
+jumpToStudyPad: Ugrás a jegyzetlaphoz
 setAsPrimaryLabel: Beállítás elsődleges címkeként
 removeBookmarkLabel: Címke törlése
 addBookmarkLabel: Címke hozzáadása
