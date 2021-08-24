@@ -34,10 +34,12 @@
           :style="buttonColor(primaryLabel.color)"
         >
           <template v-if="bookmark.hasNote">
-            <FontAwesomeIcon icon="edit"/>
+            <FontAwesomeIcon icon="edit" transform="up-1"/>
           </template>
           <template v-else>
-            <FontAwesomeIcon icon="custom-note-false"/>
+            <span style="position: relative; top: -3px;">
+              <FontAwesomeIcon icon="custom-note-false"/>
+            </span>
           </template>
         </div>
         <div
