@@ -21,10 +21,11 @@
       <div class="bookmark-buttons">
         <div
           v-if="!inBookmarkModal"
+          @click.stop="$emit('info-clicked')"
           class="bookmark-button"
           :style="buttonColor(primaryLabel.color)"
         >
-          <FontAwesomeIcon icon="bookmark"/>
+          <FontAwesomeIcon icon="info-circle"/>
         </div>
         <div
           v-if="!inBookmarkModal"
@@ -102,7 +103,7 @@ export default {
     showStudyPadButtons: {type: Boolean, default: false},
     inBookmarkModal: {type: Boolean, default: false},
   },
-  emits: ["close-bookmark", "edit-clicked"],
+  emits: ["close-bookmark", "edit-clicked", 'info-clicked'],
   components: {AreYouSure, FontAwesomeIcon},
   setup(props, {emit}) {
     const areYouSure = ref(null);

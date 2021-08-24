@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="ambiguous-button" :style="buttonStyle" @click.stop="openBookmark">
+  <div class="ambiguous-button" :style="buttonStyle" @click.stop="openBookmark(false)">
     <div class="verse-range one-liner">
       {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ bookmark.text}}</i></q>
     </div>
@@ -34,6 +34,7 @@
       :bookmark="bookmark"
       show-study-pad-buttons
       @edit-clicked="editNotes"
+      @info-clicked="openBookmark(true)"
     />
   </div>
 </template>
@@ -84,9 +85,9 @@ export default {
       emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openNotes: true, locateTop: locateTop.value});
     }
 
-    function openBookmark() {
+    function openBookmark(openInfo = false) {
       $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {locateTop: locateTop.value});
+      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openInfo, locateTop: locateTop.value});
     }
 
     function htmlToString(html) {

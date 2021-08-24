@@ -47,7 +47,7 @@
         <FontAwesomeIcon icon="trash"/>
       </div>
       <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click.stop="editBookmark">
-        <FontAwesomeIcon icon="bookmark"/>
+        <FontAwesomeIcon icon="info-circle"/>
       </div>
     </ButtonRow>
   </div>
@@ -108,7 +108,7 @@ export default {
     });
 
     function editBookmark(event) {
-      ebEmit(Events.BOOKMARK_CLICKED, props.journalEntry.id, {locateTop: isBottomHalfClicked(event)})
+      ebEmit(Events.BOOKMARK_CLICKED, props.journalEntry.id, {openInfo: true, locateTop: isBottomHalfClicked(event)})
     }
 
     function addNewEntryAfter() {

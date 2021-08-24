@@ -132,6 +132,7 @@ export default {
       bookmarkId.value = bookmarkId_;
       originalNotes = bookmarkNotes.value;
       infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);
+      console.log({openNotes, openInfo, asdf: bookmarkNotes.value});
       editDirectly.value = !infoShown.value && !bookmarkNotes.value;
       locateTop.value = _locateTop;
       showBookmark.value = true;
