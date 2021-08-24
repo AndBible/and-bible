@@ -115,6 +115,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private var isPopulated = false
     private val dao get() = DatabaseContainer.db.documentDao()
 
+    val defaultDocuments = Ref<RecommendedDocuments>()
     val recommendedDocuments = Ref<RecommendedDocuments>()
 
     private var allDocuments = ArrayList<Book>()
@@ -262,11 +263,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         checkSpinnerIndexesValid()
     }
 
-    protected fun findBookByOsisID(osisId: String) : Book? {
-        return allDocuments.find {
-            it.osisID == osisId
-        }
-    }
+    protected fun findBookByInitials(osisId: String) : Book? = allDocuments.find { it.initials == osisId }
 
     // get the current language code
 
@@ -381,7 +378,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     /** a spinner has changed so refilter the doc list
      */
-    private fun filterDocuments() {
+    fun filterDocuments() {
         if(!isPopulated) return
         // documents list has changed so force action mode to exit, if displayed, because selections are invalidated
         listActionModeHelper.exitActionMode()

@@ -284,34 +284,39 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.applicationVersionName)
         startupViewBinding.versionText.text = versionMsg
 
-
-        // if a previous list of books is available to be installed,
-        // allow the user to requickly redownload them all.
-        val redownloadButton = startupViewBinding.redownloadButton
-        val redownloadTextView = startupViewBinding.redownloadMessage
-        if (previousInstallDetected) {
-            // do something
-            Log.d(TAG, "A previous install was detected")
-            redownloadTextView.text = getString(R.string.redownload_message)
-            redownloadTextView.visibility = View.VISIBLE
-            redownloadButton.setOnClickListener {
-                GlobalScope.launch(Dispatchers.Main)  {
-                    val books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
-                    if (books != null) {
-                        val intentHandler = Intent(this@StartupActivity, FirstDownload::class.java);
-                        intentHandler.putExtra(DownloadActivity.DOCUMENT_IDS_EXTRA, ArrayList(books));
-                        startActivityForResult(intentHandler, DOWNLOAD_DOCUMENT_REQUEST)
+        startupViewBinding.run {
+            if (previousInstallDetected) {
+                Log.d(TAG, "A previous install was detected")
+                redownloadMessage.visibility = View.VISIBLE
+                redownloadButton.visibility = View.VISIBLE
+                redownloadButton.setOnClickListener {
+                    GlobalScope.launch(Dispatchers.Main) {
+                        val books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
+                        if (books != null) {
+                            val intent = Intent(this@StartupActivity, FirstDownload::class.java)
+                            intent.putExtra(DownloadActivity.DOCUMENT_IDS_EXTRA, ArrayList(books))
+                            startActivityForResult(intent, DOWNLOAD_DOCUMENT_REQUEST)
+                        }
                     }
                 }
+            } else {
+                Log.d(TAG, "Showing restore button because nothing to redownload")
+                restoreDatabaseButton.visibility = View.VISIBLE
+                restoreDatabaseButton.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_GET_CONTENT)
+                    intent.type = "application/*"
+                    startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
+                }
             }
-        } else {
-            Log.d(TAG, "Showing restore button because nothing to redownload")
-            // hide button because nothing to download
-            redownloadButton.text = getString(R.string.restore_database)
-            redownloadButton.setOnClickListener {
-                val intent = Intent(Intent.ACTION_GET_CONTENT)
-                intent.type = "application/*"
-                startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
+            // Enabling this for english only in 4.0. Later we may enable this for other languages.
+            if(Locale.getDefault().language == "en") {
+                easyStartMessage.visibility = View.VISIBLE
+                easyStartButton.visibility = View.VISIBLE
+                easyStartButton.setOnClickListener {
+                    val intent = Intent(this@StartupActivity, FirstDownload::class.java)
+                    intent.putExtra("download-recommended", true)
+                    startActivityForResult(intent, DOWNLOAD_DOCUMENT_REQUEST)
+                }
             }
         }
 

@@ -30,12 +30,12 @@ import android.widget.Toast
 import androidx.appcompat.view.ActionMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus
-import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.RecommendedDocuments
@@ -57,9 +57,10 @@ import java.io.File
 import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 /**
  * Choose Document (Book) to download
@@ -94,7 +95,6 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     private val hasErrors get() = genericFileDownloader.errors.isNotEmpty() || downloadManager.failedRepos.isNotEmpty()
 
     private val repoFactory = RepoFactory(downloadManager)
-    private var booksToDownload: ArrayList<String>? = null
     private val booksNotFound = ArrayList<String>()
     private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
@@ -102,11 +102,25 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         val source = URI("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
         val target = File(SharedConstants.MODULE_DIR, SharedConstants.RECOMMENDED_JSON)
         genericFileDownloader.downloadFile(source, target, "Recommendations", reportError = !target.canRead())
-        if(target.canRead()) {
+        if (target.canRead()) {
             val jsonString = String(target.readBytes())
             recommendedDocuments.value = json.decodeFromString(RecommendedDocuments.serializer(), jsonString)
         } else {
             Log.e(TAG, "Could not load recommendations")
+        }
+    }
+
+    private suspend fun loadDefaultDocuments() = withContext(Dispatchers.IO) {
+        if(!downloadDefaults) return@withContext
+
+        val source = URI("https://andbible.github.io/data/${SharedConstants.DEFAULT_JSON}")
+        val target = File(SharedConstants.MODULE_DIR, SharedConstants.DEFAULT_JSON)
+        genericFileDownloader.downloadFile(source, target, "Defaults", reportError = !target.canRead())
+        if(target.canRead()) {
+            val jsonString = String(target.readBytes())
+            defaultDocuments.value = json.decodeFromString(RecommendedDocuments.serializer(), jsonString)
+        } else {
+            Log.e(TAG, "Could not load default document list")
         }
     }
 
@@ -145,7 +159,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                     isRefreshing = true
                     invalidateOptionsMenu()
                 }
-                loadRecommendedDocuments()
+                downloadDocJson()
                 withContext(Dispatchers.Main) {
                     documentItemAdapter = DocumentDownloadItemAdapter(
                         this@DownloadActivity, downloadControl, recommendedDocuments)
@@ -167,18 +181,28 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                 withContext(Dispatchers.Main) {
                     isRefreshing = false
                     invalidateOptionsMenu()
-                    booksToDownload = intent.extras?.getStringArrayList(DOCUMENT_IDS_EXTRA)
+                    val booksToDownload = intent.extras?.getStringArrayList(DOCUMENT_IDS_EXTRA)
                     if (booksToDownload != null) {
-                        downloadRequestedBooks(booksToDownload!!)
+                        downloadRequestedBooks(booksToDownload)
 
                         if (booksNotFound.size > 0) {
                             warnUserBooksNotDownloaded()
                         }
+                        filterDocuments()
+                    }
+                    if(downloadDefaults) {
+                        val rec = defaultDocuments.value!!
+                        for(l in listOf(rec.bibles["en"], rec.commentaries["en"], rec.addons["en"], rec.books["en"], rec.dictionaries["en"], rec.maps["en"])) {
+                            downloadRequestedBooks(l)
+                        }
+                        filterDocuments()
                     }
                 }
             }
         }
     }
+
+    private val downloadDefaults get() = intent.extras?.getBoolean("download-recommended") == true
 
     /**
      * Shows a dialog explaining that some books were not downloaded
@@ -211,10 +235,11 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     /**
      * Downloads the requested books, given a list of osisIds
      */
-    private fun downloadRequestedBooks(osisIds: ArrayList<String>) {
+    private fun downloadRequestedBooks(osisIds: List<String>?) {
+        osisIds ?: return
         for (it in osisIds) {
-            Log.i(TAG, "User request to redownload $it")
-            val book: Book? = findBookByOsisID(it)
+            Log.i(TAG, "User request to download $it")
+            val book: Book? = findBookByInitials(it)
             if (book != null) {
                 doDownload(book)
             } else {
@@ -347,6 +372,14 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     /**
      * on Click handlers
      */
+
+    private suspend fun downloadDocJson() = coroutineScope {
+        awaitAll(
+            async { loadRecommendedDocuments() },
+            async { loadDefaultDocuments() }
+        )
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isHandled = false
         when (item.itemId) {
@@ -361,7 +394,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
                 // prepare the document list view - done in another thread
                 GlobalScope.launch {
-                    loadRecommendedDocuments()
+                    downloadDocJson()
                     populateMasterDocumentList(true)
                     updateLastRepoRefreshDate()
 

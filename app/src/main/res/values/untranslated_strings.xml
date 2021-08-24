@@ -75,5 +75,8 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
         <item quantity="one">@string/one_page</item>
         <item quantity="other">@string/some_pages</item>
     </plurals>
-	
+
+	<!-- English-only feature -->
+	<string name="easy_start_title">Easy start</string>
+	<string name="easy_start_message">To easily get started, click below to automatically download recommended default documents.</string>
 </resources>

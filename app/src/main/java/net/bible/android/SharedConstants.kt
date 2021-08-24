@@ -27,13 +27,11 @@ import java.io.File
  */
 object SharedConstants {
     const val REQUIRED_MEGS_FOR_DOWNLOADS: Long = 50
-    const val NO_VALUE = -1
-
-    private const val CSS_SUBDIR_NAME = "css"
 
     private const val MANUAL_INSTALL_SUBDIR = "jsword"
     private const val MANUAL_INSTALL_SUBDIR2 = "sword"
     val RECOMMENDED_JSON = "recommended_documents.json"
+    val DEFAULT_JSON = "default_documents.json"
     val MODULE_DIR = moduleDir
     val MANUAL_INSTALL_DIR get() = manualInstallDir
     val MANUAL_INSTALL_DIR2 get() = File(Environment.getExternalStorageDirectory(), MANUAL_INSTALL_SUBDIR2)

@@ -77,14 +77,44 @@
 				android:layout_height="wrap_content"
 				android:padding="5sp"
 				android:textAppearance="@style/SplashTopFont"
+				android:text="@string/redownload_message"
 				android:visibility="gone" />
 
 			<Button
 				android:id="@+id/redownloadButton"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:text="@string/redownload_documents"
 				android:padding="15sp"
-				android:text="@string/redownload_documents" />
+				android:visibility="gone"
+				/>
+
+			<Button
+				android:id="@+id/restoreDatabaseButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="15sp"
+				android:text="@string/restore_database"
+				/>
+
+			<TextView
+				android:id="@+id/easyStartMessage"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="5sp"
+				android:text="@string/easy_start_message"
+				android:textAppearance="@style/SplashTopFont"
+				android:visibility="gone"
+				/>
+
+			<Button
+				android:id="@+id/easyStartButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="15sp"
+				android:text="@string/easy_start_title"
+				android:visibility="gone"
+				/>
 
 			<TextView
 				android:id="@+id/splash_url_text"
