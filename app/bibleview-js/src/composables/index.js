@@ -38,7 +38,7 @@ import {
     faEdit, faEllipsisH, faExpandArrowsAlt, faEye, faEyeSlash,
     faFileAlt, faFireAlt, faHandPointer,
     faHeadphones, faHeart, faHistory,
-    faIndent, faInfoCircle, faOutdent, faPlus,
+    faIndent, faInfoCircle, faOutdent, faPenSquare, faPlus,
     faPlusCircle, faQuestionCircle, faShareAlt, faSort,
     faTags, faTextWidth, faTimes, faTimesCircle, faTrash,
 } from "@fortawesome/free-solid-svg-icons";
@@ -357,11 +357,13 @@ export function useFontAwesome() {
         iconName: 'custom-whole-verse-true',
         icon: [100, 100, [], null, "M0 0V100H100V0ZM19.4 17.7h60.9a4.3 4.3 0 0 1 4.2 4.2 4.3 4.3 0 0 1-4.2 4.2H19.4a4.3 4.3 0 0 1-4.2-4.2 4.3 4.3 0 0 1 4.2-4.2zm0.2 16h43.6a4.3 4.3 0 0 1 4.3 4.3 4.3 4.3 0 0 1-4.3 4.3H19.6A4.3 4.3 0 0 1 15.3 38 4.3 4.3 0 0 1 19.6 33.7Zm7.7 19.1 6.5 4.7-4.6 8.4H71l-4.7-8.4 6.4-4.7 10.8 17-10.6 16.9-6.6-4.8 4.6-8.1H29.4l4.6 8.1-6.3 4.9-11-17z"]
     };
-    const customNoteFalse = {
-        prefix: 'fas',
-        iconName: 'custom-note-false',
-        icon: [100, 90, [], null, "m69.9 65.4 5.6-5.5c0.9-0.9 2.5-0.4 2.5 1v25.2c0 4.7-3.7 8.4-8.4 8.4H8.3c-4.5 0-8.3-3.7-8.3-8.4V24.9c0-4.7 3.8-8.3 8.3-8.3H56c1.2 0 1.8 1.4 0.9 2.2l-5.6 5.7c-0.1 0.2-0.5 0.4-0.8 0.4H8.3V86.1H69.6V66.5c0-0.5 0.2-0.9 0.3-1.1zM97.3 30.3 51.5 76.1 35.8 77.8c-4.5 0.5-8.5-3.3-8-8L29.6 54.1 75.3 8.5c4-4 10.5-4 14.5 0l7.5 7.4c3.7 4 3.7 10.4 0 14.4zM80 35.7 69.9 25.6 37.6 58 36.4 69.3 47.7 68ZM91.3 21.8 83.9 14.4c-0.7-0.7-1.9-0.7-2.6 0l-5.4 5.3 10.1 10.1 5.3-5.4c0.7-0.7 0.7-1.9 0-2.6z"]
+
+    const farPenSquare = {
+        prefix: 'far',
+        iconName: 'pen-square',
+        icon: [448, 512, [], null, "M246.6 177.9l55.5 55.5c2.3 2.3 2.3 6.1 0 8.5L166.4 377.6l-57.1 6.3c-7.6.8-14.1-5.6-13.3-13.3l6.3-57.1L238 177.8c2.4-2.2 6.2-2.2 8.6.1zm98.4-12.8L314.9 135c-9.4-9.4-24.6-9.4-33.9 0l-23.1 23.1c-2.3 2.3-2.3 6.1 0 8.5l55.5 55.5c2.3 2.3 6.1 2.3 8.5 0L345 199c9.3-9.3 9.3-24.5 0-33.9zM448 80v352c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V80c0-26.5 21.5-48 48-48h352c26.5 0 48 21.5 48 48zm-48 346V86c0-3.3-2.7-6-6-6H54c-3.3 0-6 2.7-6 6v340c0 3.3 2.7 6 6 6h340c3.3 0 6-2.7 6-6z"]
     };
+
     const customStrongs = {
         prefix: 'fas',
         iconName: 'custom-morph',
@@ -378,7 +380,8 @@ export function useFontAwesome() {
     library.add(customStrongs)
     library.add(customWholeVerseFalse)
     library.add(customWholeVerseTrue)
-    library.add(customNoteFalse)
+    library.add(farPenSquare)
+    library.add(faPenSquare);
     library.add(faCompressArrowsAlt)
     library.add(faExpandArrowsAlt)
     library.add(faArrowsAltV)
