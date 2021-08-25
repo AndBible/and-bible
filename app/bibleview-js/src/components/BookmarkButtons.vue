@@ -37,7 +37,7 @@
             <FontAwesomeIcon icon="pen-square"/>
           </template>
           <template v-else>
-            <FontAwesomeIcon :icon="['far', 'pen-square']"/>
+            <FontAwesomeIcon icon="far-pen-square"/>
           </template>
         </div>
         <div
