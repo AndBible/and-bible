@@ -77,7 +77,7 @@
   <string name="prefs_section_title_summary">Zobrazit nadpisy nekanonických oddílů</string>
   <string name="prefs_red_letter_summary">Zobrazit Ježíšova slova červeně</string>
   <string name="prefs_text_size_title">Nastavení písma</string>
-  <string name="prefs_verse_per_line_title">Jeden verš na řádku</string>
+  <string name="prefs_verse_per_line_title">Jeden verš na řádek</string>
   <string name="prefs_show_bookmarks_title">Zobrazit záložky</string>
   <string name="prefs_show_mynotes_title">Zobrazit ikony poznámek</string>
   <string name="prefs_show_footnotes_title">Poznámky pod čarou</string>
@@ -522,7 +522,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="error_skip">Přeskočit</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Převod textu na řeč</string>
-  <string name="notification_channel_progress_status">Upozornění o průběh stavu pro stahování dokumentu atd.</string>
+  <string name="notification_channel_progress_status">Upozornění o průběhu stavu stahování dokumentu atd.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nový</string>
   <string name="switch_to_workspace">Pracovní plochy</string>
@@ -653,7 +653,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="import_items">Importovat %s</string>
   <string name="chooser_range">Rozsah</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Omlouváme se, uživatelské rozhraní je pouze částečně přeloženo v jazyce %s. Je tomu tak, protože %s vytvářena dobrovolníky. S překladem aplikace můžete pomoci, vizte %s.</string>
+  <string name="incomplete_translation">Omlouváme se, uživatelské rozhraní je pouze částečně přeloženo v jazyce %s. Je tomu tak, protože %s je vytvářena dobrovolníky. S překladem aplikace můžete pomoci, vizte %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instrukce pro překladatele</string>
   <string name="questions_title">Otázky?</string>

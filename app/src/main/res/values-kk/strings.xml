@@ -58,16 +58,16 @@
   <string name="error_executing_search">Іздеу сауалы қате</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Тарау мен аят нөмерлері</string>
-  <string name="prefs_show_verseno_summary">Тарау мен аят нөмерлерін көрсету</string>
-  <string name="prefs_e_ink_mode_title">Қара мен ақ тәртіптемесі</string>
-  <string name="prefs_eink_mode_summary">Монохром режимінде қолданбаны пайдаланып (түстері жетімсіз), оны неғұрлым электрондық сия құрал жабдықтарына қолайлы ету.</string>
-  <string name="prefs_disable_animations_title">Анимация шектеулі</string>
+  <string name="prefs_show_verseno_summary">Тарау және аят нөмерлерін көрсету</string>
+  <string name="prefs_e_ink_mode_title">Қара және ақ режимі</string>
+  <string name="prefs_eink_mode_summary">Монохром режимінде қосымшаны пайдаланып (түстері жетімсіз), оны неғұрлым электрондық сия құрал жабдықтарына қолайлы ету.</string>
+  <string name="prefs_disable_animations_title">Анимацияны өшіру</string>
   <string name="prefs_disable_animations_summary">Жайлап айналдыру сияқты түрлі анимацияларды өшіру</string>
   <string name="prefs_paragraph_spacing_title">Абзацтар арасындағы қашықтық (%s mm)</string>
   <string name="prefs_paragraph_spacing_summary">Абзацтар арасындағы қашықтықты келтіру</string>
   <string name="prefs_show_verseno_title1">Аят нөмірлері</string>
   <string name="prefs_show_chapter_no_title">Тарау нөмірлері</string>
-  <string name="prefs_show_chapter_no_summary">Тарау нөмірлерін көрсету</string>
+  <string name="prefs_show_chapter_no_summary">Тарау нөмірлерін көру</string>
   <string name="prefs_verse_per_line_summary">Әр аятты әр түрлі жолда көрсету</string>
   <string name="prefs_show_bookmarks_summary">Бар кітап белгілерін жасыру үшін таңдауды алыңыз</string>
   <string name="prefs_show_mynotes_summary">Менің нұсқауларымен бірге аяттарда белгішені көрсету</string>
@@ -91,19 +91,19 @@
   <string name="prefs_red_letter_title">Қызыл Хат</string>
   <string name="prefs_tilt_to_scroll_title">Бұрау үшін еңістеу</string>
   <string name="prefs_toolbar_button_action_title">Құралдар тақтасындағы батырманы басу әрекеті</string>
-  <string name="prefs_toolbar_button_action_summary">Киелі кітаптың немесе түсініктемелердің құралдар тақтасындағы батырмаларды басу / ұзақ басу арқылы орындалатын әрекет</string>
+  <string name="prefs_toolbar_button_action_summary">Киелі кітаптың немесе пікірлердің құралдар тақтасындағы батырмаларды басу / ұзақ басу арқылы орындалатын әрекет</string>
   <string name="prefs_toolbar_button_action_default">Мәзірді ашу үшін - басу, экран құжаттары үшін - ұзақ басу (әдепкідей)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Келесі құжатты ашу үшін - басу, мәзірді ашу үшін - ұзақ басу</string>
   <string name="prefs_toolbar_button_action_swap_activity">Келесі құжатты ашу үшін - басу, экрандағы документ үшін - ұзағырақ басу</string>
   <string name="prefs_night_mode_title">Түнгі режиміне қосу</string>
-  <string name="prefs_night_mode_summary">Түнгі режимге автоматты түрде (егер құрылғы қолдаса), не мануальді немесе жүйенің баптауы арқылы ауысу керек (Андроид 10+). Негізгі бейнеде мануальді ауыстырылуы 3 нүктелі опциялар мәзірінен жасауға болады.</string>
+  <string name="prefs_night_mode_summary">Түнгі режимге автоматты түрде (егер құрылғы қолдаса), не мануальді не жүйенің баптауы арқылы ауысу керек (Андроид 10+). Негізгі бейнеде мануальді ауыстыру 3 нүктелі опциялар мәзірінен жасауға болады.</string>
   <string name="prefs_night_mode_manual">Қолмен жасау</string>
   <string name="prefs_night_mode_automatic">Автоматты</string>
   <string name="prefs_night_mode_system">Жүйе</string>
   <string name="options_menu_night_mode">Түнгі режим</string>
   <string name="prefs_navigate_to_verse_title">Аятқа навигация жүргізу</string>
   <string name="prefs_navigate_to_verse_summary">Үзіндіні таңдап белгілегенде аятты (әрі тарауды) таңдаңыз</string>
-  <string name="prefs_open_links_in_special_window_title">Сілтемелер арқылы терезеге қосылады</string>
+  <string name="prefs_open_links_in_special_window_title">Сілтемелер терезесі</string>
   <string name="prefs_open_links_in_special_window_summary">Стронг әрі айқас нұсқау-түсіндірмелерді тезірек көрсету үшін, сілтемелерді аранайы терезеде ашады</string>
   <string name="prefs_text_size_sample_text">Мысалы мәтін</string>
   <string name="prefs_screen_keep_on_title">Экранды қосулы сақтау</string>
@@ -769,10 +769,14 @@ Google Play -ге өтіңіз
   <string name="import_error">Қосымша дерекқорынан импорттау сәтсіз аяқталды. Дерекқорының файлы дұрыс емес форматта немесе тым ескі нұсқамен жасалған болуы мүмкін %s.</string>
   <string name="chooser_range">Диапазоны</string>
   <string name="chooser_jump">Секіру</string>
+  <string name="chooser_OT_abbrev">Ескі Өсиет</string>
+  <string name="chooser_NT_abbrev">Жаңа Өсиет</string>
   <string name="chooser_style_grid">Тор</string>
   <string name="chooser_style_lists">Тізімдер</string>
   <string name="chooser_select">Таңдау %s</string>
+  <string name="chooser_pref_reset">Кітаб/тарау таңдалған кезде тарау/аятты 1ге дейн тастамау</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Өкінішті, бірақ бізде қолданушы интерфейсының тілдерінің кішігірім ғана аудармасы бар%s. Себебі, %s бұл жобаны толығымен еріктілер жасаған. Егер сіз аудармамен көмектесе алсаңыз, өтінеміз қарап көріңіз%s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">аудармашыларға арналған нұсқаулық</string>
   <string name="questions_title">Сұрақтар?</string>
