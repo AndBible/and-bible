@@ -19,12 +19,12 @@ editNote: Редакциялау
 editNotePlaceholder: Жазбаны өңдеу
 editTextPlaceholder: Мәтінді өңдеу үшін басыңыз
 inputPlaceholder: Осында жазыңыз
-inputReference: Киелі кітапқа сілтеме енгізіңіз
+inputReference: Киелі Кітапқа сілтеме енгізіңіз
 invalidReference: Аят табылмады
 assignLabels: Жапсырмалар
 bookmarkAccurate: Бетбелгі %s құрылды
 bookmarkInaccurate: "Бетбелгі туралы ақпарат сақталмайды, мазмұны %s көрсетіледі."
-defaultBook: Киелі кітаптың әдепкі құжаты
+defaultBook: Киелі Кітаптың әдепкі құжаты
 ok: Жарайды
 yes: "Иә"
 ambiguousSelection: "Қандай шара қолданғыңыз келеді?"
@@ -34,9 +34,9 @@ removeBookmarkConfirmation: "Бұл бетбелгіні шынымен жойғ
 closeModal: Жабу
 createdAt: "Құрылды: %s"
 lastUpdatedOn: "Соңғы жаңартылу: %s"
-strongsLink: Мықты анықтама (%s)
+strongsLink: Strong-тың анықтамасы (%s)
 morphLink: Морфологиялық код (%s)
-strongsAndMorph: Анықтама және морфология
+strongsAndMorph: Анықтама және Морфология
 studyPadLink: Оқу тақтасын ашу
 externalLink: Сыртқы сілтемені ашу
 referenceLink: Анықтамалық сілтемені ашу
