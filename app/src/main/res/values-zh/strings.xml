@@ -11,7 +11,7 @@
   <string name="chooseBook">文件</string>
   <string name="selectPassage">聖經段落</string>
   <string name="search">尋找</string>
-  <string name="settings">偏好設定</string>
+  <string name="settings">程式偏好</string>
   <string name="history">閱讀歷史</string>
   <string name="speak">朗讀</string>
   <string name="help">幫助</string>
@@ -70,7 +70,7 @@
   <string name="prefs_show_chapter_no_summary">顯示章數</string>
   <string name="prefs_verse_per_line_summary">在不同行顯示每一節</string>
   <string name="prefs_show_bookmarks_summary">取消剔選以隱藏所有書籤</string>
-  <string name="prefs_show_mynotes_summary">在經文中顯示我的筆記的圖示</string>
+  <string name="prefs_show_mynotes_summary">在經文中顯示我的筆記圖示</string>
   <string name="prefs_show_notes_summary">顯示註腳及交叉對照</string>
   <string name="prefs_show_strongs_summary">連結希臘文及希伯來文定義</string>
   <string name="prefs_show_morphology_summary">顯示Robinson\'s希臘文詞形工具</string>
@@ -109,7 +109,7 @@
   <string name="prefs_screen_keep_on_title">保持螢幕開啟</string>
   <string name="prefs_screen_keep_on_summary">使用此應用程式時防止螢幕睡眠</string>
   <string name="prefs_interface_locale_title">程式用戶界面語言</string>
-  <string name="prefs_interface_locale_summary">選擇用戶界面語言</string>
+  <string name="prefs_interface_locale_summary">選擇使用者界面語言</string>
   <string name="reset_fontsize">重設</string>
   <string name="prefs_request_sdcard_permission_title">手動安裝文件存在</string>
   <string name="prefs_request_sdcard_permission_summary">允許手動安裝內部儲存空間 jsword/sword 文件夾中的文件</string>
@@ -252,33 +252,66 @@
   <string name="overwrite_files">以下文件已經存在: %s 覆寫嗎？</string>
   <string name="overwrite_files_title">覆寫檔案？</string>
   <!--Daily Reading Plan-->
-  <string name="rdg_plan_title">閱讀計劃</string>
-  <string name="rdg_plan_selector_title">選擇閱讀計劃</string>
+  <string name="rdg_plan_title">讀經計劃</string>
+  <string name="rdg_plan_selector_title">選擇讀經計劃</string>
   <string name="rdg_plan_day">第 %s 天</string>
   <string name="rdg_plan_set_start_date">設定開始日期...</string>
   <string name="set_current_day">設定為目前日子...</string>
   <string name="msg_set_current_day_reading_plan">這樣會將今天設為目前日子，並將之前的日子設為已讀。你確定繼續嗎？</string>
   <string name="done">完成</string>
   <string name="reset_plan_question">你確定要重設這計劃嗎？</string>
-  <string name="import_reading_plan">匯入閱讀計劃...</string>
+  <string name="import_reading_plan">匯入讀經計劃...</string>
   <string name="import_reading_plan_error">匯入時出錯</string>
   <string name="import_reading_plan_error_duplicate">此日子重複了：%s</string>
   <string name="import_reading_plan_error_days">此日子出錯：%s</string>
   <string name="import_reading_plan_anyway">忽略並匯入</string>
   <string name="overwrite_reading_plan">你確定要覆寫%s嗎？</string>
   <string name="delete_reading_plan">刪除此計劃</string>
-  <string name="reading_plan_deleted">此閱讀計劃已刪除</string>
+  <string name="reading_plan_deleted">此讀經計劃已刪除</string>
+  <string name="reading_plan_ships_with_ab">此讀經計劃隨%s一起提供</string>
+  <string name="confirm_delete_reading_plan">
+你確定要刪除%s及閱讀歷史嗎？
+提示：如果你需更新計劃，你只需以相同的檔案名稱，匯入其覆蓋舊有計劃，以保存閱讀歷史。
+</string>
+  <string name="plan_duplicate_user_plan">
+SD卡中有使用者jsword/readingplan的讀經計劃
+它與內部讀經計劃名稱相同，不能在此列舉。
+請重新命名至其他名稱，並將副檔名轉為 *.properties
+</string>
   <string name="plan_name_y1ntpspr">新約、詩篇與箴言一年計劃</string>
   <string name="plan_description_y1ntpspr">
 感謝 HEARTLIGHT Internet Magazine
 http://www.heartlight.org 准予使用
 </string>
   <string name="plan_name_y1ot1nt1_chronological">按時序一年完成聖經</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+按聖經時序編定的計劃。
+所述時序只屬概略。
+</string>
   <string name="plan_name_y1ot1nt1_OTandNT">一年同時讀新、舊約</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+一年讀完整本聖經。
+每天包括新約及舊約經文。
+</string>
   <string name="plan_name_y1ot1nt1_OTthenNT">一年完成聖經</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+一年順序由創世記至啟示錄讀完整本聖經。
+先由舊約開始，再到舊約。
+</string>
   <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne每日四章一年計劃</string>
-  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner每日十章計劃</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+此計劃基於M\'Cheyne讀經系統，
+集中在家庭及個人的靈修。
+每天均有2篇舊約、1篇新約、及1篇詩篇或福音。
+一年內可完成舊約1次、新約及詩篇2次。
+</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner每日十章讀經計劃</string>
   <string name="plan_description_y1ot6nt4_profHorner">感謝 Prof. Horner 准予使用</string>
+  <string name="plan_name_y2ot1ntps2">兩年完成聖經。新約及詩篇兩次</string>
+  <string name="plan_description_y2ot1ntps2">
+兩年完成聖經。閱讀新約及詩篇兩次
+感謝 Wholesome Words http://www.wholesomewords.org/ 准予使用
+</string>
   <!--Document context menu-->
   <string name="delete">刪除</string>
   <string name="delete_index">刪除索引</string>
@@ -349,7 +382,7 @@ http://www.heartlight.org 准予使用
   <string name="pause">暫停</string>
   <string name="rewind">倒帶</string>
   <string name="forward">快進</string>
-  <string name="tts_lang_not_available">不支持漢語朗讀功能</string>
+  <string name="tts_lang_not_available">不支持此語言</string>
   <string name="speak_queue">隊列</string>
   <string name="speak_repeat">重複</string>
   <!--Speak - Bible-->
@@ -377,7 +410,7 @@ http://www.heartlight.org 准予使用
   <string name="conf_change_title">標題</string>
   <string name="conf_speak_footnotes">註腳</string>
   <string name="conf_speak_sleep_timer">設定睡眠計時器</string>
-  <string name="sleep_timer_title">分鐘為單位</string>
+  <string name="sleep_timer_title">睡眠時間單位為分鐘</string>
   <string name="sleep_timer_set">設定睡眠計時器。已設為：%d分鐘</string>
   <string name="sleep_timer_started">%d分鐘睡眠計時開始</string>
   <string name="sleep_timer_active_at">睡眠計時器尚餘%s分鐘。</string>
@@ -415,7 +448,7 @@ http://www.heartlight.org 准予使用
   <string name="text_options_reset_help">用 %s 按鍵重設所有設定至 %s。</string>
   <string name="reset_defaults">預設數值</string>
   <string name="reset_workspace_defaults">工作檢視預設數值</string>
-  <string name="speak_bookmark_help">朗讀書籤幫助</string>
+  <string name="speak_bookmark_help">朗讀書籤說明</string>
   <string name="speak_help_auto_bookmark">
 當暫停或停止朗讀時，將自動加入朗讀書籤。
 自動生成的書籤會標示特殊的朗讀標籤。
@@ -478,16 +511,16 @@ http://www.heartlight.org 准予使用
   <string name="restore_what">你想回復什麼？</string>
   <string name="restore_app_database">回復程式資料庫來源</string>
   <string name="restore_database">回復資料庫檔案</string>
-  <string name="restore_confirmation">覆寫我的筆記、書籤、個人筆記、閱讀計劃及工作檢視嗎？</string>
-  <string name="reading_plans_plural">閱讀計劃</string>
-  <string name="restore_success">成功回復我的筆記、書籤、個人筆記、閱讀計劃及工作檢視</string>
+  <string name="restore_confirmation">覆寫我的筆記、書籤、個人筆記、讀經計劃及工作檢視嗎？</string>
+  <string name="reading_plans_plural">讀經計劃</string>
+  <string name="restore_success">成功回復我的筆記、書籤、個人筆記、讀經計劃及工作檢視</string>
   <string name="loading_backup">正在從備份載入資料庫</string>
-  <string name="backup_success2">成功備份我的筆記、書籤、個人筆記、閱讀計劃及工作檢視</string>
+  <string name="backup_success2">成功備份我的筆記、書籤、個人筆記、讀經計劃及工作檢視</string>
   <string name="backup_modules_success">選擇的模組已成功備份</string>
   <string name="backup_modules_email_subject_2">%s 模組備份</string>
   <string name="backup_modules_email_message_2">此附你的 %s 模組備份，包含了以下模組: %s</string>
   <string name="backup_email_subject_2">%s 資料庫備份</string>
-  <string name="backup_email_message_2">你的%s載有書籤、筆記、閱讀計劃及工作檢視的資料庫已包括在內</string>
+  <string name="backup_email_message_2">你的%s載有書籤、筆記、讀經計劃及工作檢視的資料庫已包括在內</string>
   <string name="restore_unsuccessfull">未能回復資料庫。或許你的資料庫檔案無效。</string>
   <string name="backup_phone_storage">手機容量</string>
   <string name="backup_backup_title">備份目的地</string>
@@ -509,12 +542,21 @@ http://www.heartlight.org 准予使用
   <string name="send_feedback_title">意見</string>
   <string name="send_bug_report_title">意見或回報錯誤</string>
   <string name="report_bug_email_subject_3">[%s] 回報 %s %s 的錯誤</string>
+  <string name="report_bug_big_heading">請在此行以上填寫你的意見及錯誤回報</string>
   <string name="report_bug_heading1">指示：</string>
   <string name="report_bug_line_1">概略告訴我們你進行了什麼動作、或它怎樣發生的。</string>
   <string name="report_bug_heading2">例如：</string>
   <string name="report_bug_instructions1">1. 開啟程式</string>
   <string name="report_bug_instructions2">2. 點選視窗選單</string>
   <string name="report_bug_instructions3">-&gt; 意外結束</string>
+  <string name="report_bug_line_2">附上螢幕截圖有助我們解決你的問題</string>
+  <string name="report_bug_line_3">請在發現問題後，立刻用此功能回報問題。</string>
+  <string name="report_bug_line_4">你可以在問題出現後，再次打開程式使用此功能。</string>
+  <string name="report_bug_heading_3">附件：</string>
+  <string name="bug_report_logcat">程式建立的記錄檔案。它並不會包括其他程式的資訊。</string>
+  <string name="bug_report_screenshot">問現出現後時的程式螢幕截圖</string>
+  <string name="bug_report_attachment_line_1">附上這些文件將有助開發者修正問題。</string>
+  <string name="report_bug_heading_4">裝置資料：</string>
   <!--Document types-->
   <string name="doc_type_all">所有類型</string>
   <string name="doc_type_bible">聖經</string>
@@ -574,8 +616,13 @@ http://www.heartlight.org 准予使用
   <string name="workspace_listing_with_current">%s(現時)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">這是beta版本！</string>
+  <string name="beta_notice_content_1">
+在Beta版本中，有些功能尚未完全測試，
+因此或會導致預料以外的狀況。
+我們建議一般使用者使用穩定版。
+</string>
   <string name="beta_notice_content_2">
-Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
+Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="beta_notice_content_3">如果你是程式員，請考慮透過 %s 參與除錯。 :-)</string>
   <string name="beta_notice_github_issues">Github問題</string>
   <string name="beta_notice_github">Github</string>
@@ -583,6 +630,7 @@ Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
   <string name="beta_notice_dismiss_until_update">關閉至下一次更新</string>
   <string name="stable_notice_title">程式已更新！</string>
   <string name="upgrade_video_message">請參看影片以觀看此版本的新功能 (%s)。</string>
+  <string name="stable_notice_par1">新版本%s的%s已成功安裝！</string>
   <!--History-->
   <string name="history_for">歷史 (%s: 視窗 %d)</string>
   <!--Help-->
@@ -621,6 +669,17 @@ Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
   <string name="http_forbidden">禁止</string>
   <string name="http_not_found">沒有找到</string>
   <string name="http_unknown">其他錯誤</string>
+  <string name="give_passphrase_for_module">%s 文件已加密，需要密碼解鎖。</string>
+  <string name="unlocking_failed">密碼錯誤，解鎖失敗</string>
+  <string name="unlock_module">設定模組密碼</string>
+  <string name="unlock_info">加密模組解鎖資訊</string>
+  <string name="try_again_passphrase">密碼無效，要再試嗎？</string>
+  <string name="cant_delete_last_bible">無法移除聖經文件</string>
+  <string name="show_unlock_info">模組及解鎖資訊</string>
+  <string name="prefs_show_error_box_title">顯示JavaScript錯誤窗口</string>
+  <string name="prefs_show_error_box_summary">對於開發者排除BibleView JavaScreipt錯誤時有用。這會令程式稍慢。</string>
+  <string name="active_window_indicator_title">顯示現時視窗標示</string>
+  <string name="active_window_indicator_summary">在使用中的視窗角落顯示標示</string>
   <string name="app_licence_title">開源許可</string>
   <string name="how_to_contribute">如何可以貢獻？</string>
   <string name="confirm_delete_bookmarks">你希望移除 %d 書籤及它的筆記嗎？</string>
@@ -686,6 +745,7 @@ Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
        請回報問題至文本的維護者
     </string>
   <string name="does_not_exist_abbreviation">不存在</string>
+  <string name="cant_change_wholeverse">無法在此書籤關閉全節標示</string>
   <string name="whole_verse_turned_on">整節經文已標記書籤</string>
   <string name="this_bookmark">此書籤</string>
   <string name="this_workspace">此工作檢視</string>
@@ -712,6 +772,7 @@ Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
   <string name="prefs_double_tap_to_fullscreen_title">雙點以進入全螢幕模式</string>
   <string name="prefs_double_tap_to_fullscreen_summary">雙點以進入全螢幕模式</string>
   <string name="toggle_fullscreen">全螢幕</string>
+  <string name="exit_fullscreen">雙點以離開全螢幕模式</string>
   <string name="reset_app_prefs">你希望重設所有偏好嗎？</string>
   <string name="label_red">紅色</string>
   <string name="label_green">綠色</string>
@@ -722,6 +783,7 @@ Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
   <string name="export_fileformat">以%s匯出</string>
   <string name="import_items">以%s匯入</string>
   <string name="import_from_db">從程式資料庫檔案匯入</string>
+  <string name="import_error">從程式資料庫匯入失敗。資料庫檔案版本或許太舊，或者是從太舊的%s建立。</string>
   <string name="chooser_range">範圍</string>
   <string name="chooser_jump">跳轉</string>
   <string name="chooser_OT_abbrev">舊約</string>

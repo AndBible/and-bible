@@ -1,7 +1,7 @@
 openMyNotes: 在我的筆記開啟
 openStudyPad: 在 (%s) 開啟個人筆記
-noteText: 注腳 (%s)
-noteTextWithoutType: 注腳
+noteText: 註腳 (%s)
+noteTextWithoutType: 註腳
 crossReferenceText: 交叉對照
 findAllOccurrences: 查找所有
 reportError: 回報錯誤
