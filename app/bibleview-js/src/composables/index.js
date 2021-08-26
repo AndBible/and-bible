@@ -358,12 +358,6 @@ export function useFontAwesome() {
         icon: [100, 100, [], null, "M0 0V100H100V0ZM19.4 17.7h60.9a4.3 4.3 0 0 1 4.2 4.2 4.3 4.3 0 0 1-4.2 4.2H19.4a4.3 4.3 0 0 1-4.2-4.2 4.3 4.3 0 0 1 4.2-4.2zm0.2 16h43.6a4.3 4.3 0 0 1 4.3 4.3 4.3 4.3 0 0 1-4.3 4.3H19.6A4.3 4.3 0 0 1 15.3 38 4.3 4.3 0 0 1 19.6 33.7Zm7.7 19.1 6.5 4.7-4.6 8.4H71l-4.7-8.4 6.4-4.7 10.8 17-10.6 16.9-6.6-4.8 4.6-8.1H29.4l4.6 8.1-6.3 4.9-11-17z"]
     };
 
-    const farPenSquare = {
-        prefix: 'fas',
-        iconName: 'far-pen-square',
-        icon: [448, 512, [], null, "M246.6 177.9l55.5 55.5c2.3 2.3 2.3 6.1 0 8.5L166.4 377.6l-57.1 6.3c-7.6.8-14.1-5.6-13.3-13.3l6.3-57.1L238 177.8c2.4-2.2 6.2-2.2 8.6.1zm98.4-12.8L314.9 135c-9.4-9.4-24.6-9.4-33.9 0l-23.1 23.1c-2.3 2.3-2.3 6.1 0 8.5l55.5 55.5c2.3 2.3 6.1 2.3 8.5 0L345 199c9.3-9.3 9.3-24.5 0-33.9zM448 80v352c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V80c0-26.5 21.5-48 48-48h352c26.5 0 48 21.5 48 48zm-48 346V86c0-3.3-2.7-6-6-6H54c-3.3 0-6 2.7-6 6v340c0 3.3 2.7 6 6 6h340c3.3 0 6-2.7 6-6z"]
-    };
-
     const customStrongs = {
         prefix: 'fas',
         iconName: 'custom-morph',
@@ -380,7 +374,6 @@ export function useFontAwesome() {
     library.add(customStrongs)
     library.add(customWholeVerseFalse)
     library.add(customWholeVerseTrue)
-    library.add(farPenSquare)
     library.add(faPenSquare);
     library.add(faCompressArrowsAlt)
     library.add(faExpandArrowsAlt)

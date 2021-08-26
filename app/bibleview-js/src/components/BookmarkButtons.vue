@@ -37,7 +37,7 @@
             <FontAwesomeIcon icon="pen-square"/>
           </template>
           <template v-else>
-            <FontAwesomeIcon icon="far-pen-square"/>
+            <FontAwesomeIcon icon="edit"/>
           </template>
         </div>
         <div
