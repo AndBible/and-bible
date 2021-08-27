@@ -1,0 +1,82 @@
+openMyNotes: Abrir nas Minhas Notas
+openStudyPad: Abrir na Área de Estudo (%s)
+noteText: Notas de rodapé (%s)
+noteTextWithoutType: Notas de rodapé
+crossReferenceText: Referências cruzadas
+findAllOccurrences: Encontrar todas as ocorrências
+reportError: Reportar um erro
+errorTitle: Ocorreu um erro
+warningTitle: Aviso
+normalTitle: Por favor tenha em atenção
+footnoteTypeUndefined: Tipo indefinido
+footnoteTypeStudy: Estudo
+footnoteTypeExplanation: Explicação
+footnoteTypeVariant: Variante
+footnoteTypeAlternative: Alternativa
+footnoteTypeTranslation: Tradução
+clearLog: Limpar o registo de erros
+editNote: Editar
+editNotePlaceholder: Editar nota
+editTextPlaceholder: Toque para editar o texto
+inputPlaceholder: Escreva aqui
+inputReference: Introduza a referência Bíblica
+invalidReference: Não foi encontrado o versículo
+assignLabels: Etiquetas
+bookmarkAccurate: O marcador foi criado em %s
+bookmarkInaccurate: "A informação sobre o marcador não foi guardada, o conteúdo é mostrado em %s"
+defaultBook: Documento Bíblico padrão
+ok: OK
+yes: "Sim"
+ambiguousSelection: "Qual a ação que deseja realizar?"
+cancel: Cancelar
+removeBookmarkConfirmationTitle: "Remover marcador?"
+removeBookmarkConfirmation: "Tem a certeza que quer remover este marcador?"
+closeModal: Fechar
+createdAt: "Criado %s"
+lastUpdatedOn: "Última atualização %s"
+strongsLink: Definição Strongs (%s)
+morphLink: Código morfológico (%s)
+strongsAndMorph: Definição e morfologia
+studyPadLink: Abrir área de estudo
+externalLink: Abrir link externo
+referenceLink: Abrir link de referência
+openFootnote: Abrir nota de rodapé
+openBookmark: Abrir marcador (%s)
+noMyNotesTitle: Não existem Minhas Notas para este capítulo
+noMyNotesDescription: >
+  Comece por criar marcadores num documento da Bíblia. Os marcadores irão aparecer aqui e pode adicionar-lhes as suas notas pessoais.
+emptyStudyPad: >
+  A área de estudo está vazia. Comece a adicionar a esta área de estudo, criando entradas de texto aqui ou criando marcadores com uma etiqueta de marcador que corresponda a esta área de estudo.
+studyPadModalTitle: Editar área de estudo
+doYouWantToDeleteEntry: "Apagar esta entrada na área de estudo?"
+removeStudyPadConfirmationTitle: "Remover esta entrada na área de estudo?"
+dragHelp: Arraste para reorganizar
+saved: guardado
+openAll: Abrir todas as referências
+editBookmarkPlaceholder: Toque para editar As Minhas Notas para este marcador
+onlyLabel: Só etiqueta
+wholeBookmark: Marcador completo
+otherNoteText: Outra nota
+assignLabelsMenuEntry: Atribuir etiquetas
+assignLabelsMenuEntry1: Selecionar ou editar etiquetas...
+jumpToStudyPad: Ir para a Área de Estudo
+setAsPrimaryLabel: Definir como etiqueta principal
+removeBookmarkLabel: Remover etiqueta
+addBookmarkLabel: Adicionar etiqueta
+favouriteLabels: Etiquetas favoritas
+recentLabels: Etiquetas recentes
+frequentlyUsedLabels: Etiquetas Usadas Recentemente
+bookmarkLabels: Etiquetas de marcador
+refParserHelp: Por favor instale o módulo % s para usar referências noutros idiomas além do Inglês.
+openDownloads: Ir para downloads de Complementos
+verseShare: Partilhar
+verseCompare: Comparar
+verseNote: Nota
+verseMyNotes: Anotações
+verseSpeak: Fale
+verseShareLong: Partilhar este versículo
+verseCompareLong: Comparar versículo
+verseNoteLong: Escreva uma nota
+verseSpeakLong: Comece a ouvir a partir deste versículo
+verseTip: "Para selecionar parte ou vários versículos, mantenha premido o texto da Bíblia"
+addBookmark: Marcador
