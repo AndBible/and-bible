@@ -79,7 +79,7 @@ class History : ListActivityBase() {
 
                 val view = super.getView(position, convertView, parent)
                 view.findViewById<TextView>(R.id.titleText).text = mHistoryItemList!![position].description.toString()
-                val formattedDate = format("yyyy-MM-dd HH:mm", mHistoryItemList!![position].createdAt).toString()
+                val formattedDate = format("h:mm a, E d MMM ", mHistoryItemList!![position].createdAt).toString()
                 view.findViewById<TextView>(R.id.dateText).text = formattedDate
 
                 return view
