@@ -265,7 +265,14 @@ open class SubMenuPreference(onlyBibles: Boolean = false, enabled: Boolean = tru
 
 class NightModePreference : RealSharedPreferencesPreference("night_mode_pref", false) {
     override fun handle() { mainBibleActivity.refreshIfNightModeChange() }
-    override val visible: Boolean get() = super.visible && ScreenSettings.manualMode
+    override var value: Any
+        get() = ScreenSettings.nightMode
+        set(value) {
+            if(enabled) {
+                super.value = value
+            }
+        }
+    override val enabled: Boolean get() = ScreenSettings.manualMode
 }
 
 class MyNotesPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.MYNOTES) {
