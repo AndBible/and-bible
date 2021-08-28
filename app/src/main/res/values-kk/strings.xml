@@ -41,7 +41,7 @@
   <string name="rebuild_index_button">Қайта құру</string>
   <!--Tasks-->
   <string name="progress_status">Прогресс</string>
-  <string name="task_kill_warning">Егер сіз тапсырмалардың соңына жетпей басқасына ауыстарсаңыз, осы ұзақ жұмыс істейтін тапсырмалар тоқтатылу мүмкін.</string>
+  <string name="task_kill_warning">Егер сіз тапсырмалардың соңына жетпей басқа қолдабаға ауыстарсаңыз, осы ұзақ жұмыс істейтін тапсырмалар тоқтатылуы мүмкін.</string>
   <string name="no_tasks_running">Қазір орындалып жатқан еш тапсырма жоқ.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Аяттарды Табу</string>
@@ -60,7 +60,7 @@
   <string name="prefs_show_verseno_title">Тарау мен аят нөмерлері</string>
   <string name="prefs_show_verseno_summary">Тарау және аят нөмерлерін көрсету</string>
   <string name="prefs_e_ink_mode_title">Қара және ақ режимі</string>
-  <string name="prefs_eink_mode_summary">Монохром режимінде қосымшаны пайдаланып (түстері жетімсіз), оны неғұрлым электрондық сия құрал жабдықтарына қолайлы ету.</string>
+  <string name="prefs_eink_mode_summary">Монохром режимінде қолданбаны пайдаланып (түстері жетімсіз), оны неғұрлым электрондық сия құрал жабдықтарына қолайлы ету.</string>
   <string name="prefs_disable_animations_title">Анимацияны өшіру</string>
   <string name="prefs_disable_animations_summary">Жайлап айналдыру сияқты түрлі анимацияларды өшіру</string>
   <string name="prefs_paragraph_spacing_title">Абзацтар арасындағы қашықтық (%s mm)</string>
@@ -225,7 +225,7 @@
   <string name="document_not_installed">Жүктеңіз \'%s\'</string>
   <string name="free_text_search_documents">Іздеу</string>
   <string name="chooce_language_hint">Тіл</string>
-  <string name="one_more_back_press">Қосымшаны жабу үшін артқа батырмасын қайта басыңыз</string>
+  <string name="one_more_back_press">Қолданбаны жабу үшін артқа батырмасын қайта басыңыз</string>
   <string name="document_filter_results">%dқұжаттар</string>
   <string name="download_question_title">Құжаттарды жүктеуді жалғастырғыңыз келе ме?</string>
   <string name="download_question_message">Егерде сіз қудалау бар елде тұрып жатсаңыз,
@@ -558,7 +558,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--Errors-->
   <string name="report_error">Есеп Жіберу</string>
   <string name="error_occurred">Қате пайда болды</string>
-  <string name="error_occurred_crash_last_time">Қолданбаны соңғы рет қолданғанда, ол қиратылған. Бізге қатені түзетуге көмектесіңіз, қате туралы есеп жіберсеңіз, риза боламыз.</string>
+  <string name="error_occurred_crash_last_time">Сіз қолданбаны соңғы рет қолданғанда, ол қиратылған. Бізге қатені түзетуге көмектесіңіз, қате туралы есеп жіберсеңіз, риза боламыз.</string>
   <string name="error_occurred_with_link">Қате пайда болды. %s</string>
   <string name="error_no_content">Таңдалған аятқа мазмұн жоқ</string>
   <string name="error_page_too_large">Жүктеу үшін бет тым үлкен</string>
@@ -691,7 +691,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="module_size_megabytes">%.1fМБ</string>
   <string name="tell_friend_title">Досыңа ұсыну</string>
   <string name="tell_friend_message1">Мен сізге ұсынғым келеді%s.</string>
-  <string name="tell_friend_message2">Бұл Андройд үшін офлайн режимінде Киелі кітапты зерттеу үшін мықты, әрі қарапайым қосымша.</string>
+  <string name="tell_friend_message2">Бұл Андройд үшін офлайн режимінде Киелі кітапты зерттеу үшін мықты, әрі қарапайым қолданба.</string>
   <string name="tell_friend_message3">Оны Play Store-дан орнату: %s</string>
   <string name="tell_friend_message4">Толығырақ оқу және қосымшаның тағы параметрлері: %s</string>
   <string name="share_verse_ok">Бөлісу / Көшіру</string>
@@ -699,20 +699,20 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="share_verse_menu_title">Бөлісу / Көшіру</string>
   <string name="show_versenumbers">Аят санын көрсету</string>
   <string name="show_full_verses">Аяттарды толық көрсету</string>
-  <string name="advertise_app">Аяттарды толық көрсету</string>
+  <string name="advertise_app">Қолданбаны жарнамалаңыз</string>
   <string name="verse_share_advertise">Ортақ пайдалану %s.</string>
   <string name="abbreviate_reference">Қысқартылған сілтеме</string>
   <string name="version_name">Нұсқаның аты</string>
   <string name="backup_button">Сақтық көшірме</string>
   <string name="back_button">Артқа</string>
   <string name="upgrading_database">Деректер базасы жаңартылуда. Өтінеміз, күте тұрыңыз…</string>
-  <string name="initializing_app">Қосымшаның инициализациялануы</string>
+  <string name="initializing_app">Қолданбаны бастаңыз....</string>
   <string name="show_notes">Жазбаларды көрсету</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Android WebView пакеті тым ескі (%s). Сіз Android WebView пакетін кем дегенде пайдаланылатын нұсқаға %s дейін жаңартуыңыз керек%s. Көптеген құрылғылар үшін мұны жасауға болады %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Кез келген жағдайда жалғастыру</string>
-  <string name="rate_title">Бағалау және шолу қосымшасы</string>
+  <string name="rate_title">Бағалау және шолу қолданбасы</string>
   <string name="rate_message5">Жағымды және егжей-тегжейлі шолулар And Bible Open Source Project үшін өте пайдалы. Рахмет!</string>
   <string name="rate_message6">Теріс шолу жасамас бұрын, келесілерді ескеріңіз:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -725,9 +725,9 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 </string>
   <!--param is "please read what you can do"-->
   <string name="rate_message3">
-Егер нақты мәтін қосымшада болмаса, %s.
-</string>
-  <string name="rate_message4">Бұл қосымшаны әзірлеушілер құжаттардың жүргізілуіне жауапты емес.</string>
+Егер нақты мәтін қолданбада болмаса, %s.</string>
+  <string name="rate_message4">
+Бұл қолданбаны әзірлеушілер құжаттардың жүргізілуіне жауапты емес.</string>
   <string name="bug_report">қате туралы есеп ақпаратты жіберу (Негізгі мәзірден)</string>
   <string name="how_to_help">
 өтініш, көмектесу үшін не істей алатыныңызды оқып 
@@ -777,8 +777,8 @@ Google Play -ге өтіңіз
   <string name="import_menu">Импорттау және Экспорттау</string>
   <string name="export_fileformat">%s Ретінде экспорттау</string>
   <string name="import_items">Импорттау %s</string>
-  <string name="import_from_db">Қосымша дерекқорының файлынан импорттау</string>
-  <string name="import_error">Қосымша дерекқорынан импорттау сәтсіз аяқталды. Дерекқорының файлы дұрыс емес форматта немесе тым ескі нұсқамен жасалған болуы мүмкін %s.</string>
+  <string name="import_from_db">Қолданба дерекқорының файлынан импорттау</string>
+  <string name="import_error">Қолданба дерекқорынан импорттау сәтсіз аяқталды. Дерекқорының файлы дұрыс емес форматта немесе тым ескі нұсқамен жасалғаны болуы мүмкін %s.</string>
   <string name="chooser_range">Диапазон</string>
   <string name="chooser_jump">Секіру</string>
   <string name="chooser_OT_abbrev">ЕӨ</string>
