@@ -90,7 +90,13 @@
   <string name="prefs_section_title_title">Nadpisy oddílů</string>
   <string name="prefs_red_letter_title">Červená písmena</string>
   <string name="prefs_tilt_to_scroll_title">Naklonit pro posun</string>
+  <string name="prefs_toolbar_button_action_title">Nastavení tlačítek nástrojů</string>
+  <string name="prefs_toolbar_button_action_summary">Nastavit chování tlačítek nástrojů - kombinace kliknutí a podržení</string>
+  <string name="prefs_toolbar_button_action_default">Klik - otevřít menu, podržet - zobrazit okno dokumentů (výchozí)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Klik - otevřít následující dokument, podržet - otevřít menu</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Klik - otevřít následující dokument, podržet - otevřít okno dokumentů</string>
   <string name="prefs_night_mode_title">Přepínání na noční režím</string>
+  <string name="prefs_night_mode_summary">Nastavit přechod do nočního režimu automaticky (musí podporovat zařízení), ručně nebo dle nastavení systému (Android 10+). Ručně je možné vždy přepnout v menu aplikace (3 tečky).</string>
   <string name="prefs_night_mode_manual">Ručně</string>
   <string name="prefs_night_mode_automatic">Automaticky</string>
   <string name="prefs_night_mode_system">Výchozí nastavení systému</string>
@@ -101,11 +107,12 @@
   <string name="prefs_open_links_in_special_window_summary">Otevřít odkazy ve zvláštním okně pro rychlejší vyhledání křížových referencí a Strogových čísel</string>
   <string name="prefs_text_size_sample_text">Příklad textu</string>
   <string name="prefs_screen_keep_on_title">Nechat obrazovku zapnutou</string>
-  <string name="prefs_screen_keep_on_summary">Zamezí uspání displeje během používání aplikace</string>
+  <string name="prefs_screen_keep_on_summary">Nevypínat displej během používání aplikace</string>
   <string name="prefs_interface_locale_title">Jazyk aplikace</string>
   <string name="prefs_interface_locale_summary">Vybrat jiný jazyk uživatelského rozhraní</string>
   <string name="reset_fontsize">Resetovat</string>
   <string name="prefs_request_sdcard_permission_title">Dostupné ručně instalované dokumenty</string>
+  <string name="prefs_request_sdcard_permission_summary">Povolit používání ručně instalovaných dokumentů ze složky jsword na interním úložišti</string>
   <string name="all_text_options_window_menutitle">Všechna nastavení textu</string>
   <string name="text_options_window_menutitle">Nastavení textu</string>
   <string name="auto_fullscreen">Posunem textu na celou obrazovku</string>
@@ -113,11 +120,13 @@
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
+  <string name="auto_fullscreen_summary">Přepnout automaticky do celoobrazovkového režimu při posunu textu. Tip: celoobrazovkový režim je možné zapnout dvojklikem</string>
   <string name="prefs_margin_size_title">Změnit velikost okraje</string>
   <string name="prefs_margin_size_mm_title">Velikost okraje (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Rozšířená nastavení</string>
   <string name="prefs_display_customization_cat">Vzhled aplikace</string>
   <string name="prefs_behavior_customization_cat">Nastavení aplikace</string>
+  <string name="prefs_margin_size_summary">Nastavit levý a pravý okraj textu, jakož i nastavit maximální šířku textu.</string>
   <string name="prefs_text_colors_summary">Nastavení barvy textu i pozadí a šumu pozadí</string>
   <string name="text_display_settings_activity_title">Nastavení zobrazení textu</string>
   <string name="workspace_text_display_settings_title">Nastavení textu - %s</string>
@@ -137,15 +146,21 @@
   <string name="prefs_line_spacing_pt_title">Řádkování (%1.1fx)</string>
   <string name="line_spacing_title">Řádkování</string>
   <string name="line_spacing_summary">Nastavení rozteče mezi řádky</string>
+  <string name="select_none">Zrušit výběr</string>
   <string name="reset_are_you_sure">Opravdu chcete resetovat všechny tyto hodnoty?</string>
   <string name="window_pinning_menutitle">Připínání oken</string>
   <string name="hide_window_buttons_title">Skrýt tlačítka okna</string>
+  <string name="hide_bible_reference_overlay_title">Skrýt biblický odkaz</string>
+  <string name="hide_bible_reference_overlay_summary">Nezobrazovat poloprůhledné okno s aktuální pozicí v Bibli při celoobrazovkovém režimu</string>
   <string name="full_screen_hide_buttons_pref_title">Skrýt panel tlačítek v celoobrazovkovém režimu</string>
   <string name="full_screen_hide_buttons_pref_summary">Při přechodu do celoobrazovkového režimu skrýt spodní lištu tlačítek</string>
   <string name="prefs_dictionaries_cat">Slovníky</string>
   <string name="choose_strongs_greek_dictionary_title">Strongův řecký slovník</string>
+  <string name="choose_strongs_greek_dictionary_summary">Vybrat Strongův slovník definicí řeckých slov</string>
   <string name="choose_strongs_hebrew_dictionary_title">Strongův hebrejský slovník</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Vybrat Strongův slovník definicí hebrejských slov</string>
   <string name="choose_strongs_greek_morphology_title">Robinsonova řecká morfologie</string>
+  <string name="choose_strongs_greek_morphology_summary">Vybrat slovník Robinsonových řeckých morfologií</string>
   <string name="prefs_top_margin_title_mm">Horní okraj (%d mm)</string>
   <string name="font_size_title">Velikost písma</string>
   <string name="font_size_title_pt">Velikost písma (%d bodů)</string>
@@ -201,7 +216,9 @@
   <string name="download_document_confirm_prefix">Stáhnout </string>
   <string name="download_refresh_book_list_menu_item">Obnovit</string>
   <string name="error_downloading">Chyba při stahování dokumentu. Prosím zkontrolujte připojení k Internetu.</string>
+  <string name="error_downloading_status">Server zpřístupňující %s odpověděl chybou %s (%d).</string>
   <string name="storage_space_warning">Nedostatek místa k uložení dat.</string>
+  <string name="too_many_jobs">Spuštěno příliš mnoho úloh. Prosím vyčkejte na dokončení některé úlohy a zkuste to znovu.</string>
   <string name="document_not_installed">Prosím stáhněte \'%s\'</string>
   <string name="free_text_search_documents">Hledat</string>
   <string name="chooce_language_hint">Jazyk</string>
@@ -215,6 +232,8 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="recommended_document">Doporučujeme!</string>
   <string name="about_version_history">Přehled změn: %s</string>
   <string name="download_errors">Chyby stahování</string>
+  <string name="failed_repositories_message">Nelze se spojit s následujícím serverem: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">Následující soubory nemohly být staženy:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Načíst dokument ze Zip</string>
   <string name="install_zip_module">Instalace modulu Bible</string>
@@ -242,6 +261,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="overwrite_reading_plan">Opravdu přepsat %s?</string>
   <string name="delete_reading_plan">Smazat tento plán</string>
   <string name="reading_plan_deleted">Plán čtení byl smazán</string>
+  <string name="reading_plan_ships_with_ab">Plán čtení obsahuje %s</string>
   <string name="plan_duplicate_user_plan">
         Na SD kartě je uživatelský plán čtení
         jsword nebo plán čtení se stejným jménem jako interní plán. Nelze ho zde zobrazit.
@@ -299,6 +319,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="open_link_in_special_window">Otevřít ve speciálním okně</string>
   <!--Bookmarks-->
   <string name="bookmarks_and_mynotes_title">Záložky a mé poznámky</string>
+  <string name="migrated_my_notes">Poznámky přemigrovány</string>
   <string name="bookmarks">Záložky</string>
   <string name="bookmark_added">Záložka přidána</string>
   <string name="manage_labels">Spravovat záložky</string>
@@ -308,6 +329,11 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="label_name_prompt">Název</string>
   <string name="label_unlabelled">Neoznačený</string>
   <string name="add_bookmark1">Záložka</string>
+  <string name="add_bookmark2">Záložka výběru</string>
+  <string name="add_bookmark3">Výběr</string>
+  <string name="add_bookmark_whole_verse">Záložka verše</string>
+  <string name="add_bookmark_whole_verse1">Verš</string>
+  <string name="add_bookmark_whole_verse2">Celý verš</string>
   <string name="remove_bookmark">Odstranit</string>
   <string name="bookmark_settings_hide_labels_title">Skrýt konkrétní štítky</string>
   <string name="bookmark_settings_hide_labels_summary">Skrýt záložky s konkrétním štítkem</string>
@@ -397,9 +423,19 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="assing_labels_help4">Pomocí %s přidáte štítek mezi oblíbené štítky.</string>
   <!--param is refresh icon-->
   <string name="assing_labels_help5">Pomocí %s setřídíte seznam.</string>
+  <string name="workspace_text_options_help_title">Nastavení textu pracovní plochy</string>
+  <string name="workspace_text_options_help1">Tato nastavení nastavují výchozí nastavení všech oken.</string>
+  <string name="workspace_text_options_help2">Můžete je upravit v nastavení konkrétního okna.</string>
+  <string name="window_text_options_help_title">Nastavení textu okna</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s ikona znamená, že nastavení se přebírá z pracovní plochy.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s ikona určuje, že nastavení bylo změněno pro konkrétní okno.</string>
+  <string name="window_text_options_help3">Nastavení pracovní plochy neovlivní nastavení tohoto okna.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Pomocí tlačítka %s nastavíte nastavení zpět na %s.</string>
+  <string name="reset_defaults">výchozí hodnoty</string>
+  <string name="reset_workspace_defaults">výchozí hodnoty pracovní plochy</string>
   <string name="speak_bookmark_help">Nápověda k záložkám předčítání</string>
   <string name="speak_help_auto_bookmark">
 Záložka předčítání bude automaticky vytvořena, když je předčítání zastaveno nebo pozastaveno. Automaticky generované záložky jsou označeny zvláštní  značkou předčítání. Když začnete opět záložkou předčítání, záložka se přesune k verši,  u kterého zastavíte předčítání příště. Jen značky předčítání se posunují. Všechny ostatní značky zůstanou nezměněny.</string>
@@ -461,14 +497,24 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Které položky obnovit?</string>
   <string name="restore_app_database">Obnovit aplikační databázi z…</string>
+  <string name="restore_database">Obnovit databázový soubor</string>
+  <string name="restore_confirmation">Přepsat poznámky, záložky, studijní složky, plány čtení a pracovní plochy?</string>
   <string name="reading_plans_plural">Plány čtení</string>
+  <string name="restore_success">Poznámky, záložky, studijní složky, plány čtení a pracovní plochy úspěšně obnoveny.</string>
   <string name="loading_backup">Načítání databáze ze zálohy...</string>
+  <string name="backup_success2">Poznámky, záložky, studijní složky, plány čtení a pracovní plochy úspěšně zálohovány.</string>
+  <string name="backup_modules_success">Vybrané moduly úspěšně zálohovány.</string>
+  <string name="backup_modules_email_subject_2">záloha modulů %s </string>
+  <string name="backup_modules_email_message_2">Přiložena záloha modulů %s, obsahující tyto moduly: %s</string>
+  <string name="backup_email_subject_2">záloha databáze %s</string>
+  <string name="backup_email_message_2">Vaše databáze %s obsahující záložky, poznámky, plány čtení a pracovní plochy přiložena</string>
   <string name="restore_unsuccessfull">Obnova databáze se nezdařila. Možná jste zadali nesprávný soubor s databází.</string>
   <string name="backup_phone_storage">Úložiště telefonu</string>
   <string name="backup_backup_title">Umístění zálohy</string>
   <string name="backup_backup_message">Zálohovat do telefonu nebo pomocí sdílení (email, Google Drive apod.)?</string>
   <string name="backup_share">Sdílet</string>
   <string name="restore_modules">Načíst dokumenty z...</string>
+  <string name="send_backup_file">Odeslat soubor zálohy</string>
   <string name="backup_modules_title">Vyberte, které moduly zálohovat</string>
   <string name="install_zip_canceled">Instalace modulu zrušena</string>
   <!--About-->
@@ -479,11 +525,22 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="module_about_repository">Zdroj: %s</string>
   <string name="module_about_osisId">OSIS zkratka: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Chybové hlášení</string>
   <string name="send_feedback_title">Zpětná vazba</string>
   <string name="send_bug_report_title">Zpětná vazba / hlášení chyb</string>
   <string name="report_bug_email_subject_3">[%s] Chybové hlášení %s %s</string>
+  <string name="report_bug_big_heading">CHYBOVÉ HLÁŠENÍ / ZPĚTNOU VAZBU PROSÍM PIŠTE NAD TOUTO LINKOU</string>
   <string name="report_bug_heading1">Instrukce:</string>
+  <string name="report_bug_line_1">Stručně napište co jste dělal / co se stalo, kdy došlo k chybě.</string>
+  <string name="report_bug_heading2">Například:</string>
+  <string name="report_bug_instructions1">1. spustil jsem aplikaci</string>
+  <string name="report_bug_instructions2">2. klikl jsem na tlačítko v menu</string>
+  <string name="report_bug_instructions3">-&gt; aplikace spadla</string>
+  <string name="report_bug_line_2">Snímek obrazovky může pomoci řešení problému, zvažte jeho přiložení.</string>
+  <string name="report_bug_line_3">Prosím, využijte hlášení chyby ihned jakmile se případná chyba projeví.</string>
+  <string name="report_bug_line_4">V případě, že aplikace zhavaruje, nahlaste chybu při další spuštění aplikace.</string>
   <string name="report_bug_heading_3">Přílohy:</string>
+  <string name="bug_report_logcat">Logovací soubory vytvořené aplikací. Neobsahují informace o jiných aplikací z vašeho zařízení.</string>
   <string name="bug_report_attachment_line_1">Připojíte-li následující soubory k hlášení, velmi tím usnadníte práci vývojářům s opravou chyby.</string>
   <string name="report_bug_heading_4">Informace o zařízení:</string>
   <!--Document types-->
@@ -562,6 +619,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="beta_notice_dismiss_until_update">Vzít na vědomí do příští aktualizace</string>
   <string name="stable_notice_title">Aplikace byla upgradována!</string>
   <string name="upgrade_video_message">Prosím prohlédněte si video novinek v této verzi (%s).</string>
+  <string name="stable_notice_par1">Nová verze %s of %s úspěšně nainstalována!</string>
   <!--History-->
   <string name="history_for">Historie (%s: Okno %d)</string>
   <!--Help-->
@@ -581,8 +639,11 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Rozumím</string>
   <string name="first_time_help_show_next_time">Zobrazit při příštím spuštění</string>
+  <string name="strongs_mode_title">Vybrat typ strongových čísel</string>
   <string name="download_dialog_message">Následující knihy nemohly být staženy:</string>
+  <string name="select_multiple">Vybrat několik</string>
   <string name="journal_description">Editovatelné studijní složky s vlastním textem a záložkami</string>
+  <string name="my_notes_description">Editovatelné poznámky přiloženy k záložce</string>
   <string name="my_notes_abbreviation">Poznámky</string>
   <string name="studypads">Studijní složky</string>
   <string name="compare_description">Porovnat překlady</string>
@@ -591,10 +652,12 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="http_forbidden">Nedostupné</string>
   <string name="http_not_found">Nenalezeno</string>
   <string name="http_unknown">Nespecifikovaná chyba</string>
+  <string name="give_passphrase_for_module">Dokument %s je šifrován a k jeho otevření je třeba heslo</string>
+  <string name="unlocking_failed">Otevření se nepovedlo, neplatné heslo</string>
   <string name="unlock_module">Nastavit heslo modulu</string>
   <string name="try_again_passphrase">Heslo je nefunkční, zkustt znovu?</string>
   <string name="prefs_show_error_box_title">Zobrazit Javascript chybové okno</string>
-  <string name="prefs_show_error_box_summary">Vhodné pro vývojáře při debugování BibleView Javascript chyb. Zpomaluje běh aplikace.</string>
+  <string name="prefs_show_error_box_summary">Vhodné pro vývojáře při debugování chyb BibleView Javascript. Zpomaluje běh aplikace.</string>
   <string name="app_licence_title">Open source licence</string>
   <string name="how_to_contribute">Jak se zapojit a přispět?</string>
   <string name="confirm_delete_bookmarks">Opravdu smazat záložku %d a její poznámky?</string>
@@ -640,8 +703,10 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="system_items1">Více</string>
   <string name="system_action2">Android akce</string>
   <string name="text_copied_to_clicpboard">Text zkopírován do schránky</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Rychlé záložky</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Zobrazit \"výběr\" a \"verš\" položky v případě manipulace s výběrem textu</string>
   <string name="prefs_double_tap_to_fullscreen_title">Celoobrazovkový režim</string>
-  <string name="prefs_double_tap_to_fullscreen_summary">Dvojklik zapne celoobrazovkový režim</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Zapnout dvojklikem celoobrazovkový režim</string>
   <string name="toggle_fullscreen">Celoobrazovkový režim</string>
   <string name="exit_fullscreen">Dvojklik ukončí celoobrazovkový režim</string>
   <string name="reset_app_prefs">Opravdu vymazat globální nastavení aplikace a nastavit je na výchozí hodnoty?</string>
@@ -649,9 +714,17 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="label_green">Zelená</string>
   <string name="label_blue">Modrá</string>
   <string name="label_underline">Podtrhnout</string>
+  <string name="import_menu">Import a export</string>
   <string name="export_fileformat">Exportovat jako %s</string>
   <string name="import_items">Importovat %s</string>
+  <string name="import_from_db">Importovat databázový soubor</string>
+  <string name="import_error">Import databázového souboru skončil chybou. Soubor může mít špatný formát nebo je vytvořen velmi starou verzí %s.</string>
   <string name="chooser_range">Rozsah</string>
+  <string name="chooser_OT_abbrev">SZ</string>
+  <string name="chooser_NT_abbrev">NZ</string>
+  <string name="chooser_style_grid">Tabulka</string>
+  <string name="chooser_style_lists">Seznam</string>
+  <string name="chooser_select">Vybrat %s</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Omlouváme se, uživatelské rozhraní je pouze částečně přeloženo v jazyce %s. Je tomu tak, protože %s je vytvářena dobrovolníky. S překladem aplikace můžete pomoci, vizte %s.</string>
   <!--will be added to incomplete_translation as a link-->

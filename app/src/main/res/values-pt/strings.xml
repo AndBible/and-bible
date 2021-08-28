@@ -267,6 +267,10 @@ Substituir?</string>
   <string name="delete_reading_plan">Apagar este plano</string>
   <string name="reading_plan_deleted">O plano de leitura foi apagado</string>
   <string name="reading_plan_ships_with_ab">Este plano de leitura é fornecido com 1 %s</string>
+  <string name="confirm_delete_reading_plan">
+Tem certeza de que deseja excluir %s junto com seu histórico de leitura?
+Dica: se você precisar atualizar o plano, basta importá-lo novamente com o mesmo nome de arquivo
+ e o histórico será preservado.</string>
   <string name="plan_duplicate_user_plan">
 Existe um plano de leitura do utilizador no cartão SD
 jsword/readingplan com o mesmo nome que um plano interno. Não pode ser listado aqui.
@@ -512,6 +516,25 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="module_about_repository">Servidor de distribuição: %s</string>
   <string name="module_about_osisId">OSIS ID:%s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Relatório de erro</string>
+  <string name="send_feedback_title">Comentários</string>
+  <string name="send_bug_report_title">Comentários / Relatório de erro</string>
+  <string name="report_bug_email_subject_3">[%s] Relatório de erro para %s %s</string>
+  <string name="report_bug_big_heading">ESCREVA O SEU COMENTÁRIO OU RELATÓRIO DE ERRO ACIMA DESTA LINHA</string>
+  <string name="report_bug_heading1">Instruções:</string>
+  <string name="report_bug_line_1">Conte-nos resumidamente o que fez / o que aconteceu quando ocorreu o problema.</string>
+  <string name="report_bug_heading2">Por exemplo:</string>
+  <string name="report_bug_instructions1">1. Aplicação aberta</string>
+  <string name="report_bug_instructions2">2. Menu da janela clicada</string>
+  <string name="report_bug_instructions3">-&gt; Erro</string>
+  <string name="report_bug_line_2">Às vezes, as capturas de ecran feitas manualmente também são úteis para resolver problemas.</string>
+  <string name="report_bug_line_3">Use esta função para relatar, assim notar a ocorrência de um problema.</string>
+  <string name="report_bug_line_4">Também pode usar esta função após abrir a aplicação, quando ocorre um erro.</string>
+  <string name="report_bug_heading_3">Anexos:</string>
+  <string name="bug_report_logcat">Arquivo do histórico produzido por esta aplicação. Não contém informações sobre nenhuma outra aplicação.</string>
+  <string name="bug_report_screenshot">Captura de ecran da aplicação quando ocorreu o erro ou quando o relatório de erro foi criado.</string>
+  <string name="bug_report_attachment_line_1">Ter estes arquivos anexados ajuda muito os programadores de aplicações a reparar o erro relatado.</string>
+  <string name="report_bug_heading_4">Informação sobre o dispositivo:</string>
   <!--Document types-->
   <string name="doc_type_all">Todos os tipos</string>
   <string name="doc_type_bible">Bíblia</string>
@@ -519,6 +542,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="doc_type_dictionary">Dicionário</string>
   <string name="doc_type_book">Livro</string>
   <string name="doc_type_map">Mapa</string>
+  <string name="doc_type_addons">Complementos</string>
   <!--Languages-->
   <string name="lang_default">Padrão</string>
   <!--General-->
@@ -537,11 +561,14 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <!--Errors-->
   <string name="report_error">Enviar Relatório</string>
   <string name="error_occurred">Ocorreu um erro</string>
+  <string name="error_occurred_crash_last_time">Da última vez que usou a aplicação, ocorreu um erro. Para nos ajudar a reparar o erro, agradecemos que nos enviei um relatório de erro.</string>
   <string name="error_occurred_with_link">Ocorreu um erro%s</string>
   <string name="error_no_content">Nenhum conteúdo para o versículo selecionado</string>
   <string name="error_page_too_large">Página grande demais para ser carregada</string>
   <string name="error_key_not_in_document">Não encontrado no documento</string>
+  <string name="error_key_not_in_document2">%s não foi encontrado no documento %s</string>
   <string name="empty_list">Sem itens para exibir</string>
+  <string name="error_skip">Passar à frente</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Texto para fala</string>
   <string name="notification_channel_progress_status">Notificação de status de progresso para downloads de documentos etc.</string>
@@ -580,10 +607,17 @@ através de %s si mesmo. :-)</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Descartar</string>
   <string name="beta_notice_dismiss_until_update">Descartar até à próxima atualização</string>
+  <string name="stable_notice_title">A aplicação foi atualizada!</string>
+  <string name="upgrade_video_message">Por favor veja o vídeo com as novas funções desta versão (%s).</string>
+  <string name="stable_notice_par1">Uma nova versão %s de %s foi instalada com sucesso!</string>
   <!--History-->
   <string name="history_for">Histórico(%s:Janela%d)</string>
   <!--Help-->
   <string name="help_nav_title">Navegação</string>
+  <string name="help_nav_text">Vá para o capítulo seguinte ou anterior deslizando o dedo no ecan.
+ Toque duas vezes no texto da Bíblia para alternar o modo de ecran inteiro.
+ Os ecrans divididos (também chamadas de janelas) têm um botão de menu no canto superior direito,
+ o que permite que use várias funções específicas da janela e personalize a aparência e o comportamento da janela.</string>
   <string name="help_contextmenus_title">Menus de contexto</string>
   <string name="help_contextmenus_text">
 Pressionar longamente abre o menu de contexto ou o modo de ação em várias visualizações.
@@ -592,6 +626,16 @@ Pressione e segure um item de documento na exibição em lista de Escolha Docume
 Pressione e segure um marcador na lista de marcadores para adicionar marcadores ou excluir marcadores.
 Mantenha pressionado os links para escolher se deseja abri-los na janela atual, nova janela ou janela de links especiais.</string>
   <string name="help_bookmarks_title">Marcadores e As Minhas Notas</string>
+  <string name="help_bookmarks_text">Os marcadores podem ser criados selecionando algum texto e escolhendo \"Marcador\" no
+ menu pop-up. Você pode adicionar as suas notas personalizadas ao novo marcador tocando no texto agora
+ destacado na visualização da Bíblia. Também existe um documento especial \"As Minhas Notas\" nos comentários que permite
+ ver suas notas numa janela separada.</string>
+  <string name="help_studypads_title">Áreas de Estudo</string>
+  <string name="help_studypads_text">
+As Áreas de estudo são projetadas para tornar mais fácil escrever notas de sermões, preparar sermões ou apenas
+ anotar notas pessoais de estudo da Bíblia que tenham várias referências bíblicas. Cada Áre de estudo está associado a uma etiqueta de marcador.
+ Todos os marcadores que foram criados com aquela respectiva etiqueta aparecem automaticamente no documento da Área de estudo.
+ Além dos marcadores, pode haver entradas de texto personalizadas numa Área de estudo.</string>
   <string name="help_search_title">Procurar</string>
   <string name="help_search_text">O texto da pesquisa pode incluir caracteres especiais como *,?, AND, OR, NOT
 (consulte \"Apache Lucene - sintaxe do analisador de consultas\" para obter mais detalhes)</string>
@@ -609,18 +653,68 @@ Pressione e segure o botão da barra de ferramentas para falar para ir rapidamen
 Pressione e segure o título do local do verso na barra de ferramentas para pular para o seletor de documentos.
 Pressione e segure o botão Voltar para ter acesso  lista do Histórico.</string>
   <string name="help_window_pinning_title">Fixar janela</string>
+  <string name="help_window_pinning_text">
+Pode habilitar a fixação de janelas no menu de opções (três pontos, canto superior direito) .
+ Se a fixação de janelas estiver habilitada, pode mostrar muitas janelas fixadas na visualização da Bíblia,
+ mas apenas uma janela não fixada. As janelas fixadas são exibidas primeiro e, em seguida,
+ as janelas não fixadas. Pode querer abrir documentos da Bíblia como janelas fixas e 
+comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilmente
+ ter os documentos da Bíblia sempre abertos e
+ alternar rapidamente entre comentários e outro material extra ao estudar a Bíblia.</string>
   <!--Welcome text-->
+  <string name="redownload_documents">Voltar a fazer download rápidamente</string>
+  <string name="welcome_message">Obrigado por baixar %s. Atualmente não há Bíblias ou documentos instalados. Para continuar, instale pelo menos 1 documento baixando da Internet ou carregando a partir de um ficheiro em formato zip de um backup de documento </string>
+  <string name="redownload_message">
+Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para baixá-los facilmente novamente.</string>
   <!--Uncategorized-->
   <string name="close">Fechar</string>
   <string name="something_with_parenthesis">%s(%s)</string>
   <string name="first_time_help_do_not_show_again">Compreendo</string>
   <string name="first_time_help_show_next_time">Mostrar de novo na próxima vez</string>
+  <string name="strongs_mode_title">Escolha o modo Strongs</string>
+  <string name="download_dialog_message">Os seguintes livros não poderam ser baixados:</string>
+  <string name="select_multiple">Escolha vários</string>
+  <string name="journal_description">Áreas de estudo editáveis ​​pelo utilizador, com texto e marcadores personalizados</string>
+  <string name="my_notes_description">Notas editáveis ​​pelo utilizador, anexadas aos marcadores</string>
   <string name="my_notes_abbreviation">Anotações</string>
+  <string name="studypads">Áreas de Estudo</string>
+  <string name="multi_description">Referências múltiplas</string>
+  <string name="multi_abbreviation">Múltiplas</string>
   <string name="compare_description">Compare as traduções</string>
   <string name="compare_abbreviation">Comparar</string>
   <string name="compare">Comparar</string>
+  <string name="http_forbidden">Proíbido</string>
+  <string name="http_not_found">Não encontrado</string>
+  <string name="http_unknown">Outro erro</string>
+  <string name="give_passphrase_for_module">O documento %s está encriptado e precisa de palavra passe para ser desbloqueado</string>
+  <string name="unlocking_failed">O desbloqueamento falhou, palavra passe inválida</string>
+  <string name="unlock_module">Escolha a palavra passe para o módulo</string>
+  <string name="unlock_info">Informação sobre o desbloqueamento do módulo</string>
+  <string name="try_again_passphrase">A Palavra passe não foi reconhecida, tentar de novo?</string>
+  <string name="cant_delete_last_bible">Não é possível remover o último de documento de Bíblia</string>
+  <string name="show_unlock_info">Informação de módulo e de desbloqueamento</string>
+  <string name="prefs_show_error_box_title">Mostrar a caixa de erro Javascript</string>
+  <string name="prefs_show_error_box_summary">Útil para programadores ao depurar erros secundários de BibleView javascript. Isso tornará o aplicação mais lenta.</string>
+  <string name="active_window_indicator_title">Mostrar indicador de janela ativa</string>
+  <string name="active_window_indicator_summary">Destaque os cantos da janela para ajudar a reconhecer qual a janela que está ativa</string>
+  <string name="app_licence_title">Licença Open Source</string>
+  <string name="how_to_contribute">Como contribuir</string>
+  <string name="confirm_delete_bookmarks">Pretende remover os marcadores de %d e as suas notas?</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Recomende a um amigo</string>
+  <string name="tell_friend_message1">Gostaria de recomendar-te %s</string>
+  <string name="tell_friend_message2">É uma aplicação de estudo bíblico off-line poderosa, mas fácil de usar, para Android.</string>
+  <string name="tell_friend_message3">Instale a partir da Play Store: %s</string>
+  <string name="tell_friend_message4">Leia mais; e mais opções de instalação: %s</string>
+  <string name="share_verse_ok">Partilhar / Copiar</string>
   <string name="verse_action_copy">Copiar</string>
+  <string name="share_verse_menu_title">Partilhar / copiar...</string>
   <string name="show_versenumbers">Mostrar números dos versículos</string>
+  <string name="show_full_verses">Mostrar versículos completos</string>
+  <string name="advertise_app">Publicitar a aplicação</string>
+  <string name="verse_share_advertise">Partilhado usando %s .</string>
+  <string name="abbreviate_reference">Referência abreviada</string>
+  <string name="version_name">Noma da versão</string>
   <string name="backup_button">Backup</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
