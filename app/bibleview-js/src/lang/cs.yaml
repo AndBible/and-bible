@@ -17,7 +17,7 @@ footnoteTypeTranslation: Překlad
 clearLog: Smazal záznam chyb
 editNote: Upravit
 editNotePlaceholder: Upravit poznámku
-editTextPlaceholder: ""
+editTextPlaceholder: Úprava textu po kliknutí
 inputPlaceholder: Psát zde
 inputReference: Vložit biblický odkaz
 invalidReference: Verš nebyl nalezen
@@ -47,10 +47,10 @@ noMyNotesDescription: >
   Vytvořte záložku v biblickém dokumentu. Ty budou následně dostupné zde a můžete si k nim přidávat své poznámky.
 emptyStudyPad: >
   Prázdná studijní složka. Zde můžete přidávat textové poznámky, záložky a příslušné štítky.
-studyPadModalTitle: ""
-doYouWantToDeleteEntry: ""
-removeStudyPadConfirmationTitle: ""
-dragHelp: ""
+studyPadModalTitle: Upravit položku studijní složky
+doYouWantToDeleteEntry: "Smazat položku studijní složky?"
+removeStudyPadConfirmationTitle: "Odstranit položku studijní složky?"
+dragHelp: Přetažením setřídit
 saved: uloženo
 openAll: Otevřít všechny odkazy
 editBookmarkPlaceholder: ""
@@ -59,7 +59,7 @@ wholeBookmark: Celá záložka
 otherNoteText: Jiná poznámka
 assignLabelsMenuEntry: Přiřadit popisky
 assignLabelsMenuEntry1: Vybrat nebo upravit štítky…
-jumpToStudyPad: ""
+jumpToStudyPad: Přejít na studijní složku
 setAsPrimaryLabel: Nastavit jako primární štítek
 removeBookmarkLabel: Odstranit štítek
 addBookmarkLabel: Přidat štítek
@@ -67,7 +67,7 @@ favouriteLabels: Oblíbené štítky
 recentLabels: Poslední štítky
 frequentlyUsedLabels: Často používané štítky
 bookmarkLabels: Popisky záložky
-refParserHelp: ""
+refParserHelp: Prosím nainstalujte %s modul pokud chcete používat biblické odkazy v jiném jazyce než angličtině.
 openDownloads: Přejít na stažení doplňků
 verseShare: Sdílet
 verseCompare: Porovnat
