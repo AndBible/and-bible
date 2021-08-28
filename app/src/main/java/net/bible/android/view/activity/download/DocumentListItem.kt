@@ -26,6 +26,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
+import net.bible.android.control.download.repo
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
@@ -48,11 +49,15 @@ val Book.imageResource: Int
         else -> R.drawable.ic_book_24dp
     }
 
-fun Book.isRecommended(recommendedDocuments: RecommendedDocuments?): Boolean
-{
-    val osisIdKey = osisID.split(".")[1]
-    return recommendedDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.contains(osisIdKey) == true
-}
+fun Book.isRecommended(recommendedDocuments: RecommendedDocuments?): Boolean =
+    recommendedDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
+        if(it.contains("::")) {
+            val (initials, repository) = it.split("::")
+            initials == this.initials && repository == this.repo
+        } else {
+            it == initials
+        }
+    } != null
 
 /** Add an image to the normal 2 line list item
  *

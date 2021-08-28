@@ -1,7 +1,9 @@
 package net.bible.android.database
 
 import androidx.room.*
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "DocumentBackup")
 data class SwordDocumentInfo(
     @PrimaryKey @ColumnInfo(name = "osisId") var initials: String,

@@ -61,6 +61,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.serialization.serializer
+import net.bible.android.database.SwordDocumentInfo
 
 /**
  * Choose Document (Book) to download
@@ -181,8 +183,9 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                 withContext(Dispatchers.Main) {
                     isRefreshing = false
                     invalidateOptionsMenu()
-                    val booksToDownload = intent.extras?.getStringArrayList(DOCUMENT_IDS_EXTRA)
-                    if (booksToDownload != null) {
+                    val bookStr = intent.extras?.getString(DOCUMENT_IDS_EXTRA)
+                    if (bookStr != null) {
+                        val booksToDownload: List<SwordDocumentInfo> = json.decodeFromString(serializer(), bookStr)
                         downloadRequestedBooks(booksToDownload)
 
                         if (booksNotFound.size > 0) {
@@ -193,7 +196,15 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                     if(downloadDefaults) {
                         val rec = defaultDocuments.value!!
                         for(l in listOf(rec.bibles["en"], rec.commentaries["en"], rec.addons["en"], rec.books["en"], rec.dictionaries["en"], rec.maps["en"])) {
-                            downloadRequestedBooks(l)
+                            val l2 = l?.map {
+                                if(it.contains("::")) {
+                                    val (initials, repository) = it.split("::")
+                                    SwordDocumentInfo(initials = initials, repository = repository, language = "en", abbreviation = "", name = "")
+                                } else {
+                                    SwordDocumentInfo(initials = it, repository = "", language = "en", abbreviation = "", name = "")
+                                }
+                            }
+                            downloadRequestedBooks(l2)
                         }
                         filterDocuments()
                     }
@@ -235,15 +246,15 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     /**
      * Downloads the requested books, given a list of osisIds
      */
-    private fun downloadRequestedBooks(osisIds: List<String>?) {
+    private fun downloadRequestedBooks(osisIds: List<SwordDocumentInfo>?) {
         osisIds ?: return
         for (it in osisIds) {
             Log.i(TAG, "User request to download $it")
-            val book: Book? = findBookByInitials(it)
+            val book: Book? = findBookByInitials(it.initials, if(it.repository == "") null else it.repository)
             if (book != null) {
                 doDownload(book)
             } else {
-                booksNotFound.add(it)
+                booksNotFound.add(it.initials)
             }
         }
     }

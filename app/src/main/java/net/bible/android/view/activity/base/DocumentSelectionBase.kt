@@ -22,7 +22,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -32,7 +31,6 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
-import androidx.appcompat.view.ActionMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -45,6 +43,7 @@ import net.bible.android.activity.databinding.DocumentSelectionBinding
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DownloadControl
+import net.bible.android.control.download.repo
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.DocumentSearch
@@ -263,7 +262,13 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         checkSpinnerIndexesValid()
     }
 
-    protected fun findBookByInitials(osisId: String) : Book? = allDocuments.find { it.initials == osisId }
+    protected fun findBookByInitials(initials: String, repository: String?) : Book? = allDocuments.find {
+        if(repository != null) {
+            it.initials == initials && it.repo == repository
+        } else {
+            it.initials == initials
+        }
+    }
 
     // get the current language code
 

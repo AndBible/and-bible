@@ -37,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.serializer
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -49,6 +50,7 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
@@ -58,10 +60,12 @@ import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 
 import org.apache.commons.lang3.StringUtils
+import org.crosswire.jsword.book.Book
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -79,8 +83,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     override val doNotInitializeApp = true
 
 
-    private suspend fun getListOfBooksUserWantsToRedownload(context: Context) : List<String>? {
-        var result: List<String>?;
+    private suspend fun getListOfBooksUserWantsToRedownload(context: Context) : List<SwordDocumentInfo>? {
+        var result: List<SwordDocumentInfo>?;
         withContext(Dispatchers.Main) {
             result = suspendCoroutine {
                 val books = docsDao.getKnownInstalled().sortedBy { it.language }
@@ -91,7 +95,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 val checkedItems = bookNames.map { true }.toBooleanArray()
                 val dialog = AlertDialog.Builder(context)
                     .setPositiveButton(R.string.okay) { d, _ ->
-                        val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }.map{ it.initials }
+                        val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }
                         if(selectedBooks.isEmpty()) {
                             it.resume(null)
                         } else {
@@ -294,7 +298,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                         val books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
                         if (books != null) {
                             val intent = Intent(this@StartupActivity, FirstDownload::class.java)
-                            intent.putExtra(DownloadActivity.DOCUMENT_IDS_EXTRA, ArrayList(books))
+                            intent.putExtra(DownloadActivity.DOCUMENT_IDS_EXTRA, json.encodeToString(serializer(), books))
                             startActivityForResult(intent, DOWNLOAD_DOCUMENT_REQUEST)
                         }
                     }
