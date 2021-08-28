@@ -716,11 +716,94 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="abbreviate_reference">Referência abreviada</string>
   <string name="version_name">Noma da versão</string>
   <string name="backup_button">Backup</string>
+  <string name="back_button">Para trás</string>
+  <string name="upgrading_database">Atualizando a base de dados. Por favor espere...</string>
+  <string name="initializing_app">Inicializando a aplicação...</string>
+  <string name="show_notes">Mostrar notas</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">O pacote do Android WebView é muito antigo (%s). Precisa atualizar o seu pacote Android WebView para pelo menos a versão %s para usar %s. Para a maioria dos dispositivos, isso pode ser feito por meio de %s.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Continuar mesmo assim</string>
+  <string name="rate_title">Classificação e revisão da aplicação</string>
+  <string name="rate_message5">
+Avaliações positivas e detalhadas ajudam muito o Projeto de Open Source And Bible. Obrigado! </string>
+  <string name="rate_message6">
+Antes de dar uma avaliação negativa, por favor considere o seguinte:</string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+Se tiver algum problema com a aplicação, por favor %s ou em vez disso %s.</string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+Se algum texto / tradução da Bíblia tem um problema, %s . </string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+Se um texto em particular não está disponível na aplicação, %s.</string>
+  <string name="rate_message4">
+Os programadores desta aplicação não são responsáveis pela manutençáo dos documentos. </string>
+  <string name="bug_report">
+envie um relatório de erro (a partir do Menu Principal)</string>
+  <string name="how_to_help">
+por favor leia o que pode fazer para ajudar</string>
+  <string name="send_email">
+enviar um email para os programadores</string>
+  <string name="proceed_google_play">
+Continuar para o Google Play</string>
+  <string name="text_maintainers">
+por favor comunique qualquer problema à equipa que mantém os textos </string>
+  <string name="does_not_exist_abbreviation">Não existe</string>
+  <string name="cant_change_wholeverse">Não é possível desligar a marcação total de versículos para este marcador </string>
+  <string name="whole_verse_turned_on">O marcador agora agora marcado para o versículo inteiro</string>
+  <string name="this_bookmark">Este marcador</string>
+  <string name="this_workspace">Esta área de trabalho</string>
+  <string name="primary_label">Etiqueta principal</string>
+  <string name="highlight_entire_verse">Destacar todo o versículo</string>
+  <string name="favourite_label">Etiqueta de favorito</string>
+  <string name="edit_label">Editar etiqueta</string>
+  <string name="delete_label_confirmation">Deseja remover a etiqueta do marcador * %s\"? Além disso, todas as notas da Área de Estudo associadas serão removidas.</string>
+  <string name="bookmark_underline_style_arbitrary">Estilo de sublinhado para marcadores de seleção</string>
+  <string name="bookmark_underline_style_whole_verse">Estilo de sublinhado para marcadores de versículo inteiro</string>
+  <string name="active_labels">Etiquetas seleccionadas</string>
+  <string name="recent_labels">Etiquetas recentes</string>
+  <string name="other_labels">Outras etiquetas</string>
+  <string name="book_menu_sort_row_opt">Ordenar livros na horizontal</string>
+  <string name="reset_workspace_labels">Deseja redefinir a atribuição automática e as configurações de favoritos para este espaço de trabalho?</string>
+  <string name="reset_hide_labels">Pretende redefinir a configuração para ocultar as configurações das etiquetas especificadas?</string>
+  <string name="reorder">Reordenar</string>
+  <string name="system_items">Ações do sistema</string>
   <string name="system_items1">Mais</string>
+  <string name="system_action2">Ações Android</string>
+  <string name="text_copied_to_clicpboard">Texto copiado para a área de transferência</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Marcação de marcadores numa etapa</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Mostrar os itens \"Seleção\" e \"Versículos\" diretamente no menu de seleção da visualização da Bíblia</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Toque duas vezes para ecran inteiro</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Entre no modo de ecran inteiro tocando duas vezes na janela</string>
+  <string name="toggle_fullscreen">Ecran inteiro</string>
+  <string name="exit_fullscreen">Toque duas vezes para sair de ecran inteiro</string>
+  <string name="reset_app_prefs">Deseja redefinir todas as preferências globais da aplicação que são exibidas neste ecran para os seus valores padrão?</string>
+  <string name="label_red">Vermelho</string>
+  <string name="label_green">Verde</string>
+  <string name="label_blue">Azul</string>
+  <string name="label_salvation">Guardar</string>
+  <string name="label_underline">Sublinhar</string>
+  <string name="import_menu">Importar e Exportar</string>
+  <string name="export_fileformat">Exportar como %s</string>
+  <string name="import_items">Importar %s</string>
+  <string name="import_from_db">Importar a partir de ficheiro da Base de Dados da Aplicação</string>
+  <string name="import_error">A importação a partir da Base de Dados do aplicativo falhou. O ficheiro da Base de Dados pode estar no formato errado ou ter uma versão muito antiga de %s.</string>
+  <string name="chooser_range">Onde procurar</string>
+  <string name="chooser_jump">Salatar para</string>
+  <string name="chooser_OT_abbrev">AT</string>
+  <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_grid">Grelha</string>
+  <string name="chooser_style_lists">Listas</string>
+  <string name="chooser_select">Seleccionar %s</string>
+  <string name="chooser_pref_reset">Não redefina o capítulo / versículo para 1 quando o livro / capítulo é selecionado</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Lamentamos, mas temos apenas tradução parcial da interface do utilizador no idioma %s. Isto porque %s é inteiramente desenvolvido por voluntários. Se puder ajudar na tradução, consulte %s.</string>
   <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">instruções para tradutores</string>
+  <string name="questions_title">Preguntas?</string>
+  <string name="questions_title2">Precisa de ajuda?</string>
+  <string name="bookmark_style">Tipo de maracador</string>
+  <string name="added_to_bookmark">Atribuído a este marcador</string>
 </resources>
