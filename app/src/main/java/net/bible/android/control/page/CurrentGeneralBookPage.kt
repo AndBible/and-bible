@@ -39,6 +39,7 @@ import net.bible.service.sword.OsisError
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
@@ -183,14 +184,13 @@ class CurrentGeneralBookPage internal constructor(
             FakeBookFactory.multiDocument.initials -> {
                 val refs = entity!!.key!!.split("||").map { it.split(":") }.mapNotNull {
                     try {
-                        val book = Books.installed().getBook(it[0])
+                        val book: Book? = if(it[0] == "null") pageManager.currentBible.currentDocument else Books.installed().getBook(it[0])
                         val key = if (book is SwordBook) {
                             VerseRangeFactory.fromString(book.versification, it[1])
                         } else {
-                            book.getKey(it[1])
+                            book?.getKey(it[1])
                         }
-                        BookAndKey(key, book)
-
+                        if(book == null || key == null) null else BookAndKey(key, book)
                     } catch (e: Exception) {
                         null
                     }
