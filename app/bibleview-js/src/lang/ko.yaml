@@ -1,0 +1,82 @@
+openMyNotes: 나의 노트에서 열기
+openStudyPad: 스터디 패드 (%s)에서 열기
+noteText: 각주 (%s)
+noteTextWithoutType: 각주
+crossReferenceText: 상호 참조
+findAllOccurrences: 모든 사건보기
+reportError: 에러 보고
+errorTitle: 에러 발생
+warningTitle: 경고
+normalTitle: 주의하세요
+footnoteTypeUndefined: 정의되지 않은 타입
+footnoteTypeStudy: 연구
+footnoteTypeExplanation: 설명
+footnoteTypeVariant: 이형
+footnoteTypeAlternative: 대체
+footnoteTypeTranslation: 번역
+clearLog: 에러 로그 비우기
+editNote: 편집
+editNotePlaceholder: 노트 편집
+editTextPlaceholder: 탭하여 텍스트 편집
+inputPlaceholder: 여기에 쓰기
+inputReference: 성경 참조 넣기
+invalidReference: 절이 없음
+assignLabels: 레이블
+bookmarkAccurate: 북마크가 %s에 만들어졌습니다
+bookmarkInaccurate: "북마크 책 정보는 저장되지 않고, 내용은 %s에 표시됩니다"
+defaultBook: 기본 성경 번역본
+ok: 확인
+yes: "네"
+ambiguousSelection: "어떤 액션을 하시겠습니까?"
+cancel: 취소
+removeBookmarkConfirmationTitle: "북마크 삭제?"
+removeBookmarkConfirmation: "정말 이 북마크를 삭제할까요?"
+closeModal: 닫기
+createdAt: "생성됨: %s"
+lastUpdatedOn: "최근 업데이트: %s"
+strongsLink: 스트롱 정의 (%s)
+morphLink: 형태학 코드 (%s)
+strongsAndMorph: 정의와 형태
+studyPadLink: 스터디 패드 열기
+externalLink: 외부 링크 열기
+referenceLink: 참조 링크 열기
+openFootnote: 각주 열기
+openBookmark: 북마크 열기 (%s)
+noMyNotesTitle: 이 장에 나의 노트 없음
+noMyNotesDescription: >
+  성경에 북마크를 만들고 시작하세요. 북마크는 여기에 나타나고 개인 노트를 더할수 있습니다.
+emptyStudyPad: >
+  빈 스터디 패드. 이 스터디 패드에 텍스트 항목을 만들거나 이 스터디 패드에 해당되는 북마크 이름을 가진 북마크를 만드세요.
+studyPadModalTitle: 스터디 패드 항목 편집
+doYouWantToDeleteEntry: "이 스터디 패드 항목을 삭제할까요?"
+removeStudyPadConfirmationTitle: "스터디 패드 항목 지우기?"
+dragHelp: 드래그하여 순서 변경
+saved: 저장됨
+openAll: 모든 참조 열기
+editBookmarkPlaceholder: 탭하여 이 북마크의 내 노트 편집
+onlyLabel: 레이블만
+wholeBookmark: 모든 북마크
+otherNoteText: 다른 노트
+assignLabelsMenuEntry: 레이블 붙이기
+assignLabelsMenuEntry1: 레이블 선택 또는 편집...
+jumpToStudyPad: 스터디 패드로 이동
+setAsPrimaryLabel: 주 레이블로 지정
+removeBookmarkLabel: 레이블 삭제
+addBookmarkLabel: 레이블 더하기
+favouriteLabels: 즐겨찾기 레이블
+recentLabels: 최근 레이블
+frequentlyUsedLabels: 자주 사용한 레이블
+bookmarkLabels: 레이블 북마크
+refParserHelp: 영어 이외의 언어로 참조를 사용하려면 %s 모듈을 설치하세요.
+openDownloads: 애드온 다운로드로 이동
+verseShare: 공유
+verseCompare: 비교
+verseNote: 노트
+verseMyNotes: 내 노트
+verseSpeak: 읽기
+verseShareLong: 이 절을 공유
+verseCompareLong: 절 비교
+verseNoteLong: 노트 쓰기
+verseSpeakLong: 이 절부터 듣기 시작
+verseTip: "절의 일부나 여러 절을 선택하려면, 성경 본문을 길게 누릅니다"
+addBookmark: 북마크

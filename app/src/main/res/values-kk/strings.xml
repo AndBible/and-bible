@@ -92,11 +92,11 @@
   <string name="prefs_tilt_to_scroll_title">Бұрау үшін еңістеу</string>
   <string name="prefs_toolbar_button_action_title">Құралдар тақтасындағы батырманы басу әрекеті</string>
   <string name="prefs_toolbar_button_action_summary">Киелі кітаптың немесе пікірлердің құралдар тақтасындағы батырмаларды басу / ұзақ басу арқылы орындалатын әрекет</string>
-  <string name="prefs_toolbar_button_action_default">Мәзірді ашу үшін - басу, экран құжаттары үшін - ұзақ басу (әдепкідей)</string>
+  <string name="prefs_toolbar_button_action_default">Мәзірді ашу үшін басыңыз, ал бейне құжаттар үшін (әдептегідей) ұзақ басыңыз</string>
   <string name="prefs_toolbar_button_action_swap_menu">Келесі құжатты ашу үшін - басу, мәзірді ашу үшін - ұзақ басу</string>
-  <string name="prefs_toolbar_button_action_swap_activity">Келесі құжатты ашу үшін - басу, экрандағы документ үшін - ұзағырақ басу</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Келесі құжатты ашу үшін басыңыз, ал бейне құжаттар үшін ұзақ басыңыз</string>
   <string name="prefs_night_mode_title">Түнгі режиміне қосу</string>
-  <string name="prefs_night_mode_summary">Түнгі режимге автоматты түрде (егер құрылғы қолдаса), не мануальді не жүйенің баптауы арқылы ауысу керек (Андроид 10+). Негізгі бейнеде мануальді ауыстыру 3 нүктелі опциялар мәзірінен жасауға болады.</string>
+  <string name="prefs_night_mode_summary">Түнгі режимге автоматты түрде (егер құрылғы қолдаса), не мануальді не жүйенің баптауы арқылы ауысу керек (Андроид 10+). Негізгі бейнеде мануальді ауыстыру 3-нүктелі опциялар мәзірінен жасауға болады.</string>
   <string name="prefs_night_mode_manual">Қолмен жасау</string>
   <string name="prefs_night_mode_automatic">Автоматты</string>
   <string name="prefs_night_mode_system">Жүйе</string>
@@ -106,8 +106,8 @@
   <string name="prefs_open_links_in_special_window_title">Сілтемелер терезесі</string>
   <string name="prefs_open_links_in_special_window_summary">Сілтемелер мен Strongs-ті жылдам көрсету үшін,сілтемелерді арнайы терезеде ашыңыз.</string>
   <string name="prefs_text_size_sample_text">Мысалы мәтін</string>
-  <string name="prefs_screen_keep_on_title">Экранды қосулы сақтау</string>
-  <string name="prefs_screen_keep_on_summary">Осы қолданбаны пайдаланып отырғанда, экранды өшіп қалудан сақтау. </string>
+  <string name="prefs_screen_keep_on_title">Бейнені қосулы ұстаңыз</string>
+  <string name="prefs_screen_keep_on_summary">Осы қолданбаны пайдаланып отырғанда, бейнені өшіп қалуын болдырмаңыз. </string>
   <string name="prefs_interface_locale_title">Қолданбаның қолдану тілі</string>
   <string name="prefs_interface_locale_summary">Пайдаланушы интерфейс тілін таңдау</string>
   <string name="reset_fontsize">Қайта бастау</string>
@@ -524,12 +524,12 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="report_bug_instructions1">1. Ашылған қосымша</string>
   <string name="report_bug_instructions2">2. Басылған терезе мәзірі</string>
   <string name="report_bug_instructions3">-&gt; Ақаулық</string>
-  <string name="report_bug_line_2">Кейде экран беттерін түсіру де, мәселелерді шешуде тиімді.</string>
+  <string name="report_bug_line_2">Кейде қолмен түсірілген скриншоттар да мәселелерді шешуде тиімді.</string>
   <string name="report_bug_line_3">Өтініш, бұл функцияны мәселе орын алып оны байқаған кезде хабарлау үшін қолданыңыз.</string>
   <string name="report_bug_line_4">Қосымша ашылғаннан кейін, бұзылу орын алса, бұл функцияны пайдалана аласыз.</string>
   <string name="report_bug_heading_3">Бекітулер:</string>
   <string name="bug_report_logcat">Бұл қосымша жасаған журнал файлы. Ол басқа қосымшалар туралы ақпаратты қамтымайды.</string>
-  <string name="bug_report_screenshot">Бұзылғанда немесе қате туралы есеп жасалған кездегі қосымшаның экран суреті.</string>
+  <string name="bug_report_screenshot">Бұзылғанда немесе қате туралы есеп жасалған кездегі қолданбаның скриншоты.</string>
   <string name="bug_report_attachment_line_1">Осы файлдардың тіркелуі, қолданбаларды дамытушыларға хабарланған қатені түзетуге өте көмектеседі.</string>
   <string name="report_bug_heading_4">Құрылғы ақпараты:</string>
   <!--Document types-->
@@ -608,22 +608,25 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="history_for">Тарих (%s: Терезе%d)</string>
   <!--Help-->
   <string name="help_nav_title">Навигация</string>
-  <string name="help_nav_text">Экран бетін сырғытып келесі не алдыңғы тарауға өтіңіз.
+  <string name="help_nav_text">Бейне бетін сырғытып келесі не алдыңғы тарауға өтіңіз.
 Киелі кітап мәтінін екі рет басып, толық экран көрінісіне ауыса аласыз.
 Бөлінген бейнелердің (терезелердің) жоғарғы оң бұрышында мәзір түймесі бар,
 ол бірнеше терезе функцияларын қолдануға және терезенің көрінісі мен қылығын реттеуге мүмкіндік береді.</string>
   <string name="help_contextmenus_title">Мәтінмәндік Мәзірлер</string>
   <string name="help_contextmenus_text">
-Ұзақ басуы контекстік мәзірді ашады немесе бір неше көріністегі әрекет режимі.
+Ішке ұзақ басуы контекстік мәзірді немесе әрекет режимін бірнеше көріністе ашады.
 Киелі Кітап көрінісін ұзақ басып, қазіргі аятқа әсер ететін әрекеттер үшін әрекет режимін ашыңыз.
 Құжатты Таңдау тармағының тізім көрінісіндегі құжат элементін ұзақ басыңыз, не құжатты жою үшін Жүктеңіз немесе ақпаратты қараңыз.
 Таңбаларды қосу не кітап белгілерін жою үшін, кітап белгілер тізіміндегі кітап белгісін ұзақ басыңыз.
 Егер сіз байланысты линктерді қазіргі терезеде, жаңа терезеде немесе айрықша арнайы линктер терезесінде ашып таңдағыңыз келсе, ол үшін линктерді ұзақ басыңыз.</string>
   <string name="help_bookmarks_title">Бетбелгілер және менің жазбаларым</string>
-  <string name="help_bookmarks_text">Бетбелгілерді мәтінді таңдау және жылжымалы мәзірдегі \"бетбелгі\" арқылы жасауға болады.
+  <string name="help_bookmarks_text">Мәтінді және жылжымалы мәзірдегі \"бетбелгі\" таңдау арқылы бетбелгілерді жасауға болады.
  Киелі кітап түріндегі таңдалған мәтінді басу арқылы жаңа бетбелгіге өз жазбаларыңызды қоса аласыз. Сондай-ақ, түсініктемелерде \"менің жазбаларым\" атты арнайы құжаты бар, ол сіздің жазбаларыңызды бөлек терезеде көруге мүмкіндік береді</string>
-  <string name="help_studypads_title">Оқу тақталары</string>
-  <string name="help_studypads_text">Оқу тақталары уағыз жазуды, уағыз дайындауды жеңілдетуге арналған. Киелі кітапқа бірнеше сілтемелері бар, Киелі кітапты зерттеу туралы жеке жазбаларды жазып алыңыз. Әр бет бір бетбелгімен байланысты. Тиісті жапсырмамен жасалған барлық бетбелгілер оқу бағдарламасының құжатында автоматты түрде көрсетіледі. Бетбелгілерге қосымша
+  <string name="help_studypads_title">Оқу Планшет тақталары</string>
+  <string name="help_studypads_text">
+Оқу планшет тақталары уағыз жазуды, уағыз дайындауды жеңілдетуге арналған. Киелі кітапқа бірнеше сілтемелері бар, Киелі кітапты зерттеу туралы жеке жазбаларды жазып алыңыз.
+Әр бет бір бетбелгімен байланысты. Тиісті жапсырмамен жасалған барлық бетбелгілер оқу бағдарламасының құжатында автоматты түрде көрсетіледі.
+Бетбелгілерге қосымша оқу планшет тақтасында реттелетін мәтіндік жазбалары болуы мүмкін.
 </string>
   <string name="help_search_title">Іздеу</string>
   <string name="help_search_text">Текст іздеу - осындай сияқты *, ?, ЖӘНЕ, НЕМЕСЕ, ЕМЕС арнайы таңбаларды қамтуы мүмкін
@@ -635,15 +638,15 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 Жұмыс кеңістіктеріне қол жеткізудің жылдам әдісі, ол құралдар тақтасынан бармақпен төмен қарай сілтеу. Сондай-ақ  құралдар тақтасының үстімен солға не оңға қарай сілтеп, алдыңғы / келесі жұмыс кеңістігіне ауыса аласыз.</string>
   <string name="help_hidden_features_title">Жасырын қысқа жолдар</string>
   <string name="help_hidden_features_text">
-Жұмыс кеңістігін таңдауын көрсету үшін құралдар тақтасынан төмен қарай сілтеңіз.
+Жұмыс кеңістігінің селектор таңдауын көрсету үшін құралдар тақтасынан төмен қарай сілтеңіз.
 Тез кішірейту үшін, терезе түймесін ұзақ басыңыз.
 Сөйлеу параметрлеріне тез бару үшін, сөйлеу құрал тақтасын ұзақ басыңыз.
 Құжат таңдауына секіру үшін, құралдар тақтасында аят оранласқан атауын ұзақ басыңыз.
 Тарих тізіміне кіру үшін Артқа деген түймесін ұзақ басыңыз.</string>
   <string name="help_window_pinning_title">Терезені бекіту</string>
   <string name="help_window_pinning_text">
-Терезе дисплейін Параметрлер мәзірінен қосуға болады (үш нүкте, жоғарғы оң жақ бұрыш).
-Егер терезе дисплейі қосулы болса, Сіз Киелі Кітапта көптеген бекітілген терезелерді көрсете аласыз,
+Параметрлер мәзірінен терезенің бекітуін қосуға болады (үш нүкте, жоғарғы оң жақ бұрыш).
+Егер терезе бекітуі қосулы болса, Сіз Киелі Кітапта көптеген бекітілген терезелерді көрсете аласыз,
 бірақ бекітілмеген терезелерден біреуін ғана көрсете аласыз. Бекітілген терезелер алдымен көрсетіледі, содан кейін
 бекітілмеген терезелер. Сіз Киелі Кітаптық құжаттарды бекітілген терезелер түрінде және пікірлер, карталар т.б. бекітілмеген терезелер түрінде ашқыңыз келуі мүмкін. Содан кейін, сіз Киелі Кітап құжаттарын, және пікір түсініктемелер арасында жеңіл ауысып, әрі Киелі Кітапты зерттегенде басқада қосымша материалдарды әр-қашанда ашық ұстай аласыз.</string>
   <!--Welcome text-->
@@ -662,7 +665,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="journal_description">Таңдалған мәтіндермен және бетбелгілермен өңделетін блокноттар</string>
   <string name="my_notes_description">Бетбелгілерге бекітілген пайдаланушы өңдейтін жазбалар</string>
   <string name="my_notes_abbreviation">Менің Ескертпелерім</string>
-  <string name="studypads">Оқу тақтасы</string>
+  <string name="studypads">Оқу Планшеттері</string>
   <string name="multi_description">Бірнеше сілтемелер</string>
   <string name="multi_abbreviation">Бірнеше</string>
   <string name="compare_description">Аудармаларды салыстыру</string>
@@ -761,11 +764,11 @@ Google Play -ге өтіңіз
   <string name="text_copied_to_clicpboard">Мәтін алмасу буферіне көшірілді</string>
   <string name="prefs_disable_two_step_bookmarking_title">Бір қадамды бетбелгілер</string>
   <string name="prefs_disable_two_step_bookmarking_summary">«Таңдау» мен «Аяттар» тармақтарын тікелей Киелі Кітап көрінісіндегі Таңдау мәзірінде көрсетіңіз</string>
-  <string name="prefs_double_tap_to_fullscreen_title">Толық экран режіміне өту үшін екі рет басыңыз</string>
-  <string name="prefs_double_tap_to_fullscreen_summary">Терезені екі рет басып толық экран беті режиміне өтіңіз</string>
-  <string name="toggle_fullscreen">Толық экран беті</string>
-  <string name="exit_fullscreen">Толық экран бетінен шығу үшін экран бетін екі рет басыңыз</string>
-  <string name="reset_app_prefs">Бұл экранда көрсетілетін барлық жаһандық қосымша параметрлерін әдепкі мәндеріне қайтарғыңыз келе ме?</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Толық бейне режіміне өту үшін екі рез түртіңіз</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Терезені екі рез түртіп толық бейне режиміне өтіңіз</string>
+  <string name="toggle_fullscreen">Толық бейне беті</string>
+  <string name="exit_fullscreen">Толық бейне бетінен шығу үшін бейне бетін екі рез түртіңіз</string>
+  <string name="reset_app_prefs">Бұл бейнеде көрсетілетін барлық жаһанды қолданбаның параметрлерін әдепкі мәндеріне қайтарғыңыз келе ме?</string>
   <string name="label_red">Қызыл</string>
   <string name="label_green">Жасыл</string>
   <string name="label_blue">Көк</string>
@@ -778,14 +781,14 @@ Google Play -ге өтіңіз
   <string name="import_error">Қосымша дерекқорынан импорттау сәтсіз аяқталды. Дерекқорының файлы дұрыс емес форматта немесе тым ескі нұсқамен жасалған болуы мүмкін %s.</string>
   <string name="chooser_range">Диапазон</string>
   <string name="chooser_jump">Секіру</string>
-  <string name="chooser_OT_abbrev">Ескі Өсиет</string>
-  <string name="chooser_NT_abbrev">Жаңа Өсиет</string>
+  <string name="chooser_OT_abbrev">ЕӨ</string>
+  <string name="chooser_NT_abbrev">ЖӨ</string>
   <string name="chooser_style_grid">Тор</string>
   <string name="chooser_style_lists">Тізімдер</string>
-  <string name="chooser_select">Таңдау %s</string>
-  <string name="chooser_pref_reset">Кітаб/тарау таңдалған кезде тарау/аятты 1ге дейн тастамау</string>
+  <string name="chooser_select">%s Таңда</string>
+  <string name="chooser_pref_reset">Кітаб/тарау таңдалған кезде тарау/аятты 1ге дейн қалпына келтірмеңіз</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Өкінішті, бірақ бізде қолданушы интерфейсының тілдерінің тек ішінара аудармасы бар%s. Себебі, %s бұл жобаны толығымен еріктілер жасаған. Егер сіз аудармамен көмектесе алсаңыз, өтінеміз қарап көріңіз%s.</string>
+  <string name="incomplete_translation">Өкінішті, бірақ бізде қолданушы интерфейсінің тілдерінің тек %s ішінара аудармасы бар. Себебі, %s бұл жобаны толығымен еріктілер жасаған. Егер сіз аудармамен көмектесе алсаңыз, өтінеміз қарап көріңіз%s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">аудармашыларға арналған нұсқаулық</string>
   <string name="questions_title">Сұрақтар?</string>
