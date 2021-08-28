@@ -317,7 +317,7 @@ class TextToSpeechNotificationManager {
 
         val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 
-        builder.setSmallIcon(R.drawable.ichthys_alpha)
+        builder.setSmallIcon(R.drawable.ic_ichtys)
                 .setLargeIcon(bibleBitmap)
                 .setContentTitle(currentTitle)
                 .setSubText(speakControl.getStatusText(FLAG_SHOW_ALL))
