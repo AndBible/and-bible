@@ -637,7 +637,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="help_nav_title">導航</string>
   <string name="help_contextmenus_title">內文選單</string>
   <string name="help_bookmarks_title">書籤 &amp; 我的筆記</string>
-  <string name="help_studypads_title">個人筆記</string>
   <string name="help_studypads_text">
 個人筆記可方便使用者編寫及準備講道筆記、或者作個人的多經文研究。每一個個人筆記都有專屬的書籤。所有標記了該書籤的經文，均會自動出現在對應的個人筆記中。除了書籤以外，使用者亦可自行增添文字。
 </string>
@@ -800,4 +799,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="questions_title2">需要幫助？</string>
   <string name="bookmark_style">書籤樣式</string>
   <string name="added_to_bookmark">分配至此書籤</string>
+  <string name="strongs_off">關閉</string>
+  <string name="strongs_links">連結</string>
+  <string name="strongs_text_and_links">文字及連結</string>
 </resources>

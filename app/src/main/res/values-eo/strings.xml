@@ -617,7 +617,6 @@ Frapetadu por malfermi kuntekstan menuon aŭ por montri agojn rilataj al la nuna
  Frapetadu ligilon se vi volas malfermi ĝin en la nuna, nova aŭ en speciala fenestro.</string>
   <string name="help_bookmarks_title">Legosignoj kaj notoj</string>
   <string name="help_bookmarks_text">Marku iun tekston kaj elektu “legosigno” el la aperanta kunteksta menuo por krei legosignon. Vi povas aldoni proprajn notojn al legosigno per frapeti la emfazitan tekston. Estas ankaŭ speciala dokumento “miaj notoj” en komentaroj, kiu montras ĉiujn viajn notojn en aparta fenestro.</string>
-  <string name="help_studypads_title">Notblokoj</string>
   <string name="help_studypads_text">
 Notblokoj estas destinitaj por fari notojn pri predikoj, prepari predikojn aŭ por skribi personajn notojn ligitajn al pluraj fragmentoj de la Biblio. Ĉiu notbloko estas ligita al unu legosigna etikedo. Ĉiu kreita legosigno aŭtomate montriĝas en la dokumento notbloko kune kun ligita legosigna etikedo. Aldone al legosignoj, eblas aldoni propran tekston al notbloko.</string>
   <string name="help_search_title">Serĉi</string>
@@ -781,4 +780,7 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="questions_title2">Ĉu vi bezonas helpon?</string>
   <string name="bookmark_style">Stilo de legosignoj</string>
   <string name="added_to_bookmark">Asignita al tiu ĉi legosigno</string>
+  <string name="strongs_off">Ne montri</string>
+  <string name="strongs_links">Ligiloj</string>
+  <string name="strongs_text_and_links">Tekstoj kaj ligiloj</string>
 </resources>

@@ -608,7 +608,6 @@ Naciśnięcie i przytrzymanie otwiera menu kontekstowe lub akcje w zależności 
  Naciśnij i przytrzymaj odnośnik, aby otworzyć go w obecnym, nowym lub specjalnym oknie.</string>
   <string name="help_bookmarks_title">Zakładki i notatki</string>
   <string name="help_bookmarks_text">Zaznacz jakiś tekst i wybierz opcję „zakładka” z menu kontekstowego, aby utworzyć zakładkę. Możesz dodać własne notatki do nowo utworzonej zakładki poprzez stuknięcie wyróżnionego tekstu. W dokumentach, w sekcji komentarze zostanie utworzony dokument „moje notatki” umożliwiający przeglądanie wszystkich notatek w osobnym oknie.</string>
-  <string name="help_studypads_title">Bloczki notatek</string>
   <string name="help_studypads_text">
 Bloczki notatek mają na celu ułatwić pisanie kazań lub tworzenie osobistych notatek odwołujących się do wielu fragmentów Biblii. Każdy bloczek notatek jest powiązany z jedną etykietą zakładek. Wszystkie zakładki utworzone z określoną etykietą automatycznie pojawią się w bloczku notatek. Oprócz zakładek, bloczek notatek może zawierać własny tekst.</string>
   <string name="help_search_title">Wyszukiwanie</string>
@@ -771,4 +770,7 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="questions_title2">Czy potrzebujesz pomocy?</string>
   <string name="bookmark_style">Styl zakładek</string>
   <string name="added_to_bookmark">Przypisano do tej zakładki</string>
+  <string name="strongs_off">Nie pokazuj</string>
+  <string name="strongs_links">Odnośniki</string>
+  <string name="strongs_text_and_links">Teksty i odnośniki</string>
 </resources>

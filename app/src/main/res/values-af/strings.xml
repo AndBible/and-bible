@@ -645,7 +645,6 @@ Lang druk die skakels om te kies of u dit in die huidige venster, nuwe venster o
 die opspring kieslys. Jy kan jou persoonlike notas by die nuwe boekmerk voeg deur die nou te tik
 Uitgeligte teks in die Bybel beskouing. Daar is ook \'n spesiale dokument \'My Notes\' in kommentare wat u toelaat
 Om u notas in \'n aparte venster te sien.</string>
-  <string name="help_studypads_title">Bestudeer blokies</string>
   <string name="help_studypads_text">
 Studie blokies is ontwerp om dit maklik te maak om preek notas te skryf, voor te bere vir preke of net
 persoonlike Bybelstudienotas neer te skry wat veelvuldige Bybelverwysings het. Elke studieblok word geassosieer met een boekmerk etieket.
@@ -824,4 +823,5 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="questions_title2">Het jy hulp nodig?</string>
   <string name="bookmark_style">Boekmerk styl</string>
   <string name="added_to_bookmark">Toegewys aan hierdie boekmerk</string>
+  <string name="strongs_links">Skakels</string>
 </resources>

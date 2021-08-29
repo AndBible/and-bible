@@ -653,7 +653,6 @@ Naujai žymei pridėti pastabas galite Biblijos rodinyje paspaudę ant paryškin
         Komentaruose taip pat yra specialus dokumentas „Mano pastabos“, leidžiantis jums
         matyti savo pastabas atskirame lange.
     </string>
-  <string name="help_studypads_title">Bloknotai</string>
   <string name="help_studypads_text">
         Bloknotai yra sukurti, kad leistų lengviau užsirašyti pamokslo pastabas, pasiruošti pamokslui arba, tiesiog,
         užsirašyti asmenines Biblijos studijų pastabas, kuriose yra sudėtinės Biblijos nuorodos. Kiekvienas bloknotas yra susietas su viena žymės etikete.
@@ -844,4 +843,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="questions_title2">Reikia pagalbos?</string>
   <string name="bookmark_style">Žymės stilius</string>
   <string name="added_to_bookmark">Priskirta šiai žymei</string>
+  <string name="strongs_off">Išjungta</string>
+  <string name="strongs_links">Nuorodos</string>
+  <string name="strongs_text_and_links">Tekstas ir nuorodos</string>
 </resources>

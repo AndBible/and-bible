@@ -167,7 +167,7 @@
   <string name="prefs_font_text_size_summary">Nastavení velikosti hlavního písma</string>
   <string name="pref_font_family_label_name">Typ písma (%s)</string>
   <string name="prefs_font_family_summary">Změnit typ písma. Tip: další písma mohou být instalována pomocí Stáhnout dokumenty / Doplňky.</string>
-  <string name="prefs_text_bookmarks_title">Nastavení záložek a mých poznámek</string>
+  <string name="prefs_text_bookmarks_title">Nastavení záložek a poznámek</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Nastavení barev</string>
   <string name="window_color_settings_title">Nastavení barev okna</string>
@@ -262,6 +262,10 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="delete_reading_plan">Smazat tento plán</string>
   <string name="reading_plan_deleted">Plán čtení byl smazán</string>
   <string name="reading_plan_ships_with_ab">Plán čtení obsahuje %s</string>
+  <string name="confirm_delete_reading_plan">
+        Opravdu smazat %s včetně historie procházení?
+        Tip: Pokud plán potřebujete pouze aktualizovat, importujte soubor se stejným názvem, přičemž historie bude zachována.
+    </string>
   <string name="plan_duplicate_user_plan">
         Na SD kartě je uživatelský plán čtení
         jsword nebo plán čtení se stejným jménem jako interní plán. Nelze ho zde zobrazit.
@@ -318,7 +322,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="open_link_in_new_window">Otevřít v novém okně</string>
   <string name="open_link_in_special_window">Otevřít ve speciálním okně</string>
   <!--Bookmarks-->
-  <string name="bookmarks_and_mynotes_title">Záložky a mé poznámky</string>
+  <string name="bookmarks_and_mynotes_title">Záložky a poznámky</string>
   <string name="migrated_my_notes">Poznámky přemigrovány</string>
   <string name="bookmarks">Záložky</string>
   <string name="bookmark_added">Záložka přidána</string>
@@ -338,6 +342,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="bookmark_settings_hide_labels_title">Skrýt konkrétní štítky</string>
   <string name="bookmark_settings_hide_labels_summary">Skrýt záložky s konkrétním štítkem</string>
   <string name="auto_assign_labels_title">Nastavení štítků</string>
+  <string name="auto_assign_labels">Automatické a oblíbené štítky</string>
   <string name="auto_assign_labels1">Automaticky přidávat k záložkám</string>
   <string name="auto_assign_labels_primary">Nastavit jako primární</string>
   <string name="label_color">Barva štítku</string>
@@ -624,16 +629,22 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="history_for">Historie (%s: Okno %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigace</string>
+  <string name="help_nav_text">Na další či předchozí kapitolu se přesunete tažením prstu přes obrazovku.
+        Dvojklikem na text Bible se zobrazení přepne na celou obrazovku.
+ Rozdělené části obrazovky (zvaná okna) mají tlačítko menu v pravém horním rohu,
+         a k menu okna lze přistupovat dlouhým stiskem na nich.
+    </string>
   <string name="help_contextmenus_title">Kontextová menu</string>
-  <string name="help_bookmarks_title">Záložky a mé poznámky</string>
-  <string name="help_studypads_title">Studijní složky</string>
+  <string name="help_bookmarks_title">Záložky a poznámky</string>
   <string name="help_search_title">Hledat</string>
   <string name="help_search_text">Vyhledávaný text může obsahovat zvláštní znaky jako *, ?, AND, OR, NOT
         (viz \"Apache Lucene - Query Parser Syntax\" pro více informací)
     </string>
   <string name="help_workspaces_title">Pracovní plochy</string>
+  <string name="help_hidden_features_title">Méně známé úkony</string>
   <string name="help_window_pinning_title">Připínání oken</string>
   <!--Welcome text-->
+  <string name="redownload_documents">Rychle stáhnout</string>
   <!--Uncategorized-->
   <string name="close">Zavřít</string>
   <string name="something_with_parenthesis">%s (%s)</string>
@@ -646,6 +657,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="my_notes_description">Editovatelné poznámky přiloženy k záložce</string>
   <string name="my_notes_abbreviation">Poznámky</string>
   <string name="studypads">Studijní složky</string>
+  <string name="multi_description">Několik odkazů</string>
+  <string name="multi_abbreviation">Výběr</string>
   <string name="compare_description">Porovnat překlady</string>
   <string name="compare_abbreviation">Porovnat</string>
   <string name="compare">Porovnat</string>
@@ -655,15 +668,23 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="give_passphrase_for_module">Dokument %s je šifrován a k jeho otevření je třeba heslo</string>
   <string name="unlocking_failed">Otevření se nepovedlo, neplatné heslo</string>
   <string name="unlock_module">Nastavit heslo modulu</string>
+  <string name="unlock_info">Informace o zabezpečení modulu</string>
   <string name="try_again_passphrase">Heslo je nefunkční, zkustt znovu?</string>
+  <string name="cant_delete_last_bible">Nemohu odstranit poslední biblický dokument</string>
+  <string name="show_unlock_info">Informace o modulu a zabezpečení</string>
   <string name="prefs_show_error_box_title">Zobrazit Javascript chybové okno</string>
   <string name="prefs_show_error_box_summary">Vhodné pro vývojáře při debugování chyb BibleView Javascript. Zpomaluje běh aplikace.</string>
+  <string name="active_window_indicator_title">Ohraničení aktivního okna</string>
+  <string name="active_window_indicator_summary">Zvýraznit okraj aktivního okna</string>
   <string name="app_licence_title">Open source licence</string>
   <string name="how_to_contribute">Jak se zapojit a přispět?</string>
-  <string name="confirm_delete_bookmarks">Opravdu smazat záložku %d a její poznámky?</string>
+  <string name="confirm_delete_bookmarks">Opravdu smazat záložku %d včetně přidružených poznámek?</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Doporučit</string>
+  <string name="tell_friend_message1">Doporučuji tuto aplikaci - %s.</string>
+  <string name="tell_friend_message2">Je to aplikace k offline studiu Bible bohatá na funkce, přesto jednoduchá při používání.</string>
   <string name="tell_friend_message3">Nainstalujte z Play Store: %s</string>
+  <string name="tell_friend_message4">Více informací a možností instalace na %s</string>
   <string name="share_verse_ok">Sdílet / kopírovat</string>
   <string name="verse_action_copy">Kopírovat</string>
   <string name="share_verse_menu_title">Sdílet / kopírovat…</string>
@@ -672,12 +693,14 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="advertise_app">Propagovat aplikaci</string>
   <string name="verse_share_advertise">Sdíleno pomocí: %s.</string>
   <string name="abbreviate_reference">Zkrácený název</string>
+  <string name="version_name">Zkratka dokumentu</string>
   <string name="backup_button">Záloha</string>
   <string name="back_button">Zpět</string>
   <string name="upgrading_database">Upgraduji databázi. Vyčkejte…</string>
   <string name="initializing_app">Příprava spuštění…</string>
   <string name="show_notes">Zobrazit poznámky</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Používáte starou verzi balíku Android WebView (%s). Musíte aktualizovat  Android WebView minimálně na verzi %s, kterou vyžaduje %s. Na většině zařízení je to možné provést pomocí %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Přesto pokračovat</string>
   <string name="rate_title">Ohodnotit aplikaci</string>
@@ -688,16 +711,23 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
         Přejít do Google Play
     </string>
   <string name="does_not_exist_abbreviation">Neexistuje</string>
+  <string name="cant_change_wholeverse">Nelze vypnout uložení celého verše u této záložky</string>
+  <string name="whole_verse_turned_on">Záložka přiřazena celému verši</string>
   <string name="this_bookmark">Tato záložka</string>
   <string name="this_workspace">Tato pracovní plocha</string>
   <string name="primary_label">Primární štítek</string>
+  <string name="highlight_entire_verse">Zvýraznit celý verš</string>
   <string name="favourite_label">Oblíbený štítek</string>
   <string name="edit_label">Upravit štítek</string>
   <string name="delete_label_confirmation">Opravdu smazat štítek \"%s\"? Přidružené studijní složky budou také odstraněny.</string>
+  <string name="bookmark_underline_style_arbitrary">Styl podtržení záložek pro výběr</string>
+  <string name="bookmark_underline_style_whole_verse">Styl podtržení záložek pro celý verš</string>
   <string name="active_labels">Vybrané štítky</string>
   <string name="recent_labels">Poslední štíky</string>
   <string name="other_labels">Ostatní štítky</string>
   <string name="book_menu_sort_row_opt">Horizontální pořadí</string>
+  <string name="reset_workspace_labels">Vymazat nastavení automatických a oblíbených štítků této pracovní plochy?</string>
+  <string name="reset_hide_labels">Vymazat nastavení skrývání konkrétních štítků?</string>
   <string name="reorder">Znovu setřídit</string>
   <string name="system_items">Systémové akce</string>
   <string name="system_items1">Více</string>
@@ -713,6 +743,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="label_red">Červená</string>
   <string name="label_green">Zelená</string>
   <string name="label_blue">Modrá</string>
+  <string name="label_salvation">Pozdrav</string>
   <string name="label_underline">Podtrhnout</string>
   <string name="import_menu">Import a export</string>
   <string name="export_fileformat">Exportovat jako %s</string>
@@ -720,15 +751,22 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="import_from_db">Importovat databázový soubor</string>
   <string name="import_error">Import databázového souboru skončil chybou. Soubor může mít špatný formát nebo je vytvořen velmi starou verzí %s.</string>
   <string name="chooser_range">Rozsah</string>
+  <string name="chooser_jump">Přejít</string>
   <string name="chooser_OT_abbrev">SZ</string>
   <string name="chooser_NT_abbrev">NZ</string>
   <string name="chooser_style_grid">Tabulka</string>
   <string name="chooser_style_lists">Seznam</string>
   <string name="chooser_select">Vybrat %s</string>
+  <string name="chooser_pref_reset">Nepřecházet na 1. kapitolu/verš při výběru knihy/kapitoly</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Omlouváme se, uživatelské rozhraní je pouze částečně přeloženo v jazyce %s. Je tomu tak, protože %s je vytvářena dobrovolníky. S překladem aplikace můžete pomoci, vizte %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instrukce pro překladatele</string>
   <string name="questions_title">Otázky?</string>
+  <string name="questions_title2">Potřebujete pomoci?</string>
   <string name="bookmark_style">Styl záložky</string>
+  <string name="added_to_bookmark">Přiřazeno k této záložce</string>
+  <string name="strongs_off">Vypnuto</string>
+  <string name="strongs_links">Odkazy</string>
+  <string name="strongs_text_and_links">Text a odkazy</string>
 </resources>

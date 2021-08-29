@@ -654,7 +654,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
          »Zaznamek.« Opombe po meri lahko dodate novemu zaznamku, tako da tapnete zdaj
         poudarjeno besedilo v pogledu Biblij. V komentarjih je tudi poseben dokument \"Moji zapiski,\" ki vam omogoča,
         da si svoje zapiske ogledate v ločenem oknu.</string>
-  <string name="help_studypads_title">Beležke</string>
   <string name="help_studypads_text">        Študijske beležke so zasnovane tako, da olajšajo pisanje opomb, pripravo pridig ali samo
         zapis osebnih zapisov preučevanja Biblije, ki vsebujejo več biblijskih referenc. Vsaka študijska beležka je povezana z eno oznako zaznamka.
         Vsi zaznamki, ki so bili ustvarjeni s to oznako, se samodejno prikažejo v dokumentu študijske beležke.
@@ -841,4 +840,5 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="questions_title2">Potrebujete pomoč?</string>
   <string name="bookmark_style">Stil zaznamka</string>
   <string name="added_to_bookmark">Dodeljeno temu zaznamku</string>
+  <string name="strongs_links">Povezave</string>
 </resources>

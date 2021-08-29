@@ -1,4 +1,4 @@
-openMyNotes: Otevřít Mé poznámky
+openMyNotes: Otevřít poznámky
 openStudyPad: Otevřít ve studijní složce (%s)
 noteText: Poznámky pod čarou (%s)
 noteTextWithoutType: Poznámky pod čarou
@@ -23,7 +23,7 @@ inputReference: Vložit biblický odkaz
 invalidReference: Verš nebyl nalezen
 assignLabels: Štítky
 bookmarkAccurate: Záložka vytvořena v %s
-bookmarkInaccurate: ""
+bookmarkInaccurate: "Záložky knihy neuloženy, obsah je zobrazen v %s."
 defaultBook: základní dokument
 ok: OK
 yes: "Ano"
@@ -53,7 +53,7 @@ removeStudyPadConfirmationTitle: "Odstranit položku studijní složky?"
 dragHelp: Přetažením setřídit
 saved: uloženo
 openAll: Otevřít všechny odkazy
-editBookmarkPlaceholder: ""
+editBookmarkPlaceholder: Klepnutím upravíte poznámky této záložky
 onlyLabel: Pouze štítek
 wholeBookmark: Celá záložka
 otherNoteText: Jiná poznámka

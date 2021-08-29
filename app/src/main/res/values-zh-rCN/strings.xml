@@ -637,7 +637,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="help_nav_title">导航</string>
   <string name="help_contextmenus_title">内文选单</string>
   <string name="help_bookmarks_title">书签 &amp; 我的笔记</string>
-  <string name="help_studypads_title">个人笔记</string>
   <string name="help_studypads_text">
 个人笔记可方便使用者编写及准备讲道笔记、或者作个人的多经文研究。每一个个人笔记都有专属的书签。所有标记了该书签的经文，均会自动出现在对应的个人笔记中。除了书签以外，使用者亦可自行增添文字。
 </string>
@@ -800,4 +799,5 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="questions_title2">需要帮助？</string>
   <string name="bookmark_style">书签样式</string>
   <string name="added_to_bookmark">分配至此书签</string>
+  <string name="strongs_links">连结</string>
 </resources>

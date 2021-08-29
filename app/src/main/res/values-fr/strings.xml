@@ -633,7 +633,6 @@ Appuyez longuement sur les liens pour choisir si vous souhaitez les ouvrir dans 
   menu contextuel. Vous pouvez ajouter vos notes personnalisées au nouveau signet en tapant
  sur le texte en surbrillance dans l\'affichage de la Bible. Il existe également un document spécial « Mes notes » dans les commentaires qui vous permet
 d\'afficher vos notes dans une fenêtre séparée.</string>
-  <string name="help_studypads_title">Bloc-notes</string>
   <string name="help_studypads_text">
  Les bloc-notes sont conçus pour faciliter l\'écriture de notes de sermon, la préparation de sermons ou simplement pour
   écrire des notes personnelles d\'études bibliques comportant plusieurs références bibliques. Chaque bloc-notes est associé à une étiquette de signet.
@@ -824,4 +823,5 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="questions_title2">Besoin d\'aide ?</string>
   <string name="bookmark_style">Style du signet</string>
   <string name="added_to_bookmark">Assigner à ce signet</string>
+  <string name="strongs_links">Liens</string>
 </resources>

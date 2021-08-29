@@ -658,7 +658,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
  नए बुकमार्क में जोड़ सकते हैं। टिप्पणियों में एक \"मेरे नोट्स\" विशेष दस्तावेज भी है जो आपको अपने नोट्स
  को एक अलग विंडो में देखने की अनुमति देता है।
  </string>
-  <string name="help_studypads_title">स्टडी पैड</string>
   <string name="help_studypads_text">
 स्टडी पैड को इस तरह से डिज़ाइन किया गया है कि धर्मोपदेश नोट्स लिखना, धर्मोपदेश तैयार करना या न्यायसंगत बनाना आसान हो जाता है
 व्यक्तिगत बाइबिल अध्ययन नोट्स लिखें जिनमें कई बाइबिल संदर्भ हों। प्रत्येक स्टडी पैड एक बुकमार्क लेबल से जुड़ा होता है।
@@ -854,4 +853,5 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="questions_title2">मदद की ज़रूरत है?</string>
   <string name="bookmark_style">बुकमार्क शैली</string>
   <string name="added_to_bookmark">इस बुकमार्क को असाइन किया गया</string>
+  <string name="strongs_links">लिंक</string>
 </resources>

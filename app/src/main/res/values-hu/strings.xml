@@ -635,7 +635,6 @@ Hivatkozások hosszan nyomásäval kiválaszthatjuk, hogy a hivatkozás a jelenl
 a felugró menüből. Az egyedi jegyzeteket az új könyvjelzőhöz hozzáadhatja a kijelölt szövegre koppintva
 a Biblia nézetben. A kommentárokban található egy \"Jegyzetek\" speciális dokumentum is, amely lehetővé teszi
 hogy külön ablakban tekintse meg a jegyzeteit.</string>
-  <string name="help_studypads_title">Jegyzetlapok</string>
   <string name="help_studypads_text">
 A \'Jegyzetlapok\' funkció megkönnyíti jegyzetek készítését prédikációkhoz és prédikációk írását,
 vagy bármilyen jegyzet készítését, amely több bibliai verse hivatkozik. Minden egyes jegyzetlaphoz külön könyvjelző címke tartozik.
@@ -811,4 +810,5 @@ jelentse be az észlelt problémát</string>
   <string name="questions_title2">Segítség?</string>
   <string name="bookmark_style">Könyvjelző stílusa</string>
   <string name="added_to_bookmark">Hozzácsatolva a könyvjelzőhöz</string>
+  <string name="strongs_links">Hivatkozások</string>
 </resources>

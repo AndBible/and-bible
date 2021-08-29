@@ -630,7 +630,6 @@ Mantenha pressionado os links para escolher se deseja abri-los na janela atual, 
  menu pop-up. Você pode adicionar as suas notas personalizadas ao novo marcador tocando no texto agora
  destacado na visualização da Bíblia. Também existe um documento especial \"As Minhas Notas\" nos comentários que permite
  ver suas notas numa janela separada.</string>
-  <string name="help_studypads_title">Áreas de Estudo</string>
   <string name="help_studypads_text">
 As Áreas de estudo são projetadas para tornar mais fácil escrever notas de sermões, preparar sermões ou apenas
  anotar notas pessoais de estudo da Bíblia que tenham várias referências bíblicas. Cada Áre de estudo está associado a uma etiqueta de marcador.
@@ -806,4 +805,5 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="questions_title2">Precisa de ajuda?</string>
   <string name="bookmark_style">Tipo de maracador</string>
   <string name="added_to_bookmark">Atribuído a este marcador</string>
+  <string name="strongs_links">Atalhos</string>
 </resources>

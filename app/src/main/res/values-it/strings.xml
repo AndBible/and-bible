@@ -616,7 +616,6 @@ Premi a lungo un segnalibro nell\'elenco dei segnalibri per aggiungere etichette
 Premi a lungo i collegamenti per scegliere se desideri aprirli nella finestra corrente, in una nuova finestra o nella finestra dei collegamenti speciali.</string>
   <string name="help_bookmarks_title">Segnalibri e Annotazioni</string>
   <string name="help_bookmarks_text">I segnalibri possono essere creati selezionando del testo e scegliendo \"Segnalibri\" dal menù popup. Puoi aggiungere note personali al nuovo segnalibro toccando il testo ora evidenziato della Bibbia. C\'è anche un documento speciale \"Annotazioni\" tra i commentari che ti consente di vedere le tue note in una finestra separata.</string>
-  <string name="help_studypads_title">Appunti di studio</string>
   <string name="help_studypads_text">
 Gli Appunti di studio sono progettati per facilitare la scrittura di appunti per la preparazione di sermoni, o semplicemente per annotare note personali di studio della Bibbia con riferimenti biblici multipli. Ogni Appunto di studio è associato a un\'etichetta di Segnalibro. Tutti i Segnalibri creati con una specifica etichetta appaiono automaticamente nel documento dell\'appunto di studio. Oltre ai Segnalibri, si possono inserire voci di testo personalizzate negli Appunti di studio.</string>
   <string name="help_search_title">Ricerca</string>
@@ -800,4 +799,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="questions_title2">Serve aiuto?</string>
   <string name="bookmark_style">Stile dei segnalibri</string>
   <string name="added_to_bookmark">Assegnato a questo segnalibro</string>
+  <string name="strongs_off">Spento</string>
+  <string name="strongs_links">Collegamenti</string>
+  <string name="strongs_text_and_links">Testo e collegamenti</string>
 </resources>

@@ -658,7 +658,6 @@ el menú emergente. Puede agregar sus notas personalizadas al nuevo marcador toc
 texto resaltado en la vista Biblia. También hay un documento especial \"Mis notas\" en los comentarios que le permite
 para ver sus notas en una ventana separada.
 </string>
-  <string name="help_studypads_title">Pizarras de estudio</string>
   <string name="help_studypads_text">
 Los pizarras de estudio están diseñados para facilitar la redacción de notas de sermones, preparar sermones o simplemente
 escriba notas personales de estudio bíblico que tengan múltiples referencias bíblicas. Cada pizarra de estudio está asociado con una etiqueta de marcador.
@@ -852,4 +851,5 @@ informe los problemas a los mantenedores de texto
   <string name="questions_title2">¿Necesitas ayuda?</string>
   <string name="bookmark_style">Estilo de marcador</string>
   <string name="added_to_bookmark">Asignado a este marcador</string>
+  <string name="strongs_links">Enlaces</string>
 </resources>

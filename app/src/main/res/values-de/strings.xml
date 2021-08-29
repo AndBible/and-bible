@@ -619,7 +619,6 @@ Langes Drücken auf Verweise ermöglicht die Auswahl, den Verweis im gleichen Fe
   <string name="help_bookmarks_title">Lesezeichen &amp; eigene Notizen</string>
   <string name="help_bookmarks_text">Lesezeichen können erzeugt werden, indem man Text auswählt und \"Lesezeichen vom Pop-up Menü auswählt.
 Du kannst deine eigenen Notizen hinzufügen, indem du den jetzt hervorgehobenen Text anklickst. Es gibt auch ein spezielles Dokument \"eigene Notizen\" unter den Kommentaren, in dem du deine Notizen in einem eigenen Fenster ansehen kannst.</string>
-  <string name="help_studypads_title">Studienmappen</string>
   <string name="help_studypads_text">
 Studienmappen sollen das Niederschreiben von Predigtnotizen, ganzen Predigten oder einfach persönlichen Notizen fürs Bibelstudium zu erleichtern, die mehrere biblische Querverweise beinhalten. Jede Studienmappe ist mit einer Lesezeichenkategorie verbunden.
 Alle Lesezeichen, die zu dieser Kaegorie hinzugefügt worden sind, erscheinen automatisch in der Studienmappe.
@@ -787,4 +786,5 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="questions_title2">Brauchst du Hilfe?</string>
   <string name="bookmark_style">Lesezeichenstil</string>
   <string name="added_to_bookmark">Diesem Lesezeichen zugewiesen</string>
+  <string name="strongs_links">Links</string>
 </resources>
