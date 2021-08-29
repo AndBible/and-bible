@@ -266,6 +266,50 @@
   <string name="delete_reading_plan">이 계획 삭제</string>
   <string name="reading_plan_deleted">읽기 계획이 삭제되었습니다</string>
   <string name="reading_plan_ships_with_ab">이 읽기 계획은 %s을 포함합니다.</string>
+  <string name="confirm_delete_reading_plan">
+         %s 를 읽은 히스토리와 함께 삭제하시겠습니까?
+        힌트: 계획을 업데이트하려면 같은 파일 이름으로 다시 가져오기하면 됩니다
+        그러면 읽은 히스토리가 보존됩니다.
+    </string>
+  <string name="plan_duplicate_user_plan">
+        사용자 읽기 계획이 sd카드에 있습니다
+        내부 계획과 같은 이름의 jsword/readingplan 이 있습니다. 여기에는 나타나지 않습니다.
+        확장자는 .properties로 남기고 파일 이름을 다른 것으로 바꿔주세요
+    </string>
+  <string name="plan_name_y1ntpspr">일년에 신약, 시편과 잠언 읽기</string>
+  <string name="plan_description_y1ntpspr">
+        Courtesy of HEARTLIGHT Internet Magazine,
+        http://www.heartlight.org, permission granted
+    </string>
+  <string name="plan_name_y1ot1nt1_chronological">연대순으로 일년 일독</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+        성경의 연대순으로 읽는 계획.
+        연대 순서는 대략적인 것입니다.
+    </string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1년에 구약+신약 같이 읽기</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+        성경을 1년에 완독합니다
+        구약과 신약을 매일 함께 읽습니다.
+    </string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">1년 일독</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+        성경을 창세기부터 요한계시록까지
+        1년 동안 읽습니다. 구약을 먼저, 그리고 신약입니다.
+    </string>
+  <string name="plan_name_y1ot1nt2_mcheyne">맥체인 1년 하루 4장</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+        이 계획은 맥체인 읽기 시스템에 기초한 것으로,
+        가족 및 개인 묵상을 위해 네 개의 본문을 읽습니다.
+        매일 구약에서 두 본문, 신약에서 한 본문, 그리고 시편이나 복음서에서 한 본문을 읽습니다.
+       일년에 구약은 한 번, 신약과 시편은 두 번 읽게 됩니다.
+    </string>
+  <string name="plan_name_y1ot6nt4_profHorner">Horner 교수의 하루 10장 읽기 계획</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Courtesy of Prof. Horner, permission granted</string>
+  <string name="plan_name_y2ot1ntps2">2년 일독 성경, 신약과 시편은 두번읽기</string>
+  <string name="plan_description_y2ot1ntps2">
+        성경을 2년에 한 번, 신약과 시편은 두 번 읽습니다.
+        Courtesy of Wholesome Words,  http://www.wholesomewords.org/, permission granted
+    </string>
   <!--Document context menu-->
   <string name="delete">삭제</string>
   <string name="delete_index">검색 색인을 삭제</string>
@@ -274,17 +318,37 @@
   <string name="delete_search_index_doc">%s 의 색인을 삭제하시겠습니까?</string>
   <!--Verse context menu-->
   <string name="notes">각주 및 참고 문헌</string>
+  <string name="share_verse">공유...</string>
+  <string name="share_verse_widget_title">선택을 공유</string>
+  <string name="share_verse_subject_2">성경 구절을 %s로 공유하였습니다.</string>
   <string name="compare_translations">번역을 비교</string>
   <!--Link context menu-->
+  <string name="open_link_in_this_window">여기서 링크 열기</string>
+  <string name="open_link_in_new_window">새 창에서 링크 열기</string>
+  <string name="open_link_in_special_window">특수 창에서 링크 열기</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">북마크와 내 노트</string>
+  <string name="migrated_my_notes">내 노트 이전함</string>
   <string name="bookmarks">즐겨찾기</string>
   <string name="bookmark_added">추가된 즐겨찾기</string>
+  <string name="manage_labels">레이블 관리</string>
   <string name="assign_labels">할당 레이블</string>
   <string name="new_item">새로운</string>
   <string name="new_label">새 분류</string>
   <string name="label_name_prompt">이름</string>
   <string name="label_unlabelled">분류되지 않은</string>
   <string name="add_bookmark1">북마크</string>
+  <string name="add_bookmark2">북마크 선택</string>
+  <string name="add_bookmark3">선택</string>
+  <string name="add_bookmark_whole_verse">구절 북마크</string>
+  <string name="add_bookmark_whole_verse1">구절</string>
+  <string name="add_bookmark_whole_verse2">모든 구절</string>
+  <string name="remove_bookmark">삭제</string>
+  <string name="bookmark_settings_hide_labels_title">특정 레이블 숨기기</string>
+  <string name="bookmark_settings_hide_labels_summary">특정한 레이블로 표시된 북마크 숨기기</string>
+  <string name="auto_assign_labels_title">레이블 설정</string>
+  <string name="auto_assign_labels">자동 지정과 즐겨찾기 레이블</string>
+  <string name="auto_assign_labels1">레이블을 새로운 북마크에 자동으로 지정</string>
   <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">날짜 순서</string>
@@ -377,12 +441,14 @@
   <!--Notifications-->
   <!--Workspaces-->
   <string name="new_workspace">새로운</string>
+  <string name="delete_workspace">삭제</string>
   <string name="rename_workspace">이름 바꾸기</string>
   <string name="save_and_exit">저장</string>
   <string name="reset_settings">재설정</string>
   <!--Beta notice-->
   <!--History-->
   <!--Help-->
+  <string name="help_bookmarks_title">북마크와 내 노트</string>
   <string name="help_search_title">검색</string>
   <string name="help_window_pinning_title">윈도우 고정</string>
   <!--Welcome text-->
