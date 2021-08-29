@@ -7,9 +7,9 @@
   xmlns:tools="http://schemas.android.com/tools"
   tools:ignore="MissingTranslation">
     <string-array name="strongsModeEntries">
-		<item>Off</item>
-		<item>Links</item>
-		<item>Text and links</item>
+		<item>@string/strongs_off</item>
+		<item>@string/strongs_links</item>
+		<item>@string/strongs_text_and_links</item>
 	</string-array>
 
 	<string-array name="documentTypes">
