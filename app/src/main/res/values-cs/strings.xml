@@ -645,6 +645,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="help_window_pinning_title">Připínání oken</string>
   <!--Welcome text-->
   <string name="redownload_documents">Rychle stáhnout</string>
+  <string name="welcome_message">Děkujeme, že jste si stáhli náš produkt %s. Aktuálně nemáte nainstalovanou žádnou Bibli či jiný dokument. Pokračujte instalací alespoň jednoho dokumentu z Internetu nebo instalací zálohy ZIP souboru.
+    </string>
   <!--Uncategorized-->
   <string name="close">Zavřít</string>
   <string name="something_with_parenthesis">%s (%s)</string>

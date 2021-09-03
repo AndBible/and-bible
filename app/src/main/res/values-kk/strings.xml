@@ -72,7 +72,7 @@
   <string name="prefs_show_bookmarks_summary">Бар кітап белгілерін жасыру үшін таңдауды алыңыз</string>
   <string name="prefs_show_mynotes_summary">Менің нұсқауларымен бірге аяттарда белгішені көрсету</string>
   <string name="prefs_show_notes_summary">Ескертпелер мен айқасқан сілтемелерді көрсету</string>
-  <string name="prefs_show_strongs_summary">Грек мысалдарына байланыс линктер ; Еврей анықтаулары</string>
+  <string name="prefs_show_strongs_summary">Грек мысалдарына байланыс сілтемелер ; Еврей анықтаулары</string>
   <string name="prefs_show_morphology_summary">Робинсонның Грек морфологиясын көрсету</string>
   <string name="prefs_section_title_summary">Канон ережелеріне жатпайтын бөлмінің тақырыптарын көрсету</string>
   <string name="prefs_red_letter_summary">Мәсіхтің сөздерін қызыл түсімен көрсету</string>
@@ -103,8 +103,8 @@
   <string name="options_menu_night_mode">Түнгі режим</string>
   <string name="prefs_navigate_to_verse_title">Аятқа навигация жүргізу</string>
   <string name="prefs_navigate_to_verse_summary">Үзіндіні таңдап белгілегенде аятты (әрі тарауды) таңдаңыз</string>
-  <string name="prefs_open_links_in_special_window_title">Сілтемелер терезесі</string>
-  <string name="prefs_open_links_in_special_window_summary">Сілтемелер мен Strongs-ті жылдам көрсету үшін,сілтемелерді арнайы терезеде ашыңыз.</string>
+  <string name="prefs_open_links_in_special_window_title">Терезені қосыптұрады</string>
+  <string name="prefs_open_links_in_special_window_summary">Айқас-сілтемелер мен Strongs-ті жылдам көрсету үшін, сілтемелерді арнайы терезеде ашыңыз.</string>
   <string name="prefs_text_size_sample_text">Мысалы мәтін</string>
   <string name="prefs_screen_keep_on_title">Бейнені қосулы ұстаңыз</string>
   <string name="prefs_screen_keep_on_summary">Осы қолданбаны пайдаланып отырғанда, бейнені өшіп қалуын болдырмаңыз. </string>
@@ -313,9 +313,9 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="share_verse_subject_2">Киелі Кітап аяты %s пайдаланып сізбен бөлісілді</string>
   <string name="compare_translations">Аудармаларды салыстыру</string>
   <!--Link context menu-->
-  <string name="open_link_in_this_window">Линкті мұнда ашу</string>
+  <string name="open_link_in_this_window">Сілтемені мұнда ашу</string>
   <string name="open_link_in_new_window">Жаңа терезеде линк сілтемені ашыңыз</string>
-  <string name="open_link_in_special_window">Айрықша арнайы терезеде линк сілтемені ашыңыз</string>
+  <string name="open_link_in_special_window">Айрықша арнайы терезеде сілтемені ашыңыз</string>
   <!--Bookmarks-->
   <string name="bookmarks_and_mynotes_title">Бетбелгілер және менің жазбаларым</string>
   <string name="migrated_my_notes">Жазбалырымды көшіру</string>
@@ -618,7 +618,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 Киелі Кітап көрінісін ұзақ басып, қазіргі аятқа әсер ететін әрекеттер үшін әрекет режимін ашыңыз.
 Құжатты Таңдау тармағының тізім көрінісіндегі құжат элементін ұзақ басыңыз, не құжатты жою үшін Жүктеңіз немесе ақпаратты қараңыз.
 Таңбаларды қосу не кітап белгілерін жою үшін, кітап белгілер тізіміндегі кітап белгісін ұзақ басыңыз.
-Егер сіз байланысты линктерді қазіргі терезеде, жаңа терезеде немесе айрықша арнайы линктер терезесінде ашып таңдағыңыз келсе, ол үшін линктерді ұзақ басыңыз.</string>
+Егер сіз байланысты сілтемелерді қазіргі терезеде, жаңа терезеде немесе айрықша арнайы сілтемелер терезесінде ашып таңдағыңыз келсе, ол үшін сілтемелерді ұзақ басыңыз.</string>
   <string name="help_bookmarks_title">Бетбелгілер және менің жазбаларым</string>
   <string name="help_bookmarks_text">Мәтінді және жылжымалы мәзірдегі \"бетбелгі\" таңдау арқылы бетбелгілерді жасауға болады.
  Киелі кітап түріндегі таңдалған мәтінді басу арқылы жаңа бетбелгіге өз жазбаларыңызды қоса аласыз. Сондай-ақ, түсініктемелерде \"менің жазбаларым\" атты арнайы құжаты бар, ол сіздің жазбаларыңызды бөлек терезеде көруге мүмкіндік береді</string>
@@ -794,5 +794,7 @@ Google Play -ге өтіңіз
   <string name="questions_title2">Көмек қажет пе?</string>
   <string name="bookmark_style">Бетбелгі стилі</string>
   <string name="added_to_bookmark">Бұл бетбелгіге тағайындалды</string>
+  <string name="strongs_off">өшірулі</string>
   <string name="strongs_links">Сілтемелер</string>
+  <string name="strongs_text_and_links">Мәтін мен Сілтемелер</string>
 </resources>

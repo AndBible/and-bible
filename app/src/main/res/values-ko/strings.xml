@@ -349,7 +349,10 @@
   <string name="auto_assign_labels_title">레이블 설정</string>
   <string name="auto_assign_labels">자동 지정과 즐겨찾기 레이블</string>
   <string name="auto_assign_labels1">레이블을 새로운 북마크에 자동으로 지정</string>
+  <string name="auto_assign_labels_primary">Primary로 자동 지정</string>
+  <string name="label_color">레이블 색</string>
   <!--can be removed-->
+  <string name="label_color_example">예</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">날짜 순서</string>
   <string name="sort_by_bible_book">성경의 순서</string>
@@ -381,14 +384,59 @@
   <string name="speak_queue">대기열</string>
   <string name="speak_repeat">반복</string>
   <!--Speak - Bible-->
+  <string name="speak_speed_title">읽기 속도</string>
+  <string name="speak_and_play_earcons_title">읽기 및 이어콘 소리 재생</string>
+  <string name="playback_settings_title">읽기 설정</string>
+  <string name="speak_settings_title">일반 읽기 설정</string>
+  <string name="speak_bookmarking_settings_title">북마크 설정</string>
+  <string name="speak_bookmarks_menu_title">북마크에서 읽기</string>
+  <string name="speak_advanced_settings">고급 설정</string>
+  <string name="speak_sleep_timer_title">잠자기 타이머</string>
+  <string name="speak_no_books_available">읽을 수 있는 책이 없습니다</string>
+  <string name="speak_general_error">이 책은 읽을 수 없습니다</string>
+  <string name="repeat_passage">단락 반복</string>
+  <string name="set_repeat_passage_range">단락 반복 범위 지정</string>
+  <string name="speak_beginning_of_passage">단락 처음 선택</string>
+  <string name="speak_ending_of_passage">단락 끝 선택</string>
+  <string name="speak_verse_range_to_repeat">반복할 구절 범위 선택</string>
+  <string name="speak_ending_verse_must_be_later">끝 절은 시작 절보다 뒤에 있어야 합니다</string>
+  <string name="conf_speak_synchronize">읽기 뒤에 텍스트</string>
+  <string name="conf_speak_auto_bookmark">자동 북마크</string>
+  <string name="conf_save_playback_settings_to_bookmarks">재생 설정을 북마크에 저장</string>
+  <string name="conf_replace_divinename">하나님 이름을 야웨로 바꿈</string>
+  <string name="conf_change_chapter">장 변화</string>
+  <string name="conf_change_title">제목</string>
   <string name="conf_speak_footnotes">각주</string>
+  <string name="conf_speak_sleep_timer">잠자기 타이머 설정</string>
+  <string name="sleep_timer_title">잠자기 시간 분 단위로</string>
+  <string name="sleep_timer_set">잠자기 타이머 설정. 타이머 설정: %d 분</string>
+  <string name="sleep_timer_started">잠자기 타이머, %d 분이 시작되었습니다</string>
+  <string name="sleep_timer_active_at">잠자기 타이머: %s 분 남았습니다.</string>
   <string name="speak_next">다음</string>
   <string name="speak_previous">이전</string>
+  <string name="widget_toggle_sleep_timer">잠자기 타이머 켜기/끄기</string>
+  <string name="widget_bookmark_helptext">북마크 읽기 버튼이 여기 나타납니다.</string>
+  <string name="speak_status_stopped">중지됨</string>
+  <string name="speak_autobookmarking_disabled">북마크 비활성화됨!</string>
+  <string name="system_speak_settings">시스템 TTS 설정 열기</string>
+  <string name="auto_assing_labels_help1">여기서 만드는 북마크에 자동으로 어떤 레이블을 지정할지 조절할 수 있습니다.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">이 설정은 %s에 적용됩니다.</string>
+  <string name="setting_scope_window">이 창</string>
+  <string name="setting_scope_workspace">이 워크플레이스</string>
+  <string name="assing_labels_help1">각 북마크는 여러 레이블에 지정될 수 있습니다.</string>
   <!--param is bookmark icon-->
+  <string name="assing_labels_help2">%s 를 사용하여 어떤 레이블 색이 보여줄지 지정하세요..</string>
   <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">%s 아이콘을 탭하여 그 레이블에 새 북마크에 자동으로 지정되게 합니다.</string>
   <!--param is heart icon-->
+  <string name="assing_labels_help4">%s 을 탭하여 레이블을 즐겨찾기에 넣고 쉽게 찾을 수 있게 합니다.</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">%s을 탭하여 선택에 따라 리스트의 순서를 바꿉니다.</string>
+  <string name="workspace_text_options_help_title">워크플레이스 텍스트 옵션</string>
+  <string name="workspace_text_options_help1">이 설정은 모든 워크플레이스 창의 기본 설정입니다.</string>
+  <string name="workspace_text_options_help2">각 개별 창의 설정을 바꾸어 적용시킬 수 있습니다.</string>
+  <string name="window_text_options_help_title">창 텍스트 옵션</string>
   <!--Parameter is actual icon-->
   <!--Parameter is actual icon-->
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
@@ -468,4 +516,5 @@
   <string name="system_items1">기타</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <!--will be added to incomplete_translation as a link-->
+  <string name="strongs_links">링크</string>
 </resources>

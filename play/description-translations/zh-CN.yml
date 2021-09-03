@@ -1,15 +1,15 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: 研經工具 - 由 And Bible 開源計劃開發
+title: 研经工具 - 由 And Bible 开源计划开发
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: 離線閱讀聖經、註釋、字典或書本。
+short_description: 离线阅读圣经、注释、字典或书本。
 # Main (first) subtitle of the Play Store main (long) description text.
-subtitle_1: 功能強大的的研經工具
+subtitle_1: 功能强大的的研经工具
 paragraph_1_1: >-
-  And Bible開源計劃的研經工具是一款多功能、易用的離線Android程式。此程式不單是一個純粹的聖經閱讀器，也專注於成功個人全方位的研經工具。
+  And Bible开源计划的研经工具是一款多功能、易用的离线Android程式。此程式不单是一个纯粹的圣经阅读器，也专注于成功个人全方位的研经工具。
 paragraph_1_2: >
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
-subtitle_2: 強大的研經功能
+subtitle_2: 强大的研经功能
 paragraph_2_1: >
 feature_01: ""
 feature_02: ""
@@ -18,14 +18,14 @@ feature_03: ""
 feature_04: >
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill、Matthew Henry之類
+commentary_examples: Gill、Matthew Henry之类
 # Examples of cross-reference collections.
 cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
 feature_05: ""
-feature_06: 具彈性的搜尋
+feature_06: 具弹性的搜寻
 feature_07: ""
 feature_09: >
-  讀經計劃：訂立聖經閱讀目標
+  读经计划：订立圣经阅读目标
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
@@ -34,25 +34,25 @@ feature_11: >
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: ESV、NIV 及 NKJV
 feature_12: >
-  離線可用：只有下載文件時需要上網。
+  离线可用：只有下载文件时需要上网。
 feature_13: >
-subtitle_3: 我們需要大家一起造出最好的聖經工具！
+subtitle_3: 我们需要大家一起造出最好的圣经工具！
 paragraph_3_1: >
-contr_1: 開發新功能，
-contr_2: 測驗未開放的新功能，
-contr_3: 保持介面翻譯更新，及
-contr_4: 協助取得版權及授權、轉換文件至SWORD格式以擴充模組庫。
+contr_1: 开发新功能，
+contr_2: 测验未开放的新功能，
+contr_3: 保持介面翻译更新，及
+contr_4: 协助取得版权及授权、转换文件至SWORD格式以扩充模组库。
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: "如果你是專業軟件開發者或測試員，請考慮義務幫助此計劃。如想要更多資訊，請參見 {{how_to_contribute_url}} 。"
-subtitle_4: 連結
+paragraph_4_1: "如果你是专业软件开发者或测试员，请考虑义务帮助此计划。如想要更多资讯，请参见 {{how_to_contribute_url}} 。"
+subtitle_4: 连结
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 link_1: >
-  主頁：{{homepage_url}}
+  主页：{{homepage_url}}
 link_2: >
-  在 Facebook 上讚好 And Bible：{{facebook_url}}
+  在 Facebook 上赞好 And Bible：{{facebook_url}}
 link_3: >
-  我們的 Youtube 頻道：{{youtube_url}}
+  我们的 Youtube 频道：{{youtube_url}}
 link_4: >
-  常見問題：{{faq_url}}
+  常见问题：{{faq_url}}
 link_5: >
-  Github Project 頁面：{{github_url}}
+  Github Project 页面：{{github_url}}

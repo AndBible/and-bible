@@ -508,9 +508,9 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="module_about_repository">Server di distribuzione: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title1">Segnalazione errori</string>
+  <string name="send_bug_report_title1">Segnala un problema</string>
   <string name="send_feedback_title">Feedback</string>
-  <string name="send_bug_report_title">Segnalazione errori</string>
+  <string name="send_bug_report_title">Segnala un problema</string>
   <string name="report_bug_email_subject_3">[%s] Segnalazione errori per %s %s</string>
   <string name="report_bug_big_heading">PER FAVORE SCRIVI LA TUA SEGNALAZIONE AL DI SOPRA DI QUESTA RIGA</string>
   <string name="report_bug_heading1">Istruzioni:</string>
@@ -589,9 +589,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="beta_notice_content_1">
 Nella versione beta, ci sono nuove funzionalità che non sono ancora state testate del tutto, e quindi l\'uso della beta potrebbe introdurre comportamenti imprevisti o bug. Si consiglia ai normali lettori di utilizzare la versione stabile.</string>
   <string name="beta_notice_content_2">
-Gli utenti beta sono incoraggiati a segnalare bug tramite Google Play o
- (preferibilmente) via %s.
-</string>
+Gli utenti beta sono incoraggiati a segnalare bug tramite Google Play o (preferibilmente) via %s.</string>
   <string name="beta_notice_content_3">Se sei un programmatore, prendi in considerazione la possibilità di contribuire con dei bug fix tramite %s :-)</string>
   <string name="beta_notice_github_issues">Problemi Github</string>
   <string name="beta_notice_github">Github</string>

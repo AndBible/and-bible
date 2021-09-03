@@ -1,5 +1,5 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: Aplikace ke studiu Bible od And Bible Open Source projektu
+title: Studium Bible od And Bible Open Source projektu
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: ""
 # Main (first) subtitle of the Play Store main (long) description text.
@@ -12,7 +12,7 @@ subtitle_2: ""
 paragraph_2_1: >
 feature_01: ""
 feature_02: ""
-feature_03: ""
+feature_03: Integrace Strongových čísel umožňuje rozbor řeckých a hebrejských slov
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_04: >
 # Examples of commentaries. You can add here also other commentaries of your language if they

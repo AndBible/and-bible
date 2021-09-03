@@ -1,80 +1,80 @@
-openMyNotes: ""
+openMyNotes: פתח ב"הערות שלי"
 openStudyPad: ""
 noteText: הערות שוליים (%s)
 noteTextWithoutType: הערות שוליים
-crossReferenceText: ""
+crossReferenceText: מראי מקום
 findAllOccurrences: מצא את כל המופעים
-reportError: ""
-errorTitle: ""
+reportError: דווח על בעיה
+errorTitle: אירעה שגיאה
 warningTitle: אזהרה
-normalTitle: ""
+normalTitle: אנא שים לב
 footnoteTypeUndefined: סוג שאינו מוגדר
 footnoteTypeStudy: מחקר
 footnoteTypeExplanation: הסבר
-footnoteTypeVariant: ""
+footnoteTypeVariant: וריאנט
 footnoteTypeAlternative: חלופה
 footnoteTypeTranslation: תרגום
-clearLog: ""
+clearLog: מחיקת לוג שגיאות
 editNote: עריכה
-editNotePlaceholder: ""
-editTextPlaceholder: ""
-inputPlaceholder: ""
-inputReference: ""
+editNotePlaceholder: עריכת הערה
+editTextPlaceholder: לחץ לעריכת הטקסט
+inputPlaceholder: כתוב כאן
+inputReference: הכנס מראה מקום
 invalidReference: הפסוק לא נמצא
 assignLabels: תוויות
-bookmarkAccurate: ""
+bookmarkAccurate: הסימניה נוצרה ב %s
 bookmarkInaccurate: ""
-defaultBook: ""
+defaultBook: טקסט מקראי ברירת מחדל
 ok: אישור
 yes: "כן"
-ambiguousSelection: ""
+ambiguousSelection: "מה תרצה לעשות?"
 cancel: ביטול
 removeBookmarkConfirmationTitle: "למחוק את הסימניה?"
-removeBookmarkConfirmation: ""
+removeBookmarkConfirmation: "אתה בטוח שאתה רוצה למחוק סימניה זו?"
 closeModal: סגירה
-createdAt: ""
-lastUpdatedOn: ""
-strongsLink: ""
-morphLink: ""
-strongsAndMorph: ""
+createdAt: "נוצר: %s"
+lastUpdatedOn: "עודכן לאחרונה: %s"
+strongsLink: הגדרות של סטרונג (%s)
+morphLink: קוד מורפולוגי (%s)
+strongsAndMorph: הגדרה ומורפולוגיה
 studyPadLink: ""
-externalLink: ""
-referenceLink: ""
-openFootnote: ""
-openBookmark: ""
-noMyNotesTitle: ""
+externalLink: פתח קישור חיצוני
+referenceLink: פתח קישור מראה מקום
+openFootnote: פתח הערת שוליים
+openBookmark: פתח סימניה (%s)
+noMyNotesTitle: פתח את ההערות שלי לפרק
 noMyNotesDescription: >
 emptyStudyPad: >
 studyPadModalTitle: ""
 doYouWantToDeleteEntry: ""
 removeStudyPadConfirmationTitle: ""
-dragHelp: ""
-saved: ""
-openAll: ""
-editBookmarkPlaceholder: ""
+dragHelp: גרור כדי לסדר מחדש
+saved: נשמר
+openAll: פתח את כל מראי המקומות
+editBookmarkPlaceholder: לחץ על "הערות שלי" כדי לערוך
 onlyLabel: ""
-wholeBookmark: ""
-otherNoteText: ""
+wholeBookmark: כל הסימניה
+otherNoteText: הערה אחרת
 assignLabelsMenuEntry: הוסף תוויות
-assignLabelsMenuEntry1: ""
+assignLabelsMenuEntry1: בחירת או עריכת תגיות...
 jumpToStudyPad: ""
-setAsPrimaryLabel: ""
-removeBookmarkLabel: ""
-addBookmarkLabel: ""
-favouriteLabels: ""
-recentLabels: ""
-frequentlyUsedLabels: ""
-bookmarkLabels: ""
+setAsPrimaryLabel: הגדר תגית ברירת מחדל
+removeBookmarkLabel: מחיקת תגית
+addBookmarkLabel: הוספת תגית
+favouriteLabels: תגיות מועדפות
+recentLabels: תגיות אחרונות
+frequentlyUsedLabels: תגיות בשימוש נפוץ
+bookmarkLabels: תגיות של סימניות
 refParserHelp: ""
-openDownloads: ""
+openDownloads: לך להורדת תוספים
 verseShare: שתף
-verseCompare: ""
-verseNote: ""
+verseCompare: השוואה
+verseNote: הערה
 verseMyNotes: הערות אישיות
 verseSpeak: הקראה
-verseShareLong: ""
-verseCompareLong: ""
-verseNoteLong: ""
-verseSpeakLong: ""
+verseShareLong: שתף פסוק זה
+verseCompareLong: השוואת פסוק
+verseNoteLong: כתיבת הערה
+verseSpeakLong: התחל האזנה לפסוק זה
 verseTip: ""
 addBookmark: סימניה
