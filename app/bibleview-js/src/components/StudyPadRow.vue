@@ -22,49 +22,51 @@
     </template>
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
-  <div class="menu" :class="{isText: journalEntry.type === JournalEntryTypes.JOURNAL_TEXT}">
-    <ButtonRow show-drag-handle>
-      <div class="journal-button" @click="addNewEntryAfter">
-        <FontAwesomeIcon icon="plus-circle"/>
-      </div>
-      <div v-if="!journalText" class="journal-button" @click="editor.editMode = true">
-        <FontAwesomeIcon icon="edit"/>
-      </div>
+  <div :class="{editMode: editor && editor.editMode}">
+    <div class="menu" :class="{isText: journalEntry.type === JournalEntryTypes.JOURNAL_TEXT}">
+      <ButtonRow show-drag-handle>
+        <div class="journal-button" @click="addNewEntryAfter">
+          <FontAwesomeIcon icon="plus-circle"/>
+        </div>
+        <div v-if="!journalText" class="journal-button" @click="editor.editMode = true">
+          <FontAwesomeIcon icon="edit"/>
+        </div>
 
-      <div v-if="journalEntry.indentLevel > 0" class="journal-button" @click.stop="indent(-1)">
-        <FontAwesomeIcon icon="outdent"/>
-      </div>
+        <div v-if="journalEntry.indentLevel > 0" class="journal-button" @click.stop="indent(-1)">
+          <FontAwesomeIcon icon="outdent"/>
+        </div>
 
-      <div v-if="journalEntry.indentLevel < 2" class="journal-button" @click.stop="indent(1)">
-        <FontAwesomeIcon icon="indent"/>
-      </div>
+        <div v-if="journalEntry.indentLevel < 2" class="journal-button" @click.stop="indent(1)">
+          <FontAwesomeIcon icon="indent"/>
+        </div>
 
-      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="changeExpanded(!journalEntry.expandContent)">
-        <FontAwesomeIcon :icon="journalEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
-      </div>
+        <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="changeExpanded(!journalEntry.expandContent)">
+          <FontAwesomeIcon :icon="journalEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
+        </div>
 
-      <div class="journal-button" @click="deleteEntry">
-        <FontAwesomeIcon icon="trash"/>
-      </div>
-      <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click.stop="editBookmark">
-        <FontAwesomeIcon icon="info-circle"/>
-      </div>
-    </ButtonRow>
-  </div>
-  <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
-    <b><a :href="bibleUrl">{{ journalEntry.bookInitials ? sprintf(strings.multiDocumentLink, journalEntry.verseRangeAbbreviated, journalEntry.bookAbbreviation ) : journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
-    <BookmarkText :expanded="journalEntry.expandContent" :bookmark="journalEntry"/>
-    <div v-if="journalEntry.hasNote && journalEntry.expandContent" class="separator"/>
-  </template>
-  <div :class="{'studypad-text-entry': journalEntry.type === JournalEntryTypes.JOURNAL_TEXT, notes: journalEntry.type === JournalEntryTypes.BOOKMARK}">
-    <EditableText
-      ref="editor"
-      :show-placeholder="journalEntry.type === JournalEntryTypes.JOURNAL_TEXT"
-      :edit-directly="journalEntry.new"
-      :text="journalText"
-      @opened="$emit('edit-opened')"
-      @save="journalTextChanged"
-    />
+        <div class="journal-button" @click="deleteEntry">
+          <FontAwesomeIcon icon="trash"/>
+        </div>
+        <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click.stop="editBookmark">
+          <FontAwesomeIcon icon="info-circle"/>
+        </div>
+      </ButtonRow>
+    </div>
+    <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
+      <b><a :href="bibleUrl">{{ journalEntry.bookInitials ? sprintf(strings.multiDocumentLink, journalEntry.verseRangeAbbreviated, journalEntry.bookAbbreviation ) : journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
+      <BookmarkText :expanded="journalEntry.expandContent" :bookmark="journalEntry"/>
+      <div v-if="journalEntry.hasNote && journalEntry.expandContent" class="separator"/>
+    </template>
+    <div :class="{'studypad-text-entry': journalEntry.type === JournalEntryTypes.JOURNAL_TEXT, notes: journalEntry.type === JournalEntryTypes.BOOKMARK}">
+      <EditableText
+        ref="editor"
+        :show-placeholder="journalEntry.type === JournalEntryTypes.JOURNAL_TEXT"
+        :edit-directly="journalEntry.new"
+        :text="journalText"
+        @opened="$emit('edit-opened')"
+        @save="journalTextChanged"
+      />
+    </div>
   </div>
 </template>
 
@@ -162,6 +164,7 @@ export default {
       }
     );
 
+
     return {
       bibleUrl,
       addNewEntryAfter,
@@ -186,5 +189,12 @@ export default {
 .notes {
   text-indent: 2pt;
   margin-top: 4pt;
+}
+
+.editMode {
+  border-radius: 5px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: rgba(0, 0, 255, 0.5);
 }
 </style>
