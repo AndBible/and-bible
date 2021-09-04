@@ -319,7 +319,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             else null
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, wholeVerse, book)
         val initialLabels = workspaceSettings.autoAssignLabels
-        bookmark.primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
+
+        val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
+        if(primaryLabelId != null) {
+            val label = bookmarkControl.labelById(primaryLabelId)
+            if(label != null) {
+                bookmark.primaryLabelId = primaryLabelId
+            }
+        }
+
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
         if(initialLabels.isEmpty() || openNotes) {
             executeJavascriptOnUiThread(

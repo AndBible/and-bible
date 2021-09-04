@@ -105,18 +105,20 @@ open class BookmarkControl @Inject constructor(
         } else {
             bookmark.id = dao.insert(bookmark)
         }
+        
+        val labelIdsInDb = labels?.mapNotNull {dao.labelById(it)?.id }
 
-        if(labels != null) {
+        if(labelIdsInDb != null) {
             val existingLabels = dao.labelsForBookmark(bookmark.id).map { it.id }.toSet()
-            val toBeDeleted = existingLabels.filterNot { labels.contains(it) }
-            val toBeAdded = labels.filterNot { existingLabels.contains(it) }
+            val toBeDeleted = existingLabels.filterNot { labelIdsInDb.contains(it) }
+            val toBeAdded = labelIdsInDb.filterNot { existingLabels.contains(it) }
 
             dao.deleteLabelsFromBookmark(bookmark.id, toBeDeleted)
 
             val addBookmarkToLabels = toBeAdded.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) }
             dao.insert(addBookmarkToLabels)
-            if(labels.find { it == bookmark.primaryLabelId } == null) {
-                bookmark.primaryLabelId = labels.firstOrNull()
+            if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
+                bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
                 dao.update(bookmark)
             }
             windowControl.windowRepository?.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests ?.
