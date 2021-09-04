@@ -43,8 +43,8 @@ import {inject} from "@vue/runtime-core";
 export default {
   name: "W",
   props: {
-    lemma: {type: String, default: null}, // strong:H8064
-    morph: {type: String, default: null}, // strongMorph:TH8792
+    lemma: {type: String, default: null}, // example: strong:H8064 lemma.TR:XXXXX
+    morph: {type: String, default: null}, // example: strongMorph:TH8792
     src: {type: String, default: null},
     n: {type: String, default: null},
     type: {type: String, default: null},
@@ -71,17 +71,20 @@ export default {
       return res;
     }
     function formatName(string) {
-      return prep(string).map(s => {
-        return s.match(/([^ :]+:)[HG0 ]*([^:]+) *$/)[2].trim()
-      }).join(",")
+      return prep(string).filter(s => !s.startsWith("lemma.TR:")).map(s => s.match(/([^ :]+:)[HG0 ]*([^:]+) *$/)[2].trim()).join(",")
     }
     function formatLink(first, second) {
       const linkBodies = [];
+
+      function toArgs(string) {
+        return prep(string).map(s => s.trim().replace(/ /g, "_").replace(/:/g, "=")).join("&");
+      }
+
       if(first) {
-        linkBodies.push(prep(first).map(s => s.trim().replace(/ /g, "_").replace(/:/g, "=")).join("&"))
+        linkBodies.push(toArgs(first))
       }
       if(second) {
-        linkBodies.push(prep(second).map(s => s.trim().replace(/ /g, "_").replace(/:/g, "=")).join("&"))
+        linkBodies.push(toArgs(second))
       }
       // Link format:
       // ab-w://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.
