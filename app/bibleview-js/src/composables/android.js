@@ -21,7 +21,7 @@ import {onMounted} from "@vue/runtime-core";
 import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
 import {reactive} from "@vue/reactivity";
-import {JournalEntryTypes} from "@/constants";
+import {StudyPadEntryTypes} from "@/constants";
 import {errorBox} from "@/composables/index";
 
 let callId = 0;
@@ -277,9 +277,9 @@ export function useAndroid({bookmarks}, config) {
 
     function updateJournalEntry(entry, changes) {
         const changedEntry = {...entry, ...changes}
-        if(entry.type === JournalEntryTypes.JOURNAL_TEXT) {
+        if(entry.type === StudyPadEntryTypes.JOURNAL_TEXT) {
             android.updateJournalTextEntry(JSON.stringify(changedEntry));
-        } else if(entry.type === JournalEntryTypes.BOOKMARK) {
+        } else if(entry.type === StudyPadEntryTypes.BOOKMARK) {
             const entry = {
                 bookmarkId: changedEntry.id,
                 labelId: changedEntry.bookmarkToLabel.labelId,

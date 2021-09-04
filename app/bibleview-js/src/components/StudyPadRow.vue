@@ -23,7 +23,7 @@
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
   <div :class="{editMode: editor && editor.editMode}">
-    <div class="menu" :class="{isText: journalEntry.type === JournalEntryTypes.JOURNAL_TEXT}">
+    <div class="menu" :class="{isText: journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT}">
       <ButtonRow show-drag-handle>
         <div class="journal-button" @click="addNewEntryAfter">
           <FontAwesomeIcon icon="plus-circle"/>
@@ -40,27 +40,27 @@
           <FontAwesomeIcon icon="indent"/>
         </div>
 
-        <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click="changeExpanded(!journalEntry.expandContent)">
+        <div v-if="journalEntry.type===StudyPadEntryTypes.BOOKMARK" class="journal-button" @click="changeExpanded(!journalEntry.expandContent)">
           <FontAwesomeIcon :icon="journalEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
         </div>
 
         <div class="journal-button" @click="deleteEntry">
           <FontAwesomeIcon icon="trash"/>
         </div>
-        <div v-if="journalEntry.type===JournalEntryTypes.BOOKMARK" class="journal-button" @click.stop="editBookmark">
+        <div v-if="journalEntry.type===StudyPadEntryTypes.BOOKMARK" class="journal-button" @click.stop="editBookmark">
           <FontAwesomeIcon icon="info-circle"/>
         </div>
       </ButtonRow>
     </div>
-    <template v-if="journalEntry.type===JournalEntryTypes.BOOKMARK">
+    <template v-if="journalEntry.type===StudyPadEntryTypes.BOOKMARK">
       <b><a :href="bibleUrl">{{ journalEntry.bookInitials ? sprintf(strings.multiDocumentLink, journalEntry.verseRangeAbbreviated, journalEntry.bookAbbreviation ) : journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
       <BookmarkText :expanded="journalEntry.expandContent" :bookmark="journalEntry"/>
       <div v-if="journalEntry.hasNote && journalEntry.expandContent" class="separator"/>
     </template>
-    <div :class="{'studypad-text-entry': journalEntry.type === JournalEntryTypes.JOURNAL_TEXT, notes: journalEntry.type === JournalEntryTypes.BOOKMARK}">
+    <div :class="{'studypad-text-entry': journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT, notes: journalEntry.type === StudyPadEntryTypes.BOOKMARK}">
       <EditableText
         ref="editor"
-        :show-placeholder="journalEntry.type === JournalEntryTypes.JOURNAL_TEXT"
+        :show-placeholder="journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT"
         :edit-directly="journalEntry.new"
         :text="journalText"
         @opened="$emit('edit-opened')"
@@ -78,7 +78,7 @@ import {emit as ebEmit, Events} from "@/eventbus";
 import {inject} from "@vue/runtime-core";
 import AreYouSure from "@/components/modals/AreYouSure";
 import {computed, ref} from "@vue/reactivity";
-import {JournalEntryTypes} from "@/constants";
+import {StudyPadEntryTypes} from "@/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {isBottomHalfClicked} from "@/utils";
@@ -97,16 +97,16 @@ export default {
     const {strings, ...common} = useCommon();
 
     function journalTextChanged(newText) {
-      if (props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
+      if (props.journalEntry.type === StudyPadEntryTypes.BOOKMARK) {
         android.saveBookmarkNote(props.journalEntry.id, newText);
-      } else if (props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) {
+      } else if (props.journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT) {
         android.updateJournalEntry(props.journalEntry, {text: newText});
       }
     }
 
     const journalText = computed(() => {
-      if (props.journalEntry.type === JournalEntryTypes.BOOKMARK) return props.journalEntry.notes;
-      else if (props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) return props.journalEntry.text;
+      if (props.journalEntry.type === StudyPadEntryTypes.BOOKMARK) return props.journalEntry.notes;
+      else if (props.journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT) return props.journalEntry.text;
     });
 
     function editBookmark(event) {
@@ -119,10 +119,10 @@ export default {
     }
 
     async function deleteEntry() {
-      if (props.journalEntry.type === JournalEntryTypes.JOURNAL_TEXT) {
+      if (props.journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT) {
         const answer = await areYouSureDelete.value.areYouSure();
         if (answer) android.deleteJournalEntry(props.journalEntry.id);
-      } else if (props.journalEntry.type === JournalEntryTypes.BOOKMARK) {
+      } else if (props.journalEntry.type === StudyPadEntryTypes.BOOKMARK) {
         let answer;
         if (props.journalEntry.labels.length > 1) {
           const buttons = [{
@@ -173,7 +173,7 @@ export default {
       journalTextChanged,
       deleteEntry,
       areYouSureDelete,
-      JournalEntryTypes,
+      StudyPadEntryTypes,
       editor: ref(null),
       strings,
       indent,

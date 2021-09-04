@@ -41,6 +41,7 @@
       >
         <div class="studypad-container" :style="indentStyle(j)" :id="`studypad-${j.type}-${j.id}`">
           <StudyPadRow
+            :ref="setStudyPadRowRef"
             :journal-entry="j"
             :label="document.label"
             @add="adding=true"
@@ -50,6 +51,9 @@
     </template>
   </draggable>
   <div v-if="journalEntries.length > 0">
+    <span v-if="lastEntry.type === StudyPadEntryTypes.BOOKMARK && !lastEntry.hasNote" class="journal-button" @click="editLastNote">
+      <FontAwesomeIcon icon="edit"/>
+    </span>
     <span class="journal-button" @click="appendNewEntry">
       <FontAwesomeIcon icon="plus-circle"/>
     </span>
@@ -58,13 +62,13 @@
 
 <script>
 import {computed, ref} from "@vue/reactivity";
-import {inject, provide, nextTick} from "@vue/runtime-core";
+import {inject, provide, nextTick, onBeforeUpdate} from "@vue/runtime-core";
 import {useCommon, useJournal} from "@/composables";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";
 import StudyPadRow from "@/components/StudyPadRow";
 import draggable from "vuedraggable";
-import {JournalEntryTypes} from "@/constants";
+import {StudyPadEntryTypes} from "@/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {adjustedColorOrig} from "@/utils";
 
@@ -81,6 +85,22 @@ export default {
     provide("journal", journal);
     const {scrollToId} = inject("scroll");
     const android = inject("android");
+    const studyPadRowRefs = [];
+
+    function setStudyPadRowRef(el) {
+      if(el) {
+        studyPadRowRefs.push(el);
+      }
+    }
+
+    onBeforeUpdate(() => {
+      studyPadRowRefs.splice(0);
+    });
+
+    function editLastNote() {
+      const lastRow = studyPadRowRefs[studyPadRowRefs.length - 1];
+      lastRow.editor.editMode = true;
+    }
 
     const {
       journalTextEntries, updateBookmarkToLabels, updateJournalTextEntries,
@@ -119,15 +139,15 @@ export default {
           if(v.orderNumber !== newOrder) {
             changed.push(v);
           }
-          if(v.type === JournalEntryTypes.BOOKMARK) {
+          if(v.type === StudyPadEntryTypes.BOOKMARK) {
             v.bookmarkToLabel.orderNumber = newOrder;
           }
           v.orderNumber = newOrder;
 
         }
         const grouped = groupBy(changed, "type");
-        const bookmarks = grouped[JournalEntryTypes.BOOKMARK] || [];
-        const journals = grouped[JournalEntryTypes.JOURNAL_TEXT] || [];
+        const bookmarks = grouped[StudyPadEntryTypes.BOOKMARK] || [];
+        const journals = grouped[StudyPadEntryTypes.JOURNAL_TEXT] || [];
         android.updateOrderNumber(label.id, bookmarks, journals);
       }
     });
@@ -187,7 +207,7 @@ export default {
     });
 
     function studyPadOrdinal(journalEntry) {
-      if(journalEntry.type === JournalEntryTypes.BOOKMARK) {
+      if(journalEntry.type === StudyPadEntryTypes.BOOKMARK) {
         return journalEntry.id;
       } else {
         return journalEntry.id + 10000;
@@ -195,8 +215,8 @@ export default {
     }
 
     return {
-      journalEntries, editNotes, adding, indentStyle, editableJournalEntry,  addNewEntry, appendNewEntry, labelNameStyle,
-      studyPadOrdinal, ...useCommon()
+      lastEntry, journalEntries, editNotes, adding, indentStyle, editableJournalEntry,  addNewEntry, appendNewEntry, labelNameStyle,
+      studyPadOrdinal, StudyPadEntryTypes, setStudyPadRowRef, editLastNote, ...useCommon()
     }
   }
 }

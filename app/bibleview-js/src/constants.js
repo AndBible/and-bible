@@ -25,7 +25,7 @@ export const DocumentTypes = {
     NONE: "none",
 }
 
-export const JournalEntryTypes = {
+export const StudyPadEntryTypes = {
     BOOKMARK: "bookmark",
     JOURNAL_TEXT: "journal",
 }
