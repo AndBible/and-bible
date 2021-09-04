@@ -1435,11 +1435,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun preferenceSettingsChanged() {
         resetSystemUi()
-        if(!refreshIfNightModeChange()) {
-            requestSdcardPermission()
-            documentViewManager.buildView()
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
-        }
+        requestSdcardPermission()
+        documentViewManager.buildView()
+        ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
     }
 
     private fun requestSdcardPermission() {
