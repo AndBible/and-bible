@@ -10,7 +10,7 @@
 	<EditText android:id="@+id/searchText" 
 		android:layout_height="wrap_content"
 		android:layout_width="match_parent"
-		android:padding="5dip"
+		android:padding="10dip"
 		android:hint="@string/search_dictionary_hint"
 		app:layout_constraintTop_toTopOf="parent"
 		/>
