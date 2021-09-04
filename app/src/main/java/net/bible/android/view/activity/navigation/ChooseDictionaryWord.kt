@@ -114,6 +114,7 @@ class ChooseDictionaryWord : ListActivityBase() {
             } finally {
                 withContext(Dispatchers.Main) {
                     binding.loadingIndicator.visibility = View.GONE
+                    showPossibleDictionaryKeys("")
                 }
             }
         }
