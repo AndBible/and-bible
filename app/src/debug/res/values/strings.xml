@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources>
+    <string name="app_name_short">Bible Study *Debug*</string>
+    <string name="app_name_medium">Bible Study (And Bible) *Debug*</string>
+    <string name="app_name_long">Bible Study app, by And Bible Open Source Project *Debug*</string>
+    <string name="install_zip_module">Install Bible Module *Debug*</string>
+</resources>
