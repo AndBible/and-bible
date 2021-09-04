@@ -1,32 +1,43 @@
-﻿And Bible是一个开源、离线、完全免费且没有广告的圣经程式。我们希望不同语言的使用者都可以容易阅读、聆读及研究经文，并因此得福。
+<b>功能强大的的研经工具</b>
 
-* 超过700种语言的圣经注释、神学字典、地图以及基督教书籍
-* 下载后可离线存取所有功能。如搜寻、笔记、注释等
-* Interface in multiple languages
-* 多个圣经阅读计划
-* 完全免费。没有广告或电邮
-* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
-* 29本圣经注释
-* 丰富的字典及基督教书籍
-* 所有文件都是合法发布（所以没有包含NKJV或NIV等）
-* 包括Strong's索引，方便查考希腊文或希伯来文
-* Multiple workspaces with split screen
-* 摘写个人笔记
-* 具弹性的搜寻功能
-* 书签
-* 圣经地图
-* 聆听任何文件
-* 自动卷动、自动日间/夜晚模式
-* 在同一萤幕对照圣经译本
-* 其中一个最快速的圣经程式
-* 开源 - 你可以修改或改良源代码
-* 使用CrossWire功能强大的JSword引擎
+And Bible开源计划的研经工具是一款多功能、易用的离线Android程式。此程式不单是一个纯粹的圣经阅读器，也专注于成功个人全方位的研经工具。
 
-我们都是义务参与。我们不会发出烦人的电邮、广告，也不会要求或接受捐款，亦不需注册。And Bible不会收集手机的任个资料。
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
 
-<b>备注</b>
-* 在Facebook上赞好And Bible：https://www.facebook.com/AndBible/
-* And Bible的常见问题：https://github.com/AndBible/and-bible/wiki/FAQ
-* Github专页：https://github.com/AndBible/and-bible
+
+
+<b>强大的研经功能</b>
+
+
+
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 具弹性的搜寻
+ * 
+ * 读经计划：订立圣经阅读目标
+ * 
+ * 
+ * 离线可用：只有下载文件时需要上网。
+ * 
+
+<b>我们需要大家一起造出最好的圣经工具！</b>
+
+
+
+ * 开发新功能，
+ * 测验未开放的新功能，
+ * 保持介面翻译更新，及
+ * 协助取得版权及授权、转换文件至SWORD格式以扩充模组库。
+
+如果你是专业软件开发者或测试员，请考虑义务帮助此计划。如想要更多资讯，请参见 https://git.io/JUnaj 。
+
+<b>连结</b>
+
+ * 主页：https://andbible.github.io
+ * 在 Facebook 上赞好 And Bible：https://www.facebook.com/AndBible/
+ * 我们的 Youtube 频道：https://www.youtube.com/c/AndBible
+ * 常见问题：https://git.io/JJm8E
+ * Github Project 页面：https://github.com/AndBible/and-bible
