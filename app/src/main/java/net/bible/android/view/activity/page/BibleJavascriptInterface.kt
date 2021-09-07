@@ -21,8 +21,10 @@ package net.bible.android.view.activity.page
 import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.webkit.JavascriptInterface
+import android.widget.TextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -43,6 +45,9 @@ import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
+import net.bible.service.common.bookmarksMyNotesVideo
+import net.bible.service.common.htmlToSpan
+import net.bible.service.common.labelsVideo
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
@@ -339,6 +344,24 @@ class BibleJavascriptInterface(
             .setMessage(content)
             .setPositiveButton(mainBibleActivity.getString(R.string.okay), null)
             .show()
+    }
+
+    @JavascriptInterface
+    fun helpBookmarks() {
+        val verseTip = mainBibleActivity.getString(R.string.verse_tip)
+        val bookmarksMyNotesHelp = mainBibleActivity.getString(R.string.help_bookmarks_text)
+        val message = "<i><a href=\"$bookmarksMyNotesVideo\">${mainBibleActivity.getString(R.string.watch_tutorial_video)}</a></i>" +
+            "<br><br><b>$verseTip</b><br><br>$bookmarksMyNotesHelp"
+
+        val d = AlertDialog.Builder(mainBibleActivity)
+            .setTitle(R.string.bookmarks_and_mynotes_title)
+            .setMessage(htmlToSpan(message))
+            .setPositiveButton(mainBibleActivity.getString(R.string.okay), null)
+            .create()
+
+        d.show()
+
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

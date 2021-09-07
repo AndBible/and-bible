@@ -276,7 +276,7 @@ export default {
     const noActions = computed(() => selectedActions.value.length === 0);
 
     function help() {
-      android.helpDialog(strings.verseTip, strings.addBookmark);
+      android.helpBookmarks()
     }
 
     return {
