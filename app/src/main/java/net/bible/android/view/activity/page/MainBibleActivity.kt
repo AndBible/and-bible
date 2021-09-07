@@ -108,7 +108,8 @@ import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.beta34introVideo
-import net.bible.service.common.pinningHelpVideo
+import net.bible.service.common.introToDocumentWindowsVideo
+import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
@@ -371,7 +372,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val pinningTitle = getString(R.string.help_window_pinning_title)
                 var pinningText = getString(R.string.help_window_pinning_text)
 
-                pinningText += "<br><i><a href=\"$pinningHelpVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
+                pinningText += "<br><i><a href=\"$introToDocumentWindowsVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
                 
                 val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Html.fromHtml(pinningText, Html.FROM_HTML_MODE_LEGACY)
@@ -407,7 +408,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         if(displayedVer != ver) {
             val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-            val videoMessageLink = "<a href=\"$beta34introVideo\"><b>$videoMessage</b></a>"
+            val videoMessageLink = "<a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a>"
             val appName = getString(R.string.app_name_long)
             val par1 = getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
 

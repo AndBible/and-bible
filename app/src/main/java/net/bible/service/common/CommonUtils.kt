@@ -137,14 +137,18 @@ fun PreferenceFragmentCompat.getPreferenceList(p_: Preference? = null, list_: Ar
     return list
 }
 
-const val textDisplaySettingsVideo = "https://youtu.be/rz0zyEK9qBk"
-const val pinningHelpVideo = "https://youtu.be/27b1g-D3ibA"
-const val bookmarksMyNotesVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY&t=90s" // beta 3.4 video
-const val studyPadsVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY&t=652s" // beta 3.4 video
-const val workspacesVideo = "https://youtu.be/rz0zyEK9qBk"
-const val beta34introVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // For 3.4 beta intro
-const val speakHelpVideo = "https://youtu.be/_wWnS-pjv2A"
-const val automaticSpeakBookmarkingVideo = "https://www.youtube.com/watch?v=1HFXLeTERcs"
+const val textDisplaySettingsVideo = "https://www.youtube.com/watch?v=N7awlmZXFdQ" // 4.0 (Creating and configuring windows)
+const val introToDocumentWindowsVideo = "https://www.youtube.com/watch?v=mKxEuQX-oX0" // 4.0
+const val bookmarksMyNotesVideo = "https://www.youtube.com/watch?v=rcQv6YNeMpQ&list=PLD-W_Iw-N2MlzNt0Zpna-QoTBpEpWSden" // 4.0 (playlist for bookmarking & my notes tutorials)
+const val studyPadsVideo = "https://www.youtube.com/watch?v=--Hr5LqBfmg&list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m" // 4.0 (playlist for notes & study pads)
+const val workspacesVideo = "https://www.youtube.com/watch?v=3YB3_QH8zew" // 4.0
+const val labelsVideo = "https://www.youtube.com/watch?v=PXdvFRLGcAA&list=PLD-W_Iw-N2Mnv8aYRK3QbZBjE3ZMmrJZ7" // 4.0 (Labels and Bookmarks)
+
+const val beta34introVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // 3.4 beta intro
+const val newFeaturesIntroVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // 3.4 beta intro
+
+const val speakHelpVideo = "https://youtu.be/_wWnS-pjv2A" // 3.3 or older
+const val automaticSpeakBookmarkingVideo = "https://www.youtube.com/watch?v=1HFXLeTERcs" // 3.3 or older
 
 val BookmarkEntities.Label.displayName get() =
     when {
@@ -784,7 +788,7 @@ object CommonUtils : CommonUtilsBase() {
         val help = listOf(
             HelpItem(R.string.help_nav_title, R.string.help_nav_text),
             HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
-            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, pinningHelpVideo),
+            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, introToDocumentWindowsVideo),
             HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesVideo), // beta video
             HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo), // beta video
             HelpItem(R.string.help_search_title, R.string.help_search_text),

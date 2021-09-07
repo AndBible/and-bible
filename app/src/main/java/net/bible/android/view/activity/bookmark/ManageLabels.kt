@@ -52,6 +52,8 @@ import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.CommonUtils.json
+import net.bible.service.common.htmlToSpan
+import net.bible.service.common.labelsVideo
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
 import java.util.*
@@ -252,6 +254,10 @@ class ManageLabels : ListActivityBase() {
 
     private fun help(helpMode: HelpMode) {
         val length = 9
+
+        val videoLink = "<i><a href=\"${labelsVideo}\">${getString(R.string.watch_tutorial_video)}</a></i><br><br>"
+        val v = htmlToSpan(videoLink)
+
         val h1 = when(helpMode) {
             HelpMode.WORKSPACE -> getString(R.string.auto_assing_labels_help1)
             HelpMode.ASSIGN -> getString(R.string.assing_labels_help1)
@@ -279,6 +285,7 @@ class ManageLabels : ListActivityBase() {
         val h5 = concat("\n\n", getIconString(R.string.assing_labels_help5, R.drawable.ic_baseline_refresh_24))
 
         val span = concat(
+            v,
             h1,
             if(listOf(HelpMode.HIDE, HelpMode.WORKSPACE).contains(helpMode)) h11 else "",
             *if(helpMode != HelpMode.HIDE) arrayOf(h2, h3, h4) else arrayOf(""),
