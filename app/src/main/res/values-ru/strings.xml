@@ -844,4 +844,5 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="bookmark_style">Стиль закладки</string>
   <string name="added_to_bookmark">Назначено к этой закладке</string>
   <string name="strongs_links">Ссылки</string>
+  <string name="verse_tip">Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии.</string>
 </resources>

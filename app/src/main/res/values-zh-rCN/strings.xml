@@ -800,4 +800,5 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="bookmark_style">书签样式</string>
   <string name="added_to_bookmark">分配至此书签</string>
   <string name="strongs_links">连结</string>
+  <string name="verse_tip">长按以选择部份或多节经文</string>
 </resources>

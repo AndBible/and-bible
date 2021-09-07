@@ -841,4 +841,5 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="bookmark_style">Stil zaznamka</string>
   <string name="added_to_bookmark">Dodeljeno temu zaznamku</string>
   <string name="strongs_links">Povezave</string>
+  <string name="verse_tip">Za delno izbiro vrstice ali izbiro več vrstic dolgo pritisnete na biblijsko besedilo</string>
 </resources>

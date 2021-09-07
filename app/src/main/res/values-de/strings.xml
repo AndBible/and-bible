@@ -789,4 +789,5 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="strongs_off">Aus</string>
   <string name="strongs_links">Verweise</string>
   <string name="strongs_text_and_links">Text und Verweise</string>
+  <string name="verse_tip">Um Versteile oder mehrere Verse zu markieren, den Bibeltext drücken und halten</string>
 </resources>

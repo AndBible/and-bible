@@ -771,4 +771,5 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="strongs_off">Vypnuto</string>
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Text a odkazy</string>
+  <string name="verse_tip">Pasáž textu označíte pomocí přidržení textu po delší dobu.</string>
 </resources>

@@ -854,4 +854,5 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="bookmark_style">बुकमार्क शैली</string>
   <string name="added_to_bookmark">इस बुकमार्क को असाइन किया गया</string>
   <string name="strongs_links">लिंक</string>
+  <string name="verse_tip">अधूरा या कई छंदों का चयन करने के लिए, आप बाइबिल पाठ को देर तक दबा सकते हैं</string>
 </resources>

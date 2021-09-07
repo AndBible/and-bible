@@ -842,4 +842,5 @@
   <string name="bookmark_style">Стиль закладки</string>
   <string name="added_to_bookmark">Призначено цій закладці</string>
   <string name="strongs_links">Посилання</string>
+  <string name="verse_tip">Щоб вибрати часткові або багато віршів, довго натисніть текст Біблії</string>
 </resources>
