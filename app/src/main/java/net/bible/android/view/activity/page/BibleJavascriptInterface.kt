@@ -45,14 +45,12 @@ import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
-import net.bible.service.common.bookmarksMyNotesVideo
+import net.bible.service.common.bookmarksMyNotesPlaylist
 import net.bible.service.common.htmlToSpan
-import net.bible.service.common.labelsVideo
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
-import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.BookName
 
 
@@ -350,7 +348,7 @@ class BibleJavascriptInterface(
     fun helpBookmarks() {
         val verseTip = mainBibleActivity.getString(R.string.verse_tip)
         val bookmarksMyNotesHelp = mainBibleActivity.getString(R.string.help_bookmarks_text)
-        val message = "<i><a href=\"$bookmarksMyNotesVideo\">${mainBibleActivity.getString(R.string.watch_tutorial_video)}</a></i>" +
+        val message = "<i><a href=\"$bookmarksMyNotesPlaylist\">${mainBibleActivity.getString(R.string.watch_tutorial_video)}</a></i>" +
             "<br><br><b>$verseTip</b><br><br>$bookmarksMyNotesHelp"
 
         val d = AlertDialog.Builder(mainBibleActivity)

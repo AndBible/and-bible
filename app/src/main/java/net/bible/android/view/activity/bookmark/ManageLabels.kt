@@ -53,7 +53,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.htmlToSpan
-import net.bible.service.common.labelsVideo
+import net.bible.service.common.labelsAndBookmarksPlaylist
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
 import java.util.*
@@ -255,7 +255,7 @@ class ManageLabels : ListActivityBase() {
     private fun help(helpMode: HelpMode) {
         val length = 9
 
-        val videoLink = "<i><a href=\"${labelsVideo}\">${getString(R.string.watch_tutorial_video)}</a></i><br><br>"
+        val videoLink = "<i><a href=\"${labelsAndBookmarksPlaylist}\">${getString(R.string.watch_tutorial_video)}</a></i><br><br>"
         val v = htmlToSpan(videoLink)
 
         val h1 = when(helpMode) {

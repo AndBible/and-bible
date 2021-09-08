@@ -137,18 +137,22 @@ fun PreferenceFragmentCompat.getPreferenceList(p_: Preference? = null, list_: Ar
     return list
 }
 
-const val textDisplaySettingsVideo = "https://www.youtube.com/watch?v=N7awlmZXFdQ" // 4.0 (Creating and configuring windows)
-const val introToDocumentWindowsVideo = "https://www.youtube.com/watch?v=mKxEuQX-oX0" // 4.0
-const val bookmarksMyNotesVideo = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlzNt0Zpna-QoTBpEpWSden" // 4.0 (playlist for bookmarking & my notes tutorials)
-const val studyPadsVideo = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m" // 4.0 (playlist for notes & study pads)
-const val workspacesVideo = "https://www.youtube.com/watch?v=3YB3_QH8zew" // 4.0
-const val labelsVideo = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mnv8aYRK3QbZBjE3ZMmrJZ7" // 4.0 (Labels and Bookmarks)
+const val windowsAndWorkspacesPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mmiq_X6G-vDhoAIq9sDnrIQ" // 4.0 (Window's and workspaces playlist)
+const val labelsAndBookmarksPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mnv8aYRK3QbZBjE3ZMmrJZ7" // 4.0 (Labels and Bookmarks playlist)
+const val bookmarksMyNotesPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlzNt0Zpna-QoTBpEpWSden" // 4.0 (playlist for bookmarking & my notes tutorials)
+const val notesAndStudyPadsPlayList= "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m" // 4.0 (playlist for notes & study pads)
+const val speakPlayList = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Ml4arSb_fDBYqgiYtVPmjFo" // playlist for speak related tutorials
 
-const val beta34introVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // 3.4 beta intro
-const val newFeaturesIntroVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // 3.4 beta intro
+const val textDisplaySettingsVideo = windowsAndWorkspacesPlaylist
+const val windowPinningVideo = windowsAndWorkspacesPlaylist
+const val studyPadsVideo = notesAndStudyPadsPlayList
+const val workspacesVideo = windowsAndWorkspacesPlaylist
 
-const val speakHelpVideo = "https://youtu.be/_wWnS-pjv2A" // 3.3 or older
-const val automaticSpeakBookmarkingVideo = "https://www.youtube.com/watch?v=1HFXLeTERcs" // 3.3 or older
+const val betaIntroVideo = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlOXgRTLQqoXZpQxkqf119a" // What's new 4.0 playlist
+const val newFeaturesIntroVideo = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlOXgRTLQqoXZpQxkqf119a" // What's new 4.0 playlist
+
+const val speakHelpVideo = speakPlayList
+const val automaticSpeakBookmarkingVideo = speakPlayList
 
 val BookmarkEntities.Label.displayName get() =
     when {
@@ -788,8 +792,8 @@ object CommonUtils : CommonUtilsBase() {
         val help = listOf(
             HelpItem(R.string.help_nav_title, R.string.help_nav_text),
             HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
-            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, introToDocumentWindowsVideo),
-            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesVideo), // beta video
+            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo),
+            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist), // beta video
             HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo), // beta video
             HelpItem(R.string.help_search_title, R.string.help_search_text),
             HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo),
