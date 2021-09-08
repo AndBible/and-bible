@@ -635,8 +635,21 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="history_for">歷史 (%s: 視窗 %d)</string>
   <!--Help-->
   <string name="help_nav_title">導航</string>
+  <string name="help_nav_text">左右滑動以瀏覽上一章或下一章。
+雙點以進入全螢幕模式。
+選單按鍵會出現在分割螢幕(又稱視窗)的右上方，
+你可以用它自訂視窗功能及外觀。</string>
   <string name="help_contextmenus_title">內文選單</string>
+  <string name="help_contextmenus_text">
+長按可以打開不同的選項：
+長按聖經檢視以打開影響當前經文的選項。
+長按選擇文檔或下載列表，可以刪除文檔或查看信息。
+長按書籤列表中的書籤，可添加標籤或刪除書籤。
+長按連結可讓你選擇在目前視窗、新視窗或特殊連結視窗中打開連結。
+</string>
   <string name="help_bookmarks_title">書籤 &amp; 我的筆記</string>
+  <string name="help_bookmarks_text">選取文字後可以在彈出視窗點選書籤功能。你可以對書籤自訂筆記。「我的筆記」功能，也可讓你在新視窗中開啟你專屬的筆記。
+</string>
   <string name="help_studypads_text">
 個人筆記可方便使用者編寫及準備講道筆記、或者作個人的多經文研究。每一個個人筆記都有專屬的書籤。所有標記了該書籤的經文，均會自動出現在對應的個人筆記中。除了書籤以外，使用者亦可自行增添文字。
 </string>
@@ -644,10 +657,31 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="help_search_text">搜尋字詞可以加入特殊字符如 * , ?, AND, OR, NOT
 (有關詳細信息請參「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_workspaces_title">工作檢視</string>
+  <string name="help_workspaces_text">
+工作檢視可讓你打開數個工作環境。
+工作檢視功能可以由右上方的選項中打開。
+從工具列向下滑動，可以快速打開工作檢視。
+您還可以在工具列上左右滑動，以切換到上一個/下一個工作檢視。
+</string>
   <string name="help_hidden_features_title">隱藏捷徑</string>
+  <string name="help_hidden_features_text">
+在工具列向下滑動以顯示工作檢視選項。
+長按視窗按鍵以最小化。
+長按朗讀按鍵以進入朗讀設定。
+長按經文位置以跳轉至文件選擇。
+長按返回鍵以進入閱讀歷史。</string>
   <string name="help_window_pinning_title">視窗釘選</string>
+  <string name="help_window_pinning_text">
+你可以從選單啟用視窗釘選。
+如視窗釘選已啟用，你可以顯示多個已釘選的視窗，但只有一個未釘選的視窗。
+已釘選的視窗會優先顯示，之後到未釘選的視窗。
+例如你可以將聖經文件釘選，再以未釘選的方法開啟註解或地圖等，在查經時方便同時閱讀其他參考文件。</string>
   <!--Welcome text-->
   <string name="redownload_documents">快速重新下載</string>
+  <string name="welcome_message">感謝你下載 %s。現時並未有下載聖經或文件。請下載至少一份文件，或從Zip備份檔案匯入。</string>
+  <string name="redownload_message">
+找到書本及文件列表。點選下方下載。
+</string>
   <!--Uncategorized-->
   <string name="close">關閉</string>
   <string name="something_with_parenthesis">%s (%s)</string>

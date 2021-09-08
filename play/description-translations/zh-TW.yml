@@ -7,37 +7,45 @@ subtitle_1: 功能強大的的研經工具
 paragraph_1_1: >-
   And Bible開源計劃的研經工具是一款多功能、易用的離線Android程式。此程式不單是一個純粹的聖經閱讀器，也專注於成功個人全方位的研經工具。
 paragraph_1_2: >
+  此程式是由聖經讀者開發，也是為聖經讀者開發。目的是提供便利、有深度且有趣的查經體驗。此程式是非營利、也是開源，更重要是完全沒有廣告滋擾。它是一個原創的Android程式，佔用空間亦是細小，因此它是一個十分快速且高效能的程式。
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
+  熱門的聖經譯本如和合本、新譯本、KJV、NASB，以及常見的註解如Matthew Henry及John Gill等。文件之多，未能盡錄。
 subtitle_2: 強大的研經功能
 paragraph_2_1: >
-feature_01: ""
-feature_02: ""
-feature_03: ""
+  此程式具有原創、有深度的功能，幫助讀者有一個流暢的研經體驗。以下是一些重點的功能：
+feature_01: 分割視窗可以幫助比較譯本及參考註解
+feature_02: 工作檢視可以自定研經的環境
+feature_03: Strong's 參考方便查找希臘文及希伯來文分析
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_04: >
+  串珠交叉對照、註腳及文件。讀者簡易地點選連結，就可切換交叉對照及註腳，進行深度的研經。例如{{commentary_examples}}或{{cross_reference_examples}}。
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
 commentary_examples: Gill、Matthew Henry之類
 # Examples of cross-reference collections.
 cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
-feature_05: ""
+feature_05: 進階的文字轉語音功能及語音書籤，以提供一個流暢的聆聽聖經體驗。
 feature_06: 具彈性的搜尋
-feature_07: ""
+feature_07: 包括個人筆記的書籤及醒目提示
 feature_09: >
   讀經計劃：訂立聖經閱讀目標
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
+  龐大的文件庫：{{total_languages}}種語言、超過{{total_documents}}份聖經譯本、神學註釋、字典、地點及基督教書籍。全部均由Crosswire及其他SWORD資料庫授權分發。
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_11: >
+  所有文件的來源均已版考究，以確定它們都是已獲授權分發。這也代表了此程式未有附載未權授權的文件如{{unavailable_documents}}。
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: ESV、NIV 及 NKJV
 feature_12: >
   離線可用：只有下載文件時需要上網。
 feature_13: >
+  個人筆記可以讓你在聆聽講道時新增筆記及參考。
 subtitle_3: 我們需要大家一起造出最好的聖經工具！
 paragraph_3_1: >
+  And Bible是一個開源計劃。這代表了我們需要所有有能之士，為此計劃一同用以下方式貢獻：
 contr_1: 開發新功能，
 contr_2: 測驗未開放的新功能，
 contr_3: 保持介面翻譯更新，及
