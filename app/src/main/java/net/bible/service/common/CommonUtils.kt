@@ -139,10 +139,10 @@ fun PreferenceFragmentCompat.getPreferenceList(p_: Preference? = null, list_: Ar
 
 const val textDisplaySettingsVideo = "https://www.youtube.com/watch?v=N7awlmZXFdQ" // 4.0 (Creating and configuring windows)
 const val introToDocumentWindowsVideo = "https://www.youtube.com/watch?v=mKxEuQX-oX0" // 4.0
-const val bookmarksMyNotesVideo = "https://www.youtube.com/watch?v=rcQv6YNeMpQ&list=PLD-W_Iw-N2MlzNt0Zpna-QoTBpEpWSden" // 4.0 (playlist for bookmarking & my notes tutorials)
-const val studyPadsVideo = "https://www.youtube.com/watch?v=--Hr5LqBfmg&list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m" // 4.0 (playlist for notes & study pads)
+const val bookmarksMyNotesVideo = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlzNt0Zpna-QoTBpEpWSden" // 4.0 (playlist for bookmarking & my notes tutorials)
+const val studyPadsVideo = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m" // 4.0 (playlist for notes & study pads)
 const val workspacesVideo = "https://www.youtube.com/watch?v=3YB3_QH8zew" // 4.0
-const val labelsVideo = "https://www.youtube.com/watch?v=PXdvFRLGcAA&list=PLD-W_Iw-N2Mnv8aYRK3QbZBjE3ZMmrJZ7" // 4.0 (Labels and Bookmarks)
+const val labelsVideo = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mnv8aYRK3QbZBjE3ZMmrJZ7" // 4.0 (Labels and Bookmarks)
 
 const val beta34introVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // 3.4 beta intro
 const val newFeaturesIntroVideo = "https://www.youtube.com/watch?v=ZpZ25uqR_BY" // 3.4 beta intro
