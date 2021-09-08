@@ -1,0 +1,252 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="version_text">വേർഷൻ %s</string>
+  <!--Main menu-->
+  <string name="menu">മെനു</string>
+  <string name="chooseBook">ഡോക്കുമെന്റ്</string>
+  <string name="selectPassage">ഭാഗം</string>
+  <string name="search">കണ്ടുപിടിക്കുക</string>
+  <string name="history">കഴിഞ്ഞ വായനകൾ</string>
+  <string name="speak">വായിക്കുക</string>
+  <string name="help">സഹായം</string>
+  <string name="administration">കാര്യനിര്‍വഹണം</string>
+  <string name="chooce_document">ഡോക്കുമെന്റ് തിരഞ്ഞെടുക്കുക</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">പുസ്തകം തിരഞ്ഞെടുക്കുക</string>
+  <string name="choosePassageChapterName">അദ്ധ്യായം തിരഞ്ഞെടുക്കുക</string>
+  <string name="choosePassageVerseName">വാക്യം തിരഞ്ഞെടുക്കുക</string>
+  <string name="bible">വേദപുസ്തകം </string>
+  <string name="deuterocanonical">അപ്രമാണിക</string>
+  <!--Search-->
+  <string name="search_index">തിരെച്ചിൽ പട്ടിക</string>
+  <string name="indexing_wait_msg">പട്ടികക്രമീകരണം ചെയ്താലുടനെ തിരെച്ചിൽ സ്ക്രീൻ തുറക്കും</string>
+  <string name="index_create">ഉണ്ടാക്കുക</string>
+  <string name="rebuild_index">സൂചിക വീണ്ടും ഉണ്ടാക്കുക</string>
+  <!--Tasks-->
+  <string name="progress_status">പുരോഗതി</string>
+  <string name="task_kill_warning">ഈ പ്രവർത്തനം തീരുന്നതിനു മുമ്പായി മറ്റൊരു പ്രവർത്തനം തുടങ്ങിയാൽ ദീർഘസമയം വേണ്ടിവരുന്ന ഇതു നിലച്ചുപോകാൻ സാധ്യത ഉണ്ട്</string>
+  <string name="no_tasks_running">ഇപ്പോൾ ഒരു പ്രവർത്തനവും തുടങ്ങിയിട്ടില്ല</string>
+  <!--Search-->
+  <string name="search_words_group_prompt">വാക്യങ്ങൾ കണ്ടുപിടിക്കുക</string>
+  <string name="search_all_words">എല്ലാ പദങ്ങളും</string>
+  <string name="search_any_word">ഏതെങ്കിലും പദം</string>
+  <string name="search_phrase">ഉപവാക്യം</string>
+  <string name="search_result_count">%d യോജ്യഫലങ്ങൾ ലഭിച്ചു</string>
+  <string name="search_showing_first">അനേകം യോജ്യഫലങ്ങൾ. ആദ്യ %d ഫലങ്ങൾ കാണൂ</string>
+  <string name="search_bible_section_group_prompt">എവിടെ തിരെയണം</string>
+  <string name="search_all_bible">മുഴുവൻ വേദപുസ്തകവും</string>
+  <string name="search_new_testament">പുതിയനിയമം</string>
+  <string name="search_old_testament">പഴയനിയമം</string>
+  <string name="search_current_book">ഈ പുസ്തകം</string>
+  <string name="error_executing_search">അസാധുവായ അന്വേഷണം</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title1">വാക്യങ്ങളുടെ അക്കങ്ങൾ</string>
+  <string name="prefs_verse_per_line_summary">ഒരോ വാക്യങ്ങളും വ്യത്യസ്ത വരികളിൽ കാണിക്കുക</string>
+  <string name="prefs_show_mynotes_summary">എന്റെ കുറിപ്പിൽ വാക്യത്തോടൊപ്പം ഐക്കോൺ കാണിക്കുക</string>
+  <string name="prefs_show_notes_summary">അടിക്കുറിപ്പും അനുയോജ്യ ഭാഗങ്ങളും കാണിക്കുക</string>
+  <string name="prefs_show_strongs_summary">ഗ്രീക്കും ഹീബ്രുവും വ്യാഖ്യാനം നല്കുന്ന കണ്ണികൾ</string>
+  <string name="prefs_show_morphology_summary">റോബിൻസണ്ണിന്റെ ഗ്രീക്ക് മോർഫോളജി കാണിക്കുക</string>
+  <string name="prefs_section_title_summary">കാനോനിൽ ഉൾപെടാത്ത ശീർഷകം തലക്കെട്ട് കാണിക്കുക</string>
+  <string name="prefs_red_letter_summary">ക്രിസ്തുവിന്റെ വാക്കുകൾ ചുവന്ന അക്ഷരത്തിൽ കാണിക്കുക</string>
+  <string name="prefs_verse_per_line_title">ഒരു വരിയിൽ ഒരു വാക്യം വീതം</string>
+  <string name="prefs_show_mynotes_title">എന്റെ കുറിപ്പ് ഐക്കോൺ കാണിക്കുക</string>
+  <string name="prefs_show_footnotes_title">അടിക്കുറിപ്പുകൾ</string>
+  <string name="prefs_show_notes_title">അടിക്കുറിപ്പും മറ്റു ഫലകങ്ങളും</string>
+  <string name="prefs_show_morphology_title">മോർഫോളജി കോഡ്</string>
+  <string name="prefs_section_title_title">ശീർഷകം തലക്കെട്ട്</string>
+  <string name="prefs_red_letter_title">ചുവന്ന അക്ഷരം</string>
+  <string name="prefs_tilt_to_scroll_title">സ്ക്രോൾ ചെയ്യുവാൻ ചരിക്കുക</string>
+  <string name="prefs_night_mode_automatic">ഓട്ടോമാറ്റിക്ക്</string>
+  <string name="options_menu_night_mode">രാത്രി രീതി</string>
+  <string name="prefs_navigate_to_verse_title">വാക്യത്തിലേക്കു പോകു</string>
+  <string name="prefs_navigate_to_verse_summary">ഒരു ഭാഗം എടുക്കാൻ വാക്യ (അധ്യായ)ങ്ങൾ  തിരയുക</string>
+  <string name="prefs_text_size_sample_text">സാമ്പിൾ വാചകം</string>
+  <string name="prefs_interface_locale_title">ഉപയോഗ ഭാഷ</string>
+  <string name="prefs_interface_locale_summary">ഉപയോഗ ഭാഷ തിരഞ്ഞെടുക്കുക</string>
+  <string name="reset_fontsize">പുനഃരാരംഭിക്കൂ</string>
+  <!--Colors preferences-->
+  <string name="colors_night_mode_title">രാത്രി രീതി</string>
+  <!--Window-->
+  <string name="new_window">പുതിയ ജാലകം</string>
+  <string name="windowClose">അടക്കുക</string>
+  <string name="windowMaximise">വലുതാക്കുക</string>
+  <string name="windowMinimise">ചെറുതാക്കുക</string>
+  <string name="windowSynchronise">ഒരുപോലെയാക്കുക</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">ഈ അധ്യായത്തിൽ കുറിപ്പുകൾ ഒന്നും ഇല്ല</string>
+  <string name="no_verse_notes">ഈ വാക്യത്തിൽ കുറിപ്പുകൾ ഒന്നും ഇല്ല</string>
+  <string name="previous">മുൻപുള്ള</string>
+  <string name="next">അടുത്ത</string>
+  <!--Strongs-->
+  <string name="strongs_not_installed">ദയവായി സ്ടോങ്ങ്സിന്റെ ഹീബ്രുവും, ഗ്രീക്കും നിഘണ്ടുകൾ ഡൌൺലോഡ് ചെയ്യുക</string>
+  <string name="no_indexed_bible_with_strongs_ref">സ്ടോങ്ങ്സ് നംബറുള്ള വേദപുസ്തകം ഡൌൺലോഡ് ചെയ്ത ശേഷം, ഇതിന്റെ പട്ടിക, \"സേർച്ച്\"  വഴി ഡൌൺലോഡ് ചെയ്യുക</string>
+  <string name="morph_robinson_not_installed">ദയവായി \"റോബിൻസണ്ണിന്റെ മോർഫോളജിക്കൽ അപഗ്രഥന കോഡിന്റെ നിഘണ്ടു\" ഡൌൺലോഡ് ചെയ്യുക</string>
+  <!--Module download-->
+  <string name="download">ഡോക്കുമെന്റ് ഡൌൺലോഡ് ചെയ്യുക</string>
+  <string name="download_document_confirm_prefix">ഡൌൺലോഡ് </string>
+  <string name="download_refresh_book_list_menu_item">പുതുക്കുക</string>
+  <string name="storage_space_warning">കംപ്യൂട്ടറിൽ സ്ഥലം അപര്യാപ്തം</string>
+  <string name="document_not_installed">ദയവായി ഡൌൺലോഡ് ചെയ്യുക  \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">സിപ്പ് ഫയലില്‍ നിന്നും ഡോക്യമെന്റ് ലോഡ് ചെയ്യുക</string>
+  <string name="install_zip_successfull">മൊഡ്യൂള്‍ ഇന്‍സ്റ്റാള്‍ ചെയ്തു</string>
+  <string name="invalid_module">ഫയലില്‍ ഉപയൊഗപ്രദമായ മോഡ്യൂള്‍ ലഭ്യമല്ല</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">വായന പദ്ധതി</string>
+  <string name="rdg_plan_selector_title">ഒരു വായന പദ്ധതി തിരഞ്ഞെടുക്കുക</string>
+  <string name="rdg_plan_day">ദിവസം %s</string>
+  <string name="done">കഴിഞ്ഞു</string>
+  <!--Document context menu-->
+  <string name="delete">നീക്കി കളയുക</string>
+  <string name="delete_index">അന്വേഷണപട്ടിക നീക്കി കളയുക</string>
+  <string name="about">സംബന്ധിച്ച്</string>
+  <string name="delete_doc">നീക്കി കളയുക %s?</string>
+  <string name="delete_search_index_doc">പട്ടിക നീക്കി കളയുക %s?</string>
+  <!--Verse context menu-->
+  <string name="notes">അടിക്കുറിപ്പും സൂചനകളും</string>
+  <string name="compare_translations">പരിഭാഷ താരതമ്യം ചെയ്യുക</string>
+  <!--Link context menu-->
+  <!--Bookmarks-->
+  <string name="bookmarks">പുസ്തകസൂചിക</string>
+  <string name="bookmark_added">പുസ്തകസൂചിക  ചേർത്തു</string>
+  <string name="assign_labels">ശീർഷകം നിർണ്ണയിക്കുക</string>
+  <string name="new_item">പുതിയ</string>
+  <string name="new_label">പുതിയ ശീർഷകം </string>
+  <string name="label_name_prompt">പേര്</string>
+  <string name="label_unlabelled">ശീർഷകം ഇല്ലാത്തത്</string>
+  <!--can be removed-->
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">തീയതി ക്രമത്തിൽ</string>
+  <string name="sort_by_bible_book">ബൈബിള്‍ പുസ്തക ക്രമത്തിൽ</string>
+  <string name="sort_by_alphabetical">അക്ഷരമാല ക്രമത്തിൽ</string>
+  <!--Dictionary-->
+  <string name="dictionary">നിഘണ്ടു</string>
+  <string name="search_dictionary_hint">നിഘണ്ടുവിൽ തിരയുക</string>
+  <!--General Book-->
+  <string name="general_book">പുസ്തകം</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d അധ്യായം</string>
+  <string name="some_chapters">%d അധ്യായങ്ങൾ</string>
+  <string name="rest_of_book">പുസ്തക അവസാനം</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d വാക്യം</string>
+  <string name="some_verses">%d വാക്യങ്ങൾ</string>
+  <string name="rest_of_chapter">അധ്യായ അവസാനം</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d പുറം</string>
+  <string name="some_pages">%d പുറങ്ങൾ</string>
+  <!--Speak - Common-->
+  <string name="stop">നിർത്തുക</string>
+  <string name="pause">ഒന്നു നിർത്തു</string>
+  <string name="rewind">പുറകിലേക്കുപോകൂ</string>
+  <string name="forward">മുമ്പിലേക്കു പോകൂ</string>
+  <string name="tts_lang_not_available">ഈ ഭാഷ ലഭ്യമല്ല</string>
+  <string name="speak_queue">നിര </string>
+  <string name="speak_repeat">ആവർത്തിക്കുക</string>
+  <!--Speak - Bible-->
+  <string name="repeat_passage">ഖണ്ഡിക ആവർത്തിക്കുക</string>
+  <string name="set_repeat_passage_range">ആവർത്തിക്കേണ്ട ഖണ്ഡിക പരിധി നിശ്ചയിക്കുക</string>
+  <string name="speak_beginning_of_passage">ഖണ്ഡികയുടെ തുടക്കം തിരഞ്ഞെടുക്കുക</string>
+  <string name="speak_ending_of_passage">ഖണ്ഡികയുടെ അവസാനം തിരഞ്ഞെടുക്കുക</string>
+  <string name="speak_verse_range_to_repeat">ആവർത്തിക്കേണ്ട വാക്യ പരിധി തിരഞ്ഞെടുക്കുക</string>
+  <string name="speak_ending_verse_must_be_later">അവസാന വാക്യം ആദ്യ വാക്യത്തിന് ശേഷമായിരിക്കണം</string>
+  <string name="conf_change_title">തലക്കെട്ടുകൾ</string>
+  <string name="conf_speak_footnotes">അടിക്കുറിപ്പുകൾ</string>
+  <string name="conf_speak_sleep_timer">മയക്ക സമയം നിശ്ചയിക്കുക</string>
+  <string name="sleep_timer_title">മയക്കത്തിന്റെ സമയം</string>
+  <string name="speak_next">അടുത്തത്</string>
+  <string name="speak_previous">പുറകോട്ട്</string>
+  <string name="widget_toggle_sleep_timer">മയക്ക സമയം മാറ്റുക</string>
+  <string name="speak_status_stopped">നിന്നു</string>
+  <string name="speak_autobookmarking_disabled">തനിയേയുള്ള അടയാളങ്ങൾ നിർത്തിവെച്ചിരിക്കുന്നു</string>
+  <string name="system_speak_settings">ഓപ്പൺ സിസ്റ്റം TTS സെറ്റിങ്ങ്സ്</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="speak_bookmark_help">സംസാരിക്കുക അടയാളങ്ങൾ സഹായം</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string name="speak_book_changed">പുസ്തകം മാറി</string>
+  <string name="speak_chapter_changed">അദ്ധ്യായം</string>
+  <string name="speak_first">ആദ്യത്തേത്</string>
+  <string name="speak_second">രണ്ടാമത്തേത്</string>
+  <string name="speak_third">മൂന്നാമത്തേത്</string>
+  <string name="speak_fourth">നാലമത്തേത്</string>
+  <string name="speak_fifth">അഞ്ചാമത്തേത്</string>
+  <!--User Notes-->
+  <string name="mynotes">എന്റെ കുറിപ്പുകൾ</string>
+  <!--Backup and restore-->
+  <string name="backup_and_restore">ബാക്കപ്പ് &amp; പൂര്‍വ്വസ്ഥിതിയിലാക്കുക</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <!--About-->
+  <string name="module_about_copyright">പകർപ്പവകാശ %s</string>
+  <string name="module_about_versification">വാക്യം ക്രമീകരണം: %s</string>
+  <!--Bug reporting-->
+  <!--Document types-->
+  <string name="doc_type_bible">വേദപുസ്തകം </string>
+  <string name="doc_type_commentary">പാഠ്യപുസ്തകം </string>
+  <string name="doc_type_dictionary">നിഘണ്ഡു</string>
+  <string name="doc_type_book">പുസ്തകം </string>
+  <string name="doc_type_map">ഭൂപടം</string>
+  <!--Languages-->
+  <string name="lang_default">ഉറപ്പിച്ചിട്ടുള്ളതു</string>
+  <!--General-->
+  <string name="okay">കൊള്ളാം</string>
+  <string name="cancel">മാറ്റിക്കളയുക</string>
+  <string name="yes">അതെ</string>
+  <string name="no">അല്ല</string>
+  <string name="error">തെറ്റ്</string>
+  <string name="delete_generic">നീക്കി കളയുക</string>
+  <string name="all">എല്ലാം</string>
+  <string name="edit">തിരുത്തുക</string>
+  <string name="reset_generic">പുനഃരാരംഭിക്കൂ</string>
+  <string name="watch_tutorial_video">ടൂട്ടോറിയൽ വീഡിയോ കാണുക (ഇംഗ്ലീഷ്)</string>
+  <!--Errors-->
+  <string name="report_error">റിപ്പോർട്ട് അയയ്ക്കുക</string>
+  <string name="error_occurred">ഒരു തെറ്റ് പറ്റിയിരിക്കുന്നു</string>
+  <string name="error_no_content">തിരഞ്ഞ ഈ വാക്യം ശുന്യമാണു</string>
+  <string name="error_page_too_large">ഉൾക്കൊള്ളിക്കാൻ കഴിയുന്നതിലും വളരെ വലിയതാണ്‌</string>
+  <string name="error_key_not_in_document">ഡോക്കുമെന്റിൽ കാണുന്നില്ല</string>
+  <string name="empty_list">കാണിക്കുവാൻ ഒന്നുമില്ല</string>
+  <!--Notifications-->
+  <string name="notification_channel_tts_status">ടെക്സ്റ്റ് സംഭാഷണമാക്കുക</string>
+  <!--Workspaces-->
+  <string name="new_workspace">പുതിയ</string>
+  <string name="rename_workspace">പേര് മാറ്റുക</string>
+  <string name="save_and_exit">സൂക്ഷിക്കു</string>
+  <string name="reset_settings">പുനഃരാരംഭിക്കൂ</string>
+  <!--Beta notice-->
+  <!--History-->
+  <!--Help-->
+  <!--Welcome text-->
+  <!--Uncategorized-->
+  <string name="close">അടക്കുക</string>
+  <string name="my_notes_abbreviation">എന്റെ കുറിപ്പുകൾ</string>
+  <string name="compare_description">പരിഭാഷ താരതമ്യം ചെയ്യുക</string>
+  <string name="verse_action_copy">കോപ്പി</string>
+  <string name="show_versenumbers">വാക്യങ്ങളുടെ അക്കങ്ങൾ കാണിക്കുക</string>
+  <string name="backup_button">സംരക്ഷിക്കൂ</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <!--parameters are actions (file a bug, send email)-->
+  <!--param is "please report maintainers"-->
+  <!--param is "please read what you can do"-->
+  <string name="system_items1">കൂടുതൽ</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
+</resources>

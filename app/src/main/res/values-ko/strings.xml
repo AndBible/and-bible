@@ -515,6 +515,7 @@
   <!--param is "please read what you can do"-->
   <string name="system_items1">기타</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">죄송합니다. %s 언어로 된 부분적인 사용자 인터페이스 번역만 있습니다. %s은(는) 전적으로 자원 봉사자에 의해 개발되었기 때문입니다. 번역에 도움이 되시면 %s을(를) 참조하십시오.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="strongs_links">링크</string>
   <string name="verse_tip">절의 일부나 여러 절을 선택하려면, 성경 본문을 길게 누릅니다</string>

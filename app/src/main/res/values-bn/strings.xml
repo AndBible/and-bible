@@ -326,6 +326,14 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="speak_status_stopped">বন্ধ</string>
   <string name="speak_autobookmarking_disabled">অটোবুকমার্কিং অক্ষম!</string>
   <string name="system_speak_settings">সিস্টেম টিটিএস সেটিংস খুলুন</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">কথা বলার বুকমার্ক এর জন্য সাহায্য</string>
   <string name="speak_help_auto_bookmark">কথাবলা বিরতি দেওয়া বা বন্ধ হয়ে গেলে একটি কথাবলা বুকমার্ক স্বয়ংক্রিয়ভাবে যুক্ত হবে
 স্বয়ংক্রিয়ভাবে উত্পাদিত বুকমার্কগুলি বিশেষ স্পিকার লেবেলযুক্তের সাথে লেবেলযুক্ত করা হবে।
@@ -373,6 +381,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="mynotes">আমার নোটস</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">ব্যাকআপ &amp; প্রত্যর্পণ করা</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="loading_backup">ব্যাকআপ থেকে ডেটাবেস লোড হচ্ছে…</string>
   <string name="backup_modules_email_subject_2">%s মডিউল ব্যাকআপ</string>
   <string name="backup_modules_email_message_2"> সংযুক্ত হল আপনার %s মডিউলগুলির ব্যাকআপ, এতে নিম্নলিখিত মডিউলগুলি রয়েছে: %s </string>
@@ -494,4 +503,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">আমরা দু sorryখিত, কিন্তু আমাদের %s ভাষায় শুধুমাত্র আংশিক ইউজার ইন্টারফেস অনুবাদ আছে। কারণ %s সম্পূর্ণরূপে স্বেচ্ছাসেবীদের দ্বারা বিকশিত হয়েছে। আপনি যদি অনুবাদ করতে সাহায্য করতে পারেন, দয়া করে %s দেখুন।</string>
+  <!--will be added to incomplete_translation as a link-->
 </resources>

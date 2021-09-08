@@ -17,7 +17,6 @@
   <string name="other">Annet</string>
   <string name="help_and_tips">Hjelp og tips</string>
   <string name="administration">Administrasjon</string>
-  <string name="rate_application">Anmeldelser og tilbakemeldinger i Google Play</string>
   <string name="chooce_document">Velg dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Velg bok</string>
@@ -54,6 +53,7 @@
   <string name="search_current_book">Gjeldene bok</string>
   <string name="error_executing_search">Feil i søkestrengen</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title1">Versnummer</string>
   <string name="prefs_verse_per_line_summary">Vis hvert vers på egen linje</string>
   <string name="prefs_show_bookmarks_summary">Fjern kryss for å skjule alle bokmerker</string>
   <string name="prefs_show_mynotes_summary">Vis ikon i vers du har skrevet notater</string>
@@ -66,6 +66,7 @@
   <string name="prefs_verse_per_line_title">Ett vers per linje</string>
   <string name="prefs_show_bookmarks_title">Vis bokmerker</string>
   <string name="prefs_show_mynotes_title">Vis notatikoner</string>
+  <string name="prefs_show_footnotes_title">Fotnoter</string>
   <string name="prefs_show_notes_title">Fotnoter og kryssreferanser</string>
   <string name="prefs_show_strongs_title">Strong-nummerering</string>
   <string name="prefs_show_morphology_title">Vis morfologiske koder</string>
@@ -73,15 +74,12 @@
   <string name="prefs_red_letter_title">Rød skrift</string>
   <string name="prefs_tilt_to_scroll_title">Hell for å rulle teksten</string>
   <string name="prefs_night_mode_title">Nattmodus</string>
-  <string name="prefs_night_mode_summary">Bytte til nattmodus automatisk (dersom enheten din støtter dette), manuelt eller via systeminnstillinger (Andriod 10+)</string>
   <string name="prefs_night_mode_manual">Manuelt</string>
   <string name="prefs_night_mode_automatic">Automatisk</string>
   <string name="prefs_night_mode_system">System</string>
   <string name="options_menu_night_mode">Nattmodus</string>
   <string name="prefs_navigate_to_verse_title">Naviger til vers</string>
   <string name="prefs_navigate_to_verse_summary">Velg kapittel og vers når du skal navigere til et nytt bibelsted</string>
-  <string name="prefs_open_links_in_special_window_title">Åpne lenker i eget vindu</string>
-  <string name="prefs_open_links_in_special_window_summary">For hurtig visning av kryssereferanser og Strongs ordliste</string>
   <string name="prefs_text_size_sample_text">Eksempeltekst</string>
   <string name="prefs_screen_keep_on_title">Hold skjerm påslått</string>
   <string name="prefs_screen_keep_on_summary">La skjerm være påslått når denne applikasjonen benyttes</string>
@@ -236,9 +234,12 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="bookmarks">Bokmerker</string>
   <string name="bookmark_added">Bokmerke lagret</string>
   <string name="assign_labels">Legg til i grupper</string>
+  <string name="new_item">Ny</string>
   <string name="new_label">Ny gruppe</string>
   <string name="label_name_prompt">Navn</string>
   <string name="label_unlabelled">Umerket</string>
+  <string name="remove_bookmark">Fjern</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datorekkefølge</string>
   <string name="sort_by_bible_book">Bibelsk rekkefølge</string>
@@ -281,6 +282,14 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="speak_next">Neste</string>
   <string name="speak_previous">Forrige</string>
   <string name="speak_autobookmarking_disabled">Automatisk bokmerking avslått!</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_help_playback_settings_example">
 </string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
@@ -317,6 +326,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <!--User Notes-->
   <string name="mynotes">Mine notater</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Sikkerhetskopiering</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="loading_backup">Leser database fra sikkerhetskopi</string>
   <string name="backup_modules_email_subject_2">%s moduler sikkerhetskopiert</string>
   <string name="backup_modules_email_message_2">Vedlagt er sikkerhetskopi av dine %s moduler, som inneholder følgende: %s</string>
@@ -353,9 +364,11 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="yes">Ja</string>
   <string name="no">Nei</string>
   <string name="error">Feil</string>
+  <string name="delete_generic">Slett</string>
   <string name="please_wait">Vennligst vent...</string>
   <string name="all">Alle</string>
   <string name="edit">Rediger</string>
+  <string name="reset_generic">Tilbakestill</string>
   <string name="watch_tutorial_video">Se opplæringsvideo (engelsk)</string>
   <string name="verse_not_found">Vers ble ikke funnet</string>
   <!--Errors-->
@@ -415,8 +428,18 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Jeg forstår</string>
   <string name="first_time_help_show_next_time">Vis igjen neste gang</string>
+  <string name="my_notes_abbreviation">Mine notater</string>
+  <string name="compare_description">Sammenlign oversettelser</string>
+  <string name="verse_action_copy">Kopier</string>
+  <string name="show_versenumbers">Vis versnummer</string>
+  <string name="backup_button">Sikkerhetskopi</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="system_items1">Mer</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Vi beklager, men vi har bare delvis brukergrensesnittoversettelse på %s språk. Det er fordi %s er helt utviklet av frivillige. Hvis du kan hjelpe til med å oversette, kan du se %s. </string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="strongs_links">Lenker</string>
 </resources>

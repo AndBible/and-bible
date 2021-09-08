@@ -326,6 +326,14 @@
   <string name="speak_status_stopped">zaustavljeno</string>
   <string name="speak_autobookmarking_disabled">Automatsko obeležavanje onemogućeno!</string>
   <string name="system_speak_settings">Otvori sistemske TTS postavke</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Pomoć a obeleživače Izgovora</string>
   <string name="speak_help_auto_bookmark">
         Govorni obeleživač će biti automatski dodat kada je Izgovaranje pauzirano ili zaustavljeno.
@@ -387,6 +395,7 @@
   <string name="mynotes">Moje beleške</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Rezervna kopija i vraćanje</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="loading_backup">Učitavanje baze podataka iz rezervne kopije...</string>
   <string name="backup_modules_email_subject_2">Rezervna kopija modula %s </string>
   <string name="backup_modules_email_message_2">Zakačena je rezervna kopija %s modula, koja sadrži sledeće module: %s</string>
@@ -524,4 +533,7 @@
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Žao nam je, ali imamo samo delimičan prevod korisničkog interfejsa na jezik %s. To je zato što su %s u potpunosti razvili volonteri. Ako možete da pomognete u prevodu, pogledajte %s.</string>
+  <!--will be added to incomplete_translation as a link-->
 </resources>
