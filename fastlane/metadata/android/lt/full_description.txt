@@ -19,7 +19,6 @@ Programėlėje yra daug sumanių, išskirtinių ypatybių, kurios sudėtingą ir
  * Išplėstinės žymių ir paryškinimo ypatybės kartu su asmeninio studijavimo pastabomis
  * Skaitymo planai: nusistatykite Biblijos skaitymo tikslus
  * Didelė dokumentų biblioteka: Biblijos vertimai, teologiniai komentarai, žodynai, žemėlapiai bei krikščioniškos knygos, iš viso virš 1500 dokumentų, daugiau nei 700 kalbų, kuriuos teisėtai platina Crosswire ir kitos SWORD saugyklos.
- * Visų dokumentų kilmė yra nagrinėjama, kad būtų užtikrinta, jog visi dokumentai gali būti teisėtai platinami, arba, jog yra suteiktas autorių teisių turėtojo leidimas. Tai taip pat yra viena iš priežasčių, kodėl šioje programėlėje nėra tokių dokumentų kaip ESV, NIV ir NKJV.
  * Nereikalauja interneto: interneto reikia tik vienintelį kartą, atsisiunčiant dokumentus.
  * Bloknotai, skirti, klausantis pamokslo, pridėti pastabas ir Biblijos nuorodas.
 

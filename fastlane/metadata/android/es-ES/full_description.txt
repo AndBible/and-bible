@@ -19,7 +19,6 @@ La aplicación tiene muchas características interesantes y originales que hacen
  * Funciones avanzadas de marcado y resaltado con notas de estudio personales
  * Planes de lectura: establezca metas para leer la Biblia
  * Amplia biblioteca de documentos: traducciones de la Biblia, comentarios teológicos, diccionarios, mapas y libros cristianos, con un total de más de 1500 documentos en más de 700 idiomas, distribuidos legalmente por Crosswire y otros repositorios de SWORD.
- * Se investiga la procedencia de todos los documentos para garantizar que todos los documentos puedan distribuirse legalmente o que el titular de los derechos de autor haya otorgado el permiso. Esa es también la razón por la que esta aplicación no incluye documentos como RVR60, NVI, ESV.
  * Fuera de línea: la única vez que necesita Internet es para descargar documentos.
  * Pizarras de estudio para agregar notas y referencias Bíblicas mientras escucha sermones.
 

@@ -19,7 +19,6 @@ A aplicação tem muitos recursos perspicazes e originais, que tornam uma experi
  * Recursos avançados de marcadores e destaque com notas de estudo pessoais
  * Planos de leitura: estabeleça metas para a leitura da Bíblia
  * Vasta biblioteca de documentos: traduções da Bíblia, comentários teológicos, dicionários, mapas e livros cristãos, totalizando mais de 1500 documentos em mais de 700 idiomas, legalmente distribuídos pela Crosswire e outros repositórios SWORD.
- * A proveniência de todos os documentos é pesquisada para garantir que todos os documentos podem ser legalmente distribuídos ou que a permissão foi concedida pelo detentor dos direitos autorais. Esse também é o motivo pelo qual este aplicativo não inclui documentos como ESV, NIV and NKJV.
  * Off-line: só precisa da Internet para fazer download de documentos.
  * Áreas de Estudo para adicionar notas e referências bíblicas enquanto ouve sermões.
 

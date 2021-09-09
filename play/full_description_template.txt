@@ -19,7 +19,6 @@
  * {{feature_07}}
  * {{feature_09}}
  * {{feature_10}}
- * {{feature_11}}
  * {{feature_12}}
  * {{feature_13}}
 
