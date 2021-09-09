@@ -522,7 +522,7 @@ http://www.heartlight.org 准予使用
   <string name="backup_email_subject_2">%s 资料库备份</string>
   <string name="backup_email_message_2">你的%s载有书签、笔记、读经计划及工作检视的资料库已包括在内</string>
   <string name="restore_unsuccessfull">未能回复资料库。或许你的资料库档案无效。</string>
-  <string name="backup_phone_storage">手机容量</string>
+  <string name="backup_phone_storage">手机空间</string>
   <string name="backup_backup_title">备份目的地</string>
   <string name="backup_backup_message">以分享功能备份至手机或其他目的地 (电邮、Google Drive等)？</string>
   <string name="backup_share">分享</string>
@@ -635,8 +635,21 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="history_for">历史 (%s: 视窗 %d)</string>
   <!--Help-->
   <string name="help_nav_title">导航</string>
+  <string name="help_nav_text">左右滑动以浏览上一章或下一章。
+双点以进入全萤幕模式。
+选单按键会出现在分割萤幕(又称视窗)的右上方，
+你可以用它自订视窗功能及外观。</string>
   <string name="help_contextmenus_title">内文选单</string>
+  <string name="help_contextmenus_text">
+长按可以打开不同的选项：
+长按圣经检视以打开影响当前经文的选项。
+长按选择文档或下载列表，可以删除文档或查看信息。
+长按书签列表中的书签，可添加标签或删除书签。
+长按连结可让你选择在目前视窗、新视窗或特殊连结视窗中打开连结。
+</string>
   <string name="help_bookmarks_title">书签 &amp; 我的笔记</string>
+  <string name="help_bookmarks_text">选取文字后可以在弹出视窗点选书签功能。你可以对书签自订笔记。「我的笔记」功能，也可让你在新视窗中开启你专属的笔记。
+</string>
   <string name="help_studypads_text">
 个人笔记可方便使用者编写及准备讲道笔记、或者作个人的多经文研究。每一个个人笔记都有专属的书签。所有标记了该书签的经文，均会自动出现在对应的个人笔记中。除了书签以外，使用者亦可自行增添文字。
 </string>
@@ -644,10 +657,31 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="help_search_text">搜寻字词可以加入特殊字符如 * , ?, AND, OR, NOT
 (有关详细信息请参「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_workspaces_title">工作检视</string>
+  <string name="help_workspaces_text">
+工作检视可让你打开数个工作环境。
+工作检视功能可以由右上方的选项中打开。
+从工具列向下滑动，可以快速打开工作检视。
+您还可以在工具列上左右滑动，以切换到上一个/下一个工作检视。
+</string>
   <string name="help_hidden_features_title">隐藏捷径</string>
+  <string name="help_hidden_features_text">
+在工具列向下滑动以显示工作检视选项。
+长按视窗按键以最小化。
+长按朗读按键以进入朗读设定。
+长按经文位置以跳转至文件选择。
+长按返回键以进入阅读历史。</string>
   <string name="help_window_pinning_title">视窗钉选</string>
+  <string name="help_window_pinning_text">
+你可以从选单启用视窗钉选。
+如视窗钉选已启用，你可以显示多个已钉选的视窗，但只有一个未钉选的视窗。
+已钉选的视窗会优先显示，之后到未钉选的视窗。
+例如你可以将圣经文件钉选，再以未钉选的方法开启注解或地图等，在查经时方便同时阅读其他参考文件。</string>
   <!--Welcome text-->
   <string name="redownload_documents">快速重新下载</string>
+  <string name="welcome_message">感谢你下载 %s。现时并未有下载圣经或文件。请下载至少一份文件，或从Zip备份档案汇入。</string>
+  <string name="redownload_message">
+找到书本及文件列表。点选下方下载。
+</string>
   <!--Uncategorized-->
   <string name="close">关闭</string>
   <string name="something_with_parenthesis">%s (%s)</string>
@@ -766,7 +800,7 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="system_items1">更多</string>
   <string name="system_action2">Android 行动</string>
   <string name="text_copied_to_clicpboard">文字已复制至剪贴簿</string>
-  <string name="prefs_disable_two_step_bookmarking_title">一步标签书签</string>
+  <string name="prefs_disable_two_step_bookmarking_title">一键标签书签</string>
   <string name="prefs_disable_two_step_bookmarking_summary">直接在圣经检视选取选单显示 \"选取\" 及 \"节\"</string>
   <string name="prefs_double_tap_to_fullscreen_title">双点以进入全萤幕模式</string>
   <string name="prefs_double_tap_to_fullscreen_summary">双点以进入全萤幕模式</string>
@@ -799,6 +833,8 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="questions_title2">需要帮助？</string>
   <string name="bookmark_style">书签样式</string>
   <string name="added_to_bookmark">分配至此书签</string>
+  <string name="strongs_off">关闭</string>
   <string name="strongs_links">连结</string>
+  <string name="strongs_text_and_links">文字及连结</string>
   <string name="verse_tip">长按以选择部份或多节经文</string>
 </resources>
