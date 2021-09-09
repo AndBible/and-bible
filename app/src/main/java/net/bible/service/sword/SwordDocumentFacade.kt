@@ -92,9 +92,9 @@ class SwordDocumentFacade @Inject constructor() {
             }
             val preferredBooks = arrayOf("robinson")
             for (prefBook in preferredBooks) {
-                val strongs = Books.installed().getBook(prefBook)
-                if (strongs != null) {
-                    return strongs
+                val mod = Books.installed().getBook(prefBook)
+                if (mod != null) {
+                    return mod
                 }
             }
             return Defaults.getGreekParse()?: FakeBookFactory.giveDoesNotExist("Robinson", BookCategory.DICTIONARY)
