@@ -1061,7 +1061,7 @@ object CommonUtils : CommonUtilsBase() {
     fun combineIcons(icon: Int, icon2: Int, sizeMultiplier: Float? = null): Drawable {
         val d1 = getTintedDrawable(icon)
         val d2 = getTintedDrawable(icon2)
-        val circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, R.color.background_color_60)
+        val circleDrawable = getTintedDrawable(R.drawable.ic_baseline_circle_24, R.color.background_color)
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             LayerDrawable(arrayOf(d1, circleDrawable, d2)).apply {
