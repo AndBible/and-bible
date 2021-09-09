@@ -20,6 +20,8 @@ package net.bible.android.control.page.window
 
 import android.app.AlertDialog
 import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -37,6 +39,7 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.settings.getPrefItem
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 import net.bible.service.common.firstBibleDoc
 
@@ -338,6 +341,7 @@ open class WindowControl @Inject constructor(
             }
         }
         dialog.show()
+        CommonUtils.fixAlertDialogButtons(dialog)
     }
 
 

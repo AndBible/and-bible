@@ -43,7 +43,10 @@ import android.text.method.LinkMovementMethod
 import android.util.LayoutDirection
 import android.util.Log
 import android.view.Gravity
+import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.preference.Preference
@@ -1082,6 +1085,11 @@ object CommonUtils : CommonUtilsBase() {
             }
         else
             d1
+    }
+
+    fun fixAlertDialogButtons(dialog: AlertDialog) {
+        val container = dialog.findViewById<Button>(android.R.id.button1).parent as LinearLayout
+        container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, 2);
     }
 }
 

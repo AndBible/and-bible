@@ -124,6 +124,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     }
                 }
                 dialog.show()
+                CommonUtils.fixAlertDialogButtons(dialog)
             }
         }
         return result;

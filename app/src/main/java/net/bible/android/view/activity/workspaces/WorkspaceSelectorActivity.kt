@@ -398,7 +398,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
             }
         }
         dialog.show()
-
+        CommonUtils.fixAlertDialogButtons(dialog)
     }
 
     private fun copySettingsStage2(workspace: WorkspaceEntities.Workspace, checkedTypes: BooleanArray) {
@@ -439,7 +439,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
             }
         }
         dialog.show()
-
+        CommonUtils.fixAlertDialogButtons(dialog)
     }
 
     private val dao = DatabaseContainer.db.workspaceDao()

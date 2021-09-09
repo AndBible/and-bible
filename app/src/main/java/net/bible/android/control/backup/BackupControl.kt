@@ -18,7 +18,6 @@
 
 package net.bible.android.control.backup
 
-import android.app.ActionBar
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -28,10 +27,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.ViewGroup
 import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -217,8 +213,7 @@ object BackupControl {
                     }
                 }
                 dialog.show()
-                val container = dialog.findViewById<Button>(android.R.id.button1).parent as LinearLayout
-                container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, 2);
+                CommonUtils.fixAlertDialogButtons(dialog)
             }
         }
         return result
