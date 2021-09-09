@@ -184,14 +184,21 @@ class LinkControl @Inject constructor(
      */
 
     @Throws(NoSuchKeyException::class)
-    private fun getStrongsKey(book: Book, key: String): BookAndKey? { // valid Strongs uri but Strongs refs not installed
-        val sanitizedKey = sanitizeStrongsKey(key) ?: return null
-        val k = book.getKey(sanitizedKey)
+    private fun getStrongsKey(book: Book, key: String): BookAndKey? {
+
+        val k = try {book.getKey(key)} catch (e: NoSuchKeyException) {
+            try {
+                val match = Regex("^([GH])([0-9]+).*").find(key) ?: return null
+                //val firstLetter = match.groups[1]?.value!!
+                val sanitizedKey = match.groups[2]?.value?.padStart(5, '0')!!
+                book.getKey(sanitizedKey)
+            } catch(e: NoSuchKeyException) {
+                return null
+            }
+        }
+
         return BookAndKey(k, book)
     }
-
-    private fun sanitizeStrongsKey(key: String): String? =
-        Regex("^([0-9]+).*").find(key)?.groups?.get(1)?.value?.padStart(5, '0')
 
     @Throws(NoSuchKeyException::class)
     private fun getRobinsonMorphologyKey(key: String): BookAndKey {

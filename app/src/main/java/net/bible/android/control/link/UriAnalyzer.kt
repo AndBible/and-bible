@@ -71,7 +71,6 @@ class UriAnalyzer {
             ROBINSON_GREEK_MORPH_PROTOCOL -> DocType.ROBINSON
             STRONG_PROTOCOL -> {
                 val firstLetter = ref.first()
-                ref = ref.slice(1 until ref.length)
                 if (firstLetter == 'G') {
                     DocType.GREEK_DIC
                 } else {
