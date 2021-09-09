@@ -22,7 +22,7 @@
     </template>
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
-  <div :class="{editMode: editor && editor.editMode}">
+  <div class="entry" :class="{editMode: editor && editor.editMode}">
     <div class="menu" :class="{isText: journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT}">
       <ButtonRow show-drag-handle>
         <div class="journal-button" @click="addNewEntryAfter">
@@ -190,11 +190,13 @@ export default {
   text-indent: 2pt;
   margin-top: 4pt;
 }
+.entry {
+  border-width: 2px;
+}
 
 .editMode {
   border-radius: 5px;
   border-style: solid;
-  border-width: 2px;
   border-color: rgba(0, 0, 255, 0.5);
 }
 </style>
