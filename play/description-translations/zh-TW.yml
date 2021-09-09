@@ -35,7 +35,7 @@ feature_10: >
   龐大的文件庫：{{total_languages}}種語言、超過{{total_documents}}份聖經譯本、神學註釋、字典、地點及基督教書籍。全部均由Crosswire及其他SWORD資料庫授權分發。
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_11: >
-  所有文件的來源均已版考究，以確定它們都是已獲授權分發。這也代表了此程式未有附載未權授權的文件如{{unavailable_documents}}。
+  所有文件的來源均已被考究，以確定它們都是已獲授權分發。這也代表了此程式未有附載未權授權的文件如{{unavailable_documents}}。
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: ESV、NIV 及 NKJV

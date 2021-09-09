@@ -522,7 +522,7 @@ http://www.heartlight.org 准予使用
   <string name="backup_email_subject_2">%s 資料庫備份</string>
   <string name="backup_email_message_2">你的%s載有書籤、筆記、讀經計劃及工作檢視的資料庫已包括在內</string>
   <string name="restore_unsuccessfull">未能回復資料庫。或許你的資料庫檔案無效。</string>
-  <string name="backup_phone_storage">手機容量</string>
+  <string name="backup_phone_storage">手機空間</string>
   <string name="backup_backup_title">備份目的地</string>
   <string name="backup_backup_message">以分享功能備份至手機或其他目的地 (電郵、Google Drive等)？</string>
   <string name="backup_share">分享</string>
@@ -800,7 +800,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="system_items1">更多</string>
   <string name="system_action2">Android 行動</string>
   <string name="text_copied_to_clicpboard">文字已複製至剪貼簿</string>
-  <string name="prefs_disable_two_step_bookmarking_title">一步標籤書籤</string>
+  <string name="prefs_disable_two_step_bookmarking_title">一鍵標籤書籤</string>
   <string name="prefs_disable_two_step_bookmarking_summary">直接在聖經檢視選取選單顯示 \"選取\" 及 \"節\"</string>
   <string name="prefs_double_tap_to_fullscreen_title">雙點以進入全螢幕模式</string>
   <string name="prefs_double_tap_to_fullscreen_summary">雙點以進入全螢幕模式</string>

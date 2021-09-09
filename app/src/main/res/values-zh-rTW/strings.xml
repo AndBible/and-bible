@@ -3,6 +3,7 @@
   <string name="app_name_short">研經工具</string>
   <string name="app_name_medium">研經工具 (And Bible)</string>
   <string name="app_name_long">研經工具 - 由And Bible開源計劃開發</string>
+  <string name="project">And Bible 開源計劃</string>
   <string name="version_text"> %s 版本 </string>
   <string name="no_sdcard_error">請插入SD Card及重新開始程式</string>
   <!--Main menu-->
@@ -14,10 +15,12 @@
   <string name="history">閱讀歷史</string>
   <string name="speak">朗讀</string>
   <string name="help">幫助</string>
+  <string name="information">資訊</string>
   <string name="other">其他</string>
+  <string name="contact">聯絡</string>
   <string name="help_and_tips">說明與提示</string>
   <string name="administration">管理</string>
-  <string name="rate_application">在Google Play中評分</string>
+  <string name="rate_application">評分及評論</string>
   <string name="chooce_document">選擇文件</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">選擇書卷</string>
@@ -28,12 +31,12 @@
   <!--Search-->
   <string name="search_index">搜尋索引</string>
   <string name="index_creation_required">搜尋需要搜尋索引</string>
-  <string name="create_index_for">搜尋時需要索引。\n\n為%s建立索引嗎？</string>
-  <string name="rebuild_index_for">為%s重建索引嗎？</string>
+  <string name="create_index_for">搜尋時需要索引。\n\n為 %s 建立索引嗎？</string>
+  <string name="rebuild_index_for">為 %s 重建索引嗎？</string>
   <string name="indexing_wait_msg">當索引創建完成時，程式會回到查詢頁面。</string>
   <string name="index_create">建立</string>
   <string name="rebuild_index">重建索引</string>
-  <string name="search_in">在%s中尋找</string>
+  <string name="search_in">在 %s 中尋找</string>
   <string name="do_in_background">背景中繼續</string>
   <string name="rebuild_index_button">重建</string>
   <!--Tasks-->
@@ -54,44 +57,59 @@
   <string name="search_current_book">本書卷</string>
   <string name="error_executing_search">搜尋項目無效</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">顯示節數</string>
+  <string name="prefs_show_verseno_title">章節號碼</string>
+  <string name="prefs_show_verseno_summary">顯示章節號碼</string>
+  <string name="prefs_e_ink_mode_title">黑白模式</string>
+  <string name="prefs_eink_mode_summary">單色環境下使用程式，令它更適合 E-ink 裝置。</string>
+  <string name="prefs_disable_animations_title">關閉動畫</string>
+  <string name="prefs_disable_animations_summary">關閉動畫例如流暢捲動。</string>
+  <string name="prefs_paragraph_spacing_title">段落距離 (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">調整段落之間距離。</string>
+  <string name="prefs_show_verseno_title1">節數</string>
+  <string name="prefs_show_chapter_no_title">章數</string>
+  <string name="prefs_show_chapter_no_summary">顯示章數</string>
   <string name="prefs_verse_per_line_summary">在不同行顯示每一節</string>
   <string name="prefs_show_bookmarks_summary">取消剔選以隱藏所有書籤</string>
-  <string name="prefs_show_mynotes_summary">在經文中顯示我的筆記的圖示</string>
-  <string name="prefs_show_notes_summary">顯示注腳及交叉對照</string>
-  <string name="prefs_show_strongs_summary">連結希臘文/希伯來文定義</string>
+  <string name="prefs_show_mynotes_summary">在經文中顯示我的筆記圖示</string>
+  <string name="prefs_show_notes_summary">顯示註腳及交叉對照</string>
+  <string name="prefs_show_strongs_summary">連結希臘文及希伯來文定義</string>
   <string name="prefs_show_morphology_summary">顯示Robinson\'s希臘文詞形工具</string>
   <string name="prefs_section_title_summary">顯示非正典章節標題</string>
   <string name="prefs_red_letter_summary">以紅字顯示基督的話</string>
   <string name="prefs_text_size_title">字型偏好</string>
-  <string name="prefs_show_verseno_title">顯示節數</string>
   <string name="prefs_verse_per_line_title">每行一節</string>
   <string name="prefs_show_bookmarks_title">顯示書籤圖示</string>
-  <string name="prefs_default_bookmark_style_title">預設書籤樣式</string>
-  <string name="prefs_default_bookmark_style_summary">書籤突出顯示顏色或圖示</string>
   <string name="prefs_show_mynotes_title">顯示筆記圖示</string>
-  <string name="prefs_show_notes_title">注腳和交叉對照</string>
+  <string name="prefs_show_footnotes_title">注腳</string>
+  <string name="prefs_show_xrefs_title">交叉對照</string>
+  <string name="prefs_show_footnotes_summary">如有的話，在文件中顯示註腳</string>
+  <string name="prefs_show_xrefs_summary">如有的話，在文件中顯示交叉對照</string>
+  <string name="prefs_show_notes_title">註腳及交叉對照</string>
   <string name="prefs_show_strongs_title">Strong\'s原文編號</string>
   <string name="prefs_show_morphology_title">顯示詞形碼</string>
   <string name="prefs_section_title_title">章節標題</string>
   <string name="prefs_red_letter_title">紅字</string>
   <string name="prefs_tilt_to_scroll_title">傾斜手機向下捲動</string>
+  <string name="prefs_toolbar_button_action_title">工具列按鍵的動作</string>
+  <string name="prefs_toolbar_button_action_summary">點選或長按聖經及註釋時工具列按鍵的動作</string>
+  <string name="prefs_toolbar_button_action_default">點選以開啟選單；長按則打開文件表列</string>
+  <string name="prefs_toolbar_button_action_swap_menu">點選以開啟下一份文件；長按則開啟選單</string>
+  <string name="prefs_toolbar_button_action_swap_activity">點選以開啟下一份文件；長按則打開文件表列</string>
   <string name="prefs_night_mode_title">夜間模式切換</string>
-  <string name="prefs_night_mode_summary">是否手動或自動經由系統設定轉換至夜間模式 (Android 10+)</string>
+  <string name="prefs_night_mode_summary">選擇是否自動、手動或透過系統設定切換夜間模式（如裝置支換）。手動切換可以在主螢幕中的3點選單進行。</string>
   <string name="prefs_night_mode_manual">手動</string>
-  <string name="prefs_night_mode_automatic">自動啟動夜間模式</string>
+  <string name="prefs_night_mode_automatic">自動</string>
   <string name="prefs_night_mode_system">系統</string>
   <string name="options_menu_night_mode">夜間模式</string>
   <string name="prefs_navigate_to_verse_title">導航到經節</string>
   <string name="prefs_navigate_to_verse_summary">選擇聖經段落時挑選經文章節</string>
-  <string name="prefs_open_links_in_special_window_title">在特殊視窗打開連結</string>
-  <string name="prefs_open_links_in_special_window_summary">更快地顯示交叉對照和Strong\'s原文編號</string>
-  <string name="prefs_text_size_summary">調整字型及大小</string>
+  <string name="prefs_open_links_in_special_window_title">連結視窗</string>
+  <string name="prefs_open_links_in_special_window_summary">在特殊視窗開啟連結，以便快速查看交叉對照及Strongs編號。</string>
   <string name="prefs_text_size_sample_text">示範文字</string>
   <string name="prefs_screen_keep_on_title">保持螢幕開啟</string>
   <string name="prefs_screen_keep_on_summary">使用此應用程式時防止螢幕睡眠</string>
   <string name="prefs_interface_locale_title">程式用戶界面語言</string>
-  <string name="prefs_interface_locale_summary">選擇用戶界面語言</string>
+  <string name="prefs_interface_locale_summary">選擇使用者界面語言</string>
   <string name="reset_fontsize">重設</string>
   <string name="prefs_request_sdcard_permission_title">手動安裝文件存在</string>
   <string name="prefs_request_sdcard_permission_summary">允許手動安裝內部儲存空間 jsword/sword 文件夾中的文件</string>
@@ -100,7 +118,8 @@
   <string name="auto_fullscreen">捲動以切換至全螢幕</string>
   <string name="reversed_split_mode">反轉分拆視窗模式</string>
   <string name="add_ellipsis">%s...</string>
-  <string name="font_size_pt">%d點</string>
+  <string name="font_size_pt">%d 點</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">捲動文字時自動切換為全螢幕。提示：你可以隨時以雙擊切換至全螢幕。</string>
   <string name="prefs_margin_size_title">更改邊界大小</string>
   <string name="prefs_margin_size_mm_title">邊界大小 (%d/%d/%d mm)</string>
@@ -123,19 +142,36 @@
   <string name="pref_maximum_width_of_text_label_mm">最大文字寬度 (%dmm)</string>
   <string name="prefs_line_spacing_pt">行距%1.1fx</string>
   <string name="pref_font_family_label">字型家族</string>
+  <string name="prefs_top_margin_title">頂邊界</string>
+  <string name="prefs_top_margin_summary">在聖經文件視窗頂部增加邊界。經文將會在該邊界以下顯示。</string>
   <string name="prefs_hyphenation_title">斷字</string>
   <string name="prefs_hyphenation_summary">如果語言支援則自動斷字</string>
   <string name="prefs_line_spacing_pt_title">行距 (%1.1fx)</string>
   <string name="line_spacing_title">行距</string>
   <string name="line_spacing_summary">設定每行之間距離</string>
   <string name="select_none">全不選</string>
-  <string name="reset_are_you_sure">確定重設所有數值嗎？</string>
+  <string name="reset_are_you_sure">你確定要重設所有數值嗎？</string>
   <string name="window_pinning_menutitle">視窗釘選</string>
   <string name="hide_window_buttons_title">隱藏視窗按鍵</string>
-  <string name="hide_window_buttons_summary">隱藏在聖經檢視右方的視窗按鍵。下方的視窗導航則繼續顯示，而你可以長按它們以打開視窗彈出選單。</string>
-  <string name="font_size_title">字型大小</string>
+  <string name="hide_window_buttons_summary">隱藏在聖經視窗右方的視窗按鍵。底部的視窗導航列仍會顯示，你可以長按以開啟視窗彈出選單。</string>
+  <string name="hide_bible_reference_overlay_title">隱藏聖經參考浮動視窗</string>
+  <string name="hide_bible_reference_overlay_summary">在全螢幕模式下，不顯示半透明的聖經參考浮動視窗</string>
   <string name="full_screen_hide_buttons_pref_title">在全螢幕中隱藏視窗按鍵</string>
   <string name="full_screen_hide_buttons_pref_summary">當切換至全螢幕模式時，自動隱藏下方的視窗按鍵列</string>
+  <string name="prefs_dictionaries_cat">字典</string>
+  <string name="choose_strongs_greek_dictionary_title">Strongs 希臘文字典</string>
+  <string name="choose_strongs_greek_dictionary_summary">選擇 Strongs 希臘文字典以查找定義</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strongs 希伯來文字典</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">選擇 Strongs 希伯來文字典以查找定義</string>
+  <string name="choose_strongs_greek_morphology_title">Robinson 希臘文詞形工具</string>
+  <string name="choose_strongs_greek_morphology_summary">選擇 Robinson 希臘文詞形工具以查找定義</string>
+  <string name="prefs_top_margin_title_mm">頂邊界 (%d mm)</string>
+  <string name="font_size_title">字型大小</string>
+  <string name="font_size_title_pt">字型大小 (%d pt)</string>
+  <string name="prefs_font_text_size_summary">調整主要文字大小</string>
+  <string name="pref_font_family_label_name">字型家族 (%s)</string>
+  <string name="prefs_font_family_summary">更改字型家族。提示：在下載文件 / 附加中可以安裝更多字型。</string>
+  <string name="prefs_text_bookmarks_title">書籤 &amp; 我的筆記設定</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">顏色設定</string>
   <string name="window_color_settings_title">視窗顏色設定</string>
@@ -171,38 +207,39 @@
   <string name="next">下一頁</string>
   <!--Strongs-->
   <string name="strongs_not_installed">請下載Strong\'s希伯來文和希臘文字典</string>
-  <string name="all_greek_occurrences">查找所有包含此希臘文字符的經文</string>
-  <string name="all_hebrew_occurrences">查找所有包含此希伯來文字符的經文</string>
   <string name="no_indexed_bible_with_strongs_ref">需要下載包含Strong\'s原文編號的聖經，並於搜尋下載相應的索引</string>
-  <string name="morph_robinson_not_installed">請下載羅氏詞形分析碼的字典</string>
+  <string name="morph_robinson_not_installed">請下載 Robinson\'s 詞形分析碼的字典</string>
+  <string name="go_to_downloads">移至下載</string>
   <!--Module download-->
   <string name="download">下載文件</string>
+  <string name="redownload">重新下載文件</string>
   <string name="download_confirmation">從互聯網上下載聖經嗎？</string>
-  <string name="download_source_message">文件來源為\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
+  <string name="download_source_last_updated">文件列表最後更新：%s</string>
+  <string name="download_refreshing_book_list">正在更新文件列表...</string>
+  <string name="download_source_message1">文件來自以下來源：</string>
   <string name="download_document_confirm_prefix">下載</string>
-  <string name="download_refreshing_book_list">正在更新可用的文件列表</string>
   <string name="download_refresh_book_list_menu_item">更新</string>
-  <string name="error_downloading">下載時發生錯誤。請檢查您的互聯網連接。</string>
+  <string name="error_downloading">下載時出錯。請檢查你的連線。</string>
+  <string name="error_downloading_status">%s 的伺服器由於 %s 出錯 (%d)。</string>
   <string name="storage_space_warning">SD卡儲存空間不足</string>
-  <string name="too_many_jobs">正執行太多任務。 請等候一些任務完成後再試。</string>
+  <string name="too_many_jobs">同時進行太多工作。請先等候部份工作完成後再試。</string>
   <string name="document_not_installed">請下載 \"%s\"</string>
   <string name="free_text_search_documents">搜尋</string>
   <string name="chooce_language_hint">語言</string>
-  <string name="one_more_back_press">再按返回鍵關閉程式</string>
+  <string name="one_more_back_press">再按返回以關閉程式</string>
   <string name="document_filter_results">%d文件</string>
   <string name="download_question_title">你想繼續下載文件嗎？</string>
-  <string name="download_question_message">如果你身處有逼迫的國家，
-你或許需留意是否下載基督教教材。
-取以代之，你或許想透過更安全的途徑取得模組的zip
-及以「從Zip載入文件」安裝它們。你是否確定繼續進行下載？
-所有下載是加密的 (HTTPS)
+  <string name="download_question_message">如果你生活在受逼迫的地區，
+在下載基督教的材料時，你或許更要小心。
+取而代之，你可以用 \"從ZIP載入文件\" 功能，
+以更安全的方法取得及安裝 ZIP模組。你確定要繼續進行下載嗎？
+所有下載都是經由加密方式 (HTTPS)。
 </string>
   <string name="do_not_ask_again">確定。不要再詢問</string>
   <string name="recommended_document">建議的！</string>
   <string name="about_version_history">版本歷史: %s</string>
-  <string name="download_failed">下載失敗 %s</string>
   <string name="download_errors">下載錯誤</string>
-  <string name="failed_repositories_message">未能連接以下的文件庫: \n\n%s\n\n</string>
+  <string name="failed_repositories_message">未能連接以下文件伺服器：\n\n%s\n\n</string>
   <string name="failed_downloads_message">未能下載以下檔案:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">從Zip載入文件</string>
@@ -211,29 +248,70 @@
   <string name="extracting_zip_file">正在解壓縮Zip檔案...</string>
   <string name="checking_zip_file">正在檢查所選文件...</string>
   <string name="invalid_module">檔案不包含兼容的SWORD模組</string>
-  <string name="module_already_installed">檔案包含已安裝的模組</string>
   <string name="install_zip_title">請稍等。正在載入Zip檔案。</string>
   <string name="overwrite_files">以下文件已經存在: %s 覆寫嗎？</string>
   <string name="overwrite_files_title">覆寫檔案？</string>
   <!--Daily Reading Plan-->
-  <string name="rdg_plan_title">閱讀計劃</string>
-  <string name="rdg_plan_selector_title">選擇閱讀計劃</string>
+  <string name="rdg_plan_title">讀經計劃</string>
+  <string name="rdg_plan_selector_title">選擇讀經計劃</string>
   <string name="rdg_plan_day">第 %s 天</string>
   <string name="rdg_plan_set_start_date">設定開始日期...</string>
+  <string name="set_current_day">設定為目前日子...</string>
+  <string name="msg_set_current_day_reading_plan">這樣會將今天設為目前日子，並將之前的日子設為已讀。你確定繼續嗎？</string>
   <string name="done">完成</string>
-  <string name="reset">重設</string>
   <string name="reset_plan_question">你確定要重設這計劃嗎？</string>
+  <string name="import_reading_plan">匯入讀經計劃...</string>
+  <string name="import_reading_plan_error">匯入時出錯</string>
+  <string name="import_reading_plan_error_duplicate">此日子重複了：%s</string>
+  <string name="import_reading_plan_error_days">此日子出錯：%s</string>
+  <string name="import_reading_plan_anyway">忽略並匯入</string>
+  <string name="overwrite_reading_plan">你確定要覆寫%s嗎？</string>
+  <string name="delete_reading_plan">刪除此計劃</string>
+  <string name="reading_plan_deleted">此讀經計劃已刪除</string>
+  <string name="reading_plan_ships_with_ab">此讀經計劃隨%s一起提供</string>
+  <string name="confirm_delete_reading_plan">
+你確定要刪除%s及閱讀歷史嗎？
+提示：如果你需更新計劃，你只需以相同的檔案名稱，匯入其覆蓋舊有計劃，以保存閱讀歷史。
+</string>
+  <string name="plan_duplicate_user_plan">
+SD卡中有使用者jsword/readingplan的讀經計劃
+它與內部讀經計劃名稱相同，不能在此列舉。
+請重新命名至其他名稱，並將副檔名轉為 *.properties
+</string>
   <string name="plan_name_y1ntpspr">新約、詩篇與箴言一年計劃</string>
   <string name="plan_description_y1ntpspr">
 感謝 HEARTLIGHT Internet Magazine
 http://www.heartlight.org 准予使用
 </string>
   <string name="plan_name_y1ot1nt1_chronological">按時序一年完成聖經</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+按聖經時序編定的計劃。
+所述時序只屬概略。
+</string>
   <string name="plan_name_y1ot1nt1_OTandNT">一年同時讀新、舊約</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+一年讀完整本聖經。
+每天包括新約及舊約經文。
+</string>
   <string name="plan_name_y1ot1nt1_OTthenNT">一年完成聖經</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+一年順序由創世記至啟示錄讀完整本聖經。
+先由舊約開始，再到舊約。
+</string>
   <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne每日四章一年計劃</string>
-  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner每日十章計劃</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+此計劃基於M\'Cheyne讀經系統，
+集中在家庭及個人的靈修。
+每天均有2篇舊約、1篇新約、及1篇詩篇或福音。
+一年內可完成舊約1次、新約及詩篇2次。
+</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner每日十章讀經計劃</string>
   <string name="plan_description_y1ot6nt4_profHorner">感謝 Prof. Horner 准予使用</string>
+  <string name="plan_name_y2ot1ntps2">兩年完成聖經。新約及詩篇兩次</string>
+  <string name="plan_description_y2ot1ntps2">
+兩年完成聖經。閱讀新約及詩篇兩次
+感謝 Wholesome Words http://www.wholesomewords.org/ 准予使用
+</string>
   <!--Document context menu-->
   <string name="delete">刪除</string>
   <string name="delete_index">刪除索引</string>
@@ -242,8 +320,8 @@ http://www.heartlight.org 准予使用
   <string name="delete_search_index_doc">刪除 %s 的索引</string>
   <!--Verse context menu-->
   <string name="notes">注腳及參考</string>
-  <string name="verse_action_copy">複製</string>
   <string name="share_verse">分享...</string>
+  <string name="share_verse_widget_title">分享選取部份</string>
   <string name="share_verse_subject_2">透過 %s 和你分享聖經經文</string>
   <string name="compare_translations">譯本比較</string>
   <!--Link context menu-->
@@ -251,19 +329,32 @@ http://www.heartlight.org 准予使用
   <string name="open_link_in_new_window">在新視窗開啟連結</string>
   <string name="open_link_in_special_window">在特殊視窗開啟連結</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">書籤及我的筆記</string>
+  <string name="migrated_my_notes">合併我的筆記</string>
   <string name="bookmarks">書籤</string>
-  <string name="add_bookmark">添加書籤</string>
-  <string name="delete_bookmark">刪除書籤</string>
   <string name="bookmark_added">書籤已保存</string>
-  <string name="bookmark_date_updated">書籤日期已更新</string>
-  <string name="bookmark_deleted">書籤已刪除</string>
-  <string name="bookmark_labels">書籤標籤</string>
-  <string name="manage_labels">管理書籤標籤</string>
+  <string name="manage_labels">管理標籤</string>
   <string name="assign_labels">分配標籤</string>
+  <string name="new_item">建立</string>
   <string name="new_label">新標籤</string>
   <string name="label_name_prompt">標籤名稱</string>
   <string name="label_unlabelled">未有標籤</string>
-  <string name="style">格式</string>
+  <string name="add_bookmark1">書籤</string>
+  <string name="add_bookmark2">將選取部份標記書籤</string>
+  <string name="add_bookmark3">選取</string>
+  <string name="add_bookmark_whole_verse">將經文標記書籤</string>
+  <string name="add_bookmark_whole_verse1">經文</string>
+  <string name="add_bookmark_whole_verse2">完整經文</string>
+  <string name="remove_bookmark">移除</string>
+  <string name="bookmark_settings_hide_labels_title">隱藏特定標籤</string>
+  <string name="bookmark_settings_hide_labels_summary">隱藏特定書籤</string>
+  <string name="auto_assign_labels_title">標籤設定</string>
+  <string name="auto_assign_labels">自動分配及最愛標籤</string>
+  <string name="auto_assign_labels1">自動將標記至新書籤</string>
+  <string name="auto_assign_labels_primary">自動分配為主要</string>
+  <string name="label_color">標籤顏色</string>
+  <!--can be removed-->
+  <string name="label_color_example">例子</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">日期順序</string>
   <string name="sort_by_bible_book">聖經書序</string>
@@ -291,7 +382,7 @@ http://www.heartlight.org 准予使用
   <string name="pause">暫停</string>
   <string name="rewind">倒帶</string>
   <string name="forward">快進</string>
-  <string name="tts_lang_not_available">不支持漢語朗讀功能</string>
+  <string name="tts_lang_not_available">不支持此語言</string>
   <string name="speak_queue">隊列</string>
   <string name="speak_repeat">重複</string>
   <!--Speak - Bible-->
@@ -304,6 +395,7 @@ http://www.heartlight.org 准予使用
   <string name="speak_advanced_settings">進階設定</string>
   <string name="speak_sleep_timer_title">睡眠計時器</string>
   <string name="speak_no_books_available">沒有可朗讀書本</string>
+  <string name="speak_general_error">此文件無法開始朗讀</string>
   <string name="repeat_passage">重複段落</string>
   <string name="set_repeat_passage_range">設定重複段落範圍</string>
   <string name="speak_beginning_of_passage">選取段落開結</string>
@@ -311,14 +403,14 @@ http://www.heartlight.org 准予使用
   <string name="speak_verse_range_to_repeat">設定重複節數範圍</string>
   <string name="speak_ending_verse_must_be_later">結束節數必須在開始節數之後</string>
   <string name="conf_speak_synchronize">文字跟隨語音</string>
-  <string name="conf_speak_auto_bookmark">自動標籤</string>
+  <string name="conf_speak_auto_bookmark">自動標記書籤</string>
   <string name="conf_save_playback_settings_to_bookmarks">儲存播放設定至書籤</string>
   <string name="conf_replace_divinename">以Yahweh取代聖名</string>
   <string name="conf_change_chapter">章節改變</string>
   <string name="conf_change_title">標題</string>
-  <string name="conf_speak_footnotes">注腳</string>
+  <string name="conf_speak_footnotes">註腳</string>
   <string name="conf_speak_sleep_timer">設定睡眠計時器</string>
-  <string name="sleep_timer_title">分鐘為單位</string>
+  <string name="sleep_timer_title">睡眠時間單位為分鐘</string>
   <string name="sleep_timer_set">設定睡眠計時器。已設為：%d分鐘</string>
   <string name="sleep_timer_started">%d分鐘睡眠計時開始</string>
   <string name="sleep_timer_active_at">睡眠計時器尚餘%s分鐘。</string>
@@ -329,7 +421,34 @@ http://www.heartlight.org 准予使用
   <string name="speak_status_stopped">已停止</string>
   <string name="speak_autobookmarking_disabled">自動書籤已停止！</string>
   <string name="system_speak_settings">開啟系統文字轉語音(TTS)設定</string>
-  <string name="speak_bookmark_help">朗讀書籤幫助</string>
+  <string name="auto_assing_labels_help1">你可以調整自動分配標籤至你定義的書籤。</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">此設定應用至%s。</string>
+  <string name="setting_scope_window">此視窗</string>
+  <string name="setting_scope_workspace">此工作檢視</string>
+  <string name="assing_labels_help1">每個書籤可以標記多個標籤。</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">用 %s 指明顯示哪些標籤顏色</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">點選 %s 圖示以自動增加該標籤至新書籤。</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">點選 %s 以新增標籤至你的最愛以便存取</string>
+  <!--param is refresh icon-->
+  <string name="assing_labels_help5">點選 %s 以重新排列</string>
+  <string name="workspace_text_options_help_title">工作檢視文字選項</string>
+  <string name="workspace_text_options_help1">這些設定影響所有工作檢視視窗的預設設定。</string>
+  <string name="workspace_text_options_help2">你可以覆寫個別的視窗設定。</string>
+  <string name="window_text_options_help_title">視窗文字選項</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s 圖示標示此設定是來自工作檢視設定</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s 圖示標示此設定已被更改至此視窗</string>
+  <string name="window_text_options_help3">工作檢視設定不會影響此視窗</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">用 %s 按鍵重設所有設定至 %s。</string>
+  <string name="reset_defaults">預設數值</string>
+  <string name="reset_workspace_defaults">工作檢視預設數值</string>
+  <string name="speak_bookmark_help">朗讀書籤說明</string>
   <string name="speak_help_auto_bookmark">
 當暫停或停止朗讀時，將自動加入朗讀書籤。
 自動生成的書籤會標示特殊的朗讀標籤。
@@ -383,25 +502,27 @@ http://www.heartlight.org 准予使用
 因為經節從定義範圍外開始</string>
   <!--User Notes-->
   <string name="mynotes">筆記列表</string>
-  <string name="mynote_add">添加筆記</string>
-  <string name="mynote_saved">我的筆記已儲存</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">備份及回復</string>
-  <string name="backup_modules">備份文件</string>
-  <string name="backup_app_database">備份程式資料庫</string>
-  <string name="restore_app_database">回復程式資料庫</string>
-  <string name="restore_confirmation">覆寫我的筆記、書籤、閱讀計劃及工作檢視嗎？</string>
-  <string name="restore_success">成功回復我的筆記、書籤、閱讀計劃及工作檢視</string>
+  <string name="backup_modules">分享或備份文件至...</string>
+  <string name="backup_app_database">分享或備份程式資料庫至...</string>
+  <string name="backup_app">分享或備份程式 (.apk file) 至...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">你想回復什麼？</string>
+  <string name="restore_app_database">回復程式資料庫來源</string>
+  <string name="restore_database">回復資料庫檔案</string>
+  <string name="restore_confirmation">覆寫我的筆記、書籤、個人筆記、讀經計劃及工作檢視嗎？</string>
+  <string name="reading_plans_plural">讀經計劃</string>
+  <string name="restore_success">成功回復我的筆記、書籤、個人筆記、讀經計劃及工作檢視</string>
   <string name="loading_backup">正在從備份載入資料庫</string>
-  <string name="backup_success">成功備份我的筆記、書籤、閱讀計劃及工作檢視至%s。</string>
-  <string name="error_no_backup_file">找不到備份檔案</string>
+  <string name="backup_success2">成功備份我的筆記、書籤、個人筆記、讀經計劃及工作檢視</string>
+  <string name="backup_modules_success">選擇的模組已成功備份</string>
   <string name="backup_modules_email_subject_2">%s 模組備份</string>
   <string name="backup_modules_email_message_2">此附你的 %s 模組備份，包含了以下模組: %s</string>
   <string name="backup_email_subject_2">%s 資料庫備份</string>
+  <string name="backup_email_message_2">你的%s載有書籤、筆記、讀經計劃及工作檢視的資料庫已包括在內</string>
   <string name="restore_unsuccessfull">未能回復資料庫。或許你的資料庫檔案無效。</string>
-  <string name="backup_restore_title">回復來源</string>
-  <string name="backup_phone_storage">手機容量</string>
-  <string name="backup_manually">選擇檔案</string>
+  <string name="backup_phone_storage">手機空間</string>
   <string name="backup_backup_title">備份目的地</string>
   <string name="backup_backup_message">以分享功能備份至手機或其他目的地 (電郵、Google Drive等)？</string>
   <string name="backup_share">分享</string>
@@ -414,18 +535,36 @@ http://www.heartlight.org 准予使用
   <string name="module_about_installed_version">安裝版本: %s (%s)</string>
   <string name="module_about_latest_version">最新版本: %s (%s)</string>
   <string name="module_about_versification">章節化: %s</string>
-  <string name="module_about_repository">分發文件庫: %s</string>
+  <string name="module_about_repository">分發伺服器：%s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">回報程式錯誤</string>
-  <string name="report_bug_email_subject_2">回報問題 %s %s</string>
+  <string name="send_bug_report_title1">回報錯誤</string>
+  <string name="send_feedback_title">意見</string>
+  <string name="send_bug_report_title">意見或回報錯誤</string>
+  <string name="report_bug_email_subject_3">[%s] 回報 %s %s 的錯誤</string>
+  <string name="report_bug_big_heading">請在此行以上填寫你的意見及錯誤回報</string>
+  <string name="report_bug_heading1">指示：</string>
+  <string name="report_bug_line_1">概略告訴我們你進行了什麼動作、或它怎樣發生的。</string>
+  <string name="report_bug_heading2">例如：</string>
+  <string name="report_bug_instructions1">1. 開啟程式</string>
+  <string name="report_bug_instructions2">2. 點選視窗選單</string>
+  <string name="report_bug_instructions3">-&gt; 意外結束</string>
+  <string name="report_bug_line_2">附上螢幕截圖有助我們解決你的問題</string>
+  <string name="report_bug_line_3">請在發現問題後，立刻用此功能回報問題。</string>
+  <string name="report_bug_line_4">你可以在問題出現後，再次打開程式使用此功能。</string>
+  <string name="report_bug_heading_3">附件：</string>
+  <string name="bug_report_logcat">程式建立的記錄檔案。它並不會包括其他程式的資訊。</string>
+  <string name="bug_report_screenshot">問現出現後時的程式螢幕截圖</string>
+  <string name="bug_report_attachment_line_1">附上這些文件將有助開發者修正問題。</string>
+  <string name="report_bug_heading_4">裝置資料：</string>
   <!--Document types-->
   <string name="doc_type_all">所有類型</string>
   <string name="doc_type_bible">聖經</string>
-  <string name="doc_type_commentary">注釋</string>
+  <string name="doc_type_commentary">註釋</string>
   <string name="doc_type_dictionary">字典</string>
   <string name="doc_type_book">書卷</string>
   <string name="doc_type_map">地圖</string>
+  <string name="doc_type_addons">附加</string>
   <!--Languages-->
   <string name="lang_default">預設</string>
   <!--General-->
@@ -434,20 +573,24 @@ http://www.heartlight.org 准予使用
   <string name="yes">是</string>
   <string name="no">否</string>
   <string name="error">錯誤</string>
+  <string name="delete_generic">刪除</string>
   <string name="please_wait">請稍候...</string>
   <string name="all">全部</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">編輯</string>
+  <string name="reset_generic">重設</string>
   <string name="watch_tutorial_video">觀看示範影片 (英文)</string>
   <string name="verse_not_found">找不到節</string>
   <!--Errors-->
   <string name="report_error">發送報告</string>
   <string name="error_occurred">發生錯誤</string>
+  <string name="error_occurred_crash_last_time">你上一次使用程式時不幸意外地結束了。請回報錯誤以協助我們修正。謝謝。</string>
   <string name="error_occurred_with_link">發生錯誤。%s</string>
   <string name="error_no_content">選定經節沒有內容</string>
   <string name="error_page_too_large">頁面太大無法加載</string>
   <string name="error_key_not_in_document">文件內沒有發現</string>
+  <string name="error_key_not_in_document2">%s並沒有在文件%s中找到。</string>
   <string name="empty_list">沒有可顯示項目</string>
+  <string name="error_skip">暫停</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">文字轉語音</string>
   <string name="notification_channel_progress_status">文件下載等的進度狀態通知</string>
@@ -473,38 +616,225 @@ http://www.heartlight.org 准予使用
   <string name="workspace_listing_with_current">%s(現時)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">這是beta版本！</string>
+  <string name="beta_notice_content_1">
+在Beta版本中，有些功能尚未完全測試，
+因此或會導致預料以外的狀況。
+我們建議一般使用者使用穩定版。
+</string>
   <string name="beta_notice_content_2">
-Beta用家請透過Google Play或 %s (更佳) 回報錯誤。</string>
+Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="beta_notice_content_3">如果你是程式員，請考慮透過 %s 參與除錯。 :-)</string>
   <string name="beta_notice_github_issues">Github問題</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">關閉</string>
   <string name="beta_notice_dismiss_until_update">關閉至下一次更新</string>
+  <string name="stable_notice_title">程式已更新！</string>
+  <string name="upgrade_video_message">請參看影片以觀看此版本的新功能 (%s)。</string>
+  <string name="stable_notice_par1">新版本%s的%s已成功安裝！</string>
   <!--History-->
   <string name="history_for">歷史 (%s: 視窗 %d)</string>
   <!--Help-->
   <string name="help_nav_title">導航</string>
-  <string name="help_nav_text">滑動螢幕以翻閱至上一章或下一章。
-雙點經文文字以切換至全螢幕。
-螢幕分割(又稱視窗) 於右上方有選單按鈕，
-點選可讓你更改視窗功能、自訂外觀及行為。</string>
+  <string name="help_nav_text">左右滑動以瀏覽上一章或下一章。
+雙點以進入全螢幕模式。
+選單按鍵會出現在分割螢幕(又稱視窗)的右上方，
+你可以用它自訂視窗功能及外觀。</string>
   <string name="help_contextmenus_title">內文選單</string>
-  <string name="help_mynote_title">我的筆記</string>
-  <string name="help_mynote_text">透過經節的選單中我的筆記，可以加入筆記。
-主選單中可以找到所有筆記。</string>
-  <string name="help_bookmarks_title">書籤</string>
-  <string name="help_bookmarks_text">透過經節的選單可以加入書籤
-主選單中可以管理書籤標籤
-書籤管理選單中可以加入標籤將書籤分組</string>
+  <string name="help_contextmenus_text">
+長按可以打開不同的選項：
+長按聖經檢視以打開影響當前經文的選項。
+長按選擇文檔或下載列表，可以刪除文檔或查看信息。
+長按書籤列表中的書籤，可添加標籤或刪除書籤。
+長按連結可讓你選擇在目前視窗、新視窗或特殊連結視窗中打開連結。
+</string>
+  <string name="help_bookmarks_title">書籤 &amp; 我的筆記</string>
+  <string name="help_bookmarks_text">選取文字後可以在彈出視窗點選書籤功能。你可以對書籤自訂筆記。「我的筆記」功能，也可讓你在新視窗中開啟你專屬的筆記。
+</string>
+  <string name="help_studypads_text">
+個人筆記可方便使用者編寫及準備講道筆記、或者作個人的多經文研究。每一個個人筆記都有專屬的書籤。所有標記了該書籤的經文，均會自動出現在對應的個人筆記中。除了書籤以外，使用者亦可自行增添文字。
+</string>
   <string name="help_search_title">搜尋</string>
   <string name="help_search_text">搜尋字詞可以加入特殊字符如 * , ?, AND, OR, NOT
 (有關詳細信息請參「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_workspaces_title">工作檢視</string>
+  <string name="help_workspaces_text">
+工作檢視可讓你打開數個工作環境。
+工作檢視功能可以由右上方的選項中打開。
+從工具列向下滑動，可以快速打開工作檢視。
+您還可以在工具列上左右滑動，以切換到上一個/下一個工作檢視。
+</string>
   <string name="help_hidden_features_title">隱藏捷徑</string>
+  <string name="help_hidden_features_text">
+在工具列向下滑動以顯示工作檢視選項。
+長按視窗按鍵以最小化。
+長按朗讀按鍵以進入朗讀設定。
+長按經文位置以跳轉至文件選擇。
+長按返回鍵以進入閱讀歷史。</string>
   <string name="help_window_pinning_title">視窗釘選</string>
+  <string name="help_window_pinning_text">
+你可以從選單啟用視窗釘選。
+如視窗釘選已啟用，你可以顯示多個已釘選的視窗，但只有一個未釘選的視窗。
+已釘選的視窗會優先顯示，之後到未釘選的視窗。
+例如你可以將聖經文件釘選，再以未釘選的方法開啟註解或地圖等，在查經時方便同時閱讀其他參考文件。</string>
+  <!--Welcome text-->
+  <string name="redownload_documents">快速重新下載</string>
+  <string name="welcome_message">感謝你下載 %s。現時並未有下載聖經或文件。請下載至少一份文件，或從Zip備份檔案匯入。</string>
+  <string name="redownload_message">
+找到書本及文件列表。點選下方下載。
+</string>
   <!--Uncategorized-->
   <string name="close">關閉</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">我明白</string>
   <string name="first_time_help_show_next_time">下次再顯示</string>
+  <string name="strongs_mode_title">還擇 Strongs 模式</string>
+  <string name="download_dialog_message">以下的書本無發下載：</string>
+  <string name="select_multiple">選擇多個</string>
+  <string name="journal_description">使用者可自行編輯個人筆記及標記書籤</string>
+  <string name="my_notes_description">書籤已附帶使用者的筆記</string>
+  <string name="my_notes_abbreviation">筆記列表</string>
+  <string name="studypads">個人筆記</string>
+  <string name="multi_description">多重參考</string>
+  <string name="multi_abbreviation">多重</string>
+  <string name="compare_description">譯本比較</string>
+  <string name="compare_abbreviation">比較</string>
+  <string name="compare">比較</string>
+  <string name="http_forbidden">禁止</string>
+  <string name="http_not_found">沒有找到</string>
+  <string name="http_unknown">其他錯誤</string>
+  <string name="give_passphrase_for_module">%s 文件已加密，需要密碼解鎖。</string>
+  <string name="unlocking_failed">密碼錯誤，解鎖失敗</string>
+  <string name="unlock_module">設定模組密碼</string>
+  <string name="unlock_info">加密模組解鎖資訊</string>
+  <string name="try_again_passphrase">密碼無效，要再試嗎？</string>
+  <string name="cant_delete_last_bible">無法移除聖經文件</string>
+  <string name="show_unlock_info">模組及解鎖資訊</string>
+  <string name="prefs_show_error_box_title">顯示JavaScript錯誤窗口</string>
+  <string name="prefs_show_error_box_summary">對於開發者排除BibleView JavaScreipt錯誤時有用。這會令程式稍慢。</string>
+  <string name="active_window_indicator_title">顯示現時視窗標示</string>
+  <string name="active_window_indicator_summary">在使用中的視窗角落顯示標示</string>
+  <string name="app_licence_title">開源許可</string>
+  <string name="how_to_contribute">如何可以貢獻？</string>
+  <string name="confirm_delete_bookmarks">你希望移除 %d 書籤及它的筆記嗎？</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">分享給朋友</string>
+  <string name="tell_friend_message1">我想推薦 %s 給你</string>
+  <string name="tell_friend_message2">這是一個功能強大但易用的Android離線研經工具。</string>
+  <string name="tell_friend_message3">在 Play Store 中安裝：%s</string>
+  <string name="tell_friend_message4">閱讀更多及更多安裝選項：%s</string>
+  <string name="share_verse_ok">分享 / 複製</string>
+  <string name="verse_action_copy">複製</string>
+  <string name="share_verse_menu_title">分享 / 複製...</string>
+  <string name="show_versenumbers">顯示節數</string>
+  <string name="show_full_verses">顯原完整經文</string>
+  <string name="advertise_app">宣傳此app</string>
+  <string name="verse_share_advertise">已透過 %s 分享。</string>
+  <string name="abbreviate_reference">縮寫參考</string>
+  <string name="version_name">版本名稱</string>
+  <string name="backup_button">備份</string>
+  <string name="back_button">返回</string>
+  <string name="upgrading_database">正升級資料庫。請稍候...</string>
+  <string name="initializing_app">正在啟動程式...</string>
+  <string name="show_notes">顯示筆記</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Android WebView封包太舊 (%s)。你需要更新你的Android WebView封包至%s，以使用%s。多數裝置可以透過%s完成。</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">忽略並繼續</string>
+  <string name="rate_title">評分及評論此app</string>
+  <string name="rate_message5">
+        鼓勵及詳細的評論將有效地幫助 And Bible 開源計劃。謝謝你
+    </string>
+  <string name="rate_message6">
+        留下負面評論前，請先參看以下訊息：
+    </string>
+  <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        如遇上問題，請先 %s 或 %s。
+    </string>
+  <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+        如果文字 / 聖經翻譯出錯， %s.
+    </string>
+  <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+        如果程式中欠缺某些文本，%s.
+    </string>
+  <string name="rate_message4">
+        此程式的開發者並不負責維護各文件。
+    </string>
+  <string name="bug_report">
+        在主選單傳送錯誤回報
+    </string>
+  <string name="how_to_help">
+        請閱讀你可以幫手的地方
+    </string>
+  <string name="send_email">
+       傳送電郵至開發者
+    </string>
+  <string name="proceed_google_play">
+        到 Google Play
+    </string>
+  <string name="text_maintainers">
+       請回報問題至文本的維護者
+    </string>
+  <string name="does_not_exist_abbreviation">不存在</string>
+  <string name="cant_change_wholeverse">無法在此書籤關閉全節標示</string>
+  <string name="whole_verse_turned_on">整節經文已標記書籤</string>
+  <string name="this_bookmark">此書籤</string>
+  <string name="this_workspace">此工作檢視</string>
+  <string name="primary_label">主標籤</string>
+  <string name="highlight_entire_verse">醒目提示全節</string>
+  <string name="favourite_label">最愛標籤</string>
+  <string name="edit_label">編輯標籤</string>
+  <string name="delete_label_confirmation">你希望移除書籤「%s」嗎？對應的個人筆記亦會被移除。</string>
+  <string name="bookmark_underline_style_arbitrary">選取書籤的底線樣式</string>
+  <string name="bookmark_underline_style_whole_verse">將整節書籤底線</string>
+  <string name="active_labels">選擇標籤</string>
+  <string name="recent_labels">最近標籤</string>
+  <string name="other_labels">其他標籤</string>
+  <string name="book_menu_sort_row_opt">垂直排列書本</string>
+  <string name="reset_workspace_labels">你想重設此工作檢視的自動標示及最愛設定嗎？</string>
+  <string name="reset_hide_labels">你想重設隱藏標籤設定嗎？</string>
+  <string name="reorder">重新排列</string>
+  <string name="system_items">系統行動</string>
+  <string name="system_items1">更多</string>
+  <string name="system_action2">Android 行動</string>
+  <string name="text_copied_to_clicpboard">文字已複製至剪貼簿</string>
+  <string name="prefs_disable_two_step_bookmarking_title">一鍵標籤書籤</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">直接在聖經檢視選取選單顯示 \"選取\" 及 \"節\"</string>
+  <string name="prefs_double_tap_to_fullscreen_title">雙點以進入全螢幕模式</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">雙點以進入全螢幕模式</string>
+  <string name="toggle_fullscreen">全螢幕</string>
+  <string name="exit_fullscreen">雙點以離開全螢幕模式</string>
+  <string name="reset_app_prefs">你希望重設所有偏好嗎？</string>
+  <string name="label_red">紅色</string>
+  <string name="label_green">綠色</string>
+  <string name="label_blue">藍色</string>
+  <string name="label_salvation">救恩</string>
+  <string name="label_underline">底線</string>
+  <string name="import_menu">匯入及匯出</string>
+  <string name="export_fileformat">以%s匯出</string>
+  <string name="import_items">以%s匯入</string>
+  <string name="import_from_db">從程式資料庫檔案匯入</string>
+  <string name="import_error">從程式資料庫匯入失敗。資料庫檔案版本或許太舊，或者是從太舊的%s建立。</string>
+  <string name="chooser_range">範圍</string>
+  <string name="chooser_jump">跳轉</string>
+  <string name="chooser_OT_abbrev">舊約</string>
+  <string name="chooser_NT_abbrev">新約</string>
+  <string name="chooser_style_grid">方格</string>
+  <string name="chooser_style_lists">表列</string>
+  <string name="chooser_select">選擇%s</string>
+  <string name="chooser_pref_reset">選取書卷/章時，不要把章/節重設為1</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">十分抱歉，%s只完成部份程式介面翻譯。這是因為%s完全是義務開發及翻譯。如果你想參與協助，請參見%s。</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">給翻譯者的指示</string>
+  <string name="questions_title">問題？</string>
+  <string name="questions_title2">需要幫助？</string>
+  <string name="bookmark_style">書籤樣式</string>
+  <string name="added_to_bookmark">分配至此書籤</string>
+  <string name="strongs_off">關閉</string>
+  <string name="strongs_links">連結</string>
+  <string name="strongs_text_and_links">文字及連結</string>
+  <string name="verse_tip">長按以選擇部份或多節經文</string>
 </resources>
