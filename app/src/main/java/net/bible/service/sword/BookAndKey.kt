@@ -18,6 +18,7 @@
 
 package net.bible.service.sword
 
+import net.bible.service.download.doesNotExist
 import org.crosswire.common.util.ItemIterator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
@@ -33,10 +34,18 @@ class BookAndKey(val key: Key, document: Book? = null): Key {
 
     val document: Book?
         get() {
-        if (_document == null)
-            _document = Books.installed().getBook(documentInitials)
-        return _document
-    }
+            if (_document == null) {
+                _document = Books.installed().getBook(documentInitials)
+            }
+
+            if(_document?.doesNotExist == true) {
+                val real = Books.installed().getBook(documentInitials)
+                if(real != null) {
+                    _document = real
+                }
+            }
+            return _document
+        }
 
     override fun compareTo(other: Key?): Int {
         return key.compareTo(other)

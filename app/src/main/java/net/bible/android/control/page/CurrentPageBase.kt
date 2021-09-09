@@ -32,6 +32,7 @@ import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.VerseRange
@@ -175,6 +176,13 @@ abstract class CurrentPageBase protected constructor(
         get() {
             if (_currentDocument == null) {
                 _currentDocument = getDefaultBook()
+            }
+            if(_currentDocument?.doesNotExist == true) {
+                val pseudo = _currentDocument!!
+                val real = Books.installed().getBook(pseudo.initials)
+                if(real != null) {
+                    _currentDocument = real
+                }
             }
             return _currentDocument
         }
