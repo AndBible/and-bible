@@ -26,6 +26,7 @@ describe("verseHighlight tests", () => {
     function test(highlightColors, underlineColors, result) {
         const highlightLabels = [];
         const highlightLabelCount = new Map();
+        const underlineLabelCount = new Map();
         for(let i = 1; i<=highlightColors; i++) {
             highlightLabels.push({label: {color: i}, id: i});
             highlightLabelCount.set(i, 1);
@@ -33,12 +34,12 @@ describe("verseHighlight tests", () => {
         const underlineLabels = [];
         for(let i = 1; i<=underlineColors; i++) {
             underlineLabels.push({label: {color: i}, id: i});
-            highlightLabelCount.set(i, 1);
+            underlineLabelCount.set(i, 1);
         }
 
         const highlightColorFn = (v) => Color(v.color);
 
-        const css = verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, highlightColorFn});
+        const css = verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount, highlightColorFn});
         expect(css).toBe(result);
     }
 
