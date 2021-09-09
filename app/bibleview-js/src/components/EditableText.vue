@@ -95,6 +95,7 @@ export default {
 @import "~@/common.scss";
 .notes-display {
 //  width: 100%;
+  margin-bottom: 8pt;
   padding: 1px 7px 10px 7px;
   &.constraintDisplayHeight {
     @extend .visible-scrollbar;
