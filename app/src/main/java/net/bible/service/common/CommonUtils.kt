@@ -140,7 +140,7 @@ fun PreferenceFragmentCompat.getPreferenceList(p_: Preference? = null, list_: Ar
     return list
 }
 
-const val promoAndNewFeaturesPlaylistAutostart = "https://www.youtube.com/watch?v=xf7m4rSuxGw&list=PLD-W_Iw-N2MlOXgRTLQqoXZpQxkqf119a"
+const val promoAndNewFeaturesPlaylistAutostart = "https://www.youtube.com/watch?v=f2cf6-7liMo&list=PLD-W_Iw-N2MlOXgRTLQqoXZpQxkqf119a&index=1"
 // "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlOXgRTLQqoXZpQxkqf119a" // What's new 4.0 playlist
 
 const val windowsAndWorkspacesPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mmiq_X6G-vDhoAIq9sDnrIQ" // 4.0 (Window's and workspaces playlist)
