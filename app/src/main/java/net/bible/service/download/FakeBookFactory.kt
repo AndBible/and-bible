@@ -43,11 +43,17 @@ class NullOpenFileState(val metadata: SwordBookMetaData): OpenFileState {
     override fun setLastAccess(lastAccess: Long) = Unit
 }
 
-class NullKeyBackend(val metadata: SwordBookMetaData): AbstractKeyBackend<NullOpenFileState>(metadata) {
+class NullKeyBackend(private val metadata: SwordBookMetaData): AbstractKeyBackend<NullOpenFileState>(metadata) {
     override fun initState(): NullOpenFileState = NullOpenFileState(metadata)
     override fun getCardinality(): Int = 1
-    override fun get(index: Int): Key = this
-    override fun indexOf(that: Key?): Int = 0
+    override fun get(index: Int): Key {
+        return lastKey ?: this
+    }
+    var lastKey: Key? = null
+    override fun indexOf(that: Key?): Int {
+        lastKey = that
+        return 0
+    }
     override fun readRawContent(state: NullOpenFileState?, key: Key?): String = ""
 }
 
