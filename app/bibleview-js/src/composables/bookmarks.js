@@ -45,7 +45,7 @@ const allStyleRanges = computed(() => {
     return allStyles;
 });
 
-export function verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, highlightColorFn}) {
+export function verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount, highlightColorFn}) {
     // Percentage heights allocated to background highlight
     const bgHighlightPercentage = 64;
     const bgHighlightTopMargin = 4;
@@ -73,8 +73,10 @@ export function verseHighlighting({highlightLabels, highlightLabelCount, underli
         // Generate underline gradients
         const underlineColors = [];
         let span = 0;
-        for (const {label: s} of underlineLabels) {
-            underlineColors.push(new Color(s.color).hsl().string());
+        for (const {label: s, id} of underlineLabels) {
+            for(let i = 0; i < underlineLabelCount.get(id); i++) {
+                underlineColors.push(new Color(s.color).hsl().string());
+            }
         }
         if (underlineColors.length !== 0) {
             span = (100 - bgHighlightPercentage) / underlineColors.length;
