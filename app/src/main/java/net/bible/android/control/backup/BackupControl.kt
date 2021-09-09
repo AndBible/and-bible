@@ -62,6 +62,7 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
@@ -72,14 +73,12 @@ object BackupControl {
 
     /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
      */
-    private suspend fun backupDatabaseToUri(activity: ActivityBase, uri: Uri)  {
+    private suspend fun backupDatabaseToUri(activity: ActivityBase, uri: Uri, file: File)  {
         val hourglass = Hourglass(activity)
         hourglass.show()
 
         val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
-        val filename = DATABASE_NAME
-        val f = File(internalDbDir, filename);
-        val inputStream = FileInputStream(f)
+        val inputStream = FileInputStream(file)
 
         var ok = true
         try {
@@ -105,19 +104,16 @@ object BackupControl {
 
     /** backup database to custom target (email, drive etc.) via ACTION_SEND intent
      */
-    private suspend fun backupDatabaseViaSendIntent(callingActivity: ActivityBase) {
+    private suspend fun backupDatabaseViaSendIntent(callingActivity: ActivityBase, file: File) {
         val hourglass = Hourglass(callingActivity)
         hourglass.show()
 
-        _mainBibleActivity?.windowRepository?.saveIntoDb()
-        db.sync()
-        val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
-        FileManager.copyFile(fileName, internalDbDir, internalDbBackupDir)
+        val targetFile =  File(internalDbBackupDir, file.name)
+        file.copyTo(targetFile)
 		val subject = callingActivity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
 		val message = callingActivity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
-        val f = File(internalDbBackupDir, fileName)
-        val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", f)
+        val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
 		val email = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
             putExtra(Intent.EXTRA_SUBJECT, subject)
@@ -264,6 +260,15 @@ object BackupControl {
 
     fun clearBackupDir() {
         internalDbBackupDir.deleteRecursively()
+
+        val fileList = CommonUtils.dbBackupPath.listFiles() ?: return
+        val now = Date().time
+        val maxAge = 2592000000L // 30 days in milliseconds
+        for(f in fileList) {
+            if(now - f.lastModified() > maxAge) {
+                f.delete()
+            }
+        }
     }
 
     private suspend fun backupModulesToUri(uri: Uri): Boolean {
@@ -402,11 +407,53 @@ object BackupControl {
                 _mainBibleActivity?.windowRepository?.saveIntoDb()
                 db.sync()
                 GlobalScope.launch(Dispatchers.IO) {
-                    backupDatabaseToUri(callingActivity, r)
+                    backupDatabaseToUri(callingActivity, r, dbFile)
                 }
             }
             BackupResult.SHARE -> {
-                backupDatabaseViaSendIntent(callingActivity)
+                _mainBibleActivity?.windowRepository?.saveIntoDb()
+                db.sync()
+                backupDatabaseViaSendIntent(callingActivity, dbFile)
+            }
+            BackupResult.CANCEL -> {}
+        }
+    }
+
+    private val dbFile get() = BibleApplication.application.getDatabasePath(DATABASE_NAME)
+
+    suspend fun startBackupOldAppDatabase(callingActivity: ActivityBase, file: File) {
+        val result = withContext(Dispatchers.Main) {
+            suspendCoroutine <BackupResult> {
+                AlertDialog.Builder(callingActivity)
+                    .setTitle(callingActivity.getString(R.string.backup_backup_title))
+                    .setMessage(callingActivity.getString(R.string.backup_backup_message))
+                    .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) { _, _ ->
+                        it.resume(BackupResult.STORAGE)
+                    }
+                    .setPositiveButton(callingActivity.getString(R.string.backup_share)) { _, _ ->
+                        it.resume(BackupResult.SHARE)
+                    }
+                    .setNeutralButton(callingActivity.getString(R.string.cancel)) {_, _ -> it.resume(BackupResult.CANCEL)}
+                    .show()
+            }
+        }
+        when(result) {
+            BackupResult.STORAGE -> {
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "application/x-sqlite3"
+                    putExtra(Intent.EXTRA_TITLE, file.name)
+                }
+                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return
+
+                _mainBibleActivity?.windowRepository?.saveIntoDb()
+                db.sync()
+                GlobalScope.launch(Dispatchers.IO) {
+                    backupDatabaseToUri(callingActivity, r, file)
+                }
+            }
+            BackupResult.SHARE -> {
+                backupDatabaseViaSendIntent(callingActivity, file)
             }
             BackupResult.CANCEL -> {}
         }
@@ -452,8 +499,8 @@ object BackupControl {
         activity.awaitIntent(intent)
     }
 
-    private lateinit var internalDbDir : File;
-    private lateinit var internalDbBackupDir: File;
+    private lateinit var internalDbDir : File
+    private lateinit var internalDbBackupDir: File // copy of db is created in this dir when doing backups
     private const val MODULE_BACKUP_NAME = "modules.zip"
     fun setupDirs(context: Context) {
         internalDbDir = File(context.getDatabasePath(DATABASE_NAME).parent!!)
@@ -478,6 +525,15 @@ class BackupActivity: ActivityBase() {
             backupModules.setOnClickListener { GlobalScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) } }
             restoreAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) } }
             restoreModules.setOnClickListener { GlobalScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) } }
+            CommonUtils.dbBackupPath.listFiles()?.forEach { f ->
+                val b = Button(this@BackupActivity)
+                val s = f.name
+                b.text = s
+                b.setOnClickListener {
+                    GlobalScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
+                }
+                backupDbButtons.addView(b)
+            }
         }
     }
 }

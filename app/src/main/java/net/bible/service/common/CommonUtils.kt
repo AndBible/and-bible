@@ -185,6 +185,9 @@ object CommonUtils : CommonUtilsBase() {
     var isAndroid = true
         private set
 
+    // Backup of old databases will be stored here for 30 days
+    val dbBackupPath get() = File(application.filesDir, "database_backups").apply { mkdirs() }
+
     val applicationNameMedium get() = BibleApplication.application.getString(R.string.app_name_medium)
 
     val applicationVersionName: String

@@ -18,14 +18,18 @@
 package net.bible.service.db
 
 import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
+import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
 import android.util.Log
+import androidx.core.database.getIntOrNull
 import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.database.AppDatabase
+import net.bible.android.database.DATABASE_VERSION
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
@@ -37,7 +41,11 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
+import java.io.File
 import java.sql.SQLException
+import java.text.SimpleDateFormat
+import java.util.*
+
 import androidx.room.migration.Migration as RoomMigration
 
 
@@ -963,11 +971,35 @@ object DatabaseContainer {
 
     var ready: Boolean = false
 
+    private fun backupDatabaseIfNeeded() {
+        val dbPath = BibleApplication.application.getDatabasePath(DATABASE_NAME)
+        var dbVersion: Int? = null
+        try {
+            val db = SQLiteDatabase.openDatabase(dbPath.absolutePath, null, OPEN_READONLY)
+            db.use { d ->
+                val cursor = d.rawQuery("PRAGMA user_version", null)
+                cursor.use { c ->
+                    while (c.moveToNext()) {
+                        dbVersion = c.getIntOrNull(0)
+                    }
+                }
+            }
+        } finally {}
+        if(dbVersion != null && dbVersion != DATABASE_VERSION) {
+            val backupPath = CommonUtils.dbBackupPath
+            val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
+            val backupFile = File(backupPath, "dbBackup-$dbVersion-$timeStamp.db")
+            dbPath.copyTo(backupFile)
+        }
+    }
+
     val db: AppDatabase
         get () {
             if(!ready && !BibleApplication.application.isRunningTests) throw DataBaseNotReady()
 
             return instance ?: synchronized(this) {
+                backupDatabaseIfNeeded()
+
                 instance ?: Room.databaseBuilder(
                     BibleApplication.application, AppDatabase::class.java, DATABASE_NAME
                 )
