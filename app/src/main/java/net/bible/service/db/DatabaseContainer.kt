@@ -984,7 +984,9 @@ object DatabaseContainer {
                     }
                 }
             }
-        } finally {}
+        } catch (e: Exception) {
+            Log.d(TAG, "Could not backup database. Maybe fresh install.")
+        }
         if(dbVersion != null && dbVersion != DATABASE_VERSION) {
             val backupPath = CommonUtils.dbBackupPath
             val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
