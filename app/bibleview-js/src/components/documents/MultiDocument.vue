@@ -76,7 +76,7 @@ export default {
     });
 
     function link(frag, compare = false) {
-      const osis = compare ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) : encodeURI(frag.osisRef);
+      const osis = compare ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) + "&force-doc" : encodeURI(frag.osisRef);
       return `osis://?osis=${osis}&v11n=${frag.v11n}`
     }
 

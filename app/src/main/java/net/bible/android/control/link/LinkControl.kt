@@ -21,7 +21,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import net.bible.android.activity.R
-import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
@@ -76,7 +75,13 @@ class LinkControl @Inject constructor(
 
     fun openMulti(links: List<BibleView.BibleLink>): Boolean {
         val key = BookAndKeyList()
-        val bookKeys = links.map { try {getBookAndKey(it.url, it.versification)} catch (e: NoSuchKeyException) {null} }.filterNotNull()
+        val bookKeys = links.mapNotNull {
+            try {
+                getBookAndKey(it.url, it.versification, it.forceDoc)
+            } catch (e: NoSuchKeyException) {
+                null
+            }
+        }
         for(k in bookKeys) {
             key.addAll(k)
         }
@@ -90,13 +95,13 @@ class LinkControl @Inject constructor(
         return true
     }
 
-    fun loadApplicationUrl(link: BibleView.BibleLink): Boolean = loadApplicationUrl(link.url, link.versification)
+    fun loadApplicationUrl(link: BibleView.BibleLink): Boolean = loadApplicationUrl(link.url, link.versification, link.forceDoc)
 
     fun errorLink() {
         ErrorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
     }
 
-    private fun getBookAndKey(uriStr: String, versification: Versification): BookAndKey? {
+    private fun getBookAndKey(uriStr: String, versification: Versification, forceDoc: Boolean): BookAndKey? {
         Log.d(TAG, "Loading: $uriStr")
         val uriAnalyzer = UriAnalyzer()
         if (uriAnalyzer.analyze(uriStr)) {
@@ -105,15 +110,15 @@ class LinkControl @Inject constructor(
                 UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key)
                 UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key)
                 UriAnalyzer.DocType.ROBINSON -> getRobinsonMorphologyKey(uriAnalyzer.key)
-                UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification)
+                UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification, forceDoc)
                 else -> null
             }
         }
         return null
     }
 
-    private fun loadApplicationUrl(uriStr: String, versification: Versification): Boolean {
-        val bookAndKey = try {getBookAndKey(uriStr, versification)} catch (e: NoSuchKeyException) {return false} ?: return false
+    private fun loadApplicationUrl(uriStr: String, versification: Versification, forceDoc: Boolean): Boolean {
+        val bookAndKey = try {getBookAndKey(uriStr, versification, forceDoc)} catch (e: NoSuchKeyException) {return false} ?: return false
         val key = bookAndKey.key
         if(key is Passage && key.countRanges(RestrictionType.NONE) > 1) {
             val keyList = BookAndKeyList()
@@ -128,15 +133,15 @@ class LinkControl @Inject constructor(
 	}
 
     @Throws(NoSuchKeyException::class)
-    private fun getSpecificDocRefKey(initials: String?, ref: String, versification: Versification): BookAndKey? {
-        var ref = ref
+    private fun getSpecificDocRefKey(initials: String?, reference: String, versification: Versification, forceDoc: Boolean): BookAndKey? {
+        var ref = reference
         if (StringUtils.isEmpty(initials)) {
             return getBibleKey(ref, versification)
         } else {
             val document = swordDocumentFacade.getDocumentByInitials(initials)
             if (document == null) { // tell user to install book
                 Dialogs.instance.showErrorMsg(R.string.document_not_installed, initials)
-            } else if(document.bookCategory == BookCategory.BIBLE) {
+            } else if(document.bookCategory == BookCategory.BIBLE && !forceDoc) {
                 return getBibleKey(ref, versification)
             } else { //Foreign language keys may have been URLEncoded so need to URLDecode them e.g. UZV module at Matthew 1. The first link is "David" (looks a bit like DOBYA)
                 ref = URLDecoder.decode(ref)

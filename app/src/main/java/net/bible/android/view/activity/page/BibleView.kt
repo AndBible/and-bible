@@ -561,7 +561,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         addJavascriptInterface(bibleJavascriptInterface, "android")
     }
 
-    class BibleLink(val type: String, val target: String, private val v11nName: String? = null) {
+    class BibleLink(val type: String, val target: String, private val v11nName: String? = null, val forceDoc: Boolean = false) {
         val versification: Versification get() =
             Versifications.instance().getVersification(v11nName ?: SystemKJVA.V11N_NAME) ?: KJVA
         val url: String get() {
@@ -800,11 +800,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         UriConstants.SCHEME_REFERENCE -> {
             val osisRef = uri.getQueryParameter("osis")
             val v11n = uri.getQueryParameter("v11n")
+            val forceDoc = uri.getBooleanQueryParameter("force-doc", false)
             if (osisRef != null) {
-                linkControl.loadApplicationUrl(BibleLink("osis", osisRef, v11n))
+                linkControl.loadApplicationUrl(BibleLink("osis", osisRef, v11n, forceDoc = forceDoc))
             } else {
                 val contentRef = uri.getQueryParameter("content")!!
-                linkControl.loadApplicationUrl(BibleLink("content", contentRef, v11n))
+                linkControl.loadApplicationUrl(BibleLink("content", contentRef, v11n, forceDoc = forceDoc))
             }
             true
         }
