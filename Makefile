@@ -8,7 +8,8 @@ TMP:=$(shell mktemp -d)
 tx-pull:
 	tx pull --force --all
 	# Download language corrections to english (en_GB in transifex, mapped to en via transifex config)
-	tx pull --lang en_GB --force --minimum-perc 1
+	tx pull --lang en_GB --force --minimum-perc 1 -r andbible.and-bible-stringsxml
+	tx pull --lang en_GB --force --minimum-perc 1 -r andbible.bibleview-js
 	python3 play/compile_description.py
 
 fastlane-supply:
