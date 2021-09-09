@@ -17,10 +17,10 @@ L'application comporte de nombreuses fonctionnalités originales et petinentes, 
  * Une synthèse vocale avancée avec des signets vocaux, pour une écoute fluide de la Bible.
  * Recherche flexible
  * Fonctions avancées des signets et de surlignage avec des notes d'étude personnelles
+ * Des bloc-notes pour ajouter des notes et des références bibliques tout en écoutant les sermons.
  * Plans de lecture : fixer des objectifs de lecture de la Bible
  * Vaste bibliothèque de documents : Traductions de la Bible, commentaires théologiques, dictionnaires, cartes et livres chrétiens, totalisant plus de 1500 documents dans plus de 700 langues, distribués légalement par Crosswire et d'autres dépôts SWORD.
  * Hors ligne  : vous n'avez besoin de l'internet que pour télécharger des documents.
- * Des bloc-notes pour ajouter des notes et des références bibliques tout en écoutant les sermons.
 
 <b>Créons ensemble la meilleure application biblique !</b>
 

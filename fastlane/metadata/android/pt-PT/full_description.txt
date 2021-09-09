@@ -17,10 +17,10 @@ A aplicação tem muitos recursos perspicazes e originais, que tornam uma experi
  * Texto avançado para fala com marcadores de fala, permitindo uma experiência de ouvir a Bíblia sem problemas
  * Procura fléxivel
  * Recursos avançados de marcadores e destaque com notas de estudo pessoais
+ * Áreas de Estudo para adicionar notas e referências bíblicas enquanto ouve sermões.
  * Planos de leitura: estabeleça metas para a leitura da Bíblia
  * Vasta biblioteca de documentos: traduções da Bíblia, comentários teológicos, dicionários, mapas e livros cristãos, totalizando mais de 1500 documentos em mais de 700 idiomas, legalmente distribuídos pela Crosswire e outros repositórios SWORD.
  * Off-line: só precisa da Internet para fazer download de documentos.
- * Áreas de Estudo para adicionar notas e referências bíblicas enquanto ouve sermões.
 
 <b>Vamos fazer a melhor aplicação de Bíblia juntos!</b>
 

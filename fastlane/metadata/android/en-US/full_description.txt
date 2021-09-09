@@ -17,10 +17,10 @@ The application has many insightful, original features, that makes a complex and
  * Advanced text to speech with speak bookmarks, enabling a smooth Bible listening experience
  * Flexible searching
  * Advanced bookmarking & highlighting features with personal study notes
+ * Study Pads for adding notes and Bible references while listening to sermons.
  * Reading plans: set goals for reading the Bible
  * Vast library of documents: Bible translations, theological commentaries, dictionaries, maps, and christian books, totaling over 1500 documents in over 700 languages, legally distributed by Crosswire and other SWORD repositories.
  * Offline: the only time you need internet is for downloading documents.
- * Study Pads for adding notes and Bible references while listening to sermons.
 
 <b>Let’s make the best Bible app together!</b>
 

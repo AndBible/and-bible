@@ -17,10 +17,10 @@ Aplikacija ima številne vpogledne, izvirne funkcije, zaradi česar je kompleksn
  * Napredna pretvorba besedila v govor z zaznamki za govor, kar omogoča nemoteno izkušnjo poslušanja Biblije - ni še za slovenščino.
  * Prilagodljivo iskanje
  * Napredne funkcije zaznamkov in poudarjanja z osebnimi študijskimi opombami
+ * Študijske beležnice za dodajanje opomb in biblijskih referenc med poslušanjem pridig.
  * Načrti branja: določite si cilje za branje Biblije
  * Ogromna knjižnica dokumentov: prevodi Biblije, komentarji, slovarji, zemljevidi in krščanske knjige, skupaj več kot 1500 dokumentov v več 700 jezikih, ki jih zakonito distribuira Crosswire in druge SWORD shrambe.
  * Brez internetne povezave: internet se potrebujete le za enkraten prenos dokumentov.
- * Študijske beležnice za dodajanje opomb in biblijskih referenc med poslušanjem pridig.
 
 <b>Skupaj naredimo najboljšo biblijsko aplikacijo!</b>
 

@@ -17,10 +17,10 @@ La aplicación tiene muchas características interesantes y originales que hacen
  * Texto a voz avanzado con marcadores de voz, lo que permite una experiencia de escucha Bíblica fluida
  * Búsqueda flexible
  * Funciones avanzadas de marcado y resaltado con notas de estudio personales
+ * Pizarras de estudio para agregar notas y referencias Bíblicas mientras escucha sermones.
  * Planes de lectura: establezca metas para leer la Biblia
  * Amplia biblioteca de documentos: traducciones de la Biblia, comentarios teológicos, diccionarios, mapas y libros cristianos, con un total de más de 1500 documentos en más de 700 idiomas, distribuidos legalmente por Crosswire y otros repositorios de SWORD.
  * Fuera de línea: la única vez que necesita Internet es para descargar documentos.
- * Pizarras de estudio para agregar notas y referencias Bíblicas mientras escucha sermones.
 
 <b>¡Hagamos juntos la mejor aplicación de la Biblia!</b>
 

@@ -17,10 +17,10 @@ La aplikaĵo distingiĝas per pluraj sagaj, originalaj ebloj, kiuj plifaciligas 
  * teksto-al-parolo kun legosignoj por senbare aŭskulti Biblion
  * fleksebla serĉo
  * ampleksaj ebloj por krei legosignojn kaj emfazi tekston kun personaj notoj
+ * “notblokoj” por aldoni notojn kaj referencojn dum aŭskulti predikojn
  * planoj de legado: difinu viajn celojn por legi Biblion
  * granda biblioteko de dokumentoj: tradukoj, teologiaj komentaroj, vortaroj, mapoj, kristanismaj libroj, pli ol 1500 dokumentoj en 700 lingvoj, laŭleĝe distribuataj de per CrossWire kaj per aliaj SWORD-deponejoj
  * funkcias malkonekte: interreta konekto estas bezonata nur por elŝuti dokumentojn
- * “notblokoj” por aldoni notojn kaj referencojn dum aŭskulti predikojn
 
 <b>Ni kune faru la plej bonan apon por legi Biblion!</b>
 

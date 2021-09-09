@@ -17,10 +17,10 @@
  * {{feature_05}}
  * {{feature_06}}
  * {{feature_07}}
+ * {{feature_13}}
  * {{feature_09}}
  * {{feature_10}}
  * {{feature_12}}
- * {{feature_13}}
 
 <b>{{subtitle_3}}</b>
 

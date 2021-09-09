@@ -17,10 +17,10 @@ Sovelluksessa on monia oivaltavia ja alkuperäisiä ominaisuuksia, jotka tekevä
  * Edistynyt tekstin lukutoiminto ja puheen kirjanmerkit tekevät Raamatun kuuntelemisesta kätevää
  * Joustava hakutoiminto
  * Monipuoliset kirjanmerkkaus- ja korostusominaisuudet, mahdollisuudella omiin kommenttimerkintöihin
+ * Opintoalustat joihin voi kirjoittaa merkintöjä ja raamattuviitteitä saarnoja kuunnellessa.
  * Lukusuunnitelmat: aseta tavoitteita Raamatun lukemiselle
  * Kattava kirjasto erilaisia teoksia: Raamatun käännöksiä, teologisia kommentaareja, sanakirjoja, karttoja ja kristillisiä kirjoja, yhteensä yli 1500 teosta yli  700 kielellä, laillisesti Crosswirelta ja muista SWORD repositorioista .
  * Offline: tarvitset internetyhteyttä vain dokumenttien lataamiseen.
- * Opintoalustat joihin voi kirjoittaa merkintöjä ja raamattuviitteitä saarnoja kuunnellessa.
 
 <b>Tehdään yhdessä paras Raamattusovellus!</b>
 

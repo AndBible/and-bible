@@ -17,10 +17,10 @@ Programėlėje yra daug sumanių, išskirtinių ypatybių, kurios sudėtingą ir
  * Išplėstinis garsinio teksto atkūrimas su kalbėjimo žymėmis, leidžiantis sklandžiai klausytis Biblijos teksto
  * Lanksti paieška
  * Išplėstinės žymių ir paryškinimo ypatybės kartu su asmeninio studijavimo pastabomis
+ * Bloknotai, skirti, klausantis pamokslo, pridėti pastabas ir Biblijos nuorodas.
  * Skaitymo planai: nusistatykite Biblijos skaitymo tikslus
  * Didelė dokumentų biblioteka: Biblijos vertimai, teologiniai komentarai, žodynai, žemėlapiai bei krikščioniškos knygos, iš viso virš 1500 dokumentų, daugiau nei 700 kalbų, kuriuos teisėtai platina Crosswire ir kitos SWORD saugyklos.
  * Nereikalauja interneto: interneto reikia tik vienintelį kartą, atsisiunčiant dokumentus.
- * Bloknotai, skirti, klausantis pamokslo, pridėti pastabas ir Biblijos nuorodas.
 
 <b>Sukurkime geriausią Biblijos programėlę kartu!</b>
 

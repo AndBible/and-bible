@@ -17,10 +17,10 @@ Das Programm hat viele originelle und aufschlussreiche Funktionen, die ein kompl
  * Fortgeschrittene Sprachausgabe von Text mit Lesezeichen, für ein reibungsfreies Hörerlebnis
  * Flexible Suche
  * Fortgeschrittene Lesezeichen- & Hervorhebungsfunktionen mit persönlichen Studiennotizen
+ * Studienmappen für Notizen und Querverweise während Predigten.
  * Bibellesepläne: setze dir Ziele für deine Bibellese
  * Große Sammlung von Dokumenten: Bibelübersetzungen, theologische Kommentare, Wörterbücher, Landkarten und christliche Bücher, insgesamt über  1500 Dokumente in über 700 Sprachen, gesetzeskonform zur Verfügung gestellt von Crosswire und anderen SWORD Quellen.
  * Offline: das Internet wird nur für das Herunterladen der gewünschten Dokumente benötigt.
- * Studienmappen für Notizen und Querverweise während Predigten.
 
 <b>Lasst uns gemeinsam die beste Bibelleseapp entwickeln!</b>
 
