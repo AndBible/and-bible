@@ -392,4 +392,5 @@ Een item lang indrukken opent het context menu of het actiemenu in verschillende
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Het spijt ons, maar we hebben slechts een gedeeltelijke vertaling van de gebruikersinterface in de taal %s. Dat komt omdat %s volledig door vrijwilligers is ontwikkeld. Als je kunt helpen bij het vertalen, zie %s.</string>
   <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">instructies voor vertalers</string>
 </resources>

@@ -345,4 +345,5 @@
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Üzgünüz, ancak %s dilinde yalnızca kısmi bir kullanıcı arayüzü çevirisine sahibiz. Bunun nedeni, %s \'nin tamamen gönüllüler tarafından geliştirilmiş olmasıdır. Çeviride yardımcı olabilirseniz, lütfen %s \'ye bakın.</string>
   <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">çevirmenler için talimatlar</string>
 </resources>
