@@ -423,6 +423,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.stable_notice_title))
                 .setMessage(spanned)
+                .setIcon(R.drawable.ic_logo)
                 .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
                     preferences.setString("stable-notice-displayed", ver)
