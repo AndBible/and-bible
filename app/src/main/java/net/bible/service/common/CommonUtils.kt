@@ -79,6 +79,7 @@ import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.StartupActivity
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
@@ -1093,6 +1094,59 @@ object CommonUtils : CommonUtilsBase() {
     fun fixAlertDialogButtons(dialog: AlertDialog) {
         val container = dialog.findViewById<Button>(android.R.id.button1).parent as LinearLayout
         container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, 2);
+    }
+
+    suspend fun checkPoorTranslations(activity: ActivityBase): Boolean {
+        val languageTag = Locale.getDefault().toLanguageTag()
+        val languageCode = Locale.getDefault().language
+
+        Log.d(TAG, "Language tag $languageTag, code $languageCode")
+
+        val goodLanguages = listOf(
+            "en", "af", "my", "eo", "fi", "fr", "de", "hi", "hu", "it", "lt", "pl", "ru", "sl", "es", "uk", "zh-Hant-TW", "kk", "pt",
+            // almost:
+            //"zh-Hans-CN", "cs",
+        )
+
+        fun checkLanguage(lang: String): Boolean =
+            if(lang.length == 2)
+                lang == languageCode
+            else
+                lang == languageTag
+
+
+        val languageOK = goodLanguages.any {checkLanguage(it)}
+
+        if(languageOK || (
+                settings.getString("poor-translations-dismissed", "") == languageTag
+                    && settings.getInt("poor-translations-dismissed", 0) == applicationVersionNumber))
+        {
+            return true
+        }
+
+        return suspendCoroutine {
+            val lang = Locale.getDefault().displayLanguage
+            val instr = application.getString(R.string.instructions_for_translators)
+            val instructionsUrl = "https://github.com/AndBible/and-bible/wiki/Translating-User-Interface"
+            val instructionsLink = "<a href=\"$instructionsUrl\">$instr</a>"
+            val msg = htmlToSpan(application.getString(R.string.incomplete_translation, lang, application.getString(R.string.app_name_long), instructionsLink))
+            val dlgBuilder = AlertDialog.Builder(activity)
+                .setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton(R.string.proceed_anyway) { _, _ -> it.resume(true) }
+                .setNegativeButton(R.string.beta_notice_dismiss_until_update) { _, _ ->
+                    settings.setInt("poor-translations-dismissed", applicationVersionNumber)
+                    settings.setString("poor-translations-dismissed", languageTag)
+                    it.resume(true)
+                }
+                .setNeutralButton(R.string.close) { _, _ ->
+                    it.resume(false)
+                    activity.finish()
+                }
+
+            val d = dlgBuilder.show()
+            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        }
     }
 }
 

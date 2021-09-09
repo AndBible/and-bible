@@ -124,6 +124,7 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
+import kotlin.system.exitProcess
 
 /** The main activity screen showing Bible text
  *
@@ -312,6 +313,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(!initialized) {
             GlobalScope.launch(Dispatchers.Main) {
                 ErrorReportControl.checkCrash(this@MainBibleActivity)
+                if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
                 showBetaNotice()
                 showStableNotice()
                 showFirstTimeHelp()
