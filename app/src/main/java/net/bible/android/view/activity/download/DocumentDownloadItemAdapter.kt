@@ -74,15 +74,7 @@ class DocumentDownloadItemAdapter(
         bindings.documentAbbreviation.text = initials
 
         // set value for the second text field
-        var name = document.name
-        if (document is AbstractPassageBook) {
-            val bible = document
-            // display v11n name if not KJV
-            if (SystemKJV.V11N_NAME != bible.versification.name) {
-                name = context.getString(R.string.something_with_parenthesis, name, bible.versification.name)
-            }
-        }
-        bindings.documentName.text = name
+        bindings.documentName.text = document.name
         return view
     }
 }
