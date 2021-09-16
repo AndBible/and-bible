@@ -69,7 +69,7 @@ export default {
         }
         cancelOpen = cancelFunc
       }
-    })
+    }, {immediate: true})
     watch(() => props.text, t => {
       editText.value = t;
     })
