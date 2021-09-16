@@ -106,16 +106,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     private val versification: Versification
         get() = navigationControl.versification
 
-    /**
-     * Handle scripture/Appendix toggle
-     */
-    private val scriptureToggleClickListener = OnClickListener {
-        isCurrentlyShowingScripture = !isCurrentlyShowingScripture
-
-        buttonGrid.clear()
-        buttonGrid.addButtons(bibleBookButtonInfo)
-    }
-
     private var navigateToVerse: Boolean = false
 
     // background goes white in some circumstances if theme changes so prevent theme change
@@ -146,11 +136,14 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val sortOptionItem = menu.children.first { it.itemId == R.id.alphabetical_order_opt }
+        val sortOptionItem = menu.findItem(R.id.alphabetical_order_opt)
         sortOptionItem.isChecked = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
-        val rowDistributionItem = menu.children.first { it.itemId == R.id.row_order_opt }
+        val rowDistributionItem = menu.findItem(R.id.row_order_opt)
         buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
         rowDistributionItem.isChecked  = buttonGrid.isLeftToRightEnabled
+        val deutToggle = menu.findItem(R.id.deut_toggle)
+        deutToggle.setTitle(if(isCurrentlyShowingScripture) R.string.bible else R.string.deuterocanonical)
+        deutToggle.isVisible = navigationControl.getBibleBooks(false).isNotEmpty()
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -168,6 +161,13 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                 buttonGrid.clear()
                 buttonGrid.addButtons(bibleBookButtonInfo)
                 CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS, item.isChecked)
+                true
+            }
+            R.id.deut_toggle -> {
+                isCurrentlyShowingScripture = !isCurrentlyShowingScripture
+                buttonGrid.clear()
+                buttonGrid.addButtons(bibleBookButtonInfo)
+                invalidateOptionsMenu()
                 true
             }
             android.R.id.home -> {
