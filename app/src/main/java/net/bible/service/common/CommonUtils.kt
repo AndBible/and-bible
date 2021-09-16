@@ -46,7 +46,6 @@ import android.view.Gravity
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.preference.Preference
@@ -1092,8 +1091,11 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun fixAlertDialogButtons(dialog: AlertDialog) {
-        val container = dialog.findViewById<Button>(android.R.id.button1).parent as LinearLayout
-        container.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 2F);
+        val container = dialog.findViewById<Button>(android.R.id.button1).parent
+        if(container is FrameLayout) {
+            container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, 2)
+        }
+        // Some older devices Androids have LinearLayout. But they don't need this hack anyway.
     }
 
     suspend fun checkPoorTranslations(activity: ActivityBase): Boolean {
