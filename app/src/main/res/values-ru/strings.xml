@@ -423,7 +423,7 @@ http://www.heartlight.org, разрешение предоставлено
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Этот параметр применяется к %s.</string>
   <string name="setting_scope_window">это окно</string>
-  <string name="setting_scope_workspace">эта рабочая область</string>
+  <string name="setting_scope_workspace">этой рабочей области</string>
   <string name="assing_labels_help1">Каждой закладке можно назначить несколько ярлыков.</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Используйте %s, чтобы указать цвет метки</string>
@@ -635,7 +635,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="beta_notice_dismiss_until_update">Отклонить до следующего обновления</string>
   <string name="stable_notice_title">Приложение обновлено!</string>
   <string name="upgrade_video_message">См. видео, в котором представлены новые функции этого выпуска. (%s).</string>
-  <string name="stable_notice_par1">Новая версия %s %s успешно установлена!</string>
+  <string name="stable_notice_par1">Новая версия %s\" %s\" успешно установлена!</string>
   <!--History-->
   <string name="history_for">История (%s: Окно %d)</string>
   <!--Help-->
@@ -843,6 +843,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="questions_title2">Нужна помощь?</string>
   <string name="bookmark_style">Стиль закладки</string>
   <string name="added_to_bookmark">Назначено к этой закладке</string>
+  <string name="strongs_off">Выкл.</string>
   <string name="strongs_links">Ссылки</string>
+  <string name="strongs_text_and_links">Текст и ссылки</string>
   <string name="verse_tip">Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии.</string>
 </resources>

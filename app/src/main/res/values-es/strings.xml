@@ -851,6 +851,8 @@ informe los problemas a los mantenedores de texto
   <string name="questions_title2">¿Necesitas ayuda?</string>
   <string name="bookmark_style">Estilo de marcador</string>
   <string name="added_to_bookmark">Asignado a este marcador</string>
+  <string name="strongs_off">Apagada</string>
   <string name="strongs_links">Enlaces</string>
+  <string name="strongs_text_and_links">Texto y Enlaces</string>
   <string name="verse_tip">Para hace una selección parcial o de muchos versículos puede mantener presionado el texto de la Biblia</string>
 </resources>

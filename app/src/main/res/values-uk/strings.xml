@@ -423,7 +423,7 @@
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Цей параметр застосовується до %s.</string>
   <string name="setting_scope_window">це вікно</string>
-  <string name="setting_scope_workspace">ця робоча область</string>
+  <string name="setting_scope_workspace">цеї робочої області</string>
   <string name="assing_labels_help1">Кожній закладці можна призначити кілька міток</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Використовуйте %s щоб вказати колір мітки.</string>
@@ -631,7 +631,7 @@
   <string name="beta_notice_dismiss_until_update">Відхилити до наступного оновлення</string>
   <string name="stable_notice_title">Додаток оновлено!</string>
   <string name="upgrade_video_message">Будь ласка, перегляньте відео з новими функціями цього випуску (%s).</string>
-  <string name="stable_notice_par1">Нова версія %s %s програми успішно встановлена!</string>
+  <string name="stable_notice_par1">Нова версія %s\" %s\" програми успішно встановлена!</string>
   <!--History-->
   <string name="history_for">Журнал (%s: Вікно %d)</string>
   <!--Help-->
@@ -841,6 +841,8 @@
   <string name="questions_title2">Потрібна допомога?</string>
   <string name="bookmark_style">Стиль закладки</string>
   <string name="added_to_bookmark">Призначено цій закладці</string>
+  <string name="strongs_off">Вимк.</string>
   <string name="strongs_links">Посилання</string>
+  <string name="strongs_text_and_links">Текст і посилання</string>
   <string name="verse_tip">Щоб вибрати часткові або багато віршів, довго натисніть текст Біблії</string>
 </resources>

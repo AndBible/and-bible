@@ -438,34 +438,112 @@
   <string name="workspace_text_options_help2">각 개별 창의 설정을 바꾸어 적용시킬 수 있습니다.</string>
   <string name="window_text_options_help_title">창 텍스트 옵션</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s 아이콘은 이 설정이 워크스페이스 설정에서 온 것을 나타냅니다.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s 아이콘은 이 설정이 이 윈도우에 대해 변경되었음을 나타냅니다.</string>
+  <string name="window_text_options_help3">워크스페이스 설정은 이 윈도우에 영향을 미치지 않습니다.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">%s 버튼을 사용하여 모든 설정을 %s로 리셋합니다.</string>
+  <string name="reset_defaults">기본 값</string>
+  <string name="reset_workspace_defaults">워크플레이스 기본 값</string>
+  <string name="speak_bookmark_help">북마크 읽기 도움말</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>주</item>
+    <item>하나님</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>야훼</item>
+    <item>야훼</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">책 변경됨.</string>
+  <string name="speak_chapter_changed">장</string>
+  <string name="speak_first">첫째</string>
+  <string name="speak_second">둘째</string>
+  <string name="speak_third">셋째</string>
+  <string name="speak_fourth">넷째</string>
+  <string name="speak_fifth">다섯째</string>
   <!--User Notes-->
   <string name="mynotes">내 참고들</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">백업과 복원</string>
+  <string name="backup_modules">문서를 다음으로 공유 또는 백업...</string>
+  <string name="backup_app_database">앱 데이터베이스를 다음으로 공유 또는 백업...</string>
+  <string name="backup_app">앱 (.apk 파일)을 다음으로 공유 또는 백업...</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">무엇을 복원할까요?</string>
+  <string name="restore_app_database">앱 데이터베이스를 다음에서 복원...</string>
+  <string name="restore_database">데이터베이스 파일 복원</string>
+  <string name="restore_confirmation">내 노트, 북마크, 스터디 패드, 읽기 계획, 그리고 워크플레이스를 덮어쓸까요?</string>
+  <string name="reading_plans_plural">읽기 계획</string>
+  <string name="loading_backup">백업에서 데이터베이스 읽는 중...</string>
+  <string name="backup_success2">내 노트, 북마크, 스터디 패드, 읽기 계획과 워크스페이스를 성공적으로 백업하였습니다.</string>
+  <string name="backup_modules_success">선택한 모듈들을 성공적으로 백업하였습니다.</string>
+  <string name="backup_modules_email_subject_2">%s 모듈 백업</string>
+  <string name="backup_modules_email_message_2">첨부 파일은 %s 모듈 백업으로, 다음의 모듈들을 포함합니다: %s</string>
+  <string name="backup_email_subject_2">%s 데이터베이스 백업</string>
+  <string name="backup_email_message_2">북마크, 노트, 읽기 계획, 그리고 워크스페이스를 포함하는 %s 데이터베이스를 첨부하였습니다</string>
+  <string name="restore_unsuccessfull">데이터 복원이 실파했습니다. 아마 잘못된 데이터베이스 파일을 선택한 것 같습니다.</string>
+  <string name="backup_phone_storage">폰 저장소</string>
+  <string name="backup_backup_title">어디에 백업할까요?</string>
+  <string name="backup_backup_message">전화기에 백업할까요 아니면 공유 기능을 이용해 다른 곳(이메일, 구글 드라이브 등)에 백업할까요?</string>
   <string name="backup_share">공유</string>
+  <string name="restore_modules">다음에서 문서 복원...</string>
+  <string name="send_backup_file">백업 파일 보내기</string>
+  <string name="backup_modules_title">어떤 모듈을 백업할지 선택</string>
+  <string name="install_zip_canceled">모듈 설치가 취소됨</string>
   <!--About-->
   <string name="module_about_copyright">저작권: %s</string>
+  <string name="module_about_installed_version">설치된 버전: %s (%s)</string>
+  <string name="module_about_latest_version">최신 버전: %s (%s)</string>
   <string name="module_about_versification">시형: %s</string>
+  <string name="module_about_repository">배포 서버: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">버그 리포트</string>
+  <string name="send_feedback_title">피드백</string>
+  <string name="send_bug_report_title">피드백 / 버그 리포트</string>
+  <string name="report_bug_email_subject_3">[%s] %s %s에 대한 버그 리포트</string>
+  <string name="report_bug_big_heading">이 라인 위에 피드백이나 버그 리포트를 적어주세요</string>
+  <string name="report_bug_heading1">안내:</string>
+  <string name="report_bug_line_1">문제가 발생했을 때 무엇을 하셨는지 / 어떤 일이 일어났는지 간단하게 말씀해 주세요.</string>
+  <string name="report_bug_heading2">예:</string>
+  <string name="report_bug_instructions1">1. 앱을 열었습니다</string>
+  <string name="report_bug_instructions2">2. 윈도우 메뉴를 눌렀습니다</string>
+  <string name="report_bug_instructions3">-&gt; 깨짐</string>
+  <string name="report_bug_line_2">스크린샷을 찍으면 문제 해결에 도움이 될 때도 있습니다.</string>
+  <string name="report_bug_line_3">문제가 발생한 것을 인지하자마자 이 기능을 이용해서 보고해 주세요.</string>
+  <string name="report_bug_line_4">앱을 열고 나서, 앱이 죽은 후에 이 기능을 사용할 수 있습니다.
+    </string>
+  <string name="report_bug_heading_3">첨부파일:</string>
+  <string name="bug_report_logcat">이 앱이 생성한 로그 파일. 다른 앱에 대한 정보는 전혀 포함하지 않습니다.</string>
+  <string name="bug_report_screenshot">앱이 죽을 때, 또는 버그 리포트를 생성했을 때의 앱 스크린샷.</string>
+  <string name="bug_report_attachment_line_1">이 파일들을 첨부하면 개발자가 보고된 버그를 고치는데 큰 도움이 됩니다.</string>
+  <string name="report_bug_heading_4">기기 정보:</string>
   <!--Document types-->
+  <string name="doc_type_all">모든 타입</string>
   <string name="doc_type_bible">성경</string>
   <string name="doc_type_commentary">논평</string>
   <string name="doc_type_dictionary">사전</string>
   <string name="doc_type_book">책</string>
   <string name="doc_type_map">지도</string>
+  <string name="doc_type_addons">애드온</string>
   <!--Languages-->
   <string name="lang_default">기본</string>
   <!--General-->
@@ -475,29 +553,56 @@
   <string name="no">없음</string>
   <string name="error">오류</string>
   <string name="delete_generic">삭제</string>
+  <string name="please_wait">기다려 주세요...</string>
   <string name="all">전체</string>
   <string name="edit">편집하다</string>
   <string name="reset_generic">재설정</string>
+  <string name="watch_tutorial_video">튜토리얼 비디오를 봐 주세요 (영어)</string>
   <string name="verse_not_found">절이 없음</string>
   <!--Errors-->
   <string name="report_error">보고서 를 보내기</string>
   <string name="error_occurred">오류가 발생했습니다</string>
+  <string name="error_occurred_crash_last_time">마지막으로 이 앱을 사용했을 때 앱이 죽었습니다. 이 버그를 고칠 수 있도록 버그 리포트를 보내주시면 감사하겠습니다.</string>
+  <string name="error_occurred_with_link">에러가 발생했습니다. %s</string>
   <string name="error_no_content">선택된 구절에 대한 내용 없음</string>
   <string name="error_page_too_large">페이지가 커서 불러올 수 없습니다.</string>
   <string name="error_key_not_in_document">문서에서 찾을 수 없음</string>
+  <string name="error_key_not_in_document2">%s 이 항목은 %s 문서에서 발견되지 않습니다.</string>
   <string name="empty_list">표시할 항목이 없습니다</string>
+  <string name="error_skip">건너뛰기</string>
   <!--Notifications-->
+  <string name="notification_channel_tts_status">읽을 텍스트</string>
+  <string name="notification_channel_progress_status">문서 다운로드 등의 진행 상황 알림</string>
   <!--Workspaces-->
   <string name="new_workspace">새로운</string>
+  <string name="switch_to_workspace">워크스페이스</string>
   <string name="delete_workspace">삭제</string>
+  <string name="new_copied_workspace">새 파일로 복사</string>
+  <string name="workspace_number">워크스페이스 %d</string>
   <string name="rename_workspace">이름 바꾸기</string>
+  <string name="workspace_selector_title">워크스페이스 선택</string>
+  <string name="workspace_settings">설정...</string>
+  <string name="give_name_workspace">새 워크스페이스의 이름을 입력하세요</string>
   <string name="save_and_exit">저장</string>
+  <string name="workspace_save_changes">변경 사항을 워크스페이스에 적용할까요?</string>
+  <string name="copy_of_workspace">%s의 복사</string>
+  <string name="copy_workspace_settings">설정 복사...</string>
+  <string name="copy_settings_title">어떤 설정을 복사할까요?</string>
+  <string name="select_all">모두 선택</string>
+  <string name="copy_settings_workspaces_title">설정을 어떤 워크스페이스로 복사할까요?</string>
   <string name="reset_settings">재설정</string>
+  <string name="workspace_dismiss">취소</string>
+  <string name="workspace_listing_with_current">%s (현재)</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">이것은 베타 버전입니다!</string>
+  <string name="beta_notice_github_issues">깃허브 이슈</string>
+  <string name="beta_notice_github">깃허브</string>
+  <string name="beta_notice_dismiss">취소</string>
   <!--History-->
   <!--Help-->
   <string name="help_bookmarks_title">북마크와 내 노트</string>
   <string name="help_search_title">검색</string>
+  <string name="help_workspaces_title">워크스페이스</string>
   <string name="help_window_pinning_title">윈도우 고정</string>
   <!--Welcome text-->
   <!--Uncategorized-->
