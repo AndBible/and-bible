@@ -9,7 +9,7 @@ $pell-content-height: 300px !default;
 $pell-content-padding: 10px !default;
 
 .pell {
-  border: $pell-border-width $pell-border-style $pell-border-color;
+  //border: $pell-border-width $pell-border-style $pell-border-color;
   box-sizing: border-box;
 }
 
@@ -33,7 +33,7 @@ $pell-content-padding: 10px !default;
 
 .pell-actionbar {
   background-color: $pell-actionbar-color;
-  border-bottom: $pell-border-width $pell-border-style $pell-border-color;
+  //border-bottom: $pell-border-width $pell-border-style $pell-border-color;
 }
 
 .pell-button {

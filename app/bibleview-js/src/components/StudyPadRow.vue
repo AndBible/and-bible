@@ -22,13 +22,13 @@
     </template>
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
-  <div class="entry" :class="{editMode: editor && editor.editMode}">
+  <div class="entry" :class="{editMode}">
     <div class="menu" :class="{isText: journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT}">
       <ButtonRow show-drag-handle>
         <div class="journal-button" @click="addNewEntryAfter">
           <FontAwesomeIcon icon="plus-circle"/>
         </div>
-        <div v-if="!journalText" class="journal-button" @click="editor.editMode = true">
+        <div v-if="!journalText" class="journal-button" @click="editMode = true">
           <FontAwesomeIcon icon="edit"/>
         </div>
 
@@ -95,6 +95,16 @@ export default {
     const android = inject("android");
     const areYouSureDelete = ref(null);
     const {strings, ...common} = useCommon();
+    const editor = ref(null);
+
+    const editMode = computed({
+      get() {
+        return editor.value && editor.value.editMode;
+      },
+      set(value) {
+        editor.value.editMode = value;
+      }
+    });
 
     function journalTextChanged(newText) {
       if (props.journalEntry.type === StudyPadEntryTypes.BOOKMARK) {
@@ -164,7 +174,6 @@ export default {
       }
     );
 
-
     return {
       bibleUrl,
       addNewEntryAfter,
@@ -174,7 +183,8 @@ export default {
       deleteEntry,
       areYouSureDelete,
       StudyPadEntryTypes,
-      editor: ref(null),
+      editor,
+      editMode,
       strings,
       indent,
       changeExpanded,
