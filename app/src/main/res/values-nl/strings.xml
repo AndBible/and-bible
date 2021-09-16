@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_short">Bijbel Studie</string>
-  <string name="app_name_medium">Bijbel Studie (And Bible)</string>
-  <string name="app_name_long">Bijbel Studie app, door And Bible Open Source Project</string>
+  <string name="app_name_short">Bijbelstudie</string>
+  <string name="app_name_medium">Bijbelstudie (And Bible)</string>
+  <string name="app_name_long">Bijbelstudie app, door And Bible open-source-project</string>
+  <string name="project">And Bible open-source-project</string>
   <string name="version_text">Versie %s</string>
   <string name="no_sdcard_error">Voer een SD-kaart in en start And Bible opnieuw.</string>
   <!--Main menu-->
@@ -14,9 +15,12 @@
   <string name="history">Geschiedenis</string>
   <string name="speak">Voorlezen</string>
   <string name="help">Hulp</string>
+  <string name="information">Informatie</string>
   <string name="other">Andere</string>
-  <string name="help_and_tips">Help &amp; tips</string>
+  <string name="contact">Contact</string>
+  <string name="help_and_tips">Hulp &amp; tips</string>
   <string name="administration">Administratie</string>
+  <string name="rate_application">Beoordelen</string>
   <string name="chooce_document">Document kiezen</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kies een boek</string>
@@ -53,9 +57,15 @@
   <string name="search_current_book">Huidig boek</string>
   <string name="error_executing_search">Ongeldige zoekopdracht</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Hoofdstuk- en versnummers</string>
+  <string name="prefs_show_verseno_summary">Toon hoofdstuk- en versnummers</string>
+  <string name="prefs_e_ink_mode_title">Zwart-wit-modus</string>
+  <string name="prefs_disable_animations_title">Schakel animaties uit</string>
   <string name="prefs_show_verseno_title1">Versnummers</string>
+  <string name="prefs_show_chapter_no_title">Hoofdstuknummers</string>
+  <string name="prefs_show_chapter_no_summary">Toon hoofdstuknummers</string>
   <string name="prefs_verse_per_line_summary">Laat elk vers op een nieuwe regel zien</string>
-  <string name="prefs_show_bookmarks_summary">Uitvinken om alle bookmarks te verbergen</string>
+  <string name="prefs_show_bookmarks_summary">Uitvinken om alle bladwijzers te verbergen</string>
   <string name="prefs_show_mynotes_summary">Laat icoon zien in verzen met Mijn Notitie</string>
   <string name="prefs_show_notes_summary">Laat voetnoten en kruisverwijzingen zien</string>
   <string name="prefs_show_strongs_summary">Snelkoppelingen naar Griekse &amp; Hebreeuwse definities</string>
@@ -94,6 +104,7 @@
   <string name="reversed_split_mode">Omgekeerde splitsmodus</string>
   <string name="add_ellipsis">%s ...</string>
   <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Wissel automatisch naar volledig scherm tijdens het scrollen van de tekst. Tip: u kunt altijd naar volledig scherm wisselen door dubbel te tikken op het scherm.</string>
   <string name="prefs_margin_size_title">Wijzig marge grootte</string>
   <string name="prefs_margin_size_mm_title">Marge grootte (%d/%d/%d mm)</string>
@@ -106,6 +117,7 @@
   <string name="workspace_text_display_settings_title">Tekst opties - %s</string>
   <string name="window_text_display_settings_title">Tekst opties - Venster %d</string>
   <string name="prefs_text_display_settings_title">Opmaak</string>
+  <string name="prefs_text_appearance_title">Uiterlijk</string>
   <string name="pref_left_margin_label_mm">Linker mage (%d mm)</string>
   <string name="pref_right_margin_label_mm">Rechter marge (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Maximale breedte van de tekst (%d mm)</string>
@@ -116,18 +128,27 @@
   <string name="line_spacing_title">Regelafstand</string>
   <string name="line_spacing_summary">Stel de regelafstand in</string>
   <string name="select_none">Selecteer niets</string>
+  <string name="reset_are_you_sure">Weet u zeker dat u al deze waarden wilt terugzetten?</string>
   <string name="window_pinning_menutitle">Vensters vastzetten</string>
   <string name="hide_window_buttons_title">Venster knoppen verbergen</string>
   <string name="full_screen_hide_buttons_pref_title">Verberg venster knoppen balk in volledig scherm</string>
+  <string name="prefs_dictionaries_cat">Woordenboeken</string>
   <string name="font_size_title">Lettertype grootte</string>
   <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">Kleurinstellingen</string>
+  <string name="workspace_color_settings_title">Standaard kleurinstellingen voor werkblad</string>
+  <string name="color_text">Tekstkleur</string>
+  <string name="color_background">Achtergrondkleur</string>
   <string name="colors_night_mode_title">Nacht weergave</string>
+  <string name="cpv_default_title">Kies een kleur</string>
   <!--Window-->
   <string name="new_window">Nieuw venster</string>
   <string name="windowClose">Sluiten</string>
   <string name="windowMaximise">Maximaliseren</string>
   <string name="windowMinimise">Minimaliseren</string>
   <string name="windowSynchronise">Synchroniseren</string>
+  <string name="copy_settings">Kopieer instellingen naar</string>
+  <string name="copy_settings_to_workspace">Werkblad</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Er zijn geen notities ​​bij dit hoofdstuk</string>
   <string name="no_verse_notes">Er zijn geen notities ​​bij dit vers</string>
@@ -144,17 +165,28 @@
   <string name="storage_space_warning">Onvoldoende lokale opslagruimte.</string>
   <string name="document_not_installed">Download \'%s\'</string>
   <string name="free_text_search_documents">Zoeken</string>
+  <string name="chooce_language_hint">Taal</string>
+  <string name="document_filter_results">%d documenten</string>
+  <string name="do_not_ask_again">Ja, niet meer vragen</string>
+  <string name="recommended_document">Aanbevolen!</string>
+  <string name="about_version_history">Versiongeschiedenis: %s</string>
   <!--Install zip file-->
   <string name="install_zip">Document laden uit ZIP-bestand</string>
   <string name="install_zip_module">Bijbelmodule installeren</string>
   <string name="install_zip_successfull">De module is geïnstalleerd</string>
+  <string name="extracting_zip_file">Bezig met uitpakken van ZIP-bestand...</string>
+  <string name="checking_zip_file">Bezig met controleren van opgegeven bestand...</string>
   <string name="invalid_module">Het bestand bevat geen geldige SWORD-module</string>
   <string name="install_zip_title">Bezig met laden van ZIP-bestand; even geduld...</string>
+  <string name="overwrite_files_title">Bestanden overschrijven?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leesplan</string>
   <string name="rdg_plan_selector_title">Kies een leesplan</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="done">Klaar</string>
+  <string name="import_reading_plan_error">Fout tijdens importeren</string>
+  <string name="import_reading_plan_anyway">Toch importeren</string>
+  <string name="plan_name_y1ntpspr">NT, Psalmen en Spreuken in een jaar</string>
   <!--Document context menu-->
   <string name="delete">Verwijderen</string>
   <string name="delete_index">Zoekindex verwijderen</string>
@@ -176,7 +208,10 @@
   <string name="new_label">Nieuw label</string>
   <string name="label_name_prompt">Naam</string>
   <string name="label_unlabelled">Ongelabeld</string>
+  <string name="add_bookmark1">Bladwijzer</string>
+  <string name="label_color">Labelkleur</string>
   <!--can be removed-->
+  <string name="label_color_example">Voorbeeld</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datumvolgorde</string>
   <string name="sort_by_bible_book">Bijbelse volgorde</string>
@@ -217,6 +252,7 @@
   <string name="speak_advanced_settings">Geavanceerde instellingen</string>
   <string name="speak_sleep_timer_title">Slaaptimer</string>
   <string name="speak_no_books_available">Geen voor te lezen boeken</string>
+  <string name="speak_general_error">Voorlezen kon niet gestart worden voor dit boek</string>
   <string name="repeat_passage">Passage herhalen</string>
   <string name="set_repeat_passage_range">Passageherhaling instellen</string>
   <string name="speak_beginning_of_passage">Kies het begin van de passage</string>
@@ -243,6 +279,7 @@
   <string name="speak_autobookmarking_disabled">Automatisch toevoegen aan bladwijzers uitgeschakeld!</string>
   <string name="system_speak_settings">TTS-instellingen van systeem openen</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope_workspace">dit werkblad</string>
   <!--param is bookmark icon-->
   <!--param is auto-assign label icon-->
   <!--param is heart icon-->
@@ -250,6 +287,8 @@
   <!--Parameter is actual icon-->
   <!--Parameter is actual icon-->
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="reset_defaults">standaardwaarden</string>
+  <string name="reset_workspace_defaults">standaardwaarden voor werkblad</string>
   <string name="speak_bookmark_help">Hulp bij voorleesbladwijzers</string>
   <string name="speak_help_auto_bookmark">
         Er wordt automatisch een bladwijzer voor voorlezen toegevoegd zodra het voorlezen wordt gepauzeerd of gestopt.
@@ -344,10 +383,20 @@
   <!--Workspaces-->
   <string name="new_workspace">Nieuw</string>
   <string name="switch_to_workspace">Werkbladen</string>
+  <string name="workspace_number">Werkblad %d</string>
   <string name="rename_workspace">Naam wijzigen</string>
+  <string name="workspace_settings">Instellingen...</string>
+  <string name="give_name_workspace">Geef naam voor nieuw werkblad</string>
   <string name="save_and_exit">Opslaan</string>
+  <string name="copy_of_workspace">Kopie van %s</string>
+  <string name="copy_workspace_settings">Kopieer instellingen...</string>
+  <string name="copy_settings_workspaces_title">Naar welke werkbladen wilt u de instellingen kopiëren?</string>
   <string name="reset_settings">Reset</string>
+  <string name="workspace_dismiss">Negeren</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">Dit is een bètaversie!</string>
+  <string name="beta_notice_dismiss">Negeren</string>
+  <string name="beta_notice_dismiss_until_update">Negeren tot volgende update</string>
   <!--History-->
   <!--Help-->
   <string name="help_nav_title">Navigatie</string>
@@ -379,18 +428,33 @@ Een item lang indrukken opent het context menu of het actiemenu in verschillende
   <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Sluiten</string>
+  <string name="first_time_help_do_not_show_again">Ik begrijp het</string>
   <string name="my_notes_abbreviation">Mijn notities</string>
   <string name="compare_description">Vertalingen vergelijken</string>
+  <string name="try_again_passphrase">Wachtwoord werkte niet, probeer het nog eens?</string>
+  <string name="app_licence_title">Open-source-licentie</string>
   <string name="verse_action_copy">Kopiëren</string>
   <string name="show_versenumbers">Vers nummering laten zien</string>
   <string name="backup_button">Back-up maken</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="play">Google Play</string>
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="this_bookmark">Deze bladwijzer</string>
+  <string name="this_workspace">Dit werkblad</string>
   <string name="system_items1">Meer</string>
+  <string name="toggle_fullscreen">Volledig scherm</string>
+  <string name="label_red">Rood</string>
+  <string name="label_green">Groen</string>
+  <string name="label_blue">Blauw</string>
+  <string name="label_salvation">Zaligheid</string>
+  <string name="chooser_OT_abbrev">OT</string>
+  <string name="chooser_NT_abbrev">NT</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Het spijt ons, maar we hebben slechts een gedeeltelijke vertaling van de gebruikersinterface in de taal %s. Dat komt omdat %s volledig door vrijwilligers is ontwikkeld. Als je kunt helpen bij het vertalen, zie %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instructies voor vertalers</string>
+  <string name="questions_title">Vragen?</string>
+  <string name="questions_title2">Hulp nodig?</string>
 </resources>
