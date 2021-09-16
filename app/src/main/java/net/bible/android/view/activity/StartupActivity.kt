@@ -106,7 +106,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     .setMultiChoiceItems(bookNames, checkedItems) { _, pos, value ->
                         checkedItems[pos] = value
                     }
-                    .setNeutralButton(R.string.select_all) { _, _ -> it.resume(null) }
+                    .setNeutralButton(R.string.select_none) { _, _ -> it.resume(null) }
                     .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
                     .setOnCancelListener {_ -> it.resume(null)}
                     .setTitle(getString(R.string.redownload))
