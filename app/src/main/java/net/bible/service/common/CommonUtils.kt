@@ -1093,7 +1093,7 @@ object CommonUtils : CommonUtilsBase() {
 
     fun fixAlertDialogButtons(dialog: AlertDialog) {
         val container = dialog.findViewById<Button>(android.R.id.button1).parent as LinearLayout
-        container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, 2);
+        container.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 2F);
     }
 
     suspend fun checkPoorTranslations(activity: ActivityBase): Boolean {
