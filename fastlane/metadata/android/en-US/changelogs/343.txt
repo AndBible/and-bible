@@ -1,5 +1,5 @@
 4.0
-See "What's new" video: https://youtu.be/f2cf6-7liMo
+See "what's new" video: https://youtu.be/f2cf6-7liMo
 Release notes: https://github.com/AndBible/and-bible/wiki/v4.0-Release-Notes
 Highlights:
 - Char-accurate bookmarks

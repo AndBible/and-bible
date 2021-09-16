@@ -1,32 +1,32 @@
-Анд Библија је потпуно бесплатна апликација отвореног кода, без реклама, која не захтева Интернет тиме омогућујући што већем броју људи из многих земаља да читају, слушају и изучавају Писмо чинећи то једноставнијим и са већим личним блаженством.
+And Biblija je potpuno besplatna aplikacija otvorenog koda, bez reklama, koja ne zahteva Internet time omogućujući što većem broju ljudi iz mnogih zemalja da čitaju, slušaju i izučavaju Pismo čineći to jednostavnijim i sa većim ličnim blaženstvom.
 
-* Преводи Библије, коментари, Теолошки речници, карте и Хришћанске књиге на преко 700 језика
-* Без Интернета за све након почетног преузимања, укључујући претрагу, белешке, кометаре, итд.
-* Окружење на више језика
-* Разноврсни планови читања Библије
-* Потпуно слободна, без реклама, без е-поште
-* Преко 40 енглеских превода укључујући KJV и NET (ESV је такође некада био овде и ми покушавамо да га поново вратимо, погледајте НПП: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
-* 29 Библијских коментара
-* Опширан речник и збирка хришћанских књига
-* Сви документи су легално дистрибуирани (разлог због којег документи као NKJV и NIV нису доступни)
-* Стронгова интеграција омогућава анализу речи на грчком и јеврејском.
-* Више радних површина у подељеном екрану
-* Хватање личних забелешки
-* Прилагодљива претрага
-* Обележивачи
-* Карте библијских земаља
-* Слушање читања било ког документа
-* Аутоматско скроловање, аутоматски дан/ноћ режим
-* Упоређивање свих превода Библије на једном екрану
-* Једна од најбржих апликација за Библију на Андроиду
-* Отворени код - ако желите, унапредите или измените код
-* Користи моћни JSword механизам од CrossWire-a
+* Prevodi Biblije, komentari, Teološki rečnici, karte i Hrišćanske knjige na preko 700 jezika
+* Bez Interneta za sve nakon početnog preuzimanja, uključujući pretragu, beleške, kometare, itd.
+* Okruženje na više jezika
+* Raznovrsni planovi čitanja Biblije
+* Potpuno slobodna, bez reklama, bez e-pošte
+* Preko 40 engleskih prevoda uključujući KJV i NET (ESV je takođe nekada bio ovde i mi pokušavamo da ga ponovo vratimo, pogledajte NPP: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* 29 Biblijskih komentara
+* Opširan rečnik i zbirka hrišćanskih knjiga
+* Svi dokumenti su legalno distribuirani (razlog zbog kojeg dokumenti kao NKJV i NIV nisu dostupni)
+* Strongova integracija omogućava analizu reči na grčkom i jevrejskom.
+* Više radnih površina u podeljenom ekranu
+* Hvatanje ličnih zabeleški
+* Prilagodljiva pretraga
+* Obeleživači
+* Karte biblijskih zemalja
+* Slušanje čitanja bilo kog dokumenta
+* Automatsko skrolovanje, automatski dan/noć režim
+* Upoređivanje svih prevoda Biblije na jednom ekranu
+* Jedna od najbržih aplikacija za Bibliju na Androidu
+* Otvoreni kod - ako želite, unapredite ili izmenite kod
+* Koristi moćni JSword mehanizam od CrossWire-a
 
-Ми смо сви волонтери; не шаљемо напорну е-пошту; не приказујемо досадне рекламе; никада не тражимо донације; не захтевамо регистрацију; Анд Библија не скупља никакве подате са вашег телефона.
+Mi smo svi volonteri; ne šaljemo napornu e-poštu; ne prikazujemo dosadne reklame; nikada ne tražimo donacije; ne zahtevamo registraciju; And Biblija ne skuplja nikakve podate sa vašeg telefona.
 
-Порекло свих докумената је темељно истражено, како би се обезбедила легална дистрибуција, или је дата дозвола од стране власника ауторских права. То је, такође разлог због ког Анд Библија не може садржати документе као што су NIV и NKJV.
+Poreklo svih dokumenata je temeljno istraženo, kako bi se obezbedila legalna distribucija, ili je data dozvola od strane vlasnika autorskih prava. To je, takođe razlog zbog kog And Biblija ne može sadržati dokumente kao što su NIV i NKJV.
 
-<b>Белешке</b>
-* Лајкујте Анд Библију на Фејсбуку: https://www.facebook.com/AndBible/
-* Најчешће постављана питања за Анд Библију: https://github.com/AndBible/and-bible/wiki/FAQ
-* Страница пројекта на Гитхабу: https://github.com/AndBible/and-bible
+<b>Beleške</b>
+* Lajkujte And Bibliju na Fejsbuku: https://www.facebook.com/AndBible/
+* Najčešće postavljana pitanja za And Bibliju: https://github.com/AndBible/and-bible/wiki/FAQ
+* Stranica projekta na Githabu: https://github.com/AndBible/and-bible
