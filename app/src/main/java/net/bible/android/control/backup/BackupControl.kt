@@ -27,6 +27,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
@@ -534,6 +535,9 @@ class BackupActivity: ActivityBase() {
                     GlobalScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
                 }
                 backupDbButtons.addView(b)
+            }
+            if(backupDbButtons.childCount == 0) {
+                importExportTitle.visibility = View.GONE
             }
         }
     }

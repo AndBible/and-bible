@@ -51,6 +51,7 @@
             android:text="@string/restore_modules"
             />
         <TextView
+            android:id="@+id/import_export_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/import_menu"
