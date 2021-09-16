@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="chapter-number ordinal" :data-ordinal="ordinal" v-if="config.showChapterNumbers && startTag && chapterNum > 0">{{sprintf(strings.chapterNum, chapterNum)}}</div>
+  <div class="chapter-number ordinal" :data-ordinal="ordinal" v-if="config.showChapterNumbers && startTag && chapterNum !== '0'">{{sprintf(strings.chapterNum, chapterNum)}}</div>
   <slot/>
 </template>
 
@@ -42,13 +42,13 @@ export default {
       const ordinalRange = bibleDocumentInfo.originalOrdinalRange || bibleDocumentInfo.ordinalRange;
       return ordinalRange[0];
     });
+    const startTag = computed(() => props.eID === null);
+    const chapterNum = computed(() => {
+      return (props.n || props.osisID.split(".")[1]).trim()
+    });
 
-    return {ordinal, ...useCommon()};
+    return {ordinal, chapterNum, startTag, ...useCommon()};
   },
-  computed: {
-    startTag: ({eID}) => eID === null,
-    chapterNum: ({n, osisID}) => parseInt(n || osisID.split(".")[1])
-  }
 }
 </script>
 
