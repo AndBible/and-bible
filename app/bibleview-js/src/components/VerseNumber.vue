@@ -15,7 +15,7 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span v-if="show" class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}</span></template>
+<template><span :dir="fragment.direction" v-if="show" class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}</span></template>
 
 <script>
 import {useCommon} from "@/composables";
@@ -31,7 +31,7 @@ export default {
   setup() {
     const fragment = inject("osisFragment");
     const show = computed(() => fragment.bookCategory === BookCategories.BIBLE)
-    return {show, ...useCommon()};
+    return {show, fragment, ...useCommon()};
   }
 }
 </script>
