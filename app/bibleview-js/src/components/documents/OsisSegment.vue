@@ -51,7 +51,7 @@ import AndBibleLink from "@/components/OSIS/AndBibleLink";
 
 const teiComponents = {
   Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
-  Rdg: Hi,
+  Rdg: Hi, Def: Div, Etym: Hi,
 }
 
 const andBibleComponents = {
