@@ -29,6 +29,7 @@ export default {
   name: "Reference",
   props: {
     osisRef: {type: String, default: null},
+    target: {type: String, default: null},
     source: {type: String, default: null},
     type: {type: String, default: null},
   },
@@ -43,10 +44,13 @@ export default {
     const osisFragment = inject("osisFragment");
 
     const osisRef = computed(() => {
-      if(!props.osisRef && content.value) {
-        return content.value.innerText;
+      if((!props.osisRef && !props.target) && content.value) {
+        return `${osisFragment.bookInitials}:${content.value.innerText}`;
+      } else if(props.target) {
+        return props.target;
+      } else {
+        return props.osisRef;
       }
-      return props.osisRef;
     });
 
     const queryParams = computed(() => {
