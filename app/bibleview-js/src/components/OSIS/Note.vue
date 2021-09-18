@@ -17,7 +17,7 @@
 <template>
   <AmbiguousSelection ref="ambiguousSelection"/>
   <Modal @close="showNote = false" v-if="showNote" :locate-top="locateTop">
-    <div @click="ambiguousSelection.handle">
+    <div class="scrollable" @click="ambiguousSelection.handle">
       <slot/>
       <OpenAllLink :v11n="v11n"/>
     </div>
@@ -141,5 +141,11 @@ export default {
 .isOther {
   @extend .note-handle-base;
   color: #209546;
+}
+
+.scrollable {
+  @extend .visible-scrollbar;
+  overflow-y: auto;
+  max-height: calc(var(--max-height) - 25pt);
 }
 </style>
