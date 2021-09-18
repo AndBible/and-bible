@@ -108,7 +108,7 @@ class SwordDocumentFacade @Inject constructor() {
                 if(book != null) return book
             }
 
-            val preferredBooks = arrayOf("StrongsRealGreek", "StrongsGreek")
+            val preferredBooks = arrayOf("StrongsGreek", "StrongsRealGreek")
 
             for (prefBook in preferredBooks) {
                 val strongs = Books.installed().getBook(prefBook)
@@ -116,7 +116,7 @@ class SwordDocumentFacade @Inject constructor() {
                     return strongs
                 }
             }
-            return Defaults.getGreekDefinitions()?: FakeBookFactory.giveDoesNotExist("StrongsRealGreek", BookCategory.DICTIONARY)
+            return Defaults.getGreekDefinitions()?: FakeBookFactory.giveDoesNotExist("StrongsGreek", BookCategory.DICTIONARY)
         }
 
     val defaultStrongsHebrewDictionary: Book
@@ -127,14 +127,14 @@ class SwordDocumentFacade @Inject constructor() {
                 if(book != null) return book
             }
 
-            val preferredBooks = arrayOf("StrongsRealHebrew", "StrongsHebrew")
+            val preferredBooks = arrayOf("StrongsHebrew", "StrongsRealHebrew")
             for (prefBook in preferredBooks) {
                 val strongs = Books.installed().getBook(prefBook)
                 if (strongs != null) {
                     return strongs
                 }
             }
-            return Defaults.getHebrewDefinitions()?: FakeBookFactory.giveDoesNotExist("StrongsRealHebrew", BookCategory.DICTIONARY)
+            return Defaults.getHebrewDefinitions()?: FakeBookFactory.giveDoesNotExist("StrongsHebrew", BookCategory.DICTIONARY)
         }
 
     val defaultBibleWithStrongs: Book?
