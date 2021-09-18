@@ -30,6 +30,7 @@
       </div>
     </div>
     <OsisFragment hide-titles :fragment="fragment"/>
+    <FeaturesLink :fragment="fragment"/>
     <div v-if="index < filteredOsisFragments.length - 1" class="separator"/>
   </div>
   <div class="restore" v-if="document.compare && hiddenOsisFragments.length > 0">
@@ -51,10 +52,11 @@ import OsisFragment from "@/components/documents/OsisFragment";
 import {inject} from "@vue/runtime-core";
 import {computed} from "@vue/reactivity";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import FeaturesLink from "@/components/FeaturesLink";
 
 export default {
   name: "MultiDocument",
-  components: {OsisFragment, FontAwesomeIcon},
+  components: {FeaturesLink, OsisFragment, FontAwesomeIcon},
   props: {
     document: {type: Object, required: true},
   },
