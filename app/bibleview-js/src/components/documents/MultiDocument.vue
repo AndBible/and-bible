@@ -53,6 +53,7 @@ import {inject} from "@vue/runtime-core";
 import {computed} from "@vue/reactivity";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import FeaturesLink from "@/components/FeaturesLink";
+import {BookCategories} from "@/constants";
 
 export default {
   name: "MultiDocument",
@@ -78,7 +79,8 @@ export default {
     });
 
     function link(frag, compare = false) {
-      const osis = compare ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) + "&force-doc" : encodeURI(frag.osisRef);
+      const isBible = frag.bookCategory === BookCategories.BIBLE
+      const osis = (compare || !isBible) ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) + "&force-doc" : encodeURI(frag.osisRef);
       return `osis://?osis=${osis}&v11n=${frag.v11n}`
     }
 
