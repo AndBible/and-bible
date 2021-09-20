@@ -20,6 +20,7 @@ package net.bible.service.db
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
+import android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
 import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
 import android.util.Log
 import androidx.core.database.getIntOrNull
@@ -920,24 +921,32 @@ private val MIGRATION_53_54_booleanSettings = object : Migration(53, 54) {
             execSQL("CREATE TABLE IF NOT EXISTS `DoubleSetting` (`key` TEXT NOT NULL, `value` REAL NOT NULL, PRIMARY KEY(`key`))")
             val sharedPreferences = CommonUtils.realSharedPreferences
             for((k, v) in sharedPreferences.all) {
+                val values = ContentValues()
+                values.put("key", k)
                 when(v) {
                     is Long -> {
-                        execSQL("INSERT INTO LongSetting VALUES('$k', $v)")
+                        values.put("value", v)
+                        db.insert("LongSetting", CONFLICT_IGNORE, values)
                     }
                     is Int -> {
-                        execSQL("INSERT INTO LongSetting VALUES('$k', $v)")
+                        values.put("value", v)
+                        db.insert("LongSetting", CONFLICT_IGNORE, values)
                     }
                     is Boolean -> {
-                        execSQL("INSERT INTO BooleanSetting VALUES('$k', ${if(v) 1 else 0})")
+                        values.put("value", v)
+                        db.insert("BooleanSetting", CONFLICT_IGNORE, values)
                     }
                     is String -> {
-                        execSQL("INSERT INTO StringSetting VALUES('$k', '$v')")
+                        values.put("value", v)
+                        db.insert("StringSetting", CONFLICT_IGNORE, values)
                     }
                     is Float -> {
-                        execSQL("INSERT INTO DoubleSetting VALUES('$k', $v)")
+                        values.put("value", v)
+                        db.insert("DoubleSetting", CONFLICT_IGNORE, values)
                     }
                     is Double -> {
-                        execSQL("INSERT INTO DoubleSetting VALUES('$k', $v)")
+                        values.put("value", v)
+                        db.insert("DoubleSetting", CONFLICT_IGNORE, values)
                     }
                     else -> {
                         Log.e(TAG, "Illegal value '$k', $v")
