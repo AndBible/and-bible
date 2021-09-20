@@ -229,8 +229,12 @@ open class BibleApplication : Application() {
 
     fun onEventMainThread(ev: ToastEvent) {
         val duration = ev.duration ?: Toast.LENGTH_SHORT
-        val message = if(ev.messageId != null) getString(ev.messageId) else ev.message
-        Toast.makeText(this, message, duration).show()
+        val message = if (ev.messageId != null) getString(ev.messageId) else ev.message
+        try {
+            Toast.makeText(this, message, duration).show()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in showing toast $message", e)
+        }
     }
 
     companion object {

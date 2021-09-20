@@ -230,7 +230,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         BackupControl.clearBackupDir()
 
         windowRepository.initialize()
-        ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
 
         runOnUiThread {
             postInitialize()
@@ -317,6 +316,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 showBetaNotice()
                 showStableNotice()
                 showFirstTimeHelp()
+                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
             }
             GlobalScope.launch {
                 checkDocBackupDBInSync()
