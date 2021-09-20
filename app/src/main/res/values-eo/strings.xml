@@ -600,7 +600,7 @@ Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</stri
   <string name="beta_notice_dismiss_until_update">Ignori ĝis la sekva ĝisdatigo</string>
   <string name="stable_notice_title">Aplikaĵo estis ĝisdatigita!</string>
   <string name="upgrade_video_message">Bonvolu spekti filmeton prezentantan novajn trajtojn de tiu ĉi versio (%s).</string>
-  <string name="stable_notice_par1">Sukcese instalis la novan version %s de %s!</string>
+  <string name="stable_notice_par1">Sukcese instalis la novan version (%s) de la aplikaĵo %s!</string>
   <!--History-->
   <string name="history_for">Historio (%s: fenestro %d)</string>
   <!--Help-->
