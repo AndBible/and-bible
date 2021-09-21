@@ -369,6 +369,7 @@ object BackupControl {
         intent.type = "*/*"
         val tempFile = File(internalDbBackupDir, "and-bible.apk")
         withContext(Dispatchers.IO) {
+            tempFile.delete()
             File(app.sourceDir).copyTo(tempFile)
         }
 
