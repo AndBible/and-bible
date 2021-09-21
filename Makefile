@@ -11,6 +11,7 @@ tx-pull:
 	# Download language corrections to english (en_GB in transifex, mapped to en via transifex config)
 	tx pull --lang en_GB --force --minimum-perc 1 -r andbible.and-bible-stringsxml
 	tx pull --lang en_GB --force --minimum-perc 1 -r andbible.bibleview-js
+	python3 app/bibleview-js/src/lang/check.py
 	python3 play/compile_description.py
 
 fastlane-supply:
