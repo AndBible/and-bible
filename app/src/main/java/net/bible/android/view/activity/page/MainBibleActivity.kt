@@ -1212,7 +1212,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun updateToolbar() {
         binding.apply {
             toolbarLayout.setPadding(leftOffset1, 0, rightOffset1, 0)
-            setActionModeToolbarPadding()
             navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
             speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
             if(isFullScreen) {
@@ -1480,13 +1479,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         documentViewManager.documentView.asView().requestFocus()
     }
 
-    private var actionMode: ActionMode? = null
-
-    private fun setActionModeToolbarPadding() {
-        val toolbar = actionMode?.customView?.findViewById<Toolbar>(R.id.toolbarContextual)
-        toolbar?.setPadding(leftOffset1, 0, rightOffset1, 0)
-    }
-
     /**
      * user swiped right
      */
@@ -1519,7 +1511,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         const val TEXT_DISPLAY_SETTINGS_CHANGED = 92
         const val COLORS_CHANGED = 93
         const val WORKSPACE_CHANGED = 94
-
 
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"
 
