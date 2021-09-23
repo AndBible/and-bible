@@ -66,20 +66,28 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         setContentView(binding.root)
         buildActivityComponent().inject(this)
         ABEventBus.getDefault().register(this)
-
-        binding.speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                binding.speedStatus.text = "$progress %"
-                if(fromUser) {
-                    updateSettings()
+        binding.apply {
+            speakSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    speedStatus.text = "$progress %"
+                    if (fromUser) {
+                        updateSettings()
+                    }
                 }
-            }
-        })
+            })
+            speakChapterChanges.setOnClickListener { updateSettings() }
+            speakTitles.setOnClickListener { updateSettings() }
+            speakFootnotes.setOnClickListener { updateSettings() }
+            repeatPassageCheckbox.setOnClickListener { setRepeatPassage() }
+            sleepTimer.setOnClickListener { setSleepTime() }
+        }
 
         resetView(SpeakSettings.load())
     }
+
+    override val sleepTimer: CheckBox get() = binding.sleepTimer
 
     override fun onDestroy() {
         ABEventBus.getDefault().unregister(this)
@@ -148,9 +156,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    fun onSettingsChange(widget: View) = updateSettings()
-
-    fun setRepeatPassage(v: View) {
+    fun setRepeatPassage() {
         val s = SpeakSettings.load()
         if(s.playbackSettings.verseRange != null) {
             s.playbackSettings.verseRange = null

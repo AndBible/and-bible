@@ -54,7 +54,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/speak_row_padding"
-                        android:onClick="onSettingsChange"
                         android:text="@string/conf_speak_synchronize" />
                 </LinearLayout>
 
@@ -63,7 +62,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/speak_row_padding"
-                    android:onClick="onSettingsChange"
                     android:text="@string/conf_replace_divinename" />
 
                 <Space
@@ -100,14 +98,12 @@
                         android:id="@+id/autoBookmark"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="onSettingsChange"
                         android:text="@string/conf_speak_auto_bookmark" />
 
                     <CheckBox
                         android:id="@+id/restoreSettingsFromBookmarks"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="onSettingsChange"
                         android:text="@string/conf_save_playback_settings_to_bookmarks" />
 
                 </LinearLayout>

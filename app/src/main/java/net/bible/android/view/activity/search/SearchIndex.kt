@@ -70,17 +70,17 @@ class SearchIndex : CustomTitlebarActivityBase() {
         val hasIndex = swordDocumentFacade.hasIndex(documentToIndex)
         binding.indexCreationRequired.text = getString(if(hasIndex) R.string.rebuild_index_for else R.string.create_index_for, documentToIndex!!.name)
         binding.createButton.text = getString(if(hasIndex) R.string.rebuild_index_button else R.string.index_create)
+        binding.createButton.setOnClickListener { onIndex() }
+        binding.cancelButton.setOnClickListener { finish() }
 
         Log.d(TAG, "Finished displaying Search Index view")
     }
-
-    fun onCancel(v: View) = finish()
 
     /** Indexing is very slow
      *
      * @param v
      */
-    fun onIndex(v: View) {
+    fun onIndex() {
         Log.i(TAG, "CLICKED")
         try {
             // start background thread to create index

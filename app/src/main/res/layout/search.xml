@@ -91,7 +91,6 @@
 		style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 		android:layout_width="0dip"
 		android:layout_height="wrap_content"
-		android:onClick="onSearch"
 		android:text="@string/search"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"

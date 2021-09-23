@@ -51,7 +51,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 		super.buildActivityComponent().inject(this);
 
 		setMainText(getString(R.string.indexing_wait_msg));
-
+		findViewById(R.id.hideButton).setOnClickListener(v -> finish());
 		String docInitials = getIntent().getStringExtra(SearchControl.SEARCH_DOCUMENT);
 		documentBeingIndexed = getSwordDocumentFacade().getDocumentByInitials(docInitials);
 	}
@@ -91,9 +91,5 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 				Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred);
 			}
 		}
-	}
-
-	public void onHide(View view){
-		finish();
 	}
 }

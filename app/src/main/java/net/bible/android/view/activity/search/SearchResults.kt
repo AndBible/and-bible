@@ -70,6 +70,9 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         setActionBarManager(searchResultsActionBarManager)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         isScriptureResultsCurrentlyShown = searchControl.isCurrentlyShowingScripture
+        binding.closeButton.setOnClickListener {
+            finish()
+        }
         GlobalScope.launch {
             prepareResults()
         }
@@ -188,10 +191,6 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         mKeyArrayAdapter!!.notifyDataSetChanged()
         searchResultsActionBarManager.setScriptureShown(isScriptureResultsCurrentlyShown)
     }
-
-	fun onClose(v: View) {
-		finish()
-	}
 
     companion object {
         private const val TAG = "SearchResults"

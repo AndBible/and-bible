@@ -62,13 +62,10 @@ import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
-import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 
 import org.apache.commons.lang3.StringUtils
-import org.crosswire.jsword.book.Book
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 /** Called first to show download screen if no documents exist
@@ -234,12 +231,14 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     private fun showFirstLayout() {
         setContentView(startupViewBinding.root)
-        startupViewBinding.welcomeMessage.text = getString(R.string.welcome_message, getString(R.string.app_name_long))
 
         val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.applicationVersionName)
-        startupViewBinding.versionText.text = versionMsg
 
         startupViewBinding.run {
+            welcomeMessage.text = getString(R.string.welcome_message, getString(R.string.app_name_long))
+            versionText.text = versionMsg
+            downloadButton.setOnClickListener { doGotoDownloadActivity() }
+            importButton.setOnClickListener { onLoadFromZip() }
             if (previousInstallDetected) {
                 Log.d(TAG, "A previous install was detected")
                 redownloadMessage.visibility = View.VISIBLE
@@ -277,7 +276,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     }
 
-    fun doGotoDownloadActivity(v: View) {
+    fun doGotoDownloadActivity() {
         var errorMessage: String? = null
 
         if (CommonUtils.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
@@ -295,7 +294,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     /**
      * Load from Zip link on first_time_dialog has been clicked
      */
-    fun onLoadFromZip(v: View) {
+    fun onLoadFromZip() {
         Log.i(TAG, "Load from Zip clicked")
         val handlerIntent = Intent(this, InstallZip::class.java).apply { putExtra("doNotInitializeApp", true) }
         startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)

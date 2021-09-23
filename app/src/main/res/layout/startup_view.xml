@@ -79,14 +79,12 @@
 				android:id="@+id/downloadButton"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:onClick="doGotoDownloadActivity"
 				android:text="@string/download" />
 
 			<Button
 				android:id="@+id/importButton"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:onClick="onLoadFromZip"
 				android:padding="15sp"
 				android:text="@string/install_zip" />
 

@@ -45,7 +45,6 @@
 	
 	  	<Button android:id="@+id/okButton"
 	 		android:text="@string/okay"
-			android:onClick="onOkay"
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="2"/>

@@ -59,7 +59,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:onClick="onSettingsChange"
                             android:text="@string/conf_change_chapter" />
 
                         <CheckBox
@@ -67,7 +66,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:onClick="onSettingsChange"
                             android:text="@string/conf_change_title" />
 
                         <CheckBox
@@ -75,7 +73,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:onClick="onSettingsChange"
                             android:text="@string/conf_speak_footnotes" />
                     </LinearLayout>
                 </LinearLayout>
@@ -125,7 +122,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/speak_row_padding"
-                    android:onClick="setRepeatPassage"
                     android:text="@string/set_repeat_passage_range" />
 
                 <Space
@@ -155,7 +151,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/speak_row_padding"
-                    android:onClick="setSleepTime"
                     android:text="@string/conf_speak_sleep_timer" />
             </LinearLayout>
         </LinearLayout>

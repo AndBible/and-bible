@@ -22,6 +22,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ProgressActivityBase
 
@@ -36,11 +37,13 @@ class ProgressStatus : ProgressActivityBase() {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying $TAG view")
         setContentView(R.layout.progress_status)
+        val btn: Button = findViewById(R.id.okButton)
+        btn.setOnClickListener { onOkay() }
         super.buildActivityComponent().inject(this)
         Log.d(TAG, "Finished displaying Search Index view")
     }
 
-    fun onOkay(v: View?) {
+    fun onOkay() {
         Log.i(TAG, "CLICKED")
         val resultIntent = Intent(this, ProgressStatus::class.java)
         setResult(Activity.RESULT_OK, resultIntent)

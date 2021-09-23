@@ -112,12 +112,13 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         binding.searchText.setOnEditorActionListener {v, actionId, event ->
             return@setOnEditorActionListener when (actionId) {
                 EditorInfo.IME_ACTION_SEARCH -> {
-                    onSearch(null)
+                    onSearch()
                     true
                 }
                 else -> false
         }}
 
+        binding.submit.setOnClickListener { onSearch() }
         //searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
         //    // If the event is a key-down event on the "enter" button
         //    if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -198,7 +199,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     fun onCancel(v: View?) = finish()
 
-    fun onSearch(v: View?) {
+    fun onSearch() {
         Log.i(TAG, "CLICKED")
         var text = binding.searchText.text.toString()
         if (!StringUtils.isEmpty(text)) {

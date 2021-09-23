@@ -103,12 +103,15 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             // get readings for chosen day
             readingsDto = readingPlanControl.getDaysReading(dayLoaded)
 
-            // Populate view
-            binding.description.text = readingsDto.readingPlanInfo.planName
+            binding.apply {
+                // Populate view
+                description.text = readingsDto.readingPlanInfo.planName
 
-            // date display
-            binding.day.text = readingsDto.dayDesc
-            binding.date.text = readingsDto.readingDateString
+                // date display
+                day.text = readingsDto.dayDesc
+                date.text = readingsDto.readingDateString
+                doneButton.setOnClickListener { onDone() }
+            }
 
             val layout = findViewById<View>(R.id.reading_container) as TableLayout
 
@@ -171,7 +174,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                 passageBtn.visibility = View.INVISIBLE
 
                 val speakBtn = child.findViewById<View>(R.id.speakButton) as Button
-                speakBtn.setOnClickListener { onSpeakAll(null) }
+                speakBtn.setOnClickListener { onSpeakAll() }
                 layout.addView(child, readingsDto.numReadings)
             }
             // end All
@@ -211,32 +214,16 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     /** user pressed speak button by All
      */
-    private fun onSpeakAll(view: View?) {
+    private fun onSpeakAll() {
         Log.i(TAG, "Speak all")
         readingPlanControl.speak(dayLoaded, readingsDto.getReadingKeys)
 
         updateTicksAndDone()
     }
 
-    // the button that called this has been removed
-    fun onNext(view: View) {
-        Log.i(TAG, "Next")
-        if (dayLoaded < readingsDto.readingPlanInfo.numberOfPlanDays) {
-            showDay(dayLoaded + 1)
-        }
-    }
-
-    // the button that called this has been removed
-    fun onPrevious(view: View) {
-        Log.i(TAG, "Previous")
-        if (dayLoaded > 1) {
-            showDay(dayLoaded - 1)
-        }
-    }
-
     /** user pressed Done button so must have read currently displayed readings
      */
-    fun onDone(view: View) {
+    fun onDone() {
         Log.i(TAG, "Done")
         try {
             // do not add to History list because it will just redisplay same page

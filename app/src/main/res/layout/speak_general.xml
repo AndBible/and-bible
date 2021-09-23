@@ -21,20 +21,16 @@
 			android:layout_weight="1"
 			android:padding="5dip">
 			<RadioButton android:id="@+id/numChapters1"
-						 android:onClick="updateSettings"
 						 android:layout_width="wrap_content"
 						 android:layout_height="wrap_content"
 						 android:checked="true"/>
 			<RadioButton android:id="@+id/numChapters2"
-						 android:onClick="updateSettings"
 						 android:layout_width="wrap_content"
 						 android:layout_height="wrap_content"/>
 			<RadioButton android:id="@+id/numChapters3"
-						 android:onClick="updateSettings"
 						 android:layout_width="wrap_content"
 						 android:layout_height="wrap_content"/>
 			<RadioButton android:id="@+id/numChapters4"
-						 android:onClick="updateSettings"
 						 android:layout_width="wrap_content"
 						 android:layout_height="wrap_content"/>
 		</RadioGroup>
@@ -49,13 +45,11 @@
 		    	android:text="@string/speak_queue"  
 		    	android:layout_width="wrap_content" 
 		    	android:layout_height="wrap_content"
-		    	android:onClick="updateSettings"
 		    	/>
 		    <CheckBox android:id="@+id/repeat"
 		    	android:text="@string/speak_repeat"  
 		    	android:layout_width="wrap_content" 
 		    	android:layout_height="wrap_content"
-		    	android:onClick="updateSettings"
 		    	/>
 		</LinearLayout>
 	</LinearLayout>
@@ -93,7 +87,6 @@
 			android:layout_height="wrap_content"
 			android:text="@string/conf_speak_sleep_timer"
 			android:id="@+id/sleepTimer"
-			android:onClick="setSleepTime"
 			/>
 
 	<!-- Button bar with OK button -->
@@ -109,7 +102,7 @@
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-			android:onClick="onButtonClick"/>
+			/>
 	  	
 	    <ImageButton android:id="@+id/stopButton"
 	  	    android:src="@drawable/ic_media_stop"
@@ -117,7 +110,7 @@
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-			android:onClick="onButtonClick"/>
+			/>
 
 	    <ImageButton android:id="@+id/speakPauseButton"
 	  	    android:src="@android:drawable/ic_media_play"
@@ -125,7 +118,7 @@
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-   			android:onClick="onButtonClick"/>
+			/>
 
 	    <ImageButton android:id="@+id/forwardButton"
 	  	    android:src="@android:drawable/ic_media_ff"
@@ -133,7 +126,7 @@
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-   			android:onClick="onButtonClick"/>
+			/>
 	    	    
 	</LinearLayout>
 

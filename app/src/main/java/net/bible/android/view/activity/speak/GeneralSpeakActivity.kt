@@ -21,6 +21,7 @@ package net.bible.android.view.activity.speak
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.SeekBar
 import net.bible.android.activity.R
@@ -80,12 +81,25 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
                     currentSettings.save()
                 }
             })
+            numChapters1.setOnClickListener { updateSettings() }
+            numChapters2.setOnClickListener { updateSettings() }
+            numChapters3.setOnClickListener { updateSettings() }
+            numChapters4.setOnClickListener { updateSettings() }
+            queue.setOnClickListener { updateSettings() }
+            repeat.setOnClickListener { updateSettings() }
+            sleepTimer.setOnClickListener { updateSettings() }
+            rewindButton.setOnClickListener { onButtonClick(rewindButton) }
+            stopButton.setOnClickListener { onButtonClick(stopButton) }
+            speakPauseButton.setOnClickListener { onButtonClick(speakPauseButton) }
+            forwardButton.setOnClickListener { onButtonClick(forwardButton) }
         }
         resetView(this.currentSettings)
         ABEventBus.getDefault().register(this)
 
         Log.d(TAG, "Finished displaying Speak view")
     }
+
+    override val sleepTimer: CheckBox get() = binding.sleepTimer
 
     override fun onDestroy() {
         ABEventBus.getDefault().unregister(this)
@@ -101,7 +115,7 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
         )
     }
 
-    fun updateSettings(b: View) = binding.run {
+    fun updateSettings() = binding.run {
         currentSettings.queue = queue.isChecked
         currentSettings.repeat = repeat.isChecked
         currentSettings.numPagesToSpeakId = if(numChapters1.isChecked) 0 else if (numChapters2.isChecked) 1 else if(numChapters3.isChecked) 2 else 3

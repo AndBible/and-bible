@@ -27,6 +27,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import android.view.View
+import android.widget.CheckBox
 import android.widget.TextView
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpeakSettingsBinding
@@ -52,7 +53,15 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         super.buildActivityComponent().inject(this)
         ABEventBus.getDefault().register(this)
         resetView(SpeakSettings.load())
+        binding.apply {
+            synchronize.setOnClickListener { updateSettings() }
+            replaceDivineName.setOnClickListener { updateSettings() }
+            autoBookmark.setOnClickListener { updateSettings() }
+            restoreSettingsFromBookmarks.setOnClickListener { updateSettings() }
+        }
     }
+
+    override val sleepTimer: CheckBox? = null
 
     override fun onDestroy() {
         ABEventBus.getDefault().unregister(this)
@@ -79,8 +88,6 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         currentSettings = ev.speakSettings
         resetView(ev.speakSettings)
     }
-
-    fun onSettingsChange(widget: View) = updateSettings()
 
     fun updateSettings() {
         val settings = SpeakSettings.load().apply {

@@ -33,13 +33,14 @@ import org.crosswire.common.progress.WorkListener
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class FirstDownload : DownloadActivity() {
-    private var okayButton: Button? = null
+    lateinit var okayButton: Button
     private var okayButtonEnabled = false
     private val downloadCompletionListener: WorkListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         okayButton = findViewById<View>(R.id.okayButton) as Button
+        okayButton.setOnClickListener { onOkay() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -63,11 +64,11 @@ class FirstDownload : DownloadActivity() {
         if (!okayButtonEnabled) {
             val enable = swordDocumentFacade.bibles.isNotEmpty()
             okayButtonEnabled = enable
-            runOnUiThread { okayButton!!.isEnabled = enable }
+            runOnUiThread { okayButton.isEnabled = enable }
         }
     }
 
-    fun onOkay(v: View?) {
+    fun onOkay() {
         val resultIntent = Intent(this, FirstDownload::class.java)
         setResult(DOWNLOAD_FINISH, resultIntent)
         finish()

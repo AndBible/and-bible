@@ -43,8 +43,10 @@ abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {
         currentSettings = SpeakSettings.load()
     }
 
-    fun setSleepTime(sleepTimer: View) {
-        if ((sleepTimer as CheckBox).isChecked) {
+    abstract val sleepTimer: CheckBox?
+
+    fun setSleepTime() {
+        if (sleepTimer?.isChecked ?: return) {
             val picker = NumberPicker(this)
             picker.minValue = 1
             picker.maxValue = 120
