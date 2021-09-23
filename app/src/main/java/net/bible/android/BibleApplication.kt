@@ -28,7 +28,6 @@ import android.util.Log
 import android.widget.Toast
 import net.bible.android.activity.R
 
-import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.DaggerApplicationComponent
 import net.bible.android.control.event.ABEventBus
@@ -37,7 +36,6 @@ import net.bible.android.control.report.BugReport
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
-import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.sword.SwordEnvironmentInitialisation
 
 import org.crosswire.common.util.Language

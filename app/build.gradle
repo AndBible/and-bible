@@ -100,7 +100,6 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         vectorDrawables.useSupportLibrary = true
-        multiDexEnabled true
         buildConfigField "String", "GitHash", "\"${getGitHash()}\""
         buildConfigField "String", "GitDescribe", "\"${getGitDescribe()}\""
         buildConfigField "String", "BuildDate", "\"${new Date().format('dd/MM/YY HH:mm:ss')}\""
