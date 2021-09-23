@@ -244,8 +244,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             navigationBarHeight = resources.getDimensionPixelSize(navBarId)
         }
 
-        setSupportActionBar(binding.toolbar)
-
         val tv = TypedValue()
         if (theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
             actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
@@ -258,8 +256,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (theme.resolveAttribute(R.attr.windowButtonHeight, tv, true)) {
             windowButtonHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
-
-        binding.toolbar.setContentInsetsAbsolute(0, 0)
 
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
@@ -1215,24 +1211,24 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateToolbar() {
         binding.apply {
-            toolbar.setPadding(leftOffset1, 0, rightOffset1, 0)
+            toolbarLayout.setPadding(leftOffset1, 0, rightOffset1, 0)
             setActionModeToolbarPadding()
             navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
             speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
             if(isFullScreen) {
                 hideSystemUI()
                 Log.d(TAG, "Fullscreen on")
-                toolbar.animate().translationY(-toolbar.height.toFloat())
+                toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
                     .setInterpolator(AccelerateInterpolator())
-                    .withEndAction { supportActionBar?.hide() }
+                    .withEndAction { toolbarLayout.visibility = View.GONE }
                     .start()
             }
             else {
                 showSystemUI()
                 Log.d(TAG, "Fullscreen off")
-                toolbar.translationY = -toolbar.height.toFloat()
-                supportActionBar?.show()
-                toolbar.animate().translationY(topOffset1.toFloat())
+                toolbarLayout.translationY = -toolbarLayout.height.toFloat()
+                toolbarLayout.visibility = View.VISIBLE
+                toolbarLayout.animate().translationY(topOffset1.toFloat())
                     .setInterpolator(DecelerateInterpolator())
                     .start()
                 updateActions()

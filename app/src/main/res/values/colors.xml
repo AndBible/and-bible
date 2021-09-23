@@ -30,7 +30,9 @@
 	<color name="actionbar_background_night">#ff000000</color>
 	<!-- matches DKGRAY -->
 	<color name="actionbar_background_day">#ff444444</color>
-	
+
+	<color name="actionbar_background">@color/actionbar_background_day</color>
+
 	<color name="actionbar_text_night">#919191</color>
 
 	<color name="widget_background">#93ffffff</color>

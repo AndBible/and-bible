@@ -3,7 +3,6 @@
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -17,137 +16,126 @@
         android:orientation="vertical"
         android:id="@+id/mainLayout">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/toolbarLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/toolbar_height"
             android:minHeight="@dimen/toolbar_height"
+            android:theme="@style/MainBibleActionBar"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:theme="@style/MainBibleActionBar">
+            >
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/toolbarLayout"
-                android:layout_width="match_parent"
+            <ImageButton
+                android:id="@+id/homeButton"
+                style="@style/Widget.AppCompat.ActionButton"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:contentDescription="@string/menu"
+                app:tint="?attr/toolbarTextColor"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/pageTitleContainer"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_menu" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/pageTitleContainer"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/toolbarButtonLayout"
-                tools:layout_editor_absoluteY="16dp">
+                app:layout_constraintStart_toEndOf="@id/homeButton"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <ImageButton
-                    android:id="@+id/homeButton"
-                    style="@style/Widget.AppCompat.ActionButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:contentDescription="@string/menu"
-                    app:tint="?attr/toolbarTextColor"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/pageTitleContainer"
+                <TextView
+                    android:id="@+id/pageTitle"
+                    style="@style/BibleTitle1"
+                    android:layout_width="0dp"
+                    android:ellipsize="end"
+                    app:layout_constraintBottom_toTopOf="@+id/documentTitle"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_menu" />
+                    app:layout_constraintVertical_chainStyle="spread_inside" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/pageTitleContainer"
+                <TextView
+                    android:id="@+id/documentTitle"
+                    style="@style/BibleTitle2"
                     android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/toolbarButtonLayout"
-                    app:layout_constraintStart_toEndOf="@id/homeButton"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <TextView
-                        android:id="@+id/pageTitle"
-                        style="@style/BibleTitle1"
-                        android:layout_width="0dp"
-                        android:ellipsize="end"
-                        app:layout_constraintBottom_toTopOf="@+id/documentTitle"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_chainStyle="spread_inside" />
-
-                    <TextView
-                        android:id="@+id/documentTitle"
-                        style="@style/BibleTitle2"
-                        android:layout_width="0dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/pageTitle" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <LinearLayout
-                    android:id="@+id/toolbarButtonLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:theme="@style/MainBibleActionBarButtons"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageButton
-                        android:id="@+id/searchButton"
-                        style="@style/MyActionButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@string/search"
-                        app:srcCompat="@drawable/ic_search_24dp" />
-
-                    <ImageButton
-                        android:id="@+id/speakButton"
-                        style="@style/MyActionButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@string/speak"
-                        app:srcCompat="@drawable/ic_baseline_headphones_24" />
-
-                    <ImageButton
-                        android:id="@+id/strongsButton"
-                        style="@style/MyActionButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@string/prefs_show_strongs_title"
-                        app:srcCompat="@drawable/ic_strongs_hebrew"
-                        />
-                    <ImageButton
-                        android:id="@+id/bibleButton"
-                        style="@style/MyActionButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@string/doc_type_bible"
-                        app:srcCompat="@drawable/ic_bible_24dp"
-                        />
-
-                    <ImageButton
-                        android:id="@+id/commentaryButton"
-                        style="@style/MyActionButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@string/doc_type_commentary"
-                        app:srcCompat="@drawable/ic_commentary"
-                        />
-                    <ImageButton
-                        android:id="@+id/optionsMenu"
-                        style="@style/MyActionButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@string/system_items1"
-                        app:srcCompat="@drawable/ic_more_vert_black_24dp"
-                        />
-
-                </LinearLayout>
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/pageTitle" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.appcompat.widget.Toolbar>
+
+            <LinearLayout
+                android:id="@+id/toolbarButtonLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:theme="@style/MainBibleActionBarButtons"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageButton
+                    android:id="@+id/searchButton"
+                    style="@style/MyActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/search"
+                    app:srcCompat="@drawable/ic_search_24dp" />
+
+                <ImageButton
+                    android:id="@+id/speakButton"
+                    style="@style/MyActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/speak"
+                    app:srcCompat="@drawable/ic_baseline_headphones_24" />
+
+                <ImageButton
+                    android:id="@+id/strongsButton"
+                    style="@style/MyActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/prefs_show_strongs_title"
+                    app:srcCompat="@drawable/ic_strongs_hebrew"
+                    />
+                <ImageButton
+                    android:id="@+id/bibleButton"
+                    style="@style/MyActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/doc_type_bible"
+                    app:srcCompat="@drawable/ic_bible_24dp"
+                    />
+
+                <ImageButton
+                    android:id="@+id/commentaryButton"
+                    style="@style/MyActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/doc_type_commentary"
+                    app:srcCompat="@drawable/ic_commentary"
+                    />
+                <ImageButton
+                    android:id="@+id/optionsMenu"
+                    style="@style/MyActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/system_items1"
+                    app:srcCompat="@drawable/ic_more_vert_black_24dp"
+                    />
+
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             android:id="@+id/mainBibleView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintTop_toBottomOf="@id/toolbarLayout"
             app:layout_constraintBottom_toBottomOf="parent"
             />
 
