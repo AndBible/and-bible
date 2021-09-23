@@ -28,8 +28,8 @@
       <div v-if="error" class="error">{{ error }}</div>
     </slot>
     <template #footer>
-      <button class="button" @click="ok">{{strings.ok}}</button>
       <button class="button" @click="cancel">{{strings.cancel}}</button>
+      <button class="button" @click="ok">{{strings.ok}}</button>
     </template>
   </Modal>
 </template>
