@@ -47,7 +47,7 @@ class Hourglass(val context: Context) {
 
     suspend fun dismiss() {
         withContext(Dispatchers.Main) {
-            hourglass!!.dismiss()
+            hourglass?.dismiss()
             hourglass = null
         }
     }

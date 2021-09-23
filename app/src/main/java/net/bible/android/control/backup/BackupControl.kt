@@ -320,6 +320,7 @@ object BackupControl {
                 }
                 .show()
         }
+        hourglass.show()
         when(result) {
             BackupResult.STORAGE -> {
                 val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -327,8 +328,8 @@ object BackupControl {
                     type = "application/zip"
                     putExtra(Intent.EXTRA_TITLE, fileName)
                 }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return@withContext
-                ok = backupModulesToUri(r)
+                val r = callingActivity.awaitIntent(intent)?.resultData?.data
+                ok = if(r == null) false else backupModulesToUri(r)
             }
             BackupResult.SHARE -> {
                 val modulesString = books.joinToString(", ") { it.abbreviation }
@@ -346,8 +347,12 @@ object BackupControl {
                 chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 callingActivity.awaitIntent(chooserIntent)
             }
-            else -> return@withContext
+            BackupResult.CANCEL -> {
+                hourglass.dismiss()
+                return@withContext
+            }
         }
+        hourglass.dismiss()
         if (ok) {
             Log.d(TAG, "Copied modules to chosen backup location successfully")
             Dialogs.instance.showMsg(R.string.backup_modules_success)
