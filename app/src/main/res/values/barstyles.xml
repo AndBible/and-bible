@@ -58,7 +58,6 @@
 		<item name="android:background">@color/actionbar_background</item>
 	</style>
 	<style name="MainBibleActionBarButtons" parent="MainBibleActionBar">
-		<item name="android:textColorSecondary">@color/white</item>
 		<item name="android:textColorPrimary">@color/white</item>
 	</style>
 
