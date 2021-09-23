@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/toolbar_height"
             android:minHeight="@dimen/toolbar_height"
-            android:theme="@style/MainBibleActionBar"
+            android:background="@color/red"
             app:layout_constraintTop_toTopOf="parent"
             >
 
