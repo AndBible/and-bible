@@ -18,6 +18,7 @@
 
 package net.bible.service.common
 
+import android.util.Log
 import net.bible.android.control.event.ABEventBus
 import net.bible.service.sword.AndBibleAddonFilter
 import org.crosswire.jsword.book.Book
@@ -50,7 +51,12 @@ object AndBibleAddons {
                 val values = it.split(";")
                 val name = values[0]
                 val filename = values[1]
-                fontsByName[name] = ProvidedFont(book, name, filename)
+                val provFont = ProvidedFont(book, name, filename)
+                if(provFont.file.canRead()) {
+                    fontsByName[name] = provFont
+                } else {
+                    Log.e("ProvidedFonts", "Could not read font file ${provFont.file}")
+                }
             }
         }
         return fontsByName
