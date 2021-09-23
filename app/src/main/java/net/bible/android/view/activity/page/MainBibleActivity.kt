@@ -231,10 +231,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         windowRepository.initialize()
 
-        runOnUiThread {
-            postInitialize()
-            displaySizeChanged(true)
-        }
+        documentViewManager.buildView()
+        windowControl.windowSync.reloadAllWindows(true)
+        updateActions()
+        ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
+
+        updateToolbar()
+        updateBottomBars()
 
         // Mainly for old devices (older than API 21)
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
@@ -341,25 +344,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             knownInstalled.map {
                 Log.d(TAG, "The ${it.name} is installed")
             }
-        }
-    }
-
-    private fun postInitialize() {
-        // Perform initialization that requires that offsets are set up correctly.
-        Log.d(TAG, "postInitialize")
-        documentViewManager.buildView()
-        windowControl.windowSync.reloadAllWindows(true)
-        updateActions()
-        ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
-    }
-
-    private fun displaySizeChanged(firstTime: Boolean) {
-        Log.d(TAG, "displaySizeChanged $firstTime")
-        updateToolbar()
-        updateBottomBars()
-        if(!firstTime) {
-            ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
-            windowControl.windowSizesChanged()
         }
     }
 
