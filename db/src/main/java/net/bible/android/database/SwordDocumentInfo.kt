@@ -1,6 +1,7 @@
 package net.bible.android.database
 
 import androidx.room.*
+import androidx.room.OnConflictStrategy.REPLACE
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,10 +17,10 @@ data class SwordDocumentInfo(
 
 @Dao
 interface SwordDocumentInfoDao {
-    @Insert
+    @Insert(onConflict = REPLACE)
     fun insert(documents: List<SwordDocumentInfo>)
 
-    @Insert
+    @Insert(onConflict = REPLACE)
     fun insert(documents: SwordDocumentInfo)
 
     @Update
