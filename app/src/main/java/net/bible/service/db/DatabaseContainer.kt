@@ -973,6 +973,15 @@ private val MIGRATION_55_56_limitAmbiguousSize = object : Migration(55, 56) {
         }
     }
 }
+
+private val MIGRATION_56_57_breaklines_in_notes = object : Migration(56, 57) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("UPDATE `Bookmark` SET notes = REPLACE(notes, '\n', '<br>') WHERE notes IS NOT NULL")
+        }
+    }
+}
+
 class DataBaseNotReady: Exception()
 
 object DatabaseContainer {
@@ -1074,6 +1083,7 @@ object DatabaseContainer {
                         MIGRATION_53_54_booleanSettings,
                         MIGRATION_54_55_bookmarkType,
                         MIGRATION_55_56_limitAmbiguousSize,
+                        MIGRATION_56_57_breaklines_in_notes,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
