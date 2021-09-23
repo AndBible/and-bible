@@ -55,7 +55,7 @@
 	</style>
 	<style name="MainBibleActionBar">
 		<item name="actionOverflowButtonStyle">@style/OptionsButtonsStyle</item>
-		<item name="android:background">@color/actionbar_background</item>
+		<item name="android:background">@color/blue_A700</item>
 	</style>
 	<style name="MainBibleActionBarButtons" parent="MainBibleActionBar">
 		<item name="android:textColorSecondary">@color/white</item>
