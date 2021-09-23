@@ -18,7 +18,6 @@
 
 package net.bible.android.view.activity.speak
 
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
@@ -26,7 +25,6 @@ import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
-import android.view.View
 import android.widget.CheckBox
 import android.widget.TextView
 import net.bible.android.activity.R
