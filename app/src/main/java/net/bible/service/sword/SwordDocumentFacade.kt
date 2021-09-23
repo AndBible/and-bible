@@ -108,7 +108,7 @@ class SwordDocumentFacade @Inject constructor() {
                 if(book != null) return book
             }
 
-            val preferredBooks = arrayOf("StrongsGreek", "StrongsRealGreek")
+            val preferredBooks = arrayOf("StrongsRealGreek", "StrongsGreek")
 
             for (prefBook in preferredBooks) {
                 val strongs = Books.installed().getBook(prefBook)
@@ -127,7 +127,7 @@ class SwordDocumentFacade @Inject constructor() {
                 if(book != null) return book
             }
 
-            val preferredBooks = arrayOf("StrongsHebrew", "StrongsRealHebrew")
+            val preferredBooks = arrayOf("StrongsRealHebrew", "StrongsHebrew")
             for (prefBook in preferredBooks) {
                 val strongs = Books.installed().getBook(prefBook)
                 if (strongs != null) {
