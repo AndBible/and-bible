@@ -431,7 +431,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 item.isVisible = false
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelection != null) {
                 var menuItemOrder = 100
                 for (resolveInfo in getSupportedActivities()) {
                     menu.add(Menu.NONE, Menu.NONE,
