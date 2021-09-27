@@ -141,6 +141,7 @@
   <string name="prefs_line_spacing_pt">Řádkování %1.1fx</string>
   <string name="pref_font_family_label">Typ písma</string>
   <string name="prefs_top_margin_title">Horní okraj</string>
+  <string name="prefs_top_margin_summary">Přidejte na horní stranu okna, ve kterém je dokument Bible, okraj (s vizuálním označením). Bible se bude posouvat tak, že aktuální verš začíná pod okrajem.</string>
   <string name="prefs_hyphenation_title">Dělení slov</string>
   <string name="prefs_hyphenation_summary">Automaticky rozdělovat slova - záleží na jazyce</string>
   <string name="prefs_line_spacing_pt_title">Řádkování (%1.1fx)</string>
@@ -150,6 +151,7 @@
   <string name="reset_are_you_sure">Opravdu chcete resetovat všechny tyto hodnoty?</string>
   <string name="window_pinning_menutitle">Připínání oken</string>
   <string name="hide_window_buttons_title">Skrýt tlačítka okna</string>
+  <string name="hide_window_buttons_summary">Tlačítka oken, která se zobrazují na pravé straně Bible, jsou skrytá. Navigační lišta oken naspodu je stále zobrazená a vyskakovací menu oken můžete otevřít dlouhým stiskem.</string>
   <string name="hide_bible_reference_overlay_title">Skrýt biblický odkaz</string>
   <string name="hide_bible_reference_overlay_summary">Nezobrazovat poloprůhledné okno s aktuální pozicí v Bibli při celoobrazovkovém režimu</string>
   <string name="full_screen_hide_buttons_pref_title">Skrýt panel tlačítek v celoobrazovkovém režimu</string>
@@ -177,7 +179,7 @@
   <string name="colors_day_mode_title">Denní mód</string>
   <string name="colors_night_mode_title">Noční režim</string>
   <string name="prefs_noise_title">Šum pozadí</string>
-  <string name="prefs_noise_summary">Přidání šumu u barvy pozadí může snížit únavu oči.</string>
+  <string name="prefs_noise_summary">Přidání šumu u barvy pozadí může snížit únavu očí.</string>
   <string name="cpv_default_title">Vybrat barvu</string>
   <string name="cpv_presets">Předvolby</string>
   <string name="cpv_custom">Vlastní</string>
@@ -546,6 +548,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="report_bug_line_4">V případě, že aplikace zhavaruje, nahlaste chybu při další spuštění aplikace.</string>
   <string name="report_bug_heading_3">Přílohy:</string>
   <string name="bug_report_logcat">Logovací soubory vytvořené aplikací. Neobsahují informace o jiných aplikací z vašeho zařízení.</string>
+  <string name="bug_report_screenshot">Screenshot aplikace při chybě nebo v momentě vytvoření hlášení chyby.</string>
   <string name="bug_report_attachment_line_1">Připojíte-li následující soubory k hlášení, velmi tím usnadníte práci vývojářům s opravou chyby.</string>
   <string name="report_bug_heading_4">Informace o zařízení:</string>
   <!--Document types-->
@@ -635,18 +638,58 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
          a k menu okna lze přistupovat dlouhým stiskem na nich.
     </string>
   <string name="help_contextmenus_title">Kontextová menu</string>
+  <string name="help_contextmenus_text">
+      Dlouhý stisk otevře kontextové menu nebo režim akcí v několika zobrazeních.
+      Dlouhým stiskem na zobrazení Bible otevřete režim akcí pro aktuální verš.
+      Dlouhým stiskem na dokument v seznamu „Vybrat dokument\" nebo „Stáhnout\" dokument smažete nebo zobrazíte informace.
+      Dlouhým stiskem na záložku v seznamu záložek přidáte štítek nebo záložku smažete.
+      Dlouhým stiskem na odkazy můžete vybrat, jestli je chcete otevírat v aktuálním okně, v novém okně nebo zvláštním okně pro odkazy.
+</string>
   <string name="help_bookmarks_title">Záložky a poznámky</string>
+  <string name="help_bookmarks_text">Záložky vytvoříte označením části textu a kliknutím na „Záložka\" ve
+      vyskakovacím menu. Můžete si k nové záložce přidat vlastní poznámky tak, že kliknete na
+      aktuálně zvýrazněný text v zobrazení Bible. V komentářích je také zvláštní dokument „Moje poznámky\", který vám umožní
+      si prohlédnout poznámky ve zvláštním okně.</string>
+  <string name="help_studypads_text">
+       Studijní složky usnadňují psaní poznámek ke kázání, přípravu kázání nebo jen
+       zapisování osobních poznámek při četbě Bible, které obsahují více biblických odkazů. Každá studijní složka je přiřazená k jednomu štítku záložky.
+       Všechny záložky vytvořené s tímto štítkem se automaticky zobrazí ve studijní složce.
+       Kromě záložek je možné do studijní složky zapisovat vlastní text.</string>
   <string name="help_search_title">Hledat</string>
   <string name="help_search_text">Vyhledávaný text může obsahovat zvláštní znaky jako *, ?, AND, OR, NOT
         (viz \"Apache Lucene - Query Parser Syntax\" pro více informací)
     </string>
   <string name="help_workspaces_title">Pracovní plochy</string>
+  <string name="help_workspaces_text">
+       Pracovní plochy umožňují používat více pracovních prostředí podle kontextu. Do funkcí pracovní plochy
+       vstoupíte přes položku Pracovní plochy v menu možností (pravý horní roh). Rychlý přístup k pracovním plochám je
+       potažením nástrojové lišty dolů. Také můžete na nástrojové liště potáhnout doleva nebo doprava,
+       tím přejdete na předchozí/další pracovní plochu.
+</string>
   <string name="help_hidden_features_title">Méně známé úkony</string>
+  <string name="help_hidden_features_text">
+        Potažením nástrojové lišty dolů zobrazíte výběr pracovní plochy.
+        Dlouhým stiskem tlačítka okna jej rychle minimalizujete.
+        Dlouhým stiskem tlačítka předčítání rychle přejdete na nastavení předčítání.
+        Dlouhým stiskem na odkaz verše v nástrojové liště přejdete na výběr dokumentu.
+        Dlouhým stiskem tlačítka Zpět přejdete na seznam historie.
+</string>
   <string name="help_window_pinning_title">Připínání oken</string>
+  <string name="help_window_pinning_text">
+       Připnutí okna můžete zapnout v menu možností (tři tečky v pravém horním rohu).
+       Pokud je zapnuté připnutí okna, můžete si u Bible zobrazit hodně připnutých oken, 
+       ale jen jedno nepřipnuté. Připnutá okna se zobrazují jako první, až pak
+       nepřipnutá okna. Doporučujeme zobrazovat biblické dokumenty jako připnutá okna a
+       komentáře, mapy apod. jako nepřipnutá. Tak můžete
+       mít při četbě Bible stále otevřené biblické dokumenty a rychle přepínat mezi komentáři a
+       dalšími materiály.
+</string>
   <!--Welcome text-->
   <string name="redownload_documents">Rychle stáhnout</string>
   <string name="welcome_message">Děkujeme, že jste si stáhli náš produkt %s. Aktuálně nemáte nainstalovanou žádnou Bibli či jiný dokument. Pokračujte instalací alespoň jednoho dokumentu z Internetu nebo instalací zálohy ZIP souboru.
     </string>
+  <string name="redownload_message">
+       Nalezen seznam předchozích knih/dokumentů. Pro snadné znovustažení klikněte níže.</string>
   <!--Uncategorized-->
   <string name="close">Zavřít</string>
   <string name="something_with_parenthesis">%s (%s)</string>
@@ -706,11 +749,41 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Přesto pokračovat</string>
   <string name="rate_title">Ohodnotit aplikaci</string>
+  <string name="rate_message5">
+        Pozitivní a detailní hodnocení velmi pomůže And Bible Open Source projektu. Moc díky!
+    </string>
+  <string name="rate_message6">
+        Pokud chcete dát negativní hodnocení, prosíme zvažte následující:
+    </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        Pokud máte určitý problém s aplikací, prosím, namísto toho %s nebo %s.
+    </string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+        Jestliže je problém v textu nebo překladu, %s.
+    </string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+        Jestliže určitý text není dostupný v aplikaci, %s.
+    </string>
+  <string name="rate_message4">
+        Vývojáři této aplikace nejsou odpovědní za dostupnost a kvalitu jednotlivých dokumentů.
+    </string>
+  <string name="bug_report">
+        pošlete hlášení chyby (z hlavní nabídky)
+    </string>
+  <string name="how_to_help">
+        prosím přečtěte si, jak můžete pomoci
+    </string>
+  <string name="send_email">
+       napište mail vývojářm
+    </string>
   <string name="proceed_google_play">
         Přejít do Google Play
+    </string>
+  <string name="text_maintainers">
+       prosím pošlete hlášení lidem zodpovědným za text / modul
     </string>
   <string name="does_not_exist_abbreviation">Neexistuje</string>
   <string name="cant_change_wholeverse">Nelze vypnout uložení celého verše u této záložky</string>
