@@ -623,6 +623,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val fontModuleNames = AndBibleAddons.fontModuleNames.joinToString(",")
         val featureModuleNames = AndBibleAddons.featureModuleNames.joinToString(",")
         val styleModuleNames = AndBibleAddons.styleModuleNames.joinToString(",")
+        // Workaround for #1756
+        if (setOf(Build.VERSION_CODES.O, Build.VERSION_CODES.O_MR1).contains(Build.VERSION.SDK_INT)) {
+            setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        }
         loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html" +
             "?lang=$lang&fontModuleNames=$fontModuleNames&styleModuleNames=$styleModuleNames&featureModuleNames=$featureModuleNames&rtl=$isRtl&night=$nightMode")
     }
