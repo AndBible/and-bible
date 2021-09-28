@@ -143,19 +143,19 @@
   <string name="prefs_top_margin_title">Horní okraj</string>
   <string name="prefs_top_margin_summary">Přidejte na horní stranu okna, ve kterém je dokument Bible, okraj (s vizuálním označením). Bible se bude posouvat tak, že aktuální verš začíná pod okrajem.</string>
   <string name="prefs_hyphenation_title">Dělení slov</string>
-  <string name="prefs_hyphenation_summary">Automaticky rozdělovat slova - záleží na jazyce</string>
+  <string name="prefs_hyphenation_summary">Automaticky rozdělovat slova – záleží na jazyce</string>
   <string name="prefs_line_spacing_pt_title">Řádkování (%1.1fx)</string>
   <string name="line_spacing_title">Řádkování</string>
-  <string name="line_spacing_summary">Nastavení rozteče mezi řádky</string>
+  <string name="line_spacing_summary">Nastavení vzdálenosti mezi řádky</string>
   <string name="select_none">Zrušit výběr</string>
-  <string name="reset_are_you_sure">Opravdu chcete resetovat všechny tyto hodnoty?</string>
+  <string name="reset_are_you_sure">Opravdu chcete všechny tyto hodnoty resetovat?</string>
   <string name="window_pinning_menutitle">Připínání oken</string>
   <string name="hide_window_buttons_title">Skrýt tlačítka okna</string>
   <string name="hide_window_buttons_summary">Tlačítka oken, která se zobrazují na pravé straně Bible, jsou skrytá. Navigační lišta oken naspodu je stále zobrazená a vyskakovací menu oken můžete otevřít dlouhým stiskem.</string>
   <string name="hide_bible_reference_overlay_title">Skrýt biblický odkaz</string>
   <string name="hide_bible_reference_overlay_summary">Nezobrazovat poloprůhledné okno s aktuální pozicí v Bibli při celoobrazovkovém režimu</string>
-  <string name="full_screen_hide_buttons_pref_title">Skrýt panel tlačítek v celoobrazovkovém režimu</string>
-  <string name="full_screen_hide_buttons_pref_summary">Při přechodu do celoobrazovkového režimu skrýt spodní lištu tlačítek</string>
+  <string name="full_screen_hide_buttons_pref_title">Skrýt panel tlačítek v režimu celé obrazovky</string>
+  <string name="full_screen_hide_buttons_pref_summary">Při přechodu do režimu celé obrazovky automaticky skrýt spodní lištu tlačítek</string>
   <string name="prefs_dictionaries_cat">Slovníky</string>
   <string name="choose_strongs_greek_dictionary_title">Strongův řecký slovník</string>
   <string name="choose_strongs_greek_dictionary_summary">Vybrat Strongův slovník definicí řeckých slov</string>
@@ -168,7 +168,7 @@
   <string name="font_size_title_pt">Velikost písma (%d bodů)</string>
   <string name="prefs_font_text_size_summary">Nastavení velikosti hlavního písma</string>
   <string name="pref_font_family_label_name">Typ písma (%s)</string>
-  <string name="prefs_font_family_summary">Změnit typ písma. Tip: další písma mohou být instalována pomocí Stáhnout dokumenty / Doplňky.</string>
+  <string name="prefs_font_family_summary">Změnit typ písma. Tip: další písma můžete instalovat pomocí Stáhnout dokumenty / Doplňky.</string>
   <string name="prefs_text_bookmarks_title">Nastavení záložek a poznámek</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Nastavení barev</string>
@@ -176,7 +176,7 @@
   <string name="workspace_color_settings_title">Výchozí hodnoty nastavení barev pracovní plochy</string>
   <string name="color_text">Barva textu</string>
   <string name="color_background">Barva pozadí</string>
-  <string name="colors_day_mode_title">Denní mód</string>
+  <string name="colors_day_mode_title">Denní režim</string>
   <string name="colors_night_mode_title">Noční režim</string>
   <string name="prefs_noise_title">Šum pozadí</string>
   <string name="prefs_noise_summary">Přidání šumu u barvy pozadí může snížit únavu očí.</string>
@@ -207,7 +207,7 @@
   <string name="strongs_not_installed">Prosím stáhněte Strongův hebrejský a řecký slovník</string>
   <string name="no_indexed_bible_with_strongs_ref">Je potřeba stáhnout Bibli, obsahující Strongova čísla a také stáhnout k této Bibli index přes Hledat</string>
   <string name="morph_robinson_not_installed">Stáhněte prosím slovník \'Robinson\'s Morphological Analysis Codes\'</string>
-  <string name="go_to_downloads">Přejí na stažené položky</string>
+  <string name="go_to_downloads">Přejít na stažené položky</string>
   <!--Module download-->
   <string name="download">Stáhnout dokumenty</string>
   <string name="redownload">Znovu stáhnout dokumenty</string>
@@ -224,11 +224,12 @@
   <string name="document_not_installed">Prosím stáhněte \'%s\'</string>
   <string name="free_text_search_documents">Hledat</string>
   <string name="chooce_language_hint">Jazyk</string>
-  <string name="one_more_back_press">Znovu použijte zpět pro ukončení aplikace</string>
+  <string name="one_more_back_press">Opětovným stiskem tlačítka Zpět ukončíte aplikaci</string>
   <string name="document_filter_results">%d dokument(ů)</string>
   <string name="download_question_title">Chcete přistoupit ke stažení dokumentů?</string>
-  <string name="download_question_message">Pokud žijete v nedemokratické zemi, může stažení křesťanského obsahu být sankcionováno. Pokud je tomu tak, zvažte použití instalace pomocí ZIP souboru. 
-Opravdu chce pokračovat?
+  <string name="download_question_message">Pokud žijete v nedemokratické zemi,
+měli byste být opatrní při stahování křesťanského obsahu z internetu.
+Pokud je tomu tak, zvažte použití instalace pomocí ZIP souboru. Opravdu chcete pokračovat?
 Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="do_not_ask_again">Ano, již se nedotazovat</string>
   <string name="recommended_document">Doporučujeme!</string>
@@ -244,7 +245,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="checking_zip_file">Kontroluji příslušný soubor…</string>
   <string name="invalid_module">Soubor neobsahuje platný modul SWORD</string>
   <string name="install_zip_title">Čekejte prosím. Načítám Zip soubor.</string>
-  <string name="overwrite_files">Následující soubory existují: %s Přepsat?</string>
+  <string name="overwrite_files">Následující soubory již existují: %s Přepsat?</string>
   <string name="overwrite_files_title">Přepsat soubory?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čtení</string>
@@ -254,7 +255,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="set_current_day">Nastavit aktuální den…</string>
   <string name="msg_set_current_day_reading_plan">Nastaví dnešek jako aktuální den plánu čtení a označí předchozí dny, jako přečtené. Pokračovat?</string>
   <string name="done">Hotovo</string>
-  <string name="reset_plan_question">Jste si jisti, že chcete resetovat tento plán?</string>
+  <string name="reset_plan_question">Jste si jisti, že chcete tento plán resetovat?</string>
   <string name="import_reading_plan">Importovat plán čtení…</string>
   <string name="import_reading_plan_error">Chyba importu</string>
   <string name="import_reading_plan_error_duplicate">Následující dny jsou duplicitní: %s</string>
@@ -266,45 +267,45 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="reading_plan_ships_with_ab">Plán čtení obsahuje %s</string>
   <string name="confirm_delete_reading_plan">
         Opravdu smazat %s včetně historie procházení?
-        Tip: Pokud plán potřebujete pouze aktualizovat, importujte soubor se stejným názvem, přičemž historie bude zachována.
-    </string>
+        Tip: Pokud plán potřebujete pouze aktualizovat, importujte soubor se stejným názvem, tím bude historie zachována.
+</string>
   <string name="plan_duplicate_user_plan">
         Na SD kartě je uživatelský plán čtení
-        jsword nebo plán čtení se stejným jménem jako interní plán. Nelze ho zde zobrazit.
-        Prosím přejmenujte soubor na něco jiného a připonu souboru ponechte .properties
+        jsword/readingplan se stejným jménem jako interní plán. Nelze ho zde zobrazit.
+        Prosím přejmenujte soubor na něco jiného a příponu souboru ponechte .properties
     </string>
-  <string name="plan_name_y1ntpspr">NZ, žalmy &amp; přísloví za rok</string>
+  <string name="plan_name_y1ntpspr">NZ, Žalmy a Přísloví za rok</string>
   <string name="plan_description_y1ntpspr">
-        Se svolením HEARTLIGHT Internet Magazine,
+        Se svolením internetového časopisu HEARTLIGHT,
         http://www.heartlight.org, povolení uděleno
     </string>
-  <string name="plan_name_y1ot1nt1_chronological">Chronologické čtení Bible důkladně 1-rok</string>
+  <string name="plan_name_y1ot1nt1_chronological">Chronologické čtení celé Bible za 1 rok</string>
   <string name="plan_description_y1ot1nt1_chronological">
         Plán založený na chronologických událostech v Bibli.
         Chronologická časová linka je přibližná.
     </string>
-  <string name="plan_name_y1ot1nt1_OTandNT">1-rok SZ a NZ zároveň</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">SZ a NZ za 1 rok současně</string>
   <string name="plan_description_y1ot1nt1_OTandNT">
-        Čtení Bible důkladně během 1-roku, kapitoly
-        ze SZ a NZ každý den.
+        Přečtení celé Bible za 1 rok, každý den kapitoly
+        ze SZ a NZ.
     </string>
-  <string name="plan_name_y1ot1nt1_OTthenNT">1-rok důkladné čtení Bible</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">Čtení celé Bible za 1 rok</string>
   <string name="plan_description_y1ot1nt1_OTthenNT">
-        Čtení celé Bible důkladně za 1-rok, začíná se s Genesis
-        a končí se Zjevením. The SZ je první, pak NZ.
+        Přečtení celé Bible za 1 rok, začíná Genesí
+        a končí Zjevením. SZ je první, poté NZ.
     </string>
-  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1-rok 4-kapitoly/den</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheynův 1 rok, 4 kapitoly/den</string>
   <string name="plan_description_y1ot1nt2_mcheyne">
-        Plán se zakládá na systému čtení M’Cheyneno a
-        zahrnuje čtyři různá čtení pro použití jak při rodinném tak osobním ztišení. Každý den má
-        dvě pasáže ze starého zákona, jednu z nového zákona a jednu buďto z žalmů nebo evangelié. Během jednoho roku
-        se přečte celý starý zákon jednou a nový zákon s žalmy dvakrát.
+        Plán se zakládá na M’Cheyneho systému čtení a 
+       zahrnuje čtyři různá čtení pro použití jak při rodinném tak osobním ztišení. Každý den má
+        dvě pasáže ze Starého zákona, jednu z Nového zákona a jednu buď z žalmů nebo evangelií. Během jednoho roku
+        se přečte celý Starý zákon jednou a Nový zákon s žalmy dvakrát.
     </string>
-  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10 kapitol/den plán čtení</string>
-  <string name="plan_description_y1ot6nt4_profHorner">Se svolením Prof. Horner, povolení uděleno</string>
-  <string name="plan_name_y2ot1ntps2">2-roky důkladné čtení Bible, NZ+Žalmy dvakrát</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Prof. Hornerův plán čtení 10 kapitol/den</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Se svolením prof. Hornera, povolení uděleno</string>
+  <string name="plan_name_y2ot1ntps2">Čtení Bible za 2 roky, NZ+Žalmy dvakrát</string>
   <string name="plan_description_y2ot1ntps2">
-        Důkladné čtení Bible během 2 roků. NZ a žalmy se přečtou dvakrát.
+        Přečtení celé Bible za 2 roky. NZ a žalmy se přečtou dvakrát.
         Se svolením Wholesome Words,  http://www.wholesomewords.org/, povolení uděleno
     </string>
   <!--Document context menu-->
@@ -317,7 +318,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="notes">Poznámky a odkazy</string>
   <string name="share_verse">Sdílet…</string>
   <string name="share_verse_widget_title">Sdílet výběr</string>
-  <string name="share_verse_subject_2">Verš Bible byl sdílen pomocí %s.</string>
+  <string name="share_verse_subject_2">Byl vám nasdílen biblický verš pomocí %s.</string>
   <string name="compare_translations">Porovnat překlady</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Otevřít odkaz zde</string>
@@ -325,7 +326,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="open_link_in_special_window">Otevřít ve speciálním okně</string>
   <!--Bookmarks-->
   <string name="bookmarks_and_mynotes_title">Záložky a poznámky</string>
-  <string name="migrated_my_notes">Poznámky přemigrovány</string>
+  <string name="migrated_my_notes">Poznámky přesunuty</string>
   <string name="bookmarks">Záložky</string>
   <string name="bookmark_added">Záložka přidána</string>
   <string name="manage_labels">Spravovat záložky</string>
@@ -342,11 +343,11 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="add_bookmark_whole_verse2">Celý verš</string>
   <string name="remove_bookmark">Odstranit</string>
   <string name="bookmark_settings_hide_labels_title">Skrýt konkrétní štítky</string>
-  <string name="bookmark_settings_hide_labels_summary">Skrýt záložky s konkrétním štítkem</string>
+  <string name="bookmark_settings_hide_labels_summary">Skrýt záložky s konkrétními štítky</string>
   <string name="auto_assign_labels_title">Nastavení štítků</string>
   <string name="auto_assign_labels">Automatické a oblíbené štítky</string>
-  <string name="auto_assign_labels1">Automaticky přidávat k záložkám</string>
-  <string name="auto_assign_labels_primary">Nastavit jako primární</string>
+  <string name="auto_assign_labels1">Automaticky přidávat k novým záložkám</string>
+  <string name="auto_assign_labels_primary">Automaticky značit jako primární</string>
   <string name="label_color">Barva štítku</string>
   <!--can be removed-->
   <string name="label_color_example">Příklad</string>
@@ -394,9 +395,9 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="repeat_passage">Opakovat pasáž</string>
   <string name="set_repeat_passage_range">Nastavit rozsah opakování pasáže</string>
   <string name="speak_beginning_of_passage">Vybrat začátek pasáže</string>
-  <string name="speak_ending_of_passage">Vybrat ukončení pasáže</string>
-  <string name="speak_verse_range_to_repeat">Vybrat rozsah veršů pro opakování</string>
-  <string name="speak_ending_verse_must_be_later">Poslední verš musí být větší než první</string>
+  <string name="speak_ending_of_passage">Vybrat konec pasáže</string>
+  <string name="speak_verse_range_to_repeat">Vybrat rozsah veršů k zopakování</string>
+  <string name="speak_ending_verse_must_be_later">Poslední verš musí být dále než první verš</string>
   <string name="conf_speak_synchronize">Synchronizovat předčítaný text</string>
   <string name="conf_speak_auto_bookmark">Automatické vytváření záložek</string>
   <string name="conf_save_playback_settings_to_bookmarks">Uložit nastavení předčítání do záložek</string>
@@ -416,31 +417,31 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="speak_status_stopped">pozastaveno</string>
   <string name="speak_autobookmarking_disabled">Automatická tvorba záložek vypnuta!</string>
   <string name="system_speak_settings">Otevřít systémové nastavení TTS</string>
-  <string name="auto_assing_labels_help1">Zde můžete nastavit jak se chovají štítky vůči záložkám.</string>
+  <string name="auto_assing_labels_help1">Zde můžete nastavit, které štítky se automaticky přiřadí k vytvářeným záložkám.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
-  <string name="setting_scope">Nastavení se aplikuje na %s.</string>
+  <string name="setting_scope">Nastavení se vztahuje na %s.</string>
   <string name="setting_scope_window">toto okno</string>
   <string name="setting_scope_workspace">tuto pracovní plochu</string>
   <string name="assing_labels_help1">Záložka může mít více štítků.</string>
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">Pomocí %s nastavíte barvu štítku.</string>
   <!--param is auto-assign label icon-->
-  <string name="assing_labels_help3">Pomocí %s nastavíte automatické přidávání štítku záložkám.</string>
+  <string name="assing_labels_help3">Pomocí %s nastavíte automatické přidávání štítku novým záložkám.</string>
   <!--param is heart icon-->
-  <string name="assing_labels_help4">Pomocí %s přidáte štítek mezi oblíbené štítky.</string>
+  <string name="assing_labels_help4">Pomocí %s přidáte štítek mezi oblíbené.</string>
   <!--param is refresh icon-->
   <string name="assing_labels_help5">Pomocí %s setřídíte seznam.</string>
   <string name="workspace_text_options_help_title">Nastavení textu pracovní plochy</string>
-  <string name="workspace_text_options_help1">Tato nastavení nastavují výchozí nastavení všech oken.</string>
+  <string name="workspace_text_options_help1">Tato nastavení určují výchozí hodnoty všech oken pracovní plochy.</string>
   <string name="workspace_text_options_help2">Můžete je upravit v nastavení konkrétního okna.</string>
   <string name="window_text_options_help_title">Nastavení textu okna</string>
   <!--Parameter is actual icon-->
-  <string name="window_text_options_help1">%s ikona znamená, že nastavení se přebírá z pracovní plochy.</string>
+  <string name="window_text_options_help1">Ikona %s značí, že se nastavení přebírá z pracovní plochy.</string>
   <!--Parameter is actual icon-->
-  <string name="window_text_options_help2">%s ikona určuje, že nastavení bylo změněno pro konkrétní okno.</string>
-  <string name="window_text_options_help3">Nastavení pracovní plochy neovlivní nastavení tohoto okna.</string>
+  <string name="window_text_options_help2">Ikona %s značí, že nastavení pro toto okno bylo změněno.</string>
+  <string name="window_text_options_help3">Nastavení pracovní plochy neovlivní toto okno.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Pomocí tlačítka %s nastavíte nastavení zpět na %s.</string>
+  <string name="text_options_reset_help">Pomocí tlačítka %s vrátíte nastavení zpět na %s.</string>
   <string name="reset_defaults">výchozí hodnoty</string>
   <string name="reset_workspace_defaults">výchozí hodnoty pracovní plochy</string>
   <string name="speak_bookmark_help">Nápověda k záložkám předčítání</string>
@@ -777,7 +778,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
         prosím přečtěte si, jak můžete pomoci
     </string>
   <string name="send_email">
-       napište mail vývojářm
+       napište mail vývojářům
     </string>
   <string name="proceed_google_play">
         Přejít do Google Play
