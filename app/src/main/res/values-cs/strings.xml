@@ -91,12 +91,12 @@
   <string name="prefs_red_letter_title">Červená písmena</string>
   <string name="prefs_tilt_to_scroll_title">Naklonit pro posun</string>
   <string name="prefs_toolbar_button_action_title">Nastavení tlačítek nástrojů</string>
-  <string name="prefs_toolbar_button_action_summary">Nastavit chování tlačítek nástrojů - kombinace kliknutí a podržení</string>
+  <string name="prefs_toolbar_button_action_summary">Nastavit akci při kliknutí / dlouhém stisku tlačítek nástrojů</string>
   <string name="prefs_toolbar_button_action_default">Klik - otevřít menu, podržet - zobrazit okno dokumentů (výchozí)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Klik - otevřít následující dokument, podržet - otevřít menu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Klik - otevřít následující dokument, podržet - otevřít okno dokumentů</string>
   <string name="prefs_night_mode_title">Přepínání na noční režím</string>
-  <string name="prefs_night_mode_summary">Nastavit přechod do nočního režimu automaticky (musí podporovat zařízení), ručně nebo dle nastavení systému (Android 10+). Ručně je možné vždy přepnout v menu aplikace (3 tečky).</string>
+  <string name="prefs_night_mode_summary">Nastavit automatický přechod do nočního režimu (musí podporovat zařízení), ručně nebo dle nastavení systému (Android 10+). Ručně je možné přepnout v hlavním menu aplikace (3 tečky).</string>
   <string name="prefs_night_mode_manual">Ručně</string>
   <string name="prefs_night_mode_automatic">Automaticky</string>
   <string name="prefs_night_mode_system">Výchozí nastavení systému</string>
@@ -446,7 +446,10 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="reset_workspace_defaults">výchozí hodnoty pracovní plochy</string>
   <string name="speak_bookmark_help">Nápověda k záložkám předčítání</string>
   <string name="speak_help_auto_bookmark">
-Záložka předčítání bude automaticky vytvořena, když je předčítání zastaveno nebo pozastaveno. Automaticky generované záložky jsou označeny zvláštní  značkou předčítání. Když začnete opět záložkou předčítání, záložka se přesune k verši,  u kterého zastavíte předčítání příště. Jen značky předčítání se posunují. Všechny ostatní značky zůstanou nezměněny.</string>
+Automaticky se vytvoří záložka předčítání, když je předčítání zastaveno nebo pozastaveno.
+Automaticky generované záložky jsou označeny zvláštním štítkem předčítání.
+Když začnete opět u záložky předčítání, záložka se přesune k verši,
+u kterého zastavíte předčítání příště. Posunou se jen štítky předčítání, všechny ostatní štítky zůstanou nezměněny.</string>
   <string name="speak_help_playback_settings">
         Speciální nastavení předčítání (Pod \"Nastavení předčítání\" na obrazovce Předčítání)
         jsou uloženy V záložkách předčítání, když je toto nastavení vybráno.
@@ -454,11 +457,10 @@ Záložka předčítání bude automaticky vytvořena, když je předčítání 
         je načteno z této záložky.
     </string>
   <string name="speak_help_playback_settings_example">
-        Například, když posloucháte 1. Mojžíšovu a Římanům a
+        Například když posloucháte 1. Mojžíšovu a Římanům a
         chcete poslouchat 1. Mojžíšovu rychleji bez upozornění na změnu kapitoly,
         ale Římanům pomaleji se zvukovým upozorněním při změně kapitoly, pak
-        můžete mít jiné nastavení předčítání pro tyto knihy,
-        když jsou tyto nastavení uloženy v odpovídajících záložkách.
+        můžete mít pro tyto knihy jiné nastavení předčítání,        pokud je uložíte v odpovídajících záložkách.
     </string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
@@ -480,7 +482,7 @@ Záložka předčítání bude automaticky vytvořena, když je předčítání 
          in speak settings.-->
   <string-array name="speak_divinename_replace">
     <item>Jahve</item>
-    <item>Yahweh</item>
+    <item>Jahve</item>
     <item></item>
     <item></item>
     <item></item>
@@ -493,18 +495,19 @@ Záložka předčítání bude automaticky vytvořena, když je předčítání 
   <string name="speak_fourth">Čtvrtý</string>
   <string name="speak_fifth">Pátý</string>
   <string name="verse_range_mode_disabled">
-Režim opakování pasáže byl automaticky vypnut, protože
-bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
+Režim opakování pasáže se automaticky vypnul, protože
+bylo spuštěno předčítání mimo stanovený rozsah veršů.
+</string>
   <!--User Notes-->
   <string name="mynotes">Poznámky</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Záloha a obnova</string>
   <string name="backup_modules">Sdílet / zálohovat dokumenty do…</string>
-  <string name="backup_app_database">Sdílet / zálohovat aplikační DB do…</string>
-  <string name="backup_app">Sdílet / zálohovat aplikaci (.apk soubor) do …</string>
+  <string name="backup_app_database">Sdílet / zálohovat databázi aplikace do…</string>
+  <string name="backup_app">Sdílet / zálohovat aplikaci (soubor .apk) do…</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
-  <string name="restore_what">Které položky obnovit?</string>
-  <string name="restore_app_database">Obnovit aplikační databázi z…</string>
+  <string name="restore_what">Které položky chcete obnovit?</string>
+  <string name="restore_app_database">Obnovit databázi aplikace z…</string>
   <string name="restore_database">Obnovit databázový soubor</string>
   <string name="restore_confirmation">Přepsat poznámky, záložky, studijní složky, plány čtení a pracovní plochy?</string>
   <string name="reading_plans_plural">Plány čtení</string>
@@ -519,7 +522,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="restore_unsuccessfull">Obnova databáze se nezdařila. Možná jste zadali nesprávný soubor s databází.</string>
   <string name="backup_phone_storage">Úložiště telefonu</string>
   <string name="backup_backup_title">Umístění zálohy</string>
-  <string name="backup_backup_message">Zálohovat do telefonu nebo pomocí sdílení (email, Google Drive apod.)?</string>
+  <string name="backup_backup_message">Zálohovat do telefonu nebo pomocí sdílení (e-mail, Google Drive apod.)?</string>
   <string name="backup_share">Sdílet</string>
   <string name="restore_modules">Načíst dokumenty z...</string>
   <string name="send_backup_file">Odeslat soubor zálohy</string>
@@ -530,30 +533,30 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="module_about_installed_version">Instalovaná verze: %s (%s)</string>
   <string name="module_about_latest_version">Poslední verze: %s (%s)</string>
   <string name="module_about_versification">Veršování: %s</string>
-  <string name="module_about_repository">Zdroj: %s</string>
-  <string name="module_about_osisId">OSIS zkratka: %s</string>
+  <string name="module_about_repository">Zdrojový server: %s</string>
+  <string name="module_about_osisId">Zkratka OSIS: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title1">Chybové hlášení</string>
+  <string name="send_bug_report_title1">Nahlášení chyby</string>
   <string name="send_feedback_title">Zpětná vazba</string>
   <string name="send_bug_report_title">Zpětná vazba / hlášení chyb</string>
-  <string name="report_bug_email_subject_3">[%s] Chybové hlášení %s %s</string>
+  <string name="report_bug_email_subject_3">[%s] Nahlášení chyby u %s %s</string>
   <string name="report_bug_big_heading">CHYBOVÉ HLÁŠENÍ / ZPĚTNOU VAZBU PROSÍM PIŠTE NAD TOUTO LINKOU</string>
   <string name="report_bug_heading1">Instrukce:</string>
-  <string name="report_bug_line_1">Stručně napište co jste dělal / co se stalo, kdy došlo k chybě.</string>
+  <string name="report_bug_line_1">Stručně napište co jste dělal / co se stalo, když došlo k chybě.</string>
   <string name="report_bug_heading2">Například:</string>
-  <string name="report_bug_instructions1">1. spustil jsem aplikaci</string>
-  <string name="report_bug_instructions2">2. klikl jsem na tlačítko v menu</string>
+  <string name="report_bug_instructions1">1. Spustil jsem aplikaci</string>
+  <string name="report_bug_instructions2">2. Klikl jsem na tlačítko menu</string>
   <string name="report_bug_instructions3">-&gt; aplikace spadla</string>
   <string name="report_bug_line_2">Snímek obrazovky může pomoci řešení problému, zvažte jeho přiložení.</string>
-  <string name="report_bug_line_3">Prosím, využijte hlášení chyby ihned jakmile se případná chyba projeví.</string>
-  <string name="report_bug_line_4">V případě, že aplikace zhavaruje, nahlaste chybu při další spuštění aplikace.</string>
+  <string name="report_bug_line_3">Prosím, využijte hlášení chyby ihned, jakmile se případná chyba projeví.</string>
+  <string name="report_bug_line_4">V případě, že aplikace zhavaruje, nahlaste chybu při dalším spuštění aplikace.</string>
   <string name="report_bug_heading_3">Přílohy:</string>
-  <string name="bug_report_logcat">Logovací soubory vytvořené aplikací. Neobsahují informace o jiných aplikací z vašeho zařízení.</string>
+  <string name="bug_report_logcat">Logovací soubory vytvořené aplikací. Neobsahují informace o jiných aplikacích na vašem zařízení.</string>
   <string name="bug_report_screenshot">Screenshot aplikace při chybě nebo v momentě vytvoření hlášení chyby.</string>
-  <string name="bug_report_attachment_line_1">Připojíte-li následující soubory k hlášení, velmi tím usnadníte práci vývojářům s opravou chyby.</string>
+  <string name="bug_report_attachment_line_1">Připojíte-li k hlášení následující soubory, velmi tím usnadníte vývojářům práci s opravou chyby.</string>
   <string name="report_bug_heading_4">Informace o zařízení:</string>
   <!--Document types-->
-  <string name="doc_type_all">Vše</string>
+  <string name="doc_type_all">Všechny typy</string>
   <string name="doc_type_bible">Bible</string>
   <string name="doc_type_commentary">Komentář</string>
   <string name="doc_type_dictionary">Slovník</string>
@@ -579,18 +582,18 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="report_error">Zaslat hlášení</string>
   <string name="error_occurred">Vznikla chyba</string>
   <string name="error_occurred_crash_last_time">Při posledním použití aplikace havarovala. Opravu případné chyby aplikace nám usnadní, pokud nám zašlete chybové hlášení.</string>
-  <string name="error_occurred_with_link">Vznikla chyba. %s</string>
+  <string name="error_occurred_with_link">Došlo k chybě. %s</string>
   <string name="error_no_content">Žádný obsah pro vybraný verš</string>
   <string name="error_page_too_large">Strana je pro načtení příliš velká</string>
   <string name="error_key_not_in_document">V dokumentu nenalezeno</string>
-  <string name="error_key_not_in_document2">%s nebylo nalezeno v dokumentu %s.</string>
+  <string name="error_key_not_in_document2">%s se v dokumentu %s nenachází.</string>
   <string name="empty_list">Žádné položky k zobrazení</string>
   <string name="error_skip">Přeskočit</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Převod textu na řeč</string>
   <string name="notification_channel_progress_status">Upozornění o průběhu stavu stahování dokumentu atd.</string>
   <!--Workspaces-->
-  <string name="new_workspace">Nový</string>
+  <string name="new_workspace">Nová</string>
   <string name="switch_to_workspace">Pracovní plochy</string>
   <string name="delete_workspace">Odstranit</string>
   <string name="new_copied_workspace">Naklonovat</string>
@@ -598,37 +601,37 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="rename_workspace">Přejmenovat</string>
   <string name="workspace_selector_title">Výběr pracovní plochy</string>
   <string name="workspace_settings">Nastavení…</string>
-  <string name="give_name_workspace">Jméno nové pracovní plochy</string>
+  <string name="give_name_workspace">Název nové pracovní plochy</string>
   <string name="save_and_exit">Uložit</string>
-  <string name="workspace_save_changes">Aplikovat změny pracovní plochy?</string>
+  <string name="workspace_save_changes">Aplikovat změny na pracovní plochy?</string>
   <string name="copy_of_workspace">Kopie %s</string>
   <string name="copy_workspace_settings">Kopírovat nastavení…</string>
   <string name="copy_settings_title">Která nastavení kopírovat?</string>
   <string name="select_all">Vybrat vše</string>
   <string name="copy_settings_workspaces_title">Do které pracovní plochy kopírovat nastavení?</string>
   <string name="reset_settings">Resetovat</string>
-  <string name="workspace_dismiss">Vzít na vědomí</string>
+  <string name="workspace_dismiss">Odejít</string>
   <string name="workspace_listing_with_current">%s (aktuální)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Toto je beta verze!</string>
   <string name="beta_notice_content_1">
-        Beta verze obsahuje nové vlastnosti, které nejsou ještě dobře otestovány.
-        Používání beta verze může zapřičinit neočekávané chování, např. chyby.
-        Pro normální čtenáře Bible se doporučuje používat jen stabilní verze.
+        Beta verze obsahuje nové funkce, které ještě nejsou dobře otestovány.
+        Používání beta verze může zapříčinit neočekávané chování, např. chyby.
+        Běžným čtenářům Bible doporučujeme používat jen stabilní verzi.
     </string>
   <string name="beta_notice_content_2">
         Prosíme, aby beta uživatelé hlásili chyby přes Google Play nebo
         (preferováno) přes %s.
     </string>
-  <string name="beta_notice_content_3">Pokud jste programátor, můžete přispět opravou chyby
-        skrze %s. :-)</string>
-  <string name="beta_notice_github_issues">Github issues</string>
+  <string name="beta_notice_content_3">Pokud jste programátor, můžete sami přispět opravou chyby
+        přes %s. :-)</string>
+  <string name="beta_notice_github_issues">Github Issues</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Vzít na vědomí</string>
-  <string name="beta_notice_dismiss_until_update">Vzít na vědomí do příští aktualizace</string>
+  <string name="beta_notice_dismiss">Odejít</string>
+  <string name="beta_notice_dismiss_until_update">Odmítnout do příští aktualizace</string>
   <string name="stable_notice_title">Aplikace byla upgradována!</string>
-  <string name="upgrade_video_message">Prosím prohlédněte si video novinek v této verzi (%s).</string>
-  <string name="stable_notice_par1">Nová verze %s of %s úspěšně nainstalována!</string>
+  <string name="upgrade_video_message">Podívejte se na video o novinkách této verze (%s).</string>
+  <string name="stable_notice_par1">Nová verze %s %s úspěšně nainstalována!</string>
   <!--History-->
   <string name="history_for">Historie (%s: Okno %d)</string>
   <!--Help-->
@@ -636,7 +639,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="help_nav_text">Na další či předchozí kapitolu se přesunete tažením prstu přes obrazovku.
         Dvojklikem na text Bible se zobrazení přepne na celou obrazovku.
  Rozdělené části obrazovky (zvaná okna) mají tlačítko menu v pravém horním rohu,
-         a k menu okna lze přistupovat dlouhým stiskem na nich.
+          ve kterém můžete nastavit různé funkce oken a upravit jejich vzhled a chování.
     </string>
   <string name="help_contextmenus_title">Kontextová menu</string>
   <string name="help_contextmenus_text">
@@ -647,19 +650,20 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
       Dlouhým stiskem na odkazy můžete vybrat, jestli je chcete otevírat v aktuálním okně, v novém okně nebo zvláštním okně pro odkazy.
 </string>
   <string name="help_bookmarks_title">Záložky a poznámky</string>
-  <string name="help_bookmarks_text">Záložky vytvoříte označením části textu a kliknutím na „Záložka\" ve
-      vyskakovacím menu. Můžete si k nové záložce přidat vlastní poznámky tak, že kliknete na
+  <string name="help_bookmarks_text">Záložky vytvoříte označením části textu a klepnete na „Záložka\" ve
+      vyskakovacím menu. Můžete si k nové záložce přidat vlastní poznámky tak, že klepnete na
       aktuálně zvýrazněný text v zobrazení Bible. V komentářích je také zvláštní dokument „Moje poznámky\", který vám umožní
       si prohlédnout poznámky ve zvláštním okně.</string>
   <string name="help_studypads_text">
        Studijní složky usnadňují psaní poznámek ke kázání, přípravu kázání nebo jen
-       zapisování osobních poznámek při četbě Bible, které obsahují více biblických odkazů. Každá studijní složka je přiřazená k jednomu štítku záložky.
+       zaznamenání osobních poznámek při četbě Bible s více biblickými odkazy. Každá studijní složka je přiřazená k jednomu štítku záložky.
        Všechny záložky vytvořené s tímto štítkem se automaticky zobrazí ve studijní složce.
-       Kromě záložek je možné do studijní složky zapisovat vlastní text.</string>
+       Kromě záložek je možné do studijní složky zapisovat vlastní text.
+</string>
   <string name="help_search_title">Hledat</string>
   <string name="help_search_text">Vyhledávaný text může obsahovat zvláštní znaky jako *, ?, AND, OR, NOT
-        (viz \"Apache Lucene - Query Parser Syntax\" pro více informací)
-    </string>
+        (pro více informací viz \"Apache Lucene - Query Parser Syntax\")
+</string>
   <string name="help_workspaces_title">Pracovní plochy</string>
   <string name="help_workspaces_text">
        Pracovní plochy umožňují používat více pracovních prostředí podle kontextu. Do funkcí pracovní plochy
@@ -667,7 +671,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
        potažením nástrojové lišty dolů. Také můžete na nástrojové liště potáhnout doleva nebo doprava,
        tím přejdete na předchozí/další pracovní plochu.
 </string>
-  <string name="help_hidden_features_title">Méně známé úkony</string>
+  <string name="help_hidden_features_title">Skryté zkratky</string>
   <string name="help_hidden_features_text">
         Potažením nástrojové lišty dolů zobrazíte výběr pracovní plochy.
         Dlouhým stiskem tlačítka okna jej rychle minimalizujete.
@@ -678,11 +682,11 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="help_window_pinning_title">Připínání oken</string>
   <string name="help_window_pinning_text">
        Připnutí okna můžete zapnout v menu možností (tři tečky v pravém horním rohu).
-       Pokud je zapnuté připnutí okna, můžete si u Bible zobrazit hodně připnutých oken, 
-       ale jen jedno nepřipnuté. Připnutá okna se zobrazují jako první, až pak
+       Pokud je připnutí okna zapnuté, můžete si u biblického textu zobrazit hodně připnutých oken,
+        ale jen jedno nepřipnuté. Připnutá okna se zobrazují jako první, až pak
        nepřipnutá okna. Doporučujeme zobrazovat biblické dokumenty jako připnutá okna a
        komentáře, mapy apod. jako nepřipnutá. Tak můžete
-       mít při četbě Bible stále otevřené biblické dokumenty a rychle přepínat mezi komentáři a
+       mít při četbě Bible stále otevřené biblické texty a rychle přepínat mezi komentáři a
        dalšími materiály.
 </string>
   <!--Welcome text-->
@@ -690,21 +694,22 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="welcome_message">Děkujeme, že jste si stáhli náš produkt %s. Aktuálně nemáte nainstalovanou žádnou Bibli či jiný dokument. Pokračujte instalací alespoň jednoho dokumentu z Internetu nebo instalací zálohy ZIP souboru.
     </string>
   <string name="redownload_message">
-       Nalezen seznam předchozích knih/dokumentů. Pro snadné znovustažení klikněte níže.</string>
+       Nalezen seznam předchozích knih/dokumentů. Pro snadné znovustažení klikněte níže.
+</string>
   <!--Uncategorized-->
   <string name="close">Zavřít</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Rozumím</string>
   <string name="first_time_help_show_next_time">Zobrazit při příštím spuštění</string>
-  <string name="strongs_mode_title">Vybrat typ strongových čísel</string>
+  <string name="strongs_mode_title">Vybrat typ Strongových čísel</string>
   <string name="download_dialog_message">Následující knihy nemohly být staženy:</string>
   <string name="select_multiple">Vybrat několik</string>
   <string name="journal_description">Editovatelné studijní složky s vlastním textem a záložkami</string>
-  <string name="my_notes_description">Editovatelné poznámky přiloženy k záložce</string>
+  <string name="my_notes_description">Editovatelné poznámky přiřazené k záložce</string>
   <string name="my_notes_abbreviation">Poznámky</string>
   <string name="studypads">Studijní složky</string>
-  <string name="multi_description">Několik odkazů</string>
-  <string name="multi_abbreviation">Výběr</string>
+  <string name="multi_description">Více odkazů</string>
+  <string name="multi_abbreviation">Více</string>
   <string name="compare_description">Porovnat překlady</string>
   <string name="compare_abbreviation">Porovnat</string>
   <string name="compare">Porovnat</string>
@@ -718,18 +723,18 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="try_again_passphrase">Heslo je nefunkční, zkustt znovu?</string>
   <string name="cant_delete_last_bible">Nemohu odstranit poslední biblický dokument</string>
   <string name="show_unlock_info">Informace o modulu a zabezpečení</string>
-  <string name="prefs_show_error_box_title">Zobrazit Javascript chybové okno</string>
+  <string name="prefs_show_error_box_title">Zobrazit chybové okno Javascriptu</string>
   <string name="prefs_show_error_box_summary">Vhodné pro vývojáře při debugování chyb BibleView Javascript. Zpomaluje běh aplikace.</string>
-  <string name="active_window_indicator_title">Ohraničení aktivního okna</string>
-  <string name="active_window_indicator_summary">Zvýraznit okraj aktivního okna</string>
-  <string name="app_licence_title">Open source licence</string>
+  <string name="active_window_indicator_title">Ukázat ohraničení aktivního okna</string>
+  <string name="active_window_indicator_summary">Zvýrazní okraj právě aktivního</string>
+  <string name="app_licence_title">Licence otevřeného softwaru</string>
   <string name="how_to_contribute">Jak se zapojit a přispět?</string>
   <string name="confirm_delete_bookmarks">Opravdu smazat záložku %d včetně přidružených poznámek?</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Doporučit</string>
   <string name="tell_friend_message1">Doporučuji tuto aplikaci - %s.</string>
-  <string name="tell_friend_message2">Je to aplikace k offline studiu Bible bohatá na funkce, přesto jednoduchá při používání.</string>
-  <string name="tell_friend_message3">Nainstalujte z Play Store: %s</string>
+  <string name="tell_friend_message2">Je to aplikace pro Android k offline studiu Bible – obsáhlá, ale s jednoduchým ovládáním.</string>
+  <string name="tell_friend_message3">Instalace z Play Store: %s</string>
   <string name="tell_friend_message4">Více informací a možností instalace na %s</string>
   <string name="share_verse_ok">Sdílet / kopírovat</string>
   <string name="verse_action_copy">Kopírovat</string>
@@ -739,37 +744,37 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="advertise_app">Propagovat aplikaci</string>
   <string name="verse_share_advertise">Sdíleno pomocí: %s.</string>
   <string name="abbreviate_reference">Zkrácený název</string>
-  <string name="version_name">Zkratka dokumentu</string>
+  <string name="version_name">Název verze</string>
   <string name="backup_button">Záloha</string>
   <string name="back_button">Zpět</string>
   <string name="upgrading_database">Upgraduji databázi. Vyčkejte…</string>
   <string name="initializing_app">Příprava spuštění…</string>
   <string name="show_notes">Zobrazit poznámky</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Používáte starou verzi balíku Android WebView (%s). Musíte aktualizovat  Android WebView minimálně na verzi %s, kterou vyžaduje %s. Na většině zařízení je to možné provést pomocí %s.</string>
+  <string name="old_webview">Používáte starou verzi balíčku Android WebView (%s). Musíte aktualizovat Android WebView minimálně na verzi %s, kterou vyžaduje %s. Na většině zařízení je to možné provést pomocí %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Přesto pokračovat</string>
   <string name="rate_title">Ohodnotit aplikaci</string>
   <string name="rate_message5">
-        Pozitivní a detailní hodnocení velmi pomůže And Bible Open Source projektu. Moc díky!
-    </string>
+        Pozitivní a detailní hodnocení Open Source projektu And Bible velmi pomůže. Moc díky!
+</string>
   <string name="rate_message6">
         Pokud chcete dát negativní hodnocení, prosíme zvažte následující:
     </string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
-        Pokud máte určitý problém s aplikací, prosím, namísto toho %s nebo %s.
-    </string>
+        Pokud máte s aplikací určitý problém, prosím, namísto toho %s nebo %s.
+</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Jestliže je problém v textu nebo překladu, %s.
     </string>
   <!--param is "please read what you can do"-->
   <string name="rate_message3">
-        Jestliže určitý text není dostupný v aplikaci, %s.
-    </string>
+        Pokud není v aplikaci dostupný určitý text, %s.
+</string>
   <string name="rate_message4">
-        Vývojáři této aplikace nejsou odpovědní za dostupnost a kvalitu jednotlivých dokumentů.
+        Vývojáři této aplikace nezodpovídají za dostupnost a kvalitu jednotlivých dokumentů.
     </string>
   <string name="bug_report">
         pošlete hlášení chyby (z hlavní nabídky)
@@ -784,10 +789,10 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
         Přejít do Google Play
     </string>
   <string name="text_maintainers">
-       prosím pošlete hlášení lidem zodpovědným za text / modul
+       prosím pošlete hlášení správcům textu
     </string>
   <string name="does_not_exist_abbreviation">Neexistuje</string>
-  <string name="cant_change_wholeverse">Nelze vypnout uložení celého verše u této záložky</string>
+  <string name="cant_change_wholeverse">U této záložky nelze vypnout přiřazení celého verše </string>
   <string name="whole_verse_turned_on">Záložka přiřazena celému verši</string>
   <string name="this_bookmark">Tato záložka</string>
   <string name="this_workspace">Tato pracovní plocha</string>
@@ -796,36 +801,36 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="favourite_label">Oblíbený štítek</string>
   <string name="edit_label">Upravit štítek</string>
   <string name="delete_label_confirmation">Opravdu smazat štítek \"%s\"? Přidružené studijní složky budou také odstraněny.</string>
-  <string name="bookmark_underline_style_arbitrary">Styl podtržení záložek pro výběr</string>
+  <string name="bookmark_underline_style_arbitrary">Styl podtržení záložek výběru</string>
   <string name="bookmark_underline_style_whole_verse">Styl podtržení záložek pro celý verš</string>
   <string name="active_labels">Vybrané štítky</string>
   <string name="recent_labels">Poslední štíky</string>
   <string name="other_labels">Ostatní štítky</string>
   <string name="book_menu_sort_row_opt">Horizontální pořadí</string>
-  <string name="reset_workspace_labels">Vymazat nastavení automatických a oblíbených štítků této pracovní plochy?</string>
+  <string name="reset_workspace_labels">Vymazat nastavení automaticky přiřazovaných a oblíbených štítků této pracovní plochy?</string>
   <string name="reset_hide_labels">Vymazat nastavení skrývání konkrétních štítků?</string>
   <string name="reorder">Znovu setřídit</string>
   <string name="system_items">Systémové akce</string>
   <string name="system_items1">Více</string>
-  <string name="system_action2">Android akce</string>
+  <string name="system_action2">Akce Androidu</string>
   <string name="text_copied_to_clicpboard">Text zkopírován do schránky</string>
   <string name="prefs_disable_two_step_bookmarking_title">Rychlé záložky</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Zobrazit \"výběr\" a \"verš\" položky v případě manipulace s výběrem textu</string>
-  <string name="prefs_double_tap_to_fullscreen_title">Celoobrazovkový režim</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Dvojklik pro celou obrazovku</string>
   <string name="prefs_double_tap_to_fullscreen_summary">Zapnout dvojklikem celoobrazovkový režim</string>
-  <string name="toggle_fullscreen">Celoobrazovkový režim</string>
-  <string name="exit_fullscreen">Dvojklik ukončí celoobrazovkový režim</string>
-  <string name="reset_app_prefs">Opravdu vymazat globální nastavení aplikace a nastavit je na výchozí hodnoty?</string>
+  <string name="toggle_fullscreen">Celá obrazovka</string>
+  <string name="exit_fullscreen">Dvojklik ukončí režim celé obrazovky</string>
+  <string name="reset_app_prefs">Opravdu vrátit globální nastavení aplikace zobrazené zde na výchozí hodnoty?</string>
   <string name="label_red">Červená</string>
   <string name="label_green">Zelená</string>
   <string name="label_blue">Modrá</string>
   <string name="label_salvation">Pozdrav</string>
-  <string name="label_underline">Podtrhnout</string>
+  <string name="label_underline">Podtržení</string>
   <string name="import_menu">Import a export</string>
   <string name="export_fileformat">Exportovat jako %s</string>
   <string name="import_items">Importovat %s</string>
   <string name="import_from_db">Importovat databázový soubor</string>
-  <string name="import_error">Import databázového souboru skončil chybou. Soubor může mít špatný formát nebo je vytvořen velmi starou verzí %s.</string>
+  <string name="import_error">Import databázového souboru se nezdařil. Soubor může mít špatný formát nebo je vytvořen velmi starou verzí %s.</string>
   <string name="chooser_range">Rozsah</string>
   <string name="chooser_jump">Přejít</string>
   <string name="chooser_OT_abbrev">SZ</string>
@@ -845,5 +850,5 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.</string>
   <string name="strongs_off">Vypnuto</string>
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Text a odkazy</string>
-  <string name="verse_tip">Pasáž textu označíte pomocí přidržení textu po delší dobu.</string>
+  <string name="verse_tip">Pasáž textu označíte přidržením textu na delší dobu.</string>
 </resources>
