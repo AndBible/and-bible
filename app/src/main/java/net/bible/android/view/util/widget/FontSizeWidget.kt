@@ -21,6 +21,7 @@ package net.bible.android.view.util.widget
 import android.content.Context
 import android.graphics.Typeface
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -69,12 +70,13 @@ val availableFonts:Array<FontDefinition> get() {
     return AndBibleAddons.providedFonts.values.map { FontDefinition(providedFont = it) }.toTypedArray() + standard.map { FontDefinition(fontFamily = it) }
 }
 
-fun getTypeFace(fontDefinition: FontDefinition): Typeface {
-    return when {
-        fontDefinition.fontFamily != null -> Typeface.create(fontDefinition.fontFamily, Typeface.NORMAL)
-        fontDefinition.providedFont != null -> Typeface.createFromFile(fontDefinition.providedFont.file)
-        else -> throw RuntimeException("Illegal value")
-    }
+fun getTypeFace(fontDefinition: FontDefinition): Typeface? = try { when {
+    fontDefinition.fontFamily != null -> Typeface.create(fontDefinition.fontFamily, Typeface.NORMAL)
+    fontDefinition.providedFont != null -> Typeface.createFromFile(fontDefinition.providedFont.file)
+    else -> throw RuntimeException("Illegal value")
+}} catch (e: Exception) {
+    Log.e("Font", "Could not load font ${fontDefinition.providedFont}", e)
+    null
 }
 
 class FontAdapter(context: Context, resource: Int, private val fontTypes: Array<FontDefinition>) :
