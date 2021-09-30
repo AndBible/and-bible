@@ -100,7 +100,7 @@ class ManageLabels : ListActivityBase() {
 
         var reset: Boolean = false,
     ) {
-        val showUnassigned: Boolean get() = setOf(Mode.HIDELABELS, Mode.MANAGELABELS).contains(mode)
+        val showUnassigned: Boolean get() = setOf(Mode.HIDELABELS, Mode.WORKSPACE, Mode.MANAGELABELS).contains(mode)
         val showCheckboxes: Boolean get() = setOf(Mode.HIDELABELS, Mode.ASSIGN).contains(mode)
         val hasResetButton: Boolean get() = setOf(Mode.WORKSPACE, Mode.HIDELABELS).contains(mode)
         val hasReOrderButton: Boolean get() = setOf(Mode.HIDELABELS, Mode.ASSIGN, Mode.WORKSPACE).contains(mode)

@@ -209,36 +209,21 @@ open class BookmarkControl @Inject constructor(
 
     val assignableLabels: List<Label> get() = dao.allLabelsSortedByName()
 
-    private var _speakLabel: Label? = null
     val speakLabel: Label get() {
-        return _speakLabel
-            ?: dao.speakLabelByName()
-                ?.also {
-                    _speakLabel = it
-                }
+        return dao.speakLabelByName()
             ?: Label(name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor).apply {
                 id = dao.insert(this)
-                _speakLabel = this
             }
     }
 
-    private var _unlabeledLabel: Label? = null
     val labelUnlabelled: Label get() {
-        return _unlabeledLabel
-            ?: dao.unlabeledLabelByName()
-                ?.also {
-                    _unlabeledLabel = it
-                }
+        return dao.unlabeledLabelByName()
             ?: Label(name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor).apply {
                 id = dao.insert(this)
-                _unlabeledLabel = this
             }
     }
 
-    fun reset() {
-        _speakLabel = null
-        _unlabeledLabel = null
-    }
+    fun reset() {}
 
     fun isSpeakBookmark(bookmark: Bookmark): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
     fun speakBookmarkForVerse(verse: Verse) = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()

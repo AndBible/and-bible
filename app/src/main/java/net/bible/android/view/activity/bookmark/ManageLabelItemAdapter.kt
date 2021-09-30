@@ -120,7 +120,12 @@ class ManageLabelItemAdapter(context: Context?,
                     primaryIcon.visibility = View.GONE
                 }
 
-                if (data.workspaceEdits) {
+                if(data.workspaceEdits && label.isUnlabeledLabel) {
+                    favouriteIcon.visibility = View.INVISIBLE
+                    primaryIcon.visibility = View.INVISIBLE
+                }
+
+                if (data.workspaceEdits && !label.isUnlabeledLabel) {
                     if (data.autoAssignLabels.contains(label.id)) {
                         labelIcon.setImageResource(R.drawable.ic_label_circle)
                     } else {
