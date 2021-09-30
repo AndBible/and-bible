@@ -295,9 +295,8 @@ class TextDisplaySettingsActivity: ActivityBase() {
     @Inject lateinit var windowControl: WindowControl
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
+        super.onCreate(savedInstanceState)
 
         binding = SettingsDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)
