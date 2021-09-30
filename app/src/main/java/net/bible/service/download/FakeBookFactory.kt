@@ -181,7 +181,7 @@ Versification=KJVA"""
 
     private fun getPseudoBook(modName: String, suggested: String) = createFakeRepoBook(modName, getPseudoBookConf(modName, suggested), "Not Available")
 
-    fun pseudoDocuments(l: List<PseudoBook>): List<Book> = l.map { getPseudoBook(it.id, it.suggested) }
+    fun pseudoDocuments(l: List<PseudoBook>?): List<Book> = l?.map { getPseudoBook(it.id, it.suggested) }?: emptyList()
 
     val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
 }

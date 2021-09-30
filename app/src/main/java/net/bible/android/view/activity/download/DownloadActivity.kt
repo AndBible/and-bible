@@ -204,9 +204,10 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                         }
                         filterDocuments()
                     }
-                    if(downloadDefaults) {
-                        val rec = defaultDocuments.value!!
-                        for(l in listOf(rec.bibles["en"], rec.commentaries["en"], rec.addons["en"], rec.books["en"], rec.dictionaries["en"], rec.maps["en"])) {
+
+                    val defaults = defaultDocuments.value
+                    if(downloadDefaults && defaults != null) {
+                        for(l in listOf(defaults.bibles["en"], defaults.commentaries["en"], defaults.addons["en"], defaults.books["en"], defaults.dictionaries["en"], defaults.maps["en"])) {
                             val l2 = l?.map {
                                 if(it.contains("::")) {
                                     val (initials, repository) = it.split("::")
@@ -307,7 +308,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         val docs = downloadControl.getDownloadableDocuments(repoFactory, refresh)
-        return if(docs.isNotEmpty()) docs + FakeBookFactory.pseudoDocuments(pseudoBooks.value!!) else docs
+        return if(docs.isNotEmpty()) docs + FakeBookFactory.pseudoDocuments(pseudoBooks.value) else docs
     }
 
     override fun onStart() {
