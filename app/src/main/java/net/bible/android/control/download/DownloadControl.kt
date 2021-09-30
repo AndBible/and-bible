@@ -129,8 +129,8 @@ class DownloadControl(
 
 
     fun cancelDownload(document: Book) {
-        val job: Progress = JobManager.findJob(INSTALL_BOOK.format(document.repoIdentity))
-        job.cancel()
+        val job = JobManager.findJob(INSTALL_BOOK.format(document.repoIdentity))
+        job?.cancel()
     }
 
     /** return install status - installed, not inst, or upgrade  */
