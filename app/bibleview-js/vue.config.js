@@ -6,7 +6,7 @@ console.log("vue.config.js - isProduction: ", isProduction);
 let config = {
   lintOnSave: false,
   runtimeCompiler: true,
-  transpileDependencies: ["dom-highlight-range"],
+//  transpileDependencies: ["dom-highlight-range"],
   publicPath: "",
   pluginOptions: {
     webpackBundleAnalyzer: {

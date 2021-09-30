@@ -43,7 +43,7 @@
     "jest-html-reporter": "^3.4.1",
     "jsdom": "~16.6.0",
     "json-loader": "^0.5.7",
-    "npm": "^7.24.0",
+    "npm": "^7.24.1",
     "sass": "~1.29.0",
     "sass-loader": "^10.2.0",
     "stylus": "~0.54.8",
@@ -102,7 +102,5 @@
       }
     ]
   },
-  "browserslist": [
-    "last 10 Android version"
-  ]
+  "browserslist": []
 }
