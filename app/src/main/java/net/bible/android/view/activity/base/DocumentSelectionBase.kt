@@ -98,6 +98,12 @@ data class RecommendedDocuments(
     }
 }
 
+@Serializable
+data class PseudoBook(
+    val id: String,
+    val suggested: String,
+)
+
 abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
     @Inject lateinit var downloadControl: DownloadControl
 
@@ -114,6 +120,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private var isPopulated = false
     private val dao get() = DatabaseContainer.db.documentDao()
 
+    val pseudoBooks = Ref<List<PseudoBook>>()
     val defaultDocuments = Ref<RecommendedDocuments>()
     val recommendedDocuments = Ref<RecommendedDocuments>()
 

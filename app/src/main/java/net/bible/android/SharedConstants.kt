@@ -32,6 +32,7 @@ object SharedConstants {
     private const val MANUAL_INSTALL_SUBDIR2 = "sword"
     val RECOMMENDED_JSON = "recommended_documents_v2.json"
     val DEFAULT_JSON = "default_documents_v2.json"
+    val PSEUDO_BOOKS = "pseudo_books.json"
     val MODULE_DIR = moduleDir
     val MANUAL_INSTALL_DIR get() = manualInstallDir
     val MANUAL_INSTALL_DIR2 get() = File(Environment.getExternalStorageDirectory(), MANUAL_INSTALL_SUBDIR2)

@@ -125,6 +125,17 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
             Log.e(TAG, "Could not load default document list")
         }
     }
+    private suspend fun loadPseudoBooks() = withContext(Dispatchers.IO) {
+        val source = URI("https://andbible.github.io/data/${SharedConstants.PSEUDO_BOOKS}")
+        val target = File(SharedConstants.MODULE_DIR, SharedConstants.PSEUDO_BOOKS)
+        genericFileDownloader.downloadFile(source, target, "Pseudo books", reportError = !target.canRead())
+        if(target.canRead()) {
+            val jsonString = String(target.readBytes())
+            pseudoBooks.value = json.decodeFromString(serializer(), jsonString)
+        } else {
+            Log.e(TAG, "Could not load pseudo book list")
+        }
+    }
 
     private suspend fun askIfWantToProceed(): Boolean = withContext(Dispatchers.Main) {
         if(settings.getBoolean("download_do_not_ask", false))
@@ -296,7 +307,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         val docs = downloadControl.getDownloadableDocuments(repoFactory, refresh)
-        return if(docs.isNotEmpty()) docs + FakeBookFactory.downloadPseudoDocuments else docs
+        return if(docs.isNotEmpty()) docs + FakeBookFactory.pseudoDocuments(pseudoBooks.value!!) else docs
     }
 
     override fun onStart() {
@@ -387,7 +398,8 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     private suspend fun downloadDocJson() = coroutineScope {
         awaitAll(
             async { loadRecommendedDocuments() },
-            async { loadDefaultDocuments() }
+            async { loadDefaultDocuments() },
+            async { loadPseudoBooks() }
         )
     }
 

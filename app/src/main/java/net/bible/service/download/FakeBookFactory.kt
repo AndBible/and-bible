@@ -19,6 +19,7 @@ package net.bible.service.download
 
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.android.view.activity.base.PseudoBook
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -180,12 +181,8 @@ Versification=KJVA"""
 
     private fun getPseudoBook(modName: String, suggested: String) = createFakeRepoBook(modName, getPseudoBookConf(modName, suggested), "Not Available")
 
-    val downloadPseudoDocuments: List<Book> get() = listOf(
-        getPseudoBook("ESV", "You might like NASB translation as an option."),
-        getPseudoBook("NIV", "You might like NASB translation as an option."),
-        getPseudoBook("Message", "The PEV is a natural language like the Message Bible."),
-        getPseudoBook("Amplified", "Tip: You can perform deep word meanings study by installing a module that supports Strongs (NASB or KJV for example) and installing Strongs dictionary modules (for example, StrongsHebrew and StrongsGreek)."),
-    )
+    fun pseudoDocuments(l: List<PseudoBook>): List<Book> = l.map { getPseudoBook(it.id, it.suggested) }
+
     val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
 }
 
