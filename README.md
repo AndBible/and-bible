@@ -14,6 +14,10 @@ Powerful offline Bible Study tool for Android
      alt="Get it on Google Play"
      height="80">](https://play.google.com/store/apps/details?id=net.bible.android.activity)
 
+## Promovideo
+
+[See promovideo in Youtube](https://www.youtube.com/watch?v=f2cf6-7liMo)
+
 ## Users
 Please see the [Home Page](https://andbible.org/).
 
