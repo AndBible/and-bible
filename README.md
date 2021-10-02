@@ -16,7 +16,7 @@ Powerful offline Bible Study tool for Android
 
 ## Promovideo
 
-[See promovideo in Youtube](https://www.youtube.com/watch?v=f2cf6-7liMo)
+[See promovideo in Youtube](https://www.youtube.com/watch?v=xf7m4rSuxGw)
 
 ## Users
 Please see the [Home Page](https://andbible.org/).
