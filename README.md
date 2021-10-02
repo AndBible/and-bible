@@ -1,3 +1,5 @@
+<img align="right" width="150" height="150" src="https://user-images.githubusercontent.com/5811789/135705995-ddd550f6-efce-47ef-a3d8-d1ec7ae648fe.png">
+
 [![Android CI](https://github.com/AndBible/and-bible/workflows/Run%20tests/badge.svg?branch=develop)](https://github.com/AndBible/and-bible/actions/workflows/run-tests.yml)
 [![Licence](https://img.shields.io/badge/licence-GPL-blue.svg)](https://github.com/tuomas2/automate/blob/master/LICENSE.txt)
    
