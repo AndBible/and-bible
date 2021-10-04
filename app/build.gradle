@@ -1,14 +1,16 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlinx-serialization'
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    id("kotlin-kapt")
+    id("kotlinx-serialization")
+}
 
 def jsDir = "bibleview-js"
 
 def getGitHash = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
-        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        commandLine("git", "rev-parse", "--short", "HEAD")
         standardOutput = stdout
     }
     return stdout.toString().trim()
@@ -17,48 +19,48 @@ def getGitHash = { ->
 def getGitDescribe = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
-        commandLine 'git', 'describe', '--always'
+        commandLine("git", "describe", "--always")
         standardOutput = stdout
     }
     return stdout.toString().trim()
 }
 
 task npmUpgrade(type: Exec) {
-    inputs.file "$jsDir/package.json"
-    outputs.file "$jsDir/node_modules/.bin/npm"
-    workingDir jsDir
+    inputs.file("$jsDir/package.json")
+    outputs.file("$jsDir/node_modules/.bin/npm")
+    workingDir = file(jsDir)
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine "npx.cmd", "npm@latest", "install", "--save-dev", "npm@latest"
+    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+        commandLine("npx.cmd", "npm@latest", "install", "--save-dev", "npm@latest")
     }
     else {
-        commandLine "npx", "npm@latest", "install", "--save-dev", "npm@latest"
+        commandLine("npx", "npm@latest", "install", "--save-dev", "npm@latest")
     }
 }
 
 task npmInstall(type: Exec, dependsOn: npmUpgrade) {
-    inputs.file "$jsDir/package.json"
-    outputs.dir "$jsDir/node_modules"
+    inputs.file("$jsDir/package.json")
+    outputs.dir("$jsDir/node_modules")
 
-    workingDir jsDir
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine "$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "install"
+    workingDir = file(jsDir)
+    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+        commandLine("$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "install")
     }
     else {
-        commandLine "node_modules/.bin/npm", "install"
+        commandLine("node_modules/.bin/npm", "install")
     }
 }
 
 task vuecli(type: Exec, dependsOn: npmInstall) {
-    inputs.file "$jsDir/package.json"
-    inputs.file "$jsDir/vue.config.js"
-    inputs.file "$jsDir/babel.config.js"
-    inputs.dir "$jsDir/src"
-    inputs.dir "$jsDir/public"
-    outputs.dir "$jsDir/dist"
+    inputs.file("$jsDir/package.json")
+    inputs.file("$jsDir/vue.config.js")
+    inputs.file("$jsDir/babel.config.js")
+    inputs.dir("$jsDir/src")
+    inputs.dir("$jsDir/public")
+    outputs.dir("$jsDir/dist")
     println("Task names "+gradle.startParameter.taskNames)
     def taskNames = gradle.startParameter.taskNames
-    System.println(taskNames)
+    println(taskNames)
     def isDebug = taskNames.contains(":app:packageDebug")
     def buildCmd
 
@@ -69,12 +71,12 @@ task vuecli(type: Exec, dependsOn: npmInstall) {
         println("Building js for debug")
         buildCmd = "build-debug"
     }
-    workingDir jsDir
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine "$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "run", buildCmd
+    workingDir = file(jsDir)
+    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+        commandLine("$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "run", buildCmd)
     }
     else {
-        commandLine "node_modules/.bin/npm", "run", buildCmd
+        commandLine("node_modules/.bin/npm", "run", buildCmd)
     }
 }
 
@@ -84,61 +86,62 @@ task buildLoaderJs(type: Sync, dependsOn: vuecli) {
 }
 
 task jsTests(type: Exec, dependsOn: npmInstall) {
-    workingDir jsDir
-    commandLine "node_modules/.bin/npm", "run", "test:unit"
+    workingDir = file(jsDir)
+    commandLine("node_modules/.bin/npm", "run", "test:unit")
 }
 
-preBuild.dependsOn buildLoaderJs
-check.dependsOn jsTests
+preBuild.dependsOn(buildLoaderJs)
+check.dependsOn(jsTests)
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion(30)
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
-        applicationId "net.bible.android.activity"
-        minSdkVersion 21
-        targetSdkVersion 30
+        applicationId = "net.bible.android.activity"
+        minSdkVersion(21)
+        targetSdkVersion(30)
         vectorDrawables.useSupportLibrary = true
-        buildConfigField "String", "GitHash", "\"${getGitHash()}\""
-        buildConfigField "String", "GitDescribe", "\"${getGitDescribe()}\""
-        buildConfigField "String", "BuildDate", "\"${new Date().format('dd/MM/YY HH:mm:ss')}\""
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
+        buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
+        buildConfigField("String", "BuildDate", "\"${new Date().format('dd/MM/YY HH:mm:ss')}\"")
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
             zipAlignEnabled true
         }
         debug {
-            def propsFile = rootProject.file('local.properties')
+            def propsFile = rootProject.file("local.properties")
             if (propsFile.exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(propsFile))
-                println("App suffix: " + props['APP_SUFFIX'])
+                final appSuffix = props["APP_SUFFIX"]
+                println("App suffix: " + appSuffix)
 
-                if (props['APP_SUFFIX'] != null) {
-                    applicationIdSuffix props['APP_SUFFIX']
+                if (appSuffix != null) {
+                    applicationIdSuffix = appSuffix
                 }
             }
 //			minifyEnabled true
 //			useProguard true
-//			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//			proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 //			zipAlignEnabled true
         }
     }
 
     lintOptions {
-        disable 'MissingTranslation'
-        disable 'ExtraTranslation'
-        warning 'InvalidPackage' 
+        disable("MissingTranslation")
+        disable("ExtraTranslation")
+        warning("InvalidPackage")
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     testOptions {
@@ -148,7 +151,7 @@ android {
             includeAndroidResources = true
             all {
                 testLogging {
-                    events "passed", "skipped", "failed"
+                    events("passed", "skipped", "failed")
                     exceptionFormat "full"
                 }
             }
@@ -169,110 +172,110 @@ android {
     }
 
     packagingOptions {
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/DEPENDENCIES'
+        exclude("META-INF/LICENSE.txt")
+        exclude("META-INF/NOTICE.txt")
+        exclude("META-INF/DEPENDENCIES")
     }
 
     buildFeatures {
-        viewBinding true
+        viewBinding = true
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = "1.8"
     }
 
 }
 
 dependencies {
-    implementation project(':db')
+    implementation(project(":db"))
     // Appcompat:
     // 1.2.0+ releases (until 1.3.0-alpha02 at least) have issue with translations
     // not showing up on MainBibleActivity. Thus reverting to 1.0.2 for now.
     // https://issuetracker.google.com/issues/141132133
-    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation("androidx.appcompat:appcompat:1.3.1")
 
-    implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
-    implementation 'androidx.media:media:1.4.2'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
-    implementation 'androidx.core:core-ktx:1.6.0'
-    implementation 'androidx.preference:preference:1.1.1'
-    implementation 'androidx.preference:preference-ktx:1.1.1'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'androidx.webkit:webkit:1.4.0'
+    implementation("androidx.drawerlayout:drawerlayout:1.1.1")
+    implementation("androidx.media:media:1.4.2")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.0")
+    implementation("androidx.core:core-ktx:1.6.0")
+    implementation("androidx.preference:preference:1.1.1")
+    implementation("androidx.preference:preference-ktx:1.1.1")
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("androidx.webkit:webkit:1.4.0")
 
-    //implementation 'androidx.recyclerview:recyclerview-selection:1.0.0'
+    //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 
-    //implementation 'com.jaredrummler:colorpicker:1.1.0'
-    implementation 'com.github.AndBible:ColorPicker:ab-fix-1'
+    //implementation("com.jaredrummler:colorpicker:1.1.0")
+    implementation("com.github.AndBible:ColorPicker:ab-fix-1")
 
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation("com.google.android.material:material:1.4.0")
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
-    implementation 'androidx.annotation:annotation:1.2.0'
+    implementation("androidx.annotation:annotation:1.2.0")
 
-    implementation "androidx.room:room-runtime:$room_version"
+    implementation("androidx.room:room-runtime:$room_version")
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
 
-    implementation 'com.madgag.spongycastle:core:1.58.0.0'
-    //implementation 'com.madgag.spongycastle:prov:1.58.0.0'
-    //implementation 'com.madgag.spongycastle:pkix:1.58.0.0'
-    //implementation 'com.madgag.spongycastle:pg:1.58.0.0'
+    implementation("com.madgag.spongycastle:core:1.58.0.0")
+    //implementation("com.madgag.spongycastle:prov:1.58.0.0")
+    //implementation("com.madgag.spongycastle:pkix:1.58.0.0")
+    //implementation("com.madgag.spongycastle:pg:1.58.0.0")
 
-    implementation 'com.google.dagger:dagger:2.38.1'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.38.1'
-    kapt 'com.google.dagger:dagger-compiler:2.38.1'
+    implementation("com.google.dagger:dagger:2.38.1")
+    annotationProcessor("com.google.dagger:dagger-compiler:2.38.1")
+    kapt("com.google.dagger:dagger-compiler:2.38.1")
 
-    implementation 'de.greenrobot:eventbus:2.4.1'
+    implementation("de.greenrobot:eventbus:2.4.1")
 
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation "org.apache.commons:commons-text:$commons_text_version"
+    implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-text:$commons_text_version")
 
-    implementation "com.github.AndBible:jsword:$jsword_version"
+    implementation("com.github.AndBible:jsword:$jsword_version")
 
-    implementation "org.jdom:jdom2:$jdom_version"
+    implementation("org.jdom:jdom2:$jdom_version")
 
-    debugImplementation 'com.facebook.stetho:stetho:1.6.0'
+    debugImplementation("com.facebook.stetho:stetho:1.6.0")
 
-    testImplementation project(':db')
+    testImplementation(project(":db"))
 
     // TESTS
-    //testImplementation "com.github.AndBible:robolectric:4.3.1-andbible3"
-    testImplementation "org.robolectric:robolectric:4.6.1"
-    //testImplementation "org.robolectric:shadows-multidex:4.3.1"
-    testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
-    testImplementation 'org.hamcrest:hamcrest-library:2.2'
-    testImplementation 'org.mockito:mockito-core:3.12.4'
-    testImplementation 'junit:junit:4.13.2'
+    //testImplementation("com.github.AndBible:robolectric:4.3.1-andbible3")
+    testImplementation("org.robolectric:robolectric:4.6.1")
+    //testImplementation("org.robolectric:shadows-multidex:4.3.1")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
+    testImplementation("org.hamcrest:hamcrest-library:2.2")
+    testImplementation("org.mockito:mockito-core:3.12.4")
+    testImplementation("junit:junit:4.13.2")
 
     // Android UI testing
 
     // Core library
-    androidTestImplementation 'androidx.test:core:1.4.0'
+    androidTestImplementation("androidx.test:core:1.4.0")
 
     // AndroidJUnitRunner and JUnit Rules
-    androidTestImplementation 'androidx.test:runner:1.4.0'
-    androidTestImplementation 'androidx.test:rules:1.4.0'
+    androidTestImplementation("androidx.test:runner:1.4.0")
+    androidTestImplementation("androidx.test:rules:1.4.0")
 
     // Assertions
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.ext:truth:1.4.0'
-    androidTestImplementation 'com.google.truth:truth:1.1.3'
+    androidTestImplementation("androidx.test.ext:junit:1.1.3")
+    androidTestImplementation("androidx.test.ext:truth:1.4.0")
+    androidTestImplementation("com.google.truth:truth:1.1.3")
 
     // Espresso dependencies
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-accessibility:3.4.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-web:3.4.0'
-    androidTestImplementation 'androidx.test.espresso.idling:idling-concurrent:3.4.0'
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-web:3.4.0")
+    androidTestImplementation("androidx.test.espresso.idling:idling-concurrent:3.4.0")
 
     // The following Espresso dependency can be either "implementation"
     // or "androidTestImplementation", depending on whether you want the
     // dependency to appear on your APK's compile classpath or the test APK
     // classpath.
-    androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.4.0'
+    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.4.0")
 }
 
