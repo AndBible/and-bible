@@ -130,6 +130,20 @@ android {
         }
     }
 
+    flavorDimensions( "appearance" )
+
+    productFlavors {
+        standard {
+            dimension("appearance")
+            getIsDefault().set(true)
+        }
+
+        discrete {
+            dimension("appearance")
+        }
+    } // productFlavors
+
+
     lintOptions {
         disable 'MissingTranslation'
         disable 'ExtraTranslation'
