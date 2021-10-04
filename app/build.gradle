@@ -90,8 +90,8 @@ task jsTests(type: Exec, dependsOn: npmInstall) {
     commandLine("node_modules/.bin/npm", "run", "test:unit")
 }
 
-preBuild.dependsOn(buildLoaderJs)
-check.dependsOn(jsTests)
+tasks.named("preBuild").configure({ dependsOn(buildLoaderJs) })
+tasks.named("check").configure({ dependsOn(jsTests) })
 
 android {
     compileSdkVersion(30)
