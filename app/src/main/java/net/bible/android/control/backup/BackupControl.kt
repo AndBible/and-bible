@@ -265,7 +265,7 @@ object BackupControl {
 
         val fileList = CommonUtils.dbBackupPath.listFiles() ?: return
         val now = Date().time
-        val maxAge = 2592000000L // 30 days in milliseconds
+        val maxAge = 6*2592000000L // 30 days in milliseconds
         for(f in fileList) {
             if(now - f.lastModified() > maxAge) {
                 f.delete()
