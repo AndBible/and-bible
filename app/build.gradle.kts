@@ -16,21 +16,25 @@ import java.util.Properties
 val jsDir = "bibleview-js"
 
 fun getGitHash(): String {
-    val stdout = ByteArrayOutputStream()
+    return ByteArrayOutputStream().use(
+        { stdout ->
     exec {
         commandLine("git", "rev-parse", "--short", "HEAD")
         standardOutput = stdout
     }
     return stdout.toString().trim()
+        }) // use()
 }
 
 fun getGitDescribe(): String {
-    val stdout = ByteArrayOutputStream()
+    return ByteArrayOutputStream().use(
+        { stdout ->
     exec {
         commandLine("git", "describe", "--always")
         standardOutput = stdout
     }
     return stdout.toString().trim()
+        }) // use()
 }
 
 val npmUpgrade by tasks.registering(Exec::class) {
@@ -130,7 +134,9 @@ android {
             val propsFile = rootProject.file("local.properties")
             if (propsFile.exists()) {
                 val props = Properties()
-                props.load(FileInputStream(propsFile))
+                FileInputStream(propsFile).use(
+                    { props.load(it) })
+
                 val appSuffix: String? = props["APP_SUFFIX"] as String
                 println("App suffix: " + appSuffix)
 
