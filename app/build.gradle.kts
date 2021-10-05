@@ -5,10 +5,18 @@ plugins {
     id("kotlinx-serialization")
 }
 
-def jsDir = "bibleview-js"
+import java.io.ByteArrayOutputStream
+import java.io.FileInputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.Properties
 
-def getGitHash = { ->
-    def stdout = new ByteArrayOutputStream()
+
+val jsDir = "bibleview-js"
+
+fun getGitHash(): String {
+    val stdout = ByteArrayOutputStream()
     exec {
         commandLine("git", "rev-parse", "--short", "HEAD")
         standardOutput = stdout
@@ -16,8 +24,8 @@ def getGitHash = { ->
     return stdout.toString().trim()
 }
 
-def getGitDescribe = { ->
-    def stdout = new ByteArrayOutputStream()
+fun getGitDescribe(): String {
+    val stdout = ByteArrayOutputStream()
     exec {
         commandLine("git", "describe", "--always")
         standardOutput = stdout
@@ -25,7 +33,7 @@ def getGitDescribe = { ->
     return stdout.toString().trim()
 }
 
-task npmUpgrade(type: Exec) {
+val npmUpgrade by tasks.registering(Exec::class) {
     inputs.file("$jsDir/package.json")
     outputs.file("$jsDir/node_modules/.bin/npm")
     workingDir = file(jsDir)
@@ -38,7 +46,8 @@ task npmUpgrade(type: Exec) {
     }
 }
 
-task npmInstall(type: Exec, dependsOn: npmUpgrade) {
+val npmInstall by tasks.registering(Exec::class) {
+    dependsOn(npmUpgrade)
     inputs.file("$jsDir/package.json")
     outputs.dir("$jsDir/node_modules")
 
@@ -51,7 +60,8 @@ task npmInstall(type: Exec, dependsOn: npmUpgrade) {
     }
 }
 
-task vuecli(type: Exec, dependsOn: npmInstall) {
+val vuecli by tasks.registering(Exec::class) {
+    dependsOn(npmInstall)
     inputs.file("$jsDir/package.json")
     inputs.file("$jsDir/vue.config.js")
     inputs.file("$jsDir/babel.config.js")
@@ -59,10 +69,10 @@ task vuecli(type: Exec, dependsOn: npmInstall) {
     inputs.dir("$jsDir/public")
     outputs.dir("$jsDir/dist")
     println("Task names "+gradle.startParameter.taskNames)
-    def taskNames = gradle.startParameter.taskNames
+    val taskNames = gradle.startParameter.taskNames
     println(taskNames)
-    def isDebug = taskNames.contains(":app:packageDebug")
-    def buildCmd
+    val isDebug = taskNames.contains(":app:packageDebug")
+    val buildCmd: String
 
     if(!isDebug) {
         println("Building js for production")
@@ -80,12 +90,14 @@ task vuecli(type: Exec, dependsOn: npmInstall) {
     }
 }
 
-task buildLoaderJs(type: Sync, dependsOn: vuecli) {
+val buildLoaderJs by tasks.registering(Sync::class) {
+    dependsOn(vuecli)
     from("$jsDir/dist")
     into("src/main/assets/bibleview-js")
 }
 
-task jsTests(type: Exec, dependsOn: npmInstall) {
+val jsTests by tasks.registering(Exec::class) {
+    dependsOn(npmInstall)
     workingDir = file(jsDir)
     commandLine("node_modules/.bin/npm", "run", "test:unit")
 }
@@ -104,22 +116,22 @@ android {
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
-        buildConfigField("String", "BuildDate", "\"${new Date().format('dd/MM/YY HH:mm:ss')}\"")
+        buildConfigField("String", "BuildDate", "\"${SimpleDateFormat("dd/MM/YY HH:mm:ss").format(Date())}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled true
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-            zipAlignEnabled true
+            isZipAlignEnabled = true
         }
         debug {
-            def propsFile = rootProject.file("local.properties")
+            val propsFile = rootProject.file("local.properties")
             if (propsFile.exists()) {
-                def props = new Properties()
-                props.load(new FileInputStream(propsFile))
-                final appSuffix = props["APP_SUFFIX"]
+                val props = Properties()
+                props.load(FileInputStream(propsFile))
+                val appSuffix: String? = props["APP_SUFFIX"] as String
                 println("App suffix: " + appSuffix)
 
                 if (appSuffix != null) {
@@ -147,12 +159,13 @@ android {
     testOptions {
         // prevent logger errors
         unitTests {
-            returnDefaultValues = true
-            includeAndroidResources = true
+            isReturnDefaultValues = true
+            isIncludeAndroidResources = true
             all {
-                testLogging {
+                test ->
+                  test.testLogging {
                     events("passed", "skipped", "failed")
-                    exceptionFormat "full"
+                    setExceptionFormat("full")
                 }
             }
         }
@@ -187,6 +200,13 @@ android {
 }
 
 dependencies {
+    val commons_text_version: String by extra
+    val jdom_version: String by extra
+    val jsword_version: String by extra
+    val kotlin_version: String by extra
+    val kotlinx_serialization_version: String by extra
+    val room_version: String by extra
+
     implementation(project(":db"))
     // Appcompat:
     // 1.2.0+ releases (until 1.3.0-alpha02 at least) have issue with translations

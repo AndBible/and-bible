@@ -1,12 +1,12 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = "1.5.31"
-    ext.room_version = "2.3.0"
-    ext.jsword_version = "2.3.40"
-    ext.jdom_version = "2.0.6" // make sure this is same version as in jsword!
-    ext.commons_text_version = "1.9"
-    ext.kotlinx_serialization_version = "1.2.2"
+    val kotlin_version by extra("1.5.31")
+    val room_version by extra("2.3.0")
+    val jsword_version by extra("2.3.40")
+    val jdom_version by extra("2.0.6") // make sure this is same version as in jsword!
+    val commons_text_version by extra("1.9")
+    val kotlinx_serialization_version by extra("1.2.2")
 
     repositories {
         google()
@@ -30,6 +30,6 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
+tasks.register<Delete>("clean") {
     delete(rootProject.buildDir)
 }

@@ -15,14 +15,14 @@ android {
         targetSdkVersion(30)
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+                argument("room.schemaLocation", "$projectDir/schemas".toString())
             }
         }
     }
 
     buildTypes {
         release {
-            minifyEnabled true
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
@@ -36,6 +36,12 @@ android {
 }
 
 dependencies {
+    val commons_text_version: String by extra
+    val jdom_version: String by extra
+    val jsword_version: String by extra
+    val kotlinx_serialization_version: String by extra
+    val room_version: String by extra
+
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version")
