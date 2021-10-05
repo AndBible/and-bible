@@ -36,11 +36,11 @@ android {
 }
 
 dependencies {
-    val commons_text_version: String by extra
-    val jdom_version: String by extra
-    val jsword_version: String by extra
-    val kotlinx_serialization_version: String by extra
-    val room_version: String by extra
+    val commons_text_version: String by rootProject.extra
+    val jdom_version: String by rootProject.extra
+    val jsword_version: String by rootProject.extra
+    val kotlinx_serialization_version: String by rootProject.extra
+    val room_version: String by rootProject.extra
 
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
