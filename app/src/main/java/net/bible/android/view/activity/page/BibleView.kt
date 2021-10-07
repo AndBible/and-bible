@@ -1025,7 +1025,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     }, 
                     initial: $initial
                     });
-                """.trimIndent()
+                """
     }
 
     fun onEvent(event: AppSettingsUpdated) {
@@ -1079,7 +1079,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 bottomOffset: $bottomOffset,
             });            
             bibleView.emit("set_title", "BibleView-${window.id}");
-            """.trimIndent()
+            """
         )
     }
 
@@ -1241,13 +1241,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmarkStr = clientBookmark.asJson
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);
-        """.trimIndent())
+        """)
     }
 
     fun onEvent(event: BookmarkNoteModifiedEvent) {
         executeJavascriptOnUiThread("""
             bibleView.emit("bookmark_note_modified", {id: ${event.bookmarkId}, lastUpdatedOn: ${event.lastUpdatedOn}, notes: ${json.encodeToString(serializer(), event.notes)}});
-        """.trimIndent())
+        """)
     }
 
     fun onEvent(event: StudyPadOrderEvent) {
@@ -1258,7 +1258,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val journals = json.encodeToString(serializer(), event.studyPadOrderChanged)
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_journal",  {journal: $journalJson, bookmarkToLabelsOrdered: $bookmarkToLabels, journalsOrdered: $journals});
-        """.trimIndent())
+        """)
     }
 
     fun onEvent(event: BookmarkToLabelAddedOrUpdatedEvent) {
@@ -1267,14 +1267,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmarkToLabel = json.encodeToString(serializer(), event.bookmarkToLabel)
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabel);
-        """.trimIndent())
+        """)
     }
 
     fun onEvent(event: StudyPadTextEntryDeleted) {
         if(firstDocument !is StudyPadDocument) return
         executeJavascriptOnUiThread("""
             bibleView.emit("delete_journal", ${event.journalId});
-        """.trimIndent())
+        """)
     }
 
     fun onEvent(event: LabelAddedOrUpdatedEvent) {
