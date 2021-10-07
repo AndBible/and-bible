@@ -318,14 +318,6 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
-        if(data.mode == Mode.STUDYPAD) {
-            val selected = shownLabels[position]
-            if(selected is BookmarkEntities.Label) saveAndExit(selected)
-        }
-        super.onListItemClick(l, v, position, id)
-    }
-
     fun ensureNotAutoAssignPrimaryLabel(label: BookmarkEntities.Label) {
         if (data.autoAssignPrimaryLabel == label.id || data.autoAssignPrimaryLabel == null) {
             data.autoAssignPrimaryLabel = data.autoAssignLabels.toList().firstOrNull()
@@ -443,6 +435,20 @@ class ManageLabels : ListActivityBase() {
                     listView.smoothScrollToPosition(shownLabels.indexOf(label))
                 }
             }
+        }
+    }
+
+    // This is called by the listener, which is created and configured by the list adapter
+    // It should only be called when the mode is STUDYPAD.  Nonetheless, I retained the mode check from the previous
+    // onListItemClick() method as an additional sanity check.
+    fun selectStudyPadLabel(selected: Any) {
+        if (data.mode == Mode.STUDYPAD) {
+            if (selected is BookmarkEntities.Label) { 
+                saveAndExit(selected) 
+            }
+        }
+        else {
+            Log.e(TAG, "Call to selectStudyPadLabel() is unexpected when mode is not STUDYPAD.  mode=${data.mode}")
         }
     }
 
