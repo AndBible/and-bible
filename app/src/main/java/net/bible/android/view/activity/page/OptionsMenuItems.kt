@@ -24,6 +24,7 @@ import android.content.Intent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
@@ -31,10 +32,11 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.util.widget.FontFamilyWidget
 import net.bible.android.view.util.widget.MarginSizeWidget
@@ -60,6 +62,12 @@ interface OptionsMenuItemInterface {
     val icon: Int?
 }
 
+val currentActivity: ActivityBase get() = CurrentActivityHolder.getInstance().currentActivity
+val application get() = BibleApplication.application
+val windowControl get() = CommonUtils.windowControl
+val windowRepository get() = CommonUtils.windowControl.windowRepository
+
+
 abstract class GeneralPreference(
     protected val onlyBibles: Boolean = false,
 
@@ -68,7 +76,7 @@ abstract class GeneralPreference(
 ) : OptionsMenuItemInterface {
     override val inherited: Boolean = false
     override val visible: Boolean
-        get() = if (onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
+        get() = if (onlyBibles) _mainBibleActivity?.documentControl?.isBibleBook?: true else true
 
     override var value: Any = false
     override fun handle() {}
@@ -125,14 +133,12 @@ open class Preference(val settings: SettingsBundle,
     private val actualTextSettings get() = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings)
     private val pageManagerSettings = settings.pageManagerSettings
     private val workspaceSettings = settings.workspaceSettings
-    val window = mainBibleActivity.windowRepository.getWindow(settings.windowId)
+    val window = windowRepository.getWindow(settings.windowId)
 
     protected val default = TextDisplaySettings.default
 
     override val inherited: Boolean get() = if (window == null) false else pageManagerSettings?.getValue(type) == null
-    val pageManager get() = if (window == null) {
-        mainBibleActivity.pageControl.currentPageManager
-    } else window.pageManager
+    val pageManager get() = window?.pageManager ?: windowControl.activeWindowPageManager
 
     override val visible: Boolean
         get() {
@@ -167,7 +173,7 @@ open class Preference(val settings: SettingsBundle,
 
     override fun handle(){
         if(window == null) {
-            mainBibleActivity.windowRepository.updateAllWindowsTextDisplaySettings()
+            windowRepository.updateAllWindowsTextDisplaySettings()
         } else {
             window.bibleView?.updateTextDisplaySettings()
         }
@@ -195,12 +201,12 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.string.prefs_show_bookmarks_title
                 TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_hide_labels_title
             }
-            return mainBibleActivity.getString(id)
+            return application.getString(id)
         }
 
     override val icon: Int?
         get() = when(type) {
-            TextDisplaySettings.Types.STRONGS -> if(mainBibleActivity.documentControl.isNewTestament) R.drawable.ic_strongs_greek else R.drawable.ic_strongs_hebrew
+            TextDisplaySettings.Types.STRONGS -> if(_mainBibleActivity?.documentControl?.isNewTestament != false) R.drawable.ic_strongs_greek else R.drawable.ic_strongs_hebrew
             TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.drawable.ic_bookmarks_show_24dp
             TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.drawable.ic_labels_hide_24dp
             TextDisplaySettings.Types.MORPH -> R.drawable.ic_morphology_24dp
@@ -224,8 +230,8 @@ open class Preference(val settings: SettingsBundle,
 
 class TiltToScrollPreference:
     GeneralPreference() {
-    private val wsBehaviorSettings = mainBibleActivity.windowRepository.workspaceSettings
-    override fun handle() = mainBibleActivity.invalidateOptionsMenu()
+    private val wsBehaviorSettings = windowRepository.workspaceSettings
+    override fun handle() { _mainBibleActivity?.invalidateOptionsMenu() }
     override var value: Any
         get() = wsBehaviorSettings.enableTiltToScroll
         set(value) {
@@ -264,7 +270,7 @@ open class SubMenuPreference(onlyBibles: Boolean = false, enabled: Boolean = tru
 }
 
 class NightModePreference : RealSharedPreferencesPreference("night_mode_pref", false) {
-    override fun handle() { mainBibleActivity.refreshIfNightModeChange() }
+    override fun handle() { _mainBibleActivity?.refreshIfNightModeChange() }
     override var value: Any
         get() = ScreenSettings.nightMode
         set(value) {
@@ -324,7 +330,7 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
 }
 
 class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTSIZE) {
-    override val title: String get() = mainBibleActivity.getString(R.string.font_size_title_pt, valueInt)
+    override val title: String get() = application.getString(R.string.font_size_title_pt, valueInt)
     override val visible = true
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         FontSizeWidget.dialog(activity, settings.actualSettings.fontFamily!!, value as Int, {
@@ -339,7 +345,7 @@ class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDis
 }
 
 class TopMarginPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.TOPMARGIN) {
-    override val title: String get() = mainBibleActivity.getString(R.string.prefs_top_margin_title_mm, valueInt)
+    override val title: String get() = application.getString(R.string.prefs_top_margin_title_mm, valueInt)
     override val visible = pageManager.isBibleShown
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         TopMarginWidget.dialog(activity, value as Int, {
@@ -354,7 +360,7 @@ class TopMarginPreference(settings: SettingsBundle): Preference(settings, TextDi
 }
 
 class FontFamilyPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTFAMILY) {
-    override val title: String get() = mainBibleActivity.getString(R.string.pref_font_family_label_name, valueString)
+    override val title: String get() = application.getString(R.string.pref_font_family_label_name, valueString)
     override val visible = true
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         FontFamilyWidget.dialog(activity, settings.actualSettings.fontSize!!, value as String, {
@@ -369,7 +375,7 @@ class FontFamilyPreference(settings: SettingsBundle): Preference(settings, TextD
 }
 
 class LineSpacingPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.LINE_SPACING) {
-    override val title: String get() = mainBibleActivity.getString(R.string.prefs_line_spacing_pt_title, valueInt.toFloat() / 10)
+    override val title: String get() = application.getString(R.string.prefs_line_spacing_pt_title, valueInt.toFloat() / 10)
     override val visible = true
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         LineSpacingWidget.dialog(activity, valueInt, {
@@ -402,7 +408,7 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
             mode = ManageLabels.Mode.HIDELABELS,
             selectedLabels = originalValues.toMutableSet(),
             isWindow = settings.windowId != null
-        ).applyFrom(mainBibleActivity.workspaceSettings).toJSON())
+        ).applyFrom(windowRepository.workspaceSettings).toJSON())
         GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
             if(result?.resultCode == Activity.RESULT_OK) {
@@ -412,7 +418,7 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
                     onReset?.invoke()
                 } else {
                     value = resultData.selectedLabels.toList()
-                    mainBibleActivity.workspaceSettings.updateFrom(resultData)
+                    windowRepository.workspaceSettings.updateFrom(resultData)
                     onChanged?.invoke(value)
                 }
             }
@@ -455,7 +461,7 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
     // I added this field later (migration 15..16) so to prevent crashes because of null values, need to have this.
     private val maxWidth get() = (value  as WorkspaceEntities.MarginSize).maxWidth ?: defaultVal.maxWidth!!
     private val defaultVal = TextDisplaySettings.default.marginSize!!
-    override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal, maxWidth)
+    override val title: String get() = application.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal, maxWidth)
     override val visible = true
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         MarginSizeWidget.dialog(activity, value as WorkspaceEntities.MarginSize,
@@ -474,10 +480,10 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
 
 class SplitModePreference :
     GeneralPreference() {
-    private val wsBehaviorSettings = mainBibleActivity.windowRepository.workspaceSettings
+    private val wsBehaviorSettings = windowRepository.workspaceSettings
     override fun handle() {
-        mainBibleActivity.windowControl.windowSizesChanged()
-        ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged(mainBibleActivity.resources.configuration))
+        windowControl.windowSizesChanged()
+        ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged(_mainBibleActivity!!.resources.configuration))
     }
 
     override var value: Any
@@ -487,12 +493,12 @@ class SplitModePreference :
         }
 
     override val isBoolean = true
-    override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
+    override val visible: Boolean get() = super.visible && windowControl.isMultiWindow
 }
 
 class WindowPinningPreference :
     GeneralPreference() {
-    private val wsBehaviorSettings = mainBibleActivity.windowRepository.workspaceSettings
+    private val wsBehaviorSettings = windowRepository.workspaceSettings
     override var value: Any
         get() = !wsBehaviorSettings.autoPin
         set(value) {
@@ -500,7 +506,7 @@ class WindowPinningPreference :
         }
 
     override fun handle() {
-        mainBibleActivity.windowControl.autoPinChanged()
+        windowControl.autoPinChanged()
     }
 
     override val isBoolean = true
