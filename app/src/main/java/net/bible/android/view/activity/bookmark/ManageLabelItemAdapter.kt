@@ -168,7 +168,7 @@ class ManageLabelItemAdapter(context: Context?,
                         manageLabels.editLabel(label)
                         true
                     }
-                } // else (mode == STUDYPAD)
+                } 
             }
         }
         return convertView?: bindings.root
