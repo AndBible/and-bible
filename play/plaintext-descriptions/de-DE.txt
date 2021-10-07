@@ -1,0 +1,42 @@
+Ein mächtiges Werkzeug für das Bibelstudium
+
+Bibel+ von der And Bible Open Source Community ist ein umfangreiches und trotzdem einfach zu bedienendes  Programm für das Bibelstudium - auch ohne Internet. Diese App ist nicht nur ein einfaches Bibelleseprogramm, sondern will ein Werkzeug für fortgeschrittenes, in die Tiefe gehendes Bibelstudium sein.
+
+Dieses Programm wird von Bibellesern für Bibelleser entwickelt. Es zielt darauf ab, dein Bibelstudium einfach, bedeutsam und unterhaltsam zu machen. Das Beste an diesem Non-Profit Projekt ist, dass es Open Source ist - völlig kostenlos und ohne Werbung. Dadurch, dass es von Anfang an für Android entwickelt wurde, ist es platzsparend, effizient und schnell.
+
+Einige der erhältlichen beliebten Bibelversionen sind Schlachter 1955, NeUE, Luther 1912, sowie englische Kommentare wie Matthew Henry und John Gill.
+
+Umfangreiche Funktionen für das Bibelstudium
+
+Das Programm hat viele originelle und aufschlussreiche Funktionen, die ein komplexes und tiefgehendes Bibelstudium einfacher als je machen. Die herausragendsten Funktionen sind:
+
+ * Geteilte Textansicht zum Vergleichen von Übersetzungen und Anzeigen von Kommentaren
+ * Arbeitsbereiche erlauben mehrere Konfigurationen für Bibelstudien mit jeweils eigenen Einstellungen
+ * Die Integration der Strong-Codes erlaubt das Nachschlagen und Analysieren von griechischen und hebräischen Vokabeln
+ * Verknüpfte Querverweise, Fußnoten und andere Dokumente; einfach antipppen um dahin zu springen; tiefergehende Studien ausführen durch den Gebrauch verknüpfter Kommentare (Gill, Matthew Henry, etc.), Sammlungen von Querverweisen (Treasure of Scripture Knowledge, TSKe) und anderer Resourcen.
+ * Fortgeschrittene Sprachausgabe von Text mit Lesezeichen, für ein reibungsfreies Hörerlebnis
+ * Flexible Suche
+ * Fortgeschrittene Lesezeichen- & Hervorhebungsfunktionen mit persönlichen Studiennotizen
+ * Studienmappen für Notizen und Querverweise während Predigten.
+ * Bibellesepläne: setze dir Ziele für deine Bibellese
+ * Große Sammlung von Dokumenten: Bibelübersetzungen, theologische Kommentare, Wörterbücher, Landkarten und christliche Bücher, insgesamt über  1500 Dokumente in über 700 Sprachen, gesetzeskonform zur Verfügung gestellt von Crosswire und anderen SWORD Quellen.
+ * Offline: das Internet wird nur für das Herunterladen der gewünschten Dokumente benötigt.
+
+Lasst uns gemeinsam die beste Bibelleseapp entwickeln!
+
+And Bible ist ein Open-Source Community Projekt. Das bedeutet in der Praxis, dass jeder, der die entsprechenden Fähigkeiten mitbringt eingeladen ist, zu dem Projekt beizutragen, durch:
+
+ * Entwickeln neuer Funktionen,
+ * Testen noch nicht freigegebener Funktionen,
+ * Aktuell Halten der Übersetzungen der Benutzeroberflächen, und
+ * Hilfe beim Erweitern der Dokumentbibliothek durch das Beschaffen von Genehmigungen bei den Rechteinhabern, oder durch das Konvertieren freier Dokumente in das SWORD Format.
+
+Wenn du professioneller Softwareingenieur oder -tester bist, überlege dir bitte, ob du zu dem Projekt beitragen willst. Für mehr Informationen dazu, bitte lies https://git.io/JUnaj.
+
+Links
+
+ * Homepage: https://andbible.github.io
+ * Like And Bible on Facebook: https://www.facebook.com/AndBible/
+ * Unser Youtube Kanal: https://www.youtube.com/c/AndBible
+ * Häufig gestellte Fragen: https://git.io/JJm8E
+ * Projektseite auf Github: https://github.com/AndBible/and-bible

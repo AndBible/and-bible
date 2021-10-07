@@ -1,0 +1,42 @@
+Zaawansowane narzędzie do studiowania Pisma Świętego
+
+Aplikacja Studium Biblii «Bible Study» otwartoźródłowego projektu And Bible jest potężnym i zarazem łatwym w użyciu narzędziem do czytania Biblii bez dostępu do internetu na system Android. Nie jest to zwykły czytnik Pisma Świętego, ale zaawansowane narzędzie do głębokiego osobistego studiowania Biblii.
+
+Ta aplikacja jest rozwijana przez i dla czytaczy Pisma Świętego. Jej celem jest sprawienie, aby czytanie Biblii było wygodne, głębokie i radosne. Najważniejsze w naszym projekcie jest to, że jest on otwartoźródłowy (open source), całkowicie darmowy i nie zawiera reklam. Stworzona od podstaw na system Android, nasza aplikacja zajmuje niewiele miejsca, jest lekka i szybka.
+
+Z polskich wersji Biblii jest dostępna jest Biblia Gdańska (z roku 1881) i Uwspółcześniona Biblia Gdańska (2018).
+
+Możliwości aplikacji Studium Biblii
+
+Aplikacja wyróżnia się wieloma zmyślnymi, oryginalnymi cechami, które to ułatwiają głębokie studiowanie Pisma Świętego. Najważniejsze z nich to:
+
+ * podzielny widok tekstu umożliwiający porównywanie tłumaczeń i czytanie komentarza
+ * obszary robocze umożliwiające posiadanie kilku oddzielnych środowisk do studiowania Biblii, każde z własnymi ustawieniami
+ * numeracja Stronga, aby móc analizować słowa w grece i hebrajskim
+ * klikalne odsyłacze, przypisy i dokumenty; komentarze (niedostępne w j. polskim), kolekcje odsyłaczy (niedostępne w j. polskim) i inne materiały
+ * możliwość odczytu na głos z zakładkami, aby płynnie słuchać Biblii
+ * elastyczne wyszukiwanie
+ * zaawansowane możliwości tworzenia zakładek, wyróżniania tekstu i pisania własnych notatek
+ * “bloczki notatek” umożliwiające dodawanie notatek i odnośników do Biblii podczas słuchania kazań
+ * plany czytania: zdefiniuj własne cele czytania
+ * obszerna biblioteka dokumentów: tłumaczenia, komentarze teologiczne, słowniki, mapy, książki chrześcijańskie, w sumie ponad 1500 dokumentów w 700 językach legalnie rozpowszechnianych przez CrossWire i inne repozytoria SWORD
+ * działa w pełni offline: połączenie internetowe jest potrzebne tylko do pobrania dokumentów
+
+Razem stwórzmy najlepszą apkę do czytania Biblii!
+
+And Bible jest otwartoźródłowym projektem społecznościowym. Oznacza to, że każdy posiadający odpowiednie umiejętności może – i jest zachęcany – do uczestnictwa w rozwoju projektu poprzez:
+
+ * programowanie nowych funkcji;
+ * testowanie funkcji próbnych;
+ * tłumaczenie interfejsu programu;
+ * oraz rozszerzanie biblioteki modułów poprzez otrzymanie pozwoleń od właścicieli praw autorskich lub konwertując dokumenty do formatu SWORD.
+
+Jeżeli jesteś zawodowym programistą lub testerem, prosimy rozważyć włączenie się w rozwój aplikacji. Więcej informacji znajduje się na stronie https://git.io/JUnaj
+
+Odnośniki
+
+ * strona programu: https://andbible.github.io
+ * polub nas na Facebooku: https://www.facebook.com/AndBible/
+ * nasz kanał na YouTube: https://www.youtube.com/c/AndBible
+ * często zadawane pytania (w j. angielskim): https://git.io/JJm8E
+ * strona projektu na GitHubie: https://github.com/AndBible/and-bible
