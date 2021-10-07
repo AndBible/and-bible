@@ -15,6 +15,7 @@ on:
       - '**/*.java'
       - '**/*.kt'
       - '**/*.kts'
+  workflow_dispatch:
 
 permissions:
   contents: read
