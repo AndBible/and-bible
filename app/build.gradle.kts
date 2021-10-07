@@ -214,7 +214,7 @@ dependencies {
 
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
     implementation("androidx.media:media:1.4.2")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.1")
     implementation("androidx.core:core-ktx:1.6.0")
     implementation("androidx.preference:preference:1.1.1")
     implementation("androidx.preference:preference-ktx:1.1.1")
