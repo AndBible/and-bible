@@ -9,10 +9,12 @@ on:
     paths:
       - '**/*.java'
       - '**/*.kt'
+      - '**/*.kts'
   pull_request:
     paths:
       - '**/*.java'
       - '**/*.kt'
+      - '**/*.kts'
 
 permissions:
   contents: read
