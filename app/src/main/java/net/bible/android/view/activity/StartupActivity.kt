@@ -151,10 +151,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         val versionNum = info?.versionName?.split(".")?.first()?.split(" ")?.first()?.toIntOrNull() ?: return true // null -> can't check
         val minimumVersion = 83 // tested with Android Emulator API 30 and looks to function OK
         if(versionNum < minimumVersion) {
-            // #1786 and #1756
-            val playUrl = if(setOf(Build.VERSION_CODES.O, Build.VERSION_CODES.O_MR1).contains(Build.VERSION.SDK_INT))
-                "https://play.google.com/store/apps/details?id=com.android.chrome"
-                else "https://play.google.com/store/apps/details?id=com.google.android.webview"
+            val playUrl = "https://play.google.com/store/apps/details?id=${info.packageName}"
             val playLink = "<a href=\"$playUrl\">${getString(R.string.play)}</a>"
 
             val msg = getString(R.string.old_webview, info?.versionName, minimumVersion.toString(), getString(R.string.app_name_medium), playLink)
