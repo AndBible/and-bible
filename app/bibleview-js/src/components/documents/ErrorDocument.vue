@@ -20,8 +20,7 @@
     <h3 v-if="severity === ErrorSeverity.ERROR">{{strings.errorTitle}}</h3>
     <h3 v-if="severity === ErrorSeverity.WARNING">{{strings.warningTitle}}</h3>
     <h3 v-if="severity === ErrorSeverity.NORMAL">{{strings.normalTitle}}</h3>
-    <OsisSegment convert :osis-template="document.errorMessage"/>
-    <a v-if="severity > ErrorSeverity.NORMAL" href="ab-error://">{{strings.reportError}}</a>
+    <OsisSegment convert :osis-template="document.errorMessage"/> <a v-if="severity > ErrorSeverity.NORMAL" href="ab-error://">{{strings.reportError}}</a>
   </div>
 </template>
 
