@@ -15,7 +15,9 @@
   <string name="history">Ajalugu</string>
   <string name="speak">Loe ette</string>
   <string name="help">Abiinfo</string>
+  <string name="information">Info</string>
   <string name="other">Muu</string>
+  <string name="contact">Kontakt</string>
   <string name="help_and_tips">Abiinfo ja vihjed</string>
   <string name="administration">Haldamine</string>
   <string name="rate_application">Hinda ja arvusta</string>
@@ -189,7 +191,7 @@
   <string name="document_not_installed">Palun lae alla \'%s\'</string>
   <string name="free_text_search_documents">Otsi</string>
   <string name="chooce_language_hint">Keel</string>
-  <string name="document_filter_results">%d dokunmenti</string>
+  <string name="document_filter_results">%d dokumenti</string>
   <string name="do_not_ask_again">Jah, ära enam küsi</string>
   <string name="recommended_document">Soovitatud!</string>
   <string name="about_version_history">Versiooni ajalugu: %s</string>
@@ -241,6 +243,7 @@ Kas jätkame?</string>
   <string name="open_link_in_special_window">Ava link eriaknas</string>
   <!--Bookmarks-->
   <string name="bookmarks_and_mynotes_title">Järjehoidjad ja minu märkmed</string>
+  <string name="migrated_my_notes">Üle toodud Minu märkmed</string>
   <string name="bookmarks">Järjehoidjad</string>
   <string name="bookmark_added">Järjehoidja on lisatud</string>
   <string name="manage_labels">Siltide haldamine</string>
@@ -253,7 +256,11 @@ Kas jätkame?</string>
   <string name="add_bookmark3">Valitu</string>
   <string name="add_bookmark_whole_verse1">Salmid</string>
   <string name="remove_bookmark">Eemalda</string>
+  <string name="bookmark_settings_hide_labels_title">Varja valitud sildid...</string>
   <string name="auto_assign_labels_title">Sildi seaded</string>
+  <string name="auto_assign_labels1">Määra automaatselt uutele järjehoidjatele</string>
+  <string name="auto_assign_labels_primary">Määra automaatselt peamise sildina</string>
+  <string name="label_color">Sildi värv</string>
   <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Kuupäeva järgi</string>
@@ -411,6 +418,7 @@ Kas jätkame?</string>
   <string name="doc_type_dictionary">Sõnaraamat</string>
   <string name="doc_type_book">Raamat</string>
   <string name="doc_type_map">Kaart</string>
+  <string name="doc_type_addons">Lisamoodulid</string>
   <!--Languages-->
   <string name="lang_default">Vaikeväärtus</string>
   <!--General-->
@@ -484,6 +492,8 @@ Kas jätkame?</string>
   <string name="compare_description">Võrdle tõlkeid</string>
   <string name="compare_abbreviation">Võrdle</string>
   <string name="compare">Võrdle</string>
+  <string name="app_licence_title">Avatud lähtekoodiga litsents</string>
+  <string name="how_to_contribute">Kuidas kaasa aidata?</string>
   <string name="tell_friend_title">Soovita sõbrale</string>
   <string name="share_verse_ok">Jaga / Kopeeri</string>
   <string name="verse_action_copy">Kopeeri</string>
@@ -536,14 +546,24 @@ Kas jätkame?</string>
     </string>
   <string name="cant_change_wholeverse">Ei saa terve salmi valimist välja lülitada</string>
   <string name="whole_verse_turned_on">Järjehoidja on nüüd terve salmi kohta</string>
+  <string name="this_bookmark">Käesolev järjehoidja</string>
+  <string name="this_workspace">Käesolev tööala</string>
+  <string name="primary_label">Peamine silt</string>
+  <string name="favourite_label">Lemmik silt</string>
+  <string name="bookmark_underline_style_arbitrary">Jooni alla valitud teksti järjehoidja</string>
+  <string name="bookmark_underline_style_whole_verse">Jooni alla terve salmi järjehoidja</string>
   <string name="active_labels">Valitud sildid</string>
   <string name="recent_labels">Hiljutised sildid</string>
   <string name="other_labels">Ülejäänud sildid</string>
   <string name="book_menu_sort_row_opt">Järjesta ridadena</string>
   <string name="system_items1">Veel</string>
   <string name="text_copied_to_clicpboard">Tekst kopeeriti lõikelauale</string>
+  <string name="toggle_fullscreen">Täisekraan</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Vabandame, kuid meil on ainult osaline kasutajaliidese tõlge %s keeles. Seda seetõttu, et %s on täielikult välja töötatud vabatahtlike poolt. Kui saate tõlkimisel aidata, vaadake %s. </string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">juhised tõlkijatele</string>
+  <string name="questions_title">Küsimus arendajatele</string>
+  <string name="bookmark_style">Järjehoidja kujundus</string>
+  <string name="added_to_bookmark">Määratud käesolevale järjehoidjale</string>
 </resources>
