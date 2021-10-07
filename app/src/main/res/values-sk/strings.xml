@@ -1,112 +1,318 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_short">Štúdium Biblie</string>
+  <string name="app_name_medium">Štúdium Biblie (And Bible)</string>
+  <string name="app_name_long">Aplikácia pre štúdium Biblie od And Bible Open Source Project</string>
+  <string name="project">And Bible Open Source Project</string>
   <string name="version_text">Verzia %s</string>
+  <string name="no_sdcard_error">Prosím vložte SD kartu a reštartujte aplikáciu.</string>
   <!--Main menu-->
   <string name="menu">Ponuka</string>
   <string name="chooseBook">Dokument</string>
-  <string name="selectPassage">Časť</string>
+  <string name="selectPassage">Pasáž</string>
   <string name="search">Hľadať</string>
+  <string name="settings">Nastavenia aplikácie</string>
   <string name="history">História</string>
-  <string name="speak">Hovoriť</string>
+  <string name="speak">Predčívanie</string>
   <string name="help">Pomoc</string>
+  <string name="information">Informácie</string>
+  <string name="other">Iné</string>
+  <string name="contact">Kontakt</string>
+  <string name="help_and_tips">Pomoc a tipy</string>
   <string name="administration">Administrácia</string>
-  <string name="chooce_document">Vyber dokument</string>
+  <string name="rate_application">Ohodnotiť a recenzovať</string>
+  <string name="chooce_document">Zvoliť dokument</string>
   <!--Passage navigation-->
-  <string name="choosePassageBookName">Vyber knihu</string>
-  <string name="choosePassageChapterName">Vyber kapitolu</string>
-  <string name="choosePassageVerseName">Vyber verš</string>
+  <string name="choosePassageBookName">Zvoliť knihu</string>
+  <string name="choosePassageChapterName">Zvoliť kapitolu</string>
+  <string name="choosePassageVerseName">Zvoliť verš</string>
   <string name="bible">Biblia</string>
-  <string name="deuterocanonical">Deuterokanonické knihy</string>
+  <string name="deuterocanonical">Deuterokanonické</string>
   <!--Search-->
   <string name="search_index">Vyhľadávací index</string>
-  <string name="indexing_wait_msg">Keď sa indexovanie zakončí, zobrazí sa obrazovka hľadania.</string>
+  <string name="index_creation_required">Pre vyhľadávanie sa vyžaduje index</string>
+  <string name="create_index_for">Pre vyhľadávanie sa vyžaduje index. \n\nVytvoriť index pre %s?</string>
+  <string name="rebuild_index_for">Znovu vytvoriť index pre %s?</string>
+  <string name="indexing_wait_msg">Po skončení indexovania sa zobrazí sa obrazovka hľadania.</string>
   <string name="index_create">Vytvoriť</string>
   <string name="rebuild_index">Znova vytvor index</string>
+  <string name="search_in">Hľadať v %s</string>
+  <string name="do_in_background">Pokračovať na pozadí</string>
+  <string name="rebuild_index_button">Znova vytvoriť</string>
   <!--Tasks-->
   <string name="progress_status">Priebeh</string>
-  <string name="task_kill_warning">Tieto dlho trvajúce úlohy môžu byť systémom zrušené ak sa prepnete na inú aplikáciu.</string>
-  <string name="no_tasks_running">Nie sú spustené žiadne úlohy</string>
+  <string name="task_kill_warning">Tieto dlho trvajúce úlohy môžu byť zrušené, ak sa prepnete na inú aplikáciu pre ich dokončením.</string>
+  <string name="no_tasks_running">Nie sú spustené žiadne úlohy.</string>
   <!--Search-->
-  <string name="search_words_group_prompt">Nájsť verš</string>
+  <string name="search_words_group_prompt">Hľadať verše</string>
   <string name="search_all_words">Všetky slová</string>
   <string name="search_any_word">Ktorékoľvek slovo</string>
-  <string name="search_phrase">Výraz</string>
-  <string name="search_result_count">Počet výsledkov: %d</string>
+  <string name="search_phrase">Fráza</string>
+  <string name="search_result_count">Nájdené výsledky: %d</string>
   <string name="search_showing_first">Príliš veľa výsledkov. Zobrazujem prvých %d</string>
   <string name="search_bible_section_group_prompt">Kde hľadať</string>
   <string name="search_all_bible">Celá Biblia</string>
-  <string name="search_new_testament">Nový zákon</string>
+  <string name="search_new_testament">Nový Zákon</string>
   <string name="search_old_testament">Starý zákon</string>
   <string name="search_current_book">Aktuálna kniha</string>
-  <string name="error_executing_search">Chyba</string>
+  <string name="error_executing_search">Neplatná vyhľadávacia požiadavka</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Kapitola a číslo verša</string>
+  <string name="prefs_show_verseno_summary">Zobraziť kapitolu a číslo verša</string>
+  <string name="prefs_e_ink_mode_title">Čierno-biely režim</string>
+  <string name="prefs_eink_mode_summary">Používať aplikáciu v monochromatickom režime (bez farieb), vďaka čomu je vhodnejšia pre zariadenia s elektronickým atramentom. </string>
+  <string name="prefs_disable_animations_title">Vypnúť animácie</string>
+  <string name="prefs_disable_animations_summary">Zakázať rôzne animácie, ako napríklad plynulé posúvanie. </string>
+  <string name="prefs_paragraph_spacing_title">Medzery medzi odsekmi (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Upraviť rozostup odsekov.</string>
   <string name="prefs_show_verseno_title1">Čísla veršov</string>
+  <string name="prefs_show_chapter_no_title">Čísla kapitol</string>
+  <string name="prefs_show_chapter_no_summary">Zobraziť čísla kapitol</string>
   <string name="prefs_verse_per_line_summary">Zobraziť každý verš v samostatnom riadku.</string>
-  <string name="prefs_show_bookmarks_summary">Zaškrtni pre skrytie záložiek</string>
-  <string name="prefs_show_mynotes_summary">Zobraziť obrázok Mojich vložených poznámok.</string>
-  <string name="prefs_show_notes_summary">Zobraziť poznámky pod čiarov a súradnicové referencie</string>
+  <string name="prefs_show_bookmarks_summary">Zrušenie začiarknutia skryjete všetky záložky </string>
+  <string name="prefs_show_mynotes_summary">Zobraziť ikonu Moje poznámky vo veršoch</string>
+  <string name="prefs_show_notes_summary">Zobraziť poznámky pod čiarou a krížové referencie</string>
   <string name="prefs_show_strongs_summary">Odkazy na grécke a hebrejské definície</string>
   <string name="prefs_show_morphology_summary">Zobraziť grécku morfológiou (Robinson)</string>
-  <string name="prefs_section_title_summary">Zobraziť nadpisy oddielov (len niektoré dokumenty)</string>
-  <string name="prefs_red_letter_summary">Zobraziť Kristove slová červenou farbou (len niektoré dokumenty)</string>
-  <string name="prefs_verse_per_line_title">Čo riadok, to verš</string>
-  <string name="prefs_show_bookmarks_title">Ukaž záložky</string>
-  <string name="prefs_show_mynotes_title">Ikonka Mojich poznámok</string>
+  <string name="prefs_section_title_summary">Zobraziť nekánonické nadpisy oddielov</string>
+  <string name="prefs_red_letter_summary">Zobraziť Kristove slová červenou farbou</string>
+  <string name="prefs_text_size_title">Nastavenia písma</string>
+  <string name="prefs_verse_per_line_title">Jeden verš na riadok</string>
+  <string name="prefs_show_bookmarks_title">Zobraziť záložky</string>
+  <string name="prefs_show_mynotes_title">Zobraziť ikonu Moje poznámky</string>
   <string name="prefs_show_footnotes_title">Poznámky pod čiarou</string>
-  <string name="prefs_show_notes_title">Poznámky pod čiarou</string>
+  <string name="prefs_show_xrefs_title">Krížové referencie</string>
+  <string name="prefs_show_footnotes_summary">Zobraziť poznámky pod čiarou, ak sú dostupné v dokumente</string>
+  <string name="prefs_show_xrefs_summary">Zobraziť krížové referencie, ak sú dostupné v dokumente</string>
+  <string name="prefs_show_notes_title">Poznámky pod čiarou a referencie</string>
   <string name="prefs_show_strongs_title">Strongove čísla</string>
-  <string name="prefs_show_morphology_title">Morfologické značky</string>
+  <string name="prefs_show_morphology_title">Morfologické kódy</string>
   <string name="prefs_section_title_title">Nadpisy oddielov</string>
-  <string name="prefs_red_letter_title">Červené písma</string>
+  <string name="prefs_red_letter_title">Červené písmo</string>
   <string name="prefs_tilt_to_scroll_title">Automatický posun</string>
+  <string name="prefs_toolbar_button_action_title">Akcia pre stlačenie tlačidla na panely nástrojov</string>
+  <string name="prefs_toolbar_button_action_summary">Akcia, ktorá sa vykoná pri ťuknutí/dlhom stlačení tlačidiel Biblia alebo Komentára na panely nástrojov</string>
+  <string name="prefs_toolbar_button_action_default">Ťuknutím sa otvorí ponuka, dlhým stlačením sa zobrazí obrazovka dokumentov (predvolené) </string>
+  <string name="prefs_toolbar_button_action_swap_menu">Ťuknutím sa otvorí nasledujúci dokument, dlhým stlačením sa otvorí ponuka</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Ťuknutím sa otvorí nasledujúci dokument, dlhým stlačením obrazovka dokumentov</string>
+  <string name="prefs_night_mode_title">Prepínanie nočného režimu</string>
+  <string name="prefs_night_mode_summary">Či sa má prepnúť do nočného režimu automaticky (ak to zariadenie podporuje), manuálne alebo prostredníctvom nastavenia systému (Android 10+). Manuálne prepínanie je možné vykonať z ponuky 3 bodov na hlavnej obrazovke. </string>
+  <string name="prefs_night_mode_manual">Manuálne</string>
   <string name="prefs_night_mode_automatic">Automaticky</string>
+  <string name="prefs_night_mode_system">Podľa systému</string>
   <string name="options_menu_night_mode">Nočný režim</string>
   <string name="prefs_navigate_to_verse_title">Prejsť na verš</string>
   <string name="prefs_navigate_to_verse_summary">Pri výbere knihy/kapitoly zadávať aj verš</string>
-  <string name="prefs_text_size_sample_text">Príklad textu</string>
-  <string name="prefs_screen_keep_on_title">Nechaj obrazovku zapnutú</string>
-  <string name="prefs_screen_keep_on_summary">Zabrániť vypnutiu obrazovky počas používania programu</string>
-  <string name="prefs_interface_locale_title">Jazyk programu</string>
+  <string name="prefs_open_links_in_special_window_title">Okno odkazov</string>
+  <string name="prefs_open_links_in_special_window_summary">Otvorí odkazy v špeciálnom okne pre rýchlejšie zobrazenie krížových referencií a Strongových čísel</string>
+  <string name="prefs_text_size_sample_text">Ukážkový text</string>
+  <string name="prefs_screen_keep_on_title">Ponechať obrazovku zapnutú</string>
+  <string name="prefs_screen_keep_on_summary">Zabráni vypnutiu obrazovky počas používania programu</string>
+  <string name="prefs_interface_locale_title">Jazyk aplikácie</string>
   <string name="prefs_interface_locale_summary">Vybrať jazyk prostredia programu a názvov kníh</string>
   <string name="reset_fontsize">Znovu nastaviť</string>
-  <string name="prefs_request_sdcard_permission_title">Už existujú ručne nainštalované dokumenty</string>
+  <string name="prefs_request_sdcard_permission_title">Dostupné manuále nainštalované dokumenty</string>
+  <string name="prefs_request_sdcard_permission_summary">Povoliť používanie manuálne nainštalovaných dokumentov z jsword/sword priečinku na internom úložisku</string>
+  <string name="all_text_options_window_menutitle">Všetky nastavenia textu</string>
+  <string name="text_options_window_menutitle">Nastavenia textu</string>
   <string name="auto_fullscreen">Režim celej obrazovky pri posúvaní</string>
   <string name="reversed_split_mode">Obrátený režim rozdelenia obrazovky</string>
+  <string name="add_ellipsis">%s…</string>
+  <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d mm</string>
+  <string name="auto_fullscreen_summary">Pri posúvaní textu sa automaticky prepnúť na celú obrazovku. Tip: Na celú obrazovku sa môžete kedykoľvek prepnúť aj dvojitým klepnutím na obrazovku. </string>
+  <string name="prefs_margin_size_title">Zmeniť veľkosť okraja</string>
+  <string name="prefs_margin_size_mm_title">Veľkosť okraja (%d/%d/%d mm)</string>
+  <string name="prefs_advanced_settings_cat">Pokročilé nastavenia</string>
+  <string name="prefs_display_customization_cat">Vzhľad aplikácie</string>
+  <string name="prefs_behavior_customization_cat">Nastavenie aplikácie</string>
+  <string name="prefs_margin_size_summary">Upravte ľavý a pravý okraj zobrazenia textu. Môžete tiež
+        upraviť maximálnu šírku textu.
+    </string>
+  <string name="prefs_text_colors_summary">Upraviť farby textu a pozadia a efekt šumu</string>
+  <string name="text_display_settings_activity_title">Zobraziť nastavenia textu</string>
+  <string name="workspace_text_display_settings_title">Nastavenia textu - %s</string>
+  <string name="window_text_display_settings_title">Nastavenia textu - Okno %d</string>
+  <string name="prefs_text_display_settings_title">Formátovanie</string>
+  <string name="prefs_text_appearance_title">Vzhľad</string>
+  <string name="prefs_justify_title">Zarovnanie textu do bloku</string>
+  <string name="prefs_justify_summary">Zarovnaný text do „bloku“ znamená, že ľavý a pravý okraj textu sú v jednej línii </string>
+  <string name="pref_left_margin_label_mm">Ľavý okraj (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Pravý okraj (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Maximálna šírka textu (%d mm)</string>
+  <string name="prefs_line_spacing_pt">Riadkovanie %1.1fx</string>
+  <string name="pref_font_family_label">Typ písma</string>
+  <string name="prefs_top_margin_title">Horný okraj</string>
+  <string name="prefs_top_margin_summary">Pridá okraj (s vizuálnym označením) do hornej časti okna, ktoré obsahuje biblický dokument. Biblia je posúvaná tak, aby súčasný verš začínal pod okrajom. </string>
+  <string name="prefs_hyphenation_title">Delenie slov</string>
+  <string name="prefs_hyphenation_summary">Automaticky deliť slová, ako je jazyk podporovaný</string>
+  <string name="prefs_line_spacing_pt_title">Riadkovanie (%1.1fx)</string>
+  <string name="line_spacing_title">Riadkovanie</string>
+  <string name="line_spacing_summary">Nastaví medzeru medzi riadkami</string>
+  <string name="select_none">Zrušiť výber</string>
+  <string name="reset_are_you_sure">Ste si istí, že chcete resetovať všetky tieto hodnoty? </string>
+  <string name="window_pinning_menutitle">Pripínanie okna</string>
+  <string name="hide_window_buttons_title">Kryť tlačidlá okna</string>
+  <string name="hide_window_buttons_summary">Tlačidlá okien, ktoré sa zobrazujú na pravej strane zobrazení Biblie, sú skryté. Navigačný panel v spodnej časti okna je stále zobrazený a vyskakovacie okno je možné otvoriť dlhým kliknutím. </string>
+  <string name="hide_bible_reference_overlay_title">Skryť prekrytie odkazov na Bibliu </string>
+  <string name="hide_bible_reference_overlay_summary">Nezobrazovať polo-transparentné okno s Biblickými referencia pri celo-obrazovkovom režime aplikácie</string>
+  <string name="full_screen_hide_buttons_pref_title">Skryť panel tlačidiel pri celo*obrazovkovom režime</string>
+  <string name="full_screen_hide_buttons_pref_summary">Pri prepínaní do režimu celej obrazovky automaticky skryť panel s tlačidlami v spodnej časti obrazovky </string>
+  <string name="prefs_dictionaries_cat">Slovníky</string>
+  <string name="choose_strongs_greek_dictionary_title">Strongov grécky slovník </string>
+  <string name="choose_strongs_greek_dictionary_summary">Vyberte Strongov slovník pre definície gréckych slov</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strongov hebrejský slovník</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Vyberte Strongov slovník pre definície hebrejských slov</string>
+  <string name="choose_strongs_greek_morphology_title">Robinsonova grécka morfológia</string>
+  <string name="choose_strongs_greek_morphology_summary">Vybrať slovník s definíciami pre Robinsonovu grécku morfológiu</string>
+  <string name="prefs_top_margin_title_mm">Horný okraj (%d mm)</string>
+  <string name="font_size_title">Veľkosť písmen</string>
+  <string name="font_size_title_pt">Veľkosť písmen (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Upraviť hlavnú veľkosť písmen</string>
+  <string name="pref_font_family_label_name">Typ písma (%s)</string>
+  <string name="prefs_font_family_summary">Zmena typu písma. Rada: ďalšie písma môžu byť nainštalované cez Stiahnuť dokumenty / doplnky</string>
+  <string name="prefs_text_bookmarks_title">Nastavenie Záložiek a Mojich poznámok</string>
   <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">Nastavenia farieb</string>
+  <string name="window_color_settings_title">Nastavenie farieb okna</string>
+  <string name="workspace_color_settings_title">Prednastavené farby pracovného priestoru</string>
+  <string name="color_text">Farba textu</string>
+  <string name="color_background">Farba pozadia</string>
+  <string name="colors_day_mode_title">Denný režim</string>
   <string name="colors_night_mode_title">Nočný režim</string>
+  <string name="prefs_noise_title">Šum na pozadí</string>
+  <string name="prefs_noise_summary">Pridanie trochu šumu na pozadie môže zvýšiť pohodlie pre vaše oči </string>
+  <string name="cpv_default_title">Výber farby</string>
+  <string name="cpv_presets">Predvoľby</string>
+  <string name="cpv_custom">Vlastné</string>
+  <string name="cpv_select">Vybrať</string>
+  <string name="cpv_transparency">Transparentnosť </string>
   <!--Window-->
   <string name="new_window">Nové okno</string>
-  <string name="windowClose">Zatvor</string>
-  <string name="windowMaximise">Maximalizuj</string>
-  <string name="windowMinimise">Skry</string>
-  <string name="windowSynchronise">Synchronizuj</string>
+  <string name="windowClose">Zatvoriť</string>
+  <string name="windowMaximise">Maximalizovať</string>
+  <string name="windowMinimise">Skryť</string>
+  <string name="windowSynchronise">Synchronizovať</string>
+  <string name="move_window">Presunúť do</string>
+  <string name="move_window_to_position2">Pozícia %d (%s:%s)</string>
+  <string name="copy_settings">Skopírovať nastavenia do</string>
+  <string name="copy_settings_to_workspace">Pracovná plocha</string>
+  <string name="copy_settings_to_window">Okno %d (%s: %s)</string>
+  <string name="change_to_normal">Zmeniť na normálne okno</string>
+  <string name="window_pin_mode">Pripnúť</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Kapitola neobsahuje poznámky</string>
   <string name="no_verse_notes">Verš neobsahuje poznámky</string>
   <string name="previous">Predošlá</string>
   <string name="next">Ďalšia</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Prosím stiahnite si Strongov hebrejský a grécky slovník</string>
+  <string name="strongs_not_installed">Prosím stiahnite Strongov hebrejský a grécky slovník</string>
   <string name="no_indexed_bible_with_strongs_ref">Je potrebné stiahnuť Bibliu obsahujúcu Strongove čísla a tiež stiahnuť k nej index pre vyhľadávanie</string>
   <string name="morph_robinson_not_installed">Prosím stiahnite si slovník - Robinsonov Morfologický Analytický Kódex</string>
+  <string name="go_to_downloads">Prejsť do sťahovania</string>
   <!--Module download-->
-  <string name="download">Stiahni</string>
-  <string name="download_document_confirm_prefix">Stiahni</string>
+  <string name="download">Stiahnuť dokumenty</string>
+  <string name="redownload">Opätovne stiahnuť dokumenty</string>
+  <string name="download_confirmation">Stiahnuť Bibliu z internetu?</string>
+  <string name="download_source_last_updated">Zoznam dokumentov bol naposledy aktualizovaný: %s.</string>
+  <string name="download_refreshing_book_list">Obnovenie zoznamu dostupných dokumentov z dokumentových serverov…</string>
+  <string name="download_source_message1">Dokumenty sú sťahované z nasledujúcich zdrojov:</string>
+  <string name="download_document_confirm_prefix">Stiahnuť</string>
   <string name="download_refresh_book_list_menu_item">Obnoviť</string>
-  <string name="storage_space_warning">Na disku je málo miesta</string>
-  <string name="document_not_installed">Prosím, stiahnete \'%s</string>
-  <string name="free_text_search_documents">Hľadaj</string>
+  <string name="error_downloading">Pri sťahovaní sa vyskytla chyba. Skontrolujte svoje internetové pripojenie. </string>
+  <string name="error_downloading_status">Server, na ktorom je %s, vrátil chybu kvôli %s (%d).</string>
+  <string name="storage_space_warning">Nedostatok miesta na lokálnom úložisku.</string>
+  <string name="too_many_jobs">Je spustených príliš veľa úloh. Počkajte, kým sa niektoré dokončia, a skúste to znova. </string>
+  <string name="document_not_installed">Prosím stiahnete \'%s\'</string>
+  <string name="free_text_search_documents">Hľadať</string>
+  <string name="chooce_language_hint">Jazyk</string>
+  <string name="one_more_back_press">Opätovným stlačením spať sa aplikácia zatvorí</string>
+  <string name="document_filter_results">%d dokumentov</string>
+  <string name="download_question_title">Chcete pokračovať v sťahovaní dokumentov? </string>
+  <string name="download_question_message">Ak žijete v krajine, kde je prenasledovanie,
+    možno budete musieť dávať pozor na sťahovanie kresťanského materiálu cez internet. 
+    Namiesto toho môžete chcieť získať moduly bezpečnejšie  ako súbory zip
+    a nainštalovať ich prostredníctvom „Načítať Dokument z archívu ZIP“. Naozaj chcete pokračovať v sťahovaní?
+    Všetky sťahovania z modulových serverov sú šifrované (HTTPS).
+</string>
+  <string name="do_not_ask_again">Áno, už sa viac nepýtať</string>
+  <string name="recommended_document">Odporúčané!</string>
+  <string name="about_version_history">História verzií: %s</string>
+  <string name="download_errors">Chyby sťahovania</string>
+  <string name="failed_repositories_message">Nie je možné sa pripojiť k nasledujúcemu dokumentovému  serveru: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">Nasledujúce súbory nie je možné stiahnuť:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Načítať Dokument z archívu ZIP</string>
-  <string name="install_zip_module">Inštaluj modul Biblie</string>
+  <string name="install_zip_module">Inštalovať modul Biblie</string>
   <string name="install_zip_successfull">Modul bol úspešne inštalovaný</string>
+  <string name="extracting_zip_file">Teraz extrahujem súbory zo ZIP…</string>
+  <string name="checking_zip_file">Kontrolovanie daného súboru…</string>
   <string name="invalid_module">Súbor neobsahuje platný SWORD modul</string>
-  <string name="install_zip_title">Čakajte prosím. Nahrávam Zip súbor.</string>
+  <string name="install_zip_title">Čakajte prosím. Načítavam Zip súbor.</string>
+  <string name="overwrite_files">Nasledujúce súbory už existujú: %s Prepísať ich?</string>
+  <string name="overwrite_files_title">Prepísať súbory? </string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čítania</string>
   <string name="rdg_plan_selector_title">Vybrať plán čitania</string>
   <string name="rdg_plan_day">Deň %s</string>
+  <string name="rdg_plan_set_start_date">Zadať začiatočný deň…</string>
+  <string name="set_current_day">Nastaviť ako dnešný deň…</string>
+  <string name="msg_set_current_day_reading_plan">Toto nastaví dnešok ako aktuálny deň v tomto pláne a všetky predchádzajúce dni sa označia ako prečítané. Pokračovať? </string>
   <string name="done">Hotovo</string>
+  <string name="reset_plan_question">Ste si istý, že chcete resetovať tento plán? </string>
+  <string name="import_reading_plan">Importovanie plánu čítania…</string>
+  <string name="import_reading_plan_error">Chyba pri importe</string>
+  <string name="import_reading_plan_error_duplicate">Nasledujúce dni boli duplicitné: %s</string>
+  <string name="import_reading_plan_error_days">Nasledujúce dni obsahujú chyby:  %s</string>
+  <string name="import_reading_plan_anyway">Aj tak importovať</string>
+  <string name="overwrite_reading_plan">Chcete prepísať súbory %s? </string>
+  <string name="delete_reading_plan">Odstrániť tento plán</string>
+  <string name="reading_plan_deleted">Plán čítania bol odstránený</string>
+  <string name="reading_plan_ships_with_ab">Tento plán čítania sa dodáva s %s</string>
+  <string name="confirm_delete_reading_plan">
+        Ste si istí, že chcete odstrániť %s aj históriu čítania?
+        Tip: Ak potrebujete aktualizovať plán, stačí ho znova importovať s rovnakým názvom súboru
+        a história bude zachovaná.
+    </string>
+  <string name="plan_duplicate_user_plan">
+        Na sdcard existuje používateľov plán čítania 
+        jsword/readingplan s rovnakým názvom ako je interný plán. Tu to nemôže byť uvedené.
+        Premenujte súbor na niečo iné a ponechajte príponu súboru ako .properties 
+    </string>
+  <string name="plan_name_y1ntpspr">NZ, Žalmy a Príslovia za jeden rok</string>
+  <string name="plan_description_y1ntpspr">
+        S láskavým súhlasom HEARTLIGHT Internet Magazine,
+        http://www.heartlight.org, povolenie udelené
+    </string>
+  <string name="plan_name_y1ot1nt1_chronological">Billa za 1 rok chronologicky</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+        Plán založený na chronologických udalostiach v Biblii.
+        Chronologická časová os je približná. 
+    </string>
+  <string name="plan_name_y1ot1nt1_OTandNT">SZ+NT za 1 rok simultánne</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+        Prečítajte si Bibliu za 1 rok, SZ a NZ 
+        s kapitolami na každý deň.
+    </string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">Biblia za 1 rok</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+        Prečítanie Biblie za 1 rok, začínajúc v Genesis
+        a končiac v Zjavení. Najprv SZ, potom NZ.
+    </string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1-rok4-kapitoly/deň</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+        Tento plán je založený na systéme čítania M’Cheyne,
+        obsahuje štyri rôzne čítania na použitie pri rodinnej aj osobnom stíšení. Každý deň má
+        dve pasáže zo Starého zákona, jedna z Nového zákona a jedna buď zo žalmov alebo z evanjelií. V jednom roku,
+        si prečítate Starý zákon raz a Nový zákon a žalmy dvakrát.
+    </string>
+  <string name="plan_name_y1ot6nt4_profHorner">Plán čítania Prof. Hornera 10-kapitol/deň</string>
+  <string name="plan_description_y1ot6nt4_profHorner">S láskavým súhlasom  Prof. Hornera, povolenie udelené</string>
+  <string name="plan_name_y2ot1ntps2">Bibliou za 2-roky, NZ+Ž dva krát</string>
+  <string name="plan_description_y2ot1ntps2">
+        Prečítanie Biblie za 2 roky, čítanie NZ a Žalmov dva kráť.
+        S láskavým súhlasom Wholesome Words,  http://www.wholesomewords.org/, povolenie udelené 
+    </string>
   <!--Document context menu-->
   <string name="delete">Vymazať</string>
   <string name="delete_index">Vymazať index vyhľadávania</string>
@@ -115,6 +321,9 @@
   <string name="delete_search_index_doc">Vymazať index pre %s?</string>
   <!--Verse context menu-->
   <string name="notes">Poznámky pod čiarou a odkazy</string>
+  <string name="share_verse">Zdieľať…</string>
+  <string name="share_verse_widget_title">Zdieľať výber</string>
+  <string name="share_verse_subject_2">Biblický verš bol s tebou zdielaný cez %s.</string>
   <string name="compare_translations">Porovnať preklady</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Otvoriť odkaz tu</string>
@@ -260,6 +469,9 @@ Režim opakovania bol vypnutý, pretože
   <!--Backup and restore-->
   <string name="backup_and_restore">Záloha a obnovenie</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_confirmation">Prepísať Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovné priestory? </string>
+  <string name="restore_success">Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovné priestory boli úspešne obnovené </string>
+  <string name="backup_success2">Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovné priestory boli úspešne zálohované</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_versification">Virzifikácia: %s</string>
@@ -270,6 +482,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="doc_type_dictionary">Slovníky</string>
   <string name="doc_type_book">Kniha</string>
   <string name="doc_type_map">Mapa</string>
+  <string name="doc_type_addons">Doplnky</string>
   <!--Languages-->
   <string name="lang_default">Predvolené</string>
   <!--General-->
@@ -295,7 +508,10 @@ Režim opakovania bol vypnutý, pretože
   <string name="notification_channel_progress_status">Informácia o stave sťahovania dokumentov, atď</string>
   <!--Workspaces-->
   <string name="new_workspace">Nový</string>
+  <string name="switch_to_workspace">Pracovné priestory</string>
+  <string name="workspace_number">Pracovný priestor %d</string>
   <string name="rename_workspace">Premenovať</string>
+  <string name="workspace_selector_title">Výber pracovného priestoru</string>
   <string name="save_and_exit">Uložiť</string>
   <string name="reset_settings">Znovu nastaviť</string>
   <!--Beta notice-->
@@ -303,21 +519,41 @@ Režim opakovania bol vypnutý, pretože
   <!--Help-->
   <string name="help_nav_title">Navigácia</string>
   <string name="help_contextmenus_title">Kontextová ponuka</string>
+  <string name="help_studypads_text">
+        Študijné zložky sú navrhnuté tak, aby vám uľahčili písanie kázní, prípravu kázní alebo len tak
+        si zapíšte osobné poznámky k štúdiu Biblie, ktoré majú viacero biblických odkazov. Každá študijná podložka je spojená s jedným štítkom záložky.
+        Všetky záložky, ktoré boli vytvorené s príslušným štítkom, sa automaticky zobrazia v dokumente študijného bloku.
+        Okrem záložiek môžu byť v študijnom bloku aj vlastné textové položky.
+    </string>
   <string name="help_search_title">Hľadaj</string>
   <string name="help_search_text">Vyhľadávaný text môže obsahovať aj špeciálne znaky ako *,?, AND, OR, NOT
 (viď \"Apache Lucene - Query Parser Syntax\" pre viac info)</string>
+  <string name="help_workspaces_title">Pracovné plochy</string>
+  <string name="help_window_pinning_title">Pripínanie okna</string>
   <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Zatvor</string>
+  <string name="strongs_mode_title">Zvoliť režim strongov</string>
+  <string name="journal_description">Používateľom upravovateľné študijné zložky s vlastným textom a záložkami</string>
   <string name="my_notes_abbreviation">Moje poznámky</string>
+  <string name="studypads">Študijné zložky</string>
   <string name="compare_description">Porovnať preklady</string>
   <string name="verse_action_copy">Kopírovať</string>
   <string name="show_versenumbers">Zobraziť čísla veršov</string>
   <string name="backup_button">Záloha</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="play">Google Play Store</string>
+  <string name="proceed_anyway">Aj tak pokračovať </string>
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+        Ak nejaký text / preklad Bible preklad má problém , %s.
+    </string>
   <!--param is "please read what you can do"-->
+  <string name="proceed_google_play">
+        Prejsť do Google Play
+    </string>
+  <string name="delete_label_confirmation">Chcete odstrániť štítok záložky „%s“? Tiež budú odstránené všetky súvisiace poznámky v Študijnej zložke . </string>
   <string name="system_items1">Viac</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Ospravedlňujeme sa, ale máme len čiastočný preklad používateľského rozhrania v jazyku %s. Dôvodom je, že %s je úplne vyvinutý dobrovoľníkmi. Ak môžete pomôcť s prekladom, pozrite sa na %s. </string>
