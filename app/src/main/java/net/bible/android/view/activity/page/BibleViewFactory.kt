@@ -50,7 +50,7 @@ class BibleViewFactory @Inject constructor(
 
     private val windowBibleViewMap: MutableMap<Long, BibleView> = HashMap()
     init {
-        Log.d(TAG, "New BibleViewFactory ${this.hashCode()} ${Log.getStackTraceString(Exception())}")
+        Log.d(TAG, "New BibleViewFactory ${this.hashCode()}")// ${Log.getStackTraceString(Exception())}")
     }
     
     fun getOrCreateBibleView(window: Window): BibleView {
@@ -66,7 +66,7 @@ class BibleViewFactory @Inject constructor(
             bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler,
                 pageControl, pageTiltScrollControl, linkControl, bookmarkControl, downloadControl)
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
-            Log.d(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}  ${Log.getStackTraceString(Exception())}")
+            Log.d(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")//  ${Log.getStackTraceString(Exception())}")
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
             bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()
