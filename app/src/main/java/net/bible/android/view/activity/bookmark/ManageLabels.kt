@@ -443,8 +443,9 @@ class ManageLabels : ListActivityBase() {
     // onListItemClick() method as an additional sanity check.
     fun selectStudyPadLabel(selected: Any) {
         if (data.mode == Mode.STUDYPAD) {
-            if (selected is BookmarkEntities.Label)
-                { saveAndExit(selected) }
+            if (selected is BookmarkEntities.Label) { 
+                saveAndExit(selected) 
+            }
         }
         else {
             Log.e(TAG, "Call to selectStudyPadLabel() is unexpected when mode is not STUDYPAD.  mode=${data.mode}")
