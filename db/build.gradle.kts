@@ -5,14 +5,13 @@ plugins {
     id("kotlinx-serialization")
 }
 
-
 android {
-    compileSdkVersion(30)
+    compileSdk = 30
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
-        minSdkVersion(19)
-        targetSdkVersion(30)
+        minSdk =19
+        targetSdk = 30
         javaCompileOptions {
             annotationProcessorOptions {
                 argument("room.schemaLocation", "$projectDir/schemas".toString())
@@ -36,20 +35,20 @@ android {
 }
 
 dependencies {
-    val commons_text_version: String by rootProject.extra
-    val jdom_version: String by rootProject.extra
-    val jsword_version: String by rootProject.extra
-    val kotlinx_serialization_version: String by rootProject.extra
-    val room_version: String by rootProject.extra
+    val commonsTextVersion: String by rootProject.extra
+    val jdomVersion: String by rootProject.extra
+    val jswordVersion: String by rootProject.extra
+    val kotlinxSerializationVersion: String by rootProject.extra
+    val roomVersion: String by rootProject.extra
 
-    implementation("androidx.room:room-runtime:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version")
-    implementation("com.github.AndBible:jsword:$jsword_version")
-    implementation("org.jdom:jdom2:$jdom_version")
-    implementation("org.apache.commons:commons-text:$commons_text_version")
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
+    implementation("com.github.AndBible:jsword:$jswordVersion")
+    implementation("org.jdom:jdom2:$jdomVersion")
+    implementation("org.apache.commons:commons-text:$commonsTextVersion")
 
-    kapt("androidx.room:room-compiler:$room_version")
+    kapt("androidx.room:room-compiler:$roomVersion")
 }
 
 repositories {

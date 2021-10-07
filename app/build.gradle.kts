@@ -1,10 +1,3 @@
-plugins {
-    id("com.android.application")
-    id("kotlin-android")
-    id("kotlin-kapt")
-    id("kotlinx-serialization")
-}
-
 import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
@@ -12,30 +5,32 @@ import java.util.Date
 import java.util.Locale
 import java.util.Properties
 
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    id("kotlin-kapt")
+    id("kotlinx-serialization")
+}
 
 val jsDir = "bibleview-js"
 
-fun getGitHash(): String {
-    return ByteArrayOutputStream().use(
-        { stdout ->
-    exec {
-        commandLine("git", "rev-parse", "--short", "HEAD")
-        standardOutput = stdout
+fun getGitHash(): String =
+    ByteArrayOutputStream().use { stdout ->
+        exec {
+            commandLine("git", "rev-parse", "--short", "HEAD")
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
     }
-    return stdout.toString().trim()
-        }) // use()
-}
 
-fun getGitDescribe(): String {
-    return ByteArrayOutputStream().use(
-        { stdout ->
+fun getGitDescribe(): String  = ByteArrayOutputStream().use { stdout ->
     exec {
         commandLine("git", "describe", "--always")
         standardOutput = stdout
     }
     return stdout.toString().trim()
-        }) // use()
 }
+
 
 val npmUpgrade by tasks.registering(Exec::class) {
     inputs.file("$jsDir/package.json")
@@ -64,7 +59,7 @@ val npmInstall by tasks.registering(Exec::class) {
     }
 }
 
-val vuecli by tasks.registering(Exec::class) {
+val vueCli by tasks.registering(Exec::class) {
     dependsOn(npmInstall)
     inputs.file("$jsDir/package.json")
     inputs.file("$jsDir/vue.config.js")
@@ -76,14 +71,13 @@ val vuecli by tasks.registering(Exec::class) {
     val taskNames = gradle.startParameter.taskNames
     println(taskNames)
     val isDebug = taskNames.contains(":app:packageDebug")
-    val buildCmd: String
 
-    if(!isDebug) {
+    val buildCmd: String = if(!isDebug) {
         println("Building js for production")
-        buildCmd = "build-production"
+        "build-production"
     } else {
         println("Building js for debug")
-        buildCmd = "build-debug"
+        "build-debug"
     }
     workingDir = file(jsDir)
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
@@ -95,7 +89,7 @@ val vuecli by tasks.registering(Exec::class) {
 }
 
 val buildLoaderJs by tasks.registering(Sync::class) {
-    dependsOn(vuecli)
+    dependsOn(vueCli)
     from("$jsDir/dist")
     into("src/main/assets/bibleview-js")
 }
@@ -106,17 +100,17 @@ val jsTests by tasks.registering(Exec::class) {
     commandLine("node_modules/.bin/npm", "run", "test:unit")
 }
 
-tasks.named("preBuild").configure({ dependsOn(buildLoaderJs) })
-tasks.named("check").configure({ dependsOn(jsTests) })
+tasks.named("preBuild").configure { dependsOn(buildLoaderJs) }
+tasks.named("check").configure { dependsOn(jsTests) }
 
 android {
-    compileSdkVersion(30)
+    compileSdk = 30
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         applicationId = "net.bible.android.activity"
-        minSdkVersion(21)
-        targetSdkVersion(30)
+        minSdk =21
+        targetSdk = 30
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
@@ -128,17 +122,15 @@ android {
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-            isZipAlignEnabled = true
         }
         debug {
             val propsFile = rootProject.file("local.properties")
             if (propsFile.exists()) {
                 val props = Properties()
-                FileInputStream(propsFile).use(
-                    { props.load(it) })
+                FileInputStream(propsFile).use { props.load(it) }
 
-                val appSuffix: String? = props["APP_SUFFIX"] as String
-                println("App suffix: " + appSuffix)
+                val appSuffix: String? = props["APP_SUFFIX"] as String?
+                println("App suffix: $appSuffix")
 
                 if (appSuffix != null) {
                     applicationIdSuffix = appSuffix
@@ -191,9 +183,9 @@ android {
     }
 
     packagingOptions {
-        exclude("META-INF/LICENSE.txt")
-        exclude("META-INF/NOTICE.txt")
-        exclude("META-INF/DEPENDENCIES")
+        resources.excludes.add("META-INF/LICENSE.txt")
+        resources.excludes.add("META-INF/NOTICE.txt")
+        resources.excludes.add("META-INF/DEPENDENCIES")
     }
 
     buildFeatures {
@@ -206,12 +198,12 @@ android {
 }
 
 dependencies {
-    val commons_text_version: String by rootProject.extra
-    val jdom_version: String by rootProject.extra
-    val jsword_version: String by rootProject.extra
-    val kotlin_version: String by rootProject.extra
-    val kotlinx_serialization_version: String by rootProject.extra
-    val room_version: String by rootProject.extra
+    val commonsTextVersion: String by rootProject.extra
+    val jdomVersion: String by rootProject.extra
+    val jswordVersion: String by rootProject.extra
+    val kotlinVersion: String by rootProject.extra
+    val kotlinxSerializationVersion: String by rootProject.extra
+    val roomVersion: String by rootProject.extra
 
     implementation(project(":db"))
     // Appcompat:
@@ -239,10 +231,10 @@ dependencies {
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
     implementation("androidx.annotation:annotation:1.2.0")
 
-    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-runtime:$roomVersion")
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
 
     implementation("com.madgag.spongycastle:core:1.58.0.0")
@@ -257,11 +249,11 @@ dependencies {
     implementation("de.greenrobot:eventbus:2.4.1")
 
     implementation("org.apache.commons:commons-lang3:3.12.0")
-    implementation("org.apache.commons:commons-text:$commons_text_version")
+    implementation("org.apache.commons:commons-text:$commonsTextVersion")
 
-    implementation("com.github.AndBible:jsword:$jsword_version")
+    implementation("com.github.AndBible:jsword:$jswordVersion")
 
-    implementation("org.jdom:jdom2:$jdom_version")
+    implementation("org.jdom:jdom2:$jdomVersion")
 
     debugImplementation("com.facebook.stetho:stetho:1.6.0")
 
