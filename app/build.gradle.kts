@@ -159,7 +159,7 @@ android {
     } // productFlavors
 
 
-    lintOptions {
+    lint {
         disable("MissingTranslation")
         disable("ExtraTranslation")
         warning("InvalidPackage")

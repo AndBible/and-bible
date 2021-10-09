@@ -1,0 +1,42 @@
+Un potente strumento di studio della Bibbia
+
+L'app Studi Biblici del progetto open source And Bible è un'applicazione per lo studio della Bibbia per Android potente, ma facile da usare. L'app non è limitata alla sola lettura del testo biblico, ma offre strumenti avanzati per lo studio personale della Bibbia.
+
+Questa applicazione è sviluppata da lettori della Bibbia, per i lettori della Bibbia. Vuole essere d'aiuto per facilitarti lo studio e l'approfondimento della Bibbia. La parte migliore di questo progetto non-profit è che è open source, completamente gratuito, e non contiene pubblicità. Interamente progettato per Android, è un programma piccolo da scaricare, e quindi molto efficiente e veloce.
+
+Alcune note versioni della Bibbia (tra le tante disponibili) sono KJV, NASB, NET, e anche commentari popolari come quelli di Matthew Henry e di John Gill.
+
+Un potente strumento di studio della Bibbia
+
+L'applicazione ha molte caratteristiche intuitive e originali, che rendono una complessa esperienza di studio della Bibbia più agevole che mai. Le caratteristiche più interessanti sono le seguenti:
+
+ * Le finestre di testo separate permettono di confrontare le traduzioni e consultare i commentari
+ * Le aree di lavoro consentono ambienti separati di studio biblico con impostazioni differenti
+ * L'integrazione dei numeri Strong consente l'analisi delle parole in greco ed ebraico
+ * Riferimenti incrociati, note a piè di pagina, e documenti collegati; passa ai riferimenti incrociati e alle note semplicemente toccando un collegamento; esegui uno studio approfondito delle Scritture usando i commentari collegati (Gill, Matthew Henry, ecc.), le raccolte di riferimenti incrociati (Treasure of Scripture Knowledge, TSKe) e altre risorse.
+ * Sintesi vocale avanzata con segnalibri parlati, che permette una comoda esperienza di ascolto della Bibbia
+ * Ricerca flessibile
+ * Segnalibri ed evidenziazione avanzata con note di studio personali
+ * Appunti di studio per aggiungere annotazioni e riferimenti biblici durante l'ascolto dei sermoni.
+ * Piani di lettura: fissa degli obiettivi di lettura della Bibbia
+ * Vasta biblioteca di documenti: traduzioni della Bibbia, commentari teologici, dizionari, mappe e libri cristiani, per un totale di oltre 1500 documenti in oltre 700 lingue, distribuiti legalmente da Crosswire e altri repository SWORD.
+ * Offline: l'unica volta che hai bisogno di internet è per scaricare i documenti.
+
+Creiamo insieme la migliore app della Bibbia!
+
+And Bible è un progetto comunitario open-source. In pratica, questo significa che chiunque abbia competenze adeguate può ed è incoraggiato a contribuire al progetto:
+
+ * sviluppando nuove funzionalità,
+ * testando le nuove caratteristiche,
+ * mantenendo aggiornate le traduzioni dell'interfaccia utente, e
+ * aiutando ad estendere la libreria dei moduli ottenendo i permessi dai detentori del copyright, o convertendo i documenti in formato SWORD.
+
+Se sei uno sviluppatore software o un tester, per favore considera di contribuire al progetto. Per maggiori informazioni su come contribuire, vedi https://git.io/JUnaj.
+
+Collegamenti
+
+ * Pagina principale: https://andbible.github.io
+ * Metti un like ad And Bible su Facebook: https://www.facebook.com/AndBible/
+ * Il nostro canale Youtube: https://www.youtube.com/c/AndBible
+ * Domande frequenti: https://git.io/JJm8E
+ * Pagina del progetto su Github: https://github.com/AndBible/and-bible

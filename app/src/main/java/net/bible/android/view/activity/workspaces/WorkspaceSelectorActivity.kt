@@ -442,7 +442,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         CommonUtils.fixAlertDialogButtons(dialog)
     }
 
-    private val dao = DatabaseContainer.db.workspaceDao()
+    private val dao get() = DatabaseContainer.db.workspaceDao()
 
     override fun onBackPressed() {
         cancelChanges()

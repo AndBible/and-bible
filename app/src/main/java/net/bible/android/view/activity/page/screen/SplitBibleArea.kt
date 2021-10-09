@@ -591,7 +591,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         val isSettingDisabled = CommonUtils.settings.getBoolean("hide_bible_reference_overlay", false)
         if (isSettingDisabled) return
 
-        val show = mainBibleActivity.fullScreen && _show
+        val show = (_mainBibleActivity?.fullScreen ?: return) && _show
         if(show) {
             bibleReferenceOverlay.visibility = View.VISIBLE
             bibleReferenceOverlay.animate().alpha(1.0f)

@@ -1,0 +1,42 @@
+Ampleksa aplikaĵo por studi Biblion
+
+Studi Biblion «Bible Study» de la malfermkoda projekto And Biblio estas ampleksa, tamen facile uzebla ilo por studi la Sanktan Skribon por la operaciumo Android. Ĝi ne celas esti simpla legilo de Biblio, sed koncentriĝas esti spertula ilo por profunde persone studi Biblion.
+
+Tiu ĉi aplikaĵo estas evoluigata de legantoj de Biblio kaj por legantoj de Biblio. Ĝia celo estas igi studadon de Biblio oportuna, profunda kaj amuza. La plej grava fakto de tiu ĉi neprofitcela komunuma projekto estas, ke ĝi estas malfermkoda, tute senpaga kaj enhavas neniun reklamon. Programita cele por Android, la aplikaĵo estas malgranda, do tre efika kaj rapida.
+
+Esperanta Londona Biblio.
+
+Potencaj ebloj de la aplikaĵo
+
+La aplikaĵo distingiĝas per pluraj sagaj, originalaj ebloj, kiuj plifaciligas profundan studadon de Biblio. La plej gravaj trajtoj estas:
+
+ * dividi vidon de teksto por kompari tradukojn kaj legi komentarojn
+ * laborspacoj ebligantaj havi plurajn mediojn por studi Biblion, ĉiu kun propraj agordoj
+ * numeroj de Strong por analizi vortojn en greka kaj hebrea
+ * entekstaj malfermeblaj ligiloj al internaj referencoj, piednotoj kaj dokumentoj; komentaroj (nedisponeblaj en EO), kolektoj de internaj referencoj (nedisponeblaj en EO) kaj aliaj tekstoj
+ * teksto-al-parolo kun legosignoj por senbare aŭskulti Biblion
+ * fleksebla serĉo
+ * ampleksaj ebloj por krei legosignojn kaj emfazi tekston kun personaj notoj
+ * “notblokoj” por aldoni notojn kaj referencojn dum aŭskulti predikojn
+ * planoj de legado: difinu viajn celojn por legi Biblion
+ * granda biblioteko de dokumentoj: tradukoj, teologiaj komentaroj, vortaroj, mapoj, kristanismaj libroj, pli ol 1500 dokumentoj en 700 lingvoj, laŭleĝe distribuataj de per CrossWire kaj per aliaj SWORD-deponejoj
+ * funkcias malkonekte: interreta konekto estas bezonata nur por elŝuti dokumentojn
+
+Ni kune faru la plej bonan apon por legi Biblion!
+
+And Biblio estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun necesaj scipovoj) povas kaj estas instigata por kontribui al la projekto per:
+
+ * programi novajn eblojn;
+ * testi beta-eblojn;
+ * traduki la programon;
+ * helpi plivastigi la bibliotekon de moduloj per ricevi permesojn de kopirajt‑posedantoj aŭ konverti dokumentojn al la formo SWORD.
+
+Se vi estas profesia programisto aŭ testanto, bonvolu konsideri kontribui al la projekto. Pliaj informoj pri kiel kontribui troviĝas ĉe https://git.io/JUnaj
+
+Ligiloj
+
+ * hejmpaĝo: https://andbible.github.io
+ * ŝatu la apon Studi Biblion ĉe https://www.facebook.com/AndBible/
+ * nia YouTube-kanalo: https://www.youtube.com/c/AndBible
+ * oftaj demandoj (en la angla) https://git.io/JJm8E
+ * projekt-paĝo ĉe GitHub: https://github.com/AndBible/and-bible

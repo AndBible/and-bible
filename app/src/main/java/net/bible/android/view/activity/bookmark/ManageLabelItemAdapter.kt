@@ -147,6 +147,7 @@ class ManageLabelItemAdapter(context: Context?,
                 } else {
                     labelIcon.setImageResource(R.drawable.ic_label_24dp)
                 }
+                labelIcon.setColorFilter(label.color)
 
                 // TODO: implement otherwise
                 bookmarkStyleAdapterHelper.styleView(labelName, label, context, false, false)
@@ -155,8 +156,24 @@ class ManageLabelItemAdapter(context: Context?,
                         Log.i(TAG, "Edit label clicked")
                         manageLabels.editLabel(label)
                     }
+                    // ensure that this listener is cleared when the mode is not STUDYPAD
+                    root.setOnLongClickListener(null)
                 }
-                labelIcon.setColorFilter(label.color)
+                // In STUDYPAD Mode:
+                //      * click selects the label and finishes the activity
+                //      * long-click navigates to the edit label activity
+                else {
+                    root.setOnClickListener {
+                        Log.i(TAG, "Select (studypad) label clicked")
+                        manageLabels.selectStudyPadLabel(label)
+                    }
+
+                    root.setOnLongClickListener {
+                        Log.i(TAG, "Edit label long-clicked (in STUDYPAD mode)")
+                        manageLabels.editLabel(label)
+                        true
+                    }
+                } 
             }
         }
         return convertView?: bindings.root

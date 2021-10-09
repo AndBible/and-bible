@@ -143,7 +143,10 @@ class LinkControl @Inject constructor(
                 Dialogs.instance.showErrorMsg(R.string.document_not_installed, initials)
             } else if(document.bookCategory == BookCategory.BIBLE && !forceDoc) {
                 return getBibleKey(ref, versification)
-            } else { //Foreign language keys may have been URLEncoded so need to URLDecode them e.g. UZV module at Matthew 1. The first link is "David" (looks a bit like DOBYA)
+            } else if(document.isGreekDef || document.isHebrewDef) {
+                return getStrongsKey(document, reference)
+            }
+            else { //Foreign language keys may have been URLEncoded so need to URLDecode them e.g. UZV module at Matthew 1. The first link is "David" (looks a bit like DOBYA)
                 ref = URLDecoder.decode(ref)
                 //According to the OSIS schema, the osisRef attribute can contain letters and "_", but NOT punctuation and NOT spaces
 				//IBT dictionary entries sometimes contain spaces but osisrefs can't so _32_ is used
@@ -188,7 +191,7 @@ class LinkControl @Inject constructor(
 
         val k = try {book.getKey(key)} catch (e: NoSuchKeyException) {
             try {
-                val match = Regex("^([GH])([0-9]+).*").find(key) ?: return null
+                val match = Regex("^([GH]?)([0-9]+).*").find(key) ?: return null
                 //val firstLetter = match.groups[1]?.value!!
                 val sanitizedKey = match.groups[2]?.value?.padStart(5, '0')!!
                 book.getKey(sanitizedKey)
@@ -313,3 +316,6 @@ class LinkControl @Inject constructor(
     }
 
 }
+
+val Book.isHebrewDef get() = bookMetaData.getValues("Feature")?.contains("HebrewDef") == true
+val Book.isGreekDef get() = bookMetaData.getValues("Feature")?.contains("GreekDef") == true
