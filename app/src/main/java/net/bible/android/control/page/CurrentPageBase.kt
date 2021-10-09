@@ -249,7 +249,7 @@ abstract class CurrentPageBase protected constructor(
         val book = swordDocumentFacade.getDocumentByInitials(document)
             ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
         if (book != null) {
-            Log.d(TAG, "Restored document:" + book.name)
+            Log.d(TAG, "Restored document: ${book.name} ${book.initials}")
             // bypass setter to avoid automatic notifications
             localSetCurrentDocument(book)
             val keyName = entity.key
