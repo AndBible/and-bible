@@ -23,6 +23,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
@@ -258,6 +259,9 @@ abstract class CurrentPageBase protected constructor(
                     doSetKey(book.getKey(keyName))
                 } catch (e: Exception) {
                     Log.e(TAG, "Key $keyName not be loaded from $document", e)
+                    if(e !is NoSuchKeyException) {
+                        Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+                    }
                 }
             }
         }
