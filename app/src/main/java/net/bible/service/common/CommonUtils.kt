@@ -97,6 +97,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
@@ -994,7 +995,10 @@ object CommonUtils : CommonUtilsBase() {
                 bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, greenLabel.id))
 
                 val salvationVerses = listOf("Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
-                    .map { VerseRangeFactory.fromString(KJVA, it) }
+                    .mapNotNull { try {VerseRangeFactory.fromString(KJVA, it)} catch (e: NoSuchVerseException) {
+                        Log.e("CommonUtils", "NoSuchVerseException for ${it}??!", e)
+                        null 
+                    }}
 
                 salvationVerses
                     .map {
