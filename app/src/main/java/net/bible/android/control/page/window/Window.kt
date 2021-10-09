@@ -178,7 +178,7 @@ open class Window (
         }
         displayedBook = currentPage.currentDocument
         displayedKey = currentPage.key
-        Log.d(TAG, "updateText ${this.hashCode()} ${Log.getStackTraceString(Exception())}")
+        Log.d(TAG, "updateText ${this.hashCode()}") // ${Log.getStackTraceString(Exception())}")
 
         GlobalScope.launch(Dispatchers.IO) {
             if (notifyLocationChange) {

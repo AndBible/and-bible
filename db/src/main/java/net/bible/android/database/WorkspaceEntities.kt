@@ -255,7 +255,7 @@ class WorkspaceEntities {
                 fontFamily = "sans-serif",
                 strongsMode = 0,
                 showMorphology = false,
-                showFootNotes = false,
+                showFootNotes = true,
                 showRedLetters = false,
                 showSectionTitles = true,
                 showVerseNumbers = true,

@@ -9,10 +9,13 @@ on:
     paths:
       - '**/*.java'
       - '**/*.kt'
+      - '**/*.kts'
   pull_request:
     paths:
       - '**/*.java'
       - '**/*.kt'
+      - '**/*.kts'
+  workflow_dispatch:
 
 permissions:
   contents: read

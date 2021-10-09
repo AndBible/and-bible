@@ -16,7 +16,7 @@
   <string name="speak">Voorlezen</string>
   <string name="help">Hulp</string>
   <string name="information">Informatie</string>
-  <string name="other">Andere</string>
+  <string name="other">Anders</string>
   <string name="contact">Contact</string>
   <string name="help_and_tips">Hulp &amp; tips</string>
   <string name="administration">Administratie</string>
@@ -60,7 +60,11 @@
   <string name="prefs_show_verseno_title">Hoofdstuk- en versnummers</string>
   <string name="prefs_show_verseno_summary">Toon hoofdstuk- en versnummers</string>
   <string name="prefs_e_ink_mode_title">Zwart-wit-weergave</string>
+  <string name="prefs_eink_mode_summary">Gebruik de applicatie in de monochrome modus (geen kleur), waardoor het meer geschikt wordt voor apparaten met e-inkt (e-readers).</string>
   <string name="prefs_disable_animations_title">Schakel animaties uit</string>
+  <string name="prefs_disable_animations_summary">Schakel diverse animaties uit, zoals gelijkmatig scrollen.</string>
+  <string name="prefs_paragraph_spacing_title">Alinea-afstand (%smm)</string>
+  <string name="prefs_paragraph_spacing_summary">Pas de afstand tussen alinea\'s aan.</string>
   <string name="prefs_show_verseno_title1">Versnummers</string>
   <string name="prefs_show_chapter_no_title">Hoofdstuknummers</string>
   <string name="prefs_show_chapter_no_summary">Toon hoofdstuknummers</string>
@@ -77,13 +81,19 @@
   <string name="prefs_show_bookmarks_title">Bladwijzers tonen</string>
   <string name="prefs_show_mynotes_title">Mijn notitie-pictogrammen tonen</string>
   <string name="prefs_show_footnotes_title">Voetnoten</string>
+  <string name="prefs_show_xrefs_title">Verwijzingen</string>
+  <string name="prefs_show_footnotes_summary">Toon voetnoten indien aanwezig in het document.</string>
+  <string name="prefs_show_xrefs_summary">Toon verwijzingen, indien aanwezig in het document.</string>
   <string name="prefs_show_notes_title">Voetnoten en kruisverwijzingen</string>
   <string name="prefs_show_strongs_title">Strong\'s nummers</string>
   <string name="prefs_show_morphology_title">Morfologische codes</string>
   <string name="prefs_section_title_title">Sectietitels</string>
   <string name="prefs_red_letter_title">Rode letter</string>
   <string name="prefs_tilt_to_scroll_title">Kantelen om te scrollen</string>
+  <string name="prefs_toolbar_button_action_default">Indrukken om het menu te openen, lang indrukken voor het documentscherm (default)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Indrukken om het volgende document te openen, lang indrukken om het menu te openen.</string>
   <string name="prefs_night_mode_title">Nachtweergave wisselen</string>
+  <string name="prefs_night_mode_summary">Kies om automatisch naar nacht-modus te wisselen (als het apparaat dit ondersteunt), handmatig of via apparaatinstellingen (Android 10+).  Handmatig wisselen kan vanuit het 3-stippenmenu in het hoofdscherm.</string>
   <string name="prefs_night_mode_manual">Handmatig</string>
   <string name="prefs_night_mode_automatic">Automatisch</string>
   <string name="prefs_night_mode_system">Systeem</string>
@@ -112,7 +122,7 @@
   <string name="prefs_behavior_customization_cat">Applicatie gedrag</string>
   <string name="prefs_margin_size_summary">Pas de linker en rechter marge van het tekst venster aan. U kunt ook
         de maximale breedte van de tekst aanpassen.</string>
-  <string name="prefs_text_colors_summary">Pas tekst, achtergrond kleuren of ruis effect aan. </string>
+  <string name="prefs_text_colors_summary">Pas kleuren en ruiseffect van tekst en achtergrond aan</string>
   <string name="text_display_settings_activity_title">Tekst weergave instellingen</string>
   <string name="workspace_text_display_settings_title">Tekstopties - %s</string>
   <string name="window_text_display_settings_title">Tekstopties - Venster %d</string>
@@ -122,7 +132,7 @@
   <string name="pref_right_margin_label_mm">Rechter marge (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Maximale breedte van de tekst (%d mm)</string>
   <string name="prefs_line_spacing_pt">Regelafstand %1.1fx </string>
-  <string name="pref_font_family_label">Lettertype familie</string>
+  <string name="pref_font_family_label">Lettersoort</string>
   <string name="prefs_hyphenation_title">Tekstafbreking</string>
   <string name="prefs_line_spacing_pt_title">Regelafstand (%1.1fx)</string>
   <string name="line_spacing_title">Regelafstand</string>
@@ -133,25 +143,38 @@
   <string name="hide_window_buttons_title">Venster knoppen verbergen</string>
   <string name="full_screen_hide_buttons_pref_title">Verberg venster knoppen balk in volledig scherm</string>
   <string name="prefs_dictionaries_cat">Woordenboeken</string>
-  <string name="font_size_title">Lettertype grootte</string>
+  <string name="choose_strongs_greek_dictionary_summary">Kies Strongs-woordenboek voor definities Griekse woorden</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strongs Hebreeuws woordenboek</string>
+  <string name="prefs_top_margin_title_mm">Bovenmarge (%dmm)</string>
+  <string name="font_size_title">Lettergrootte</string>
+  <string name="font_size_title_pt">Lettergrootte (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Pas de lettergrootte van de tekst aan</string>
+  <string name="pref_font_family_label_name">Lettersoort (%s)</string>
+  <string name="prefs_font_family_summary">Wijzig de lettersoort. Tip: Meer lettertypes kunnen geinstalleerd worden via Documenten downloaden / Uitbreidingen.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleurinstellingen</string>
+  <string name="window_color_settings_title">Instellingen voor schermkleur.</string>
   <string name="workspace_color_settings_title">Standaard kleurinstellingen voor werkblad</string>
   <string name="color_text">Tekstkleur</string>
   <string name="color_background">Achtergrondkleur</string>
   <string name="colors_day_mode_title">Dagweergave</string>
   <string name="colors_night_mode_title">Nachtweergave</string>
+  <string name="prefs_noise_title">Achtergrondruiseffect</string>
+  <string name="prefs_noise_summary">Het toevoegen van ruis aan de achtergrond kan comfortabeler zijn voor de ogen.</string>
   <string name="cpv_default_title">Kies een kleur</string>
   <string name="cpv_presets">Voorinstellingen</string>
+  <string name="cpv_transparency">Transparantie</string>
   <!--Window-->
   <string name="new_window">Nieuw venster</string>
   <string name="windowClose">Sluiten</string>
   <string name="windowMaximise">Maximaliseren</string>
   <string name="windowMinimise">Minimaliseren</string>
   <string name="windowSynchronise">Synchroniseren</string>
+  <string name="move_window">Ga naar</string>
   <string name="copy_settings">Kopieer instellingen naar</string>
   <string name="copy_settings_to_workspace">Werkblad</string>
   <string name="copy_settings_to_window">venster %d (%s: %s)</string>
+  <string name="window_pin_mode">Zet vast</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Er zijn geen notities ​​bij dit hoofdstuk</string>
   <string name="no_verse_notes">Er zijn geen notities ​​bij dit vers</string>
@@ -161,15 +184,24 @@
   <string name="strongs_not_installed">Download Strong\'s Hebreeuws en Grieks woordenboek</string>
   <string name="no_indexed_bible_with_strongs_ref">Je moet een bijbel met Strong-nummers downloaden en de index downloaden via Zoeken</string>
   <string name="morph_robinson_not_installed">Download \'Robinson\'s Morfologische analyse Codes\' woordenboek</string>
+  <string name="go_to_downloads">Ga naar downloads</string>
   <!--Module download-->
   <string name="download">Documenten downloaden</string>
+  <string name="redownload">Documenten opnieuw downloaden</string>
+  <string name="download_confirmation">Een bijbel downloaden van het internet?</string>
   <string name="download_document_confirm_prefix">Downloaden</string>
   <string name="download_refresh_book_list_menu_item">Verversen</string>
   <string name="storage_space_warning">Onvoldoende lokale opslagruimte.</string>
+  <string name="too_many_jobs">Er worden teveel taken uitgevoerd. Wacht tot sommige beëindigd zijn en probeer het opnieuw.</string>
   <string name="document_not_installed">Download \'%s\'</string>
   <string name="free_text_search_documents">Zoeken</string>
   <string name="chooce_language_hint">Taal</string>
   <string name="document_filter_results">%d documenten</string>
+  <string name="download_question_title">Wilt u verder gaan met documenten downloaden?</string>
+  <string name="download_question_message">Als u in een land woont waar vervolging is, zult u mogelijk voorzichtig moeten zijn met het downloaden van Christelijke materialen via internet. 
+Het is mogelijk veiliger om zip-bestanden te verkrijgen en te installeren via \"Documenten laden vanuit Zip\". Weet u zeker dat u door wilt gaan met downloaden?
+Alle downloads van module servers zijn versleuteld (HTTPS).
+</string>
   <string name="do_not_ask_again">Ja, niet meer vragen</string>
   <string name="recommended_document">Aanbevolen!</string>
   <string name="about_version_history">Versiongeschiedenis: %s</string>
@@ -354,9 +386,14 @@
   <!--Backup and restore-->
   <string name="backup_and_restore">Back-up en herstel</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Wat wilt u herstellen?</string>
+  <string name="loading_backup">Database aan het laden vanuit backup...</string>
+  <string name="backup_email_subject_2">%sdatabase backup</string>
+  <string name="backup_backup_title">Waar backup opslaan?</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Geïnstalleerde versie: %s (%s)</string>
+  <string name="module_about_latest_version">Nieuwste versie: %s(%s)</string>
   <string name="module_about_versification">Versificatie: %s</string>
   <!--Bug reporting-->
   <!--Document types-->
@@ -365,6 +402,7 @@
   <string name="doc_type_dictionary">Woordenboek</string>
   <string name="doc_type_book">Boek</string>
   <string name="doc_type_map">Kaart</string>
+  <string name="doc_type_addons">Uitbreidingen</string>
   <!--Languages-->
   <string name="lang_default">Standaard</string>
   <!--General-->

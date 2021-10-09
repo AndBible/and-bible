@@ -189,7 +189,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                     // finish current activity if not the Main screen
                     val currentActivity = CurrentActivityHolder.getInstance().currentActivity
                     if (currentActivity !is MainBibleActivity) {
-                        currentActivity.finish()
+                        currentActivity?.finish()
                     }
                 }
             } finally {
