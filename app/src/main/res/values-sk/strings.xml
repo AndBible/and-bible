@@ -330,14 +330,32 @@
   <string name="open_link_in_new_window">Otvoriť odkaz v novom okne</string>
   <string name="open_link_in_special_window">Otvoriť odkaz v špeciálnom okne</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Záložky a Moje poznámky</string>
+  <string name="migrated_my_notes">Presunuté Moje poznámky</string>
   <string name="bookmarks">Záložky</string>
   <string name="bookmark_added">Záložka pridaná</string>
-  <string name="assign_labels">Pridať názov</string>
+  <string name="manage_labels">Spravovanie štítkov</string>
+  <string name="assign_labels">Priradiť štítok</string>
   <string name="new_item">Nový</string>
-  <string name="new_label">Nový názov</string>
+  <string name="new_label">Nový štítok</string>
   <string name="label_name_prompt">Názov</string>
-  <string name="label_unlabelled">Nepomenovaný</string>
+  <string name="label_unlabelled">Neoštítkový</string>
+  <string name="add_bookmark1">Záložka</string>
+  <string name="add_bookmark2">Záložka výberu</string>
+  <string name="add_bookmark3">Výber</string>
+  <string name="add_bookmark_whole_verse">Záložka verša</string>
+  <string name="add_bookmark_whole_verse1">Verše</string>
+  <string name="add_bookmark_whole_verse2">Celé verše</string>
+  <string name="remove_bookmark">Odstrániť</string>
+  <string name="bookmark_settings_hide_labels_title">Skryť určené štítky</string>
+  <string name="bookmark_settings_hide_labels_summary">Skryť záložky, ktoré sú označené špecifickými štítkami</string>
+  <string name="auto_assign_labels_title">Nastavenia štítkov</string>
+  <string name="auto_assign_labels">Auto-priradenie a Obľúbené štítky</string>
+  <string name="auto_assign_labels1">Automaticky priradiť štítok k novým záložkám</string>
+  <string name="auto_assign_labels_primary">Automaticky priradiť ako primárny</string>
+  <string name="label_color">Farba štítka</string>
   <!--can be removed-->
+  <string name="label_color_example">Príklad</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Zoradiť podľa dátumu</string>
   <string name="sort_by_bible_book">Zoradiť podľa kníh Biblie</string>
@@ -350,16 +368,16 @@
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
-  <string name="one_chapter">kapitolu %d</string>
-  <string name="some_chapters">kapitoly %d</string>
+  <string name="one_chapter">Kapitola %d</string>
+  <string name="some_chapters">%d kapitol</string>
   <string name="rest_of_book">Do konca knihy</string>
   <!--Speak - Commentary-->
   <string name="one_verse">verš %d</string>
-  <string name="some_verses">verše %d</string>
+  <string name="some_verses">%d veršov</string>
   <string name="rest_of_chapter">Do konca kapitoly</string>
   <!--Speak - Dictionary and other-->
   <string name="one_page">strana %d</string>
-  <string name="some_pages">strany %d</string>
+  <string name="some_pages">%d strán</string>
   <!--Speak - Common-->
   <string name="stop">Stop</string>
   <string name="pause">Pauza</string>
@@ -370,58 +388,78 @@
   <string name="speak_repeat">Zopakovať</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Rýchlosť čítania</string>
-  <string name="speak_and_play_earcons_title">Používať notifikačné zvuky pre</string>
-  <string name="playback_settings_title">Parametre prehrávania</string>
-  <string name="speak_settings_title">Parametre čítania</string>
-  <string name="speak_bookmarking_settings_title">Parametre záložiek čítania</string>
-  <string name="speak_bookmarks_menu_title">Čítaj zo záložky čítania</string>
-  <string name="speak_advanced_settings">Pokročilé parametre</string>
-  <string name="speak_sleep_timer_title">Čas do uspania</string>
+  <string name="speak_and_play_earcons_title">Prečítať a prehrať upozorňujúce zvuky pre</string>
+  <string name="playback_settings_title">Nastavenia prehrávania</string>
+  <string name="speak_settings_title">Všeobecné nastavenia čítania</string>
+  <string name="speak_bookmarking_settings_title">Nastavenia záložiek</string>
+  <string name="speak_bookmarks_menu_title">Čítať zo záložky</string>
+  <string name="speak_advanced_settings">Pokročilé nastavenia</string>
+  <string name="speak_sleep_timer_title">Čas uspania</string>
   <string name="speak_no_books_available">Nie sú k dispozícii žiadne knihy na čítanie</string>
+  <string name="speak_general_error">Pre túto knihu nebolo možné začať čítanie</string>
   <string name="repeat_passage">Zopakuj pasáž</string>
-  <string name="set_repeat_passage_range">Nastav rozsah zopakovanej pasáže</string>
-  <string name="speak_beginning_of_passage">Vyber začiatok pasáže</string>
-  <string name="speak_ending_of_passage"> Vyber koniec pasáže</string>
-  <string name="speak_verse_range_to_repeat">Vyber rozsah veršov na zopakovanie</string>
-  <string name="speak_ending_verse_must_be_later">Posledný verš musí byť pred prvým ...logika ne?</string>
+  <string name="set_repeat_passage_range">Nastaviť rozsah zopakovania pasáže</string>
+  <string name="speak_beginning_of_passage">Vybrať začiatok pasáže</string>
+  <string name="speak_ending_of_passage"> Vybrať koniec pasáže</string>
+  <string name="speak_verse_range_to_repeat">Výber rozsahu veršov na zopakovanie</string>
+  <string name="speak_ending_verse_must_be_later">Posledný verš musí byť za začiatočným</string>
   <string name="conf_speak_synchronize">Posúvať text spolu s hovoreným slovom</string>
   <string name="conf_speak_auto_bookmark">Automatické záložkovanie</string>
-  <string name="conf_save_playback_settings_to_bookmarks">Ulož paremetre prehrávania do záložiek</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Uložiť parametre prehrávania do záložiek</string>
   <string name="conf_replace_divinename">Nahraď Božie meno menom Jahve</string>
-  <string name="conf_change_chapter">Zmeny v kapitole</string>
+  <string name="conf_change_chapter">Zmeny kapitol</string>
   <string name="conf_change_title">Nadpisy</string>
   <string name="conf_speak_footnotes">Poznámky pod čiarou</string>
-  <string name="conf_speak_sleep_timer">Nastav čas do uspania</string>
-  <string name="sleep_timer_title">Počet minút do uspania</string>
-  <string name="sleep_timer_set">Nastav spánok. Počet minút: %d</string>
-  <string name="sleep_timer_started">Režim spánku spustený. Počet minút: %d</string>
-  <string name="sleep_timer_active_at">Režim spánku. Počet zvyšných minút: %s </string>
+  <string name="conf_speak_sleep_timer">Nastav čas uspávania</string>
+  <string name="sleep_timer_title">Čas uspávania v minutách</string>
+  <string name="sleep_timer_set">Nastav uspávanie. Nastavený čas: %d minút</string>
+  <string name="sleep_timer_started">Režim uspávania spustený, %dminút</string>
+  <string name="sleep_timer_active_at">Režim uspávania: Zostáva %s minút.</string>
   <string name="speak_next">Ďalší</string>
   <string name="speak_previous">Predošlý</string>
   <string name="widget_toggle_sleep_timer">Prepni režim uspania</string>
-  <string name="widget_bookmark_helptext">Tlačidlá pre záložky čítania sa zobrazia tu</string>
+  <string name="widget_bookmark_helptext">Tlačidlá pre záložky čítania sa zobrazia tu.</string>
   <string name="speak_status_stopped">zastavené</string>
-  <string name="speak_autobookmarking_disabled">Automatické záložkovanie je vypnuté</string>
-  <string name="system_speak_settings">Otvor systémové nastavenie TTS</string>
+  <string name="speak_autobookmarking_disabled">Automatická tvorba záložiek je vypnutá!</string>
+  <string name="system_speak_settings">Otvoriť systémové nastavenie TTS</string>
+  <string name="auto_assing_labels_help1">Tu môžete upraviť, ktoré štítky sa automaticky priradia k záložkám, ktoré vytvoríte. </string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Tieto nastavenia sa použijú na %s.</string>
+  <string name="setting_scope_window">toto okno</string>
+  <string name="setting_scope_workspace">túto pracovnú plochu</string>
+  <string name="assing_labels_help1">Každá záložka môže byť priradené k viacerým štítkom.</string>
   <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Použiť %s na určenie, ktorá farba štítku sa zobrazí.</string>
   <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Klepnutím %s na ikonu priradíte štítok automaticky k novým záložkám.</string>
   <!--param is heart icon-->
+  <string name="assing_labels_help4">Klepnutím %s sa pridá štítok k vášmu zoznamu obľúbených pre rýchly prístup</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">Klepnutím %s zmeníte poradie zoznamu na základe vašich výberov. </string>
+  <string name="workspace_text_options_help_title">Nastavenia textu pracovného priestoru</string>
+  <string name="workspace_text_options_help1">Tieto nastavenia určujú predvolené hodnoty pre všetky okná pracovného priestoru.</string>
+  <string name="workspace_text_options_help2">Tieto môžete prepísať zmenou nastavení jednotlivých okien.</string>
+  <string name="window_text_options_help_title">Nastavenia textu okna</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s ikona indikuje, že nastavenia pochádzajú z nastavení pracovného priestoru.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s  ikona indikuje, že nastavenia boli zmenené pre toto konkrétne okno.</string>
+  <string name="window_text_options_help3">Nastavenia pracovného priestoru nebude mať vplyv na toto okno.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="speak_bookmark_help">Pomoc pri záložkách čitania</string>
+  <string name="text_options_reset_help">Použitím %s tlačidla sa zresetujú všetky nastavenia späť na %s.</string>
+  <string name="reset_defaults">prednastavené hodnoty</string>
+  <string name="reset_workspace_defaults">prednastavené hodnoty pracovného priestoru</string>
+  <string name="speak_bookmark_help">Pomoc k záložkách čítania</string>
   <string name="speak_help_auto_bookmark">
-Záložka čitania sa automaticky vytvorí akonáhle je čítanie prerušené alebo zastavené.
-Automaticky vytvorené záložky sú označené špeciálnym symbolom
+Záložka čítania sa automaticky vytvorí akonáhle je čítanie prerušené alebo zastavené.
+Automaticky vytvorené záložky sú označené špeciálnym štítkom Čítania
 Pri pokračovaní zo záložky sa táto zmení na nasledujúce miesto pauzy alebo zastavenia.
-Menia sa len značky čítania, ostatné značky
+Menia sa len štítky čítania, ostatné štítky
 ostávajú tak ako boli.</string>
   <string name="speak_help_playback_settings">
-Špeciálne parametre čítania (v \'Parametre čítania\')
+Špeciálne parametre čítania (v \'Nastavenia prehrávania\')
 sú uložené do záložiek čítania, keď je zvolená táto voľba.
-Keď obnovíte čítanie zo záložky, parametre čítania
+Keď reštartujete čítanie zo záložky, nastavenia čítania
 sa zoberú z danej záložky.</string>
   <string name="speak_help_playback_settings_example">
 Napríklad, keď počúvate knihu Genezis a list Rimanom
@@ -468,10 +506,23 @@ Režim opakovania bol vypnutý, pretože
   <string name="mynotes">Moje poznámky</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Záloha a obnovenie</string>
+  <string name="backup_modules">Zdielať alebo zálohovať dokumenty do…</string>
+  <string name="backup_app_database">Zdielať alebo zálohovať databázu aplikácie do…</string>
+  <string name="backup_app">Zdielať alebo zálohovať aplikáciu (.apk súbor) do…</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Čo chcete obnoviť?</string>
+  <string name="restore_app_database">Obnoviť databázu aplikácie z…</string>
+  <string name="restore_database">Obnoviť databázový súbor.</string>
   <string name="restore_confirmation">Prepísať Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovné priestory? </string>
+  <string name="reading_plans_plural">Plány čítania</string>
   <string name="restore_success">Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovné priestory boli úspešne obnovené </string>
+  <string name="loading_backup">Načítavanie databázy zo zálohy…</string>
   <string name="backup_success2">Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovné priestory boli úspešne zálohované</string>
+  <string name="backup_modules_success">Označené moduly boli úspešne zálohované.</string>
+  <string name="backup_modules_email_subject_2">záloha modulov %s</string>
+  <string name="backup_modules_email_message_2">Priložená záloha modulov %s, obsahujúca nasledujúce moduly: %s</string>
+  <string name="backup_email_subject_2">záloha databázy %s</string>
+  <string name="backup_email_message_2">Vaša databáza %s obsahujúca záložky, poznámky, plán čítania a pracovné priestory je pripojená.</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_versification">Virzifikácia: %s</string>
@@ -509,6 +560,7 @@ Režim opakovania bol vypnutý, pretože
   <!--Workspaces-->
   <string name="new_workspace">Nový</string>
   <string name="switch_to_workspace">Pracovné priestory</string>
+  <string name="delete_workspace">Odstrániť</string>
   <string name="workspace_number">Pracovný priestor %d</string>
   <string name="rename_workspace">Premenovať</string>
   <string name="workspace_selector_title">Výber pracovného priestoru</string>
@@ -519,6 +571,14 @@ Režim opakovania bol vypnutý, pretože
   <!--Help-->
   <string name="help_nav_title">Navigácia</string>
   <string name="help_contextmenus_title">Kontextová ponuka</string>
+  <string name="help_contextmenus_text">
+        Dlhým stlačením sa otvorí kontextové menu alebo akčný režim v niekoľkých zobrazeniach.
+        Dlhým stlačením zobrazenia Biblie otvoríte akčný režim pre akcie, ktoré ovplyvňujú aktuálny verš.
+        Ak chcete odstrániť dokument alebo zobraziť informácie, dlho stlačte položku dokumentu v zobrazení zoznamu na položku Vybrať dokument alebo Stiahnuť.
+         Dlhé stlačenie záložky v zozname záložiek pridá štítok alebo odstráni záložku.
+        Dlhým stlačením odkazu vyberiete, či ich chcete otvoriť v aktuálnom okne, novom okne alebo v okne špeciálnych odkazov.
+    </string>
+  <string name="help_bookmarks_title">Záložky a Moje poznámky</string>
   <string name="help_studypads_text">
         Študijné zložky sú navrhnuté tak, aby vám uľahčili písanie kázní, prípravu kázní alebo len tak
         si zapíšte osobné poznámky k štúdiu Biblie, ktoré majú viacero biblických odkazov. Každá študijná podložka je spojená s jedným štítkom záložky.
@@ -553,7 +613,14 @@ Režim opakovania bol vypnutý, pretože
   <string name="proceed_google_play">
         Prejsť do Google Play
     </string>
-  <string name="delete_label_confirmation">Chcete odstrániť štítok záložky „%s“? Tiež budú odstránené všetky súvisiace poznámky v Študijnej zložke . </string>
+  <string name="primary_label">Primárny štítok</string>
+  <string name="favourite_label">Obľúbený štítok</string>
+  <string name="edit_label">Upraviť štítok</string>
+  <string name="delete_label_confirmation">Chcete odstrániť štítok záložky „%s“? Tiež budú odstránené všetky súvisiace poznámky v Študijnej zložke. </string>
+  <string name="active_labels">Označené štítky</string>
+  <string name="recent_labels">Posledné štítky</string>
+  <string name="other_labels">Ostatné štítky</string>
+  <string name="reset_hide_labels">Chcete resetovať nastavenia pre skrytie zadaných nastavení štítkov?</string>
   <string name="system_items1">Viac</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Ospravedlňujeme sa, ale máme len čiastočný preklad používateľského rozhrania v jazyku %s. Dôvodom je, že %s je úplne vyvinutý dobrovoľníkmi. Ak môžete pomôcť s prekladom, pozrite sa na %s. </string>
