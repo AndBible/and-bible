@@ -24,6 +24,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.database.sqlite.SQLiteDatabase
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import net.bible.android.activity.R
@@ -81,7 +82,7 @@ open class BibleApplication : Application() {
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
     override fun onCreate() {
-        Log.d(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName}")
+        Log.d(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
