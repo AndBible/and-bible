@@ -81,7 +81,7 @@ open class BibleApplication : Application() {
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
     override fun onCreate() {
-        Log.d(TAG, "BibleApplication:onCreate")
+        Log.d(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName}")
         super.onCreate()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
