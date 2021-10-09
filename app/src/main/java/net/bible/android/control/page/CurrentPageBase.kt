@@ -256,8 +256,8 @@ abstract class CurrentPageBase protected constructor(
             if(!keyName.isNullOrEmpty()) {
                 try {
                     doSetKey(book.getKey(keyName))
-                } catch (e: NoSuchKeyException) {
-                    Log.e(TAG, "Key $keyName not found in book $document")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Key $keyName not be loaded from $document", e)
                 }
             }
         }
