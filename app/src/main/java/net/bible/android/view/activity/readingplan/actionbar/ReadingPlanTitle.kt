@@ -35,11 +35,9 @@ import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
 
 import org.apache.commons.lang3.ArrayUtils
-import org.apache.commons.lang3.StringUtils
 import javax.inject.Inject
 
 /**
@@ -161,12 +159,11 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
     }
 
     private fun unsplitIfLandscape(parts: Array<String>): Array<String> {
-        var parts = parts
         // un-split if in landscape because landscape actionBar has more width but less height
-        if (::activity.isInitialized && activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            parts = arrayOf(StringUtils.join(parts, " "))
-        }
-        return parts
+        return if (::activity.isInitialized && activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            arrayOf(parts.joinToString(" "))
+        } else
+            parts
     }
 
     private val documentTitleParts: Array<String>

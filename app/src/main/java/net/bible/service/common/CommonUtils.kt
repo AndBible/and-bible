@@ -88,7 +88,6 @@ import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
 import org.apache.commons.lang3.StringUtils
-import org.apache.commons.lang3.time.DateUtils
 import org.crosswire.common.util.IOUtil
 import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
@@ -317,7 +316,13 @@ object CommonUtils : CommonUtilsBase() {
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 
     val truncatedDate: Date
-        get() = DateUtils.truncate(Date(), Calendar.DAY_OF_MONTH)
+        get() = Calendar.getInstance().let { date ->
+            date.set(Calendar.HOUR_OF_DAY, 0)
+            date.set(Calendar.MINUTE, 0)
+            date.set(Calendar.SECOND, 0)
+            date.set(Calendar.MILLISECOND, 0)
+            date.time
+        }
 
     init {
         try {
