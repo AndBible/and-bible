@@ -44,6 +44,8 @@ class ButtonInfo (
     var id: Int = 0,
     var name: String? = null,
     var description: String? = null,
+    var GroupA: String? = null,
+    var GroupB: String? = null,
     var textColor: Int = Color.WHITE,
     var tintColor: Int = Color.DKGRAY,
     var highlight: Boolean = false,
@@ -74,6 +76,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     private var pressed: ButtonInfo? = null
     private var isInitialised = false
     var isLeftToRightEnabled = false
+    var isAlphaSorted = false
 
     fun clear() {
         removeAllViews()
@@ -87,7 +90,91 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
      *
      * @param buttonInfoList
      */
-    fun addButtons(buttonInfoList: List<ButtonInfo>) {
+    fun addBookButtons(buttonInfoList: List<ButtonInfo>) {
+        if (this.isLeftToRightEnabled and !this.isAlphaSorted) {
+            addGroupedButtons(buttonInfoList)
+        } else {
+            addButtons(buttonInfoList)
+        }
+    }
+
+    private fun addGroupedButtons(buttonInfoList: List<ButtonInfo>) {
+        this.buttonInfoList = buttonInfoList
+        val numButtons = buttonInfoList.size
+        val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp)
+        var iRow = -1
+        var iCol = 0
+        // calculate the number of rows and columns so that the grid looks nice
+        val rowColLayout = LayoutDesigner(this).calculateLayout(buttonInfoList)
+        this.rowColLayout = rowColLayout
+        val rowInTableLp = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f)
+        val cellInRowLp = TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f)
+        var CurrentGroup = ""
+        var row = TableRow(context)
+        val MaxColumns = 6
+        for (i in buttonInfoList.indices) {
+            val buttonInfo = buttonInfoList[i]
+            iCol += 1
+            if (CurrentGroup != buttonInfo.GroupB) {
+                // Add a new row
+                row = TableRow(context)
+                addView(row, rowInTableLp)
+                CurrentGroup = buttonInfo.GroupB.toString()
+                iRow += 1
+                iCol = 0
+            } else if (iCol > MaxColumns) {
+                row = TableRow(context)
+                addView(row, rowInTableLp)
+                iRow += 1
+                iCol = 0
+            }
+            val button = Button(context)
+            button.text = buttonInfo.name
+            button.setTextColor(buttonInfo.textColor)
+            button.backgroundTintList = ColorStateList.valueOf(buttonInfo.tintColor)
+            if (buttonInfo.highlight) {
+                button.setTypeface(Typeface.DEFAULT_BOLD)
+                button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
+                button.paintFlags = button.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+                button.isPressed = true
+            } else {
+                button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+            }
+            // set pad to 0 prevents text being pushed off the bottom of buttons on small screens
+            button.setPadding(0, 0, 0, 0)
+            button.isAllCaps = false
+            buttonInfo.button = button
+            buttonInfo.rowNo = iRow
+            buttonInfo.colNo = iCol
+            row.addView(button, cellInRowLp)
+
+            // Add spacer buttons if needed
+            val newGroup = if (i + 1 == buttonInfoList.size) {
+                true
+            } else buttonInfo.GroupB != buttonInfoList[i + 1].GroupB
+            while ((iCol < MaxColumns) and (newGroup)) {
+                val spacer = TextView(context)
+                row.addView(spacer, cellInRowLp)
+                iCol += 1
+            }
+        }
+
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        previewText = (inflater.inflate(R.layout.buttongrid_button_preview, null) as TextView).apply {
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.MARQUEE
+            setCompoundDrawables(null, null, null, null)
+        }
+        previewPopup = PopupWindow(previewText).apply {
+            contentView = previewText
+            setBackgroundDrawable(null)
+            isTouchable = false
+        }
+        val scale = context.resources.displayMetrics.density
+        previewHeight = (PREVIEW_HEIGHT_DIP * scale).toInt()
+    }
+
+fun addButtons(buttonInfoList: List<ButtonInfo>) {
         this.buttonInfoList = buttonInfoList
         val numButtons = buttonInfoList.size
         val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp)
@@ -144,7 +231,6 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
         val scale = context.resources.displayMetrics.density
         previewHeight = (PREVIEW_HEIGHT_DIP * scale).toInt()
     }
-
     fun toggleLeftToRight() {
         isLeftToRightEnabled = !isLeftToRightEnabled
     }
