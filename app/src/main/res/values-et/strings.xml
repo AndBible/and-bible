@@ -559,6 +559,16 @@ Kas jätkame?</string>
   <string name="system_items1">Veel</string>
   <string name="text_copied_to_clicpboard">Tekst kopeeriti lõikelauale</string>
   <string name="toggle_fullscreen">Täisekraan</string>
+  <string name="label_red">Punane</string>
+  <string name="label_green">Roheline</string>
+  <string name="label_blue">Sinine</string>
+  <string name="label_salvation">Lunastus</string>
+  <string name="label_underline">Alla joonitud</string>
+  <string name="export_fileformat">Ekspordi kui %s</string>
+  <string name="import_items">Impordi %s</string>
+  <string name="chooser_range">Vahemik</string>
+  <string name="chooser_NT_abbrev">UT</string>
+  <string name="chooser_select">Vali %s</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Vabandame, kuid meil on ainult osaline kasutajaliidese tõlge %s keeles. Seda seetõttu, et %s on täielikult välja töötatud vabatahtlike poolt. Kui saate tõlkimisel aidata, vaadake %s. </string>
   <!--will be added to incomplete_translation as a link-->

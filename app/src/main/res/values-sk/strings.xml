@@ -110,7 +110,7 @@
   <string name="prefs_screen_keep_on_summary">Zabráni vypnutiu obrazovky počas používania programu</string>
   <string name="prefs_interface_locale_title">Jazyk aplikácie</string>
   <string name="prefs_interface_locale_summary">Vybrať jazyk prostredia programu a názvov kníh</string>
-  <string name="reset_fontsize">Znovu nastaviť</string>
+  <string name="reset_fontsize">Reset</string>
   <string name="prefs_request_sdcard_permission_title">Dostupné manuále nainštalované dokumenty</string>
   <string name="prefs_request_sdcard_permission_summary">Povoliť používanie manuálne nainštalovaných dokumentov z jsword/sword priečinku na internom úložisku</string>
   <string name="all_text_options_window_menutitle">Všetky nastavenia textu</string>
@@ -523,11 +523,45 @@ Režim opakovania bol vypnutý, pretože
   <string name="backup_modules_email_message_2">Priložená záloha modulov %s, obsahujúca nasledujúce moduly: %s</string>
   <string name="backup_email_subject_2">záloha databázy %s</string>
   <string name="backup_email_message_2">Vaša databáza %s obsahujúca záložky, poznámky, plán čítania a pracovné priestory je pripojená.</string>
+  <string name="restore_unsuccessfull">Obnovenie databázy nebolo úspešné. Pravdepodobne ste zadali neplatný databázový súbor. </string>
+  <string name="backup_phone_storage">Úložisko telefónu</string>
+  <string name="backup_backup_title">Kam zálohovať?</string>
+  <string name="backup_backup_message">Zálohovať do telefónu alebo inam cez funkciu Zdielať (e-mail, Google Drive apod.)?</string>
+  <string name="backup_share">Zdielať</string>
+  <string name="restore_modules">Obnoviť Dokumenty z…</string>
+  <string name="send_backup_file">Odoslať zálohovací súbor</string>
+  <string name="backup_modules_title">Vybrať, ktoré moduly zálohovať</string>
+  <string name="install_zip_canceled">Inštalovanie modulov prerušené</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
-  <string name="module_about_versification">Virzifikácia: %s</string>
+  <string name="module_about_installed_version">Nainštalovaná verzia: %s (%s)</string>
+  <string name="module_about_latest_version">Posledná verzia: %s (%s)</string>
+  <string name="module_about_versification">Verzifikácia: %s</string>
+  <string name="module_about_repository">Distribučný server: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Nahlásenie chyby</string>
+  <string name="send_feedback_title">Spätná väzba</string>
+  <string name="send_bug_report_title">Spätná väzba / nahlásenie chyby</string>
+  <string name="report_bug_email_subject_3">[%s] Hlásenie chyby v %s %s</string>
+  <string name="report_bug_big_heading">PROSÍM NAPÍŠTE SVOJU REAKCIU ALEBO CHYBOVÉ HLÁSENIA NAD TÝMTO RIADKOM</string>
+  <string name="report_bug_heading1">Inštrukcie:</string>
+  <string name="report_bug_line_1">Stručne nám povedzte, čo ste urobili / čo sa stalo, keď došlo k problému. </string>
+  <string name="report_bug_heading2">Napríklad:</string>
+  <string name="report_bug_instructions1">1. Otvoril som aplikáciu</string>
+  <string name="report_bug_instructions2">2. Klikol som na ponuku okna</string>
+  <string name="report_bug_instructions3">-&gt; Pád aplikácie</string>
+  <string name="report_bug_line_2">Ručne zosnímané snímky obrazovky sú niekedy prospešné aj pri riešení problémov.</string>
+  <string name="report_bug_line_3">Túto funkciu použite na nahlásenie hneď, ako si všimnete problém. </string>
+  <string name="report_bug_line_4">Túto funkciu môžete použiť aj po otvorení aplikácie, potom ako zlyhala.
+</string>
+  <string name="report_bug_heading_3">Prílohy:</string>
+  <string name="bug_report_logcat">Log súbor vytvorený touto aplikáciou. Neobsahuje informácie o žiadnych iných aplikáciách.</string>
+  <string name="bug_report_screenshot">Snímka obrazovky aplikácie, keď došlo k zlyhaniu alebo keď bola vytvorené hlásenie o chybe. </string>
+  <string name="bug_report_attachment_line_1">Pripojenie týchto súborov veľmi pomáha vývojárom aplikácií pri odstraňovaní hlásenej chyby.</string>
+  <string name="report_bug_heading_4">Info o zariadení:</string>
   <!--Document types-->
+  <string name="doc_type_all">Všetky typy</string>
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Komentáre</string>
   <string name="doc_type_dictionary">Slovníky</string>
@@ -543,30 +577,62 @@ Režim opakovania bol vypnutý, pretože
   <string name="no">Nie</string>
   <string name="error">Chyba</string>
   <string name="delete_generic">Vymazať</string>
+  <string name="please_wait">Prosím čakajte…</string>
   <string name="all">Všetko</string>
   <string name="edit">Upraviť</string>
-  <string name="reset_generic">Znovu nastaviť</string>
+  <string name="reset_generic">Resetovať</string>
   <string name="watch_tutorial_video">Pozri si ukážkové video (Anglicky)</string>
+  <string name="verse_not_found">Verš nebol nájdený</string>
   <!--Errors-->
-  <string name="report_error">Poslať report</string>
-  <string name="error_occurred">Stala sa chyba</string>
-  <string name="error_no_content">Žiadny obsah pre vybraný verš</string>
-  <string name="error_page_too_large">Stránka je príliš veľká</string>
-  <string name="error_key_not_in_document">V dokumente sa také čosi nenašlo :)</string>
-  <string name="empty_list">Niet čo ukázať</string>
+  <string name="report_error">Poslať hlásenie</string>
+  <string name="error_occurred">Vyskytla sa chyba</string>
+  <string name="error_occurred_crash_last_time">Keď ste aplikáciu naposledy použili, zlyhala. Ocenili by sme, ak nám pošlete hlásenie chyby, aby nám pomohlo s opravou chyby. </string>
+  <string name="error_occurred_with_link">Vyskytla sa chyba. %s</string>
+  <string name="error_no_content">Pre vybraný verš nie je žiadny obsah</string>
+  <string name="error_page_too_large">Stránka je príliš veľká na načítanie</string>
+  <string name="error_key_not_in_document">V dokumente nenájdené</string>
+  <string name="error_key_not_in_document2">%s nebolo nájdené v dokumente %s.</string>
+  <string name="empty_list">Žiadne položky k zobrazeniu</string>
+  <string name="error_skip">Preskočiť</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Prevod textu na reč</string>
-  <string name="notification_channel_progress_status">Informácia o stave sťahovania dokumentov, atď</string>
+  <string name="notification_channel_progress_status">Informácia o stave sťahovania dokumentov atď.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nový</string>
   <string name="switch_to_workspace">Pracovné priestory</string>
   <string name="delete_workspace">Odstrániť</string>
+  <string name="new_copied_workspace">Skopírovať ako nové</string>
   <string name="workspace_number">Pracovný priestor %d</string>
   <string name="rename_workspace">Premenovať</string>
   <string name="workspace_selector_title">Výber pracovného priestoru</string>
+  <string name="workspace_settings">Nastavenia…</string>
+  <string name="give_name_workspace">Zadajte názov pre nový pracovný priestor</string>
   <string name="save_and_exit">Uložiť</string>
-  <string name="reset_settings">Znovu nastaviť</string>
+  <string name="workspace_save_changes">Aplikovať zmeny na pracovný priestor?</string>
+  <string name="copy_of_workspace">Kópia %s</string>
+  <string name="copy_workspace_settings">Kopírovať nastavenia…</string>
+  <string name="copy_settings_title">Ktoré nastavenia chcete skopírovať?</string>
+  <string name="select_all">Vybrať všetky</string>
+  <string name="copy_settings_workspaces_title">Do ktorých pracovných priestorov chcete skopírovať nastavenia?</string>
+  <string name="reset_settings">Reset</string>
+  <string name="workspace_dismiss">Odmietnuť</string>
+  <string name="workspace_listing_with_current">%s (aktuálne)</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">Toto je beta verzia</string>
+  <string name="beta_notice_content_1">
+        V beta verzii sú k dispozícii nové funkcie, ktoré ešte nie sú poriadne otestované,
+        a používanie beta teda môže spôsobiť neočakávané správanie, t.j. chyby.
+        Bežným čitateľom Biblie sa odporúča používať stabilnú verziu.
+    </string>
+  <string name="beta_notice_content_2">
+        Používateľom verzie beta sa odporúča nahlásiť chyby prostredníctvom služby Google Play alebo
+        (najlepšie) prostredníctvom %s.
+    </string>
+  <string name="beta_notice_content_3">Ak ste programátor, zvážte zaslanie opravy
+        k chybe prostredníctvom %s . :-)</string>
+  <string name="beta_notice_github_issues">Github hlásenia chýb</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Odmietnuť</string>
   <!--History-->
   <!--Help-->
   <string name="help_nav_title">Navigácia</string>
