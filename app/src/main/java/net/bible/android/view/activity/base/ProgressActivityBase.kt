@@ -184,7 +184,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
             uiControl.showPercent(prog.work)
         } else if (prog.workDone == prog.totalWork) {
             // remove the control if progress is finished
-            progressControlContainer!!.removeView(uiControl.parent)
+            progressControlContainer?.removeView(uiControl.parent)
         }
         return uiControl
     }
