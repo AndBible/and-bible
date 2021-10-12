@@ -633,63 +633,228 @@ Režim opakovania bol vypnutý, pretože
   <string name="beta_notice_github_issues">Github hlásenia chýb</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Odmietnuť</string>
+  <string name="beta_notice_dismiss_until_update">Odmietnuť do ďalšej aktualizácie </string>
+  <string name="stable_notice_title">Aplikácia bola aktualizovaná!</string>
+  <string name="upgrade_video_message">Pozrite si video s novými funkciami tohto vydania (%s).</string>
+  <string name="stable_notice_par1">Nová verzia %s %s bola úspešne nainštalovaná!</string>
   <!--History-->
+  <string name="history_for">História (%s: Okno %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigácia</string>
-  <string name="help_contextmenus_title">Kontextová ponuka</string>
+  <string name="help_nav_text">Prejdite na nasledujúcu alebo predchádzajúcu kapitolu potiahnutím prsta po obrazovke.
+        Dvojitým klepnutím na text Biblie prepnete na režim celej obrazovky.
+        Rozdelené obrazovky (nazývané aj okná) majú v pravom hornom rohu tlačidlo ponuky,
+        čo vám umožní používať niekoľko funkcií špecifických pre okno a prispôsobiť vzhľad a správanie okna.
+    </string>
+  <string name="help_contextmenus_title">Kontextové ponuky</string>
   <string name="help_contextmenus_text">
         Dlhým stlačením sa otvorí kontextové menu alebo akčný režim v niekoľkých zobrazeniach.
         Dlhým stlačením zobrazenia Biblie otvoríte akčný režim pre akcie, ktoré ovplyvňujú aktuálny verš.
-        Ak chcete odstrániť dokument alebo zobraziť informácie, dlho stlačte položku dokumentu v zobrazení zoznamu na položku Vybrať dokument alebo Stiahnuť.
-         Dlhé stlačenie záložky v zozname záložiek pridá štítok alebo odstráni záložku.
+        Ak chcete odstrániť dokument alebo zobraziť informácie, dlho stlačte položku dokumentu v zobrazení Vybrať dokument alebo Stiahnuť.
+        Dlhé stlačenie záložky v zozname záložiek pridá štítok alebo odstráni záložku.
         Dlhým stlačením odkazu vyberiete, či ich chcete otvoriť v aktuálnom okne, novom okne alebo v okne špeciálnych odkazov.
     </string>
   <string name="help_bookmarks_title">Záložky a Moje poznámky</string>
+  <string name="help_bookmarks_text">Záložky je možné vytvoriť zvolením textu a zvolením položky „Záložka“
+        z vyskakovacieho menu. Do novej záložky môžete pridať svoje vlastné poznámky ťuknutím na
+        zvýraznený text v zobrazení Biblie. V komentároch je tiež špeciálny dokument „Moje poznámky“, ktorý vám to umožňuje
+        na zobrazenie vašich poznámok v samostatnom okne.
+    </string>
   <string name="help_studypads_text">
         Študijné zložky sú navrhnuté tak, aby vám uľahčili písanie kázní, prípravu kázní alebo len tak
         si zapíšte osobné poznámky k štúdiu Biblie, ktoré majú viacero biblických odkazov. Každá študijná podložka je spojená s jedným štítkom záložky.
         Všetky záložky, ktoré boli vytvorené s príslušným štítkom, sa automaticky zobrazia v dokumente študijného bloku.
         Okrem záložiek môžu byť v študijnom bloku aj vlastné textové položky.
     </string>
-  <string name="help_search_title">Hľadaj</string>
+  <string name="help_search_title">Hľadať</string>
   <string name="help_search_text">Vyhľadávaný text môže obsahovať aj špeciálne znaky ako *,?, AND, OR, NOT
-(viď \"Apache Lucene - Query Parser Syntax\" pre viac info)</string>
+(viď \"Apache Lucene - Query Parser Syntax\" pre viac detailov)</string>
   <string name="help_workspaces_title">Pracovné plochy</string>
+  <string name="help_workspaces_text">
+        Pracovné priestory umožňujú mať viacero pracovných prostredí závislých od kontextu. Funkcie pracovného priestoru
+        sú prístupné cez položku Pracovné priestory v ponuke možností (pravý horný roh). Rýchly spôsob prístupu do pracovných priestorov je
+        cez gesto posunutia prsta nadol z panela s nástrojmi. Na panel nástrojov môžete tiež použiť gestá potiahnutia doľava a doprava
+        prepnúť na predchádzajúci / nasledujúci pracovný priestor.
+    </string>
+  <string name="help_hidden_features_title">Skryté skratky</string>
+  <string name="help_hidden_features_text">
+        Potiahnutím prstom nadol z panela s nástrojmi zobrazíte výber pracovného priestoru.
+        Dlhým stlačením okna rýchlo minimalizujete.
+        Dlhým stlačením tlačidla hovoriť, sa rýchlo dostanete k nastaveniam hlasu.
+        Dlhým stlačením názvu umiestnenia verša na paneli s nástrojmi, preskočíte do výberu dokumentov.
+        Dlhým stlačením tlačidla Späť sa dostanete do zoznamu Histórie.
+    </string>
   <string name="help_window_pinning_title">Pripínanie okna</string>
+  <string name="help_window_pinning_text">
+        Pripnutie okna môžete povoliť z ponuky možností (tri bodky, pravý horný roh).
+        Ak je zapnuté pripínanie okien, v zobrazení Biblie môžete zobraziť veľa pripnutých okien,,
+        ale iba jedno nepripnuté okno. Najprv sa zobrazia pripnuté okná a potom
+        nepripnuté okná. Možno budete chcieť otvoriť biblické dokumenty ako pripnuté okná a
+        komentáre a mapy atď. ako nepripnuté okná. Potom môžete ľahko
+        mať vždy otvorené biblické dokumenty a rýchlo prepínať medzi komentármi a
+        ďalším materiálom pri štúdiu Biblie.
+    </string>
   <!--Welcome text-->
+  <string name="redownload_documents">Rýchle znovu stiahnutie</string>
+  <string name="welcome_message">Ďakujeme za stiahnutie %s. V súčasnosti nie sú nainštalované žiadne Biblie alebo dokumenty. Ak chcete pokračovať, nainštalujte si
+        aspoň 1 dokument stiahnutím z internetu alebo načítaním dokumentu zo súboru zip
+        zálohy.
+    </string>
+  <string name="redownload_message">
+        Bol nájdený zoznam predchádzajúcich kníh/dokumentov. Kliknutím nižšie ich jednoducho stiahnete znova.
+    </string>
   <!--Uncategorized-->
-  <string name="close">Zatvor</string>
+  <string name="close">Zatvoriť</string>
+  <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="first_time_help_do_not_show_again">Rozumiem</string>
+  <string name="first_time_help_show_next_time">Nabudúce ukázať znova </string>
   <string name="strongs_mode_title">Zvoliť režim strongov</string>
+  <string name="download_dialog_message">Nasledujúce knihy nie je možné stiahnuť:</string>
+  <string name="select_multiple">Vybrať viacero</string>
   <string name="journal_description">Používateľom upravovateľné študijné zložky s vlastným textom a záložkami</string>
+  <string name="my_notes_description">Používateľom upravovateľné študijné zložky pripojené k záložkám</string>
   <string name="my_notes_abbreviation">Moje poznámky</string>
   <string name="studypads">Študijné zložky</string>
+  <string name="multi_description">Viac referencií</string>
+  <string name="multi_abbreviation">Viac</string>
   <string name="compare_description">Porovnať preklady</string>
+  <string name="compare_abbreviation">Porovnať </string>
+  <string name="compare">Porovnať </string>
+  <string name="http_forbidden">Zakázané</string>
+  <string name="http_not_found">Nenájdené</string>
+  <string name="http_unknown">Iná chyba</string>
+  <string name="give_passphrase_for_module">Dokument %s je zašifrovaný a potrebuje heslo na odomknutie</string>
+  <string name="unlocking_failed">Odomknutie zlyhalo, zlé heslo</string>
+  <string name="unlock_module">Zadať heslo k modulu</string>
+  <string name="unlock_info">Info k odomknutiu šifrovaného modulu</string>
+  <string name="try_again_passphrase">Heslo nefungovalo, skúsiť znova?</string>
+  <string name="cant_delete_last_bible">Nie je možné odstrániť posledný Biblický dokument</string>
+  <string name="show_unlock_info">Informácie o module a odomknutí</string>
+  <string name="prefs_show_error_box_title">Zobraziť chybové okno Javascript </string>
+  <string name="prefs_show_error_box_summary">Vhodné pre vývojárov pri odhaľovaní chýb v BibleView javascript. Spomalí chod aplikácie.</string>
+  <string name="active_window_indicator_title">Zobraziť indikátor aktívneho okna</string>
+  <string name="active_window_indicator_summary">Zvýrazni rohy okien, aby ste rozoznali, ktoré okno je aktívne </string>
+  <string name="app_licence_title">Open Source Licencia</string>
+  <string name="how_to_contribute">Ako prispieť?</string>
+  <string name="confirm_delete_bookmarks">Chcete odstrániť %d záložky a ich poznámky?</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Odporučiť priateľovi</string>
+  <string name="tell_friend_message1">Chcel by ti odporučiť %s.</string>
+  <string name="tell_friend_message2">Je to výkonná, ale ľahko použiteľná, offline aplikácia na štúdium Biblie pre Android. </string>
+  <string name="tell_friend_message3">Nainštaluj si to z Play Store: %s</string>
+  <string name="tell_friend_message4">Viac informácii a možností inštalácie na %s</string>
+  <string name="share_verse_ok">Zdielať / kopírovať</string>
   <string name="verse_action_copy">Kopírovať</string>
+  <string name="share_verse_menu_title">Zdielať / kopírovať…</string>
   <string name="show_versenumbers">Zobraziť čísla veršov</string>
+  <string name="show_full_verses">Zobraziť celé verše</string>
+  <string name="advertise_app">Propagovať aplikáciu</string>
+  <string name="verse_share_advertise">Zdielané cez %s.</string>
+  <string name="abbreviate_reference">Skrátiť odkaz</string>
+  <string name="version_name">Názov verzie</string>
   <string name="backup_button">Záloha</string>
+  <string name="back_button">Späť</string>
+  <string name="upgrading_database">Aktualizácia databázy. Čakajte prosím…</string>
+  <string name="initializing_app">Inicializácia aplikácie…</string>
+  <string name="show_notes">Zobraziť poznámky</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Balíček Android WebView je príliš starý (%s). Musíte aktualizovať svoj balík Android WebView na verziu najmenej %s ak chcete používať %s. Na väčšine zariadení to možno vykonať prostredníctvom %s.</string>
   <string name="play">Google Play Store</string>
   <string name="proceed_anyway">Aj tak pokračovať </string>
+  <string name="rate_title">Hodnotenie a recenzovanie aplikácie</string>
+  <string name="rate_message5">
+        Pozitívne a detailné recenzie veľmi pomáhajú  And Bible Open Source projektu. Ďakujeme!
+    </string>
+  <string name="rate_message6">
+        Pred zaslaním negatívnej recenzie prosím zvážte nasledovné:
+    </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        Ak máte problém s aplikáciou, prosím %s alebo %s.
+    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
-        Ak nejaký text / preklad Bible preklad má problém , %s.
+        Ak nejaký text / preklad Biblie preklad má problém, %s.
     </string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+        Ak konkrétny text nie je dostupný v aplikácií, %s.
+    </string>
+  <string name="rate_message4">
+        Vývojári tejto aplikácie nie sú zodpovední za údržbu dokumentov.
+    </string>
+  <string name="bug_report">
+        odoslať správu o chybe (z Hlavnej ponuky)
+    </string>
+  <string name="how_to_help">
+        prosím prečítajte si, ako môžete pomôcť
+    </string>
+  <string name="send_email">
+       poslať e-mail vývojárom    </string>
   <string name="proceed_google_play">
         Prejsť do Google Play
     </string>
+  <string name="text_maintainers">
+       prosím reportuje problémy správcom dokumentov
+    </string>
+  <string name="does_not_exist_abbreviation">Neexistuje</string>
+  <string name="cant_change_wholeverse">Pre túto záložku nie je možné vypnúť označovanie celých veršov</string>
+  <string name="whole_verse_turned_on">Záložka je teraz označená pre celý verš</string>
+  <string name="this_bookmark">Táto záložka</string>
+  <string name="this_workspace">Tento pracovný priestor</string>
   <string name="primary_label">Primárny štítok</string>
+  <string name="highlight_entire_verse">Zvýrazniť celý verš</string>
   <string name="favourite_label">Obľúbený štítok</string>
   <string name="edit_label">Upraviť štítok</string>
   <string name="delete_label_confirmation">Chcete odstrániť štítok záložky „%s“? Tiež budú odstránené všetky súvisiace poznámky v Študijnej zložke. </string>
+  <string name="bookmark_underline_style_arbitrary">Štýl podčiarknutia záložiek výberu</string>
+  <string name="bookmark_underline_style_whole_verse">Štýl podčiarknutia záložiek pre celý verš</string>
   <string name="active_labels">Označené štítky</string>
   <string name="recent_labels">Posledné štítky</string>
   <string name="other_labels">Ostatné štítky</string>
+  <string name="book_menu_sort_row_opt">Horizontálne usporiadať knihy</string>
+  <string name="reset_workspace_labels">Chcete zresetovať automaticky priraďovanie a obľúbené nastavenia pre tento pracovný priestor?</string>
   <string name="reset_hide_labels">Chcete resetovať nastavenia pre skrytie zadaných nastavení štítkov?</string>
+  <string name="reorder">Pre-usporiadať</string>
+  <string name="system_items">Systémové akcie</string>
   <string name="system_items1">Viac</string>
+  <string name="system_action2">Android akcie</string>
+  <string name="text_copied_to_clicpboard">Skopírovať text do schránky</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Rýchle záložky</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Zobraziť položky „Výber“ a „Verše“ priamo v ponuke Výberu okna Biblie</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Dvojitým klepnutím na celú obrazovku </string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Vstúpiť do celoobrázkového režimu dvojitým ťuknutím okna</string>
+  <string name="toggle_fullscreen">Celá obrazovka</string>
+  <string name="exit_fullscreen">Dvojitým klepnutím opustiť režim celej obrazovky</string>
+  <string name="reset_app_prefs">Chcete zresetovať všetky globálne nastavenia aplikácie, ktoré sa zobrazujú na tejto obrazovke, na ich prednastavené hodnoty?</string>
+  <string name="label_red">Červená</string>
+  <string name="label_green">Zelená</string>
+  <string name="label_blue">Modrá</string>
+  <string name="label_salvation">Spasenie</string>
+  <string name="label_underline">Podčiarknutie</string>
+  <string name="import_menu">Import a Export</string>
+  <string name="export_fileformat">Exportovať ako %s</string>
+  <string name="import_items">Importovať %s</string>
+  <string name="import_from_db">Importovať z databázového súboru aplikácie</string>
+  <string name="import_error">Import z databázy aplikácie zlyhal. Databázový súbor môže mať nesprávny formát alebo môže byť vytvorený v príliš starej verzií %s. </string>
+  <string name="chooser_range">Rozsah</string>
+  <string name="chooser_jump">Skok</string>
+  <string name="chooser_OT_abbrev">SZ</string>
+  <string name="chooser_NT_abbrev">NZ</string>
+  <string name="chooser_style_grid">Mriežka</string>
+  <string name="chooser_style_lists">Zoznam</string>
+  <string name="chooser_select">Vybrať %s</string>
+  <string name="chooser_pref_reset">Neresetovať kapitolu/verš na 1, pri zmene knihy/kapitoly</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Ospravedlňujeme sa, ale máme len čiastočný preklad používateľského rozhrania v jazyku %s. Dôvodom je, že %s je úplne vyvinutý dobrovoľníkmi. Ak môžete pomôcť s prekladom, pozrite sa na %s. </string>
   <!--will be added to incomplete_translation as a link-->
-  <string name="instructions_for_translators">pokyny pre prekladače</string>
+  <string name="instructions_for_translators">pokyny pre prekladateľov</string>
+  <string name="questions_title">Otázky?</string>
+  <string name="questions_title2">Potrebujete pomoc?</string>
+  <string name="bookmark_style">Štýl záložiek</string>
+  <string name="added_to_bookmark">Priradené k tejto záložke</string>
+  <string name="strongs_off">Vypnuté</string>
+  <string name="strongs_links">Odkazy</string>
+  <string name="strongs_text_and_links">Texty a odkazy</string>
+  <string name="verse_tip">Dlhým stlačením Biblického textu označíte časť alebo viacero veršov</string>
 </resources>

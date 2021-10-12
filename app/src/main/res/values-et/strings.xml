@@ -504,6 +504,7 @@ Kas jätkame?</string>
   <string name="verse_share_advertise">Jagatud kasutades %s.</string>
   <string name="abbreviate_reference">Lühendatud viide</string>
   <string name="backup_button">Varukoopia</string>
+  <string name="initializing_app">Rakenduse käivitamine...</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Jätka sellegipoolest</string>

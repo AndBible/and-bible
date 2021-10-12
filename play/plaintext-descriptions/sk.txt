@@ -1,4 +1,4 @@
-<b>Účinný nástroj na štúdium Biblie</b>
+Účinný nástroj na štúdium Biblie
 
 Aplikácia Bible Study od And Bible Open Source Project je výkonná, ale ľahko použiteľná offline aplikácia na štúdium Biblie pre Android. Aplikácie nemá za cieľ len sprostredkovať čítanie Biblie, ale je pokročilým nástrojom na hlboké osobné štúdium Biblie.
 
@@ -6,7 +6,7 @@ Táto aplikácia je vyvinutá čitateľmi Biblie pre čitateľov Biblie. Cieľom
 
 Niekoľko populárnych verzií Biblie (z mnohých dostupných) je KJV, NASB, NET a tiež obľúbené komentáre ako Matthew Henry a John Gill.
 
-<b>Výkonné funkcie pre štúdium Biblie</b>
+Výkonné funkcie pre štúdium Biblie
 
 Aplikácia má mnoho podnetných a originálnych funkcií, vďaka ktorým je komplexná a hlboká skúsenosť so štúdiom Biblie hladšia ako kedykoľvek predtým. Najvýznamnejšie funkcie sú nasledujúce:
 
@@ -22,7 +22,7 @@ Aplikácia má mnoho podnetných a originálnych funkcií, vďaka ktorým je kom
  * Rozsiahla knižnica dokumentov: preklady Biblie, teologické komentáre, slovníky, mapy a kresťanské knihy v celkovom počte viac ako 1500 dokumentov vo viac ako 700 jazykoch, legálne distribuované spoločnosťou Crosswire a inými archívmi SWORD.
  * Offline: internet potrebujete iba na stiahnutie dokumentov.
 
-<b>Urobme spolu najlepšiu aplikáciu pre Bibliu!</b>
+Urobme spolu najlepšiu aplikáciu pre Bibliu!
 
 A Biblia je komunitný projekt s otvoreným zdrojovým kódom. V praxi to znamená, že ktokoľvek s vhodnými zručnosťami môže a je povzbudzovaný, aby prispel k projektu tým, že:
 
@@ -33,7 +33,7 @@ A Biblia je komunitný projekt s otvoreným zdrojovým kódom. V praxi to znamen
 
 Ak ste profesionálny softvérový inžinier alebo tester, zvážte zapojenie sa do projektu. Ďalšie informácie o tom, ako prispieť, nájdete na stránke https://git.io/JUnaj.
 
-<b>Odkazy</b>
+Odkazy
 
  * Domovská stránka: https://andbible.github.io
  * And Bible na Facebooku: https://www.facebook.com/AndBible/
