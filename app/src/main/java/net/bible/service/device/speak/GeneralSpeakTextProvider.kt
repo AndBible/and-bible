@@ -274,7 +274,7 @@ class GeneralSpeakTextProvider : SpeakTextProvider {
     override fun persistState() {
         if (mTextToSpeak!!.size > 0) {
             settings
-                .setString(PERSIST_SPEAK_TEXT, StringUtils.join(mTextToSpeak, PERSIST_SPEAK_TEXT_SEPARATOR))
+                .setString(PERSIST_SPEAK_TEXT, arrayOf(mTextToSpeak, PERSIST_SPEAK_TEXT_SEPARATOR).joinToString(" "))
             settings
                 .setLong(PERSIST_NEXT_TEXT, nextTextToSpeak)
             settings
