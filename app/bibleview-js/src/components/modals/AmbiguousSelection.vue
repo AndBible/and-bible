@@ -18,8 +18,8 @@
 <template>
   <Modal ref="modal" :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled" :limit="limitAmbiguousModalSize">
     <template #extra-buttons>
-      <button class="modal-action-button right" @touchstart.stop @click="toggleMultiSelectionMode">
-        <FontAwesomeIcon :icon="multiSelectionMode ? `times-circle`: `plus-circle`"/>
+      <button class="modal-action-button right" @touchstart.stop @click="multiSelectionButtonClicked">
+        <FontAwesomeIcon icon="plus-circle"/>
       </button>
       <button v-if="modal && (limitAmbiguousModalSize || modal.height > 196)" class="modal-action-button right" @touchstart.stop @click="limitAmbiguousModalSize = !limitAmbiguousModalSize">
         <FontAwesomeIcon :icon="limitAmbiguousModalSize?'expand-arrows-alt':'compress-arrows-alt'"/>
@@ -212,14 +212,14 @@ export default {
       updateHighlight();
     }
 
-    function toggleMultiSelectionMode() {
-      multiSelectionMode.value = !multiSelectionMode.value;
+    function multiSelectionButtonClicked() {
       if(multiSelectionMode.value) {
+        endOrdinal.value += 1;
+      } else {
+        multiSelectionMode.value = true;
         endOrdinal.value = startOrdinal.value + 1;
       }
-      else {
-        endOrdinal.value = null;
-      }
+
       updateHighlight();
     }
 
@@ -283,7 +283,7 @@ export default {
       help, selectionInfo, locateTop, limitAmbiguousModalSize,
       bibleBookName, verseInfo, selected, handle, cancelled, noActions,
       showModal, selectedActions, selectedBookmarks, clickedBookmarks,
-      bookmarkMap, common, strings, multiSelectionMode, toggleMultiSelectionMode,
+      bookmarkMap, common, strings, multiSelectionMode, multiSelectionButtonClicked,
       modal: ref(null),
     };
   }

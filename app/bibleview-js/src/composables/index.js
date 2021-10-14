@@ -40,7 +40,7 @@ import {
     faHeadphones, faHeart, faHistory,
     faIndent, faInfoCircle, faOutdent, faPenSquare, faPlus,
     faPlusCircle, faQuestionCircle, faShareAlt, faSort,
-    faTags, faTextWidth, faTimes, faTimesCircle, faTrash,
+    faTags, faTextWidth, faTimes, faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {DocumentTypes} from "@/constants";
@@ -383,7 +383,6 @@ export function useFontAwesome() {
     library.add(faEdit)
     library.add(faTags)
     library.add(faBookmark)
-    library.add(faTimesCircle)
     library.add(faPlusCircle)
     library.add(faTrash)
     library.add(faFileAlt)
