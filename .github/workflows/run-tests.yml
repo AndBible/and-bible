@@ -64,7 +64,7 @@ jobs:
         unzip -o -d $HOME/.sword ./testmods.zip
 
     - name: Build with Gradle
-      run: ./gradlew --console plain build -x testStandardDebug
+      run: ./gradlew --console plain build -x testStandardDebug -x testDiscreteRelease -x testDiscreteDebug
 
     - name: Upload test results
       uses: actions/upload-artifact@v2
