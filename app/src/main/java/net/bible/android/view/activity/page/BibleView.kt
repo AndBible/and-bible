@@ -80,6 +80,8 @@ import net.bible.android.control.page.ClientBookmarkLabel
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
+import net.bible.android.control.page.ErrorDocument
+import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
@@ -961,7 +963,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.d(TAG, "Show $initialVerse, $initialAnchorOrdinal Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
         this.firstDocument = document
         synchronized(this) {
-            latestDocumentStr = document.asJson
+            var docStr = document.asJson
+            // Ps 119 in KJV is only 70k. Let's give gracefully max 500k until we give "page too large" error.
+            // Our BibleView.js will freeze and eventually OOM-crash with ridiculously large documents.
+            if(docStr.length > 500000) {
+                val errorDoc = ErrorDocument(mainBibleActivity.getString(R.string.error_page_too_large), ErrorSeverity.NORMAL)
+                docStr = errorDoc.asJson
+                firstDocument = errorDoc
+            }
+
+            latestDocumentStr = docStr
+
             needsDocument = true
         }
 
@@ -1044,6 +1056,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val nightMode get() = mainBibleActivity.currentNightMode
 
     var labelsUploaded = false
+
+    fun clearDocuments() {
+        executeJavascriptOnUiThread("""bibleView.emit("clear_document")""")
+    }
 
     private fun replaceDocument() {
         Log.d(TAG, "replaceDocument")
