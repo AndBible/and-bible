@@ -143,6 +143,22 @@ android {
         }
     }
 
+    val dimAppearance = "appearance"
+
+    flavorDimensions(dimAppearance)
+
+    productFlavors {
+        create("standard") {
+            dimension = dimAppearance
+            isDefault = true
+        }
+
+        create("discrete") {
+            dimension = dimAppearance
+        }
+    } // productFlavors
+
+
     lint {
         disable("MissingTranslation")
         disable("ExtraTranslation")
