@@ -272,9 +272,10 @@ class GeneralSpeakTextProvider : SpeakTextProvider {
     /** save state to allow long pauses
      */
     override fun persistState() {
-        if (mTextToSpeak!!.size > 0) {
+        val txt = mTextToSpeak
+        if (txt!!.size > 0) {
             settings
-                .setString(PERSIST_SPEAK_TEXT, arrayOf(mTextToSpeak, PERSIST_SPEAK_TEXT_SEPARATOR).joinToString(" "))
+                .setString(PERSIST_SPEAK_TEXT, txt.joinToString(PERSIST_SPEAK_TEXT_SEPARATOR))
             settings
                 .setLong(PERSIST_NEXT_TEXT, nextTextToSpeak)
             settings
