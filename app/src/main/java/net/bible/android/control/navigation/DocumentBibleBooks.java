@@ -74,6 +74,7 @@ public class DocumentBibleBooks {
 		
 		while (v11nBookIterator.hasNext()) {
 			BibleBook bibleBook = v11nBookIterator.next();
+			if(Scripture.isIntro(bibleBook)) continue;
 			// test some random verses - normally ch1 v 1 is sufficient - but we don't want to miss any
 			if (isVerseInBook(document, documentVersification, bibleBook, 1, 1) || 
 				isVerseInBook(document, documentVersification, bibleBook, 1, 2)) {
