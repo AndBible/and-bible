@@ -39,7 +39,6 @@
 		<Button android:id="@+id/closeButton"
 			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 			android:text="@string/close"
-			android:onClick="onClose"
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"/>

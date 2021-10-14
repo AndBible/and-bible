@@ -20,20 +20,23 @@ package net.bible.android.view.activity.navigation
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.view.ActionMode
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.service.common.CommonUtils
+import net.bible.service.download.FakeBookFactory
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import java.util.*
-import javax.inject.Inject
 
 /**
  * Choose a bible or commentary to use
@@ -41,15 +44,13 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu.document_context_menu) {
-    @Inject lateinit var downloadControl: DownloadControl
-    @Inject lateinit var backupControl: BackupControl
-
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         documentItemAdapter = DocumentItemAdapter(this)
         initialiseView()
+
         GlobalScope.launch {
             populateMasterDocumentList(false)
         }
@@ -73,7 +74,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
      */
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         Log.d(TAG, "get document list from source")
-        return swordDocumentFacade.documents
+        return swordDocumentFacade.documents + FakeBookFactory.pseudoDocuments
     }
 
     /**
@@ -90,18 +91,39 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         return languageList
     }
 
-    override fun handleDocumentSelection(selectedDocument: Book?) {
-        Log.d(TAG, "Book selected:" + selectedDocument!!.initials)
-        try {
-            documentControl.changeDocument(selectedDocument)
-
-            // if key is valid then the new doc will have been shown already
-            returnToPreviousScreen()
-        } catch (e: Exception) {
-            Log.e(TAG, "error on select of bible book", e)
+    override fun handleDocumentSelection(selectedDocument: Book) {
+        GlobalScope.launch(Dispatchers.Main) {
+            if(selectedDocument.isLocked && !CommonUtils.unlockDocument(this@ChooseDocument, selectedDocument)) {
+                reloadDocuments()
+                return@launch
+            }
+            Log.d(TAG, "Book selected:" + selectedDocument.initials)
+            try {
+                documentControl.changeDocument(selectedDocument)
+                // if key is valid then the new doc will have been shown already
+                returnToPreviousScreen()
+            } catch (e: Exception) {
+                Log.e(TAG, "error on select of bible book", e)
+            }
         }
     }
 
+    override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
+        if(selectedItemPositions.isNotEmpty()) {
+            menu.findItem(R.id.unlock).isVisible = displayedDocuments[selectedItemPositions[0]].isEnciphered
+        }
+        return super.onPrepareActionMode(mode, menu, selectedItemPositions)
+    }
+
+    override fun onActionItemClicked(item: MenuItem, selectedItemPositions: List<Int>): Boolean {
+        when(item.itemId) {
+            R.id.unlock -> GlobalScope.launch(Dispatchers.Main) {
+                CommonUtils.unlockDocument(this@ChooseDocument, displayedDocuments[selectedItemPositions[0]])
+                reloadDocuments()
+            }
+        }
+        return super.onActionItemClicked(item, selectedItemPositions)
+    }
     /**
      * on Click handlers
      */
@@ -126,7 +148,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
             }
             R.id.backupButton -> {
                 GlobalScope.launch {
-                    backupControl.backupModulesViaIntent(this@ChooseDocument)
+                    BackupControl.backupModulesViaIntent(this@ChooseDocument)
                 }
             }
         }

@@ -36,10 +36,11 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
@@ -149,8 +150,9 @@ class TextToSpeechNotificationManager {
         val speakControl: SpeakControl by lazy { instance!!.speakControl }
 
         override fun onReceive(context: Context?, intent: Intent?) {
+            CommonUtils.initializeApp()
             val action = intent?.action
-            Log.d(TAG, "NotificationReceiver onnReceive $intent $action")
+            Log.d(TAG, "NotificationReceiver onReceive $intent $action")
             val bookRef = intent?.data?.host
             val osisRef = intent?.data?.path?.removePrefix("/")
             when (action) {
@@ -317,7 +319,7 @@ class TextToSpeechNotificationManager {
 
         val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 
-        builder.setSmallIcon(R.drawable.ichthys_alpha)
+        builder.setSmallIcon(R.drawable.ic_ichtys)
                 .setLargeIcon(bibleBitmap)
                 .setContentTitle(currentTitle)
                 .setSubText(speakControl.getStatusText(FLAG_SHOW_ALL))

@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.ListAdapter
 import android.widget.ListView
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
@@ -53,7 +54,7 @@ abstract class ChooseKeyBase : ListActivityBase() {
         buildActivityComponent().inject(this)
         prepareList()
         mKeyArrayAdapter = KeyItemAdapter(this, LIST_ITEM_TYPE, mKeyList)
-        listAdapter = mKeyArrayAdapter
+        listAdapter = mKeyArrayAdapter as ListAdapter
 
         // if an item was selected previously then try to scroll to it
         val currentKey = currentKey
@@ -102,8 +103,7 @@ abstract class ChooseKeyBase : ListActivityBase() {
 
     private fun returnToMainScreen() {
         // just pass control back to the main screen
-        val resultIntent = Intent(this, MainBibleActivity::class.java)
-        setResult(FINISHED, resultIntent)
+        setResult(FINISHED)
         finish()
     }
 

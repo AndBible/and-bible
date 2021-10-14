@@ -17,22 +17,23 @@
  */
 package net.bible.android.control.page
 
-import android.app.Activity
 import android.view.Menu
-import net.bible.service.common.ParseException
-import net.bible.service.format.Note
+import net.bible.android.view.activity.base.ActivityBase
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 interface CurrentPage {
-    val bookCategory: BookCategory
+    val currentDocumentAbbreviation: String get () = currentDocument?.abbreviation?: ""
+    val currentDocumentName: String get() = currentDocument?.name?:""
+
+    val documentCategory: DocumentCategory
     val pageManager: CurrentPageManager
 
-    val keyChooserActivity: Class<out Activity?>?
+    fun startKeyChooser(context: ActivityBase)
+
     operator fun next()
     fun previous()
     /** get incremented key according to the type of page displayed - verse, chapter, ...
@@ -55,6 +56,8 @@ interface CurrentPage {
     /** get current key */
     val key: Key?
 
+    val displayKey: Key?
+
 	/** set key and update screens  */
 	fun setKey(key: Key)
 
@@ -67,16 +70,17 @@ interface CurrentPage {
 	fun setCurrentDocument(doc: Book?)
     fun setCurrentDocumentAndKey(doc: Book, key: Key)
 
-    fun checkCurrentDocumentStillInstalled(): Boolean
+    fun checkCurrentDocumenInstalled(): Boolean
     /** get a page to display  */
-    val currentPageContent: String
+    val currentPageContent: Document
 
-    fun updateOptionsMenu(menu: Menu)
+    fun getPageContent(key: Key): Document
 
     var isInhibitChangeNotifications: Boolean
     val isSearchable: Boolean
     val isSpeakable: Boolean
+    val isSyncable: Boolean
     //screen offset as a percentage of total height of screen
-    var currentYOffsetRatio: Float
+    var anchorOrdinal: Int?
 
 }

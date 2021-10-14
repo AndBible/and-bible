@@ -73,7 +73,7 @@ public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 		} else if (getSpeakControl().isPaused()) {
 			return android.R.drawable.ic_media_play;
 		} else {
-			return R.drawable.ic_hearing_24dp;
+			return R.drawable.ic_baseline_headphones_24;
 		}
 	}
 

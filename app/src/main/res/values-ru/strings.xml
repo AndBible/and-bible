@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_short">Bible Study</string>
-  <string name="app_name_medium">Bible Study (And Bible)</string>
+  <string name="app_name_short">Изучение Библии</string>
+  <string name="app_name_medium">Изучение Библии (And Bible)</string>
   <string name="app_name_long">Приложение «Изучение Библии», автор проекта «And Bible с открытым исходным кодом»</string>
+  <string name="project">And Bible с открытым исходным кодом</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">Вставьте SD-карту и перезапустите приложение.</string>
   <!--Main menu-->
@@ -14,10 +15,12 @@
   <string name="history">История</string>
   <string name="speak">Прослушать</string>
   <string name="help">Помощь</string>
+  <string name="information">Информация</string>
   <string name="other">Дополнительно</string>
+  <string name="contact">Контакт</string>
   <string name="help_and_tips">Помощь и советы</string>
   <string name="administration">Управление</string>
-  <string name="rate_application">Оценить и Просмотреть в Google Play</string>
+  <string name="rate_application">Оценка и отзыв</string>
   <string name="chooce_document">Выбрать модуль</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Выбрать книгу</string>
@@ -54,7 +57,17 @@
   <string name="search_current_book">Текущая книга</string>
   <string name="error_executing_search">Неверный запрос</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Показать номера стихов</string>
+  <string name="prefs_show_verseno_title">Номера глав и стихов</string>
+  <string name="prefs_show_verseno_summary">Показать номера глав и стихов</string>
+  <string name="prefs_e_ink_mode_title">Черно-белый режим</string>
+  <string name="prefs_eink_mode_summary">Используйте приложение в монохромном режиме (без цветов), что делает его более подходящим для устройств E-ink.</string>
+  <string name="prefs_disable_animations_title">Отключить анимацию</string>
+  <string name="prefs_disable_animations_summary">Отключить различные анимации, например плавную прокрутку.</string>
+  <string name="prefs_paragraph_spacing_title">Интервал между абзацами (%s мм)</string>
+  <string name="prefs_paragraph_spacing_summary">Отрегулировать расстояние между абзацами.</string>
+  <string name="prefs_show_verseno_title1">Нумерация стихов</string>
+  <string name="prefs_show_chapter_no_title">Номера глав</string>
+  <string name="prefs_show_chapter_no_summary">Показать номера глав</string>
   <string name="prefs_verse_per_line_summary">Показать каждый стих на отдельной строке</string>
   <string name="prefs_show_bookmarks_summary">Снять галочку, чтобы скрыть все закладки</string>
   <string name="prefs_show_mynotes_summary">Показать значок в стихах с Моей Заметкой</string>
@@ -64,36 +77,41 @@
   <string name="prefs_section_title_summary">Показать неканонические заголовки разделов</string>
   <string name="prefs_red_letter_summary">Показать слова Христа красным шрифтом</string>
   <string name="prefs_text_size_title">Настройки шрифта</string>
-  <string name="prefs_show_verseno_title">Нумерация стихов</string>
   <string name="prefs_verse_per_line_title">Стих с новой строки</string>
   <string name="prefs_show_bookmarks_title">Показать закладки</string>
-  <string name="prefs_default_bookmark_style_title">Стиль закладки по умолчанию</string>
-  <string name="prefs_default_bookmark_style_summary">Цвет подсветки или иконка</string>
   <string name="prefs_show_mynotes_title">Показать ярлык с моей заметкой в стихе</string>
+  <string name="prefs_show_footnotes_title">Примечаний</string>
+  <string name="prefs_show_xrefs_title">Перекрестные ссылки</string>
+  <string name="prefs_show_footnotes_summary">Показывать сноски, если они есть в документе</string>
+  <string name="prefs_show_xrefs_summary">Показать перекрестные ссылки, если они есть в документе</string>
   <string name="prefs_show_notes_title">Заметки</string>
   <string name="prefs_show_strongs_title">Номера Стронга</string>
   <string name="prefs_show_morphology_title">Морфологические коды</string>
   <string name="prefs_section_title_title">Названия разделов</string>
   <string name="prefs_red_letter_title">Красный шрифт</string>
   <string name="prefs_tilt_to_scroll_title">Прокручивание текста</string>
+  <string name="prefs_toolbar_button_action_title">Действие при нажатии кнопки панели инструментов</string>
+  <string name="prefs_toolbar_button_action_summary">Действия, выполняемые при нажатии / долгом нажатии кнопок панели инструментов Библии или комментариев</string>
+  <string name="prefs_toolbar_button_action_default">Нажмите, чтобы открыть меню, нажмите и удерживайте, чтобы открыть экран ресурсов (по умолчанию)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Нажмите, чтобы открыть следующий ресурс, нажмите и удерживайте, чтобы открыть меню</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Нажмите, чтобы открыть следующий ресурс, нажмите и удерживайте, чтобы открыть экран ресурсов</string>
   <string name="prefs_night_mode_title">Переключение ночного режима</string>
-  <string name="prefs_night_mode_summary">Переключаться ли в ночной режим автоматически (если устройство поддерживает), вручную или с помощью системных настроек (Android 10+).</string>
+  <string name="prefs_night_mode_summary">Следует ли переключаться в ночной режим автоматически (если устройство поддерживает), вручную или через системные настройки (Android 10+). Ручное переключение может быть выполнено из 3-точечного меню опций на главном экране.</string>
   <string name="prefs_night_mode_manual">Вручную</string>
   <string name="prefs_night_mode_automatic">Автоматически</string>
   <string name="prefs_night_mode_system">Система</string>
   <string name="options_menu_night_mode">Ночной режим</string>
   <string name="prefs_navigate_to_verse_title">Перейти к стиху</string>
   <string name="prefs_navigate_to_verse_summary">Перейти на уровень стиха при выборе отрывка</string>
-  <string name="prefs_open_links_in_special_window_title">Открывать ссылки в отдельном окне</string>
-  <string name="prefs_open_links_in_special_window_summary">Для быстрого отображения перекрестных ссылок и номеров Стронга</string>
-  <string name="prefs_text_size_summary">Отрегулировать семейство шрифтов и размер шрифта</string>
+  <string name="prefs_open_links_in_special_window_title">Окно ссылок</string>
+  <string name="prefs_open_links_in_special_window_summary">Открыть ссылки в специальном окне, для более быстрого отображения перекрестных ссылок и номеров Стронга</string>
   <string name="prefs_text_size_sample_text">Образец текста</string>
   <string name="prefs_screen_keep_on_title">Не выключать экран</string>
   <string name="prefs_screen_keep_on_summary">Предотвращение засыпания экрана при использовании этого приложения</string>
   <string name="prefs_interface_locale_title">Язык</string>
   <string name="prefs_interface_locale_summary">Выбрать язык интерфейса</string>
   <string name="reset_fontsize">Сбросить</string>
-  <string name="prefs_request_sdcard_permission_title">Модули, установленные вручную, существуют</string>
+  <string name="prefs_request_sdcard_permission_title">Ресурсы, установленные вручную, существуют</string>
   <string name="prefs_request_sdcard_permission_summary">Включить использование установленных вручную документов из папки jsword / sword на внутреннем хранилище</string>
   <string name="all_text_options_window_menutitle">Все параметры текста</string>
   <string name="text_options_window_menutitle">Параметры текста</string>
@@ -101,6 +119,7 @@
   <string name="reversed_split_mode">Режим обратного разделения</string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d мм</string>
   <string name="auto_fullscreen_summary">Автоматически переключаться в полноэкранный режим при прокрутке текста. Совет: вы также всегда можете переключиться в полноэкранный режим, дважды нажав экран.</string>
   <string name="prefs_margin_size_title">Изменить размер поля</string>
   <string name="prefs_margin_size_mm_title">Размер поля (%d/%d/%d mm)</string>
@@ -116,25 +135,42 @@
   <string name="prefs_text_display_settings_title">Форматирование</string>
   <string name="prefs_text_appearance_title">Внешность</string>
   <string name="prefs_justify_title">Выровнять текст</string>
-  <string name="prefs_justify_summary">Выровняйте текст в стиле «Выровнять», чтобы левый и правый поля текста были в строке</string>
+  <string name="prefs_justify_summary">Выровнять текст, чтобы левый и правый поля текста были в строке</string>
   <string name="pref_left_margin_label_mm">Левое поле (%d mm)</string>
   <string name="pref_right_margin_label_mm">Правое поле (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Максимальная ширина текста (%d mm)</string>
   <string name="prefs_line_spacing_pt">Межстрочный интервал %1.1fx</string>
   <string name="pref_font_family_label">Семейство шрифтов</string>
+  <string name="prefs_top_margin_title">Верхнее поле</string>
+  <string name="prefs_top_margin_summary">Добавьте поле (с визуальной индикацией) в верхнюю часть окна, содержащего документ Библии. Библия прокручивается так, что текущий стих начинается ниже поля.</string>
   <string name="prefs_hyphenation_title">Перенос</string>
   <string name="prefs_hyphenation_summary">Автоматически переносить слова, если поддерживается язык</string>
   <string name="prefs_line_spacing_pt_title">Межстрочный интервал (%1.1fx)</string>
   <string name="line_spacing_title">Межстрочный интервал</string>
   <string name="line_spacing_summary">Установите расстояние между строками</string>
   <string name="select_none">Выберите нет</string>
-  <string name="reset_are_you_sure">Вы уверены, что хотите сбросить все значения?</string>
+  <string name="reset_are_you_sure">Вы уверены, что хотите сбросить все эти значения?</string>
   <string name="window_pinning_menutitle">Закрепления окна</string>
   <string name="hide_window_buttons_title">Скрыть кнопки окна</string>
-  <string name="hide_window_buttons_summary">Кнопки окна, которые отображаются на правой стороне библии, скрыты. Панель навигации по окну, по-прежнему отображается внизу, и вы можете открыть всплывающее меню окна, нажав и удерживая ее.</string>
-  <string name="font_size_title">Размер шрифта</string>
+  <string name="hide_window_buttons_summary">Кнопки окна, которые отображаются справа от просмотра Библии, скрыты. Панель навигации окна внизу по-прежнему отображается, и вы можете открыть всплывающее меню окна, нажав и удерживая ее.</string>
+  <string name="hide_bible_reference_overlay_title">Скрыть наложение/оверлей ссылки на Библию</string>
+  <string name="hide_bible_reference_overlay_summary">Не показывать полупрозрачное наложение со ссылкой на Библию, когда приложение находится в полноэкранном режиме</string>
   <string name="full_screen_hide_buttons_pref_title">Скрыть панель кнопок окна в полноэкранном режиме</string>
   <string name="full_screen_hide_buttons_pref_summary">При переключении в полноэкранный режим автоматически скрывать панель кнопок окна, расположенную внизу экрана</string>
+  <string name="prefs_dictionaries_cat">Словари</string>
+  <string name="choose_strongs_greek_dictionary_title">Греческий словарь Стронга</string>
+  <string name="choose_strongs_greek_dictionary_summary">Выберите словарь Стронга для определений греческих слов</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Словарь иврита Стронга</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Выберите словарь Стронга для определений слов на иврите</string>
+  <string name="choose_strongs_greek_morphology_title">Греческая морфология Робинзона</string>
+  <string name="choose_strongs_greek_morphology_summary">Выберите словарь Робинзона для определений морфологии греческого языка</string>
+  <string name="prefs_top_margin_title_mm">Верхнее поле (%d мм)</string>
+  <string name="font_size_title">Размер шрифта</string>
+  <string name="font_size_title_pt">Размер шрифта (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Настроить размер шрифта основного текста</string>
+  <string name="pref_font_family_label_name">Семейство шрифтов (%s)</string>
+  <string name="prefs_font_family_summary">Измените семейство шрифтов. Совет: дополнительные шрифты можно установить с помощью Скачать ресурсы / Дополнительные компоненты.</string>
+  <string name="prefs_text_bookmarks_title">Настройки закладок и заметок</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Настройки цвета</string>
   <string name="window_color_settings_title">Настройки цвета окна</string>
@@ -170,38 +206,38 @@
   <string name="next">Вперед</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Скачать словари Стронга на греческом и иврите</string>
-  <string name="all_greek_occurrences">Показать все случаи употребления</string>
-  <string name="all_hebrew_occurrences">Показать все случаи употребления</string>
   <string name="no_indexed_bible_with_strongs_ref">Необходимо скачать Библию с числами Стронга и скачать индекс через Поиск.</string>
   <string name="morph_robinson_not_installed">Пожалуйста скачайте словарь \'Морфолочические коды анализа Робинсона\'.</string>
+  <string name="go_to_downloads">Перейти к Загрузке</string>
   <!--Module download-->
   <string name="download">Скачать ресурсы</string>
+  <string name="redownload">Повторно скачать ресурсы</string>
   <string name="download_confirmation">Скачать Библию из интернета?</string>
-  <string name="download_source_message">Документы,модули загружаются с: \n https://www.crosswire.org,\n https://ibtrussia.org, \ n https://ebible.org и \n https://andbible.github.io</string>
+  <string name="download_source_last_updated">Списки ресурсов обновлялись последний раз: %s.</string>
+  <string name="download_refreshing_book_list">Обновление списка доступных ресурсов с серверов ресурсов…</string>
+  <string name="download_source_message1">Ресурсы скачиваются из следующих источников:</string>
   <string name="download_document_confirm_prefix">Скачать</string>
-  <string name="download_refreshing_book_list">Список доступных книг обновляется</string>
   <string name="download_refresh_book_list_menu_item">Обновить</string>
-  <string name="error_downloading">Произошла ошибка. Проверьте подключение к Интернету.</string>
+  <string name="error_downloading">Произошла ошибка при загрузке. Пожалуйста, проверьте подключение к интернету.</string>
+  <string name="error_downloading_status">Сервер, на котором размещен %s, возвратил ошибку из-за %s(%d).</string>
   <string name="storage_space_warning">Недостаточно места на устройсве.</string>
-  <string name="too_many_jobs">Выполняется слишком много заданий. Подождите немного и попытайтесь снова.</string>
+  <string name="too_many_jobs">Выполняется слишком много задач. Подождите, пока некоторые из них закончат, и попробуйте еще раз.</string>
   <string name="document_not_installed">Пожалуйста скачайте \'%s\'</string>
   <string name="free_text_search_documents">Поиск</string>
   <string name="chooce_language_hint">Язык</string>
-  <string name="one_more_back_press">Еще одно нажатие кнопки назад закроет приложение</string>
+  <string name="one_more_back_press">Нажмите еще раз, чтобы закрыть приложение</string>
   <string name="document_filter_results">%d документов,модулей</string>
   <string name="download_question_title">Вы хотите продолжить загрузку документов?</string>
-  <string name="download_question_message">Если вы живете в стране где преследование,
-возможно, вам нужно быть осторожным при загрузке христианских материалов через Интернет.
-Вместо этого вы можете получить zip-файлы модуля более безопасно и установить их
-через «Установить из zip-архива». Вы уверены, что хотите продолжить загрузку?
-Все загрузки из репозиториев модулей зашифрованы (HTTPS).
-    </string>
+  <string name="download_question_message">Если вы живете в стране, где преследуют,
+вам может быть нужно быть осторожными при загрузке христианских материалов через Интернет.
+Вместо этого вы можете более безопасно получить zip-файлы ресурсов и установить их
+через «Загрузить русурсы из Zip-файла». Вы уверены, что хотите продолжить загрузку?
+Все загрузки с серверов модулей зашифрованы (HTTPS).</string>
   <string name="do_not_ask_again">Да, не спрашивать больше</string>
   <string name="recommended_document">Рекомендуемые!</string>
   <string name="about_version_history">История версий: %s</string>
-  <string name="download_failed">Не удалось загрузить %s</string>
   <string name="download_errors">Ошибки при загрузке</string>
-  <string name="failed_repositories_message">Не удалось подключиться к следующим репозиториям документов: \n\n%s\n\n</string>
+  <string name="failed_repositories_message">Не удалось подключиться к следующему серверу ресурсов: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Следующие файлы не могут быть загружены:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Установить из zip-архива</string>
@@ -210,7 +246,6 @@
   <string name="extracting_zip_file">Извлечение Zip файла...</string>
   <string name="checking_zip_file">Проверка данного файла...</string>
   <string name="invalid_module">Файл не содержит правильный SWORD-модуль </string>
-  <string name="module_already_installed">Файл содержит модуль, который уже установлен</string>
   <string name="install_zip_title">Пожалуйста, подождите. Zip-файл загружается.</string>
   <string name="overwrite_files">Следующие файлы уже существуют: %s Перезаписать?</string>
   <string name="overwrite_files_title">Перезаписать файлы?</string>
@@ -219,9 +254,24 @@
   <string name="rdg_plan_selector_title">Выбрать план чтения</string>
   <string name="rdg_plan_day">День %s</string>
   <string name="rdg_plan_set_start_date">Установить дату начала...</string>
+  <string name="set_current_day">Установить как текущий день...</string>
+  <string name="msg_set_current_day_reading_plan">Это установит сегодня как текущий день, а все предыдущие дни будут отмечены как прочитанные. Продолжать?</string>
   <string name="done">Готово</string>
-  <string name="reset">Перезагрузить</string>
   <string name="reset_plan_question">Вы уверены, что хотите сбросить этот план?</string>
+  <string name="import_reading_plan">Импортировать план чтения…</string>
+  <string name="import_reading_plan_error">Ошибка импорта</string>
+  <string name="import_reading_plan_error_duplicate">Следующие дни повторяются: %s</string>
+  <string name="import_reading_plan_error_days">Следующие дни содержат ошибки: %s</string>
+  <string name="import_reading_plan_anyway">Все равно импортировать</string>
+  <string name="overwrite_reading_plan">Вы хотите перезаписать %s?</string>
+  <string name="delete_reading_plan">Удалить этот план</string>
+  <string name="reading_plan_deleted">План чтения удален</string>
+  <string name="reading_plan_ships_with_ab">Этот план чтения поставляется с %s</string>
+  <string name="confirm_delete_reading_plan">
+        Вы уверены, что хотите удалить %s вместе с ним историю чтения?
+        Подсказка: если вам нужно обновить план, вы можете просто импортировать его снова с тем же именем файла
+        и история будет сохранена..
+    </string>
   <string name="plan_duplicate_user_plan">
         В SDCard есть план чтения jsword/readingplan
  с тем же именем, что и внутренний план. Невозможно перечислить здесь.
@@ -268,8 +318,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="delete_search_index_doc">Удалить индекс %s?</string>
   <!--Verse context menu-->
   <string name="notes">Заметки и ссылки</string>
-  <string name="verse_action_copy">Копировать</string>
   <string name="share_verse">Поделиться...</string>
+  <string name="share_verse_widget_title">Поделиться выделенным текстом</string>
   <string name="share_verse_subject_2">Библейский стих был отправлен вам с помощью %s.</string>
   <string name="compare_translations">Сравнить переводы</string>
   <!--Link context menu-->
@@ -277,19 +327,32 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="open_link_in_new_window">Открыть ссылку в новом окне</string>
   <string name="open_link_in_special_window">Открыть ссылку в специальном окне</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Закладки и мои заметки</string>
+  <string name="migrated_my_notes">Мои заметки перенесены</string>
   <string name="bookmarks">Закладки</string>
-  <string name="add_bookmark">Добавить закладку</string>
-  <string name="delete_bookmark">Удалить закладку</string>
   <string name="bookmark_added">Закладка добавлена</string>
-  <string name="bookmark_date_updated">Дата закладки обновлена</string>
-  <string name="bookmark_deleted">Закладка удалена</string>
-  <string name="bookmark_labels">Ярлыки</string>
-  <string name="manage_labels">Управление метками закладок</string>
-  <string name="assign_labels">Прикрепить ярлык</string>
+  <string name="manage_labels">Управление ярлыками</string>
+  <string name="assign_labels">Прикрепить ярлыки</string>
+  <string name="new_item">Новый</string>
   <string name="new_label">Новый ярлык</string>
   <string name="label_name_prompt">Название</string>
   <string name="label_unlabelled">Без ярлыка</string>
-  <string name="style">Стиль</string>
+  <string name="add_bookmark1">Закладка</string>
+  <string name="add_bookmark2">Добавить в закладку выделенный фрагмент</string>
+  <string name="add_bookmark3">Выделение</string>
+  <string name="add_bookmark_whole_verse">Стих закладки</string>
+  <string name="add_bookmark_whole_verse1">Стихи</string>
+  <string name="add_bookmark_whole_verse2">Полные стихи</string>
+  <string name="remove_bookmark">Удалить</string>
+  <string name="bookmark_settings_hide_labels_title">Скрыть указанные метки</string>
+  <string name="bookmark_settings_hide_labels_summary">Скрыть закладки, отмеченные указанными ярлыками</string>
+  <string name="auto_assign_labels_title">Настройки ярлыка</string>
+  <string name="auto_assign_labels">Автоматическое назначение и любимые якрлыки</string>
+  <string name="auto_assign_labels1">Автоматически назначать ярлык новым закладкам</string>
+  <string name="auto_assign_labels_primary">Автоматически назначать основным</string>
+  <string name="label_color">Цвет ярлыка</string>
+  <!--can be removed-->
+  <string name="label_color_example">Пример</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">По датам</string>
   <string name="sort_by_bible_book">Библейский порядок</string>
@@ -330,6 +393,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="speak_advanced_settings">Расширенные настройки</string>
   <string name="speak_sleep_timer_title">Таймер сна</string>
   <string name="speak_no_books_available">Нет доступных книг для прослушивания</string>
+  <string name="speak_general_error">Не удалось начать прослушивание этой книги</string>
   <string name="repeat_passage">Повторить отрывок</string>
   <string name="set_repeat_passage_range">Определить отрывок для повтора</string>
   <string name="speak_beginning_of_passage">Выбрать начало отрывка</string>
@@ -355,6 +419,33 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="speak_status_stopped">остановлено</string>
   <string name="speak_autobookmarking_disabled">Авто установка закладкок отключена!</string>
   <string name="system_speak_settings">Открыть системные настройки TTS</string>
+  <string name="auto_assing_labels_help1">Здесь вы можете настроить, какие ярлыки автоматически назначаются закладкам, которые вы создаете.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Этот параметр применяется к %s.</string>
+  <string name="setting_scope_window">это окно</string>
+  <string name="setting_scope_workspace">этой рабочей области</string>
+  <string name="assing_labels_help1">Каждой закладке можно назначить несколько ярлыков.</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Используйте %s, чтобы указать цвет метки</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Нажмите %s значок, чтобы этот ярлык автоматически назначался новым закладкам.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Нажмите %s, чтобы добавить ярлык в список для быстрого доступа.</string>
+  <!--param is refresh icon-->
+  <string name="assing_labels_help5">Нажмите %s, чтобы изменить порядок списка.</string>
+  <string name="workspace_text_options_help_title">Параметры текста рабочей области</string>
+  <string name="workspace_text_options_help1">Эти настройки определяют настройки по умолчанию для всех окон рабочей области.</string>
+  <string name="workspace_text_options_help2">Вы можете переопределить их, изменив индивидуальные настройки окна.</string>
+  <string name="window_text_options_help_title">Параметры текста окна</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s значок указывает, что параметр взят из настроек рабочей области.</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s значок указывает, что этот параметр был изменен для этого конкретного окна.</string>
+  <string name="window_text_options_help3">Настройка рабочей области не повлияет на это окно.</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Используйте %s кнопку, чтобы сбросить все эти настройки обратно на %s.</string>
+  <string name="reset_defaults">значения по умолчанию</string>
+  <string name="reset_workspace_defaults">значения по умолчанию для рабочей области</string>
   <string name="speak_bookmark_help">Помощь по закладкам прослушивания</string>
   <string name="speak_help_auto_bookmark">
 Закладка будет автоматически добавлена, когда прослушивание (при-)остановлено.
@@ -413,27 +504,27 @@ http://www.heartlight.org, разрешение предоставлено
     </string>
   <!--User Notes-->
   <string name="mynotes">Мои заметки</string>
-  <string name="mynote_add">Добавить заметку</string>
-  <string name="mynote_saved">Сохранено</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Бэкап &amp; Восстановление</string>
-  <string name="backup_modules">Резервное копирование документов на...</string>
-  <string name="backup_app_database">Резервное копирование базы данных приложения на…</string>
+  <string name="backup_modules">Отправка или резервное копирование документов в…</string>
+  <string name="backup_app_database">Отправить или создать резервную копию базы данных приложения в…</string>
+  <string name="backup_app">Отправить или создать резервную копию приложения (файл .apk) в…</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Что вы хотите восстановить?</string>
   <string name="restore_app_database">Восстановить базу данных приложения из…</string>
-  <string name="restore_confirmation">Перезаписать заметки, закладки, планы чтения и рабочие области?</string>
-  <string name="restore_success">Заметки, закладки, планы чтения и рабочие области успешно восстановлены</string>
+  <string name="restore_database">Восстановить файл базы данных</string>
+  <string name="restore_confirmation">Перезаписать Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области?</string>
+  <string name="reading_plans_plural">Планы чтения</string>
+  <string name="restore_success">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно восстановлены.</string>
   <string name="loading_backup">Загрузка базы данных из резервной копии...</string>
-  <string name="backup_success">Заметки, закладки, планы чтения и рабочие области успешно сохранены в%s.</string>
-  <string name="error_no_backup_file">Файл резервной копии не найден</string>
+  <string name="backup_success2">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно скопированы.</string>
+  <string name="backup_modules_success">Резервное копирование выбранных модулей успешно выполнено.</string>
   <string name="backup_modules_email_subject_2">%s резервное копирование модулей</string>
   <string name="backup_modules_email_message_2">Прилагается %s резервная копия ваших модулей, которая содержит следующие модули:%s</string>
   <string name="backup_email_subject_2">%s резервное копирование базы данных</string>
   <string name="backup_email_message_2">Ваша %s база данных, содержащая закладки, заметки, планы чтения и рабочие области, прилагается</string>
   <string name="restore_unsuccessfull">Восстановление базы данных не удалось. Возможно, вы указали неверный файл базы данных.</string>
-  <string name="backup_restore_title">Восстановить откуда?</string>
-  <string name="backup_restore_message">Восстановить из памяти телефона или выбрать файл резервной копии вручную (вы также можете выбрать из Google Drive и т. д.)?</string>
   <string name="backup_phone_storage">Память телефона</string>
-  <string name="backup_manually">Выбрать файл</string>
   <string name="backup_backup_title">Сохранить резервную копию куда?</string>
   <string name="backup_backup_message">Резервное копирование на телефон или в другое место через функцию «Поделиться» (электронная почта, Google Drive и т. д.)?</string>
   <string name="backup_share">Поделиться</string>
@@ -446,26 +537,28 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="module_about_installed_version">Установленная версия: %s (%s)</string>
   <string name="module_about_latest_version">Последняя версия: %s (%s)</string>
   <string name="module_about_versification">Версия: %s</string>
-  <string name="module_about_repository">Распределение репозитория: %s</string>
+  <string name="module_about_repository">Сервер распространения : %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Сообщить об ошибке</string>
-  <string name="report_bug_email_subject_2">Отчет об ошибке для %s %s</string>
-  <string name="report_bug_email_message">
-        --- НАПИСАТЬ ОТЧЕТ ОБ ОШИБКАХ НАД ЭТОЙ ЛИНИЕЙ --- \n
-Инструкция: \n
-Расскажите вкратце, что вы делали / что случилось, когда произошла ошибка. 
-Пример: \n
-\n
-1. Открывая приложение \n
-2. Нажав меню окна \n
- - Сбой.
-\n
-Иногда скриншот очень полезен для решения проблем.
-Пожалуйста, используйте эту функцию, чтобы сообщить, как только вы заметили, что это происходит.
-Вы также можете использовать эту функцию открыв приложения после сбоя.
-\n \n
-Информация об устройстве: \n  %s</string>
+  <string name="send_bug_report_title1">Отчет об ошибке</string>
+  <string name="send_feedback_title">Отзыв</string>
+  <string name="send_bug_report_title">Отзыв / отчет об ошибке</string>
+  <string name="report_bug_email_subject_3">[%s] Отчет об ошибке для %s %s</string>
+  <string name="report_bug_big_heading">ПОЖАЛУЙСТА, НАПИШИТЕ ОТЗЫВЫ ИЛИ ОТЧЕТ ОБ ОШИБКЕ ВЫШЕ ЭТОЙ СТРОКИ</string>
+  <string name="report_bug_heading1">Инструкция:</string>
+  <string name="report_bug_line_1">Расскажите нам вкратце, что вы делали / что произошло, когда возникла проблема.</string>
+  <string name="report_bug_heading2">Например:</string>
+  <string name="report_bug_instructions1">1. Открыл(a) приложение</string>
+  <string name="report_bug_instructions2">2. Нажал(а) меню окна</string>
+  <string name="report_bug_instructions3">-&gt; Сбой</string>
+  <string name="report_bug_line_2">Иногда снимки экрана, сделанные вручную, также помогают решить проблемы.</string>
+  <string name="report_bug_line_3">Пожалуйста, используйте эту функцию, чтобы сообщить, как только вы заметите возникшую проблему.</string>
+  <string name="report_bug_line_4">Вы также можете использовать эту функцию после открытия приложения, после того, как произошел сбой.</string>
+  <string name="report_bug_heading_3">Вложения:</string>
+  <string name="bug_report_logcat">Файл журнала, созданный этим приложением. Он не содержит информации ни о каких других приложениях.</string>
+  <string name="bug_report_screenshot">Снимок экрана приложения, когда произошел сбой или когда был создан отчет об ошибке.</string>
+  <string name="bug_report_attachment_line_1">Прикрепление этих файлов очень помогает разработчикам приложений исправить обнаруженную ошибку.</string>
+  <string name="report_bug_heading_4">Информация об устройстве:</string>
   <!--Document types-->
   <string name="doc_type_all">Все типы</string>
   <string name="doc_type_bible">Библия</string>
@@ -473,6 +566,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="doc_type_dictionary">Словарь</string>
   <string name="doc_type_book">Книга</string>
   <string name="doc_type_map">Карта</string>
+  <string name="doc_type_addons">Дополнительные компоненты</string>
   <!--Languages-->
   <string name="lang_default">По умолчанию</string>
   <!--General-->
@@ -481,20 +575,24 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="yes">Да</string>
   <string name="no">Нет</string>
   <string name="error">Ошибка</string>
+  <string name="delete_generic">Удалить</string>
   <string name="please_wait">Пожалуйста, подождите…</string>
   <string name="all">Все</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">Правка</string>
+  <string name="reset_generic">Сброс настроек</string>
   <string name="watch_tutorial_video">Просмотреть обучающее видео (на англ.)</string>
   <string name="verse_not_found">Стих не найден</string>
   <!--Errors-->
   <string name="report_error">Отправить отчет</string>
   <string name="error_occurred">Произошла ошибка</string>
+  <string name="error_occurred_crash_last_time">Последний раз, когда вы использовали приложение, произошел сбой. Чтобы помочь нам исправить ошибку, мы будем признательны, если вы отправите нам отчет об ошибке.</string>
   <string name="error_occurred_with_link">Произошла ошибка. %s</string>
   <string name="error_no_content">В выбранных стихах нет содержания</string>
   <string name="error_page_too_large">Слишком большая страница для загрузки</string>
   <string name="error_key_not_in_document">Не найдено в ресурсе</string>
+  <string name="error_key_not_in_document2">%s не найдено в ресурсе %s.</string>
   <string name="empty_list">Для отображения ничего нет</string>
+  <string name="error_skip">Пропустить</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Текст в речь</string>
   <string name="notification_channel_progress_status">Уведомление о статусе выполнения загрузки модулей и т. п.</string>
@@ -535,14 +633,17 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Отклонить</string>
   <string name="beta_notice_dismiss_until_update">Отклонить до следующего обновления</string>
+  <string name="stable_notice_title">Приложение обновлено!</string>
+  <string name="upgrade_video_message">См. видео, в котором представлены новые функции этого выпуска. (%s).</string>
+  <string name="stable_notice_par1">Новая версия %s\" %s\" успешно установлена!</string>
   <!--History-->
   <string name="history_for">История (%s: Окно %d)</string>
   <!--Help-->
   <string name="help_nav_title">Навигация</string>
-  <string name="help_nav_text">Перейдите к следующей или предыдущей главе, проводя пальцем по экрану.
-Дважды нажмите текст Библии, чтобы переключиться в полноэкранный режим.
-Разделенные экраны (называемые также окнами) имеют кнопку меню в правом верхнем углу,
-которая позволяет вам использовать несколько специфичных для окна функций и настраивать внешний вид и поведение окна.</string>
+  <string name="help_nav_text">Чтобы перейти к следующей или предыдущей главе, проведите пальцем по экрану.
+Дважды коснитесь текста Библии, чтобы переключиться в полноэкранный режим.
+Разделенные экраны (также называемые окнами) имеют кнопку меню в правом верхнем углу,
+который позволяет вам использовать несколько функций для конкретных окон и настраивать внешний вид и поведение окон.</string>
   <string name="help_contextmenus_title">Контекстные меню</string>
   <string name="help_contextmenus_text">
 Длительное нажатие открывает контекстное меню или режим действия в нескольких видах.
@@ -550,13 +651,16 @@ http://www.heartlight.org, разрешение предоставлено
 Длительно нажмите на элемент документа в виде списка «Выбрать модуль» или «Скачать», чтобы удалить документ или просмотреть информацию.
 Нажмите и удерживайте закладку в списке закладок, чтобы добавить метки или удалить закладку.
 Нажмите и удерживайте ссылки, чтобы выбрать, хотите ли вы открыть их в текущем окне, новом окне или специальном окне ссылок.</string>
-  <string name="help_mynote_title">Моя заметка</string>
-  <string name="help_mynote_text">Заметки могут быть добавлены через пункт меню \"Мои заметки\" в контекстном меню стиха.
-К списку существующих заметок можно получить доступ через главное меню.</string>
-  <string name="help_bookmarks_title">Закладки</string>
-  <string name="help_bookmarks_text">Закладки могут быть добавлены через контекстное меню стиха.
-К менеджеру закладок доступ через главное меню.
-Контекстное меню менеджера закладок позволяет группировать закладки по меткам.</string>
+  <string name="help_bookmarks_title">Закладки и мои заметки</string>
+  <string name="help_bookmarks_text">Закладки можно создать, выделив текст и выбрав «Закладка» из
+всплывающего меню. Вы можете добавить свои собственные заметки в новую закладку, нажав
+выделенный текст в режиме просмотра Библии. В комментариях также есть специальный ресурс «Мои заметки», который позволяет вам
+для просмотра заметок в отдельном окне.</string>
+  <string name="help_studypads_text">
+Блокноты предназначены для облегчения написания заметок к проповеди, подготовки проповедей или просто
+для записей личных заметок по изучению Библии, в которых есть несколько ссылок на Библию. Каждый блокнот связан с одной меткой закладки.
+Все закладки, созданные с соответствующим ярлыком, автоматически появляются в блокноте.
+Помимо закладок, в блокноте могут быть пользовательские текстовые записи.</string>
   <string name="help_search_title">Поиск</string>
   <string name="help_search_text">Текст поиска может содержать специальные символы, такие как *, ?, AND, OR, NOT
 (см. \"Apache Lucene - Query Parser Syntax\" для более подробной информации)</string>
@@ -576,15 +680,171 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="help_window_pinning_title">Закрепление окна</string>
   <string name="help_window_pinning_text">
 Вы можете включить закрепление окна из меню параметров (три точки, правый верхний угол).
-Если закрепление окна включено, вы можете показать много закрепленных окон над стихами Библии,
-но только одно НЕ закрепленное окно. Закрепленные окна отображаются сначала, а затем
-не закрепленные окна. Вы можете открыть библейские модули/документы в виде закрепленных окон, а
-комментарии и карты и т. д. как не закрепленные окна. Тогда вы cможете легко
-и быстро переключатся между библейскими документами и комментариями,
-другими дополнительными материалами, когда вы изучаете Библию.</string>
+Если закрепление окон включено, вы можете показывать много закрепленных окон в режиме просмотра Библии,
+но только одно незакрепленное окно. Сначала отображаются закрепленные окна, а затем
+незакрепленные окна. Вы можете открывать ресурсы Библии как закрепленные окна и
+комментарии, карты и т. д. как незакрепленные окна. Тогда вы легко сможете
+всегда открывать библейские ресурсы и быстро переключаться между комментариями и
+другим дополнительным материалом при изучении Библии.</string>
+  <!--Welcome text-->
+  <string name="redownload_documents">Быстрая повторная загрузка</string>
+  <string name="welcome_message">Спасибо за скачивание проложения %s. В настоящее время Библии, ресурсы не установлены. Чтобы продолжить, установите хотя бы 1 ресурс, загрузив его из Интернета или загрузив из резервной копии документа в zip-архиве.</string>
+  <string name="redownload_message">
+        Был найден список предыдущих книг / ресурсов. Нажмите ниже, чтобы легко загрузить их снова.
+    </string>
   <!--Uncategorized-->
   <string name="close">Закрыть</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Понятно</string>
   <string name="first_time_help_show_next_time">Показать снова в следующий раз</string>
+  <string name="strongs_mode_title">Выберите режим Стронга</string>
+  <string name="download_dialog_message">Не удалось загрузить следующие книги:</string>
+  <string name="select_multiple">Выбрать несколько</string>
+  <string name="journal_description">Редактируемые пользователем блокноты с настраиваемым текстом и закладками</string>
+  <string name="my_notes_description">Редактируемые пользователем заметки, прикрепленные к закладкам</string>
+  <string name="my_notes_abbreviation">Мои заметки</string>
+  <string name="studypads">Блокноты</string>
+  <string name="multi_description">Несколько ссылок</string>
+  <string name="multi_abbreviation">Несколько</string>
+  <string name="compare_description">Сравнить переводы</string>
+  <string name="compare_abbreviation">Сравнить</string>
+  <string name="compare">Сравнить</string>
+  <string name="http_forbidden">Запрещено</string>
+  <string name="http_not_found">Не найдено</string>
+  <string name="http_unknown">Другая ошибка</string>
+  <string name="give_passphrase_for_module">Документ %s зашифрован, для разблокировки требуется парольная фраза.</string>
+  <string name="unlocking_failed">Не удалось разблокировать, неверная парольная фраза</string>
+  <string name="unlock_module">Установить парольную фразу модуля</string>
+  <string name="unlock_info">Информация о разблокировке зашифрованного модуля</string>
+  <string name="try_again_passphrase">Парольная фраза не сработала, попробовать еще раз?</string>
+  <string name="cant_delete_last_bible">Невозможно удалить последний библейский ресурс</string>
+  <string name="show_unlock_info">Информация о модуле и разблокировке</string>
+  <string name="prefs_show_error_box_title">Показать окно ошибки Javascript</string>
+  <string name="prefs_show_error_box_summary">Полезно для разработчиков при исправлении побочных ошибок JavaScript в BibleView. Это замедлит работу приложения.</string>
+  <string name="active_window_indicator_title">Показать индикатор активного окна</string>
+  <string name="active_window_indicator_summary">Выделите углы окна, чтобы определить, какое окно активно</string>
+  <string name="app_licence_title">Лицензия с открытым исходным кодом</string>
+  <string name="how_to_contribute">Как внести свой вклад?</string>
+  <string name="confirm_delete_bookmarks">Вы хотите удалить %d закладки и их заметки?</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Порекомендовать другу</string>
+  <string name="tell_friend_message1">Хочу порекомендовать вам приложение %s для глубокого и удобного изучения Библии.</string>
+  <string name="tell_friend_message2">Это мощное, но простое в использовании приложение для изучения Библии в автономном режиме для Android.</string>
+  <string name="tell_friend_message3">Установить из Play Store: %s</string>
+  <string name="tell_friend_message4">Подробнее и дополнительные варианты установки: %s</string>
+  <string name="share_verse_ok">Поделиться / Копировать</string>
+  <string name="verse_action_copy">Копировать</string>
+  <string name="share_verse_menu_title">Поделиться / копировать…</string>
+  <string name="show_versenumbers">Показать номера стихов</string>
+  <string name="show_full_verses">Показать полные стихи</string>
+  <string name="advertise_app">Рекламировать приложение</string>
+  <string name="verse_share_advertise">Отправлено используя %s.</string>
+  <string name="abbreviate_reference">Сокращенная ссылка</string>
+  <string name="version_name">Название перевода</string>
+  <string name="backup_button">Резервное копирование</string>
+  <string name="back_button">Назад</string>
+  <string name="upgrading_database">Обновление базы данных. Пожалуйста, подождите…</string>
+  <string name="initializing_app">Инициализация приложения…</string>
+  <string name="show_notes">Показать заметки</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Пакет Android WebView слишком старый (%s). Вам необходимо обновить пакет Android WebView как минимум до версии %s чтобы использовать %s. Для большинства устройств это можно сделать через %s.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Все равно продолжить</string>
+  <string name="rate_title">Оценка и обзор приложения</string>
+  <string name="rate_message5">
+        Положительные и подробные отзывы очень помогают And Bible проекту с открытым исходным кодом. Спасибо!
+    </string>
+  <string name="rate_message6">
+        Прежде чем оставить отрицательный отзыв, обратите внимание на следующее:
+    </string>
+  <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        Если у вас возникли проблемы с приложением, пожалуйста %s или %s.
+    </string>
+  <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+        Если с некоторым текстом / переводом Библии есть проблемы, %s.
+    </string>
+  <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+       Если конкретный текст недоступен в приложении, %s.
+    </string>
+  <string name="rate_message4">
+        Разработчики этого приложения не несут ответственности за поддержку ресурсов.
+    </string>
+  <string name="bug_report">
+        отправить отчет об ошибке (из главного меню)
+    </string>
+  <string name="how_to_help">
+        пожалуйста, прочтите, чем вы можете помочь
+    </string>
+  <string name="send_email">
+       отправить электронное письмо разработчикам
+    </string>
+  <string name="proceed_google_play">
+        Перейти в Google Play
+    </string>
+  <string name="text_maintainers">
+       пожалуйста, сообщайте о проблемах разработчикам текста
+    </string>
+  <string name="does_not_exist_abbreviation">Нету</string>
+  <string name="cant_change_wholeverse">Невозможно отключить выделение всего стиха для этой закладки</string>
+  <string name="whole_verse_turned_on">Закладка теперь выделена для всего стиха</string>
+  <string name="this_bookmark">Эта закладка</string>
+  <string name="this_workspace">Эта рабочая область</string>
+  <string name="primary_label">Первичный ярлык</string>
+  <string name="highlight_entire_verse">Выделите стих целиком</string>
+  <string name="favourite_label">Любимый ярлык</string>
+  <string name="edit_label">Изменить ярлык</string>
+  <string name="delete_label_confirmation">Вы хотите удалить ярлык закладки \"%s\"? Также будут удалены все связанные записи в блокноте.</string>
+  <string name="bookmark_underline_style_arbitrary">Стиль подчеркивания для выделения закладок</string>
+  <string name="bookmark_underline_style_whole_verse">Стиль подчеркивания для закладок всего стиха</string>
+  <string name="active_labels">Выбранные ярлыки</string>
+  <string name="recent_labels">Недавние ярлыки</string>
+  <string name="other_labels">Другие ярлыки</string>
+  <string name="book_menu_sort_row_opt">Упорядочить книги по горизонтали</string>
+  <string name="reset_workspace_labels">Вы хотите сбросить настройки автоматического назначения и любимых ярлыков для этой рабочей области?</string>
+  <string name="reset_hide_labels">Сбросить настройку скрытия настроек ярлыков?</string>
+  <string name="reorder">Изменение порядка</string>
+  <string name="system_items">Системные действия</string>
+  <string name="system_items1">Еще</string>
+  <string name="system_action2">Действия Android</string>
+  <string name="text_copied_to_clicpboard">Текст скопирован в буфер обмена</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Одношаговое создание закладок</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Показывать элементы «Выделение» и «Стихи» непосредственно в меню Выделение в режиме просмотра Библии</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Дважды коснитесь для перехода в полноэкранный режим</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Войдите в полноэкранный режим двойным касанием окна</string>
+  <string name="toggle_fullscreen">Полноэкранный</string>
+  <string name="exit_fullscreen">Дважды коснитесь экрана, чтобы выйти из полноэкранного режима</string>
+  <string name="reset_app_prefs">Сбросить все глобальные настройки приложения, отображаемые на этом экране, до значений по умолчанию?</string>
+  <string name="label_red">Красный</string>
+  <string name="label_green">Зеленый</string>
+  <string name="label_blue">Синий</string>
+  <string name="label_salvation">Спасение</string>
+  <string name="label_underline">Подчеркивание</string>
+  <string name="import_menu">Импорт и экспорт</string>
+  <string name="export_fileformat">Экспорт как %s</string>
+  <string name="import_items">Импорт как %s</string>
+  <string name="import_from_db">Импорт из файла базы данных приложения</string>
+  <string name="import_error">Не удалось выполнить импорт из базы данных приложения. Файл базы данных может иметь неправильный формат или создан слишком старой версии %s.</string>
+  <string name="chooser_range">Диапазон</string>
+  <string name="chooser_jump">Перейти </string>
+  <string name="chooser_OT_abbrev">СЗ</string>
+  <string name="chooser_NT_abbrev">НЗ</string>
+  <string name="chooser_style_grid">Сетка</string>
+  <string name="chooser_style_lists">Списки</string>
+  <string name="chooser_select">Выбрать %s</string>
+  <string name="chooser_pref_reset">Не сбрасывать главу/стих на 1, когда выбрана книга/глава</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Мы сожалеем, но у нас есть только частичный перевод пользовательского интерфейса на %s языке. Это потому, что %s полностью разработана волонтерами. Если вы можете помочь с переводом, смотрите %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">инструкции для переводчиков</string>
+  <string name="questions_title">Вопросы?</string>
+  <string name="questions_title2">Нужна помощь?</string>
+  <string name="bookmark_style">Стиль закладки</string>
+  <string name="added_to_bookmark">Назначено к этой закладке</string>
+  <string name="strongs_off">Выкл.</string>
+  <string name="strongs_links">Ссылки</string>
+  <string name="strongs_text_and_links">Текст и ссылки</string>
+  <string name="verse_tip">Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии.</string>
 </resources>

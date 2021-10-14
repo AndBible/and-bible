@@ -33,7 +33,7 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.AndRuntimeException
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.device.speak.TextToSpeechServiceManager
 
 import net.bible.service.device.speak.event.SpeakProgressEvent
@@ -54,6 +54,7 @@ import javax.inject.Inject
 
 import dagger.Lazy
 import de.greenrobot.event.EventBus
+import net.bible.android.database.bookmarks.SpeakSettings
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -210,38 +211,58 @@ class SpeakControl @Inject constructor(
     fun toggleSpeak() {
         Log.d(TAG, "Speak toggle current page")
         // Continue
-        if (isPaused) {
-            continueAfterPause()
-            //Pause
-        } else if (isSpeaking) {
-            pause()
-            // Start Speak
-        } else {
-            if (!booksAvailable) {
-                EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
-                return
+        when {
+            isPaused -> {
+                continueAfterPause()
+                //Pause
             }
-            try {
-                val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
-                val fromBook = page.currentDocument
-                if (fromBook?.bookCategory == BookCategory.BIBLE) {
-                    resetPassageRepeatIfOutsideRange()
-                    speakBible()
-                } else {
-                    speakText()
+            isSpeaking -> {
+                pause()
+                // Start Speak
+            }
+            else -> {
+                if (!booksAvailable) {
+                    EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+                    return
+                }
+                try {
+                    val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
+                    if(!page.isSpeakable) {
+                        EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+                        return
+                    }
+                    val fromBook = page.currentDocument
+                    if (fromBook?.bookCategory == BookCategory.BIBLE) {
+                        resetPassageRepeatIfOutsideRange()
+                        speakBible()
+                    } else {
+                        speakText()
+                    }
+
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error getting chapters to speak", e)
+                    EventBus.getDefault().post(ToastEvent(R.string.speak_general_error))
+                    return
                 }
 
-            } catch (e: Exception) {
-                Log.e(TAG, "Error getting chapters to speak", e)
-                throw AndRuntimeException("Error preparing Speech", e)
             }
+        }
+    }
 
+    fun speakAny() {
+        val page = speakPageManager.currentPage
+        val fromBook = page.currentDocument
+        if (fromBook?.bookCategory == BookCategory.BIBLE) {
+            resetPassageRepeatIfOutsideRange()
+            speakBible()
+        } else {
+            speakText()
         }
     }
 
     // By this checking, try to avoid issues with isSpeaking and isPaused causing crash if window is not yet available
     // (such as headphone switching in the initial startup screen)
-    private val booksAvailable: Boolean get() = this.swordDocumentFacade.bibles.size > 0
+    private val booksAvailable: Boolean get() = swordDocumentFacade.bibles.isNotEmpty()
 
     /** prepare to speak
      */
@@ -267,9 +288,7 @@ class SpeakControl @Inject constructor(
             val keyList = ArrayList<Key>()
             for (i in 0 until numPagesDefn.numPages) {
                 val key = page.getPagePlus(i)
-                if (key != null) {
-                    keyList.add(key)
-                }
+                keyList.add(key)
             }
             if(fromBook == null) {
                 Log.e(TAG, "currentdocument is null! Can't speak")
@@ -283,14 +302,14 @@ class SpeakControl @Inject constructor(
 
     }
 
-    fun speakBible(book: SwordBook, verse: Verse) {
+    fun speakBible(book: SwordBook, verse: Verse, force: Boolean = false) {
         // if a previous speak request is paused clear the cached text
         if (isPaused) {
             stop()
         }
 
         prepareForSpeaking()
-        if(SpeakSettings.load().synchronize) {
+        if(SpeakSettings.load().synchronize || force) {
             speakPageManager.setCurrentDocumentAndKey(book, verse)
         }
         try {
@@ -304,6 +323,10 @@ class SpeakControl @Inject constructor(
 
     fun speakBible() {
         val page = speakPageManager.currentPage
+        if(!page.isSpeakable) {
+            EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+            return
+        }
         speakBible(page.singleKey as Verse)
     }
 
@@ -331,7 +354,6 @@ class SpeakControl @Inject constructor(
         ttsServiceManager.speakText(book, keyList, queue, repeat)
     }
 
-    @JvmOverloads
     fun rewind(amount: SpeakSettings.RewindAmount? = null) {
         if (isSpeaking || isPaused) {
             Log.d(TAG, "Rewind TTS speaking")
@@ -340,7 +362,6 @@ class SpeakControl @Inject constructor(
         }
     }
 
-    @JvmOverloads
     fun forward(amount: SpeakSettings.RewindAmount? = null) {
         if (isSpeaking || isPaused) {
             Log.d(TAG, "Forward TTS speaking")
@@ -357,7 +378,6 @@ class SpeakControl @Inject constructor(
         ttsServiceManager.setupMockedTts()
     }
 
-    @JvmOverloads
     fun pause(willContinueAfterThis: Boolean, toast: Boolean = !willContinueAfterThis) {
         if (!willContinueAfterThis) {
             stopTimer()
@@ -395,11 +415,14 @@ class SpeakControl @Inject constructor(
     }
 
     fun stop(willContinueAfter: Boolean=false, force: Boolean=false) {
+        // Reset page manager
+        if(!willContinueAfter) {
+            _speakPageManager = null
+        }
+
         if (!force && !isSpeaking && !isPaused) {
             return
         }
-        // Reset page manager
-        _speakPageManager = null
 
         Log.d(TAG, "Stop TTS speaking")
         ttsServiceManager.shutdown(willContinueAfter)
@@ -413,7 +436,7 @@ class SpeakControl @Inject constructor(
         // ensure volume controls adjust correct stream - not phone which is the default
         // STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead:
         // http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
-        CommonUtils.sharedPreferences.edit().putLong("speak-last-used", System.currentTimeMillis()).apply()
+        CommonUtils.settings.setLong("speak-last-used", System.currentTimeMillis())
         val activity = CurrentActivityHolder.getInstance().currentActivity
         if (activity != null) {
             activity.volumeControlStream = AudioManager.STREAM_MUSIC
@@ -427,7 +450,7 @@ class SpeakControl @Inject constructor(
         if (!isPaused && !isSpeaking) {
             // if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
             if (ev.updateBookmark) {
-                bookmarkControl.updateBookmarkSettings(ev.speakSettings.playbackSettings)
+                bookmarkControl.updateBookmarkPlaybackSettings(ev.speakSettings.playbackSettings)
             }
         } else if (isSpeaking) {
             pause(true)
@@ -475,7 +498,7 @@ class SpeakControl @Inject constructor(
         return timerTask != null
     }
 
-    fun speakFromBookmark(dto: BookmarkDto) {
+    fun speakFromBookmark(dto: Bookmark) {
         val book = dto.speakBook as SwordBook?;
         if (isSpeaking || isPaused) {
             stop(true)

@@ -21,21 +21,25 @@ package net.bible.android.control.page.window
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.page.ChapterVerse
-import net.bible.android.control.page.CurrentBiblePage
-import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.Document
+import net.bible.android.control.page.DocumentCategory
+import net.bible.android.control.page.ErrorDocument
+import net.bible.android.control.page.ErrorSeverity
+import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
-import net.bible.service.format.HtmlMessageFormatter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Verse
 
 class WindowChangedEvent(val window: Window)
 
@@ -91,7 +95,7 @@ open class Window (
         }
 
     open var isPinMode: Boolean = window.isPinMode
-        get() = if(windowRepository.windowBehaviorSettings.autoPin) {
+        get() = if(windowRepository.workspaceSettings.autoPin) {
             true
         } else {
             field
@@ -106,6 +110,9 @@ open class Window (
 
     val isSplit: Boolean
         get() = windowLayout.state == WindowState.SPLIT
+
+    val isSyncable: Boolean
+        get() = pageManager.currentPage.isSyncable
 
     val isClosed: Boolean
         get() = windowLayout.state == WindowState.CLOSED
@@ -153,40 +160,51 @@ open class Window (
     val initialized get() = lastUpdated != 0L
 
     fun updateText(notifyLocationChange: Boolean = false) {
-        if(pageManager.currentPage is CurrentMyNotePage) return
-
         val isVisible = isVisible
 
         Log.d(TAG, "updateText, isVisible: $isVisible")
 
         if(!isVisible) return
 
-        Log.d(TAG, "Loading html in background")
-        var chapterVerse: ChapterVerse? = null
-        var yOffsetRatio: Float? = null
+        Log.d(TAG, "Loading OSIS xml in background")
+        var verse: Verse? = null
+        var anchorOrdinal: Int? = null
         val currentPage = pageManager.currentPage
 
-        if(currentPage is CurrentBiblePage) {
-            chapterVerse = currentPage.currentChapterVerse
+        if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
+            verse = pageManager.currentBibleVerse.verse
         } else {
-            yOffsetRatio = currentPage.currentYOffsetRatio
+            anchorOrdinal = currentPage.anchorOrdinal
         }
+        displayedBook = currentPage.currentDocument
+        displayedKey = currentPage.key
+        Log.d(TAG, "updateText ${this.hashCode()}") // ${Log.getStackTraceString(Exception())}")
 
         GlobalScope.launch(Dispatchers.IO) {
             if (notifyLocationChange) {
                 PassageChangeMediator.getInstance().contentChangeStarted()
             }
 
-            val text = fetchText()
-
-            withContext(Dispatchers.Main) {
-                lastUpdated = System.currentTimeMillis()
-
-                if(notifyLocationChange) {
-                    bibleView?.show(text, updateLocation = true)
-                } else {
-                    bibleView?.show(text, chapterVerse = chapterVerse, yOffsetRatio = yOffsetRatio)
+            val doc = fetchDocument()
+            val checksum = if(pageManager.isCommentaryShown && doc is OsisDocument) {
+                val checksum = doc.osisFragment.xmlStr.hashCode()
+                if (lastChecksum == checksum && bibleView?.firstDocument != null) {
+                    pageManager.currentCommentary.anchorOrdinal = pageManager.currentCommentary._anchorOrdinal
+                    return@launch
                 }
+                checksum
+            } else -1
+
+            // BibleView initialization might take more time than loading OSIS, so let's wait for it.
+            waitForBibleView()
+
+            lastUpdated = System.currentTimeMillis()
+            lastChecksum = checksum
+
+            if(notifyLocationChange) {
+                bibleView?.loadDocument(doc, updateLocation = true)
+            } else {
+                bibleView?.loadDocument(doc, verse = verse, anchorOrdinal = anchorOrdinal)
             }
 
             if(notifyLocationChange)
@@ -194,7 +212,23 @@ open class Window (
             }
         }
 
-    private suspend fun fetchText(): String = withContext(Dispatchers.IO) {
+    var lastChecksum = 0
+
+    private suspend fun waitForBibleView() {
+        var time = 0L
+        val delayMillis = 50L
+        val timeout = 5000L
+        while(bibleView == null) {
+            delay(delayMillis)
+            time += delayMillis;
+            if(time > timeout) {
+                Log.e(TAG, "waitForBibleView timed out")
+                return;
+            }
+        }
+    }
+
+    private suspend fun fetchDocument(): Document = withContext(Dispatchers.IO) {
         val currentPage = pageManager.currentPage
         return@withContext try {
             val document = currentPage.currentDocument
@@ -203,7 +237,7 @@ open class Window (
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()
-            HtmlMessageFormatter.format(R.string.error_page_too_large)
+            ErrorDocument(BibleApplication.application.resources.getString(R.string.error_page_too_large), ErrorSeverity.ERROR)
         }
     }
 

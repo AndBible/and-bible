@@ -18,8 +18,8 @@
 
 package net.bible.service.device.speak
 
-import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.database.bookmarks.SpeakSettings
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Verse
 
@@ -32,7 +32,7 @@ interface SpeakTextProvider {
     fun getTotalChars(): Long
     fun getSpokenChars(): Long
     fun pause()
-    fun stop(doNotSync: Boolean)
+    fun stop()
     fun rewind(amount: SpeakSettings.RewindAmount?)
     fun forward(amount: SpeakSettings.RewindAmount?)
     fun getText(utteranceId: String): String
@@ -43,7 +43,7 @@ interface SpeakTextProvider {
     fun restoreState(): Boolean
     fun clearPersistedState()
     fun prepareForStartSpeaking()
-    fun savePosition(fractionCompleted: Float)
+    fun savePosition(fractionCompleted: Double)
     fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {}
     fun getCurrentlyPlayingVerse(): Verse? = null
     fun getCurrentlyPlayingBook(): Book? = null

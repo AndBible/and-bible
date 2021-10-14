@@ -1,0 +1,84 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+openMyNotes: Open in My Notes
+openStudyPad: Open in Study Pad (%s)
+noteText: Footnotes (%s)
+noteTextWithoutType: Footnotes
+crossReferenceText: Cross references
+findAllOccurrences: Find all occurrences
+reportError: Report an error
+errorTitle: Error occurred
+warningTitle: Warning
+normalTitle: Please note
+footnoteTypeUndefined: Undefined type
+footnoteTypeStudy: Study
+footnoteTypeExplanation: Explanation
+footnoteTypeVariant: Variant
+footnoteTypeAlternative: Alternative
+footnoteTypeTranslation: Translation
+clearLog: Clear error log
+editNote: Edit
+editNotePlaceholder: Edit note
+editTextPlaceholder: Tap to edit text
+inputPlaceholder: Write here
+inputReference: Enter Bible reference
+invalidReference: Verse not found
+assignLabels: Labels
+bookmarkAccurate: Bookmark was created in %s
+bookmarkInaccurate: Bookmark book information not stored, content is displayed in %s.
+defaultBook: default Bible document
+ok: OK
+yes: "Yes"
+ambiguousSelection: Which action do you wish to take?
+cancel: Cancel
+removeBookmarkConfirmationTitle: Remove bookmark?
+removeBookmarkConfirmation: Are you sure you want to remove this bookmark?
+closeModal: Close
+createdAt: "Created: %s"
+lastUpdatedOn: "Last updated: %s"
+strongsLink: Strongs definition (%s)
+morphLink: Morphological code (%s)
+strongsAndMorph: Definition & Morphology
+studyPadLink: Open study pad
+externalLink: Open external link
+referenceLink: Open reference link
+openFootnote: Open footnote
+openBookmark: Open bookmark (%s)
+noMyNotesTitle: No My Notes for this chapter.
+noMyNotesDescription: >
+  Get started by creating bookmarks in a Bible document.
+  The bookmarks will then appear here and you can add your personal notes to them.
+emptyStudyPad: >
+  Empty study pad. Start adding to this study pad by creating text entries here
+  or by creating bookmarks with a bookmark label that corresponds with this study pad.
+studyPadModalTitle: Edit study pad entry
+doYouWantToDeleteEntry: Delete this study pad entry?
+removeStudyPadConfirmationTitle: Remove study pad entry?
+dragHelp: Drag to reorder
+saved: saved
+openAll: Open all references
+editBookmarkPlaceholder: Tap to edit My Notes for this bookmark
+onlyLabel: Only label
+wholeBookmark: Whole bookmark
+otherNoteText: Other note
+assignLabelsMenuEntry: Assign labels
+assignLabelsMenuEntry1: Select or edit labels…
+jumpToStudyPad: Jump to Study Pad
+setAsPrimaryLabel: Set as primary label
+removeBookmarkLabel: Remove label
+addBookmarkLabel: Add label
+favouriteLabels: Favourite Labels
+recentLabels: Recent Labels
+frequentlyUsedLabels: Frequently Used Labels
+bookmarkLabels: Bookmark labels
+refParserHelp: Please install %s module to use references in languages other than English.
+openDownloads: Go to Add-on downloads
+verseShare: Share
+verseCompare: Compare
+verseNote: Note
+verseMyNotes: My Notes
+verseSpeak: Speak
+verseShareLong: Share this verse
+verseCompareLong: Compare verse
+verseNoteLong: Write a note
+verseSpeakLong: Start listening from this verse
+addBookmark: Bookmark

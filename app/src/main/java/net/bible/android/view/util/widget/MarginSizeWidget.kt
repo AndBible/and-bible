@@ -24,8 +24,8 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
-import kotlinx.android.synthetic.main.margin_size_widget.view.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.MarginSizeWidgetBinding
 import net.bible.android.database.WorkspaceEntities
 
 fun createListener(func: (progress: Int, fromUser: Boolean) -> Unit): SeekBar.OnSeekBarChangeListener {
@@ -44,29 +44,31 @@ fun createListener(func: (progress: Int, fromUser: Boolean) -> Unit): SeekBar.On
 class MarginSizeWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(context, attributeSet)
 {
     lateinit var value: WorkspaceEntities.MarginSize
+    val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private val bindings = MarginSizeWidgetBinding.inflate(inflater, this, true)
     init {
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        inflater.inflate(R.layout.margin_size_widget, this, true)
-        leftMargin.max = 30
-        rightMargin.max = 30
-        maxWidth.max = 500
+        bindings.apply {
+            leftMargin.max = 30
+            rightMargin.max = 30
+            maxWidth.max = 500
 
-        leftMargin.setOnSeekBarChangeListener(createListener { it, fromUser ->
-            value.marginLeft = it
-            if(fromUser) updateValue()
-        })
+            leftMargin.setOnSeekBarChangeListener(createListener { it, fromUser ->
+                value.marginLeft = it
+                if (fromUser) updateValue()
+            })
 
-        rightMargin.setOnSeekBarChangeListener(createListener { it, fromUser ->
-            value.marginRight = it
-            if(fromUser) updateValue()
-        })
-        maxWidth.setOnSeekBarChangeListener(createListener {it, fromUser ->
-            value.maxWidth = it
-            if(fromUser) updateValue()
-        })
+            rightMargin.setOnSeekBarChangeListener(createListener { it, fromUser ->
+                value.marginRight = it
+                if (fromUser) updateValue()
+            })
+            maxWidth.setOnSeekBarChangeListener(createListener { it, fromUser ->
+                value.maxWidth = it
+                if (fromUser) updateValue()
+            })
+        }
     }
     
-    fun updateValue() {
+    fun updateValue() = bindings.apply {
         leftMarginLabel.text = context.getString(R.string.pref_left_margin_label_mm, value.marginLeft)
         rightMarginLabel.text = context.getString(R.string.pref_right_margin_label_mm, value.marginRight)
         maxTextWidthLabel.text = context.getString(R.string.pref_maximum_width_of_text_label_mm, value.maxWidth)

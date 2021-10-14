@@ -30,16 +30,19 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SpeakBibleBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.*
+import net.bible.android.database.bookmarks.PlaybackSettings
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.service.common.speakHelpVideo
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
@@ -54,33 +57,44 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
     @Inject lateinit var navigationControl: NavigationControl
 
+    lateinit var binding: SpeakBibleBinding
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.speak_bible)
+        binding = SpeakBibleBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         buildActivityComponent().inject(this)
         ABEventBus.getDefault().register(this)
-
-        speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                speedStatus.text = "$progress %"
-                if(fromUser) {
-                    updateSettings()
+        binding.apply {
+            speakSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    speedStatus.text = "$progress %"
+                    if (fromUser) {
+                        updateSettings()
+                    }
                 }
-            }
-        })
+            })
+            speakChapterChanges.setOnClickListener { updateSettings() }
+            speakTitles.setOnClickListener { updateSettings() }
+            speakFootnotes.setOnClickListener { updateSettings() }
+            repeatPassageCheckbox.setOnClickListener { setRepeatPassage() }
+            sleepTimer.setOnClickListener { setSleepTime() }
+        }
 
         resetView(SpeakSettings.load())
     }
+
+    override val sleepTimer: CheckBox get() = binding.sleepTimer
 
     override fun onDestroy() {
         ABEventBus.getDefault().unregister(this)
         super.onDestroy()
     }
 
-    override fun resetView(settings: SpeakSettings) {
+    override fun resetView(settings: SpeakSettings) = binding.run {
         speakChapterChanges.isChecked = settings.playbackSettings.speakChapterChanges
         speakTitles.isChecked = settings.playbackSettings.speakTitles
         speakFootnotes.isChecked = settings.playbackSettings.speakFootnotes
@@ -107,6 +121,10 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 startActivity(Intent("com.android.settings.TTS_SETTINGS"))
                 return true
             }
+            R.id.help -> {
+                onHelpButtonClick()
+                return true
+            }
         }
         return false
     }
@@ -116,10 +134,10 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         resetView(ev.speakSettings)
     }
 
-    fun onHelpButtonClick(widget: View) {
+    fun onHelpButtonClick() {
         val htmlMessage = (
                 "<b>${getString(R.string.speak)}</b><br><br>"
-                + "<b><a href=\"https://youtu.be/_wWnS-pjv2A\">"
+                + "<b><a href=\"$speakHelpVideo\">"
                 + "${getString(R.string.watch_tutorial_video)}</a></b>"
                 )
 
@@ -138,9 +156,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    fun onSettingsChange(widget: View) = updateSettings()
-
-    fun setRepeatPassage(v: View) {
+    fun setRepeatPassage() {
         val s = SpeakSettings.load()
         if(s.playbackSettings.verseRange != null) {
             s.playbackSettings.verseRange = null
@@ -148,11 +164,12 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         }
         else {
             val intent = Intent(this, GridChoosePassageBook::class.java)
+            intent.putExtra("isScripture", true)
             intent.putExtra("navigateToVerse", true)
             intent.putExtra("title", getString(R.string.speak_beginning_of_passage))
             startVerse = null
             endVerse = null
-            repeatPassageCheckbox.isChecked = false // not yet!
+            binding.repeatPassageCheckbox.isChecked = false // not yet!
             startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
         }
     }
@@ -169,9 +186,10 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             if(startVerse == null) {
                 startVerse = verse
                 val intent = Intent(this, GridChoosePassageBook::class.java)
+                intent.putExtra("isScripture", true)
                 intent.putExtra("navigateToVerse", true)
                 intent.putExtra("title", getString(R.string.speak_ending_of_passage))
-                startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                startActivityForResult(intent, STD_REQUEST_CODE)
             }
             else {
                 endVerse = verse
@@ -199,10 +217,10 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
 
         settings.apply {
             playbackSettings = PlaybackSettings(
-                    speakChapterChanges = speakChapterChanges.isChecked,
-                    speakTitles = speakTitles.isChecked,
-                    speakFootnotes = speakFootnotes.isChecked,
-                    speed = speakSpeed.progress,
+                    speakChapterChanges = binding.speakChapterChanges.isChecked,
+                    speakTitles = binding.speakTitles.isChecked,
+                    speakFootnotes = binding.speakFootnotes.isChecked,
+                    speed = binding.speakSpeed.progress,
                     verseRange = settings.playbackSettings.verseRange
             )
             sleepTimer = currentSettings.sleepTimer

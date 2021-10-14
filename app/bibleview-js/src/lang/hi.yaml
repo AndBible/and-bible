@@ -1,0 +1,81 @@
+openMyNotes: मेरे नोट्स में खोलें
+openStudyPad: "स्टडी पैड (%s) में खोलें "
+noteText: फुटनोट (%s)
+noteTextWithoutType: " फ़ुटनोट"
+crossReferenceText: क्रॉस रेफरेन्सेस
+findAllOccurrences: सभी घटना खोजें
+reportError: त्रुटि की रिपोर्ट करें
+errorTitle: त्रुटि हुई
+warningTitle: चेतावनी
+normalTitle: कृपया ध्यान दें
+footnoteTypeUndefined: अपरिभाषित प्रकार
+footnoteTypeStudy: अध्ययन
+footnoteTypeExplanation: स्पष्टीकरण
+footnoteTypeVariant: प्रकार
+footnoteTypeAlternative: विकल्प
+footnoteTypeTranslation: अनुवाद
+clearLog: त्रुटि संग्रह साफ़ करें
+editNote: " संपादित करें"
+editNotePlaceholder: नोट संपादित करें
+editTextPlaceholder: टेक्स्ट संपादित करने के लिए टैप करें
+inputPlaceholder: यहाँ लिखें
+inputReference: बाइबिल संदर्भ दर्ज करें
+invalidReference: " छंद नहीं मिला"
+assignLabels: लेबल
+bookmarkAccurate: बुकमार्क %s में बनाया गया था
+bookmarkInaccurate: "बुकमार्क बुक जानकारी संग्रहीत नहीं है, सामग्री %s में प्रदर्शित होती है।"
+defaultBook: डिफ़ॉल्ट बाइबिल दस्तावेज़
+ok: ठीक है
+yes: "हाँ"
+ambiguousSelection: "आप कौन सी कार्रवाई करना चाहते हैं?"
+cancel: रद्द करें
+removeBookmarkConfirmationTitle: "बुकमार्क हटाएं?"
+removeBookmarkConfirmation: "क्या आप वाकई इस बुकमार्क को हटाना चाहते हैं?"
+closeModal: बंद करे
+createdAt: "बनाया गया: %s"
+lastUpdatedOn: "पिछली बार अपडेट किया गया: %s"
+strongsLink: स्ट्रोंगस परिभाषा (%s)
+morphLink: रूपात्मक कोड (%s)
+strongsAndMorph: परिभाषा और आकृति विज्ञान
+studyPadLink: स्टडी पैड खोलें
+externalLink: बाहरी लिंक खोलें
+referenceLink: संदर्भ लिंक खोलें
+openFootnote: फुटनोट खोलें
+openBookmark: बुकमार्क खोलें (%s)
+noMyNotesTitle: इस अध्याय के लिए कोई मेरे नोट्स नहीं हैं।
+noMyNotesDescription: >
+  बाइबिल दस्तावेज़ में बुकमार्क बनाकर आरंभ करें। फिर बुकमार्क यहां दिखाई देंगे और आप उनमें अपने व्यक्तिगत नोट्स जोड़ सकते हैं।
+emptyStudyPad: >
+  खाली स्टडी पैड। यहां टेक्स्ट प्रविष्टियां बनाकर या इस स्टडी पैड से मेल खाने वाले बुकमार्क लेबल के साथ बुकमार्क बनाकर इस स्टडी पैड में जोड़ना शुरू करें।
+studyPadModalTitle: स्टडी पैड प्रविष्टि संपादित करें
+doYouWantToDeleteEntry: "इस स्टडी पैड प्रविष्टि को हटाएं?"
+removeStudyPadConfirmationTitle: "स्टडी पैड प्रविष्टि को हटाएं?"
+dragHelp: व्यवस्थित करने के लिए खींचे
+saved: सहेजा गया
+openAll: सभी संदर्भ खोलें
+editBookmarkPlaceholder: इस बुकमार्क के लिए मेरे नोट्स संपादित करने के लिए टैप करें
+onlyLabel: केवल लेबल
+wholeBookmark: संपूर्ण बुकमार्क
+otherNoteText: अन्य नोट
+assignLabelsMenuEntry: लेबल लिखना/देना
+assignLabelsMenuEntry1: लेबल चुनें या संपादित करें…
+jumpToStudyPad: स्टडी पैड पर जाएं
+setAsPrimaryLabel: प्राथमिक लेबल के रूप में सेट करें
+removeBookmarkLabel: लेबल हटाएं
+addBookmarkLabel: लेबल जोड़ें
+favouriteLabels: पसंदीदा लेबल
+recentLabels: हाल के लेबल
+frequentlyUsedLabels: अक्सर इस्तेमाल किए जाने वाले लेबल
+bookmarkLabels: बुकमार्क लेबल
+refParserHelp: अंग्रेजी के अलावा अन्य भाषाओं में संदर्भों का उपयोग करने के लिए कृपया %s मॉड्यूल स्थापित करें।
+openDownloads: ऐड-ऑन डाउनलोड पर जाएं
+verseShare: शेयर
+verseCompare: तुलना करना
+verseNote: नोट
+verseMyNotes: मेरे टिप्पणीयां
+verseSpeak: अध्याय सुनिए
+verseShareLong: इस छंद को शेयर करें
+verseCompareLong: छंद की तुलना करें
+verseNoteLong: एक टिप्पणी लिखो
+verseSpeakLong: इस छंद से सुनना शुरू करें
+addBookmark: बुकमार्क

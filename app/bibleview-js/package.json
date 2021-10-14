@@ -1,42 +1,106 @@
 {
-  "name": "andbible-js",
+  "name": "bibleview-js",
+  "version": "0.1.0",
   "private": true,
-  "version": "0.0.1",
-  "description": "BibleView JS",
-  "repository": "https://github.com/AndBible/and-bible/",
-  "license": "GPL",
-  "dependencies": {
-    "jquery": "~3.5.0",
-    "jquery-nearest": "~1.4.0"
-  },
   "scripts": {
-    "build": "webpack"
+    "serve": "vue-cli-service serve --port 8085",
+    "test:unit": "vue-cli-service test:unit",
+    "test:ci": "vue-cli-service test:unit --reporters=\"jest-html-reporter\"",
+    "lint:ci": "vue-cli-service lint --no-fix --no-color > lint-results.txt",
+    "lint:silent": "vue-cli-service lint --no-fix",
+    "lint": "vue-cli-service lint",
+    "andbible-build-old": "vue-cli-service build --target app --formats umd-min --inline-vue --name BibleView src/main.js",
+    "build-debug": "cross-env NODE_ENV=debug vue-cli-service build --target app --inline-vue",
+    "build-development": "cross-env NODE_ENV=development vue-cli-service build --target app --inline-vue",
+    "build-old": "vue-cli-service build",
+    "build-production": "cross-env NODE_ENV=production vue-cli-service build --target app --inline-vue"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.35",
+    "@fortawesome/free-solid-svg-icons": "^5.15.3",
+    "@fortawesome/vue-fontawesome": "^3.0.0-3",
+    "bible-passage-reference-parser": "~2.0.1",
+    "color": "~3.1.3",
+    "core-js": "~3.6.5",
+    "lodash": "^4.17.21",
+    "mitt": "^2.1.0",
+    "sprintf-js": "~1.1.2",
+    "vue": "^3.0.11",
+    "vuedraggable": "^4.0.1"
   },
   "devDependencies": {
-    "autoprefixer": "^9.7.6",
-    "babel-core": "~6.26.3",
-    "babel-loader": "~7.1.5",
-    "babel-plugin-lodash": "~3.3.4",
-    "babel-plugin-transform-builtin-classes": "~0.6.1",
-    "babel-plugin-transform-class-properties": "~6.24.1",
-    "babel-plugin-transform-es2015-classes": "~6.24.1",
-    "babel-plugin-transform-object-rest-spread": "~6.26.0",
-    "babel-polyfill": "~6.26.0",
-    "babel-preset-env": "~1.7.0",
-    "bundle-loader": "~0.5.6",
-    "css-loader": "~3.4.2",
-    "fibers": "~4.0.3",
-    "html-loader": "~0.5.5",
-    "mini-css-extract-plugin": "~0.9.0",
-    "npm": "^6.14.8",
-    "postcss-loader": "~3.0.0",
-    "precss": "~4.0.0",
-    "raw-loader": "~4.0.0",
-    "sass": "~1.26.3",
-    "sass-loader": "~8.0.2",
-    "vue-loader": "~15.9.1",
-    "vue-template-compiler": "~2.6.11",
-    "webpack": "~4.42.1",
-    "webpack-cli": "~3.3.11"
-  }
+    "@vue/cli-plugin-babel": "^4.5.13",
+    "@vue/cli-plugin-eslint": "^4.5.13",
+    "@vue/cli-plugin-unit-jest": "^4.5.13",
+    "@vue/cli-service": "^4.5.13",
+    "@vue/compiler-sfc": "^3.0.11",
+    "@vue/test-utils": "^2.0.0-rc.6",
+    "babel-eslint": "~10.1.0",
+    "babel-jest": "^26.6.3",
+    "cross-env": "^7.0.3",
+    "eslint": "~6.7.2",
+    "eslint-plugin-vue": "~7.1.0-0",
+    "jest-html-reporter": "^3.4.1",
+    "jsdom": "~16.6.0",
+    "json-loader": "^0.5.7",
+    "npm": "^7.24.1",
+    "sass": "~1.29.0",
+    "sass-loader": "^10.2.0",
+    "stylus": "~0.54.8",
+    "stylus-loader": "^4.3.3",
+    "typescript": "^3.9.9",
+    "vue-cli-plugin-webpack-bundle-analyzer": "^4.0.0",
+    "vue-cli-plugin-yaml-loader": "~1.0.0",
+    "vue-jest": "^5.0.0-alpha.9",
+    "yaml-loader": "^0.6.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {
+      "strict": 1,
+      "camelcase": [
+        "error"
+      ],
+      "no-var": [
+        "error"
+      ],
+      "vue/script-indent": [
+        "error",
+        2,
+        {
+          "baseIndent": 0,
+          "switchCase": 1
+        }
+      ],
+      "vue/html-indent": [
+        "error",
+        2,
+        {
+          "baseIndent": 1
+        }
+      ]
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s?(x)",
+          "**/tests/unit/**/*.spec.{j,t}s?(x)"
+        ],
+        "env": {
+          "jest": true
+        }
+      }
+    ]
+  },
+  "browserslist": []
 }

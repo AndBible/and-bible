@@ -51,7 +51,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 		super.buildActivityComponent().inject(this);
 
 		setMainText(getString(R.string.indexing_wait_msg));
-
+		findViewById(R.id.hideButton).setOnClickListener(v -> finish());
 		String docInitials = getIntent().getStringExtra(SearchControl.SEARCH_DOCUMENT);
 		documentBeingIndexed = getSwordDocumentFacade().getDocumentByInitials(docInitials);
 	}
@@ -65,7 +65,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 	protected void jobFinished(Progress jobJustFinished) {
 		// give the document up to 12 secs to reload - the Progress declares itself finished before the index status has been changed
 		int attempts = 0;
-		while (!IndexStatus.DONE.equals(documentBeingIndexed.getIndexStatus()) && attempts++<6) {
+		while ((documentBeingIndexed == null || !IndexStatus.DONE.equals(documentBeingIndexed.getIndexStatus())) && attempts++<6) {
 			CommonUtils.INSTANCE.pause(2);
 		}
 
@@ -91,9 +91,5 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 				Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred);
 			}
 		}
-	}
-
-	public void onHide(View view){
-		finish();
 	}
 }

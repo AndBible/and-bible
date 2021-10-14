@@ -1,0 +1,81 @@
+openMyNotes: Apri in Annotazioni
+openStudyPad: Apri in Appunti di studio (%s)
+noteText: Note a piè di pagina (%s)
+noteTextWithoutType: Note a piè di pagina
+crossReferenceText: Riferimenti incrociati
+findAllOccurrences: Trova tutte le occorrenze
+reportError: Segnala un errore
+errorTitle: Si è verificato un errore
+warningTitle: Avviso
+normalTitle: Attenzione
+footnoteTypeUndefined: Tipo non definito
+footnoteTypeStudy: Studio
+footnoteTypeExplanation: Spiegazione
+footnoteTypeVariant: Variante
+footnoteTypeAlternative: Alternativa
+footnoteTypeTranslation: Traduzione
+clearLog: Pulisci il registro degli errori
+editNote: Modifica
+editNotePlaceholder: Modifica nota
+editTextPlaceholder: Tocca per modificare il testo
+inputPlaceholder: Scrivi qui
+inputReference: Inserisci un riferimento biblico
+invalidReference: Versetto non trovato
+assignLabels: Etichette
+bookmarkAccurate: Segnalibro creato in %s
+bookmarkInaccurate: "Informazioni del segnalibro non salvate, il contenuto è mostrato in %s."
+defaultBook: documento Bibbia di default
+ok: OK
+yes: "Si"
+ambiguousSelection: "Quale azione vuoi eseguire?"
+cancel: Annulla
+removeBookmarkConfirmationTitle: "Cancellare il segnalibro?"
+removeBookmarkConfirmation: "Sei sicuro di voler eliminare questo segnalibro?"
+closeModal: Chiudi
+createdAt: "Creato: %s"
+lastUpdatedOn: "Ultimo aggiornamento: %s"
+strongsLink: Definizioni Strong (%s)
+morphLink: Codice morfologico (%s)
+strongsAndMorph: Definizione e Morfologia
+studyPadLink: Apri appunti di studio
+externalLink: Apri link esterno
+referenceLink: Apri link di riferimento
+openFootnote: Apri nota a piè di pagina
+openBookmark: Apri segnalibro (%s)
+noMyNotesTitle: Le Annotazioni per questo capitolo sono vuote.
+noMyNotesDescription: >
+  Inizia creando dei segnalibri in un documento della Bibbia. I segnalibri appariranno qui e potrai aggiungere le tue annotazioni personali.
+emptyStudyPad: >
+  Appunti di studio vuoti. Inizia aggiungendo una voce qui, o creando dei segnalibri con un'etichetta che corrisponda a questi appunti.
+studyPadModalTitle: Modifica voce degli appunti di studio
+doYouWantToDeleteEntry: "Eliminare voce degli appunti di studio?"
+removeStudyPadConfirmationTitle: "Eliminare voce degli appunti di studio?"
+dragHelp: Trascina per riordinare
+saved: salvato
+openAll: Apri tutti i riferimenti
+editBookmarkPlaceholder: Tocca per modificare le Annotazioni per questo segnalibro
+onlyLabel: Solo etichetta
+wholeBookmark: Intero segnalibro
+otherNoteText: Altra nota
+assignLabelsMenuEntry: Assegna etichette
+assignLabelsMenuEntry1: Scegli o modifica etichette...
+jumpToStudyPad: Salta agli Appunti di studio
+setAsPrimaryLabel: Imposta come etichetta principale
+removeBookmarkLabel: Elimina etichetta
+addBookmarkLabel: Aggiungi etichetta
+favouriteLabels: Etichette preferite
+recentLabels: Etichette recenti
+frequentlyUsedLabels: Etichette usate più spesso
+bookmarkLabels: Etichette dei segnalibri
+refParserHelp: Per favore installa il modulo %s per usare riferimenti in lingue diverse dall'inglese.
+openDownloads: Scarica estensioni
+verseShare: Condividi
+verseCompare: Confronta
+verseNote: Nota
+verseMyNotes: Annotazioni
+verseSpeak: Parla/Audio
+verseShareLong: Condividi questo verso
+verseCompareLong: Confronta verso
+verseNoteLong: Scrivi una nota
+verseSpeakLong: Comincia l'ascolto da questo verso
+addBookmark: Segnalibro

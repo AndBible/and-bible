@@ -27,18 +27,24 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import net.bible.android.database.bookmarks.SpeakSettings
+import org.crosswire.jsword.passage.Verse as JswordVerse
+import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.system.Versifications
 
 import java.util.*
 
 val json = Json {
     allowStructuredMapKeys = true
+    encodeDefaults = true
 }
 
 class WorkspaceEntities {
     data class Page(
         val document: String?,
         val key: String?,
-        val currentYOffsetRatio: Float?
+        @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
+        @ColumnInfo(name = "currentYOffsetRatio") val deprecatedCurrentYOffsetRatio: Float? = null, // TODO: remove
     )
 
     data class Verse(
@@ -46,7 +52,15 @@ class WorkspaceEntities {
         val bibleBook: Int,
         val chapterNo: Int,
         val verseNo: Int
-    )
+    ) {
+        val jswordVerse: JswordVerse get() {
+            val v11n = Versifications.instance().getVersification(versification)
+            val bibleBookNo = bibleBook
+            val chapterNo = chapterNo
+            val verseNo = verseNo
+            return JswordVerse(v11n, BibleBook.values()[bibleBookNo], chapterNo, verseNo, true)
+        }
+    }
 
     data class BiblePage(
         val document: String?,
@@ -55,7 +69,8 @@ class WorkspaceEntities {
 
     data class CommentaryPage(
         val document: String?,
-        val currentYOffsetRatio: Float?
+        @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
+        @ColumnInfo(name = "currentYOffsetRatio") val deprecatedCurrentYOffsetRatio: Float? = null // TODO: remove
     )
 
     @Entity(
@@ -79,7 +94,8 @@ class WorkspaceEntities {
         @Embedded(prefix="general_book_") val generalBookPage: Page?,
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,
-        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?
+        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?,
+        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels") var deprecatedBookmarksAssignLabels: List<Long>? = null,
     )
 
     data class WindowLayout(
@@ -92,12 +108,6 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var marginLeft: Int?,
         @ColumnInfo(defaultValue = "NULL") var marginRight: Int?,
         @ColumnInfo(defaultValue = "NULL") var maxWidth: Int?
-    )
-
-    @Serializable
-    data class Font(
-        @ColumnInfo(defaultValue = "NULL") var fontSize: Int?,
-        @ColumnInfo(defaultValue = "NULL") var fontFamily: String?
     )
 
     @Serializable
@@ -123,7 +133,7 @@ class WorkspaceEntities {
     data class TextDisplaySettings(
         @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
         @Embedded(prefix="colors_") var colors: Colors? = null,
-        @ColumnInfo(defaultValue = "NULL") var showStrongs: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "showStrongs") var strongsMode: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showRedLetters: Boolean? = null,
@@ -134,15 +144,21 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var hyphenation: Boolean? = null,
-        @Embedded(prefix="font_") var font: Font? = null,
-        @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null
+        @ColumnInfo(defaultValue = "NULL") var topMargin: Int? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "font_fontSize") var fontSize: Int? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "font_fontFamily") var fontFamily: String? = null,
+        @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showAll") var deprecatedBookmarksShowAllLabels: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showLabels") var bookmarksHideLabels: List<Long>? = null,
     ) {
         enum class Types {
-            FONT,
+            FONTSIZE,
+            FONTFAMILY,
             COLORS,
             MARGINSIZE,
             JUSTIFY,
             HYPHENATION,
+            TOPMARGIN,
             LINE_SPACING,
             STRONGS,
             MORPH,
@@ -151,45 +167,52 @@ class WorkspaceEntities {
             SECTIONTITLES,
             VERSENUMBERS,
             VERSEPERLINE,
-            BOOKMARKS,
+            BOOKMARKS_SHOW,
+            BOOKMARKS_HIDELABELS,
             MYNOTES,
         }
 
         fun getValue(type: Types): Any? = when(type) {
-            Types.STRONGS -> showStrongs
+            Types.STRONGS -> strongsMode
             Types.MORPH -> showMorphology
             Types.FOOTNOTES -> showFootNotes
             Types.REDLETTERS -> showRedLetters
             Types.SECTIONTITLES -> showSectionTitles
             Types.VERSENUMBERS -> showVerseNumbers
             Types.VERSEPERLINE -> showVersePerLine
-            Types.BOOKMARKS -> showBookmarks
             Types.MYNOTES -> showMyNotes
             Types.MARGINSIZE -> marginSize?.copy()
             Types.COLORS -> colors?.copy()
             Types.JUSTIFY -> justifyText
             Types.HYPHENATION -> hyphenation
+            Types.TOPMARGIN -> topMargin
             Types.LINE_SPACING -> lineSpacing
-            Types.FONT -> font?.copy()
+            Types.FONTSIZE -> fontSize
+            Types.FONTFAMILY -> fontFamily
+            Types.BOOKMARKS_SHOW -> showBookmarks
+            Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
         }
 
         fun setValue(type: Types, value: Any?) {
             when(type) {
-                Types.STRONGS -> showStrongs = value as Boolean?
+                Types.STRONGS -> strongsMode = value as Int?
                 Types.MORPH -> showMorphology = value as Boolean?
                 Types.FOOTNOTES -> showFootNotes = value as Boolean?
                 Types.REDLETTERS -> showRedLetters = value as Boolean?
                 Types.SECTIONTITLES -> showSectionTitles = value as Boolean?
                 Types.VERSENUMBERS -> showVerseNumbers = value as Boolean?
                 Types.VERSEPERLINE -> showVersePerLine = value as Boolean?
-                Types.BOOKMARKS -> showBookmarks = value as Boolean?
                 Types.MYNOTES -> showMyNotes = value as Boolean?
                 Types.MARGINSIZE -> marginSize = value as MarginSize?
                 Types.COLORS -> colors = value as Colors?
                 Types.JUSTIFY -> justifyText = value as Boolean?
                 Types.HYPHENATION -> hyphenation = value as Boolean?
-                Types.FONT -> font = value as Font?
+                Types.TOPMARGIN -> topMargin = value as Int?
+                Types.FONTSIZE -> fontSize = value as Int?
+                Types.FONTFAMILY -> fontFamily = value as String?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
+                Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
+                Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<Long>?
             }
         }
 
@@ -211,13 +234,15 @@ class WorkspaceEntities {
             fun fromJson(jsonString: String): TextDisplaySettings {
                 return json.decodeFromString(serializer(), jsonString)
             }
+            const val white = -1
+            const val black = -16777216
 
             val default get() = TextDisplaySettings(
                 colors = Colors(
-                    dayBackground = null,
-                    dayTextColor = null,
-                    nightBackground = null,
-                    nightTextColor = null,
+                    dayBackground = white,
+                    dayTextColor = black,
+                    nightBackground = black,
+                    nightTextColor = white,
                     nightNoise = 0,
                     dayNoise = 0
                 ),
@@ -226,22 +251,22 @@ class WorkspaceEntities {
                     marginRight = 0,
                     maxWidth = 170
                 ),
-                font = Font(
-                    fontSize = 16,
-                    fontFamily = "sans-serif"
-                ),
-                showStrongs = false,
+                fontSize = 16,
+                fontFamily = "sans-serif",
+                strongsMode = 0,
                 showMorphology = false,
-                showFootNotes = false,
+                showFootNotes = true,
                 showRedLetters = false,
                 showSectionTitles = true,
                 showVerseNumbers = true,
                 showVersePerLine = false,
-                showBookmarks = true,
                 showMyNotes = true,
                 justifyText = true,
                 hyphenation = true,
-                lineSpacing = 16
+                topMargin = 0,
+                lineSpacing = 16,
+                showBookmarks = true,
+                bookmarksHideLabels = emptyList(),
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
@@ -276,17 +301,24 @@ class WorkspaceEntities {
         }
     }
 
-    data class WindowBehaviorSettings(
+    @Serializable
+    data class RecentLabel(val labelId: Long, var lastAccess: Long)
+
+    data class WorkspaceSettings(
         @ColumnInfo(defaultValue = "0") var enableTiltToScroll: Boolean = false,
         @ColumnInfo(defaultValue = "0") var enableReverseSplitMode: Boolean = false,
-        @ColumnInfo(defaultValue = "1") var autoPin: Boolean = false
+        @ColumnInfo(defaultValue = "1") var autoPin: Boolean = false,
+        @ColumnInfo(defaultValue = "NULL") var speakSettings: SpeakSettings? = null,
+
+        @ColumnInfo(defaultValue = "NULL") var recentLabels: MutableList<RecentLabel> = mutableListOf(),
+        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<Long> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<Long> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
     ) {
         companion object {
-            val default get() = WindowBehaviorSettings(
-                enableTiltToScroll = false,
-                enableReverseSplitMode = false,
-                autoPin = true
-            )
+            val default get() = WorkspaceSettings()
         }
     }
 
@@ -299,9 +331,13 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
         @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
-        @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings(),
+
+        // TODO: change prefix to correspond variable name
+        @Embedded(prefix="window_behavior_settings_") val workspaceSettings: WorkspaceSettings? = WorkspaceSettings(),
         @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null,
-        val maximizedWindowId: Long? = null
+        val maximizedWindowId: Long? = null,
+
+        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels") var deprecatedBookmarksAssignLabels: List<Long>? = null,
     )
 
     @Entity(
@@ -322,7 +358,8 @@ class WorkspaceEntities {
         val createdAt: Date,
         val document: String,
         val key: String,
-        val yOffsetRatio: Float?,
+        @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
+        @ColumnInfo(name = "yOffsetRatio") val deprecatedYOffsetRatio: Float? = null, // TODO: remove (deprecated)
 
         @PrimaryKey(autoGenerate = true) val id: Long = 0
     )
@@ -359,7 +396,7 @@ data class SettingsBundle (
     val windowId: Long? = null
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() {
-        return if(windowId == null) workspaceSettings else WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
+        return if(windowId == null) WorkspaceEntities.TextDisplaySettings.actual(null, workspaceSettings) else WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
     }
 
     fun toJson(): String {

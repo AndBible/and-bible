@@ -17,16 +17,37 @@
  */
 package net.bible.service.db
 
+import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
+import android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
+import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
 import android.util.Log
+import androidx.core.database.getIntOrNull
 import androidx.room.Room
-import androidx.room.migration.Migration as RoomMigration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
+import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.database.AppDatabase
+import net.bible.android.database.DATABASE_VERSION
+import net.bible.android.database.bookmarks.BookmarkStyle
+import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.Versifications
+import java.io.File
 import java.sql.SQLException
+import java.text.SimpleDateFormat
+import java.util.*
+
+import androidx.room.migration.Migration as RoomMigration
 
 
 const val DATABASE_NAME = "andBibleDatabase.db"
@@ -36,7 +57,7 @@ abstract class Migration(startVersion: Int, endVersion: Int): RoomMigration(star
     abstract fun doMigrate(db: SupportSQLiteDatabase)
     
     override fun migrate(db: SupportSQLiteDatabase) {
-        Log.d(TAG, "Migrating from version $startVersion to $endVersion" )
+        Log.d(TAG, "Migrating from version $startVersion to $endVersion")
         doMigrate(db)
     }
 }
@@ -282,7 +303,7 @@ private val MIGRATION_19_20 = object : Migration(19, 20) {
 private val MIGRATION_20_21 = object : Migration(20, 21) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
-            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoPin` INTEGER DEFAULT TRUE")
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoPin` INTEGER DEFAULT 1")
         }
     }
 }
@@ -551,12 +572,454 @@ private val SQUASH_30_33 = object : Migration(30, 33) {
     }
 }
 
+private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE bookmark RENAME TO bookmark_old;")
+            execSQL("ALTER TABLE label RENAME TO label_old;")
+
+            execSQL("CREATE TABLE IF NOT EXISTS `Bookmark` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `createdAt` INTEGER NOT NULL)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalStart` ON `Bookmark` (`kjvOrdinalStart`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalEnd` ON `Bookmark` (`kjvOrdinalEnd`)")
+            execSQL("CREATE TABLE IF NOT EXISTS `Label` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `bookmarkStyle` TEXT)")
+            execSQL("CREATE TABLE IF NOT EXISTS `BookmarkToLabel` (`bookmarkId` INTEGER NOT NULL, `labelId` INTEGER NOT NULL, PRIMARY KEY(`bookmarkId`, `labelId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_BookmarkToLabel_labelId` ON `BookmarkToLabel` (`labelId`)")
+
+            val c = db.query("SELECT * from bookmark_old")
+            val keyIdx = c.getColumnIndex("key")
+            val createdOnIdx = c.getColumnIndex("created_on")
+            val v11nIdx = c.getColumnIndex("versification")
+            val speakSettingsIdx = c.getColumnIndex("speak_settings")
+            val idIdx = c.getColumnIndex("_id")
+
+            c.moveToFirst()
+            while(!c.isAfterLast) {
+                val id = c.getLong(idIdx)
+                val key = c.getString(keyIdx)
+                var v11n: Versification? = null
+                var verseRange: VerseRange? = null
+                var verseRangeInKjv: VerseRange? = null
+
+                try {
+                    v11n = Versifications.instance().getVersification(
+                        c.getString(v11nIdx) ?: Versifications.DEFAULT_V11N
+                    )
+                    verseRange = VerseRangeFactory.fromString(v11n, key)
+                    verseRangeInKjv = verseRange.toV11n(KJVA)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to migrate bookmark: v11n:$v11n verseRange:$verseRange verseRangeInKjv:$verseRangeInKjv", e)
+                    c.moveToNext()
+                    continue
+                }
+
+                //Created date
+                val createdAt = c.getLong(createdOnIdx)
+                val playbackSettingsStr = c.getString(speakSettingsIdx)
+                val newValues = ContentValues()
+                newValues.apply {
+                    put("id", id)
+                    put("v11n", v11n.name)
+                    put("kjvOrdinalStart", verseRangeInKjv.start.ordinal)
+                    put("kjvOrdinalEnd", verseRangeInKjv.end.ordinal)
+                    put("ordinalStart", verseRange.start.ordinal)
+                    put("ordinalEnd", verseRange.end.ordinal)
+                    put("createdAt", createdAt)
+                    put("playbackSettings", playbackSettingsStr)
+                }
+                db.insert("Bookmark", CONFLICT_FAIL, newValues)
+                c.moveToNext()
+            }
+
+            execSQL("INSERT INTO Label SELECT * from label_old;")
+            execSQL("INSERT INTO BookmarkToLabel SELECT * from bookmark_label;")
+
+            execSQL("DROP TABLE bookmark_old;")
+            execSQL("DROP TABLE label_old;")
+            execSQL("DROP TABLE bookmark_label;")
+        }
+    }
+}
+
+private val BOOKMARKS_BOOK_34_35 = object : Migration(34, 35) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `book` TEXT")
+        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `startOffset` INTEGER DEFAULT NULL")
+        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `endOffset` INTEGER DEFAULT NULL")
+    }
+}
+
+private val WORKSPACE_BOOKMARK_35_36 = object : Migration(35, 36) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_bookmarks_showAll` INTEGER DEFAULT NULL")
+        db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_bookmarks_showLabels` TEXT DEFAULT NULL")
+        db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_bookmarks_assignLabels` TEXT DEFAULT NULL")
+        db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_bookmarks_showAll` INTEGER DEFAULT NULL")
+        db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_bookmarks_showLabels` TEXT DEFAULT NULL")
+        db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_bookmarks_assignLabels` TEXT DEFAULT NULL")
+    }
+}
+
+private val BOOKMARKS_BOOK_36_37 = object : Migration(36, 37) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `notes` TEXT DEFAULT NULL")
+    }
+}
+
+private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Bookmark` ADD COLUMN `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0")
+            execSQL("UPDATE Bookmark SET lastUpdatedOn=createdAt")
+
+            val c = db.query("SELECT * from mynote")
+            val idIdx = c.getColumnIndex("_id")
+            val keyIdx = c.getColumnIndex("key")
+            val v11nIdx = c.getColumnIndex("versification")
+            val myNoteIdx = c.getColumnIndex("mynote")
+            val lastUpdatedOnIdx = c.getColumnIndex("last_updated_on")
+            val createdOnIdx = c.getColumnIndex("created_on")
+
+            c.moveToFirst()
+
+            var labelId = -1L
+            if(!c.isAfterLast) {
+                val labelValues = ContentValues().apply {
+                    put("name", BibleApplication.application.getString(R.string.migrated_my_notes))
+                }
+                labelId = db.insert("Label", CONFLICT_FAIL, labelValues)
+            }
+
+            while(!c.isAfterLast) {
+                val id = c.getLong(idIdx)
+                val key = c.getString(keyIdx)
+                var v11n: Versification? = null
+                var verseRange: VerseRange? = null
+                var verseRangeInKjv: VerseRange? = null
+
+                try {
+                    v11n = Versifications.instance().getVersification(
+                        c.getString(v11nIdx) ?: Versifications.DEFAULT_V11N
+                    )
+                    verseRange = VerseRangeFactory.fromString(v11n, key)
+                    verseRangeInKjv = verseRange.toV11n(KJVA)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to migrate bookmark: v11n:$v11n verseRange:$verseRange verseRangeInKjv:$verseRangeInKjv", e)
+                    c.moveToNext()
+                    continue
+                }
+
+                val createdAt = c.getLong(createdOnIdx)
+                val lastUpdatedOn = c.getLong(lastUpdatedOnIdx)
+                val myNote = c.getString(myNoteIdx)
+                val newValues = ContentValues()
+                newValues.apply {
+                    put("v11n", v11n.name)
+                    put("kjvOrdinalStart", verseRangeInKjv.start.ordinal)
+                    put("kjvOrdinalEnd", verseRangeInKjv.end.ordinal)
+                    put("ordinalStart", verseRange.start.ordinal)
+                    put("ordinalEnd", verseRange.end.ordinal)
+                    put("createdAt", createdAt)
+                    put("lastUpdatedOn", lastUpdatedOn)
+                    put("notes", myNote)
+                }
+                val bookmarkId = db.insert("Bookmark", CONFLICT_FAIL, newValues)
+
+                val bookmarkLabelValues = ContentValues().apply {
+                    put("bookmarkId", bookmarkId)
+                    put("labelId", labelId)
+                }
+                db.insert("BookmarkToLabel", CONFLICT_FAIL, bookmarkLabelValues)
+                c.moveToNext()
+            }
+            execSQL("DROP TABLE mynote;")
+        }
+    }
+}
+
+private val BOOKMARKS_LABEL_COLOR_38_39 = object : Migration(38, 39) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL("UPDATE Label SET name='${SPEAK_LABEL_NAME}' WHERE bookmarkStyle = 'SPEAK'")
+        db.execSQL("ALTER TABLE `Label` ADD COLUMN `color` INTEGER NOT NULL DEFAULT 0")
+        val c = db.query("SELECT * from Label")
+        val idIdx = c.getColumnIndex("id")
+        val bookmarkStyleIdx = c.getColumnIndex("bookmarkStyle")
+        c.moveToFirst()
+        while(!c.isAfterLast) {
+            val id = c.getLong(idIdx)
+            val bookmarkStyle = try {BookmarkStyle.valueOf(c.getString(bookmarkStyleIdx)) }
+                                catch (e: Exception) {BookmarkStyle.BLUE_HIGHLIGHT}
+
+            val newColor = bookmarkStyle.backgroundColor
+            val newValues = ContentValues().apply {
+                put("color", newColor)
+            }
+            db.update("Label", CONFLICT_FAIL, newValues, "id = ?", arrayOf(id));
+            c.moveToNext()
+        }
+    }
+}
+
+private val JOURNAL_39_40 = object : Migration(39, 40) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS `JournalTextEntry` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `labelId` INTEGER NOT NULL, `text` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT -1, `indentLevel` INTEGER NOT NULL, FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_JournalTextEntry_labelId` ON `JournalTextEntry` (`labelId`)")
+
+        db.execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `orderNumber` INTEGER NOT NULL DEFAULT -1")
+        db.execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `indentLevel` INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+private val MIGRATION_40_41_DocumentBackup = object : Migration(40, 41) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("""CREATE TABLE IF NOT EXISTS `DocumentBackup` (`osisId` TEXT PRIMARY KEY NOT NULL, `abbreviation` TEXT NOT NULL, `name` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL);""")
+        }
+    }
+}
+
+private val MIGRATION_41_42_cipherKey = object : Migration(41, 42) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `DocumentBackup` ADD COLUMN `cipherKey` TEXT DEFAULT NULL")
+            // Let's empty the db as we changed from book.osisId -> book.initials
+            execSQL("DELETE FROM DocumentBackup")
+        }
+    }
+}
+
+
+private val MIGRATION_42_43_expandContent = object : Migration(42, 43) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `expandContent` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+
+private val MIGRATION_43_44_topMargin = object : Migration(43, 44) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_topMargin` INTEGER DEFAULT NULL")
+            db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_topMargin` INTEGER DEFAULT NULL")
+        }
+    }
+}
+
+
+private val MIGRATION_44_45_nullColors = object : Migration(44, 45) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        val white = -1
+        val black = -16777216
+        db.apply {
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_dayTextColor=${black} WHERE text_display_settings_colors_dayTextColor IS NULL");
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_nightTextColor=${white} WHERE text_display_settings_colors_nightTextColor IS NULL");
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_nightBackground=${black} WHERE text_display_settings_colors_nightBackground IS NULL");
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_dayBackground=${white} WHERE text_display_settings_colors_dayBackground IS NULL");
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_dayNoise=0 WHERE text_display_settings_colors_dayNoise IS NULL");
+            db.execSQL("UPDATE `Workspace` SET text_display_settings_colors_nightNoise=0 WHERE text_display_settings_colors_nightNoise IS NULL");
+
+            val isSpecific = """ (
+                text_display_settings_colors_dayTextColor IS NOT NULL
+                 OR text_display_settings_colors_nightTextColor IS NOT NULL
+                 OR text_display_settings_colors_nightBackground IS NOT NULL
+                 OR text_display_settings_colors_dayBackground IS NOT NULL
+                 OR text_display_settings_colors_dayNoise IS NOT NULL
+                 OR text_display_settings_colors_nightNoise IS NOT NULL
+                )"""
+
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_dayTextColor=${black} WHERE text_display_settings_colors_dayTextColor IS NULL AND $isSpecific")
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_nightTextColor=${white} WHERE text_display_settings_colors_nightTextColor IS NULL AND $isSpecific");
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_nightBackground=${black} WHERE text_display_settings_colors_nightBackground IS NULL AND $isSpecific");
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_dayBackground=${white} WHERE text_display_settings_colors_dayBackground IS NULL AND $isSpecific");
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_dayNoise=0 WHERE text_display_settings_colors_dayNoise IS NULL AND $isSpecific");
+            db.execSQL("UPDATE `PageManager` SET text_display_settings_colors_nightNoise=0 WHERE text_display_settings_colors_nightNoise IS NULL AND $isSpecific");
+        }
+    }
+}
+
+private val MIGRATION_45_46_workspaceSpeakSettings = object : Migration(45, 46) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_speakSettings` TEXT DEFAULT NULL")
+        }
+    }
+}
+
+private val MIGRATION_46_47_primaryLabel = object : Migration(46, 47) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Bookmark` ADD COLUMN `primaryLabelId` INTEGER DEFAULT NULL REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL")
+            execSQL("UPDATE `Bookmark` SET primaryLabelId = (SELECT labelId FROM BookmarkToLabel WHERE bookmarkId=Bookmark.id LIMIT 1)")
+        }
+    }
+}
+
+private val MIGRATION_47_48_autoAssignLabels = object : Migration(47, 48) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_favouriteLabels` TEXT DEFAULT NULL")
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoAssignLabels` TEXT DEFAULT NULL")
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoAssignPrimaryLabel` INTEGER DEFAULT NULL")
+        }
+    }
+}
+
+private val MIGRATION_48_49_anchorOrdinal = object : Migration(48, 49) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `PageManager` ADD COLUMN `commentary_anchorOrdinal` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `PageManager` ADD COLUMN `dictionary_anchorOrdinal` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `PageManager` ADD COLUMN `general_book_anchorOrdinal` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `PageManager` ADD COLUMN `map_anchorOrdinal` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `HistoryItem` ADD COLUMN `anchorOrdinal` INTEGER DEFAULT NULL")
+        }
+    }
+}
+
+private val MIGRATION_49_50_wholeVerseBookmark = object : Migration(49, 50) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Bookmark` ADD COLUMN `wholeVerse` INTEGER NOT NULL DEFAULT 0")
+            execSQL("UPDATE `Bookmark` SET wholeVerse = startOffset IS NULL")
+        }
+    }
+}
+
+private val MIGRATION_50_51_underlineStyleAndRecentLabels = object : Migration(50, 51) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Label` ADD COLUMN `underlineStyle` INTEGER NOT NULL DEFAULT 0")
+            execSQL("ALTER TABLE `Label` ADD COLUMN `underlineStyleWholeVerse` INTEGER NOT NULL DEFAULT 0")
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_recentLabels` TEXT DEFAULT NULL")
+        }
+    }
+}
+
+private val MIGRATION_51_52_compareDocuments = object : Migration(51, 52) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_hideCompareDocuments` TEXT DEFAULT NULL")
+        }
+    }
+}
+
+private val MIGRATION_52_53_underline = object : Migration(52, 53) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+             execSQL("UPDATE `Label` SET underlineStyleWholeVerse=1, underlineStyle=1 WHERE bookmarkStyle='UNDERLINE'")
+        }
+    }
+}
+
+private val MIGRATION_53_54_booleanSettings = object : Migration(53, 54) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_primaryLabelId` ON `Bookmark` (`primaryLabelId`)")
+            execSQL("CREATE TABLE IF NOT EXISTS `BooleanSetting` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))");
+            execSQL("CREATE TABLE IF NOT EXISTS `StringSetting` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))")
+            execSQL("CREATE TABLE IF NOT EXISTS `LongSetting` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))")
+            execSQL("CREATE TABLE IF NOT EXISTS `DoubleSetting` (`key` TEXT NOT NULL, `value` REAL NOT NULL, PRIMARY KEY(`key`))")
+            val sharedPreferences = CommonUtils.realSharedPreferences
+            for((k, v) in sharedPreferences.all) {
+                val values = ContentValues()
+                values.put("key", k)
+                when(v) {
+                    is Long -> {
+                        values.put("value", v)
+                        db.insert("LongSetting", CONFLICT_IGNORE, values)
+                    }
+                    is Int -> {
+                        values.put("value", v)
+                        db.insert("LongSetting", CONFLICT_IGNORE, values)
+                    }
+                    is Boolean -> {
+                        values.put("value", v)
+                        db.insert("BooleanSetting", CONFLICT_IGNORE, values)
+                    }
+                    is String -> {
+                        values.put("value", v)
+                        db.insert("StringSetting", CONFLICT_IGNORE, values)
+                    }
+                    is Float -> {
+                        values.put("value", v)
+                        db.insert("DoubleSetting", CONFLICT_IGNORE, values)
+                    }
+                    is Double -> {
+                        values.put("value", v)
+                        db.insert("DoubleSetting", CONFLICT_IGNORE, values)
+                    }
+                    else -> {
+                        Log.e(TAG, "Illegal value '$k', $v")
+                    }
+                }
+            }
+        }
+    }
+}
+
+private val MIGRATION_54_55_bookmarkType = object : Migration(54, 55) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE Label ADD COLUMN type TEXT DEFAULT NULL")
+            execSQL("ALTER TABLE Bookmark ADD COLUMN type TEXT DEFAULT NULL")
+        }
+    }
+}
+
+private val MIGRATION_55_56_limitAmbiguousSize = object : Migration(55, 56) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_limitAmbiguousModalSize` INTEGER DEFAULT 0")
+        }
+    }
+}
+
+private val MIGRATION_56_57_breaklines_in_notes = object : Migration(56, 57) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("UPDATE `Bookmark` SET notes = REPLACE(notes, '\n', '<br>') WHERE notes IS NOT NULL")
+        }
+    }
+}
+
+class DataBaseNotReady: Exception()
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
+    var ready: Boolean = false
+
+    private fun backupDatabaseIfNeeded() {
+        val dbPath = BibleApplication.application.getDatabasePath(DATABASE_NAME)
+        var dbVersion: Int? = null
+        try {
+            val db = SQLiteDatabase.openDatabase(dbPath.absolutePath, null, OPEN_READONLY)
+            db.use { d ->
+                val cursor = d.rawQuery("PRAGMA user_version", null)
+                cursor.use { c ->
+                    while (c.moveToNext()) {
+                        dbVersion = c.getIntOrNull(0)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "Could not backup database. Maybe fresh install.")
+        }
+        if(dbVersion != null && dbVersion != DATABASE_VERSION) {
+            val backupPath = CommonUtils.dbBackupPath
+            val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
+            val backupFile = File(backupPath, "dbBackup-$dbVersion-$timeStamp.db")
+            dbPath.copyTo(backupFile)
+        }
+    }
+
     val db: AppDatabase
         get () {
+            if(!ready && !BibleApplication.application.isRunningTests) throw DataBaseNotReady()
+
             return instance ?: synchronized(this) {
+                backupDatabaseIfNeeded()
+
                 instance ?: Room.databaseBuilder(
                     BibleApplication.application, AppDatabase::class.java, DATABASE_NAME
                 )
@@ -596,7 +1059,31 @@ object DatabaseContainer {
                         MIGRATION_30_31,
                         MIGRATION_31_32,
                         SQUASH_30_33,
-                        MIGRATION_32_33
+                        MIGRATION_32_33,
+                        MIGRATION_33_34_Bookmarks,
+                        BOOKMARKS_BOOK_34_35,
+                        WORKSPACE_BOOKMARK_35_36,
+                        BOOKMARKS_BOOK_36_37,
+                        MIGRATION_37_38_MyNotes_To_Bookmarks,
+                        BOOKMARKS_LABEL_COLOR_38_39,
+                        JOURNAL_39_40,
+                        MIGRATION_40_41_DocumentBackup,
+                        MIGRATION_41_42_cipherKey,
+                        MIGRATION_42_43_expandContent,
+                        MIGRATION_43_44_topMargin,
+                        MIGRATION_44_45_nullColors,
+                        MIGRATION_45_46_workspaceSpeakSettings,
+                        MIGRATION_46_47_primaryLabel,
+                        MIGRATION_47_48_autoAssignLabels,
+                        MIGRATION_48_49_anchorOrdinal,
+                        MIGRATION_49_50_wholeVerseBookmark,
+                        MIGRATION_50_51_underlineStyleAndRecentLabels,
+                        MIGRATION_51_52_compareDocuments,
+                        MIGRATION_52_53_underline,
+                        MIGRATION_53_54_booleanSettings,
+                        MIGRATION_54_55_bookmarkType,
+                        MIGRATION_55_56_limitAmbiguousSize,
+                        MIGRATION_56_57_breaklines_in_notes,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

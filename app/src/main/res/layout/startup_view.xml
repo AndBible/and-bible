@@ -3,63 +3,145 @@
  
  @author Martin Denham [mjdenham at gmail dot com]
 -->
-<androidx.constraintlayout.widget.ConstraintLayout
+<ScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@drawable/background_blue_light">
-
-	<TextView
-		android:id="@+id/splash_title_text"
-		style="@style/SplashTitleFont"
-		android:layout_width="fill_parent"
+	android:layout_height="match_parent"
+	android:layout_width="match_parent"
+	android:padding="15dp"
+	>
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		android:gravity="center"
-		android:padding="5dip"
-		android:text="@string/app_name_long"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+		>
 
-	<TextView
-		android:id="@+id/splash_url_text"
-		style="@style/SplashTopFont"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		android:gravity="center"
-		android:padding="5dip"
-		android:text="@string/homepage"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/splash_title_text" />
+		<LinearLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent">
 
-	<TextView
-		android:id="@+id/splash_github_url_text"
-		style="@style/SplashTopFont"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		android:gravity="center"
-		android:padding="5dip"
-		android:text="@string/github_page"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.0"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/splash_url_text" />
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:orientation="horizontal">
 
-	<TextView
-		android:id="@+id/versionText"
-		style="@style/SplashBottomFont"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:gravity="right"
-		android:padding="5dip"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+				<ImageView
+					android:id="@+id/imageView"
+					android:layout_width="match_parent"
+					android:layout_height="75sp"
+					android:layout_weight="4"
+					app:srcCompat="@drawable/ic_logo"
+					tools:ignore="ContentDescription" />
+
+				<TextView
+					android:id="@+id/splash_title_text"
+					style="@style/SplashTitleFont"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:gravity="center|top|center_vertical"
+					android:padding="5dip"
+					android:text="@string/app_name_long" />
+
+			</LinearLayout>
+
+			<TextView
+				android:id="@+id/welcomeMessage"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="5sp"
+				android:textAppearance="@style/SplashTopFont" />
+
+			<TextView
+				android:id="@+id/easyStartMessage"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="5sp"
+				android:text="@string/easy_start_message"
+				android:textAppearance="@style/SplashTopFont"
+				android:visibility="gone"
+				/>
+
+			<Button
+				android:id="@+id/easyStartButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="15sp"
+				android:text="@string/easy_start_title"
+				android:visibility="gone"
+				/>
+
+			<Button
+				android:id="@+id/downloadButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/download" />
+
+			<Button
+				android:id="@+id/importButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="15sp"
+				android:text="@string/install_zip" />
+
+			<TextView
+				android:id="@+id/redownloadMessage"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="5sp"
+				android:textAppearance="@style/SplashTopFont"
+				android:text="@string/redownload_message"
+				android:visibility="gone" />
+
+			<Button
+				android:id="@+id/redownloadButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/redownload_documents"
+				android:padding="15sp"
+				android:visibility="gone"
+				/>
+
+			<Button
+				android:id="@+id/restoreDatabaseButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="15sp"
+				android:text="@string/restore_database"
+				/>
+
+			<TextView
+				android:id="@+id/splash_url_text"
+				style="@style/SplashTopFont"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:padding="5dip"
+				android:autoLink="web"
+				android:text="@string/homepage" />
+
+			<TextView
+				android:id="@+id/splash_github_url_text"
+				style="@style/SplashTopFont"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:padding="5dip"
+				android:autoLink="web"
+				android:text="@string/github_page" />
+
+			<TextView
+				android:id="@+id/versionText"
+				style="@style/SplashBottomFont"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:gravity="end"
+				android:padding="5dip" />
+		</LinearLayout>
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

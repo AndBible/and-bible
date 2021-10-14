@@ -1,0 +1,81 @@
+openMyNotes: in meinen eigenen Notizen öffnen
+openStudyPad: Öffne in der Studienmappe (%s)
+noteText: Fußnoten (%s)
+noteTextWithoutType: Fußnoten
+crossReferenceText: Querverweise
+findAllOccurrences: Finde alle Vorkommen
+reportError: einen Fehler melden
+errorTitle: Ein Fehler ist aufgetreten
+warningTitle: Warnung
+normalTitle: Bitte beachte
+footnoteTypeUndefined: Undefinierter Typ
+footnoteTypeStudy: Studie
+footnoteTypeExplanation: Erklärung
+footnoteTypeVariant: Variante
+footnoteTypeAlternative: Alternative
+footnoteTypeTranslation: Übersetzung
+clearLog: Lösche Fehlerprotokoll
+editNote: Bearbeiten
+editNotePlaceholder: Notiz bearbeiten
+editTextPlaceholder: Antippen um Text zu bearbeiten
+inputPlaceholder: Hier schreiben
+inputReference: Querverweis einfügen
+invalidReference: Vers wurde nicht gefunden
+assignLabels: Kategorien
+bookmarkAccurate: Lesezeichen wurde in %s erstellt
+bookmarkInaccurate: "Lesezeicheninformation wurde nicht gespeichert, der Inhalt wird in %s angezeigt."
+defaultBook: Standard-Bibeldokument
+ok: OK
+yes: "Ja"
+ambiguousSelection: Welche Aktion möchtest du durchführen
+cancel: Abbrechen
+removeBookmarkConfirmationTitle: "Lesezeichen entfernen?"
+removeBookmarkConfirmation: "Bist du sicher, dass du dieses Lesezeichen entfernen möchtest?"
+closeModal: Schließen
+createdAt: "Erstellt: %s"
+lastUpdatedOn: "Zuletzt aktualisiert: %s"
+strongsLink: Begriffserklärung in Strong (%s)
+morphLink: Morphologischer Code (%s)
+strongsAndMorph: Begriffserklärungen und Morphologie
+studyPadLink: Studiermappe öffnen
+externalLink: Externe Verknüpfung öffnen
+referenceLink: Querverweis öffnen
+openFootnote: Fußnote öffnen
+openBookmark: Lesezeichen öffnen (%s)
+noMyNotesTitle: Keine eigenen Notizen für dieses Kapitel.
+noMyNotesDescription: >
+  Beginne damit, Lesezeichen in einem Bibeldokument zu erstellen. Die Lesezeichen werden hier erscheinen und du kannst dann deine persönlichen Notizen dazu hinzufügen.
+emptyStudyPad: >
+  Leere Studienmappe. Füge dieser Studienmappe Text hinzu oder erstelle Lesezeichen in einer Kategorien, die mit dieser Studienmappe verknüpft ist.
+studyPadModalTitle: Studienmappeneintrag bearbeiten
+doYouWantToDeleteEntry: "Diesen Studienmappeneintrag löschen?"
+removeStudyPadConfirmationTitle: "Studienmappeneintrag entfernen?"
+dragHelp: Zum Umordnen Ziehen
+saved: Gespeichert
+openAll: Öffne alle Querverweise
+editBookmarkPlaceholder: Tippen um die eigene Notiz für dieses Lesezeichen zu bearbeiten
+onlyLabel: Einzige Kategorie
+wholeBookmark: Gesamtes Lesezeichen
+otherNoteText: Andere Notiz
+assignLabelsMenuEntry: Lesezeichen hinzufügen
+assignLabelsMenuEntry1: Kategorie auswählen oder bearbeiten...
+jumpToStudyPad: Gehe zur Studiermappe
+setAsPrimaryLabel: Setze als Primärkategorie
+removeBookmarkLabel: Kategorie entfernen
+addBookmarkLabel: Kategorie hinzufügen
+favouriteLabels: Lieblingskategorien
+recentLabels: Kürzliche Kategorien
+frequentlyUsedLabels: Häufig verwendete Kategorien
+bookmarkLabels: Lesezeichenkategorien
+refParserHelp: Bitte installiere Modul %s um Querverweise in anderen Sprachen als Englisch zu verwenden.
+openDownloads: Zu Add-on Download gehen
+verseShare: Teilen
+verseCompare: Vergleiche
+verseNote: Notiz
+verseMyNotes: Eigene Notizen
+verseSpeak: Vorlesen
+verseShareLong: Diesen Vers teilen
+verseCompareLong: Vers vergleichen
+verseNoteLong: Eine Notiz schreiben
+verseSpeakLong: Von diesem Vers an anhören
+addBookmark: Lesezeichen

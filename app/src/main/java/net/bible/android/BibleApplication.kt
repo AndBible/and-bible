@@ -24,19 +24,19 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.database.sqlite.SQLiteDatabase
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import net.bible.android.activity.R
 
-import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.DaggerApplicationComponent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.report.BugReport
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
-import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.sword.SwordEnvironmentInitialisation
 
 import org.crosswire.common.util.Language
@@ -75,18 +75,19 @@ open class BibleApplication : Application() {
 
     var localeOverrideAtStartUp: String? = null
         private set
-    private var ttsNotificationManager: TextToSpeechNotificationManager? = null
-    private var ttsWidgetManager: SpeakWidgetManager? = null
+
+    open val isRunningTests: Boolean = false
 
     private val appStateSharedPreferences: SharedPreferences
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
     override fun onCreate() {
-        Log.d(TAG, "BibleApplication:onCreate")
+        Log.d(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
-            CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", true).commit()
+            BugReport.saveScreenshot()
+            CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
             defaultExceptionHandler.uncaughtException(t, e)
         }
         ABEventBus.getDefault().register(this)
@@ -101,9 +102,6 @@ open class BibleApplication : Application() {
         Log.i(TAG, "Java home:" + System.getProperty("java.home")!!)
         Log.i(TAG, "User dir:" + System.getProperty("user.dir") + " Timezone:" + System.getProperty("user.timezone"))
         logSqliteVersion()
-        // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
-        // this affected jsword dynamic classloading
-        Thread.currentThread().contextClassLoader = javaClass.classLoader
 
         // This must be done before accessing JSword to prevent default folders being used
         SwordEnvironmentInitialisation.initialiseJSwordFolders()
@@ -121,24 +119,21 @@ open class BibleApplication : Application() {
         ProgressNotificationManager.instance.initialise()
 
         // various initialisations required every time at app startup
-        applicationComponent.warmUp().warmUpSwordEventually()
 
         localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
-
-        ttsNotificationManager = TextToSpeechNotificationManager()
-        ttsWidgetManager = SpeakWidgetManager()
     }
 
+    var sqliteVersion = ""
+
     private fun logSqliteVersion() {
-        var sqliteVersion = ""
         try {
-            val cursor =
-                SQLiteDatabase.openOrCreateDatabase(":memory:", null)
-                    .rawQuery("select sqlite_version() AS sqlite_version", null)
+            val db = SQLiteDatabase.openOrCreateDatabase(":memory:", null)
+            val cursor = db.rawQuery("select sqlite_version() AS sqlite_version", null)
             while (cursor.moveToNext()) {
                 sqliteVersion += cursor.getString(0)
             }
             cursor.close()
+            db.close()
         } catch (e: Throwable) {
             Log.e(TAG, "Couldn't figure out SQLite version due to error: ", e)
         }
@@ -153,7 +148,7 @@ open class BibleApplication : Application() {
     }
 
     private fun upgradeSharedPreferences() {
-        val prefs = CommonUtils.sharedPreferences
+        val prefs = CommonUtils.realSharedPreferences
         val prevInstalledVersion = prefs.getInt("version", -1)
         val newInstall = prevInstalledVersion == -1
 
@@ -223,17 +218,6 @@ open class BibleApplication : Application() {
         editor.putInt("version", CommonUtils.applicationVersionNumber).apply()
     }
 
-    /**
-     * This is never called in real system (only in tests). See parent documentation.
-     */
-    override fun onTerminate() {
-        Log.i(TAG, "onTerminate")
-        ttsNotificationManager!!.destroy()
-        ttsWidgetManager!!.destroy()
-        super.onTerminate()
-        ABEventBus.getDefault().unregisterAll()
-    }
-
     open fun getLocalizedResources(language: String): Resources {
         val app = application
         val oldConf = app.resources.configuration
@@ -244,8 +228,12 @@ open class BibleApplication : Application() {
 
     fun onEventMainThread(ev: ToastEvent) {
         val duration = ev.duration ?: Toast.LENGTH_SHORT
-        val message = if(ev.messageId != null) getString(ev.messageId) else ev.message
-        Toast.makeText(this, message, duration).show()
+        val message = if (ev.messageId != null) getString(ev.messageId) else ev.message
+        try {
+            Toast.makeText(this, message, duration).show()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in showing toast $message", e)
+        }
     }
 
     companion object {

@@ -1,0 +1,42 @@
+Kragtige Bybelstudie instrument
+
+Bybelstudie-toep deur And Biblel Oop Bron projekt is 'n kragtige, maar tog maklik om te gebruik, vanlyn Bybelstudie applikasie vir Android. Die toep beoog nie om bloot 'n Bybelleser te wees nie, maar fokus daarop om 'n gevorderde hulpmiddel te wees om diepgaande persoonlike Bybelstudie te doen.
+
+Hierdie toepassing word ontwikkel deur Bybellesers, vir Bybellesers. Dit is daarop gemik om jou te help om jou Bybelstudie gerieflik, diep en pret te maak. Die beste deel van hierdie nie-winsgewende gemeenskapsprojek is dat dit oop bron, heeltemal gratis is en geen advertensies bevat nie. Nadat dit van die grond af gebou is vir Android, is dit 'n klein aflaai, en dus baie doeltreffend en merkwaardig vinnig
+
+'n Paar gewilde Bybelweergawes (van die vele beskikbaar) is KJV, NASB, NET, en ook gewilde kommentare soos Matthew Henry en John Gill.
+
+Kragtige Bybelstudie-kenmerke
+
+Die toepassing het baie insiggewende, oorspronklike kenmerke, wat 'n komplekse en diep Bybelstudie-ervaring gladder as ooit maak. Die mees opvallende kenmerke is soos volg:
+
+ * Verdeel teksaansigte wat vergelykende vertalings en konsultasiekommentare moontlik maak
+ * Werkruimtes laat verskeie Bybelstudie-opstellings toe met hul eie instellings
+ * Stong's integrasie laat Griekse en Hebreeuse woord analise toe
+ * Gekoppelde kruisverwysings, voetnote en dokumente; spring na kruisverwysings en voetnote deur eenvoudig 'n skakel te tik; voer diepgaande studie van die Skrif uit deur hiperskakelkommentare (Gill, Matthew Henry ens. ...), kruisverwysingsversamelings (Skat van Skrif kennis, TSKe) en ander hulpbronne te gebruik.
+ * Gevorderde teks-na-spraak-spraak-boekmerke, wat 'n gladde Bybel beluister ervaring moontlik maak
+ * Buigsame soek
+ * Gevorderde boekmerk & beklemtoon funksies met persoonlike studie notas
+ * Bestudeer blokke vir die toevoeging van notas en Bybel verwysings terwyl jy na preke luister.
+ * Leesplanne: stel doelwitte vir die lees van die Bybel
+ * Groot biblioteek van dokumente: Bybelvertalings, teologiese kommentare, woordeboeke, kaarte en christelike boeke, wat meer as 1500 dokumente in meer as 700 tale beloop, wettig versprei deur Crosswire en ander SWAARDbewaarplekke.
+ * Vanlyn: die enigste keer wat jy internet nodig het, is vir die aflaai van documents.
+
+Kom ons maak die beste Bybel toep saam!
+
+And Bible is 'n oop brone gemeenskapsprojek. In die praktyk beteken dit dat enigiemand met geskikte vaardighede kan, en word aangemoedig om, by te dra tot die projek deur:
+
+ * ontwikkeling van nuwe kenmerke,
+ * toets nog nie vrygestelde kenmerke nie,
+ * hou gebruiker skoppelvlak vertalings op datum, en
+ * help om die module biblioteek uit te brei deur toestemmings van kopiereg houers te verkry, of deur dokumente na SWORD-formaat om te skakel.
+
+As jy 'n professionele sagteware-ingenieur of toetser is, oorweeg dit asseblief om by te dra tot die projek. Vir meer inligting oor hoe om by te dra, sien asseblief https://git.io/JUnaj.
+
+Skakels
+
+ * Tuisblad: https://andbible.github.io
+ * Hou van Abd Bible Facebook: https://www.facebook.com/AndBible/
+ * Ons Youtube kanaal: https://www.youtube.com/c/AndBible
+ * Algemene vrae: https://git.io/JJm8E
+ * Projekbladsy op Github: https://github.com/AndBible/and-bible

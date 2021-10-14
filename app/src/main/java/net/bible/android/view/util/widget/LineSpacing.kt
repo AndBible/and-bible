@@ -24,20 +24,21 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
-import kotlinx.android.synthetic.main.line_spacing_widget.view.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.LineSpacingWidgetBinding
 import net.bible.android.database.WorkspaceEntities
 
 
 class LineSpacingWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(context, attributeSet)
 {
     var value = WorkspaceEntities.TextDisplaySettings.default.lineSpacing!!
+    val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private val binding = LineSpacingWidgetBinding.inflate(inflater, this, true)
     init {
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.line_spacing_widget, this, true)
 
-        lineSpacing.max = 20
-        lineSpacing.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+        binding.lineSpacing.max = 20
+        binding.lineSpacing.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 value = progress + 10
                 if(fromUser) updateValue()
@@ -51,7 +52,7 @@ class LineSpacingWidget(context: Context, attributeSet: AttributeSet?): LinearLa
         })
     }
     
-    fun updateValue() {
+    fun updateValue() = binding.run {
         val lineSpacingVal = value
         lineSpacingValue.text = context.getString(R.string.prefs_line_spacing_pt, lineSpacingVal.toFloat() / 10.0)
         lineSpacing.progress = lineSpacingVal - 10

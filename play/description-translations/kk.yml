@@ -1,0 +1,66 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "Bible Study қолданб., And Bible Open Source Proj."
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Киелі кітап оқу, түсіндірмелерді немесе сөздіктерді оқу немесе офлайн кітап оқу."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Киелі кітапты зерттеудің Мықты құралы
+paragraph_1_1: >
+  And Bible Open Source Project by Bible Study қосымшасы - бұл Android үшін күшті, бірақ қолдануға оңай офлайн режимінде Киелі кітапты зерттеу қосымшасы. Қосымша тек Киелі кітапты ғана оқуды мақсат етпейді, Киелі кітапты жеке әрі терең зерттеудің жетілдірілген құралы болуына бағытталған.
+paragraph_1_2: >
+  Бұл қосымша Киелі кітапты оқитындардан, Киелі кітапты оқитындарға арналған. Бұл сізге Киелі кітапты зерттеуді ыңғайлы, терең және қызықты етуге көмектесуге бағытталған. Бұл коммерциялық емес қоғамдастық жобаның бір жақсы жағы - бұл ашық кодты, мүлдем ақысыз және жарнамасыз. Android үшін толығымен жаңадан жасалған, жүктеу үшін өте аз, сондықтан өте тиімді және жылдам болады.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Киелі кітаптың бірнеше танымал нұсқалары (ең қол жетімділері) - KJV, NASB, NET, сонымен қатар Мэттью Генри мен Джон Гилл сияқты танымал түсініктемелері де бар.
+subtitle_2: Киелі кітапты зерттеудің мықты мүмкіндіктері
+paragraph_2_1: >
+  Қосымшаның көптеген қызықты және өзіндік ерекшеліктері бар, бұл Киелі кітапты күрделі және терең зерттеуге бұрынғыдан да жеңіл етеді. Ең көрнекті ерекшеліктері төменде көрсетілген:
+feature_01: Аудармаларды салыстыруға және түсіндірмелер арқылы кеңес алуға мүмкіндік беретін мәтіндік көріністерге бөлу
+feature_02: Қолданбаның жұмыс кеңістігі Киелі кітапты зерттеуде бірнеше реттеулерді орнатуға және олармен қолдануға мүмкіндіктер береді
+feature_03: Strong интеграциясы грек және еврей сөздерін талдауға мүмкіндік береді
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Байланыстырылған қиылысты сілтемелер, жай сілтемелер мен құжаттар; сілтемені түрту арқылы қиылысқан сілтемелер мен жай сілтемелерге өту; ({{commentary_examples}}) гиперсілтемелерде берілген түсініктемелерді, ({{cross_reference_examples}}) сілтемелер жиынтығын және басқа да ресурстарды қолдана отырып, Жазбаларды терең зерттеу
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Гилл, Мэттью Генри және т.б. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Жазбалар туралы білімнің қазынасы, TSKe"
+feature_05: "Жетілдірілген түрлендірулер және қосымша белгілеулермен мәтінді дыбысты етіп шығару, бұл Киелі кітапты жайлы тыңдауға мүмкіндік береді "
+feature_06: Икемді іздеу
+feature_07: Жетілдірілген белгілеулер мен ерекшелеулерді жеке зерттеу жазбаларында қолдану
+feature_09: >
+  Оқу жоспарлары: Киелі кітапты оқуға мақсаттар қойыңыз 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Құжаттардың көлемді кітапханасы: Киелі Кітаптың аудармалары, теологиялық пікірлер, түсіндірмелер, сөздіктер, карталар және мәсіхшілік кітаптар, {{total_languages}} әр-түрлі тілдерде Crosswire және SWORD репозиторийлерінде заңды түрде таратылатын көптеген {{total_documents}} құжаттар. 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  Барлық құжаттардың түпнұсқалығы барлық құжаттарды заңды түрде таратуға немесе авторлық құқық иесінің рұқсат бергеніне көз жеткізу үшін зерттеледі. Сондықтан бұл қосымшада {{unavailable_documents}} сияқты құжаттар жоқ.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV және NKJV"
+feature_12: >
+  Офлайнда қолдану: интернетті бір рет тек құжаттарды жүктеу үшін ғана қолдансаңыз болады.
+feature_13: >
+  Уағыздарды тыңдау кезінде жазбалар мен Киелі кітапқа сілтемелер қосуға арналған оқу тақталары.
+subtitle_3: Ең жақсы Киелі Кітап қолданбасын бірге жасайық!
+paragraph_3_1: >
+  And Bible бұл - ашық кодты қоғамдық жоба. Іс жүзінде, бұл арнайы дағдысы бар әрбір адам жобаға өз үлесін қоса алады және қошеметтейміз:
+contr_1: "жаңа мүмкіндіктерді дамыту,"
+contr_2: "әлі шығарылмаған функцияларды тексеру,"
+contr_3: пайдаланушы интерфейсінің аудармаларын жаңартып отыру және
+contr_4: авторлық құқық иелерінен рұқсат алу немесе құжаттарды SWORD форматына түрлендіру арқылы кітапхана модулін кеңейтуге көмектесу.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Егер сіз кәсіби бағдарламашы-инженер немесе сынақшы болсаңыз, жобаға өз үлесіңізді қосуды қарастырыңыз. Қатысу туралы қосымша ақпарат алу үшін {{how_to_contribute_url}} қараңыз."
+subtitle_4: Сілтемелер
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Негізгі бет: {{homepage_url}}
+link_2: >
+  Facebook әлеуметтік желісінде And Bible-ға жүрек басыңыз: {{facebook_url}}
+link_3: >
+  Біздің Youtube каналымыз: {{youtube_url}}
+link_4: >
+  Жиі қойылатын сұрақтар: {{faq_url}}
+link_5: >
+  Github-дағы жоба парақшасы: {{github_url}}

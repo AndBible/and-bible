@@ -1,0 +1,66 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "Bybelstudie-toep, deur And Bible Oop Bron projek"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Lees die Bybel, bestudeer kommentare of woordeboeke, of lees boeke vanlyn af."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Kragtige Bybelstudie instrument
+paragraph_1_1: >
+  Bybelstudie-toep deur And Biblel Oop Bron projekt is 'n kragtige, maar tog maklik om te gebruik, vanlyn Bybelstudie applikasie vir Android. Die toep beoog nie om bloot 'n Bybelleser te wees nie, maar fokus daarop om 'n gevorderde hulpmiddel te wees om diepgaande persoonlike Bybelstudie te doen.
+paragraph_1_2: >
+  Hierdie toepassing word ontwikkel deur Bybellesers, vir Bybellesers. Dit is daarop gemik om jou te help om jou Bybelstudie gerieflik, diep en pret te maak. Die beste deel van hierdie nie-winsgewende gemeenskapsprojek is dat dit oop bron, heeltemal gratis is en geen advertensies bevat nie. Nadat dit van die grond af gebou is vir Android, is dit 'n klein aflaai, en dus baie doeltreffend en merkwaardig vinnig 
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  'n Paar gewilde Bybelweergawes (van die vele beskikbaar) is KJV, NASB, NET, en ook gewilde kommentare soos Matthew Henry en John Gill.
+subtitle_2: Kragtige Bybelstudie-kenmerke
+paragraph_2_1: >
+  Die toepassing het baie insiggewende, oorspronklike kenmerke, wat 'n komplekse en diep Bybelstudie-ervaring gladder as ooit maak. Die mees opvallende kenmerke is soos volg: 
+feature_01: Verdeel teksaansigte wat vergelykende vertalings en konsultasiekommentare moontlik maak
+feature_02: Werkruimtes laat verskeie Bybelstudie-opstellings toe met hul eie instellings
+feature_03: Stong's integrasie laat Griekse en Hebreeuse woord analise toe
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Gekoppelde kruisverwysings, voetnote en dokumente; spring na kruisverwysings en voetnote deur eenvoudig 'n skakel te tik; voer diepgaande studie van die Skrif uit deur hiperskakelkommentare ({{commentary_examples}}), kruisverwysingsversamelings ({{cross_reference_examples}}) en ander hulpbronne te gebruik.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry ens. ..."
+# Examples of cross-reference collections.
+cross_reference_examples: "Skat van Skrif kennis, TSKe"
+feature_05: "Gevorderde teks-na-spraak-spraak-boekmerke, wat 'n gladde Bybel beluister ervaring moontlik maak"
+feature_06: Buigsame soek
+feature_07: Gevorderde boekmerk & beklemtoon funksies met persoonlike studie notas
+feature_09: >
+  Leesplanne: stel doelwitte vir die lees van die Bybel 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Groot biblioteek van dokumente: Bybelvertalings, teologiese kommentare, woordeboeke, kaarte en christelike boeke, wat meer as {{total_documents}} dokumente in meer as {{total_languages}} tale beloop, wettig versprei deur Crosswire en ander SWAARDbewaarplekke. 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  Die bewys van alle dokumente word nagevors om te verseker dat alle dokumente wettiglik versprei kan word of dat toestemming deur die kopiereghouer verleen is. Dit is ook die rede waarom hierdie program nie dokumente soos {{unavailable_documents}}.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV en NKJV"
+feature_12: >
+  Vanlyn: die enigste keer wat jy internet nodig het, is vir die aflaai van documents.
+feature_13: >
+  Bestudeer blokke vir die toevoeging van notas en Bybel verwysings terwyl jy na preke luister.
+subtitle_3: Kom ons maak die beste Bybel toep saam!
+paragraph_3_1: >
+  And Bible is 'n oop brone gemeenskapsprojek. In die praktyk beteken dit dat enigiemand met geskikte vaardighede kan, en word aangemoedig om, by te dra tot die projek deur: 
+contr_1: "ontwikkeling van nuwe kenmerke, "
+contr_2: "toets nog nie vrygestelde kenmerke nie,"
+contr_3: "hou gebruiker skoppelvlak vertalings op datum, en"
+contr_4: "help om die module biblioteek uit te brei deur toestemmings van kopiereg houers te verkry, of deur dokumente na SWORD-formaat om te skakel."
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "As jy 'n professionele sagteware-ingenieur of toetser is, oorweeg dit asseblief om by te dra tot die projek. Vir meer inligting oor hoe om by te dra, sien asseblief {{how_to_contribute_url}}."
+subtitle_4: Skakels
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Tuisblad: {{homepage_url}}
+link_2: >
+  Hou van Abd Bible Facebook: {{facebook_url}}
+link_3: >-
+  Ons Youtube kanaal: {{youtube_url}}
+link_4: >
+  Algemene vrae: {{faq_url}}
+link_5: >
+  Projekbladsy op Github: {{github_url}}

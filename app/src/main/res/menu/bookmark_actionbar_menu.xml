@@ -11,6 +11,6 @@
 		  appcompat:showAsAction="always"/>
 	<item android:id="@+id/sortByToggle"
 		  android:title="@string/sort_by_date"
-		  android:icon="@android:drawable/ic_menu_sort_by_size"
+		  android:icon="@drawable/ic_baseline_sort_24"
 		  appcompat:showAsAction="always"/>
 </menu>

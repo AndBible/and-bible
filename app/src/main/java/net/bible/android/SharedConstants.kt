@@ -27,14 +27,12 @@ import java.io.File
  */
 object SharedConstants {
     const val REQUIRED_MEGS_FOR_DOWNLOADS: Long = 50
-    const val NO_VALUE = -1
-
-    private const val BACKUP_SUBDIR_NAME = "andbible_backup"
-    private const val CSS_SUBDIR_NAME = "css"
 
     private const val MANUAL_INSTALL_SUBDIR = "jsword"
     private const val MANUAL_INSTALL_SUBDIR2 = "sword"
-    val RECOMMENDED_JSON = "recommended_documents.json"
+    val RECOMMENDED_JSON = "recommended_documents_v2.json"
+    val DEFAULT_JSON = "default_documents_v2.json"
+    val PSEUDO_BOOKS = "pseudo_books.json"
     val MODULE_DIR = moduleDir
     val MANUAL_INSTALL_DIR get() = manualInstallDir
     val MANUAL_INSTALL_DIR2 get() = File(Environment.getExternalStorageDirectory(), MANUAL_INSTALL_SUBDIR2)
@@ -44,11 +42,6 @@ object SharedConstants {
     val MANUAL_FONT_DIR = File(MANUAL_INSTALL_DIR, FONT_SUBDIR_NAME)
     const val READINGPLAN_DIR_NAME = "readingplan"
     val MANUAL_READINGPLAN_DIR = File(MANUAL_INSTALL_DIR, READINGPLAN_DIR_NAME)
-    const val DEFAULT_STYLESHEET = "style.css"
-    const val NIGHT_MODE_STYLESHEET = "night_mode.css"
-    val MANUAL_CSS_DIR = File(MANUAL_INSTALL_DIR, CSS_SUBDIR_NAME)
-    val MANUAL_CSS_STYLESHEET = File(MANUAL_CSS_DIR, DEFAULT_STYLESHEET)
-    val MANUAL_CSS_NIGHT_MODE_STYLESHEET = File(MANUAL_CSS_DIR, NIGHT_MODE_STYLESHEET)
     val LINE_SEPARATOR = System.getProperty("line.separator")
 
     val INTERNAL_MODULE_DIR get() = File(application.filesDir, "modules")
@@ -63,9 +56,4 @@ object SharedConstants {
             return File(sdcard, MANUAL_INSTALL_SUBDIR)
         }
 
-    val backupDir: File
-        get() {
-            val sdcard = Environment.getExternalStorageDirectory()
-            return File(sdcard, BACKUP_SUBDIR_NAME)
-        }
 }

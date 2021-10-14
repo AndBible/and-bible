@@ -19,8 +19,8 @@ package net.bible.android.control.page
 
 import android.util.Log
 import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
@@ -38,10 +38,9 @@ abstract class VersePage protected constructor(
 	shareKeyBetweenDocs: Boolean,
 	val currentBibleVerse: CurrentBibleVerse,
 	protected val bibleTraverser: BibleTraverser,
-	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : CurrentPageBase(shareKeyBetweenDocs, swordContentFacade, swordDocumentFacade, pageManager) {
+) : CurrentPageBase(shareKeyBetweenDocs, swordDocumentFacade, pageManager) {
 
 	override var _key: Key? = null
 
@@ -60,7 +59,8 @@ abstract class VersePage protected constructor(
     val currentPassageBook get() = currentDocument as AbstractPassageBook
 
     override fun localSetCurrentDocument(doc: Book?) { // update current verse possibly remapped to v11n of new bible
-        val newDocVersification = (currentDocument as AbstractPassageBook).versification
+        doc ?: return
+        val newDocVersification = (doc as AbstractPassageBook).versification
         val newVerse = currentBibleVerse.getVerseSelected(newDocVersification)
         super.localSetCurrentDocument(doc)
         doSetKey(newVerse)
@@ -68,9 +68,9 @@ abstract class VersePage protected constructor(
 
     /** notify mediator that a detail - normally just verse no - has changed and the title need to update itself
      */
-    protected fun onVerseChange() {
+    protected fun onVerseChange(window: Window) {
         if (!isInhibitChangeNotifications) {
-            PassageChangeMediator.getInstance().onCurrentVerseChanged()
+            PassageChangeMediator.getInstance().onCurrentVerseChanged(window)
         }
     }
 

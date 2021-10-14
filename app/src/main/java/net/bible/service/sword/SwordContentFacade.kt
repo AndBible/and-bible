@@ -17,35 +17,22 @@
  */
 package net.bible.service.sword
 
+import android.os.Build
+import android.text.Html
+import android.text.TextUtils
+import android.util.LayoutDirection
 import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
-import net.bible.android.control.bookmark.BookmarkStyle
-import net.bible.android.control.speak.SpeakSettings
-import net.bible.android.control.versification.VersificationConverter
-import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
-import net.bible.service.common.CommonUtils.getResourceInteger
-import net.bible.service.common.CommonUtils.sharedPreferences
-import net.bible.service.common.Constants
+import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.Logger
 import net.bible.service.common.ParseException
-import net.bible.service.css.CssControl
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
-import net.bible.service.font.FontControl
-import net.bible.service.format.HtmlMessageFormatter.Companion.format
-import net.bible.service.format.Note
-import net.bible.service.format.OSISInputStream
-import net.bible.service.format.SaxParserPool
-import net.bible.service.format.osistohtml.OsisToHtmlParameters
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
-import net.bible.service.format.osistohtml.osishandlers.OsisToCopyTextSaxHandler
-import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
-import net.bible.service.format.usermarks.BookmarkFormatSupport
-import net.bible.service.format.usermarks.MyNoteFormatSupport
 import org.crosswire.common.xml.JDOMSAXEventProvider
 import org.crosswire.common.xml.SAXEventProvider
 import org.crosswire.jsword.book.Book
@@ -53,133 +40,72 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookData
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.FeatureType
-import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BookName
+import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
+import org.jdom2.Element
+import org.jdom2.input.SAXBuilder
 import org.xml.sax.ContentHandler
-import java.io.InputStream
+import java.io.StringReader
+import java.lang.RuntimeException
 import java.util.*
-import javax.inject.Inject
-import javax.xml.parsers.SAXParser
+import kotlin.math.min
+
+open class OsisError(xmlMessage: String): Exception(xmlMessage) {
+    val xml: Element = SAXBuilder().build(StringReader("<div>$xmlMessage</div>")).rootElement
+}
+class DocumentNotFound(xmlMessage: String): OsisError(xmlMessage)
 
 /** JSword facade
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-open class SwordContentFacade @Inject constructor(
-    private val bookmarkFormatSupport: BookmarkFormatSupport,
-    private val myNoteFormatSupport: MyNoteFormatSupport
-) {
-    private val documentParseMethod = DocumentParseMethod()
-    private val saxParserPool = SaxParserPool()
-    private val cssControl = CssControl()
+
+object SwordContentFacade {
+
     /** top level method to fetch html from the raw document data
      */
-    @Throws(ParseException::class)
-    fun readHtmlText(book: Book?, key: Key?, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): String {
-        var retVal = ""
-        if (book == null || key == null) {
-            retVal = ""
-        } else if (Books.installed().getBook(book.initials) == null) {
+    @Throws(ParseException::class, OsisError::class)
+    fun readOsisFragment(book: Book?, key: Key?,): Element = when {
+        book == null || key == null -> {
+            Log.e(TAG, "Key or book was null")
+            throw OsisError(application.getString(R.string.error_no_content))
+        }
+        Books.installed().getBook(book.initials) == null -> {
             Log.w(TAG, "Book may have been uninstalled:$book")
-            val errorMsg = application.getString(R.string.document_not_installed, book.initials)
-            retVal = format(errorMsg)
-        } else if (!bookContainsAnyOf(book, key)) {
+            val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
+            val errorMsg = application.getString(R.string.document_not_installed, link)
+            throw DocumentNotFound(errorMsg)
+        }
+        !bookContainsAnyOf(book, key) -> {
             Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
-            retVal = format(R.string.error_key_not_in_document)
-        } else {
-			// we have a fast way of handling OSIS zText docs but some docs need the superior JSword error recovery for mismatching tags
-			// try to parse using optimised method first if a suitable document and it has not failed previously
-            var isParsedOk = false
-            if ("OSIS" == book.bookMetaData.getProperty("SourceType") && arrayOf("zText", "zCom").contains(book.bookMetaData.getProperty("ModDrv")) &&
-                documentParseMethod.isFastParseOkay(book, key)) {
-                try {
-                    retVal = readHtmlTextOptimizedZTextOsis(book, key, asFragment, textDisplaySettings)
-                    isParsedOk = true
-                } catch (pe: ParseException) {
-                    documentParseMethod.failedToParse(book, key)
-                }
-            }
-            // fall back to slightly slower JSword method with JSword's fallback approach of removing all tags
-            if (!isParsedOk) {
-                retVal = readHtmlTextStandardJSwordMethod(book, key, asFragment, textDisplaySettings)
-            }
+            throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
         }
-        return retVal
-    }
-
-    /** Get Footnotes and references from specified document page
-     */
-    @Throws(ParseException::class)
-    fun readFootnotesAndReferences(book: Book?, key: Key?, textDisplaySettings: TextDisplaySettings): List<Note> {
-        var retVal: List<Note> = ArrayList()
-        return try { // based on standard JSword SAX handling method because few performance gains would be gained for the extra complexity of Streaming
-            val data = BookData(book, key)
-            val osissep = data.saxEventProvider
-            if (osissep != null) {
-                val osisToHtml = getSaxHandler(book!!, key!!, true, textDisplaySettings)
-                osissep.provideSAXEvents(osisToHtml)
-                retVal = osisToHtml.notesList
-            } else {
-                Log.e(TAG, "No osis SEP returned")
-            }
-            retVal
-        } catch (e: Exception) {
-            log.error("Parsing error", e)
-            throw ParseException("Parsing error", e)
+        else -> {
+            readXmlTextStandardJSwordMethod(book, key)
         }
     }
 
-    /**
-     * Use OSISInputStream which loads a single verse at a time as required.
-     * This reduces memory requirements compared to standard JDom SaxEventProvider
-     */
     @Throws(ParseException::class)
-    internal fun readHtmlTextOptimizedZTextOsis(book: Book, key: Key, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): String {
-        log.debug("Using fast method to fetch document data")
-        /*
-		  When you supply an InputStream, the SAX implementation wraps the stream in an InputStreamReader;
-		  then SAX automatically detects the correct character encoding from the stream. You can then omit the setEncoding() step,
-		  reducing the method invocations once again. The result is an application that is faster, and always has the correct character encoding.
-		 */
-        val inputStream: InputStream = OSISInputStream(book, key)
-        val osisToHtml = getSaxHandler(book, key, asFragment, textDisplaySettings)
-        var parser: SAXParser? = null
-        try {
-            parser = saxParserPool.obtain()
-            parser.parse(inputStream, osisToHtml)
-        } catch (e: Exception) {
-            log.error("Parsing error", e)
-            throw ParseException("Parsing error", e)
-        } finally {
-            saxParserPool.recycle(parser)
-        }
-        return osisToHtml.toString()
-    }
-
-    @Throws(ParseException::class)
-    private fun readHtmlTextStandardJSwordMethod(book: Book, key: Key, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): String {
+    private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
         log.debug("Using standard JSword to fetch document data")
-        val retVal: String
         return try {
             val data = BookData(book, key)
-            val osissep = data.saxEventProvider
-            retVal = if (osissep == null) {
-                Log.e(TAG, "No osis SEP returned")
-                "Error fetching osis SEP"
+            if(book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
+                val div = data.osisFragment
+                val verse = div.getChild("verse")
+                val verseContent = verse.content.toList()
+                verse.removeContent()
+                div.removeContent()
+                div.addContent(verseContent)
+                div
             } else {
-                val osisToHtml = getSaxHandler(book, key, asFragment, textDisplaySettings)
-                osissep.provideSAXEvents(osisToHtml)
-                osisToHtml.toString()
+                data.osisFragment
             }
-            retVal
         } catch (e: Exception) {
             log.error("Parsing error", e)
             throw ParseException("Parsing error", e)
@@ -196,11 +122,11 @@ open class SwordContentFacade @Inject constructor(
      * a reference, appropriate for the book, of one or more entries
      */
     @Throws(NoSuchKeyException::class, BookException::class, ParseException::class)
-    fun getCanonicalText(book: Book?, key: Key?): String {
+    open fun getCanonicalText(book: Book?, key: Key?, compatibleOffsets: Boolean = false): String {
         return try {
             val data = BookData(book, key)
             val osissep = data.saxEventProvider
-            val osisHandler: ContentHandler = OsisToCanonicalTextSaxHandler()
+            val osisHandler: ContentHandler = OsisToCanonicalTextSaxHandler(compatibleOffsets)
             osissep.provideSAXEvents(osisHandler)
             osisHandler.toString()
         } catch (e: Exception) {
@@ -209,38 +135,104 @@ open class SwordContentFacade @Inject constructor(
         }
     }
 
-    @Throws(NoSuchKeyException::class, BookException::class, ParseException::class)
-    fun getTextWithVerseNumbers(book: Book?, verseRange: VerseRange): String {
-        return try {
-            val data = BookData(book, verseRange)
-            val osissep = data.saxEventProvider
-            val showVerseNumbers = verseRange.toVerseArray().size > 1 &&
-                sharedPreferences.getBoolean("show_verseno_pref", true)
-            val osisHandler: ContentHandler = OsisToCopyTextSaxHandler(showVerseNumbers)
-            osissep.provideSAXEvents(osisHandler)
-            osisHandler.toString()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting text from book", e)
-            application.getString(R.string.error_occurred)
-        }
-    }
+    fun getSelectionText(selection: Selection,
+                         showVerseNumbers: Boolean,
+                         showFull: Boolean,
+                         advertiseApp: Boolean,
+                         showReference: Boolean = true,
+                         abbreviateReference: Boolean = true,
+                         showNotes: Boolean = true,
+    ): String {
 
-    private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> {
-        return try {
-            val data = BookData(book, key)
-            val frag = data.getOsisFragment(false)
-            var doc = frag.document
-            if (doc == null) {
-                doc = Document(frag)
+        class VerseAndText(val verse: Verse, val text: String)
+
+        val book = selection.book
+        val verseTexts = selection.verseRange.map {
+            VerseAndText(it as Verse, getCanonicalText(book, it, true).trimEnd())
+        }
+        val startOffset = selection.startOffset ?: 0
+        var startVerse = verseTexts.first().text
+        val endOffset = selection.endOffset ?: verseTexts.last().text.length
+
+        val start = startVerse.slice(0 until min(startOffset, startVerse.length))
+
+        var startVerseNumber = ""
+        if(showVerseNumbers && verseTexts.size > 1) {
+            startVerseNumber = "${selection.verseRange.start.verse}. "
+        }
+        if (!showFull && startOffset > 0) {
+            startVerseNumber = "$startVerseNumber..."
+        }
+        val bookLocale = Locale(selection.book.language.code)
+        val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
+
+        val reference = if(showReference) {
+            if(abbreviateReference) {
+                synchronized(BookName::class) {
+                    val oldValue = BookName.isFullBookName()
+                    BookName.setFullBookName(false)
+                    val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
+                    BookName.setFullBookName(oldValue)
+                    " ($verseRangeName, ${selection.book.abbreviation})"
+                }
+            } else {
+                val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
+                " ($verseRangeName, ${selection.book.abbreviation})"
             }
-            val osissep: SAXEventProvider = JDOMSAXEventProvider(doc)
-            val osisHandler: ContentHandler = OsisToBibleSpeak(settings, book.language.code)
-            osissep.provideSAXEvents(osisHandler)
-            (osisHandler as OsisToBibleSpeak).speakCommands
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting text from book", e)
-            ArrayList()
         }
+        else
+            ""
+
+        val advertise = if(advertiseApp) "\n\n${application.getString(R.string.verse_share_advertise, application.getString(R.string.app_name_long))} (https://andbible.github.io)" else ""
+        val notesOrig = selection.notes
+        val notes =
+            if(showNotes && notesOrig != null)
+                "\n\n" + if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Html.fromHtml(notesOrig, Html.FROM_HTML_MODE_LEGACY)
+                } else {
+                    Html.fromHtml(notesOrig)
+                }.toString()
+            else
+                ""
+
+        return when {
+            verseTexts.size == 1 -> {
+                val end = startVerse.slice(endOffset until startVerse.length)
+                val text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
+                val post = if(!showFull && end.isNotEmpty()) "..." else ""
+                if(showFull) """“$startVerseNumber$start${text}$end”""" else "“$startVerseNumber$text$post”"
+            }
+            verseTexts.size > 1 -> {
+                startVerse = startVerse.slice(startOffset until startVerse.length)
+                val lastVerse = verseTexts.last()
+                val endVerseNum = if(showVerseNumbers) "${lastVerse.verse.verse}. " else ""
+                val endVerse = lastVerse.text.slice(0 until min(lastVerse.text.length, endOffset))
+                val end = lastVerse.text.slice(endOffset until lastVerse.text.length)
+                val middleVerses = if(verseTexts.size > 2) {
+                    verseTexts.slice(1 until verseTexts.size-1).joinToString(" ") {
+                        if(showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
+                    }
+                } else ""
+                val text = "$startVerse$middleVerses $endVerseNum$endVerse"
+                val post = if(!showFull && end.isNotEmpty()) "..." else ""
+
+                if(showFull) """“$startVerseNumber$start${text}$end$post”""" else "“$startVerseNumber$text$post”"
+            }
+            else -> throw RuntimeException("what")
+        } + reference + notes + advertise
+    }
+
+    private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> = try {
+        val data = BookData(book, key)
+        val frag = data.getOsisFragment(false)
+        val doc = frag.document ?: Document(frag)
+        val osissep: SAXEventProvider = JDOMSAXEventProvider(doc)
+        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, book.language.code)
+        osissep.provideSAXEvents(osisHandler)
+        (osisHandler as OsisToBibleSpeak).speakCommands
+    } catch (e: Exception) {
+        Log.e(TAG, "Error getting text from book", e)
+        ArrayList()
     }
 
     fun getSpeakCommands(settings: SpeakSettings, book: SwordBook, verse: Verse?): SpeakCommandArray {
@@ -268,7 +260,7 @@ open class SwordContentFacade @Inject constructor(
             val data = BookData(book, key)
             val osissep = data.saxEventProvider
             val sayReferences = BookCategory.GENERAL_BOOK == book.bookCategory
-            val osisHandler: ContentHandler = OsisToSpeakTextSaxHandler(sayReferences)
+            val osisHandler = OsisToSpeakTextSaxHandler(sayReferences)
             osissep.provideSAXEvents(osisHandler)
             osisHandler.toString()
         } catch (e: Exception) {
@@ -325,7 +317,7 @@ open class SwordContentFacade @Inject constructor(
     }
 
     @Throws(BookException::class)
-    fun search(bible: Book, searchText: String): Key {
+    fun search(bible: Book, searchText: String?): Key {
 		// example of fetching Strongs ref - only works with downloaded indexes!
 		// Book book = getDocumentByInitials("KJV");
 		// Key key1 = book.find("strong:h3068");
@@ -336,68 +328,6 @@ open class SwordContentFacade @Inject constructor(
         val key = bible.find(searchText) //$NON-NLS-1$
         Log.d(TAG, "There are " + key.cardinality + " verses containing " + searchText)
         return key
-    }
-
-    private fun getSaxHandler(book: Book, key: Key, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): OsisToHtmlSaxHandler {
-        val osisToHtmlParameters = OsisToHtmlParameters()
-        val bookCategory = book.bookCategory
-        val bmd = book.bookMetaData
-        osisToHtmlParameters.isAsFragment = asFragment
-        osisToHtmlParameters.isLeftToRight = bmd.isLeftToRight
-        osisToHtmlParameters.languageCode = book.language.code
-        osisToHtmlParameters.moduleBasePath = book.bookMetaData.location
-        osisToHtmlParameters.isBible = BookCategory.BIBLE == bookCategory
-        // If Bible or Commentary then set Basis for partial references to current Key/Verse
-        if (BookCategory.BIBLE == bookCategory || BookCategory.COMMENTARY == bookCategory) {
-            osisToHtmlParameters.setBasicRef(key)
-            osisToHtmlParameters.documentVersification = (book as AbstractPassageBook).versification
-            // only show chapter divider in Bibles
-            osisToHtmlParameters.isShowChapterDivider = BookCategory.BIBLE == bookCategory
-            // but commentaries also have a verse tag which requires a chapter part
-            osisToHtmlParameters.chapter = if(key is VerseRange) key.end.chapter else KeyUtil.getVerse(key).chapter
-        }
-        if (isAndroid) { // HunUj has an error in that refs are not wrapped so automatically add notes around refs
-            osisToHtmlParameters.isAutoWrapUnwrappedRefsInNote = "HunUj" == book.initials
-            val preferences = sharedPreferences
-			// prefs applying to any doc type
-			osisToHtmlParameters.isShowNotes = textDisplaySettings.showFootNotes!!
-			osisToHtmlParameters.isRedLetter = textDisplaySettings.showRedLetters!!
-			osisToHtmlParameters.cssStylesheetList = cssControl.allStylesheetLinks
-			// show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
-			if (BookCategory.BIBLE == bookCategory) {
-				osisToHtmlParameters.isShowVerseNumbers = textDisplaySettings.showVerseNumbers!! && BookCategory.BIBLE == bookCategory
-				osisToHtmlParameters.isVersePerline = textDisplaySettings.showVersePerLine!!
-				osisToHtmlParameters.isShowMyNotes = textDisplaySettings.showMyNotes!!
-				osisToHtmlParameters.isShowBookmarks = textDisplaySettings.showBookmarks!!
-				osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)!!))
-				osisToHtmlParameters.isShowTitles = textDisplaySettings.showSectionTitles!!
-				osisToHtmlParameters.versesWithNotes = myNoteFormatSupport.getVersesWithNotesInPassage(key)
-				osisToHtmlParameters.bookmarkStylesByBookmarkedVerse = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(key)
-				// showMorphology depends on showStrongs to allow the toolbar toggle button to affect both strongs and morphology
-				val showStrongs = textDisplaySettings.showStrongs!!
-				osisToHtmlParameters.isShowStrongs = showStrongs
-				osisToHtmlParameters.isShowMorphology = showStrongs && textDisplaySettings.showMorphology!!
-			}
-			if (BookCategory.DICTIONARY == bookCategory) {
-				if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) { //add allHebrew refs link
-					val prompt = application.getString(R.string.all_hebrew_occurrences)
-					osisToHtmlParameters.extraFooter = "<br /><a href='" + Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL + ":" + key.name + "' class='allStrongsRefsLink'>" + prompt + "</a>"
-					//convert text refs to links
-					osisToHtmlParameters.isConvertStrongsRefsToLinks = true
-				} else if (book.hasFeature(FeatureType.GREEK_DEFINITIONS)) { //add allGreek refs link
-					val prompt = application.getString(R.string.all_greek_occurrences)
-					osisToHtmlParameters.extraFooter = "<br /><a href='" + Constants.ALL_GREEK_OCCURRENCES_PROTOCOL + ":" + key.name + "' class='allStrongsRefsLink'>" + prompt + "</a>"
-					//convert text refs to links
-					osisToHtmlParameters.isConvertStrongsRefsToLinks = true
-				}
-			}
-			// which font, if any
-			osisToHtmlParameters.font = FontControl.instance.getFontForBook(book)
-			osisToHtmlParameters.cssClassForCustomFont = FontControl.instance.getCssClassForCustomFont(book)
-			// indent depth - larger screens have a greater indent
-			osisToHtmlParameters.indentDepth = getResourceInteger(R.integer.poetry_indent_chars)
-		}
-        return OsisToHtmlSaxHandler(osisToHtmlParameters)
     }
 
     /**
@@ -417,14 +347,12 @@ open class SwordContentFacade @Inject constructor(
         return false
     }
 
-    companion object {
-        private const val TAG = "SwordContentFacade"
-        // set to false for testing
-        private var isAndroid = true //CommonUtils.isAndroid();
-        private val log = Logger(SwordContentFacade::class.java.name)
-        fun setAndroid(isAndroid: Boolean) {
-            Companion.isAndroid = isAndroid
-        }
+    private const val TAG = "SwordContentFacade"
+    // set to false for testing
+    private var isAndroid = true //CommonUtils.isAndroid();
+    private val log = Logger(SwordContentFacade::class.java.name)
+    fun setAndroid(isAndroid: Boolean) {
+        this.isAndroid = isAndroid
     }
 
 }

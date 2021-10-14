@@ -16,9 +16,13 @@
 		  android:icon="@drawable/ic_delete_24dp"
 		  appcompat:showAsAction="always"/>
 
+	<item android:id="@+id/unlock"
+		android:title="@string/unlock_module"
+		android:icon="@drawable/ic_baseline_lock_24"
+		appcompat:showAsAction="ifRoom"/>
+
 	<item android:id="@+id/delete_index" 
 		  android:title="@string/delete_index"
 		  appcompat:showAsAction="never"/>
-
 
 </menu>

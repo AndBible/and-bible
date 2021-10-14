@@ -1,0 +1,81 @@
+openMyNotes: Otvoriť v Mojich poznámkach
+openStudyPad: Otvoriť v Študijnej zložke (%s)
+noteText: Poznámky (%s)
+noteTextWithoutType: Poznámky pod čiarou
+crossReferenceText: Krížové referencie
+findAllOccurrences: Nájsť všetky výskyty
+reportError: Nahlásiť chybu
+errorTitle: Vyskytla sa chyba
+warningTitle: Varovanie
+normalTitle: Všimnite si
+footnoteTypeUndefined: Nedefinovaný typ
+footnoteTypeStudy: Štúdium
+footnoteTypeExplanation: Vysvetlenie
+footnoteTypeVariant: Variant
+footnoteTypeAlternative: Alternatíva
+footnoteTypeTranslation: Preklad
+clearLog: Zmazať chybový záznam
+editNote: Upraviť
+editNotePlaceholder: Upraviť poznámku
+editTextPlaceholder: Ťuknutím upraviť text
+inputPlaceholder: Sem písať
+inputReference: Vložiť referenciu na Bibliu
+invalidReference: Verš nebol nájdený
+assignLabels: Štítky
+bookmarkAccurate: Záložka bola vytvorená v %s
+bookmarkInaccurate: "Záložky knihy nie sú uložené, obsah sa zobrazuje v %s."
+defaultBook: prednastavený dokument Biblie
+ok: OK
+yes: "Áno"
+ambiguousSelection: "Ktorú akciu chcete vykonať?"
+cancel: Zrušiť
+removeBookmarkConfirmationTitle: "Odstrániť záložku?"
+removeBookmarkConfirmation: "Naozaj chcete odstrániť túto záložku?"
+closeModal: Zatvoriť
+createdAt: "Vytvorená: %s"
+lastUpdatedOn: "Posledná aktualizácia: %s"
+strongsLink: Strongova definícia (%s)
+morphLink: Morfologický kód (%s)
+strongsAndMorph: Definícia a Morfológia
+studyPadLink: Otvoriť študijnú zložku
+externalLink: Otvoriť externý odkaz
+referenceLink: Otvoriť referenčný odkaz
+openFootnote: Otvoriť poznámku pod čiarou
+openBookmark: Otvoriť záložku (%s)
+noMyNotesTitle: Nie je Moja poznámka pre túto kapitolu.
+noMyNotesDescription: >
+  Začnite vytvorením záložiek v biblickom dokumente. Potom sa tu zobrazia záložky a môžete k nim pridať svoje osobné poznámky.
+emptyStudyPad: >
+  Prázdna študijná zložka. Tu môžete pridávať textové položky tu alebo vytvorením záložiek so štítkom záložky, ktorý zodpovedá tejto študijnej zložke.
+studyPadModalTitle: Upraviť položku študijnej zložky
+doYouWantToDeleteEntry: "Zmazať túto položku študijnej zložky?"
+removeStudyPadConfirmationTitle: "Odstrániť túto položku študijnej zložky?"
+dragHelp: Ťahaním zoradiť
+saved: uložené
+openAll: Otvoriť všetky odkazy
+editBookmarkPlaceholder: Klepnutím upraviť Moje poznámky pre túto záložku
+onlyLabel: Iba štítky
+wholeBookmark: Celé záložky
+otherNoteText: Ostatné poznamky
+assignLabelsMenuEntry: Priradiť štítky
+assignLabelsMenuEntry1: Zvoliť alebo upraviť štítky…
+jumpToStudyPad: Preskočiť do Študijnej zložky
+setAsPrimaryLabel: Nastaviť ako primárny štítok
+removeBookmarkLabel: Odstrániť štítok
+addBookmarkLabel: Pridať štítok
+favouriteLabels: Obľúbené štítky
+recentLabels: Posledný štítky
+frequentlyUsedLabels: Často používané štítky
+bookmarkLabels: Štítky záložiek
+refParserHelp: "Nainštalujte si prosím modul %s, aby ste mohli požívať referencie v jazyku inom ako Angličtina."
+openDownloads: Prejsť do sťahovania doplnkov
+verseShare: Zdielať
+verseCompare: "Porovnať "
+verseNote: Poznámka
+verseMyNotes: Moje poznámky
+verseSpeak: Čítať
+verseShareLong: Zdielať tento verš
+verseCompareLong: Porovnať verš
+verseNoteLong: Napísať poznámku
+verseSpeakLong: Začať počúvať od tohoto verša
+addBookmark: Záložka

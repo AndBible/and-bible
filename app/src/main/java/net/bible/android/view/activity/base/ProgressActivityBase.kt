@@ -47,10 +47,6 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
     private val progressNotificationQueue: Queue<Progress> = ConcurrentLinkedQueue()
     private var taskKillWarningView: TextView? = null
     private var noTasksMessageView: TextView? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        applyTheme()
-    }
 
     /** Wait until subclass has setContentView before looking for controls.  */
     public override fun onResume() {
@@ -156,13 +152,6 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
         return status
     }
 
-    protected fun hideButtons() {
-        val buttonPanel = findViewById<View>(R.id.button_panel)
-        if (buttonPanel != null) {
-            buttonPanel.visibility = View.INVISIBLE
-        }
-    }
-
     protected fun setMainText(text: String?) {
         (findViewById<View>(R.id.progressStatusMessage) as TextView).text = text
     }
@@ -193,6 +182,9 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
             progressControlContainer!!.addView(uiControl.parent)
             uiControl.showMsg(prog.jobName)
             uiControl.showPercent(prog.work)
+        } else if (prog.workDone == prog.totalWork) {
+            // remove the control if progress is finished
+            progressControlContainer?.removeView(uiControl.parent)
         }
         return uiControl
     }

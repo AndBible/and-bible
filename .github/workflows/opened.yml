@@ -1,0 +1,24 @@
+name: Assign to projects when opened issues/prs
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  assign_to_tuomas_project:
+    permissions:
+      repository-projects: write
+      issues: read
+    runs-on: ubuntu-latest
+    name: Add all new issues to Tuomas' project board
+    steps:
+    - uses: srggrs/assign-one-project-github-action@42352f30e8f3608e29350741411ab7061c953972 # 1.2.1
+      if: github.event.action == 'opened'
+      with:
+        project: 'https://github.com/AndBible/and-bible/projects/2'
+        column_name: 'Needs triage'

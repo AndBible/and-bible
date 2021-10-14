@@ -1,6 +1,6 @@
 <b>Zaawansowane narzędzie do studiowania Pisma Świętego</b>
 
-Aplikacja Studium Biblii otwartoźródłowego projektu And Bible jest potężnym i zarazem łatwym w użyciu narzędziem do czytania Biblii bez dostępu do internetu na system Android. Nie jest to zwykły czytnik Pisma Świętego, ale zaawansowane narzędzie do głębokiego osobistego studiowania Biblii.
+Aplikacja Studium Biblii «Bible Study» otwartoźródłowego projektu And Bible jest potężnym i zarazem łatwym w użyciu narzędziem do czytania Biblii bez dostępu do internetu na system Android. Nie jest to zwykły czytnik Pisma Świętego, ale zaawansowane narzędzie do głębokiego osobistego studiowania Biblii.
 
 Ta aplikacja jest rozwijana przez i dla czytaczy Pisma Świętego. Jej celem jest sprawienie, aby czytanie Biblii było wygodne, głębokie i radosne. Najważniejsze w naszym projekcie jest to, że jest on otwartoźródłowy (open source), całkowicie darmowy i nie zawiera reklam. Stworzona od podstaw na system Android, nasza aplikacja zajmuje niewiele miejsca, jest lekka i szybka.
 
@@ -14,13 +14,12 @@ Aplikacja wyróżnia się wieloma zmyślnymi, oryginalnymi cechami, które to u�
  * obszary robocze umożliwiające posiadanie kilku oddzielnych środowisk do studiowania Biblii, każde z własnymi ustawieniami
  * numeracja Stronga, aby móc analizować słowa w grece i hebrajskim
  * klikalne odsyłacze, przypisy i dokumenty; komentarze (niedostępne w j. polskim), kolekcje odsyłaczy (niedostępne w j. polskim) i inne materiały
- * możliwość odczytu na głos z zakładkami, aby bez płynnie słuchać Biblii
+ * możliwość odczytu na głos z zakładkami, aby płynnie słuchać Biblii
  * elastyczne wyszukiwanie
- * zakładki i grupy zakładek z konfigurowalnymi kolorami
- * notatki osobiste: możliwość dodania własnych notatek do dowolnego wersetu Biblii
+ * zaawansowane możliwości tworzenia zakładek, wyróżniania tekstu i pisania własnych notatek
+ * “bloczki notatek” umożliwiające dodawanie notatek i odnośników do Biblii podczas słuchania kazań
  * plany czytania: zdefiniuj własne cele czytania
  * obszerna biblioteka dokumentów: tłumaczenia, komentarze teologiczne, słowniki, mapy, książki chrześcijańskie, w sumie ponad 1500 dokumentów w 700 językach legalnie rozpowszechnianych przez CrossWire i inne repozytoria SWORD
- * pochodzenie wszystkich dokumentów zostało sprawdzone, aby upewnić się, że mogą one być rozpowszechnianie nie naruszając praw autorskich, z tego powodu aplikacja nie zawiera takich przekładów jak np. Biblia Warszawska
  * działa w pełni offline: połączenie internetowe jest potrzebne tylko do pobrania dokumentów
 
 <b>Razem stwórzmy najlepszą apkę do czytania Biblii!</b>

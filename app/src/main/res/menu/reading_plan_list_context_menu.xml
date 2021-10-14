@@ -4,6 +4,7 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/reset" 
-		  android:title="@string/reset"/>
+	<item android:id="@+id/reset"
+		android:icon="@drawable/ic_baseline_undo_24"
+		  android:title="@string/reset_generic"/>
 </menu>

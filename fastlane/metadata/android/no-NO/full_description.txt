@@ -17,10 +17,9 @@ Applikasjonen har mange innsiktsfulle og originale finesser som gjør komplekse 
  * Avansert tekst-til-tale med bokmerke-tale åpner for en strømlinjet bibellytte-opplevelse
  * Fleksibel søking
  * Bokmerker med valgfrie farger på bokmerkegrupper
- * Personlige notater: legg til egne studiekommentarer til bibelvers
+ * 
  * Bibelleseplaner: sett mål for bibellesingen
  * Et stort bibliotek av moduler: Bibeloversettelser, teologiske bibelkommentarer, bibelordbøker, kart og kristne bøker som teller over 1500 moduler på over 700 språk, fritt distribuert fra Crosswire og andre SWORD pakkebrønner (repositories).
- * Opprinnelsen til alle dokument er undersøkt for å sikre at de fritt kan distribueres, og tillatelse til distribusjon er gitt dersom opphavsrett gjelder. Dette er grunnen til at denne applikasjonen ikke inneholder bibeloversettelser som NO78/85 og NB88/07.
  * Frakoblet modus: du trenger bare være påkoblet internett når du skal laste ned moduler.
 
 <b>La oss bygge den beste Bibel-applikasjonen sammen!</b>

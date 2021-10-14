@@ -18,18 +18,19 @@
 
 package net.bible.android.control.page
 
-import android.content.Intent
 import android.util.Log
 
-import net.bible.android.SharedConstants
 import net.bible.android.control.PassageChangeMediator
-import net.bible.android.control.mynote.MyNoteDAO
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.Window
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
-import net.bible.service.sword.SwordContentFacade
+import net.bible.service.common.CommonUtils.defaultBible
+import net.bible.service.common.CommonUtils.defaultVerse
 import net.bible.service.sword.SwordDocumentFacade
 
 import org.crosswire.jsword.book.Book
@@ -37,6 +38,9 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.BibleBook
+import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 
 import javax.inject.Inject
@@ -46,27 +50,49 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+
+enum class DocumentCategory {
+    BIBLE, COMMENTARY, DICTIONARY, GENERAL_BOOK, MAPS, MYNOTE;
+
+    val bookCategory: BookCategory get() = BookCategory.valueOf(this.name)
+}
+
+val BookCategory.documentCategory: DocumentCategory get() {
+    return when(this) {
+        BookCategory.BIBLE -> DocumentCategory.BIBLE
+        BookCategory.COMMENTARY -> DocumentCategory.COMMENTARY
+        BookCategory.DICTIONARY -> DocumentCategory.DICTIONARY
+        BookCategory.GENERAL_BOOK -> DocumentCategory.GENERAL_BOOK
+        BookCategory.MAPS -> DocumentCategory.MAPS
+        // This should not normally be there, but user that has used legacy my notes, could have this value stored in DB
+        BookCategory.OTHER -> DocumentCategory.GENERAL_BOOK
+        else -> throw RuntimeException("Unsupported category")
+    }
+}
+
 open class CurrentPageManager @Inject constructor(
-        swordContentFacade: SwordContentFacade,
-        swordDocumentFacade: SwordDocumentFacade,
-        bibleTraverser: BibleTraverser,
-        myNoteDAO: MyNoteDAO,
-        val windowRepository: WindowRepository
-        )
-{
+    val swordDocumentFacade: SwordDocumentFacade,
+    bibleTraverser: BibleTraverser,
+    val bookmarkControl: BookmarkControl,
+    val windowRepository: WindowRepository,
+)  {
     // use the same verse in the commentary and bible to keep them in sync
-    private val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
-    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
-    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
-    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, myNoteDAO, this)
-    val currentDictionary = CurrentDictionaryPage(swordContentFacade, swordDocumentFacade, this)
-    val currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade, this)
-    val currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade, this)
+    val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
+    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
+    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
+    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
+    val currentDictionary = CurrentDictionaryPage(swordDocumentFacade, this)
+    val currentGeneralBook = CurrentGeneralBookPage(swordDocumentFacade, this)
+    val currentMap = CurrentMapPage(swordDocumentFacade, this)
 
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
 
 
     val hasStrongs: Boolean get() {
+        if(isGenBookShown) {
+            return currentGeneralBook.isSpecialDoc
+        }
         return try {
             val currentBook = currentPage.currentDocument
             currentBook!!.bookMetaData.hasFeature(FeatureType.STRONGS_NUMBERS)
@@ -101,16 +127,20 @@ open class CurrentPageManager @Inject constructor(
             }
         }
 
+    val isStudyPadShown: Boolean
+        get() = currentGeneralBook === currentPage && currentGeneralBook.isStudyPad
+
     val isCommentaryShown: Boolean
         get() = currentCommentary === currentPage
     val isBibleShown: Boolean
         get() = currentBible === currentPage
+    val isMyNotesShown: Boolean
+        get() = currentMyNotePage === currentPage
+
     val isDictionaryShown: Boolean
         get() = currentDictionary === currentPage
     val isGenBookShown: Boolean
         get() = currentGeneralBook === currentPage
-    val isMyNoteShown: Boolean
-        get() = currentMyNotePage === currentPage
     val isMapShown: Boolean
         get() = currentMap === currentPage
 
@@ -139,8 +169,7 @@ open class CurrentPageManager @Inject constructor(
             } else {
                 val context = CurrentActivityHolder.getInstance().currentActivity
                 // pop up a key selection screen
-                val intent = Intent(context, nextPage.keyChooserActivity)
-                context.startActivity(intent)
+                nextPage.startKeyChooser(context)
             }
         } else {
             // should never get here because a doc should always be passed in but I have seen errors lie this once or twice
@@ -150,19 +179,10 @@ open class CurrentPageManager @Inject constructor(
         return nextPage
     }
 
-    /** My Note is different to all other pages.  It has no documents etc but I attempt to make it look a bit like a Commentary page
-     *
-     * @param verseRange VerseRange to add note to, start verse is the significant key searched for but range is stored
-     */
-    fun showMyNote(verseRange: Key) {
-        setCurrentDocumentAndKey(currentMyNotePage.currentDocument, verseRange)
-    }
-
-    @JvmOverloads
     fun setCurrentDocumentAndKey(currentBook: Book?,
                                  key: Key,
                                  updateHistory: Boolean = true,
-                                 yOffsetRatio: Float = SharedConstants.NO_VALUE.toFloat()
+                                 anchorOrdinal: Int? = null
     ): CurrentPage? {
         PassageChangeMediator.getInstance().onBeforeCurrentPageChanged(updateHistory)
 
@@ -172,8 +192,10 @@ open class CurrentPageManager @Inject constructor(
                 nextPage.isInhibitChangeNotifications = true
                 nextPage.setCurrentDocument(currentBook)
                 nextPage.setKey(key)
-                nextPage.currentYOffsetRatio = yOffsetRatio
+                nextPage.anchorOrdinal = anchorOrdinal
                 currentPage = nextPage
+            }catch (e: Exception) {
+                Log.e(TAG, "Error setting next page doc")
             } finally {
                 nextPage.isInhibitChangeNotifications = false
             }
@@ -185,26 +207,25 @@ open class CurrentPageManager @Inject constructor(
     }
 
     fun getBookPage(book: Book?): CurrentPage? {
-        // book should never be null but it happened on one user's phone
         return if (book == null) {
             null
-        } else if (book == currentMyNotePage.currentDocument) {
-            currentMyNotePage
         } else {
-            getBookPage(book.bookCategory)
+            if(book.osisID == "Commentaries.MyNote")
+                currentMyNotePage
+            else
+                getBookPage(book.bookCategory.documentCategory)
         }
 
     }
 
-    private fun getBookPage(bookCategory: BookCategory): CurrentPage =
+    private fun getBookPage(bookCategory: DocumentCategory): CurrentPage =
         when (bookCategory) {
-            BookCategory.BIBLE -> currentBible
-            BookCategory.COMMENTARY -> currentCommentary
-            BookCategory.DICTIONARY -> currentDictionary
-            BookCategory.GENERAL_BOOK -> currentGeneralBook
-            BookCategory.MAPS -> currentMap
-            BookCategory.OTHER -> currentMyNotePage
-            else -> throw RuntimeException("Unsupported book category")
+            DocumentCategory.BIBLE -> currentBible
+            DocumentCategory.COMMENTARY -> currentCommentary
+            DocumentCategory.DICTIONARY -> currentDictionary
+            DocumentCategory.GENERAL_BOOK -> currentGeneralBook
+            DocumentCategory.MAPS -> currentMap
+            DocumentCategory.MYNOTE -> currentMyNotePage
         }
 
     fun showBible() {
@@ -221,7 +242,7 @@ open class CurrentPageManager @Inject constructor(
             currentDictionary.pageEntity.copy(),
             currentGeneralBook.pageEntity.copy(),
             currentMap.pageEntity.copy(),
-            currentPage.bookCategory.getName(),
+            currentPage.documentCategory.name,
             textDisplaySettings.copy()
         )
 
@@ -236,17 +257,44 @@ open class CurrentPageManager @Inject constructor(
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
-        val restoredBookCategory = BookCategory.fromString(pageManagerEntity.currentCategoryName)
+
+        val restoredBookCategory = try {
+            DocumentCategory.valueOf(pageManagerEntity.currentCategoryName)
+        } catch (e: IllegalArgumentException) {
+            BookCategory.fromString(pageManagerEntity.currentCategoryName).documentCategory
+        }
         val settings = pageManagerEntity.textDisplaySettings
         if(workspaceDisplaySettings != null) {
             WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
             textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
         }
         currentPage = getBookPage(restoredBookCategory)
-        if(currentPage.key == null) {
+        if(currentPage.key == null || currentPage.currentDocument == null) {
             currentPage = currentBible
         }
     }
+
+    /** This is only called after the very first bible download to attempt to ensure the first page is not 'Verse not found'
+     * go through a list of default verses until one is found in the first/only book installed
+     */
+    fun setFirstUseDefaultVerse() {
+        currentBible.setCurrentDocument(defaultBible)
+        currentBible.doSetKey(defaultVerse)
+    }
+
+    /**
+     * Return false if current page is not scripture, but only if the page is valid
+     */
+    val isCurrentPageScripture: Boolean
+        get() {
+            val currentVersePage = currentVersePage
+            val currentVersification = currentVersePage.versification
+            val currentBibleBook = currentVersePage.currentBibleVerse.currentBibleBook
+            val isCurrentBibleBookScripture = Scripture.isScripture(currentBibleBook)
+            // Non-scriptural pages are not so safe.  They may be synched with the other screen but not support the current dc book
+            return isCurrentBibleBookScripture ||
+                !currentVersification.containsBook(currentBibleBook)
+        }
 
     val TAG get() = "PageManager[${window.id}]"
 }

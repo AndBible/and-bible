@@ -8,9 +8,10 @@ paragraph_1_1: >
   Az 'And Bible' nyílt forráskódú projekt által fejlesztett 'Bible Study' app funkciógazdag, mégis egyszerűen kezelhető, folyamatos internetkapcsolatot nem igénylő bibliatanulmányozó alkalmazás Android operációs rendszerre. Az alkalmazás nem csak egy egyszerű bibliaolvasó, hanem fejlett funkciókkal támogatja a személyes bibliatanulmányozást.
 paragraph_1_2: >-
   Az alkalmazást bibliaolvasó emberek fejlesztik bibliaolvasó embereknek. A cél az, hogy a Biblia tanulmányozása egyszerű, szórakoztató, de alapos is legyen. A non-profit közösségi modell előnye, hogy az alkalmazás nyílt forráskódú, teljesen ingyenes és nem tartalmaz hirdetéseket. Az alkalmazást teljesen az alapoktól készítettük Androidra, így kifejezetten kicsi a mérete, erőforrásbarát és meglepően gyors.
-   # You can also advertise here the best documents that are available in the app in your language.
+   
+# You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
-  Az applikációban magyarul a Károli Biblia 1908-as revíziója és a Magyar Bibliatársulat Újfordítású Bibliájának 1990-es változata olvasható. Angolul a népszerű KJV, NASB, NET fordítások és az ugyancsak népszerű Matthew Henry és John Gill kommentárok is elérhetőek, a több száz egyéb nyelvű bibliafordítással  és kommentárral együtt.
+  Az applikációban magyarul több fordítás érhető el: többek közt a Károli Biblia 1908-as revíziója, a Magyar Bibliatársulat Újfordítású Bibliájának 1990 és 2014-es változata és a Káldi Neovulgáta modern változata is. Angolul a népszerű KJV, NASB, NET fordítások és az ugyancsak népszerű Matthew Henry és John Gill kommentárok is elérhetőek, a több száz egyéb nyelvű bibliafordítással  és kommentárral együtt.
 subtitle_2: Bibliatanulmányozó funkciók
 paragraph_2_1: >
   Az app számos különleges funkcióval rendelkezik, amelyek az öszetett és alapos bibliatanulmányozást még egyszerűbbé teszik. A elismerésre legméltóbb funkciók:
@@ -27,27 +28,29 @@ commentary_examples: "Gill, Matthew Henry stb."
 cross_reference_examples: "Treasury of Scripture Knowledge, TSKe"
 feature_05: "Fejlett felolvasási képességek (a támogatott nyelveken), beszéd könyvjelzők, hogy tényleg akadálymentesen hallgathassa a Bibliát."
 feature_06: Rugalmas keresési lehetőségek
-feature_07: "Könyvjelzők, színkóddal ellátható könyvjelzőcsoportok"
-feature_08: >-
-  Személyes jegyzetek hozzáfűzése bármelyik igeszakaszhoz
+feature_07: "Fejlett könyvjelző és kijelölési lehetőségek, személyes jegyzetek "
 feature_09: >
   Olvasási tervek: olvassa a bibliát előre összeállított tervek szerint, és állítson be olvasási célokat
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Modulkönyvtár: bibliafordítások, teológiai kommentárok, szótárak, térképek és keresztény irodalom, összesen {{total_documents}} mű, {{total_languages}} nyelven,  jogtisztán letölthetően a Crosswire és egyéb SWORD modulkönyvtárakból. 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  Az összes modul eredete ellenőrzött, és terjesztésük a szerzői jogok tulajdonosainak hozzájárulásával történik. Ennek hiánya miatt az alkalmazásban nem elérhetőek többek közt az angol {{unavailable_documents}} fordítások.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-feature_11: >
-  Az összes modul eredete ellenőrzött, és terjesztésük a szerzői jogok tulajdonosainak hozzájárulásával történik. Ennek hiánya miatt az alkalmazásban nem elérhetőek többek közt az angol NIV és NKJV fordítások.
+unavailable_documents: "ESV, NIV és NKJV"
 feature_12: >
   Offline: csak a bibliamodulok letöltésekor van szükség aktív internetkapcsolatra.
+feature_13: >
+  Jegyzetlapok jegyzetekkel és biblia hivatkozásokkal: igehirdetésre készülve vagy igehirdetés hallgatása közben.
 subtitle_3: Segítsen az alkalmazás jobbá tételében!
 paragraph_3_1: >
   Az And Bible nyilt forráskódú közösségi projekt. Bárkit, aki megfelelő tudással rendelkezik, bátorítunk a közreműködésre:
 contr_1: új funkciók kifejlesztésével
 contr_2: újonnan fejlesztett funkciók tesztelésével
 contr_3: a felhasználói felület fordításainak karbantartásával és
-contr_4: és a modulkönyvtár bővítésével.
+contr_4: "a modulkönyvtár fejlesztésével: dokumentumok SWORD formátumba konvertálásával vagy a jogtulajdonosoktól a megfelelő engedélyek beszerzésével."
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 paragraph_4_1: "Ha hivatásos szoftverfejlesztő vagy tesztelő, kérjük vegyen részt az alkalmazás feljlesztésében! Bővebb információ: {{how_to_contribute_url}}."
 subtitle_4: Hivatkozások

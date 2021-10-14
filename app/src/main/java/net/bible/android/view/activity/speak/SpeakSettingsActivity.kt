@@ -22,14 +22,18 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
-import android.view.View
+import android.widget.CheckBox
 import android.widget.TextView
-import kotlinx.android.synthetic.main.speak_settings.*
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SpeakSettingsBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
+import net.bible.service.common.automaticSpeakBookmarkingVideo
 
 @ActivityScope
 class SpeakSettingsActivity : AbstractSpeakActivity() {
@@ -37,14 +41,25 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         const val TAG = "SpeakSettingsActivity"
     }
 
+    lateinit var binding: SpeakSettingsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.speak_settings)
+        binding = SpeakSettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         super.buildActivityComponent().inject(this)
         ABEventBus.getDefault().register(this)
         resetView(SpeakSettings.load())
+        binding.apply {
+            synchronize.setOnClickListener { updateSettings() }
+            replaceDivineName.setOnClickListener { updateSettings() }
+            autoBookmark.setOnClickListener { updateSettings() }
+            restoreSettingsFromBookmarks.setOnClickListener { updateSettings() }
+        }
     }
+
+    override val sleepTimer: CheckBox? = null
 
     override fun onDestroy() {
         ABEventBus.getDefault().unregister(this)
@@ -52,17 +67,18 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
     }
 
     override fun resetView(settings: SpeakSettings) {
-        synchronize.isChecked = settings.synchronize
-        replaceDivineName.isChecked = settings.replaceDivineName
-        restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
+        binding.apply {
+            synchronize.isChecked = settings.synchronize
+            replaceDivineName.isChecked = settings.replaceDivineName
+            restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
 
-        autoBookmark.isChecked = settings.autoBookmark
-        if(!autoBookmark.isChecked) {
-            restoreSettingsFromBookmarks.isChecked = false
-            restoreSettingsFromBookmarks.isEnabled = false
-        }
-        else {
-            restoreSettingsFromBookmarks.isEnabled = true
+            autoBookmark.isChecked = settings.autoBookmark
+            if (!autoBookmark.isChecked) {
+                restoreSettingsFromBookmarks.isChecked = false
+                restoreSettingsFromBookmarks.isEnabled = false
+            } else {
+                restoreSettingsFromBookmarks.isEnabled = true
+            }
         }
     }
 
@@ -71,24 +87,41 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         resetView(ev.speakSettings)
     }
 
-    fun onSettingsChange(widget: View) = updateSettings()
-
     fun updateSettings() {
         val settings = SpeakSettings.load().apply {
             sleepTimer = currentSettings.sleepTimer
             lastSleepTimer = currentSettings.lastSleepTimer
         }
-        settings.synchronize = synchronize.isChecked
-        settings.autoBookmark = autoBookmark.isChecked
-        settings.replaceDivineName = replaceDivineName.isChecked
-        settings.restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
+        binding.apply {
+            settings.synchronize = synchronize.isChecked
+            settings.autoBookmark = autoBookmark.isChecked
+            settings.replaceDivineName = replaceDivineName.isChecked
+            settings.restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
+        }
         settings.save(updateBookmark = true)
     }
 
-    fun onHelpButtonClick(button: View) {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.speak_bible_actionbar_menu, menu)
+        menu.findItem(R.id.systemSettings).isVisible = false
+        menu.findItem(R.id.advancedSettings).isVisible = false
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.help -> {
+                onHelpButtonClick()
+                return true
+            }
+        }
+        return false
+    }
+
+    fun onHelpButtonClick() {
         val htmlMessage = (
                 "<b>${getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
-                + "<b><a href=\"https://www.youtube.com/watch?v=1HFXLeTERcs\">"
+                + "<b><a href=\"$automaticSpeakBookmarkingVideo\">"
                 + "${getString(R.string.watch_tutorial_video)}</a></b><br><br>"
                 + getString(R.string.speak_help_auto_bookmark)
                 + "<br><br><b>${getString(R.string.conf_save_playback_settings_to_bookmarks)}</b><br><br>"

@@ -19,12 +19,12 @@
 package net.bible.android.control.page.window
 
 import android.app.AlertDialog
-import android.util.Log
 import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
@@ -39,14 +39,18 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.settings.getPrefItem
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
+import net.bible.service.common.firstBibleDoc
 
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
 
 /**
  * Central control of windows especially synchronization
@@ -91,23 +95,15 @@ open class WindowControl @Inject constructor(
      * Show link using whatever is the current Bible in the Links window
      */
     fun showLinkUsingDefaultBible(key: Key) {
-        val linksWindow = windowRepository.dedicatedLinksWindow
-        val currentBiblePage = linksWindow.pageManager.currentBible
+        showLink(defaultBibleDoc(true), key)
+    }
 
-        val isBible = windowRepository.activeWindow.pageManager.isBibleShown
-        val bibleDoc = windowRepository.activeWindow.pageManager.currentBible.currentDocument
+    open fun defaultBibleDoc(useLinks: Boolean  = true): SwordBook {
+        val linksBiblePage = windowRepository.dedicatedLinksWindow.pageManager.currentBible
+        val activeWindowBibleDoc = windowRepository.activeWindow.pageManager.currentBible.currentDocument as SwordBook?
 
-        // default either to links window bible or if closed then active window bible
-        val defaultBible = if (currentBiblePage.isCurrentDocumentSet) {
-            currentBiblePage.currentDocument
-        } else {
-            windowRepository.activeWindow.pageManager.currentBible.currentDocument
-        }
-        if(defaultBible == null) {
-            Log.e(TAG, "Default bible is null! Can't show link.")
-            return
-        }
-        showLink(if (isBible && bibleDoc != null) bibleDoc else defaultBible, key)
+        return if (useLinks && linksBiblePage.isCurrentDocumentSet) linksBiblePage.currentDocument!! as SwordBook
+               else activeWindowBibleDoc ?: firstBibleDoc
     }
 
     fun showLink(document: Book, key: Key) {
@@ -117,10 +113,8 @@ open class WindowControl @Inject constructor(
 
         linksWindow.initialisePageStateIfClosed(activeWindow)
 
-        windowRepository.activeWindow = linksWindow
-
-        // redisplay the current page
         if (!linksWindowWasVisible) {
+            windowRepository.activeWindow = linksWindow
             linksWindow.windowState = WindowState.SPLIT
         }
 
@@ -146,8 +140,6 @@ open class WindowControl @Inject constructor(
         val pageManager = window.pageManager
         window.isSynchronised = false
         pageManager.setCurrentDocumentAndKey(document, key)
-
-        restoreWindow(window, true)
 
         return window
     }
@@ -243,7 +235,6 @@ open class WindowControl @Inject constructor(
         } else {
             windowSync.setResyncBiblesRequired()
         }
-        if(activeWindowPageManager.isMyNoteShown) return
         windowSync.reloadAllWindows()
     }
 
@@ -265,7 +256,9 @@ open class WindowControl @Inject constructor(
         if(value == window.isSynchronised) return
         if(value) {
             window.isSynchronised = true
-            windowSync.synchronizeWindows()
+            windowSync.synchronizeWindows(
+                windowRepository.visibleWindows.firstOrNull { it.id != window.id && it.isSynchronised && it.isSyncable }
+            )
         } else {
             window.isSynchronised = false
         }
@@ -348,6 +341,7 @@ open class WindowControl @Inject constructor(
             }
         }
         dialog.show()
+        CommonUtils.fixAlertDialogButtons(dialog)
     }
 
 
@@ -363,7 +357,7 @@ open class WindowControl @Inject constructor(
             }
         }
 
-        windowRepository.updateVisibleWindowsTextDisplaySettings()
+        windowRepository.updateAllWindowsTextDisplaySettings()
     }
 
     fun copySettingsToWindow(window: Window, order: Int) {

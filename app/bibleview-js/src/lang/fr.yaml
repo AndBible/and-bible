@@ -1,0 +1,81 @@
+openMyNotes: Ouvrir dans Mes notes
+openStudyPad: Ouvrir le bloc-note (%s)
+noteText: Notes de bas de page (%s)
+noteTextWithoutType: Note de bas de page
+crossReferenceText: Références croisées
+findAllOccurrences: Trouver toutes les occurrences
+reportError: Rapporter une erreur
+errorTitle: Une erreur a eu lieu
+warningTitle: Avertissement
+normalTitle: Veuillez noter
+footnoteTypeUndefined: Type indéfini
+footnoteTypeStudy: Étude
+footnoteTypeExplanation: Explication
+footnoteTypeVariant: Variante
+footnoteTypeAlternative: Alternative
+footnoteTypeTranslation: Traduction
+clearLog: Supprimer le journal d'erreur
+editNote: Éditer
+editNotePlaceholder: Éditer la note
+editTextPlaceholder: Tapez pour éditer le texte
+inputPlaceholder: Écrire ici
+inputReference: Entrer les références bibliques
+invalidReference: Verset non trouvé
+assignLabels: Étiquettes
+bookmarkAccurate: Le signet a été créé dans %s
+bookmarkInaccurate: "Les informations sur le livre de signets ne sont pas enregistrées, le contenu est affiché dans %s."
+defaultBook: Bible par defaut
+ok: OK
+yes: "Oui"
+ambiguousSelection: "Quelle action voulez-vous accomplir ?"
+cancel: Annuler
+removeBookmarkConfirmationTitle: "Supprimer le signet ?"
+removeBookmarkConfirmation: "Êtes-vous certain de vouloir supprimer ce signet ?"
+closeModal: Fermer
+createdAt: "Créé : %s"
+lastUpdatedOn: "Dernière mise à jour : %s"
+strongsLink: Définition des nombres de Strongs (%s)
+morphLink: Code morphologique (%s)
+strongsAndMorph: Définition & morphologie
+studyPadLink: Ouvrir le bloc-note
+externalLink: Ouvrir un lien externe
+referenceLink: Ouvrir un lien de référence
+openFootnote: Ouvrir une note de bas de page
+openBookmark: Ouvrir un signet (%s)
+noMyNotesTitle: Pas Mes notes pour ce chapitre.
+noMyNotesDescription: >-
+  Commencez par créer des signets dans un document biblique. Les signets apparaîtront ensuite ici et vous pourrez y ajouter vos notes personnelles.
+emptyStudyPad: >
+  Bloc-notes vide. Commencez à compléter ce bloc-notes en créant des entrées de texte ici ou en créant des signets avec une étiquette de signet correspondant à ce bloc-notes.
+studyPadModalTitle: Éditer l'entrée du bloc-note
+doYouWantToDeleteEntry: "Supprimer cette entrée du bloc-note ?"
+removeStudyPadConfirmationTitle: "Supprimer l'entrée du bloc-note ?"
+dragHelp: Faites glisser pour réorganiser
+saved: sauvé
+openAll: Ouvrir toutes les références
+editBookmarkPlaceholder: Tapez pour éditer Mes notes pour ce signet
+onlyLabel: Seulement l'étiquette
+wholeBookmark: Tout le signet
+otherNoteText: Autre note
+assignLabelsMenuEntry: Attribuer des étiquettes
+assignLabelsMenuEntry1: Sélectionner ou éditer les étiquettes…
+jumpToStudyPad: Sauter au bloc-note
+setAsPrimaryLabel: Définir comme première étiquette
+removeBookmarkLabel: Supprimer l'étiquette
+addBookmarkLabel: Ajouter l'étiquette
+favouriteLabels: Étiquettes favorites
+recentLabels: Étiquettes récentes
+frequentlyUsedLabels: Étiquettes fréquemment utilisées
+bookmarkLabels: Étiquettes de signet
+refParserHelp: Veuillez installer le module %s pour utiliser les références dans des langues autres que l'anglais.
+openDownloads: Allez dans "Téléchargements d'extensions
+verseShare: Partager
+verseCompare: Comparer
+verseNote: Note
+verseMyNotes: Mes notes
+verseSpeak: Lecture audio
+verseShareLong: Partager ce verset
+verseCompareLong: Comparer ce verset
+verseNoteLong: Écrire une note
+verseSpeakLong: Commencez à écouter à partir de ce verset
+addBookmark: Signets

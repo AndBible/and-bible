@@ -17,35 +17,67 @@
  */
 package net.bible.android.control.page
 
-import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.util.Log
+import net.bible.android.common.toV11n
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.misc.OsisFragment
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.BookFilters
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 /** Reference to current passage shown by viewer
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
 open class CurrentCommentaryPage internal constructor(
     currentBibleVerse: CurrentBibleVerse,
     bibleTraverser: BibleTraverser,
-    swordContentFacade: SwordContentFacade,
     swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage
+) : VersePage(true, currentBibleVerse, bibleTraverser, swordDocumentFacade, pageManager), CurrentPage
 {
 
-    override val bookCategory = BookCategory.COMMENTARY
+    override val documentCategory = DocumentCategory.COMMENTARY
 
-    override val keyChooserActivity: Class<out Activity?>?
-        get() = GridChoosePassageBook::class.java
+    override fun startKeyChooser(context: ActivityBase) =
+        context.startActivityForResult(Intent(context, GridChoosePassageBook::class.java).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
+
+    private val isSpecialDoc: Boolean get() = currentDocument == FakeBookFactory.compareDocument
+
+    override val currentPageContent: Document
+        get() {
+            return if(currentDocument == FakeBookFactory.compareDocument) {
+                val key: VerseRange = when(val origKey = originalKey ?: singleKey) {
+                    is VerseRange -> origKey
+                    is Verse -> VerseRange(origKey.versification, origKey, origKey)
+                    else -> throw RuntimeException("Invalid type")
+                }
+
+                val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
+                    try {
+                        OsisFragment(SwordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification)), key, it)
+                    } catch (e: OsisError) {
+                        null
+                    }
+                }.filterNotNull()
+                MultiFragmentDocument(frags, compare=true)
+            } else super.currentPageContent
+        }
 
     /* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#next()
@@ -84,7 +116,7 @@ open class CurrentCommentaryPage internal constructor(
                     nextVer = bibleTraverser.getNextVerse(currentPassageBook, nextVer)
                 }
             } else { // move to next book if required
-// allow standard loop structure by changing num to positive
+                     // allow standard loop structure by changing num to positive
                 num = -num
                 for (i in 0 until num) {
                     nextVer = bibleTraverser.getPrevVerse(currentPassageBook, nextVer)
@@ -96,12 +128,12 @@ open class CurrentCommentaryPage internal constructor(
             currVer
         }
     }
+    override val isSpeakable: Boolean get() = !isSpecialDoc
 
-    /** set key without notification
-     *
-     * @param key
-     */
+    var originalKey: Key? = null
+
     override fun doSetKey(key: Key?) {
+        originalKey = key
         if(key != null) {
             val verse = KeyUtil.getVerse(key)
             currentBibleVerse.setVerseSelected(versification, verse)
@@ -113,22 +145,22 @@ open class CurrentCommentaryPage internal constructor(
 	 */
     override val key: Key get() = currentBibleVerse.getVerseSelected(versification)
 
-    open val numberOfVersesDisplayed: Int
-        get() = 1
-
     override val isSingleKey = true
 
     /** can we enable the main menu search button
      */
-    override val isSearchable = true
+    override val isSearchable get() = !isSpecialDoc
 
     val entity get() =
-        WorkspaceEntities.CommentaryPage(currentDocument?.initials, currentYOffsetRatio)
+        WorkspaceEntities.CommentaryPage(currentDocument?.initials, anchorOrdinal)
 
     fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
         if(entity == null) return
         val document = entity.document
-        val book = swordDocumentFacade.getDocumentByInitials(document)
+        val book = when(document) {
+            FakeBookFactory.compareDocument.initials -> FakeBookFactory.compareDocument
+            else -> swordDocumentFacade.getDocumentByInitials(document) ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
+        }
         if(book != null) {
             Log.d(TAG, "Restored document:" + book.name)
             // bypass setter to avoid automatic notifications.
@@ -136,7 +168,7 @@ open class CurrentCommentaryPage internal constructor(
             // It is already set correctly when CurrentBiblePage is restored.
             // Otherwise versification will be messed up!
             onlySetCurrentDocument(book)
-            currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
+            anchorOrdinal = entity.anchorOrdinal
         }
     }
 

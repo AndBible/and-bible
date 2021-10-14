@@ -7,33 +7,20 @@
 	>
 
 	<item android:id="@+id/windowNew"
-		  android:title="@string/new_window"
-		  android:icon="@drawable/ic_add_circle_outline_white_24dp"/>
+		android:title="@string/new_window"
+		android:icon="@drawable/ic_window_add_outline_black_24dp"/>
+	<item android:id="@+id/windowMaximise"
+		android:title="@string/windowMaximise"
+		android:icon="@drawable/ic_window_maximise_24dp"/>
+	<item android:id="@+id/windowMinimise"
+		android:title="@string/windowMinimise"
+		android:icon="@drawable/ic_baseline_minimise_24"/>
 	<item android:id="@+id/changeToNormal"
 		android:title="@string/change_to_normal"
 		android:icon="@drawable/ic_link_black_24dp"/>
-	<item android:id="@+id/pinMode"
-		android:title="@string/window_pin_mode"
-		android:icon="@drawable/ic_pin"
-		android:checkable="true"
-		android:checked="true"/>
-	<item android:id="@+id/windowMinimise"
-		  android:title="@string/windowMinimise"
-		  android:icon="@drawable/ic_photo_size_select_small_white_24dp"/>
-	<item android:id="@+id/windowMaximise"
-		android:title="@string/windowMaximise"
-		android:icon="@drawable/ic_zoom_out_map_white_24dp"/>
-	<item android:id="@+id/windowClose"
-		  android:title="@string/windowClose"
-		  android:icon="@drawable/ic_close_white_24dp"/>
-	<item android:id="@+id/windowSynchronise"
-		  android:title="@string/windowSynchronise"
-		  android:icon="@drawable/ic_sync_white_24dp"
-		  android:checkable="true"
-		  android:checked="true"/>
 	<item
 		android:id="@+id/moveWindowSubMenu"
-		android:icon="@drawable/ic_compare_arrows_black_24dp"
+		android:icon="@drawable/ic_window_move_to_24dp"
 		android:title="@string/move_window">
 		<menu>
 			<item android:id="@+id/moveItem"
@@ -41,9 +28,19 @@
 				/>
 		</menu>
 	</item>
+	<item android:id="@+id/pinMode"
+		android:title="@string/window_pin_mode"
+		android:icon="@drawable/ic_pin"
+		android:checkable="true"
+		android:checked="true"/>
+	<item android:id="@+id/windowSynchronise"
+		android:title="@string/windowSynchronise"
+		android:icon="@drawable/ic_window_sync_24dp"
+		android:checkable="true"
+		android:checked="true"/>
 	<item
 		android:id="@+id/textOptionsSubMenu"
-		android:icon="@drawable/ic_text_format_white_24dp"
+		android:icon="@drawable/ic_text_options_24dp"
 		android:title="@string/text_options_window_menutitle">
 		<menu>
 			<item android:id="@+id/textOptionItem"
@@ -51,7 +48,7 @@
 				/>
 			<item
 				android:id="@+id/allTextOptions"
-				android:icon="@drawable/ic_text_format_white_24dp"
+				android:icon="@drawable/ic_text_options_24dp"
 				android:title="@string/all_text_options_window_menutitle"
 				android:orderInCategory="1000"
 				/>
@@ -74,4 +71,7 @@
 			</item>
 		</menu>
 	</item>
+	<item android:id="@+id/windowClose"
+		android:title="@string/windowClose"
+		android:icon="@drawable/ic_close_white_24dp"/>
 </menu>

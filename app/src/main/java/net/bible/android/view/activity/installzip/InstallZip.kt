@@ -41,14 +41,15 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import kotlinx.android.synthetic.main.activity_install_zip.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.bible.android.activity.databinding.ActivityInstallZipBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import java.io.InputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -232,16 +233,18 @@ class ZipHandler(
 }
 
 class InstallZip : ActivityBase() {
+    private lateinit var binding: ActivityInstallZipBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Install from Zip starting")
-        setContentView(R.layout.activity_install_zip)
+        binding = ActivityInstallZipBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         super.buildActivityComponent().inject(this)
         when(intent?.action) {
             Intent.ACTION_VIEW -> installZip(intent!!.data!!)
-            Intent.ACTION_SEND -> installZip(intent.getParcelableExtra(Intent.EXTRA_STREAM))
+            Intent.ACTION_SEND -> installZip(intent.getParcelableExtra(Intent.EXTRA_STREAM)!!)
             Intent.ACTION_SEND_MULTIPLE -> {
-                for (uri in intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)) {
+                for (uri in intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)!!) {
                     installZip(uri)
                 }
             }
@@ -264,18 +267,22 @@ class InstallZip : ActivityBase() {
     }
 
     private fun installZip(uri: Uri) {
-        installZipLabel.text = getString(R.string.checking_zip_file)
+        binding.installZipLabel.text = getString(R.string.checking_zip_file)
 
         val zh = ZipHandler(
                 {contentResolver.openInputStream(uri)},
                 {percent -> updateProgress(percent)},
-                {finishResult -> setResult(finishResult); finish() },
+                {finishResult ->
+                    setResult(finishResult);
+                    _mainBibleActivity?.updateDocuments()
+                    finish()
+                },
             this
         )
         GlobalScope.launch(Dispatchers.Main) {
-            loadingIndicator.visibility = View.VISIBLE
+            binding.loadingIndicator.visibility = View.VISIBLE
             zh.execute()
-            loadingIndicator.visibility = View.GONE
+            binding.loadingIndicator.visibility = View.GONE
         }
     }
 
@@ -283,9 +290,9 @@ class InstallZip : ActivityBase() {
 
     private fun updateProgress(percentValue: Int) {
         if (percentValue == 1)
-            installZipLabel.text = getString(R.string.extracting_zip_file)
+            binding.installZipLabel.text = getString(R.string.extracting_zip_file)
 
-        progressBar.progress = percentValue
+        binding.progressBar.progress = percentValue
     }
 
     companion object {

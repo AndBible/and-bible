@@ -1,0 +1,81 @@
+openMyNotes: Открыть в Моих заметках
+openStudyPad: Открыть в Блокноте (%s)
+noteText: Сноски (%s)
+noteTextWithoutType: Примечаний
+crossReferenceText: Перекрестные ссылки
+findAllOccurrences: Найти все случаи
+reportError: Сообщить об ошибке
+errorTitle: Возникла ошибка
+warningTitle: Предупреждение
+normalTitle: "Пожалуйста, обрати внимание"
+footnoteTypeUndefined: Неопределенный тип
+footnoteTypeStudy: Изучение
+footnoteTypeExplanation: Объяснение
+footnoteTypeVariant: Вариант
+footnoteTypeAlternative: Альтернативный
+footnoteTypeTranslation: Перевод
+clearLog: Очистить журнал ошибок
+editNote: Редактировать
+editNotePlaceholder: Редактировать заметку
+editTextPlaceholder: "Нажмите, чтобы отредактировать текст"
+inputPlaceholder: Пишите здесь
+inputReference: Введите ссылку
+invalidReference: Стих не найден
+assignLabels: Метки
+bookmarkAccurate: Закладка создана в %s
+bookmarkInaccurate: "Информация о закладке не сохраняется, содержимое отображается в %s."
+defaultBook: Библейский ресурс по умолчанию
+ok: OK
+yes: "Да"
+ambiguousSelection: "Какое действие вы хотите предпринять?"
+cancel: Отменить
+removeBookmarkConfirmationTitle: "Удалить закладку?"
+removeBookmarkConfirmation: "Вы уверены, что хотите удалить эту закладку?"
+closeModal: Закрыть
+createdAt: "Созданный: %s"
+lastUpdatedOn: "Последнее обновление: %s"
+strongsLink: Определение Сторонга (%s)
+morphLink: Морфологический код (%s)
+strongsAndMorph: Определение и морфология
+studyPadLink: Открыть блокнот
+externalLink: Открыть внешнюю ссылку
+referenceLink: Открыть справочную ссылку
+openFootnote: Открыть сноску
+openBookmark: Открыть закладку (%s)
+noMyNotesTitle: Нет заметок для этой главы.
+noMyNotesDescription: >
+  Начните с создания закладок в библейском ресурсе. Закладки появятся здесь, и вы сможете добавлять к ним свои личные заметки.
+emptyStudyPad: >
+  Пустой блокнот. Начните добавлять в этот блокнот, создавая текстовые записи или создавая закладки с меткой закладки, которая соответствует этому блокноту.
+studyPadModalTitle: Редактировать запись в блокноте
+doYouWantToDeleteEntry: "Удалить эту запись в блокноте?"
+removeStudyPadConfirmationTitle: "Удалить запись в блокноте?"
+dragHelp: "Перетащите, чтобы изменить порядок"
+saved: сохранено
+openAll: Открыть все ссылки
+editBookmarkPlaceholder: "Нажмите, чтобы изменить \"Мои заметки\" для этой закладки"
+onlyLabel: Только ярлык
+wholeBookmark: Всю закладку
+otherNoteText: Прочие примечания
+assignLabelsMenuEntry: Назначить ярлыки
+assignLabelsMenuEntry1: Выбрать или изменить ярлыки…
+jumpToStudyPad: Перейти к блокноту
+setAsPrimaryLabel: Сделать основной меткой
+removeBookmarkLabel: Удалить ярлык
+addBookmarkLabel: Добавить ярлык
+favouriteLabels: Любимые ярлыки
+recentLabels: Недавние ярлыки
+frequentlyUsedLabels: Часто используемые ярлыки
+bookmarkLabels: Ярлыки закладок
+refParserHelp: "Установите модуль %s, чтобы использовать ссылки на других языках, кроме английского."
+openDownloads: Перейти к загрузке дополнительных компонентов
+verseShare: Поделиться
+verseCompare: Сравнить
+verseNote: Заметка
+verseMyNotes: Мои заметки
+verseSpeak: Прослушать
+verseShareLong: Поделиться этим стихом
+verseCompareLong: Сравнить стих
+verseNoteLong: Написать заметку
+verseSpeakLong: Начать слушать с этого стиха
+addBookmark: Закладка

@@ -17,7 +17,6 @@
   <string name="other">Annet</string>
   <string name="help_and_tips">Hjelp og tips</string>
   <string name="administration">Administrasjon</string>
-  <string name="rate_application">Anmeldelser og tilbakemeldinger i Google Play</string>
   <string name="chooce_document">Velg dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Velg bok</string>
@@ -54,7 +53,7 @@
   <string name="search_current_book">Gjeldene bok</string>
   <string name="error_executing_search">Feil i søkestrengen</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Vis versnummer</string>
+  <string name="prefs_show_verseno_title1">Versnummer</string>
   <string name="prefs_verse_per_line_summary">Vis hvert vers på egen linje</string>
   <string name="prefs_show_bookmarks_summary">Fjern kryss for å skjule alle bokmerker</string>
   <string name="prefs_show_mynotes_summary">Vis ikon i vers du har skrevet notater</string>
@@ -64,12 +63,10 @@
   <string name="prefs_section_title_summary">Vis ikke-kanoniske seksjonsoverskrifter</string>
   <string name="prefs_red_letter_summary">Vis Jesu tale i rød skrift</string>
   <string name="prefs_text_size_title">Innstillinger for skrift</string>
-  <string name="prefs_show_verseno_title">Versnummer</string>
   <string name="prefs_verse_per_line_title">Ett vers per linje</string>
   <string name="prefs_show_bookmarks_title">Vis bokmerker</string>
-  <string name="prefs_default_bookmark_style_title">Standard bokmerkestil</string>
-  <string name="prefs_default_bookmark_style_summary">Standardfarge eller ikon</string>
   <string name="prefs_show_mynotes_title">Vis notatikoner</string>
+  <string name="prefs_show_footnotes_title">Fotnoter</string>
   <string name="prefs_show_notes_title">Fotnoter og kryssreferanser</string>
   <string name="prefs_show_strongs_title">Strong-nummerering</string>
   <string name="prefs_show_morphology_title">Vis morfologiske koder</string>
@@ -77,16 +74,12 @@
   <string name="prefs_red_letter_title">Rød skrift</string>
   <string name="prefs_tilt_to_scroll_title">Hell for å rulle teksten</string>
   <string name="prefs_night_mode_title">Nattmodus</string>
-  <string name="prefs_night_mode_summary">Bytte til nattmodus automatisk (dersom enheten din støtter dette), manuelt eller via systeminnstillinger (Andriod 10+)</string>
   <string name="prefs_night_mode_manual">Manuelt</string>
   <string name="prefs_night_mode_automatic">Automatisk</string>
   <string name="prefs_night_mode_system">System</string>
   <string name="options_menu_night_mode">Nattmodus</string>
   <string name="prefs_navigate_to_verse_title">Naviger til vers</string>
   <string name="prefs_navigate_to_verse_summary">Velg kapittel og vers når du skal navigere til et nytt bibelsted</string>
-  <string name="prefs_open_links_in_special_window_title">Åpne lenker i eget vindu</string>
-  <string name="prefs_open_links_in_special_window_summary">For hurtig visning av kryssereferanser og Strongs ordliste</string>
-  <string name="prefs_text_size_summary">Juster skrifttype og skriftstørrelse</string>
   <string name="prefs_text_size_sample_text">Eksempeltekst</string>
   <string name="prefs_screen_keep_on_title">Hold skjerm påslått</string>
   <string name="prefs_screen_keep_on_summary">La skjerm være påslått når denne applikasjonen benyttes</string>
@@ -127,12 +120,10 @@
   <string name="line_spacing_title">Linjeavstand</string>
   <string name="line_spacing_summary">Sett avstand mellom linjene</string>
   <string name="select_none">Ingen</string>
-  <string name="reset_are_you_sure">Er du sikker på at du vil tilbakestille alle verdiene?</string>
   <string name="window_pinning_menutitle">Feste vindu</string>
   <string name="hide_window_buttons_title">Skjul vindusknapper</string>
-  <string name="hide_window_buttons_summary">Vindusknapper på høyresiden av bibelvinduet skjules. Vindusnavigeringen i bunnen vises fremdeles, og du kan åpne vindumenyen ved å lang-klikke på disse.</string>
-  <string name="font_size_title">Skriftstørrelse</string>
   <string name="full_screen_hide_buttons_pref_summary">Skjul knapperader i bunnen av et vindu når man går til fullskjermmodus</string>
+  <string name="font_size_title">Skriftstørrelse</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Fargeinnstillinger</string>
   <string name="window_color_settings_title">Fargeinnstillinger for vindu</string>
@@ -166,37 +157,23 @@
   <string name="next">Fram</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Vennligst last ned Strongs hebraiske og greske ordbøker</string>
-  <string name="all_greek_occurrences">Finn alle forekomstene</string>
-  <string name="all_hebrew_occurrences">Finn alle forekomstene</string>
   <string name="no_indexed_bible_with_strongs_ref">Du må laste ned en Bibel som inneholder Strongs ordboknummer og laste ned søkeregisteret via Søkefunksjonen.</string>
   <string name="morph_robinson_not_installed">Vennligst last ned ordboken \'Robinson\'s Morphological Analysis Codes\'</string>
   <!--Module download-->
   <string name="download">Last ned moduler</string>
   <string name="download_confirmation">Laste ned en bibel fra internett?</string>
-  <string name="download_source_message">Moduler blir lastet ned fra\nhttps://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org og\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Last ned</string>
-  <string name="download_refreshing_book_list">Oppdaterer listen over tilgjengelige moduler</string>
   <string name="download_refresh_book_list_menu_item">Oppdater</string>
-  <string name="error_downloading">En feil oppstod ved nedlasting. Vennligst sjekk din internettilkobling.</string>
   <string name="storage_space_warning">Ikke nok lokal lagringsplass.</string>
-  <string name="too_many_jobs">For mange jobber utføres. Vennligst vent til noen er fullført før du prøver igjen.</string>
   <string name="document_not_installed">Vennligst last ned \'%s\'</string>
   <string name="free_text_search_documents">Søk</string>
   <string name="chooce_language_hint">Språk</string>
-  <string name="one_more_back_press">Ett trykk ekstra på tilbakeknappen vil lukke applikasjonen</string>
   <string name="document_filter_results">%d moduler</string>
   <string name="download_question_title">Ønsker du å fortsette å laste ned moduler?</string>
-  <string name="download_question_message">Dersom du bor i et land med forfølgelse 
-bør du være forsiktig med å laste ned kristent materiell fra internett.
-Istedet kan du tryggere anskaffe moduler i ZIP-format og installere disse
-via \"Last inn moduler fra ZIP\". Er du sikker på at du ønsker å fortsette nedlastingen?
-Alle nedlastinger er krypterte (HTTPS).</string>
   <string name="do_not_ask_again">Ja, ikke spør flere ganger</string>
   <string name="recommended_document">Anbefalt!</string>
   <string name="about_version_history">Versjonshistorikk: %s</string>
-  <string name="download_failed">Nedlasting feilet på %s </string>
   <string name="download_errors">Nedlastingsfeil</string>
-  <string name="failed_repositories_message">Kunne ikke koble til følgende modullager:\n\n%s\n\n</string>
   <string name="failed_downloads_message">Følgende filer kunne ikke lastes ned:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Last inn moduler fra ZIP</string>
@@ -205,7 +182,6 @@ Alle nedlastinger er krypterte (HTTPS).</string>
   <string name="extracting_zip_file">Pakker ut zip-fil...</string>
   <string name="checking_zip_file">Sjekker fil...</string>
   <string name="invalid_module">Filen inneholder ikke en gyldig SWORD-modul</string>
-  <string name="module_already_installed">Filen inneholder en modul som allerede er installert</string>
   <string name="install_zip_title">Vennligst vent, laster zip-fil.</string>
   <string name="overwrite_files">Følgende filer finnes allerede: %s Overskrive?</string>
   <string name="overwrite_files_title">Overskrive filer?</string>
@@ -215,7 +191,6 @@ Alle nedlastinger er krypterte (HTTPS).</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Sett startdato...</string>
   <string name="done">Ferdig</string>
-  <string name="reset">Tilbakestill</string>
   <string name="reset_plan_question">Er du sikker på at du vil tilbakestille denne planen?</string>
   <string name="plan_duplicate_user_plan">
 Det finnes en leseplan på minnekortet
@@ -248,7 +223,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="delete_search_index_doc">Slette søkeregister for %s?</string>
   <!--Verse context menu-->
   <string name="notes">Notater og kryssreferanser</string>
-  <string name="verse_action_copy">Kopier</string>
   <string name="share_verse">Del...</string>
   <string name="share_verse_subject_2">Et bibelvers har blitt delt med deg gjennom %s.</string>
   <string name="compare_translations">Sammenlign oversettelser</string>
@@ -258,18 +232,14 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="open_link_in_special_window">Åpne lenken i spesialvindu</string>
   <!--Bookmarks-->
   <string name="bookmarks">Bokmerker</string>
-  <string name="add_bookmark">Legg til bokmerke</string>
-  <string name="delete_bookmark">Slett bokmerke</string>
   <string name="bookmark_added">Bokmerke lagret</string>
-  <string name="bookmark_date_updated">Bokmerke-dato er endret</string>
-  <string name="bookmark_deleted">Bokmerket slettet</string>
-  <string name="bookmark_labels">Bokmerkegrupper</string>
-  <string name="manage_labels">Administrer bokmerketitler</string>
   <string name="assign_labels">Legg til i grupper</string>
+  <string name="new_item">Ny</string>
   <string name="new_label">Ny gruppe</string>
   <string name="label_name_prompt">Navn</string>
   <string name="label_unlabelled">Umerket</string>
-  <string name="style">Stil</string>
+  <string name="remove_bookmark">Fjern</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datorekkefølge</string>
   <string name="sort_by_bible_book">Bibelsk rekkefølge</string>
@@ -312,6 +282,14 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="speak_next">Neste</string>
   <string name="speak_previous">Forrige</string>
   <string name="speak_autobookmarking_disabled">Automatisk bokmerking avslått!</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_help_playback_settings_example">
 </string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
@@ -347,27 +325,16 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="speak_fifth">Femte</string>
   <!--User Notes-->
   <string name="mynotes">Mine notater</string>
-  <string name="mynote_add">Legg til i mine notater</string>
-  <string name="mynote_saved">Notater lagret</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sikkerhetskopiering</string>
-  <string name="backup_modules">Sikkerhetskopier dokumenter til...</string>
-  <string name="backup_app_database">Sikkerhetskopier applikasjonsdatabasen til...</string>
-  <string name="restore_app_database">Gjenopprett applikasjonsdatabasen fra...</string>
-  <string name="restore_confirmation">Overskrive Mine notater, bokmerker, leseplaner og arbeidsområder?</string>
-  <string name="restore_success">Fullført gjennopprettelsen av Mine notater, bokmerker, leseplaner og arbeidsområder</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="loading_backup">Leser database fra sikkerhetskopi</string>
-  <string name="backup_success">Mine notater, bokmerker, leseplaner og arbeidsområder er sikkerhetskopiert til %s.</string>
-  <string name="error_no_backup_file">Filen for sikkerhetskopi ble ikke funnet</string>
   <string name="backup_modules_email_subject_2">%s moduler sikkerhetskopiert</string>
   <string name="backup_modules_email_message_2">Vedlagt er sikkerhetskopi av dine %s moduler, som inneholder følgende: %s</string>
   <string name="backup_email_subject_2">Sikkerhetskopi av %s sin database</string>
   <string name="backup_email_message_2">Din %s database som inneholder bokmerker, notater, leseplaner og arbeidsområder er vedlagt</string>
   <string name="restore_unsuccessfull">Gjenoppretting av database feilet. Kanskje du har valgt feil databasefil.</string>
-  <string name="backup_restore_title">Gjenopprett fra hvor?</string>
-  <string name="backup_restore_message">Gjenopprett fra telefonlager eller velg fil manuelt (du kan også velge ifra Google Drive)?</string>
   <string name="backup_phone_storage">Telefonlager</string>
-  <string name="backup_manually">Velg fil</string>
   <string name="backup_backup_title">Sikkerhetskopier til hvor?</string>
   <string name="backup_backup_message">Sikkerhetskopier til telefon eller andre steder via delefunksjonen (epost, Google Drive etc.)?</string>
   <string name="backup_share">Del</string>
@@ -380,27 +347,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="module_about_installed_version">Installert versjon: %s (%s)</string>
   <string name="module_about_latest_version">Siste versjon: %s (%s)</string>
   <string name="module_about_versification">Versifisering: %s</string>
-  <string name="module_about_repository">Pakkebrønn for distribusjon: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Rapportér en feil</string>
-  <string name="report_bug_email_subject_2">Feilrapport for %s %s</string>
-  <string name="report_bug_email_message">
-        --- SKRIV FEILRAPPORTEN DIN OVER DENNE LINJEN (PÅ ENGELSK) ---\n
-        Instructions:\n
-        Tell us briefly what did you do / what happened when issue
-        took place. Example: \n
-        \n
-        1. Opened app\n
-        2. Clicked window menu\n
-         -&gt; Crash\n
-        \n
-        Sometimes screenshot also is beneficial in resolving issues.
-        Please use this function to report as soon as you have noticed it taking place.
-        You can also use this function after opening app, after crash has taken place.
-        \n\n
-        Device info: \n
-        %s</string>
   <!--Document types-->
   <string name="doc_type_all">Alle dokumenter</string>
   <string name="doc_type_bible">Bibler</string>
@@ -416,10 +364,11 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="yes">Ja</string>
   <string name="no">Nei</string>
   <string name="error">Feil</string>
+  <string name="delete_generic">Slett</string>
   <string name="please_wait">Vennligst vent...</string>
   <string name="all">Alle</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">Rediger</string>
+  <string name="reset_generic">Tilbakestill</string>
   <string name="watch_tutorial_video">Se opplæringsvideo (engelsk)</string>
   <string name="verse_not_found">Vers ble ikke funnet</string>
   <!--Errors-->
@@ -466,8 +415,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <!--History-->
   <!--Help-->
   <string name="help_nav_title">Navigasjon</string>
-  <string name="help_mynote_title">Mine notater</string>
-  <string name="help_bookmarks_title">Bokmerker</string>
   <string name="help_search_title">Søk</string>
   <string name="help_search_text">Tekstsøk kan inneholde spesialtegn som *, ?, AND, OR, NOT
         (se \"Apache Lucene - Query Parser Syntax\" for mer informasjon)
@@ -475,17 +422,25 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="help_workspaces_title">Arbeidsområder</string>
   <string name="help_hidden_features_title">Skjulte snarveier</string>
   <string name="help_window_pinning_title">Feste vindu</string>
-  <string name="help_window_pinning_text">
-        Du kan slå på festing av vindu fra innstillingsmenyen (tre punktum oppe til høyre).
-        Dersom festing av vindu er påslått, kan du vise flere festede vindu i bibelvisningen,
-        men bare ett vindu som ikke er festet. Festede vindu vises alltid først. og deretter
-        ikke-festede vindu. Muligens ønsker du å åpne bibler som festede vindu, og 
-        bibelkommentarer og kart o.l. som ikke-festede vindu. Slik kan du alltid ha mange
-        bibler åpne, og kan raskt bytte mellom kommentarer og annet materiell når du studerer.
-</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Lukk</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Jeg forstår</string>
   <string name="first_time_help_show_next_time">Vis igjen neste gang</string>
+  <string name="my_notes_abbreviation">Mine notater</string>
+  <string name="compare_description">Sammenlign oversettelser</string>
+  <string name="verse_action_copy">Kopier</string>
+  <string name="show_versenumbers">Vis versnummer</string>
+  <string name="backup_button">Sikkerhetskopi</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <!--parameters are actions (file a bug, send email)-->
+  <!--param is "please report maintainers"-->
+  <!--param is "please read what you can do"-->
+  <string name="system_items1">Mer</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Vi beklager, men vi har bare delvis brukergrensesnittoversettelse på %s språk. Det er fordi %s er helt utviklet av frivillige. Hvis du kan hjelpe til med å oversette, kan du se %s. </string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">instruksjoner for oversettere</string>
+  <string name="strongs_links">Lenker</string>
 </resources>

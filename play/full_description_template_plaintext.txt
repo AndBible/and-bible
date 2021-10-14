@@ -1,0 +1,42 @@
+{{subtitle_1}}
+
+{{paragraph_1_1}}
+
+{{paragraph_1_2}}
+
+{{paragraph_1_3}}
+
+{{subtitle_2}}
+
+{{paragraph_2_1}}
+
+ * {{feature_01}}
+ * {{feature_02}}
+ * {{feature_03}}
+ * {{feature_04}}
+ * {{feature_05}}
+ * {{feature_06}}
+ * {{feature_07}}
+ * {{feature_13}}
+ * {{feature_09}}
+ * {{feature_10}}
+ * {{feature_12}}
+
+{{subtitle_3}}
+
+{{paragraph_3_1}}
+
+ * {{contr_1}}
+ * {{contr_2}}
+ * {{contr_3}}
+ * {{contr_4}}
+
+{{paragraph_4_1 }}
+
+{{subtitle_4}}
+
+ * {{link_1}}
+ * {{link_2}}
+ * {{link_3}}
+ * {{link_4}}
+ * {{link_5}}

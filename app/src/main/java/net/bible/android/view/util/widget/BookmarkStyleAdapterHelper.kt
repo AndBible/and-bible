@@ -18,15 +18,12 @@
 package net.bible.android.view.util.widget
 
 import android.content.Context
-import android.graphics.Color
 import android.text.SpannableString
 import android.text.style.ImageSpan
-import android.text.style.UnderlineSpan
 import android.view.Gravity
 import android.widget.TextView
 import net.bible.android.activity.R
-import net.bible.android.control.bookmark.BookmarkStyle
-import net.bible.android.view.util.UiUtils.getThemeBackgroundColour
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.util.UiUtils.getThemeTextColour
 import net.bible.service.common.CommonUtils.convertDipsToPx
 import net.bible.service.common.CommonUtils.getResourceString
@@ -43,7 +40,7 @@ class BookmarkStyleAdapterHelper {
     @JvmOverloads
     fun styleView(
         view: TextView,
-        bookmarkStyle: BookmarkStyle?,
+        label: BookmarkEntities.Label,
         context: Context,
         overrideText: Boolean,
         centreText: Boolean,
@@ -64,54 +61,13 @@ class BookmarkStyleAdapterHelper {
         if (emphasize) {
             baseText = "⤇ $baseText ⤆"
         }
-        var backgroundColor = Color.WHITE
         val imgText: CharSequence
-        when (bookmarkStyle) {
-            BookmarkStyle.SPEAK -> {
-                backgroundColor = getThemeBackgroundColour(context)
-                view.setTextColor(getThemeTextColour(context))
-                imgText = addImageAtStart("* $baseText", R.drawable.hearing, context)
-                view.setText(imgText, TextView.BufferType.SPANNABLE)
-            }
-            BookmarkStyle.YELLOW_STAR -> {
-                backgroundColor = getThemeBackgroundColour(context)
-                view.setTextColor(getThemeTextColour(context))
-                imgText = addImageAtStart("* $baseText", R.drawable.goldstar16x16, context)
-                view.setText(imgText, TextView.BufferType.SPANNABLE)
-            }
-            BookmarkStyle.RED_HIGHLIGHT -> {
-                backgroundColor = BookmarkStyle.RED_HIGHLIGHT.backgroundColor
-                view.text = baseText
-            }
-            BookmarkStyle.YELLOW_HIGHLIGHT -> {
-                backgroundColor = BookmarkStyle.YELLOW_HIGHLIGHT.backgroundColor
-                view.text = baseText
-            }
-            BookmarkStyle.GREEN_HIGHLIGHT -> {
-                backgroundColor = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor
-                view.text = baseText
-            }
-            BookmarkStyle.BLUE_HIGHLIGHT -> {
-                backgroundColor = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor
-                view.text = baseText
-            }
-            BookmarkStyle.ORANGE_HIGHLIGHT -> {
-                backgroundColor = BookmarkStyle.ORANGE_HIGHLIGHT.backgroundColor
-                view.text = baseText
-            }
-            BookmarkStyle.PURPLE_HIGHLIGHT -> {
-                backgroundColor = BookmarkStyle.PURPLE_HIGHLIGHT.backgroundColor
-                view.text = baseText
-            }
-            BookmarkStyle.UNDERLINE -> {
-                backgroundColor = getThemeBackgroundColour(context)
-                view.setTextColor(getThemeTextColour(context))
-                var text = SpannableString(baseText)
-                text.setSpan(UnderlineSpan(), 0, text.length, 0)
-                view.setText(text)
-            }
+        if (label.isSpeakLabel) {
+            imgText = addImageAtStart("* $baseText", R.drawable.ic_baseline_headphones_24, context)
+            view.setText(imgText, TextView.BufferType.SPANNABLE)
+        } else {
+            view.text = baseText
         }
-        view.setBackgroundColor(backgroundColor)
         view.height = convertDipsToPx(30)
         if (centreText) {
             view.gravity = Gravity.CENTER

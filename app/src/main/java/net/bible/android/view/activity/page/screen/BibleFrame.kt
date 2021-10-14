@@ -47,7 +47,7 @@ class BibleFrame(
 ): FrameLayout(allViews.context) {
     @Inject
     lateinit var windowControl: WindowControl
-    private val bibleViewFactory: BibleViewFactory = allViews.bibleViewFactory
+    private val bibleViewFactory: BibleViewFactory get() = mainBibleActivity.bibleViewFactory
 
     init {
         DaggerMainBibleActivityComponent.builder()
@@ -72,10 +72,10 @@ class BibleFrame(
     }
 
     private val isLeftWindow
-        get() = CommonUtils.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
+        get() = mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
 
     private val isRightWindow
-        get() = CommonUtils.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
+        get() = mainBibleActivity.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
 
     private val windowRepository = windowControl.windowRepository
 
@@ -129,13 +129,13 @@ class BibleFrame(
         windowButton = button
         addView(button,
             LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                if (isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT else Gravity.TOP or Gravity.RIGHT))
+                if (isSingleWindow) Gravity.BOTTOM or Gravity.END else Gravity.TOP or Gravity.END))
     }
 
     private fun createCloseButton(window: Window): WindowButtonWidget {
         val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="
         return createTextButton(text,
-            { v -> allViews.showPopupWindow(window, v)},
+            { v -> allViews.showPopupMenu(window, v)},
             { v -> windowControl.closeWindow(window); true},
             window
         )
@@ -144,7 +144,7 @@ class BibleFrame(
     private fun createWindowMenuButton(window: Window): WindowButtonWidget {
         val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="
         return createTextButton(text,
-            { v -> allViews.showPopupWindow(window, v) },
+            { v -> allViews.showPopupMenu(window, v) },
             { v -> windowControl.minimiseWindow(window); true },
             window
         )
@@ -152,13 +152,12 @@ class BibleFrame(
 
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
-                                 window: Window?): WindowButtonWidget {
-        return WindowButtonWidget(window, windowControl, false, mainBibleActivity).apply {
+                                 window: Window?): WindowButtonWidget =
+        WindowButtonWidget(window, windowControl, false, mainBibleActivity).apply {
             this.text = text
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
         }
-    }
 
     fun updateWindowButton() {
         removeView(windowButton)

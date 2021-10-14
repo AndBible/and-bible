@@ -119,7 +119,7 @@ class ReadingPlanDatabaseOperations {
             val userPlans = readingPlanDao.userPlanCodes()
             if (userPlans != null) readingPlans.addAll(userPlans.toTypedArray())
 
-            val prefs = CommonUtils.sharedPreferences
+            val prefs = CommonUtils.realSharedPreferences
             for (planCode in readingPlans) {
                 Log.i(TAG, "Importing status for plan $planCode")
                 val start = prefs.getLong(planCode + START_EXT, 0)

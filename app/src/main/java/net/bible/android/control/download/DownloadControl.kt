@@ -25,9 +25,10 @@ import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.service.common.CommonUtils.megabytesFree
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoFactory
-import net.bible.service.font.FontControl
 import net.bible.service.sword.SwordDocumentFacade
-import org.apache.commons.lang3.StringUtils
+import org.crosswire.common.progress.JobManager
+import org.crosswire.common.progress.Progress
+import org.crosswire.common.progress.Progress.INSTALL_BOOK
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.LucidException
 import org.crosswire.common.util.Version
@@ -42,7 +43,6 @@ import java.util.*
  */
 class DownloadControl(
     private val downloadQueue: DownloadQueue,
-    private val fontControl: FontControl,
     private val swordDocumentFacade: SwordDocumentFacade)
 {
     private val documentDownloadProgressCache: DocumentDownloadProgressCache = DocumentDownloadProgressCache()
@@ -90,7 +90,6 @@ class DownloadControl(
 
         // get fonts.properties at the same time as repo list, or if not yet downloaded
         // the download happens in another thread
-        fontControl.checkFontPropertiesFile(refresh)
         availableDocs.sort()
         availableDocs
     } catch (e: Exception) {
@@ -109,7 +108,7 @@ class DownloadControl(
     }
 
     @Throws(LucidException::class)
-    fun downloadDocument(repoFactory: RepoFactory, document: Book) {
+    suspend fun downloadDocument(repoFactory: RepoFactory, document: Book) {
         Log.d(TAG, "Download requested")
 
         // ensure SBMD is fully, not just partially, loaded
@@ -125,43 +124,43 @@ class DownloadControl(
             // the download happens in another thread
             val repo = repoFactory.getRepoForBook(document)
             downloadQueue.addDocumentToDownloadQueue(document, repo)
-
-            // if a font is required then download that too
-            val font = fontControl.getFontForBook(document)
-            if (!StringUtils.isEmpty(font) && !fontControl.exists(font)) {
-                // the download happens in another thread
-                fontControl.downloadFont(font!!)
-            }
         }
+    }
+
+
+    fun cancelDownload(document: Book) {
+        val job = JobManager.findJob(INSTALL_BOOK.format(document.repoIdentity))
+        job?.cancel()
     }
 
     /** return install status - installed, not inst, or upgrade  */
     fun getDocumentStatus(document: Book): DocumentStatus {
-        val initials = document.initials
+        val id = document.repoIdentity
         if (downloadQueue.isInQueue(document)) {
-            return DocumentStatus(initials, DocumentInstallStatus.BEING_INSTALLED, documentDownloadProgressCache.getPercentDone(document))
+            return DocumentStatus(id, DocumentInstallStatus.BEING_INSTALLED, documentDownloadProgressCache.getPercentDone(document))
         }
         if (downloadQueue.isErrorDownloading(document)) {
-            return DocumentStatus(initials, DocumentInstallStatus.ERROR_DOWNLOADING, 0)
+            return DocumentStatus(id, DocumentInstallStatus.ERROR_DOWNLOADING, 0)
         }
         val installedBook = swordDocumentFacade.getDocumentByInitials(document.initials)
-        return if (installedBook != null) {
+        val differentRepo = installedBook?.repo != null && installedBook.repo != document.repo
+        return if (installedBook != null && !differentRepo) {
             // see if the new document is a later version
             try {
                 val newVersionObj = Version(document.bookMetaData.getProperty("Version"))
                 val installedVersionObj = Version(installedBook.bookMetaData.getProperty("Version"))
                 if (newVersionObj > installedVersionObj) {
-                    return DocumentStatus(initials, DocumentInstallStatus.UPGRADE_AVAILABLE, 100)
+                    return DocumentStatus(id, DocumentInstallStatus.UPGRADE_AVAILABLE, 100)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error comparing versions", e)
                 // probably not the same version if an error occurred comparing
-                return DocumentStatus(initials, DocumentInstallStatus.UPGRADE_AVAILABLE, 100)
+                return DocumentStatus(id, DocumentInstallStatus.UPGRADE_AVAILABLE, 100)
             }
             // otherwise same document is already installed
-            DocumentStatus(initials, DocumentInstallStatus.INSTALLED, 100)
+            DocumentStatus(id, DocumentInstallStatus.INSTALLED, 100)
         } else {
-            DocumentStatus(initials, DocumentInstallStatus.NOT_INSTALLED, 0)
+            DocumentStatus(id, DocumentInstallStatus.NOT_INSTALLED, 0)
         }
     }
 

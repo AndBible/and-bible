@@ -1,0 +1,180 @@
+/*!
+ * Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ *
+ * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ *
+ * And Bible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with And Bible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+.menu {
+  position: absolute;
+  [dir=ltr] & {
+    right: 0;
+  }
+  [dir=rtl] & {
+    left: 0;
+  }
+
+  top: -3px;
+  &.isText {
+    top: -15px;
+  }
+  z-index: 1;
+}
+
+.journal-button {
+  z-index: 1;
+  color: rgba(0, 0, 0, 0.5);
+  .night & {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  margin: 2pt;
+  padding: 7pt;
+  &.toggled {
+    color: #474747;
+    &.light {
+      color: #d5d5d5;
+    }
+  }
+}
+
+.note-container {
+  min-height: 2em;
+  position: relative;
+  margin: 4pt 2pt 2pt;
+  border-style: dashed;
+  border-color: rgba(0, 0, 0, 0.15);
+  .night & {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  border-width: 1pt 0 0 0;
+  border-radius: 1pt;
+  padding: 5pt 0 0 1pt;
+}
+
+.superscript {
+  position: relative;
+  vertical-align: top;
+  font-size: 70%;
+  top: -0.3em;
+}
+
+.visible-scrollbar {
+  &::-webkit-scrollbar {
+    height: 20%;
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, .3);
+    .night & {
+      background-color: rgba(255, 255, 255, .3);
+    }
+  };
+  &::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.1);
+    .night & {
+      background-color: rgba(255, 255, 255, .1);
+    }
+  }
+}
+
+$button-border-radius: 8px;
+$button-padding: 6px;
+$button-grey: #8e8e8e;
+
+.button {
+  font-size: 90%;
+  background-color: $button-grey;
+  + .toggled {
+    background-color: #474747;
+    &.light {
+      background-color: #d5d5d5;
+    }
+  }
+  &.light {
+    background-color: #bdbdbd;
+    color: black;
+    .night & {
+      background-color: #616161;
+      color: #bdbdbd;
+    }
+  }
+  &.warning {
+    background: rgba(255, 0, 0, 0.5);
+    color: black;
+  }
+  &.right {
+    align-self: end;
+  }
+  border: none;
+  color: white;
+  padding: $button-padding;
+  border-radius: $button-border-radius;
+  margin: 2pt 2pt;
+  min-width: 120px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.separator {
+  border-width: 1pt 0 0 0;
+  border-style: dashed;
+
+  height: 1pt;
+  width: calc(100% - 10pt);
+  margin: 10pt 5pt 5pt;
+  border-color: rgba(0, 0, 0, 0.15);
+  .night & {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.modal-footer-buttons {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.bookmark-buttons {
+  display: flex;
+  justify-content: flex-start;
+}
+
+$modal-header-background-color: rgba(172,172,172,1);
+$night-modal-header-background-color: rgba(69,69,69,1);
+
+$modal-content-background-color: #fefefe;
+$modal-content-background-color-night: rgb(33, 33, 33);
+
+.highlight-transition {
+  transition: background-color 0.5s ease;
+}
+
+.isHighlighted {
+  background-color: rgba(0, 0, 0, 0.1);
+  .night & {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.one-liner {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+  overflow: hidden;
+}
+body {
+  --label-text-white: white;
+  --label-text-black: #353535;
+}

@@ -3,9 +3,8 @@
 Az 'And Bible' nyílt forráskódú projekt által fejlesztett 'Bible Study' app funkciógazdag, mégis egyszerűen kezelhető, folyamatos internetkapcsolatot nem igénylő bibliatanulmányozó alkalmazás Android operációs rendszerre. Az alkalmazás nem csak egy egyszerű bibliaolvasó, hanem fejlett funkciókkal támogatja a személyes bibliatanulmányozást.
 
 Az alkalmazást bibliaolvasó emberek fejlesztik bibliaolvasó embereknek. A cél az, hogy a Biblia tanulmányozása egyszerű, szórakoztató, de alapos is legyen. A non-profit közösségi modell előnye, hogy az alkalmazás nyílt forráskódú, teljesen ingyenes és nem tartalmaz hirdetéseket. Az alkalmazást teljesen az alapoktól készítettük Androidra, így kifejezetten kicsi a mérete, erőforrásbarát és meglepően gyors.
- # You can also advertise here the best documents that are available in the app in your language.
 
-Az applikációban magyarul a Károli Biblia 1908-as revíziója és a Magyar Bibliatársulat Újfordítású Bibliájának 1990-es változata olvasható. Angolul a népszerű KJV, NASB, NET fordítások és az ugyancsak népszerű Matthew Henry és John Gill kommentárok is elérhetőek, a több száz egyéb nyelvű bibliafordítással  és kommentárral együtt.
+Az applikációban magyarul több fordítás érhető el: többek közt a Károli Biblia 1908-as revíziója, a Magyar Bibliatársulat Újfordítású Bibliájának 1990 és 2014-es változata és a Káldi Neovulgáta modern változata is. Angolul a népszerű KJV, NASB, NET fordítások és az ugyancsak népszerű Matthew Henry és John Gill kommentárok is elérhetőek, a több száz egyéb nyelvű bibliafordítással  és kommentárral együtt.
 
 <b>Bibliatanulmányozó funkciók</b>
 
@@ -17,11 +16,10 @@ Az app számos különleges funkcióval rendelkezik, amelyek az öszetett és al
  * Interaktív, egyszerű kattintással elérhető kereszthivatkozások, lábjegyzetek; a kéziratok tanulmányozása hiperlinkelt magyarázatokkal (Gill, Matthew Henry stb.), kereszthivatkozás gyűjteményekkel (Treasury of Scripture Knowledge, TSKe) és egyéb források segítségével.
  * Fejlett felolvasási képességek (a támogatott nyelveken), beszéd könyvjelzők, hogy tényleg akadálymentesen hallgathassa a Bibliát.
  * Rugalmas keresési lehetőségek
- * Könyvjelzők, színkóddal ellátható könyvjelzőcsoportok
- * Személyes jegyzetek hozzáfűzése bármelyik igeszakaszhoz
+ * Fejlett könyvjelző és kijelölési lehetőségek, személyes jegyzetek
+ * Jegyzetlapok jegyzetekkel és biblia hivatkozásokkal: igehirdetésre készülve vagy igehirdetés hallgatása közben.
  * Olvasási tervek: olvassa a bibliát előre összeállított tervek szerint, és állítson be olvasási célokat
  * Modulkönyvtár: bibliafordítások, teológiai kommentárok, szótárak, térképek és keresztény irodalom, összesen 1500 mű, 700 nyelven,  jogtisztán letölthetően a Crosswire és egyéb SWORD modulkönyvtárakból.
- * Az összes modul eredete ellenőrzött, és terjesztésük a szerzői jogok tulajdonosainak hozzájárulásával történik. Ennek hiánya miatt az alkalmazásban nem elérhetőek többek közt az angol NIV és NKJV fordítások.
  * Offline: csak a bibliamodulok letöltésekor van szükség aktív internetkapcsolatra.
 
 <b>Segítsen az alkalmazás jobbá tételében!</b>
@@ -31,7 +29,7 @@ Az And Bible nyilt forráskódú közösségi projekt. Bárkit, aki megfelelő t
  * új funkciók kifejlesztésével
  * újonnan fejlesztett funkciók tesztelésével
  * a felhasználói felület fordításainak karbantartásával és
- * és a modulkönyvtár bővítésével.
+ * a modulkönyvtár fejlesztésével: dokumentumok SWORD formátumba konvertálásával vagy a jogtulajdonosoktól a megfelelő engedélyek beszerzésével.
 
 Ha hivatásos szoftverfejlesztő vagy tesztelő, kérjük vegyen részt az alkalmazás feljlesztésében! Bővebb információ: https://git.io/JUnaj.
 

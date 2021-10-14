@@ -35,7 +35,7 @@ import java.util.*
 class KeyHistoryItem(
     val document: Book,
     val key: Key,
-    val yOffsetRatio: Float,
+    val anchorOrdinal: Int?,
     window: Window,
     override val createdAt: Date = Date(System.currentTimeMillis())
 ) : HistoryItemBase(window) {
@@ -45,7 +45,7 @@ class KeyHistoryItem(
             val desc = StringBuilder()
             try {
                 val verseDesc = CommonUtils.getKeyDescription(key)
-                desc.append(document.abbreviation).append(" ").append(verseDesc)
+                desc.append(verseDesc).append(" ").append(document.abbreviation)
             } catch (e: Exception) {
                 Log.e(TAG, "Error getting description", e)
             }
@@ -57,7 +57,7 @@ class KeyHistoryItem(
 	 * @see net.bible.service.history.HistoryItem#revertTo()
 	 */
     override fun revertTo() {
-        window.pageManager.setCurrentDocumentAndKey(document, key, yOffsetRatio=yOffsetRatio)
+        window.pageManager.setCurrentDocumentAndKey(document, key, anchorOrdinal=anchorOrdinal)
     }
 
     override fun toString(): String {

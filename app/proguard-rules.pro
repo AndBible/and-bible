@@ -87,7 +87,35 @@
     *;
 }
 
+-dontwarn javax.management.MBeanServerConnection
+
 #We need these in order to support Kotlin reflection (used at least in SpeakWidgets.kt)
 #-keepattributes *Annotation*
 #-keep class kotlin.** { *; }
 #-keep class org.jetbrains.** { *; }
+
+# Kotlinx serialization rules
+
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
+
+# kotlinx-serialization-json specific. Add this if you have java.lang.NoClassDefFoundError kotlinx.serialization.json.JsonObjectSerializer
+-keepclassmembers class kotlinx.serialization.json.** {
+    *** Companion;
+}
+-keepclasseswithmembers class kotlinx.serialization.json.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+-keep,includedescriptorclasses class net.bible.**$$serializer { *; } # <-- change package name to your app's
+-keepclassmembers class net.bible.** { # <-- change package name to your app's
+    *** Companion;
+}
+-keepclasseswithmembers class net.bible.** { # <-- change package name to your app's
+    kotlinx.serialization.KSerializer serializer(...);
+}
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
+
+
+-keep class net.bible.android.database.bookmarks.VerseRangeSerializer

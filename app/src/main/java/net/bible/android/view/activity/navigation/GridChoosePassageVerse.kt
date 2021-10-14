@@ -22,6 +22,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
@@ -29,6 +30,7 @@ import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
+import net.bible.service.common.CommonUtils
 
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -50,13 +52,15 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
     @Inject lateinit var navigationControl: NavigationControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
+    // background goes white in some circumstances if theme changes so prevent theme change
+    override val allowThemeChange = false
+
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
-        // background goes white in some circumstances if theme changes so prevent theme change
-        setAllowThemeChange(false)
         super.onCreate(savedInstanceState)
 
         buildActivityComponent().inject(this)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val bibleBookNo = intent.getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.defaultBibleBookNo)
         mBibleBook = BibleBook.values()[bibleBookNo]
@@ -72,9 +76,19 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
 
         val grid = ButtonGrid(this)
         grid.setOnButtonGridActionListener(this)
-
+        grid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(GridChoosePassageBook.BOOK_GRID_FLOW_PREFS, false)
         grid.addButtons(getBibleVersesButtonInfo(mBibleBook, mBibleChapterNo))
         setContentView(grid)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun getBibleVersesButtonInfo(book: BibleBook, chapterNo: Int): List<ButtonInfo> {

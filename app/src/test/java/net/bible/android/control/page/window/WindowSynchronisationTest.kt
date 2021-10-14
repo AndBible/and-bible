@@ -1,13 +1,15 @@
 package net.bible.android.control.page.window
 
 import net.bible.android.TestBibleApplication
+import net.bible.android.common.resource.AndroidResourceProvider
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.EventManager
-import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.service.download.RepoFactory
+import net.bible.service.common.CommonUtils
+import net.bible.service.device.speak.AbstractSpeakTests
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -24,6 +26,7 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertThat
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -43,14 +46,14 @@ class WindowSynchronisationTest {
     fun setUp() {
         eventManager = ABEventBus.getDefault()
 
-        val swordContentFactory = mock(SwordContentFacade::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
-        val myNoteDao = mock(MyNoteDAO::class.java)
 
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(), bibleTraverser, myNoteDao, windowRepository!!) }
+        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
+        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
+        CommonUtils.settings.setBoolean("first-time", false)
         windowRepository!!.initialize()
     }
 
@@ -68,6 +71,7 @@ class WindowSynchronisationTest {
 
         val mainWindow = windowControl!!.activeWindow
         val newChapterVerse = ChapterVerse(chapter, 7)
+        // TODO: these tests should change the verse with setCurrentVerseOrdinal
         mainWindow.pageManager.currentBible.currentChapterVerse = newChapterVerse
         assertThat(mainWindow.pageManager.currentBible.currentChapterVerse.verse, equalTo(7))
 
@@ -96,7 +100,7 @@ class WindowSynchronisationTest {
     fun testWindowSyncInMaxMode() { // old max mode is in practive new normal mode with no pinned windows
         // Issue #371 and #536
 
-        val window0 = windowControl!!.activeWindow
+        val window0 = windowControl!!.activeWindow.apply { isPinMode = false }
         val window1 = windowControl!!.addNewWindow(window0)
         val window2 = windowControl!!.addNewWindow(window0).apply { isSynchronised = false }
         val window3 = windowControl!!.addNewWindow(window0).apply { isSynchronised = true }

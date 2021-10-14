@@ -22,13 +22,10 @@ import net.bible.android.BibleApplication
 import net.bible.service.common.CommonUtils
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.os.Build
 import android.os.PowerManager
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import org.jetbrains.anko.configuration
 
 /** Manage screen related functions
  *
@@ -55,7 +52,7 @@ object ScreenSettings {
     private const val DARK_READING_THRESHOLD = 15
     private const val MIN_LIGHT_READING = 50
 
-	val preferences: SharedPreferences get() = CommonUtils.sharedPreferences
+	val preferences get() = CommonUtils.realSharedPreferences
 
     val isScreenOn: Boolean
         get() {
@@ -69,7 +66,7 @@ object ScreenSettings {
         autoModeAvailable && preferences.getString("night_mode_pref3", "manual") == "automatic"
     val manualMode: Boolean get() =
         preferences.getString("night_mode_pref3", "manual") == "manual"
-    private val systemMode: Boolean get() =
+    val systemMode: Boolean get() =
         systemModeAvailable && preferences.getString("night_mode_pref3", "manual") == "system"
 
     val autoModeAvailable = lightSensor.isLightSensor

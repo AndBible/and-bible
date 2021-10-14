@@ -19,6 +19,7 @@ package net.bible.android.view.activity.download
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.View
 import android.widget.Button
 import net.bible.android.activity.R
@@ -32,12 +33,20 @@ import org.crosswire.common.progress.WorkListener
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class FirstDownload : DownloadActivity() {
-    private var okayButton: Button? = null
+    lateinit var okayButton: Button
     private var okayButtonEnabled = false
     private val downloadCompletionListener: WorkListener
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         okayButton = findViewById<View>(R.id.okayButton) as Button
+        okayButton.setOnClickListener { onOkay() }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        super.onCreateOptionsMenu(menu)
+        menu.findItem(R.id.installZip).isVisible = false
+        return true
     }
 
     override fun onStart() {
@@ -53,13 +62,13 @@ class FirstDownload : DownloadActivity() {
 
     private fun enableOkayButtonIfBibles() {
         if (!okayButtonEnabled) {
-            val enable = swordDocumentFacade.bibles.size > 0
+            val enable = swordDocumentFacade.bibles.isNotEmpty()
             okayButtonEnabled = enable
-            runOnUiThread { okayButton!!.isEnabled = enable }
+            runOnUiThread { okayButton.isEnabled = enable }
         }
     }
 
-    fun onOkay(v: View?) {
+    fun onOkay() {
         val resultIntent = Intent(this, FirstDownload::class.java)
         setResult(DOWNLOAD_FINISH, resultIntent)
         finish()
@@ -67,7 +76,7 @@ class FirstDownload : DownloadActivity() {
 
     init {
         // Normal document screen but with an added OK button to facilitate forward like flow to main screen
-        setLayoutResource(R.layout.document_selection_with_ok)
+        setShowOkButtonBar(visible = true)
         downloadCompletionListener = object : WorkListener {
             override fun workProgressed(workEvent: WorkEvent) {
                 if (workEvent.job.isFinished) {

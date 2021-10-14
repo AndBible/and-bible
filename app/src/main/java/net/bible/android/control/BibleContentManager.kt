@@ -18,13 +18,12 @@
 
 package net.bible.android.control
 
-import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
-import net.bible.android.view.activity.page.screen.DocumentViewManager
 
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
 import javax.inject.Inject
@@ -35,7 +34,7 @@ import javax.inject.Inject
  */
 @MainBibleActivityScope
 class BibleContentManager @Inject
-constructor(private val documentViewManager: DocumentViewManager, private val windowControl: WindowControl) {
+constructor(private val windowControl: WindowControl) {
     init {
         PassageChangeMediator.getInstance().setBibleContentManager(this)
     }
@@ -45,33 +44,29 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
         val window = window_?: windowControl.activeWindow
         val currentPage = window.pageManager.currentPage
         val document = currentPage.currentDocument
-        val key = currentPage.key
-        val verse = window.pageManager.currentVersePage.currentBibleVerse.chapterVerse
+        val verse = window.pageManager.currentVersePage.currentBibleVerse.verse
         val book = window.pageManager.currentVersePage.currentBibleVerse.currentBibleBook
         val previousDocument = window.displayedBook
         val prevVerse = window.displayedKey
+        val isBible = BookCategory.BIBLE == document?.bookCategory
 
-        if(!forceUpdate
-            && previousDocument == document
-            && document?.bookCategory == BookCategory.BIBLE
+        val update = forceUpdate  || previousDocument != document
+
+        if(update) {
+            window.updateText(true)
+            return
+        }
+        if( isBible
             && prevVerse is VerseRange
             && prevVerse.start?.book == book
             && window.hasChapterLoaded(verse.chapter)
-        )
-        {
-            window.bibleView?.scrollOrJumpToVerseOnUIThread(ChapterVerse(verse.chapter, verse.verse))
+        ) {
+            val originalKey = window.pageManager.currentBible.originalKey
+            window.bibleView?.scrollOrJumpToVerse(originalKey ?: verse, window.restoreOngoing)
             PassageChangeMediator.getInstance().contentChangeFinished()
+            return
         }
-        else {
-            window.updateText(notifyLocationChange = true)
-        }
-
-        window.displayedBook = document
-        window.displayedKey = key
-    }
-
-    companion object {
-
-        private val TAG = "BibleContentManager"
+        if(prevVerse == verse) return
+        window.updateText(notifyLocationChange = true)
     }
 }

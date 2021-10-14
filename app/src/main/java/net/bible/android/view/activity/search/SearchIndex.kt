@@ -19,14 +19,13 @@
 package net.bible.android.view.activity.search
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.core.view.isVisible
-import kotlinx.android.synthetic.main.search_index.*
 
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SearchIndexBinding
+import net.bible.android.control.page.PageControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 
@@ -41,7 +40,10 @@ import javax.inject.Inject
  */
 class SearchIndex : CustomTitlebarActivityBase() {
 
+    private lateinit var binding: SearchIndexBinding
+
     @Inject lateinit var searchControl: SearchControl
+    @Inject lateinit var pageControl: PageControl
 
     private val documentToIndex: Book?
         get() {
@@ -59,25 +61,26 @@ class SearchIndex : CustomTitlebarActivityBase() {
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
-        buildActivityComponent().inject(this)
         super.onCreate(savedInstanceState)
+        buildActivityComponent().inject(this)
         Log.i(TAG, "Displaying SearchIndex view")
-        setContentView(R.layout.search_index)
+        binding = SearchIndexBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val hasIndex = swordDocumentFacade.hasIndex(documentToIndex)
-        indexCreationRequired.text = getString(if(hasIndex) R.string.rebuild_index_for else R.string.create_index_for, documentToIndex!!.name)
-        createButton.text = getString(if(hasIndex) R.string.rebuild_index_button else R.string.index_create)
+        binding.indexCreationRequired.text = getString(if(hasIndex) R.string.rebuild_index_for else R.string.create_index_for, documentToIndex!!.name)
+        binding.createButton.text = getString(if(hasIndex) R.string.rebuild_index_button else R.string.index_create)
+        binding.createButton.setOnClickListener { onIndex() }
+        binding.cancelButton.setOnClickListener { finish() }
 
         Log.d(TAG, "Finished displaying Search Index view")
     }
-
-    fun onCancel(v: View) = finish()
 
     /** Indexing is very slow
      *
      * @param v
      */
-    fun onIndex(v: View) {
+    fun onIndex() {
         Log.i(TAG, "CLICKED")
         try {
             // start background thread to create index

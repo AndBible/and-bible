@@ -1,32 +1,42 @@
-And Bible je open-source, offlin a úplne bezplatný biblický program bez reklamy, aby umožnil čo najväčšiemu množstvu ľudí všetkých krajín čítať, počúvať a študovať Sväté Písmo tak ľahko ako to len ide a tiež s čo najväčším osobným požehnaním.
+<b>Účinný nástroj na štúdium Biblie</b>
 
-Preklady Biblie, komentáre, Teologické slovníky, Mapy, kresťanské knihy vo viac ako 700 jazykoch.
-Offline pre všetko po úvodnom stiahnutí vrátane vyhľadávania, poznámok, komentárov, atď.
-* Interface in multiple languages
-Rôzne plány čítania Biblie
-Úplne zadarmo, žiadne reklamy, žiadne otravné emaily.
-* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
-29 biblických komentárov
-Rozsiahly slovník a zbierka kresťanských kníh.
-Všetky dokumenty sú legálne distribuované (dôvod prečo verzie ako NKJV a NIV nie sú dostupné)
-Podpora Strongových čísel pre analýzu slov gréckeho a hebrejského textu.
-* Multiple workspaces with split screen
-Zapisuj si osobné poznámky
-Prispôsobivé vyhľadávanie
-Záložky
-Mapy biblických zemí
-Vypočuj si každý dokument čítaný pre teba
-Automatické posúvanie, automatický režim deň/noc
-Porovnávaj všetky biblické preklady priamo na jednej obrazovke
-Jedna z najrýchlejších aplikácií pre prácu s Bibliou pre Android
-Open source - možnosť vylepšťi alebo zmeniť zdrojový kód
-Použi silný JSword engine z biblického projektu CrossWire
+Aplikácia Bible Study od And Bible Open Source Project je výkonná, ale ľahko použiteľná offline aplikácia na štúdium Biblie pre Android. Aplikácie nemá za cieľ len sprostredkovať čítanie Biblie, ale je pokročilým nástrojom na hlboké osobné štúdium Biblie.
 
-My všetci sme dobrovoľníci; neposielame blbé emaily; nepodporujeme otravné reklamy; nepýtame finančnú podporu; nie je potrebná registrácia; And Bible nezbiera žiadne údaje z vášho telefónu.
+Táto aplikácia je vyvinutá čitateľmi Biblie pre čitateľov Biblie. Cieľom je pomôcť vám urobiť štúdium Biblie pohodlným, hlbokým a zábavným. Najlepšie na tomto neziskovom komunitnom projekte je, že je s otvoreným kódom, úplne zadarmo a neobsahuje žiadne reklamy. Keďže bol vyvinutý od základu pre Android, je malá na sťahnutie, a preto aj veľmi efektívna a pozoruhodne rýchla.
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+Niekoľko populárnych verzií Biblie (z mnohých dostupných) je KJV, NASB, NET a tiež obľúbené komentáre ako Matthew Henry a John Gill.
 
-<b>Poznámky</b>
-Postavte páčik na Facebooku: https://www.facebook.com/AndBible/
-Odkaz na často kladené otázky FAQ: https://github.com/AndBible/and-bible/wiki/FAQ
-Stránka projektu na GitHub: https://github.com/AndBible/and-bible
+<b>Výkonné funkcie pre štúdium Biblie</b>
+
+Aplikácia má mnoho podnetných a originálnych funkcií, vďaka ktorým je komplexná a hlboká skúsenosť so štúdiom Biblie hladšia ako kedykoľvek predtým. Najvýznamnejšie funkcie sú nasledujúce:
+
+ * Oddelené zobrazenia textu, ktoré umožňujú porovnávať preklady a konzultovať komentáre
+ * Pracovné prostredia umožňujúce vlastné nastavenia pre štúdium Biblie
+ * Integrácia Strongových čísel umožňuje rozbor gréckych a hebrejských slov
+ * Prepojené krížové odkazy, poznámky pod čiarou a dokumenty; skok na krížové referencie poznámky pod čiarou jednoduchým klepnutím na odkaz; vykonanie hĺbkového štúdium Písma pomocou hypertextových odkazov na komentáre  (Gill, Matthew Henry atď.), zbierky krížových odkazov  (Konkordancia Treasure of Scripture Knowledge, TSKe) a iné zdroje.
+ * Pokročilé čítanie so záložkami umožňujúcimi plynulé počúvanie Biblie
+ * Flexibilné vyhľadávanie
+ * Pokročilý systém záložiek a zvýraznenia textu s osobnými poznámkami.
+ * Študijné zložky pre pridávanie poznámok a referencií na Bibliu pri počúvaní kázní.
+ * Plány čítanie: nastavte si ciele pre prečítanie Biblie
+ * Rozsiahla knižnica dokumentov: preklady Biblie, teologické komentáre, slovníky, mapy a kresťanské knihy v celkovom počte viac ako 1500 dokumentov vo viac ako 700 jazykoch, legálne distribuované spoločnosťou Crosswire a inými archívmi SWORD.
+ * Offline: internet potrebujete iba na stiahnutie dokumentov.
+
+<b>Urobme spolu najlepšiu aplikáciu pre Bibliu!</b>
+
+A Biblia je komunitný projekt s otvoreným zdrojovým kódom. V praxi to znamená, že ktokoľvek s vhodnými zručnosťami môže a je povzbudzovaný, aby prispel k projektu tým, že:
+
+ * vyvinie nové vlastnosti/funkcie
+ * testovaním ešte nezverejnených vlastností,
+ * udržiavaním aktuálneho prekladu používateľského rozhrania, a
+ * pomocou pri rozširovaní knižnice modulov získavaním povolení od držiteľov autorských práv alebo konvertovaní dokumentov do formátu SWORD.
+
+Ak ste profesionálny softvérový inžinier alebo tester, zvážte zapojenie sa do projektu. Ďalšie informácie o tom, ako prispieť, nájdete na stránke https://git.io/JUnaj.
+
+<b>Odkazy</b>
+
+ * Domovská stránka: https://andbible.github.io
+ * And Bible na Facebooku: https://www.facebook.com/AndBible/
+ * Náš Youtube kanál: https://www.youtube.com/c/AndBible
+ * Často kladené otázky: https://git.io/JJm8E
+ * Projekt na Githube: https://github.com/AndBible/and-bible

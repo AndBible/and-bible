@@ -1,0 +1,81 @@
+openMyNotes: Otwórz w moich notatkach
+openStudyPad: Otwórz w bloczku notatek (%s)
+noteText: Przypis (%s)
+noteTextWithoutType: Przypisy
+crossReferenceText: Odsyłacze wewnętrzne
+findAllOccurrences: Pokaż wszystkie
+reportError: Zgłoś błąd
+errorTitle: Wystąpił błąd
+warningTitle: Ostrzeżenie
+normalTitle: Informacja
+footnoteTypeUndefined: Nieznany rodzaj
+footnoteTypeStudy: studium
+footnoteTypeExplanation: wyjaśnienie
+footnoteTypeVariant: wariant
+footnoteTypeAlternative: alternatywa
+footnoteTypeTranslation: tłumaczenie
+clearLog: Wymaż dziennik błędów
+editNote: Edytuj
+editNotePlaceholder: Edytuj notatkę
+editTextPlaceholder: "Stuknij, aby edytować"
+inputPlaceholder: Pisz tutaj
+inputReference: Wprowadź odsyłacz biblijny
+invalidReference: Nie znaleziono wersetu
+assignLabels: Etykiety
+bookmarkAccurate: Zakładka utworzona w %s
+bookmarkInaccurate: "Brak informacji o księdze w zakładce, wyświetlanie zawartości w: %s."
+defaultBook: domyślny dokument Biblii
+ok: Potwierdź
+yes: "Tak"
+ambiguousSelection: "Co chcesz zrobić?"
+cancel: Anuluj
+removeBookmarkConfirmationTitle: "Czy usunąć zakładkę?"
+removeBookmarkConfirmation: "Czy na pewno chcesz usunąć tę zakładkę?"
+closeModal: Zamknij
+createdAt: "Utworzono: %s"
+lastUpdatedOn: "Zmodyfikowano: %s"
+strongsLink: Definicja Stronga (%s)
+morphLink: Kod morfologiczny (%s)
+strongsAndMorph: Definicja i morfologia
+studyPadLink: Otwórz bloczek notatek
+externalLink: Otwórz odsyłacz zewnętrzny
+referenceLink: Otwórz odsyłacz wewnętrzny
+openFootnote: Otwórz przypis
+openBookmark: Otwórz zakładkę (%s)
+noMyNotesTitle: Brak notatki w tym rozdziale.
+noMyNotesDescription: >
+  Najpierw utwórz zakładki w dokumencie Biblii. Utworzone zakładki pojawią się tutaj i będzie można dodać do nich osobiste notatki.
+emptyStudyPad: >
+  Pusty bloczek notatek. Aby rozpocząć zapełnianie go, utwórz tutaj notatkę lub utwórz zakładkę z etykietą powiązaną z tym bloczkiem.
+studyPadModalTitle: Edytuj wpis
+doYouWantToDeleteEntry: "Czy usunąć ten wpis bloczka notatek?"
+removeStudyPadConfirmationTitle: "Czy usunąć wpis bloczka notatek?"
+dragHelp: "Przeciągnij, aby zmienić kolejność"
+saved: zapisano
+openAll: Otwórz wszystkie odsyłacze
+editBookmarkPlaceholder: "Stuknij, aby edytować notkę dla tej zakładki"
+onlyLabel: Tylko etykietę
+wholeBookmark: Całą zakładkę
+otherNoteText: inna notatka
+assignLabelsMenuEntry: Przypisz etykiety
+assignLabelsMenuEntry1: Wybierz lub edytuj etykiety…
+jumpToStudyPad: Przejdź do bloczku notatek
+setAsPrimaryLabel: Ustaw jako główną etykietę
+removeBookmarkLabel: Usuń etykietę
+addBookmarkLabel: Dodaj etykietę
+favouriteLabels: Ulubione etykiety
+recentLabels: Ostatnie etykiety
+frequentlyUsedLabels: Często używane etykiety
+bookmarkLabels: Etykiety zakładek
+refParserHelp: "Zainstaluj moduł %s, aby korzystać z odsyłaczy w innym języku niż angielski."
+openDownloads: Otwórz pobierania
+verseShare: Udostępnij
+verseCompare: Porównaj
+verseNote: Notatka
+verseMyNotes: Moje notatki
+verseSpeak: Odsłuchaj
+verseShareLong: Udostępnij werset
+verseCompareLong: Porównaj werset
+verseNoteLong: Napisz notatkę
+verseSpeakLong: Odsłuchaj od tego wersetu
+addBookmark: Zakładka

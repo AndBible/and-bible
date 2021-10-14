@@ -1,0 +1,82 @@
+openMyNotes: Менің жазбаларымнан ашыңыз
+openStudyPad: Оқу тақтасында ашу (%s)
+noteText: Сілтемелер (%s)
+noteTextWithoutType: Ескертпелер
+crossReferenceText: Айқас сілтемелер
+findAllOccurrences: Барлық жағдайларды табу
+reportError: Қате туралы хабарлау
+errorTitle: Қате пайда болды
+warningTitle: Ескерту
+normalTitle: "Өтінеміз, назар аударыңыз"
+footnoteTypeUndefined: Анықталмаған түрі
+footnoteTypeStudy: Оқу
+footnoteTypeExplanation: Түсініктеме
+footnoteTypeVariant: Нұсқа
+footnoteTypeAlternative: Балама
+footnoteTypeTranslation: Аударма
+clearLog: Қате журналын тазарту
+editNote: Редакциялау
+editNotePlaceholder: Жазбаны өңдеу
+editTextPlaceholder: Мәтінді өңдеу үшін басыңыз
+inputPlaceholder: Осында жазыңыз
+inputReference: Киелі Кітапқа сілтеме енгізіңіз
+invalidReference: Аят табылмады
+assignLabels: Жапсырмалар
+bookmarkAccurate: Бетбелгі %s құрылды
+bookmarkInaccurate: "Бетбелгі туралы ақпарат сақталмайды, мазмұны %s көрсетіледі."
+defaultBook: Киелі Кітаптың әдепкі құжаты
+ok: Жарайды
+yes: "Иә"
+ambiguousSelection: "Қандай шара қолданғыңыз келеді?"
+cancel: Болдырмау
+removeBookmarkConfirmationTitle: "Бетбелгі жойылсын ба?"
+removeBookmarkConfirmation: "Бұл бетбелгіні шынымен жойғыңыз келе ме?"
+closeModal: Жабу
+createdAt: "Құрылды: %s"
+lastUpdatedOn: "Соңғы жаңартылу: %s"
+strongsLink: Strong-тың анықтамасы (%s)
+morphLink: Морфологиялық код (%s)
+strongsAndMorph: Анықтама және Морфология
+studyPadLink: Оқу тақтасын ашу
+externalLink: Сыртқы сілтемені ашу
+referenceLink: Анықтамалық сілтемені ашу
+openFootnote: Сілтемені ашу
+openBookmark: Бетбелгіні ашу (%s)
+noMyNotesTitle: Бұл тарауға менің жазбаларым жоқ.
+noMyNotesDescription: >2-
+
+  Киелі кітап құжатында бетбелгілер жасауды бастау. Бетбелгілер осы жерде пайда болады және сіз оларға жеке жазбаларыңызды қоса аласыз.
+emptyStudyPad: >
+  Оқу тақтасы бос. Осы оқу тақтасына мәтін енгізулерін жасау арқылы немесе осы оқу тақтасына сәйкес келетін белгісі бар бетбелгілер жасау арқылы қосуды бастаңыз.
+studyPadModalTitle: Оқу тақтасының жазбасын өңдеу
+doYouWantToDeleteEntry: "Бұл оқу тақтасының жазбасы жойылсын ба?"
+removeStudyPadConfirmationTitle: "Оқу тақтасының жазбасы алып тасталынсын ба?"
+dragHelp: Ретті өзгерту үшін орнын ауыстырыңыз
+saved: сақтау
+openAll: Барлық сілтемелерді ашыңыз
+editBookmarkPlaceholder: Осы бетбелгіге арналған Менің жазбаларымды өңдеу үшін басыңыз
+onlyLabel: Тек белгі
+wholeBookmark: Толық бетбелгі
+otherNoteText: Басқа ескерту
+assignLabelsMenuEntry: Таңбаларды белгілеу
+assignLabelsMenuEntry1: Белгілерді таңдау немесе өңдеу…
+jumpToStudyPad: Оқу тақтасына өту
+setAsPrimaryLabel: Негізгі белгі ретінде орнату
+removeBookmarkLabel: Белгіні алып тастаңыз
+addBookmarkLabel: Белгіні қосыңыз
+favouriteLabels: Таңдаулы белгілер
+recentLabels: Соңғы белгілер
+frequentlyUsedLabels: Жиі қолданылатын белгілер
+bookmarkLabels: Бетбелгі белгілері
+refParserHelp: Ағылшын тілінен басқа тілдерде сілтемелерді пайдалану үшін %s модулін орнатыңыз.
+openDownloads: Қосымша жүктеулерге өтіңіз
+verseShare: Бөлісу
+verseCompare: Салыстыр
+verseNote: Ескерту
+verseMyNotes: Менің Ескертпелерім
+verseSpeak: Дауыстап оқу
+verseShareLong: Осы аятпен бөлісу
+verseCompareLong: Аятты салыстыру
+verseNoteLong: Жазба жазу
+verseSpeakLong: Осы аятты тыңдай бастау
+addBookmark: Бетбелгі

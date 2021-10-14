@@ -1,0 +1,66 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: Štúdium Biblie od And Bible Open Source Project
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Čítajte Bibliu, študujte komentáre, slovníky alebo čítajte knihy offline."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: "Účinný nástroj na štúdium Biblie "
+paragraph_1_1: >
+  Aplikácia Bible Study od And Bible Open Source Project je výkonná, ale ľahko použiteľná offline aplikácia na štúdium Biblie pre Android. Aplikácie nemá za cieľ len sprostredkovať čítanie Biblie, ale je pokročilým nástrojom na hlboké osobné štúdium Biblie.
+paragraph_1_2: >
+  Táto aplikácia je vyvinutá čitateľmi Biblie pre čitateľov Biblie. Cieľom je pomôcť vám urobiť štúdium Biblie pohodlným, hlbokým a zábavným. Najlepšie na tomto neziskovom komunitnom projekte je, že je s otvoreným kódom, úplne zadarmo a neobsahuje žiadne reklamy. Keďže bol vyvinutý od základu pre Android, je malá na sťahnutie, a preto aj veľmi efektívna a pozoruhodne rýchla.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Niekoľko populárnych verzií Biblie (z mnohých dostupných) je KJV, NASB, NET a tiež obľúbené komentáre ako Matthew Henry a John Gill.
+subtitle_2: Výkonné funkcie pre štúdium Biblie
+paragraph_2_1: >
+  Aplikácia má mnoho podnetných a originálnych funkcií, vďaka ktorým je komplexná a hlboká skúsenosť so štúdiom Biblie hladšia ako kedykoľvek predtým. Najvýznamnejšie funkcie sú nasledujúce:
+feature_01: "Oddelené zobrazenia textu, ktoré umožňujú porovnávať preklady a konzultovať komentáre"
+feature_02: Pracovné prostredia umožňujúce vlastné nastavenia pre štúdium Biblie
+feature_03: Integrácia Strongových čísel umožňuje rozbor gréckych a hebrejských slov
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Prepojené krížové odkazy, poznámky pod čiarou a dokumenty; skok na krížové referencie poznámky pod čiarou jednoduchým klepnutím na odkaz; vykonanie hĺbkového štúdium Písma pomocou hypertextových odkazov na komentáre  ({{commentary_examples}}), zbierky krížových odkazov  ({{cross_reference_examples}}) a iné zdroje.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry atď. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Konkordancia Treasure of Scripture Knowledge, TSKe"
+feature_05: Pokročilé čítanie so záložkami umožňujúcimi plynulé počúvanie Biblie
+feature_06: Flexibilné vyhľadávanie
+feature_07: Pokročilý systém záložiek a zvýraznenia textu s osobnými poznámkami.
+feature_09: >
+  Plány čítanie: nastavte si ciele pre prečítanie Biblie 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Rozsiahla knižnica dokumentov: preklady Biblie, teologické komentáre, slovníky, mapy a kresťanské knihy v celkovom počte viac ako {{total_documents}} dokumentov vo viac ako {{total_languages}} jazykoch, legálne distribuované spoločnosťou Crosswire a inými archívmi SWORD. 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  Pôvod všetkých dokumentov sa skúma, aby sa zabezpečilo, že všetky dokumenty môžu byť legálne distribuované alebo že držiteľ autorských práv udelil povolenie. To je tiež dôvod, prečo táto aplikácia neobsahuje dokumenty ako {{unavailable_documents}}.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV a NKJV"
+feature_12: >
+  Offline: internet potrebujete iba na stiahnutie dokumentov.
+feature_13: >
+  Študijné zložky pre pridávanie poznámok a referencií na Bibliu pri počúvaní kázní.
+subtitle_3: Urobme spolu najlepšiu aplikáciu pre Bibliu!
+paragraph_3_1: >
+  A Biblia je komunitný projekt s otvoreným zdrojovým kódom. V praxi to znamená, že ktokoľvek s vhodnými zručnosťami môže a je povzbudzovaný, aby prispel k projektu tým, že:
+contr_1: vyvinie nové vlastnosti/funkcie
+contr_2: "testovaním ešte nezverejnených vlastností,"
+contr_3: "udržiavaním aktuálneho prekladu používateľského rozhrania, a"
+contr_4: "pomocou pri rozširovaní knižnice modulov získavaním povolení od držiteľov autorských práv alebo konvertovaní dokumentov do formátu SWORD. "
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Ak ste profesionálny softvérový inžinier alebo tester, zvážte zapojenie sa do projektu. Ďalšie informácie o tom, ako prispieť, nájdete na stránke {{how_to_contribute_url}}."
+subtitle_4: Odkazy
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Domovská stránka: {{homepage_url}}
+link_2: >2
+   And Bible na Facebooku: {{facebook_url}}
+link_3: >
+  Náš Youtube kanál: {{youtube_url}}
+link_4: >
+  Často kladené otázky: {{faq_url}}
+link_5: >
+  Projekt na Githube: {{github_url}}

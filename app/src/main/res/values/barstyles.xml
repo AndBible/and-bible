@@ -9,11 +9,10 @@
     	ActionBar background colour also set in DefaultActionBarManager.java
     	For basic override description see http://developer.android.com/training/material/theme.html#ColorPalette
     -->
-	<style name="AppThemeDay" parent="@style/BaseAppThemeDay"/>
+	<style name="AppTheme" parent="@style/BaseAppTheme"/>
 
-	<style name="BaseAppThemeDay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+	<style name="BaseAppTheme" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
 		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
-		<item name="colorAccent">@color/accent_day</item>
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
 		<!-- Prevent sub menu items (e.g. Admin sub-menu) appearing as 'white on white' on Android 2.3 -->
 		<item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
@@ -29,46 +28,19 @@
 		<item name="barWindowButtonBackgroundColor">@color/bar_window_button_background_colour</item>
 		<item name="barWindowButtonActiveBackgroundColor">@color/bar_window_button_background_colour_visible</item>
 
-		<item name="bibleReferenceOverlayBackgroundColor">#DEEEEEEE</item>
+		<item name="bibleReferenceOverlayBackgroundColor">@color/bible_reference_overlay</item>
 
 		<item name="speakTransportBackground">#FFFFFF</item>
 		<item name="transportBarHeight">75dp</item>
+		<item name="windowButtonHeight">40dp</item>
 		<item name="toolbarTextColor">@color/white</item>
 
 		<item name="separatorBackgroundColor">#B1B1B1</item>
 		<item name="separatorActiveBackgroundColor">#FF6B6B6B</item>
 		<item name="separatorDragBackgroundColor">@color/yellow_500</item>
-
-		<item name="android:navigationBarColor" tools:targetApi="o_mr1">@color/black</item>
-		<item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@color/nav_bar_divider_grey</item>
-
-	</style>
-
-	<style name="AppThemeNight" parent="@style/BaseAppThemeNight"/>
-
-	<style name="BaseAppThemeNight" parent="@style/Theme.AppCompat">
-		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
-		<item name="colorAccent">@color/accent_night</item>
-		<item name="colorPrimary">@color/actionbar_background_night</item>
-		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
-		<item name="transportButtonColor">#d4d4d4</item>
-
-		<item name="windowButtonActiveStrokeColor">@color/grey_500</item>
-		<item name="windowButtonStrokeColor">#00FFFFFF</item>
-
-		<item name="windowButtonActiveBackgroundColor">#9b6e6e6e</item>
-		<item name="windowButtonBackgroundColor">#9B313131</item>
-
-		<item name="bibleReferenceOverlayBackgroundColor">#DE3A3A3A</item>
-		<item name="speakTransportBackground">#000000</item>
-		<item name="transportBarHeight">75dp</item>
-		<item name="toolbarTextColor">@color/toolbar_text_color</item>
-		<item name="separatorBackgroundColor">#333333</item>
-		<item name="separatorActiveBackgroundColor">#838383</item>
-		<item name="separatorDragBackgroundColor">@color/yellow_500</item>
-		<item name="android:navigationBarColor" tools:targetApi="o_mr1">@color/black</item>
-		<item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@color/grey_800</item>
-
+		<item name="android:navigationBarColor" tools:targetApi="o_mr1">@color/navigation_bar</item>
+		<item name="android:textAlignment">gravity</item>
+		<item name="android:textDirection">locale</item>
 	</style>
 
 
@@ -83,26 +55,21 @@
 	</style>
 	<style name="MainBibleActionBar">
 		<item name="actionOverflowButtonStyle">@style/OptionsButtonsStyle</item>
+		<item name="android:background">@color/actionbar_background</item>
 	</style>
 	<style name="MainBibleActionBarButtons" parent="MainBibleActionBar">
 		<item name="android:textColorSecondary">@color/white</item>
 		<item name="android:textColorPrimary">@color/white</item>
 	</style>
 
-	<style name="MainBibleViewTheme" parent="AppThemeDay">
-		<item name="windowActionBar">false</item>
-		<item name="windowNoTitle">true</item>
-		<item name="windowActionModeOverlay">true</item>
-		<item name="actionBarSize">@dimen/toolbar_height</item>
-	</style>
-	<style name="MainBibleViewNightTheme" parent="AppThemeNight">
+	<style name="MainBibleViewTheme" parent="BaseAppTheme">
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
 		<item name="windowActionModeOverlay">true</item>
 		<item name="actionBarSize">@dimen/toolbar_height</item>
 	</style>
 
-	<style name="NavigationViewTextStyle">
+	<style name="NavigationViewTextStyle" parent="BaseAppTheme">
 		<item name="android:ellipsize">end</item>
 	</style>
 
@@ -110,12 +77,12 @@
 	<style name="BibleTitle1" parent="ActionBarTitle">
 		<item name="android:textColor">?attr/toolbarTextColor</item>
 		<item name="android:textSize">15sp</item>
-		<item name="android:gravity">bottom|left</item>
+		<item name="android:gravity">bottom|start</item>
 	</style>
 	<style name="BibleTitle2" parent="ActionBarTitle">
 		<item name="android:textColor">?attr/toolbarTextColor</item>
 		<item name="android:textSize">10sp</item>
-		<item name="android:gravity">top|left</item>
+		<item name="android:gravity">top|start</item>
 	</style>
 	<style name="MyActionButton" parent="@style/Widget.AppCompat.ActionButton">
 		<item name="android:tint">?attr/toolbarTextColor</item>
@@ -145,6 +112,5 @@
 	</style>
 
 	<!--Make sure the passage chooser grids have a dark background -->
-	<style name="GridChoosePassageTheme" parent="AppThemeNight">
-	</style>
+	<style name="GridChoosePassageTheme" parent="@style/Theme.AppCompat"/>
 </resources>

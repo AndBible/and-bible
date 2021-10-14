@@ -17,13 +17,14 @@
  */
 package net.bible.android.control.page
 
-import android.app.Activity
+import android.content.Intent
 import android.view.Menu
 import net.bible.android.activity.R
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 
 /** Reference to current Map shown by viewer
@@ -31,17 +32,15 @@ import org.crosswire.jsword.passage.Key
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentMapPage internal constructor(
-    swordContentFacade: SwordContentFacade,
     swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-    ) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade, pageManager),
+    ) : CachedKeyPage(false, swordDocumentFacade, pageManager),
     CurrentPage
 {
 
-    override val bookCategory = BookCategory.MAPS
+    override val documentCategory = DocumentCategory.MAPS
 
-    override val keyChooserActivity: Class<out Activity?>?
-        get() = ChooseMapKey::class.java
+    override fun startKeyChooser(context: ActivityBase) = context.startActivityForResult(Intent(context, ChooseMapKey::class.java), STD_REQUEST_CODE)
 
     /** set key without notification
      *
@@ -61,14 +60,6 @@ class CurrentMapPage internal constructor(
         getKeyPlus(-1).let {
 			setKey(it)
 		}
-    }
-
-	override fun updateOptionsMenu(menu: Menu) {
-        super.updateOptionsMenu(menu)
-        val menuItem = menu.findItem(R.id.bookmarksButton)
-        if (menuItem != null) {
-            menuItem.isEnabled = false
-        }
     }
 
     override val isSingleKey = true

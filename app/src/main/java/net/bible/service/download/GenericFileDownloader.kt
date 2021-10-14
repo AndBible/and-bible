@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils.getResourceString
+import net.bible.service.common.CommonUtils.settings
 import net.bible.service.common.FileManager.copyFile
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
@@ -35,9 +36,9 @@ import org.crosswire.jsword.JSMsg
 import org.crosswire.jsword.book.install.InstallException
 import java.io.File
 import java.io.IOException
-import java.lang.ArithmeticException
 import java.net.URI
 import java.util.*
+import javax.net.ssl.HttpsURLConnection
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -87,7 +88,26 @@ class GenericFileDownloader(
         }
     }
 
+    private fun lastUpdated(uri: URI): Long? =
+        try {
+            val httpsURLConnection = uri.toURL().openConnection() as HttpsURLConnection
+            val lastModified: Long = httpsURLConnection.lastModified
+            httpsURLConnection.disconnect()
+            lastModified
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not check last modified time for $uri")
+            null
+        }
+
     suspend fun downloadFile(source: URI, target: File, description: String, reportError: Boolean = true) = withContext(Dispatchers.IO) {
+
+        val lastUpdated = lastUpdated(source)
+        if(target.canRead()) {
+            val lastChecked = settings.getLong("last-downloaded-${source}", 0)
+            if (lastUpdated != null && lastUpdated <= lastChecked) return@withContext;
+        }
+        settings.setLong("last-downloaded-${source}", lastUpdated)
+
         val jobName = JSMsg.gettext("Downloading : {0}", target.name + " " + description)
         val job = JobManager.createJob(jobName)
 

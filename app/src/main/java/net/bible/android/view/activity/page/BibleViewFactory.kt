@@ -18,16 +18,15 @@
 
 package net.bible.android.view.activity.page
 
+import android.util.Log
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
-import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControlFactory
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
-import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
-import net.bible.android.view.activity.page.actionmode.VerseMenuCommandHandler
 import java.lang.ref.WeakReference
 
 import javax.inject.Inject
@@ -46,11 +45,14 @@ class BibleViewFactory @Inject constructor(
     private val bibleKeyHandler: BibleKeyHandler,
     private val linkControl: LinkControl,
     private val bookmarkControl: BookmarkControl,
-    private val myNoteControl: MyNoteControl
+    private val downloadControl: DownloadControl,
 ) {
 
     private val windowBibleViewMap: MutableMap<Long, BibleView> = HashMap()
-
+    init {
+        Log.d(TAG, "New BibleViewFactory ${this.hashCode()}")// ${Log.getStackTraceString(Exception())}")
+    }
+    
     fun getOrCreateBibleView(window: Window): BibleView {
         var bibleView = windowBibleViewMap[window.id]?.also {
             // Update window reference (window objects are created when loading from db, but id's are same)
@@ -62,13 +64,9 @@ class BibleViewFactory @Inject constructor(
         if (bibleView == null) {
             val pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window)
             bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler,
-                pageControl, pageTiltScrollControl, linkControl)
-            val bibleViewVerseActionModeMediator = VerseActionModeMediator(mainBibleActivity, bibleView, pageControl,
-                VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl)
-            val bibleInfiniteScrollPopulator = BibleInfiniteScrollPopulator(bibleView)
-            val verseCalculator = VerseCalculator()
-            val bibleJavascriptInterface = BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl,
-                verseCalculator, bibleInfiniteScrollPopulator, bibleView)
+                pageControl, pageTiltScrollControl, linkControl, bookmarkControl, downloadControl)
+            val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
+            Log.d(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")//  ${Log.getStackTraceString(Exception())}")
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
             bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()
@@ -84,7 +82,8 @@ class BibleViewFactory @Inject constructor(
     }
 
     fun clear() {
-        windowBibleViewMap.forEach { it ->
+        Log.d(TAG, "clear")
+        for (it in windowBibleViewMap) {
             val bw = it.value
             bw.onDestroy = null
             bw.doDestroy()

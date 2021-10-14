@@ -1,0 +1,81 @@
+openMyNotes: 在我的筆記開啟
+openStudyPad: 在 (%s) 開啟個人筆記
+noteText: 註腳 (%s)
+noteTextWithoutType: 註腳
+crossReferenceText: 交叉對照
+findAllOccurrences: 查找所有
+reportError: 回報錯誤
+errorTitle: 發生錯誤
+warningTitle: 警告
+normalTitle: 請注意
+footnoteTypeUndefined: 未定義類型
+footnoteTypeStudy: 學習
+footnoteTypeExplanation: 解釋
+footnoteTypeVariant: 變化型
+footnoteTypeAlternative: 替代
+footnoteTypeTranslation: 翻譯
+clearLog: 清除錯誤記錄
+editNote: 編輯
+editNotePlaceholder: 編輯筆記
+editTextPlaceholder: 按一下編輯文字
+inputPlaceholder: 在此輸入
+inputReference: 輸入聖經參考
+invalidReference: 找不到節
+assignLabels: 標籤
+bookmarkAccurate: 書籤已在 %s 建立
+bookmarkInaccurate: 書籤並未儲存；內容正在 %s display 。
+defaultBook: 預設聖經文件
+ok: 確定
+yes: "是"
+ambiguousSelection: 你希望進行什麼動作？
+cancel: 取消
+removeBookmarkConfirmationTitle: 移除書籤？
+removeBookmarkConfirmation: 你確定要移除此書籤？
+closeModal: 關閉
+createdAt: "已建立：%s"
+lastUpdatedOn: "最後更新：%s"
+strongsLink: Strongs 定義 (%s)
+morphLink: 詞法編號 (%s)
+strongsAndMorph: 定義及詞法
+studyPadLink: 在個人筆記開啟
+externalLink: 開啟外部連結
+referenceLink: 開啟參考連結
+openFootnote: 開啟註腳
+openBookmark: 開啟書籤 (%s)
+noMyNotesTitle: 此章沒有我的筆記
+noMyNotesDescription: >-
+  請先在聖經文件新增書籤。書籤將會在這裡顯示，而你可以增加你的個人筆記。
+emptyStudyPad: >-
+  移除整個個人筆記。你可以在此個人筆記增加文字，或增加此個人筆記對應的書籤標籤。
+studyPadModalTitle: 編輯個人筆記
+doYouWantToDeleteEntry: 刪除此個人筆記？
+removeStudyPadConfirmationTitle: 移除所有個人筆記？
+dragHelp: 拖動以重新排序
+saved: 已儲存
+openAll: 開啟所有參考
+editBookmarkPlaceholder: 點選編輯此書籤的筆記
+onlyLabel: 只顯示標籤
+wholeBookmark: 完整書籤
+otherNoteText: 其他筆記
+assignLabelsMenuEntry: 分配標籤
+assignLabelsMenuEntry1: 選取或編輯標籤...
+jumpToStudyPad: 跳轉至個人筆記
+setAsPrimaryLabel: 設為主要標籤
+removeBookmarkLabel: 移除標籤
+addBookmarkLabel: 增加標籤
+favouriteLabels: 最愛標籤
+recentLabels: 最近標籤
+frequentlyUsedLabels: 常用標籤
+bookmarkLabels: 書籤標籤
+refParserHelp: 請安裝 %s 模組以使用英文以外的參考。
+openDownloads: 移至附加下載
+verseShare: 分享
+verseCompare: 比較
+verseNote: 筆記
+verseMyNotes: 筆記列表
+verseSpeak: 朗讀
+verseShareLong: 分享此節
+verseCompareLong: 比較經文
+verseNoteLong: 增加筆記
+verseSpeakLong: 從此節開始聆聽
+addBookmark: 書籤

@@ -18,11 +18,19 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
+import android.os.Build
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.report.ErrorReportControl
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Class to manage the display of various dialogs
@@ -30,7 +38,6 @@ import net.bible.android.control.report.ErrorReportControl
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class Dialogs private constructor() {
-    private val errorReportControl: ErrorReportControl = application.applicationComponent.errorReportControl()
     private val doNothingCallback = Callback {
         // by default do nothing when user clicks okay
     }
@@ -78,7 +85,7 @@ class Dialogs private constructor() {
      * Show error message and allow reporting of exception via e-mail to and-bible
      */
     fun showErrorMsg(message: String?, e: Exception?) {
-        val reportCallback = Callback { errorReportControl.sendErrorReportEmail(e) }
+        val reportCallback = Callback { ErrorReportControl.sendErrorReportEmail(e, source = "error message") }
         showMsg(message, false, doNothingCallback, reportCallback)
     }
 
@@ -98,8 +105,14 @@ class Dialogs private constructor() {
             val activity = CurrentActivityHolder.getInstance().currentActivity
             if (activity != null) {
                 activity.runOnUiThread {
+                    val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        Html.fromHtml(msg, Html.FROM_HTML_MODE_LEGACY)
+                    } else {
+                        Html.fromHtml(msg)
+                    }
+
                     val dlgBuilder = AlertDialog.Builder(activity)
-                        .setMessage(msg)
+                        .setMessage(spanned)
                         .setCancelable(isCancelable)
                         .setPositiveButton(R.string.okay) { dialog, buttonId -> okayCallback.okay() }
 
@@ -114,7 +127,8 @@ class Dialogs private constructor() {
                     if (reportCallback != null) {
                         dlgBuilder.setNeutralButton(R.string.report_error) { dialog, buttonId -> reportCallback.okay() }
                     }
-                    dlgBuilder.show()
+                    val d = dlgBuilder.show()
+                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
                 }
             } else {
                 Toast.makeText(application.applicationContext, msg, Toast.LENGTH_LONG).show()
@@ -123,6 +137,49 @@ class Dialogs private constructor() {
             Log.e(TAG, "Error showing error message.  Original error msg:$msg", e)
         }
     }
+
+    suspend fun showMsg2(activity: ActivityBase, msgId: Int, isCancelable: Boolean = false, showReport: Boolean = false): Result {
+        return showMsg2(activity, application.getString(msgId), isCancelable, showReport)
+    }
+
+    enum class Result {OK, CANCEL, REPORT, ERROR}
+
+    suspend fun showMsg2(activity: ActivityBase, msg: String, isCancelable: Boolean = false, showReport: Boolean = false): Result {
+        Log.d(TAG, "showErrorMesage message:$msg")
+        var result = Result.ERROR
+        try {
+            withContext(Dispatchers.Main) {
+                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Html.fromHtml(msg, Html.FROM_HTML_MODE_LEGACY)
+                } else {
+                    Html.fromHtml(msg)
+                }
+
+                result = suspendCoroutine {
+                    val dlgBuilder = AlertDialog.Builder(activity)
+                        .setMessage(spanned)
+                        .setCancelable(isCancelable)
+                        .setPositiveButton(R.string.okay) { _, _ -> it.resume(Result.OK) }
+
+                    if (isCancelable) {
+                        dlgBuilder.setNegativeButton(R.string.cancel) { _, _ ->
+                            it.resume(Result.CANCEL)
+                        }
+                    }
+
+                    if (showReport) {
+                        dlgBuilder.setNeutralButton(R.string.report_error) { _, _ -> it.resume(Result.REPORT) }
+                    }
+                    val d = dlgBuilder.show()
+                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error showing error message.  Original error msg:$msg", e)
+        }
+        return result
+    }
+
 
     companion object {
         private const val TAG = "Dialogs"

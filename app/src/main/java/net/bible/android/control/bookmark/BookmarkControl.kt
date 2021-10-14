@@ -17,401 +17,414 @@
  */
 package net.bible.android.control.bookmark
 
-import android.app.Activity
-import android.content.Intent
 import android.util.Log
-import android.view.View
-import com.google.android.material.snackbar.Snackbar
 import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
+import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.control.speak.PlaybackSettings
-import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.bookmark.BookmarkLabels
-import net.bible.service.common.CommonUtils.getResourceColor
-import net.bible.service.common.CommonUtils.getResourceString
-import net.bible.service.common.CommonUtils.getSharedPreference
-import net.bible.service.common.CommonUtils.limitTextLength
-import net.bible.service.common.CommonUtils.saveSharedPreference
-import net.bible.service.db.bookmark.BookmarkDBAdapter
-import net.bible.service.db.bookmark.BookmarkDto
-import net.bible.service.db.bookmark.LabelDto
+import net.bible.android.control.page.DocumentCategory
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntry
+import net.bible.android.database.bookmarks.BookmarkSortOrder
+import net.bible.android.database.bookmarks.BookmarkStyle
+import net.bible.android.database.bookmarks.PlaybackSettings
+import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.android.database.bookmarks.UNLABELED_NAME
+import net.bible.android.misc.OsisFragment
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
-import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BibleBook
+import java.lang.IndexOutOfBoundsException
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
+import kotlin.math.min
 
-/**
- * @author Martin Denham [mjdenham at gmail dot com]
- */
+abstract class BookmarkEvent
+
+class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark): BookmarkEvent()
+class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BookmarkToLabel)
+class BookmarksDeletedEvent(val bookmarkIds: List<Long>): BookmarkEvent()
+class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
+class BookmarkNoteModifiedEvent(val bookmarkId: Long, val notes: String?, val lastUpdatedOn: Long): BookmarkEvent()
+
+class StudyPadOrderEvent(
+    val labelId: Long,
+    val newStudyPadTextEntry: StudyPadTextEntry? = null,
+    val bookmarkToLabelsOrderChanged: List<BookmarkToLabel>,
+    val studyPadOrderChanged: List<StudyPadTextEntry>
+)
+
+class StudyPadTextEntryDeleted(val journalId: Long)
+
+const val LABEL_ALL_ID = -999L
+
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
-	private val swordContentFacade: SwordContentFacade,
-	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider, resourceProvider: ResourceProvider)
-{
-    private val LABEL_ALL = LabelDto(-999L, resourceProvider.getString(R.string.all), null)
-	private val LABEL_UNLABELLED = LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null)
+    val windowControl: WindowControl,
+    resourceProvider: ResourceProvider,
+) {
+    // Dummy labels for all / unlabelled
+    val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
 
-	fun updateBookmarkSettings(settings: PlaybackSettings) {
-        if (activeWindowPageManagerProvider.activeWindowPageManager.currentPage.bookCategory == BookCategory.BIBLE) {
-            updateBookmarkSettings(activeWindowPageManagerProvider.activeWindowPageManager.currentBible.singleKey, settings)
+    private val dao get() = DatabaseContainer.db.bookmarkDao()
+
+	fun updateBookmarkPlaybackSettings(settings: PlaybackSettings) {
+        val pageManager = windowControl.activeWindowPageManager
+        if (pageManager.currentPage.documentCategory == DocumentCategory.BIBLE) {
+            updateBookmarkPlaybackSettings(pageManager.currentBible.singleKey, settings)
         }
     }
 
-    private fun updateBookmarkSettings(v: Verse, settings: PlaybackSettings) {
-        var v = v
-        if (v.verse == 0) {
-            v = Verse(v.versification, v.book, v.chapter, 1)
-        }
-        val bookmarkDto = getBookmarkByKey(v)
-        if (bookmarkDto?.playbackSettings != null) {
-            bookmarkDto.playbackSettings = settings
-            addOrUpdateBookmark(bookmarkDto)
-            Log.d("SpeakBookmark", "Updated bookmark settings " + bookmarkDto + settings.speed)
+    private fun updateBookmarkPlaybackSettings(v: Verse, settings: PlaybackSettings) {
+        val verse = if (v.verse == 0) Verse(v.versification, v.book, v.chapter, 1) else v
+
+        val bookmark = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
+        if (bookmark?.playbackSettings != null) {
+            bookmark.playbackSettings = settings
+            addOrUpdateBookmark(bookmark)
+            Log.d("SpeakBookmark", "Updated bookmark settings " + bookmark + settings.speed)
         }
     }
 
-    fun addBookmarkForVerseRange(verseRange: VerseRange): Boolean {
-        var bOk = false
-        if (isCurrentDocumentBookmarkable) {
-            var bookmarkDto = getBookmarkByKey(verseRange)
-            val currentActivity = CurrentActivityHolder.getInstance().currentActivity
-            val currentView = currentActivity.findViewById<View>(R.id.coordinatorLayout)
-            var success = false
-            var message: Int? = null
-            if (bookmarkDto == null) { // prepare new bookmark and add to db
-                bookmarkDto = BookmarkDto()
-                bookmarkDto.verseRange = verseRange
-                bookmarkDto = addOrUpdateBookmark(bookmarkDto, true)
-                success = bookmarkDto != null
-                message = R.string.bookmark_added
-            } else {
-                bookmarkDto = refreshBookmarkDate(bookmarkDto)
-                success = bookmarkDto != null
-                message = R.string.bookmark_date_updated
+    val allBookmarks: List<Bookmark> get() = dao.allBookmarks()
+
+    fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> = dao.allBookmarksWithNotes(orderBy)
+
+    fun addOrUpdateBookmark(bookmark: Bookmark, labels: Set<Long>?=null): Bookmark {
+        if(bookmark.id != 0L) {
+            dao.update(bookmark)
+        } else {
+            bookmark.id = dao.insert(bookmark)
+        }
+        
+        val labelIdsInDb = labels?.mapNotNull {dao.labelById(it)?.id }
+
+        if(labelIdsInDb != null) {
+            val existingLabels = dao.labelsForBookmark(bookmark.id).map { it.id }.toSet()
+            val toBeDeleted = existingLabels.filterNot { labelIdsInDb.contains(it) }
+            val toBeAdded = labelIdsInDb.filterNot { existingLabels.contains(it) }
+
+            dao.deleteLabelsFromBookmark(bookmark.id, toBeDeleted)
+
+            val addBookmarkToLabels = toBeAdded.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countJournalEntities(it)) }
+            dao.insert(addBookmarkToLabels)
+            if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
+                bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
+                dao.update(bookmark)
             }
-            val affectedBookmark = bookmarkDto
-            if (success) { // success
-                val actionTextColor = getResourceColor(R.color.snackbar_action_text)
-                Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
-                    .setActionTextColor(actionTextColor)
-                    .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, affectedBookmark) }.show()
-                bOk = true
-            } else {
-                Dialogs.instance.showErrorMsg(R.string.error_occurred)
-            }
-        }
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
-        return bOk
-    }
-
-    fun deleteBookmarkForVerseRange(verseRange: VerseRange): Boolean {
-        val bOk = false
-        if (isCurrentDocumentBookmarkable) {
-            val bookmarkDto = getBookmarkByKey(verseRange)
-            val currentActivity = CurrentActivityHolder.getInstance().currentActivity
-            val currentView = currentActivity.findViewById<View>(android.R.id.content)
-            if (bookmarkDto != null) {
-                if (deleteBookmark(bookmarkDto, true)) {
-                    Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show()
-                } else {
-                    Dialogs.instance.showErrorMsg(R.string.error_occurred)
-                }
-            }
-        }
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
-        return bOk
-    }
-
-    // Label related methods
-    fun editBookmarkLabelsForVerseRange(verseRange: VerseRange) {
-        if (isCurrentDocumentBookmarkable) {
-            val bookmarkDto = getBookmarkByKey(verseRange)
-            val currentActivity = CurrentActivityHolder.getInstance().currentActivity
-            bookmarkDto?.let { showBookmarkLabelsActivity(currentActivity, it) }
-        }
-    }
-
-    fun getBookmarkVerseKey(bookmark: BookmarkDto): String {
-        var keyText = ""
-        try {
-            val versification = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.versification
-            keyText = bookmark.getVerseRange(versification).name
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting verse text", e)
-        }
-        return keyText
-    }
-
-    fun getBookmarkVerseText(bookmark: BookmarkDto): String? {
-        var verseText: String? = ""
-        try {
-            val currentBible = activeWindowPageManagerProvider.activeWindowPageManager.currentBible
-            val versification = currentBible.versification
-            verseText = swordContentFacade.getPlainText(currentBible.currentDocument, bookmark.getVerseRange(versification))
-            verseText = limitTextLength(verseText)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting verse text", e)
-        }
-        return verseText
-    }
-    // pure bookmark methods
-    /** get all bookmarks  */
-    val allBookmarks: List<BookmarkDto>
-        get() {
-            val db = BookmarkDBAdapter()
-            return try {
-                getSortedBookmarks(db.allBookmarks)
-            } finally {
-                emptyList<BookmarkDto>()
-            }
+            windowControl.windowRepository?.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests ?.
         }
 
-    /** create a new bookmark  */
-    fun addOrUpdateBookmark(bookmark: BookmarkDto, doNotSync: Boolean=false): BookmarkDto {
-        val db = BookmarkDBAdapter()
-        val newBookmark = try {
-            db.insertOrUpdateBookmark(bookmark)
-        } finally {}
-        if(!doNotSync) {
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
-        }
-        return newBookmark
-    }
-
-    /** update bookmark date  */
-	private fun refreshBookmarkDate(bookmark: BookmarkDto?): BookmarkDto? {
-        val db = BookmarkDBAdapter()
-        var updatedBookmark: BookmarkDto? = null
-        updatedBookmark = try {
-            db.updateBookmarkDate(bookmark!!)
-        } finally {}
-        return updatedBookmark
-    }
-
-    /** get all bookmarks  */
-    fun getBookmarksById(ids: LongArray): List<BookmarkDto> {
-        val bookmarks: MutableList<BookmarkDto> = ArrayList()
-        val db = BookmarkDBAdapter()
-        try {
-            for (id in ids) {
-                val bookmark = db.getBookmarkDto(id)
-                if (bookmark != null) {
-                    bookmarks.add(bookmark)
-                }
-            }
-        } finally {}
-        return bookmarks
-    }
-
-    fun isBookmarkForKey(key: Key?): Boolean {
-        return key != null && getBookmarkByKey(key) != null
-    }
-
-    /** get bookmark with the same start verse as this key if it exists or return null  */
-    fun getBookmarkByKey(key: Key): BookmarkDto? {
-        return getBookmarkByOsisRef(key.osisRef)
-    }
-
-    /** get bookmark with the same start verse as this key if it exists or return null  */
-    fun getBookmarkByOsisRef(osisRef: String?): BookmarkDto? {
-        val db = BookmarkDBAdapter()
-        var bookmark: BookmarkDto? = null
-        bookmark = try {
-            db.getBookmarkByStartKey(osisRef!!)
-        } finally {}
+        addText(bookmark)
+        addLabels(bookmark)
+        ABEventBus.getDefault().post(
+            BookmarkAddedOrUpdatedEvent(bookmark)
+        )
         return bookmark
     }
 
-    /** delete this bookmark (and any links to labels)  */
-    fun deleteBookmark(bookmark: BookmarkDto?, doNotSync: Boolean = false): Boolean {
-        var bOk = false
-        if (bookmark?.id != null) {
-            val db = BookmarkDBAdapter()
-            bOk = try {
-                db.removeBookmark(bookmark)
-            } finally { }
-        }
-        if(!doNotSync) {
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
-        }
-        return bOk
+    fun bookmarksByIds(ids: List<Long>): List<Bookmark> = dao.bookmarksByIds(ids)
+
+    fun bookmarkById(id: Long): Bookmark? = dao.bookmarkById(id)
+
+    fun hasBookmarksForVerse(verse: Verse): Boolean = dao.hasBookmarksForVerse(verse)
+
+    fun firstBookmarkStartingAtVerse(key: Verse): Bookmark? = dao.bookmarksStartingAtVerse(key).firstOrNull()
+
+    fun deleteBookmark(bookmark: Bookmark) {
+        dao.delete(bookmark)
+        sanitizeStudyPadOrder(bookmark)
+        ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark.id)))
     }
 
-    /** get bookmarks with the given label  */
-    fun getBookmarksWithLabel(label: LabelDto?): List<BookmarkDto> {
-        val db = BookmarkDBAdapter()
-		var bookmarkList: List<BookmarkDto>
-		try {
-            bookmarkList = when {
-				LABEL_ALL == label -> db.allBookmarks
-				LABEL_UNLABELLED == label -> db.unlabelledBookmarks
-				else -> db.getBookmarksWithLabel(label!!)
-			}
-            bookmarkList = getSortedBookmarks(bookmarkList)
-        } finally {}
-        return bookmarkList
-    }
-
-    /** get bookmarks associated labels  */
-    fun getBookmarkLabels(bookmark: BookmarkDto?): List<LabelDto> {
-        if (bookmark == null) {
-            return ArrayList()
+    fun deleteBookmarks(bookmarks: List<Bookmark>) {
+        val labels = mutableSetOf<Long>()
+        for(b in bookmarks) {
+            labels.addAll(labelsForBookmark(b).map { it.id })
         }
-        val labels: List<LabelDto>
-        val db = BookmarkDBAdapter()
-        labels = try {
-            db.getBookmarkLabels(bookmark)
-        } finally {}
-        return labels
-    }
-
-    /** label the bookmark with these and only these labels  */
-    @JvmOverloads
-    fun setBookmarkLabels(bookmark: BookmarkDto?, labels_: List<LabelDto>, doNotSync: Boolean = false) { // never save LABEL_ALL
-		val labels = labels_.toMutableList()
-        labels.remove(LABEL_ALL)
-        labels.remove(LABEL_UNLABELLED)
-        val db = BookmarkDBAdapter()
-        try {
-            val prevLabels = db.getBookmarkLabels(bookmark!!)
-            //find those which have been deleted and remove them
-            val deleted: MutableSet<LabelDto> = HashSet(prevLabels)
-            deleted.removeAll(labels)
-            for (label in deleted) {
-                db.removeBookmarkLabelJoin(bookmark, label)
-            }
-            //find those which are new and persist them
-            val added: MutableSet<LabelDto> = HashSet(labels)
-            added.removeAll(prevLabels)
-            for (label in added) {
-                db.insertBookmarkLabelJoin(bookmark, label)
-            }
-        } finally {}
-        if(!doNotSync) {
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        dao.deleteBookmarks(bookmarks)
+        for (l in labels) {
+            sanitizeStudyPadOrder(l)
         }
+        ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks.map { it.id }))
     }
 
-    fun saveOrUpdateLabel(label: LabelDto): LabelDto {
-        val db = BookmarkDBAdapter()
-        return try {
-            if (label.id == null) {
-                db.insertLabel(label)
-            } else {
-                db.updateLabel(label)
-            }
-        } finally {}
-    }
+    fun deleteBookmarksById(bookmarkIds: List<Long>) = deleteBookmarks(dao.bookmarksByIds(bookmarkIds))
 
-    /** delete this bookmark (and any links to labels)  */
-    fun deleteLabel(label: LabelDto?): Boolean {
-        var bOk = false
-        if (label?.id != null && LABEL_ALL != label && LABEL_UNLABELLED != label) {
-            val db = BookmarkDBAdapter()
-            bOk = try {
-                db.removeLabel(label)
-            } finally {}
+    fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false): List<Bookmark> {
+        val bookmarks = when {
+            labelAll == label -> dao.allBookmarks(orderBy)
+            labelUnlabelled == label -> dao.unlabelledBookmarks(orderBy)
+            else -> dao.bookmarksWithLabel(label, orderBy)
         }
-        return bOk
+        if(addData) for (it in bookmarks) {
+            addText(it)
+            addLabels(it)
+        }
+        return bookmarks
     }
+
+    fun bookmarksByLabelId(labelId: Long) = dao.bookmarksWithLabel(labelId, BookmarkSortOrder.ORDER_NUMBER)
+
+    fun labelsForBookmark(bookmark: Bookmark): List<Label> {
+        return dao.labelsForBookmark(bookmark.id)
+    }
+
+    fun setLabelsForBookmark(bookmark: Bookmark, labels: List<Label>) =
+        addOrUpdateBookmark(bookmark, labels.map { it.id }.toSet())
+
+    fun insertOrUpdateLabel(label: Label): Label {
+        label.name = label.name.trim()
+        if(label.id < 0) throw RuntimeException("Illegal negative label.id")
+        if(label.id > 0L) {
+            dao.update(label)
+        } else {
+            label.id = dao.insert(label)
+        }
+        ABEventBus.getDefault().post(LabelAddedOrUpdatedEvent(label))
+        return label
+    }
+
+    fun deleteLabel(label: Label) = dao.delete(label)
 
     // add special label that is automatically associated with all-bookmarks
-    val allLabels: List<LabelDto>
+    val allLabels: List<Label>
         get() {
-            val labelList = assignableLabels
+            val labelList = assignableLabels.toMutableList()
+            labelList.sortBy { it.name.toLowerCase(Locale.getDefault()) }
             // add special label that is automatically associated with all-bookmarks
-            labelList.add(0, LABEL_UNLABELLED)
-            labelList.add(0, LABEL_ALL)
+            labelList.add(0, labelUnlabelled)
+            labelList.add(0, labelAll)
             return labelList
         }
 
-    val assignableLabels: MutableList<LabelDto>
-        get() {
-            val db = BookmarkDBAdapter()
-            val labelList: MutableList<LabelDto> = ArrayList()
+    val assignableLabels: List<Label> get() = dao.allLabelsSortedByName()
+
+    val speakLabel: Label get() {
+        return dao.speakLabelByName()
+            ?: Label(name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor).apply {
+                id = dao.insert(this)
+            }
+    }
+
+    val labelUnlabelled: Label get() {
+        return dao.unlabeledLabelByName()
+            ?: Label(name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor).apply {
+                id = dao.insert(this)
+            }
+    }
+
+    fun reset() {}
+
+    fun isSpeakBookmark(bookmark: Bookmark): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
+    fun speakBookmarkForVerse(verse: Verse) = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
+
+    fun changeLabelsForBookmark(bookmark: Bookmark, labelIds: List<Long>) {
+        dao.clearLabels(bookmark)
+        dao.insert(labelIds.map { BookmarkToLabel(bookmark.id, it)})
+    }
+
+    fun saveBookmarkNote(bookmarkId: Long, note: String?) {
+        dao.saveBookmarkNote(bookmarkId, note)
+        val bookmark = dao.bookmarkById(bookmarkId)!!
+        addLabels(bookmark)
+        addText(bookmark)
+        ABEventBus.getDefault().post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
+    }
+
+    fun deleteLabels(toList: List<Long>) {
+        dao.deleteLabelsByIds(toList)
+    }
+
+    fun bookmarksInBook(book: BibleBook): List<Bookmark> = dao.bookmarksInBook(book)
+    fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false, withText: Boolean = true): List<Bookmark> {
+        val bookmarks = dao.bookmarksForVerseRange(verseRange)
+        if(withLabels) for (b in bookmarks) {
+            addLabels(b)
+        }
+        if(withText) for (b in bookmarks) {
+            addText(b)
+        }
+        return bookmarks
+    }
+
+    private fun addLabels(b: Bookmark) {
+        val bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b.id)
+        b.bookmarkToLabels = bookmarkToLabels
+        b.labelIds = bookmarkToLabels.map { it.labelId }
+    }
+
+    internal fun addText(b: Bookmark) {
+        val book = b.book ?: windowControl.defaultBibleDoc(false) as SwordBook? ?: return // last ?: return is needed for tests
+        b.osisFragment =
             try {
-                labelList.addAll(db.allLabels)
-            } finally {}
-			labelList.sort()
-            return labelList
-        }
-
-    fun changeBookmarkSortOrder() {
-        bookmarkSortOrder = if (bookmarkSortOrder == BookmarkSortOrder.BIBLE_BOOK) {
-            BookmarkSortOrder.DATE_CREATED
-        } else {
-            BookmarkSortOrder.BIBLE_BOOK
+                OsisFragment(SwordContentFacade.readOsisFragment(book, b.verseRange.toV11n(book.versification)), b.verseRange, book)
+            }
+            catch (e: OsisError) {
+                Log.e(TAG, "Error in getting content from $book for ${b.verseRange}")
+                null
+            }
+        val verseTexts = b.verseRange.map {  SwordContentFacade.getCanonicalText(book, it, true) }
+        val wholeVerse = b.wholeVerse || b.book == null
+        val startOffset = if(wholeVerse) 0 else b.startOffset ?: 0
+        var startVerse = verseTexts.first()
+        var endOffset = if(wholeVerse) startVerse.length else b.endOffset ?: startVerse.length
+        val start = startVerse.slice(0 until min(startOffset, startVerse.length))
+        if(verseTexts.size == 1) {
+            val end = startVerse.slice(endOffset until startVerse.length)
+            b.text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
+            b.startText = start
+            b.endText = end
+            b.fullText = """$start${b.text}$end"""
+        } else if(verseTexts.size > 1) {
+            startVerse = startVerse.slice(startOffset until startVerse.length)
+            val lastVerse = verseTexts.last()
+            endOffset = if(wholeVerse) lastVerse.length else b.endOffset ?: lastVerse.length
+            val endVerse = lastVerse.slice(0 until min(lastVerse.length, endOffset))
+            val end = lastVerse.slice(endOffset until lastVerse.length)
+            val middleVerses = if(verseTexts.size > 2) {
+                verseTexts.slice(1 until verseTexts.size-1).joinToString(" ")
+            } else ""
+            b.startText = start
+            b.endText = end
+            b.text = "$startVerse$middleVerses$endVerse"
+            b.fullText = """$start${b.text}$end"""
         }
     }
 
-    private var bookmarkSortOrder: BookmarkSortOrder
-        private get() {
-            val bookmarkSortOrderStr = getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_BOOK.toString())
-            return BookmarkSortOrder.valueOf(bookmarkSortOrderStr!!)
-        }
-        private set(bookmarkSortOrder) {
-            saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString())
-        }
+    fun labelById(id: Long): Label? = dao.labelById(id)
 
-    val bookmarkSortOrderDescription: String
-        get() = if (BookmarkSortOrder.BIBLE_BOOK == bookmarkSortOrder) {
-            getResourceString(R.string.sort_by_bible_book)
-        } else {
-            getResourceString(R.string.sort_by_date)
-        }
-
-    private fun getSortedBookmarks(bookmarkList: List<BookmarkDto>): List<BookmarkDto> {
-        val comparator: Comparator<BookmarkDto> = when (bookmarkSortOrder) {
-            BookmarkSortOrder.DATE_CREATED -> BookmarkCreationDateComparator()
-            BookmarkSortOrder.BIBLE_BOOK -> BookmarkDtoBibleOrderComparator(bookmarkList)
-        }
-        // the new Java 7 sort is stricter and occasionally generates errors, so prevent total crash on listing bookmarks
-        try {
-            Collections.sort(bookmarkList, comparator)
-        } catch (e: Exception) {
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
-        }
-        return bookmarkList
+    fun getJournalTextEntriesForLabel(label: Label): List<StudyPadTextEntry> {
+        return dao.journalTextEntriesByLabelId(label.id)
     }
 
-    private val isCurrentDocumentBookmarkable: Boolean
-        private get() {
-            val currentPageControl = activeWindowPageManagerProvider.activeWindowPageManager
-            return currentPageControl.isBibleShown || currentPageControl.isCommentaryShown
-        }
-
-    private fun showBookmarkLabelsActivity(currentActivity: Activity, bookmarkDto: BookmarkDto?) { // Show label view for new bookmark
-        val intent = Intent(currentActivity, BookmarkLabels::class.java)
-        intent.putExtra(BOOKMARK_IDS_EXTRA, longArrayOf(bookmarkDto!!.id!!))
-        currentActivity.startActivity(intent)
+    fun updateJournalTextEntry(entry: StudyPadTextEntry) {
+        dao.update(entry)
+        ABEventBus.getDefault().post(StudyPadOrderEvent(entry.labelId, entry, emptyList(), emptyList()))
     }
 
-    val orCreateSpeakLabel: LabelDto
-        get() {
-            val db = BookmarkDBAdapter()
-            val label: LabelDto
-            label = try {
-                db.orCreateSpeakLabel
-            } finally {}
-            return label
-        }
+    fun updateBookmarkToLabel(bookmarkToLabel: BookmarkToLabel) {
+        dao.update(bookmarkToLabel)
+        ABEventBus.getDefault().post(BookmarkToLabelAddedOrUpdatedEvent(bookmarkToLabel))
+    }
 
-    fun isSpeakBookmark(bookmark: BookmarkDto?): Boolean {
-        return getBookmarkLabels(bookmark).contains(orCreateSpeakLabel)
+    fun updateBookmarkTimestamp(bookmarkId: Long) {
+        dao.updateBookmarkDate(dao.bookmarkById(bookmarkId)!!)
+    }
+
+    fun getBookmarkToLabel(bookmarkId: Long, labelId: Long): BookmarkToLabel? = dao.getBookmarkToLabel(bookmarkId, labelId)
+
+    fun getJournalById(journalTextEntryId: Long): StudyPadTextEntry? = dao.journalTextEntryById(journalTextEntryId)
+
+    fun updateJournalTextEntries(studyPadTextEntries: List<StudyPadTextEntry>) = dao.updateJournalTextEntries(studyPadTextEntries)
+    fun deleteStudyPadTextEntry(textEntryId: Long) {
+        val entry = dao.journalTextEntryById(textEntryId)!!
+        dao.delete(entry)
+        ABEventBus.getDefault().post(StudyPadTextEntryDeleted(textEntryId))
+        sanitizeStudyPadOrder(entry.labelId)
+    }
+
+    private fun sanitizeStudyPadOrder(labelId: Long) {
+        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId)
+        val journals = dao.journalTextEntriesByLabelId(labelId)
+        val all = ArrayList<Any>()
+        all.addAll(journals)
+        all.addAll(bookmarkToLabels)
+        all.sortBy {
+            when (it) {
+                is BookmarkToLabel -> it.orderNumber
+                is StudyPadTextEntry -> it.orderNumber
+                else -> 0
+            }
+        }
+        val changedBookmarkToLabels = mutableListOf<BookmarkToLabel>()
+        val changedJournalTextEntries = mutableListOf<StudyPadTextEntry>()
+
+        for ((count, it) in all.withIndex()) {
+            when (it) {
+                is BookmarkToLabel -> {
+                    if(it.orderNumber != count) {
+                        it.orderNumber = count
+                        changedBookmarkToLabels.add(it)
+                    }
+                }
+                is StudyPadTextEntry -> {
+                    if(it.orderNumber != count) {
+                        it.orderNumber = count
+                        changedJournalTextEntries.add(it)
+                    }
+                }
+            }
+        }
+        dao.updateBookmarkToLabels(changedBookmarkToLabels)
+        dao.updateJournalTextEntries(changedJournalTextEntries)
+        if(changedBookmarkToLabels.size > 0 || changedJournalTextEntries.size > 0)
+            ABEventBus.getDefault().post(
+                StudyPadOrderEvent(
+                    labelId, null, changedBookmarkToLabels, changedJournalTextEntries
+                )
+            )
+    }
+
+    private fun sanitizeStudyPadOrder(bookmark: Bookmark) {
+        for (it in labelsForBookmark(bookmark)) {
+            sanitizeStudyPadOrder(it.id)
+        }
+    }
+
+    fun createJournalEntry(labelId: Long, entryOrderNumber: Int) {
+        val entry = StudyPadTextEntry(labelId = labelId, orderNumber = entryOrderNumber + 1)
+        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber > entryOrderNumber }.onEach {it.orderNumber++}
+        val journals = dao.journalTextEntriesByLabelId(labelId).filter { it.orderNumber > entryOrderNumber }.onEach { it.orderNumber++ }
+
+        dao.updateBookmarkToLabels(bookmarkToLabels)
+        updateJournalTextEntries(journals)
+        dao.insert(entry).also { entry.id = it }
+
+        ABEventBus.getDefault().post(StudyPadOrderEvent(labelId, entry, bookmarkToLabels, journals))
+    }
+
+    fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) {
+        val bookmark = dao.bookmarkById(bookmarkId)!!
+        val labels = labelsForBookmark(bookmark).filter { it.id != labelId }
+        setLabelsForBookmark(bookmark, labels)
+    }
+
+    fun getNextLabel(label: Label): Label {
+        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpecialLabel }
+        val thisIndex = allLabels.indexOf(label)
+        return try {allLabels[thisIndex+1]} catch (e: IndexOutOfBoundsException) {allLabels[0]}
+    }
+
+    fun getPrevLabel(label: Label): Label {
+        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpecialLabel }
+        val thisIndex = allLabels.indexOf(label)
+        return try {allLabels[thisIndex-1]} catch (e: IndexOutOfBoundsException) {allLabels[allLabels.size - 1]}
+    }
+
+    fun updateOrderNumbers(labelId: Long, bookmarksToLabels: List<BookmarkToLabel>, studyPadTextEntries: List<StudyPadTextEntry>) {
+        dao.updateJournalTextEntries(studyPadTextEntries)
+        dao.updateBookmarkToLabels(bookmarksToLabels)
+        ABEventBus.getDefault().post(StudyPadOrderEvent(labelId, null, bookmarksToLabels, studyPadTextEntries))
+    }
+
+    fun setAsPrimaryLabel(bookmarkId: Long, labelId: Long) {
+        val bookmark = dao.bookmarkById(bookmarkId)?: return
+        bookmark.primaryLabelId = labelId
+        addOrUpdateBookmark(bookmark)
     }
 
     companion object {
-        const val BOOKMARK_IDS_EXTRA = "bookmarkIds"
         const val LABEL_NO_EXTRA = "labelNo"
-        private const val BOOKMARK_SORT_ORDER = "BookmarkSortOrder"
         private const val TAG = "BookmarkControl"
     }
 

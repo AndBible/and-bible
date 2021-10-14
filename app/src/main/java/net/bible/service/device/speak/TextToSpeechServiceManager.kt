@@ -31,9 +31,10 @@ import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.event.phonecall.PhoneCallEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.load
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
@@ -73,7 +74,6 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class TextToSpeechServiceManager @Inject constructor(
-		swordContentFacade: SwordContentFacade,
 		bibleTraverser: BibleTraverser,
 		windowControl: WindowControl,
 		bookmarkControl: BookmarkControl,
@@ -106,13 +106,12 @@ class TextToSpeechServiceManager @Inject constructor(
 
     init {
         Log.d(TAG, "Creating TextToSpeechServiceManager")
-        generalSpeakTextProvider = GeneralSpeakTextProvider(swordContentFacade)
+        generalSpeakTextProvider = GeneralSpeakTextProvider()
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
         val verse = windowControl.activeWindowPageManager.currentBible.singleKey
 
         bibleSpeakTextProvider = BibleSpeakTextProvider(
-                swordContentFacade, bibleTraverser, bookmarkControl,
-                windowControl.windowRepository, book, verse
+            bibleTraverser, bookmarkControl, windowControl.windowRepository, book, verse
         )
         mSpeakTextProvider = bibleSpeakTextProvider
 
@@ -340,6 +339,9 @@ class TextToSpeechServiceManager @Inject constructor(
                 // Initialize text-to-speech. This is an asynchronous operation.
                 // The OnInitListener (second argument) (this class) is called after initialization completes.
                 mTts = TextToSpeech(BibleApplication.application.applicationContext, this.onInitListener)
+                if(BibleApplication.application.isRunningTests) {
+                    this.onInitListener.onInit(TextToSpeech.SUCCESS)
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error initialising Tts", e)
                 showError(R.string.error_occurred, e)
@@ -507,7 +509,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
         // tts.stop can trigger onUtteranceCompleted so set above flags first to avoid sending of a further text and setting isSpeaking to true
         shutdownTtsEngine()
-        mSpeakTextProvider.stop(willContinueAfter)
+        mSpeakTextProvider.stop()
         clearPauseState()
         fireStateChangeEvent()
     }
@@ -574,24 +576,23 @@ class TextToSpeechServiceManager @Inject constructor(
         val isBible = mSpeakTextProvider === bibleSpeakTextProvider
 
         mSpeakTextProvider.persistState()
-        CommonUtils.sharedPreferences
-                .edit()
-                .putString(PERSIST_LOCALE_KEY, currentLocale.toString())
-                .putBoolean(PERSIST_BIBLE_PROVIDER, isBible)
-                .apply()
+        CommonUtils.settings.apply {
+            setString(PERSIST_LOCALE_KEY, currentLocale.toString())
+            setBoolean(PERSIST_BIBLE_PROVIDER, isBible)
+        }
     }
 
     private fun restorePauseState() {
         // ensure no relevant current state is overwritten accidentally
         if (!isSpeaking && !isPaused) {
             Log.d(TAG, "Attempting to restore any Persisted Pause state")
-            val isBible = CommonUtils.sharedPreferences.getBoolean(PERSIST_BIBLE_PROVIDER, true)
+            val isBible = CommonUtils.settings.getBoolean(PERSIST_BIBLE_PROVIDER, true)
             switchProvider(if (isBible) bibleSpeakTextProvider else generalSpeakTextProvider)
 
             isPaused = mSpeakTextProvider.restoreState()
 
             // restore locale information so tts knows which voice to load when it initialises
-            currentLocale = Locale(CommonUtils.sharedPreferences.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString()))
+            currentLocale = Locale(CommonUtils.settings.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString()))
             localePreferenceList = ArrayList()
             localePreferenceList.add(currentLocale)
         }
@@ -600,7 +601,7 @@ class TextToSpeechServiceManager @Inject constructor(
     private fun clearPauseState() {
         Log.d(TAG, "Clearing Persisted Pause state")
         mSpeakTextProvider.clearPersistedState()
-        CommonUtils.sharedPreferences.edit().remove(PERSIST_LOCALE_KEY).apply()
+        CommonUtils.settings.removeString(PERSIST_LOCALE_KEY)
     }
 
     private fun setRate(speechRate: Int) {

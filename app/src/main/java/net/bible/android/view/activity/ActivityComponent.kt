@@ -20,18 +20,17 @@ package net.bible.android.view.activity
 import dagger.Component
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
+import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.bookmark.BookmarkLabels
 import net.bible.android.view.activity.bookmark.Bookmarks
+import net.bible.android.view.activity.bookmark.LabelEditActivity
 import net.bible.android.view.activity.bookmark.ManageLabels
-import net.bible.android.view.activity.comparetranslations.CompareTranslations
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.ProgressStatus
-import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity
-import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.*
 import net.bible.android.view.activity.navigation.genbookmap.ChooseKeyBase
+import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -45,7 +44,9 @@ import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
+import net.bible.android.view.util.widget.ShareWidget
 import net.bible.android.view.util.widget.SpeakTransportWidget
+import net.bible.service.common.CommonUtilsBase
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 
 /**
@@ -60,6 +61,7 @@ interface ActivityComponent {
 
     // don't like this but inject is called from ActivityBase and the subclasses
     fun inject(activityBase: ActivityBase)
+    fun inject(activity: LabelEditActivity)
     fun inject(activity: TextDisplaySettingsActivity)
 
     fun inject(colorSettings: ColorSettingsActivity)
@@ -68,7 +70,6 @@ interface ActivityComponent {
     fun inject(startupActivity: StartupActivity)
 
     fun inject(bookmarks: Bookmarks)
-    fun inject(bookmarkLabels: BookmarkLabels)
     fun inject(manageLabels: ManageLabels)
 
     fun inject(gridChoosePassageBook: GridChoosePassageBook)
@@ -78,6 +79,7 @@ interface ActivityComponent {
     fun inject(chooseKeyBase: ChooseKeyBase)
 
     fun inject(chooseDocument: ChooseDocument)
+    fun inject(chooseDocument: ShareWidget)
     fun inject(download: DownloadActivity)
 
     fun inject(speak: GeneralSpeakActivity)
@@ -87,20 +89,20 @@ interface ActivityComponent {
     fun inject(dailyReadingList: DailyReadingList)
     fun inject(readingPlanSelectorList: ReadingPlanSelectorList)
     fun inject(readingStatus: ReadingStatus)
+    fun inject(sel: Selection)
     fun inject(searchIndex: SearchIndex)
     fun inject(w: SpeakTransportWidget)
     fun inject(search: Search)
     fun inject(searchResults: SearchResults)
-    fun inject(compareTranslations: CompareTranslations)
-    fun inject(footnoteAndRefActivity: FootnoteAndRefActivity)
-    fun inject(myNotes: MyNotes)
     fun inject(history: History)
 
     // Services
     fun inject(m: TextToSpeechNotificationManager)
     fun inject(w: SpeakWidgetManager)
+    fun inject(c: CommonUtilsBase)
 
     // progress status screens
     fun inject(searchIndexProgressStatus: SearchIndexProgressStatus)
     fun inject(progressStatus: ProgressStatus)
+    fun inject(clientBookmark: ClientBookmark)
 }

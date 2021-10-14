@@ -3,6 +3,7 @@
   <string name="app_name_short">Raamattu</string>
   <string name="app_name_medium">Raamattu (And Bible)</string>
   <string name="app_name_long">Raamatuntutkimissovellus, And Bible Open Source Projektilta</string>
+  <string name="project">And Bible avoimen lähdekoodin projekti</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä ohjelma uudelleen.</string>
   <!--Main menu-->
@@ -14,10 +15,12 @@
   <string name="history">Historia</string>
   <string name="speak">Puhe</string>
   <string name="help">Ohje</string>
+  <string name="information">Tietoja</string>
   <string name="other">Muita</string>
+  <string name="contact">Ota yhteyttä</string>
   <string name="help_and_tips">Ohjeita &amp; vinkkejä</string>
   <string name="administration">Ylläpito</string>
-  <string name="rate_application">Arvioi &amp; arvostele Google Playssa</string>
+  <string name="rate_application">Arvioi &amp; arvostele</string>
   <string name="chooce_document">Valitse teos</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Valitse kirja</string>
@@ -54,7 +57,17 @@
   <string name="search_current_book">Avoin kirja</string>
   <string name="error_executing_search">Virheellinen haku</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Näytä jaenumerot</string>
+  <string name="prefs_show_verseno_title">Luku- ja jaenumerot</string>
+  <string name="prefs_show_verseno_summary">Näytä luku- ja jaenumerot</string>
+  <string name="prefs_e_ink_mode_title">Mustavalkoinen tila</string>
+  <string name="prefs_eink_mode_summary">Käytä sovellusta kaksivärisessä tilassa, joka soveltuu paremmin E-ink-näytöllä varustettuihin laitteisiin.</string>
+  <string name="prefs_disable_animations_title">Kytke animaatiot pois</string>
+  <string name="prefs_disable_animations_summary">Kytke erilaiset animaatio pois, kuten pehmeä tekstin vieritys</string>
+  <string name="prefs_paragraph_spacing_title">Kappaleen välit (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Määritä kappaleiden välinen etäisyys</string>
+  <string name="prefs_show_verseno_title1">Jaenumerot</string>
+  <string name="prefs_show_chapter_no_title">Luvun numerot</string>
+  <string name="prefs_show_chapter_no_summary">Näytä luvun numerot</string>
   <string name="prefs_verse_per_line_summary">Näytä kukin jae omalla rivillään</string>
   <string name="prefs_show_bookmarks_summary">Kytke pois piilottaaksesi kirjanmerkit</string>
   <string name="prefs_show_mynotes_summary">Näytä kuvake jakeissa joissa on muistiinpanoja</string>
@@ -64,29 +77,34 @@
   <string name="prefs_section_title_summary">Näytä ei-kanoniset otsikot</string>
   <string name="prefs_red_letter_summary">Näytä Kristuksen sanat punaisella</string>
   <string name="prefs_text_size_title">Kirjaisimen määritykset</string>
-  <string name="prefs_show_verseno_title">Jaenumerot</string>
   <string name="prefs_verse_per_line_title">Jokainen jae omalla rivillään</string>
   <string name="prefs_show_bookmarks_title">Näytä kirjanmerkit</string>
-  <string name="prefs_default_bookmark_style_title">Oletus kirjanmerkkityyli</string>
-  <string name="prefs_default_bookmark_style_summary">Korostusväri tai kuvake</string>
   <string name="prefs_show_mynotes_title">Näytä oman kommentin kuvake</string>
+  <string name="prefs_show_footnotes_title">Alaviitteet</string>
+  <string name="prefs_show_xrefs_title">Ristiviitteet</string>
+  <string name="prefs_show_footnotes_summary">Näytä alaviitteet, jos ne ovat tarjolla käytetyssä dokumentissa</string>
+  <string name="prefs_show_xrefs_summary">Näytä ristiviitteet, jos ne on tarjolla käytetyssä dokumentissa</string>
   <string name="prefs_show_notes_title">Ala- ja rinnakkaisviitteet</string>
   <string name="prefs_show_strongs_title">Strongin numerointi</string>
   <string name="prefs_show_morphology_title">Morfologiset koodit</string>
   <string name="prefs_section_title_title">Väliotsikot</string>
   <string name="prefs_red_letter_title">Punaiset kirjaimet</string>
   <string name="prefs_tilt_to_scroll_title">Vieritä tekstiä kallistamalla</string>
+  <string name="prefs_toolbar_button_action_title">Toiminteet työkaluvalikon painikkeen painamiselle</string>
+  <string name="prefs_toolbar_button_action_summary">Mikä toiminne toteutetaan kun painetaan / painetaan pitkä painallus työkalupalkin Raamattu tai Kommentaari -painikkeista?</string>
+  <string name="prefs_toolbar_button_action_default">Painallus avaa valikon, pitkä painallus vie dokumentit -näkymään (oletus)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Painalluksella seuraavaan dokumenttiin, pitkä painallus avaa valikon</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Painalluksella seuraavaan dokumenttiin, pitkällä painalluksella dokumentit -näkymään</string>
   <string name="prefs_night_mode_title">Yötilaan vaihtaminen</string>
-  <string name="prefs_night_mode_summary">Vaihdetaanko yötilaan automaattisesti (jos laite tukee), käsin, vai järjestelmän asetuksen kautta (Android 10+).</string>
+  <string name="prefs_night_mode_summary">Vaihdetaanko yötilaan automaattisesti (jos laite tukee), käsin, vai järjestelmän asetuksen kautta (Android 10+). Käsin vaihtaminen tapahtuu 3 pisteen valikosta päänäkymässä.</string>
   <string name="prefs_night_mode_manual">Käsin</string>
   <string name="prefs_night_mode_automatic">Automaattinen</string>
   <string name="prefs_night_mode_system">Järjestelmä</string>
   <string name="options_menu_night_mode">Yötila</string>
   <string name="prefs_navigate_to_verse_title">Navigoi jakeeseen</string>
   <string name="prefs_navigate_to_verse_summary">Valitse jae (ja luku) kohtaa valitsessa</string>
-  <string name="prefs_open_links_in_special_window_title">Avaa linkit erikoisikkunaan</string>
-  <string name="prefs_open_links_in_special_window_summary">Rinnakkaispaikkojen ja Strongin numeroinnin nopeammaksi näyttämiseksi</string>
-  <string name="prefs_text_size_summary">Muuta kirjaisimen tyyppiä ja kokoa</string>
+  <string name="prefs_open_links_in_special_window_title">Linkki-ikkuna</string>
+  <string name="prefs_open_links_in_special_window_summary">Avaa linkit erityisessä linkki-ikkunassa. Tämä nopeuttaa rinnakkaispaikkojen ja Strongin sanakirjan tarkastelua.</string>
   <string name="prefs_text_size_sample_text">Esimerkkiteksti</string>
   <string name="prefs_screen_keep_on_title">Pidä näyttö päällä</string>
   <string name="prefs_screen_keep_on_summary">Estä näyttöä menemästä pois päällä ohjelmaa käytettäessä</string>
@@ -101,6 +119,7 @@
   <string name="reversed_split_mode">Käänteinen ruudunjaon tila</string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pistettä</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Vaihda automaattisesti kokoruututilaan tekstiä vieritettäessä. Vinkki: voit aina myös vaihtaa kokoruututilaan ruutua kaksoisnapsauttamalla.</string>
   <string name="prefs_margin_size_title">Vaihda marginaalin kokoa</string>
   <string name="prefs_margin_size_mm_title">Marginaalin koko (%d/%d/%d mm)</string>
@@ -121,19 +140,36 @@
   <string name="pref_maximum_width_of_text_label_mm">Tekstin maksimileveys (%d mm)</string>
   <string name="prefs_line_spacing_pt">Rivin väli %1.1fx</string>
   <string name="pref_font_family_label">Fontin tyyppi</string>
+  <string name="prefs_top_margin_title">Ylämarginaali</string>
+  <string name="prefs_top_margin_summary">Lisää marginaali (visuaalisen indikaattorin kanssa) sellaisten ikkunoiden yläosaan joissa on avoinna Raamattudokumentti. Raamattu vieritetään siten että nykyinen jae alkaa marginaalin alapuolella.</string>
   <string name="prefs_hyphenation_title">Tavuviivat</string>
   <string name="prefs_hyphenation_summary">Tavuta sanat automaattisesti, jos kieli on tuettu</string>
   <string name="prefs_line_spacing_pt_title">Rivin väli (%1.1fx)</string>
   <string name="line_spacing_title">Rivin väli</string>
   <string name="line_spacing_summary">Aseta rivien välin koko</string>
   <string name="select_none">Poista valinta</string>
-  <string name="reset_are_you_sure">Oletko varma että haluat tyhjätä valinnat?</string>
+  <string name="reset_are_you_sure">Oletko varma että haluat tyhjätä kaikki nämä valinnat?</string>
   <string name="window_pinning_menutitle">Ikkunan kiinnitys</string>
   <string name="hide_window_buttons_title">Piilota ikkunoiden painikkeet</string>
   <string name="hide_window_buttons_summary">Piilota ikkunoiden painikkeet, jotka näytetään tavallisesti kunkin raamattunäkymän oikealla puolella. Ikkunan navigointipaneeli ruudun alakulmassa näytetään edelleen, ja voit avata ikkunan ponnahdusvalikon napsauttamalla pitkään näitä painikkeita.</string>
-  <string name="font_size_title">Kirjaisimen koko</string>
+  <string name="hide_bible_reference_overlay_title">Piilota Raamattuviitteen näyttö</string>
+  <string name="hide_bible_reference_overlay_summary">Älä näytä puoliksi läpinäkyvää raamattuviitteen näyttöä kun sovellus on kokoruudun tilassa</string>
   <string name="full_screen_hide_buttons_pref_title">Piilota ikkunoiden painikepaneeli kokoruututilassa</string>
   <string name="full_screen_hide_buttons_pref_summary">Kun vaihdat kokoruututilaan, piilota automaattisesti ikkunoiden painikepaneeli, joka sijaitsee ruudun alalaidassa.</string>
+  <string name="prefs_dictionaries_cat">Sanakirjat</string>
+  <string name="choose_strongs_greek_dictionary_title">Strongin Kreikan sanakirja</string>
+  <string name="choose_strongs_greek_dictionary_summary">Valitse Strongin sanakirja Kreikankielisten sanojen selityksille</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strongin Heprean sanakirja</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Valitse Strongin sanakirja Hepreankielisten sanojen selityksille</string>
+  <string name="choose_strongs_greek_morphology_title">Robinsonin Kreikan morfologia</string>
+  <string name="choose_strongs_greek_morphology_summary">Valitse sanakirja Robinsonin Kreikan morfologian määritelmille</string>
+  <string name="prefs_top_margin_title_mm">Ylämarginaali (%d mm)</string>
+  <string name="font_size_title">Kirjaisimen koko</string>
+  <string name="font_size_title_pt">Kirjaisimen koko (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Muuta kirjaisimen kokoa</string>
+  <string name="pref_font_family_label_name">Kirjasimen tyyppi (%s)</string>
+  <string name="prefs_font_family_summary">Muuta kirjasimen tyyppiä. Vinkki: voit asentaa lisää kirjasimia Lataa Teoksia / Lisäosat</string>
+  <string name="prefs_text_bookmarks_title">Kirjanmerkkien &amp; Omien merkintöjen asetukset</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Värien asetukset</string>
   <string name="window_color_settings_title">Ikkunan värien asetukset</string>
@@ -169,33 +205,34 @@
   <string name="next">Seuraava</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Ole hyvä ja lataa ensin Strongin heprean- ja kreikankielen sanakirjat</string>
-  <string name="all_greek_occurrences">Etsi kaikki esiintymät</string>
-  <string name="all_hebrew_occurrences">Etsi kaikki esiintymät</string>
   <string name="no_indexed_bible_with_strongs_ref">Lataa ensin Raamattu, joka sisältää Strongin numeroinnin ja ladata myös sen indeksi Haku-toiminnossa</string>
   <string name="morph_robinson_not_installed">Lataa \'Robinsonin muoto-opilliset koodit\' -sanakirja</string>
+  <string name="go_to_downloads">Siirry latauksiin</string>
   <!--Module download-->
   <string name="download">Lataa teoksia</string>
+  <string name="redownload">Lataa dokumentit uudelleen</string>
   <string name="download_confirmation">Lataa Raamattu internetistä?</string>
-  <string name="download_source_message">Dokumentit ladataan :\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, ja\n https://andbible.github.io</string>
+  <string name="download_source_last_updated">Dokumenttilista viimeksi päivitetty: %s.</string>
+  <string name="download_refreshing_book_list">Päivitetään luettelot käytettävistä teoksista dokumenttipalvelimilta…</string>
+  <string name="download_source_message1">Teoksia ladataan seuraavista lähteistä:</string>
   <string name="download_document_confirm_prefix">Lataa</string>
-  <string name="download_refreshing_book_list">Päivitetään luettelo käytettävistä teoksista</string>
   <string name="download_refresh_book_list_menu_item">Päivitä</string>
-  <string name="error_downloading">Virhe ladattaessa teosta. Ole hyvä ja tarkista yhteyden toimivuus.</string>
+  <string name="error_downloading">Lataamisen aikana tapahtui virhe. Ole hyvä ja tarkista internetyhteytesi toimivuus.</string>
+  <string name="error_downloading_status">Palvelin joka tarjoaa dokumentin %s palautti virheen %s(%d).</string>
   <string name="storage_space_warning">Liian vähän tallennustilaa teoksen tallentamiseen.</string>
-  <string name="too_many_jobs">Liian monta tehtävää samaan aikaan tekeillä. Odota, että tehtävät valmistuvat ja yritä uudelleen.</string>
+  <string name="too_many_jobs">Liian monta tehtävää samaan aikaan käynnissä. Odota, että tehtävät valmistuvat ja yritä uudelleen.</string>
   <string name="document_not_installed">Ole hyvä ja lataa \'%s\'</string>
   <string name="free_text_search_documents">Etsi</string>
   <string name="chooce_language_hint">Kieli</string>
-  <string name="one_more_back_press">Yksi painallus lisää takaisin-painikkeesta sulkee sovelluksen</string>
+  <string name="one_more_back_press">Paina uudestaan taakse-painiketta sulkeaksesi sovelluksen</string>
   <string name="document_filter_results">%d teosta</string>
   <string name="download_question_title">Haluatko jatkaa dokumenttien lataukseen?</string>
   <string name="download_question_message">Jos elät vainotussa valtiossa, sinun voi olla syytä olla varovainen kristillisen materiaalin lataamisessa Internetistä. Sen sijaan saattaa olla viisasta siirtää moduulien zip-tiedostot turvallisemmin ja asentaa ne \"Asenna dokumentteja Zip-tiedostosta\"-toimintoa käyttäen. Oletko varma että haluat jatkaa lataamaan? Kaikki dokumenttien lataukset palvelimilta on salattuja (HTTPS).</string>
   <string name="do_not_ask_again">Kyllä, äläkä kysy enää uudestaan</string>
   <string name="recommended_document">Suositeltu!</string>
   <string name="about_version_history">Versiohistoria: %s</string>
-  <string name="download_failed">Lataus epäonnistui: %s</string>
   <string name="download_errors">Virheet latauksessa</string>
-  <string name="failed_repositories_message">Yhteyden otto seuraaviin moduuliservereihin epäonnistui: \n\n%s\n\n</string>
+  <string name="failed_repositories_message">Yhteyden otto seuraaviin dokumenttipalvelimiin epäonnistui: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Seuraavia tiedostoja ei voitu ladata\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Lataa teos Zip-tiedostosta</string>
@@ -204,7 +241,6 @@
   <string name="extracting_zip_file">Puretaan Zip-tiedostoa…</string>
   <string name="checking_zip_file">Tarkastetaan annettua tiedostoa…</string>
   <string name="invalid_module">Tiedostossa ei ole kelvollista SWORD moduulia</string>
-  <string name="module_already_installed">Tiedoston sisältämä moduuli on jo asennettu</string>
   <string name="install_zip_title">Ole hyvä ja odota. Ladataan Zip tiedostoa.</string>
   <string name="overwrite_files">Seuraavat tiedosto ovat jo olemassa: %s Ylikirjoitetaanko?</string>
   <string name="overwrite_files_title">Ylikirjoitetaanko tiedostot?</string>
@@ -213,9 +249,21 @@
   <string name="rdg_plan_selector_title">Valitse lukusuunnitelma</string>
   <string name="rdg_plan_day">Päivä %s</string>
   <string name="rdg_plan_set_start_date">Aseta alkupäivämäärä…</string>
+  <string name="set_current_day">Aseta nykyiseksi päiväksi…</string>
+  <string name="msg_set_current_day_reading_plan">Tämä asettaa tämän päivän nykyiseksi päiväksi lukusuunnitelmassa ja merkitsee edeltävät päivät luetuksi. Jatketaanko?</string>
   <string name="done">Valmis</string>
-  <string name="reset">Tyhjennä</string>
   <string name="reset_plan_question">Oletko varma että haluat alustaa tämän lukusuunnitelman?</string>
+  <string name="import_reading_plan">Tuo lukusuunnitelma…</string>
+  <string name="import_reading_plan_error">Virhe tuonnissa</string>
+  <string name="import_reading_plan_error_duplicate">Seuraavat päivät samanlaiset: %s</string>
+  <string name="import_reading_plan_error_days">Seuraavissa päivissä oli virheitä: %s</string>
+  <string name="import_reading_plan_anyway">Tuo jokatapauksessa</string>
+  <string name="overwrite_reading_plan">Haluatko ylikirjoittaa %s?</string>
+  <string name="delete_reading_plan">Poista tämä lukusuunnitelma</string>
+  <string name="reading_plan_deleted">Lukusuunnitelma on poistettu</string>
+  <string name="reading_plan_ships_with_ab">Tämä lukusuunnitelma tulee %s:n mukana</string>
+  <string name="confirm_delete_reading_plan">Haluatko varmasti poistaa %s ja sen lukuhistorian?
+Vinkki: jos sinun pitää päivittää lukusuunnitelma niin voit tuoda sen uudelleen samalla tiedostonimellä ja tällöin historia säilyy.</string>
   <string name="plan_duplicate_user_plan">
 SD-kortilla on käyttäjän lukusuunnitelma 
 jsword/readingplan joka on saman niminen kuin sisäänrakennettu lukusuunnitelma. Sitä ei voida näyttää tässä. 
@@ -254,8 +302,8 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="delete_search_index_doc">Poista %s indeksi?</string>
   <!--Verse context menu-->
   <string name="notes">Alaviitteet ja rinnakkaisviitteet</string>
-  <string name="verse_action_copy">Kopioi</string>
   <string name="share_verse">Jaa…</string>
+  <string name="share_verse_widget_title">Jaa valinta</string>
   <string name="share_verse_subject_2">Raamatun jae on lähetetty %s -sovelluksella</string>
   <string name="compare_translations">Vertaile käännöksiä</string>
   <!--Link context menu-->
@@ -263,19 +311,32 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="open_link_in_new_window">Avaa linkki uuteen ikkunaan</string>
   <string name="open_link_in_special_window">Avaa linkki erikoisikkunaan</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Kirjanmerkit &amp; Omat Merkinnät</string>
+  <string name="migrated_my_notes">Siirretyt Omat Merkinnät</string>
   <string name="bookmarks">Kirjanmerkit</string>
-  <string name="add_bookmark">Lisää kirjanmerkit</string>
-  <string name="delete_bookmark">Poista kirjanmerkki</string>
   <string name="bookmark_added">Kirjanmerkki lisätty</string>
-  <string name="bookmark_date_updated">Kirjanmerkin päiväys on päivitetty</string>
-  <string name="bookmark_deleted">Kirjanmerkki poistettu</string>
-  <string name="bookmark_labels">Kirjanmerkkiryhmät</string>
-  <string name="manage_labels">Muokkaa kirjanmerkkiryhmiä</string>
+  <string name="manage_labels">Hallitse kirjanmerkkiryhmiä</string>
   <string name="assign_labels">Sijoita ryhmään</string>
+  <string name="new_item">Uusi</string>
   <string name="new_label">Uusi ryhmä</string>
   <string name="label_name_prompt">Nimi</string>
-  <string name="label_unlabelled">Nimetön</string>
-  <string name="style">Tyyli</string>
+  <string name="label_unlabelled">Ei kirjanmerkkiryhmää</string>
+  <string name="add_bookmark1">Kirjanmerkki</string>
+  <string name="add_bookmark2">Kirjanmerkki valinnalle</string>
+  <string name="add_bookmark3">Valinta</string>
+  <string name="add_bookmark_whole_verse">Kirjanmerkki jakeelle</string>
+  <string name="add_bookmark_whole_verse1">Jakeet</string>
+  <string name="add_bookmark_whole_verse2">Kokonaiset jakeet</string>
+  <string name="remove_bookmark">Poista</string>
+  <string name="bookmark_settings_hide_labels_title">Piilota tietyt kirjanmerkkiryhmät</string>
+  <string name="bookmark_settings_hide_labels_summary">Piilota kirjanmerkit jotka on merkitty määritellyillä kirjanmerkkiryhmillä</string>
+  <string name="auto_assign_labels_title">Kirjanmerkkiryhmien asetukset</string>
+  <string name="auto_assign_labels">Automaattiset ja suosikkikirjanmerkkiryhmät</string>
+  <string name="auto_assign_labels1">Lisää kirjanmerkkiryhmä automaattisesti uusiin kirjanmerkkeihin</string>
+  <string name="auto_assign_labels_primary">Lisää automaattisesti pääasiallisena</string>
+  <string name="label_color">Kirjanmerkkiryhmän väri</string>
+  <!--can be removed-->
+  <string name="label_color_example">Esimerkki</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Aikajärjestys</string>
   <string name="sort_by_bible_book">Kirjajärjestys</string>
@@ -316,6 +377,7 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="speak_advanced_settings">Lisäasetukset</string>
   <string name="speak_sleep_timer_title">Uniajastin</string>
   <string name="speak_no_books_available">Ei ole kirjoja joita voisi puhua</string>
+  <string name="speak_general_error">Puhetta ei voinut aloittaa tälle kirjalle</string>
   <string name="repeat_passage">Toista raamatunpaikkaa</string>
   <string name="set_repeat_passage_range">Aseta toiston laajuus</string>
   <string name="speak_beginning_of_passage">Valitse toistettavan alueen alkukohta</string>
@@ -341,6 +403,33 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="speak_status_stopped">pysäytetty</string>
   <string name="speak_autobookmarking_disabled">Automaattiset kirjanmerkit poissa päältä!</string>
   <string name="system_speak_settings">Avaa järjestelmän puheasetukset</string>
+  <string name="auto_assing_labels_help1">Tästä voit määrittää mitkä kirjanmerkkiryhmät asetetaan automaattisesti luomiisi kirjanmerkkeihin.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Tämä asetus on voimassa %s.</string>
+  <string name="setting_scope_window">tässä ikkunassa</string>
+  <string name="setting_scope_workspace">tässä työtilassa</string>
+  <string name="assing_labels_help1">Kuhunkin kirjamerkkiin voi liittää useita kirjanmerkkiryhmiä.</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Valitsemalla %s voit määrittää minkä kirjanmerkkiryhmän väriä käytetään.</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Napauta %s ikonia jos haluat että kirjanmerkkiryhmä liitetään automaattisesti uusiin kirjanmerkkeihin.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Napauta %s lisätäksesi kirjanmerkkiryhmän suosikkilistaan.</string>
+  <!--param is refresh icon-->
+  <string name="assing_labels_help5">Napauta %s järjestääksesi uudelleen listan valintojesi perusteella.</string>
+  <string name="workspace_text_options_help_title">Työtilan tekstiasetukset</string>
+  <string name="workspace_text_options_help1">Nämä asetukset määrittävät oletusarvot kaikkiin työtilassa oleviin ikkunoiden vastaaviin asetuksiin.</string>
+  <string name="workspace_text_options_help2">Voit yliajaa näitä asetuksia muuttamalla yksittäisten ikkunoiden vastaavia asetuksia.</string>
+  <string name="window_text_options_help_title">Ikkunan tekstivalinnat</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s kertoo että asetus tulee työtilan asetuksista.</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s kertoo että asetusta on muutettu tälle ikkunalle.</string>
+  <string name="window_text_options_help3">Työtilan asetukset eivät vaikuta tähän ikkunaan.</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Käytä %s alustaaksesi kaikki nämä asetukset takaisin %s.</string>
+  <string name="reset_defaults">oletusarvoihinsa</string>
+  <string name="reset_workspace_defaults">työtilan oletusarvoihin</string>
   <string name="speak_bookmark_help">Puheen kirjanmerkkien ohje</string>
   <string name="speak_help_auto_bookmark">
 Puheen kirjanmerkki lisätään automaattisesti kun puhe on keskeytetty tai lopetettu. 
@@ -394,27 +483,27 @@ Jaejakson toisto kytkettiin pois automaattisesti koska
 puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <!--User Notes-->
   <string name="mynotes">Omat kommentit</string>
-  <string name="mynote_add">Lisää oma kommentti</string>
-  <string name="mynote_saved">Oma kommentti tallennettiin</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Varmuuskopioi &amp; palauta</string>
-  <string name="backup_modules">Varmuuskopioi dokumentit…</string>
-  <string name="backup_app_database">Varmuuskopioi sovelluksen tietokanta…</string>
-  <string name="restore_app_database">Palauta sovelluksen tietokanta…</string>
-  <string name="restore_confirmation">Palauta muistiinpanot, kirjanmerkit, lukusuunnitelmat ja työtilat nykyisten päälle?</string>
-  <string name="restore_success">Muistiinpanot, kirjanmerkit, lukusuunnitelmat ja työtilat on palautettu onnistuneesti</string>
+  <string name="backup_modules">Jaa tai varmuuskopioi dokumentit...</string>
+  <string name="backup_app_database">Jaa tai varmuuskopioi sovelluksen tietokanta…</string>
+  <string name="backup_app">Jaa tai varmuuskopioi ohjelmisto (.apk-tiedosto)...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Mitä haluat palauttaa?</string>
+  <string name="restore_app_database">Palauta sovelluksen tietokanta...</string>
+  <string name="restore_database">Palauta tietokantatiedosto</string>
+  <string name="restore_confirmation">Palauta omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat nykyisten päälle?</string>
+  <string name="reading_plans_plural">Lukusuunnitelmat</string>
+  <string name="restore_success">Omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat on palautettu onnistuneesti</string>
   <string name="loading_backup">Lataan tietokantaa varmuuskopiosta…</string>
-  <string name="backup_success">Muistiinpanot, kirjanmerkit, lukusuunnitelmat ja työtilat on varmuuskopioitu onnistuneesti sijaintiin %s.</string>
-  <string name="error_no_backup_file">Varmuuskopioitiedostoa ei löytynyt</string>
+  <string name="backup_success2">Omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat on varmuuskopioitu onnistuneesti.</string>
+  <string name="backup_modules_success">Valitut moduulit varmuuskopioitu onnistuneesti.</string>
   <string name="backup_modules_email_subject_2">%s dokumenttien varmuuskopiointi</string>
   <string name="backup_modules_email_message_2">Liitteenä on sovelluksen %s dokumenttien varmuuskopio, joka sisältää seuraavat moduulit: %s</string>
   <string name="backup_email_subject_2">Sovelluksen %s tietokannan varmuuskopio</string>
   <string name="backup_email_message_2">Liitetiedostona on sovelluksen %s tietokanta, joka sisältää kirjanmerkit, muistiinpanot, lukusuunnitelmat ja työtilat.</string>
   <string name="restore_unsuccessfull">Tietokannan palauttaminen varmuuskopiosta epäonnistui. Annoit ehkä virheellisen tietokantatiedoston.</string>
-  <string name="backup_restore_title">Mistä palautetaan?</string>
-  <string name="backup_restore_message">Palautetaanko puhelimen muistista vai valitaanko varmuuskopiointitiedosto käsin (voit valita myös Google Drivestä jne.)?</string>
   <string name="backup_phone_storage">Puhelimen muisti</string>
-  <string name="backup_manually">Valitse tiedosto</string>
   <string name="backup_backup_title">Mihin varmuuskopioidaan?</string>
   <string name="backup_backup_message">Varmuuskopioidaanko puhelimen muistiin vai muualle Jaa -toimintoa käyttäen (sähköposti, Google Drive jne.)?</string>
   <string name="backup_share">Jaa</string>
@@ -430,23 +519,25 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="module_about_repository">Jakelupalvelin: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Raportoi virhe</string>
-  <string name="report_bug_email_subject_2">Bugiraportti sovellukselle %s %s</string>
-  <string name="report_bug_email_message">
-        --- KIRJOITA BUGIRAPORTTI TÄMÄN RIVIN YLÄPUOLELLE ---\n
-        Ohjeet:\n
-        Kerro lyhyesti mitä teit / mitä tapahtui kun ongelma ilmeni. Esimerkiksi: \n
-        \n
-        1. Avasin sovelluksen\n
-        2. Avasin ikkunavalikon\n
-         -&gt; Sovellus kaatui\n
-        \n
-        Joskus kuvakaappaukset ovat hyödyllisä ongelman ratkaisemiseksi.
-        Käytä tätä toimintoa raportoidaksesi ongelmasta niin pian kuin huomaat sen ilmenevän.
-        Voit myös käyttää tätä toimintoa ohjelman käynnistämisen yhteydessä, sen jälkeen kun ohjelma on kaatunut.
-        \n\n
-        Laitteen tiedot: \n
-        %s</string>
+  <string name="send_bug_report_title1">Bugiraportti</string>
+  <string name="send_feedback_title">Palaute</string>
+  <string name="send_bug_report_title">Palaute / bugiraportti</string>
+  <string name="report_bug_email_subject_3">[%s] Bugiraportti sovellukselle %s %s</string>
+  <string name="report_bug_big_heading">KIRJOITA PALAUTE TAI BUGIRAPORTTI TÄMÄN RIVIN YLÄPUOLELLE</string>
+  <string name="report_bug_heading1">Ohjeet:</string>
+  <string name="report_bug_line_1">Kerro lyhyesti mitä teit / mitä tapahtui kun ongelma ilmeni.</string>
+  <string name="report_bug_heading2">Esimerkiksi:</string>
+  <string name="report_bug_instructions1">1. Avasin sovelluksen</string>
+  <string name="report_bug_instructions2">2. Napsautin ikkunavalikkoa</string>
+  <string name="report_bug_instructions3">-&gt; sovellus kaatui</string>
+  <string name="report_bug_line_2">Joskus käsin otetut näytönkaappaukset ovat hyödyllisiä ongelman selvittämisessä.</string>
+  <string name="report_bug_line_3">Käytä tätä toimintoa raportoidaksesi heti kun olet havainnut ongelman ilmenevän. </string>
+  <string name="report_bug_line_4">Voit myös käyttää tätä toimintoa sovelluksen uudelleenkäynnistämisen jälkeen, jos sovellus on kaatunut. </string>
+  <string name="report_bug_heading_3">Liitteet:</string>
+  <string name="bug_report_logcat">Sovelluksen tuottama lokitiedosto. Se ei sisällä tietoa mistään muusta ohjelmasta.</string>
+  <string name="bug_report_screenshot">Kuvankaappaus sovelluksesta silloin kun sovellus kaatui, tai silloin kun bugiraportti luotiin.</string>
+  <string name="bug_report_attachment_line_1">Näiden liitteiden lähettäminen auttaa kehittäjää paljon raportoidun bugin korjaamisessa.</string>
+  <string name="report_bug_heading_4">Laitteen tiedot:</string>
   <!--Document types-->
   <string name="doc_type_all">Kaikki</string>
   <string name="doc_type_bible">Raamattu</string>
@@ -454,6 +545,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="doc_type_dictionary">Sanakirja</string>
   <string name="doc_type_book">Kirja</string>
   <string name="doc_type_map">Kartta</string>
+  <string name="doc_type_addons">Lisäosat</string>
   <!--Languages-->
   <string name="lang_default">Oletus</string>
   <!--General-->
@@ -462,20 +554,24 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="yes">Kyllä</string>
   <string name="no">Ei</string>
   <string name="error">Virhe</string>
+  <string name="delete_generic">Poista</string>
   <string name="please_wait">Odota…</string>
   <string name="all">Kaikki</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">Muokkaa</string>
+  <string name="reset_generic">Tyhjennä</string>
   <string name="watch_tutorial_video">Katso ohjevideo (englanninkielinen)</string>
   <string name="verse_not_found">Jaetta ei löytynyt</string>
   <!--Errors-->
   <string name="report_error">Raportoi virheestä</string>
   <string name="error_occurred">Tapahtui virhe</string>
+  <string name="error_occurred_crash_last_time">Sovellus kaatui viimeksi kun käytit sitä. Auttaaksesi meitä bugin korjaamisessa, arvostaisimme jos kirjoittaisit meille bugiraportin.</string>
   <string name="error_occurred_with_link">Virhe on tapahtunut. %s</string>
   <string name="error_no_content">Ei sisältöä valitulle jakeelle</string>
   <string name="error_page_too_large">Sivu on liian suuri ladattavaksi</string>
   <string name="error_key_not_in_document">Ei löytynyt teoksesta</string>
+  <string name="error_key_not_in_document2">%s ei löytynyt teoksesta %s.</string>
   <string name="empty_list">Ei näytettävää</string>
+  <string name="error_skip">Ohita</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teksti puheeksi</string>
   <string name="notification_channel_progress_status">Taustaprosessien tilan ilmoitukset dokumenttien latauksille jne.</string>
@@ -512,6 +608,9 @@ Beta-käyttäjiä rohkaistaan raportoimaan bugeja joko Google Playn tai (mieluum
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Piilota</string>
   <string name="beta_notice_dismiss_until_update">Piilota seuraavaan päivitykseen asti</string>
+  <string name="stable_notice_title">Sovellus on päivitetty!</string>
+  <string name="upgrade_video_message">Katso video jolla esitellään tämän julkaisun uudet ominaisuudet (%s).</string>
+  <string name="stable_notice_par1">Uusi versio %s sovelluksesta %s on asennettu onnistuneesti!</string>
   <!--History-->
   <string name="history_for">Historia (%s: Ikkuna %d)</string>
   <!--Help-->
@@ -520,10 +619,9 @@ Beta-käyttäjiä rohkaistaan raportoimaan bugeja joko Google Playn tai (mieluum
   <string name="help_contextmenus_title">Kontekstivalikot</string>
   <string name="help_contextmenus_text">
 Pitkä painallus avaa kontekstivalikon tai toimintotilan useissa näkymissä. Pitkä painallus raamattunäkymässä avaa toimintotilan toiminnoille jotka liittyvät nykyiseen jakeeseen. Pitkä painallus Valitse teos tai Lataa teos -näkymissä listauksen rivillä mahdollistaa dokumentin poistamisen ja lisätietojen katselemisen. Pitkä painalluksella kirjanmerkistä pääset ryhmittelemään kirjanmerkkejä ja poistamaan niitä. Pitkällä painalluksella linkin päältä pääset valitsemaan kontekstivalikosta haluatko avata linkin nykyisessä ikkunassa, uudessa ikkunassa vai erityisessä linkki-ikkunassa. </string>
-  <string name="help_mynote_title">Omat kommentit</string>
-  <string name="help_mynote_text">Voit tallentaa omia kommentteja tekstiin \'Omat kommentit\' -kohdasta pikavalikossa. Luetteloon lisätyistä kommenteista pääsee päävalikon kohdasta.</string>
-  <string name="help_bookmarks_title">Kirjanmerkit</string>
-  <string name="help_bookmarks_text">Kirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan voi siirtyä päävalikon kautta, missä voit ryhmitellä kirjanmerkkejä omiin ryhmiinsä.</string>
+  <string name="help_bookmarks_title">Kirjanmerkit &amp; Omat Merkinnät</string>
+  <string name="help_bookmarks_text">Voit luoda kirjanmerkkejä valitsemalla tekstiä ja valitsemalla \"Kirjanmerkki\" ponnahdusvalikosta. Voit lisätä omia huomioita uuteen kirjanmerkkiin painamalla korostettua tekstiä raamattunäkymässä. Voit myös käyttää \"Omat Merkinnät\" -erikoisdokumenttia, joka löytyy kommentaareista. Sen avulla voit tarkastella huomioitasi erillisessä ikkunassa.</string>
+  <string name="help_studypads_text">Opintoalustat on suunniteltu siihen että voit helposti kirjoittaa muistiinpanoja saarnan aikana, valmistella saarnoja tai kirjoittaa raamattuviittauksia sisältäviä muistiinpanoja Raamattua tutkiessasi. Jokainen tutkimusalusta on liitetty yhteen kirjanmerkkiryhmään. Kaikki kirjanmerkit jotka luot kyseiseen kirjanmerkkiryhmään näkyvät automaattisesti opintoalustadokumentissa. Kirjanmerkkien lisäksi voit myös lisätä omia tekstikatkelmia opintoalustaan. </string>
   <string name="help_search_title">Etsi</string>
   <string name="help_search_text">Tekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)</string>
   <string name="help_workspaces_title">Työtilat</string>
@@ -539,9 +637,141 @@ Pitkä napsautus järjestelmän takaisin -painikkeesta vie sinut selaushistorial
   <string name="help_window_pinning_title">Ikkunan kiinnitys</string>
   <string name="help_window_pinning_text">
 Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkitään 3 pisteellä, oikea yläkulma). Jos ikkunoiden kiinnitys on päällä, voit näyttää yhtäaikaa useita kiinnitettyjä ikkunoita raamattunäkymässä, mutta vain yhden kiinnittämättömän ikkunan. Kiinnitetyt ikkunat näytetään ensimmäisenä, ja sen jälkeen kiinnittämättömät ikkunat. Voit haluta pitää avoimet raamattudokumentit kiinnitettyinä ikkunoina ja kommentaarit ja kartat yms. kiinnittämättöminä ikkunoina. Näin voit helposti tutkiessasi Raamattua pitää raamattudokumentit aina auki ja nopeasti vaihtaa kommentaarien ja muun ylimääräisen materiaalin välillä.</string>
+  <!--Welcome text-->
+  <string name="redownload_documents">Nopea uudelleenlataus</string>
+  <string name="welcome_message">Kiitos kun latasit sovelluksen %s. Tällä hetkellä yhtään Raamattua tai muuta dokumenttia ei ole asennettu. Jatkaaksesi asenna vähintään yksi dokumentti joko lataamalla internetistä tai lataamalla zip-tiedostostossa olevasta varmuuskopiosta.     </string>
+  <string name="redownload_message">Lista aiemmin asennetuista dokumenteista löytyi. Napsauta alta asentaaksesi ne uudelleen helposti. </string>
   <!--Uncategorized-->
   <string name="close">Sulje</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Ymmärrän</string>
   <string name="first_time_help_show_next_time">Näytä seuraavalla kerralla uudestaan</string>
+  <string name="strongs_mode_title">Valitse Strongs tila</string>
+  <string name="download_dialog_message">Seuraavia kirjoja ei voitu ladata:</string>
+  <string name="select_multiple">Valitse useita</string>
+  <string name="journal_description">Opintoalustat joihin käyttäjä voi lisätä tekstiä ja kirjanmerkkejä</string>
+  <string name="my_notes_description">Kirjanmerkkeihin tehdyt merkinnät </string>
+  <string name="my_notes_abbreviation">Omat merkinnät</string>
+  <string name="studypads">Opintoalustat</string>
+  <string name="multi_description">Useita viittauksia</string>
+  <string name="multi_abbreviation">Viitteitä</string>
+  <string name="compare_description">Vertaile käännöksiä</string>
+  <string name="compare_abbreviation">Vertaa</string>
+  <string name="compare">Vertaa</string>
+  <string name="http_forbidden">Kielletty</string>
+  <string name="http_not_found">Ei löytynyt</string>
+  <string name="http_unknown">Muu virhe</string>
+  <string name="give_passphrase_for_module">Dokumentti %s on salattu ja tarvitset salasanan avataksesi sen</string>
+  <string name="unlocking_failed">Salauksen purku epäonnistui, väärä salasana</string>
+  <string name="unlock_module">Aseta moduulin salasana</string>
+  <string name="unlock_info">Salatun moduulin avaustiedot</string>
+  <string name="try_again_passphrase">Salasana ei toiminut, yritä uudelleen?</string>
+  <string name="cant_delete_last_bible">Ei voida poistaa viimeistä raamattudokumenttia</string>
+  <string name="show_unlock_info">Moduulin tiedot &amp; ohjeet salasanan hankkimiseksi</string>
+  <string name="prefs_show_error_box_title">Näytä Javascript-virheiden laatikko</string>
+  <string name="prefs_show_error_box_summary">Hyödyllinen kehittäjille silloin kun he debuggaavat BibleViewin javascript-puolen virheitä. Tämä tekee sovelluksesta hitaamman. </string>
+  <string name="active_window_indicator_title">Näytä aktiivisen ikkunan ilmaisin</string>
+  <string name="active_window_indicator_summary">Korosta ikkunan nurkkia siten että aktiivinen ikkuna erottuu paremmin</string>
+  <string name="app_licence_title">Avoimen lähdekoodin lisenssi</string>
+  <string name="how_to_contribute">Kuinka voin auttaa?</string>
+  <string name="confirm_delete_bookmarks">Haluatko poistaa %dkirjanmerkkiä merkintöineen?</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Suosittele ystävälle</string>
+  <string name="tell_friend_message1">Haluaisin suositella sinulle sovellusta %s.</string>
+  <string name="tell_friend_message2">Se on tehokas mutta helppokäyttöinen offline-raamatuntutkimissovellus Androidille.</string>
+  <string name="tell_friend_message3">Asenna se Play-kaupasta: %s</string>
+  <string name="tell_friend_message4">Lue lisää &amp; lisää asennusvaihtoehtoja: %s</string>
+  <string name="share_verse_ok">Jaa / Kopioi</string>
+  <string name="verse_action_copy">Kopioi</string>
+  <string name="share_verse_menu_title">Jaa / kopioi…</string>
+  <string name="show_versenumbers">Näytä jaenumerot</string>
+  <string name="show_full_verses">Näytä kokonaiset jakeet</string>
+  <string name="advertise_app">Mainosta sovellusta</string>
+  <string name="verse_share_advertise">Jaettu käyttäen sovellusta %s.</string>
+  <string name="abbreviate_reference">Lyhennä viittaukset</string>
+  <string name="version_name">Käännöksen nimi</string>
+  <string name="backup_button">Varmuuskopioi</string>
+  <string name="back_button">Takaisin</string>
+  <string name="upgrading_database">Päivitetään tietokantaa. Odota hetki…</string>
+  <string name="initializing_app">Käynnistetään sovellusta…</string>
+  <string name="show_notes">Näytä merkinnät</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Androidin WebView-paketti on liian vanha (%s). Sinun pitää päivittää Android Webview-paketti vähintään versioon %s käyttääksesi sovellusta %s. Useimmilla laitteilla tämä tapahtuu %sn kautta.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Jatka joka tapauksessa</string>
+  <string name="rate_title">Sovelluksen arviointi</string>
+  <string name="rate_message5">Positiiviset ja yksityiskohtaiset arviot auttavat And Bible avoimen lähdekoodin projektia paljon. Kiitokset!</string>
+  <string name="rate_message6">Ennen kuin annat negatiivisen arvion, huomioithan seuraavat:</string>
+  <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">Jos sinulla on ongelmia sovelluksen kanssa, %s tai %s sen sijaan.</string>
+  <!--param is "please report maintainers"-->
+  <string name="rate_message2">Jos joissain teksteissä tai raamatunkäännöksissä on ongelmia, %s.</string>
+  <!--param is "please read what you can do"-->
+  <string name="rate_message3">Jos jokin teksti ei ole tarjolla sovelluksessa, %s.</string>
+  <string name="rate_message4">Sovelluksen kehittäjät eivät ole vastuussa dokumenttien ylläpidosta.</string>
+  <string name="bug_report">lähetä virheraportti (päävalikosta)</string>
+  <string name="how_to_help">lue täältä miten voit auttaa meitä</string>
+  <string name="send_email">lähetä sähköpostia kehittäjille</string>
+  <string name="proceed_google_play">Jatka Google Playhin</string>
+  <string name="text_maintainers">raportoi virheistä tekstin ylläpitäjille</string>
+  <string name="does_not_exist_abbreviation">Ei löydy</string>
+  <string name="cant_change_wholeverse">Ei voida kytkeä pois koko jakeen merkintää tälle kirjanmerkille</string>
+  <string name="whole_verse_turned_on">Kirjanmerkki on nyt merkitty koko jakeelle</string>
+  <string name="this_bookmark">Tämä kirjanmerkki</string>
+  <string name="this_workspace">Tämä työtila</string>
+  <string name="primary_label">Pääasiallinen kirjanmerkkiryhmä</string>
+  <string name="highlight_entire_verse">Korosta koko jae</string>
+  <string name="favourite_label">Suosikkikirjanmerkkiryhmä</string>
+  <string name="edit_label">Muokkaa kirjanmerkkiryhmää</string>
+  <string name="delete_label_confirmation">Haluatko poistaa kirjanmerkkiryhmän \"%s\"? Myös kaikki liitännäiset opintoalustan merkinnät poistetaan.</string>
+  <string name="bookmark_underline_style_arbitrary">Alleviivaustyyli tekstivalinnan sisältäville kirjanmerkeille</string>
+  <string name="bookmark_underline_style_whole_verse">Alleviivaustyyli koko jakeen kirjanmerkeille</string>
+  <string name="active_labels">Valitut kirjanmerkkiryhmät</string>
+  <string name="recent_labels">Viimeaikaiset kirjanmerkkiryhmät</string>
+  <string name="other_labels">Muut kirjanmerkkiryhmät</string>
+  <string name="book_menu_sort_row_opt">Järjestä kirjat vaakatasoon</string>
+  <string name="reset_workspace_labels">Haluatko alustaa työtilaan liittyvät kirjanmerkkiryhmien asetukset? Tämä koskee suosikkikirjamerkkiryhmiä ja automaattisesti uusiin kirjanmerkkehin lisättäviä kirjanmerkkiryhmiä. </string>
+  <string name="reset_hide_labels">Haluatko tyhjätä tiettyjen kirjanmerkkiryhmien piilotuksen asetuksen?</string>
+  <string name="reorder">Järjestä uudelleen</string>
+  <string name="system_items">Järestelmän toiminnot</string>
+  <string name="system_items1">Lisää</string>
+  <string name="system_action2">Androidin toiminnot</string>
+  <string name="text_copied_to_clicpboard">Teskti kopioitiin leikepöydälle</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Yksivaiheinen kirjanmerkin lisääminen</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Näytä \"Valinta\" ja \"Jakeet\" suoraan raamattunäkymän valintavalikossa.</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Kaksoisnapautuksella kokoruututilaan</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Siirry kokoruututilaan kaksoisnapauttamalla teksti-ikkunaa</string>
+  <string name="toggle_fullscreen">Kokoruututila</string>
+  <string name="exit_fullscreen">Tupla-napauta ruutua sulkeaksesi kokoruututilan</string>
+  <string name="reset_app_prefs">Haluatko alustaa kaikki tässä ruudussa näkyvät sovelluksen yleiset asetukset oletusarvoihin?</string>
+  <string name="label_red">Punainen</string>
+  <string name="label_green">Vihreä</string>
+  <string name="label_blue">Sininen</string>
+  <string name="label_salvation">Pelastus</string>
+  <string name="label_underline">Alleviivaus</string>
+  <string name="import_menu">Tuo &amp; vie</string>
+  <string name="export_fileformat">Vie muodossa %s</string>
+  <string name="import_items">Tuo muodossa %s</string>
+  <string name="import_from_db">Tuo sovelluksen tietokannasta</string>
+  <string name="import_error">Tuonti sovelluksen tietokannasta epäonnistui. Tietokanta saattaa olla väärässä muodossa tai se on tehty liian vanhalla %s:n versiolla.</string>
+  <string name="chooser_range">Alue</string>
+  <string name="chooser_jump">Hyppää</string>
+  <string name="chooser_OT_abbrev">OT</string>
+  <string name="chooser_NT_abbrev">UT</string>
+  <string name="chooser_style_grid">Ruudukko</string>
+  <string name="chooser_style_lists">Lista</string>
+  <string name="chooser_select">Valitse %s</string>
+  <string name="chooser_pref_reset">Älä tyhjennä luvun/jakeen valitsinta 1:n kirjaa/lukua valittaessa</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Olemme pahoillamme, mutta käyttöliittymä on käännetty vain osittain kielellä %s. Tämä johtuu siitä että %s on kehitetty täysin vapaaehtoisten voimin. Jos voit auttaa kääntämisessä, katso %s.</string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">ohjeet kääntäjille</string>
+  <string name="questions_title">Kysymyksiä?</string>
+  <string name="questions_title2">Tarvitsetko apua?</string>
+  <string name="bookmark_style">Kirjanmerkin tyyli</string>
+  <string name="added_to_bookmark">Sijoitettu tähän kirjanmerkkiin</string>
+  <string name="strongs_off">Pois päältä</string>
+  <string name="strongs_links">Linkkejä</string>
+  <string name="strongs_text_and_links">Teksti ja linkit</string>
+  <string name="verse_tip">Valitaksesi osittaisia tai useita jakeita, napauta pitkään Raamatun tekstiä</string>
 </resources>

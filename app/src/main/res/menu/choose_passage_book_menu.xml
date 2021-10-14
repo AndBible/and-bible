@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The main menu accessed via Menu key
- 
- @author Martin Denham [mjdenham at gmail dot com]
--->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
-    
-   
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/deut_toggle"
+        android:title="@string/bible"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_new"
+        />
+
+    <item
+        android:id="@+id/alphabetical_order_opt"
+        android:title="@string/sort_by_alphabetical"
+        android:checkable="true"/>
+
+    <item
+        android:id="@+id/row_order_opt"
+        android:title="@string/book_menu_sort_row_opt"
+        android:checkable="true"/>
+
 </menu>

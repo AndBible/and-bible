@@ -17,30 +17,48 @@
   ~
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/buttonsLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/statusText"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/speak_status_background"
             android:paddingStart="@dimen/speak_row_padding"
-            android:paddingEnd="@dimen/speak_row_padding"
             android:paddingTop="5dip"
+            android:paddingEnd="@dimen/speak_row_padding"
             android:paddingBottom="5dip"
+            android:lines="1"
+            android:ellipsize="end"
+            android:text="test"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/speed"
             />
+
+
+        <SeekBar
+            android:id="@+id/speed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.33"
+            android:min="10"
+            android:max="300"
+            app:layout_constraintBottom_toBottomOf="@+id/statusText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/statusText" />
 
         <LinearLayout
             android:id="@+id/button_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@+id/statusText"
+            app:layout_constraintTop_toBottomOf="@+id/statusText">
 
                 <ImageButton
                     android:id="@+id/bookmarkButton"
@@ -113,4 +131,4 @@
                     android:theme="@style/TransportButtonTheme"
                     app:srcCompat="@drawable/ic_settings_black_24dp" />
         </LinearLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

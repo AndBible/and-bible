@@ -22,15 +22,20 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.TextUtils
+import android.text.method.LinkMovementMethod
+import android.text.style.ImageSpan
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.TextView
 import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceGroup
-import androidx.preference.PreferenceScreen
-import kotlinx.android.synthetic.main.settings_dialog.*
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SettingsDialogBinding
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
@@ -41,16 +46,26 @@ import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
-import net.bible.android.view.activity.page.FontPreference
+import net.bible.android.view.activity.page.FontFamilyPreference
+import net.bible.android.view.activity.page.FontSizePreference
+import net.bible.android.view.activity.page.HideLabelsPreference
 import net.bible.android.view.activity.page.LineSpacingPreference
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.MorphologyPreference
+import net.bible.android.view.activity.page.MyNotesPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
+import net.bible.android.view.activity.page.RedLettersPreference
 import net.bible.android.view.activity.page.StrongsPreference
+import net.bible.android.view.activity.page.TopMarginPreference
+import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.getTintedDrawable
+import net.bible.service.common.getPreferenceList
+import net.bible.service.common.htmlToSpan
+import net.bible.service.common.textDisplaySettingsVideo
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
+import javax.inject.Inject
 
 
 class TextDisplaySettingsDataStore(
@@ -63,7 +78,7 @@ class TextDisplaySettingsDataStore(
         val oldValue = prefItem.value
         prefItem.value = value
         if(oldValue != value) {
-            activity.setDirty(type, prefItem.requiresReload)
+            activity.setDirty(type)
         }
     }
 
@@ -76,36 +91,38 @@ class TextDisplaySettingsDataStore(
 }
 
 fun getPrefItem(settings: SettingsBundle, key: String): OptionsMenuItemInterface {
-    try {
+    return try {
         val type = Types.valueOf(key)
-        return getPrefItem(settings, type)
-    }
-    catch (e: IllegalArgumentException) {
-        return when(key) {
+        getPrefItem(settings, type)
+    } catch (e: IllegalArgumentException) {
+        when(key) {
             "apply_to_all_workspaces" -> CommandPreference()
-            else -> throw RuntimeException("Unsupported item key")
+            else -> throw RuntimeException("Unsupported item key $key")
         }
     }
 }
 
 fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface =
     when(type) {
-        Types.BOOKMARKS -> ItemPreference(settings, Types.BOOKMARKS)
-        Types.REDLETTERS -> ItemPreference(settings, Types.REDLETTERS)
+        Types.BOOKMARKS_SHOW -> ItemPreference(settings, Types.BOOKMARKS_SHOW)
+        Types.REDLETTERS -> RedLettersPreference(settings)
         Types.SECTIONTITLES -> ItemPreference(settings, Types.SECTIONTITLES)
         Types.VERSENUMBERS -> ItemPreference(settings, Types.VERSENUMBERS)
         Types.VERSEPERLINE -> ItemPreference(settings, Types.VERSEPERLINE)
         Types.FOOTNOTES -> ItemPreference(settings, Types.FOOTNOTES)
-        Types.MYNOTES -> ItemPreference(settings, Types.MYNOTES)
+        Types.MYNOTES -> MyNotesPreference(settings)
 
         Types.STRONGS -> StrongsPreference(settings)
         Types.MORPH -> MorphologyPreference(settings)
-        Types.FONT -> FontPreference(settings)
+        Types.FONTSIZE -> FontSizePreference(settings)
+        Types.FONTFAMILY -> FontFamilyPreference(settings)
         Types.MARGINSIZE -> MarginSizePreference(settings)
         Types.COLORS -> ColorPreference(settings)
-        Types.JUSTIFY -> ItemPreference(settings, Types.JUSTIFY, requiresReload = false)
-        Types.HYPHENATION -> ItemPreference(settings, Types.HYPHENATION, requiresReload = false)
+        Types.JUSTIFY -> ItemPreference(settings, Types.JUSTIFY)
+        Types.HYPHENATION -> ItemPreference(settings, Types.HYPHENATION)
+        Types.TOPMARGIN -> TopMarginPreference(settings)
         Types.LINE_SPACING -> LineSpacingPreference(settings)
+        Types.BOOKMARKS_HIDELABELS -> HideLabelsPreference(settings, Types.BOOKMARKS_HIDELABELS)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
@@ -128,35 +145,21 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
     private fun updateItem(p: Preference) {
         val itmOptions = getPrefItem(settingsBundle, p.key)
         if(windowId != null) {
-            if (itmOptions.inherited) {
-                p.setIcon(R.drawable.ic_sync_white_24dp)
-            } else {
-                p.setIcon(R.drawable.ic_sync_disabled_green_24dp)
-            }
-        }
-        if(itmOptions is MorphologyPreference) {
-            p.isEnabled = StrongsPreference(settingsBundle).value as Boolean
+            p.icon = CommonUtils.iconWithSync(itmOptions.icon!!, itmOptions.inherited,  1.5F)
+        } else {
+            p.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_workspace_overlay_24dp, 1.5F)
         }
         if(itmOptions.title != null) {
             p.title = itmOptions.title
         }
+        p.isEnabled = itmOptions.enabled
         p.isVisible = itmOptions.visible
+
+        if(itmOptions is StrongsPreference) {
+            updateItem(findPreference(Types.MORPH.name)!!)
+        }
     }
 
-    private fun getPreferenceList(p_: Preference? = null, list_: ArrayList<Preference>? = null): ArrayList<Preference> {
-        val p = p_?: preferenceScreen
-        val list = list_?: ArrayList()
-        if (p is PreferenceCategory || p is PreferenceScreen) {
-            val pGroup: PreferenceGroup = p as PreferenceGroup
-            val pCount: Int = pGroup.preferenceCount
-            for (i in 0 until pCount) {
-                getPreferenceList(pGroup.getPreference(i), list) // recursive call
-            }
-        } else {
-            list.add(p)
-        }
-        return list
-    }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         var returnValue = true
@@ -166,19 +169,14 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         val resetFunc = {
             if(prefItem is ItemPreference) {
                 prefItem.setNonSpecific()
-                activity.setDirty(prefItem.type, prefItem.requiresReload)
+                activity.setDirty(prefItem.type)
             }
             updateItem(preference)
         }
         val handled = prefItem.openDialog(activity, {
             updateItem(preference)
             if(type != null)
-                activity.setDirty(type, prefItem.requiresReload)
-            else if(prefItem.requiresReload) {
-                for(t in Types.values()) {
-                    activity.setDirty(t, true)
-                }
-            }
+                activity.setDirty(type)
         }, resetFunc)
 
         if(!handled) {
@@ -209,26 +207,109 @@ class TextDisplaySettingsActivity: ActivityBase() {
     private var reset = false
     private val dirtyTypes = mutableSetOf<Types>()
 
-    override val dayTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
-    override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
-
     internal lateinit var settingsBundle: SettingsBundle
+    private lateinit var binding: SettingsDialogBinding
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.text_options_opts, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        var isHandled = true
+        when(item.itemId) {
+            R.id.reset -> reset()
+            R.id.help -> help()
+            android.R.id.home -> onBackPressed()
+            else -> isHandled = false
+        }
+        if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item)
+        }
+        return isHandled
+    }
+
+    fun reset() {
+        AlertDialog.Builder(this)
+            .setPositiveButton(R.string.yes) {_, _ ->
+                reset = true
+                requiresReload = true
+                setResult()
+                finish()
+            }
+            .setNegativeButton(R.string.no,null)
+            .setMessage(getString(R.string.reset_are_you_sure))
+            .create()
+            .show()
+    }
+
+    fun help() {
+        val resetIcon = ImageSpan(getTintedDrawable(R.drawable.ic_baseline_undo_24))
+        val length = 9
+
+        val videoSpan = htmlToSpan("<i><a href=\"$textDisplaySettingsVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br><br>")
+
+        val text = if(isWindow) {
+            val w1 = getString(R.string.window_text_options_help1, "__ICON1__")
+            val w3 = getString(R.string.window_text_options_help3)
+            val w4 = getString(R.string.text_options_reset_help, "__ICON3__", getString(R.string.reset_workspace_defaults))
+            val icon1 = ImageSpan(getTintedDrawable(R.drawable.ic_workspace_overlay_24dp))
+
+            val text = "$w1 $w3\n\n$w4"
+            val start1 = text.indexOf("__ICON1__")
+            val start3 = text.indexOf("__ICON3__")
+            val span = SpannableString(text)
+            span.setSpan(icon1, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+            span.setSpan(resetIcon, start3, start3 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+            TextUtils.concat(videoSpan, span)
+        } else {
+            val h1 = getString(R.string.workspace_text_options_help1)
+            val h2 = getString(R.string.workspace_text_options_help2)
+            val h3 = getString(R.string.text_options_reset_help, "__ICON1__", getString(R.string.reset_defaults))
+            val text = "$h1 $h2 \n\n$h3"
+            val start1 = text.indexOf("__ICON1__")
+            val span = SpannableString(text)
+            span.setSpan(resetIcon, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+            TextUtils.concat(videoSpan, span)
+        }
+
+        val title = if(isWindow) getString(R.string.window_text_options_help_title)
+                    else getString(R.string.workspace_text_options_help_title)
+
+        val d = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay, null)
+            .setTitle(title)
+            .setMessage(text)
+            .create()
+
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    override fun onBackPressed() {
+        finish()
+    }
+
+    private val isWindow get() = settingsBundle.windowId != null
+
+    @Inject lateinit var windowControl: WindowControl
 
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
-
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_dialog)
+
+        binding = SettingsDialogBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         super.buildActivityComponent().inject(this)
         dirtyTypes.clear()
         requiresReload = false
         reset = false
 
         val windowId = settingsBundle.windowId
-        if(windowId != null) {
-            title = getString(R.string.window_text_display_settings_title, mainBibleActivity.windowControl.windowPosition(windowId) + 1)
+        title = if(windowId != null) {
+            getString(R.string.window_text_display_settings_title, windowControl.windowPosition(windowId) + 1)
         } else {
-            title = getString(R.string.workspace_text_display_settings_title, settingsBundle.workspaceName)
+            getString(R.string.workspace_text_display_settings_title, settingsBundle.workspaceName)
         }
 
         val fragment = TextDisplaySettingsFragment()
@@ -237,32 +318,11 @@ class TextDisplaySettingsActivity: ActivityBase() {
             .replace(R.id.settings_container, fragment)
             .commit()
         this.fragment = fragment
-        okButton.setOnClickListener {finish()}
-        cancelButton.setOnClickListener {
-            dirtyTypes.clear()
-            setResult()
-            finish()
-        }
-        resetButton.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setPositiveButton(R.string.yes) {_, _ ->
-                    reset = true
-                    requiresReload = true
-                    setResult()
-                    finish()
-                }
-                .setNegativeButton(R.string.no,null)
-                .setMessage(getString(R.string.reset_are_you_sure))
-                .create()
-                .show()
-        }
         setResult()
     }
 
-    fun setDirty(type: Types, requiresReload: Boolean = false) {
+    fun setDirty(type: Types) {
         dirtyTypes.add(type)
-        if(requiresReload)
-            this.requiresReload = true
         setResult()
     }
 
@@ -270,7 +330,6 @@ class TextDisplaySettingsActivity: ActivityBase() {
         val resultIntent = Intent(this, ColorSettingsActivity::class.java)
 
         resultIntent.putExtra("settingsBundle", settingsBundle.toJson())
-        resultIntent.putExtra("requiresReload", requiresReload)
         resultIntent.putExtra("reset", reset)
         resultIntent.putExtra("edited", dirtyTypes.isNotEmpty())
         resultIntent.putExtra("dirtyTypes", DirtyTypesSerializer(dirtyTypes).toJson())
@@ -298,7 +357,6 @@ class TextDisplaySettingsActivity: ActivityBase() {
                 }
             }
         }
-
         super.onActivityResult(requestCode, resultCode, data)
     }
 }

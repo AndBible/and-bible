@@ -8,4 +8,4 @@ Kutsal Kitabı (Tevrat, Zebur, İncil), yorum kitaplar ve Hristiyan sözlükler 
 * Birçok arayüzü dil mevcut
 * Esnek arama motorü
 * Yer imleri
-* Kutsal toprakların haritaları dahil
+* Kutsal toprakların haritaları dahi

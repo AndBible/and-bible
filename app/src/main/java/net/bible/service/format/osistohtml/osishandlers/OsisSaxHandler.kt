@@ -18,7 +18,7 @@
 package net.bible.service.format.osistohtml.osishandlers
 
 import net.bible.service.common.Logger
-import net.bible.service.format.osistohtml.HtmlTextWriter
+import net.bible.service.format.osistohtml.TextWriter
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
 
@@ -30,7 +30,7 @@ import org.xml.sax.helpers.DefaultHandler
 open class OsisSaxHandler : DefaultHandler() {
     // debugging
     private var isDebugMode = false
-    val writer: HtmlTextWriter = HtmlTextWriter()
+    val writer: TextWriter = TextWriter()
 
     /*
      * (non-Javadoc)

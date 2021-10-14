@@ -3,13 +3,15 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:paddingTop="2dip"
 	android:paddingBottom="2dip"
+	android:id="@+id/item"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:minHeight="?android:attr/listPreferredItemHeight"
 	android:mode="twoLine"
-	android:paddingLeft="16dp"
-	android:paddingRight="16dp"
-	android:background="@drawable/selectable_background">
+	android:paddingStart="16dp"
+	android:paddingEnd="16dp"
+	android:background="@drawable/selectable_background"
+	>
     <androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -54,6 +56,15 @@
 				app:layout_constraintTop_toTopOf="parent"
 				app:srcCompat="@drawable/ic_star_black_24dp"
 				app:tint="@color/yellow_600" />
+			<ImageView android:id="@+id/lockedIcon"
+				android:layout_width="15dp"
+				android:layout_height="15dp"
+				android:duplicateParentState="true"
+				android:layout_centerVertical="true"
+				app:layout_constraintStart_toEndOf="@id/documentTypeIcon"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:srcCompat="@drawable/ic_baseline_lock_24"
+				app:tint="@color/red" />
 		</androidx.constraintlayout.widget.ConstraintLayout>
 		<TextView android:id="@+id/documentAbbreviation"
 			android:layout_width="0dp"
@@ -109,6 +120,18 @@
 			android:maxLines="1"
 			android:ellipsize="end"
 			android:textAppearance="?android:textAppearanceSmall" />
+
+		<ImageView
+			android:id="@+id/undoButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_close_white_24dp"
+			app:layout_constraintBottom_toBottomOf="@id/recommendedString"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:tint="@color/red"
+			android:visibility="invisible"
+			/>
+
 		<ProgressBar android:id="@+id/progressBar"
 			style="@style/Widget.AppCompat.ProgressBar.Horizontal"
 			android:layout_width="0dp"

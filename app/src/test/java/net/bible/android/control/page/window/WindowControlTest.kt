@@ -4,13 +4,14 @@ package net.bible.android.control.page.window
 import android.view.Menu
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
+import net.bible.android.common.resource.AndroidResourceProvider
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.EventManager
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
-import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.service.download.RepoFactory
+import net.bible.service.device.speak.AbstractSpeakTests
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -27,14 +28,13 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.hasItem
-import org.hamcrest.Matchers.hasSize
 import org.hamcrest.Matchers.isA
 import org.junit.After
 import org.junit.Assert.assertThat
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.times
@@ -60,16 +60,15 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun setUp() {
         eventManager = mock(EventManager::class.java)
-        val swordContentFactory = mock(SwordContentFacade::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
-        val myNoteDao = mock(MyNoteDAO::class.java)
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(), bibleTraverser, myNoteDao, windowRepository!!) }
+        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
+        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
         windowRepository!!.initialize()
         reset<EventManager>(eventManager)
-        windowRepository!!.windowBehaviorSettings.autoPin = true
+        windowRepository!!.workspaceSettings.autoPin = true
         windowControl!!.activeWindow.isPinMode = true
     }
 
@@ -138,9 +137,8 @@ class WindowControlTest {
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
         windowControl!!.showLinkUsingDefaultBible(PS_139_3)
 
-        // since we have clicked link when active window is bible doc, open link in same
-        // document in links window.
-        assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_ESV))
+        // Do not change bible doc in links window
+        assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
 
         // if we would have clicked from commentary, then document should not have changed
         // since links window has not been closed.. Test for that: TODO

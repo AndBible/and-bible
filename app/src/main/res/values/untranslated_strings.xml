@@ -14,6 +14,7 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="lang_azerbaijani">az: Azərbaycan</string>
 	<string name="lang_belarusian">be: беларуская</string>
 	<string name="lang_bengali">bn: বাংলা ভাষা</string>
+	<string name="lang_burmese">my: မြန်မာစာ</string>
 	<string name="lang_bulgarian">bg: български</string>
 	<string name="lang_czech">cs: Čeština</string>
 	<string name="lang_welsh">cy: Cymraeg</string>
@@ -74,5 +75,11 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
         <item quantity="one">@string/one_page</item>
         <item quantity="other">@string/some_pages</item>
     </plurals>
-	
+
+	<!-- English-only feature -->
+	<string name="easy_start_title">Easy start</string>
+	<string name="easy_start_message">
+		To easily get started, click below to automatically download recommended default documents.
+		Recommended for first time users! You can change these settings later on.
+	</string>
 </resources>

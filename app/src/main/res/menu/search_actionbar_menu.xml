@@ -17,9 +17,15 @@
   ~
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:appcompat="http://schemas.android.com/apk/res-auto"
+<menu
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     >
+    <item android:id="@+id/help"
+        android:title="@string/help"
+        android:icon="@drawable/ic_help_white_24dp"
+        app:showAsAction="always" />
+
     <item android:id="@+id/rebuildIndex"
         android:title="@string/rebuild_index"
         />

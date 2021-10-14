@@ -1,0 +1,81 @@
+openMyNotes: Avaa Omissa Merkinnöissä
+openStudyPad: Avaa Opintoalustassa (%s)
+noteText: Alaviitteet (%s)
+noteTextWithoutType: Alaviitteet
+crossReferenceText: Ristiviitteet
+findAllOccurrences: Etsi kaikki esiintymät
+reportError: Raportoi virheestä
+errorTitle: Tapahtui virhe
+warningTitle: Varoitus
+normalTitle: Huomaa
+footnoteTypeUndefined: Määrittämätön tyyppi
+footnoteTypeStudy: Tutkimus
+footnoteTypeExplanation: Selitys
+footnoteTypeVariant: Muunnos
+footnoteTypeAlternative: Vaihtoehtoinen
+footnoteTypeTranslation: Käännös
+clearLog: Tyhjennä virheloki
+editNote: Muokkaa
+editNotePlaceholder: Muokkaa merkintää
+editTextPlaceholder: Napsauta muokataksesi tekstiä
+inputPlaceholder: Kirjoita tähän
+inputReference: Anna raamattuviite
+invalidReference: Jaetta ei löytynyt
+assignLabels: Ryhmät
+bookmarkAccurate: Kirjanmerkki luotiin dokumentissa %s
+bookmarkInaccurate: "Kirjanmerkin kirjatietoa ei ole tallennettu, sisältö näytetään dokumentissa %s."
+defaultBook: oletusraamattudokumentti
+ok: Ok
+yes: "Kyllä"
+ambiguousSelection: "Minkä toiminteen haluat tehdä?"
+cancel: Peruuta
+removeBookmarkConfirmationTitle: "Poista kirjanmerkki?"
+removeBookmarkConfirmation: "Oletko varma että haluat poistaa tämän kirjanmerkin?"
+closeModal: Sulje
+createdAt: "Luotu: %s"
+lastUpdatedOn: "Viimeksi päivitetty: %s"
+strongsLink: Strongin määritelmä (%s)
+morphLink: Morfologinen koodi (%s)
+strongsAndMorph: Määritelmä & Morfologia
+studyPadLink: Avaa opintoalusta
+externalLink: Avaa ulkoinen linkki
+referenceLink: Avaa viittaus
+openFootnote: Avaa alaviite
+openBookmark: Avaa kirjanmerkki (%s)
+noMyNotesTitle: Ei merkintöjä tälle luvulle.
+noMyNotesDescription: >-
+  Pääset alkuun luomalla kirjanmerkkejä raamattudokumentissa. Kirjanmerkit näkyvät täällä ja voit lisätä omia merkintöjäsi niihin.
+emptyStudyPad: >
+  Tyhjä opintoalusta. Aloita lisäämällä opintoalustaan tekstimerkintöjä tästä tai tekemällä kirjanmerkkejä tätä opintoalustaa vastaavaan kirjanmerkkiryhmään. 
+studyPadModalTitle: Muokkaa opintoalustan merkintää
+doYouWantToDeleteEntry: "Poista opintoalustan merkintä?"
+removeStudyPadConfirmationTitle: "Poista opintoalustan merkintä?"
+dragHelp: Raahaa järjestääksesi uudelleen
+saved: tallennettu
+openAll: Avaa kaikki viittaukset
+editBookmarkPlaceholder: "Napsauta muokataksesi tähän kirjanmerkkiin liittyviä merkintöjä "
+onlyLabel: Vain ryhmämerkintä
+wholeBookmark: Koko kirjanmerkki
+otherNoteText: Muu huomio
+assignLabelsMenuEntry: Sijoita ryhmiin
+assignLabelsMenuEntry1: Valitse tai muokkaa kirjanmerkkiryhmiä...
+jumpToStudyPad: Hyppää opintoalustaan
+setAsPrimaryLabel: Aseta pääasialliseksi kirjanmerkkiryhmäksi
+removeBookmarkLabel: Poista kirjanmerkkiryhmä
+addBookmarkLabel: Lisää kirjanmerkkiryhmä
+favouriteLabels: Suosikkiryhmät
+recentLabels: Viimeaikaiset ryhmät
+frequentlyUsedLabels: Usein käytetyt ryhmät
+bookmarkLabels: Kirjanmerkkiryhmät
+refParserHelp: Asenna moduuli %s tehdäksesi viittauksia muilla kuin englannin kielellä.
+openDownloads: Siirry lisäosien latauksiin
+verseShare: Jaa
+verseCompare: Vertaa
+verseNote: Muistiinpano
+verseMyNotes: Omat merkinnät
+verseSpeak: Puhe
+verseShareLong: Jaa tämä jae
+verseCompareLong: Vertaa jaetta
+verseNoteLong: Kirjoita muistiinpano
+verseSpeakLong: Aloita kuuntelu tästä jakeesta
+addBookmark: Kirjanmerkki

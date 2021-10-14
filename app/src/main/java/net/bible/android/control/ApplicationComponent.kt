@@ -18,26 +18,19 @@
 package net.bible.android.control
 
 import dagger.Component
-import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.comparetranslations.CompareTranslationsControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.footnoteandref.FootnoteAndRefControl
-import net.bible.android.control.footnoteandref.NoteDetailCreator
 import net.bible.android.control.link.LinkControl
-import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControlFactory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
-import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager
 import net.bible.android.view.activity.page.BibleKeyHandler
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
@@ -46,7 +39,6 @@ import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBar
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.history.HistoryManager
 import net.bible.service.history.HistoryTraversalFactory
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 
 /**
@@ -59,11 +51,8 @@ import net.bible.service.sword.SwordDocumentFacade
 interface ApplicationComponent {
 
     //Exposed to sub-graphs.
-    fun warmUp(): WarmUp
-    fun errorReportControl(): ErrorReportControl
 
     fun swordDocumentFacade(): SwordDocumentFacade
-    fun swordContentFacade(): SwordContentFacade
     fun bibleTraverser(): BibleTraverser
     fun navigationControl(): NavigationControl
     fun windowControl(): WindowControl
@@ -75,17 +64,12 @@ interface ApplicationComponent {
     fun bibleKeyHandler(): BibleKeyHandler
 
     fun documentControl(): DocumentControl
-    fun backupControl(): BackupControl
     fun bookmarkControl(): BookmarkControl
-    fun myNoteControl(): MyNoteControl
-    fun noteDetailCreator(): NoteDetailCreator
     fun downloadControl(): DownloadControl
     fun pageControl(): PageControl
     fun readingPlanControl(): ReadingPlanControl
     fun readingPlanRepo(): ReadingPlanRepository
     fun searchControl(): SearchControl
-    fun compareTranslationsControl(): CompareTranslationsControl
-    fun footnoteAndRefControl(): FootnoteAndRefControl
 
     fun speakControl(): SpeakControl
 
@@ -93,5 +77,4 @@ interface ApplicationComponent {
     fun speakStopActionBarButton(): SpeakStopActionBarButton
     fun readingPlanActionBarManager(): ReadingPlanActionBarManager
     fun searchResultsActionBarManager(): SearchResultsActionBarManager
-    fun bibleBookActionBarManager(): BibleBookActionBarManager
 }

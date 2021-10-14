@@ -22,17 +22,20 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
+import android.text.format.DateFormat.format
+import android.widget.TextView
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.HistoryBinding
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.base.SharedActivityState.Companion.currentWorkspaceName
 import net.bible.service.history.HistoryItem
 import net.bible.service.history.HistoryManager
-import java.util.*
 import javax.inject.Inject
 
 /** show a history list and allow to go to history item
@@ -40,17 +43,20 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class History : ListActivityBase() {
+
+    private lateinit var binding: HistoryBinding
+
     private var mHistoryItemList: List<HistoryItem>? = null
     @Inject lateinit var historyManager: HistoryManager
     @Inject lateinit var windowControl: WindowControl
-    override val customTheme: Boolean
-        get() = false
+    override val customTheme = false
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying History view")
-        setContentView(R.layout.history)
+        binding = HistoryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         buildActivityComponent().inject(this)
         listAdapter = createAdapter()
         val name = currentWorkspaceName
@@ -64,13 +70,22 @@ class History : ListActivityBase() {
      */
     protected fun createAdapter(): ListAdapter {
         mHistoryItemList = historyManager.history
-        val historyTextList: MutableList<CharSequence> = ArrayList()
-        for (item in mHistoryItemList!!) {
-            historyTextList.add(item.description)
-        }
-        return ArrayAdapter(this,
+        return object : ArrayAdapter<HistoryItem>(
+            this,
             LIST_ITEM_TYPE,
-            historyTextList)
+            R.id.titleText, mHistoryItemList!!
+        ) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+
+                val view = super.getView(position, convertView, parent)
+                view.findViewById<TextView>(R.id.titleText).text = mHistoryItemList!![position].description.toString()
+                val formattedDate = format("h:mm a, E d MMM ", mHistoryItemList!![position].createdAt).toString()
+                view.findViewById<TextView>(R.id.dateText).text = formattedDate
+
+                return view
+
+            }
+        }
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
@@ -96,6 +111,6 @@ class History : ListActivityBase() {
 
     companion object {
         private const val TAG = "History"
-        private const val LIST_ITEM_TYPE = android.R.layout.simple_list_item_1
+        private const val LIST_ITEM_TYPE = R.layout.history_list_item
     }
 }

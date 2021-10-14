@@ -24,14 +24,17 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View.OnClickListener
+import androidx.core.view.children
 
 import net.bible.android.activity.R
+import net.bible.android.control.navigation.BibleBookSortOrder
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
@@ -47,6 +50,7 @@ import java.util.ArrayList
 
 import javax.inject.Inject
 
+
 /**
  * Choose a bible book e.g. Psalms
  *
@@ -56,11 +60,10 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
 
     private lateinit var buttonGrid: ButtonGrid
 
-    private var isCurrentlyShowingScripture = true
+    private var isCurrentlyShowingScripture = false
 
     @Inject lateinit var navigationControl: NavigationControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
-    @Inject lateinit var bibleBookActionBarManager: BibleBookActionBarManager
 
     private// this is used for preview
     val bibleBookButtonInfo: List<ButtonInfo>
@@ -75,7 +78,9 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                 try {
                     buttonInfo.id = book.ordinal
                     buttonInfo.name = getShortBookName(book, isShortBookNamesAvailable)
+                    buttonInfo.description = versification.getLongName(book)
                     buttonInfo.textColor = getBookTextColor(book.ordinal)
+                    buttonInfo.tintColor = if (book.ordinal < BibleBook.MATT.ordinal) Color.DKGRAY else NEW_TESTAMENT_TINT
                     buttonInfo.highlight = book == currentBibleBook
                 } catch (nsve: NoSuchVerseException) {
                     buttonInfo.name = "ERR"
@@ -101,34 +106,13 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     private val versification: Versification
         get() = navigationControl.versification
 
-    /**
-     * Handle scripture/Appendix toggle
-     */
-    private val scriptureToggleClickListener = OnClickListener {
-        isCurrentlyShowingScripture = !isCurrentlyShowingScripture
-
-        buttonGrid.clear()
-        buttonGrid.addButtons(bibleBookButtonInfo)
-
-        bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture)
-    }
-
-    /**
-     * Handle scripture/Appendix toggle
-     */
-    private val sortOrderClickListener = OnClickListener {
-        navigationControl.changeBibleBookSortOrder()
-
-        buttonGrid.clear()
-        buttonGrid.addButtons(bibleBookButtonInfo)
-    }
-
     private var navigateToVerse: Boolean = false
+
+    // background goes white in some circumstances if theme changes so prevent theme change
+    override val allowThemeChange = false
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
-        // background goes white in some circumstances if theme changes so prevent theme change
-        setAllowThemeChange(false)
         super.onCreate(savedInstanceState)
 
         buildActivityComponent().inject(this)
@@ -138,26 +122,60 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
             title = customTitle
 
         val workspaceName = SharedActivityState.currentWorkspaceName
-        title = "${title} (${workspaceName})"
-
-        val navigateToVerseDefault = CommonUtils.sharedPreferences.getBoolean("navigate_to_verse_pref", false)
-        navigateToVerse = intent?.extras?.getBoolean("navigateToVerse", navigateToVerseDefault)?:navigateToVerseDefault
-
-        bibleBookActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
-        bibleBookActionBarManager.sortButton.registerClickListener(sortOrderClickListener)
-
-        setActionBarManager(bibleBookActionBarManager)
-
-        isCurrentlyShowingScripture = navigationControl.isCurrentDefaultScripture
-        bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture)
+        title = "$title (${workspaceName})"
+        navigateToVerse = intent.getBooleanExtra("navigateToVerse", CommonUtils.settings.getBoolean("navigate_to_verse_pref", false))
+        isCurrentlyShowingScripture = intent?.getBooleanExtra("isScripture", false)!!
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buttonGrid = ButtonGrid(this)
-
         buttonGrid.setOnButtonGridActionListener(this)
-
+        buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
         buttonGrid.addButtons(bibleBookButtonInfo)
 
         setContentView(buttonGrid)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val sortOptionItem = menu.findItem(R.id.alphabetical_order_opt)
+        sortOptionItem.isChecked = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
+        val rowDistributionItem = menu.findItem(R.id.row_order_opt)
+        buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
+        rowDistributionItem.isChecked  = buttonGrid.isLeftToRightEnabled
+        val deutToggle = menu.findItem(R.id.deut_toggle)
+        deutToggle.setTitle(if(isCurrentlyShowingScripture) R.string.bible else R.string.deuterocanonical)
+        deutToggle.isVisible = navigationControl.getBibleBooks(false).isNotEmpty()
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.alphabetical_order_opt -> {
+                navigationControl.changeBibleBookSortOrder()
+                buttonGrid.clear()
+                buttonGrid.addButtons(bibleBookButtonInfo)
+                true
+            }
+            R.id.row_order_opt -> {
+                buttonGrid.toggleLeftToRight()
+                item.isChecked = buttonGrid.isLeftToRightEnabled
+                buttonGrid.clear()
+                buttonGrid.addButtons(bibleBookButtonInfo)
+                CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS, item.isChecked)
+                true
+            }
+            R.id.deut_toggle -> {
+                isCurrentlyShowingScripture = !isCurrentlyShowingScripture
+                buttonGrid.clear()
+                buttonGrid.addButtons(bibleBookButtonInfo)
+                invalidateOptionsMenu()
+                true
+            }
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun buttonPressed(buttonInfo: ButtonInfo) {
@@ -265,6 +283,8 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         const val BOOK_NO = "BOOK_NO"
         const val CHAPTER_NO = "CHAPTER_NO"
 
+        private val NEW_TESTAMENT_TINT = Color.argb(0xFF,0x50,0x50,0x50)
+
         // colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
         private val PENTATEUCH_COLOR = Color.rgb(0xCC, 0xCC, 0xFE)
         private val HISTORY_COLOR = Color.rgb(0xFE, 0xCC, 0x9B)
@@ -278,6 +298,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         private val REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF)
         private val OTHER_COLOR = ACTS_COLOR
 
+        public const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
         private const val TAG = "GridChoosePassageBook"
     }
 }

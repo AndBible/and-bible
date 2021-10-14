@@ -42,7 +42,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/speak_title_padding"
                         android:text="@string/speak_settings_title"
@@ -51,21 +51,17 @@
 
                     <CheckBox
                         android:id="@+id/synchronize"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/speak_row_padding"
-                        android:layout_marginLeft="@dimen/speak_row_padding"
-                        android:onClick="onSettingsChange"
                         android:text="@string/conf_speak_synchronize" />
                 </LinearLayout>
 
                 <CheckBox
                     android:id="@+id/replaceDivineName"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/speak_row_padding"
-                    android:layout_marginLeft="@dimen/speak_row_padding"
-                    android:onClick="onSettingsChange"
                     android:text="@string/conf_replace_divinename" />
 
                 <Space
@@ -82,53 +78,32 @@
                     android:layout_width="match_parent"
                     android:layout_height="15dip" />
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentLeft="true"
-                        android:padding="@dimen/speak_title_padding"
-                        android:text="@string/speak_bookmarking_settings_title"
-                        android:textSize="@dimen/speak_titles_text_size"
-                        android:textStyle="bold" />
-
-                    <ImageButton
-                        android:id="@+id/bookmarkHelpButton"
-                        style="@style/Widget.Design.FloatingActionButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_alignParentBottom="true"
-                        android:contentDescription="@string/speak_bookmark_help"
-                        android:onClick="onHelpButtonClick"
-                        android:src="@android:drawable/ic_menu_help" />
-                </RelativeLayout>
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentEnd="true"
+                    android:padding="@dimen/speak_title_padding"
+                    android:text="@string/speak_bookmarking_settings_title"
+                    android:textSize="@dimen/speak_titles_text_size"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/speak_row_padding"
-                    android:layout_marginLeft="@dimen/speak_row_padding"
                     android:orientation="vertical">
 
                     <CheckBox
                         android:id="@+id/autoBookmark"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="onSettingsChange"
                         android:text="@string/conf_speak_auto_bookmark" />
 
                     <CheckBox
                         android:id="@+id/restoreSettingsFromBookmarks"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="onSettingsChange"
                         android:text="@string/conf_save_playback_settings_to_bookmarks" />
 
                 </LinearLayout>

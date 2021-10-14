@@ -1,32 +1,42 @@
-And Bible是一個開源、離線、完全免費且沒有廣告的聖經程式。我們希望不同語言的使用者都可以容易閱讀、聆讀及研究經文，並因此得福。
+<b>功能強大的的研經工具</b>
 
-* 超過700種語言的聖經注釋、神學字典、地圖以及基督教書籍
-* 下載後可離線存取所有功能。如搜尋、筆記、注釋等
-* Interface in multiple languages
-* 多個聖經閱讀計劃
-* 完全免費。沒有廣告或電郵
-* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
-* 29本聖經注釋
-* 豐富的字典及基督教書籍
-* 所有文件都是合法發佈（所以沒有包含NKJV或NIV等）
-* 包括Strong's索引，方便查考希臘文或希伯來文
-* Multiple workspaces with split screen
-* 摘寫個人筆記
-* 具彈性的搜尋功能
-* 書籤
-* 聖經地圖
-* 聆聽任何文件
-* 自動捲動、自動日間/夜晚模式
-* 在同一螢幕對照聖經譯本
-* 其中一個最快速的聖經程式
-* 開源 - 你可以修改或改良源代碼
-* 使用CrossWire功能強大的JSword引擎
+And Bible開源計劃的研經工具是一款多功能、易用的離線Android程式。此程式不單是一個純粹的聖經閱讀器，也專注於成功個人全方位的研經工具。
 
-我們都是義務參與。我們不會發出煩人的電郵、廣告，也不會要求或接受捐款，亦不需註冊。And Bible不會收集手機的任個資料。
+此程式是由聖經讀者開發，也是為聖經讀者開發。目的是提供便利、有深度且有趣的查經體驗。此程式是非營利、也是開源，更重要是完全沒有廣告滋擾。它是一個原創的Android程式，佔用空間亦是細小，因此它是一個十分快速且高效能的程式。
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+熱門的聖經譯本如和合本、新譯本、KJV、NASB，以及常見的註解如Matthew Henry及John Gill等。文件之多，未能盡錄。
 
-<b>備註</b>
-* 在Facebook上讚好And Bible：https://www.facebook.com/AndBible/
-* And Bible的常見問題：https://github.com/AndBible/and-bible/wiki/FAQ
-* Github專頁：https://github.com/AndBible/and-bible
+<b>強大的研經功能</b>
+
+此程式具有原創、有深度的功能，幫助讀者有一個流暢的研經體驗。以下是一些重點的功能：
+
+ * 分割視窗可以幫助比較譯本及參考註解
+ * 工作檢視可以自定研經的環境
+ * Strong's 參考方便查找希臘文及希伯來文分析
+ * 串珠交叉對照、註腳及文件。讀者簡易地點選連結，就可切換交叉對照及註腳，進行深度的研經。例如Gill、Matthew Henry之類或Treasure of Scripture Knowledge, TSKe。
+ * 進階的文字轉語音功能及語音書籤，以提供一個流暢的聆聽聖經體驗。
+ * 具彈性的搜尋
+ * 包括個人筆記的書籤及醒目提示
+ * 個人筆記可以讓你在聆聽講道時新增筆記及參考。
+ * 讀經計劃：訂立聖經閱讀目標
+ * 龐大的文件庫：700種語言、超過1500份聖經譯本、神學註釋、字典、地點及基督教書籍。全部均由Crosswire及其他SWORD資料庫授權分發。
+ * 離線可用：只有下載文件時需要上網。
+
+<b>我們需要大家一起造出最好的聖經工具！</b>
+
+And Bible是一個開源計劃。這代表了我們需要所有有能之士，為此計劃一同用以下方式貢獻：
+
+ * 開發新功能，
+ * 測驗未開放的新功能，
+ * 保持介面翻譯更新，及
+ * 協助取得版權及授權、轉換文件至SWORD格式以擴充模組庫。
+
+如果你是專業軟件開發者或測試員，請考慮義務幫助此計劃。如想要更多資訊，請參見 https://git.io/JUnaj 。
+
+<b>連結</b>
+
+ * 主頁：https://andbible.github.io
+ * 在 Facebook 上讚好 And Bible：https://www.facebook.com/AndBible/
+ * 我們的 Youtube 頻道：https://www.youtube.com/c/AndBible
+ * 常見問題：https://git.io/JJm8E
+ * Github Project 頁面：https://github.com/AndBible/and-bible

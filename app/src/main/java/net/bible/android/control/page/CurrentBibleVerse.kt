@@ -17,7 +17,9 @@
  */
 package net.bible.android.control.page
 
-import net.bible.android.control.versification.ConvertibleVerse
+import net.bible.android.common.entity
+import net.bible.android.common.toV11n
+import net.bible.android.control.versification.chapterVerse
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -28,35 +30,34 @@ import org.crosswire.jsword.versification.system.Versifications
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentBibleVerse {
-    val entity get() = verseVersificationSelected.entity
-    private val verseVersificationSelected = ConvertibleVerse(
+    val entity get() = verse.entity
+    var verse = Verse(
         Versifications.instance().getVersification(Versifications.DEFAULT_V11N),
         BibleBook.GEN, 1, 1
     )
+
     val currentBibleBookNo: Int
-        get() = verseVersificationSelected.book.ordinal
+        get() = verse.book.ordinal
 
     val currentBibleBook: BibleBook
-        get() = verseVersificationSelected.book
+        get() = verse.book
 
-    fun getVerseSelected(versification: Versification?): Verse {
-        return verseVersificationSelected.getVerse(versification)
-    }
+    fun getVerseSelected(versification: Versification): Verse = verse.toV11n(versification)
 
-    fun setVerseSelected(versification: Versification?, verseSelected: Verse?) {
-        verseVersificationSelected.setVerse(versification, verseSelected)
+    fun setVerseSelected(versification: Versification, verseSelected: Verse) {
+        verse = verseSelected.toV11n(versification)
     }
 
     var chapterVerse: ChapterVerse
-        get() = verseVersificationSelected.chapterVerse
+        get() = verse.chapterVerse
         set(chapterVerse) {
-            verseVersificationSelected.chapterVerse = chapterVerse
+            verse = Verse(verse.versification, verse.book, chapterVerse.chapter, chapterVerse.verse)
         }
 
     val versificationOfLastSelectedVerse: Versification
-        get() = verseVersificationSelected.verse.versification
+        get() = verse.versification
 
     fun restoreFrom(verse: WorkspaceEntities.Verse) {
-        verseVersificationSelected.restoreFrom(verse)
+        this.verse = verse.jswordVerse
     }
 }

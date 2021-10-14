@@ -1,0 +1,61 @@
+name: Run js lint and tests
+
+on:
+  push:
+    branches:
+      - develop
+      - 'current-stable'
+      - 'release/*'
+    paths:
+      - '**/*.vue'
+      - '**/*.js'
+  pull_request:
+    paths:
+    - '**/*.vue'
+    - '**/*.js'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 10 # so that recent tags can be found
+
+      - name: Set up Node.js environment
+        uses: actions/setup-node@v2-beta # v2-beta adds cacheing
+        with:
+          # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
+          node-version: 10.x
+
+      - name: Run npm install
+        working-directory: app/bibleview-js
+        run: npm ci
+
+      - name: Run lint
+        working-directory: app/bibleview-js
+        run: npm run lint:ci
+
+      - name: Run js unit tests
+        working-directory: app/bibleview-js
+        run: npm run test:ci
+        if: ${{ always() }}
+
+      - name: Upload lint results
+        uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          name: js-results
+          path: app/bibleview-js/lint-results.txt
+          retention-days: 5
+
+      - name: Upload jest results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: js-results
+          path: app/bibleview-js/test-report.html
+          retention-days: 5

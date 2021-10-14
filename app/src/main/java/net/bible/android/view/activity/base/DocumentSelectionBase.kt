@@ -18,12 +18,9 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
-import android.os.Build
 import android.os.Bundle
 import android.text.Editable
-import android.text.Html
 import android.text.TextWatcher
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -33,9 +30,7 @@ import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.TextView
 import android.widget.Toast
-import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -44,24 +39,30 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.DocumentSelectionBinding
 import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.download.DocumentStatus
+import net.bible.android.control.download.DownloadControl
+import net.bible.android.control.download.repo
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
-import net.bible.android.database.Document
+import net.bible.android.database.DocumentSearch
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
-import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.isRecommended
+import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.service.common.CommonUtils
+import net.bible.service.common.Ref
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
-import org.apache.commons.lang3.StringUtils
+import net.bible.service.download.isPseudoBook
+import net.bible.service.sword.AndBibleAddonFilter
 import org.crosswire.common.util.Language
-import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
-import org.crosswire.jsword.book.BookFilters
-import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.BookFilter
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
 import javax.inject.Inject
@@ -81,7 +82,8 @@ data class RecommendedDocuments(
     val commentaries: Map<String, List<String>>,
     val dictionaries: Map<String, List<String>>,
     val books: Map<String, List<String>>,
-    val maps: Map<String, List<String>>
+    val maps: Map<String, List<String>>,
+    val addons: Map<String, List<String>> = emptyMap(),
 ) {
     fun getForBookCategory(c: BookCategory): Map<String, List<String>> {
         return when(c) {
@@ -90,12 +92,23 @@ data class RecommendedDocuments(
             BookCategory.GENERAL_BOOK -> books
             BookCategory.MAPS -> maps
             BookCategory.DICTIONARY -> dictionaries
+            BookCategory.AND_BIBLE -> addons
             else -> emptyMap()
         }
     }
 }
 
+@Serializable
+data class PseudoBook(
+    val id: String,
+    val suggested: String,
+)
+
 abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
+    @Inject lateinit var downloadControl: DownloadControl
+
+    protected lateinit var binding: DocumentSelectionBinding
+
     protected lateinit var documentItemAdapter: ArrayAdapter<Book>
     protected var selectedDocumentFilterNo = 0
     private val filterMutex = Mutex()
@@ -105,34 +118,38 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private lateinit var langArrayAdapter: ArrayAdapter<Language>
 
     private var isPopulated = false
-    private val dao = DatabaseContainer.db.documentDao()
+    private val dao get() = DatabaseContainer.db.documentDao()
 
-    open val recommendedDocuments: RecommendedDocuments? = null
+    val pseudoBooks = Ref<List<PseudoBook>>()
+    val defaultDocuments = Ref<RecommendedDocuments>()
+    val recommendedDocuments = Ref<RecommendedDocuments>()
 
     private var allDocuments = ArrayList<Book>()
-    private var displayedDocuments = ArrayList<Book>()
+    var displayedDocuments = ArrayList<Book>()
 
     @Inject lateinit var documentControl: DocumentControl
 
     private lateinit var listActionModeHelper: ListActionModeHelper
-    private var layoutResource = R.layout.document_selection
+    private var showOkButton: Boolean = false
 
     /** ask subclass for documents to be displayed
      */
     protected abstract suspend fun getDocumentsFromSource(refresh: Boolean): List<Book>
-    protected abstract fun handleDocumentSelection(selectedDocument: Book?)
+    protected abstract fun handleDocumentSelection(selectedDocument: Book)
     protected abstract fun sortLanguages(languages: Collection<Language>?): List<Language>
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(layoutResource)
+        binding = DocumentSelectionBinding.inflate(layoutInflater)
+        setContentView(binding.root)
     }
 
     protected fun initialiseView() {
         listAdapter = documentItemAdapter
         // prepare action mode
-        listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId)
+        listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId, true)
+        //listView.choiceMode = AbsListView.CHOICE_MODE_SINGLE
         // trigger action mode on long press
         listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id -> listActionModeHelper.startActionMode(this@DocumentSelectionBase, position) }
         languageList.clear()
@@ -140,88 +157,100 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
         //prepare the documentType spinner
         setInitialDocumentType()
-        documentTypeSpinner.setSelection(selectedDocumentFilterNo)
-        documentTypeSpinner.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedDocumentFilterNo = position
-                filterDocuments()
+
+        binding.apply {
+            okButtonPanel.visibility = if (showOkButton) View.VISIBLE else View.GONE
+
+            documentTypeSpinner.setSelection(selectedDocumentFilterNo)
+            documentTypeSpinner.onItemSelectedListener = object : OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    selectedDocumentFilterNo = position
+                    filterDocuments()
+                }
+
+                override fun onNothingSelected(arg0: AdapterView<*>?) {}
             }
 
-            override fun onNothingSelected(arg0: AdapterView<*>?) {}
-        }
+            languageSpinner.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+                val lang = parent.adapter.getItem(position) as Language
+                lastSelectedLanguage = lang
+                selectedLanguageNo = languageList.indexOf(lang)
+                filterDocuments()
+                languageSpinner.clearFocus()
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(languageSpinner.windowToken, 0)
+            }
 
-        languageSpinner.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-            val lang = parent.adapter.getItem(position) as Language
-            lastSelectedLanguage = lang
-            selectedLanguageNo = languageList.indexOf(lang)
-            filterDocuments()
-            languageSpinner.clearFocus()
-            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(languageSpinner.windowToken, 0)
-        }
-
-        languageSpinner.addTextChangedListener( object: TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                val langString = s.toString()
-                if(langString.isEmpty()) {
-                    selectedLanguageNo = -1
-                    filterDocuments()
-                } else {
-                    val langIdx = languageList.indexOfFirst {it.name == langString}
-                    if(langIdx != -1) {
-                        selectedLanguageNo = langIdx
+            languageSpinner.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    val langString = s.toString()
+                    if (langString.isEmpty()) {
+                        selectedLanguageNo = -1
                         filterDocuments()
+                    } else {
+                        val langIdx = languageList.indexOfFirst { it.name == langString }
+                        if (langIdx != -1) {
+                            selectedLanguageNo = langIdx
+                            filterDocuments()
+                        }
                     }
                 }
-            }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-        freeTextSearch.setOnClickListener {
-            languageSpinner.setText("")
-        }
-        freeTextSearch.setOnFocusChangeListener { i, hasFocus ->
-            if(hasFocus) {
-                languageSpinner.setText("")
-                freeTextSearch.setText("")
-            }
-        }
-        freeTextSearch.addTextChangedListener(object: TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                filterDocuments()
-            }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
 
-        languageSpinner.setOnClickListener {
-            languageSpinner.setText("")
-            languageSpinner.showDropDown()
-        }
-
-        languageSpinner.setOnFocusChangeListener { i, hasFocus ->
-            if(hasFocus) {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
+            freeTextSearch.setOnClickListener {
                 languageSpinner.setText("")
             }
+            freeTextSearch.setOnFocusChangeListener { i, hasFocus ->
+                if (hasFocus) {
+                    languageSpinner.setText("")
+                    freeTextSearch.setText("")
+                }
+            }
+            freeTextSearch.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    filterDocuments()
+                }
+
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
+
+            languageSpinner.setOnClickListener {
+                languageSpinner.setText("")
+                languageSpinner.showDropDown()
+            }
+
+            languageSpinner.setOnFocusChangeListener { i, hasFocus ->
+                if (hasFocus) {
+                    languageSpinner.setText("")
+                }
+            }
+
+            // Note: on Android 8 (API 26 and lower), it looks like languageList does not
+            // remain the source data set after filtering. If changes to dataset are made
+            // (in populate), they need to be made to adapter too, otherwise in
+            // ArrayAdapter's publishResult they will be overwritten.
+
+            langArrayAdapter = ArrayAdapter(
+                this@DocumentSelectionBase,
+                android.R.layout.simple_spinner_dropdown_item,
+                languageList
+            )
+
+            languageSpinner.setAdapter(langArrayAdapter)
+            list.requestFocus()
+
+            intent.getStringExtra("search")?.run {
+                freeTextSearch.setText(this)
+            }
         }
-
-        // Note: on Android 8 (API 26 and lower), it looks like languageList does not
-        // remain the source data set after filtering. If changes to dataset are made
-        // (in populate), they need to be made to adapter too, otherwise in
-        // ArrayAdapter's publishResult they will be overwritten.
-
-        langArrayAdapter = ArrayAdapter(this,
-            android.R.layout.simple_spinner_dropdown_item,
-            languageList
-        )
-
-        languageSpinner.setAdapter(langArrayAdapter)
-        list.requestFocus()
         Log.d(TAG, "Initialize finished")
     }
 
     open fun setDefaultLanguage() {
-        if (selectedLanguageNo == -1 && freeTextSearch.text.isEmpty()) {
+        if (selectedLanguageNo == -1 && binding.freeTextSearch.text.isEmpty()) {
             val lang: Language?
             // make selected language sticky
             val lastSelectedLanguage = lastSelectedLanguage
@@ -232,12 +261,20 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 defaultLanguage
             }
             selectedLanguageNo = languageList.indexOf(lang)
-            languageSpinner.setText(lang.name)
+            binding.languageSpinner.setText(lang.name)
             Log.d(TAG, "Default language set to ${lang}")
         }
 
         // if last doc in last lang was just deleted then need to adjust index
         checkSpinnerIndexesValid()
+    }
+
+    protected fun findBookByInitials(initials: String, repository: String?) : Book? = allDocuments.find {
+        if(repository != null) {
+            it.initials == initials && it.repo == repository
+        } else {
+            it.initials == initials
+        }
     }
 
     // get the current language code
@@ -298,11 +335,11 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
     }
 
-    private fun reloadDocuments() = GlobalScope.launch {
+    internal fun reloadDocuments() = GlobalScope.launch {
         populateMasterDocumentList(false)
     }
 
-    protected open fun showPreLoadMessage() {
+    protected open fun showPreLoadMessage(refresh: Boolean) {
         // default to no message
     }
 
@@ -311,8 +348,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         Log.d(TAG, "populate Master Document List")
 
         withContext(Dispatchers.Main) {
-            loadingIndicator.visibility = View.VISIBLE
-            showPreLoadMessage()
+            binding.loadingIndicator.visibility = View.VISIBLE
+            showPreLoadMessage(refresh)
             filterMutex.withLock {
                 documentItemAdapter.clear()
                 displayedDocuments.clear()
@@ -325,8 +362,13 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     allDocuments.clear()
                     allDocuments.addAll(newDocs)
                 }
-                dao.clear()
-                dao.insertDocuments(allDocuments.map { Document(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "") })
+                if(refresh) {
+                    dao.clear()
+                    dao.insertDocuments(allDocuments.map {
+                        DocumentSearch(it.osisID, it.abbreviation, if (it.isPseudoBook) "" else it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)
+                            ?: "")
+                    })
+                }
 
                 Log.i(TAG, "Number of documents:" + allDocuments.size)
             } catch (e: Exception) {
@@ -341,14 +383,14 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 isPopulated = true
                 filterDocuments()
             } finally {
-                loadingIndicator.visibility = View.GONE
+                binding.loadingIndicator.visibility = View.GONE
             }
         }
     }
 
     /** a spinner has changed so refilter the doc list
      */
-    private fun filterDocuments() {
+    fun filterDocuments() {
         if(!isPopulated) return
         // documents list has changed so force action mode to exit, if displayed, because selections are invalidated
         listActionModeHelper.exitActionMode()
@@ -360,29 +402,39 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                         Log.d(TAG, "filtering documents")
                         displayedDocuments.clear()
                         val lang = selectedLanguage
-                        val searchString = "${freeTextSearch.text}*"
+                        val searchString = "${binding.freeTextSearch.text}*"
                         val osisIds = if(searchString.length < 3) null else dao.search(searchString).toSet()
 
                         for (doc in allDocuments) {
                             val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
-                            if (filter.test(doc) && (lang == null || doc.language == lang) && (osisIds == null || osisIds.contains(doc.osisID))) {
+                            if (filter.test(doc) && (lang == null || doc.language == lang || doc.bookCategory == BookCategory.AND_BIBLE) && (osisIds == null || osisIds.contains(doc.osisID))) {
                                 displayedDocuments.add(doc)
                             }
                         }
 
                         displayedDocuments.sortWith(
-                            compareBy (
+                            compareBy(
+                                {
+                                    when(downloadControl.getDocumentStatus(it).documentInstallStatus) {
+                                        DocumentStatus.DocumentInstallStatus.BEING_INSTALLED -> 0
+                                        DocumentStatus.DocumentInstallStatus.UPGRADE_AVAILABLE -> 1
+                                        else -> 2
+                                    }
+                                },
                                 { swordDocumentFacade.getDocumentByInitials(it.initials) == null },
-                                { if(lang != null) !it.isRecommended(recommendedDocuments) else false },
-                                {when(it.bookCategory) {
-                                    BookCategory.BIBLE -> 0
-                                    BookCategory.COMMENTARY -> 1
-                                    BookCategory.DICTIONARY -> 2
-                                    BookCategory.GENERAL_BOOK -> 4
-                                    BookCategory.MAPS -> 5
-                                    else -> 6
-                                } },
-                                {it.abbreviation.toLowerCase(Locale(it.language.code))}
+                                { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
+                                {
+                                    when (it.bookCategory) {
+                                        BookCategory.BIBLE -> 0
+                                        BookCategory.COMMENTARY -> 1
+                                        BookCategory.DICTIONARY -> 2
+                                        BookCategory.GENERAL_BOOK -> 4
+                                        BookCategory.MAPS -> 5
+                                        BookCategory.AND_BIBLE -> 6
+                                        else -> 7
+                                    }
+                                },
+                                { it.abbreviation.toLowerCase(Locale(it.language.code)) }
                             )
                         )
                     }
@@ -396,7 +448,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 withContext(Dispatchers.Main) {
                     documentItemAdapter.clear()
                     documentItemAdapter.addAll(displayedDocuments)
-                    resultCount.text = getString(R.string.document_filter_results, displayedDocuments.size)
+                    binding.resultCount.text = getString(R.string.document_filter_results, displayedDocuments.size)
                 }
             }
         }
@@ -432,7 +484,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 documents.add(displayedDocuments[posn])
             }
         }
-        if (!documents.isEmpty()) {
+        if (documents.isNotEmpty()) {
             when (item.itemId) {
                 R.id.about -> {
                     handleAbout(documents)
@@ -459,7 +511,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             val repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY)
             sbmd.reload()
             sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey)
-            showAbout(document)
+            GlobalScope.launch(Dispatchers.Main) {CommonUtils.showAbout(this@DocumentSelectionBase, document) }
         } catch (e: BookException) {
             Log.e(TAG, "Error expanding SwordBookMetaData for $document", e)
             instance.showErrorMsg(R.string.error_occurred, e)
@@ -468,7 +520,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     private fun handleDelete(documents: List<Book>) {
         for (document in documents) {
-            if (documentControl.canDelete(document)) {
+            if (documentControl.canDelete(document.installedDocument)) {
                 val msg: CharSequence = getString(R.string.delete_doc, document.name)
                 AlertDialog.Builder(this)
                     .setMessage(msg).setCancelable(true)
@@ -476,10 +528,11 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     ) { dialog, buttonId ->
                         try {
                             Log.d(TAG, "Deleting:$document")
-                            documentControl.deleteDocument(document)
+                            documentControl.deleteDocument(document.installedDocument)
 
                             // the doc list should now change
                             reloadDocuments()
+                            _mainBibleActivity?.updateDocuments()
                         } catch (e: Exception) {
                             Log.e(TAG, "Deleting document crashed", e)
                             instance.showErrorMsg(R.string.error_occurred, e)
@@ -488,6 +541,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     .setNegativeButton(R.string.no, null)
                     .create()
                     .show()
+            } else {
+                ABEventBus.getDefault().post(ToastEvent(R.string.cant_delete_last_bible))
             }
         }
     }
@@ -501,7 +556,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 ) { dialog, buttonId ->
                     try {
                         Log.d(TAG, "Deleting index:$document")
-                        swordDocumentFacade.deleteDocumentIndex(document)
+                        swordDocumentFacade.deleteDocumentIndex(document.installedDocument)
                     } catch (e: Exception) {
                         Log.e(TAG, "Deleting index crashed", e)
                         instance.showErrorMsg(R.string.error_occurred, e)
@@ -515,117 +570,6 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     override fun isItemChecked(position: Int): Boolean {
         return listView.isItemChecked(position)
-    }
-
-    /** about display is generic so handle it here
-     */
-    private fun showAbout(document: Book) {
-
-        //get about text
-        var about = document.bookMetaData.getProperty("About")
-        if (about != null) {
-            // either process the odd formatting chars in about
-            about = about.replace("\\pard", "")
-            about = about.replace("\\par", "\n")
-        } else {
-            // or default to name if there is no About
-            about = document.name
-        }
-
-        val shortPromo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_PROMO)
-
-        if(shortPromo != null) {
-            about += "\n\n${shortPromo}"
-        }
-
-        // Copyright and distribution information
-        val shortCopyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_COPYRIGHT)
-        val copyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_COPYRIGHT)
-        val distributionLicense = document.bookMetaData.getProperty(SwordBookMetaData.KEY_DISTRIBUTION_LICENSE)
-        var copyrightMerged = ""
-        if (StringUtils.isNotBlank(shortCopyright)) {
-            copyrightMerged += shortCopyright
-        } else if (StringUtils.isNotBlank(copyright)) {
-            copyrightMerged += "\n\n" + copyright
-        }
-        if (StringUtils.isNotBlank(distributionLicense)) {
-            copyrightMerged += "\n\n" +distributionLicense
-        }
-        if (StringUtils.isNotBlank(copyrightMerged)) {
-            val copyrightMsg = getString(R.string.module_about_copyright, copyrightMerged)
-            about += "\n\n" + copyrightMsg
-        }
-
-        // add version
-        val existingDocument = swordDocumentFacade.getDocumentByInitials(document.initials)
-        val existingVersion = existingDocument?.bookMetaData?.getProperty("Version")
-        val existingVersionDate = existingDocument?.bookMetaData?.getProperty("SwordVersionDate") ?: "-"
-
-        val inDownloadScreen = this is DownloadActivity
-
-        val versionLatest = document.bookMetaData.getProperty("Version")
-        val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
-
-        val versionMessageInstalled = if(existingVersion != null)
-            getString(R.string.module_about_installed_version, Version(existingVersion).toString(), existingVersionDate)
-        else null
-
-        val versionMessageLatest = if(versionLatest != null)
-            getString((
-                if(inDownloadScreen)
-                    R.string.module_about_latest_version
-                else
-                    R.string.module_about_installed_version),
-                Version(versionLatest).toString(), versionLatestDate)
-        else null
-
-        if(versionMessageLatest != null) {
-            about += "\n\n" + versionMessageLatest
-            if(versionMessageInstalled != null && inDownloadScreen)
-                about += "\n" + versionMessageInstalled
-        }
-
-        val history = document.bookMetaData.getValues("History")
-        if(history != null) {
-            about += "\n\n" + getString(R.string.about_version_history, "\n" +
-                history.reversed().joinToString("\n"))
-        }
-
-        // add versification
-        if (document is SwordBook) {
-            val versification = document.versification
-            val versificationMsg = getString(R.string.module_about_versification, versification.name)
-            about += "\n\n" + versificationMsg
-        }
-
-        // add id
-        if (document is SwordBook) {
-            val repoName = document.getProperty(DownloadManager.REPOSITORY_KEY)
-            val repoMessage = if(repoName != null) getString(R.string.module_about_repository, repoName) else ""
-            val osisIdMessage = getString(R.string.module_about_osisId, document.initials)
-            about += """
-
-
-                $osisIdMessage
-                
-                $repoMessage
-                """.trimIndent()
-        }
-        about = about.replace("\n", "<br>")
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(about, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(about)
-        }
-
-        val d = AlertDialog.Builder(this)
-            .setMessage(spanned)
-            .setCancelable(false)
-            .setPositiveButton(R.string.okay) { dialog, buttonId ->
-                //do nothing
-            }.create()
-        d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     /**
@@ -645,21 +589,22 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     /** allow selection of initial doc type
      */
     protected open fun setInitialDocumentType() {
-        selectedDocumentFilterNo = 0
+        selectedDocumentFilterNo = if(intent?.getBooleanExtra("addons", false) == true) 6 else 0
     }
 
-    fun setLayoutResource(layoutResource: Int) {
-        this.layoutResource = layoutResource
+    fun setShowOkButtonBar(visible: Boolean) {
+        showOkButton = visible
     }
 
     companion object {
         private val DOCUMENT_TYPE_SPINNER_FILTERS = arrayOf(
-            BookFilters.getAll(),
-            BookFilters.getBibles(),
-            BookFilters.getCommentaries(),
-            BookFilters.getDictionaries(),
-            BookFilters.getGeneralBooks(),
-            BookFilters.getMaps()
+            BookFilter { it.bookCategory != BookCategory.AND_BIBLE },
+            BookFilter { it.bookCategory == BookCategory.BIBLE },
+            BookFilter { it.bookCategory == BookCategory.COMMENTARY },
+            BookFilter { it.bookCategory == BookCategory.DICTIONARY },
+            BookFilter { it.bookCategory == BookCategory.GENERAL_BOOK },
+            BookFilter { it.bookCategory == BookCategory.MAPS },
+            AndBibleAddonFilter(),
         )
         private var lastSelectedLanguage // allow sticky language selection
             : Language? = null
@@ -667,3 +612,5 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     }
 
 }
+
+val Book.installedDocument get() = Books.installed().getBook(initials)

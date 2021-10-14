@@ -26,7 +26,6 @@ import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.versification.VersificationConverter
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.OneDaysReadingsDto
@@ -36,6 +35,8 @@ import net.bible.service.readingplan.ReadingPlanInfoDto
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.versification.VersificationConverter
+import java.lang.Exception
 
 import java.util.ArrayList
 import java.util.Calendar
@@ -77,7 +78,7 @@ class ReadingPlanControl @Inject constructor(
     get() {
         val userPlanList = readingPlanTextDao.userPlanCodes(false) ?: return false
         val internalPlanList = readingPlanTextDao.internalPlanCodes
-        userPlanList.forEach { userPlan ->
+        for (userPlan in userPlanList) {
             if (internalPlanList.find { internalPlan -> internalPlan == userPlan } != null)
                 return true
         }
@@ -88,6 +89,11 @@ class ReadingPlanControl @Inject constructor(
      */
     val currentPlansReadingList: List<OneDaysReadingsDto>
         get() = readingPlanTextDao.getReadingList(currentPlanCode)
+
+    val currentPlanExists: Boolean get() = try {
+        readingPlanTextDao.getReading(currentPlanCode, 1)
+        true
+    } catch (e: Exception) { false }
 
     var currentPlanDay: Int
         get() {
@@ -124,9 +130,9 @@ class ReadingPlanControl @Inject constructor(
 
     /** keep track of which plan the user has currently.  This can be safely changed and reverted to without losing track
      */
-    private val currentPlanCode: String
+    val currentPlanCode: String
         get() {
-            val prefs = CommonUtils.sharedPreferences
+            val prefs = CommonUtils.settings
             return prefs.getString(READING_PLAN, "") as String
         }
 
@@ -155,10 +161,8 @@ class ReadingPlanControl @Inject constructor(
      */
     fun setReadingPlan(planCode: String) {
         // set default plan to this
-        val prefs = CommonUtils.sharedPreferences
-        prefs.edit()
-                .putString(READING_PLAN, planCode)
-                .apply()
+        val prefs = CommonUtils.settings
+        prefs.setString(READING_PLAN, planCode)
     }
 
     /** get read status of this days readings
@@ -219,7 +223,7 @@ class ReadingPlanControl @Inject constructor(
             // was this the last day in the plan
             if (readingPlanTextDao.getNumberOfPlanDays(currentPlanCode) == day) {
                 // last plan day is just Done so clear all plan status
-                reset(planInfo)
+                reset(planInfo.planCode)
                 nextDayToShow = -1
             } else {
                 // move to next plan day
@@ -321,13 +325,13 @@ class ReadingPlanControl @Inject constructor(
         }
     }
 
-    fun reset(plan: ReadingPlanInfoDto) {
+    fun reset(planCode: String) {
         // if resetting default plan then remove default
-        if (plan.planCode == currentPlanCode) {
-            CommonUtils.sharedPreferences.edit().remove(READING_PLAN).apply()
+        if (planCode == currentPlanCode) {
+            CommonUtils.settings.removeString(READING_PLAN)
         }
 
-        readingPlanRepo.resetPlan(plan.planCode)
+        readingPlanRepo.resetPlan(planCode)
     }
 
     private fun convertReadingVersification(readingKey: Key, bibleToBeUsed: AbstractPassageBook): List<Key> {

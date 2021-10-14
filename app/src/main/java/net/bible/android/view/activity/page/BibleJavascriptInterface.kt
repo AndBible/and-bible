@@ -18,123 +18,349 @@
 
 package net.bible.android.view.activity.page
 
+import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.webkit.JavascriptInterface
-import net.bible.android.control.page.ChapterVerse
+import android.widget.TextView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.serialization.serializer
+import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentPageManager
-import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.base.Callback
-import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
-import org.json.JSONException
-import org.json.JSONObject
+import net.bible.android.control.page.MyNotesDocument
+import net.bible.android.control.page.OsisDocument
+import net.bible.android.control.page.StudyPadDocument
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.view.activity.base.IntentHelper
+import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.util.widget.ShareWidget
+import net.bible.service.common.CommonUtils.json
+import net.bible.service.common.bookmarksMyNotesPlaylist
+import net.bible.service.common.htmlToSpan
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.versification.BookName
 
-/**
- * Interface allowing javascript to call java methods in app
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
+
 class BibleJavascriptInterface(
-	private val verseActionModeMediator: VerseActionModeMediator,
-	private val windowControl: WindowControl,
-	private val verseCalculator: VerseCalculator,
-	private val bibleInfiniteScrollPopulator: BibleInfiniteScrollPopulator,
 	private val bibleView: BibleView
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
+    val bookmarkControl get() = bibleView.bookmarkControl
+    val downloadControl get() = bibleView.downloadControl
 
     var notificationsEnabled = false
 
-    private var addingContentAtTop = false
-
-    private var prevCurrentChapterVerse = ChapterVerse(0, 0)
-
-    // Create Json Object using Facebook Data
-	@JavascriptInterface
-	fun getChapterInfo(): String
-	{
-		val verse = currentPageManager.currentBible.singleKey
-
-		val jsonObject = JSONObject()
-		try {
-			jsonObject.put("infinite_scroll", currentPageManager.isBibleShown)
-			jsonObject.put("chapter", verse.chapter)
-			jsonObject.put("first_chapter", 1)
-			jsonObject.put("last_chapter", verse.versification.getLastChapter(verse.book))
-		} catch (e: JSONException) {
-			Log.e(TAG, "JSON error fetching chapter info", e)
-		}
-
-		return jsonObject.toString()
-	}
-
     @JavascriptInterface
-    fun onScroll(newYPos_: Int) {
-        var newYPos = newYPos_
-        // do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
-        if (notificationsEnabled
-            && !addingContentAtTop
-            && !windowControl.isSeparatorMoving
-            && bibleView.contentVisible)
-        {
-            if (currentPageManager.isBibleShown) {
-                // All this does is change the current chapter/verse as if the user had just scrolled to another verse in the same chapter.
-                // I originally thought a PassageChangeEvent would need to be raised as well as CurrentVerseChangedEvent but it seems to work fine as is!
-
-                // if not fullscreen, and (if windows are split vertically and is firstwindow) or (windows are split horizontally) we need to add some offset
-                if (!SharedActivityState.instance.isFullScreen && bibleView.isTopWindow) {
-                    newYPos += (bibleView.mainBibleActivity.topOffset2 / bibleView.resources.displayMetrics.density).toInt()
-                }
-                val currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos)
-                if (currentChapterVerse != prevCurrentChapterVerse) {
-                    currentPageManager.currentBible.currentChapterVerse = currentChapterVerse
-                    prevCurrentChapterVerse = currentChapterVerse
-                }
-            }
+    fun scrolledToOrdinal(ordinal: Int) {
+        val doc = bibleView.firstDocument
+        if (doc is BibleDocument || doc is MyNotesDocument) {
+            currentPageManager.currentBible.setCurrentVerseOrdinal(ordinal,
+                when (doc) {
+                    is BibleDocument -> bibleView.initialVerse?.versification
+                    is MyNotesDocument -> KJVA
+                    else -> throw RuntimeException("Unsupported doc")
+                }, bibleView.window)
+        } else if(doc is OsisDocument || doc is StudyPadDocument) {
+            currentPageManager.currentPage.anchorOrdinal = ordinal
         }
     }
 
     @JavascriptInterface
-    fun setContentReady() {
-        Log.d(TAG, "set content ready")
-        bibleView.setContentReady()
+    fun setClientReady() {
+        Log.d(TAG, "set client ready")
+        bibleView.setClientReady()
     }
 
     @JavascriptInterface
-    fun clearVersePositionCache() {
-        Log.d(TAG, "clear verse positions")
-        verseCalculator.clear()
+    fun setLimitAmbiguousModalSize(value: Boolean) {
+        Log.d(TAG, "set client ready")
+        bibleView.workspaceSettings.limitAmbiguousModalSize = value
+        ABEventBus.getDefault().post(AppSettingsUpdated())
     }
 
     @JavascriptInterface
-    fun registerVersePosition(chapterVerseId: String, offset: Int) {
-        verseCalculator.registerVersePosition(ChapterVerse.fromHtmlId(chapterVerseId), offset)
+    fun requestPreviousChapter(callId: Long) {
+        Log.d(TAG, "Request more text at top")
+        bibleView.requestPreviousChapter(callId)
     }
 
     @JavascriptInterface
-    fun verseLongPress(chapterVerse: String) {
-        Log.d(TAG, "Verse selected event:$chapterVerse")
-        verseActionModeMediator.verseLongPress(ChapterVerse.fromHtmlId(chapterVerse))
+    fun requestNextChapter(callId: Long) {
+        Log.d(TAG, "Request more text at end")
+        bibleView.requestNextChapter(callId)
     }
 
     @JavascriptInterface
-    fun verseTouch(chapterVerse: String) {
-        Log.d(TAG, "Verse touched event:$chapterVerse")
-        verseActionModeMediator.verseTouch(ChapterVerse.fromHtmlId(chapterVerse))
+    fun refChooserDialog(callId: Long) {
+        GlobalScope.launch {
+            val intent = Intent(mainBibleActivity, GridChoosePassageBook::class.java).apply {
+                putExtra("isScripture", true)
+                putExtra("navigateToVerse", true)
+            }
+            val result = mainBibleActivity.awaitIntent(intent)
+            val verseStr = result?.resultData?.getStringExtra("verse")
+
+
+            val verse = if(verseStr == null) null else VerseFactory.fromString(KJVA, verseStr)
+
+            val verseName = synchronized(BookName::class) {
+                val oldValue = BookName.isFullBookName()
+                BookName.setFullBookName(false)
+                val text = verse?.name ?: ""
+                BookName.setFullBookName(oldValue)
+                text
+            }
+
+            bibleView.executeJavascriptOnUiThread("bibleView.response($callId, '$verseName');")
+        }
     }
 
     @JavascriptInterface
-    fun requestMoreTextAtTop(chapter: Int, textId: String) {
-        Log.d(TAG, "Request more text at top:$textId")
-        addingContentAtTop = true
-        bibleInfiniteScrollPopulator.requestMoreTextAtTop(chapter, textId, Callback { addingContentAtTop = false })
+    fun saveBookmarkNote(bookmarkId: Long, note: String?) {
+        bookmarkControl.saveBookmarkNote(bookmarkId, if(note?.trim()?.isEmpty() == true) null else note)
     }
 
     @JavascriptInterface
-    fun requestMoreTextAtEnd(chapter: Int, textId: String) {
-        Log.d(TAG, "Request more text at end:$textId")
-        bibleInfiniteScrollPopulator.requestMoreTextAtEnd(chapter, textId)
+    fun removeBookmark(bookmarkId: Long) {
+        bookmarkControl.deleteBookmarksById(listOf(bookmarkId))
     }
 
-	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
+    @JavascriptInterface
+    fun assignLabels(bookmarkId: Long) {
+        bibleView.assignLabels(bookmarkId)
+    }
+
+    @JavascriptInterface
+    fun console(loggerName: String, message: String) {
+        Log.d(TAG, "Console[$loggerName] $message")
+    }
+
+    @JavascriptInterface
+    fun selectionCleared() {
+        Log.d(TAG, "Selection cleared!")
+        bibleView.stopSelection()
+    }
+
+    @JavascriptInterface
+    fun reportInputFocus(newValue: Boolean) {
+        Log.d(TAG, "Focus mode now $newValue")
+        ABEventBus.getDefault().post(BibleViewInputFocusChanged(bibleView, newValue))
+    }
+
+    @JavascriptInterface
+    fun openExternalLink(link: String) {
+        mainBibleActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+    }
+
+    @JavascriptInterface
+    fun openDownloads() {
+        if (!downloadControl.checkDownloadOkay()) return
+        val intent = Intent(mainBibleActivity, DownloadActivity::class.java)
+        intent.putExtra("addons", true)
+        mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+    }
+
+    @JavascriptInterface
+    fun setEditing(enabled: Boolean) {
+        bibleView.editingTextInJs = enabled
+    }
+
+    @JavascriptInterface
+    fun createNewJournalEntry(labelId: Long, entryType: String, afterEntryId: Long) {
+        val entryOrderNumber: Int = when (entryType) {
+            "bookmark" -> bookmarkControl.getBookmarkToLabel(afterEntryId, labelId)!!.orderNumber
+            "journal" -> bookmarkControl.getJournalById(afterEntryId)!!.orderNumber
+            "none" -> -1
+            else -> throw RuntimeException("Illegal entry type")
+        }
+        bookmarkControl.createJournalEntry(labelId, entryOrderNumber)
+    }
+
+    @JavascriptInterface
+    fun deleteJournalEntry(journalId: Long) = bookmarkControl.deleteStudyPadTextEntry(journalId)
+
+    @JavascriptInterface
+    fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) = bookmarkControl.removeBookmarkLabel(bookmarkId, labelId)
+
+    @JavascriptInterface
+    fun updateOrderNumber(labelId: Long, data: String) {
+        val deserialized: Map<String, List<List<Long>>> = json.decodeFromString(serializer(), data)
+        val journalTextEntries = deserialized["journals"]!!.map { bookmarkControl.getJournalById(it[0])!!.apply { orderNumber = it[1].toInt() } }
+        val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(it[0], labelId)!!.apply { orderNumber = it[1].toInt() } }
+        bookmarkControl.updateOrderNumbers(labelId, bookmarksToLabels, journalTextEntries)
+    }
+
+    @JavascriptInterface
+    fun getActiveLanguages(): String {
+        //Get the languages for each of the installed bibles and return the language codes as a json list.
+        val languages = bibleView.mainBibleActivity.swordDocumentFacade.bibles.map { "\"" + it.bookMetaData.language.code + "\""}
+        return "[" + languages.distinct().joinToString(",") + "]"
+    }
+
+    @JavascriptInterface
+    fun toast(text: String) {
+        ABEventBus.getDefault().post(ToastEvent(text))
+    }
+
+    @JavascriptInterface
+    fun updateJournalTextEntry(data: String) {
+        val entry: BookmarkEntities.StudyPadTextEntry = json.decodeFromString(serializer(), data)
+        bookmarkControl.updateJournalTextEntry(entry)
+    }
+
+    @JavascriptInterface
+    fun updateBookmarkToLabel(data: String) {
+        val entry: BookmarkEntities.BookmarkToLabel = json.decodeFromString(serializer(), data)
+        bookmarkControl.updateBookmarkTimestamp(entry.bookmarkId)
+        bookmarkControl.updateBookmarkToLabel(entry)
+    }
+
+    @JavascriptInterface
+    fun shareBookmarkVerse(bookmarkId: Long) {
+        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+        GlobalScope.launch(Dispatchers.Main) {
+            ShareWidget.dialog(mainBibleActivity, bookmark)
+        }
+    }
+
+    private fun positiveOrNull(value: Int): Int? {
+        if(value < 0) return null
+        return value
+    }
+
+    @JavascriptInterface
+    fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            ShareWidget.dialog(mainBibleActivity, Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
+    fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
+        bibleView.makeBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
+    }
+
+    @JavascriptInterface
+    fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            bibleView.compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
+    fun openStudyPad(labelId: Long, bookmarkId: Long) {
+        GlobalScope.launch(Dispatchers.Main) {
+            bibleView.linkControl.openJournal(labelId, bookmarkId)
+        }
+    }
+
+    @JavascriptInterface
+    fun openMyNotes(v11n: String, ordinal: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            bibleView.linkControl.openMyNotes(v11n, ordinal)
+        }
+    }
+
+    @JavascriptInterface
+    fun speak(bookInitials: String?, ordinal: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            val book = Books.installed().getBook(bookInitials) as SwordBook
+            val verse = Verse(book.versification, ordinal)
+            mainBibleActivity.speakControl.speakBible(book, verse, force = true)
+        }
+    }
+
+    @JavascriptInterface
+    fun setAsPrimaryLabel(bookmarkId: Long, labelId: Long) {
+        val label = bookmarkControl.labelById(labelId)!!
+        if(label.isUnlabeledLabel) {
+            return
+        }
+        bookmarkControl.setAsPrimaryLabel(bookmarkId, labelId)
+        bibleView.windowControl.windowRepository.updateRecentLabels(listOf(labelId))
+    }
+
+    @JavascriptInterface
+    fun toggleBookmarkLabel(bookmarkId: Long, labelId: Long) {
+        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+        val labels = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
+        val foundLabel = labels.find { it.id == labelId }
+        if(foundLabel !== null) {
+            labels.remove(foundLabel)
+        } else {
+            labels.add(bookmarkControl.labelById(labelId)!!)
+        }
+        bookmarkControl.setLabelsForBookmark(bookmark, labels)
+    }
+
+    @JavascriptInterface
+    fun reportModalState(value: Boolean) {
+        bibleView.modalOpen = value
+    }
+
+    @JavascriptInterface
+    fun setBookmarkWholeVerse(bookmarkId: Long, value: Boolean) {
+        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+        if(!value && bookmark.textRange == null) {
+            ABEventBus.getDefault().post(ToastEvent(R.string.cant_change_wholeverse))
+            return
+        }
+        bookmark.wholeVerse = value
+
+        bookmarkControl.addOrUpdateBookmark(bookmark)
+        if(value) ABEventBus.getDefault().post(ToastEvent(R.string.whole_verse_turned_on))
+    }
+
+    @JavascriptInterface
+    fun toggleCompareDocument(documentId: String) {
+        val hideDocs = bibleView.workspaceSettings.hideCompareDocuments
+        if(hideDocs.contains(documentId)) {
+            hideDocs.remove(documentId)
+        } else {
+            hideDocs.add(documentId)
+        }
+        ABEventBus.getDefault().post(AppSettingsUpdated())
+    }
+
+    @JavascriptInterface
+    fun helpDialog(content: String, title: String?) {
+        AlertDialog.Builder(mainBibleActivity)
+            .setTitle(title)
+            .setMessage(content)
+            .setPositiveButton(mainBibleActivity.getString(R.string.okay), null)
+            .show()
+    }
+
+    @JavascriptInterface
+    fun helpBookmarks() {
+        val verseTip = mainBibleActivity.getString(R.string.verse_tip)
+        val bookmarksMyNotesHelp = mainBibleActivity.getString(R.string.help_bookmarks_text)
+        val message = "<i><a href=\"$bookmarksMyNotesPlaylist\">${mainBibleActivity.getString(R.string.watch_tutorial_video)}</a></i>" +
+            "<br><br><b>$verseTip</b><br><br>$bookmarksMyNotesHelp"
+
+        val d = AlertDialog.Builder(mainBibleActivity)
+            .setTitle(R.string.bookmarks_and_mynotes_title)
+            .setMessage(htmlToSpan(message))
+            .setPositiveButton(mainBibleActivity.getString(R.string.okay), null)
+            .create()
+
+        d.show()
+
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

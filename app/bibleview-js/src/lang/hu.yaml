@@ -1,0 +1,81 @@
+openMyNotes: Megnyitás Saját Jegyzetként
+openStudyPad: Megnyitás Jegyzetlapon (%s)
+noteText: Lábjegyzetek (%s)
+noteTextWithoutType: Lábjegyezetek
+crossReferenceText: Kereszthivatkozások
+findAllOccurrences: Összes előfordulás mutatása
+reportError: Hibabejelentés
+errorTitle: Hiba történt
+warningTitle: Figyelmeztetés
+normalTitle: Megjegyzés
+footnoteTypeUndefined: Nem definiált típus
+footnoteTypeStudy: Jegyzetlap
+footnoteTypeExplanation: Magyarázat
+footnoteTypeVariant: Változat
+footnoteTypeAlternative: Alternatíva
+footnoteTypeTranslation: Fordítás
+clearLog: Hiba napló törlése
+editNote: Szerkesztés
+editNotePlaceholder: Jegyzet szerkesztése
+editTextPlaceholder: Koppintson a szöveg szerkesztéséhez
+inputPlaceholder: Ide írjon
+inputReference: Bibliahivatkozás megadása
+invalidReference: Vers nem található
+assignLabels: Címkék
+bookmarkAccurate: Könyvjelző létrehozva (%s)
+bookmarkInaccurate: "A könyvjelző könyv információ nem került tárolásra, a tartalom %s-ban/ben látható."
+defaultBook: alapértelmezett Biblia
+ok: Ok
+yes: "Igen"
+ambiguousSelection: "Mit szeretne tenni?"
+cancel: Mégsem
+removeBookmarkConfirmationTitle: "Könyvjelző törlése?"
+removeBookmarkConfirmation: "Biztos hogy törli?"
+closeModal: Bezárás
+createdAt: "Létrehozva: %s"
+lastUpdatedOn: "Útóljára módosítva: %s"
+strongsLink: Strongs definició (%s)
+morphLink: Morfológiai kód (%s)
+strongsAndMorph: Definiciók & Morfológia
+studyPadLink: Jegyzetlap megnyitása
+externalLink: Külső hivatkozás megnyitása
+referenceLink: Referencia megnyitása
+openFootnote: Lábjegyzet megnyitása
+openBookmark: Könyvjelző megnyitása (%s)
+noMyNotesTitle: Nincsenek Saját Jegyzetek ehhez a fejezethez.
+noMyNotesDescription: >
+  Az elmentett könyvjelzők itt fognak megjelenni, később személyes jegyzeteket is fűzhet hozzájuk.
+emptyStudyPad: >
+  Üres jegyzetlap. Ide egyszerűen felvehet jegyzeteket, könyvjelzőket. A könyvjelzők automatikusan ennek a jegyzetlapnak megfelelő címkét fognak kapni.
+studyPadModalTitle: Jegyzet szerkesztése
+doYouWantToDeleteEntry: "Törli ezt a jegyzetet?"
+removeStudyPadConfirmationTitle: "Törli ezt a jegyzetet?"
+dragHelp: Húzza el más sorrendbe tevéshez
+saved: mentve
+openAll: Minden hivatkozás megnyitása
+editBookmarkPlaceholder: Nyomja meg a könyvjelzőhöz tartozó Saját Jegyzet szerkesztéséhez
+onlyLabel: Csak a címke
+wholeBookmark: A teljes könyvjelző
+otherNoteText: Jegyzet
+assignLabelsMenuEntry: Címke hozzárendelése
+assignLabelsMenuEntry1: Címkék kiválasztása és szerkesztése…
+jumpToStudyPad: Ugrás a jegyzetlaphoz
+setAsPrimaryLabel: Beállítás elsődleges címkeként
+removeBookmarkLabel: Címke törlése
+addBookmarkLabel: Címke hozzáadása
+favouriteLabels: Kedvenc címkék
+recentLabels: Legutóbbi címkék
+frequentlyUsedLabels: Gyakran használt címkék
+bookmarkLabels: Könyvjelző címkék
+refParserHelp: "Telepítse a %s modult, ha nem angol nyelvű hivatkozásokat szeretne használni."
+openDownloads: Kiegészítők letöltése
+verseShare: Megosztás
+verseCompare: Összehasonlítás
+verseNote: Jegyzet
+verseMyNotes: Jegyzeteim
+verseSpeak: Felolvasás
+verseShareLong: Vers megosztása
+verseCompareLong: Vers összehasonlítása
+verseNoteLong: Jegyzet hozzáadása
+verseSpeakLong: Lejátszás ettől a verstől
+addBookmark: Könyvjelző

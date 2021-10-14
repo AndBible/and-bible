@@ -1,0 +1,81 @@
+openMyNotes: Otevřít v Poznámkách
+openStudyPad: Otevřít ve studijní složce (%s)
+noteText: Poznámky pod čarou (%s)
+noteTextWithoutType: Poznámky pod čarou
+crossReferenceText: Křížový odkaz
+findAllOccurrences: Najít všechny výskyty
+reportError: Nahlásit chybu
+errorTitle: Vyskytla se chyba
+warningTitle: Varování
+normalTitle: Upozornění
+footnoteTypeUndefined: Nedefinovaný typ
+footnoteTypeStudy: Studium
+footnoteTypeExplanation: Vysvětlení
+footnoteTypeVariant: Varianta
+footnoteTypeAlternative: Alternativa
+footnoteTypeTranslation: Překlad
+clearLog: Smazat záznam chyb
+editNote: Upravit
+editNotePlaceholder: Upravit poznámku
+editTextPlaceholder: Úprava textu po kliknutí
+inputPlaceholder: Psát zde
+inputReference: Vložit biblický odkaz
+invalidReference: Verš nebyl nalezen
+assignLabels: Štítky
+bookmarkAccurate: Záložka vytvořena v %s
+bookmarkInaccurate: "Záložky knihy neuloženy, obsah je zobrazen v %s."
+defaultBook: výchozí dokument Bible
+ok: OK
+yes: "Ano"
+ambiguousSelection: "Co chcete provést?"
+cancel: Zrušit
+removeBookmarkConfirmationTitle: "Odstranit záložku?"
+removeBookmarkConfirmation: "Jste si jisti, že chcete tuto záložku odstranit?"
+closeModal: Zavřít
+createdAt: "Vytvořeno: %s"
+lastUpdatedOn: "Aktualizováno: %s"
+strongsLink: Strongova definice (%s)
+morphLink: Morfologická značka (%s)
+strongsAndMorph: Definice a morfologie
+studyPadLink: Otevřít studijní složku
+externalLink: Otevřít externí odkaz
+referenceLink: Otevřít referenční odkaz
+openFootnote: Otevřít poznámku pod čarou
+openBookmark: Otevřít záložku (%s)
+noMyNotesTitle: K této kapitole nemáte poznámky.
+noMyNotesDescription: >
+  Nejprve si v biblickém dokumentu vytvořte záložku. Ty budou následně dostupné zde a můžete si k nim přidávat své poznámky.
+emptyStudyPad: >
+  Prázdná studijní složka. Sem můžete přidávat textové poznámky nebo tvořit záložky se štítkem odkazujícím k této studijní složce.
+studyPadModalTitle: Upravit obsah studijní složky
+doYouWantToDeleteEntry: "Smazat obsah studijní složky?"
+removeStudyPadConfirmationTitle: "Odstranit studijní složku?"
+dragHelp: Přetažením setřídit
+saved: uloženo
+openAll: Otevřít všechny odkazy
+editBookmarkPlaceholder: Klepnutím upravíte poznámky této záložky
+onlyLabel: Pouze štítek
+wholeBookmark: Celá záložka
+otherNoteText: Jiná poznámka
+assignLabelsMenuEntry: Přiřadit štítky
+assignLabelsMenuEntry1: Vybrat nebo upravit štítky…
+jumpToStudyPad: Přejít na studijní složku
+setAsPrimaryLabel: Nastavit jako primární štítek
+removeBookmarkLabel: Odstranit štítek
+addBookmarkLabel: Přidat štítek
+favouriteLabels: Oblíbené štítky
+recentLabels: Poslední štítky
+frequentlyUsedLabels: Často používané štítky
+bookmarkLabels: Štítky záložky
+refParserHelp: "Prosím nainstalujte modul %s, pokud chcete používat biblické odkazy v jiném jazyce než v angličtině."
+openDownloads: Přejít na stažení doplňků
+verseShare: Sdílet
+verseCompare: Porovnat
+verseNote: Poznámka
+verseMyNotes: Poznámky
+verseSpeak: Předčítání
+verseShareLong: Sdílet verš
+verseCompareLong: Porovnat verš
+verseNoteLong: Napsat poznámku
+verseSpeakLong: Poslouchat od tohoto verše
+addBookmark: Záložka

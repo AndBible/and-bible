@@ -133,7 +133,7 @@ class ProgressNotificationManager {
         val pendingIntent = PendingIntent.getActivity(app, 0, intent, 0)
         val builder = NotificationCompat.Builder(app, PROGRESS_NOTIFICATION_CHANNEL)
 
-        builder.setSmallIcon(R.drawable.ichthys_alpha)
+        builder.setSmallIcon(R.drawable.ic_ichtys)
                 .setContentTitle(prog.jobName)
                 .setShowWhen(true)
                 .setContentIntent(pendingIntent)

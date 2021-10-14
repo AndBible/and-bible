@@ -30,19 +30,23 @@ import android.view.View
 import android.widget.RemoteViews
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarkEvent
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.load
+import net.bible.android.control.speak.save
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_PERCENT
 import net.bible.service.device.speak.TextCommand
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
+import java.lang.Exception
 import javax.inject.Inject
 
 
@@ -155,10 +159,10 @@ class SpeakWidgetManager {
         }
     }
 
-    fun onEvent(ev: SynchronizeWindowsEvent) {
+    fun onEvent(ev: BookmarkEvent) {
         val manager = AppWidgetManager.getInstance(app)
-        for (i in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
-            updateBookmarkWidget(app, manager, i)
+        for (widgetId in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
+            updateBookmarkWidget(app, manager, widgetId)
         }
     }
 
@@ -169,13 +173,13 @@ class SpeakWidgetManager {
         val views = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget)
 
         views.removeAllViews(R.id.layout)
-        fun addButton(name: String, osisRef: String) {
+        fun addButton(name: String, b: BookmarkEntities.Bookmark?) {
             val button = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget_button)
             button.setTextViewText(R.id.button, name)
-            if(osisRef.isNotEmpty()) {
+            if(b != null) {
                 val intent = Intent(context, SpeakBookmarkWidget::class.java).apply {
                     action = SpeakBookmarkWidget.ACTION_BOOKMARK
-                    data = Uri.parse("bible://$osisRef")
+                    data = Uri.parse("bookmarksById://${b.id}")
                 }
                 val bc = PendingIntent.getBroadcast(context, 0, intent, 0)
                 button.setOnClickPendingIntent(R.id.button, bc)
@@ -184,15 +188,16 @@ class SpeakWidgetManager {
             bookmarksAdded = true
         }
 
-        val labelDto = bookmarkControl.orCreateSpeakLabel
+        val label = bookmarkControl.speakLabel
         if(!SpeakSettings.load().autoBookmark) {
-            addButton(app.getString(R.string.speak_autobookmarking_disabled), "")
+            addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
         }
 
-        for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
-                Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
+        for (b in bookmarkControl.getBookmarksWithLabel(label)
+            .sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
+        ){
             val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
-            addButton("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"}) $repeatSymbol", b.verseRange.start.osisRef)
+            addButton("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"}) $repeatSymbol", b)
             Log.d(TAG, "Added button for $b")
         }
         views.setViewVisibility(R.id.helptext, if (bookmarksAdded) View.GONE else View.VISIBLE)
@@ -214,10 +219,20 @@ class SpeakWidgetManager {
         val bookmarkControl by lazy { instance.bookmarkControl }
         val app by lazy {instance.app }
 
+        override fun onReceive(context: Context?, intent: Intent?) {
+            CommonUtils.initializeApp()
+            super.onReceive(context, intent)
+        }
+
         override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+            CommonUtils.initializeApp()
             Log.d(TAG, "onUpdate")
             for (appWidgetId in appWidgetIds) {
-                setupWidget(context, appWidgetManager, appWidgetId)
+                try {
+                    setupWidget(context, appWidgetManager, appWidgetId)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Widget updating failed!")
+                }
             }
         }
 
@@ -347,9 +362,9 @@ class SpeakWidgetManager {
             super.onReceive(context, intent)
             Log.d(TAG, "onReceive $context ${intent?.action}")
             if (intent?.action == ACTION_BOOKMARK) {
-                val osisRef = intent.data!!.host
-                Log.d(TAG, "onReceive osisRef $osisRef")
-                val dto = bookmarkControl.getBookmarkByOsisRef(osisRef) ?: return
+                val bookmarkId = intent.data?.host ?: return
+                Log.d(TAG, "onReceive osisRef $bookmarkId")
+                val dto = bookmarkControl.bookmarksByIds(listOf(bookmarkId.toLong())).first()
                 speakControl.speakFromBookmark(dto)
             }
         }

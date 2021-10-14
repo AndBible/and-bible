@@ -1,0 +1,24 @@
+<!--
+  ~ Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+
+  -->
+
+<vector android:height="24dp" android:tint="@color/black"
+    android:viewportHeight="24.0" android:viewportWidth="24.0"
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#FF000000" android:pathData="M 3,0.90820312 C 1.2993732,0.90820312 -0.09179687,2.2993732 -0.09179687,4 v 13 c 0,1.700627 1.39117007,3.091797 3.09179687,3.091797 h 12.148438 l -0.01953,-0.109375 C 15.10026,19.829638 15.091797,19.667158 15.091797,19.5 c 0,-0.532847 0.144626,-1.026903 0.396484,-1.453125 l 0.08203,-0.138672 H 3 C 2.5006268,17.908203 2.0917969,17.499373 2.0917969,17 V 6.0917969 H 18.908203 v 8.4785151 l 0.138672,-0.08203 c 0.426222,-0.251858 0.920278,-0.396484 1.453125,-0.396484 0.167158,0 0.329638,0.0085 0.482422,0.03711 l 0.109375,0.01953 V 4 C 21.091797,2.2993732 19.700627,0.90820312 18,0.90820312 Z M 20.5,15.908203 c -0.602992,0 -1.091797,0.488805 -1.091797,1.091797 v 1.408203 H 18 c -0.602992,0 -1.091797,0.488805 -1.091797,1.091797 0,0.602992 0.488805,1.091797 1.091797,1.091797 h 1.408203 V 22 c 0,0.602992 0.488805,1.091797 1.091797,1.091797 0.602992,0 1.091797,-0.488805 1.091797,-1.091797 V 20.591797 H 23 c 0.602992,0 1.091797,-0.488805 1.091797,-1.091797 0,-0.602992 -0.488805,-1.091797 -1.091797,-1.091797 H 21.591797 V 17 c 0,-0.602992 -0.488805,-1.091797 -1.091797,-1.091797 z"/>
+</vector>

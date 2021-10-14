@@ -17,19 +17,25 @@
  */
 package net.bible.android.control.page
 
-import android.app.Activity
+import android.content.Intent
 import android.util.Log
+import net.bible.android.common.toV11n
+import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils.getWholeChapter
-import net.bible.service.sword.SwordContentFacade
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordDocumentFacade
-import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.Versification
 
 /** Reference to current passage shown by viewer
  *
@@ -38,16 +44,14 @@ import org.crosswire.jsword.passage.Verse
 class CurrentBiblePage(
     currentBibleVerse: CurrentBibleVerse,
     bibleTraverser: BibleTraverser,
-    swordContentFacade: SwordContentFacade,
     swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade,
-        swordDocumentFacade, pageManager), CurrentPage {
+) : VersePage(true, currentBibleVerse, bibleTraverser, swordDocumentFacade, pageManager), CurrentPage {
 
-    override val bookCategory = BookCategory.BIBLE
+    override val documentCategory = DocumentCategory.BIBLE
 
-    override val keyChooserActivity: Class<out Activity?>?
-        get() = GridChoosePassageBook::class.java
+    override fun startKeyChooser(context: ActivityBase) = context.startActivityForResult(
+        Intent(context, GridChoosePassageBook::class.java).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
 
     override fun next() {
         Log.d(TAG, "Next")
@@ -59,13 +63,23 @@ class CurrentBiblePage(
         previousChapter()
     }
 
-    /**
-     * Get a fragment for specified chapter of Bible to be inserted at top of bottom of original text
-     */
-    fun getFragmentForChapter(chapter: Int): String? {
+    fun getDocumentForChapter(chapter: Int): Document {
         val verseForFragment = Verse(versification, verseSelected.book, chapter, 1)
         val wholeChapter = getWholeChapter(verseForFragment, showIntros)
-        return getPageContent(wholeChapter, true)
+        return getPageContent(wholeChapter)
+    }
+
+    override fun getPageContent(key: Key): Document {
+        annotateKey = null
+        val verseRange = key as VerseRange
+        val doc = super.getPageContent(verseRange)
+        return if(doc is OsisDocument) {
+            val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
+            BibleDocument(
+                osisFragment = doc.osisFragment, swordBook = doc.book as SwordBook,
+                bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey
+            )
+        } else doc
     }
 
     private fun nextChapter() {
@@ -119,10 +133,11 @@ class CurrentBiblePage(
             Log.e(TAG, "Invalid verse reference:$keyText")
         }
     }
-
+    var originalKey: Key? = null
     /** set key without notification **/
 
     override fun doSetKey(key: Key?) {
+        originalKey = key
 		val verse = KeyUtil.getVerse(key)
 		//TODO av11n should this be the verse Versification or the Module/doc's Versification
 		currentBibleVerse.setVerseSelected(versification, verse)
@@ -159,24 +174,36 @@ class CurrentBiblePage(
         WorkspaceEntities.BiblePage(currentDocument?.initials, currentBibleVerse.entity)
 
     fun restoreFrom(entity: WorkspaceEntities.BiblePage) {
+        originalKey = null
         val document = entity.document
         Log.d(TAG, "State document:$document")
-        val book = swordDocumentFacade.getDocumentByInitials(document)?: swordDocumentFacade.bibles.first()
-        Log.d(TAG, "Restored document:" + book.name)
+        val book = swordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) FakeBookFactory.giveDoesNotExist(document) else null
+        Log.d(TAG, "Restored document:" + book?.name)
         // bypass setter to avoid automatic notifications
         localSetCurrentDocument(book)
         currentBibleVerse.restoreFrom(entity.verse)
     }
 
-    var currentChapterVerse: ChapterVerse
+    @Deprecated("Used by test only!!! use setCurrentVerseOrdinal instead")
+    var currentChapterVerse
         get() = currentBibleVerse.chapterVerse
         set(chapterVerse) {
             val oldChapterVerse = currentBibleVerse.chapterVerse
             if(chapterVerse != oldChapterVerse) {
                 currentBibleVerse.chapterVerse = chapterVerse
-                onVerseChange()
+                //onVerseChange()
             }
+    }
+    val currentVerseOrdinal: Int get() = currentBibleVerse.verse.ordinal
+
+    fun setCurrentVerseOrdinal(value: Int, versification: Versification?, window: Window) {
+        val old = currentBibleVerse.verse.ordinal
+        val newVerse = Verse(versification?: currentBibleVerse.versificationOfLastSelectedVerse, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
+        if(newVerse.ordinal != old) {
+            currentBibleVerse.verse = newVerse
+            onVerseChange(window)
         }
+    }
 
     //TODO allow japanese search - japanese bibles use smartcn which is not available
     /** can we enable the main menu search button

@@ -32,12 +32,9 @@ import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
-import java.lang.Exception
-import java.lang.IndexOutOfBoundsException
 
 
 import java.util.ArrayList
-import java.util.Collections
 import java.util.HashMap
 import java.util.Stack
 
@@ -50,8 +47,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class HistoryManager @Inject
-constructor(private val windowControl: WindowControl) {
+class HistoryManager @Inject constructor(private val windowControl: WindowControl) {
 
     private val windowHistoryStackMap = HashMap<Long, Stack<HistoryItem>>()
 
@@ -92,7 +88,7 @@ constructor(private val windowControl: WindowControl) {
                     lastItem = it
                     WorkspaceEntities.HistoryItem(
                         windowId, it.createdAt, it.document.initials, it.key.osisID,
-                        if (it.yOffsetRatio.isNaN()) null else it.yOffsetRatio
+                        it.anchorOrdinal
                     )
                 }
             } else null
@@ -110,7 +106,7 @@ constructor(private val windowControl: WindowControl) {
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
             }
-            stack.add(KeyHistoryItem(doc, key, entity.yOffsetRatio ?: Float.NaN, window))
+            stack.add(KeyHistoryItem(doc, key, entity.anchorOrdinal, window, entity.createdAt))
         }
         windowHistoryStackMap[window.id] = stack
     }
@@ -160,10 +156,10 @@ constructor(private val windowControl: WindowControl) {
             }
 
             val key = currentPage.singleKey
-            val yOffsetRatio = currentPage.currentYOffsetRatio
+            val anchorOrdinal = currentPage.anchorOrdinal
             if(doc == null) return null
             historyItem =
-                if(key != null) KeyHistoryItem(doc, key, yOffsetRatio, windowControl.activeWindow)
+                if(key != null) KeyHistoryItem(doc, key, anchorOrdinal, windowControl.activeWindow)
                 else null
 
         } else if (currentActivity is AndBibleActivity) {
@@ -193,7 +189,7 @@ constructor(private val windowControl: WindowControl) {
                     // finish current activity if not the Main screen
                     val currentActivity = CurrentActivityHolder.getInstance().currentActivity
                     if (currentActivity !is MainBibleActivity) {
-                        currentActivity.finish()
+                        currentActivity?.finish()
                     }
                 }
             } finally {

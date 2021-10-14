@@ -1,0 +1,68 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "App Estudo Bíblico, And Bible Open Source Project"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Leia a Bíblia, estude comentários ou dicionários, ou leia livros offline."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Ferramenta poderosa de estudo da Bíblia
+paragraph_1_1: >
+  A aplicação de estudo da Bíblia por And Bible Open Source Project é um aplicativo de estudo da Bíblia off-line poderoso, mas fácil de usar, para Android. A aplicação não pretende ser simplesmente um leitor da Bíblia, mas é também uma ferramenta avançada para fazer um estudo bíblico pessoal em profundidade.
+paragraph_1_2: >
+  Esta aplicação é desenvolvida por leitores da Bíblia, para leitores da Bíblia. O seu  objetivo é ajudá-lo a tornar o seu estudo da Bíblia conveniente, profundo e divertido. A melhor parte desse projeto comunitário sem fins lucrativos é que ele é de código aberto, totalmente gratuito e não contém anúncios. Tendo sido desenvolvido desde o início para o Android, é um download pequeno e, portanto, muito eficiente e incrivelmente rápido.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Algumas versões populares da Bíblia (das muitas disponíveis): Bíblia dos Capuchinhos, PorAlmeida1911, PorAR, PorBíblia, PorBLivre, PorBLivreTR, PorRecebida, TfTP, VFL e Índice Bíblico-Pastoral da Biblia dos Capuchinhos.
+subtitle_2: Recursos poderosos de estudo da Bíblia
+paragraph_2_1: >
+  A aplicação tem muitos recursos perspicazes e originais, que tornam uma experiência de estudo bíblica complexa e profunda mais suave do que nunca. Os recursos mais notáveis ​​são os seguintes: 
+feature_01: Visualização em várias janelas de texto que permitem comparar traduções e consultar comentários
+feature_02: Os espaços de trabalho permitem várias configurações de estudo da Bíblia com as suas próprias configurações
+feature_03: A Integração de Strong permite análise de palavras em Grego e Hebreu
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Referências cruzadas, notas de rodapé e documentos vinculados; vá diretamente para referências cruzadas e notas de rodapé simplesmente tocando num link; faça um estudo aprofundado das Escrituras usando comentários com hiperlinks ({{commentary_examples}}), coleções de referência cruzada ({{cross_reference_examples}}) e outros recursos.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry etc. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Texto avançado para fala com marcadores de fala, permitindo uma experiência de ouvir a Bíblia sem problemas"
+feature_06: Procura fléxivel
+feature_07: Recursos avançados de marcadores e destaque com notas de estudo pessoais
+feature_09: >+
+  Planos de leitura: estabeleça metas para a leitura da Bíblia 
+
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Vasta biblioteca de documentos: traduções da Bíblia, comentários teológicos, dicionários, mapas e livros cristãos, totalizando mais de {{total_documents}} documentos em mais de {{total_languages}} idiomas, legalmente distribuídos pela Crosswire e outros repositórios SWORD. 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >+
+  A proveniência de todos os documentos é pesquisada para garantir que todos os documentos podem ser legalmente distribuídos ou que a permissão foi concedida pelo detentor dos direitos autorais. Esse também é o motivo pelo qual este aplicativo não inclui documentos como {{unavailable_documents}}. 
+
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV and NKJV"
+feature_12: >
+  Off-line: só precisa da Internet para fazer download de documentos.
+feature_13: >
+  Áreas de Estudo para adicionar notas e referências bíblicas enquanto ouve sermões.
+subtitle_3: Vamos fazer a melhor aplicação de Bíblia juntos!
+paragraph_3_1: >
+  And Bible é um projeto comunitário de código aberto. Na prática, isso significa que qualquer pessoa com habilidades adequadas pode, e é incentivada a, contribuir para o projeto: 
+contr_1: "desenvolvendo novos recursos,"
+contr_2: "testando recursos ainda não lançados,"
+contr_3: manter as traduções da interface de utilizador atualizadas e
+contr_4: "ajudando a estender a biblioteca do módulo, obtendo permissões dos detentores de direitos autorais ou convertendo documentos para o formato SWORD."
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Se é um engenheiro de software ou testador profissional, considere contribuir para o projeto. Para obter mais informações sobre como contribuir, consulte {{how_to_contribute_url}}."
+subtitle_4: Atalhos
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Página inicial: {{homepage_url}}
+link_2: >
+  Dê o seu like à aplicação And Bible no Facebook: {{facebook_url}}
+link_3: >
+  O nosso canal no Youtubel: {{youtube_url}}
+link_4: >
+  Perguntas Frequentes: {{faq_url}}
+link_5: >
+  Página do projeto no Github: {{github_url}}

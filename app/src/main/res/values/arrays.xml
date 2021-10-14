@@ -6,6 +6,12 @@
 <resources
   xmlns:tools="http://schemas.android.com/tools"
   tools:ignore="MissingTranslation">
+    <string-array name="strongsModeEntries">
+		<item>@string/strongs_off</item>
+		<item>@string/strongs_links</item>
+		<item>@string/strongs_text_and_links</item>
+	</string-array>
+
 	<string-array name="documentTypes">
 		<item>@string/doc_type_all</item>
 		<item>@string/doc_type_bible</item>
@@ -13,7 +19,21 @@
 		<item>@string/doc_type_dictionary</item>
 		<item>@string/doc_type_book</item>
 		<item>@string/doc_type_map</item>
+		<item>@string/doc_type_addons</item>
 	</string-array>
+
+	<!-- Bible/commentary toolbar button press actions -->
+	<string-array name="prefs_toolbar_button_action_descriptions">
+		<item>@string/prefs_toolbar_button_action_default</item>
+		<item>@string/prefs_toolbar_button_action_swap_menu</item>
+		<item>@string/prefs_toolbar_button_action_swap_activity</item>
+	</string-array>
+	<string-array name="prefs_toolbar_button_action_values">
+		<item>default</item>
+		<item>swap-menu</item>
+		<item>swap-activity</item>
+	</string-array>
+	<!-- Bible/commentary toolbar button press actions -->
 
 	<!-- Screen colors: automatic night mode, day, night -->
 	<string-array name="prefs_night_mode_descriptions">
@@ -53,6 +73,7 @@
 		<item>@string/lang_azerbaijani</item>
 		<item>@string/lang_bengali</item>
 		<item>@string/lang_bulgarian</item>
+		<item>@string/lang_burmese</item>
 		<item>@string/lang_czech</item>
 		<item>@string/lang_german</item>
 		<item>@string/lang_english</item>
@@ -90,6 +111,7 @@
 		<item>az</item>
 		<item>bn</item>
 		<item>bg</item>
+		<item>my</item>
 		<item>cs</item>
 		<item>de</item>
 		<item>en</item>

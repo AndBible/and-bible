@@ -1,0 +1,23 @@
+name: Ben's board
+
+on:
+  issues:
+    types: [closed]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  assign_to_tuomas_project:
+    permissions:
+      repository-projects: write
+      issues: read
+    runs-on: ubuntu-latest
+    name: Assign to project Ben's boards
+    steps:
+    - name: Add closed bugs and features to Ben's board for testing
+      uses: srggrs/assign-one-project-github-action@42352f30e8f3608e29350741411ab7061c953972 # 1.2.1
+      if: "contains(github.event.issue.labels.*.name, 'Type: Bug') || contains(github.event.issue.labels.*.name, 'Type: Feature')"
+      with:
+        project: 'https://github.com/AndBible/and-bible/projects/5'
+        column_name: 'Needs triage'

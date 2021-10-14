@@ -1,0 +1,66 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: Studium Bible od open-source projektu And Bible
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Čtěte Bibli, studujte komentáře či slovníky nebo čtěte knihy offline."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Rozsáhlý nástroj pro studium Bible
+paragraph_1_1: >
+  Aplikace Bible Study projektu otevřeného softwaru And Bible je obsáhlá a přitom snadná aplikace na offline studium Bible pro Android. Aplikace nemá za cíl jen zprostředkovat četbu Bible, ale je pokročilým nástrojem pro hluboké osobní studium Bible.
+paragraph_1_2: >
+  Tuto aplikaci vyvíjí čtenáři Bible pro čtenáře Bible. Má za cíl vám studium Bible zjednodušit, prohloubit a zpříjemnit. Nejlepší na tomto neziskovém komunitním projektu je to, že jde o otevřený software zcela zdarma a neobsahuje žádné reklamy. Aplikace je postavena od základů pro Android, proto je malá, a tedy výkonná a překvapivě rychlá.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Příklady rozšířených překladů Bible (z mnoha dostupných) jsou ekumenický překlad, studijní překlad, Bible Kralická, aplikace obsahuje i desítky dalších světových jazyků.
+subtitle_2: Obsáhlé funkce ke studiu Bible
+paragraph_2_1: >
+  Aplikace obsahuje mnohé podnětné, originální funkce, které složitý a hluboký prožitek z četby Bible co nejvíc usnadní. Nejvýznamnější funkce jsou:
+feature_01: Oddělené zobrazení textu umožňující porovnávat překlady a nahlížet do komentářů
+feature_02: "Pracovní plochy, ve kterých si můžete vytvořit vlastní sady nastavení"
+feature_03: Integrace Strongových čísel umožňuje rozbor řeckých a hebrejských slov
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Propojené odkazy, poznámky a dokumenty: přejděte na odkazy a poznámky pod čarou pouhým poklepáním; pracujte s Písmem do hloubky pomocí odkazovaných komentářů ({{commentary_examples}}), sbírek křížových odkazů ({{cross_reference_examples}}) a dalších zdrojů.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry a další. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Konkordance Treasure of Scripture Knowledge, TSKe"
+feature_05: Pokročilé předčítání se záložkami poskytující snadný poslech Bible
+feature_06: Pružné vyhledávání
+feature_07: Pokročilý systém záložek a zvýraznění textu s osobními poznámkami
+feature_09: >
+  Plány čtení: stanovte si pro četbu Bible cíle 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Obsáhlá knihovna dokumentů: biblické překlady, teologické komentáře, slovníky, mapy, křesťanská literatura čítající přes {{total_documents}} dokumentů ve více než {{total_languages}} jazycích, poskytovaných legálně Crosswire a dalšími repozitáři SWORD. 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  U všech dokumentů zkoumáme původ, abychom se ujistili, že mohou být legálně šířeny nebo že k němu vlastník autorského práva poskytl svolení. To také znamená, že tato aplikace neobsahuje dokumenty jako {{unavailable_documents}}.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "anglické překlady ESV, NIV a NKJV"
+feature_12: >
+  Offline: internet potřebujete pouze ke stažení dokumentů.
+feature_13: >
+  Studijní složky pro psaní poznámek a biblických odkazů při poslechu kázání.
+subtitle_3: Pojďme tvořit nejlepší aplikaci Bible společně!
+paragraph_3_1: >
+  Projekt And Bible je komunitní otevřený software. V praxi to znamená, že může přispívat kdokoli s vhodnými znalostmi:
+contr_1: "vývojem nových funkcí,"
+contr_2: "testováním nezveřejněných funkcí,"
+contr_3: aktualizací překladu uživatelského rozhraní a
+contr_4: rozšiřováním modulové knihovny získáváním svolení od vlastníků autorských práv nebo převodem dokumentů do formátu SWORD.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Pokud jste profesionální vývojář softwaru nebo tester, zvažte prosím, zda můžete k projektu přispět. Více informací najdete na {{how_to_contribute_url}}."
+subtitle_4: Odkazy
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Domovská stránka: {{homepage_url}}
+link_2: >
+  Sledujte And Bible na Facebooku: {{facebook_url}}
+link_3: >
+  Náš kanál Youtube: {{youtube_url}}
+link_4: >
+  Často kladené otázky: {{faq_url}}
+link_5: >
+  Stránka projektu na Githubu: {{github_url}}

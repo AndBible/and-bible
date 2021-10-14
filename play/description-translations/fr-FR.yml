@@ -1,0 +1,66 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "Bible Study app, du projet opensource And Bible"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Lire la Bible, avec des commentaires, des dictionnaires, tout cela hors ligne."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Puissant outil d'étude biblique
+paragraph_1_1: >
+  L'application Bible Study du  p roject Open Source AndBible  est une puissante application d'étude biblique hors ligne pour Android, facile à utiliser. L'application ne vise pas à être un simple lecteur de la Bible, mais se concentre sur un outil avancé pour faire une étude personnelle approfondie de la Bible.
+paragraph_1_2: >
+  Cette application a été développée par des lecteurs de la Bible, pour des lecteurs de la Bible. Elle a pour but de vous aider à rendre votre étude de la Bible pratique, approfondie et amusante. La meilleure partie de ce projet communautaire à but non lucratif est qu'il est à code source ouvert, entièrement gratuit et ne contient aucune publicité. Construite de A à Z pour Android, sa taille de téléchargement est faible et est donc très efficace et remarquablement rapide.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Quelques versions populaires de la Bible (parmi les nombreuses disponibles) sont les KJV, NASB, NET, et aussi des commentaires populaires comme Matthew Henry et John Gill.
+subtitle_2: Puissantes fonctionnalités  d'étude de la Bible
+paragraph_2_1: >
+  L'application comporte de nombreuses fonctionnalités originales et petinentes, qui rendent l'étude complexe et approfondie de la Bible plus fluide que jamais. Les fonctionnalités les plus remarquables sont les suivantes :
+feature_01: Divise les affichages du texte permettant de comparer les traductions et de consulter les commentaires
+feature_02: Les espaces de travail permettent de mettre en place plusieurs études bibliques avec leurs propres paramètres.
+feature_03: L'intégration de Strongs permet l'analyse des mots grecs et hébreux.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Références croisées, notes de bas de page et documents liés ; passez aux références croisées et aux notes de bas de page en appuyant simplement sur un lien ; effectuez une étude approfondie des Écritures en utilisant des commentaires en hyperlien ({{commentary_examples}}), des collections de références croisées ({{cross_reference_examples}}) et d'autres ressources.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry etc. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Une synthèse vocale avancée avec des signets vocaux, pour une écoute fluide de la Bible."
+feature_06: Recherche flexible
+feature_07: Fonctions avancées des signets et de surlignage avec des notes d'étude personnelles
+feature_09: >
+  Plans de lecture : fixer des objectifs de lecture de la Bible 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Vaste bibliothèque de documents : Traductions de la Bible, commentaires théologiques, dictionnaires, cartes et livres chrétiens, totalisant plus de {{total_documents}} documents dans plus de {{total_languages}} langues, distribués légalement par Crosswire et d'autres dépôts SWORD. 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  La provenance de tous les documents fait l'objet de recherches afin de s'assurer que tous les documents peuvent être distribués légalement ou que la permission a été accordée par le détenteur du droit d'auteur. C'est également la raison pour laquelle cette application n'inclut pas les documents comme {{unavailable_documents}}.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV et NKJV"
+feature_12: >
+  Hors ligne  : vous n'avez besoin de l'internet que pour télécharger des documents.
+feature_13: >
+  Des bloc-notes pour ajouter des notes et des références bibliques tout en écoutant les sermons.
+subtitle_3: Créons ensemble la meilleure application biblique !
+paragraph_3_1: >
+  And Bible est un projet communautaire à code source ouvert. En pratique, cela signifie que toute personne possédant les compétences nécessaires peut contribuer au projet, et est encouragée à le faire :
+contr_1: "en développant de nouvelles fonctionnalités,"
+contr_2: "en testant les fonctionnalités pas encore publiées,"
+contr_3: "en gardant la traduction de l’interface utilisateur à jour, et"
+contr_4: en contribuant à l'extension de la bibliothèque de modules en obtenant les autorisations des détenteurs de droits d'auteur ou en convertissant les documents au format SWORD.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Si vous êtes informaticien ou un testeur professionnel, veuillez envisager de contribuer au projet. Pour plus d'informations sur la façon de contribuer, veuillez consulter {{how_to_contribute_url}}."
+subtitle_4: Liens
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Page d'accueil : {{homepage_url}}
+link_2: >
+  Like And Bible sur Facebook : {{facebook_url}}
+link_3: >
+  Notre chaîne Youtube : {{youtube_url}}
+link_4: >
+  Questions fréquemment posées : {{faq_url}}
+link_5: >
+  Page du projet sur Github : {{github_url}}

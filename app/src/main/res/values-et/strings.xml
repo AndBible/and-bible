@@ -3,21 +3,24 @@
   <string name="app_name_short">Piibliuurimine</string>
   <string name="app_name_medium">Piibliuurimine (And Bible)</string>
   <string name="app_name_long">Piibliuurimise rakendus, And Bible avatud koodiga projektilt</string>
+  <string name="project">And Bible avatud koodiga projekt</string>
   <string name="version_text">Versioon %s</string>
-  <string name="no_sdcard_error">Palun sisesta SDD-kaart ja taaskäivita rakendus.</string>
+  <string name="no_sdcard_error">Palun sisesta SD-kaart ja taaskäivita rakendus.</string>
   <!--Main menu-->
   <string name="menu">Menüü</string>
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Tekstiosa</string>
   <string name="search">Leia</string>
-  <string name="settings">Rakenduste eelistused</string>
+  <string name="settings">Rakenduse eelistused</string>
   <string name="history">Ajalugu</string>
   <string name="speak">Loe ette</string>
   <string name="help">Abiinfo</string>
+  <string name="information">Info</string>
   <string name="other">Muu</string>
+  <string name="contact">Kontakt</string>
   <string name="help_and_tips">Abiinfo ja vihjed</string>
   <string name="administration">Haldamine</string>
-  <string name="rate_application">Hinda ja kirjuta ülevaade Google Play poes</string>
+  <string name="rate_application">Hinda ja arvusta</string>
   <string name="chooce_document">Vali dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Vali raamat</string>
@@ -27,12 +30,13 @@
   <string name="deuterocanonical">Apokriiva</string>
   <!--Search-->
   <string name="search_index">Otsinguindeks</string>
-  <string name="index_creation_required">Otsimiseks on vajalik register.</string>
-  <string name="create_index_for">Otsimiseks on vajalik register. \n\nKas luua %s-le indeks?</string>
+  <string name="index_creation_required">Otsimiseks on vajalik indeks.</string>
+  <string name="create_index_for">Otsimiseks on vajalik indeks. \n\nKas luua %s-le indeks?</string>
   <string name="rebuild_index_for">Kas taasluua %s indeks?</string>
   <string name="indexing_wait_msg">Kui indekseerimine lõpetatakse, siis viiakse sind tagasi avaekraanile.</string>
   <string name="index_create">Loo</string>
   <string name="rebuild_index">Loo indeks uuesti</string>
+  <string name="search_in">Otsi %s seest</string>
   <string name="do_in_background">Jätka taustal</string>
   <string name="rebuild_index_button">Loo uuesti</string>
   <!--Tasks-->
@@ -53,14 +57,33 @@
   <string name="search_current_book">Praegune raamat</string>
   <string name="error_executing_search">Vigane otsingupäring</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Näita salminumbreid</string>
+  <string name="prefs_show_verseno_title">Peatüki ja salmi numbrid</string>
+  <string name="prefs_show_verseno_summary">Näita peatüki ja salmi numbreid</string>
+  <string name="prefs_e_ink_mode_title">Mustvalge režiim</string>
+  <string name="prefs_eink_mode_summary">Kasuta mustvalget režiimi, sobiv e-lugeritele.</string>
+  <string name="prefs_disable_animations_title">Keela animatsioonid</string>
+  <string name="prefs_disable_animations_summary">Keela erinevad animatsioonid, näiteks sujuv kerimine.</string>
+  <string name="prefs_paragraph_spacing_title">Lõiguvahed (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Määra lõikude eraldamise vahe</string>
+  <string name="prefs_show_verseno_title1">Salminumbrid</string>
+  <string name="prefs_show_chapter_no_title">Peatüki numbrid</string>
+  <string name="prefs_show_chapter_no_summary">Näita peatüki numbreid</string>
+  <string name="prefs_verse_per_line_summary">Näita igat salmi eraldi real</string>
+  <string name="prefs_show_bookmarks_summary">Võta linnuke ära, et kõik järjehoidjad peita</string>
+  <string name="prefs_show_mynotes_summary">Näita ikoone salmides, mille juures on märkmed</string>
+  <string name="prefs_show_notes_summary">Näita allmärkusi ja ristviiteid</string>
+  <string name="prefs_show_strongs_summary">Lingid Kreeka ja Heebrea definitsioonidele</string>
+  <string name="prefs_show_morphology_summary">Näita Robinsoni kreeka morfoloogiat</string>
+  <string name="prefs_section_title_summary">Näita mittekanoonilisi sektsioonide pealkirju</string>
+  <string name="prefs_red_letter_summary">Näita Jeesuse sõnu punase tekstiga</string>
   <string name="prefs_text_size_title">Fondi eelistused</string>
-  <string name="prefs_show_verseno_title">Salminumbrid</string>
   <string name="prefs_verse_per_line_title">Üks salm rea kohta</string>
   <string name="prefs_show_bookmarks_title">Näita järjehoidjaid</string>
-  <string name="prefs_default_bookmark_style_title">Vaikimisi järjehoidjate stiil</string>
-  <string name="prefs_default_bookmark_style_summary">Esiletõstmise värv või ikoon</string>
   <string name="prefs_show_mynotes_title">Näita minu märkmete ikooni</string>
+  <string name="prefs_show_footnotes_title">Allmärkused</string>
+  <string name="prefs_show_xrefs_title">Ristviited</string>
+  <string name="prefs_show_footnotes_summary">Näita allmärkusi, kui need on saadaval selles dokumendis</string>
+  <string name="prefs_show_xrefs_summary">Näita ristviiteid, kui need on saadaval selles dokumendis</string>
   <string name="prefs_show_notes_title">Allmärkused ja ristviited</string>
   <string name="prefs_show_strongs_title">Strongi numbrid</string>
   <string name="prefs_show_morphology_title">Morfoloogilised koodid</string>
@@ -74,8 +97,6 @@
   <string name="options_menu_night_mode">Öörežiim</string>
   <string name="prefs_navigate_to_verse_title">Salmi juurde liikumine</string>
   <string name="prefs_navigate_to_verse_summary">Tekstiosa valides vali salm (ja peatükk)</string>
-  <string name="prefs_open_links_in_special_window_title">Ava lingid eraldi aknas</string>
-  <string name="prefs_open_links_in_special_window_summary">Ristviidete ja viidete kiiremaks näitamiseks</string>
   <string name="prefs_text_size_sample_text">Näidistekst</string>
   <string name="prefs_screen_keep_on_title">Hoia ekraan sees</string>
   <string name="prefs_screen_keep_on_summary">Väldi ekraani kinni minemist selle rakenduse kasutamise ajal</string>
@@ -88,22 +109,46 @@
   <string name="auto_fullscreen">Täisekraanile kerimisega</string>
   <string name="reversed_split_mode">Pööratud jagatud akna režiim</string>
   <string name="add_ellipsis">%s…</string>
+  <string name="font_size_pt">%d punkti</string>
+  <string name="value_mm">%d mm</string>
+  <string name="prefs_margin_size_title">Muuda veeriste suurust</string>
+  <string name="prefs_margin_size_mm_title">Veerise suurus (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Lisaseaded</string>
   <string name="prefs_display_customization_cat">Vaade ja välimus</string>
   <string name="prefs_behavior_customization_cat">Rakenduse käitumine</string>
+  <string name="prefs_margin_size_summary">Määra tekstivaate vasak ja parem veeris. Saad määrata ka teksti maksimaalset laiust.</string>
+  <string name="prefs_text_colors_summary">Määra teksti ja tausta värv ning taustamüra efekt</string>
   <string name="text_display_settings_activity_title">Teksti näitamise seaded</string>
+  <string name="workspace_text_display_settings_title">Teksti valikud - %s</string>
+  <string name="window_text_display_settings_title">Teksti valikud - Aken %d</string>
   <string name="prefs_text_display_settings_title">Vormindamine</string>
   <string name="prefs_text_appearance_title">Välimus</string>
+  <string name="prefs_justify_title">Rööpjoonda teksti</string>
+  <string name="pref_left_margin_label_mm">Vasak veeris (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Parem veeris (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Teksti maksimaalne laius (%d mm)</string>
+  <string name="prefs_line_spacing_pt">Reavahed %1.1fx</string>
+  <string name="prefs_top_margin_title">Ülemine veeris</string>
   <string name="prefs_hyphenation_title">Poolitamine</string>
+  <string name="prefs_hyphenation_summary">Poolita automaatselt sõnu, kui keel on toetatud</string>
+  <string name="prefs_line_spacing_pt_title">Reavahed (%1.1fx)</string>
   <string name="line_spacing_title">Reavahed</string>
   <string name="line_spacing_summary">Määra ridade vahe</string>
   <string name="select_none">Ära vali midagi</string>
-  <string name="reset_are_you_sure">Oled sa kindel, et soovid kõiki väärtusi nullida?</string>
   <string name="window_pinning_menutitle">Akna kinnitamine</string>
   <string name="hide_window_buttons_title">Peida akna nupud</string>
+  <string name="full_screen_hide_buttons_pref_title">Peida täisekraani akna nupud</string>
+  <string name="prefs_dictionaries_cat">Sõnaraamatud</string>
+  <string name="prefs_top_margin_title_mm">Ülemine veeris (%d mm)</string>
+  <string name="font_size_title">Teksti suurus</string>
+  <string name="font_size_title_pt">Teksti suurus (%d punkti)</string>
+  <string name="prefs_font_text_size_summary">Määra teksti suurus</string>
+  <string name="prefs_text_bookmarks_title">Järjehoidjate ja märkmete seaded</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Värvi seaded</string>
-  <string name="color_text">Taustavärv</string>
+  <string name="window_color_settings_title">Akna värvi seaded</string>
+  <string name="workspace_color_settings_title">Tööala värviseadete vaikeväärtused</string>
+  <string name="color_text">Tekstivärv</string>
   <string name="color_background">Taustavärv</string>
   <string name="colors_day_mode_title">Päevarežiim</string>
   <string name="colors_night_mode_title">Öörežiim</string>
@@ -133,34 +178,31 @@
   <string name="next">Järgmine</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Palun lae alla Strongi heebrea ja kreeka sõnaraamat</string>
-  <string name="all_greek_occurrences">Leia kõik esinemised</string>
-  <string name="all_hebrew_occurrences">Leia kõik esinemised</string>
   <string name="no_indexed_bible_with_strongs_ref">Sa pead laadima alla Piibli, milles on Strongi numbrid ja laadima otsingu kaudu selle indeksi</string>
   <string name="morph_robinson_not_installed">Palun lae alla sõnaraamat \'Robinson\'s Morphological Analysis Codes\'</string>
   <!--Module download-->
   <string name="download">Lae dokumente alla</string>
+  <string name="download_confirmation">Kas laadida piibel alla internetist?</string>
+  <string name="download_source_last_updated">Dokumentide nimekirja uuendati viimati: %s.</string>
+  <string name="download_refreshing_book_list">Värskendan saadaval dokumentide nimekirja...</string>
   <string name="download_document_confirm_prefix">Lae alla </string>
-  <string name="download_refreshing_book_list">Saadaolevate dokumentide nimekirja värskendamine</string>
   <string name="download_refresh_book_list_menu_item">Värskenda</string>
-  <string name="error_downloading">Allalaadimisel tekkis tõrge.  Palun kontrolli oma internetiühendust.</string>
   <string name="storage_space_warning">Pole piisavalt ruumi.</string>
-  <string name="too_many_jobs">Käimas on liiga palju ülesandeid.  Palun oota kuni mõned lõpetatakse ja proovi uuesti.</string>
   <string name="document_not_installed">Palun lae alla \'%s\'</string>
   <string name="free_text_search_documents">Otsi</string>
   <string name="chooce_language_hint">Keel</string>
-  <string name="document_filter_results">%d dokunmenti</string>
+  <string name="document_filter_results">%d dokumenti</string>
   <string name="do_not_ask_again">Jah, ära enam küsi</string>
   <string name="recommended_document">Soovitatud!</string>
   <string name="about_version_history">Versiooni ajalugu: %s</string>
-  <string name="download_failed">%s alla laadimine ebaõnnestus</string>
   <string name="download_errors">Allalaadimise vead</string>
   <!--Install zip file-->
   <string name="install_zip">Laadi dokument ZIP-failist</string>
   <string name="install_zip_module">Paigalda Piibli moodul</string>
   <string name="install_zip_successfull">Moodul on paigaldatud</string>
+  <string name="extracting_zip_file">ZIP-fail lahtipakkimine...</string>
   <string name="checking_zip_file">Antud faili kontrollimine</string>
   <string name="invalid_module">Failis pole korrektset SWORD moodulit</string>
-  <string name="module_already_installed">Failis on moodul, mis on juba paigaldatud</string>
   <string name="install_zip_title">Palun oota. ZIP-faili laaditakse.</string>
   <string name="overwrite_files_title">Kirjutada failid üle?</string>
   <!--Daily Reading Plan-->
@@ -168,9 +210,20 @@
   <string name="rdg_plan_selector_title">Vali lugemiskava</string>
   <string name="rdg_plan_day">Päev %s</string>
   <string name="rdg_plan_set_start_date">Määra alguskuupäev...</string>
+  <string name="set_current_day">Tõsta järg käeolevale päevale...</string>
+  <string name="msg_set_current_day_reading_plan">Tänane kuupäev määratakse käesolevaks lugemiskava päevaks. Kõik eelnevad päevad märgitakse tehtuks.
+Kas jätkame?</string>
   <string name="done">Valmis</string>
-  <string name="reset">Nulli</string>
   <string name="reset_plan_question">Oled sa kindel, et soovid selle kava nullida?</string>
+  <string name="import_reading_plan">Impordi lugemiskava...</string>
+  <string name="import_reading_plan_error">Viga importimisel</string>
+  <string name="import_reading_plan_error_duplicate">Need päevad olid mitmekordselt: %s</string>
+  <string name="import_reading_plan_error_days">Need päevad sisaldasid vigu: %s</string>
+  <string name="import_reading_plan_anyway">Impordi sellegipoolest</string>
+  <string name="overwrite_reading_plan">Kas kirjutame %s üle?</string>
+  <string name="delete_reading_plan">Kustuta see kava</string>
+  <string name="reading_plan_deleted">Lugemiskava kustutatud</string>
+  <string name="plan_name_y1ot1nt1_chronological">Kronoloogiline 1 aastaga piibel läbi</string>
   <string name="plan_name_y1ot1nt1_OTandNT">1 aasta VT+UT samaaegselt</string>
   <string name="plan_name_y1ot1nt1_OTthenNT">Aastaga piibel läbi</string>
   <!--Document context menu-->
@@ -181,27 +234,34 @@
   <string name="delete_search_index_doc">Kustutada %s indeks?</string>
   <!--Verse context menu-->
   <string name="notes">Allmärkused ja viited</string>
-  <string name="verse_action_copy">Kopeeri</string>
   <string name="share_verse">Jaga...</string>
+  <string name="share_verse_widget_title">Jaga valitud teksti</string>
   <string name="compare_translations">Võrdle tõlkeid</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Ava link siin</string>
   <string name="open_link_in_new_window">Ava link uues aknas</string>
   <string name="open_link_in_special_window">Ava link eriaknas</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Järjehoidjad ja minu märkmed</string>
+  <string name="migrated_my_notes">Üle toodud Minu märkmed</string>
   <string name="bookmarks">Järjehoidjad</string>
-  <string name="add_bookmark">Lisa järjehoidja</string>
-  <string name="delete_bookmark">Kustuta järjehoidja</string>
   <string name="bookmark_added">Järjehoidja on lisatud</string>
-  <string name="bookmark_date_updated">Järjehoidja kuupäeva on uuendatud</string>
-  <string name="bookmark_deleted">Järjehoidja on kustutatud</string>
-  <string name="bookmark_labels">Järjehoidja sildid</string>
-  <string name="manage_labels">Järjehoidjate siltide haldamine</string>
+  <string name="manage_labels">Siltide haldamine</string>
   <string name="assign_labels">Määra sildid</string>
+  <string name="new_item">Uus</string>
   <string name="new_label">Uus silt</string>
   <string name="label_name_prompt">Nimi</string>
   <string name="label_unlabelled">Sildistamata</string>
-  <string name="style">Stiil</string>
+  <string name="add_bookmark1">Järjehoidja</string>
+  <string name="add_bookmark3">Valitu</string>
+  <string name="add_bookmark_whole_verse1">Salmid</string>
+  <string name="remove_bookmark">Eemalda</string>
+  <string name="bookmark_settings_hide_labels_title">Varja valitud sildid...</string>
+  <string name="auto_assign_labels_title">Sildi seaded</string>
+  <string name="auto_assign_labels1">Määra automaatselt uutele järjehoidjatele</string>
+  <string name="auto_assign_labels_primary">Määra automaatselt peamise sildina</string>
+  <string name="label_color">Sildi värv</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Kuupäeva järgi</string>
   <string name="sort_by_bible_book">Piibli järjekord</string>
@@ -267,6 +327,14 @@
   <string name="speak_status_stopped">peatatud</string>
   <string name="speak_autobookmarking_disabled">Automaatne järjehoidjate lidamine on keelatud!</string>
   <string name="system_speak_settings">Ava süsteemi TTS seaded</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_bookmark_help">Kõnelemise järjehoidjate abiinfo</string>
   <string name="speak_help_auto_bookmark">
         Kõnelemise järjehoidja lisatakse automaatselt kui rääkimise funktsioon pannakse pausile või peatatakse.
@@ -326,17 +394,10 @@
     </string>
   <!--User Notes-->
   <string name="mynotes">Minu märkmed</string>
-  <string name="mynote_add">Lisa minu märge</string>
-  <string name="mynote_saved">Minu märge on salvestatud</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Varundamine ja taastamine</string>
-  <string name="backup_modules">Varunda dokumendid kohta...</string>
-  <string name="backup_app_database">Varunda rakenduse andmebaas kohta...</string>
-  <string name="restore_app_database">Taasta rakenduse andmebaas...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="loading_backup">Andmebaasi laadimine varukoopiast...</string>
-  <string name="error_no_backup_file">Varukoopia faili ei leitud</string>
-  <string name="backup_restore_title">Kuskohast taastada?</string>
-  <string name="backup_manually">Vali fail</string>
   <string name="backup_backup_title">Kuhu vahndada?</string>
   <string name="backup_share">Jaga</string>
   <string name="send_backup_file">Saada varukoopia fail</string>
@@ -344,9 +405,12 @@
   <string name="module_about_copyright">Autoriõigused: %s</string>
   <string name="module_about_installed_version">Paigaldatud versioon: %s (%s)</string>
   <string name="module_about_latest_version">Viimane versioon: %s (%s)</string>
+  <string name="module_about_versification">Salmideks jagamine: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Teata veast</string>
+  <string name="send_feedback_title">Tagasiside</string>
+  <string name="send_bug_report_title">Tagasiside / teata veast</string>
+  <string name="report_bug_big_heading">PALUN KIRJUTAGE OMA TAGASISIDE VÕI VEAKIRJELDUS SIIT ÜLES POOLE</string>
   <!--Document types-->
   <string name="doc_type_all">Kõik liigid</string>
   <string name="doc_type_bible">Piibel</string>
@@ -354,6 +418,7 @@
   <string name="doc_type_dictionary">Sõnaraamat</string>
   <string name="doc_type_book">Raamat</string>
   <string name="doc_type_map">Kaart</string>
+  <string name="doc_type_addons">Lisamoodulid</string>
   <!--Languages-->
   <string name="lang_default">Vaikeväärtus</string>
   <!--General-->
@@ -362,10 +427,11 @@
   <string name="yes">Jah</string>
   <string name="no">Ei</string>
   <string name="error">Viga </string>
+  <string name="delete_generic">Kustuta</string>
   <string name="please_wait">Palun oota...</string>
   <string name="all">Kõik</string>
-  <string name="default_value">@string/lang_default</string>
   <string name="edit">Muuda</string>
+  <string name="reset_generic">Nulli</string>
   <string name="watch_tutorial_video">Vaata videoõpetust (inglise keeles)</string>
   <string name="verse_not_found">Salmi ei leitud</string>
   <!--Errors-->
@@ -388,9 +454,12 @@
   <string name="rename_workspace">Nimeta ümber</string>
   <string name="workspace_selector_title">Vali tööala</string>
   <string name="workspace_settings">Seaded...</string>
+  <string name="give_name_workspace">Uue tööala nimi</string>
   <string name="save_and_exit">Salvesta</string>
   <string name="copy_workspace_settings">Kopeeri seaded...</string>
+  <string name="copy_settings_title">Milliseid seadeid soovid kopeerida?</string>
   <string name="select_all">Vali kõik</string>
+  <string name="copy_settings_workspaces_title">Millisele tööalale seaded kopeerida?</string>
   <string name="reset_settings">Nulli</string>
   <string name="workspace_dismiss">Eira</string>
   <string name="workspace_listing_with_current">%s (praegune)</string>
@@ -398,28 +467,114 @@
   <string name="beta_notice_title">See on beeta versioon!</string>
   <string name="beta_notice_github_issues">Githubi probleemid</string>
   <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Eira</string>
+  <string name="beta_notice_dismiss_until_update">Eira kuni uue versioonini</string>
   <!--History-->
   <string name="history_for">Ajalugu (%s: Aken %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigeerimine</string>
   <string name="help_contextmenus_title">Kontekstimenüüd</string>
-  <string name="help_mynote_title">Minu märge</string>
-  <string name="help_mynote_text">Märkmeid saab lisada kasutades kontekstimenüüs valikut \'Minu märge\'.
-        Olemasolevate märkmete nimekirja näed läbi peamenüü.</string>
-  <string name="help_bookmarks_title">Järjehoidjad</string>
-  <string name="help_bookmarks_text">Järjehoidjaid näeb salmi kontekstimenüüst.
-        Järjehoidjate halduri saab avada peamenüüst.
-        Järjehoidjate halduri kontekstimenüü võimaldab grupeerida järjehoidjaid siltide alusel.
-    </string>
+  <string name="help_bookmarks_title">Järjehoidjad ja minu märkmed</string>
   <string name="help_search_title">Otsing</string>
   <string name="help_search_text">Otsingutekstis võib olla ka erimärke nagu *, ?, AND, OR, NOT
         (Vaata lisainfot dokumendist \"Apache Lucene - Query Parser Syntax\")
     </string>
   <string name="help_workspaces_title">Tööalad</string>
   <string name="help_hidden_features_title">Peidetud otseteed</string>
+  <string name="help_window_pinning_title">Akna kinnitamine</string>
+  <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Sulge</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Mõistan</string>
   <string name="first_time_help_show_next_time">Näita järgmisel korral uuesti</string>
+  <string name="my_notes_abbreviation">Minu märkmed</string>
+  <string name="compare_description">Võrdle tõlkeid</string>
+  <string name="compare_abbreviation">Võrdle</string>
+  <string name="compare">Võrdle</string>
+  <string name="app_licence_title">Avatud lähtekoodiga litsents</string>
+  <string name="how_to_contribute">Kuidas kaasa aidata?</string>
+  <string name="tell_friend_title">Soovita sõbrale</string>
+  <string name="share_verse_ok">Jaga / Kopeeri</string>
+  <string name="verse_action_copy">Kopeeri</string>
+  <string name="share_verse_menu_title">Jaga / Kopeeri...</string>
+  <string name="show_versenumbers">Näita salminumbreid</string>
+  <string name="show_full_verses">Näita terveid salme</string>
+  <string name="advertise_app">Soovita rakendust</string>
+  <string name="verse_share_advertise">Jagatud kasutades %s.</string>
+  <string name="abbreviate_reference">Lühendatud viide</string>
+  <string name="backup_button">Varukoopia</string>
+  <string name="initializing_app">Rakenduse käivitamine...</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Jätka sellegipoolest</string>
+  <string name="rate_title">Rakenduse hindamine ja arvustamine</string>
+  <string name="rate_message5">
+        Positiivsed ja detailsed arvustused aitavad And Bible avatud lähtekoodiga projekti väga. Täname Teid!
+    </string>
+  <string name="rate_message6">
+        Enne halvustava arvustuse kirjutamist kaalu järgmist:
+    </string>
+  <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        Kui sul on probleem rakendusega, palun %s või %s selle asemel.
+    </string>
+  <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+        Kui probleem on mõnes tekstis või piiblitõlkes, siis %s.
+    </string>
+  <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+        Kui mingi kindel dokument pole saadaval, siis %s.
+    </string>
+  <string name="rate_message4">
+        Selle rakenduse arendajad ei vastuta dokumentide kvaliteedi eest.
+    </string>
+  <string name="bug_report">
+        kirjuta vearaport (peamenüüst)
+    </string>
+  <string name="how_to_help">
+        palun loe, mida sa saad teha, et aidata
+    </string>
+  <string name="send_email">
+       saada arendajatele e-kiri
+    </string>
+  <string name="proceed_google_play">
+        Ava Google Play
+    </string>
+  <string name="text_maintainers">
+       palun teata probleemist dokumendi haldajatele
+    </string>
+  <string name="cant_change_wholeverse">Ei saa terve salmi valimist välja lülitada</string>
+  <string name="whole_verse_turned_on">Järjehoidja on nüüd terve salmi kohta</string>
+  <string name="this_bookmark">Käesolev järjehoidja</string>
+  <string name="this_workspace">Käesolev tööala</string>
+  <string name="primary_label">Peamine silt</string>
+  <string name="favourite_label">Lemmik silt</string>
+  <string name="bookmark_underline_style_arbitrary">Jooni alla valitud teksti järjehoidja</string>
+  <string name="bookmark_underline_style_whole_verse">Jooni alla terve salmi järjehoidja</string>
+  <string name="active_labels">Valitud sildid</string>
+  <string name="recent_labels">Hiljutised sildid</string>
+  <string name="other_labels">Ülejäänud sildid</string>
+  <string name="book_menu_sort_row_opt">Järjesta ridadena</string>
+  <string name="system_items1">Veel</string>
+  <string name="text_copied_to_clicpboard">Tekst kopeeriti lõikelauale</string>
+  <string name="toggle_fullscreen">Täisekraan</string>
+  <string name="label_red">Punane</string>
+  <string name="label_green">Roheline</string>
+  <string name="label_blue">Sinine</string>
+  <string name="label_salvation">Lunastus</string>
+  <string name="label_underline">Alla joonitud</string>
+  <string name="export_fileformat">Ekspordi kui %s</string>
+  <string name="import_items">Impordi %s</string>
+  <string name="chooser_range">Vahemik</string>
+  <string name="chooser_NT_abbrev">UT</string>
+  <string name="chooser_select">Vali %s</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Vabandame, kuid meil on ainult osaline kasutajaliidese tõlge %s keeles. Seda seetõttu, et %s on täielikult välja töötatud vabatahtlike poolt. Kui saate tõlkimisel aidata, vaadake %s. </string>
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">juhised tõlkijatele</string>
+  <string name="questions_title">Küsimus arendajatele</string>
+  <string name="bookmark_style">Järjehoidja kujundus</string>
+  <string name="added_to_bookmark">Määratud käesolevale järjehoidjale</string>
 </resources>

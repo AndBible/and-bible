@@ -19,7 +19,6 @@
 package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -28,9 +27,10 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import kotlinx.android.synthetic.main.search.*
 
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SearchBinding
+import net.bible.android.control.page.PageControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
@@ -48,11 +48,15 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
+
+    private lateinit var binding: SearchBinding
+
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
     private lateinit var currentBookName: String
 
     @Inject lateinit var searchControl: SearchControl
+    @Inject lateinit var pageControl: PageControl
 
     private val documentToSearch: Book?
         get() = pageControl.currentPageManager.currentPage.currentDocument
@@ -95,8 +99,9 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search view")
-        setContentView(R.layout.search)
-        CommonUtils.sharedPreferences.edit().putLong("search-last-used", System.currentTimeMillis()).apply()
+        binding = SearchBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
         buildActivityComponent().inject(this)
 
         if (!searchControl.validateIndex(documentToSearch)) {
@@ -104,15 +109,16 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
 
         title = getString(R.string.search_in, documentToSearch!!.abbreviation)
-        searchText.setOnEditorActionListener {v, actionId, event ->
+        binding.searchText.setOnEditorActionListener {v, actionId, event ->
             return@setOnEditorActionListener when (actionId) {
                 EditorInfo.IME_ACTION_SEARCH -> {
-                    onSearch(null)
+                    onSearch()
                     true
                 }
                 else -> false
         }}
 
+        binding.submit.setOnClickListener { onSearch() }
         //searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
         //    // If the event is a key-down event on the "enter" button
         //    if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -128,7 +134,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         if (extras != null) {
             val text = extras.getString(SEARCH_TEXT_SAVE)
             if (StringUtils.isNotEmpty(text)) {
-                searchText.setText(text)
+                binding.searchText.setText(text)
             }
         }
 
@@ -172,9 +178,19 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 startActivity(Intent(this, SearchIndex::class.java))
                 return true
             }
+            R.id.help -> {
+                CommonUtils.showHelp(this, listOf(R.string.help_search_title))
+                return true
+            }
         }
         return false
     }
+
+    override fun onResume() {
+        super.onResume()
+        binding.searchText.requestFocus()
+    }
+
 
     fun onRebuildIndex(v: View?) {
         startActivity(Intent(this, SearchIndex::class.java))
@@ -183,9 +199,9 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     fun onCancel(v: View?) = finish()
 
-    fun onSearch(v: View?) {
+    fun onSearch() {
         Log.i(TAG, "CLICKED")
-        var text = searchText.text.toString()
+        var text = binding.searchText.text.toString()
         if (!StringUtils.isEmpty(text)) {
 
             // update current intent so search is restored if we return here via history/back
@@ -214,16 +230,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     private fun decorateSearchString(searchString: String): String {
         return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName)
-    }
-
-    /** I don't think this is used because of hte finish() in onSearch()
-     * TODO remove
-     */
-    @SuppressLint("MissingSuperCall")
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            returnToPreviousScreen()
-        }
     }
 
     companion object {

@@ -22,37 +22,43 @@ import android.os.Bundle
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.base.IntentHelper
-import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
-import net.bible.service.common.CommonUtils.sharedPreferences
-import net.bible.service.common.Constants
+import net.bible.service.common.CommonUtils.settings
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.FeatureType
-import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
-import org.crosswire.jsword.passage.OsisParser
+import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.PassageKeyFactory
+import org.crosswire.jsword.passage.RestrictionType
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.Versifications
 import java.net.URLDecoder
 import java.util.regex.Pattern
 import javax.inject.Inject
+
 
 /** Control traversal via links pressed by user in a browser e.g. to Strongs
  *
@@ -60,68 +66,97 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class LinkControl @Inject constructor(
-	private val windowControl: WindowControl,
+    private val windowControl: WindowControl,
+	private val bookmarkControl: BookmarkControl,
 	private val searchControl: SearchControl,
 	private val swordDocumentFacade: SwordDocumentFacade,
-	private val errorReportControl: ErrorReportControl)
-{
+)  {
     private var windowMode = WINDOW_MODE_UNDEFINED
-    /** Currently the only uris handled are for Strongs refs
-     * see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
-     *
-     * @param uri
-     * @return true if successfully changed to Strongs ref
-	 */
-	fun loadApplicationUrl(uri: String): Boolean {
-		try {
-			Log.d(TAG, "Loading: $uri")
-			// Prevent occasional class loading errors on Samsung devices
-			Thread.currentThread().contextClassLoader = javaClass.classLoader
-			val uriAnalyzer = UriAnalyzer()
-			if (uriAnalyzer.analyze(uri)) {
-				when (uriAnalyzer.docType) {
-					UriAnalyzer.DocType.BIBLE -> showBible(uriAnalyzer.key)
-					UriAnalyzer.DocType.GREEK_DIC -> showStrongs(swordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key)
-					UriAnalyzer.DocType.HEBREW_DIC -> showStrongs(swordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key)
-					UriAnalyzer.DocType.ROBINSON -> showRobinsonMorphology(uriAnalyzer.key)
-					UriAnalyzer.DocType.ALL_GREEK -> showAllOccurrences(uriAnalyzer.key, SearchBibleSection.ALL, "g")
-					UriAnalyzer.DocType.ALL_HEBREW -> showAllOccurrences(uriAnalyzer.key, SearchBibleSection.ALL, "h")
-					UriAnalyzer.DocType.SPECIFIC_DOC -> showSpecificDocRef(uriAnalyzer.book, uriAnalyzer.key)
-                    UriAnalyzer.DocType.NOTE -> showNote(uriAnalyzer.book, uriAnalyzer.key)
-                    UriAnalyzer.DocType.MYNOTE -> showMyNote(uriAnalyzer.key)
-                }
-			} else if (uriAnalyzer.protocol == Constants.REPORT_PROTOCOL) {
-				errorReportControl.sendErrorReportEmail(Exception("Error occurred in obtaining text"))
-			}
 
-			// handled this url (or at least attempted to)
-			return true
-		} catch (e: Exception) {
-			Log.e(TAG, "Error going to link", e)
-			return false
-		}
+    fun openMulti(links: List<BibleView.BibleLink>): Boolean {
+        val key = BookAndKeyList()
+        val bookKeys = links.mapNotNull {
+            try {
+                getBookAndKey(it.url, it.versification, it.forceDoc)
+            } catch (e: NoSuchKeyException) {
+                null
+            }
+        }
+        for(k in bookKeys) {
+            key.addAll(k)
+        }
+        key.name = bookKeys.map { it.key.name }.joinToString(", ")
+        showLink(FakeBookFactory.multiDocument, key)
+        return true
+    }
+
+    fun openCompare(verseRange: VerseRange): Boolean {
+        showLink(FakeBookFactory.compareDocument, verseRange)
+        return true
+    }
+
+    fun loadApplicationUrl(link: BibleView.BibleLink): Boolean = loadApplicationUrl(link.url, link.versification, link.forceDoc)
+
+    fun errorLink() {
+        ErrorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
+    }
+
+    private fun getBookAndKey(uriStr: String, versification: Versification, forceDoc: Boolean): BookAndKey? {
+        Log.d(TAG, "Loading: $uriStr")
+        val uriAnalyzer = UriAnalyzer()
+        if (uriAnalyzer.analyze(uriStr)) {
+            return when (uriAnalyzer.docType) {
+                UriAnalyzer.DocType.BIBLE -> getBibleKey(uriAnalyzer.key, versification)
+                UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key)
+                UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key)
+                UriAnalyzer.DocType.ROBINSON -> getRobinsonMorphologyKey(uriAnalyzer.key)
+                UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification, forceDoc)
+                else -> null
+            }
+        }
+        return null
+    }
+
+    private fun loadApplicationUrl(uriStr: String, versification: Versification, forceDoc: Boolean): Boolean {
+        val bookAndKey = try {getBookAndKey(uriStr, versification, forceDoc)} catch (e: NoSuchKeyException) {return false} ?: return false
+        val key = bookAndKey.key
+        if(key is Passage && key.countRanges(RestrictionType.NONE) > 1) {
+            val keyList = BookAndKeyList()
+            for( range in (0 until key.countRanges(RestrictionType.NONE)).map { key.getRangeAt(it, RestrictionType.NONE) }) {
+                keyList.addAll(BookAndKey(range, bookAndKey.document))
+            }
+            showLink(FakeBookFactory.multiDocument, keyList)
+        } else {
+            showLink(bookAndKey.document, bookAndKey.key)
+        }
+        return true
 	}
 
-
     @Throws(NoSuchKeyException::class)
-    private fun showSpecificDocRef(initials: String?, ref: String) {
-        var ref = ref
+    private fun getSpecificDocRefKey(initials: String?, reference: String, versification: Versification, forceDoc: Boolean): BookAndKey? {
+        var ref = reference
         if (StringUtils.isEmpty(initials)) {
-            showBible(ref)
+            return getBibleKey(ref, versification)
         } else {
             val document = swordDocumentFacade.getDocumentByInitials(initials)
             if (document == null) { // tell user to install book
                 Dialogs.instance.showErrorMsg(R.string.document_not_installed, initials)
-            } else { //Foreign language keys may have been URLEncoded so need to URLDecode them e.g. UZV module at Matthew 1. The first link is "David" (looks a bit like DOBYA)
+            } else if(document.bookCategory == BookCategory.BIBLE && !forceDoc) {
+                return getBibleKey(ref, versification)
+            } else if(document.isGreekDef || document.isHebrewDef) {
+                return getStrongsKey(document, reference)
+            }
+            else { //Foreign language keys may have been URLEncoded so need to URLDecode them e.g. UZV module at Matthew 1. The first link is "David" (looks a bit like DOBYA)
                 ref = URLDecoder.decode(ref)
                 //According to the OSIS schema, the osisRef attribute can contain letters and "_", but NOT punctuation and NOT spaces
 				//IBT dictionary entries sometimes contain spaces but osisrefs can't so _32_ is used
 				// e.g.  UZV Matthew 1:18: The link to "Holy Spirit" (Muqaddas Ruhdan)
                 ref = replaceIBTSpecialCharacters(ref)
                 val bookKey = document.getKey(ref)
-                showLink(document, bookKey)
+                return BookAndKey(bookKey, document)
             }
         }
+        return null
     }
 
     /**
@@ -143,57 +178,39 @@ class LinkControl @Inject constructor(
     /** user has selected a Bible verse link
      */
     @Throws(NoSuchKeyException::class)
-    private fun showBible(keyText: String) {
-        val pageManager = currentPageManager
-        val bible = pageManager.currentBible.currentDocument!!
-        // get source versification
-        val sourceDocumentVersification: Versification
-        val currentDoc = pageManager.currentPage.currentDocument
-        sourceDocumentVersification = if (currentDoc is AbstractPassageBook) {
-            currentDoc.versification
-        } else { // default to v11n of current Bible.
-			//TODO av11n issue.  GenBooks have no v11n and this default would be used for links from GenBooks which would only sometimes be correct
-            (bible as AbstractPassageBook).versification
-        }
-        // create Passage with correct source Versification
-        val key: Key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText)
-        // Bible not specified so use the default Bible version
-        showLink(null, key)
-        return
+    private fun getBibleKey(keyText: String, versification: Versification): BookAndKey {
+        val key: Passage = PassageKeyFactory.instance().getKey(versification, keyText)
+        return BookAndKey(key)
     }
 
     /** user has selected a Strong's Number link so show Strong's page for key in link
      */
+
     @Throws(NoSuchKeyException::class)
-    private fun showStrongs(book: Book?, key: String) { // valid Strongs uri but Strongs refs not installed
-        if (book == null) {
-            Dialogs.instance.showErrorMsg(R.string.strongs_not_installed)
-            // this uri request was handled by showing an error message
-            return
+    private fun getStrongsKey(book: Book, key: String): BookAndKey? {
+
+        val k = try {book.getKey(key)} catch (e: NoSuchKeyException) {
+            try {
+                val match = Regex("^([GH]?)([0-9]+).*").find(key) ?: return null
+                //val firstLetter = match.groups[1]?.value!!
+                val sanitizedKey = match.groups[2]?.value?.padStart(5, '0')!!
+                book.getKey(sanitizedKey)
+            } catch(e: NoSuchKeyException) {
+                return null
+            }
         }
-        val sanitizedKey = sanitizeStrongsKey(key) ?: return
-        showLink(book, book.getKey(sanitizedKey))
+
+        return BookAndKey(k, book)
     }
 
-    private fun sanitizeStrongsKey(key: String): String? =
-        Regex("^([0-9]+).*").find(key)?.groups?.get(1)?.value?.padStart(5, '0')
-
-    /** user has selected a morphology link so show morphology page for key in link
-     */
     @Throws(NoSuchKeyException::class)
-    private fun showRobinsonMorphology(key: String) {
-        val robinson = swordDocumentFacade.getDocumentByInitials("robinson")
-        // valid Strongs uri but Strongs refs not installed
-        if (robinson == null) {
-            Dialogs.instance.showErrorMsg(R.string.morph_robinson_not_installed)
-            // this uri request was handled by showing an error message
-            return
-        }
+    private fun getRobinsonMorphologyKey(key: String): BookAndKey {
+        val robinson = swordDocumentFacade.defaultRobinsonGreekMorphology
         val robinsonNumberKey = robinson.getKey(key)
-        showLink(robinson, robinsonNumberKey)
+        return BookAndKey(robinsonNumberKey, robinson)
     }
 
-    private fun showAllOccurrences(ref: String, biblesection: SearchBibleSection, refPrefix: String) {
+    fun showAllOccurrences(ref: String, biblesection: SearchBibleSection, refPrefix: String) {
         val currentBible = currentPageManager.currentBible.currentDocument!!
         var strongsBible: Book? = null
         // if current bible has no Strongs refs then try to find one that has
@@ -243,14 +260,10 @@ class LinkControl @Inject constructor(
     }
 
     private fun showLink(document: Book?, key: Key) { // ask window controller to open link in desired window
-        var document = document
         val currentPageManager = currentPageManager
         val defaultDocument = currentPageManager.currentBible.currentDocument!!
         if (windowMode == WINDOW_MODE_NEW) {
-            if (document == null) {
-                document = defaultDocument
-            }
-            windowControl.addNewWindow(document, key)
+            windowControl.addNewWindow(document?: defaultDocument, key)
         } else if (checkIfOpenLinksInDedicatedWindow()) {
             if (document == null) {
                 windowControl.showLinkUsingDefaultBible(key)
@@ -258,33 +271,8 @@ class LinkControl @Inject constructor(
                 windowControl.showLink(document, key)
             }
         } else { // old style - open links in current window
-            if (document == null) {
-                document = defaultDocument
-            }
-            currentPageManager.setCurrentDocumentAndKey(document, key)
+            currentPageManager.setCurrentDocumentAndKey(document ?: defaultDocument, key)
         }
-    }
-
-    // TODO: Currently there's a bit of code duplication between these functions and 
-    // VerseMenuCommandHandler.java:handleMenuRequest
-    private fun showNote(osisRef: String?, note: String) {
-        val activity = CurrentActivityHolder.getInstance().currentActivity
-        val handlerIntent = Intent(activity, FootnoteAndRefActivity::class.java)
-        val intentHelper = IntentHelper()
-        val osisParser = OsisParser()
-        val verseRange = osisParser.parseOsisRef(this.currentPageManager.currentBible.versification, osisRef)
-        intentHelper.updateIntentWithVerseRange(handlerIntent, verseRange)
-        activity.startActivityForResult(handlerIntent, ActivityBase.STD_REQUEST_CODE)
-    }
-
-    private fun showMyNote(osisRef: String) {
-        val activity: MainBibleActivity = CurrentActivityHolder.getInstance().currentActivity as MainBibleActivity
-        val osisParser = OsisParser()
-        val verseRange = osisParser.parseOsisRef(this.currentPageManager.currentBible.versification, osisRef)
-        activity.fullScreen = false
-        currentPageManager.showMyNote(verseRange)
-        activity.invalidateOptionsMenu()
-        activity.documentViewManager.buildView()
     }
 
     private fun checkIfOpenLinksInDedicatedWindow(): Boolean {
@@ -292,16 +280,30 @@ class LinkControl @Inject constructor(
         return when (windowMode) {
             WINDOW_MODE_SPECIAL -> true
             WINDOW_MODE_THIS -> false
-            WINDOW_MODE_UNDEFINED -> sharedPreferences.getBoolean("open_links_in_special_window_pref", true)
-            else -> sharedPreferences.getBoolean("open_links_in_special_window_pref", true)
+            WINDOW_MODE_UNDEFINED -> settings.getBoolean("open_links_in_special_window_pref", true)
+            else -> settings.getBoolean("open_links_in_special_window_pref", true)
         }
     }
 
     private val currentPageManager: CurrentPageManager
-        private get() = windowControl.activeWindowPageManager
+        get() = windowControl.activeWindowPageManager
 
     fun setWindowMode(windowMode: String) {
         this.windowMode = windowMode
+    }
+
+    fun openMyNotes(v11nName: String, ordinal: Int): Boolean {
+        val v11n = Versifications.instance().getVersification(v11nName)
+        val verse = Verse(v11n, ordinal)
+        showLink(currentPageManager.currentMyNotePage.currentDocument, verse)
+        return true
+    }
+
+    fun openJournal(labelId: Long, bookmarkId: Long?): Boolean {
+        val label = bookmarkControl.labelById(labelId) ?: return false
+        val key = StudyPadKey(label, bookmarkId)
+        showLink(FakeBookFactory.journalDocument, key)
+        return true
     }
 
     companion object {
@@ -314,3 +316,6 @@ class LinkControl @Inject constructor(
     }
 
 }
+
+val Book.isHebrewDef get() = bookMetaData.getValues("Feature")?.contains("HebrewDef") == true
+val Book.isGreekDef get() = bookMetaData.getValues("Feature")?.contains("GreekDef") == true

@@ -1,19 +1,21 @@
 package net.bible.service.sword
 
 import net.bible.android.TestBibleApplication
-import net.bible.android.database.WorkspaceEntities
+import net.bible.android.common.resource.AndroidResourceProvider
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.misc.elementToString
+import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.ParseException
-import net.bible.service.format.usermarks.BookmarkFormatSupport
-import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.test.DatabaseResetter
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.PassageKeyFactory
-import org.crosswire.jsword.passage.RangedPassage
-import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -24,20 +26,20 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.core.IsNot.not
 import org.junit.Assert.assertThat
-import org.junit.Ignore
+import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk=[28])
 class SwordContentFacadeTest {
 
-    private lateinit var swordContentFacade: SwordContentFacade
-
-    @Before
-    @Throws(Exception::class)
-    fun setUp() {
-        swordContentFacade = SwordContentFacade(BookmarkFormatSupport(), MyNoteFormatSupport())
-    }
+    //@Before
+    //@Throws(Exception::class)
+    //fun setUp() {
+    //    val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
+    //    val windowControl = Mockito.mock(WindowControl::class.java)
+    //    val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(AndroidResourceProvider::class.java))
+    //}
 
     @After
     fun finishComponentTesting() {
@@ -49,21 +51,10 @@ class SwordContentFacadeTest {
     @Throws(Exception::class)
     fun testReadFragment() {
         val esv = getBook("ESV2011")
-        val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "John 11:35")
-
-        val html = getHtml(esv, key, true)
+        //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "John 11:35")
+        val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "John 11:35")
+        val html = getHtml(esv, key)
         assertThat(html, not(containsString("<html")))
-    }
-
-    //@Ignore("Until ESV comes back")
-    @Test
-    @Throws(Exception::class)
-    fun testReadWordsOfChrist() {
-        val esv = getBook("ESV2011")
-        val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Luke 15:4")
-
-        val html = getHtml(esv, key, false)
-        assertThat(html, containsString("“What <a href='gdef:05101' class='strongs'>5101</a>  man <a href='gdef:00444' class='strongs'>444</a>  of <a href='gdef:01537' class='strongs'>1537</a>  you <a href='gdef:05216' class='strongs'>5216</a> , having <a href='gdef:02192' class='strongs'>2192</a>  a hundred <a href='gdef:01540' class='strongs'>1540</a>  sheep"))
     }
 
     //@Ignore("Until ESV comes back")
@@ -71,25 +62,28 @@ class SwordContentFacadeTest {
     @Throws(Exception::class)
     fun testReadCanonicalText() {
         val esv = getBook("ESV2011")
-        val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Gen 1:1")
+        //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Gen 1:1")
+        val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Gen 1:1")
 
-        val html = swordContentFacade.getCanonicalText(esv, key)
+        val html = SwordContentFacade.getCanonicalText(esv, key)
         assertThat("Wrong canonical text", html, equalTo("In the beginning, God created the heavens and the earth. "))
     }
 
-    protected fun getVerse(book: Book, verseStr: String): Verse {
-        val verse = book.getKey(verseStr) as RangedPassage
-        return verse.getVerseAt(0)
+    protected fun getVerse(book: Book, verseStr: String): VerseRange {
+        val key = VerseRangeFactory.fromString((book as SwordBook).versification, verseStr)
+        //val verse = book.getKey(verseStr) as RangedPassage
+        return key
     }
 
     //@Ignore("Until ESV comes back")
     @Test
     fun testReadEsvIssue141a() {
         val esv = getBook("ESV2011")
-        val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Matt 18")
+        //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Matt 18")
+        val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Matt 18")
 
         val html = try {
-            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, key, false, WorkspaceEntities.TextDisplaySettings.default)
+            SwordContentFacade.readOsisFragment(esv, key)
         } catch (e: ParseException) {
             "broken"
         }
@@ -104,9 +98,9 @@ class SwordContentFacadeTest {
         val verse = getVerse(esv, "Matt.18.11")
 
         val html = try {
-            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
-        } catch (e: ParseException) {
-            "broken"
+            SwordContentFacade.readOsisFragment(esv, verse)
+        } catch (e: Exception) {
+            if(e is OsisError) "fixed" else "broken"
         }
         assertThat(html, not(equalTo("broken")))
     }
@@ -120,9 +114,9 @@ class SwordContentFacadeTest {
             val verse = getVerse(esv, "Matt.18.$i")
 
             val html = try {
-                swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
-            } catch (e: ParseException) {
-                "broken"
+                SwordContentFacade.readOsisFragment(esv, verse)
+            } catch (e: Exception) {
+                if(e is OsisError) "fixed" else "broken"
             }
             assertThat(html, not(equalTo("broken")))
         }
@@ -130,14 +124,113 @@ class SwordContentFacadeTest {
 
 
     @Throws(Exception::class)
-    private fun getHtml(book: Book, key: Key, asFragment: Boolean): String {
-        val settings = WorkspaceEntities.TextDisplaySettings.default
-        settings.showStrongs = true
-        return swordContentFacade.readHtmlText(book, key, asFragment, settings)
+    private fun getHtml(book: Book, key: Key): String {
+        return elementToString(SwordContentFacade.readOsisFragment(book, key))
     }
 
     private fun getBook(initials: String): Book {
         println("Looking for $initials")
         return Books.installed().getBook(initials)
     }
+}
+
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk=[28])
+class TestShare {
+    private fun testShare(initials: String, verseRangeStr: String, offsetRange: IntRange,
+                          showVerseNumbers: Boolean, showFull: Boolean,
+                          compareText: String,
+    ) {
+
+        val book = Books.installed().getBook(initials) as SwordBook
+        val v11n = book.versification
+        val verseRange = VerseRangeFactory.fromString(v11n, verseRangeStr)
+
+
+        val sel = Selection(initials,
+            verseRange.start.ordinal,
+            offsetRange.first,
+            verseRange.end.ordinal,
+            offsetRange.last,
+            emptyList())
+
+        val text = SwordContentFacade.getSelectionText(sel,
+            showVerseNumbers = showVerseNumbers,
+            showFull = showFull,
+            showReference = true,
+            advertiseApp = false
+        )
+
+        assertThat(text, equalTo(compareText))
+    }
+
+    @Test
+    fun testShare1a()  =
+        testShare("ESV2011", "Ps.83.1", 7..30, true, false,
+            "“...do not keep silence; do...” (Psa 83:1, ESV2011)"
+        )
+
+    @Test
+    fun testShare2a()  =
+        testShare("ESV2011", "Ps.83.1", 7..30, false, false,
+            "“...do not keep silence; do...” (Psa 83:1, ESV2011)"
+        )
+
+    @Test
+    fun testShare3a()  =
+        testShare("ESV2011", "Ps.83.1", 7..30, true, true,
+            "“O God, do not keep silence; do not hold your peace or be still, O God!” (Psa 83:1, ESV2011)"
+        )
+
+    @Test
+    fun testShare4a()  =
+        testShare("ESV2011", "Ps.83.1", 7..30, false, true,
+            "“O God, do not keep silence; do not hold your peace or be still, O God!” (Psa 83:1, ESV2011)"
+        )
+
+
+    @Test
+    fun testShare1()  =
+        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, false,
+            "“1. ...do not keep silence; do not hold your peace or be still, O God! 2. For behold, " +
+                "your enemies make ...” (Psa 83:1-2, ESV2011)"
+        )
+
+    @Test
+    fun testShare2()  =
+        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, false, false,
+            "“...do not keep silence; do not hold your peace or be still, O God! For behold, " +
+                "your enemies make ...” (Psa 83:1-2, ESV2011)"
+        )
+
+    @Test
+    fun testShare3()  =
+        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, true,
+            "“1. O God, do not keep silence; do not hold your peace or be still, O God! 2. For behold, your " +
+                "enemies make an uproar; those who hate you have raised their heads.” (Psa 83:1-2, ESV2011)"
+        )
+
+    @Test
+    fun testShare4()  =
+        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, false, true,
+            "“O God, do not keep silence; do not hold your peace or be still, O God! For behold, your " +
+                "enemies make an uproar; those who hate you have raised their heads.” (Psa 83:1-2, ESV2011)"
+        )
+
+    @Test
+    fun testShare5()  =
+        testShare("ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, true,
+            "“23. And he went and lived in a city called Nazareth, so that what was spoken " +
+                "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
+                "John the Baptist came preaching in the wilderness of Judea, 2. Repent, for the kingdom " +
+                "of heaven is at hand.” (Mat 2:23-3:2, ESV2011)"
+        )
+
+    @Test
+    fun testShare6()  =
+        testShare("ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, false,
+            "“23. ...went and lived in a city called Nazareth, so that what was spoken " +
+                "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
+                "John the Baptist came preaching in the wilderness of Judea, 2. Repent, for...” (Mat 2:23-3:2, ESV2011)"
+        )
 }

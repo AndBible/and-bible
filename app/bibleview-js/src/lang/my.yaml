@@ -1,0 +1,81 @@
+openMyNotes: ကိုယ်ပိုင်မှတ်စုများတွင် ဖွင့်ပါ
+openStudyPad: လေ့လာရေးစာရွက်(%s)တွင် ဖွင့်ပါ
+noteText: အောက်ခြေမှတ်စုများ (%s)
+noteTextWithoutType: အောက်ခြေမှတ်စုများ
+crossReferenceText: ပြန်လှန်ကိုးကားချက်များ
+findAllOccurrences: ပေါ်လာသည့်နေရာအားလုံးကို ရှာဖွေပါ
+reportError: အမှားတစ်ခုကိုသတင်းပို့ပါ
+errorTitle: အမှားတစ်ခုဖြစ်ပေါ်ခဲ့သည်
+warningTitle: သတိပေးချက်
+normalTitle: ကျေးဇူးပြုပြီးမှတ်သားထားပါ
+footnoteTypeUndefined: သတ်မှတ်ခြင်းမရှိသည့် အမျိုးအစား
+footnoteTypeStudy: လေ့လာချက်
+footnoteTypeExplanation: ရှင်းလင်းချက်
+footnoteTypeVariant: မူကွဲ
+footnoteTypeAlternative: အခြားရွေးချယ်စရာ
+footnoteTypeTranslation: ဘာသာပြန်ဆိုခြင်း
+clearLog: ချို့ယွင်းချက် မှတ်တမ်းကို ရှင်းလင်းပါ
+editNote: တည်းဖြတ်ပါ
+editNotePlaceholder: မှတ်စုကို တည်းဖြတ်ပါ
+editTextPlaceholder: စာသားကိုပြုပြင်ရန် နှိပ်ပါ
+inputPlaceholder: ဒီမှာရေးပါ
+inputReference: ကျမ်းစာကိုးကားချက်သို့ ဝင်ပါ
+invalidReference: အခန်းငယ် ရှာမတွေ့ပါ
+assignLabels: လေဘယ်လ်များ
+bookmarkAccurate: စာညှပ်များကို %s တွင်ဖန်တီးထားသည်
+bookmarkInaccurate: "စာညှပ်လုပ်ထားသည့်စာအုပ် သတင်းအချက်အလက်များကို သိမ်းဆည်းမထားပါ၊ အကြောင်းအရာကို %s တွင်ဖော်ပြထားသည်။ "
+defaultBook: ပုံသေ ကျမ်းစာမှတ်တမ်း
+ok: အိုကေ
+yes: "ဟုတ်တယ်"
+ambiguousSelection: "မည်သည့်လုပ်ဆောင်ချက်ကို လုပ်လိုသနည်း။ "
+cancel: ပယ်ဖျက်ပါ
+removeBookmarkConfirmationTitle: စာညှပ်ကို ဖယ်ရှားလိုပါသလား။
+removeBookmarkConfirmation: ဤစာညှပ်ကို ဖယ်ရှားလိုပါသလား။
+closeModal: ပိတ်ပါ
+createdAt: "ဖန်တီးထားပြီးပါပြီ: %s"
+lastUpdatedOn: "နောက်ဆုံး အဆင်မြှင့်တင်ပြီး: %s"
+strongsLink: Strongs အဓိပ္ပါယ်ဖွင့်ဆိုချက် (%s)
+morphLink: "စာလုံးပုံသဏ္ဌာန်လေ့လာမှုဆိုင်ရာ စည်းမျဉ်း (%s) "
+strongsAndMorph: အဓိပ္ပါယ်ဖွင့်ဆိုချက်နှင့် စာလုံးပုံသဏ္ဌာန်လေ့လာမှုဗေဒ
+studyPadLink: လေ့လာရေးစာရွက်ကို ဖွင့်ပါ
+externalLink: external လင့်ခ်ကို ဖွင့်ပါ
+referenceLink: ကိုးကားချက်လင့်ခ်ကို ဖွင့်ပါ
+openFootnote: အောက်ခြေမှတ်တမ်းကို ဖွင့်ပါ
+openBookmark: စာညှပ်ကို (%s) ဖွင့်ပါ
+noMyNotesTitle: ဤအခန်းကြီးတွင် ကိုယ်ပိုင်မှတ်စု မရှိပါ
+noMyNotesDescription: >
+  ကျမ်းစာမှတ်တမ်းတစ်ခုတွင် စာညှပ်များအားဖန်တီး ခြင်းဖြင့် စတင်ပါ။ ဤနေရာတွင် စာညှပ်များပေါ် လာပြီး ထိုနေရာတွင် သင်၏ကိုယ်ပိုင်မှတ်စုများကို ပေါင်းထည့်နိုင်ပါသည်။ 
+emptyStudyPad: >
+  လေ့လာရေးစာရွက် အလွတ်။ ဤနေရာတွင် စာသားအဝင်များကို ဖန်တီးခြင်း သို့မဟုတ် လေ့လာရေးစာရွက်နှင့်ကိုက်ညီသည့် စာညှပ် လေဘယ်လ်များ ဖန်တီးခြင်းဖြင့် ဤလေ့လာရေး စာရွက်တွင် စတင်ပေါင်းထည့်ပါ။  
+studyPadModalTitle: လေ့လာရေးစာရွက် အဝင်ကို ပြုပြင်ပါ
+doYouWantToDeleteEntry: ဤလေ့လာရေးစာရွက် အဝင်ကို ဖျက်ပါ
+removeStudyPadConfirmationTitle: လေ့လာရေးစာရွက် အဝင်ကို ဖျက်ပါ
+dragHelp: ပြန်လည်အမိန့်ပေးရန် ဆွဲထုတ်ပါ
+saved: သိမ်းဆည်းထားပြီး
+openAll: ကိုးကားချက်အားလုံးကို ဖွင့်ပါ
+editBookmarkPlaceholder: ဤစာညှပ်ရှိ ကိုယ်ပိုင်မှတ်စုကို ပြုပြင်ရန် နှိပ်ပါ
+onlyLabel: လေဘယ်လ် တစ်ခုတည်းသာ
+wholeBookmark: စာညှပ်တစ်ခုလုံး
+otherNoteText: အခြားမှတ်စု
+assignLabelsMenuEntry: လေဘယ်လ်များတပ်ရန် တာဝန်ပေးအပ်ပါ
+assignLabelsMenuEntry1: လေဘယ်လ်များကို မှတ်သားပါ သို့မဟုတ် ပြုပြင်ပါ
+jumpToStudyPad: လေ့လာရေးစာရွက်သို့ ခုန်သွားပါ
+setAsPrimaryLabel: မူလလေဘယ်လ်အဖြစ် ထားပါ
+removeBookmarkLabel: လေဘယ်လ်ကို ဖယ်ရှားပါ
+addBookmarkLabel: လေဘယ်လ် ပေါင်းထည့်ပါ
+favouriteLabels: အနှစ်သက်ဆုံးလေဘယ်လ်များ
+recentLabels: မကြာမီက လေဘယ်လ်များ
+frequentlyUsedLabels: မကြာခဏအသုံးပြုသည့် လေဘယ်လ်များ
+bookmarkLabels: "စာညှပ်လေဘယ်လ်များ "
+refParserHelp: အင်္ဂလိပ်စာမဟုတ်သည့် အခြားဘာသာစကားများရှိ ကိုးကားချက်များကို အသုံးပြုရန် %s သင်ခန်းစာကို ကျေးဇူးပြုပြီး ထည့်သွင်းပါ
+openDownloads: Add-on ဒေါင်းလုပ်များသို့ သွားပါ
+verseShare: မျှဝေပါ
+verseCompare: နှိုင်းယှဉ်ပါ
+verseNote: မှတ်စု
+verseMyNotes: ကိုယ်ပိုင်မှတ်စုများ
+verseSpeak: စကားပြောပါ
+verseShareLong: ဤအခန်းငယ်ကို ဝေမျှပါ
+verseCompareLong: အခန်းငယ်ကို နှိုင်းယှဉ်ပါ
+verseNoteLong: မှတ်စုတစ်ခု ရေးပါ
+verseSpeakLong: ဤအခန်းငယ်မှ စတင်နားထောင်ပါ
+addBookmark: စာညှပ်

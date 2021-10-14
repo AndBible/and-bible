@@ -21,11 +21,11 @@ package net.bible.android.control.download
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DocumentStatus(
-    val initials: String,
+    val id: String,
     val documentInstallStatus: DocumentInstallStatus,
     val percentDone: Int)
 {
     enum class DocumentInstallStatus {
-        INSTALLED, NOT_INSTALLED, BEING_INSTALLED, UPGRADE_AVAILABLE, ERROR_DOWNLOADING
+        INSTALLED, NOT_INSTALLED, BEING_INSTALLED, UPGRADE_AVAILABLE, ERROR_DOWNLOADING, INSTALL_CANCELLED
     }
 }

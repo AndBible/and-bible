@@ -25,22 +25,21 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
-
-import net.bible.android.activity.R
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.history.HistoryTraversal
 import net.bible.service.history.HistoryTraversalFactory
 import net.bible.service.sword.SwordDocumentFacade
-
 import javax.inject.Inject
 
 /** Base class for activities
@@ -51,7 +50,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     private var isScreenOn = true
 
     // some screens are highly customised and the theme looks odd if it changes
-    private var allowThemeChange = true
+    open val allowThemeChange = true
 
     private lateinit var _contentView: View
     protected lateinit var historyTraversal: HistoryTraversal
@@ -60,9 +59,8 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     @Inject lateinit var swordDocumentFacade: SwordDocumentFacade
 
-    protected open val nightTheme = R.style.AppThemeNight
-    protected open val dayTheme = R.style.AppThemeDay
     protected open val customTheme = true
+    open val doNotInitializeApp = false
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
@@ -71,51 +69,40 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     fun applyTheme() {
-        if (ScreenSettings.nightMode) {
-            if(customTheme)
-                setTheme(nightTheme)
-            if(ScreenSettings.manualMode) {
-                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
-                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
-                }
-            }
+        val newNightMode = if (ScreenSettings.nightMode) {
+            AppCompatDelegate.MODE_NIGHT_YES
         } else {
-            if(customTheme)
-                setTheme(dayTheme)
-            if(ScreenSettings.manualMode) {
-                delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
-                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_NO) {
-                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
-                }
-            }
+            AppCompatDelegate.MODE_NIGHT_NO
         }
+        AppCompatDelegate.setDefaultNightMode(newNightMode)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {
                 val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
                 window.decorView.systemUiVisibility = uiFlags
             }
         }
-
     }
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?, integrateWithHistoryManager: Boolean) {
+        CurrentActivityHolder.getInstance().currentActivity = this
+
+        if(!doNotInitializeApp) {
+            CommonUtils.initializeApp()
+        }
+
         if (allowThemeChange) {
             applyTheme()
         }
 
         super.onCreate(savedInstanceState)
+        if(!doNotInitializeApp) {
+            refreshScreenKeepOn()
+        }
 
         Log.i(localClassName, "onCreate:" + this)
 
         this.integrateWithHistoryManagerInitialValue = integrateWithHistoryManager
-
-        // Register current activity in onCreate and onResume
-        CurrentActivityHolder.getInstance().currentActivity = this
-
-        // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
-        // this affected jsword dynamic classloading
-        Thread.currentThread().contextClassLoader = javaClass.classLoader
 
         // if locale is overridden then have to force title to be translated here
         LocaleHelper.translateTitle(this)
@@ -177,18 +164,14 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     }
 
-    override fun isIntegrateWithHistoryManager(): Boolean {
-        return historyTraversal.isIntegrateWithHistoryManager
-    }
-
-    override fun setIntegrateWithHistoryManager(integrateWithHistoryManager: Boolean) {
-        historyTraversal.isIntegrateWithHistoryManager = integrateWithHistoryManager
-    }
+    override var isIntegrateWithHistoryManager: Boolean
+        get() = historyTraversal.isIntegrateWithHistoryManager
+        set(value) {
+            historyTraversal.isIntegrateWithHistoryManager = value
+        }
 
     /** allow activity to enhance intent to correctly restore state  */
-    override fun getIntentForHistoryList(): Intent {
-        return intent
-    }
+    override val intentForHistoryList: Intent get() = intent
 
     fun showErrorMsg(msgResId: Int) {
         Dialogs.instance.showErrorMsg(msgResId)
@@ -216,9 +199,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     override fun onResume() {
+        CurrentActivityHolder.getInstance().currentActivity = this
         super.onResume()
         Log.i(localClassName, "onResume:" + this)
-        CurrentActivityHolder.getInstance().currentActivity = this
 
         //allow action to be called on screen being turned on
         if (!isScreenOn && ScreenSettings.isScreenOn) {
@@ -231,6 +214,17 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         Log.i(localClassName, "onPause:" + this)
         if (isScreenOn && !ScreenSettings.isScreenOn) {
             onScreenTurnedOff()
+        }
+        closeKeyboard()
+    }
+
+
+    fun closeKeyboard() {
+        try {
+            val inputMethodManager: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+        } catch (e: Exception) {
+            Log.e(TAG, "closeKeyboard: $e")
         }
     }
 
@@ -251,6 +245,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     override fun onRestart() {
         super.onRestart()
+        if(!doNotInitializeApp) {
+            refreshScreenKeepOn()
+        }
         Log.i(localClassName, "onRestart:" + this)
     }
 
@@ -269,10 +266,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
             // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
             CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this)
         }
-    }
-
-    fun setAllowThemeChange(allowThemeChange: Boolean) {
-        this.allowThemeChange = allowThemeChange
     }
 
     /** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
@@ -302,6 +295,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     private var resultByCode = mutableMapOf<Int, CompletableDeferred<Instrumentation.ActivityResult?>>()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d(TAG, "onActivityResult: requestCode = $requestCode, resultCode = $resultCode, data is${if (data != null) " not" else ""} null")
         resultByCode[requestCode - ASYNC_REQUEST_CODE_START]?.let {
             it.complete(Instrumentation.ActivityResult(resultCode, data))
             resultByCode.remove(requestCode)
@@ -313,18 +307,25 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     suspend fun awaitIntent(intent: Intent) : Instrumentation.ActivityResult?
     {
         val activityResult = CompletableDeferred<Instrumentation.ActivityResult?>()
-
-        if (intent.resolveActivity(packageManager) != null) {
-            val resultCode = currentCode++
-            resultByCode[resultCode] = activityResult
-            startActivityForResult(intent, resultCode + ASYNC_REQUEST_CODE_START)
-        } else {
-            activityResult.complete(null)
-        }
+        val resultCode = currentCode++
+        resultByCode[resultCode] = activityResult
+        startActivityForResult(intent, resultCode + ASYNC_REQUEST_CODE_START)
         return activityResult.await()
     }
 
+    val preferences get() = CommonUtils.settings
+
+    fun refreshScreenKeepOn() {
+        val keepOn = preferences.getBoolean(SCREEN_KEEP_ON_PREF, false)
+        if (keepOn) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+
     companion object {
+        private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
 
         // standard request code for startActivityForResult
         const val STD_REQUEST_CODE = 1

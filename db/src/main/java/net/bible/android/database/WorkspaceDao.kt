@@ -40,11 +40,11 @@ interface WorkspaceDao {
                 id = insertWorkspace(this)
             }
         val newWorkspace = WorkspaceEntities.Workspace(newName, oldWorkspace.contentsText, 0,
-            oldWorkspace.orderNumber, oldWorkspace.textDisplaySettings, oldWorkspace.windowBehaviorSettings)
+            oldWorkspace.orderNumber, oldWorkspace.textDisplaySettings, oldWorkspace.workspaceSettings)
         newWorkspace.id = insertWorkspace(newWorkspace)
 
         val windows = windows(oldWorkspace.id)
-        windows.forEach {
+        for (it in windows) {
             val pageManager = pageManager(it.id)
             it.workspaceId = newWorkspace.id
             it.id = 0

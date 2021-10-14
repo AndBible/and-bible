@@ -1,0 +1,81 @@
+openMyNotes: Atverti mano pastabose
+openStudyPad: Atverti bloknote (%s)
+noteText: Išnašos (%s)
+noteTextWithoutType: Išnašos
+crossReferenceText: Kryžminės nuorodos
+findAllOccurrences: Rasti visus atitikmenis
+reportError: Pranešti apie klaidą
+errorTitle: Įvyko klaida
+warningTitle: Įspėjimas
+normalTitle: Turėkite omenyje
+footnoteTypeUndefined: Neapibrėžtas tipas
+footnoteTypeStudy: Studijos
+footnoteTypeExplanation: Paaiškinimas
+footnoteTypeVariant: Variantas
+footnoteTypeAlternative: Alternatyva
+footnoteTypeTranslation: Vertimas
+clearLog: Išvalyti klaidų žurnalą
+editNote: Taisyti
+editNotePlaceholder: Taisyti pastabą
+editTextPlaceholder: "Bakstelėkite, norėdami taisyti tekstą"
+inputPlaceholder: Rašykite čia
+inputReference: Įveskite Biblijos nuorodą
+invalidReference: Eilutė nerasta
+assignLabels: Etiketės
+bookmarkAccurate: Žymė buvo sukurta dokumente %s
+bookmarkInaccurate: "Žymės knygos informacija nėra saugoma, turinys yra rodomas čia: %s."
+defaultBook: numatytasis Biblijos dokumentas
+ok: Gerai
+yes: "Taip"
+ambiguousSelection: "Kurį veiksmą norite atlikti?"
+cancel: Atsisakyti
+removeBookmarkConfirmationTitle: "Šalinti žymę?"
+removeBookmarkConfirmation: "Ar tikrai norite pašalinti šią žymę?"
+closeModal: Užverti
+createdAt: "Sukurta: %s"
+lastUpdatedOn: "Paskiausiai atnaujinta: %s"
+strongsLink: Strongo apibrėžimas (%s)
+morphLink: Morfologinis kodas (%s)
+strongsAndMorph: Apibrėžimas ir morfologija
+studyPadLink: Atverti bloknotą
+externalLink: Atverti išorinę nuorodą
+referenceLink: Atverti nuorodos adresą
+openFootnote: Atverti išnašą
+openBookmark: Atverti žymę (%s)
+noMyNotesTitle: Šiam skyriui nėra mano pastabų.
+noMyNotesDescription: >
+  Pradėkite, sukurdami Biblijos dokumente žymes. Tuomet žymės bus rodomos čia ir prie jų galėsite pridėti asmenines pastabas.
+emptyStudyPad: >-
+  Tuščias bloknotas. Galite pridėti turinį į šį bloknotą ,sukurdami čia teksto įrašus arba sukurdami žymes su žymės etikete, kuri atitinka šį bloknotą.
+studyPadModalTitle: Taisyti bloknoto įrašą
+doYouWantToDeleteEntry: "Ištrinti šį bloknoto įrašą?"
+removeStudyPadConfirmationTitle: "Šalinti bloknoto įrašą?"
+dragHelp: "Tempkite, norėdami pertvarkyti"
+saved: išsaugota
+openAll: Atverti visas nuorodas
+editBookmarkPlaceholder: "Bakstelėkite, norėdami taisyti šioje eilutėje mano pastabas"
+onlyLabel: Tik etiketę
+wholeBookmark: Visą žymę
+otherNoteText: Kita pastaba
+assignLabelsMenuEntry: Priskirti etiketes
+assignLabelsMenuEntry1: Pasirinkti ar taisyti etiketes…
+jumpToStudyPad: Pereiti prie bloknoto
+setAsPrimaryLabel: Nustatyti kaip pirminę etiketę
+removeBookmarkLabel: Šalinti etiketę
+addBookmarkLabel: Pridėti etiketę
+favouriteLabels: Mėgstamos etiketės
+recentLabels: Paskiausios etiketės
+frequentlyUsedLabels: Dažniausios etiketės
+bookmarkLabels: Žymės etiketės
+refParserHelp: "Norėdami naudotis nuorodomis kitokia nei anglų kalba, įsidiekite %s modulį."
+openDownloads: Pereiti į papildinių atsiuntimus
+verseShare: Bendrinti
+verseCompare: Lyginti
+verseNote: Pastaba
+verseMyNotes: Mano pastabos
+verseSpeak: Klausytis
+verseShareLong: Bendrinti šią eilutę
+verseCompareLong: Lyginti eilutę
+verseNoteLong: Rašyti pastabą
+verseSpeakLong: Pradėti klausytis nuo šios eilutės
+addBookmark: Pridėti žymę

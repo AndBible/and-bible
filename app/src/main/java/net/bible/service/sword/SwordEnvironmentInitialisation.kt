@@ -23,13 +23,13 @@ import androidx.core.content.ContextCompat
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
-import net.bible.android.control.versification.VersificationMappingInitializer
+import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils.ensureDirExists
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.isAndroid
 import net.bible.service.common.Logger
-import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.db.DatabaseContainer
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.CWProject
 import org.crosswire.common.util.Reporter
@@ -37,6 +37,7 @@ import org.crosswire.common.util.ReporterEvent
 import org.crosswire.common.util.ReporterListener
 import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.BookException
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.index.lucene.LuceneIndexManager
@@ -83,7 +84,7 @@ object SwordEnvironmentInitialisation {
                 WebResource.setTimeout(20000)
                 // because the above line causes initialisation set the is initialised flag here
                 isSwordLoaded = true
-                VersificationMappingInitializer().startListening()
+                BookInstallWatcher.startListening()
             }
         } catch (e: Exception) {
             log.error("Error initialising", e)

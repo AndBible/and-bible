@@ -33,15 +33,15 @@ import net.bible.service.device.ScreenSettings
  */
 object UiUtils {
 
-    private val ACTIONBAR_BACKGROUND_NIGHT = CommonUtils.getResourceColor(R.color.actionbar_background_night)
-    private val ACTIONBAR_BACKGROUND_DAY = CommonUtils.getResourceColor(R.color.actionbar_background_day)
+    private val ACTIONBAR_BACKGROUND_NIGHT get() = CommonUtils.getResourceColor(R.color.actionbar_background_night)
+    private val ACTIONBAR_BACKGROUND_DAY get() = CommonUtils.getResourceColor(R.color.actionbar_background_day)
 
-    private val BIBLEVIEW_BACKGROUND_NIGHT = CommonUtils.getResourceColor(R.color.bible_background_night)
-    private val BIBLEVIEW_BACKGROUND_DAY = CommonUtils.getResourceColor(R.color.bible_background_day)
+    private val BIBLEVIEW_BACKGROUND_NIGHT get() = CommonUtils.getResourceColor(R.color.bible_background_night)
+    private val BIBLEVIEW_BACKGROUND_DAY get() = CommonUtils.getResourceColor(R.color.bible_background_day)
 
     // taken from css
-    private val BIBLEVIEW_TEXT_NIGHT = CommonUtils.getResourceColor(R.color.bible_text_night)
-    private val BIBLEVIEW_TEXT_DAY = CommonUtils.getResourceColor(R.color.bible_text_day)
+    private val BIBLEVIEW_TEXT_NIGHT get() = CommonUtils.getResourceColor(R.color.bible_text_night)
+    private val BIBLEVIEW_TEXT_DAY get() = CommonUtils.getResourceColor(R.color.bible_text_day)
 
     private val backgroundColour: Int
         get() = if (ScreenSettings.nightMode) BIBLEVIEW_BACKGROUND_NIGHT else BIBLEVIEW_BACKGROUND_DAY

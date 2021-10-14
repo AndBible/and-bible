@@ -1,40 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Choose Book
- 
- @author Martin Denham [mjdenham at gmail dot com]
--->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-	<ListView	android:id="@android:id/list" 
-		android:layout_width="fill_parent" 
-		android:layout_height="fill_parent"
-		android:choiceMode="singleChoice"
-		android:visibility="visible"
-		android:layout_above="@+id/button_panel"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/relativeLayout2"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical">
+
+
+	<androidx.appcompat.widget.SwitchCompat
+		android:id="@+id/selectMultipleSwitch"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/select_multiple"
+		android:paddingTop="10dp"
+		android:paddingBottom="10dp"
+		android:paddingStart="10dp"
+		android:paddingEnd="10dp"
+		style="@style/TextAppearance.AppCompat.Widget.Switch"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
 		/>
-	<!-- Button bar with OK button -->
-	<LinearLayout android:id="@+id/button_panel"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-	    android:layout_alignParentBottom="true">
 
-	  	<Button android:id="@+id/okButton"
-	 		android:text="@string/okay"
-			android:onClick="onOkay"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"/>
-
-	  	<Button android:id="@+id/newLabel"
-	 		android:text="@string/new_label"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-			android:onClick="onNewLabel"/>
-
-	</LinearLayout>
-</RelativeLayout>	
+	<ListView
+		android:id="@android:id/list"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/selectMultipleSwitch" />
+</androidx.constraintlayout.widget.ConstraintLayout>

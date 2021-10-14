@@ -1,0 +1,81 @@
+openMyNotes: Відкрити в Мої Примітки
+openStudyPad: Відкрити в Блокноті (%s)
+noteText: Виноски (%s)
+noteTextWithoutType: Виноски
+crossReferenceText: Перехресні посилання
+findAllOccurrences: Знайти всі випадки
+reportError: Повідомити про помилку
+errorTitle: Виникла помилка
+warningTitle: Увага
+normalTitle: Зверніть увагу
+footnoteTypeUndefined: Невизначений тип
+footnoteTypeStudy: Дослідження
+footnoteTypeExplanation: Пояснення
+footnoteTypeVariant: Варіант
+footnoteTypeAlternative: Альтернативний
+footnoteTypeTranslation: Переклад
+clearLog: Очистити журнал помилок
+editNote: Редагувати
+editNotePlaceholder: Редагувати примітку
+editTextPlaceholder: "Торкніться, щоб редагувати текст"
+inputPlaceholder: Пишіть тут
+inputReference: Введіть біблійне посилання
+invalidReference: Вірш не знайдено
+assignLabels: Мітки
+bookmarkAccurate: Закладка була створена в %s
+bookmarkInaccurate: "Закладка інформації про книгу не збереглась, вміст відображається в %s."
+defaultBook: Біблійний ресурс за замовчуванням
+ok: OK
+yes: "Так"
+ambiguousSelection: "Яку дію ви хочете зробити?"
+cancel: Скасувати
+removeBookmarkConfirmationTitle: "Видалити закладку?"
+removeBookmarkConfirmation: "Ви впевнені, що хочете видалити цю закладку?"
+closeModal: Закрити
+createdAt: "Створено: %s"
+lastUpdatedOn: "Останнє оновлення: %s"
+strongsLink: Визначення Стронга (%s)
+morphLink: Морфологічний код (%s)
+strongsAndMorph: Визначення та морфологія
+studyPadLink: Відкрити блокнот
+externalLink: Відкрити зовнішнє посилання
+referenceLink: Відкрити посилання
+openFootnote: Відкрити виноску
+openBookmark: Відкрити закладку (%s)
+noMyNotesTitle: У цьому розділі немає приміток.
+noMyNotesDescription: >
+  Почніть із створення закладок у біблійному документі. Потім тут з’являться закладки, до яких ви можете додати свої особисті примітки, нотатки.
+emptyStudyPad: >
+  Порожній блокнот. Почніть додавати до цього блокноту, створюючи тут текстові записи або закладки з мітками, яка відповідає цему блокноту.
+studyPadModalTitle: Редагувати запис у блокноті
+doYouWantToDeleteEntry: "Видалити цей запис в блокноті?"
+removeStudyPadConfirmationTitle: "Видалити запис у блокноті?"
+dragHelp: "Перетягніть, щоб змінити порядок"
+saved: збережено
+openAll: Відкрити всі посилання
+editBookmarkPlaceholder: "Торкніться, щоб редагувати Мої примітки для цієї закладки"
+onlyLabel: Тільки мітку
+wholeBookmark: Всю закладку
+otherNoteText: Інша примітка
+assignLabelsMenuEntry: Призначити мітки
+assignLabelsMenuEntry1: Вибір або редагування міток…
+jumpToStudyPad: Перейти до блокноту
+setAsPrimaryLabel: Встановити як основну мітку
+removeBookmarkLabel: Видалити мітку
+addBookmarkLabel: Додати мітку
+favouriteLabels: Улюблені мітки
+recentLabels: Недавні мітки
+frequentlyUsedLabels: "Мітки, що часто використовуються"
+bookmarkLabels: Мітки закладок
+refParserHelp: "Будь ласка, встановіть модуль %s, щоб використовувати посилання іншими мовами, крім англійської. "
+openDownloads: Перейти до завантаження додаткових компонентів
+verseShare: Поділитись
+verseCompare: Порівняти
+verseNote: Примітка
+verseMyNotes: Мої примітки
+verseSpeak: Озвучити
+verseShareLong: Поділіться віршем
+verseCompareLong: Порівняти вірш
+verseNoteLong: Написати нотатку
+verseSpeakLong: Почати слухати з цього вірша
+addBookmark: Закладка

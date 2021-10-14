@@ -1,0 +1,81 @@
+openMyNotes: 在我的笔记开启
+openStudyPad: 在 (%s) 开启个人笔记
+noteText: 注脚 (%s)
+noteTextWithoutType: 注脚
+crossReferenceText: 交叉对照
+findAllOccurrences: 查找所有
+reportError: 回报错误
+errorTitle: 发生错误
+warningTitle: 警告
+normalTitle: 请注意
+footnoteTypeUndefined: 未定义类型
+footnoteTypeStudy: 学习
+footnoteTypeExplanation: 解释
+footnoteTypeVariant: 变化型
+footnoteTypeAlternative: 替代
+footnoteTypeTranslation: 翻译
+clearLog: 清除错误记录
+editNote: 编辑
+editNotePlaceholder: 编辑笔记
+editTextPlaceholder: 按一下编辑文字
+inputPlaceholder: 在此输入
+inputReference: 输入圣经参考
+invalidReference: 找不到节
+assignLabels: 标签
+bookmarkAccurate: 书签已在 %s 建立
+bookmarkInaccurate: 书签并未储存；内容正在 %s display 。
+defaultBook: 预设圣经文件
+ok: 确定
+yes: "是"
+ambiguousSelection: 你希望进行什么动作？
+cancel: 取消
+removeBookmarkConfirmationTitle: 移除书签？
+removeBookmarkConfirmation: 你确定要移除此书签？
+closeModal: 关闭
+createdAt: "已建立：%s"
+lastUpdatedOn: "最后更新：%s"
+strongsLink: Strongs 定义 (%s)
+morphLink: 词法编号 (%s)
+strongsAndMorph: 定义及词法
+studyPadLink: 在个人笔记开启
+externalLink: 开启外部连结
+referenceLink: 开启参考连结
+openFootnote: 开启注脚
+openBookmark: 开启书签 (%s)
+noMyNotesTitle: 此章没有我的笔记
+noMyNotesDescription: >-
+  请先在圣经文件新增书签。书签将会在这里显示，而你可以增加你的个人笔记。
+emptyStudyPad: >-
+  移除整个个人笔记。你可以在此个人笔记增加文字，或增加此个人笔记对应的书签标签。
+studyPadModalTitle: 编辑个人笔记
+doYouWantToDeleteEntry: 删除此个人笔记？
+removeStudyPadConfirmationTitle: 移除所有个人笔记？
+dragHelp: 拖动以重新排序
+saved: 已储存
+openAll: 开启所有参考
+editBookmarkPlaceholder: 点选编辑此书签的笔记
+onlyLabel: 只显示标签
+wholeBookmark: 完整书签
+otherNoteText: 其他笔记
+assignLabelsMenuEntry: 分配标签
+assignLabelsMenuEntry1: 选取或编辑标签...
+jumpToStudyPad: 跳转至个人笔记
+setAsPrimaryLabel: 设为主要标签
+removeBookmarkLabel: 移除标签
+addBookmarkLabel: 增加标签
+favouriteLabels: 最爱标签
+recentLabels: 最近标签
+frequentlyUsedLabels: 常用标签
+bookmarkLabels: 书签标签
+refParserHelp: 请安装 %s 模组以使用英文以外的参考。
+openDownloads: 移至附加下载
+verseShare: 分享
+verseCompare: 比较
+verseNote: 笔记
+verseMyNotes: 笔记列表
+verseSpeak: 朗读
+verseShareLong: 分享此节
+verseCompareLong: 比较经文
+verseNoteLong: 增加笔记
+verseSpeakLong: 从此节开始聆听
+addBookmark: 书签

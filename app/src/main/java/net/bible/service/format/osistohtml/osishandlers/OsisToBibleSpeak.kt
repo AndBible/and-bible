@@ -22,17 +22,17 @@ import android.os.Build
 import android.text.Html
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.device.speak.*
 import net.bible.service.format.osistohtml.OSISUtil2
-import net.bible.service.format.osistohtml.taghandler.DivHandler
 import org.crosswire.jsword.book.OSISUtil
 import org.xml.sax.Attributes
+import org.xml.sax.helpers.DefaultHandler
+import java.util.*
 
-import java.util.Stack
+val PARAGRAPH_TYPE_LIST = Arrays.asList("paragraph", "x-p", "x-end-paragraph")
 
-
-class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) : OsisSaxHandler() {
+class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) : DefaultHandler() {
     val speakCommands = SpeakCommandArray()
 
     private enum class TagType {NORMAL, TITLE, PARAGRAPH, DIVINE_NAME, FOOTNOTE}
@@ -51,12 +51,19 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
     }
 
     override fun startDocument() {
-        reset()
         elementStack.push(StackEntry(true))
     }
 
     override fun endDocument() {
         elementStack.pop()
+    }
+
+    private fun getName(eName: String?, qName: String): String {
+        return if (eName != null && eName.length > 0) {
+            eName
+        } else {
+            qName // not namespace-aware
+        }
     }
 
     override fun startElement(namespaceURI: String,
@@ -90,7 +97,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         } else if (name == OSISUtil.OSIS_ELEMENT_DIV) {
             val type = attrs?.getValue("type") ?: ""
             val isVerseBeginning = attrs?.getValue("sID") != null
-            val isParagraphType = DivHandler.PARAGRAPH_TYPE_LIST.contains(type)
+            val isParagraphType = PARAGRAPH_TYPE_LIST.contains(type)
             if(isParagraphType && !isVerseBeginning) {
                 speakCommands.add(ParagraphChangeCommand())
                 elementStack.push(StackEntry(peekVisible, TagType.PARAGRAPH))

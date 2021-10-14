@@ -1,0 +1,81 @@
+openMyNotes: Maak oop in My Notas
+openStudyPad: Open in Studie blok (%s)
+noteText: Voet Notas (%s)
+noteTextWithoutType: Voet Notas
+crossReferenceText: Kruis verwysings
+findAllOccurrences: Vind alle gebeurtenisse
+reportError: Rapporteer 'n fout
+errorTitle: "'n Fout het ontstaan"
+warningTitle: Waarskuwing
+normalTitle: Neem asseblief kennis
+footnoteTypeUndefined: Ongedefinieerde tipe
+footnoteTypeStudy: Studie
+footnoteTypeExplanation: Verduideliking
+footnoteTypeVariant: Variant
+footnoteTypeAlternative: Alternatiewe
+footnoteTypeTranslation: Vertaling
+clearLog: Vee fout lêer uit
+editNote: "Wysig "
+editNotePlaceholder: Redigeer nota
+editTextPlaceholder: Tik om teks te wysig
+inputPlaceholder: Skryf hier
+inputReference: oer Bybel verwysing in
+invalidReference: Vers nie gevind
+assignLabels: Etikette
+bookmarkAccurate: Boekmerk is in %s geskep
+bookmarkInaccurate: "Boekmerk boek inligting wat nie gestoor is nie, inhoud word in %s vertoon."
+defaultBook: Standaard Bybel dokument
+ok: Goed
+yes: "Ja"
+ambiguousSelection: "Watter aksie wil jy neem?"
+cancel: Kanselleer
+removeBookmarkConfirmationTitle: "Verwyder boekmerk?"
+removeBookmarkConfirmation: "Is jy seker jy wil hierdie boekmerk verwyder?"
+closeModal: Sluit
+createdAt: "Geskep: %s"
+lastUpdatedOn: "Laas opgedateer: %s"
+strongsLink: Strongs definisie (%s)
+morphLink: Morfologiese kode (%s)
+strongsAndMorph: Definisie & Morfologie
+studyPadLink: Maak studieblok oop
+externalLink: Maak eksterne skakel oop
+referenceLink: Maak verwysings skakel oop
+openFootnote: maak voetnoot oop
+openBookmark: Maak boekmerk oop (%s)
+noMyNotesTitle: Nee My Notas vir hierdie hoofstuk.
+noMyNotesDescription: >
+  Begin deur boekmerke in 'n Bybel dokument te skep. Die boekmerke sal dan hier verskyn en jy kan jou persoonlike notas by hulle voeg.
+emptyStudyPad: >
+  Leë studieblok. Begin by hierdie studieblok voeg deur teks inskrywings hier te skep of deur boekmerke te skep met 'n boekmerk etiket wat ooreenstem met hierdie studieblok.
+studyPadModalTitle: Wysig studieblok inskrywing
+doYouWantToDeleteEntry: "Skrap hierdie studie blok inskrywing?"
+removeStudyPadConfirmationTitle: "Verwyder studieblok inskrywing?"
+dragHelp: Sleep om te herbestel
+saved: stoor
+openAll: Maak alle verwysings oop
+editBookmarkPlaceholder: Tik om My Notas vir hierdie boekmerk te redigeer
+onlyLabel: Slegs etiket
+wholeBookmark: Hele boekmerk
+otherNoteText: Ander nota
+assignLabelsMenuEntry: Ken etikette toe
+assignLabelsMenuEntry1: Kies of redigeer etikette...
+jumpToStudyPad: Spring na studieblok
+setAsPrimaryLabel: Stel as primêre etiket
+removeBookmarkLabel: Verwyder etiket
+addBookmarkLabel: Voeg etiket by
+favouriteLabels: Gunsteling etikette
+recentLabels: Onlangse etikette
+frequentlyUsedLabels: Dikwels gebruik etikette
+bookmarkLabels: Boekmerk etikette
+refParserHelp: Installeer asseblief %s module om verwysings in tale anders as Engels te gebruik.
+openDownloads: Gaan na Byvoegsel aflaaie
+verseShare: Deel
+verseCompare: Vergelyk
+verseNote: Nota
+verseMyNotes: My Notas
+verseSpeak: Praat
+verseShareLong: Deel hierdie vers
+verseCompareLong: Vergelyk vers
+verseNoteLong: Skryf 'n nota
+verseSpeakLong: Begin luister vanaf hierdie vers
+addBookmark: Boekmerke

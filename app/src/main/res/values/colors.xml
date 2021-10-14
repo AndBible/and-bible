@@ -9,6 +9,8 @@
 	<color name="bible_text_day">#000000</color>
 	<color name="bible_text_night">#b0b0b0</color>
 
+	<color name="bible_reference_overlay">#DEE4E4E4</color>
+
 	<color name="bar_window_button_text_colour">#E8E8E8</color>
 	<color name="bar_window_button_icon_tint">@color/bar_window_button_text_colour</color>
 	<color name="bar_window_button_category_tint">#AAAAAA</color>
@@ -28,7 +30,9 @@
 	<color name="actionbar_background_night">#ff000000</color>
 	<!-- matches DKGRAY -->
 	<color name="actionbar_background_day">#ff444444</color>
-	
+
+	<color name="actionbar_background">@color/actionbar_background_day</color>
+
 	<color name="actionbar_text_night">#919191</color>
 
 	<color name="widget_background">#93ffffff</color>
@@ -116,9 +120,17 @@
 	<color name="yellow_A200">#ffff00</color>
 	<color name="yellow_A400">#ffea00</color>
 	<color name="yellow_A700">#ffd600</color>
-	<color name="speak_status_background">#7eeceff1</color>
 	<color name="white">#ffffff</color>
 	<color name="black">#000000</color>
-	<color name="nav_bar_divider_grey">#CECECE</color>
 	<color name="links_button_icon_color">#7088FF</color>
+
+	<color name="navigation_bar">@color/white</color>
+    <color name="red">#ff0000</color>
+	<color name="sync_on_green">#9C00B300</color>
+	<color name="high_contrast">@color/black</color>
+	<color name="background_color">@color/white</color>
+	<color name="disabled_background">#D3D3D3</color>
+	<color name="transparent">#00ffffff</color>
+	<color name="background_color_60">#99FFFFFF</color>
+
 </resources>

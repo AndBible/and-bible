@@ -27,7 +27,9 @@ import android.widget.NumberPicker
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.control.speak.load
+import net.bible.android.control.speak.save
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import javax.inject.Inject
 
@@ -37,13 +39,14 @@ abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {
     protected lateinit var currentSettings: SpeakSettings
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        currentSettings = SpeakSettings.load()
-
         super.onCreate(savedInstanceState)
+        currentSettings = SpeakSettings.load()
     }
 
-    fun setSleepTime(sleepTimer: View) {
-        if ((sleepTimer as CheckBox).isChecked) {
+    abstract val sleepTimer: CheckBox?
+
+    fun setSleepTime() {
+        if (sleepTimer?.isChecked ?: return) {
             val picker = NumberPicker(this)
             picker.minValue = 1
             picker.maxValue = 120

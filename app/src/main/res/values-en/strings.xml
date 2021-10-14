@@ -1,8 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_medium">Bible Study App (And Bible)</string>
+  <string name="app_name_long">Bible Study App, by And Bible Open Source Project</string>
   <!--Main menu-->
   <!--Passage navigation-->
   <!--Search-->
+  <string name="create_index_for">To search a document we need an index. \n\nCreate an index for %s?</string>
   <!--Tasks-->
   <!--Search-->
   <!--Preferences-->
@@ -10,20 +13,12 @@
   <string name="prefs_margin_size_summary">Adjust left and right margin of the text view. You can also
         adjust the maximum width of the text.
     </string>
-  <string name="hide_window_buttons_summary">Window buttons that are displayed on the right side of the Bible views are hidden. Window navigation bar on the bottom is still displayed and you may open the window popup menu by long-clicking them.</string>
   <string name="full_screen_hide_buttons_pref_summary">When switching to fullscreen mode, hide window button bar that is on the bottom of the screen automatically</string>
   <!--Colors preferences-->
   <!--Window-->
   <!--Notes screen-->
   <!--Strongs-->
   <!--Module download-->
-  <string name="one_more_back_press">Press back button again to close app</string>
-  <string name="download_question_message">If you live in a persecuted country,
-        you may need to be careful about downloading Christian material via the internet.
-        Instead, you may want to obtain the module zip files more securely and install them
-        via \"Load Documents From Zip\". Are you sure you want to proceed with downloading?
-        All downloads from module repositories are encrypted (HTTPS).
-    </string>
   <string name="do_not_ask_again">Yes, do not ask again</string>
   <!--Install zip file-->
   <string name="overwrite_files">Following files already exist: %s Overwrite?</string>
@@ -32,6 +27,9 @@
   <!--Verse context menu-->
   <!--Link context menu-->
   <!--Bookmarks-->
+  <string name="label_unlabelled">Unlabeled</string>
+  <string name="auto_assign_labels_primary">Set as the main label</string>
+  <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <!--General Book-->
@@ -42,6 +40,23 @@
   <!--Speak - Dictionary and other-->
   <!--Speak - Common-->
   <!--Speak - Bible-->
+  <string name="auto_assing_labels_help1">Here you can add, edit and remove labels. 
+
+Selected labels: labels that apply to the current bookmark.
+Recent labels: recently used labels.
+Other labels: all other labels.</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">This setting applies only to %s.</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">%s indicates that this label\'s colour will be used to highlight the verse.</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Tap %s icon to have that label assigned automatically to new bookmarks.</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Tap %s to add the label to your favourite labels list for easy access.</string>
+  <!--param is refresh icon-->
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="speak_help_auto_bookmark">
         A Speak bookmark will be automatically added when Speak is paused or stopped.
         Automatically generated bookmarks are labelled with the special Speak label.
@@ -79,81 +94,67 @@
     </string>
   <!--User Notes-->
   <!--Backup and restore-->
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="backup_modules_email_message_2">Attached is your %s module backup, which contains the following modules: %s</string>
-  <string name="backup_restore_message">Restore from phone storage or pick backup file manually (you can also choose from Google Drive etc.)?</string>
   <!--About-->
   <!--Bug reporting-->
-  <string name="report_bug_email_message">
-        --- WRITE BUG REPORT ABOVE THIS LINE ---\n
-        Instructions:\n
-        Tell us briefly what did you do / what happened when the issue
-        took place. Example: \n
-        \n
-        1. Opened app\n
-        2. Clicked window menu\n
-         -&gt; Crash\n
-        \n
-        Sometimes screenshot also is beneficial in resolving issues.
-        Please use this function to report as soon as you have noticed it taking place.
-        You can also use this function after opening the app, after the crash has taken place.
-        \n\n
-        Device info: \n
-        %s</string>
   <!--Document types-->
   <!--Languages-->
   <!--General-->
   <!--Errors-->
   <!--Notifications-->
   <!--Workspaces-->
+  <string name="give_name_workspace">New workspace name</string>
   <!--Beta notice-->
   <string name="beta_notice_content_1">
         In the beta version, there are new features that are not yet properly tested,
         and thus using beta might introduce unexpected behavior, i.e. bugs.
         It is recommended that ordinary Bible readers use stable versions instead.
     </string>
+  <string name="upgrade_video_message">Please see the video highlighting new features of this release (%s).</string>
   <!--History-->
   <!--Help-->
-  <string name="help_nav_text">Go to the next or previous chapter by swiping the screen with your finger.
-        Double-tap Bible text to toggle full screen mode.
-        Split screens (called also windows) have a menu button on their top-right corner,
-        which enables you to use several window-specific functions and customize window outlook and behaviour.</string>
+  <string name="help_nav_text">Go to the next or previous chapter by swiping left or right..
+        Double-tap the document window to toggle full screen mode.
+       The menu button at the top-right corner of each window 
+provides easy access to manipulate and customize the window.</string>
   <string name="help_contextmenus_text">
-        Long pressing opens the context menu or action mode in several views.
+        A long press opens a context menu in several views.
         Long press on the Bible view to open the action mode for actions affecting the current verse.
         Long press on a document item in list view of Choose Document or Download to delete document or view information.
         Long press a bookmark in bookmarks listing to add labels or delete bookmark.
         Long press links to choose if you want to open them in the current window, new window or special links window.
     </string>
-  <string name="help_mynote_text">Notes can be added via the My Note menu item on the verse context menu.
-        The list of existing notes can be accessed via the main menu.</string>
-  <string name="help_bookmarks_text">Bookmarks can be added via the verse context menu.
-        The Bookmark Manager is accessed via the main menu.
-        The Bookmark Manager context menu allows bookmarks to be grouped using labels.
-    </string>
   <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
         (see \"Apache Lucene - Query Parser Syntax\" for more details)
     </string>
   <string name="help_workspaces_text">
-        Workspaces allow having multiple context-dependent working environments. Workspace functions
-        can be accessed via the Workspaces item in the options menu (top-right corner). Quick way to access workspaces is
-        by a swipe-down gesture from the toolbar. You may also use swipe-left and swipe-right gestures over toolbar to
-        switch to previous / next workspace.
-    </string>
+Workspaces allow having multiple working environments. Workspace functions can be accessed via the Workspaces item in the options menu (top-right corner). A quick way to access workspaces is by a swipe-down gesture from the Bible reference text in the toolbar. You may also use swipe-left and swipe-right gestures over the Bible reference text in the toolbar to switch to previous or next workspace.  </string>
   <string name="help_hidden_features_text">
-        Swipe down from the toolbar to show the workspace selector.
+        Swipe down starting on the bible verse selector to show the workspace selector.
         Long press the window button to quickly minimize.
-        Long press speak toolbar button to quickly go to speak settings.
-        Long press verse location title in toolbar to jump to document selector.
+        Long press the Speak toolbar button to quickly go to speak settings.
+        Long press the verse location title in toolbar to jump to document selector.
         Long press the Back button to access the History list.
     </string>
-  <string name="help_window_pinning_text">
-        You can enable window pinning from the options menu (three dots, right top corner).
-        If window pinning is enabled, you may show multiple pinned windows on Bible view,
-        but only one non-pinned window. Pinned windows are displayed first, and then
-        unpinned windows. You might want to open Bible documents as pinned windows, and
-        commentaries and maps etc. as non-pinned windows. Then you can easily
-        keep Bible documents open, and quickly switch between commentaries and
-        other extra material when you study the Bible.
+  <!--Welcome text-->
+  <string name="welcome_message">Thank you for downloading %s. There are currently no Bibles installed. To continue, please install
+        at least 1 Bible document by downloading from the internet, or by loading from a zip file document
+        backup.
     </string>
   <!--Uncategorized-->
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <!--parameters are actions (file a bug, send email)-->
+  <!--param is "please report maintainers"-->
+  <!--param is "please read what you can do"-->
+  <string name="rate_message4">
+The developers of this app are not responsible for maintaining documents (Bibles, commentaries, books etc).</string>
+  <string name="primary_label">Main label</string>
+  <string name="delete_label_confirmation">Do you want to remove the bookmark label \"%s\"? ALL associated Study Pad notes will also be removed.</string>
+  <string name="bookmark_underline_style_arbitrary">Use underline style for selection bookmarks</string>
+  <string name="bookmark_underline_style_whole_verse">Use underline style for whole verse bookmarks</string>
+  <string name="reset_workspace_labels">Do you want to reset the label auto-assign and favorite settings for this workspace?</string>
+  <string name="reset_hide_labels">Do you want to reset the hidden label settings?</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
 </resources>

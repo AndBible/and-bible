@@ -9,8 +9,15 @@ source_lang = en
 minimum_perc = 60
 
 [andbible.play-store-main-description]
-lang_map = bn: bn-BD, pt: pt-PT, az@latin: az-AZ, cs: cs-CZ, de: de-DE, en_GB: en-US, es: es-ES, fi: fi-FI, fr: fr-FR, nl: nl-NL, pl: pl-PL, ru: ru-RU, zh_TW: zh-TW, zh_CN: zh-CN, tr: tr-TR, hi: hi-IN, nb: no-NO, hu: hu-HU, he: iw-IL, sr_RS: sr
+lang_map = bn: bn-BD, pt: pt-PT, az@latin: az-AZ, cs: cs-CZ, de: de-DE, en_GB: en-US, es: es-ES, fi: fi-FI, fr: fr-FR, nl: nl-NL, pl: pl-PL, ru: ru-RU, zh_TW: zh-TW, zh_CN: zh-CN, tr: tr-TR, hi: hi-IN, nb: no-NO, hu: hu-HU, he: iw-IL, sr_RS: sr, my: my-MM, it: it-IT, ko: ko-KR
 file_filter = play/description-translations/<lang>.yml
 source_file = play/playstore-description.yml
 source_lang = en
 minimum_perc = 100
+
+[andbible.bibleview-js]
+lang_map = az@latin: az, zh_TW: zh, zh_CN: zh-rCN, en_GB: en, sr: b+sr, sr_RS: b+sr+RS, sr@latin: b+sr+Latn, he: iw, id: in
+file_filter = app/bibleview-js/src/lang/<lang>.yaml
+source_file = app/bibleview-js/src/lang/default.yaml
+source_lang = en
+minimum_perc = 60

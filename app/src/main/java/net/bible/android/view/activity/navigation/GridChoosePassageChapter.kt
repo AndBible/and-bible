@@ -24,6 +24,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 
 import net.bible.android.control.navigation.NavigationControl
@@ -57,14 +58,16 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     private var navigateToVerse = false
+    // background goes white in some circumstances if theme changes so prevent theme change
+    override val allowThemeChange = false
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
-        // background goes white in some circumstances if theme changes so prevent theme change
-        setAllowThemeChange(false)
         super.onCreate(savedInstanceState)
 
         buildActivityComponent().inject(this)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         val bibleBookNo = intent.getIntExtra(BOOK_NO, navigationControl.defaultBibleBookNo)
         //TODO av11n - this is done now
         mBibleBook = BibleBook.values()[bibleBookNo]
@@ -77,14 +80,24 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
             Log.e(TAG, "Error in selected book no", nsve)
         }
 
-        val navigateToVerseDefault = CommonUtils.sharedPreferences.getBoolean("navigate_to_verse_pref", false)
+        val navigateToVerseDefault = CommonUtils.settings.getBoolean("navigate_to_verse_pref", false)
         navigateToVerse = intent?.extras?.getBoolean("navigateToVerse", navigateToVerseDefault)?:navigateToVerseDefault
 
         val grid = ButtonGrid(this)
         grid.setOnButtonGridActionListener(this)
-
+        grid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(GridChoosePassageBook.BOOK_GRID_FLOW_PREFS, false)
         grid.addButtons(getBibleChaptersButtonInfo(mBibleBook))
         setContentView(grid)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun getBibleChaptersButtonInfo(book: BibleBook): List<ButtonInfo> {
@@ -102,7 +115,8 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
             val buttonInfo = ButtonInfo()
             // this is used for preview
             buttonInfo.id = i
-            buttonInfo.name = Integer.toString(i)
+            buttonInfo.name = i.toString()
+            buttonInfo.description = i.toString()
             if (currentBibleBook == book && i == currentBibleChapter) {
                 buttonInfo.textColor = Color.YELLOW
                 buttonInfo.highlight = true

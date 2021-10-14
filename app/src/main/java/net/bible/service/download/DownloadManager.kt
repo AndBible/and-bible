@@ -18,8 +18,12 @@
 package net.bible.service.download
 
 import net.bible.android.activity.R
+import net.bible.android.control.download.repoIdentity
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
+import net.bible.service.db.DatabaseContainer
+import org.crosswire.common.progress.Progress
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
@@ -29,7 +33,6 @@ import org.crosswire.jsword.book.install.InstallManager
 import org.crosswire.jsword.book.install.Installer
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * Originally copied from BookInstaller it calls Sword routines related to installation and removal of books and indexes
@@ -55,7 +58,7 @@ class DownloadManager(
 
     @Throws(InstallException::class)
     fun getDownloadableBooks(filter: BookFilter?, repo: String, refresh: Boolean): List<Book> {
-        var documents: List<Book> = ArrayList()
+        var documents: List<Book> = emptyList()
         var installer: Installer? = null
         try {
             // If we know the name of the installer we can get it directly
@@ -67,11 +70,16 @@ class DownloadManager(
             } else {
                 // Now we can get the list of books
                 log.debug("getting downloadable books")
+
                 if (refresh || installer.books.size == 0) {
                     log.warn("Reloading book list")
-                    installer.reloadBookList()
-                }
 
+                    val indexLastUpdated = installer.indexLastUpdated()
+                    if(indexLastUpdated == 0L || indexLastUpdated > CommonUtils.settings.getLong("repo-$repo-updated", 0)) {
+                        installer.reloadBookList()
+                        CommonUtils.settings.setLong("repo-$repo-updated", indexLastUpdated)
+                    }
+                }
                 // Get a list of all the available books
                 installer.getBooks(filter) //$NON-NLS-1$
             }
@@ -93,6 +101,8 @@ class DownloadManager(
         return documents
     }
 
+    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+
     /**
      * Install a book, overwriting it if the book to be installed is newer.
      *
@@ -104,49 +114,30 @@ class DownloadManager(
      * @throws InstallException
      */
     @Throws(BookException::class, InstallException::class)
-    fun installBook(repositoryName: String?, book: Book) {
-        // Delete the book, if present
-        // At the moment, JSword will not re-install. Later it will, if the
-        // remote version is greater.
+    fun installBook(repositoryName: String, book: Book) {
         val bookInitials = book.initials
-        val installedBook = Books.installed().getBook(bookInitials)
-        installedBook?.let { unregisterBook(it) }
-        // An installer knows how to install books
+
         val installer = installManager.getInstaller(repositoryName)
-        installer.install(book)
+        val jobId = Progress.INSTALL_BOOK.format(book.repoIdentity)
+        installer.install(book, jobId)
+        // Make sure it refreshes existing doc
+
         // reload metadata to ensure the correct location is set, otherwise maps won't show
-        (book.bookMetaData as SwordBookMetaData).reload { true }
+        val metadata = book.bookMetaData as SwordBookMetaData
+        metadata.reload { true }
+
+        // InstallWatcher does not know about repository, so let's add it here
+        book.putProperty(REPOSITORY_KEY, repositoryName)
+        Books.installed().getBook(bookInitials)?.putProperty(REPOSITORY_KEY, repositoryName)
+        docDao.getBook(bookInitials)?.run {
+            repository = repositoryName
+            docDao.update(this)
+        }
     }
 
-    /**
-     * Unregister a book from Sword registry.
-     *
-     * This used to delete the book but there is an mysterious bug in deletion (see below).
-     *
-     * @param book
-     * the book to delete
-     * @throws BookException
-     */
-    @Throws(BookException::class)
-    private fun unregisterBook(book: Book) {
-        // this just seems to work so leave it here
-        // I used to think that the next delete was better - what a mess
-        // see this for potential problem: http://stackoverflow.com/questions/20437626/file-exists-returns-false-for-existing-file-in-android
-        // does file.exists return an incorrect value?
-        // To see the problem, reverse the commented lines below, and try downloading 2 or more Bibles that are already installed
-        Books.installed().removeBook(book)
-
-        // Avoid deleting all dir and files because "Java is known not to delete files immediately, so mkdir may fail sometimes"
-        // http://stackoverflow.com/questions/617414/create-a-temporary-directory-in-java
-        //
-        // Actually do the delete
-        // This should be a call on installer.
-        //book.getDriver().delete(book);
-    }// Ask the Install Manager for a map of all known remote repositories
-    // sites
-
     companion object {
-        const val REPOSITORY_KEY = "repository"
+        const val REPOSITORY_KEY = "SourceRepository"
+        const val TAG = "DownloadManager"
         private val log = Logger(DownloadManager::class.java.name)
     }
 

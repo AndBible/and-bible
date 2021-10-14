@@ -18,23 +18,27 @@
 package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.Toast
-import kotlinx.android.synthetic.main.list.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchResultsDto
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.Key
@@ -46,6 +50,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class SearchResults : ListActivityBase(R.menu.empty_menu) {
+    private lateinit var binding: ListBinding
     private var mSearchResultsHolder: SearchResultsDto? = null
     private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
     private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
@@ -58,32 +63,47 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search results view")
-        setContentView(R.layout.list)
+        binding = ListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         buildActivityComponent().inject(this)
         searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
         setActionBarManager(searchResultsActionBarManager)
-        isScriptureResultsCurrentlyShown = searchControl.isCurrentDefaultScripture
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        isScriptureResultsCurrentlyShown = searchControl.isCurrentlyShowingScripture
+        binding.closeButton.setOnClickListener {
+            finish()
+        }
         GlobalScope.launch {
             prepareResults()
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     private suspend fun prepareResults() {
         withContext(Dispatchers.Main) {
-            loadingIndicator.visibility = View.VISIBLE
-            empty.visibility = View.GONE
+            binding.loadingIndicator.visibility = View.VISIBLE
+            binding.empty.visibility = View.GONE
         }
         if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
             withContext(Dispatchers.Main) {
                 mKeyArrayAdapter = SearchItemAdapter(this@SearchResults, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl)
-                listAdapter = mKeyArrayAdapter
+                listAdapter = mKeyArrayAdapter as ListAdapter
                 populateViewResultsAdapter()
             }
         }
         withContext(Dispatchers.Main) {
-            loadingIndicator.visibility = View.GONE
-            if(listAdapter.isEmpty) {
-                empty.visibility = View.VISIBLE
+            binding.loadingIndicator.visibility = View.GONE
+            if(listAdapter?.isEmpty == true) {
+                binding.empty.visibility = View.VISIBLE
             }
         }
     }
@@ -155,7 +175,10 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             val targetBook = swordDocumentFacade.getDocumentByInitials(targetDocInitials)
             activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
             // this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
-            returnToPreviousScreen()
+            val intent = Intent(this, MainBibleActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            }
+            startActivity(intent)
         }
     }
 
@@ -168,10 +191,6 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         mKeyArrayAdapter!!.notifyDataSetChanged()
         searchResultsActionBarManager.setScriptureShown(isScriptureResultsCurrentlyShown)
     }
-
-	fun onClose(v: View) {
-		finish()
-	}
 
     companion object {
         private const val TAG = "SearchResults"
