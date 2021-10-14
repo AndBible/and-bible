@@ -264,7 +264,7 @@ dependencies {
 
     implementation("de.greenrobot:eventbus:2.4.1")
 
-    implementation("org.apache.commons:commons-lang3:3.12.0")
+    // We also use commons-lang3, but better that we use the version coming from there (as it is transient dependency for commons-text)
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
 
     implementation("com.github.AndBible:jsword:$jswordVersion")
