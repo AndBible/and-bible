@@ -1,0 +1,84 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+openMyNotes: Mở trong Ghi chú cá nhân
+openStudyPad: Mở trong Sổ học tập (%s)
+noteText: Chú thích (%s)
+noteTextWithoutType: Chú thích
+crossReferenceText: Tham khảo chéo
+findAllOccurrences: Tìm tất cả các lần xuất hiện
+reportError: Báo lỗi
+errorTitle: Đã xảy ra lỗi
+warningTitle: Cảnh báo
+normalTitle: Xin lưu ý
+footnoteTypeUndefined: Không thể xác định thể loại chú thích
+footnoteTypeStudy: Học
+footnoteTypeExplanation: Giải thích
+footnoteTypeVariant: Sự khác biệt
+footnoteTypeAlternative: Thay thế
+footnoteTypeTranslation: Bản dịch
+clearLog: Xóa nhật ký lỗi
+editNote: Chỉnh sửa
+editNotePlaceholder: Chỉnh sửa ghi chú
+editTextPlaceholder: Ấn để chỉnh sửa văn bản
+inputPlaceholder: Vui lòng nhập tại đây
+inputReference: Nhập chú thích kinh thánh
+invalidReference: Không tìm thấy câu mà bạn muốn tìm
+assignLabels: Nhãn
+bookmarkAccurate: Dấu trang đã được tạo trong %s
+bookmarkInaccurate: Đánh dấu thông tin sách không được lưu trữ, nội dung được hiển thị trong %s.
+defaultBook: Tài liệu Kinh thánh mặc định
+ok: OK
+yes: "Có"
+ambiguousSelection: Bạn muốn thực hiện hành động nào?
+cancel: Huỷ
+removeBookmarkConfirmationTitle: Xoá dấu trang
+removeBookmarkConfirmation: Bạn có chắc chắn muốn xoá dấu trang không?
+closeModal: Đóng
+createdAt: "Đã tạo: %s"
+lastUpdatedOn: "Lần cập nhật cuối cùng: %s"
+strongsLink: Định nghĩa tốt (%s)
+morphLink: Mã hình thái (%s)
+strongsAndMorph: Định nghĩa & Hình thái học
+studyPadLink: Mở Sổ học tập
+externalLink: Mở liên kết ngoài
+referenceLink: Mở liên kết tham khảo
+openFootnote: Mở chú thích
+openBookmark: Mở dấu trang (%s)
+noMyNotesTitle: Không có Ghi chú cá nhân trong chương này.
+noMyNotesDescription: >
+  Bắt đầu bằng cách tạo dấu trang trong một tài liệu Kinh thánh.
+  Các dấu trang sau đó sẽ xuất hiện ở đây và bạn có thể thêm Ghi chú cá nhân vào.
+emptyStudyPad: >
+  Sổ học tập trống. Bắt đầu thêm vào sổ nghiên cứu này bằng cách tạo các mục nhập văn
+  bản tại đây hoặc bằng cách tạo dấu trang với nhãn dấu trang tương ứng với sổ học tập này.
+studyPadModalTitle: Chỉnh sửa mục nhập trong sổ học tập
+doYouWantToDeleteEntry: Bạn có muốn xoá mục nhập trong sổ học tập này không?
+removeStudyPadConfirmationTitle: Có chắc là bạn muốn xoá mục nhập trong sổ học tập này không?
+dragHelp: Kéo để sắp xếp lại
+saved: Đã lưu thành công ✔
+openAll: Mở tất cả tài liệu tham khảo
+editBookmarkPlaceholder: Ấn để chỉnh sửa Ghi chú cá nhân cho dấu trang này.
+onlyLabel: Chỉ nhãn
+wholeBookmark: Toàn bộ dấu trang
+otherNoteText: Ghi chú khác
+assignLabelsMenuEntry: Dán nhãn
+assignLabelsMenuEntry1: Chọn hoặc chỉnh sửa nhãn
+jumpToStudyPad: Nhảy đến Sổ học tập
+setAsPrimaryLabel: Đặt thành nhãn chính
+removeBookmarkLabel: Xoá nhãn
+addBookmarkLabel: Thêm nhãn
+favouriteLabels: Nhãn yêu thích
+recentLabels: Các nhãn gần đây
+frequentlyUsedLabels: Các nhãn được sử dụng thường xuyên
+bookmarkLabels: Đánh dấu nhãn
+refParserHelp: Vui lòng cài đặt mô-đun %s để sử dụng tài liệu tham khảo bằng các ngôn ngữ khác ngoài tiếng Việt.
+openDownloads: Chuyển đến phần cài đặt Tiện ích
+verseShare: Chia sẻ
+verseCompare: So sánh
+verseNote: Note
+verseMyNotes: Ghi chú cá nhân
+verse: Nói
+VerseShareLong: Chia sẻ câu này
+verseCompareLong: So sánh câu
+verseNoteLong: Viết một ghi chú
+VerseSpeakLong: Bắt đầu nghe từ câu này
+addBookmark: Thêm vào Dấu trang
