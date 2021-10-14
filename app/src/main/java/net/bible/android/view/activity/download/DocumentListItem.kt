@@ -115,7 +115,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
     }
 
     fun updateControlState(documentStatus: DocumentStatus): Nothing? = binding.run {
-        undoButton.visibility = View.INVISIBLE
+        undoButton.visibility = View.GONE
         progressBar.visibility = View.INVISIBLE
         when (documentStatus.documentInstallStatus) {
             DocumentInstallStatus.INSTALLED -> {

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <net.bible.android.view.activity.download.DocumentListItem xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:paddingTop="2dip"
 	android:paddingBottom="2dip"
 	android:id="@+id/item"
@@ -85,12 +86,12 @@
 		<TextView android:id="@+id/recommendedString"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			app:layout_constraintStart_toStartOf="@id/documentName"
-			app:layout_constraintTop_toBottomOf="@id/documentName"
-			app:layout_constraintEnd_toEndOf="parent"
 			android:text="@string/recommended_document"
+			android:textAppearance="?android:textAppearanceSmall"
 			android:textStyle="bold"
-			android:textAppearance="?android:textAppearanceSmall" />
+			app:layout_constraintEnd_toStartOf="@id/aboutButton"
+			app:layout_constraintStart_toStartOf="@id/documentName"
+			app:layout_constraintTop_toBottomOf="@id/documentName" />
 		<TextView android:id="@+id/documentLanguage"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
@@ -122,15 +123,27 @@
 			android:textAppearance="?android:textAppearanceSmall" />
 
 		<ImageView
+			android:id="@+id/aboutButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="4dp"
+			android:src="@drawable/ic_info_24dp"
+			app:tint="@color/grey_600"
+			android:title="@string/about"
+			app:layout_constraintBottom_toBottomOf="@id/progressBar"
+			app:layout_constraintEnd_toStartOf="@id/undoButton" />
+
+		<ImageView
 			android:id="@+id/undoButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginBottom="4dp"
 			android:src="@drawable/ic_close_white_24dp"
-			app:layout_constraintBottom_toBottomOf="@id/recommendedString"
+			android:visibility="gone"
+			app:layout_constraintBottom_toBottomOf="@id/progressBar"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:tint="@color/red"
-			android:visibility="invisible"
-			/>
+			tools:visibility="visible" />
 
 		<ProgressBar android:id="@+id/progressBar"
 			style="@style/Widget.AppCompat.ProgressBar.Horizontal"
@@ -138,7 +151,7 @@
 			android:layout_height="wrap_content"
 			app:layout_constraintTop_toBottomOf="@id/recommendedString"
 			app:layout_constraintStart_toStartOf="@id/documentName"
-			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintEnd_toStartOf="@id/aboutButton"
 			android:visibility="invisible"/>
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
