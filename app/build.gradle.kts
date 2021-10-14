@@ -156,7 +156,11 @@ android {
         create("discrete") {
             dimension = dimAppearance
         }
-    } // productFlavors
+
+        create("fdroid") {
+            dimension = dimAppearance
+        }
+    }
 
 
     lint {
