@@ -160,6 +160,10 @@ android {
         create("fdroid") {
             dimension = dimAppearance
         }
+
+        create("github") {
+            dimension = dimAppearance
+        }
     }
 
 
