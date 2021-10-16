@@ -525,6 +525,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var lastBackPressed: Long? = null
 
     override fun onBackPressed() {
+        Log.d(TAG, "onBackPressed $fullScreen")
         if(fullScreen) {
             toggleFullScreen()
             return
