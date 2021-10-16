@@ -305,11 +305,11 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
         handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         GlobalScope.launch(Dispatchers.Main) {
-            if(swordDocumentFacade.bibles.filter { !it.isLocked }.isEmpty()) {
+            if(swordDocumentFacade.bibles.none { !it.isLocked }) {
                 for (it in swordDocumentFacade.bibles.filter { it.isLocked }) {
                     CommonUtils.unlockDocument(this@StartupActivity, it)
                 }
-                if (swordDocumentFacade.bibles.filter { !it.isLocked }.isEmpty()) {
+                if (swordDocumentFacade.bibles.none { !it.isLocked }) {
                     showFirstLayout()
                     return@launch
                 }
