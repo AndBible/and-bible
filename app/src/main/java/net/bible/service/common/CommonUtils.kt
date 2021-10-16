@@ -62,7 +62,9 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.activity.BuildConfig.BUILD_TYPE
 import net.bible.android.activity.BuildConfig.BuildDate
+import net.bible.android.activity.BuildConfig.FLAVOR
 import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
@@ -208,7 +210,7 @@ object CommonUtils : CommonUtilsBase() {
                 versionName = "Error"
             }
 
-            return "$versionName#$GitHash (built $BuildDate)"
+            return "$versionName#$GitHash $FLAVOR $BUILD_TYPE (built $BuildDate)"
         }
 
     val mainVersion: String get() {
@@ -800,7 +802,7 @@ object CommonUtils : CommonUtilsBase() {
 
     fun showHelp(callingActivity: Activity, filterItems: List<Int>? = null, showVersion: Boolean = false) {
         val app = application
-        val versionMsg = app.getString(R.string.version_text, CommonUtils.applicationVersionName)
+        val versionMsg = app.getString(R.string.version_text, applicationVersionName)
 
         data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null)
 
