@@ -249,6 +249,10 @@ export default {
           `;
     });
 
+    setupEventBusListener(Events.ADJUST_LOADING_COUNT, a => {
+      loadingCount.value += a;
+    });
+
     const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
 
     function scrollUpDown(up = false) {

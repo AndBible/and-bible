@@ -1057,8 +1057,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var labelsUploaded = false
 
-    fun clearDocuments() {
-        executeJavascriptOnUiThread("""bibleView.emit("clear_document")""")
+    fun adjustLoadingCount(adj: Int) {
+        executeJavascriptOnUiThread("""bibleView.emit("adjust_loading_count", ${adj})""")
     }
 
     private fun replaceDocument() {

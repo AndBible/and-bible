@@ -184,10 +184,10 @@ open class Window (
             if (notifyLocationChange) {
                 PassageChangeMediator.getInstance().contentChangeStarted()
             }
-            // Makes spinner run already when waiting for xml
-            bibleView?.clearDocuments()
 
+            bibleView?.adjustLoadingCount(1)
             val doc = fetchDocument()
+            bibleView?.adjustLoadingCount(-1)
             val checksum = if(pageManager.isCommentaryShown && doc is OsisDocument) {
                 val checksum = doc.osisFragment.xmlStr.hashCode()
                 if (lastChecksum == checksum && bibleView?.firstDocument != null) {
