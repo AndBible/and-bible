@@ -39,7 +39,7 @@ import {
     faFileAlt, faFireAlt, faHandPointer,
     faHeadphones, faHeart, faHistory,
     faIndent, faInfoCircle, faOutdent, faPenSquare, faPlus,
-    faPlusCircle, faQuestionCircle, faShareAlt, faSort,
+    faPlusCircle, faQuestionCircle, faSave, faShareAlt, faSort,
     faTags, faTextWidth, faTimes, faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -402,6 +402,7 @@ export function useFontAwesome() {
     library.add(faShareAlt);
     library.add(faQuestionCircle)
     library.add(faHandPointer)
+    library.add(faSave)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
