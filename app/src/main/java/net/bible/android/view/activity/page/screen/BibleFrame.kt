@@ -21,10 +21,14 @@ package net.bible.android.view.activity.page.screen
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
+import android.view.GestureDetector
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.view.GestureDetectorCompat
 import net.bible.android.BibleApplication
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
@@ -39,7 +43,6 @@ import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import javax.inject.Inject
 
-
 @SuppressLint("ViewConstructor")
 class BibleFrame(
     val window: Window,
@@ -48,6 +51,9 @@ class BibleFrame(
     @Inject
     lateinit var windowControl: WindowControl
     private val bibleViewFactory: BibleViewFactory get() = mainBibleActivity.bibleViewFactory
+    enum class GestureType {
+        UNSET, SWIPE_UP, SWIPE_DOWN, SWIPE_LEFT, SWIPE_RIGHT, LONG_PRESS, SINGLE_TAP
+    }
 
     init {
         DaggerMainBibleActivityComponent.builder()
@@ -135,28 +141,71 @@ class BibleFrame(
     private fun createCloseButton(window: Window): WindowButtonWidget {
         val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="
         return createTextButton(text,
-            { v -> allViews.showPopupMenu(window, v)},
-            { v -> windowControl.closeWindow(window); true},
+            { v, motionEvent -> windowControl.closeWindow(window); true},
             window
         )
     }
 
     private fun createWindowMenuButton(window: Window): WindowButtonWidget {
+        var gesturePerformed = GestureType.UNSET
+        val scaledMinimumDistance = CommonUtils.convertDipsToPx(40)
+        var minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
+        minScaledVelocity = (minScaledVelocity * 0.66).toInt()
+
+        val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                Log.d(TAG, "onFling")
+                val vertical = Math.abs(e1.y - e2.y).toDouble()
+                val horizontal = Math.abs(e1.x - e2.x).toDouble()
+
+                if (vertical > scaledMinimumDistance && Math.abs(velocityY) > minScaledVelocity) {
+                    if (e1.y > e2.y) {
+                        gesturePerformed = GestureType.SWIPE_UP
+                    } else {
+                        gesturePerformed = GestureType.SWIPE_DOWN
+                    }
+                    return true
+
+                } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
+                    if (e1.x > e2.x) {
+                        gesturePerformed = GestureType.SWIPE_RIGHT
+                    } else {
+                        gesturePerformed = GestureType.SWIPE_LEFT
+                    }
+                    return true
+                }
+                return super.onFling(e1, e2, velocityX, velocityY)
+            }
+
+            override fun onLongPress(e: MotionEvent?) {
+                gesturePerformed = GestureType.LONG_PRESS
+            }
+
+            override fun onSingleTapUp(e: MotionEvent?): Boolean {
+                gesturePerformed = GestureType.SINGLE_TAP
+                return true
+            }
+        }
+        val gestureDetector = GestureDetectorCompat(allViews.context, gestureListener)
+
         val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="
         return createTextButton(text,
-            { v -> allViews.showPopupMenu(window, v) },
-            { v -> windowControl.minimiseWindow(window); true },
+            { v, motionEvent -> gestureDetector.onTouchEvent(motionEvent)
+                                if (gesturePerformed === GestureType.SINGLE_TAP && (motionEvent.getAction() == MotionEvent.ACTION_UP)) {Log.d(TAG, "allViews.showPopupMenu(window, v) ")}
+                                else if (gesturePerformed === GestureType.LONG_PRESS) {windowControl.minimiseWindow(window)}
+                                else if (gesturePerformed === GestureType.SWIPE_UP) {windowControl.maximiseWindow(window)}
+                                else if (gesturePerformed === GestureType.SWIPE_DOWN) {windowControl.minimiseWindow(window)}
+                                true; true },
             window
         )
     }
 
-    private fun createTextButton(text: String, onClickListener: (View) -> Unit,
-                                 onLongClickListener: ((View) -> Boolean)? = null,
+    private fun createTextButton(text: String,
+                                 onTouchListener: ((View, MotionEvent) -> Boolean)? = null,
                                  window: Window?): WindowButtonWidget =
         WindowButtonWidget(window, windowControl, false, mainBibleActivity).apply {
             this.text = text
-            setOnClickListener(onClickListener)
-            setOnLongClickListener(onLongClickListener)
+            setOnTouchListener(onTouchListener)
         }
 
     fun updateWindowButton() {
@@ -166,4 +215,8 @@ class BibleFrame(
     }
 
     private val TAG = "BibleFrame[${window.id}]"
+
+    private fun handleTouchEvent(v:View, event:MotionEvent, window: Window){
+        windowControl.minimiseWindow(window)
+    }
 }
