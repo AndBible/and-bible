@@ -55,7 +55,7 @@
     </div>
     <template #title>
       <template v-if="verseInfo">
-        {{ bibleBookName }} {{ verseInfo.chapter}}:{{verseInfo.verse}}
+        {{ bibleBookName }} {{ verseInfo.chapter}}:{{verseInfo.verse}}<template v-if="verseInfo.verseTo">-{{verseInfo.verseTo}}</template>
       </template>
       <template v-else>
         {{ strings.ambiguousSelection }}
@@ -169,6 +169,12 @@ export default {
       resetHighlights();
       for(let o of ordinalRange()) {
         highlightVerse(o);
+      }
+      if (endOrdinal.value == null || endOrdinal.value == startOrdinal.value){
+        verseInfo.value.verseTo = "";
+      } else {
+        //TODO: Check if selection goes into next chapter and display accordingly.
+        verseInfo.value.verseTo = verseInfo.value.verse + endOrdinal.value - startOrdinal.value;
       }
     }
 
