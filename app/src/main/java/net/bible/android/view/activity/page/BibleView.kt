@@ -276,13 +276,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 mode.finish()
                 return true
             }
-            R.id.remove_bookmark -> {
-                val sel = currentSelection
-                if (sel?.bookmarks?.isNotEmpty() == true) {
-                    bookmarkControl.deleteBookmarksById(sel.bookmarks)
-                }
-                return true;
-            }
             R.id.compare -> {
                 compareSelection()
                 mode.finish()
@@ -418,7 +411,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     setVisible(true)
                 }
             }
-            menu.findItem(R.id.remove_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.share_verses).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             if(currentSelection == null) {
@@ -427,10 +419,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 menu.findItem(R.id.add_bookmark_whole_verse).isVisible = false
                 menu.findItem(R.id.compare).isVisible = false
                 menu.findItem(R.id.share_verses).isVisible = false
-            }
-            if ((currentSelection?.bookmarks ?: emptyList()).isEmpty()) {
-                val item = menu.findItem(R.id.remove_bookmark)
-                item.isVisible = false
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelection != null) {

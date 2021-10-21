@@ -38,11 +38,6 @@
 			android:visible="false"
 			app:showAsAction="always"
 			/>
-		<item android:id="@+id/remove_bookmark"
-			android:title="@string/remove_bookmark"
-			android:orderInCategory="2"
-			app:showAsAction="always"
-			/>
 		<item android:id="@+id/compare"
 			android:title="@string/compare_abbreviation"
 			android:orderInCategory="2"
