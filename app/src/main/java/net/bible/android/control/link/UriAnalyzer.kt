@@ -18,7 +18,10 @@
 package net.bible.android.control.link
 
 import android.net.Uri
+import android.util.Log
 import org.apache.commons.lang3.StringUtils
+import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
 import java.net.URI
 
 class UriAnalyzer {
@@ -81,6 +84,7 @@ class UriAnalyzer {
             MYNOTE_PROTOCOL -> DocType.MYNOTE
             else -> return false
         }
+
         // Document
         if (StringUtils.isEmpty(ref)) {
             return false
@@ -88,7 +92,20 @@ class UriAnalyzer {
         // remove the first 2 slashes from the url e.g. //module/key
         ref = StringUtils.strip(ref, "/")
         if (!ref.contains("/")) {
-            key = ref
+            try {
+                val (bookCandidateStr, refCandidateStr) = ref.split(".", limit = 2)
+                val bookCandidate = try {Books.installed().getBook(bookCandidateStr)} catch (e: Exception) {null}
+                if (bookCandidate?.bookCategory != null && bookCandidate.bookCategory != BookCategory.BIBLE) {
+                    docType = DocType.SPECIFIC_DOC
+                    key = refCandidateStr
+                    book = bookCandidateStr
+                } else {
+                    key = ref
+                }
+            } catch(e: Exception) {
+                Log.w("UriAnalyzer", "Error in parsing $urlStr", e)
+                key = ref
+            }
         } else {
             val firstSlash = ref.indexOf("/")
             book = ref.substring(0, firstSlash)
