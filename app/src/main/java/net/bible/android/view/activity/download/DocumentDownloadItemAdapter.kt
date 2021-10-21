@@ -18,18 +18,25 @@
 package net.bible.android.view.activity.download
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.download.DownloadControl
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.RecommendedDocuments
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.Ref
+import net.bible.service.download.DownloadManager
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.basic.AbstractPassageBook
-import org.crosswire.jsword.versification.system.SystemKJV
+import org.crosswire.jsword.book.BookException
+import org.crosswire.jsword.book.sword.SwordBookMetaData
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -65,6 +72,12 @@ class DocumentDownloadItemAdapter(
         bindings.undoButton.setOnClickListener {
             downloadControl.cancelDownload(document)
         }
+
+        // add function for document information
+        bindings.aboutButton.setOnClickListener {
+            handleAbout(document)
+        }
+
         view.updateControlState(downloadControl.getDocumentStatus(document))
 
         // Set value for the first text field
@@ -76,5 +89,20 @@ class DocumentDownloadItemAdapter(
         // set value for the second text field
         bindings.documentName.text = document.name
         return view
+    }
+
+    private fun handleAbout(document: Book) {
+        val TAG = "DownloadItemAdapter"
+        try {
+            // ensure repo key is retained but reload sbmd to ensure About text is loaded
+            val sbmd = document.bookMetaData as SwordBookMetaData
+            val repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY)
+            sbmd.reload()
+            sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey)
+            GlobalScope.launch(Dispatchers.Main) { CommonUtils.showAbout(context, document) }
+        } catch (e: BookException) {
+            Log.e(TAG, "Error expanding SwordBookMetaData for $document", e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+        }
     }
 }

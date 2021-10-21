@@ -961,4 +961,10 @@
     <string name="strongs_links">Links</string>
     <string name="strongs_text_and_links">Text and Links</string>
     <string name="verse_tip">To select partial or many verses, you can long-press Bible text</string>
+    <string name="document_type_icon">Document Type Icon</string>
+    <string name="download_status_icon">Download Status Icon</string>
+    <string name="recommended_icon">Recommended Icon</string>
+    <string name="locked_icon">Locked Icon</string>
+    <string name="about_button">About Button</string>
+    <string name="undo_button">Undo Button</string>
 </resources>
