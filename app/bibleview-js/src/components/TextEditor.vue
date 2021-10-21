@@ -280,9 +280,9 @@ export default {
     color: hsla(112, 100%, 33%, 0.8);
   }
   .night & {
-    color: hsla(0, 0%, 100%, 0.2);
+    color: hsla(0, 0%, 100%, 0.3);
     .check {
-      color: hsla(112, 100%, 33%, 0.8);
+      color: hsla(112, 100%, 33%, 0.5);
     }
   }
   opacity: 0.8;
