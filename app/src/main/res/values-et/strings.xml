@@ -185,8 +185,10 @@
   <string name="download_confirmation">Kas laadida piibel alla internetist?</string>
   <string name="download_source_last_updated">Dokumentide nimekirja uuendati viimati: %s.</string>
   <string name="download_refreshing_book_list">Värskendan saadaval dokumentide nimekirja...</string>
+  <string name="download_source_message1">Dokumente laetakse alla järgmistelt aadressidelt:</string>
   <string name="download_document_confirm_prefix">Lae alla </string>
   <string name="download_refresh_book_list_menu_item">Värskenda</string>
+  <string name="error_downloading">Allalaadimine ebaõnnestus. Palun kontrolli internetiühendust.</string>
   <string name="storage_space_warning">Pole piisavalt ruumi.</string>
   <string name="document_not_installed">Palun lae alla \'%s\'</string>
   <string name="free_text_search_documents">Otsi</string>
@@ -204,6 +206,7 @@
   <string name="checking_zip_file">Antud faili kontrollimine</string>
   <string name="invalid_module">Failis pole korrektset SWORD moodulit</string>
   <string name="install_zip_title">Palun oota. ZIP-faili laaditakse.</string>
+  <string name="overwrite_files">Järgmised failid on juba olemas: %s Kas asendame?</string>
   <string name="overwrite_files_title">Kirjutada failid üle?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lugemiskava</string>
@@ -396,11 +399,23 @@ Kas jätkame?</string>
   <string name="mynotes">Minu märkmed</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Varundamine ja taastamine</string>
+  <string name="backup_modules">Jaga või varunda dokumendid...</string>
+  <string name="backup_app_database">Jaga või varunda rakenduse andmebaas...</string>
+  <string name="backup_app">Jaga või varunda rakendus (.apk fail)...</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Mida sa soovid taastada?</string>
+  <string name="restore_app_database">Taasta rakenduse andmebaas...</string>
+  <string name="restore_confirmation">Kas soovid Minu märkmed, järjehoidjad, õppetükid, lugemiskavad ja tööalad üle kirjutada?</string>
+  <string name="restore_success">Minu märkmed, järjehoidjad, õppetükid, lugemiskavad ja tööalad on edukalt taastatud</string>
   <string name="loading_backup">Andmebaasi laadimine varukoopiast...</string>
-  <string name="backup_backup_title">Kuhu vahndada?</string>
+  <string name="backup_success2">Minu märkmed, järjehoidjad, õppetükid, lugemiskavad ja tööalad on edukalt varundatud.</string>
+  <string name="backup_modules_success">Valitud moodulid on edukalt varundatud.</string>
+  <string name="backup_phone_storage">Telefoni mälu</string>
+  <string name="backup_backup_title">Kuhu varundada?</string>
+  <string name="backup_backup_message">Kas soovid salvestada varukoopia telefoni või jagada (e-post, Google Drive jne)?</string>
   <string name="backup_share">Jaga</string>
   <string name="send_backup_file">Saada varukoopia fail</string>
+  <string name="backup_modules_title">Vali varundatavad moodulid</string>
   <!--About-->
   <string name="module_about_copyright">Autoriõigused: %s</string>
   <string name="module_about_installed_version">Paigaldatud versioon: %s (%s)</string>
@@ -489,6 +504,7 @@ Kas jätkame?</string>
   <string name="first_time_help_do_not_show_again">Mõistan</string>
   <string name="first_time_help_show_next_time">Näita järgmisel korral uuesti</string>
   <string name="my_notes_abbreviation">Minu märkmed</string>
+  <string name="studypads">Õppetükid</string>
   <string name="compare_description">Võrdle tõlkeid</string>
   <string name="compare_abbreviation">Võrdle</string>
   <string name="compare">Võrdle</string>
@@ -551,6 +567,7 @@ Kas jätkame?</string>
   <string name="this_workspace">Käesolev tööala</string>
   <string name="primary_label">Peamine silt</string>
   <string name="favourite_label">Lemmik silt</string>
+  <string name="delete_label_confirmation">Kas sa soovid kustutada järjehoidja silti \"%s\"? Sellega seotud õppetüki sissekanded kustutatakse samuti.</string>
   <string name="bookmark_underline_style_arbitrary">Jooni alla valitud teksti järjehoidja</string>
   <string name="bookmark_underline_style_whole_verse">Jooni alla terve salmi järjehoidja</string>
   <string name="active_labels">Valitud sildid</string>
@@ -568,6 +585,7 @@ Kas jätkame?</string>
   <string name="export_fileformat">Ekspordi kui %s</string>
   <string name="import_items">Impordi %s</string>
   <string name="chooser_range">Vahemik</string>
+  <string name="chooser_OT_abbrev">VT</string>
   <string name="chooser_NT_abbrev">UT</string>
   <string name="chooser_select">Vali %s</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->

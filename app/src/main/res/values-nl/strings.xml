@@ -23,7 +23,7 @@
   <string name="rate_application">Beoordelen</string>
   <string name="chooce_document">Document kiezen</string>
   <!--Passage navigation-->
-  <string name="choosePassageBookName">Kies een boek</string>
+  <string name="choosePassageBookName">Kies Bijbelboek</string>
   <string name="choosePassageChapterName">Kies een hoofdstuk</string>
   <string name="choosePassageVerseName">Kies een Vers</string>
   <string name="bible">Bijbel</string>
@@ -74,8 +74,8 @@
   <string name="prefs_show_notes_summary">Laat voetnoten en kruisverwijzingen zien</string>
   <string name="prefs_show_strongs_summary">Snelkoppelingen naar Griekse &amp; Hebreeuwse definities</string>
   <string name="prefs_show_morphology_summary">Laat Robinson\'s Greek morphology zien</string>
-  <string name="prefs_section_title_summary">Laat niet-canonieke pericoop koppen zien</string>
-  <string name="prefs_red_letter_summary">Geef woorden van Christus in rood weer</string>
+  <string name="prefs_section_title_summary">Laat niet-canonieke pericoop kopjes zien</string>
+  <string name="prefs_red_letter_summary">Woorden van Christus in rood weergeven</string>
   <string name="prefs_text_size_title">Lettertypevoorkeuren</string>
   <string name="prefs_verse_per_line_title">Eén vers per regel</string>
   <string name="prefs_show_bookmarks_title">Bladwijzers tonen</string>
@@ -90,8 +90,11 @@
   <string name="prefs_section_title_title">Sectietitels</string>
   <string name="prefs_red_letter_title">Rode letter</string>
   <string name="prefs_tilt_to_scroll_title">Kantelen om te scrollen</string>
-  <string name="prefs_toolbar_button_action_default">Indrukken om het menu te openen, lang indrukken voor het documentscherm (default)</string>
+  <string name="prefs_toolbar_button_action_title">Actie voor knoppen op taakbalk</string>
+  <string name="prefs_toolbar_button_action_summary">Actie bij (lang) drukken op taakbalk van Bijbel of Commentaar</string>
+  <string name="prefs_toolbar_button_action_default">Indrukken om het menu te openen, lang indrukken voor het documentscherm (standaard)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Indrukken om het volgende document te openen, lang indrukken om het menu te openen.</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Druk om volgend document te openen, lang drukken voor Documenten scherm</string>
   <string name="prefs_night_mode_title">Nachtweergave wisselen</string>
   <string name="prefs_night_mode_summary">Kies om automatisch naar nacht-modus te wisselen (als het apparaat dit ondersteunt), handmatig of via apparaatinstellingen (Android 10+).  Handmatig wisselen kan vanuit het 3-stippenmenu in het hoofdscherm.</string>
   <string name="prefs_night_mode_manual">Handmatig</string>
@@ -100,6 +103,8 @@
   <string name="options_menu_night_mode">Nachtweergave</string>
   <string name="prefs_navigate_to_verse_title">Navigeer naar vers</string>
   <string name="prefs_navigate_to_verse_summary">Kies een vers (en hoofdstuk) bij het selecteren van een passage</string>
+  <string name="prefs_open_links_in_special_window_title">Koppelingen scherm</string>
+  <string name="prefs_open_links_in_special_window_summary">Open koppelingen in speciaal venster voor snellere weergave van kruisverwijzingen en Strong\'s</string>
   <string name="prefs_text_size_sample_text">Voorbeeldtekst</string>
   <string name="prefs_screen_keep_on_title">Scherm ingeschakeld houden</string>
   <string name="prefs_screen_keep_on_summary">Voorkomen dat het scherm uitgaat tijdens het gebruiken van de app</string>
@@ -119,6 +124,7 @@
   <string name="prefs_margin_size_title">Wijzig marge grootte</string>
   <string name="prefs_margin_size_mm_title">Marge grootte (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Geavanceerde instellingen</string>
+  <string name="prefs_display_customization_cat">Uiterlijk</string>
   <string name="prefs_behavior_customization_cat">Applicatie gedrag</string>
   <string name="prefs_margin_size_summary">Pas de linker en rechter marge van het tekst venster aan. U kunt ook
         de maximale breedte van de tekst aanpassen.</string>
@@ -128,12 +134,17 @@
   <string name="window_text_display_settings_title">Tekstopties - Venster %d</string>
   <string name="prefs_text_display_settings_title">Opmaak</string>
   <string name="prefs_text_appearance_title">Uiterlijk</string>
+  <string name="prefs_justify_title">Uitvullen</string>
+  <string name="prefs_justify_summary">Geeft tekst uitgevuld weer, links en rechts met rechte kantlijn</string>
   <string name="pref_left_margin_label_mm">Linker mage (%d mm)</string>
   <string name="pref_right_margin_label_mm">Rechter marge (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Maximale breedte van de tekst (%d mm)</string>
   <string name="prefs_line_spacing_pt">Regelafstand %1.1fx </string>
   <string name="pref_font_family_label">Lettersoort</string>
+  <string name="prefs_top_margin_title">Bovenkant marge</string>
+  <string name="prefs_top_margin_summary">Marge toevoegen (met zichtbare aanduiding) aan bovenkant van venster met Bijbel. Huidige vers begint onder de marge.</string>
   <string name="prefs_hyphenation_title">Tekstafbreking</string>
+  <string name="prefs_hyphenation_summary">Woorden automatisch afbreken, indien taal wordt ondersteund</string>
   <string name="prefs_line_spacing_pt_title">Regelafstand (%1.1fx)</string>
   <string name="line_spacing_title">Regelafstand</string>
   <string name="line_spacing_summary">Stel de regelafstand in</string>
@@ -141,6 +152,7 @@
   <string name="reset_are_you_sure">Weet u zeker dat u al deze waarden wilt terugzetten?</string>
   <string name="window_pinning_menutitle">Vensters vastzetten</string>
   <string name="hide_window_buttons_title">Venster knoppen verbergen</string>
+  <string name="hide_window_buttons_summary">Vensterknoppen aan de rechterzijde van het leesscherm zijn verborgen. Vensternavigatie aan de onderkant wordt weergegeven; u kunt het venster popup-menu openen door hier lang op te drukken.</string>
   <string name="full_screen_hide_buttons_pref_title">Verberg venster knoppen balk in volledig scherm</string>
   <string name="prefs_dictionaries_cat">Woordenboeken</string>
   <string name="choose_strongs_greek_dictionary_summary">Kies Strongs-woordenboek voor definities Griekse woorden</string>
@@ -171,9 +183,11 @@
   <string name="windowMinimise">Minimaliseren</string>
   <string name="windowSynchronise">Synchroniseren</string>
   <string name="move_window">Ga naar</string>
+  <string name="move_window_to_position2">Positie %d (%s:%s)</string>
   <string name="copy_settings">Kopieer instellingen naar</string>
   <string name="copy_settings_to_workspace">Werkblad</string>
   <string name="copy_settings_to_window">venster %d (%s: %s)</string>
+  <string name="change_to_normal">Wisselen naar normaal venster</string>
   <string name="window_pin_mode">Zet vast</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Er zijn geen notities ​​bij dit hoofdstuk</string>
@@ -189,13 +203,19 @@
   <string name="download">Documenten downloaden</string>
   <string name="redownload">Documenten opnieuw downloaden</string>
   <string name="download_confirmation">Een bijbel downloaden van het internet?</string>
+  <string name="download_source_last_updated">Document lijsten voor het laatst ververst: %s.</string>
+  <string name="download_refreshing_book_list">Lijst van beschikbare documenten op document servers verversen...</string>
+  <string name="download_source_message1">Documenten worden gedownload van de volgende bronnen:</string>
   <string name="download_document_confirm_prefix">Downloaden</string>
   <string name="download_refresh_book_list_menu_item">Verversen</string>
+  <string name="error_downloading">Fout tijdens downloaden. Controleer uw internet verbinding svp.</string>
+  <string name="error_downloading_status">De server die %s bevat, geeft een foutmelding vanwege %s (%d)</string>
   <string name="storage_space_warning">Onvoldoende lokale opslagruimte.</string>
   <string name="too_many_jobs">Er worden teveel taken uitgevoerd. Wacht tot sommige beëindigd zijn en probeer het opnieuw.</string>
   <string name="document_not_installed">Download \'%s\'</string>
   <string name="free_text_search_documents">Zoeken</string>
   <string name="chooce_language_hint">Taal</string>
+  <string name="one_more_back_press">Druk opnieuw  op \'terug\' om de app te sluiten</string>
   <string name="document_filter_results">%d documenten</string>
   <string name="download_question_title">Wilt u verder gaan met documenten downloaden?</string>
   <string name="download_question_message">Als u in een land woont waar vervolging is, zult u mogelijk voorzichtig moeten zijn met het downloaden van Christelijke materialen via internet. 
@@ -205,6 +225,9 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="do_not_ask_again">Ja, niet meer vragen</string>
   <string name="recommended_document">Aanbevolen!</string>
   <string name="about_version_history">Versiongeschiedenis: %s</string>
+  <string name="download_errors">Download fouten</string>
+  <string name="failed_repositories_message">Verbinding met de volgende documentserver is mislukt: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">De volgende bestanden zijn niet gedownload:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Document laden uit ZIP-bestand</string>
   <string name="install_zip_module">Bijbelmodule installeren</string>
@@ -213,12 +236,16 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="checking_zip_file">Bezig met controleren van opgegeven bestand...</string>
   <string name="invalid_module">Het bestand bevat geen geldige SWORD-module</string>
   <string name="install_zip_title">Bezig met laden van ZIP-bestand; even geduld...</string>
+  <string name="overwrite_files">De volgende bestanden bestaan al: %s. Overschrijven?</string>
   <string name="overwrite_files_title">Bestanden overschrijven?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leesplan</string>
   <string name="rdg_plan_selector_title">Kies een leesplan</string>
   <string name="rdg_plan_day">Dag %s</string>
+  <string name="rdg_plan_set_start_date">Stel startdatum in...</string>
+  <string name="set_current_day">Stel huidige dag in...</string>
   <string name="done">Klaar</string>
+  <string name="import_reading_plan">Importeer leesplan</string>
   <string name="import_reading_plan_error">Fout tijdens importeren</string>
   <string name="import_reading_plan_anyway">Toch importeren</string>
   <string name="plan_name_y1ntpspr">NT, Psalmen en Spreuken in een jaar</string>
