@@ -40,10 +40,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
+$redLetters: rgb(215, 13, 13);
 .redLetters {
-  color: red !important;
+  color: $redLetters !important;
 }
 .redLetters > a:link, a:visited {
-  color: red;
+  color: $redLetters;
 }
 </style>
