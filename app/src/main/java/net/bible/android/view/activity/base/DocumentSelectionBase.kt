@@ -503,7 +503,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         return false
     }
 
-    private fun handleAbout(documents: List<Book>) {
+    internal fun handleAbout(documents: List<Book>) {
         val document = documents[0]
         try {
             // ensure repo key is retained but reload sbmd to ensure About text is loaded

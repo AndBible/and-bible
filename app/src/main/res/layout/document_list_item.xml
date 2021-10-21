@@ -37,7 +37,7 @@
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintBottom_toBottomOf="parent"
 				app:tint="@color/grey_600"
-				android:contentDescription="@string/document_type_icon" />
+				/>
 			<ImageView android:id="@+id/downloadStatusIcon"
 				android:layout_width="24dp"
 				android:layout_height="24dp"
@@ -48,7 +48,7 @@
 				app:layout_constraintStart_toEndOf="@id/documentTypeIcon"
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintBottom_toBottomOf="parent"
-				android:contentDescription="@string/download_status_icon" />
+				/>
 			<ImageView android:id="@+id/recommendedIcon"
 				android:layout_width="15dp"
 				android:layout_height="15dp"
@@ -58,7 +58,7 @@
 				app:layout_constraintTop_toTopOf="parent"
 				app:srcCompat="@drawable/ic_star_black_24dp"
 				app:tint="@color/yellow_600"
-				android:contentDescription="@string/recommended_icon" />
+				/>
 			<ImageView android:id="@+id/lockedIcon"
 				android:layout_width="15dp"
 				android:layout_height="15dp"
@@ -68,7 +68,7 @@
 				app:layout_constraintBottom_toBottomOf="parent"
 				app:srcCompat="@drawable/ic_baseline_lock_24"
 				app:tint="@color/red"
-				android:contentDescription="@string/locked_icon" />
+				/>
 		</androidx.constraintlayout.widget.ConstraintLayout>
 		<TextView android:id="@+id/documentAbbreviation"
 			android:layout_width="0dp"
@@ -135,7 +135,7 @@
 			android:title="@string/about"
 			app:layout_constraintBottom_toBottomOf="@id/progressBar"
 			app:layout_constraintEnd_toStartOf="@id/undoButton"
-			android:contentDescription="@string/about_button" />
+			/>
 
 		<ImageView
 			android:id="@+id/undoButton"
@@ -148,7 +148,7 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:tint="@color/red"
 			tools:visibility="visible"
-			android:contentDescription="@string/undo_button" />
+			/>
 
 		<ProgressBar android:id="@+id/progressBar"
 			style="@style/Widget.AppCompat.ProgressBar.Horizontal"
