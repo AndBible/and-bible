@@ -65,7 +65,6 @@ class DocumentDownloadItemAdapter(
             downloadControl.cancelDownload(document)
         }
 
-        // add function for document information
         bindings.aboutButton.setOnClickListener {
             activity.handleAbout(listOf(document))
         }
