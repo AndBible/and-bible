@@ -256,7 +256,7 @@ class WorkspaceEntities {
                 strongsMode = 0,
                 showMorphology = false,
                 showFootNotes = true,
-                showRedLetters = false,
+                showRedLetters = true,
                 showSectionTitles = true,
                 showVerseNumbers = true,
                 showVersePerLine = false,
