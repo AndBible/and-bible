@@ -34,7 +34,7 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {bcv_parser as BcvParser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
 import {
     faArrowsAltV,
-    faBookmark, faChevronCircleDown, faCompressArrowsAlt,
+    faBookmark, faCheck, faChevronCircleDown, faCompressArrowsAlt,
     faEdit, faEllipsisH, faExpandArrowsAlt, faEye, faEyeSlash,
     faFileAlt, faFireAlt, faHandPointer,
     faHeadphones, faHeart, faHistory,
@@ -403,6 +403,7 @@ export function useFontAwesome() {
     library.add(faQuestionCircle)
     library.add(faHandPointer)
     library.add(faSave)
+    library.add(faCheck)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {
