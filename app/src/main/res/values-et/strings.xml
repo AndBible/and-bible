@@ -567,6 +567,7 @@ Kas jätkame?</string>
   <string name="this_workspace">Käesolev tööala</string>
   <string name="primary_label">Peamine silt</string>
   <string name="favourite_label">Lemmik silt</string>
+  <string name="edit_label">Muuda silti</string>
   <string name="delete_label_confirmation">Kas sa soovid kustutada järjehoidja silti \"%s\"? Sellega seotud õppetüki sissekanded kustutatakse samuti.</string>
   <string name="bookmark_underline_style_arbitrary">Jooni alla valitud teksti järjehoidja</string>
   <string name="bookmark_underline_style_whole_verse">Jooni alla terve salmi järjehoidja</string>
