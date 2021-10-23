@@ -1117,7 +1117,8 @@ object CommonUtils : CommonUtilsBase() {
 
         val goodLanguages = listOf(
             "en", "af", "my", "eo", "fi", "fr", "de", "hi", "hu", "it", "lt", "pl", "ru", "sl", "es", "uk", "zh-Hant-TW", "kk", "pt",
-            "zh-Hans-CN", "cs", "sk"
+            "zh-Hans-CN", "cs", "sk",
+            // almost: "ko", "he" (hebrew, check...)
         )
 
         fun checkLanguage(lang: String): Boolean =
