@@ -81,32 +81,18 @@ jobs:
         echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > keystore.jks
         $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-github-release-unsigned.apk
         rm -f keystore.jks
+
     - name: Create release
       if: contains(github.ref, 'refs/tags/')
-      id: create_release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
-        VERSION_NAME: ${{ steps.tag_name.outputs.VERSION_NAME }}
         RELEASE_TITLE: ${{ steps.tag_name.outputs.RELEASE_TITLE }}
       with:
-        tag_name: ${{ env.TAG_NAME }}
-        release_name: ${{ env.RELEASE_TITLE }}
+        name: ${{ env.RELEASE_TITLE }}
         body_path: ./RELEASENOTES.txt
+        files: ./andbible-${{ env.TAG_NAME }}.apk
         prerelease: true
-
-    - name: Upload Release Apk
-      if: contains(github.ref, 'refs/tags/')
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./andbible-${{ env.TAG_NAME }}.apk
-        asset_name: andbible-${{ env.TAG_NAME }}.apk
-        asset_content_type: application/vnd.android.package-archive
 
     - name: Before saving cache
       run: |
