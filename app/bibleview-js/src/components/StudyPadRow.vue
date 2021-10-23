@@ -55,7 +55,7 @@
     <template v-if="journalEntry.type===StudyPadEntryTypes.BOOKMARK">
       <b><a :href="bibleUrl">{{ journalEntry.bookInitials ? sprintf(strings.multiDocumentLink, journalEntry.verseRangeAbbreviated, journalEntry.bookAbbreviation ) : journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
       <BookmarkText :expanded="journalEntry.expandContent" :bookmark="journalEntry"/>
-      <div v-if="(journalEntry.hasNote || editMode) && journalEntry.expandContent" class="separator"/>
+      <div v-if="(journalEntry.hasNote || editMode) && journalEntry.expandContent" class="note-separator"/>
     </template>
     <div :class="{'studypad-text-entry': journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT, notes: journalEntry.type === StudyPadEntryTypes.BOOKMARK}">
       <EditableText

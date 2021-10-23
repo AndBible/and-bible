@@ -42,7 +42,7 @@
       <LabelList in-bookmark single-line :bookmark-id="bookmark.id"/>
     </div>
     <BookmarkText :bookmark="bookmark" :expanded="expanded" @change-expanded="expanded = $event"/>
-    <div v-if="bookmark.hasNote && expanded" class="separator"/>
+    <div v-if="bookmark.hasNote && expanded" class="note-separator"/>
     <div class="notes">
       <EditableText
         ref="editor"
