@@ -260,7 +260,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.3.1")
 
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
-    implementation("androidx.media:media:1.4.2")
+    implementation("androidx.media:media:1.4.3")
     implementation("androidx.constraintlayout:constraintlayout:2.1.1")
     implementation("androidx.core:core-ktx:1.6.0")
     implementation("androidx.preference:preference:1.1.1")
