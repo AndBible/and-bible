@@ -31,7 +31,7 @@
     </template>
   </Modal>
   <span
-    v-if="(config.showFootNotes && isCrossReference) || config.showFootNotes"
+    v-if="showHandle"
     class="skip-offset">
     <span class="highlight-transition" :class="{isHighlighted: showNote, noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
       {{handle}}
@@ -71,7 +71,7 @@ export default {
                           ["explanation", "translation", "crossReference", "variant", "alternative", "study", "x-editor-correction"]);
     checkUnsupportedProps(props, "subType",
                           ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
-    const {strings, ...common} = useCommon();
+    const {strings, config, ...common} = useCommon();
     const showNote = ref(false);
     const locateTop = ref(false);
     const {getFootNoteCount} = inject("footNoteCount");
@@ -109,9 +109,15 @@ export default {
     const referenceCollector = useReferenceCollector();
     provide("referenceCollector", referenceCollector);
 
+    const exportMode = inject("exportMode", ref(false));
+
+    const showHandle = computed(() => {
+      return !exportMode.value && ((config.showFootNotes && isCrossReference) || config.showFootNotes);
+    });
+
     return {
       handle, showNote, locateTop, ambiguousSelection, v11n, isCrossReference, noteType, isFootNote,
-      isOther, strings, noteClicked, ...common
+      isOther, strings, noteClicked, showHandle, ...common
     }
   },
 }

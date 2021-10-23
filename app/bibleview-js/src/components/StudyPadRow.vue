@@ -24,7 +24,7 @@
   </AreYouSure>
   <div class="entry" :class="{editMode}">
     <div class="menu" :class="{isText: journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT}">
-      <ButtonRow show-drag-handle>
+      <ButtonRow show-drag-handle v-if="!exportMode">
         <div class="journal-button" @click="addNewEntryAfter">
           <FontAwesomeIcon icon="plus-circle"/>
         </div>
@@ -96,6 +96,8 @@ export default {
     const areYouSureDelete = ref(null);
     const {strings, ...common} = useCommon();
     const editor = ref(null);
+
+    const exportMode = inject("exportMode", ref(false));
 
     const editMode = computed({
       get() {
@@ -175,6 +177,7 @@ export default {
     );
 
     return {
+      exportMode,
       bibleUrl,
       addNewEntryAfter,
       editBookmark,

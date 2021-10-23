@@ -16,47 +16,50 @@
   -->
 
 <template>
-  <div class="journal-name" :style="labelNameStyle">
-    {{ document.label.name }}
-  </div>
-  <div v-if="journalEntries.length === 0">
-    {{strings.emptyStudyPad}}
-    <span class="journal-button" @click="addNewEntry">
-      <FontAwesomeIcon icon="plus-circle"/>
-    </span>
-  </div>
-  <draggable
-    v-model="journalEntries"
-    handle=".drag-handle"
-    group="journal-entries"
-    ghost-class="drag-ghost"
-    chosen-class="drag-chosen"
-    :item-key="(e) => `studypad-${e.type}-${e.id}`"
-  >
-    <template #item="{element: j}">
-      <div
-        :id="`o-${studyPadOrdinal(j)}`"
-        :data-ordinal="studyPadOrdinal(j)"
-        class="ordinal"
-      >
-        <div class="studypad-container" :style="indentStyle(j)" :id="`studypad-${j.type}-${j.id}`">
-          <StudyPadRow
-            :ref="setStudyPadRowRef"
-            :journal-entry="j"
-            :label="document.label"
-            @add="adding=true"
-          />
+  <div :class="{exportMode}">
+    <div class="journal-name" :style="labelNameStyle">
+      {{ document.label.name }}
+      <FontAwesomeIcon icon="share-alt" @click="shareDocument" class="share-button"/>
+    </div>
+    <div v-if="journalEntries.length === 0 && !exportMode">
+      {{strings.emptyStudyPad}}
+      <span class="journal-button" @click="addNewEntry">
+        <FontAwesomeIcon icon="plus-circle"/>
+      </span>
+    </div>
+    <draggable
+      v-model="journalEntries"
+      handle=".drag-handle"
+      group="journal-entries"
+      ghost-class="drag-ghost"
+      chosen-class="drag-chosen"
+      :item-key="(e) => `studypad-${e.type}-${e.id}`"
+    >
+      <template #item="{element: j}">
+        <div
+          :id="`o-${studyPadOrdinal(j)}`"
+          :data-ordinal="studyPadOrdinal(j)"
+          class="ordinal"
+        >
+          <div class="studypad-container" :style="indentStyle(j)" :id="`studypad-${j.type}-${j.id}`">
+            <StudyPadRow
+              :ref="setStudyPadRowRef"
+              :journal-entry="j"
+              :label="document.label"
+              @add="adding=true"
+            />
+          </div>
         </div>
-      </div>
-    </template>
-  </draggable>
-  <div v-if="journalEntries.length > 0">
-    <span v-if="lastEntry.type === StudyPadEntryTypes.BOOKMARK && !lastEntry.hasNote" class="journal-button" @click="editLastNote">
-      <FontAwesomeIcon icon="edit"/>
-    </span>
-    <span class="journal-button" @click="appendNewEntry">
-      <FontAwesomeIcon icon="plus-circle"/>
-    </span>
+      </template>
+    </draggable>
+    <div v-if="journalEntries.length > 0 && !exportMode">
+      <span v-if="lastEntry.type === StudyPadEntryTypes.BOOKMARK && !lastEntry.hasNote" class="journal-button" @click="editLastNote">
+        <FontAwesomeIcon icon="edit"/>
+      </span>
+      <span class="journal-button" @click="appendNewEntry">
+        <FontAwesomeIcon icon="plus-circle"/>
+      </span>
+    </div>
   </div>
 </template>
 
@@ -86,6 +89,8 @@ export default {
     const {scrollToId} = inject("scroll");
     const android = inject("android");
     const studyPadRowRefs = [];
+    const exportMode = ref(false);
+    provide("exportMode", exportMode);
 
     function setStudyPadRowRef(el) {
       if(el) {
@@ -214,9 +219,19 @@ export default {
       }
     }
 
+    async function shareDocument() {
+      exportMode.value = true;
+      await nextTick();
+
+      const html = `<!DOCTYPE html>${document.firstElementChild.outerHTML}`;
+      exportMode.value = false;
+      android.shareHtml(html);
+    }
+
     return {
-      lastEntry, journalEntries, editNotes, adding, indentStyle, editableJournalEntry,  addNewEntry, appendNewEntry, labelNameStyle,
-      studyPadOrdinal, StudyPadEntryTypes, setStudyPadRowRef, editLastNote, ...useCommon()
+      lastEntry, journalEntries, editNotes, adding, indentStyle, editableJournalEntry,  addNewEntry, appendNewEntry,
+      labelNameStyle, studyPadOrdinal, StudyPadEntryTypes, setStudyPadRowRef, editLastNote, shareDocument,
+      exportMode, ...useCommon()
     }
   }
 }
@@ -235,6 +250,18 @@ div.journal-name {
   border-radius: 10px;
   margin-inline-start: 0px;
   font-weight: bold;
+  position: relative;
+}
+
+.share-button {
+  position:absolute;
+  padding: 10px;
+  [dir=ltr] & {
+    right: 0;
+  }
+  [dir=rtl] & {
+    left: 0;
+  }
 }
 
 .studypad-container {

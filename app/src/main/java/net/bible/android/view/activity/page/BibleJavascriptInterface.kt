@@ -25,10 +25,12 @@ import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.widget.TextView
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
+import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -52,6 +54,7 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
+import java.io.File
 
 
 class BibleJavascriptInterface(
@@ -360,6 +363,26 @@ class BibleJavascriptInterface(
         d.show()
 
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    @JavascriptInterface
+    fun shareHtml(html: String) {
+        val targetDir = File(mainBibleActivity.filesDir, "backup/")
+        targetDir.mkdirs()
+        val targetFile = File(targetDir, "shared.html")
+        targetFile.writeText(html)
+        val uri = FileProvider.getUriForFile(mainBibleActivity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
+
+        val titleStr = mainBibleActivity.getString(R.string.export_fileformat, "HTML")
+        val emailIntent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_SUBJECT, titleStr)
+            putExtra(Intent.EXTRA_TEXT, titleStr)
+            putExtra(Intent.EXTRA_STREAM, uri)
+            type = "text/html"
+        }
+        val chooserIntent = Intent.createChooser(emailIntent, titleStr)
+        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        mainBibleActivity.startActivity(chooserIntent)
     }
 
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
