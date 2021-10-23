@@ -231,19 +231,17 @@ android {
 }
 
 androidComponents {
-    val discreteSelector = selector().withFlavor(
-                                       dimAppearance to discreteFlavor )
+    val discreteSelector = selector().withFlavor(dimAppearance to discreteFlavor )
     // Set the applicationId to a more discrete alternative.
     // Replace only the "standard" prefix, in order to preserve any
     // suffixes that are contributed by the build types or product flavors.
     onVariants(discreteSelector) { variant ->
         val originalAppId = variant.applicationId.get()
-        val alternateAppId = originalAppId.replace(
-                            applicationIdStandard, applicationIdDiscrete)
+        val alternateAppId = originalAppId.replace(applicationIdStandard, applicationIdDiscrete)
         variant.applicationId.set(alternateAppId)
         logger.info("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
-        } // onVariant
-    } // androidComponents
+    }
+}
 
 
 dependencies {
