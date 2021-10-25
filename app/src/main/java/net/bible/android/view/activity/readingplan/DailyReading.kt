@@ -73,6 +73,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         }
 
     private var readingViews: MutableList<ReadingPlanOneReadingBinding> = emptyList<ReadingPlanOneReadingBinding>().toMutableList()
+    private var readingAll: ReadingPlanOneReadingBinding? = null
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -133,6 +134,10 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
             val layout = findViewById<View>(R.id.reading_container) as TableLayout
             readingViews.forEach { layout.removeView(it.root) }
+            readingAll?.let {
+                layout.removeView(it.root)
+                readingAll = null
+            }
 
             synchronized(BookName::class) {
                 val fullBookNameSave = BookName.isFullBookName()
@@ -183,6 +188,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             // Speak All
             if (readingsDto.numReadings > 1) {
                 val child = ReadingPlanOneReadingBinding.inflate(layoutInflater, null, false)
+                readingAll = child
 
                 // hide the tick
                 val tick = child.tick
