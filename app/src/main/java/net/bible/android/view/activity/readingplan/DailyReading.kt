@@ -311,7 +311,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        if (readingsDto.isDateBasedPlan) {
+        if (::readingsDto.isInitialized && readingsDto.isDateBasedPlan) {
             menu.findItem(R.id.setCurrentDay).isVisible = false
             menu.findItem(R.id.setStartDate).isVisible = false
         }
@@ -367,7 +367,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             val datePicker = DatePickerDialog(this, { _, year, month, day_ ->
                 planStartDate.set(year, month, day_)
                 readingPlanControl.setStartDate(readingsDto.readingPlanInfo, planStartDate.time)
-                
+
                 loadDailyReading(planCodeLoaded, dayLoaded)
             }, yearSet, monthSet, daySet)
 
