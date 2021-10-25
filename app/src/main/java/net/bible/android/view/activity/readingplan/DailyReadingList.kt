@@ -81,9 +81,7 @@ class DailyReadingList : ListActivityBase() {
     private fun itemSelected(oneDaysReadingsDto: OneDaysReadingsDto) {
         Log.d(TAG, "Day selected:$oneDaysReadingsDto")
         try {
-            val intent = Intent(this, DailyReading::class.java)
-            intent.putExtra(DailyReading.DAY, oneDaysReadingsDto.day)
-            startActivity(intent)
+            setResult(RESULT_OK, Intent(oneDaysReadingsDto.day.toString()))
             finish()
         } catch (e: Exception) {
             Log.e(TAG, "error on select of gen book key", e)
@@ -92,7 +90,6 @@ class DailyReadingList : ListActivityBase() {
     }
 
     companion object {
-
-        private val TAG = "DailyReadingList"
+        private const val TAG = "DailyReadingList"
     }
 }

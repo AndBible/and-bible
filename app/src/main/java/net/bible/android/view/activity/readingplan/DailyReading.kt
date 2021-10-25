@@ -79,17 +79,17 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         super.onCreate(savedInstanceState, true)
         super.buildActivityComponent().inject(this)
 
-        if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists) {
-            val intent = Intent(this, ReadingPlanSelectorList::class.java)
-            startActivity(intent)
-            return
-        }
-
         Log.i(TAG, "Displaying one day reading plan")
         binding = ReadingPlanOneDayBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         super.setActionBarManager(readingPlanActionBarManager)
+
+        if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists) {
+            val intent = Intent(this, ReadingPlanSelectorList::class.java)
+            selectReadingPlan.launch(intent)
+            return
+        }
 
         loadDailyReading(null, null)
     }
@@ -389,6 +389,26 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
         val intent = Intent(Intent.ACTION_VIEW, uri, this, InstallZip::class.java)
         installZipLauncher.launch(intent)
+    }
+
+    val selectReadingPlan = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        Log.d(TAG, "Returned from select reading plan")
+        result.data?.action?.let {
+            val planCode = it
+            Log.d(TAG, "Selected reading plan $planCode")
+
+            loadDailyReading(planCode, null)
+        }
+    }
+
+    val selectReadingDay = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        Log.d(TAG, "Returned from select reading plan day")
+        result.data?.action?.let {
+            val planDay = it.toInt()
+            Log.d(TAG, "Selected reading plan day #$planDay")
+
+            loadDailyReading(planCodeLoaded, planDay)
+        }
     }
 
     val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

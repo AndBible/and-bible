@@ -84,8 +84,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
         try {
             readingPlanControl.startReadingPlan(mReadingPlanList[position])
 
-            val intent = Intent(this@ReadingPlanSelectorList, DailyReading::class.java)
-            startActivity(intent)
+            setResult(RESULT_OK, Intent(mReadingPlanList[position].planCode))
             finish()
         } catch (e: Exception) {
             Log.e(TAG, "Plan selection error", e)
