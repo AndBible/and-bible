@@ -367,14 +367,10 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             val datePicker = DatePickerDialog(this, { _, year, month, day_ ->
                 planStartDate.set(year, month, day_)
                 readingPlanControl.setStartDate(readingsDto.readingPlanInfo, planStartDate.time)
-
-                // refetch readings for chosen day
-                readingsDto = readingPlanControl.getDaysReading(dayLoaded)
-
-                // update date and day no
-                binding.date.text = readingsDto.readingDateString
-                binding.day.text = readingsDto.dayDesc
+                
+                loadDailyReading(planCodeLoaded, dayLoaded)
             }, yearSet, monthSet, daySet)
+
             datePicker.datePicker.maxDate = nowTime.timeInMillis
             datePicker.show()
 
