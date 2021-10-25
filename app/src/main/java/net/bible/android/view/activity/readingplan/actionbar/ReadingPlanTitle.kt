@@ -33,6 +33,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.service.common.TitleSplitter
