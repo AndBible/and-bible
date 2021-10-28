@@ -153,6 +153,7 @@
   <string name="colors_day_mode_title">Päevarežiim</string>
   <string name="colors_night_mode_title">Öörežiim</string>
   <string name="prefs_noise_title">Taustamüra</string>
+  <string name="prefs_noise_summary">Taustamüra efekt võib muuta teksti lugemise silmadele mugavamaks.</string>
   <string name="cpv_default_title">Vali värv</string>
   <string name="cpv_presets">Eelseaded</string>
   <string name="cpv_custom">Kohandatud</string>
@@ -194,10 +195,12 @@
   <string name="free_text_search_documents">Otsi</string>
   <string name="chooce_language_hint">Keel</string>
   <string name="document_filter_results">%d dokumenti</string>
+  <string name="download_question_title">Kas soovid jätkata dokumentide allalaadimisega?</string>
   <string name="do_not_ask_again">Jah, ära enam küsi</string>
   <string name="recommended_document">Soovitatud!</string>
   <string name="about_version_history">Versiooni ajalugu: %s</string>
   <string name="download_errors">Allalaadimise vead</string>
+  <string name="failed_repositories_message">Järgmiste serveritega ei saanud ühendust: \n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Laadi dokument ZIP-failist</string>
   <string name="install_zip_module">Paigalda Piibli moodul</string>
@@ -260,6 +263,7 @@ Kas jätkame?</string>
   <string name="add_bookmark_whole_verse1">Salmid</string>
   <string name="remove_bookmark">Eemalda</string>
   <string name="bookmark_settings_hide_labels_title">Varja valitud sildid...</string>
+  <string name="bookmark_settings_hide_labels_summary">Varja järjehoidjad, millele on määratud kindlad sildid</string>
   <string name="auto_assign_labels_title">Sildi seaded</string>
   <string name="auto_assign_labels1">Määra automaatselt uutele järjehoidjatele</string>
   <string name="auto_assign_labels_primary">Määra automaatselt peamise sildina</string>
@@ -331,10 +335,13 @@ Kas jätkame?</string>
   <string name="speak_autobookmarking_disabled">Automaatne järjehoidjate lidamine on keelatud!</string>
   <string name="system_speak_settings">Ava süsteemi TTS seaded</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">See seadistus rakendub aknale %s.</string>
+  <string name="assing_labels_help1">Igale järjehoidjale saab määrata mitu silti</string>
   <!--param is bookmark icon-->
   <!--param is auto-assign label icon-->
   <!--param is heart icon-->
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">Vajuta %s, et värskendada järjestust vastavalt valikutele.</string>
   <!--Parameter is actual icon-->
   <!--Parameter is actual icon-->
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
@@ -575,6 +582,7 @@ Kas jätkame?</string>
   <string name="recent_labels">Hiljutised sildid</string>
   <string name="other_labels">Ülejäänud sildid</string>
   <string name="book_menu_sort_row_opt">Järjesta ridadena</string>
+  <string name="reorder">Värskenda järjestust</string>
   <string name="system_items1">Veel</string>
   <string name="text_copied_to_clicpboard">Tekst kopeeriti lõikelauale</string>
   <string name="toggle_fullscreen">Täisekraan</string>
