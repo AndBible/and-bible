@@ -171,11 +171,14 @@ export default {
       for(let o of ordinalRange()) {
         highlightVerse(o);
       }
-      if (endOrdinal.value == null || endOrdinal.value == startOrdinal.value){
+      if (endOrdinal.value == null || endOrdinal.value === startOrdinal.value){
         verseInfo.value.verseTo = "";
       } else {
-        //TODO: Check if selection goes into next chapter and display accordingly.
-        verseInfo.value.verseTo = verseInfo.value.verse + endOrdinal.value - startOrdinal.value;
+        const {ordinalRange: [, chapterEnd]} = verseInfo.value.bibleDocumentInfo;
+
+        const endOrd = chapterEnd > endOrdinal.value ? endOrdinal.value: chapterEnd;
+        console.log({verseInfo: verseInfo.value, endOrd, endOrdinal, chapterEnd});
+        verseInfo.value.verseTo = `${verseInfo.value.verse + endOrd - startOrdinal.value}${endOrdinal.value > chapterEnd ? "+" : ""}`;
       }
     }
 

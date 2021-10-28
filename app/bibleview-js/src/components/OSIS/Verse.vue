@@ -46,7 +46,8 @@ export default {
     verseOrdinal: { type: String, required: true},
   },
   setup(props) {
-    const {bookInitials, bibleBookName, originalOrdinalRange, ordinalRange, v11n} = inject("bibleDocumentInfo", {})
+    const bibleDocumentInfo = inject("bibleDocumentInfo", {})
+    const {bookInitials, bibleBookName, originalOrdinalRange, ordinalRange, v11n} = bibleDocumentInfo;
     const verseInfo = {...getVerseInfo(props), v11n};
 
     const shown = ref(true);
@@ -83,7 +84,7 @@ export default {
 
     function verseClicked(event) {
       if(!fromBibleDocument.value) return;
-      addEventVerseInfo(event, {bookInitials, bibleBookName, ...verseInfo})
+      addEventVerseInfo(event, {bookInitials, bibleBookName, bibleDocumentInfo, ...verseInfo})
     }
 
     const common = useCommon();
