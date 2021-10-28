@@ -191,8 +191,10 @@ class LinkControl @Inject constructor(
         val sanitizedKey = Regex("^([GH]?)([0-9]+).*").find(key)?.groups?.get(2)?.value?.padStart(5, '0')
 
         val k = try {book.getKey(key)} catch (e: NoSuchKeyException) {null} ?:
-                try {book.getKey(sanitizedKey)} catch (e: NoSuchKeyException) {null} ?:
-                try {book.getKey(sanitizedKey + "\r")} catch(e: NoSuchKeyException) {null}
+                if(sanitizedKey != null) {
+                    try {book.getKey(sanitizedKey)} catch (e: NoSuchKeyException) {null} ?:
+                    try {book.getKey(sanitizedKey + "\r")} catch (e: NoSuchKeyException) {null}
+                } else null
 
         return if(k == null) null else BookAndKey(k, book)
     }
