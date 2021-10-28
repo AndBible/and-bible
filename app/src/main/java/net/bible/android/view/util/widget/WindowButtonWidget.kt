@@ -161,6 +161,13 @@ class WindowButtonWidget(
         super.setOnLongClickListener(l)
     }
 
+    override fun setOnTouchListener(l: OnTouchListener?) {
+        binding.apply {
+            windowButton.setOnTouchListener(l)
+        }
+        super.setOnTouchListener(l)
+    }
+
     var text: String
         get() = (if(isRestoreButton) binding.buttonText else binding.windowButton).text.toString()
 
@@ -221,5 +228,12 @@ class AddNewWindowButtonWidget(
             buttonText.setOnLongClickListener(l)
         }
         super.setOnLongClickListener(l)
+    }
+
+    override fun setOnTouchListener(l: OnTouchListener?) {
+        binding.apply {
+            buttonText.setOnTouchListener(l)
+        }
+        super.setOnTouchListener(l)
     }
 }
