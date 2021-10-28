@@ -187,7 +187,7 @@ class BibleFrame(
         return createTextButton(text,
             { v, motionEvent ->
                 gestureDetector.onTouchEvent(motionEvent)
-                if (gestureListener.gesturePerformed === GestureType.SINGLE_TAP && (motionEvent.getAction() == MotionEvent.ACTION_UP)) {allViews.showPopupMenu(window, v)}
+                if (gestureListener.gesturePerformed === GestureType.SINGLE_TAP && (motionEvent.action == MotionEvent.ACTION_UP)) {allViews.showPopupMenu(window, v)}
                 else if (gestureListener.gesturePerformed === GestureType.LONG_PRESS) {windowControl.minimiseWindow(window)}
                 else if (gestureListener.gesturePerformed === GestureType.SWIPE_UP) {windowControl.maximiseWindow(window)}
                 else if (gestureListener.gesturePerformed === GestureType.SWIPE_DOWN) {windowControl.minimiseWindow(window)}
