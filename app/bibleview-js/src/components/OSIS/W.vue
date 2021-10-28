@@ -99,8 +99,9 @@ export default {
         addCustom(() => isHighlighted.value = false);
       }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
     }
-    const showStrongs = computed(() => config.strongsMode !== strongsModes.off);
-    const showStrongsSeparately = computed(() => config.strongsMode === strongsModes.links);
+    const exportMode = inject("exportMode", ref(false));
+    const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
+    const showStrongsSeparately = computed(() => !exportMode.value && config.strongsMode === strongsModes.links);
 
     return {formatLink, formatName, isHighlighted, goToLink, config, strings, showStrongs, showStrongsSeparately, ...common};
   },

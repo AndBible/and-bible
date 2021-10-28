@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div :class="{exportMode}">
+  <div :class="{exportMode}" ref="root">
     <div class="journal-name" :style="labelNameStyle">
       {{ document.label.name }}
       <FontAwesomeIcon icon="share-alt" @click="shareDocument" class="share-button"/>
@@ -219,19 +219,29 @@ export default {
       }
     }
 
+    const root = ref(null);
+
+    let exportCss;
     async function shareDocument() {
+      if(!exportCss) {
+        exportCss = await import("!raw-loader!sass-loader!./export.scss");
+        //exportCss = await import("!raw-loader!sass-loader!css/app.css");
+        //exportCss = await import("!vue-loader!@/components/BibleView");
+        //exportCss = await import("!raw-loader!vue-style-loader!@/components/BibleView");
+      }
       exportMode.value = true;
       await nextTick();
 
-      const html = `<!DOCTYPE html>${document.firstElementChild.outerHTML}`;
-      exportMode.value = false;
+      const html = `<!DOCTYPE html><html><head><style>${exportCss}</style></head><body>${root.value.innerHTML}</body></html>`;
+      //exportMode.value = false;
+      console.log({exportCss});
       android.shareHtml(html);
     }
 
     return {
       lastEntry, journalEntries, editNotes, adding, indentStyle, editableJournalEntry,  addNewEntry, appendNewEntry,
       labelNameStyle, studyPadOrdinal, StudyPadEntryTypes, setStudyPadRowRef, editLastNote, shareDocument,
-      exportMode, ...useCommon()
+      exportMode, ...useCommon(), root
     }
   }
 }
