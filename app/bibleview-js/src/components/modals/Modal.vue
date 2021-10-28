@@ -147,7 +147,6 @@ $border-radius2: $border-radius - 1.5pt;
 .modal-content {
   font-family: sans-serif;
   font-size: 12pt;
-  opacity: 0.95;
   z-index: 5;
   .blocking & {
     z-index: 15;

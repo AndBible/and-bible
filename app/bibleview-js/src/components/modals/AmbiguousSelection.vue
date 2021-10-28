@@ -55,7 +55,7 @@
     </div>
     <template #title>
       <template v-if="verseInfo">
-        {{ bibleBookName }} {{ verseInfo.chapter}}:{{verseInfo.verse}}
+        {{ bibleBookName }} {{ verseInfo.chapter}}:{{verseInfo.verse}}<template v-if="verseInfo.verseTo">-{{verseInfo.verseTo}}</template>
       </template>
       <template v-else>
         {{ strings.ambiguousSelection }}
@@ -84,7 +84,8 @@ import AmbiguousActionButtons from "@/components/AmbiguousActionButtons";
 export default {
   name: "AmbiguousSelection",
   props: {
-    blocking: {type: Boolean, default: false}
+    blocking: {type: Boolean, default: false},
+    doNotCloseModals: {type: Boolean, default: false},
   },
   emits: ["back-clicked"],
   components: {Modal, FontAwesomeIcon, AmbiguousSelectionBookmarkButton, AmbiguousActionButtons},
@@ -169,6 +170,15 @@ export default {
       resetHighlights();
       for(let o of ordinalRange()) {
         highlightVerse(o);
+      }
+      if (endOrdinal.value == null || endOrdinal.value === startOrdinal.value){
+        verseInfo.value.verseTo = "";
+      } else {
+        const {ordinalRange: [, chapterEnd]} = verseInfo.value.bibleDocumentInfo;
+
+        const endOrd = chapterEnd > endOrdinal.value ? endOrdinal.value: chapterEnd;
+        console.log({verseInfo: verseInfo.value, endOrd, endOrdinal, chapterEnd});
+        verseInfo.value.verseTo = `${verseInfo.value.verse + endOrd - startOrdinal.value}${endOrdinal.value > chapterEnd ? "+" : ""}`;
       }
     }
 
@@ -259,7 +269,9 @@ export default {
         }
         else {
           if (modalOpen.value && !hasParticularClicks) {
-            closeModals();
+            if(!props.doNotCloseModals) {
+              closeModals();
+            }
           } else {
             setInitialVerse(_verseInfo);
             const s = await select(event, allEventFunctions);
@@ -268,7 +280,9 @@ export default {
         }
       } else {
         $emit("back-clicked");
-        closeModals();
+        if(!props.doNotCloseModals) {
+          closeModals();
+        }
       }
       close();
     }

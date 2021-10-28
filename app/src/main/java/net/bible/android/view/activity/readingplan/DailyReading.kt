@@ -19,7 +19,6 @@
 package net.bible.android.view.activity.readingplan
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
@@ -27,17 +26,16 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
 import android.widget.TableLayout
-import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuCompat
 import net.bible.android.BibleApplication
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ReadingPlanOneDayBinding
+import net.bible.android.activity.databinding.ReadingPlanOneReadingBinding
 import net.bible.android.control.readingplan.ReadingPlanControl
+import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
@@ -47,7 +45,6 @@ import net.bible.service.readingplan.OneDaysReadingsDto
 
 import org.crosswire.jsword.versification.BookName
 
-import java.util.ArrayList
 import java.util.Calendar
 
 import javax.inject.Inject
@@ -60,8 +57,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     private lateinit var binding: ReadingPlanOneDayBinding
 
-    private var imageTickList: MutableList<ImageView> = ArrayList()
-
     private var dayLoaded: Int = 0
     private var planCodeLoaded: String? = null
 
@@ -70,17 +65,20 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     @Inject lateinit var readingPlanControl: ReadingPlanControl
     @Inject lateinit var readingPlanActionBarManager: ReadingPlanActionBarManager
 
+    private var readingStatus: ReadingStatus? = null
+    private val getReadingStatus: ReadingStatus
+        get() = readingStatus ?: readingPlanControl.getReadingStatus(dayLoaded).let {
+            readingStatus = it
+            it
+        }
+
+    private var readingViews: MutableList<ReadingPlanOneReadingBinding> = emptyList<ReadingPlanOneReadingBinding>().toMutableList()
+    private var readingAll: ReadingPlanOneReadingBinding? = null
+
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, true)
         super.buildActivityComponent().inject(this)
-
-        if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists) {
-            val intent = Intent(this, ReadingPlanSelectorList::class.java)
-            startActivity(intent)
-            finish()
-            return
-        }
 
         Log.i(TAG, "Displaying one day reading plan")
         binding = ReadingPlanOneDayBinding.inflate(layoutInflater)
@@ -88,17 +86,38 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
         super.setActionBarManager(readingPlanActionBarManager)
 
+        if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists) {
+            val intent = Intent(this, ReadingPlanSelectorList::class.java)
+            selectReadingPlan.launch(intent)
+            return
+        }
+
+        loadDailyReading(null, null)
+    }
+
+    private fun loadDailyReading(planToLoad: String?, dayToLoad: Int?) {
         try {
-            // may not be for current day if user presses forward or backward
-            dayLoaded = readingPlanControl.currentPlanDay
+            readingStatus = null
             val extras = intent.extras
-            if (extras != null) {
-                val plan = extras.getString(PLAN)
-                if(plan != null) readingPlanControl.setReadingPlan(plan)
-                dayLoaded = extras.getInt(DAY, dayLoaded)
+
+            dayLoaded = when {
+                planToLoad != null -> {
+                    readingPlanControl.setReadingPlan(planToLoad)
+                    dayToLoad ?: readingPlanControl.currentPlanDay
+                }
+                extras != null -> {
+                    val plan = extras.getString(PLAN)
+                    if(plan != null) readingPlanControl.setReadingPlan(plan)
+                    extras.getInt(DAY, dayLoaded)
+                }
+                else -> {
+                    readingPlanControl.currentPlanDay
+                }
             }
 
             planCodeLoaded = readingPlanControl.currentPlanCode
+
+            readingPlanActionBarManager.updateButtons()
 
             // get readings for chosen day
             readingsDto = readingPlanControl.getDaysReading(dayLoaded)
@@ -114,68 +133,77 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             }
 
             val layout = findViewById<View>(R.id.reading_container) as TableLayout
+            readingViews.forEach { layout.removeView(it.root) }
+            readingAll?.let {
+                layout.removeView(it.root)
+                readingAll = null
+            }
 
-            // show short book name to save space if Portrait
             synchronized(BookName::class) {
                 val fullBookNameSave = BookName.isFullBookName()
                 BookName.setFullBookName(!CommonUtils.isPortrait)
 
+                readingViews = emptyList<ReadingPlanOneReadingBinding>().toMutableList()
                 for (i in 1..readingsDto.numReadings) {
-                    val child = layoutInflater.inflate(R.layout.reading_plan_one_reading, null)
+                    val child = ReadingPlanOneReadingBinding.inflate(layoutInflater, null, false)
+                    readingViews.add(child)
 
                     // Ticks
-                    val mImageTick = child.findViewById<View>(R.id.tick) as ImageView
-                    imageTickList.add(mImageTick)
+                    val imageTick = child.tick
+
                     // Allow check box to be clicked to mark off the day
-                    mImageTick.setOnClickListener {
-                        val status = readingPlanControl.getReadingStatus(dayLoaded)
+                    imageTick.setOnClickListener {
+                        val status = getReadingStatus
                         if (status.isRead(i)) {
                             status.setUnread(i)
                         } else {
                             status.setRead(i)
                         }
+
                         updateTicksAndDone()
                     }
 
                     // Passage description
-                    val rdgText = child.findViewById<View>(R.id.passage) as TextView
+                    val rdgText = child.passage
                     val key = readingsDto.getReadingKey(i)
                     rdgText.text = key.name
 
                     // handle read button clicks
-                    val readBtn = child.findViewById<View>(R.id.readButton) as Button
+                    val readBtn = child.readButton
                     readBtn.setOnClickListener { onRead(i) }
 
                     // handle speak button clicks
-                    val speakBtn = child.findViewById<View>(R.id.speakButton) as Button
+                    val speakBtn = child.speakButton
                     speakBtn.setOnClickListener { onSpeak(i) }
 
-                    layout.addView(child, i - 1)
+                    layout.addView(child.root, i - 1)
                 }
 
                 // restore full book name setting
                 BookName.setFullBookName(fullBookNameSave)
             }
+
             updateTicksAndDone()
 
             // Speak All
             if (readingsDto.numReadings > 1) {
-                val child = layoutInflater.inflate(R.layout.reading_plan_one_reading, null)
+                val child = ReadingPlanOneReadingBinding.inflate(layoutInflater, null, false)
+                readingAll = child
 
                 // hide the tick
-                val tick = child.findViewById<View>(R.id.tick) as ImageView
+                val tick = child.tick
                 tick.visibility = View.INVISIBLE
 
                 // Passage description
-                val rdgText = child.findViewById<View>(R.id.passage) as TextView
+                val rdgText = child.passage
                 rdgText.text = resources.getString(R.string.all)
 
-                val passageBtn = child.findViewById<View>(R.id.readButton) as Button
+                val passageBtn = child.readButton
                 passageBtn.visibility = View.INVISIBLE
 
-                val speakBtn = child.findViewById<View>(R.id.speakButton) as Button
+                val speakBtn = child.speakButton
                 speakBtn.setOnClickListener { onSpeakAll() }
-                layout.addView(child, readingsDto.numReadings)
+                layout.addView(child.root, readingsDto.numReadings)
             }
             // end All
 
@@ -199,6 +227,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         val readingKey = readingsDto.getReadingKey(readingNo)
         readingPlanControl.read(dayLoaded, readingNo, readingKey)
 
+        isIntegrateWithHistoryManager = true
         finish()
     }
 
@@ -221,14 +250,24 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         updateTicksAndDone()
     }
 
+    private fun updateTicksAndDone() {
+        val status = getReadingStatus
+        for ((i, view) in readingViews.withIndex()) {
+            if (status.isRead(i+1)) {
+                view.tick.setImageResource(R.drawable.btn_check_buttonless_on)
+            } else {
+                view.tick.setImageResource(R.drawable.btn_check_buttonless_off)
+            }
+        }
+
+        binding.doneButton.isEnabled = status.isAllRead
+    }
+
     /** user pressed Done button so must have read currently displayed readings
      */
     fun onDone() {
         Log.i(TAG, "Done")
         try {
-            // do not add to History list because it will just redisplay same page
-            isIntegrateWithHistoryManager = false
-
             // all readings must be ticked for this to be enabled
             val nextDayToShow = readingPlanControl.done(readingsDto.readingPlanInfo, dayLoaded, false)
 
@@ -239,9 +278,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                 // else exit
                 finish()
             }
-
-            // if we move away then add to history list
-            isIntegrateWithHistoryManager = true
         } catch (e: Exception) {
             Log.e(TAG, "Error when Done daily reading", e)
             Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
@@ -261,27 +297,8 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     private fun showDay(dayNo: Int) {
         Log.i(TAG, "ShowDay $dayNo")
-        val handlerIntent = Intent(this, DailyReading::class.java)
-        handlerIntent.putExtra(DAY, dayNo)
-        startActivity(handlerIntent)
-        finish()
+        loadDailyReading(planCodeLoaded, dayNo)
     }
-
-    private fun updateTicksAndDone() {
-        val status = readingPlanControl.getReadingStatus(dayLoaded)
-
-        for (i in imageTickList.indices) {
-            val imageTick = imageTickList[i]
-            if (status.isRead(i+1)) {
-                imageTick.setImageResource(R.drawable.btn_check_buttonless_on)
-            } else {
-                imageTick.setImageResource(R.drawable.btn_check_buttonless_off)
-            }
-        }
-
-        binding.doneButton.isEnabled = status.isAllRead
-    }
-
 
     override fun onScreenTurnedOn() {
         super.onScreenTurnedOn()
@@ -293,20 +310,14 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
      * See: http://stackoverflow.com/questions/1397361/how-do-i-restart-an-android-activity
      */
     private fun reload() {
-        // do not save current page to history because it is being reloaded
-        val wasIntegrateWithhistory = isIntegrateWithHistoryManager
-        isIntegrateWithHistoryManager = false
-
         // reload page to refresh if screen colour change
         val intent = intent
         finish()
         startActivity(intent)
-
-        isIntegrateWithHistoryManager = wasIntegrateWithhistory
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        if (readingsDto.isDateBasedPlan) {
+        if (::readingsDto.isInitialized && readingsDto.isDateBasedPlan) {
             menu.findItem(R.id.setCurrentDay).isVisible = false
             menu.findItem(R.id.setStartDate).isVisible = false
         }
@@ -359,17 +370,13 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             val monthSet = planStartDate.get(Calendar.MONTH)
             val daySet = planStartDate.get(Calendar.DAY_OF_MONTH)
 
-            val datePicker = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, year, month, day_ ->
+            val datePicker = DatePickerDialog(this, { _, year, month, day_ ->
                 planStartDate.set(year, month, day_)
                 readingPlanControl.setStartDate(readingsDto.readingPlanInfo, planStartDate.time)
 
-                // refetch readings for chosen day
-                readingsDto = readingPlanControl.getDaysReading(dayLoaded)
-
-                // update date and day no
-                binding.date.text = readingsDto.readingDateString
-                binding.day.text = readingsDto.dayDesc
+                loadDailyReading(planCodeLoaded, dayLoaded)
             }, yearSet, monthSet, daySet)
+
             datePicker.datePicker.maxDate = nowTime.timeInMillis
             datePicker.show()
 
@@ -390,8 +397,29 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         installZipLauncher.launch(intent)
     }
 
+    val selectReadingPlan = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        Log.d(TAG, "Returned from select reading plan")
+        result.data?.action?.let {
+            val planCode = it
+            Log.d(TAG, "Selected reading plan $planCode")
+
+            loadDailyReading(planCode, null)
+        }
+    }
+
+    val selectReadingDay = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        Log.d(TAG, "Returned from select reading plan day")
+        result.data?.action?.let {
+            val planDay = it.toInt()
+            Log.d(TAG, "Selected reading plan day #$planDay")
+
+            loadDailyReading(planCodeLoaded, planDay)
+        }
+    }
+
     val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         // TODO load imported plan if result is OK
+        //  still need to set up "InstallZip" to return reading plan fileName (code)
     }
 
     companion object {

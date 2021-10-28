@@ -15,7 +15,7 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
-  <AmbiguousSelection ref="ambiguousSelection"/>
+  <AmbiguousSelection do-not-close-modals ref="ambiguousSelection"/>
   <Modal @close="showNote = false" v-if="showNote" :locate-top="locateTop">
     <div class="scrollable" @click="ambiguousSelection.handle">
       <slot/>
