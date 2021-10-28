@@ -56,18 +56,18 @@ class WindowButtonGestureListener: GestureDetector.SimpleOnGestureListener() {
         val horizontal = Math.abs(e1.x - e2.x).toDouble()
 
         if (vertical > scaledMinimumDistance && Math.abs(velocityY) > minScaledVelocity) {
-            if (e1.y > e2.y) {
-                gesturePerformed = BibleFrame.GestureType.SWIPE_UP
+            gesturePerformed = if (e1.y > e2.y) {
+                BibleFrame.GestureType.SWIPE_UP
             } else {
-                gesturePerformed = BibleFrame.GestureType.SWIPE_DOWN
+                BibleFrame.GestureType.SWIPE_DOWN
             }
             return true
 
         } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
-            if (e1.x > e2.x) {
-                gesturePerformed = BibleFrame.GestureType.SWIPE_RIGHT
+            gesturePerformed = if (e1.x > e2.x) {
+                BibleFrame.GestureType.SWIPE_RIGHT
             } else {
-                gesturePerformed = BibleFrame.GestureType.SWIPE_LEFT
+                BibleFrame.GestureType.SWIPE_LEFT
             }
             return true
         }
@@ -180,7 +180,6 @@ class BibleFrame(
 
 
     private fun createWindowMenuButton(window: Window): WindowButtonWidget {
-
         val gestureListener = WindowButtonGestureListener()
         val gestureDetector = GestureDetectorCompat(allViews.context, gestureListener)
 
