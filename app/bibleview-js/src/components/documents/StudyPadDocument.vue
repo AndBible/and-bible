@@ -22,7 +22,7 @@
     </div>
     <div v-if="journalEntries.length === 0 && !exportMode">
       {{strings.emptyStudyPad}}
-      <span class="journal-button" @click="addNewEntry">
+      <span class="journal-button" v-if="!exportMode" @click="addNewEntry">
         <FontAwesomeIcon icon="plus-circle"/>
       </span>
     </div>
@@ -205,6 +205,7 @@ export default {
     }
 
     const labelNameStyle = computed(() => {
+      if(exportMode.value) return null;
       const color = adjustedColorOrig(label.style.color);
       const textColor = color.isLight() ? "var(--label-text-black)": "var(--label-text-white)";
       return `background-color: ${color.string()}; color: ${textColor};`;
@@ -223,14 +224,10 @@ export default {
     let exportCss;
     async function shareDocument() {
       if(!exportCss) {
-        exportCss = await import("!raw-loader!sass-loader!./export.scss");
-        //exportCss = await import("!raw-loader!sass-loader!css/app.css");
-        //exportCss = await import("!vue-loader!@/components/BibleView");
-        //exportCss = await import("!raw-loader!vue-style-loader!@/components/BibleView");
+        exportCss = (await import("!raw-loader!sass-loader!./export.scss")).default;
       }
       exportMode.value = true;
       await nextTick();
-
       const html = `<!DOCTYPE html><html><head><style>${exportCss}</style></head><body>${root.value.innerHTML}</body></html>`;
       exportMode.value = false;
       console.log({exportCss});

@@ -15,6 +15,43 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-body {
-  font-size: 200%;
+@import "~@/common.scss";
+
+div.journal-name {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 5px;
+  margin-bottom: 10px;
+  line-height: normal;
+  font-size: 180%;
+  border-radius: 10px;
+  margin-inline-start: 0px;
+  font-weight: bold;
+  position: relative;
+}
+
+.studypad-container {
+  @extend .note-container;
+  padding: 10px;
+}
+
+.bible-text {
+  margin-top: 2pt;
+  text-indent: 5pt;
+  margin-bottom: 2pt;
+  font-style: italic;
+}
+
+.notes {
+  text-indent: 2pt;
+  margin-top: 4pt;
+}
+.entry {
+  border-width: 2px;
+}
+
+a {
+  display: inline-block;
+  color: black;
+  pointer-events: none;
 }

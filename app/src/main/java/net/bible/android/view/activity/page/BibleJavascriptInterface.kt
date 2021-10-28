@@ -376,8 +376,8 @@ class BibleJavascriptInterface(
         val studypadName = (bibleView.firstDocument as StudyPadDocument).label.displayName
         val titleStr = mainBibleActivity.getString(R.string.export_fileformat, "HTML")
         val emailIntent = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_SUBJECT, titleStr)
-            putExtra(Intent.EXTRA_TEXT, studypadName)
+            putExtra(Intent.EXTRA_SUBJECT, studypadName)
+            putExtra(Intent.EXTRA_TEXT, titleStr)
             putExtra(Intent.EXTRA_STREAM, uri)
             type = "text/html"
         }

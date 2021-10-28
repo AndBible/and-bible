@@ -15,7 +15,7 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span :dir="fragment.direction" v-if="show" class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}<template v-if="exportMode">&nbsp;</template></span></template>
+<template><span :dir="fragment.direction" v-if="show" class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}<template v-if="exportMode">.&nbsp;</template></span></template>
 
 <script>
 import {useCommon} from "@/composables";
