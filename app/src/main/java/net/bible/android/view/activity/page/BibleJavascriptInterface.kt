@@ -48,6 +48,7 @@ import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibl
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
+import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
@@ -372,11 +373,11 @@ class BibleJavascriptInterface(
         val targetFile = File(targetDir, "shared.html")
         targetFile.writeText(html)
         val uri = FileProvider.getUriForFile(mainBibleActivity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
-
+        val studypadName = (bibleView.firstDocument as StudyPadDocument).label.displayName
         val titleStr = mainBibleActivity.getString(R.string.export_fileformat, "HTML")
         val emailIntent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_SUBJECT, titleStr)
-            putExtra(Intent.EXTRA_TEXT, titleStr)
+            putExtra(Intent.EXTRA_TEXT, studypadName)
             putExtra(Intent.EXTRA_STREAM, uri)
             type = "text/html"
         }
