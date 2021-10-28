@@ -118,7 +118,6 @@ class BibleFrame(
         val button =
             when {
                 isSingleWindow -> return
-//                window.isLinksWindow -> createCloseButton(window)
                 else -> createWindowMenuButton(window)
             }
 
@@ -138,13 +137,6 @@ class BibleFrame(
                 if (isSingleWindow) Gravity.BOTTOM or Gravity.END else Gravity.TOP or Gravity.END))
     }
 
-//    private fun createCloseButton(window: Window): WindowButtonWidget {
-//        val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="
-//        return createTextButton(text,
-//            { v, motionEvent -> windowControl.closeWindow(window); true},
-//            window
-//        )
-//    }
 
     private fun createWindowMenuButton(window: Window): WindowButtonWidget {
         var gesturePerformed = GestureType.UNSET
