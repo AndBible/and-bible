@@ -228,7 +228,15 @@ export default {
       }
       exportMode.value = true;
       await nextTick();
-      const html = `<!DOCTYPE html><html><head><style>${exportCss}</style></head><body>${root.value.innerHTML}</body></html>`;
+      const html = `
+         <!DOCTYPE html>
+         <html>
+           <head>
+             <meta charset="utf-8">
+             <style>${exportCss}</style>
+           </head>
+           <body>${root.value.innerHTML}</body>
+         </html>`;
       exportMode.value = false;
       console.log({exportCss});
       android.shareHtml(html);
