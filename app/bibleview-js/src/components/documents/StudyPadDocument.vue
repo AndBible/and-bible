@@ -19,7 +19,6 @@
   <div :class="{exportMode}" ref="root">
     <div class="journal-name" :style="labelNameStyle">
       {{ document.label.name }}
-      <FontAwesomeIcon icon="share-alt" @click="shareDocument" class="share-button"/>
     </div>
     <div v-if="journalEntries.length === 0 && !exportMode">
       {{strings.emptyStudyPad}}
@@ -233,10 +232,12 @@ export default {
       await nextTick();
 
       const html = `<!DOCTYPE html><html><head><style>${exportCss}</style></head><body>${root.value.innerHTML}</body></html>`;
-      //exportMode.value = false;
+      exportMode.value = false;
       console.log({exportCss});
       android.shareHtml(html);
     }
+
+    setupEventBusListener(Events.EXPORT_STUDYPAD, shareDocument)
 
     return {
       lastEntry, journalEntries, editNotes, adding, indentStyle, editableJournalEntry,  addNewEntry, appendNewEntry,

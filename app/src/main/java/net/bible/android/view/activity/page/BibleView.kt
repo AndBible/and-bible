@@ -1534,6 +1534,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return true
     }
 
+    fun exportStudyPad() {
+        executeJavascriptOnUiThread("bibleView.emit('export_studypad')")
+    }
+
     var onDestroy: (() -> Unit)? = null
 
     private val TAG get() = "BibleView[${windowRef.get()?.id}]"

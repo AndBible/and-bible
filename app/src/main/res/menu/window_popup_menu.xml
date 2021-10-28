@@ -38,6 +38,10 @@
 		android:icon="@drawable/ic_window_sync_24dp"
 		android:checkable="true"
 		android:checked="true"/>
+	<item android:id="@+id/exportStudyPad"
+		android:title=""
+		android:icon="@drawable/file_export"
+		/>
 	<item
 		android:id="@+id/textOptionsSubMenu"
 		android:icon="@drawable/ic_text_options_24dp"
