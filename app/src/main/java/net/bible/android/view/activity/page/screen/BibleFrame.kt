@@ -43,6 +43,47 @@ import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import javax.inject.Inject
 
+class WindowButtonGestureListener: GestureDetector.SimpleOnGestureListener() {
+    var gesturePerformed = BibleFrame.GestureType.UNSET
+
+    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        var minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
+        val scaledMinimumDistance = CommonUtils.convertDipsToPx(40)
+        minScaledVelocity = (minScaledVelocity * 0.66).toInt()
+
+        Log.d("WBGListener", "onFling")
+        val vertical = Math.abs(e1.y - e2.y).toDouble()
+        val horizontal = Math.abs(e1.x - e2.x).toDouble()
+
+        if (vertical > scaledMinimumDistance && Math.abs(velocityY) > minScaledVelocity) {
+            gesturePerformed = if (e1.y > e2.y) {
+                BibleFrame.GestureType.SWIPE_UP
+            } else {
+                BibleFrame.GestureType.SWIPE_DOWN
+            }
+            return true
+
+        } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
+            gesturePerformed = if (e1.x > e2.x) {
+                BibleFrame.GestureType.SWIPE_RIGHT
+            } else {
+                BibleFrame.GestureType.SWIPE_LEFT
+            }
+            return true
+        }
+        return super.onFling(e1, e2, velocityX, velocityY)
+    }
+
+    override fun onLongPress(e: MotionEvent?) {
+        gesturePerformed = BibleFrame.GestureType.LONG_PRESS
+    }
+
+    override fun onSingleTapUp(e: MotionEvent?): Boolean {
+        gesturePerformed = BibleFrame.GestureType.SINGLE_TAP
+        return true
+    }
+}
+
 @SuppressLint("ViewConstructor")
 class BibleFrame(
     val window: Window,
@@ -139,55 +180,18 @@ class BibleFrame(
 
 
     private fun createWindowMenuButton(window: Window): WindowButtonWidget {
-        var gesturePerformed = GestureType.UNSET
-        val scaledMinimumDistance = CommonUtils.convertDipsToPx(40)
-        var minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
-        minScaledVelocity = (minScaledVelocity * 0.66).toInt()
-
-        val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-                Log.d(TAG, "onFling")
-                val vertical = Math.abs(e1.y - e2.y).toDouble()
-                val horizontal = Math.abs(e1.x - e2.x).toDouble()
-
-                if (vertical > scaledMinimumDistance && Math.abs(velocityY) > minScaledVelocity) {
-                    if (e1.y > e2.y) {
-                        gesturePerformed = GestureType.SWIPE_UP
-                    } else {
-                        gesturePerformed = GestureType.SWIPE_DOWN
-                    }
-                    return true
-
-                } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
-                    if (e1.x > e2.x) {
-                        gesturePerformed = GestureType.SWIPE_RIGHT
-                    } else {
-                        gesturePerformed = GestureType.SWIPE_LEFT
-                    }
-                    return true
-                }
-                return super.onFling(e1, e2, velocityX, velocityY)
-            }
-
-            override fun onLongPress(e: MotionEvent?) {
-                gesturePerformed = GestureType.LONG_PRESS
-            }
-
-            override fun onSingleTapUp(e: MotionEvent?): Boolean {
-                gesturePerformed = GestureType.SINGLE_TAP
-                return true
-            }
-        }
+        val gestureListener = WindowButtonGestureListener()
         val gestureDetector = GestureDetectorCompat(allViews.context, gestureListener)
 
         val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="
         return createTextButton(text,
-            { v, motionEvent -> gestureDetector.onTouchEvent(motionEvent)
-                                if (gesturePerformed === GestureType.SINGLE_TAP && (motionEvent.getAction() == MotionEvent.ACTION_UP)) {allViews.showPopupMenu(window, v)}
-                                else if (gesturePerformed === GestureType.LONG_PRESS) {windowControl.minimiseWindow(window)}
-                                else if (gesturePerformed === GestureType.SWIPE_UP) {windowControl.maximiseWindow(window)}
-                                else if (gesturePerformed === GestureType.SWIPE_DOWN) {windowControl.minimiseWindow(window)}
-                                true; true },
+            { v, motionEvent ->
+                gestureDetector.onTouchEvent(motionEvent)
+                if (gestureListener.gesturePerformed === GestureType.SINGLE_TAP && (motionEvent.action == MotionEvent.ACTION_UP)) {allViews.showPopupMenu(window, v)}
+                else if (gestureListener.gesturePerformed === GestureType.LONG_PRESS) {windowControl.minimiseWindow(window)}
+                else if (gestureListener.gesturePerformed === GestureType.SWIPE_UP) {windowControl.maximiseWindow(window)}
+                else if (gestureListener.gesturePerformed === GestureType.SWIPE_DOWN) {windowControl.minimiseWindow(window)}
+                true },
             window
         )
     }
