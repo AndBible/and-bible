@@ -25,7 +25,7 @@
   <div class="menu" style="display: flex;">
     <ButtonRow>
       <div class="journal-button" @click="editBookmark">
-        <FontAwesomeIcon icon="bookmark"/>
+        <FontAwesomeIcon icon="info-circle"/>
       </div>
       <div v-if="!bookmark.notes" class="journal-button" @click="editor.editMode = true">
         <FontAwesomeIcon icon="edit"/>
