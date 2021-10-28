@@ -15,13 +15,13 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span :dir="fragment.direction" v-if="show" class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}</span></template>
+<template><span :dir="fragment.direction" v-if="show" class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}<template v-if="exportMode">.&nbsp;</template></span></template>
 
 <script>
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {BookCategories} from "@/constants";
-import {computed} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
 
 export default {
   name: "VerseNumber",
@@ -31,7 +31,8 @@ export default {
   setup() {
     const fragment = inject("osisFragment");
     const show = computed(() => fragment.bookCategory === BookCategories.BIBLE)
-    return {show, fragment, ...useCommon()};
+    const exportMode = inject("exportMode", ref(false));
+    return {show, fragment, exportMode, ...useCommon()};
   }
 }
 </script>

@@ -56,6 +56,7 @@ import net.bible.android.activity.databinding.SplitBibleAreaBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
@@ -651,7 +652,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             itemOptions.openDialog(mainBibleActivity, {onReady()}, onReady)
         }
     }
-
+    val app get() = BibleApplication.application
     @SuppressLint("RestrictedApi")
     internal fun showPopupMenu(window: Window, view: View) {
         // ensure actions affect the right window
@@ -679,6 +680,9 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
         val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
 
+        val export = menu.findItem(R.id.exportStudyPad)
+        export.title = app.getString(R.string.export_fileformat, "HTML")
+
         synchronized(BookName::class) {
             val oldValue = BookName.isFullBookName()
 
@@ -693,7 +697,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             windowList.forEach {
                 if (it.id != window.id) {
                     val p = it.pageManager.currentPage
-                    val moveWindowTitle = BibleApplication.application.getString(R.string.move_window_to_position2, count + 1, p.currentDocument?.abbreviation, p.key?.name)
+                    val moveWindowTitle = app.getString(R.string.move_window_to_position2, count + 1, p.currentDocument?.abbreviation, p.key?.name)
                     val moveWindowItem = moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, count, moveWindowTitle)
                     moveWindowItem.setIcon(if (thisIdx > count) R.drawable.ic_arrow_drop_up_grey_24dp else R.drawable.ic_arrow_drop_down_grey_24dp)
                 }
@@ -845,6 +849,11 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             R.id.copySettingsToWindow -> CommandPreference({_, _, _ ->
                 windowControl.copySettingsToWindow(window, order)
             })
+            R.id.exportStudyPad -> CommandPreference({_, _, _ ->
+                window.bibleView?.exportStudyPad()
+            },
+                visible = window.isVisible && window.bibleView?.firstDocument is StudyPadDocument
+            )
             else -> throw RuntimeException("Illegal menu item")
         }
     }

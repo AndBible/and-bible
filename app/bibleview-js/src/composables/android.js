@@ -317,7 +317,12 @@ export function useAndroid({bookmarks}, config) {
         android.setLimitAmbiguousModalSize(value);
     }
 
+    function shareHtml(value) {
+        android.shareHtml(value);
+    }
+
     const exposed = {
+        shareHtml,
         helpBookmarks,
         setLimitAmbiguousModalSize,
         setEditing,
