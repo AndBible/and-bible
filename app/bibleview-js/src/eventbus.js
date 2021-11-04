@@ -51,7 +51,7 @@ export const Events = {
     SCROLL_UP: "scroll_up",
     SCROLL_DOWN: "scroll_down",
     ADJUST_LOADING_COUNT: "adjust_loading_count",
-    EXPORT_STUDYPAD: "export_studypad",
+    EXPORT_HTML: "export_html",
 }
 
 export function setupEventBusListener(eventId, callback) {

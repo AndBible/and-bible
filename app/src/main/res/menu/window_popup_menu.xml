@@ -38,7 +38,7 @@
 		android:icon="@drawable/ic_window_sync_24dp"
 		android:checkable="true"
 		android:checked="true"/>
-	<item android:id="@+id/exportStudyPad"
+	<item android:id="@+id/exportHtml"
 		android:title=""
 		android:icon="@drawable/file_export"
 		/>

@@ -50,7 +50,7 @@ import {
   useConfig,
   useCustomCss,
   useCustomFeatures,
-  useFontAwesome, useModal,
+  useFontAwesome, useModal, useSharing,
   useVerseHighlight,
   useVerseNotifier
 } from "@/composables";
@@ -262,6 +262,8 @@ export default {
 
     setupEventBusListener(Events.SCROLL_DOWN, () => scrollUpDown());
     setupEventBusListener(Events.SCROLL_UP, () => scrollUpDown(true));
+
+    useSharing({topElement, android});
 
     return {
       direction: computed(() => appSettings.rightToLeft ? "rtl": "ltr"),

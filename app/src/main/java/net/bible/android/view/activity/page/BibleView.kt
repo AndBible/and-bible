@@ -1534,8 +1534,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return true
     }
 
-    fun exportStudyPad() {
-        executeJavascriptOnUiThread("bibleView.emit('export_studypad')")
+    fun exportHtml() {
+        executeJavascriptOnUiThread("bibleView.emit('export_html')")
     }
 
     var onDestroy: (() -> Unit)? = null

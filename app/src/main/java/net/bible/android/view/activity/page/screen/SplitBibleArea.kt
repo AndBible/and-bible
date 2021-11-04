@@ -680,7 +680,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
         val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
 
-        val export = menu.findItem(R.id.exportStudyPad)
+        val export = menu.findItem(R.id.exportHtml)
         export.title = app.getString(R.string.export_fileformat, "HTML")
 
         synchronized(BookName::class) {
@@ -849,8 +849,8 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             R.id.copySettingsToWindow -> CommandPreference({_, _, _ ->
                 windowControl.copySettingsToWindow(window, order)
             })
-            R.id.exportStudyPad -> CommandPreference({_, _, _ ->
-                window.bibleView?.exportStudyPad()
+            R.id.exportHtml -> CommandPreference({ _, _, _ ->
+                window.bibleView?.exportHtml()
             },
                 visible = window.isVisible && window.bibleView?.firstDocument is StudyPadDocument
             )
