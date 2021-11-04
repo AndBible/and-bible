@@ -56,6 +56,7 @@ import net.bible.android.activity.databinding.SplitBibleAreaBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -783,7 +784,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         )
 
         val isMaximised = windowRepository.isMaximized
-
+        val firstDoc = window.bibleView?.firstDocument
         return when(itemId) {
 
             R.id.windowNew -> CommandPreference(
@@ -852,7 +853,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             R.id.exportHtml -> CommandPreference({ _, _, _ ->
                 window.bibleView?.exportHtml()
             },
-                visible = window.isVisible && window.bibleView?.firstDocument is StudyPadDocument
+                visible = window.isVisible && ((firstDoc is StudyPadDocument) || (firstDoc is MultiFragmentDocument))
             )
             else -> throw RuntimeException("Illegal menu item")
         }

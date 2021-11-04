@@ -36,6 +36,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
@@ -373,10 +374,15 @@ class BibleJavascriptInterface(
         val targetFile = File(targetDir, "shared.html")
         targetFile.writeText(html)
         val uri = FileProvider.getUriForFile(mainBibleActivity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
-        val studypadName = (bibleView.firstDocument as StudyPadDocument).label.displayName
+
+        val docName = when(val firstDoc = bibleView.firstDocument) {
+            is StudyPadDocument -> firstDoc.label.displayName
+            is MultiFragmentDocument -> mainBibleActivity.getString(R.string.multi_description)
+            else -> throw RuntimeException("Illegal doc type")
+        }
         val titleStr = mainBibleActivity.getString(R.string.export_fileformat, "HTML")
         val emailIntent = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_SUBJECT, studypadName)
+            putExtra(Intent.EXTRA_SUBJECT, docName)
             putExtra(Intent.EXTRA_TEXT, titleStr)
             putExtra(Intent.EXTRA_STREAM, uri)
             type = "text/html"
