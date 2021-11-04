@@ -162,7 +162,7 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.searchButton -> {
                     if(currentPage.isSearchable) {
-                        handlerIntent = searchControl.getSearchIntent(currentPage.currentDocument)
+                        handlerIntent = searchControl.getSearchIntent(currentPage.currentDocument, callingActivity)
                     }
                 }
                 R.id.settingsButton -> {

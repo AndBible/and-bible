@@ -612,7 +612,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 startActivity(intent)
                 true
             }
-            searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), STD_REQUEST_CODE) }
+            searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument, this@MainBibleActivity), STD_REQUEST_CODE) }
         }
     }
 
@@ -1235,7 +1235,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (bibleKeyHandler.onKeyUp(keyCode, event)) {
             return true
         } else if (keyCode == KeyEvent.KEYCODE_SEARCH && windowControl.activeWindowPageManager.currentPage.isSearchable) {
-            val intent = searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument)
+            val intent = searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, this)
             startActivityForResult(intent, STD_REQUEST_CODE)
             return true
         }

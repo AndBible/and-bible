@@ -65,16 +65,15 @@ class SearchControl @Inject constructor(
      *
      * @return required Intent
      */
-    fun getSearchIntent(document: Book?): Intent {
+    fun getSearchIntent(document: Book?, activity: Activity): Intent {
         val indexStatus = document?.indexStatus
         Log.d(TAG, "Index status:$indexStatus")
-        val currentActivity: Activity = CurrentActivityHolder.getInstance().currentActivity
         return if (indexStatus == IndexStatus.DONE) {
             Log.d(TAG, "Index status is DONE")
-            Intent(currentActivity, Search::class.java)
+            Intent(activity, Search::class.java)
         } else {
             Log.d(TAG, "Index status is NOT DONE")
-            Intent(currentActivity, SearchIndex::class.java)
+            Intent(activity, SearchIndex::class.java)
         }
     }
 
