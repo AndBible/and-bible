@@ -42,7 +42,6 @@ class BibleViewFactory @Inject constructor(
     private val pageControl: PageControl,
     private val pageTiltScrollControlFactory: PageTiltScrollControlFactory,
     private val windowControl: WindowControl,
-    private val bibleKeyHandler: BibleKeyHandler,
     private val linkControl: LinkControl,
     private val bookmarkControl: BookmarkControl,
     private val downloadControl: DownloadControl,
@@ -63,7 +62,7 @@ class BibleViewFactory @Inject constructor(
 
         if (bibleView == null) {
             val pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window)
-            bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler,
+            bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl,
                 pageControl, pageTiltScrollControl, linkControl, bookmarkControl, downloadControl)
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
             Log.d(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")//  ${Log.getStackTraceString(Exception())}")

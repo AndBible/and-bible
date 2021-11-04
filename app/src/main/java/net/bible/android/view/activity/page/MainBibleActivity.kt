@@ -146,7 +146,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     // handle requests from main menu
     @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
-    @Inject lateinit var bibleKeyHandler: BibleKeyHandler
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var documentControl: DocumentControl
     @Inject lateinit var navigationControl: NavigationControl
@@ -1232,9 +1231,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         Log.d(TAG, "Keycode:$keyCode")
         // common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
-        if (bibleKeyHandler.onKeyUp(keyCode, event)) {
-            return true
-        } else if (keyCode == KeyEvent.KEYCODE_SEARCH && windowControl.activeWindowPageManager.currentPage.isSearchable) {
+        //if (bibleKeyHandler.onKeyUp(keyCode, event)) {
+        //    return true
+        if (keyCode == KeyEvent.KEYCODE_SEARCH && windowControl.activeWindowPageManager.currentPage.isSearchable) {
             val intent = searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, this)
             startActivityForResult(intent, STD_REQUEST_CODE)
             return true
