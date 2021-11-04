@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <a class="reference" :class="{clicked, isHighlighted}" @click.prevent="openLink($event, link)" :href="link" ref="content"><slot/></a>
+  <a class="reference" :class="{clicked, isHighlighted}" @click.prevent="openLink($event, link)" :href="link" ref="content"><slot ref="slot"/><template v-if="slotEmpty">{{osisRef}}&nbsp;</template></a>
 </template>
 
 <script>
@@ -42,6 +42,11 @@ export default {
     const referenceCollector = inject("referenceCollector", null);
     const content = ref(null);
     const osisFragment = inject("osisFragment");
+    const slot = ref(null);
+    const slotEmpty = computed(() => {
+      if(slot.value === null) return true;
+      return slot.value.innerText.trim() === "";
+    });
 
     const osisRef = computed(() => {
       if((!props.osisRef && !props.target) && content.value) {
@@ -78,7 +83,7 @@ export default {
         addCustom(() => isHighlighted.value = false);
       }, {title: strings.referenceLink, priority: EventPriorities.REFERENCE});
     }
-    return {openLink, clicked, isHighlighted, content, link, ...common};
+    return {openLink, clicked, isHighlighted, content, link, slot, slotEmpty, ...common};
   },
 }
 
