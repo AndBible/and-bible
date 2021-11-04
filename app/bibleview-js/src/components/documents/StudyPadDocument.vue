@@ -238,7 +238,6 @@ export default {
            <body>${root.value.innerHTML}</body>
          </html>`;
       exportMode.value = false;
-      console.log({exportCss});
       android.shareHtml(html);
     }
 
