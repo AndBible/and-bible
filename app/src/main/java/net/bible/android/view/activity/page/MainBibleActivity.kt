@@ -34,6 +34,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.ContextMenu
 import android.view.GestureDetector
+import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -1367,6 +1368,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     windowControl.activeWindow.bibleView?.volumeUpPressed()?: false
                 else -> super.onKeyDown(keyCode, event)
             }
+        }
+
+        if(keyCode == KeyEvent.KEYCODE_BACK && (event.source and InputDevice.SOURCE_KEYBOARD) != 0) {
+            return true
         }
 
         return super.onKeyDown(keyCode, event)
