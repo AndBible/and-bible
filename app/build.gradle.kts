@@ -170,6 +170,18 @@ android {
             dimension = dimAppearance
         }
 
+        create("samsung") {
+            dimension = dimAppearance
+        }
+
+        create("huawei") {
+            dimension = dimAppearance
+        }
+
+        create("amazon") {
+            dimension = dimAppearance
+        }
+
         create("github") {
             dimension = dimAppearance
         }
