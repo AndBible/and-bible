@@ -378,6 +378,7 @@ class BibleJavascriptInterface(
         val docName = when(val firstDoc = bibleView.firstDocument) {
             is StudyPadDocument -> firstDoc.label.displayName
             is MultiFragmentDocument -> mainBibleActivity.getString(R.string.multi_description)
+            is MyNotesDocument -> mainBibleActivity.getString(R.string.my_notes_abbreviation)
             else -> throw RuntimeException("Illegal doc type")
         }
         val titleStr = mainBibleActivity.getString(R.string.export_fileformat, "HTML")

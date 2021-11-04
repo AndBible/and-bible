@@ -57,6 +57,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.MultiFragmentDocument
+import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -853,7 +854,11 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             R.id.exportHtml -> CommandPreference({ _, _, _ ->
                 window.bibleView?.exportHtml()
             },
-                visible = window.isVisible && ((firstDoc is StudyPadDocument) || (firstDoc is MultiFragmentDocument))
+                visible = window.isVisible && (
+                    firstDoc is StudyPadDocument ||
+                    firstDoc is MultiFragmentDocument  ||
+                    firstDoc is MyNotesDocument
+                )
             )
             else -> throw RuntimeException("Illegal menu item")
         }
