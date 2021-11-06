@@ -1370,7 +1370,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
         }
 
-        if(keyCode == KeyEvent.KEYCODE_BACK && (event.source and InputDevice.SOURCE_KEYBOARD) != 0) {
+        if(keyCode == KeyEvent.KEYCODE_BACK && (event.source and InputDevice.SOURCE_KEYBOARD) != 0 && event.deviceId > 0) {
             return true
         }
 
