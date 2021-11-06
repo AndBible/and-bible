@@ -129,6 +129,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    dexOptions {
+        preDexLibraries = false
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
