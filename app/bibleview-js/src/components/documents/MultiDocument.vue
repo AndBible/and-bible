@@ -24,7 +24,7 @@
           <template v-if="document.compare">{{fragment.bookAbbreviation}}</template>
           <template v-else>{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookAbbreviation )}}</template>
         </a>
-        <div v-if="document.compare" class="hide-button" @click="android.toggleCompareDocument(fragment.bookInitials)">
+        <div v-if="document.compare && !exportMode" class="hide-button" @click="android.toggleCompareDocument(fragment.bookInitials)">
           <FontAwesomeIcon icon="eye-slash"/>
         </div>
       </div>
@@ -33,7 +33,7 @@
     <FeaturesLink :fragment="fragment"/>
     <div v-if="index < filteredOsisFragments.length - 1" class="separator"/>
   </div>
-  <div class="restore" v-if="document.compare && hiddenOsisFragments.length > 0">
+  <div class="restore" v-if="document.compare && hiddenOsisFragments.length > 0 && !exportMode">
     <div class="separator"/>
     <div class="flex2">
       <div class="restore-button">
@@ -50,7 +50,7 @@
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment";
 import {inject} from "@vue/runtime-core";
-import {computed} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import FeaturesLink from "@/components/FeaturesLink";
 import {BookCategories} from "@/constants";
@@ -64,7 +64,7 @@ export default {
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure
     const {osisFragments} = props.document;
-
+    const exportMode = inject("exportMode", ref(false));
     const appSettings = inject("appSettings");
 
     const filteredOsisFragments = computed(() => {
@@ -84,7 +84,7 @@ export default {
       return `osis://?osis=${osis}&v11n=${frag.v11n}`
     }
 
-    return {hiddenOsisFragments, filteredOsisFragments, osisFragments, link, ...useCommon()}
+    return {hiddenOsisFragments, filteredOsisFragments, osisFragments, link, exportMode, ...useCommon()}
   }
 }
 </script>
