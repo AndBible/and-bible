@@ -272,9 +272,9 @@ export default {
   right: 5px;
   bottom: $pell-button-height;
   padding-inline-end: 3pt;
-  color: hsla(112, 100%, 33%, 0.8);
+  color: hsla(112, 40%, 33%, 0.8);
   .night & {
-    color: hsla(112, 100%, 33%, 0.5);
+    color: hsla(112, 40%, 33%, 0.5);
   }
   opacity: 0.8;
   font-size: 10px;
