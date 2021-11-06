@@ -274,7 +274,7 @@ export default {
   padding-inline-end: 3pt;
   color: hsla(112, 40%, 33%, 0.8);
   .night & {
-    color: hsla(112, 40%, 33%, 0.5);
+    color: hsla(112, 40%, 33%, 0.8);
   }
   opacity: 0.8;
   font-size: 10px;
