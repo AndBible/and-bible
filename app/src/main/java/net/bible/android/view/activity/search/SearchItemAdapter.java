@@ -19,6 +19,10 @@
 package net.bible.android.view.activity.search;
 
 import android.content.Context;
+import android.graphics.Typeface;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +34,9 @@ import net.bible.android.control.search.SearchControl;
 import org.crosswire.jsword.passage.Key;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -70,9 +77,34 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		// set value for the second text field
 		if (view.getText2() != null) {
 			String verseText = searchControl.getSearchResultVerseText(item);
-			view.getText2().setText(verseText);
+			SpannableString verseTextHtml = highlightSearchText(verseText, SearchControl.originalSearchString);
+			view.getText2().setText(verseTextHtml);
 		}
 
 		return view;
+	}
+	private SpannableString highlightSearchText(String text, String searchTerms) {
+		SpannableString spannableText = new SpannableString(text);
+		try {
+			String[] splitSearchArray = searchTerms.split("\\s+");
+			for (String searchWord : splitSearchArray) {
+				searchWord = searchWord.replace("+", "");
+				if (Objects.equals(searchWord.substring(searchWord.length() - 1), "*")) {
+					searchWord = searchWord.replace("*", "");
+				} else {
+					searchWord = searchWord.replace("*", "\b");  // Match on a word boundary
+				}
+				Matcher m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText);
+				while (m.find()) {
+					spannableText.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), m.start(), m.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				}
+			}
+		}
+		catch (Exception e) {
+			Log.w("SEARCH", e.getMessage());
+		}
+		finally {
+			return spannableText;
+		}
 	}
 }

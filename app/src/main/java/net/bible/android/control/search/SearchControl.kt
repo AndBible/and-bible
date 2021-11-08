@@ -56,6 +56,7 @@ class SearchControl @Inject constructor(
     )
 {
     private val isSearchShowingScripture = true
+//    public final var originalSearchString = ""
 
     enum class SearchBibleSection {
         OT, NT, CURRENT_BOOK, ALL
@@ -106,6 +107,7 @@ class SearchControl @Inject constructor(
 
         // add search type (all/any/phrase) to search string
         decorated = searchType.decorate(cleanSearchString)
+        originalSearchString = decorated
 
         // add bible section limitation to search text
         decorated = getBibleSectionTerm(bibleSection, currentBookName) + " " + decorated
@@ -230,6 +232,7 @@ class SearchControl @Inject constructor(
         get() = isSearchShowingScripture || !currentDocumentContainsNonScripture()
 
     companion object {
+        lateinit var originalSearchString: String
         private const val SEARCH_OLD_TESTAMENT = "+[Gen-Mal]"
         private const val SEARCH_NEW_TESTAMENT = "+[Mat-Rev]"
         const val SEARCH_TEXT = "SearchText"
