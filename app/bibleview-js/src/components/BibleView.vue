@@ -73,6 +73,7 @@ export default {
   name: "BibleView",
   components: {Document, ErrorBox, BookmarkModal, DevelopmentMode},
   setup() {
+    console.log("BibleView setup");
     useAddonFonts();
     useFontAwesome();
     const documents = reactive([]);
@@ -110,7 +111,11 @@ export default {
     const {closeModals} = modal;
 
     const mounted = ref(false);
-    onMounted(() => mounted.value = true)
+    
+    onMounted(() => {
+      mounted.value = true;
+      console.log("BibleView mounted");
+    })
     onUnmounted(() => mounted.value = false)
 
     const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll);
