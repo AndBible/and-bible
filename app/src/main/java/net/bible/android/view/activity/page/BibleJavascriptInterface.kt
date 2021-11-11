@@ -401,6 +401,7 @@ class BibleJavascriptInterface(
             "AltArrowRight" -> windowControl.focusNextWindow()
             "AltArrowUp" -> windowControl.focusPreviousWindow()
             "AltArrowLeft" -> windowControl.focusPreviousWindow()
+            "AltKeyW" -> mainBibleActivity.documentViewManager.splitBibleArea?.binding?.restoreButtons?.requestFocus()
         }
     }
 

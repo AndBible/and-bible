@@ -133,7 +133,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
     private var buttonsVisible = true
 
-    private val binding = SplitBibleAreaBinding.inflate(
+    val binding = SplitBibleAreaBinding.inflate(
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater,
         this, true
     )

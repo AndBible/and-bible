@@ -133,7 +133,7 @@ import kotlin.system.exitProcess
  */
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
-    private lateinit var binding: MainBibleViewBinding
+    lateinit var binding: MainBibleViewBinding
 
     private var mWholeAppWasInBackground = false
 

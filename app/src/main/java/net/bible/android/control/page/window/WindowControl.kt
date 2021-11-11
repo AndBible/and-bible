@@ -77,6 +77,7 @@ open class WindowControl @Inject constructor(
         get() = windowRepository.activeWindow
         set(currentActiveWindow) {
             windowRepository.activeWindow = currentActiveWindow
+            windowRepository.activeWindow.bibleView?.requestFocus()
         }
 
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
@@ -382,13 +383,11 @@ open class WindowControl @Inject constructor(
     fun focusNextWindow() {
         val pos = windowRepository.visibleWindows.indexOf(activeWindow)
         activeWindow = windowRepository.visibleWindows[(pos + 1) % windowRepository.visibleWindows.size]
-        activeWindow.bibleView?.requestFocus()
     }
 
     fun focusPreviousWindow() {
         val pos = windowRepository.visibleWindows.indexOf(activeWindow)
         activeWindow = windowRepository.visibleWindows[(pos - 1) % windowRepository.visibleWindows.size]
-        activeWindow.bibleView?.requestFocus()
     }
 
     companion object {
