@@ -1537,6 +1537,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("bibleView.emit('export_html')")
     }
 
+    override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
+        if(focused && windowRepository.activeWindow.id != window.id) {
+            windowRepository.activeWindow = window
+        }
+        super.onFocusChanged(focused, direction, previouslyFocusedRect)
+    }
+
     var onDestroy: (() -> Unit)? = null
 
     private val TAG get() = "BibleView[${windowRef.get()?.id}]"
