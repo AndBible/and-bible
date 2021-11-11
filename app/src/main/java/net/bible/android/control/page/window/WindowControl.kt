@@ -387,7 +387,8 @@ open class WindowControl @Inject constructor(
 
     fun focusPreviousWindow() {
         val pos = windowRepository.visibleWindows.indexOf(activeWindow)
-        activeWindow = windowRepository.visibleWindows[(pos - 1) % windowRepository.visibleWindows.size]
+        val s = windowRepository.visibleWindows.size
+        activeWindow = windowRepository.visibleWindows[(pos - 1 + s) % s]
     }
 
     companion object {
