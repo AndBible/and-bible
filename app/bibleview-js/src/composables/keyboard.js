@@ -17,7 +17,7 @@
 
 import {setupDocumentEventListener} from "@/utils";
 
-const altKeys = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW"]);
+const altKeys = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyM", "KeyO"]);
 const keys = new Set([]);
 
 export function useKeyboard({onKeyDown}) {

@@ -1371,6 +1371,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         if(keyCode == KeyEvent.KEYCODE_BACK && (event.source and InputDevice.SOURCE_KEYBOARD) != 0 && event.deviceId > 0) {
+            if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
+                binding.drawerLayout.closeDrawers()
+            }
             return true
         }
 
