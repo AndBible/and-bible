@@ -158,7 +158,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             val playUrl = "https://play.google.com/store/apps/details?id=${info.packageName}"
             val playLink = "<a href=\"$playUrl\">${getString(R.string.play)}</a>"
 
-            val msg = getString(R.string.old_webview, info?.versionName, minimumVersion.toString(), getString(R.string.app_name_medium), playLink)
+            val msg = getString(R.string.old_webview, info.versionName, minimumVersion.toString(), getString(R.string.app_name_medium), playLink)
 
             val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 Html.fromHtml(msg, Html.FROM_HTML_MODE_LEGACY)
