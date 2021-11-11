@@ -96,7 +96,7 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
         resetView(this.currentSettings)
         ABEventBus.getDefault().register(this)
 
-        Log.d(TAG, "Finished displaying Speak view")
+        Log.i(TAG, "Finished displaying Speak view")
     }
 
     override val sleepTimer: CheckBox get() = binding.sleepTimer

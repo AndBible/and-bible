@@ -133,7 +133,7 @@ class Separator(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
-                Log.d(TAG, " y:" + event.rawY)
+                Log.i(TAG, " y:" + event.rawY)
                 touchOwner.setTouchOwner(this)
                 windowControl.isSeparatorMoving = true
                 setBackgroundResource(dragResource)
@@ -147,11 +147,11 @@ class Separator(
                 startWeight2 = view2LayoutParams.weight
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                Log.d(TAG, "Up x:" + event.x + " y:" + event.y)
+                Log.i(TAG, "Up x:" + event.x + " y:" + event.y)
                 release()
             }
             MotionEvent.ACTION_MOVE -> if (System.currentTimeMillis() > lastTouchMoveEvent + DRAG_TOUCH_MOVE_FREQUENCY_MILLIS) {
-                Log.d(TAG, "Touch move accepted")
+                Log.i(TAG, "Touch move accepted")
                 val parentDimensionPx = parentDimensionPx
 
                 // calculate y offset in pixels from top of parent layout
@@ -173,7 +173,7 @@ class Separator(
                     lastOffsetFromEdgePx = offsetFromEdgePx.toInt()
                 }
                 lastTouchMoveEvent = System.currentTimeMillis()
-                Log.d(TAG, "Touch move finished")
+                Log.i(TAG, "Touch move finished")
             }
         }
 

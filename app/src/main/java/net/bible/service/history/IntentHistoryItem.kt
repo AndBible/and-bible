@@ -54,7 +54,7 @@ class IntentHistoryItem(
     }
 
     override fun revertTo() {
-        Log.d(TAG, "Revert to history item:$description")
+        Log.i(TAG, "Revert to history item:$description")
         // need to get current activity and call startActivity on that
         val currentActivity = CurrentActivityHolder.getInstance().currentActivity
 

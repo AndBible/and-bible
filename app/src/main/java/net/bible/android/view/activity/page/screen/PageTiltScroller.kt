@@ -52,7 +52,7 @@ class PageTiltScroller(
      */
     fun enableTiltScroll(enable: Boolean) {
         if (pageTiltScrollControl.enableTiltScroll(enable)) {
-            Log.d(TAG, "enableTiltScroll $enable")
+            Log.i(TAG, "enableTiltScroll $enable")
             if (enable) {
                 recalculateViewingPosition()
                 kickOffScrollThread()
@@ -102,7 +102,7 @@ class PageTiltScroller(
         }
 
         override fun run() {
-            Log.d(TAG, "Tilt-Scroll loop starting")
+            Log.i(TAG, "Tilt-Scroll loop starting")
             while (isContinue) {
                 try {
                     val tiltScrollInfo = pageTiltScrollControl.tiltScrollInfo
@@ -128,7 +128,7 @@ class PageTiltScroller(
                 }
 
             }
-            Log.d(TAG, "Tilt-Scroll loop exiting")
+            Log.i(TAG, "Tilt-Scroll loop exiting")
         }
     }
 

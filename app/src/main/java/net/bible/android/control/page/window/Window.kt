@@ -162,11 +162,11 @@ open class Window (
     fun updateText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible
 
-        Log.d(TAG, "updateText, isVisible: $isVisible")
+        Log.i(TAG, "updateText, isVisible: $isVisible")
 
         if(!isVisible) return
 
-        Log.d(TAG, "Loading OSIS xml in background")
+        Log.i(TAG, "Loading OSIS xml in background")
         var verse: Verse? = null
         var anchorOrdinal: Int? = null
         val currentPage = pageManager.currentPage
@@ -178,7 +178,7 @@ open class Window (
         }
         displayedBook = currentPage.currentDocument
         displayedKey = currentPage.key
-        Log.d(TAG, "updateText ${this.hashCode()}") // ${Log.getStackTraceString(Exception())}")
+        Log.i(TAG, "updateText ${this.hashCode()}") // ${Log.getStackTraceString(Exception())}")
 
         GlobalScope.launch(Dispatchers.IO) {
             if (notifyLocationChange) {
@@ -236,7 +236,7 @@ open class Window (
         val currentPage = pageManager.currentPage
         return@withContext try {
             val document = currentPage.currentDocument
-            Log.d(TAG, "Loading document:$document key:${currentPage.key}")
+            Log.i(TAG, "Loading document:$document key:${currentPage.key}")
             currentPage.currentPageContent
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)

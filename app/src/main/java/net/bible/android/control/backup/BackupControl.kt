@@ -94,7 +94,7 @@ object BackupControl {
         hourglass.dismiss()
         withContext(Dispatchers.Main) {
             if (ok) {
-                Log.d(TAG, "Copied database to chosen backup location successfully")
+                Log.i(TAG, "Copied database to chosen backup location successfully")
                 Dialogs.instance.showMsg2(activity, R.string.backup_success2)
             } else {
                 Log.e(TAG, "Error copying database to chosen location.")
@@ -149,7 +149,7 @@ object BackupControl {
                 out.close()
                 val sqlDb = SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY)
                 if (sqlDb.version <= DATABASE_VERSION) {
-                    Log.d(TAG, "Loading from backup database with version ${sqlDb.version}")
+                    Log.i(TAG, "Loading from backup database with version ${sqlDb.version}")
                     DatabaseContainer.reset()
                     BibleApplication.application.deleteDatabase(DATABASE_NAME)
                     ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
@@ -354,7 +354,7 @@ object BackupControl {
         }
         hourglass.dismiss()
         if (ok) {
-            Log.d(TAG, "Copied modules to chosen backup location successfully")
+            Log.i(TAG, "Copied modules to chosen backup location successfully")
             Dialogs.instance.showMsg(R.string.backup_modules_success)
         } else {
             Log.e(TAG, "Error copying modules to chosen location.")
@@ -482,7 +482,7 @@ object BackupControl {
                     activity.contentResolver.openInputStream(result.resultData.data!!)
                 } catch (e: FileNotFoundException) {null}
                 if (inputStream != null && restoreDatabaseViaIntent(inputStream)) {
-                    Log.d(TAG, "Restored database successfully")
+                    Log.i(TAG, "Restored database successfully")
                     withContext(Dispatchers.Main) {
                         _mainBibleActivity?.afterRestore()
                     }

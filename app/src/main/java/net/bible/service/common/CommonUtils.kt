@@ -269,7 +269,7 @@ object CommonUtils : CommonUtilsBase() {
         get() {
             val bytesAvailable = getFreeSpace(Environment.getExternalStorageDirectory().path)
             val megAvailable = bytesAvailable / 1048576
-            Log.d(TAG, "Megs available on internal memory :$megAvailable")
+            Log.i(TAG, "Megs available on internal memory :$megAvailable")
             return megAvailable
         }
 
@@ -347,7 +347,7 @@ object CommonUtils : CommonUtilsBase() {
     fun getFreeSpace(path: String): Long {
         val stat = StatFs(path)
         val bytesAvailable = stat.blockSize.toLong() * stat.availableBlocks.toLong()
-        Log.d(TAG, "Free space :$bytesAvailable")
+        Log.i(TAG, "Free space :$bytesAvailable")
         return bytesAvailable
     }
 
@@ -384,7 +384,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun deleteDirectory(path: File): Boolean {
-        Log.d(TAG, "Deleting directory:" + path.absolutePath)
+        Log.i(TAG, "Deleting directory:" + path.absolutePath)
         if (path.exists()) {
             if (path.isDirectory) {
                 val files = path.listFiles()
@@ -393,7 +393,7 @@ object CommonUtils : CommonUtilsBase() {
                         deleteDirectory(files[i])
                     } else {
                         files[i].delete()
-                        Log.d(TAG, "Deleted " + files[i])
+                        Log.i(TAG, "Deleted " + files[i])
                     }
                 }
             }
@@ -1113,7 +1113,7 @@ object CommonUtils : CommonUtilsBase() {
         val languageTag = Locale.getDefault().toLanguageTag()
         val languageCode = Locale.getDefault().language
 
-        Log.d(TAG, "Language tag $languageTag, code $languageCode")
+        Log.i(TAG, "Language tag $languageTag, code $languageCode")
 
         val goodLanguages = listOf(
             "en", "af", "my", "eo", "fi", "fr", "de", "hi", "hu", "it", "lt", "pl", "ru", "sl", "es", "uk", "zh-Hant-TW", "kk", "pt",

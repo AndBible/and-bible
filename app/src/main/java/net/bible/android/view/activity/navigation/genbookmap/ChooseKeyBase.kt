@@ -61,7 +61,7 @@ abstract class ChooseKeyBase : ListActivityBase() {
         if (currentKey != null && mKeyList.contains(currentKey)) {
             setSelection(mKeyList.indexOf(currentKey))
         }
-        Log.d(TAG, "Finished displaying Search view")
+        Log.i(TAG, "Finished displaying Search view")
     }
 
     /**
@@ -69,7 +69,7 @@ abstract class ChooseKeyBase : ListActivityBase() {
      * @return
      */
     protected fun prepareList() {
-        Log.d(TAG, "Getting book keys")
+        Log.i(TAG, "Getting book keys")
         mKeyList.clear()
         try {
             for (key in keyList ?: emptyList()) {
@@ -93,7 +93,7 @@ abstract class ChooseKeyBase : ListActivityBase() {
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "Activity result:$resultCode")
+        Log.i(TAG, "Activity result:$resultCode")
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == FINISHED) {
             Log.i(TAG, "Leaf key selected so finish")

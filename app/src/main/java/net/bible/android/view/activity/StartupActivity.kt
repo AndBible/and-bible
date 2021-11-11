@@ -131,7 +131,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private fun checkForExternalStorage(): Boolean {
         var abortErrorMsgId = 0
         val state = Environment.getExternalStorageState()
-        Log.d(TAG, "External storage state is $state")
+        Log.i(TAG, "External storage state is $state")
 
         if (Environment.MEDIA_MOUNTED != state) {
             abortErrorMsgId = R.string.no_sdcard_error
@@ -241,7 +241,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             downloadButton.setOnClickListener { doGotoDownloadActivity() }
             importButton.setOnClickListener { onLoadFromZip() }
             if (previousInstallDetected) {
-                Log.d(TAG, "A previous install was detected")
+                Log.i(TAG, "A previous install was detected")
                 redownloadMessage.visibility = View.VISIBLE
                 redownloadButton.visibility = View.VISIBLE
                 redownloadButton.setOnClickListener {
@@ -255,7 +255,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     }
                 }
             } else {
-                Log.d(TAG, "Showing restore button because nothing to redownload")
+                Log.i(TAG, "Showing restore button because nothing to redownload")
                 restoreDatabaseButton.visibility = View.VISIBLE
                 restoreDatabaseButton.setOnClickListener {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
@@ -325,7 +325,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
      * on return from bible just exit
      */
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "Activity result:$resultCode")
+        Log.i(TAG, "Activity result:$resultCode")
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == DOWNLOAD_DOCUMENT_REQUEST) {
@@ -354,7 +354,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                         hourglass.show()
                         val inputStream = contentResolver.openInputStream(data!!.data!!)
                         if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {
-                            Log.d(TAG, "Restored database successfully")
+                            Log.i(TAG, "Restored database successfully")
 
                             withContext(Dispatchers.Main) {
                                 Dialogs.instance.showMsg(R.string.restore_success)

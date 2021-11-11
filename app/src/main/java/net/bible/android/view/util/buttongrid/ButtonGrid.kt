@@ -233,7 +233,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
         try {
             val preview = previewText ?: return
             if (buttonInfo != currentPreview) {
-                Log.d(TAG, "Previewing " + buttonInfo.description)
+                Log.i(TAG, "Previewing " + buttonInfo.description)
 
                 currentPreview = buttonInfo
                 preview.text = buttonInfo.description

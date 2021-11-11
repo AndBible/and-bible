@@ -65,7 +65,7 @@ class DailyReadingList : ListActivityBase() {
         listView.isFastScrollEnabled = true
 
         isIntegrateWithHistoryManager = false
-        Log.d(TAG, "Finished displaying Search view")
+        Log.i(TAG, "Finished displaying Search view")
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
@@ -79,7 +79,7 @@ class DailyReadingList : ListActivityBase() {
     }
 
     private fun itemSelected(oneDaysReadingsDto: OneDaysReadingsDto) {
-        Log.d(TAG, "Day selected:$oneDaysReadingsDto")
+        Log.i(TAG, "Day selected:$oneDaysReadingsDto")
         try {
             setResult(RESULT_OK, Intent(oneDaysReadingsDto.day.toString()))
             finish()

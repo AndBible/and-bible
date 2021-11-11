@@ -109,7 +109,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
 
     override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {
         this.settings = speakSettingsChangedEvent.speakSettings
-        Log.d(TAG, "SpeakSettings updated: $speakSettingsChangedEvent")
+        Log.i(TAG, "SpeakSettings updated: $speakSettingsChangedEvent")
         val bookmark = bookmark
         if(speakSettingsChangedEvent.updateBookmark && bookmark != null) {
             // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
@@ -224,7 +224,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         if(isCurrent) {
             currentUtteranceId = utteranceId
             utteranceState.clear()
-            Log.d(TAG, "Marked current utteranceID $utteranceId")
+            Log.i(TAG, "Marked current utteranceID $utteranceId")
         }
         utteranceState[utteranceId] = State(book, startVerse, endVerse, currentVerse, cmd)
         return cmd
@@ -364,7 +364,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
                     playbackSettings.bookId = null
                     settings.playbackSettings = playbackSettings
                     settings.save()
-                    Log.d("SpeakBookmark", "Loaded bookmark from $bookmark ${settings.playbackSettings.speed}")
+                    Log.i("SpeakBookmark", "Loaded bookmark from $bookmark ${settings.playbackSettings.speed}")
                 }
                 this.bookmark = bookmark
             }
@@ -384,11 +384,11 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
                 bookmark.playbackSettings = null
                 bookmark = bookmarkControl.addOrUpdateBookmark(bookmark)
                 bookmarkControl.setLabelsForBookmark(bookmark, labelList)
-                Log.d("SpeakBookmark", "Removed speak label from bookmark $bookmark")
+                Log.i("SpeakBookmark", "Removed speak label from bookmark $bookmark")
             }
             else {
                 bookmarkControl.deleteBookmark(bookmark)
-                Log.d("SpeakBookmark", "Removed bookmark from $bookmark")
+                Log.i("SpeakBookmark", "Removed bookmark from $bookmark")
             }
             this.bookmark = null
         }
@@ -420,7 +420,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
             labelList.add(bookmarkControl.speakLabel)
 
             bookmarkControl.setLabelsForBookmark(bookmark, labelList.toList())
-            Log.d("SpeakBookmark", "Saved bookmark into $bookmark, ${settings.playbackSettings.speed}")
+            Log.i("SpeakBookmark", "Saved bookmark into $bookmark, ${settings.playbackSettings.speed}")
             this.bookmark = bookmark
         }
     }
@@ -523,7 +523,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         val state = utteranceState[utteranceId]
         currentUtteranceId = utteranceId
         if(state != null) {
-            Log.d(TAG, "startUtterance $utteranceId $state")
+            Log.i(TAG, "startUtterance $utteranceId $state")
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startVerse
             }
@@ -533,7 +533,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
 
     override fun reset() {
         val state = utteranceState[currentUtteranceId]
-        Log.d(TAG, "Resetting. state: $currentUtteranceId $state")
+        Log.i(TAG, "Resetting. state: $currentUtteranceId $state")
         if(state != null) {
             startVerse = state.startVerse
             currentVerse = state.currentVerse

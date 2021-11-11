@@ -85,26 +85,26 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun setClientReady() {
-        Log.d(TAG, "set client ready")
+        Log.i(TAG, "set client ready")
         bibleView.setClientReady()
     }
 
     @JavascriptInterface
     fun setLimitAmbiguousModalSize(value: Boolean) {
-        Log.d(TAG, "set client ready")
+        Log.i(TAG, "set client ready")
         bibleView.workspaceSettings.limitAmbiguousModalSize = value
         ABEventBus.getDefault().post(AppSettingsUpdated())
     }
 
     @JavascriptInterface
     fun requestPreviousChapter(callId: Long) {
-        Log.d(TAG, "Request more text at top")
+        Log.i(TAG, "Request more text at top")
         bibleView.requestPreviousChapter(callId)
     }
 
     @JavascriptInterface
     fun requestNextChapter(callId: Long) {
-        Log.d(TAG, "Request more text at end")
+        Log.i(TAG, "Request more text at end")
         bibleView.requestNextChapter(callId)
     }
 
@@ -150,18 +150,18 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun console(loggerName: String, message: String) {
-        Log.d(TAG, "Console[$loggerName] $message")
+        Log.i(TAG, "Console[$loggerName] $message")
     }
 
     @JavascriptInterface
     fun selectionCleared() {
-        Log.d(TAG, "Selection cleared!")
+        Log.i(TAG, "Selection cleared!")
         bibleView.stopSelection()
     }
 
     @JavascriptInterface
     fun reportInputFocus(newValue: Boolean) {
-        Log.d(TAG, "Focus mode now $newValue")
+        Log.i(TAG, "Focus mode now $newValue")
         ABEventBus.getDefault().post(BibleViewInputFocusChanged(bibleView, newValue))
     }
 

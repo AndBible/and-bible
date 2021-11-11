@@ -49,7 +49,7 @@ class PassageReader internal constructor(private val v11n: Versification) {
 
             // OSIS parser is strict so try treating as normal ref if osis parser fails
             if (key == null) {
-                Log.d(TAG, "Non OSIS Reading plan passage:$passage")
+                Log.i(TAG, "Non OSIS Reading plan passage:$passage")
                 key = PassageKeyFactory.instance().getKey(v11n, passage)
             }
         } catch (e: Exception) {

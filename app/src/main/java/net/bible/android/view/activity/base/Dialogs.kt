@@ -100,7 +100,7 @@ class Dialogs private constructor() {
 
     // TODO: use instead ErrorReportControl.showErrorDialog coroutine for error messages.
     private fun showMsg(msg: String?, isCancelable: Boolean, okayCallback: Callback, reportCallback: Callback?) {
-        Log.d(TAG, "showErrorMesage message:$msg")
+        Log.i(TAG, "showErrorMesage message:$msg")
         try {
             val activity = CurrentActivityHolder.getInstance().currentActivity
             if (activity != null) {
@@ -145,7 +145,7 @@ class Dialogs private constructor() {
     enum class Result {OK, CANCEL, REPORT, ERROR}
 
     suspend fun showMsg2(activity: ActivityBase, msg: String, isCancelable: Boolean = false, showReport: Boolean = false): Result {
-        Log.d(TAG, "showErrorMesage message:$msg")
+        Log.i(TAG, "showErrorMesage message:$msg")
         var result = Result.ERROR
         try {
             withContext(Dispatchers.Main) {

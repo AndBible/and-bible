@@ -49,11 +49,11 @@ public class PhoneCallMonitor {
 	 * stand-by and speaking and Android 4.4 (I think it worked on earlier versions of Android)
 	 */
 	private void startMonitoring() {
-		Log.d("PhoneCallMonitor", "Starting monitoring");
+		Log.i("PhoneCallMonitor", "Starting monitoring");
 		phoneStateListener = new PhoneStateListener() {
 			@Override
 			public void onCallStateChanged(int state, String incomingNumber) {
-				Log.d("PhoneCallMonitor", "State changed " + state);
+				Log.i("PhoneCallMonitor", "State changed " + state);
 				if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
 					ABEventBus.getDefault().post(new PhoneCallEvent(true));
 				}

@@ -207,7 +207,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             }
             // end All
 
-            Log.d(TAG, "Finished displaying Reading view")
+            Log.i(TAG, "Finished displaying Reading view")
         } catch (e: Exception) {
             Log.e(TAG, "Error showing daily readings", e)
             Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
@@ -390,7 +390,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     }
 
     val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uriResult ->
-        Log.d(TAG, "Importing plan. Result uri is${if (uriResult != null) " not" else ""} null")
+        Log.i(TAG, "Importing plan. Result uri is${if (uriResult != null) " not" else ""} null")
         val uri = uriResult ?: return@registerForActivityResult
 
         val intent = Intent(Intent.ACTION_VIEW, uri, this, InstallZip::class.java)
@@ -398,20 +398,20 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     }
 
     val selectReadingPlan = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        Log.d(TAG, "Returned from select reading plan")
+        Log.i(TAG, "Returned from select reading plan")
         result.data?.action?.let {
             val planCode = it
-            Log.d(TAG, "Selected reading plan $planCode")
+            Log.i(TAG, "Selected reading plan $planCode")
 
             loadDailyReading(planCode, null)
         }
     }
 
     val selectReadingDay = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        Log.d(TAG, "Returned from select reading plan day")
+        Log.i(TAG, "Returned from select reading plan day")
         result.data?.action?.let {
             val planDay = it.toInt()
-            Log.d(TAG, "Selected reading plan day #$planDay")
+            Log.i(TAG, "Selected reading plan day #$planDay")
 
             loadDailyReading(planCodeLoaded, planDay)
         }

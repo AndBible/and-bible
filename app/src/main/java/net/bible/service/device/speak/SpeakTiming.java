@@ -41,11 +41,11 @@ public class SpeakTiming {
 	
 	public SpeakTiming() {
 		loadCpms();
-		Log.d(TAG, "Average Speak CPMS:"+cpms);
+		Log.i(TAG, "Average Speak CPMS:"+cpms);
 	}
 
 	public void started(String utteranceId, int speakTextLength) {
-		Log.d(TAG, "Speak timer started");
+		Log.i(TAG, "Speak timer started");
 		lastUtteranceId = utteranceId;
 		lastSpeakTextLength = speakTextLength;
 		lastSpeakStartTime = System.currentTimeMillis();
@@ -54,7 +54,7 @@ public class SpeakTiming {
 	/** a block of text is finished being read so update char/msec if necessary
 	 */
 	public void finished(String utteranceId) {
-		Log.d(TAG, "Speak timer stopped");
+		Log.i(TAG, "Speak timer stopped");
 		if (utteranceId.equals(lastUtteranceId)) {
 			long timeTaken = milliSecsSinceStart();
 			// ignore short text strings as they can be way off in cps e.g. passage header (e.g. Job 39 v7)  has lots of 1 char numbers that take a long time to say
@@ -62,7 +62,7 @@ public class SpeakTiming {
 				// calculate characters per millisecond
 				float latestCpms = ((float)lastSpeakTextLength)/milliSecsSinceStart();
 				updateAverageCpms(latestCpms);
-				Log.d(TAG, "CPmS:"+cpms+" CPS:"+cpms*1000.0);
+				Log.i(TAG, "CPmS:"+cpms+" CPS:"+cpms*1000.0);
 			}
 			lastUtteranceId = null;
 			lastSpeakStartTime = 0;
@@ -76,7 +76,7 @@ public class SpeakTiming {
 		double fractionCompleted = 1;
 		if (cpms >0 && lastSpeakTextLength>0) {
 			fractionCompleted = (float)milliSecsSinceStart()/((float)lastSpeakTextLength/cpms);
-			Log.d(TAG, "Fraction completed:"+fractionCompleted);
+			Log.i(TAG, "Fraction completed:"+fractionCompleted);
 		} else {
 			Log.e(TAG, "SpeakTiming- Cpms:"+cpms+" lastSpeakTextLength:"+lastSpeakTextLength);
 		}
@@ -96,7 +96,7 @@ public class SpeakTiming {
 
 	private long milliSecsSinceStart(){
 		long duration = System.currentTimeMillis() - lastSpeakStartTime;
-		Log.d(TAG, "Duration:"+duration);
+		Log.i(TAG, "Duration:"+duration);
 		return duration;
 	}
 	

@@ -36,7 +36,7 @@ public class Logger {
 	}
 	public void debug(String s) {
 		if (isAndroid) {
-			Log.d(name, s);
+			Log.i(name, s);
 		} else {
 			System.out.println(name+":"+s);
 		}
