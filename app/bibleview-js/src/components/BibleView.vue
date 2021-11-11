@@ -111,7 +111,7 @@ export default {
     const {closeModals} = modal;
 
     const mounted = ref(false);
-    
+
     onMounted(() => {
       mounted.value = true;
       console.log("BibleView mounted");

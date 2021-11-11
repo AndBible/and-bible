@@ -1044,8 +1044,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var labelsUploaded = false
 
-    fun adjustLoadingCount(adj: Int) {
-        executeJavascriptOnUiThread("""bibleView.emit("adjust_loading_count", ${adj})""")
+    fun adjustLoadingCount(adj: Int): Boolean {
+        return executeJavascriptOnUiThread("""bibleView.emit("adjust_loading_count", ${adj})""")
     }
 
     private fun replaceDocument() {
@@ -1347,7 +1347,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.d(TAG, "window size changed")
         separatorMoving = !event.isFinished
         if(!separatorMoving && !mainBibleActivity.isSplitVertically) {
-            doCheckWindows(true)
+            checkWindows = true
+            doCheckWindows()
         }
     }
 
@@ -1358,9 +1359,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private fun doCheckWindows(force: Boolean = false) {
-        if(checkWindows || force) {
-            if(!htmlLoadingOngoing) executeJavascript("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});")
+    private fun doCheckWindows() {
+        if(!htmlLoadingOngoing && checkWindows) {
+            executeJavascript("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});")
             if (window.pageManager.currentPage.documentCategory == DocumentCategory.BIBLE) {
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
             }
@@ -1429,8 +1430,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
     }
 
-    fun executeJavascriptOnUiThread(javascript: String) {
+    fun executeJavascriptOnUiThread(javascript: String): Boolean {
+        if(htmlLoadingOngoing) {
+            Log.e(TAG,"HTML not yet ready, js execution is doomed to fail. $javascript")
+            return false
+        }
         runOnUiThread { executeJavascript(javascript) }
+        return true
     }
 
     private fun runOnUiThread(runnable: () -> Unit) {
@@ -1446,6 +1452,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val subStr = javascript.slice(0 until end)
 
         Log.d(TAG, "Executing JS: $subStr")
+        if(htmlLoadingOngoing) {
+            Log.e(TAG,"HTML not yet ready, js execution is doomed to fail. $javascript")
+            return;
+        }
         evaluateJavascript("$javascript;", callBack)
     }
 
