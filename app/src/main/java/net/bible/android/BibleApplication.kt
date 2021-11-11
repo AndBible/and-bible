@@ -82,7 +82,7 @@ open class BibleApplication : Application() {
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
     override fun onCreate() {
-        Log.d(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
+        Log.i(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
@@ -137,7 +137,7 @@ open class BibleApplication : Application() {
         } catch (e: Throwable) {
             Log.e(TAG, "Couldn't figure out SQLite version due to error: ", e)
         }
-        Log.d(TAG, "SQLite version: $sqliteVersion")
+        Log.i(TAG, "SQLite version: $sqliteVersion")
     }
 
     /**
