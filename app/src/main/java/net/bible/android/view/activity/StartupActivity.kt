@@ -148,7 +148,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     private suspend fun checkWebView(): Boolean {
         val info = WebViewCompat.getCurrentWebViewPackage(applicationContext)
-        Log.i(TAG, "checkWebView: WebView version ${info?.versionName}")
+        Log.i(TAG, "checkWebView: WebView version ${info?.packageName} ${info?.versionName}")
         val versionNum = info?.versionName?.split(".")?.first()?.split(" ")?.first()?.toIntOrNull() ?: return true // null -> can't check
         val minimumVersion = 83 // tested with Android Emulator API 30 and looks to function OK
         if(versionNum < minimumVersion) {
