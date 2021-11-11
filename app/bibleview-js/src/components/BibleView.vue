@@ -68,6 +68,7 @@ import DevelopmentMode from "@/components/DevelopmentMode";
 import Color from "color";
 import {useStrings} from "@/composables/strings";
 import {DocumentTypes} from "@/constants";
+import {useKeyboard} from "@/composables/keyboard";
 
 export default {
   name: "BibleView",
@@ -96,6 +97,7 @@ export default {
     provide("scroll", scroll);
     const globalBookmarks = useGlobalBookmarks(config);
     const android = useAndroid(globalBookmarks, config);
+    useKeyboard(android);
 
     const modal = useModal(android);
     provide("modal", modal);

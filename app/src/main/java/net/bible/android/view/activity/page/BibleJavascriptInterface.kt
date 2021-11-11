@@ -393,5 +393,16 @@ class BibleJavascriptInterface(
         mainBibleActivity.startActivity(chooserIntent)
     }
 
+    @JavascriptInterface
+    fun onKeyDown(key: String) {
+        Log.i(TAG, "key $key")
+        when(key) {
+            "AltArrowDown" -> windowControl.focusNextWindow()
+            "AltArrowRight" -> windowControl.focusNextWindow()
+            "AltArrowUp" -> windowControl.focusPreviousWindow()
+            "AltArrowLeft" -> windowControl.focusPreviousWindow()
+        }
+    }
+
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

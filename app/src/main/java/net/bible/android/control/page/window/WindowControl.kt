@@ -379,6 +379,18 @@ open class WindowControl @Inject constructor(
         }
     }
 
+    fun focusNextWindow() {
+        val pos = windowRepository.visibleWindows.indexOf(activeWindow)
+        activeWindow = windowRepository.visibleWindows[(pos + 1) % windowRepository.visibleWindows.size]
+        activeWindow.bibleView?.requestFocus()
+    }
+
+    fun focusPreviousWindow() {
+        val pos = windowRepository.visibleWindows.indexOf(activeWindow)
+        activeWindow = windowRepository.visibleWindows[(pos - 1) % windowRepository.visibleWindows.size]
+        activeWindow.bibleView?.requestFocus()
+    }
+
     companion object {
         var SCREEN_SETTLE_TIME_MILLIS = 1000
         const val TAG = "WindowControl"

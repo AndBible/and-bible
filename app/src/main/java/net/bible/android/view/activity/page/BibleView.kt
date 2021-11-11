@@ -250,6 +250,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         settings.allowFileAccess = false
         settings.allowContentAccess = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            defaultFocusHighlightEnabled = false
+        }
         setOnLongClickListener(BibleViewLongClickListener())
     }
 
