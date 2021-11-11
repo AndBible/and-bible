@@ -22,7 +22,6 @@ const keys = new Set([]);
 
 export function useKeyboard({onKeyDown}) {
     setupDocumentEventListener("keydown", e => {
-        console.log("Key", e);
         if(keys.has(e.code) || (e.altKey && altKeys.has(e.code))) {
             let key = e.code;
             if(e.altKey) {
