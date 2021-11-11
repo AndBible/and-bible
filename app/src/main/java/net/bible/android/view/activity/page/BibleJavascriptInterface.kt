@@ -407,6 +407,7 @@ class BibleJavascriptInterface(
                 mainBibleActivity.binding.drawerLayout.requestFocus()
             }
             "AltKeyO" -> mainBibleActivity.showOptionsMenu()
+            "AltKeyG" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
         }
     }
 
