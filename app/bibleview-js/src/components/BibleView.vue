@@ -251,6 +251,10 @@ export default {
 
     setupEventBusListener(Events.ADJUST_LOADING_COUNT, a => {
       loadingCount.value += a;
+      if(loadingCount.value < 0) {
+        console.error("Loading count now below zero, setting to 0", loadingCount.value);
+        loadingCount.value = 0;
+      }
     });
 
     const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
