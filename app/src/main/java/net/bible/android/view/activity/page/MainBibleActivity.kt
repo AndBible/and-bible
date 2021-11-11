@@ -294,7 +294,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             override fun onDrawerOpened(drawerView: View) {}
 
-            override fun onDrawerClosed(drawerView: View) {}
+            override fun onDrawerClosed(drawerView: View) {
+                windowRepository.activeWindow.bibleView?.requestFocus()
+            }
         })
         // register for passage change and appToBackground events
         ABEventBus.getDefault().register(this)
