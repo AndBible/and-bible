@@ -61,6 +61,7 @@ import {
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 import Modal from "@/components/modals/Modal";
+import {setupElementEventListener} from "@/utils";
 
 export default {
   name: "TextEditor",
@@ -199,6 +200,14 @@ export default {
       editor.value.content.focus();
       android.setEditing(true);
     });
+
+    setupElementEventListener(editorElement, "keyup", e => {
+      if(e.key === "Escape") {
+        save();
+        emit('close')
+        e.stopPropagation()
+      }
+    })
 
     onBeforeUnmount(() => {
       save();
