@@ -396,18 +396,20 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun onKeyDown(key: String) {
         Log.i(TAG, "key $key")
-        when(key) {
-            "AltArrowDown" -> windowControl.focusNextWindow()
-            "AltArrowRight" -> windowControl.focusNextWindow()
-            "AltArrowUp" -> windowControl.focusPreviousWindow()
-            "AltArrowLeft" -> windowControl.focusPreviousWindow()
-            "AltKeyW" -> mainBibleActivity.documentViewManager.splitBibleArea?.binding?.restoreButtons?.requestFocus()
-            "AltKeyM" -> {
-                mainBibleActivity.binding.drawerLayout.open()
-                mainBibleActivity.binding.drawerLayout.requestFocus()
+        GlobalScope.launch(Dispatchers.Main) {
+            when (key) {
+                "AltArrowDown" -> windowControl.focusNextWindow()
+                "AltArrowRight" -> windowControl.focusNextWindow()
+                "AltArrowUp" -> windowControl.focusPreviousWindow()
+                "AltArrowLeft" -> windowControl.focusPreviousWindow()
+                "AltKeyW" -> mainBibleActivity.documentViewManager.splitBibleArea?.binding?.restoreButtons?.requestFocus()
+                "AltKeyM" -> {
+                    mainBibleActivity.binding.drawerLayout.open()
+                    mainBibleActivity.binding.drawerLayout.requestFocus()
+                }
+                "AltKeyO" -> mainBibleActivity.showOptionsMenu()
+                "AltKeyG" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
             }
-            "AltKeyO" -> mainBibleActivity.showOptionsMenu()
-            "AltKeyG" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
         }
     }
 
