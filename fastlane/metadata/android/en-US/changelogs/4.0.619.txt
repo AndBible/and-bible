@@ -1,6 +1,6 @@
 4.0.619
 - Bugfixes
-- Keyboard navigation (Experimental)
+- Keyboard navigation (Experimental, #1878)
 
 4.0
 See "what's new" video: https://youtu.be/f2cf6-7liMo
