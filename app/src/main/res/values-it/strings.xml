@@ -92,7 +92,7 @@
   <string name="prefs_tilt_to_scroll_title">Inclina per scorrere</string>
   <string name="prefs_toolbar_button_action_title">Azioni dei pulsanti della barra strumenti</string>
   <string name="prefs_toolbar_button_action_summary">Azione da eseguire quando si premono o si tengono premuti i pulsanti Bibbia o Commentario della barra strumenti</string>
-  <string name="prefs_toolbar_button_action_default">Premi per aprire il menù, premi a lungo per i documenti (default)</string>
+  <string name="prefs_toolbar_button_action_default">Premi per aprire il menù, premi a lungo per i documenti (predefinito)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Premi per aprire il documento successivo, premi a lungo per aprire il menù</string>
   <string name="prefs_toolbar_button_action_swap_activity">Premi per il documento successivo, premi a lungo per la schermata documenti</string>
   <string name="prefs_night_mode_title">Passaggio alla modalità notturna</string>
@@ -173,7 +173,7 @@
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Impostazioni colore</string>
   <string name="window_color_settings_title">Impostazioni del colore della finestra</string>
-  <string name="workspace_color_settings_title">Impostazioni di default del colore dello spazio di lavoro</string>
+  <string name="workspace_color_settings_title">Impostazioni predefinite del colore dello spazio di lavoro</string>
   <string name="color_text">Colore del testo</string>
   <string name="color_background">Colore di sfondo</string>
   <string name="colors_day_mode_title">Modalità giorno</string>
@@ -413,7 +413,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <!--param is refresh icon-->
   <string name="assing_labels_help5">Tocca %s per riordinare l\'elenco in base alle tue scelte.</string>
   <string name="workspace_text_options_help_title">Opzioni testo dello spazio di lavoro</string>
-  <string name="workspace_text_options_help1">Queste impostazioni determinano il default per tutte le finestre dello spazio di lavoro.</string>
+  <string name="workspace_text_options_help1">Queste impostazioni sono quelle predefinite per tutte le finestre dello spazio di lavoro.</string>
   <string name="workspace_text_options_help2">Per definire delle eccezioni puoi cambiare le impostazioni individuali delle finestre.</string>
   <string name="window_text_options_help_title">Opzioni testo delle finestre</string>
   <!--Parameter is actual icon-->
@@ -423,8 +423,8 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="window_text_options_help3">Le impostazioni dello spazio di lavoro non influiranno su questa finestra.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Usa il bottone %s per reimpostare tutte queste impostazioni ai %s.</string>
-  <string name="reset_defaults">valori di default</string>
-  <string name="reset_workspace_defaults">valori di default dello spazio di lavoro</string>
+  <string name="reset_defaults">valori predefiniti</string>
+  <string name="reset_workspace_defaults">valori predefiniti dello spazio di lavoro</string>
   <string name="speak_bookmark_help">Legge la guida dei segnalibri</string>
   <string name="speak_help_auto_bookmark">
 Un segnalibro Audio verrà aggiunto automaticamente quando Parla/Audio viene messo in pausa o interrotto. I segnalibri generati automaticamente sono etichettati con l\'etichetta speciale Audio. Se inizi da un segnalibro di Audio, il segnalibro verrà spostato nel versetto stesso interrompere o mettere in pausa alla prossima volta. Verranno spostate solo le etichette Audio, tutte le altre etichette saranno lasciate solo.</string>
@@ -536,7 +536,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="doc_type_map">Mappa</string>
   <string name="doc_type_addons">Componenti aggiuntivi</string>
   <!--Languages-->
-  <string name="lang_default">Default</string>
+  <string name="lang_default">Predefinito</string>
   <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Annulla</string>
@@ -770,7 +770,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="prefs_double_tap_to_fullscreen_summary">Usa la modalità schermo intero toccando due volte la finestra</string>
   <string name="toggle_fullscreen">Schermo intero</string>
   <string name="exit_fullscreen">Tocca due volte per uscire dallo schermo intero</string>
-  <string name="reset_app_prefs">Vuoi resettare ai loro valori iniziali tutte le preferenze globali dell\'applicazione che sono mostrate in questo schermo?</string>
+  <string name="reset_app_prefs">Vuoi resettare tutte le preferenze globali dell\'applicazione che sono visualizzate in questa schermata ai loro valori predefiniti?</string>
   <string name="label_red">Rosso</string>
   <string name="label_green">Verde</string>
   <string name="label_blue">Blu</string>
