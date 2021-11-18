@@ -5,6 +5,9 @@
 /build
 /captures
 /.idea
+/app/huawei
+/app/samsung
+/app/amazon
 /app/release
 /app/bibleview-js/node_modules/
 /app/bibleview-js/.idea/
