@@ -33,10 +33,13 @@ import net.bible.android.control.search.SearchControl;
 
 import org.crosswire.jsword.passage.Key;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Text;
@@ -92,8 +95,10 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		for (Object o : parentElement.getContent()) {
 			if (o instanceof Element) {
 				Element el = (Element) o;
-				if (!el.getChildren().isEmpty()) {verseString = processElementChildren(el, searchTerms, verseString);};
-				if (el.getName() == "w") {
+				List<String> elementsToExclude = Arrays.asList("note","reference");
+				List<String> elementsToInclude = Arrays.asList("w","transChange");
+				if (!el.getChildren().isEmpty() && !elementsToExclude.contains(el.getName())) {verseString = processElementChildren(el, searchTerms, verseString);};
+				if (elementsToInclude.contains(el.getName())) {
 					try {
 						String lemma = el.getAttributeValue("lemma");
 						//							if (searchTerms.equalsIgnoreCase(lemma.trim())) {
