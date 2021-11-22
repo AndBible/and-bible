@@ -86,18 +86,22 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 	private SpannableString highlightSearchText(String text, String searchTerms) {
 		SpannableString spannableText = new SpannableString(text);
 		try {
-			String[] splitSearchArray = searchTerms.split("\\s+");
+			// Split on the space characters that are not enclosed in double quotes
+			String[] splitSearchArray = searchTerms.split("\\s+(?=(?:\"(?:\\\\\"|[^\"])+\"|[^\"])+$)");
 			for (String searchWord : splitSearchArray) {
-				searchWord = searchWord.replace("+", "");
+				searchWord = searchWord.replace("\"", "");  // Remove quotes which indicate phrase searches
+				searchWord = searchWord.replace("+", "");	// Remove + which indicates AND searches
 				searchWord = searchWord.replace("?", "\\p{L}");  // Handles any letter from any language
-				if (Objects.equals(searchWord.substring(searchWord.length() - 1), "*")) {
-					searchWord = searchWord.replace("*", "");
-				} else {
-					searchWord = searchWord.replace("*", "\b");  // Match on a word boundary
-				}
-				Matcher m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText);
-				while (m.find()) {
-					spannableText.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), m.start(), m.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				if (searchWord.length() > 0) {
+					if (Objects.equals(searchWord.substring(searchWord.length() - 1), "*")) {
+						searchWord = searchWord.replace("*", "");
+					} else {
+						searchWord = searchWord.replace("*", "\b");  // Match on a word boundary
+					}
+					Matcher m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText);
+					while (m.find()) {
+						spannableText.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), m.start(), m.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					}
 				}
 			}
 		}
