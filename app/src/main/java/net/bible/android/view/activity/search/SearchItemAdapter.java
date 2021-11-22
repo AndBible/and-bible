@@ -20,6 +20,7 @@ package net.bible.android.view.activity.search;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.Log;
@@ -28,7 +29,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TwoLineListItem;
-
 import net.bible.android.control.search.SearchControl;
 
 import org.crosswire.jsword.passage.Key;
@@ -37,6 +37,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
+import org.jdom2.Text;
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -77,16 +80,58 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		// set value for the second text field
 		if (view.getText2() != null) {
 			String verseText = searchControl.getSearchResultVerseText(item);
-			SpannableString verseTextHtml = highlightSearchText(verseText, SearchControl.originalSearchString);
+			Element verseTextElement = searchControl.getSearchResultVerseElement(item);
+			SpannableString verseTextHtml = highlightSearchText(SearchControl.originalSearchString, verseTextElement);
 			view.getText2().setText(verseTextHtml);
 		}
 
 		return view;
 	}
-	private SpannableString highlightSearchText(String text, String searchTerms) {
-		SpannableString spannableText = new SpannableString(text);
+	private String processElementChildren(Element parentElement, String searchTerms, String verseString) {
+
+		for (Object o : parentElement.getContent()) {
+			if (o instanceof Element) {
+				Element el = (Element) o;
+				if (!el.getChildren().isEmpty()) {verseString = processElementChildren(el, searchTerms, verseString);};
+				if (el.getName() == "w") {
+					try {
+						String lemma = el.getAttributeValue("lemma");
+						//							if (searchTerms.equalsIgnoreCase(lemma.trim())) {
+						if (lemma != null && Pattern.compile(searchTerms, Pattern.CASE_INSENSITIVE).matcher(lemma.trim()).find()) {
+							verseString += ("<b>" + el.getText() + "</b>");
+						} else {
+							verseString += el.getText();
+						}
+					} catch (Exception e) {
+						verseString += el.getText();
+					}
+				}
+			} else if (o instanceof Text) {
+				Text t = (Text) o;
+				verseString += t.getText();
+			} else {
+				verseString += o.toString();
+			}
+		}
+		return verseString;
+	}
+
+	private SpannableString highlightSearchText(String searchTerms, Element textElement) {
+
+		SpannableString spannableText = null;
 		try {
-			// Split on the space characters that are not enclosed in double quotes
+			String verseString = "";
+			if (searchTerms.contains("strong:")) {
+				searchTerms = searchTerms.replaceAll("strong:g0*", "strong:g0*");  // Replaces strong:G00123 with REGEX strong:G*123. This is needed because the search term submitted by the 'Find all occcurrences includes extra zeros)
+			}
+			List<Element> verses = textElement.getChildren("verse");
+			for (Element verse : verses) {
+				verseString += processElementChildren(verse, searchTerms, "");
+			}
+			spannableText = new SpannableString(Html.fromHtml(verseString));
+
+			Matcher m = null;
+			// Split on the search terms on space characters that are not enclosed in double quotes
 			String[] splitSearchArray = searchTerms.split("\\s+(?=(?:\"(?:\\\\\"|[^\"])+\"|[^\"])+$)");
 			for (String searchWord : splitSearchArray) {
 				searchWord = searchWord.replace("\"", "");  // Remove quotes which indicate phrase searches
@@ -98,7 +143,7 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 					} else {
 						searchWord = searchWord.replace("*", "\b");  // Match on a word boundary
 					}
-					Matcher m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText);
+					m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText);
 					while (m.find()) {
 						spannableText.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), m.start(), m.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					}
