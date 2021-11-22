@@ -30,17 +30,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TwoLineListItem;
 import net.bible.android.control.search.SearchControl;
-
 import org.crosswire.jsword.passage.Key;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
-
-import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Text;
 
@@ -127,7 +122,7 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		try {
 			String verseString = "";
 			if (searchTerms.contains("strong:")) {
-				searchTerms = searchTerms.replaceAll("strong:g0*", "strong:g0*");  // Replaces strong:G00123 with REGEX strong:G*123. This is needed because the search term submitted by the 'Find all occcurrences includes extra zeros)
+				searchTerms = searchTerms.replaceAll("strong:g0*", "strong:g0*");  // Replaces strong:g00123 with REGEX strong:g*123. This is needed because the search term submitted by the 'Find all occcurrences includes extra zeros)
 			}
 			List<Element> verses = textElement.getChildren("verse");
 			for (Element verse : verses) {
