@@ -89,6 +89,7 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 			String[] splitSearchArray = searchTerms.split("\\s+");
 			for (String searchWord : splitSearchArray) {
 				searchWord = searchWord.replace("+", "");
+				searchWord = searchWord.replace("?", "\\p{L}");  // Handles any letter from any language
 				if (Objects.equals(searchWord.substring(searchWord.length() - 1), "*")) {
 					searchWord = searchWord.replace("*", "");
 				} else {
