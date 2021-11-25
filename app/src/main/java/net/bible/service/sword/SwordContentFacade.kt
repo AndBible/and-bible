@@ -98,6 +98,7 @@ object SwordContentFacade {
             if(book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
                 val div = data.osisFragment
                 val verse = div.getChild("verse")
+                    ?: throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
                 val verseContent = verse.content.toList()
                 verse.removeContent()
                 div.removeContent()
@@ -106,7 +107,11 @@ object SwordContentFacade {
             } else {
                 data.osisFragment
             }
-        } catch (e: Exception) {
+        }
+        catch (e: OsisError) {
+            throw e
+        }
+        catch (e: Exception) {
             log.error("Parsing error", e)
             throw ParseException("Parsing error", e)
         }
