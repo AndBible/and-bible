@@ -213,12 +213,15 @@ object SwordContentFacade {
                 val endVerseNum = if(showVerseNumbers) "${lastVerse.verse.verse}. " else ""
                 val endVerse = lastVerse.text.slice(0 until min(lastVerse.text.length, endOffset))
                 val end = lastVerse.text.slice(endOffset until lastVerse.text.length)
-                val middleVerses = if(verseTexts.size > 2) {
+                var middleVerses = if(verseTexts.size > 2) {
                     verseTexts.slice(1 until verseTexts.size-1).joinToString(" ") {
                         if(showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
                     }
                 } else ""
-                val text = "$startVerse$middleVerses $endVerseNum$endVerse"
+                if(middleVerses.isNotEmpty()) {
+                    middleVerses += " "
+                }
+                val text = "${startVerse.trimEnd()} ${middleVerses.trimStart()}$endVerseNum$endVerse"
                 val post = if(!showFull && end.isNotEmpty()) "..." else ""
 
                 if(showFull) """“$startVerseNumber$start${text}$end$post”""" else "“$startVerseNumber$text$post”"
