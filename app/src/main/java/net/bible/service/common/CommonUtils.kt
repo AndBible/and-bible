@@ -737,7 +737,13 @@ object CommonUtils : CommonUtilsBase() {
         val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
 
         val versionMessageInstalled = if(existingVersion != null)
-            application.getString(R.string.module_about_installed_version, Version(existingVersion).toString(), existingVersionDate)
+            application.getString(R.string.module_about_installed_version,
+                try {
+                    Version(existingVersion).toString()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error parsing version $existingVersion", e)
+                    existingVersion
+                }, existingVersionDate)
         else null
 
         val versionMessageLatest = if(versionLatest != null)
