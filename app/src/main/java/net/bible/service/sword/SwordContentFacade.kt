@@ -205,7 +205,7 @@ object SwordContentFacade {
                 val end = startVerse.slice(endOffset until startVerse.length)
                 val text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
                 val post = if(!showFull && end.isNotEmpty()) "..." else ""
-                if(showFull) """“$startVerseNumber$start ${text}$end”""" else "“$startVerseNumber$text$post”"
+                if(showFull) """“$startVerseNumber$start${text}$end”""" else "“$startVerseNumber$text$post”"
             }
             verseTexts.size > 1 -> {
                 startVerse = startVerse.slice(startOffset until startVerse.length)
@@ -218,10 +218,10 @@ object SwordContentFacade {
                         if(showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
                     }
                 } else ""
-                val text = "$startVerse $middleVerses $endVerseNum$endVerse"
+                val text = "$startVerse$middleVerses $endVerseNum$endVerse"
                 val post = if(!showFull && end.isNotEmpty()) "..." else ""
 
-                if(showFull) """“$startVerseNumber$start ${text}$end$post”""" else "“$startVerseNumber$text$post”"
+                if(showFull) """“$startVerseNumber$start${text}$end$post”""" else "“$startVerseNumber$text$post”"
             }
             else -> throw RuntimeException("what")
         } + reference + notes + advertise
