@@ -1,0 +1,42 @@
+O unealtă pentru studiul Bibliei
+
+Aplicația de studiu biblic de la And Bible Open Source Project este o aplicație de studiu biblic offline, dar ușor de utilizat, pentru Android. Aplicația nu își propune să fie doar pentru citit Biblia, ci se concentrează pe a fi un instrument avansat pentru a face un studiu personal aprofundat al Bibliei.
+
+Această aplicație este realizată de cititori ai Bibliei, pentru cititorii Bibliei. Scopul ei este de a vă ajuta să vă faceți studiul biblic convenabil, profund și distractiv. Cea mai bună parte a acestui proiect comunitar non-profit este că are sursă publică, este complet gratuit și nu conține reclame. Fiind construită de la zero pentru Android, este mică și, prin urmare, foarte eficientă și remarcabil de rapidă.
+
+Câteva versiuni populare ale Bibliei (din cele multe disponibile) sunt Cornilescu, KJV, NASB, Diodati, precum și comentarii populare precum Matthew Henry și John Gill.
+
+Caracteristici eficiente de studiu biblic
+
+Aplicația are multe caracteristici originale și interesante, care fac ca experiența studiului biblic complex și profund să fie mai ușoară ca niciodată. Cele mai notabile caracteristici sunt următoarele:
+
+ * Vizualizări separate ale textului care permit compararea traducerilor și consultarea comentariilor
+ * Spațiile de studiu permit organizarea mai multor studii biblice cu propriile reglări
+ * Integrarea Strong permite analiza cuvintelor grecești și ebraice
+ * Trimiteri, note de subsol și documente; accesezi trimiterile și notele de subsol prin simpla apăsare a unei legături; efectuezi un studiu aprofundat al Scripturilor folosind comentarii cu legături hipertext (Gill, Matthew Henry etc.), colecții de trimiteri (Treasure of Scripture Knowledge, TSKe) și alte resurse.
+ * Pronunțarea avansată a textului cu marcaje de vorbire, permițând o experiență de ascultare ușoară a Bibliei
+ * Căutare flexibilă
+ * Semne de carte și evidențiere avansată cu notițe de studiu personale
+ * Notițe de studiu pentru a adăuga comentarii și trimiteri biblice în timp ce asculți predicile.
+ * Planuri de lectură: stabilește obiective pentru citirea Bibliei
+ * O vastă bibliotecă de documente: Traduceri ale Bibliei, comentarii teologice, dicționare, hărți și cărți creștine, totalizând peste 1500 documente în peste 700 limbi, distribuite legal de Crosswire și alte depozite SWORD.
+ * Offline: singurul moment în care aveți nevoie de internet este pentru a descărca documente.
+
+Haideți să facem împreună cea mai bună aplicație biblică!
+
+And Bible este un proiect comunitar open-source. În practică, acest lucru înseamnă că orice persoană cu aptitudini adecvate poate și este încurajată să contribuie la proiect prin:
+
+ * realizarea de noi caracteristici,
+ * testarea caracteristicilor care nu au fost încă lansate,
+ * menținerea la zi a traducerilor interfeței cu utilizatorul și
+ * contribuind la extinderea bibliotecii de module prin obținerea de permisiuni de la deținătorii drepturilor de autor sau prin convertirea documentelor în format SWORD.
+
+Dacă ești un inginer de software sau un tester profesionist, te rugăm să contribui la acest proiect. Pentru mai multe informații despre cum să contribuiți, vă rugăm să consultați https://git.io/JUnaj.
+
+Legături
+
+ * Pagina principală: https://andbible.github.io
+ * Dă Like la And Bible pe Facebook: https://www.facebook.com/AndBible/
+ * Canalul nostru de Youtube: https://www.youtube.com/c/AndBible
+ * Întrebări frecvente: https://git.io/JJm8E
+ * Pagina Github a proiectului: https://github.com/AndBible/and-bible

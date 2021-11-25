@@ -1,0 +1,81 @@
+openMyNotes: Deschide în Notițele mele
+openStudyPad: Deschide în Notițe de studiu (%s)
+noteText: Note de subsol (%s)
+noteTextWithoutType: Note de subsol
+crossReferenceText: Trimiteri
+findAllOccurrences: Caută toate evenimentele
+reportError: Raportează o eroare
+errorTitle: A apărut o eroare
+warningTitle: Atenție
+normalTitle: Reține
+footnoteTypeUndefined: Tip nedefinit
+footnoteTypeStudy: Studiu
+footnoteTypeExplanation: Explicaţie
+footnoteTypeVariant: Variantă
+footnoteTypeAlternative: Alternativă
+footnoteTypeTranslation: Traducere
+clearLog: Șterge jurnalul de erori
+editNote: Modifică
+editNotePlaceholder: Modifică notița
+editTextPlaceholder: Atinge pentru a modifica textul
+inputPlaceholder: Scrie aici
+inputReference: Introdu trimiterea biblică
+invalidReference: Versetul nu a fost găsit
+assignLabels: Etichete
+bookmarkAccurate: Semnul de carte a fost creat în %s
+bookmarkInaccurate: "Informațiile semnelor de carte nu sînt stocate, conținutul este afișat în %s."
+defaultBook: Biblia prestabilită
+ok: Aprobă
+yes: "Da"
+ambiguousSelection: "Ce vrei să faci?"
+cancel: Renunță
+removeBookmarkConfirmationTitle: "Elimini semnul de carte?"
+removeBookmarkConfirmation: "Sigur vrei să elimini acest semn de carte?"
+closeModal: Închide
+createdAt: "Creat: %s"
+lastUpdatedOn: "Ultima actualizare: %s"
+strongsLink: Definiție Strong (%s)
+morphLink: Cod morfologic (%s)
+strongsAndMorph: Definiție și morfologie
+studyPadLink: Deschide notițele de studiu
+externalLink: Deschide legătura externă
+referenceLink: Deschide legătura trimiterii
+openFootnote: Deschide nota de subsol
+openBookmark: Deschide semnul de carte (%s)
+noMyNotesTitle: Nu sînt notițe pentru acest capitol.
+noMyNotesDescription: >
+  Începe prin a crea semne de carte într-un document biblic. Semnele de carte vor apărea apoi aici și poți adăuga la ele notițele tale.
+emptyStudyPad: >
+  Nu sînt notițe de studiu. Adaugă notițe scriind ceva aici sau prin crearea de semne de carte cu o etichetă de semn de carte care corespunde acestor notițe de studiu.
+studyPadModalTitle: Modifică notița de studiu
+doYouWantToDeleteEntry: "Ștergi această notiță de studiu?"
+removeStudyPadConfirmationTitle: "Elimini notița de studiu?"
+dragHelp: Trage pentru a aranja
+saved: salvat
+openAll: Deschide toate trimiterile
+editBookmarkPlaceholder: Atinge pentru a modifica notițele acestui semn de carte
+onlyLabel: Doar eticheta
+wholeBookmark: Tot semnul de carte
+otherNoteText: Alte note de subsol
+assignLabelsMenuEntry: Pune etichete
+assignLabelsMenuEntry1: Alege sau modifică etichete…
+jumpToStudyPad: Saltă la Notițe de studiu
+setAsPrimaryLabel: Pune ca etichetă principală
+removeBookmarkLabel: Elimină eticheta
+addBookmarkLabel: Adaugă eticheta
+favouriteLabels: Etichete favorite
+recentLabels: Etichete recente
+frequentlyUsedLabels: Etichete folosite frecvent
+bookmarkLabels: Etichetele semnelor de carte
+refParserHelp: Instalează extensia %s pentru a utiliza trimiteri în alte limbi decît engleza.
+openDownloads: Descarcă extensii
+verseShare: Trimite
+verseCompare: Compară
+verseNote: Notiță
+verseMyNotes: Notițele mele
+verseSpeak: Vorbește
+verseShareLong: Trimite acest verset
+verseCompareLong: Compară versetele
+verseNoteLong: Scrie o notiță
+verseSpeakLong: Ascultă de la acest verset
+addBookmark: Semn de carte

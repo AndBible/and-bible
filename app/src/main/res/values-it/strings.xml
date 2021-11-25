@@ -41,7 +41,7 @@
   <string name="rebuild_index_button">Ricostruisci</string>
   <!--Tasks-->
   <string name="progress_status">Progresso</string>
-  <string name="task_kill_warning">Queste operazioni lunghe potrebbero terminare se passi ad un\'altra applicazione prima della fine.</string>
+  <string name="task_kill_warning">Queste operazioni lunghe potrebbero interrompersi se passi ad un\'altra applicazione prima della fine.</string>
   <string name="no_tasks_running">Non ci sono operazioni in corso al momento.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Trova versi</string>
@@ -115,12 +115,12 @@
   <string name="prefs_request_sdcard_permission_summary">Abilita l\'uso di documenti installati manualmente dalla cartella jsword/sword sulla memoria interna</string>
   <string name="all_text_options_window_menutitle">Tutte le opzioni di testo</string>
   <string name="text_options_window_menutitle">Opzioni di testo</string>
-  <string name="auto_fullscreen">Scorrimento a schermo intero</string>
+  <string name="auto_fullscreen">Schermo intero tramite scorrimento</string>
   <string name="reversed_split_mode">Inversa modalità dividere </string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
-  <string name="auto_fullscreen_summary">Passa automaticamente alla modalità a schermo intero durante lo scorrimento del testo. Suggerimento: puoi sempre passare allo schermo intero toccando due volte lo schermo.</string>
+  <string name="auto_fullscreen_summary">Passa automaticamente a schermo intero durante lo scorrimento del testo. Suggerimento: puoi sempre passare allo schermo intero toccando due volte lo schermo.</string>
   <string name="prefs_margin_size_title">Cambia la dimensione del margine</string>
   <string name="prefs_margin_size_mm_title">Dimensione del margine (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Impostazioni avanzate</string>
@@ -152,7 +152,7 @@
   <string name="window_pinning_menutitle">Fissa le finestre</string>
   <string name="hide_window_buttons_title">Nascondi i pulsanti della finestra</string>
   <string name="hide_window_buttons_summary">I pulsanti della finestra visualizzati sul lato destro delle viste della Bibbia sono nascosti. La barra di navigazione della finestra in basso resta visualizzata e puoi aprire il menù a comparsa della finestra premendo a lungo.</string>
-  <string name="hide_bible_reference_overlay_title">Nascondi overlay riferimenti biblici</string>
+  <string name="hide_bible_reference_overlay_title">Nascondi i riferimenti biblici sovrapposti</string>
   <string name="hide_bible_reference_overlay_summary">Non mostrare i riferimenti biblici semi-trasparenti in sovraimpressione quando l\'app è a schermo intero</string>
   <string name="full_screen_hide_buttons_pref_title">Nascondi pulsanti a schermo intero</string>
   <string name="full_screen_hide_buttons_pref_summary">Quando si passa alla modalità a schermo intero, nasconde automaticamente la barra dei pulsanti della finestra che si trova nella parte inferiore dello schermo</string>
@@ -209,8 +209,8 @@
   <string name="morph_robinson_not_installed">Scarica il dizionario dei codici di analisi morfologica di Robinson</string>
   <string name="go_to_downloads">Vai ai Download</string>
   <!--Module download-->
-  <string name="download">Scarica i documenti</string>
-  <string name="redownload">Riscarica i documenti</string>
+  <string name="download">Scarica documenti</string>
+  <string name="redownload">Riscarica documenti</string>
   <string name="download_confirmation">Scaricare una Bibbia da Internet?</string>
   <string name="download_source_last_updated">Ultimo aggiornamento dell\'elenco documenti: %s.</string>
   <string name="download_refreshing_book_list">Aggiornamento della lista dei documenti disponibili...</string>
@@ -309,7 +309,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="bookmarks_and_mynotes_title">Segnalibri e Annotazioni</string>
   <string name="migrated_my_notes">Migrazione di Annotazioni</string>
   <string name="bookmarks">Segnalibri</string>
-  <string name="bookmark_added">Segnalibri aggiunti</string>
+  <string name="bookmark_added">Segnalibro aggiunto</string>
   <string name="manage_labels">Gestisci etichette</string>
   <string name="assign_labels">Assegna le etichette</string>
   <string name="new_item">Nuovo</string>
@@ -394,7 +394,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="speak_next">Successivo</string>
   <string name="speak_previous">Precedente</string>
   <string name="widget_toggle_sleep_timer">Attiva/disattiva il timer di spegnimento</string>
-  <string name="widget_bookmark_helptext">Legge qui i pulsanti di scelta rapida dei segnalibri.</string>
+  <string name="widget_bookmark_helptext">Qui appariranno i pulsanti di scelta rapida dei segnalibri audio.</string>
   <string name="speak_status_stopped">fermato</string>
   <string name="speak_autobookmarking_disabled">Segnalibri automatici disabilitato!</string>
   <string name="system_speak_settings">Apri le impostazioni del sistema TTS</string>
@@ -425,7 +425,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="text_options_reset_help">Usa il bottone %s per reimpostare tutte queste impostazioni ai %s.</string>
   <string name="reset_defaults">valori predefiniti</string>
   <string name="reset_workspace_defaults">valori predefiniti dello spazio di lavoro</string>
-  <string name="speak_bookmark_help">Legge la guida dei segnalibri</string>
+  <string name="speak_bookmark_help">Aiuto per segnalibri audio</string>
   <string name="speak_help_auto_bookmark">
 Un segnalibro Audio verrà aggiunto automaticamente quando Parla/Audio viene messo in pausa o interrotto. I segnalibri generati automaticamente sono etichettati con l\'etichetta speciale Audio. Se inizi da un segnalibro di Audio, il segnalibro verrà spostato nel versetto stesso interrompere o mettere in pausa alla prossima volta. Verranno spostate solo le etichette Audio, tutte le altre etichette saranno lasciate solo.</string>
   <string name="speak_help_playback_settings">
