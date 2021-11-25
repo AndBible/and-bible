@@ -20,7 +20,9 @@ import {Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 import {isInViewport} from "@/utils";
 
-export function useScroll(config, appSettings, calculatedConfig, {highlightVerse, resetHighlights}, documentPromise) {
+export function useScroll(
+    config, appSettings, calculatedConfig, {highlightVerse, resetHighlights, setFocusedVerse}, documentPromise
+) {
     let currentScrollAnimation = ref(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
@@ -138,6 +140,7 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
 
         if (jumpToOrdinal != null) {
             scrollToId(`o-${jumpToOrdinal}`, {now: true, force: true});
+            setFocusedVerse(jumpToOrdinal);
         } else if (jumpToAnchor !== null) {
             scrollToId(`o-${jumpToAnchor}`, {now: true, force: true});
         } else if(jumpToId !== null) {

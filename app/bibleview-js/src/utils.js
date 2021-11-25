@@ -428,6 +428,15 @@ export function isInViewport(el) {
         rect.bottom >= 0
     );
 }
+
+export function isCompletelyInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+        rect.bottom <= window.innerHeight &&
+        rect.top >= 0
+    );
+}
+
 export function adjustedColorOrig(color, ratio=0.2) {
     let col = Color(color);
     let cont = true;

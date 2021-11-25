@@ -38,7 +38,7 @@ export default {
     const clicked = ref(false);
     const isHighlighted = ref(false);
     const {strings, ...common} = useCommon();
-    const {addCustom, resetHighlights} = inject("verseHighlight");
+    const {addCustom, resetHighlights} = inject("verseHandler");
     const referenceCollector = inject("referenceCollector", null);
     const content = ref(null);
     const osisFragment = inject("osisFragment");

@@ -172,8 +172,9 @@ export default {
       }
     }
 
-    watch(editText, debounce(save, 2000))
+    const {setEditMode} = inject("keyboard");
 
+    watch(editText, debounce(save, 2000))
     const divider = {divider: true};
 
     function openDownloads() {
@@ -199,6 +200,7 @@ export default {
       editor.value.content.innerHTML = editText.value;
       editor.value.content.focus();
       android.setEditing(true);
+      setEditMode(true);
     });
 
     setupElementEventListener(editorElement, "keyup", e => {
@@ -215,6 +217,7 @@ export default {
 
     onUnmounted(() => {
       android.setEditing(false);
+      setEditMode(false);
     })
 
     return {setFocus, editorElement, dirty, inputText, showHelp, openDownloads, hasRefParser, refChooserDialog, ...useCommon()}
