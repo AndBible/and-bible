@@ -177,7 +177,6 @@ export default {
         const {ordinalRange: [, chapterEnd]} = verseInfo.value.bibleDocumentInfo;
 
         const endOrd = chapterEnd > endOrdinal.value ? endOrdinal.value: chapterEnd;
-        console.log({verseInfo: verseInfo.value, endOrd, endOrdinal, chapterEnd});
         verseInfo.value.verseTo = `${verseInfo.value.verse + endOrd - startOrdinal.value}${endOrdinal.value > chapterEnd ? "+" : ""}`;
       }
     }
