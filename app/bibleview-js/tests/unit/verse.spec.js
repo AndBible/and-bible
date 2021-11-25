@@ -18,11 +18,12 @@
 
 import {shallowMount} from "@vue/test-utils";
 import Verse from "@/components/OSIS/Verse";
-import {useConfig, useVerseHighlight} from "@/composables";
+import {useConfig} from "@/composables";
 import {ref} from "@vue/reactivity";
 import {arrayLeq, mapFrom, rangeInside, rangesOverlap, setFrom} from "@/utils";
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
 import {useStrings} from "@/composables/strings";
+import {useVerseHandler} from "@/composables/verse-handling";
 window.bibleViewDebug = {}
 
 describe("Verse.vue", () => {
@@ -73,7 +74,7 @@ describe("Verse.vue", () => {
             fragmentInfo,
             config,
             strings,
-            verseHighlight: useVerseHighlight(),
+            verseHandler: useVerseHandler(),
         }
         wrapper = shallowMount(Verse,
             {

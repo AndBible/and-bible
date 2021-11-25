@@ -16,14 +16,14 @@
   -->
 
 <template>
-  <span :id="`v-${ordinal}`" @click="verseClicked">
+  <span :id="`v-${ordinal}`" @click="verseClicked" class="verse" ref="verseRef">
     <span
       :id="fromBibleDocument ? `o-${ordinal}` : null"
       class="verse"
       :class="{ordinal: fromBibleDocument}"
       :data-ordinal="ordinal"
     >
-      <span class="highlight-transition" :class="{isHighlighted: highlighted}">
+      <span class="highlight-transition" :class="{isFocused, isHighlighted: highlighted}">
         <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/> <span/>
       </span>
     </span>
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import {inject, provide, reactive, ref} from "@vue/runtime-core";
+import {inject, provide, reactive, ref, watch} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
 import {addEventVerseInfo, getVerseInfo} from "@/utils";
@@ -49,6 +49,7 @@ export default {
     const bibleDocumentInfo = inject("bibleDocumentInfo", {})
     const {bookInitials, bibleBookName, originalOrdinalRange, ordinalRange, v11n} = bibleDocumentInfo;
     const verseInfo = {...getVerseInfo(props), v11n};
+    const verseRef = ref(null);
 
     const shown = ref(true);
     if(verseInfo) {
@@ -56,11 +57,22 @@ export default {
       provide("verseInfo", verseInfo);
     }
 
-    const {highlightedVerses, highlightVerse} = inject("verseHighlight");
+    const {highlightedVerses, highlightVerse, focusedVerse} = inject("verseHandler");
 
     const ordinal = computed(() => {
       return parseInt(props.verseOrdinal);
     });
+
+    const isFocused = computed(() => focusedVerse.value === ordinal.value);
+
+    watch(isFocused, v => {
+      if(v) {
+        //if(!isCompletelyInViewport(verseRef.value)) {
+        //  verseRef.value.scrollIntoView({behavior: "smooth"});
+        //}
+        verseRef.value.focus();
+      }
+    })
 
     const book = computed(() => {
       return props.osisID.split(".")[0]
@@ -97,6 +109,8 @@ export default {
       highlighted,
       fromBibleDocument,
       verseClicked,
+      isFocused,
+      verseRef,
       ...common,
     }
   },
@@ -108,4 +122,8 @@ export default {
 .linebreak {
   display: block;
 }
+.verse {
+
+}
+
 </style>

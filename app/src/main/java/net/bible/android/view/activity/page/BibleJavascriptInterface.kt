@@ -23,6 +23,8 @@ import android.content.Intent
 import android.net.Uri
 import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.view.FocusFinder
+import android.view.View
 import android.webkit.JavascriptInterface
 import android.widget.TextView
 import androidx.core.content.FileProvider
@@ -398,17 +400,18 @@ class BibleJavascriptInterface(
         Log.i(TAG, "key $key")
         GlobalScope.launch(Dispatchers.Main) {
             when (key) {
-                "AltArrowDown" -> windowControl.focusNextWindow()
-                "AltArrowRight" -> windowControl.focusNextWindow()
-                "AltArrowUp" -> windowControl.focusPreviousWindow()
-                "AltArrowLeft" -> windowControl.focusPreviousWindow()
-                "AltKeyW" -> mainBibleActivity.documentViewManager.splitBibleArea?.binding?.restoreButtons?.requestFocus()
-                "AltKeyM" -> {
+                "KeyW" -> mainBibleActivity.documentViewManager.splitBibleArea?.binding?.restoreButtons?.requestFocus()
+                "KeyM" -> {
                     mainBibleActivity.binding.drawerLayout.open()
                     mainBibleActivity.binding.drawerLayout.requestFocus()
                 }
-                "AltKeyO" -> mainBibleActivity.showOptionsMenu()
-                "AltKeyG" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
+                "KeyO" -> mainBibleActivity.showOptionsMenu()
+                "KeyG" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
+                "ArrowDown" -> windowControl.focusNextWindow()
+                "ArrowRight" -> windowControl.focusNextWindow()
+                "ArrowUp" -> windowControl.focusPreviousWindow()
+                "ArrowLeft" -> windowControl.focusPreviousWindow()
+                "Tab" -> windowControl.focusNextWindow()
             }
         }
     }

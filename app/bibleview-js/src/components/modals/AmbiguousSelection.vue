@@ -104,7 +104,7 @@ export default {
     const android = inject("android");
     const multiSelectionMode = ref(false);
 
-    const {resetHighlights, highlightVerse, hasHighlights} = inject("verseHighlight");
+    const {resetHighlights, highlightVerse, hasHighlights} = inject("verseHandler");
     const {modalOpen, closeModals} = inject("modal");
 
     const showModal = ref(false);

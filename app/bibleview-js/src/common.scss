@@ -172,6 +172,24 @@ $modal-content-background-color-night: rgb(33, 33, 33);
   }
 }
 
+$focusDay: rgb(255, 182, 123, 1.0);
+$focusNight: rgb(255, 182, 123, 0.5);
+
+:focus-visible {
+  outline: $focusDay auto 1px;
+  & .night {
+    outline: $focusNight auto 1px;
+  }
+}
+
+.isFocused {
+  //@extend .isHighlighted;
+  //background-color: rgba(255, 0, 0, 0.1);
+  //.night & {
+  //  background-color: rgba(255, 0, 0, 0.3);
+  //}
+}
+
 .one-liner {
   white-space: nowrap;
   text-overflow: ellipsis;

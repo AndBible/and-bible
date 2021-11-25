@@ -57,7 +57,7 @@ export default {
     checkUnsupportedProps(props, "subType")
     const {strings, config, ...common} = useCommon();
     const isHighlighted = ref(false);
-    const {addCustom, resetHighlights} = inject("verseHighlight");
+    const {addCustom, resetHighlights} = inject("verseHandler");
     function prep(string) {
       let remainingString = string;
       const res = []

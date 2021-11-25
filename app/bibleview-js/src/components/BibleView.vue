@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div @click="ambiguousSelection.handle" :class="{night: appSettings.nightMode}" :style="topStyle" :dir="direction">
+  <div @click="ambiguousSelection.handle" :class="{keyboardMode, night: appSettings.nightMode}" :style="topStyle" :dir="direction">
     <div class="background" :style="backgroundStyle"/>
     <div :style="`height:${calculatedConfig.topOffset}px`"/>
     <div :style="modalStyle" id="modals"/>
@@ -27,7 +27,7 @@
     <ErrorBox v-if="appSettings.errorBox"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
-    <div v-if="appSettings.hasActiveIndicator">
+    <div v-if="appSettings.hasActiveIndicator || keyboardMode">
       <div class="top-left-corner"/>
       <div class="top-right-corner"/>
       <div class="bottom-left-corner"/>
@@ -51,7 +51,6 @@ import {
   useCustomCss,
   useCustomFeatures,
   useFontAwesome, useModal, useSharing,
-  useVerseHighlight,
   useVerseNotifier
 } from "@/composables";
 import {testBookmarkLabels, testData} from "@/testdata";
@@ -69,6 +68,7 @@ import Color from "color";
 import {useStrings} from "@/composables/strings";
 import {DocumentTypes} from "@/constants";
 import {useKeyboard} from "@/composables/keyboard";
+import {useVerseHandler} from "@/composables/verse-handling";
 
 export default {
   name: "BibleView",
@@ -89,18 +89,21 @@ export default {
     window.bibleViewDebug.documents = documents;
     const topElement = ref(null);
     const documentPromise = ref(null);
-    const verseHighlight = useVerseHighlight();
-    provide("verseHighlight", verseHighlight);
-    const {resetHighlights} = verseHighlight;
-    const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
+    const verseHandler = useVerseHandler(computed(() => keyboardMode.value));
+    provide("verseHandler", verseHandler);
+    const {resetHighlights} = verseHandler;
+    const scroll = useScroll(config, appSettings, calculatedConfig, verseHandler, documentPromise);
     const {doScrolling, scrollToId} = scroll;
     provide("scroll", scroll);
     const globalBookmarks = useGlobalBookmarks(config);
     const android = useAndroid(globalBookmarks, config);
-    useKeyboard(android);
 
     const modal = useModal(android);
     provide("modal", modal);
+
+    const keyboard = useKeyboard(    {android, appSettings, verseHandler, modal});
+    const {keyboardMode} = keyboard;
+    provide("keyboard", keyboard);
 
     let footNoteCount = 0;
 
@@ -282,6 +285,7 @@ export default {
       updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
       config, strings, documents, topElement, currentVerse, mounted, emit, Events, isLoading,
       contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings,
+      keyboardMode,
     };
   },
 }
@@ -360,8 +364,14 @@ $borderDistance: 0;
   border-width: 2.5px;
   .night & {
     border-color: rgba(196, 196, 255, 0.8);
+    .keyboardMode & {
+      border-color: $focusNight;
+    }
   }
   border-color: rgba(0, 0, 255, 0.6);
+  .keyboardMode & {
+    border-color: $focusDay;;
+  }
 }
 
 .top-left-corner {
