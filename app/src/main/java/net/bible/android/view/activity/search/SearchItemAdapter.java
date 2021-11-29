@@ -77,7 +77,6 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 
 		// set value for the second text field
 		if (view.getText2() != null) {
-			String verseText = searchControl.getSearchResultVerseText(item);
 			Element verseTextElement = searchControl.getSearchResultVerseElement(item);
 			SpannableString verseTextHtml = highlightSearchText(SearchControl.originalSearchString, verseTextElement);
 			view.getText2().setText(verseTextHtml);
