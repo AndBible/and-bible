@@ -111,6 +111,7 @@ object BackupControl {
 
         internalDbBackupDir.mkdirs()
         val targetFile =  File(internalDbBackupDir, file.name)
+        if(targetFile.exists()) targetFile.delete()
         file.copyTo(targetFile)
 		val subject = callingActivity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
 		val message = callingActivity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
