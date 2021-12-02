@@ -779,7 +779,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="import_menu">Importa &amp; esporta</string>
   <string name="export_fileformat">Esporta come %s</string>
   <string name="import_items">Importa %s</string>
-  <string name="import_from_db">Importazione del database da file</string>
+  <string name="import_from_db">Importa dalla base di dati dell\'applicazione</string>
   <string name="import_error">L\'importazione del database dell\'app non è riuscita. Il file di database potrebbe essere in un formato sbagliato o creato da una versione troppo vecchia di %s.</string>
   <string name="chooser_range">Intervallo</string>
   <string name="chooser_jump">Salta</string>
