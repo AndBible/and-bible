@@ -44,7 +44,7 @@
   <string name="task_kill_warning">Queste operazioni lunghe potrebbero interrompersi se passi ad un\'altra applicazione prima della fine.</string>
   <string name="no_tasks_running">Non ci sono operazioni in corso al momento.</string>
   <!--Search-->
-  <string name="search_words_group_prompt">Trova versi</string>
+  <string name="search_words_group_prompt">Trova versetti</string>
   <string name="search_all_words">Tutte le parole</string>
   <string name="search_any_word">Ogni parola</string>
   <string name="search_phrase">Frase</string>
@@ -57,18 +57,18 @@
   <string name="search_current_book">Libro attuale</string>
   <string name="error_executing_search">Ricerca non valida</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_title">Numeri di capitolo e verso</string>
-  <string name="prefs_show_verseno_summary">Mostra numeri di capitolo e verso</string>
+  <string name="prefs_show_verseno_title">Numeri di capitolo e versetto</string>
+  <string name="prefs_show_verseno_summary">Mostra numeri di capitolo e versetto</string>
   <string name="prefs_e_ink_mode_title">Modalità bianco e nero</string>
   <string name="prefs_eink_mode_summary">Usa l\'app in modalità monocromatica (senza colori), più adatta ai dispositivi E-ink.</string>
   <string name="prefs_disable_animations_title">Disabilita animazioni</string>
   <string name="prefs_disable_animations_summary">Disabilita varie animazioni come lo scorrimento fluido</string>
   <string name="prefs_paragraph_spacing_title">Spaziatura paragrafo (%s mm)</string>
   <string name="prefs_paragraph_spacing_summary">Regola la spaziatura tra i paragrafi.</string>
-  <string name="prefs_show_verseno_title1">Numeri dei versi</string>
+  <string name="prefs_show_verseno_title1">Numeri dei versetti</string>
   <string name="prefs_show_chapter_no_title">Numeri di capitolo</string>
   <string name="prefs_show_chapter_no_summary">Mostra i numeri di capitolo</string>
-  <string name="prefs_verse_per_line_summary">Mostra ciascun verso su una riga diversa</string>
+  <string name="prefs_verse_per_line_summary">Mostra ciascun versetto su una riga diversa</string>
   <string name="prefs_show_bookmarks_summary">Deseleziona per nascondere tutti i segnalibri</string>
   <string name="prefs_show_mynotes_summary">Mostra l\'icona nei versetti con Le mie note</string>
   <string name="prefs_show_notes_summary">Mostra note a piè di pagina e riferimenti incrociati</string>
@@ -77,7 +77,7 @@
   <string name="prefs_section_title_summary">Mostra i titoli delle sezioni non canoniche</string>
   <string name="prefs_red_letter_summary">Mostra le parole di Cristo in rosso</string>
   <string name="prefs_text_size_title">Impostazioni del carattere</string>
-  <string name="prefs_verse_per_line_title">Un verso per riga</string>
+  <string name="prefs_verse_per_line_title">Un versetto per riga</string>
   <string name="prefs_show_bookmarks_title">Mostra le icone del segnalibro</string>
   <string name="prefs_show_mynotes_title">Mostra le icone dei miei appunti</string>
   <string name="prefs_show_footnotes_title">Note a piè di pagina</string>
@@ -101,8 +101,8 @@
   <string name="prefs_night_mode_automatic">Automatico</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Modalità notturna</string>
-  <string name="prefs_navigate_to_verse_title">Naviga al verso</string>
-  <string name="prefs_navigate_to_verse_summary">Scegli il verso (e il capitolo) quando selezioni un passaggio</string>
+  <string name="prefs_navigate_to_verse_title">Naviga al versetto</string>
+  <string name="prefs_navigate_to_verse_summary">Scegli il versetto (e il capitolo) quando selezioni un passaggio</string>
   <string name="prefs_open_links_in_special_window_title">Finestra collegamenti</string>
   <string name="prefs_open_links_in_special_window_summary">Apre i collegamenti in finestre speciali, per mostrare più rapidamente i riferimenti incrociati e gli Strong</string>
   <string name="prefs_text_size_sample_text">Testo d\'esempio</string>
@@ -200,7 +200,7 @@
   <string name="window_pin_mode">Fissa</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Non esistono appunti su questo capitolo</string>
-  <string name="no_verse_notes">Non esistono appunti su questo verso</string>
+  <string name="no_verse_notes">Non esistono appunti su questo versetto</string>
   <string name="previous">Precedente</string>
   <string name="next">Successivo</string>
   <!--Strongs-->
@@ -317,11 +317,11 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="label_name_prompt">Nome</string>
   <string name="label_unlabelled">Senza etichetta</string>
   <string name="add_bookmark1">Segnalibro</string>
-  <string name="add_bookmark2">Scelta segnalibri</string>
+  <string name="add_bookmark2">Aggiungi segnalibro</string>
   <string name="add_bookmark3">Selezione</string>
   <string name="add_bookmark_whole_verse">Segnalibro su verso</string>
-  <string name="add_bookmark_whole_verse1">Versi</string>
-  <string name="add_bookmark_whole_verse2">Versi completi</string>
+  <string name="add_bookmark_whole_verse1">Versetti</string>
+  <string name="add_bookmark_whole_verse2">Versetti completi</string>
   <string name="remove_bookmark">Rimuovi</string>
   <string name="bookmark_settings_hide_labels_title">Nascondi le etichette specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Nascondi i segnalibri che sono marcati con le etichette specificate</string>
@@ -348,8 +348,8 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="some_chapters">%d capitoli</string>
   <string name="rest_of_book">Alla fine del libro</string>
   <!--Speak - Commentary-->
-  <string name="one_verse">%d verso</string>
-  <string name="some_verses">%d versi</string>
+  <string name="one_verse">%d versetto</string>
+  <string name="some_verses">%d versetti</string>
   <string name="rest_of_chapter">Alla fine del capitolo</string>
   <!--Speak - Dictionary and other-->
   <string name="one_page">%d pagina</string>
@@ -415,7 +415,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="workspace_text_options_help_title">Opzioni testo dello spazio di lavoro</string>
   <string name="workspace_text_options_help1">Queste impostazioni sono quelle predefinite per tutte le finestre dello spazio di lavoro.</string>
   <string name="workspace_text_options_help2">Per definire delle eccezioni puoi cambiare le impostazioni individuali delle finestre.</string>
-  <string name="window_text_options_help_title">Opzioni testo delle finestre</string>
+  <string name="window_text_options_help_title">Opzioni testo della finestra</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help1">L\'icona %s indica che l\'impostazione deriva da quelle dello spazio di lavoro.</string>
   <!--Parameter is actual icon-->
@@ -469,7 +469,7 @@ quando queste impostazioni vengono salvate nei segnalibri corrispondenti.</strin
   <string name="speak_fourth">Quarto</string>
   <string name="speak_fifth">Quinto</string>
   <string name="verse_range_mode_disabled">
-La ripetizione del passaggio è stata disattivata automaticamente perché il dialogo è iniziato al di fuori della gamma di versi definita.</string>
+La ripetizione del passaggio è stata disattivata automaticamente perché il dialogo è iniziato al di fuori della gamma di versetti definita.</string>
   <!--User Notes-->
   <string name="mynotes">Annotazioni</string>
   <!--Backup and restore-->
@@ -555,7 +555,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="error_occurred">Si è verificato un errore</string>
   <string name="error_occurred_crash_last_time">L\'ultima volta che hai usato l\'applicazione, è andata in errore. Per aiutarci a risolvere il bug, ti saremmo grati se ci inviassi una segnalazione di errore.</string>
   <string name="error_occurred_with_link">C\'è stato un errore. %s</string>
-  <string name="error_no_content">Nessun contenuto per il verso selezionato</string>
+  <string name="error_no_content">Nessun contenuto per il versetto selezionato</string>
   <string name="error_page_too_large">La pagina è troppo grande per essere caricata</string>
   <string name="error_key_not_in_document">Non trovato nel documento</string>
   <string name="error_key_not_in_document2">%s non trovato nel documento %s.</string>
@@ -632,8 +632,8 @@ quello di scorrere verso il basso dalla barra degli strumenti. Puoi anche usare 
  Scorri verso il basso dalla barra degli strumenti per mostrare il selettore dell\'area di lavoro.
  Premere a lungo il pulsante della finestra per minimizzare rapidamente.
  Premere a lungo il pulsante della barra degli strumenti per parlare per passare rapidamente alle impostazioni vocali.
- Premi a lungo il titolo della posizione del verso nella barra degli strumenti per passare al selettore documenti.
-  Premi a lungo il pulsante Indietro per accedere all\'elenco Cronologia.
+ Premi a lungo il titolo della posizione del versetto nella barra degli strumenti per passare al selettore documenti.
+ Premi a lungo il pulsante Indietro per accedere all\'elenco Cronologia.
 </string>
   <string name="help_window_pinning_title">Fissa le finestre</string>
   <string name="help_window_pinning_text">
@@ -689,8 +689,8 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="share_verse_ok">Condividi / Copia</string>
   <string name="verse_action_copy">Copia</string>
   <string name="share_verse_menu_title">Condividi / copia...</string>
-  <string name="show_versenumbers">Mostra i numeri dei versi</string>
-  <string name="show_full_verses">Mostra i versi completi</string>
+  <string name="show_versenumbers">Mostra i numeri dei versetti</string>
+  <string name="show_full_verses">Mostra i versetti completi</string>
   <string name="advertise_app">Pubblicizza l\'app</string>
   <string name="verse_share_advertise">Condiviso usando %s.</string>
   <string name="abbreviate_reference">Abbrevia riferimento</string>
@@ -742,17 +742,17 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
        segnala i problemi a chi si occupa della manutenzione dei testi
     </string>
   <string name="does_not_exist_abbreviation">Non esiste</string>
-  <string name="cant_change_wholeverse">Impossibile disattivare il segnalibro sul verso intero</string>
-  <string name="whole_verse_turned_on">Segnalibro impostato per l\'intero verso</string>
+  <string name="cant_change_wholeverse">Impossibile disattivare la selezione dell\' intero versetto per questo segnalibro</string>
+  <string name="whole_verse_turned_on">Segnalibro impostato per l\'intero versetto</string>
   <string name="this_bookmark">Questo segnalibro</string>
   <string name="this_workspace">Questo spazio di lavoro</string>
   <string name="primary_label">Etichetta principale</string>
-  <string name="highlight_entire_verse">Evidenzia l\'intero verso</string>
+  <string name="highlight_entire_verse">Evidenzia l\'intero versetto</string>
   <string name="favourite_label">Etichetta preferiti</string>
   <string name="edit_label">Modifica etichetta</string>
   <string name="delete_label_confirmation">Vuoi rimuovere l\'etichetta di segnalibro \"%s\"? Anche tutti gli Appunti di studio ad essa associati verranno rimossi.</string>
   <string name="bookmark_underline_style_arbitrary">Stile sottolineatura per la selezione segnalibri</string>
-  <string name="bookmark_underline_style_whole_verse">Stile sottolineatura per i segnalibri a verso intero</string>
+  <string name="bookmark_underline_style_whole_verse">Stile sottolineatura per i segnalibri a versetto intero</string>
   <string name="active_labels">Etichette selezionate</string>
   <string name="recent_labels">Etichette recenti</string>
   <string name="other_labels">Altre etichette</string>
@@ -765,7 +765,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="system_action2">Azioni di Android</string>
   <string name="text_copied_to_clicpboard">Testo copiato negli appunti</string>
   <string name="prefs_disable_two_step_bookmarking_title">Segnalibro rapido</string>
-  <string name="prefs_disable_two_step_bookmarking_summary">Mostra gli elementi \"Selezione\" e \"Versi\" direttamente nella vista Bibbia del menù Selezione</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Mostra gli elementi \"Selezione\" e \"Versetti\" direttamente nella vista Bibbia del menù Selezione</string>
   <string name="prefs_double_tap_to_fullscreen_title">Tocca due volte per lo schermo intero</string>
   <string name="prefs_double_tap_to_fullscreen_summary">Usa la modalità schermo intero toccando due volte la finestra</string>
   <string name="toggle_fullscreen">Schermo intero</string>
@@ -788,7 +788,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="chooser_style_grid">Griglia</string>
   <string name="chooser_style_lists">Elenchi</string>
   <string name="chooser_select">Seleziona %s</string>
-  <string name="chooser_pref_reset">Non reimpostare il capitolo/verso a 1 quando un libro o capitolo viene selezionato</string>
+  <string name="chooser_pref_reset">Non reimpostare il capitolo/versetto a 1 quando un libro o capitolo viene selezionato</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Spiacente, abbiamo solo una traduzione parziale dell\'interfaccia nella lingua %s . Questo perché %s è sviluppato interamente da volontari. Se puoi aiutarci nelle traduzioni, per favore vedi %s.</string>
   <!--will be added to incomplete_translation as a link-->
@@ -800,5 +800,5 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="strongs_off">Spento</string>
   <string name="strongs_links">Collegamenti</string>
   <string name="strongs_text_and_links">Testo e collegamenti</string>
-  <string name="verse_tip">Per scegliere versi parziali o multipli, puoi tenere premuto a lungo il testo biblico</string>
+  <string name="verse_tip">Per scegliere versetti parziali o multipli, puoi tenere premuto a lungo il testo biblico</string>
 </resources>
