@@ -1372,7 +1372,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
         }
 
-        if(keyCode == KeyEvent.KEYCODE_BACK && (event.source and InputDevice.SOURCE_KEYBOARD) != 0 && event.deviceId > 0) {
+        val isExternal = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            InputDevice.getDevice(event.deviceId).isExternal
+        } else {
+            false
+        }
+
+        if(keyCode == KeyEvent.KEYCODE_BACK && (event.source and InputDevice.SOURCE_KEYBOARD) != 0 && isExternal) {
             if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
                 binding.drawerLayout.closeDrawers()
             }
