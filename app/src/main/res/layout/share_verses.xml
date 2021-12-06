@@ -19,23 +19,52 @@
             android:layout_height="wrap_content"
             />
         <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/abbreviateReference"
+            android:id="@+id/toggleShowReference"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="7dip"
+            android:text="@string/show_reference" />
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleAbbreviateReference"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:padding="7dip"
             android:text="@string/abbreviate_reference" />
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleShowVersion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:padding="7dip"
+            android:text="@string/show_version_name" />
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleVersenumbers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="7dip"
             android:text="@string/show_versenumbers" />
+
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleFullVerses"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="7dip"
-            android:text="@string/show_full_verses" />
+            android:text="@string/show_full_verses"
+            android:visibility="gone" />
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleShowSelectionOnly"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="7dip"
+            android:text="@string/show_selection_only"/>
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleShowEllipsis"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:padding="7dip"
+            android:text="@string/show_ellipsis" />
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleNotes"
             android:layout_width="match_parent"

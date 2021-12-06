@@ -849,10 +849,14 @@
     <string name="share_verse_menu_title">Share / copy…</string>
     <string name="show_versenumbers">Show verse numbers</string>
     <string name="show_full_verses">Show full verses</string>
+    <string name="show_selection_only">Show selected text only</string>
     <string name="advertise_app">Advertise app</string>
     <string name="verse_share_advertise">Shared using %s.</string>
+    <string name="show_reference">Show reference</string>
     <string name="abbreviate_reference">Abbreviate reference</string>
     <string name="version_name">Version name</string>
+    <string name="show_version_name">Show version name</string>
+    <string name="show_ellipsis">Show ellipsis (...)</string>
 
     <string name="backup_button">Backup</string>
     <string name="back_button">Back</string>

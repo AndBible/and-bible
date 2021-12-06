@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -142,11 +142,13 @@ object SwordContentFacade {
 
     fun getSelectionText(selection: Selection,
                          showVerseNumbers: Boolean,
-                         showFull: Boolean,
                          advertiseApp: Boolean,
                          showReference: Boolean = true,
                          abbreviateReference: Boolean = true,
                          showNotes: Boolean = true,
+                         showVersion: Boolean = true,
+                         showSelectionOnly: Boolean = true,
+                         showEllipsis: Boolean = true
     ): String {
 
         class VerseAndText(val verse: Verse, val text: String)
@@ -165,11 +167,13 @@ object SwordContentFacade {
         if(showVerseNumbers && verseTexts.size > 1) {
             startVerseNumber = "${selection.verseRange.start.verse}. "
         }
-        if (!showFull && startOffset > 0) {
+        if (showSelectionOnly && startOffset > 0 && showEllipsis) {
             startVerseNumber = "$startVerseNumber..."
         }
         val bookLocale = Locale(selection.book.language.code)
         val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
+
+        val versionText = if (showVersion) (", ${selection.book.abbreviation}") else ""
 
         val reference = if(showReference) {
             if(abbreviateReference) {
@@ -178,11 +182,11 @@ object SwordContentFacade {
                     BookName.setFullBookName(false)
                     val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
                     BookName.setFullBookName(oldValue)
-                    " ($verseRangeName, ${selection.book.abbreviation})"
+                    " ($verseRangeName$versionText)"
                 }
             } else {
                 val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
-                " ($verseRangeName, ${selection.book.abbreviation})"
+                " ($verseRangeName$versionText)"
             }
         }
         else
@@ -204,8 +208,8 @@ object SwordContentFacade {
             verseTexts.size == 1 -> {
                 val end = startVerse.slice(endOffset until startVerse.length)
                 val text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
-                val post = if(!showFull && end.isNotEmpty()) "..." else ""
-                if(showFull) """“$startVerseNumber$start${text}$end”""" else "“$startVerseNumber$text$post”"
+                val post = if(showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
+                if(!showSelectionOnly) """“$startVerseNumber$start${text}$end”""" else "“$startVerseNumber$text$post”"
             }
             verseTexts.size > 1 -> {
                 startVerse = startVerse.slice(startOffset until startVerse.length)
@@ -222,9 +226,9 @@ object SwordContentFacade {
                     middleVerses += " "
                 }
                 val text = "${startVerse.trimEnd()} ${middleVerses.trimStart()}$endVerseNum$endVerse"
-                val post = if(!showFull && end.isNotEmpty()) "..." else ""
+                val post = if(showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
 
-                if(showFull) """“$startVerseNumber$start${text}$end$post”""" else "“$startVerseNumber$text$post”"
+                if(!showSelectionOnly) """“$startVerseNumber$start${text}$end$post”""" else "“$startVerseNumber$text$post”"
             }
             else -> throw RuntimeException("what")
         } + reference + notes + advertise

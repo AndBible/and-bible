@@ -47,22 +47,29 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
     init {
         CommonUtils.buildActivityComponent().inject(this)
         bindings.run {
-            toggleFullVerses.isChecked = CommonUtils.settings.getBoolean("share_toggle_full", false)
             if(!selection.hasRange) {
-                toggleFullVerses.isChecked = true
-                toggleFullVerses.visibility = View.GONE
+                toggleShowSelectionOnly.visibility = View.GONE
+                toggleShowEllipsis.visibility = View.GONE
             }
+
             toggleVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_verse_numbers", true)
             advertise.isChecked = CommonUtils.settings.getBoolean("share_show_add", true)
-            abbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
+            toggleShowReference.isChecked = CommonUtils.settings.getBoolean("share_show_reference", true)
+            toggleAbbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
+            toggleShowVersion.isChecked = CommonUtils.settings.getBoolean("share_show_version", true)
             toggleNotes.visibility = if(selection.notes!= null) View.VISIBLE else View.GONE
             toggleNotes.isChecked = CommonUtils.settings.getBoolean("show_notes", true)
+            toggleShowSelectionOnly.isChecked = CommonUtils.settings.getBoolean("show_selection_only", true)
+            toggleShowEllipsis.isChecked = CommonUtils.settings.getBoolean("show_ellipsis", true)
 
-            toggleFullVerses.setOnClickListener { updateText()}
             toggleVersenumbers.setOnClickListener { updateText()}
             advertise.setOnClickListener { updateText()}
-            abbreviateReference.setOnClickListener { updateText()}
+            toggleShowReference.setOnClickListener { updateText()}
+            toggleAbbreviateReference.setOnClickListener { updateText()}
+            toggleShowVersion.setOnClickListener { updateText()}
             toggleNotes.setOnClickListener { updateText()}
+            toggleShowSelectionOnly.setOnClickListener { updateText()}
+            toggleShowEllipsis.setOnClickListener { updateText()}
         }
         updateText()
     }
@@ -70,21 +77,30 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
     private fun updateText() {
         val text = SwordContentFacade.getSelectionText(selection,
             showVerseNumbers = bindings.toggleVersenumbers.isChecked,
-            showFull = bindings.toggleFullVerses.isChecked,
             advertiseApp = bindings.advertise.isChecked,
-            abbreviateReference = bindings.abbreviateReference.isChecked,
+            abbreviateReference = bindings.toggleAbbreviateReference.isChecked,
             showNotes = bindings.toggleNotes.isChecked,
+            showVersion = bindings.toggleShowVersion.isChecked,
+            showReference = bindings.toggleShowReference.isChecked,
+            showSelectionOnly = bindings.toggleShowSelectionOnly.isChecked,
+            showEllipsis = bindings.toggleShowEllipsis.isChecked
         )
         val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book.language.code)) == LayoutDirection.RTL
         bindings.preview.textDirection = if(isRtl)  View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
         bindings.preview.text = text
         CommonUtils.settings.apply {
-            setBoolean("share_toggle_full", bindings.toggleFullVerses.isChecked)
             setBoolean("share_verse_numbers", bindings.toggleVersenumbers.isChecked)
             setBoolean("share_show_add", bindings.advertise.isChecked)
-            setBoolean("share_abbreviate_reference", bindings.abbreviateReference.isChecked)
+            setBoolean("share_show_reference", bindings.toggleShowReference.isChecked)
+            setBoolean("share_abbreviate_reference", bindings.toggleAbbreviateReference.isChecked)
+            setBoolean("share_show_version", bindings.toggleShowVersion.isChecked)
             setBoolean("show_notes", bindings.toggleNotes.isChecked)
+            setBoolean("show_selection_only", bindings.toggleShowSelectionOnly.isChecked)
+            setBoolean("show_ellipsis", bindings.toggleShowEllipsis.isChecked)
         }
+        bindings.toggleAbbreviateReference.isEnabled = bindings.toggleShowReference.isChecked
+        bindings.toggleShowVersion.isEnabled = bindings.toggleShowReference.isChecked
+        bindings.toggleShowEllipsis.isEnabled = bindings.toggleShowSelectionOnly.isChecked
     }
 
     companion object {
