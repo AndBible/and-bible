@@ -169,7 +169,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
         currentBookRadioButton.text = currentBookName
 
-        Log.d(TAG, "Finished displaying Search view")
+        Log.i(TAG, "Finished displaying Search view")
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -212,7 +212,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             intent.putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName)
 
             text = decorateSearchString(text)
-            Log.d(TAG, "Search text:$text")
+            Log.i(TAG, "Search text:$text")
 
             // specify search string and doc in new Intent;
             // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results

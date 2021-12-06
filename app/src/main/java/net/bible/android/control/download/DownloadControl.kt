@@ -68,22 +68,22 @@ class DownloadControl(
         while (iter.hasNext()) {
             val doc = iter.next()
             if (doc.language == null) {
-                Log.d(TAG, "Ignoring " + doc.initials + " because it has no language")
+                Log.i(TAG, "Ignoring " + doc.initials + " because it has no language")
                 iter.remove()
             } else if (doc.isQuestionable) {
-                Log.d(TAG, "Ignoring " + doc.initials + " because it is questionable")
+                Log.i(TAG, "Ignoring " + doc.initials + " because it is questionable")
                 iter.remove()
             } else if (doc.initials.equals("westminster", ignoreCase = true)) {
-                Log.d(TAG, "Ignoring " + doc.initials + " because some sections are too large for a mobile phone e.g. Q91-150")
+                Log.i(TAG, "Ignoring " + doc.initials + " because some sections are too large for a mobile phone e.g. Q91-150")
                 iter.remove()
             } else if (doc.initials.equals("BDBGlosses_Strongs", ignoreCase = true)) {
-                Log.d(TAG, "Ignoring " + doc.initials + " because I still need to make it work")
+                Log.i(TAG, "Ignoring " + doc.initials + " because I still need to make it work")
                 iter.remove()
             } else if (doc.initials.equals("passion", ignoreCase = true)) {
-                Log.d(TAG, "Ignoring " + doc.initials)
+                Log.i(TAG, "Ignoring " + doc.initials)
                 iter.remove()
             } else if (doc.initials == "WebstersDict") {
-                Log.d(TAG, "Ignoring " + doc.initials + " because it is too big and crashes dictionary code")
+                Log.i(TAG, "Ignoring " + doc.initials + " because it is too big and crashes dictionary code")
                 iter.remove()
             }
         }
@@ -109,7 +109,7 @@ class DownloadControl(
 
     @Throws(LucidException::class)
     suspend fun downloadDocument(repoFactory: RepoFactory, document: Book) {
-        Log.d(TAG, "Download requested")
+        Log.i(TAG, "Download requested")
 
         // ensure SBMD is fully, not just partially, loaded
         val bmd = document.bookMetaData

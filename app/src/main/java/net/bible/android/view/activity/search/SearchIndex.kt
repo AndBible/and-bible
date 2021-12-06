@@ -73,7 +73,7 @@ class SearchIndex : CustomTitlebarActivityBase() {
         binding.createButton.setOnClickListener { onIndex() }
         binding.cancelButton.setOnClickListener { finish() }
 
-        Log.d(TAG, "Finished displaying Search Index view")
+        Log.i(TAG, "Finished displaying Search Index view")
     }
 
     /** Indexing is very slow

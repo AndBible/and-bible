@@ -65,7 +65,7 @@ object ErrorReportControl {
 
     enum class ErrorDialogResult {CANCEL, OKAY, REPORT, BACKUP}
     suspend fun showErrorDialog(context: ActivityBase, msg: String, isCancelable: Boolean = false, report: Boolean = true) {
-        Log.d(TAG, "showErrorMesage message:$msg")
+        Log.i(TAG, "showErrorMesage message:$msg")
         withContext(Dispatchers.Main) {
             var askAgain = true
             while(askAgain) {

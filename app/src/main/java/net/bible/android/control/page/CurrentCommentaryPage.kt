@@ -83,7 +83,7 @@ open class CurrentCommentaryPage internal constructor(
 	 * @see net.bible.android.control.CurrentPage#next()
 	 */
     override fun next() {
-        Log.d(TAG, "Next")
+        Log.i(TAG, "Next")
         nextVerse()
     }
 
@@ -91,7 +91,7 @@ open class CurrentCommentaryPage internal constructor(
 	 * @see net.bible.android.control.CurrentPage#previous()
 	 */
     override fun previous() {
-        Log.d(TAG, "Previous")
+        Log.i(TAG, "Previous")
         previousVerse()
     }
 
@@ -162,7 +162,7 @@ open class CurrentCommentaryPage internal constructor(
             else -> swordDocumentFacade.getDocumentByInitials(document) ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
         }
         if(book != null) {
-            Log.d(TAG, "Restored document:" + book.name)
+            Log.i(TAG, "Restored document:" + book.name)
             // bypass setter to avoid automatic notifications.
             // Also let's not use localSetCurrentDocument, because we don't want to set the verse.
             // It is already set correctly when CurrentBiblePage is restored.

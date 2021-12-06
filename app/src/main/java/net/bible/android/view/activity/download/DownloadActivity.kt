@@ -333,7 +333,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
      * @param selectedDocument
      */
     override fun handleDocumentSelection(selectedDocument: Book) {
-        Log.d(TAG, "Document selected:" + selectedDocument.initials)
+        Log.i(TAG, "Document selected:" + selectedDocument.initials)
         try {
             manageDownload(selectedDocument)
         } catch (e: Exception) {
@@ -376,7 +376,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
     @SuppressLint("MissingSuperCall")
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "onActivityResult:$resultCode")
+        Log.i(TAG, "onActivityResult:$resultCode")
         if (resultCode == DOWNLOAD_FINISH) {
             returnToPreviousScreen()
         } else {

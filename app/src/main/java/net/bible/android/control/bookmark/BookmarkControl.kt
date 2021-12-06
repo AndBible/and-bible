@@ -91,7 +91,7 @@ open class BookmarkControl @Inject constructor(
         if (bookmark?.playbackSettings != null) {
             bookmark.playbackSettings = settings
             addOrUpdateBookmark(bookmark)
-            Log.d("SpeakBookmark", "Updated bookmark settings " + bookmark + settings.speed)
+            Log.i("SpeakBookmark", "Updated bookmark settings " + bookmark + settings.speed)
         }
     }
 

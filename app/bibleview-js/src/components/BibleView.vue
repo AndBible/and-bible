@@ -50,7 +50,7 @@ import {
   useConfig,
   useCustomCss,
   useCustomFeatures,
-  useFontAwesome, useModal,
+  useFontAwesome, useModal, useSharing,
   useVerseHighlight,
   useVerseNotifier
 } from "@/composables";
@@ -68,11 +68,13 @@ import DevelopmentMode from "@/components/DevelopmentMode";
 import Color from "color";
 import {useStrings} from "@/composables/strings";
 import {DocumentTypes} from "@/constants";
+import {useKeyboard} from "@/composables/keyboard";
 
 export default {
   name: "BibleView",
   components: {Document, ErrorBox, BookmarkModal, DevelopmentMode},
   setup() {
+    console.log("BibleView setup");
     useAddonFonts();
     useFontAwesome();
     const documents = reactive([]);
@@ -95,6 +97,7 @@ export default {
     provide("scroll", scroll);
     const globalBookmarks = useGlobalBookmarks(config);
     const android = useAndroid(globalBookmarks, config);
+    useKeyboard(android);
 
     const modal = useModal(android);
     provide("modal", modal);
@@ -110,7 +113,11 @@ export default {
     const {closeModals} = modal;
 
     const mounted = ref(false);
-    onMounted(() => mounted.value = true)
+
+    onMounted(() => {
+      mounted.value = true;
+      console.log("BibleView mounted");
+    })
     onUnmounted(() => mounted.value = false)
 
     const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll);
@@ -251,6 +258,10 @@ export default {
 
     setupEventBusListener(Events.ADJUST_LOADING_COUNT, a => {
       loadingCount.value += a;
+      if(loadingCount.value < 0) {
+        console.error("Loading count now below zero, setting to 0", loadingCount.value);
+        loadingCount.value = 0;
+      }
     });
 
     const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
@@ -262,6 +273,8 @@ export default {
 
     setupEventBusListener(Events.SCROLL_DOWN, () => scrollUpDown());
     setupEventBusListener(Events.SCROLL_UP, () => scrollUpDown(true));
+
+    useSharing({topElement, android});
 
     return {
       direction: computed(() => appSettings.rightToLeft ? "rtl": "ltr"),

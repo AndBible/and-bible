@@ -185,7 +185,6 @@ class Selection(val bookInitials: String?, val startOrdinal: Int,
 class BibleView(val mainBibleActivity: MainBibleActivity,
                 internal var windowRef: WeakReference<Window>,
                 val windowControl: WindowControl,
-                private val bibleKeyHandler: BibleKeyHandler,
                 private val pageControl: PageControl,
                 private val pageTiltScrollControl: PageTiltScrollControl,
                 val linkControl: LinkControl,
@@ -251,6 +250,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         settings.allowFileAccess = false
         settings.allowContentAccess = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            defaultFocusHighlightEnabled = false
+        }
         setOnLongClickListener(BibleViewLongClickListener())
     }
 
@@ -299,7 +301,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun makeBookmark(selection: Selection? = currentSelection, wholeVerse: Boolean = false, openNotes: Boolean = false) {
         selection?: return
-        Log.d(TAG, "makeBookmark")
+        Log.i(TAG, "makeBookmark")
         val book = Books.installed().getBook(selection.bookInitials)
         if(book !is SwordBook) {
             // TODO: error response to JS
@@ -333,7 +335,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     internal fun compareSelection(selection: Selection? = currentSelection) {
         selection?: return
-        Log.d(TAG, "compareSelection")
+        Log.i(TAG, "compareSelection")
         val book = Books.installed().getBook(selection.bookInitials)
         if(book !is SwordBook) {
             return
@@ -391,7 +393,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             .setClassName(info.activityInfo.packageName, info.activityInfo.name)
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
-        Log.d(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
+        Log.i(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
         if(menuPrepared) {
             mode.menu.clear()
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
@@ -579,12 +581,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     @SuppressLint("SetJavaScriptEnabled")
     fun initialise() {
-        Log.d(TAG, "initialise")
+        Log.i(TAG, "initialise")
         webViewClient = BibleViewClient()
 
         webChromeClient = object : WebChromeClient() {
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
-                Log.d(TAG, message)
+                Log.i(TAG, message)
                 result.confirm()
                 return true
             }
@@ -592,7 +594,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 // If errorBox is enabled, console logging is handled in js interface so we don't want anything
                 // from here anymore.
                 if (!showErrorBox) {
-                    Log.d(TAG, "bibleview-js: ${consoleMessage.messageLevel()} ${consoleMessage.message()}")
+                    Log.i(TAG, "bibleview-js: ${consoleMessage.messageLevel()} ${consoleMessage.message()}")
                 }
                 return true
             }
@@ -650,7 +652,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             destroy()
         }
         listenEvents = false
-        Log.d(TAG, "Destroying Bibleview")
+        Log.i(TAG, "Destroying Bibleview")
         super.destroy()
         val win = windowRef.get()
         if(win != null && win.bibleView === this) {
@@ -829,7 +831,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private inner class BibleViewClient: WebViewClient() {
         override fun onLoadResource(view: WebView, url: String) {
-            Log.d(TAG, "onLoadResource:$url")
+            Log.i(TAG, "onLoadResource:$url")
             super.onLoadResource(view, url)
         }
 
@@ -865,7 +867,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private inner class BibleViewLongClickListener() : OnLongClickListener {
         override fun onLongClick(v: View): Boolean {
-            Log.d(TAG, "onLongClickListener")
+            Log.i(TAG, "onLongClickListener")
             val result = hitTestResult
             return if (result.type == HitTestResult.SRC_ANCHOR_TYPE) {
                 contextMenuInfo = LinkLongPressContextMenuInfo(result.extra!!)
@@ -948,7 +950,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             addChapter(chapter)
         }
 
-        Log.d(TAG, "Show $initialVerse, $initialAnchorOrdinal Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
+        Log.i(TAG, "Show $initialVerse, $initialAnchorOrdinal Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
         this.firstDocument = document
         synchronized(this) {
             var docStr = document.asJson
@@ -990,7 +992,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     internal val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
 
     fun updateTextDisplaySettings(onAttach: Boolean = false) {
-        Log.d(TAG, "updateTextDisplaySettings")
+        Log.i(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
         updateConfig(onAttach)
     }
@@ -1037,7 +1039,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun updateBackgroundColor() {
-        Log.d(TAG, "updateBackgroundColor")
+        Log.i(TAG, "updateBackgroundColor")
         setBackgroundColor(backgroundColor)
     }
 
@@ -1045,12 +1047,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var labelsUploaded = false
 
-    fun adjustLoadingCount(adj: Int) {
-        executeJavascriptOnUiThread("""bibleView.emit("adjust_loading_count", ${adj})""")
+    fun adjustLoadingCount(adj: Int): Boolean {
+        return executeJavascriptOnUiThread("""bibleView.emit("adjust_loading_count", ${adj})""")
     }
 
     private fun replaceDocument() {
-        Log.d(TAG, "replaceDocument")
+        Log.i(TAG, "replaceDocument")
         val documentStr = latestDocumentStr
         synchronized(this) {
             needsDocument = false
@@ -1091,7 +1093,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      * Enable or disable zoom controls depending on whether map is currently shown
      */
     private fun enableZoomForMap(isMap: Boolean) {
-        Log.d(TAG, "enableZoomForMap $isMap")
+        Log.i(TAG, "enableZoomForMap $isMap")
         settings.builtInZoomControls = true
         settings.setSupportZoom(isMap)
         settings.displayZoomControls = false
@@ -1139,7 +1141,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
-        Log.d(TAG, "Focus changed so start/stop scroll $hasWindowFocus")
+        Log.i(TAG, "Focus changed so start/stop scroll $hasWindowFocus")
         if (hasWindowFocus) {
             resumeTiltScroll()
         } else {
@@ -1178,19 +1180,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         pageTiltScroller.recalculateViewingPosition()
 
         return handled
-    }
-
-    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-        //TODO allow DPAD_LEFT to always change page and navigation between links using dpad
-        // placing BibleKeyHandler second means that DPAD left is unable to move to prev page if strongs refs are shown
-        // vice-versa (webview second) means right & left can not be used to navigate between Strongs links
-
-        // common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT to change chapter
-        return if (bibleKeyHandler.onKeyUp(keyCode, event)) {
-            true
-        } else super.onKeyUp(keyCode, event)
-
-        // allow movement from link to link in current page
     }
 
     fun scroll(forward: Boolean, scrollAmount: Int): Boolean {
@@ -1358,10 +1347,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var separatorMoving = false
 
     fun onEvent(event: WindowSizeChangedEvent) {
-        Log.d(TAG, "window size changed")
+        Log.i(TAG, "window size changed")
         separatorMoving = !event.isFinished
         if(!separatorMoving && !mainBibleActivity.isSplitVertically) {
-            doCheckWindows(true)
+            checkWindows = true
+            doCheckWindows()
         }
     }
 
@@ -1372,9 +1362,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private fun doCheckWindows(force: Boolean = false) {
-        if(checkWindows || force) {
-            if(!htmlLoadingOngoing) executeJavascript("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});")
+    private fun doCheckWindows() {
+        if(!htmlLoadingOngoing && checkWindows) {
+            executeJavascript("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});")
             if (window.pageManager.currentPage.documentCategory == DocumentCategory.BIBLE) {
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
             }
@@ -1384,7 +1374,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        Log.d(TAG, "Detached from window")
+        Log.i(TAG, "Detached from window")
         // prevent random verse changes while layout is being rebuild because of window changes
         bibleJavascriptInterface.notificationsEnabled = false
         pauseTiltScroll()
@@ -1397,7 +1387,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        Log.d(TAG, "Attached to window")
+        Log.i(TAG, "Attached to window")
         if (windowControl.isActiveWindow(window)) {
             bibleJavascriptInterface.notificationsEnabled = true
 
@@ -1409,7 +1399,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun scrollOrJumpToVerse(key: Key, restoreOngoing: Boolean = false) {
-        Log.d(TAG, "Scroll or jump to:$key")
+        Log.i(TAG, "Scroll or jump to:$key")
         var toVerse: Verse
         var endVerse: Verse? = null
         when (key) {
@@ -1443,8 +1433,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
     }
 
-    fun executeJavascriptOnUiThread(javascript: String) {
+    fun executeJavascriptOnUiThread(javascript: String): Boolean {
+        if(htmlLoadingOngoing) {
+            Log.e(TAG,"HTML not yet ready, js execution is doomed to fail. $javascript")
+            return false
+        }
         runOnUiThread { executeJavascript(javascript) }
+        return true
     }
 
     private fun runOnUiThread(runnable: () -> Unit) {
@@ -1459,7 +1454,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val end = min(javascript.length, 500)
         val subStr = javascript.slice(0 until end)
 
-        Log.d(TAG, "Executing JS: $subStr")
+        Log.i(TAG, "Executing JS: $subStr")
+        if(htmlLoadingOngoing) {
+            Log.e(TAG,"HTML not yet ready, js execution is doomed to fail. $javascript")
+            return;
+        }
         evaluateJavascript("$javascript;", callBack)
     }
 
@@ -1472,7 +1471,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun requestPreviousChapter(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
-        Log.d(TAG, "requestMoreTextAtTop")
+        Log.i(TAG, "requestMoreTextAtTop")
         if (firstDocument is BibleDocument) {
             val newChap = minChapter - 1
 
@@ -1486,7 +1485,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun requestNextChapter(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
-        Log.d(TAG, "requestMoreTextAtEnd")
+        Log.i(TAG, "requestMoreTextAtEnd")
         if (firstDocument is BibleDocument) {
             val newChap = maxChapter + 1
             val currentPage = window.pageManager.currentBible
@@ -1534,8 +1533,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return true
     }
 
-    fun exportStudyPad() {
-        executeJavascriptOnUiThread("bibleView.emit('export_studypad')")
+    fun exportHtml() {
+        executeJavascriptOnUiThread("bibleView.emit('export_html')")
+    }
+
+    override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
+        if(focused && windowRepository.activeWindow.id != window.id) {
+            windowRepository.activeWindow = window
+        }
+        super.onFocusChanged(focused, direction, previouslyFocusedRect)
     }
 
     var onDestroy: (() -> Unit)? = null

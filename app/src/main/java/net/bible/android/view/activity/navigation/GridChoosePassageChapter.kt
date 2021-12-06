@@ -128,7 +128,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
 
     override fun buttonPressed(buttonInfo: ButtonInfo) {
         val chapter = buttonInfo.id
-        Log.d(TAG, "Chapter selected:$chapter")
+        Log.i(TAG, "Chapter selected:$chapter")
         try {
             val currentPageControl = activeWindowPageManagerProvider.activeWindowPageManager
             if (!navigateToVerse && !currentPageControl.currentPage.isSingleKey) {

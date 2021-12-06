@@ -54,8 +54,8 @@ def give_path(lang, path="../fastlane/metadata/android/", txt_file="full_descrip
 with open(give_path("en-US"), "w") as f:
     f.write(render(os.path.join(dir_path,"playstore-description.yml")))
 
-with open(os.path.join(dir_path, "../../homepage/index.html"), "w") as f:
-    f.write(render(os.path.join(dir_path,"playstore-description.yml"), homepage_template, skip_issues=True))
+#with open(os.path.join(dir_path, "../../homepage/index.html"), "w") as f:
+#    f.write(render(os.path.join(dir_path,"playstore-description.yml"), homepage_template, skip_issues=True))
 
 translation_folder = os.path.join(dir_path, "description-translations")
 matcher = re.compile(r"^([a-zA-Z-]+)\.yml$")

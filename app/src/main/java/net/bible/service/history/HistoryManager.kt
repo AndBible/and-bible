@@ -176,14 +176,14 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
     fun goBack() {
         if (historyStack.size > 0) {
             try {
-                Log.d(TAG, "History size:" + historyStack.size)
+                Log.i(TAG, "History size:" + historyStack.size)
                 isGoingBack = true
 
                 // pop the previous item
                 val previousItem = historyStack.pop()
 
                 if (previousItem != null) {
-                    Log.d(TAG, "Going back to:$previousItem")
+                    Log.i(TAG, "Going back to:$previousItem")
                     previousItem.revertTo()
 
                     // finish current activity if not the Main screen
@@ -205,13 +205,13 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
     private fun add(stack: Stack<HistoryItem>, item: HistoryItem?) {
         if (item != null) {
             if (stack.isEmpty() || item != stack.peek()) {
-                Log.d(TAG, "Adding $item to history")
-                Log.d(TAG, "Stack size:" + stack.size)
+                Log.i(TAG, "Adding $item to history")
+                Log.i(TAG, "Stack size:" + stack.size)
 
                 stack.push(item)
 
                 while (stack.size > MAX_HISTORY) {
-                    Log.d(TAG, "Shrinking large stack")
+                    Log.i(TAG, "Shrinking large stack")
                     stack.removeAt(0)
                 }
             }

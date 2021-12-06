@@ -309,7 +309,7 @@ class ManageLabels : ListActivityBase() {
     }
 
     private fun studyPadSelected(journal: BookmarkEntities.Label) {
-        Log.d(TAG, "Journal selected:" + journal.name)
+        Log.i(TAG, "Journal selected:" + journal.name)
         try {
             activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
         } catch (e: Exception) {

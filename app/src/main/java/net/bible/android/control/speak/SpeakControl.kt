@@ -209,7 +209,7 @@ class SpeakControl @Inject constructor(
     /** Toggle speech - prepare to speak single page OR if speaking then stop speaking
      */
     fun toggleSpeak() {
-        Log.d(TAG, "Speak toggle current page")
+        Log.i(TAG, "Speak toggle current page")
         // Continue
         when {
             isPaused -> {
@@ -271,10 +271,10 @@ class SpeakControl @Inject constructor(
         val numPagesDefn = calculateNumPagesToSpeakDefinitions()[settings.numPagesToSpeakId]
 
         //, boolean queue, boolean repeat
-        Log.d(TAG, "Chapters:" + numPagesDefn.numPages)
+        Log.i(TAG, "Chapters:" + numPagesDefn.numPages)
         // if a previous speak request is paused clear the cached text
         if (isPaused) {
-            Log.d(TAG, "Clearing paused Speak text")
+            Log.i(TAG, "Clearing paused Speak text")
             stop()
         }
 
@@ -350,13 +350,13 @@ class SpeakControl @Inject constructor(
         prepareForSpeaking()
 
         // speak current chapter or stop speech if already speaking
-        Log.d(TAG, "Tell TTS to speak")
+        Log.i(TAG, "Tell TTS to speak")
         ttsServiceManager.speakText(book, keyList, queue, repeat)
     }
 
     fun rewind(amount: SpeakSettings.RewindAmount? = null) {
         if (isSpeaking || isPaused) {
-            Log.d(TAG, "Rewind TTS speaking")
+            Log.i(TAG, "Rewind TTS speaking")
             ttsServiceManager.rewind(amount)
             ABEventBus.getDefault().post(ToastEvent(R.string.rewind))
         }
@@ -364,7 +364,7 @@ class SpeakControl @Inject constructor(
 
     fun forward(amount: SpeakSettings.RewindAmount? = null) {
         if (isSpeaking || isPaused) {
-            Log.d(TAG, "Forward TTS speaking")
+            Log.i(TAG, "Forward TTS speaking")
             ttsServiceManager.forward(amount)
             ABEventBus.getDefault().post(ToastEvent(R.string.forward))
         }
@@ -383,7 +383,7 @@ class SpeakControl @Inject constructor(
             stopTimer()
         }
         if (isSpeaking || isPaused) {
-            Log.d(TAG, "Pause TTS speaking")
+            Log.i(TAG, "Pause TTS speaking")
             val tts = ttsServiceManager
             tts.pause(willContinueAfterThis)
             var pauseToastText = CommonUtils.getResourceString(R.string.pause)
@@ -407,7 +407,7 @@ class SpeakControl @Inject constructor(
     }
 
     private fun continueAfterPause(automated: Boolean) {
-        Log.d(TAG, "Continue TTS speaking after pause")
+        Log.i(TAG, "Continue TTS speaking after pause")
         if (!automated) {
             prepareForSpeaking()
         }
@@ -424,7 +424,7 @@ class SpeakControl @Inject constructor(
             return
         }
 
-        Log.d(TAG, "Stop TTS speaking")
+        Log.i(TAG, "Stop TTS speaking")
         ttsServiceManager.shutdown(willContinueAfter)
         stopTimer()
         if(!force) {
@@ -472,7 +472,7 @@ class SpeakControl @Inject constructor(
     private fun enableSleepTimer(sleepTimerAmount: Int) {
         stopTimer()
         if (sleepTimerAmount > 0) {
-            Log.d(TAG, "Activating sleep timer")
+            Log.i(TAG, "Activating sleep timer")
             val app = BibleApplication.application
             ABEventBus.getDefault().post(ToastEvent(app.getString(R.string.sleep_timer_started, sleepTimerAmount)))
             timerTask = object : TimerTask() {

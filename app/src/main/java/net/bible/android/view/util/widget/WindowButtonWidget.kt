@@ -21,6 +21,7 @@ package net.bible.android.view.util.widget
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
@@ -64,6 +65,14 @@ class WindowButtonWidget(
         if(event.window.id == window?.id) {
             updateSettings()
         }
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if(event?.keyCode == KeyEvent.KEYCODE_SPACE) {
+            performLongClick()
+            return true
+        }
+        return super.onKeyUp(keyCode, event)
     }
 
     private val isMaximised get() = windowControl.windowRepository.isMaximized

@@ -39,7 +39,7 @@ class LightSensor(val callBack: (newValue: Float) -> Unit) {
             if (!mMonitoring) {
                 ensureMonitoringLightLevel()
             }
-            Log.d(TAG, "Light Sensor:$mReading")
+            Log.i(TAG, "Light Sensor:$mReading")
             return Math.round(mReading)
         }
 
@@ -65,7 +65,7 @@ class LightSensor(val callBack: (newValue: Float) -> Unit) {
         override fun onSensorChanged(sensorEvent: SensorEvent) {
             if (sensorEvent.sensor.type == Sensor.TYPE_LIGHT) {
                 mReading = sensorEvent.values[0]
-				// Log.d(TAG, "Reading: $mReading")
+				// Log.i(TAG, "Reading: $mReading")
 				callBack(mReading)
             }
         }
@@ -78,14 +78,14 @@ class LightSensor(val callBack: (newValue: Float) -> Unit) {
      */
     val isLightSensor: Boolean
         get() {
-            Log.d(TAG, "check for a light sensor")
+            Log.i(TAG, "check for a light sensor")
             var isLightSensor = false
             val sm = application.getSystemService(Context.SENSOR_SERVICE) as SensorManager?
             if (sm != null) {
                 val sensors = sm.getSensorList(Sensor.TYPE_LIGHT)
                 isLightSensor = sensors.size > 0
             }
-            Log.d(TAG, "Finished check for a light sensor")
+            Log.i(TAG, "Finished check for a light sensor")
             return isLightSensor
         }
 

@@ -68,7 +68,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
             val vertical = Math.abs(flingEv.y - e2.y).toDouble()
             val horizontal = Math.abs(flingEv.x - e2.x).toDouble()
 
-            Log.d(TAG, "onFling vertical:$vertical horizontal:$horizontal VelocityX$velocityX")
+            Log.i(TAG, "onFling vertical:$vertical horizontal:$horizontal VelocityX$velocityX")
 
             // test vertical distance, make sure it's a swipe
             if (vertical > scaledMinimumDistance) {

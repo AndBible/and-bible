@@ -246,7 +246,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 freeTextSearch.setText(this)
             }
         }
-        Log.d(TAG, "Initialize finished")
+        Log.i(TAG, "Initialize finished")
     }
 
     open fun setDefaultLanguage() {
@@ -262,7 +262,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             }
             selectedLanguageNo = languageList.indexOf(lang)
             binding.languageSpinner.setText(lang.name)
-            Log.d(TAG, "Default language set to ${lang}")
+            Log.i(TAG, "Default language set to ${lang}")
         }
 
         // if last doc in last lang was just deleted then need to adjust index
@@ -295,7 +295,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
             // create the JSword Language for current lang
             var localLanguage = Language(langCode)
-            Log.d(TAG, "Local language is:$localLanguage")
+            Log.i(TAG, "Local language is:$localLanguage")
 
             // check a bible exists in current lang otherwise use english
             var foundBibleInLocalLanguage = false
@@ -323,7 +323,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         try {
             if (position >= 0 && position < displayedDocuments.size) {
                 val selectedBook = displayedDocuments[position]
-                Log.d(TAG, "Selected " + selectedBook.initials)
+                Log.i(TAG, "Selected " + selectedBook.initials)
                 handleDocumentSelection(selectedBook)
 
                 // prevent the item remaining highlighted.  Unfortunately the highlight is cleared before the selection is handled.
@@ -345,7 +345,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     protected suspend fun populateMasterDocumentList(refresh: Boolean) {
         isPopulated = false
-        Log.d(TAG, "populate Master Document List")
+        Log.i(TAG, "populate Master Document List")
 
         withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.VISIBLE
@@ -399,7 +399,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 try {
                     // re-filter documents
                     if (allDocuments.size > 0) {
-                        Log.d(TAG, "filtering documents")
+                        Log.i(TAG, "filtering documents")
                         displayedDocuments.clear()
                         val lang = selectedLanguage
                         val searchString = "${binding.freeTextSearch.text}*"
@@ -461,7 +461,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             // temporary Set to remove duplicate Languages
             val langSet = HashSet<Language>()
             if (allDocuments.size > 0) {
-                Log.d(TAG, "initialising language list")
+                Log.i(TAG, "initialising language list")
                 for (doc in allDocuments) {
                     langSet.add(doc.language)
                 }
@@ -527,7 +527,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     .setPositiveButton(R.string.yes
                     ) { dialog, buttonId ->
                         try {
-                            Log.d(TAG, "Deleting:$document")
+                            Log.i(TAG, "Deleting:$document")
                             documentControl.deleteDocument(document.installedDocument)
 
                             // the doc list should now change
@@ -555,7 +555,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 .setPositiveButton(R.string.okay
                 ) { dialog, buttonId ->
                     try {
-                        Log.d(TAG, "Deleting index:$document")
+                        Log.i(TAG, "Deleting index:$document")
                         swordDocumentFacade.deleteDocumentIndex(document.installedDocument)
                     } catch (e: Exception) {
                         Log.e(TAG, "Deleting index crashed", e)

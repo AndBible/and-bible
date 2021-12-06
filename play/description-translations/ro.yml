@@ -1,0 +1,66 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "Biblia, de la And Bible Open Source Project"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Citește Biblia, comentarii și dicționare fără conectare la internet"
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: O unealtă pentru studiul Bibliei
+paragraph_1_1: >
+  Aplicația de studiu biblic de la And Bible Open Source Project este o aplicație de studiu biblic offline, dar ușor de utilizat, pentru Android. Aplicația nu își propune să fie doar pentru citit Biblia, ci se concentrează pe a fi un instrument avansat pentru a face un studiu personal aprofundat al Bibliei.
+paragraph_1_2: >
+  Această aplicație este realizată de cititori ai Bibliei, pentru cititorii Bibliei. Scopul ei este de a vă ajuta să vă faceți studiul biblic convenabil, profund și distractiv. Cea mai bună parte a acestui proiect comunitar non-profit este că are sursă publică, este complet gratuit și nu conține reclame. Fiind construită de la zero pentru Android, este mică și, prin urmare, foarte eficientă și remarcabil de rapidă.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Câteva versiuni populare ale Bibliei (din cele multe disponibile) sunt Cornilescu, KJV, NASB, Diodati, precum și comentarii populare precum Matthew Henry și John Gill.
+subtitle_2: Caracteristici eficiente de studiu biblic
+paragraph_2_1: >
+  Aplicația are multe caracteristici originale și interesante, care fac ca experiența studiului biblic complex și profund să fie mai ușoară ca niciodată. Cele mai notabile caracteristici sunt următoarele:
+feature_01: Vizualizări separate ale textului care permit compararea traducerilor și consultarea comentariilor
+feature_02: Spațiile de studiu permit organizarea mai multor studii biblice cu propriile reglări
+feature_03: Integrarea Strong permite analiza cuvintelor grecești și ebraice
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Trimiteri, note de subsol și documente; accesezi trimiterile și notele de subsol prin simpla apăsare a unei legături; efectuezi un studiu aprofundat al Scripturilor folosind comentarii cu legături hipertext ({{commentary_examples}}), colecții de trimiteri ({{cross_reference_examples}}) și alte resurse.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry etc. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Pronunțarea avansată a textului cu marcaje de vorbire, permițând o experiență de ascultare ușoară a Bibliei"
+feature_06: Căutare flexibilă
+feature_07: Semne de carte și evidențiere avansată cu notițe de studiu personale
+feature_09: >
+  Planuri de lectură: stabilește obiective pentru citirea Bibliei 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  O vastă bibliotecă de documente: Traduceri ale Bibliei, comentarii teologice, dicționare, hărți și cărți creștine, totalizând peste {{total_documents}} documente în peste {{total_languages}} limbi, distribuite legal de Crosswire și alte depozite SWORD.  
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  Proveniența tuturor documentelor este cercetată pentru a ne asigura că toate documentele pot fi distribuite în mod legal sau că deținătorul drepturilor de autor a acordat permisiunea. Acesta este și motivul pentru care această aplicație nu include documente precum {{unavailable_documents}}.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV și NKJV"
+feature_12: >
+  Offline: singurul moment în care aveți nevoie de internet este pentru a descărca documente.
+feature_13: >
+  Notițe de studiu pentru a adăuga comentarii și trimiteri biblice în timp ce asculți predicile.
+subtitle_3: Haideți să facem împreună cea mai bună aplicație biblică!
+paragraph_3_1: >
+  And Bible este un proiect comunitar open-source. În practică, acest lucru înseamnă că orice persoană cu aptitudini adecvate poate și este încurajată să contribuie la proiect prin:
+contr_1: "realizarea de noi caracteristici,"
+contr_2: "testarea caracteristicilor care nu au fost încă lansate,"
+contr_3: menținerea la zi a traducerilor interfeței cu utilizatorul și
+contr_4: contribuind la extinderea bibliotecii de module prin obținerea de permisiuni de la deținătorii drepturilor de autor sau prin convertirea documentelor în format SWORD.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Dacă ești un inginer de software sau un tester profesionist, te rugăm să contribui la acest proiect. Pentru mai multe informații despre cum să contribuiți, vă rugăm să consultați {{how_to_contribute_url}}."
+subtitle_4: Legături
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Pagina principală: {{homepage_url}}
+link_2: >
+  Dă Like la And Bible pe Facebook: {{facebook_url}}
+link_3: >
+  Canalul nostru de Youtube: {{youtube_url}}
+link_4: >
+  Întrebări frecvente: {{faq_url}}
+link_5: >
+  Pagina Github a proiectului: {{github_url}}

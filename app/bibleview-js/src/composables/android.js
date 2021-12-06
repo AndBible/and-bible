@@ -321,6 +321,9 @@ export function useAndroid({bookmarks}, config) {
         android.shareHtml(value);
     }
 
+    function onKeyDown(key) {
+        android.onKeyDown(key);
+    }
     const exposed = {
         shareHtml,
         helpBookmarks,
@@ -358,6 +361,7 @@ export function useAndroid({bookmarks}, config) {
         compare,
         speak,
         helpDialog,
+        onKeyDown,
     }
 
     if(config.developmentMode) return {

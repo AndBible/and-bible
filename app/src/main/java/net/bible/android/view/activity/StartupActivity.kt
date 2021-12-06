@@ -131,7 +131,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private fun checkForExternalStorage(): Boolean {
         var abortErrorMsgId = 0
         val state = Environment.getExternalStorageState()
-        Log.d(TAG, "External storage state is $state")
+        Log.i(TAG, "External storage state is $state")
 
         if (Environment.MEDIA_MOUNTED != state) {
             abortErrorMsgId = R.string.no_sdcard_error
@@ -148,13 +148,17 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     private suspend fun checkWebView(): Boolean {
         val info = WebViewCompat.getCurrentWebViewPackage(applicationContext)
+        Log.i(TAG, "checkWebView: WebView version ${info?.packageName} ${info?.versionName}")
+
+        if(info?.packageName == "com.huawei.version") return true // We won't check huawei version number as it does not follow Chromium version numbering.
+
         val versionNum = info?.versionName?.split(".")?.first()?.split(" ")?.first()?.toIntOrNull() ?: return true // null -> can't check
         val minimumVersion = 83 // tested with Android Emulator API 30 and looks to function OK
         if(versionNum < minimumVersion) {
             val playUrl = "https://play.google.com/store/apps/details?id=${info.packageName}"
             val playLink = "<a href=\"$playUrl\">${getString(R.string.play)}</a>"
 
-            val msg = getString(R.string.old_webview, info?.versionName, minimumVersion.toString(), getString(R.string.app_name_medium), playLink)
+            val msg = getString(R.string.old_webview, info.versionName, minimumVersion.toString(), getString(R.string.app_name_medium), playLink)
 
             val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 Html.fromHtml(msg, Html.FROM_HTML_MODE_LEGACY)
@@ -240,7 +244,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             downloadButton.setOnClickListener { doGotoDownloadActivity() }
             importButton.setOnClickListener { onLoadFromZip() }
             if (previousInstallDetected) {
-                Log.d(TAG, "A previous install was detected")
+                Log.i(TAG, "A previous install was detected")
                 redownloadMessage.visibility = View.VISIBLE
                 redownloadButton.visibility = View.VISIBLE
                 redownloadButton.setOnClickListener {
@@ -254,7 +258,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     }
                 }
             } else {
-                Log.d(TAG, "Showing restore button because nothing to redownload")
+                Log.i(TAG, "Showing restore button because nothing to redownload")
                 restoreDatabaseButton.visibility = View.VISIBLE
                 restoreDatabaseButton.setOnClickListener {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
@@ -324,7 +328,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
      * on return from bible just exit
      */
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "Activity result:$resultCode")
+        Log.i(TAG, "Activity result:$resultCode")
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == DOWNLOAD_DOCUMENT_REQUEST) {
@@ -353,7 +357,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                         hourglass.show()
                         val inputStream = contentResolver.openInputStream(data!!.data!!)
                         if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {
-                            Log.d(TAG, "Restored database successfully")
+                            Log.i(TAG, "Restored database successfully")
 
                             withContext(Dispatchers.Main) {
                                 Dialogs.instance.showMsg(R.string.restore_success)

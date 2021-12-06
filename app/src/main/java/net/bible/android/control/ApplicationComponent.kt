@@ -31,7 +31,6 @@ import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.view.activity.page.BibleKeyHandler
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton
@@ -61,7 +60,6 @@ interface ApplicationComponent {
     fun pageTiltScrollControlFactory(): PageTiltScrollControlFactory
     fun historyManager(): HistoryManager
     fun historyTraversalFactory(): HistoryTraversalFactory
-    fun bibleKeyHandler(): BibleKeyHandler
 
     fun documentControl(): DocumentControl
     fun bookmarkControl(): BookmarkControl

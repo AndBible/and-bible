@@ -112,7 +112,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
     }
 
     fun moveItem(from: Int, to: Int) {
-        Log.d("MoveItem", "Moving $from $to")
+        Log.i("MoveItem", "Moving $from $to")
         if(from == to) return
 
         val item = items[from]

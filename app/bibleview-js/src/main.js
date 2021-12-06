@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+console.log("main.js begin");
+
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface
 import {patchAndroidConsole} from "@/composables/android";
 
@@ -23,6 +25,8 @@ window.bibleViewDebug = {};
 
 patchAndroidConsole();
 
+console.log("main.js after patching console");
+
 import { createApp } from 'vue'
 
 import BibleView from "@/components/BibleView";
@@ -30,9 +34,13 @@ import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 import LabelList from "@/components/LabelList";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions";
 
+console.log("main.js After imports");
+
 const app = createApp(BibleView);
 app.component("AmbiguousSelection", AmbiguousSelection);
 app.component("LabelList", LabelList);
 app.component("BookmarkLabelActions", BookmarkLabelActions);
+console.log("main.js After vue bootstrap. Mounting.");
 app.mount('#app')
+console.log("main.js After vue mount.");
 

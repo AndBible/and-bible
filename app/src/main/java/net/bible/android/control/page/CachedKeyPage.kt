@@ -56,7 +56,7 @@ abstract class CachedKeyPage internal constructor(
             val currentDocument = currentDocument
 			if (currentDocument != null && keylist == null) {
                 try {
-                    Log.d(TAG, "Start to create cached key list for $currentDocument")
+                    Log.i(TAG, "Start to create cached key list for $currentDocument")
                     // this cache is cleared in setCurrentDoc
                     keylist = ArrayList()
                     for (key in currentDocument.globalKeyList) { // root key has no name and can be ignored but also check for any other keys with no name
@@ -74,7 +74,7 @@ abstract class CachedKeyPage internal constructor(
                     Log.e(TAG, "Error getting keys for $currentDocument", e)
                     Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
                 }
-                Log.d(TAG, "Finished creating cached key list len:" + keylist!!.size)
+                Log.i(TAG, "Finished creating cached key list len:" + keylist!!.size)
             }
 			mCachedGlobalKeyList = keylist
             return keylist

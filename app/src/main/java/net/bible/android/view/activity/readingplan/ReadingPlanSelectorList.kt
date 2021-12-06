@@ -75,7 +75,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
         }
 
         isIntegrateWithHistoryManager = false
-        Log.d(TAG, "Finished displaying Reading Plan list")
+        Log.i(TAG, "Finished displaying Reading Plan list")
     }
 
     /** if a plan is selected then ask confirmation, save plan, and go straight to first day
@@ -104,7 +104,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
         super.onContextItemSelected(item)
         val menuInfo = item.menuInfo as AdapterContextMenuInfo
         val plan = mReadingPlanList[menuInfo.position]
-        Log.d(TAG, "Selected " + plan.planCode)
+        Log.i(TAG, "Selected " + plan.planCode)
 		when (item.itemId) {
 			R.id.reset -> {
 				readingPlanControl.reset(plan.planCode)

@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div :class="{exportMode}" ref="root">
+  <div :class="{exportMode}">
     <div class="journal-name" :style="labelNameStyle">
       {{ document.label.name }}
     </div>
@@ -88,8 +88,7 @@ export default {
     const {scrollToId} = inject("scroll");
     const android = inject("android");
     const studyPadRowRefs = [];
-    const exportMode = ref(false);
-    provide("exportMode", exportMode);
+    const exportMode = inject("exportMode", ref(false));
 
     function setStudyPadRowRef(el) {
       if(el) {
@@ -219,35 +218,9 @@ export default {
       }
     }
 
-    const root = ref(null);
-
-    let exportCss;
-    async function shareDocument() {
-      if(!exportCss) {
-        exportCss = (await import("!raw-loader!sass-loader!./export.scss")).default;
-      }
-      exportMode.value = true;
-      await nextTick();
-      const html = `
-         <!DOCTYPE html>
-         <html>
-           <head>
-             <meta charset="utf-8">
-             <style>${exportCss}</style>
-           </head>
-           <body>${root.value.innerHTML}</body>
-         </html>`;
-      exportMode.value = false;
-      console.log({exportCss});
-      android.shareHtml(html);
-    }
-
-    setupEventBusListener(Events.EXPORT_STUDYPAD, shareDocument)
-
     return {
       lastEntry, journalEntries, editNotes, adding, indentStyle, editableJournalEntry,  addNewEntry, appendNewEntry,
-      labelNameStyle, studyPadOrdinal, StudyPadEntryTypes, setStudyPadRowRef, editLastNote, shareDocument,
-      exportMode, ...useCommon(), root
+      labelNameStyle, studyPadOrdinal, StudyPadEntryTypes, setStudyPadRowRef, editLastNote, exportMode, ...useCommon()
     }
   }
 }

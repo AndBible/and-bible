@@ -87,7 +87,7 @@ class ChooseDictionaryWord : ListActivityBase() {
      * @return
      */
     private fun initialise() {
-        Log.d(TAG, "Initialising")
+        Log.i(TAG, "Initialising")
         // setting up an initially empty list of matches
         mMatchingKeyList = ArrayList()
         listAdapter = ArrayAdapter(this@ChooseDictionaryWord,
@@ -107,7 +107,7 @@ class ChooseDictionaryWord : ListActivityBase() {
                     .activeWindowPageManager
                     .currentDictionary
                     .cachedGlobalKeyList
-                Log.d(TAG, "Finished Initialising")
+                Log.i(TAG, "Finished Initialising")
             } catch (e: Exception) {
                 Log.e(TAG, "Error creating dictionary key list")
                 instance.showErrorMsg(R.string.error_occurred, e)
@@ -125,7 +125,7 @@ class ChooseDictionaryWord : ListActivityBase() {
      */
     private fun showPossibleDictionaryKeys(_searchText: String) {
         var searchText = _searchText
-        Log.d(TAG, "Search for:$searchText")
+        Log.i(TAG, "Search for:$searchText")
         try {
             if (mDictionaryGlobalList != null) {
                 searchText = searchText.toLowerCase(Locale.getDefault())
@@ -137,11 +137,11 @@ class ChooseDictionaryWord : ListActivityBase() {
                         mMatchingKeyList.add(key)
                     }
                 }
-                Log.d(TAG, "matches found:" + mMatchingKeyList.size)
+                Log.i(TAG, "matches found:" + mMatchingKeyList.size)
                 notifyDataSetChanged()
-                Log.d(TAG, "Finished searching for:$searchText")
+                Log.i(TAG, "Finished searching for:$searchText")
             } else {
-                Log.d(TAG, "Cached global key list is null")
+                Log.i(TAG, "Cached global key list is null")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error finding matching keys", e)

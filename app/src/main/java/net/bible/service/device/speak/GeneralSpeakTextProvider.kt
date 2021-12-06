@@ -90,12 +90,12 @@ class GeneralSpeakTextProvider : SpeakTextProvider {
         for (text in textsToSpeak) {
             mTextToSpeak!!.addAll(breakUpText(text))
         }
-        Log.d(TAG, "Total Num blocks in speak queue:" + mTextToSpeak!!.size)
+        Log.i(TAG, "Total Num blocks in speak queue:" + mTextToSpeak!!.size)
     }
 
     fun setupReading(book: Book?, keyList: List<Key>, repeat: Boolean) {
         this.book = book
-        Log.d(TAG, "Keys:" + keyList.size)
+        Log.i(TAG, "Keys:" + keyList.size)
         // build a string containing the text to be spoken
         val textToSpeak: MutableList<String> = ArrayList()
         this.keyList = keyList
@@ -136,7 +136,7 @@ class GeneralSpeakTextProvider : SpeakTextProvider {
 
         // if a pause occurred then skip the first part
         if (fractionOfNextSentenceSpoken > 0) {
-            Log.d(TAG, "Getting part of text to read.  Fraction:$fractionOfNextSentenceSpoken")
+            Log.i(TAG, "Getting part of text to read.  Fraction:$fractionOfNextSentenceSpoken")
             val textFraction = getPrevTextStartPos(text, fractionOfNextSentenceSpoken)
             if (textFraction.found) {
                 fractionOfNextSentenceSpoken = textFraction.actualFractionOfWhole.toDouble()
@@ -176,14 +176,14 @@ class GeneralSpeakTextProvider : SpeakTextProvider {
      * @param fractionCompleted of last block of text returned by getNextSpeakCommand
      */
     override fun savePosition(fractionCompleted: Double) {
-        Log.d(TAG, "Pause CurrentSentence:$nextTextToSpeak")
+        Log.i(TAG, "Pause CurrentSentence:$nextTextToSpeak")
 
         // accumulate these fractions until we reach the end of a chunk of text
         // if pause several times the fraction of text completed becomes a fraction of the fraction left i.e. 1-previousFractionCompleted
         // also ensure the fraction is never greater than 1/all text
         fractionOfNextSentenceSpoken += Math.min(1.0,
             (1.0 - fractionOfNextSentenceSpoken) * fractionCompleted)
-        Log.d(TAG, "Fraction of current sentence spoken:$fractionOfNextSentenceSpoken")
+        Log.i(TAG, "Fraction of current sentence spoken:$fractionOfNextSentenceSpoken")
         backOneChunk()
     }
 
@@ -213,11 +213,11 @@ class GeneralSpeakTextProvider : SpeakTextProvider {
         } else {
             Log.e(TAG, "Could not rewind")
         }
-        Log.d(TAG, "Rewind chunk length start position:$fractionOfNextSentenceSpoken")
+        Log.i(TAG, "Rewind chunk length start position:$fractionOfNextSentenceSpoken")
     }
 
     override fun forward(amount: RewindAmount?) {
-        Log.d(TAG, "Forward nextText:$nextTextToSpeak")
+        Log.i(TAG, "Forward nextText:$nextTextToSpeak")
 
         // go back to start of current sentence
         var textFraction = getForwardTextStartPos(peekNextTextChunk(), fractionOfNextSentenceSpoken)
@@ -231,7 +231,7 @@ class GeneralSpeakTextProvider : SpeakTextProvider {
         } else {
             Log.e(TAG, "Could not forward")
         }
-        Log.d(TAG, "Forward chunk length start position:$fractionOfNextSentenceSpoken")
+        Log.i(TAG, "Forward chunk length start position:$fractionOfNextSentenceSpoken")
     }
 
     override fun finishedUtterance(utteranceId: String) {

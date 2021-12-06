@@ -131,7 +131,7 @@ open class WindowRepository @Inject constructor(
         set (newActiveWindow) {
             if (!initialized || newActiveWindow != this._activeWindow) {
                 _activeWindow = newActiveWindow
-                Log.d(TAG, "Active window: ${newActiveWindow}")
+                Log.i(TAG, "Active window: ${newActiveWindow}")
                 ABEventBus.getDefault().post(CurrentWindowChangedEvent(newActiveWindow))
             }
         }
@@ -186,7 +186,7 @@ open class WindowRepository @Inject constructor(
     fun getWindow(windowId: Long?): Window? = if(windowId == null) null else windows.find {it.id == windowId}
 
     fun addNewWindow(sourceWindow: Window? = null): Window {
-        Log.d(TAG, "addNewWindow $sourceWindow")
+        Log.i(TAG, "addNewWindow $sourceWindow")
         val newWindow = createNewWindow(sourceWindow)
         newWindow.weight = (sourceWindow?: activeWindow).weight
 
@@ -205,7 +205,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun minimise(window: Window) {
-        Log.d(TAG, "minimise $window")
+        Log.i(TAG, "minimise $window")
         window.windowState = WindowState.MINIMISED
 
         // has the active screen been minimised?
@@ -215,7 +215,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun close(window: Window) {
-        Log.d(TAG, "close $window, windowList before: $windowList")
+        Log.i(TAG, "close $window, windowList before: $windowList")
         window.windowState = WindowState.CLOSED
         val currentPos = windowList.indexOf(window)
 
@@ -231,7 +231,7 @@ open class WindowRepository @Inject constructor(
     }
 
     private fun destroy(window: Window) {
-        Log.d(TAG, "destroy $window")
+        Log.i(TAG, "destroy $window")
         if (!windowList.remove(window)) {
             logger.error("Failed to remove window " + window.id)
         }
@@ -239,7 +239,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun moveWindowToPosition(window: Window, position: Int) {
-        Log.d(TAG, "moveWindowToPosition $window $position")
+        Log.i(TAG, "moveWindowToPosition $window $position")
         val pinnedWindows = windowList.filter {it.isPinMode}.toMutableList()
         val unPinnedWindows = windowList.filter {!it.isPinMode}.toMutableList()
         val windowList = if(window.isPinMode) pinnedWindows else unPinnedWindows
@@ -289,7 +289,7 @@ open class WindowRepository @Inject constructor(
             else if(sourceWindow?.isLinksWindow == true) windowList.size
             else windowList.indexOf(sourceWindow) + 1
         windowList.add(pos, newWindow)
-        Log.d(TAG, "createNewWindow source:$sourceWindow new:$newWindow first:$first windowList after: $windowList")
+        Log.i(TAG, "createNewWindow source:$sourceWindow new:$newWindow first:$first windowList after: $windowList")
         return newWindow
     }
 
@@ -320,7 +320,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun saveIntoDb(stopSpeak: Boolean = true) {
-        Log.d(TAG, "saveIntoDb")
+        Log.i(TAG, "saveIntoDb")
         if(stopSpeak) _mainBibleActivity?.speakControl?.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()
@@ -356,7 +356,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun loadFromDb(workspaceId: Long) {
-        Log.d(TAG, "onLoadDb for workspaceId=$workspaceId")
+        Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
         val entity = dao.workspace(workspaceId) ?: dao.firstWorkspace()
             ?: WorkspaceEntities.Workspace("").apply{
                 id = dao.insertWorkspace(this)
@@ -405,7 +405,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun clear(destroy: Boolean = false) {
-        Log.d(TAG, "clear $destroy")
+        Log.i(TAG, "clear $destroy")
         _activeWindow = null
         maximizedWindowId = null
         unPinnedWeight = null

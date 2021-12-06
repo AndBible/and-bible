@@ -51,7 +51,7 @@ class WindowButtonGestureListener: GestureDetector.SimpleOnGestureListener() {
         val scaledMinimumDistance = CommonUtils.convertDipsToPx(40)
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
 
-        Log.d("WBGListener", "onFling")
+        Log.i("WBGListener", "onFling")
         val vertical = Math.abs(e1.y - e2.y).toDouble()
         val horizontal = Math.abs(e1.x - e2.x).toDouble()
 
@@ -107,7 +107,7 @@ class BibleFrame(
     fun updatePaddings() {
         val left = if(isLeftWindow) mainBibleActivity.leftOffset1 else 0
         val right = if(isRightWindow) mainBibleActivity.rightOffset1 else 0
-        Log.d(TAG, "updating padding for $window: $left $right")
+        Log.i(TAG, "updating padding for $window: $left $right")
         if(left != paddingLeft || right != paddingRight) {
             setPadding(left, 0, right, 0)
             window.updateText()

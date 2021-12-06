@@ -20,7 +20,7 @@ import {
     inject,
     nextTick,
     onBeforeMount,
-    onUnmounted,
+    onUnmounted, provide,
     reactive,
     ref,
     watch
@@ -707,4 +707,30 @@ export function useModal(android) {
     watch(modalOpen, v => android.reportModalState(v), {flush: "sync"})
 
     return {register, closeModals, modalOpen}
+}
+
+export function useSharing({topElement, android}) {
+    const exportMode = ref(false);
+    provide("exportMode", exportMode);
+
+    let exportCss;
+    async function shareDocument() {
+        if (!exportCss) {
+            exportCss = (await import("!raw-loader!sass-loader!@/export.scss")).default;
+        }
+        exportMode.value = true;
+        await nextTick();
+        const html = `
+         <!DOCTYPE html>
+         <html>
+           <head>
+             <meta charset="utf-8">
+             <style>${exportCss}</style>
+           </head>
+           <body>${topElement.value.innerHTML}</body>
+         </html>`;
+        exportMode.value = false;
+        android.shareHtml(html);
+    }
+    setupEventBusListener(Events.EXPORT_HTML, shareDocument)
 }

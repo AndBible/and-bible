@@ -40,7 +40,7 @@ class ProgressStatus : ProgressActivityBase() {
         val btn: Button = findViewById(R.id.okButton)
         btn.setOnClickListener { onOkay() }
         super.buildActivityComponent().inject(this)
-        Log.d(TAG, "Finished displaying Search Index view")
+        Log.i(TAG, "Finished displaying Search Index view")
     }
 
     fun onOkay() {

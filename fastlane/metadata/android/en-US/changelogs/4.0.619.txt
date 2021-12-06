@@ -1,0 +1,13 @@
+4.0.619
+- Bugfixes
+- Keyboard navigation (Experimental, #1878)
+
+4.0
+See "what's new" video: https://youtu.be/f2cf6-7liMo
+Release notes: https://github.com/AndBible/and-bible/wiki/v4.0-Release-Notes
+Highlights:
+- Char-accurate bookmarks
+- Bookmarks & My Notes merged & improved
+- My Notes commentary view
+- Study Pads for creating sermon notes etc.
+- Strongs dictionary by clicking words

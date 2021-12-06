@@ -22,7 +22,7 @@
     </template>
     {{ strings.removeBookmarkConfirmation }}
   </AreYouSure>
-  <div class="menu" style="display: flex;">
+  <div v-if="!exportMode" class="menu" style="display: flex;">
     <ButtonRow>
       <div class="journal-button" @click="editBookmark">
         <FontAwesomeIcon icon="info-circle"/>
@@ -39,10 +39,10 @@
     <div class="overlay"/>
     <div style="white-space: nowrap; overflow-x: auto">
       <b><a :href="bibleUrl">{{ bookmark.verseRangeOnlyNumber }}</a></b>&nbsp;
-      <LabelList in-bookmark single-line :bookmark-id="bookmark.id"/>
+      <LabelList v-if="!exportMode" in-bookmark single-line :bookmark-id="bookmark.id"/>
     </div>
-    <BookmarkText :bookmark="bookmark" :expanded="expanded" @change-expanded="expanded = $event"/>
-    <div v-if="bookmark.hasNote && expanded" class="note-separator"/>
+    <BookmarkText :bookmark="bookmark" :expanded="expanded || exportMode" @change-expanded="expanded = $event"/>
+    <div v-if="bookmark.hasNote && (expanded || exportMode)" class="note-separator"/>
     <div class="notes">
       <EditableText
         ref="editor"
@@ -92,7 +92,7 @@ export default {
         android.removeBookmark(props.bookmark.id);
       }
     }
-
+    const exportMode = inject("exportMode", ref(false));
     const bibleUrl = computed(
       () => {
         const osis = props.bookmark.wholeVerse
@@ -102,7 +102,10 @@ export default {
       }
     );
 
-    return {save, bibleUrl, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), expanded, ...useCommon()}
+    return {
+      save, bibleUrl, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), exportMode,
+      expanded, ...useCommon()
+    }
   },
 }
 </script>
