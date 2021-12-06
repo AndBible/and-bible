@@ -55,10 +55,6 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		this.searchControl = searchControl;
 	}
 
-	private static String processElementChildrenx(String parentElement, String searchTerms, String verseString) {
-		return searchTerms;
-	}
-
 	public static class testSearch {
 		String searchTerms;
 		String testType;
