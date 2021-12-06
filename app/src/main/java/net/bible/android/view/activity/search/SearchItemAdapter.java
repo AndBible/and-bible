@@ -55,6 +55,37 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		this.searchControl = searchControl;
 	}
 
+	private static String processElementChildrenx(String parentElement, String searchTerms, String verseString) {
+		return searchTerms;
+	}
+
+	public static class testSearch {
+		String searchTerms;
+		String testType;
+		public testSearch(String searchTerms) {
+			this.searchTerms = searchTerms;
+			this.testType = testType;
+		}
+		public String PrepareSearchTerms() {return prepareSearchTerms(searchTerms);}
+		public String[] SplitSearchTerms() {return splitSearchTerms(searchTerms);}
+		}
+
+	private static String prepareSearchTerms(String searchTerms) {
+		// Replaces strong:g00123 with REGEX strong:g*123. This is needed because the search term submitted by the 'Find all occcurrences includes extra zeros
+		// The capitalisation is not important since we do a case insensitive search
+		if (searchTerms.contains("strong:")) {
+			searchTerms = searchTerms.replaceAll("strong:g0*", "strong:g0*");
+			searchTerms = searchTerms.replaceAll("strong:h0*", "strong:h0*");
+		}
+		return searchTerms;
+	}
+
+	private static String[] splitSearchTerms(String searchTerms) {
+		// Split the search terms on space characters that are not enclosed in double quotes
+		// Eg: 'moses "burning bush"' -> "moses" and "burning bush"
+		return searchTerms.split("\\s+(?=(?:\"(?:\\\\\"|[^\"])+\"|[^\"])+$)");
+	}
+
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -85,7 +116,8 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		return view;
 	}
 	private String processElementChildren(Element parentElement, String searchTerms, String verseString) {
-
+		// Recursive method to walk the verse element tree ignoring tags like 'note' that should not be shown in the search results
+		// and including tags like 'w' that should be included.
 		for (Object o : parentElement.getContent()) {
 			if (o instanceof Element) {
 				Element el = (Element) o;
@@ -120,9 +152,8 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		SpannableString spannableText = null;
 		try {
 			String verseString = "";
-			if (searchTerms.contains("strong:")) {
-				searchTerms = searchTerms.replaceAll("strong:g0*", "strong:g0*");  // Replaces strong:g00123 with REGEX strong:g*123. This is needed because the search term submitted by the 'Find all occcurrences includes extra zeros)
-			}
+			searchTerms = prepareSearchTerms(searchTerms);
+
 			List<Element> verses = textElement.getChildren("verse");
 			for (Element verse : verses) {
 				verseString += processElementChildren(verse, searchTerms, "");
@@ -130,8 +161,8 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 			spannableText = new SpannableString(Html.fromHtml(verseString));
 
 			Matcher m = null;
-			// Split on the search terms on space characters that are not enclosed in double quotes
-			String[] splitSearchArray = searchTerms.split("\\s+(?=(?:\"(?:\\\\\"|[^\"])+\"|[^\"])+$)");
+
+			String[] splitSearchArray = splitSearchTerms(searchTerms);
 			for (String searchWord : splitSearchArray) {
 				searchWord = searchWord.replace("\"", "");  // Remove quotes which indicate phrase searches
 				searchWord = searchWord.replace("+", "");	// Remove + which indicates AND searches
