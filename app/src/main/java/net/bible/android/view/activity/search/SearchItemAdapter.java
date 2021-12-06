@@ -68,6 +68,7 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		}
 		public String PrepareSearchTerms() {return prepareSearchTerms(searchTerms);}
 		public String[] SplitSearchTerms() {return splitSearchTerms(searchTerms);}
+		public String PrepareSearchWord() {return prepareSearchWord(searchTerms);}
 		}
 
 	private static String prepareSearchTerms(String searchTerms) {
@@ -84,6 +85,22 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		// Split the search terms on space characters that are not enclosed in double quotes
 		// Eg: 'moses "burning bush"' -> "moses" and "burning bush"
 		return searchTerms.split("\\s+(?=(?:\"(?:\\\\\"|[^\"])+\"|[^\"])+$)");
+	}
+
+	private static String prepareSearchWord(String searchWord) {
+		// Need to clean up the search word itself before trying to find the searchWord in the text
+		// Eg: '+"burning bush"' -> 'burning bush'
+		searchWord = searchWord.replace("\"", "");  // Remove quotes which indicate phrase searches
+		searchWord = searchWord.replace("+", "");	// Remove + which indicates AND searches
+		searchWord = searchWord.replace("?", "\\p{L}");  // Handles any letter from any language
+		if (searchWord.length() > 0) {
+			if (Objects.equals(searchWord.substring(searchWord.length() - 1), "*")) {
+				searchWord = searchWord.replace("*", "");
+			} else {
+				searchWord = searchWord.replace("*", "\b");  // Match on a word boundary
+			}
+		}
+		return searchWord;
 	}
 
 	@Override
@@ -159,20 +176,11 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 				verseString += processElementChildren(verse, searchTerms, "");
 			}
 			spannableText = new SpannableString(Html.fromHtml(verseString));
-
 			Matcher m = null;
-
 			String[] splitSearchArray = splitSearchTerms(searchTerms);
 			for (String searchWord : splitSearchArray) {
-				searchWord = searchWord.replace("\"", "");  // Remove quotes which indicate phrase searches
-				searchWord = searchWord.replace("+", "");	// Remove + which indicates AND searches
-				searchWord = searchWord.replace("?", "\\p{L}");  // Handles any letter from any language
+				searchWord = prepareSearchWord(searchWord);
 				if (searchWord.length() > 0) {
-					if (Objects.equals(searchWord.substring(searchWord.length() - 1), "*")) {
-						searchWord = searchWord.replace("*", "");
-					} else {
-						searchWord = searchWord.replace("*", "\b");  // Match on a word boundary
-					}
 					m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText);
 					while (m.find()) {
 						spannableText.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), m.start(), m.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

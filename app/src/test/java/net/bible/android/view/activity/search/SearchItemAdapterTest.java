@@ -20,7 +20,6 @@ public class SearchItemAdapterTest {
 		String result = test.PrepareSearchTerms();
 		assertThat(result, equalTo("strong:g0*123"));
 	}
-
 	@Test
 	public void test_splitSearchTerms() throws Exception {
 		SearchItemAdapter.testSearch test = new SearchItemAdapter.testSearch("moses \"burning bush\"");
@@ -28,10 +27,10 @@ public class SearchItemAdapterTest {
 		String[] expectedResult = {"moses","\"burning bush\""};
 		assertThat(result, equalTo(expectedResult));
 	}
-
 	@Test
-	public void testGreekSearch() throws Exception {
-		// Placeholder for a future test
+	public void test_prepareSearchWord() throws Exception {
+		SearchItemAdapter.testSearch test = new SearchItemAdapter.testSearch("+\"burning bush\"");
+		String result = test.PrepareSearchWord();
+		assertThat(result, equalTo("burning bush"));
 	}
-
 }
