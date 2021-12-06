@@ -243,7 +243,7 @@ class TestShare {
         )
     @Test
     fun testShare8()  =
-        testShare("KJV", "Ps.43.1-Ps.43.3", 0..100, true, true,
+        testShare("KJV", "Ps.43.1-Ps.43.3", 0..100, false, true,
             "“Judge me, O God, and plead my cause against an ungodly nation: O deliver me from the deceitful and unjust man. " +
                 "For thou art the God of my strength: why dost thou cast me off? why go I mourning because of the oppression of the enemy? " +
                 "O send out thy light and thy truth: let them lead me; let them bring me unto thy holy hill, and to thy tabernacles.” (Psa 43:1-3, KJV)"
