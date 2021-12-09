@@ -16,7 +16,7 @@
  */
 import {ref, watch} from "@vue/runtime-core";
 import {computed} from "@vue/reactivity";
-import {throttle} from "lodash";
+import {debounce} from "lodash";
 import {setupWindowEventListener} from "@/utils";
 
 export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToOrdinal}, topElement, {isScrolling}) {
@@ -45,8 +45,9 @@ export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToO
         }
     }
 
-    const onScroll = throttle(() => {
+    const onScroll = debounce(() => {
         if(isScrolling.value) return;
+        console.log("onSCROLL!");
         const y = calculatedConfig.value.topOffset + lineHeight.value*0.8;
 
         // Find element, starting from right
@@ -71,7 +72,7 @@ export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToO
                 }
             }
         }
-    }, 50);
+    }, 500, {leading: false, trailing: true});
 
     setupWindowEventListener('scroll', onScroll)
     return {currentVerse}
