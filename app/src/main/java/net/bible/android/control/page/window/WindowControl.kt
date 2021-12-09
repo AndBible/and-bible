@@ -77,7 +77,6 @@ open class WindowControl @Inject constructor(
         get() = windowRepository.activeWindow
         set(currentActiveWindow) {
             windowRepository.activeWindow = currentActiveWindow
-            windowRepository.activeWindow.bibleView?.requestFocus()
         }
 
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
