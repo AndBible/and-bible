@@ -47,7 +47,6 @@ export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToO
 
     const onScroll = debounce(() => {
         if(isScrolling.value) return;
-        console.log("onSCROLL!");
         const y = calculatedConfig.value.topOffset + lineHeight.value*0.8;
 
         // Find element, starting from right
