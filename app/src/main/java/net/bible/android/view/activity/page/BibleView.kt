@@ -1380,6 +1380,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         pauseTiltScroll()
     }
 
+    fun onEventMainThread(event: WebViewsBuiltEvent) {
+        if(toBeDestroyed)
+            doDestroy()
+    }
+
     fun onEventMainThread(event: AfterRemoveWebViewEvent) {
         if(toBeDestroyed)
             doDestroy()
