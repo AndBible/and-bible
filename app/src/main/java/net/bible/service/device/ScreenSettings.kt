@@ -72,7 +72,9 @@ object ScreenSettings {
     val autoModeAvailable = lightSensor.isLightSensor
 
     fun checkMonitoring() {
-        lightSensor.reading
+        if(autoNightMode) {
+            lightSensor.reading
+        }
     }
 
     fun refreshNightMode(): Boolean {
