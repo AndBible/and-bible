@@ -20,8 +20,6 @@ package net.bible.android.control.page.window
 
 import android.app.AlertDialog
 import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
