@@ -16,9 +16,10 @@
  */
 
 import {useBookmarks, useGlobalBookmarks, verseHighlighting} from "@/composables/bookmarks";
-import {abbreviated, useConfig} from "@/composables";
 import {ref} from "@vue/reactivity";
 import Color from "color";
+import {useConfig} from "@/composables/config";
+import {abbreviated} from "@/utils";
 
 window.bibleViewDebug = {}
 

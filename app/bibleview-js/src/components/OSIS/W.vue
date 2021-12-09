@@ -35,10 +35,11 @@
 </template>
 
 <script>
-import {checkUnsupportedProps, strongsModes, useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
+import {strongsModes} from "@/composables/config";
 
 export default {
   name: "W",

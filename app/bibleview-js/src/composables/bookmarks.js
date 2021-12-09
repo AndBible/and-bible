@@ -30,7 +30,7 @@ import {highlightRange} from "@/lib/highlight-range";
 import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
-import {testMode} from "@/composables/index";
+import {testMode} from "@/composables/config";
 
 const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);

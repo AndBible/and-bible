@@ -16,7 +16,7 @@
  */
 
 import {reactive} from "@vue/runtime-core";
-import {testMode} from "@/composables/index";
+import {testMode} from "@/composables/config";
 
 const untranslated = {
     chapterNum: "— %s —",

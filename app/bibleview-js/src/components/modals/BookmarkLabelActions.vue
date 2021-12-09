@@ -87,7 +87,7 @@ export default {
     }
     const hasFavourites = ref(false);
     const hasRecent = ref(false);
-    async function showActions({locateTop: locateTop_ = true} = {}) {
+    function showActions({locateTop: locateTop_ = true} = {}) {
       locateTop.value = locateTop_;
       showModal.value = true;
     }

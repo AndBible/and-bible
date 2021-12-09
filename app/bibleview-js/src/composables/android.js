@@ -22,7 +22,7 @@ import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
 import {reactive} from "@vue/reactivity";
 import {StudyPadEntryTypes} from "@/constants";
-import {errorBox} from "@/composables/index";
+import {errorBox} from "@/composables/config";
 
 let callId = 0;
 

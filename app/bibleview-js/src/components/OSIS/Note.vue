@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import {checkUnsupportedProps, useCommon, useReferenceCollector, sprintf} from "@/composables";
+import {checkUnsupportedProps, useCommon, useReferenceCollector} from "@/composables";
 import Modal from "@/components/modals/Modal";
 import {get} from "lodash";
 import {ref, provide, inject} from "@vue/runtime-core";
@@ -71,7 +71,7 @@ export default {
                           ["explanation", "translation", "crossReference", "variant", "alternative", "study", "x-editor-correction"]);
     checkUnsupportedProps(props, "subType",
                           ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
-    const {strings, config, ...common} = useCommon();
+    const {strings, config, sprintf, ...common} = useCommon();
     const showNote = ref(false);
     const locateTop = ref(false);
     const {getFootNoteCount} = inject("footNoteCount");

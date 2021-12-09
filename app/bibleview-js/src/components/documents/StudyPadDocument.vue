@@ -65,7 +65,7 @@
 <script>
 import {computed, ref} from "@vue/reactivity";
 import {inject, provide, nextTick, onBeforeUpdate} from "@vue/runtime-core";
-import {useCommon, useJournal} from "@/composables";
+import {useCommon} from "@/composables";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";
 import StudyPadRow from "@/components/StudyPadRow";
@@ -73,6 +73,7 @@ import draggable from "vuedraggable";
 import {StudyPadEntryTypes} from "@/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {adjustedColorOrig} from "@/utils";
+import {useJournal} from "@/composables/journal";
 
 export default {
   name: "StudyPadDocument",
