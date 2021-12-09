@@ -999,7 +999,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val hasActiveIndicator get() =
         CommonUtils.settings.getBoolean("show_active_window_indicator", true)
-            && windowControl.activeWindow.id == window.id && windowControl.windowRepository.visibleWindows.size > 1
+            && isActive && windowControl.windowRepository.visibleWindows.size > 1
 
     private val isActive get() = windowControl.activeWindow.id == window.id
 
