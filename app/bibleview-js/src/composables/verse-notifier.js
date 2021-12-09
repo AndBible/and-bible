@@ -72,7 +72,7 @@ export function useVerseNotifier(config, calculatedConfig, mounted, {scrolledToO
                 }
             }
         }
-    }, 500, {leading: false, trailing: true});
+    }, 200, {leading: false, trailing: true});
 
     setupWindowEventListener('scroll', onScroll)
     return {currentVerse}
