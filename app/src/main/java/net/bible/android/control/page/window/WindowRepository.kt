@@ -444,6 +444,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun updateRecentLabels(labelIds: List<Long>) {
+        Log.i(TAG, "updateRecentLabels")
         for(labelId in labelIds) {
             val existingLabel = workspaceSettings.recentLabels.find { it.labelId == labelId }
             if (existingLabel != null) {

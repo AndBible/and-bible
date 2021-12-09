@@ -63,6 +63,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt
 
 fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.ManageLabelsData) {
+    Log.i("ManageLabels", "WorkspaceEntities.updateRecentLabels")
     autoAssignLabels = resultData.autoAssignLabels
     favouriteLabels = resultData.favouriteLabels
     autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
