@@ -21,7 +21,7 @@ import {computed, ref} from "@vue/reactivity";
 import {isInViewport} from "@/utils";
 
 export function useScroll(config, appSettings, calculatedConfig, {highlightVerse, resetHighlights}, documentPromise) {
-    let currentScrollAnimation = ref(null);
+    const currentScrollAnimation = ref(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
     function setToolbarOffset(topOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
