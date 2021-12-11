@@ -21,7 +21,7 @@ import {computed, ref} from "@vue/reactivity";
 import {isInViewport} from "@/utils";
 
 export function useScroll(config, appSettings, calculatedConfig, {highlightVerse, resetHighlights}, documentPromise) {
-    let currentScrollAnimation = ref(null);
+    const currentScrollAnimation = ref(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
     function setToolbarOffset(topOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
@@ -36,22 +36,27 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
         }
     }
 
-    function stopScrolling() {
+    function stopScrolling(nullify = true) {
         if(currentScrollAnimation.value != null) {
             window.cancelAnimationFrame(currentScrollAnimation.value);
-            currentScrollAnimation.value = null;
+            if(nullify) {
+                currentScrollAnimation.value = null;
+            } else {
+                currentScrollAnimation.value = -1;
+            }
             console.log("Animation ends");
         }
     }
 
     function doScrolling(elementY, duration = 1000) {
         console.log("doScrolling", elementY, duration);
-        stopScrolling();
+        const noScrolling = duration === 0;
+        stopScrolling(!noScrolling);
         const startingY = window.pageYOffset;
         const diff = elementY - startingY;
         let start;
 
-        if(duration === 0) {
+        if(noScrolling) {
             window.scrollTo(0, elementY);
             return;
         }
@@ -119,7 +124,7 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
             const lineHeight = parseFloat(style.getPropertyValue('line-height'));
             const fontSize = parseFloat(style.getPropertyValue('font-size'));
             delta += 0.5*(lineHeight - fontSize);
-            if(now===true) {
+            if(now === true) {
                 window.scrollTo(0, toElement.offsetTop - delta);
             }
             else {

@@ -103,7 +103,7 @@
   <string name="options_menu_night_mode">Nachtweergave</string>
   <string name="prefs_navigate_to_verse_title">Navigeer naar vers</string>
   <string name="prefs_navigate_to_verse_summary">Kies een vers (en hoofdstuk) bij het selecteren van een passage</string>
-  <string name="prefs_open_links_in_special_window_title">Koppelingen scherm</string>
+  <string name="prefs_open_links_in_special_window_title">Koppelingenscherm</string>
   <string name="prefs_open_links_in_special_window_summary">Open koppelingen in speciaal venster voor snellere weergave van kruisverwijzingen en Strong\'s</string>
   <string name="prefs_text_size_sample_text">Voorbeeldtekst</string>
   <string name="prefs_screen_keep_on_title">Scherm ingeschakeld houden</string>
@@ -151,10 +151,11 @@
   <string name="select_none">Selecteer niets</string>
   <string name="reset_are_you_sure">Weet u zeker dat u al deze waarden wilt terugzetten?</string>
   <string name="window_pinning_menutitle">Vensters vastzetten</string>
-  <string name="hide_window_buttons_title">Venster knoppen verbergen</string>
+  <string name="hide_window_buttons_title">Vensterknoppen verbergen</string>
   <string name="hide_window_buttons_summary">Vensterknoppen aan de rechterzijde van het leesscherm zijn verborgen. Vensternavigatie aan de onderkant wordt weergegeven; u kunt het venster popup-menu openen door hier lang op te drukken.</string>
-  <string name="full_screen_hide_buttons_pref_title">Verberg venster knoppen balk in volledig scherm</string>
+  <string name="full_screen_hide_buttons_pref_title">Verberg vensterknoppen-balk in volledig scherm</string>
   <string name="prefs_dictionaries_cat">Woordenboeken</string>
+  <string name="choose_strongs_greek_dictionary_title">Strongs Grieks woordenboek</string>
   <string name="choose_strongs_greek_dictionary_summary">Kies Strongs-woordenboek voor definities Griekse woorden</string>
   <string name="choose_strongs_hebrew_dictionary_title">Strongs Hebreeuws woordenboek</string>
   <string name="prefs_top_margin_title_mm">Bovenmarge (%dmm)</string>
@@ -224,8 +225,8 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
 </string>
   <string name="do_not_ask_again">Ja, niet meer vragen</string>
   <string name="recommended_document">Aanbevolen!</string>
-  <string name="about_version_history">Versiongeschiedenis: %s</string>
-  <string name="download_errors">Download fouten</string>
+  <string name="about_version_history">Versiegeschiedenis: %s</string>
+  <string name="download_errors">Downloadfouten</string>
   <string name="failed_repositories_message">Verbinding met de volgende documentserver is mislukt: \n\n%s\n\n</string>
   <string name="failed_downloads_message">De volgende bestanden zijn niet gedownload:\n\n%s\n\n</string>
   <!--Install zip file-->
@@ -244,10 +245,17 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Stel startdatum in...</string>
   <string name="set_current_day">Stel huidige dag in...</string>
+  <string name="msg_set_current_day_reading_plan">Hiermee zal vandaag worden ingesteld als de huidige dag in dit leesplan. Alle voorgaande dagen zullen als gelezen worden gemarkeerd. Doorgaan?</string>
   <string name="done">Klaar</string>
+  <string name="reset_plan_question">Weet u zeker dat u dit plan wilt terugzetten?</string>
   <string name="import_reading_plan">Importeer leesplan</string>
   <string name="import_reading_plan_error">Fout tijdens importeren</string>
+  <string name="import_reading_plan_error_duplicate">De volgende dagen waren dubbel: %s</string>
+  <string name="import_reading_plan_error_days">De volgende dagen bevatten fouten: %s</string>
   <string name="import_reading_plan_anyway">Toch importeren</string>
+  <string name="overwrite_reading_plan">Wilt u %s overschrijven?</string>
+  <string name="delete_reading_plan">Verwijder dit plan</string>
+  <string name="reading_plan_deleted">Het leesplan is verwijderd</string>
   <string name="plan_name_y1ntpspr">NT, Psalmen en Spreuken in een jaar</string>
   <!--Document context menu-->
   <string name="delete">Verwijderen</string>
@@ -257,12 +265,16 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="delete_search_index_doc">Index van %s verwijderen?</string>
   <!--Verse context menu-->
   <string name="notes">Voetnoten en verwijzingen</string>
+  <string name="share_verse">Delen...</string>
+  <string name="share_verse_widget_title">Selectie delen</string>
+  <string name="share_verse_subject_2">Er is een Bijbelvers met u gedeeld via %s.</string>
   <string name="compare_translations">Vertalingen vergelijken</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Link hier openen</string>
   <string name="open_link_in_new_window">Link openen in nieuw venster</string>
   <string name="open_link_in_special_window">Link openen in speciaal venster</string>
   <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Bladwijzers &amp; mijn notities</string>
   <string name="bookmarks">Bladwijzers</string>
   <string name="bookmark_added">Bladwijzer toegevoegd</string>
   <string name="manage_labels">Labels beheren</string>
@@ -272,6 +284,7 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="label_name_prompt">Naam</string>
   <string name="label_unlabelled">Ongelabeld</string>
   <string name="add_bookmark1">Bladwijzer</string>
+  <string name="add_bookmark3">Selectie</string>
   <string name="remove_bookmark">Verwijderen</string>
   <string name="auto_assign_labels_title">Labelinstellingen</string>
   <string name="label_color">Labelkleur</string>
@@ -414,15 +427,20 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="backup_and_restore">Back-up en herstel</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Wat wilt u herstellen?</string>
+  <string name="reading_plans_plural">Leesplannen</string>
   <string name="loading_backup">Database aan het laden vanuit backup...</string>
   <string name="backup_email_subject_2">%sdatabase backup</string>
   <string name="backup_backup_title">Waar backup opslaan?</string>
+  <string name="backup_share">Delen</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Geïnstalleerde versie: %s (%s)</string>
   <string name="module_about_latest_version">Nieuwste versie: %s(%s)</string>
   <string name="module_about_versification">Versificatie: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title1">Bug-melding</string>
+  <string name="report_bug_email_subject_3">[%s] Bug-melding voor %s %s</string>
+  <string name="report_bug_heading_3">Bijlagen:</string>
   <!--Document types-->
   <string name="doc_type_bible">Bijbel</string>
   <string name="doc_type_commentary">Commentaar</string>
@@ -443,13 +461,17 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="edit">Bewerken</string>
   <string name="reset_generic">Reset</string>
   <string name="watch_tutorial_video">Bekijk de rondleidingsvideo (Engels)</string>
+  <string name="verse_not_found">Vers niet gevonden</string>
   <!--Errors-->
   <string name="report_error">Rapportage versturen</string>
   <string name="error_occurred">Er is een fout opgetreden</string>
+  <string name="error_occurred_with_link">Er is een fout opgetreden. %s</string>
   <string name="error_no_content">Het geselecteerde vers bevat geen inhoud</string>
   <string name="error_page_too_large">De pagina is te groot om te worden geladen</string>
   <string name="error_key_not_in_document">Niet aangetroffen in het document</string>
+  <string name="error_key_not_in_document2">%s is niet gevonden in document %s.</string>
   <string name="empty_list">Geen te tonen items</string>
+  <string name="error_skip">Overslaan</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst-naar-spraak</string>
   <string name="notification_channel_progress_status">Voortgangsmeldingen voor documentdownloads, etc.</string>
@@ -465,6 +487,7 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="save_and_exit">Opslaan</string>
   <string name="copy_of_workspace">Kopie van %s</string>
   <string name="copy_workspace_settings">Kopieer instellingen...</string>
+  <string name="copy_settings_title">Welke instellingen wilt u kopiëren?</string>
   <string name="copy_settings_workspaces_title">Naar welke werkbladen wilt u de instellingen kopiëren?</string>
   <string name="reset_settings">Reset</string>
   <string name="workspace_dismiss">Negeren</string>
@@ -484,6 +507,7 @@ Een item lang indrukken opent het context menu of het actiemenu in verschillende
         Houdt een bookmark in de bookmarks lijst lang ingedrukt om labels toe te voegen of de bookmark te verwijderen.
         Houdt de terugknop lang ingedrukt om de geschiedenislijst te openen.
     </string>
+  <string name="help_bookmarks_title">Bladwijzers &amp; mijn notities</string>
   <string name="help_search_title">Zoeken</string>
   <string name="help_search_text">De zoekopdracht mag speciale tekens bevatten, zoals *, ?, AND, OR, NOT
         (lees \"Apache Lucene - Query Parser Syntax\" voor meer informatie hierover)
@@ -514,6 +538,7 @@ Een item lang indrukken opent het context menu of het actiemenu in verschillende
   <string name="compare">Vergelijken</string>
   <string name="http_forbidden">Verboden</string>
   <string name="http_not_found">Niet gevonden</string>
+  <string name="http_unknown">Andere fout</string>
   <string name="try_again_passphrase">Wachtwoord werkte niet, probeer het nog eens?</string>
   <string name="app_licence_title">Open-source-licentie</string>
   <string name="how_to_contribute">Hoe bijdragen?</string>
@@ -523,12 +548,47 @@ Een item lang indrukken opent het context menu of het actiemenu in verschillende
   <string name="show_versenumbers">Vers nummering laten zien</string>
   <string name="version_name">Vertaling</string>
   <string name="backup_button">Back-up maken</string>
+  <string name="back_button">Terug</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Het pakket Android WebView is te oud (%s). U dient uw Android WebView-pakket te updaten naar version %sof hoger, om %s te kunnen gebruiken. Voor de meeste apparaten kunt u dit doen via %s.</string>
   <string name="play">Google Play</string>
+  <string name="proceed_anyway">Toch doorgaan</string>
+  <string name="rate_title">App beoordelen en reviewen</string>
+  <string name="rate_message5">
+        Positieve en gedetailleerde reviews helpen het And Bible open source-project. Hartelijk dank!
+    </string>
+  <string name="rate_message6">
+        Voor u een negatieve review instuurt, overweeg alstublieft het volgende:
+    </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        Bij problemen met de app, %s of %s.
+    </string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+        Bij problemen met een tekst / Bijbelvertaling, %s.
+    </string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+        Als een bepaalde tekst niet beschikbaar is in de app, %s.</string>
+  <string name="rate_message4">
+        De ontwikkelaars van deze app zijn niet verantwoordelijk voor het onderhouden van documenten.
+    </string>
+  <string name="bug_report">
+        verstuur een bug-melding (via het hoofdmenu)
+    </string>
+  <string name="how_to_help">
+        lees wat u kunt doen om te helpen
+    </string>
+  <string name="send_email">
+       stuur een e-mail aan de ontwikkelaars
+    </string>
+  <string name="proceed_google_play">
+        Doorgaan naar Google Play
+    </string>
+  <string name="text_maintainers">
+        meld deze alstublieft bij de beheerders van de teksten
+    </string>
   <string name="this_bookmark">Deze bladwijzer</string>
   <string name="this_workspace">Dit werkblad</string>
   <string name="book_menu_sort_row_opt">Horizontaal rangschikken</string>
@@ -542,8 +602,12 @@ Een item lang indrukken opent het context menu of het actiemenu in verschillende
   <string name="label_green">Groen</string>
   <string name="label_blue">Blauw</string>
   <string name="label_salvation">Zaligheid</string>
+  <string name="export_fileformat">Exporteer als %s</string>
+  <string name="import_items">Importeer %s</string>
   <string name="chooser_OT_abbrev">OT</string>
   <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_lists">Lijsten</string>
+  <string name="chooser_select">Selecteer %s</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Het spijt ons, maar we hebben slechts een gedeeltelijke vertaling van de gebruikersinterface in de taal %s. Dat komt omdat %s volledig door vrijwilligers is ontwikkeld. Als je kunt helpen bij het vertalen, zie %s.</string>
   <!--will be added to incomplete_translation as a link-->

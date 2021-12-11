@@ -134,6 +134,7 @@ open class WindowRepository @Inject constructor(
                 Log.i(TAG, "Active window: ${newActiveWindow}")
                 ABEventBus.getDefault().post(CurrentWindowChangedEvent(newActiveWindow))
             }
+            _activeWindow?.bibleView?.requestFocus()
         }
 
     private val initialized get() = _activeWindow != null
@@ -443,6 +444,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun updateRecentLabels(labelIds: List<Long>) {
+        Log.i(TAG, "updateRecentLabels")
         for(labelId in labelIds) {
             val existingLabel = workspaceSettings.recentLabels.find { it.labelId == labelId }
             if (existingLabel != null) {

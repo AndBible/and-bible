@@ -29,7 +29,7 @@ feature_05: "Pronunțarea avansată a textului cu marcaje de vorbire, permițân
 feature_06: Căutare flexibilă
 feature_07: Semne de carte și evidențiere avansată cu notițe de studiu personale
 feature_09: >
-  Planuri de lectură: stabilește obiective pentru citirea Bibliei 
+  Planuri de citire: stabilește obiective pentru citirea Bibliei 
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   O vastă bibliotecă de documente: Traduceri ale Bibliei, comentarii teologice, dicționare, hărți și cărți creștine, totalizând peste {{total_documents}} documente în peste {{total_languages}} limbi, distribuite legal de Crosswire și alte depozite SWORD.  
@@ -49,7 +49,7 @@ paragraph_3_1: >
 contr_1: "realizarea de noi caracteristici,"
 contr_2: "testarea caracteristicilor care nu au fost încă lansate,"
 contr_3: menținerea la zi a traducerilor interfeței cu utilizatorul și
-contr_4: contribuind la extinderea bibliotecii de module prin obținerea de permisiuni de la deținătorii drepturilor de autor sau prin convertirea documentelor în format SWORD.
+contr_4: contribuind la extinderea bibliotecii de documente prin obținerea de permisiuni de la deținătorii drepturilor de autor sau prin convertirea documentelor în format SWORD.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 paragraph_4_1: "Dacă ești un inginer de software sau un tester profesionist, te rugăm să contribui la acest proiect. Pentru mai multe informații despre cum să contribuiți, vă rugăm să consultați {{how_to_contribute_url}}."
 subtitle_4: Legături

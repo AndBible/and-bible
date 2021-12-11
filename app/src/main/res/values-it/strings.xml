@@ -569,7 +569,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="switch_to_workspace">Spazi di lavoro</string>
   <string name="delete_workspace">Rimuovi</string>
   <string name="new_copied_workspace">Copia come nuovo</string>
-  <string name="workspace_number">Spazio di lavoro %d</string>
+  <string name="workspace_number">Lavoro %d</string>
   <string name="rename_workspace">Rinomina</string>
   <string name="workspace_selector_title">Seleziona gli spazi di lavoro</string>
   <string name="workspace_settings">Impostazioni…</string>
@@ -748,7 +748,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="this_workspace">Questo spazio di lavoro</string>
   <string name="primary_label">Etichetta principale</string>
   <string name="highlight_entire_verse">Evidenzia l\'intero versetto</string>
-  <string name="favourite_label">Etichetta preferiti</string>
+  <string name="favourite_label">Etichetta preferita</string>
   <string name="edit_label">Modifica etichetta</string>
   <string name="delete_label_confirmation">Vuoi rimuovere l\'etichetta di segnalibro \"%s\"? Anche tutti gli Appunti di studio ad essa associati verranno rimossi.</string>
   <string name="bookmark_underline_style_arbitrary">Stile sottolineatura per la selezione segnalibri</string>
@@ -761,7 +761,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="reset_hide_labels">Vuoi resettare le impostazioni che nascondono i settaggi delle etichette specificate?</string>
   <string name="reorder">Riordina</string>
   <string name="system_items">Azioni di sistema</string>
-  <string name="system_items1">Ancora</string>
+  <string name="system_items1">Di più</string>
   <string name="system_action2">Azioni di Android</string>
   <string name="text_copied_to_clicpboard">Testo copiato negli appunti</string>
   <string name="prefs_disable_two_step_bookmarking_title">Segnalibro rapido</string>

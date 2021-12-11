@@ -33,7 +33,6 @@ import android.util.Log
 import android.view.ActionMode
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
-import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -999,7 +998,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val hasActiveIndicator get() =
         CommonUtils.settings.getBoolean("show_active_window_indicator", true)
-            && windowControl.activeWindow.id == window.id && windowControl.windowRepository.visibleWindows.size > 1
+            && isActive && windowControl.windowRepository.visibleWindows.size > 1
 
     private val isActive get() = windowControl.activeWindow.id == window.id
 
@@ -1017,7 +1016,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
                     appSettings: {
-                        activeWindow: $isActive, 
+                        activeWindow: $isActive,
+                        hasActiveIndicator: $hasActiveIndicator, 
                         nightMode: $nightMode, 
                         errorBox: $showErrorBox, 
                         favouriteLabels: $favouriteLabels, 
@@ -1380,6 +1380,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         pauseTiltScroll()
     }
 
+    fun onEventMainThread(event: WebViewsBuiltEvent) {
+        if(toBeDestroyed)
+            doDestroy()
+    }
+
     fun onEventMainThread(event: AfterRemoveWebViewEvent) {
         if(toBeDestroyed)
             doDestroy()
@@ -1442,11 +1447,24 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return true
     }
 
-    private fun runOnUiThread(runnable: () -> Unit) {
-        if(Looper.myLooper() == Looper.getMainLooper()) {
+    private val taskQueue = LinkedList<() -> Unit>()
+
+    private fun runOnUiThread(runnable: () -> Unit) = synchronized(this) {
+        // If there are any tasks, we must put them to queue, to make sure they are run in the correct order
+        if(Looper.myLooper() == Looper.getMainLooper() && taskQueue.size == 0) {
             runnable()
         } else {
-            post(runnable)
+            taskQueue.addLast(runnable)
+            if (taskQueue.size == 1) {
+                post { flushTasks() }
+            }
+        }
+    }
+
+    private fun flushTasks()  = synchronized(this) {
+        Log.i(TAG, "flushTasks ${taskQueue.size}")
+        while (taskQueue.size > 0) {
+            taskQueue.pop().invoke()
         }
     }
 

@@ -619,7 +619,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="beta_notice_title">To je beta različica!</string>
   <string name="beta_notice_content_1">
         V beta različici so na voljo nove funkcije, ki še niso pravilno preizkušene
-        in tako uporaba beta različice lahko privede do nepričakovanega obnašanja, to je napake.
+        in tako lahko uporaba beta različice privede do nepričakovanega obnašanja, to je napake.
         Priporočljivo je, da običajni bralci biblije, namesto beta različice, uporabljajo stabilno različico.</string>
   <string name="beta_notice_content_2">
         Beta uporabnike spodbujamo, da napake prijavljajo prek Google Play ali
@@ -633,7 +633,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="beta_notice_dismiss_until_update">Prekliči do naslednjega popravka</string>
   <string name="stable_notice_title">Aplikacija je bila nadgrajena!</string>
   <string name="upgrade_video_message">Oglejte si video z novimi funkcijami te različice (%s).</string>
-  <string name="stable_notice_par1">Nova verzija%s od %sje bila uspešno nameščena! </string>
+  <string name="stable_notice_par1">Nova verzija%s %s, je bila uspešno nameščena! </string>
   <!--History-->
   <string name="history_for">Zgodovina (%s: Okno %d)</string>
   <!--Help-->
@@ -840,6 +840,8 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="questions_title2">Potrebujete pomoč?</string>
   <string name="bookmark_style">Stil zaznamka</string>
   <string name="added_to_bookmark">Dodeljeno temu zaznamku</string>
+  <string name="strongs_off">Izklopi</string>
   <string name="strongs_links">Povezave</string>
+  <string name="strongs_text_and_links">Besedilo in povezave</string>
   <string name="verse_tip">Za delno izbiro vrstice ali izbiro več vrstic dolgo pritisnete na biblijsko besedilo</string>
 </resources>

@@ -91,7 +91,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun setLimitAmbiguousModalSize(value: Boolean) {
-        Log.i(TAG, "set client ready")
+        Log.i(TAG, "setLimitAmbiguousModalSize")
         bibleView.workspaceSettings.limitAmbiguousModalSize = value
         ABEventBus.getDefault().post(AppSettingsUpdated())
     }
@@ -331,6 +331,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun toggleCompareDocument(documentId: String) {
+        Log.i(TAG, "toggleCompareDocument")
         val hideDocs = bibleView.workspaceSettings.hideCompareDocuments
         if(hideDocs.contains(documentId)) {
             hideDocs.remove(documentId)

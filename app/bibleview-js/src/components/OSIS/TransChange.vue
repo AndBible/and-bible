@@ -21,19 +21,19 @@
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "TransChange",
   props: {
     type: {type: String, default: null}
   },
-  computed: {
-    isNonCanonical: ({type}) => type.toLowerCase() === "added",
-    show: ({isNonCanonical, config}) => (!isNonCanonical) || (isNonCanonical && config.showNonCanonical),
-  },
   setup(props) {
     checkUnsupportedProps(props, "type", ["added"]);
-    return useCommon();
+    const {config, ...common} = useCommon();
+    const isNonCanonical = computed(() => props.type.toLowerCase() === "added");
+    const show = computed(() => (!isNonCanonical.value) || (isNonCanonical.value && config.showNonCanonical));
+    return {show, isNonCanonical, ...common};
   },
 }
 </script>

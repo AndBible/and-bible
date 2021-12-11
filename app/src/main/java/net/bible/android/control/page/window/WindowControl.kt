@@ -20,8 +20,6 @@ package net.bible.android.control.page.window
 
 import android.app.AlertDialog
 import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -77,7 +75,6 @@ open class WindowControl @Inject constructor(
         get() = windowRepository.activeWindow
         set(currentActiveWindow) {
             windowRepository.activeWindow = currentActiveWindow
-            windowRepository.activeWindow.bibleView?.requestFocus()
         }
 
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
