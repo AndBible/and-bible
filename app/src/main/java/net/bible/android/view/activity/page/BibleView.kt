@@ -46,7 +46,6 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.view.GestureDetectorCompat
 import androidx.webkit.WebViewAssetLoader
 import kotlinx.coroutines.CompletableDeferred
@@ -136,6 +135,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import android.os.Bundle
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchIndex
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
@@ -173,7 +173,6 @@ class Selection(val bookInitials: String?, val startOrdinal: Int,
         )
 
     @Transient @Inject lateinit var windowControl: WindowControl
-    @Transient @Inject lateinit var ssearchControl: SearchControl
 
     init {
         buildActivityComponent().inject(this)
@@ -198,6 +197,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val linkControl: LinkControl,
                 internal val bookmarkControl: BookmarkControl,
                 internal val downloadControl: DownloadControl,
+                private val searchControl: SearchControl
 ) : WebView(mainBibleActivity.applicationContext), DocumentView
 {
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
@@ -214,7 +214,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var gestureDetector: GestureDetectorCompat
 
     @Inject public lateinit var documentControl: DocumentControl
-//    @Inject public lateinit var searchControl: SearchControl
 
     /** Used to prevent scroll off bottom using auto-scroll
      * see http://stackoverflow.com/questions/5069765/android-webview-how-to-autoscroll-a-page
@@ -303,22 +302,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val sel = currentSelection
                 if (sel != null) {
 
-//                    val intent = ssearchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, mainBibleActivity)
-//                    startActivityForResult(mainBibleActivity, intent, STD_REQUEST_CODE, null)
-
-                    val searchControl = SearchControl
                     val currentBible = currentPageManager.currentBible.currentDocument!!
 
-                    var needToDownloadIndex = false
-
-                    var searchText = "\"${sel.text}\""
-//                    searchText = ssearchControl.decorateSearchString(sel.text, SearchType.PHRASE, "", "")
+                    var searchText = searchControl.decorateSearchString(sel.text, SearchType.PHRASE, SearchControl.SearchBibleSection.ALL, "")
                     val activity = CurrentActivityHolder.getInstance().currentActivity
                     val searchParams = Bundle()
                     searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
                     searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
+
                     var intent: Intent? = null
-                    intent = if (needToDownloadIndex) {
+                    intent = if (currentBible.indexStatus != IndexStatus.DONE) {
                         Intent(activity, SearchIndex::class.java)
                     } else { //If an indexed Strong's module is in place then do the search - the normal situation
                         Intent(activity, SearchResults::class.java)
