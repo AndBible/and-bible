@@ -158,7 +158,8 @@ class TestShare {
             showVerseNumbers = showVerseNumbers,
             showSelectionOnly = !showFull,
             showReference = true,
-            advertiseApp = false
+            advertiseApp = false,
+            showReferenceAtFront = false
         )
 
         assertThat(text, equalTo(compareText))

@@ -39,6 +39,13 @@
             android:padding="7dip"
             android:text="@string/show_version_name" />
         <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleShowReferenceAtFront"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:padding="7dip"
+            android:text="@string/show_reference_at_front" />
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleVersenumbers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

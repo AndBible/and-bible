@@ -144,6 +144,7 @@ object SwordContentFacade {
                          showVerseNumbers: Boolean,
                          advertiseApp: Boolean,
                          showReference: Boolean = true,
+                         showReferenceAtFront:Boolean = false,
                          abbreviateReference: Boolean = true,
                          showNotes: Boolean = true,
                          showVersion: Boolean = true,
@@ -173,7 +174,7 @@ object SwordContentFacade {
         val bookLocale = Locale(selection.book.language.code)
         val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
 
-        val versionText = if (showVersion) (", ${selection.book.abbreviation}") else ""
+        val versionText = if (showVersion) (selection.book.abbreviation) else ""
 
         val reference = if(showReference) {
             if(abbreviateReference) {
@@ -182,11 +183,11 @@ object SwordContentFacade {
                     BookName.setFullBookName(false)
                     val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
                     BookName.setFullBookName(oldValue)
-                    " ($verseRangeName$versionText)"
+                    "$verseRangeName"
                 }
             } else {
                 val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
-                " ($verseRangeName$versionText)"
+                "$verseRangeName"
             }
         }
         else
@@ -204,7 +205,8 @@ object SwordContentFacade {
             else
                 ""
 
-        return when {
+
+        val verseText = when {
             verseTexts.size == 1 -> {
                 val end = startVerse.slice(endOffset until startVerse.length)
                 val text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
@@ -231,7 +233,16 @@ object SwordContentFacade {
                 if(!showSelectionOnly) """“$startVerseNumber$start${text}$end$post”""" else "“$startVerseNumber$text$post”"
             }
             else -> throw RuntimeException("what")
-        } + reference + notes + advertise
+        }
+        return if (showReference) {
+            if (showReferenceAtFront) {
+                "${("$reference $versionText").trim()} $verseText$notes$advertise"
+            } else {
+                "$verseText (${if (versionText == "") reference else "$reference, $versionText"})$notes$advertise"
+            }
+        } else {
+            "$verseText$notes$advertise"
+        }
     }
 
     private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> = try {

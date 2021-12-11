@@ -57,6 +57,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleShowReference.isChecked = CommonUtils.settings.getBoolean("share_show_reference", true)
             toggleAbbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
             toggleShowVersion.isChecked = CommonUtils.settings.getBoolean("share_show_version", true)
+            toggleShowReferenceAtFront.isChecked = CommonUtils.settings.getBoolean("share_show_reference_at_front", true)
             toggleNotes.visibility = if(selection.notes!= null) View.VISIBLE else View.GONE
             toggleNotes.isChecked = CommonUtils.settings.getBoolean("show_notes", true)
             toggleShowSelectionOnly.isChecked = CommonUtils.settings.getBoolean("show_selection_only", true)
@@ -67,6 +68,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleShowReference.setOnClickListener { updateText()}
             toggleAbbreviateReference.setOnClickListener { updateText()}
             toggleShowVersion.setOnClickListener { updateText()}
+            toggleShowReferenceAtFront.setOnClickListener { updateText()}
             toggleNotes.setOnClickListener { updateText()}
             toggleShowSelectionOnly.setOnClickListener { updateText()}
             toggleShowEllipsis.setOnClickListener { updateText()}
@@ -82,6 +84,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             showNotes = bindings.toggleNotes.isChecked,
             showVersion = bindings.toggleShowVersion.isChecked,
             showReference = bindings.toggleShowReference.isChecked,
+            showReferenceAtFront = bindings.toggleShowReferenceAtFront.isChecked,
             showSelectionOnly = bindings.toggleShowSelectionOnly.isChecked,
             showEllipsis = bindings.toggleShowEllipsis.isChecked
         )
@@ -100,6 +103,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
         }
         bindings.toggleAbbreviateReference.isEnabled = bindings.toggleShowReference.isChecked
         bindings.toggleShowVersion.isEnabled = bindings.toggleShowReference.isChecked
+        bindings.toggleShowReferenceAtFront.isEnabled = bindings.toggleShowReference.isChecked
         bindings.toggleShowEllipsis.isEnabled = bindings.toggleShowSelectionOnly.isChecked
     }
 
