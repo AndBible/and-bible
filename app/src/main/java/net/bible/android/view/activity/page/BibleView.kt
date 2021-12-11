@@ -46,6 +46,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.view.GestureDetectorCompat
 import androidx.webkit.WebViewAssetLoader
 import kotlinx.coroutines.CompletableDeferred
@@ -66,6 +67,7 @@ import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.StudyPadOrderEvent
 import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
+import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
@@ -129,6 +131,12 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.math.min
 
+import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import android.os.Bundle
+import net.bible.android.view.activity.search.SearchResults
+import net.bible.android.view.activity.search.SearchIndex
+import org.crosswire.jsword.index.search.SearchType
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
@@ -165,6 +173,7 @@ class Selection(val bookInitials: String?, val startOrdinal: Int,
         )
 
     @Transient @Inject lateinit var windowControl: WindowControl
+    @Transient @Inject lateinit var ssearchControl: SearchControl
 
     init {
         buildActivityComponent().inject(this)
@@ -202,8 +211,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var minChapter = -1
     private var maxChapter = -1
 
-
     private var gestureDetector: GestureDetectorCompat
+
+    @Inject public lateinit var documentControl: DocumentControl
+//    @Inject public lateinit var searchControl: SearchControl
 
     /** Used to prevent scroll off bottom using auto-scroll
      * see http://stackoverflow.com/questions/5069765/android-webview-how-to-autoscroll-a-page
@@ -288,6 +299,37 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     ShareWidget.dialog(mainBibleActivity, sel)
                 return true
             }
+            R.id.search -> {
+                val sel = currentSelection
+                if (sel != null) {
+
+//                    val intent = ssearchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, mainBibleActivity)
+//                    startActivityForResult(mainBibleActivity, intent, STD_REQUEST_CODE, null)
+
+                    val searchControl = SearchControl
+                    val currentBible = currentPageManager.currentBible.currentDocument!!
+
+                    var needToDownloadIndex = false
+
+                    var searchText = "\"${sel.text}\""
+//                    searchText = ssearchControl.decorateSearchString(sel.text, SearchType.PHRASE, "", "")
+                    val activity = CurrentActivityHolder.getInstance().currentActivity
+                    val searchParams = Bundle()
+                    searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
+                    searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
+                    var intent: Intent? = null
+                    intent = if (needToDownloadIndex) {
+                        Intent(activity, SearchIndex::class.java)
+                    } else { //If an indexed Strong's module is in place then do the search - the normal situation
+                        Intent(activity, SearchResults::class.java)
+                    }
+                    intent.putExtras(searchParams)
+                    activity.startActivity(intent)
+                }
+
+                return true
+            }
+
             R.id.system_items -> {
                 showSystem = true
                 mode.menu.clear()
@@ -1570,5 +1612,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so
         // no scrollOrJumpToVerse will occur
         private const val TOP_OF_SCREEN = 1
+        const val STD_REQUEST_CODE = 1
     }
+
+    private val currentPageManager: CurrentPageManager
+        get() = windowControl.activeWindowPageManager
+
+
 }
