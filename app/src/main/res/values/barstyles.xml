@@ -41,6 +41,7 @@
 		<item name="android:navigationBarColor" tools:targetApi="o_mr1">@color/navigation_bar</item>
 		<item name="android:textAlignment">gravity</item>
 		<item name="android:textDirection">locale</item>
+		<item name="android:statusBarColor">@color/grey_800</item>
 	</style>
 
 
