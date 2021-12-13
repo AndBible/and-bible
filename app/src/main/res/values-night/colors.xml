@@ -28,6 +28,8 @@
     <color name="bar_window_button_background_colour_visible">#6A6A6A</color>
     <color name="bar_window_button_stroke_color">#686868</color>
 
+    <color name="status_bar">@color/black</color>
+
     <color name="window_button_text_colour">#32FFFFFF</color>
 
     <color name="navigation_bar">@color/black</color>
