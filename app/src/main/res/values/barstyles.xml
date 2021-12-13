@@ -42,6 +42,7 @@
 		<item name="android:textAlignment">gravity</item>
 		<item name="android:textDirection">locale</item>
 		<item name="android:statusBarColor">@color/grey_800</item>
+		<item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
 	</style>
 
 
