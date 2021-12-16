@@ -74,8 +74,9 @@ class WindowSynchronisationTest {
         // TODO: these tests should change the verse with setCurrentVerseOrdinal
         mainWindow.pageManager.currentBible.currentChapterVerse = newChapterVerse
         assertThat(mainWindow.pageManager.currentBible.currentChapterVerse.verse, equalTo(7))
+        windowControl!!.windowSync.synchronizeWindows(mainWindow)
 
-        Thread.sleep(500)
+        Thread.sleep(300)
         assertThat(window2.pageManager.currentBible.currentChapterVerse, equalTo(newChapterVerse))
     }
 
@@ -90,8 +91,8 @@ class WindowSynchronisationTest {
         val mainWindow = windowControl!!.activeWindow
         mainWindow.pageManager.currentBible.currentChapterVerse = newChapterVerse
         assertThat(mainWindow.pageManager.currentBible.currentChapterVerse.chapter, equalTo(3))
-
-        Thread.sleep(500)
+        windowControl!!.windowSync.synchronizeWindows(mainWindow)
+        Thread.sleep(300)
         assertThat(window2.pageManager.currentBible.currentChapterVerse, equalTo(newChapterVerse))
     }
 
