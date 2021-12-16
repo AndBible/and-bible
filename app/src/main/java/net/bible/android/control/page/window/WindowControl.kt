@@ -106,7 +106,6 @@ open class WindowControl @Inject constructor(
 
     fun showLink(document: Book, key: Key) {
         val linksWindow = windowRepository.dedicatedLinksWindow
-        linksWindow.restoreOngoing = true
         val linksWindowWasVisible = linksWindow.isVisible
 
         linksWindow.initialisePageStateIfClosed(activeWindow)
@@ -121,7 +120,6 @@ open class WindowControl @Inject constructor(
         if (!linksWindowWasVisible) {
             eventManager.post(NumberOfWindowsChangedEvent())
         }
-        linksWindow.restoreOngoing = false
     }
 
 
@@ -191,7 +189,6 @@ open class WindowControl @Inject constructor(
             minimiseWindow(window)
         } else {
             if (window == activeWindow) return
-            window.restoreOngoing = true
 
             if(!window.isPinMode && !window.isLinksWindow) {
                 for (it in windowRepository.windowList.filter { !it.isPinMode }) {
@@ -209,7 +206,6 @@ open class WindowControl @Inject constructor(
 
             eventManager.post(NumberOfWindowsChangedEvent())
             activeWindow = window
-            window.restoreOngoing = false
         }
     }
 
