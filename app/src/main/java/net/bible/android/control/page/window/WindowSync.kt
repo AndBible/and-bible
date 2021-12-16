@@ -18,6 +18,7 @@
 
 package net.bible.android.control.page.window
 
+import android.util.Log
 import debounce
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -66,13 +67,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
     /** Synchronise the inactive key and inactive screen with the active key and screen if required */
     fun synchronizeWindows(sourceWindow_: Window? = null) {
-        delayedSynchronizeWindows(sourceWindow_)
-    }
-
-
-    private val syncScope = CoroutineScope(Dispatchers.Default)
-    private val delayedSynchronizeWindows: (sourceWindow: Window?) -> Unit = debounce(200, syncScope) { sourceWindow_ -> synchronized(this) {
-        ABEventBus.getDefault().post(IncrementBusyCount())
+        Log.i(TAG, "synchronizeWindows ${sourceWindow_}...")
 
         // if maximized mode and current active window is not in sync, then get previous window that was in sync
         val lastSyncWindow = windowRepository.lastSyncWindow
@@ -80,6 +75,14 @@ class WindowSync(private val windowRepository: WindowRepository) {
             sourceWindow_ ?: if (lastSyncWindow != null && !windowRepository.activeWindow.isSynchronised)
                 lastSyncWindow
             else windowRepository.activeWindow
+
+        delayedSynchronizeWindows(sourceWindow)
+    }
+
+    private val syncScope = CoroutineScope(Dispatchers.Default)
+    private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit = debounce(200, syncScope) { sourceWindow -> synchronized(this) {
+        Log.i(TAG, "...delayedSynchronizeWindows ${sourceWindow}")
+        ABEventBus.getDefault().post(IncrementBusyCount())
 
         val activePage = sourceWindow.pageManager.currentPage
         var targetActiveWindowKey = activePage.singleKey
