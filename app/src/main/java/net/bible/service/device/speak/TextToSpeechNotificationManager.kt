@@ -283,7 +283,7 @@ class TextToSpeechNotificationManager {
         val intent = Intent(app, NotificationReceiver::class.java).apply {
             action = command
          }
-        val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, 0)
+        val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         return NotificationCompat.Action.Builder(icon, title, pendingIntent).build()
     }
 
@@ -297,7 +297,7 @@ class TextToSpeechNotificationManager {
         if(book != null && verse != null) {
             intent.data = Uri.parse("bible://${book.initials}/${verse.osisRef}")
         }
-        val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, 0)
+        val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         return NotificationCompat.Action.Builder(android.R.drawable.ic_media_play, getString(R.string.speak), pendingIntent).build()
     }
     private val nextAction = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
@@ -313,7 +313,7 @@ class TextToSpeechNotificationManager {
         val contentIntent = Intent(app, MainBibleActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
-        val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, 0)
+        val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         val style = MediaStyle()
             .setShowActionsInCompactView(2)
 

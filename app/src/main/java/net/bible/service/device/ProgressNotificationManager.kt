@@ -130,7 +130,7 @@ class ProgressNotificationManager {
         Log.i(TAG, "Creating Notification for progress Hash:" + prog.hashCode())
         val app = BibleApplication.application
         val intent = Intent(app, ProgressStatus::class.java)
-        val pendingIntent = PendingIntent.getActivity(app, 0, intent, 0)
+        val pendingIntent = PendingIntent.getActivity(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         val builder = NotificationCompat.Builder(app, PROGRESS_NOTIFICATION_CHANNEL)
 
         builder.setSmallIcon(R.drawable.ic_ichtys)
