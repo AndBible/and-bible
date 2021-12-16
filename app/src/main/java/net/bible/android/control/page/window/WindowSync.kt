@@ -22,6 +22,7 @@ import debounce
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.page.CurrentPage
@@ -63,18 +64,20 @@ class WindowSync(private val windowRepository: WindowRepository) {
         ABEventBus.getDefault().post(DecrementBusyCount())
     }
 
+    /** Synchronise the inactive key and inactive screen with the active key and screen if required */
+    fun synchronizeWindows(sourceWindow_: Window? = null) {
+        delayedSynchronizeWindows(sourceWindow_)
+    }
+
 
     private val syncScope = CoroutineScope(Dispatchers.Default)
-    val synchronizeWindows: (sourceWindow: Window?) -> Unit = debounce(200, syncScope) {doSynchronizeWindows(it)}
-
-    /** Synchronise the inactive key and inactive screen with the active key and screen if required */
-    private fun doSynchronizeWindows(sourceWindow_: Window? = null) = synchronized(this) {
+    private val delayedSynchronizeWindows: (sourceWindow: Window?) -> Unit = debounce(200, syncScope) { sourceWindow_ -> synchronized(this) {
         ABEventBus.getDefault().post(IncrementBusyCount())
 
         // if maximized mode and current active window is not in sync, then get previous window that was in sync
         val lastSyncWindow = windowRepository.lastSyncWindow
-        val sourceWindow: Window = sourceWindow_ ?:
-            if (lastSyncWindow != null && !windowRepository.activeWindow.isSynchronised)
+        val sourceWindow: Window =
+            sourceWindow_ ?: if (lastSyncWindow != null && !windowRepository.activeWindow.isSynchronised)
                 lastSyncWindow
             else windowRepository.activeWindow
 
@@ -83,11 +86,11 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
 
-        if(lastSynchWasInNightMode != ScreenSettings.nightMode) {
+        if (lastSynchWasInNightMode != ScreenSettings.nightMode) {
             setResyncRequired()
         }
 
-        if(isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
+        if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
             for (inactiveWindow in inactiveWindowList) {
                 val inactivePage = inactiveWindow.pageManager.currentPage
                 val inactiveWindowKey = inactivePage.singleKey
@@ -106,8 +109,14 @@ class WindowSync(private val windowRepository: WindowRepository) {
                         // prevent infinite loop as each screen update causes a synchronise by comparing last key
                         // only update pages if empty or synchronised
                         if (inactiveWindow.lastUpdated < lastForceSyncAll
-                            || targetActiveWindowKey != inactiveWindowKey) {
-                            updateInactiveWindow(inactiveWindow, inactivePage, targetActiveWindowKey, inactiveWindowKey)
+                            || targetActiveWindowKey != inactiveWindowKey
+                        ) {
+                            updateInactiveWindow(
+                                inactiveWindow,
+                                inactivePage,
+                                targetActiveWindowKey,
+                                inactiveWindowKey
+                            )
                             inactiveUpdated = true
                         }
                     }
@@ -124,7 +133,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         }
 
         ABEventBus.getDefault().post(DecrementBusyCount())
-    }
+    }}
 
     /** Only call if screens are synchronised.  Update synch'd keys even if inactive page not
      * shown so if it is shown then it is correct
