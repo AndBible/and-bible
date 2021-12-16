@@ -60,6 +60,6 @@ function verifyXmlRendering(xmlTemplate, renderedHtml) {
     expect(wrapper.html() + "\n").toBe(renderedHtml);
 }
 
-describe("OsisFragment.vue", () => {
-    it("Test OsisFragment", () => verifyXmlRendering(test1Xml, test1Result));
+describe("OsisSegment.vue", () => {
+    it("Test rendering of Eph 2:8 in KJVA, #1985", () => verifyXmlRendering(test1Xml, test1Result));
 });
