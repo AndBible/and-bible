@@ -1,12 +1,12 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    val kotlinVersion by extra("1.5.31")
-    val roomVersion by extra("2.3.0")
-    val jswordVersion by extra("2.3.52")
+    val kotlinVersion by extra("1.6.10")
+    val roomVersion by extra("2.4.0")
+    val jswordVersion by extra("2.3.54")
     val jdomVersion by extra("2.0.6") // make sure this is same version as in jsword!
     val commonsTextVersion by extra("1.9")
-    val kotlinxSerializationVersion by extra("1.2.2")
+    val kotlinxSerializationVersion by extra("1.3.1")
 
     repositories {
         google()
