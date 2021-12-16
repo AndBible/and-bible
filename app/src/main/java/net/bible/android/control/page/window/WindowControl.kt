@@ -201,7 +201,7 @@ open class WindowControl @Inject constructor(
 
             window.windowState = WindowState.SPLIT
 
-            windowSync.synchronizeWindows()
+            windowSync.synchronizeWindows(null)
             windowSync.reloadAllWindows()
 
             if (activeWindow.isSynchronised)

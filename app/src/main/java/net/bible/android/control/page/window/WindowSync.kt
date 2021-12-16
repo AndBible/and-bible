@@ -18,6 +18,10 @@
 
 package net.bible.android.control.page.window
 
+import debounce
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.page.CurrentPage
@@ -59,10 +63,12 @@ class WindowSync(private val windowRepository: WindowRepository) {
         ABEventBus.getDefault().post(DecrementBusyCount())
     }
 
-    /** Synchronise the inactive key and inactive screen with the active key and screen if required
-     */
 
-    fun synchronizeWindows(sourceWindow_: Window? = null) {
+    private val syncScope = CoroutineScope(Dispatchers.Default)
+    val synchronizeWindows: (sourceWindow: Window?) -> Unit = debounce(200, syncScope) {doSynchronizeWindows(it)}
+
+    /** Synchronise the inactive key and inactive screen with the active key and screen if required */
+    private fun doSynchronizeWindows(sourceWindow_: Window? = null) = synchronized(this) {
         ABEventBus.getDefault().post(IncrementBusyCount())
 
         // if maximized mode and current active window is not in sync, then get previous window that was in sync
