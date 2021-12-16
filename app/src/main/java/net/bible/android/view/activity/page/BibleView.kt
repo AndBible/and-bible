@@ -58,6 +58,7 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
@@ -1436,6 +1437,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return if(value) "true" else "false"
         }
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
+        if(isActive) {
+            PassageChangeMediator.getInstance().onCurrentVerseChanged(window)
+        }
     }
 
     fun executeJavascriptOnUiThread(javascript: String): Boolean {
