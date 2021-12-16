@@ -52,6 +52,7 @@
     "vue-cli-plugin-webpack-bundle-analyzer": "~4.0.0",
     "vue-cli-plugin-yaml-loader": "~1.0.0",
     "vue-jest": "~5.0.0-alpha.10",
+    "jest-raw-loader": "~1.0.1",
     "yaml-loader": "~0.6.0"
   },
   "eslintConfig": {
