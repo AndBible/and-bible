@@ -107,7 +107,7 @@ class WindowSynchronisationTest {
         val (chapter, verse) = window3.pageManager.currentBible.currentChapterVerse
 
         windowControl!!.restoreWindow(window0)
-        Thread.sleep(100)
+        Thread.sleep(250)
         val secondNewChapterVerse = ChapterVerse(chapter, 12)
         window0.pageManager.currentBible.currentChapterVerse = secondNewChapterVerse
         assertThat(window2.isVisible, equalTo(false))
@@ -116,21 +116,21 @@ class WindowSynchronisationTest {
         assertThat(window0.pageManager.currentBible.currentChapterVerse, equalTo(secondNewChapterVerse))
 
         windowControl!!.restoreWindow(window1)
-        Thread.sleep(100)
+        Thread.sleep(250)
         assertThat(window0.isVisible, equalTo(false))
         assertThat(window2.isVisible, equalTo(false))
         assertThat(window3.isVisible, equalTo(false))
         assertThat(window1.pageManager.currentBible.currentChapterVerse, equalTo(secondNewChapterVerse))
 
         windowControl!!.restoreWindow(window2)
-        Thread.sleep(100)
+        Thread.sleep(250)
         assertThat(window0.isVisible, equalTo(false))
         assertThat(window3.isVisible, equalTo(false))
         assertThat(window1.isVisible, equalTo(false))
         assertThat(window2.pageManager.currentBible.currentChapterVerse, not(equalTo(secondNewChapterVerse)))
 
         windowControl!!.restoreWindow(window3)
-        Thread.sleep(100)
+        Thread.sleep(250)
         assertThat(window0.isVisible, equalTo(false))
         assertThat(window2.isVisible, equalTo(false))
         assertThat(window1.isVisible, equalTo(false))
