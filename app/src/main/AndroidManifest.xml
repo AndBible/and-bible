@@ -29,6 +29,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         android:supportsRtl="true"
+        android:exported="true"
         >
         <uses-library
             android:name="org.apache.http.legacy"
