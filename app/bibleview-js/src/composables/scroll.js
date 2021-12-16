@@ -52,7 +52,7 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
         console.log("doScrolling", elementY, duration);
         const noScrolling = duration === 0;
         stopScrolling(!noScrolling);
-        const startingY = window.pageYOffset;
+        const startingY = window.scrollY;
         const diff = elementY - startingY;
         let start;
 
@@ -115,7 +115,7 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
         }
 
         if (toElement != null) {
-            const diff = toElement.offsetTop - window.pageYOffset;
+            const diff = toElement.offsetTop - window.scrollY;
             if(Math.abs(diff) > 800 / window.devicePixelRatio) {
                 now = true;
             }
