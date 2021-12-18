@@ -18,6 +18,7 @@
 
 package net.bible.android.control.page
 
+import android.util.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
@@ -55,7 +56,8 @@ fun mapToJson(map: Map<String, String>?): String =
 fun listToJson(list: List<String>) = list.joinToString(",", "[", "]")
 val VerseRange.onlyNumber: String get() = if(cardinality > 1) "${start.verse}-${end.verse}" else "${start.verse}"
 val VerseRange.abbreviated: String get() {
-    synchronized(BookName::class) {
+    Log.i("VerseRange", "BookName::class ${System.identityHashCode(BookName::class.java)}")
+    synchronized(BookName::class.java) {
         val wasFullBookName = BookName.isFullBookName()
         BookName.setFullBookName(false)
         val shorter = name

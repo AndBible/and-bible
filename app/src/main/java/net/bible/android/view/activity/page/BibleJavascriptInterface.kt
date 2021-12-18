@@ -121,7 +121,7 @@ class BibleJavascriptInterface(
 
             val verse = if(verseStr == null) null else VerseFactory.fromString(KJVA, verseStr)
 
-            val verseName = synchronized(BookName::class) {
+            val verseName = synchronized(BookName::class.java) {
                 val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
                 val text = verse?.name ?: ""

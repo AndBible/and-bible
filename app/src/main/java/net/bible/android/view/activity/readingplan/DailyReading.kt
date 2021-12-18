@@ -139,7 +139,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                 readingAll = null
             }
 
-            synchronized(BookName::class) {
+            synchronized(BookName::class.java) {
                 val fullBookNameSave = BookName.isFullBookName()
                 BookName.setFullBookName(!CommonUtils.isPortrait)
 

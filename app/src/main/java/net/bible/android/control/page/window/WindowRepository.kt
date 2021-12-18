@@ -307,7 +307,7 @@ open class WindowRepository @Inject constructor(
 
     private val contentText: String get() {
         val keyTitle = ArrayList<String>()
-        synchronized(BookName::class) {
+        synchronized(BookName::class.java) {
             val prevFullBookNameValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
 

@@ -813,7 +813,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     val bibleOverlayText: String
         get() {
             val bookName = pageControl.currentPageManager.currentPage.currentDocument?.abbreviation
-            synchronized(BookName::class) {
+            synchronized(BookName::class.java) {
                 val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
                 val text = pageTitleText
@@ -827,7 +827,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             binding.pageTitle.text = pageTitleText
             val layout = binding.pageTitle.layout
             if(layout!= null && layout.lineCount > 0 && layout.getEllipsisCount(0) > 0) {
-                synchronized(BookName::class) {
+                synchronized(BookName::class.java) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
                     binding.pageTitle.text = pageTitleText
