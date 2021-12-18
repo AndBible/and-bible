@@ -206,7 +206,7 @@ class SpeakWidgetManager {
         val contentIntent = Intent(context, MainBibleActivity::class.java)
         contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-        val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, 0)
+        val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         views.setOnClickPendingIntent(R.id.root, pendingIntent)
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
