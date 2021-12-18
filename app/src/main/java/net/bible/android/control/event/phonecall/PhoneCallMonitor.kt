@@ -18,6 +18,7 @@
 package net.bible.android.control.event.phonecall
 
 import android.content.Context
+import android.os.Build
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.util.Log
@@ -60,7 +61,10 @@ object PhoneCallMonitor {
     fun ensureMonitoringStarted() {
         if (!isMonitoring) {
             isMonitoring = true
-            startMonitoring()
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                // TODO: support Android 12+
+                startMonitoring()
+            }
         }
     }
 }
