@@ -55,15 +55,13 @@ fun mapToJson(map: Map<String, String>?): String =
 
 fun listToJson(list: List<String>) = list.joinToString(",", "[", "]")
 val VerseRange.onlyNumber: String get() = if(cardinality > 1) "${start.verse}-${end.verse}" else "${start.verse}"
-val VerseRange.abbreviated: String get() {
+val VerseRange.abbreviated: String get() = synchronized(BookName::class.java) {
     Log.i("VerseRange", "BookName::class ${System.identityHashCode(BookName::class.java)}")
-    synchronized(BookName::class.java) {
-        val wasFullBookName = BookName.isFullBookName()
-        BookName.setFullBookName(false)
-        val shorter = name
-        BookName.setFullBookName(wasFullBookName)
-        return shorter
-    }
+    val wasFullBookName = BookName.isFullBookName()
+    BookName.setFullBookName(false)
+    val shorter = name
+    BookName.setFullBookName(wasFullBookName)
+    return shorter
 }
 
 interface DocumentWithBookmarks
