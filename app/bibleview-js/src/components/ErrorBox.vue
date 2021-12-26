@@ -39,20 +39,18 @@
 import {clearLog, enableLogSync, logEntries} from "@/composables/android";
 import {onMounted, onUnmounted} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "ErrorBox",
-  computed: {
-    buttonStyle({logEntries}) {
+  setup() {
+    onMounted(() => enableLogSync(true));
+    onUnmounted(() => enableLogSync(false));
+    const buttonStyle = computed(() => {
       if (logEntries.find(v => v.type === "ERROR")) return "error";
       return "warn";
-    }
-
-  },
-  setup() {
-    onMounted(() => enableLogSync(true))
-    onUnmounted(() => enableLogSync(false))
-    return {logEntries, clearLog, ...useCommon()};
+    });
+    return {buttonStyle, logEntries, clearLog, ...useCommon()};
   },
   data() {
     return {

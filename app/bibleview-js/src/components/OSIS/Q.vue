@@ -15,10 +15,11 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span :class="{redLetters: config.showRedLetters && isJesus}"><slot/></span></template>
+<template><span :class="{redLetters: config.showRedLetters && isJesus}">{{displayMarker}}<slot/></span></template>
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "Q",
@@ -29,21 +30,27 @@ export default {
     who: {type: String, default: null},
     level: {type: String, default: null},
   },
-  computed: {
-    isJesus: ({who}) => who && who.toLowerCase() === "jesus"
-  },
   setup(props) {
     checkUnsupportedProps(props, "who", ["jesus", "Jesus"]);
-    return useCommon();
+    const isJesus = computed(() => props.who && props.who.toLowerCase() === "jesus");
+    const displayMarker = computed(() => {
+      if(props.marker) {
+        return props.marker;
+      } else {
+        return "";
+      }
+    });
+    return {isJesus, displayMarker, ...useCommon()};
   },
 }
 </script>
 
 <style scoped lang="scss">
+$redLetters: rgb(215, 13, 13);
 .redLetters {
-  color: red !important;
+  color: $redLetters !important;
 }
 .redLetters > a:link, a:visited {
-  color: red;
+  color: $redLetters;
 }
 </style>

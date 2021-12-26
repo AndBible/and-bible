@@ -193,7 +193,7 @@ class ReadingPlanControl @Inject constructor(
         // when the clocks went forward the difference became 88.95833 but should have been 89
         val diffInDays = (today.time - startDate.time) / (1000.0 * 60.0 * 60.0 * 24.0)
         val diffInWholeDays = diffInDays.roundToLong()
-        Log.d(TAG, "Days diff between today and start:$diffInWholeDays")
+        Log.i(TAG, "Days diff between today and start:$diffInWholeDays")
 
         // if diff is zero then we are on day 1 so add 1
         return diffInWholeDays + 1

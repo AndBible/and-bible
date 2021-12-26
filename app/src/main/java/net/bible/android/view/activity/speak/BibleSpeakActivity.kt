@@ -178,7 +178,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     private var endVerse: Verse? = null
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "Activity result:$resultCode")
+        Log.i(TAG, "Activity result:$resultCode")
         val verseStr = data?.extras?.getString("verse")
         val v11n = navigationControl.versification
         if(verseStr != null) {

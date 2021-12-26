@@ -57,7 +57,6 @@
     border-color: rgba(255, 255, 255, 0.3);
   }
   border-width: 1pt 0 0 0;
-  border-radius: 1pt;
   padding: 5pt 0 0 1pt;
 }
 
@@ -137,6 +136,11 @@ $button-grey: #8e8e8e;
   .night & {
     border-color: rgba(255, 255, 255, 0.3);
   }
+}
+
+.note-separator {
+  @extend .separator;
+  border-width: 0.5pt 0 0 0;
 }
 
 .modal-footer-buttons {

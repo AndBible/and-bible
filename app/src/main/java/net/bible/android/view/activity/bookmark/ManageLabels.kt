@@ -63,6 +63,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt
 
 fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.ManageLabelsData) {
+    Log.i("ManageLabels", "WorkspaceEntities.updateRecentLabels")
     autoAssignLabels = resultData.autoAssignLabels
     favouriteLabels = resultData.favouriteLabels
     autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
@@ -309,7 +310,7 @@ class ManageLabels : ListActivityBase() {
     }
 
     private fun studyPadSelected(journal: BookmarkEntities.Label) {
-        Log.d(TAG, "Journal selected:" + journal.name)
+        Log.i(TAG, "Journal selected:" + journal.name)
         try {
             activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
         } catch (e: Exception) {
@@ -572,7 +573,7 @@ class ManageLabels : ListActivityBase() {
                 }
             }, {
                 when (it) {
-                    is BookmarkEntities.Label -> it.name.toLowerCase(Locale.getDefault())
+                    is BookmarkEntities.Label -> it.name.lowercase(Locale.getDefault())
                     else -> ""
                 }
             }))

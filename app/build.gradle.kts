@@ -14,6 +14,17 @@ plugins {
 
 val jsDir = "bibleview-js"
 
+// The flavor dimension for the appearance of the app
+val dimAppearance = "appearance"
+val discreteFlavor = "discrete"
+// This is the "standard" applicationId.
+// This value must remain the same as it has been since the original
+// release in 2010 for continuity of updates for existing users.
+val applicationIdStandard = "net.bible.android.activity"
+// An alternative applicationId, to be used for the "discrete" flavor.
+val applicationIdDiscrete = "com.example.ToDo"
+
+
 fun getGitHash(): String =
     ByteArrayOutputStream().use { stdout ->
         exec {
@@ -38,10 +49,10 @@ val npmUpgrade by tasks.registering(Exec::class) {
     workingDir = file(jsDir)
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
-        commandLine("npx.cmd", "npm@latest", "install", "--save-dev", "npm@latest")
+        commandLine("npx.cmd", "npm@latest", "ci", "--save-dev", "npm@latest")
     }
     else {
-        commandLine("npx", "npm@latest", "install", "--save-dev", "npm@latest")
+        commandLine("npx", "npm@latest", "ci", "--save-dev", "npm@latest")
     }
 }
 
@@ -52,10 +63,10 @@ val npmInstall by tasks.registering(Exec::class) {
 
     workingDir = file(jsDir)
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
-        commandLine("$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "install")
+        commandLine("$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "ci")
     }
     else {
-        commandLine("node_modules/.bin/npm", "install")
+        commandLine("node_modules/.bin/npm", "ci")
     }
 }
 
@@ -104,13 +115,13 @@ tasks.named("preBuild").configure { dependsOn(buildLoaderJs) }
 tasks.named("check").configure { dependsOn(jsTests) }
 
 android {
-    compileSdk = 30
+    compileSdk = 31
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
-        applicationId = "net.bible.android.activity"
+        applicationId = applicationIdStandard
         minSdk =21
-        targetSdk = 30
+        targetSdk = 31
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
@@ -142,6 +153,40 @@ android {
 //			zipAlignEnabled true
         }
     }
+
+    flavorDimensions(dimAppearance)
+
+    productFlavors {
+        create("standard") {
+            dimension = dimAppearance
+            isDefault = true
+        }
+
+        create(discreteFlavor) {
+            dimension = dimAppearance
+        }
+
+        create("fdroid") {
+            dimension = dimAppearance
+        }
+
+        create("samsung") {
+            dimension = dimAppearance
+        }
+
+        create("huawei") {
+            dimension = dimAppearance
+        }
+
+        create("amazon") {
+            dimension = dimAppearance
+        }
+
+        create("github") {
+            dimension = dimAppearance
+        }
+    }
+
 
     lint {
         disable("MissingTranslation")
@@ -197,6 +242,20 @@ android {
 
 }
 
+androidComponents {
+    val discreteSelector = selector().withFlavor(dimAppearance to discreteFlavor )
+    // Set the applicationId to a more discrete alternative.
+    // Replace only the "standard" prefix, in order to preserve any
+    // suffixes that are contributed by the build types or product flavors.
+    onVariants(discreteSelector) { variant ->
+        val originalAppId = variant.applicationId.get()
+        val alternateAppId = originalAppId.replace(applicationIdStandard, applicationIdDiscrete)
+        variant.applicationId.set(alternateAppId)
+        logger.info("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
+    }
+}
+
+
 dependencies {
     val commonsTextVersion: String by rootProject.extra
     val jdomVersion: String by rootProject.extra
@@ -210,12 +269,12 @@ dependencies {
     // 1.2.0+ releases (until 1.3.0-alpha02 at least) have issue with translations
     // not showing up on MainBibleActivity. Thus reverting to 1.0.2 for now.
     // https://issuetracker.google.com/issues/141132133
-    implementation("androidx.appcompat:appcompat:1.3.1")
+    implementation("androidx.appcompat:appcompat:1.4.0")
 
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
-    implementation("androidx.media:media:1.4.2")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.1")
-    implementation("androidx.core:core-ktx:1.6.0")
+    implementation("androidx.media:media:1.4.3")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.2")
+    implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.preference:preference:1.1.1")
     implementation("androidx.preference:preference-ktx:1.1.1")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
@@ -229,7 +288,7 @@ dependencies {
     implementation("com.google.android.material:material:1.4.0")
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
-    implementation("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.annotation:annotation:1.3.0")
 
     implementation("androidx.room:room-runtime:$roomVersion")
 
@@ -242,13 +301,13 @@ dependencies {
     //implementation("com.madgag.spongycastle:pkix:1.58.0.0")
     //implementation("com.madgag.spongycastle:pg:1.58.0.0")
 
-    implementation("com.google.dagger:dagger:2.38.1")
-    annotationProcessor("com.google.dagger:dagger-compiler:2.38.1")
-    kapt("com.google.dagger:dagger-compiler:2.38.1")
+    implementation("com.google.dagger:dagger:2.40.5")
+    annotationProcessor("com.google.dagger:dagger-compiler:2.40.5")
+    kapt("com.google.dagger:dagger-compiler:2.40.5")
 
     implementation("de.greenrobot:eventbus:2.4.1")
 
-    implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-lang3:3.12.0") // make sure this is the same version that commons-text depends on
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
 
     implementation("com.github.AndBible:jsword:$jswordVersion")

@@ -57,7 +57,7 @@ abstract class Migration(startVersion: Int, endVersion: Int): RoomMigration(star
     abstract fun doMigrate(db: SupportSQLiteDatabase)
     
     override fun migrate(db: SupportSQLiteDatabase) {
-        Log.d(TAG, "Migrating from version $startVersion to $endVersion")
+        Log.i(TAG, "Migrating from version $startVersion to $endVersion")
         doMigrate(db)
     }
 }
@@ -1003,7 +1003,7 @@ object DatabaseContainer {
                 }
             }
         } catch (e: Exception) {
-            Log.d(TAG, "Could not backup database. Maybe fresh install.")
+            Log.i(TAG, "Could not backup database. Maybe fresh install.")
         }
         if(dbVersion != null && dbVersion != DATABASE_VERSION) {
             val backupPath = CommonUtils.dbBackupPath

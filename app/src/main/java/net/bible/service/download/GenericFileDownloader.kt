@@ -72,7 +72,7 @@ class GenericFileDownloader(
         try {
             // Delete the file, if present
             if (target.exists()) {
-                Log.d(TAG, "deleting file")
+                Log.i(TAG, "deleting file")
                 target.delete()
             }
             try {
@@ -159,7 +159,7 @@ class GenericFileDownloader(
 
     @Throws(InstallException::class)
     private fun copy(job: Progress?, source: URI, dest: URI?) {
-        Log.d(TAG, "Downloading $source to $dest")
+        Log.i(TAG, "Downloading $source to $dest")
         if (job != null) {
             // TRANSLATOR: Progress label for downloading one or more files.
             job.sectionName = JSMsg.gettext("Downloading files")

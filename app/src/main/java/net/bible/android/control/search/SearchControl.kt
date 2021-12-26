@@ -65,16 +65,15 @@ class SearchControl @Inject constructor(
      *
      * @return required Intent
      */
-    fun getSearchIntent(document: Book?): Intent {
+    fun getSearchIntent(document: Book?, activity: Activity): Intent {
         val indexStatus = document?.indexStatus
-        Log.d(TAG, "Index status:$indexStatus")
-        val currentActivity: Activity = CurrentActivityHolder.getInstance().currentActivity
+        Log.i(TAG, "Index status:$indexStatus")
         return if (indexStatus == IndexStatus.DONE) {
-            Log.d(TAG, "Index status is DONE")
-            Intent(currentActivity, Search::class.java)
+            Log.i(TAG, "Index status is DONE")
+            Intent(activity, Search::class.java)
         } else {
-            Log.d(TAG, "Index status is NOT DONE")
-            Intent(currentActivity, SearchIndex::class.java)
+            Log.i(TAG, "Index status is NOT DONE")
+            Intent(activity, SearchIndex::class.java)
         }
     }
 
@@ -117,7 +116,7 @@ class SearchControl @Inject constructor(
      */
     @Throws(BookException::class)
     fun getSearchResults(document: String?, searchText: String?): SearchResultsDto {
-        Log.d(TAG, "Preparing search results")
+        Log.i(TAG, "Preparing search results")
         val searchResults = SearchResultsDto()
 
         // search the current book
@@ -130,7 +129,7 @@ class SearchControl @Inject constructor(
         }
         if (result != null) {
             val resNum = result.cardinality
-            Log.d(TAG, "Number of results:$resNum")
+            Log.i(TAG, "Number of results:$resNum")
 
             //if Bible or commentary then filter out any non Scripture keys, otherwise don't filter
             val isBibleOrCommentary = book is AbstractPassageBook

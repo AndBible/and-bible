@@ -111,7 +111,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
      *
      */
     private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) {
-        Log.d(TAG, "Preparing search results")
+        Log.i(TAG, "Preparing search results")
         var isOk: Boolean
         try { // get search string - passed in using extras so extras cannot be null
             val extras = intent.extras

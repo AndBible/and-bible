@@ -61,7 +61,7 @@ class History : ListActivityBase() {
         listAdapter = createAdapter()
         val name = currentWorkspaceName
         title = getString(R.string.history_for, name, windowControl.activeWindowPosition + 1)
-        Log.d(TAG, "Finished displaying Search view")
+        Log.i(TAG, "Finished displaying Search view")
     }
 
     /**

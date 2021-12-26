@@ -50,6 +50,8 @@ export const Events = {
     BOOKMARK_NOTE_MODIFIED: "bookmark_note_modified",
     SCROLL_UP: "scroll_up",
     SCROLL_DOWN: "scroll_down",
+    ADJUST_LOADING_COUNT: "adjust_loading_count",
+    EXPORT_HTML: "export_html",
 }
 
 export function setupEventBusListener(eventId, callback) {

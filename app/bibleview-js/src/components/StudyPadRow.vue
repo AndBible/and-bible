@@ -24,7 +24,7 @@
   </AreYouSure>
   <div class="entry" :class="{editMode}">
     <div class="menu" :class="{isText: journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT}">
-      <ButtonRow show-drag-handle>
+      <ButtonRow show-drag-handle v-if="!exportMode">
         <div class="journal-button" @click="addNewEntryAfter">
           <FontAwesomeIcon icon="plus-circle"/>
         </div>
@@ -55,7 +55,7 @@
     <template v-if="journalEntry.type===StudyPadEntryTypes.BOOKMARK">
       <b><a :href="bibleUrl">{{ journalEntry.bookInitials ? sprintf(strings.multiDocumentLink, journalEntry.verseRangeAbbreviated, journalEntry.bookAbbreviation ) : journalEntry.verseRangeAbbreviated }}</a></b>&nbsp;
       <BookmarkText :expanded="journalEntry.expandContent" :bookmark="journalEntry"/>
-      <div v-if="(journalEntry.hasNote || editMode) && journalEntry.expandContent" class="separator"/>
+      <div v-if="(journalEntry.hasNote || editMode) && journalEntry.expandContent" class="note-separator"/>
     </template>
     <div :class="{'studypad-text-entry': journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT, notes: journalEntry.type === StudyPadEntryTypes.BOOKMARK}">
       <EditableText
@@ -96,6 +96,8 @@ export default {
     const areYouSureDelete = ref(null);
     const {strings, ...common} = useCommon();
     const editor = ref(null);
+
+    const exportMode = inject("exportMode", ref(false));
 
     const editMode = computed({
       get() {
@@ -175,6 +177,7 @@ export default {
     );
 
     return {
+      exportMode,
       bibleUrl,
       addNewEntryAfter,
       editBookmark,

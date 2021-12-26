@@ -34,6 +34,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.ContextMenu
 import android.view.GestureDetector
+import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -132,7 +133,7 @@ import kotlin.system.exitProcess
  */
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
-    private lateinit var binding: MainBibleViewBinding
+    lateinit var binding: MainBibleViewBinding
 
     private var mWholeAppWasInBackground = false
 
@@ -146,7 +147,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     // handle requests from main menu
     @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
-    @Inject lateinit var bibleKeyHandler: BibleKeyHandler
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var documentControl: DocumentControl
     @Inject lateinit var navigationControl: NavigationControl
@@ -294,7 +294,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             override fun onDrawerOpened(drawerView: View) {}
 
-            override fun onDrawerClosed(drawerView: View) {}
+            override fun onDrawerClosed(drawerView: View) {
+                windowRepository.activeWindow.bibleView?.requestFocus()
+            }
         })
         // register for passage change and appToBackground events
         ABEventBus.getDefault().register(this)
@@ -342,7 +344,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             docDao.insert(allDocs)
         } else {
             knownInstalled.map {
-                Log.d(TAG, "The ${it.name} is installed")
+                Log.i(TAG, "The ${it.name} is installed")
             }
         }
     }
@@ -478,7 +480,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
             override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-                Log.d(TAG, "onFling")
+                Log.i(TAG, "onFling")
                 val vertical = Math.abs(e1.y - e2.y).toDouble()
                 val horizontal = Math.abs(e1.x - e2.x).toDouble()
 
@@ -525,6 +527,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var lastBackPressed: Long? = null
 
     override fun onBackPressed() {
+        Log.i(TAG, "onBackPressed $fullScreen")
         if(fullScreen) {
             toggleFullScreen()
             return
@@ -554,7 +557,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         //TODO make Long press Back work for screens other than main window e.g. does not work from search screen because wrong window is displayed
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Log.d(TAG, "Back Long")
+            Log.i(TAG, "Back Long")
             // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
             // been performed on the long press, so will set the cancelled flag for the following up event.
             val intent = Intent(this, History::class.java)
@@ -611,7 +614,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 startActivity(intent)
                 true
             }
-            searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), STD_REQUEST_CODE) }
+            searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument, this@MainBibleActivity), STD_REQUEST_CODE) }
         }
     }
 
@@ -810,7 +813,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     val bibleOverlayText: String
         get() {
             val bookName = pageControl.currentPageManager.currentPage.currentDocument?.abbreviation
-            synchronized(BookName::class) {
+            synchronized(BookName::class.java) {
                 val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
                 val text = pageTitleText
@@ -824,7 +827,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             binding.pageTitle.text = pageTitleText
             val layout = binding.pageTitle.layout
             if(layout!= null && layout.lineCount > 0 && layout.getEllipsisCount(0) > 0) {
-                synchronized(BookName::class) {
+                synchronized(BookName::class.java) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
                     binding.pageTitle.text = pageTitleText
@@ -1093,7 +1096,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun updateBottomBars() {
-        Log.d(TAG, "updateBottomBars")
+        Log.i(TAG, "updateBottomBars")
         if(isFullScreen || !transportBarVisible) {
             binding.speakTransport.animate()
                 .translationY(binding.speakTransport.height.toFloat())
@@ -1200,7 +1203,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
             if(isFullScreen) {
                 hideSystemUI()
-                Log.d(TAG, "Fullscreen on")
+                Log.i(TAG, "Fullscreen on")
                 toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
                     .setInterpolator(AccelerateInterpolator())
                     .withEndAction { toolbarLayout.visibility = View.GONE }
@@ -1208,7 +1211,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
             else {
                 showSystemUI()
-                Log.d(TAG, "Fullscreen off")
+                Log.i(TAG, "Fullscreen off")
                 toolbarLayout.translationY = -toolbarLayout.height.toFloat()
                 toolbarLayout.visibility = View.VISIBLE
                 toolbarLayout.animate().translationY(topOffset1.toFloat())
@@ -1223,18 +1226,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        Log.d(TAG, "Configuration changed")
+        Log.i(TAG, "Configuration changed")
 
         refreshIfNightModeChange()
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-        Log.d(TAG, "Keycode:$keyCode")
+        Log.i(TAG, "Keycode:$keyCode")
         // common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
-        if (bibleKeyHandler.onKeyUp(keyCode, event)) {
-            return true
-        } else if (keyCode == KeyEvent.KEYCODE_SEARCH && windowControl.activeWindowPageManager.currentPage.isSearchable) {
-            val intent = searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument)
+        //if (bibleKeyHandler.onKeyUp(keyCode, event)) {
+        //    return true
+        if (keyCode == KeyEvent.KEYCODE_SEARCH && windowControl.activeWindowPageManager.currentPage.isSearchable) {
+            val intent = searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, this)
             startActivityForResult(intent, STD_REQUEST_CODE)
             return true
         }
@@ -1257,7 +1260,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "Activity result:$resultCode")
+        Log.i(TAG, "Activity result:$resultCode")
         val extras = data?.extras
         if (extras != null) {
             when (requestCode) {
@@ -1367,6 +1370,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     windowControl.activeWindow.bibleView?.volumeUpPressed()?: false
                 else -> super.onKeyDown(keyCode, event)
             }
+        }
+
+        val isExternal = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            InputDevice.getDevice(event.deviceId).isExternal
+        } else {
+            false
+        }
+
+        if(keyCode == KeyEvent.KEYCODE_BACK && (event.source and InputDevice.SOURCE_KEYBOARD) != 0 && isExternal) {
+            if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
+                binding.drawerLayout.closeDrawers()
+            }
+            return true
         }
 
         return super.onKeyDown(keyCode, event)

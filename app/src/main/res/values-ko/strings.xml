@@ -25,17 +25,17 @@
   <!--Passage navigation-->
   <string name="choosePassageBookName">번역본 선택</string>
   <string name="choosePassageChapterName">장 선택</string>
-  <string name="choosePassageVerseName">구절 선택</string>
+  <string name="choosePassageVerseName">절 선택</string>
   <string name="bible">성경</string>
   <string name="deuterocanonical">외경</string>
   <!--Search-->
   <string name="search_index">검색 색인</string>
-  <string name="index_creation_required">검색을 하려면 인덱스가 필요합니다.</string>
-  <string name="create_index_for">검색을 하려면 인덱스가 필요합니다. \n\n%s의 인덱스를 만들까요?</string>
-  <string name="rebuild_index_for">%s의 인덱스를 다시 만들까요?</string>
-  <string name="indexing_wait_msg">인덱싱이 완료되면 검색 화면으로 넘어갑니다.</string>
+  <string name="index_creation_required">검색을 하려면 색인이 필요합니다.</string>
+  <string name="create_index_for">검색을 하려면 색인이 필요합니다. \n\n%s의 색인을 만들까요?</string>
+  <string name="rebuild_index_for">%s의 색인을 다시 만들까요?</string>
+  <string name="indexing_wait_msg">색인 생성이 완료되면 검색 화면으로 넘어갑니다.</string>
   <string name="index_create">만들기</string>
-  <string name="rebuild_index">인덱스 재생성</string>
+  <string name="rebuild_index">색인 재생성</string>
   <string name="search_in">%s에서 찾기</string>
   <string name="do_in_background">백그라운드에서 계속</string>
   <string name="rebuild_index_button">재생성</string>
@@ -48,9 +48,9 @@
   <string name="search_all_words">모든 단어</string>
   <string name="search_any_word">단어별 말씀</string>
   <string name="search_phrase">구문</string>
-  <string name="search_result_count">%d 개의 검색된</string>
-  <string name="search_showing_first">너무 많습니다 일치합니다. %d 조 첫번째 보기</string>
-  <string name="search_bible_section_group_prompt">검색은 어디</string>
+  <string name="search_result_count">검색 결과 %d건</string>
+  <string name="search_showing_first">검색 결과가 너무 많습니다. 상위 %d건을 보여드립니다.</string>
+  <string name="search_bible_section_group_prompt">검색 위치</string>
   <string name="search_all_bible">성경 전체</string>
   <string name="search_new_testament">신약 성경</string>
   <string name="search_old_testament">구약 성경</string>
@@ -60,7 +60,7 @@
   <string name="prefs_show_verseno_title">장 &amp; 절 번호</string>
   <string name="prefs_show_verseno_summary">장 &amp; 절 번호 보이기</string>
   <string name="prefs_e_ink_mode_title">흑백 모드</string>
-  <string name="prefs_eink_mode_summary">앱을 흑백 모드(컬러 없음)로 사용하여, 전자책 디바이스에 알맞습니다.</string>
+  <string name="prefs_eink_mode_summary">전자책 디바이스에 알맞게 앱을 흑백 모드(컬러 없음)로 사용합니다.</string>
   <string name="prefs_disable_animations_title">애니메이션 끄기</string>
   <string name="prefs_disable_animations_summary">부드러운 스크롤과 같은 애니메이션을 끕니다.</string>
   <string name="prefs_paragraph_spacing_title">문단 간격 (%s mm)</string>
@@ -75,7 +75,7 @@
   <string name="prefs_show_strongs_summary">링크 - 그리스어 및 히브리어 정의</string>
   <string name="prefs_show_morphology_summary">Robinson\'s Greek Morphology 보기</string>
   <string name="prefs_section_title_summary">비정규 섹션 제목보기</string>
-  <string name="prefs_red_letter_summary">빨간색으로 예수님의 말씀 보기</string>
+  <string name="prefs_red_letter_summary">예수님 말씀에 적색 강조 추가</string>
   <string name="prefs_text_size_title">글꼴 설정</string>
   <string name="prefs_verse_per_line_title">한 줄에 한 구절</string>
   <string name="prefs_show_bookmarks_title">즐겨찾기 보기</string>
@@ -102,7 +102,7 @@
   <string name="prefs_night_mode_system">시스템</string>
   <string name="options_menu_night_mode">야간 모드</string>
   <string name="prefs_navigate_to_verse_title">절로 이동</string>
-  <string name="prefs_navigate_to_verse_summary">문장을 선택할 때 절 (과 장)을 선택</string>
+  <string name="prefs_navigate_to_verse_summary">문장을 선택할 때 절(과 장)을 선택</string>
   <string name="prefs_open_links_in_special_window_title">링크 윈도우</string>
   <string name="prefs_open_links_in_special_window_summary">링크를 누르면 상호 참조와 스트롱 넘버를 빠르게 보여주기 위해 특수한 창에 엽니다</string>
   <string name="prefs_text_size_sample_text">샘플 텍스트</string>
@@ -120,7 +120,7 @@
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
-  <string name="auto_fullscreen_summary">텍스트를 스크롤링할 때 자동으로 전체 화면으로 전환. 팁: 화면을 두번 탭하면 언제나 전체 화면으로 변경할 수 있습니다.</string>
+  <string name="auto_fullscreen_summary">텍스트를 스크롤링할 때 자동으로 전체 화면으로 전환. 팁: 화면을 두 번 탭하면 언제나 전체 화면으로 변경할 수 있습니다.</string>
   <string name="prefs_margin_size_title">여백 크기 변경</string>
   <string name="prefs_margin_size_mm_title">여백 크기 (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">고급 설정</string>
@@ -134,14 +134,14 @@
   <string name="prefs_text_display_settings_title">포맷</string>
   <string name="prefs_text_appearance_title">보기</string>
   <string name="prefs_justify_title">양쪽 맞춤</string>
-  <string name="prefs_justify_summary">텍스트를 양쪽 맞춤, 즉 오른쪽과 왼쪽 여백을 맞춥니다</string>
+  <string name="prefs_justify_summary">텍스트를 양쪽 맞춤하여, 왼쪽 및 오른쪽 여백을 맞춥니다</string>
   <string name="pref_left_margin_label_mm">왼쪽 여백 (%d mm)</string>
   <string name="pref_right_margin_label_mm">오른쪽 여백 (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">텍스트의 최대 넓이 (%d mm)</string>
   <string name="prefs_line_spacing_pt">줄 간격 %1.1fx</string>
   <string name="pref_font_family_label">글꼴 패밀리</string>
   <string name="prefs_top_margin_title">상단 여백</string>
-  <string name="prefs_top_margin_summary">윈도우 상단에 여백을 넣습니다. 현재 절이 여백 아래에서 시작하도록 스크롤링 됩니다.</string>
+  <string name="prefs_top_margin_summary">성경 문서가 포함된 윈도우 상단에 여백을 (표시와 함께) 추가합니다. 현재 절이 여백 아래에서 시작하도록 성경이 스크롤링됩니다.</string>
   <string name="prefs_hyphenation_title">하이픈 처리</string>
   <string name="prefs_hyphenation_summary">언어가 지원하는 경우, 단어를 하이픈 처리합니다</string>
   <string name="prefs_line_spacing_pt_title">줄 간격 (%1.1fx)</string>
@@ -205,14 +205,14 @@
   <string name="next">다음</string>
   <!--Strongs-->
   <string name="strongs_not_installed">스트롱 히브리어 및 그리어스어 사전을 다운로드 하세요</string>
-  <string name="no_indexed_bible_with_strongs_ref">스트롱 넘버가 포함된 성경과, 검색을 통해 그 인덱스를 다운로드 해야합니다.</string>
+  <string name="no_indexed_bible_with_strongs_ref">스트롱 넘버가 포함된 성경과 그 색인을 검색으로 다운로드해야 합니다.</string>
   <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\'사전을 다운로드하십시오</string>
   <string name="go_to_downloads">다운로드로 이동</string>
   <!--Module download-->
   <string name="download">문서 다운로드</string>
   <string name="redownload">문서 다시 다운로드</string>
   <string name="download_confirmation">인터넷에서 성경을 다운로드할까요?</string>
-  <string name="download_source_last_updated">최근 업데이트된 문서 목록: %s.</string>
+  <string name="download_source_last_updated">문서 목록 최근 업데이트: %s.</string>
   <string name="download_refreshing_book_list">문서 서버에서 사용 가능한 문서의 목록을 갱신중...</string>
   <string name="download_source_message1">문서를 다음 소스에서 다운로드했습니다:</string>
   <string name="download_document_confirm_prefix">다운로드</string>
@@ -221,16 +221,16 @@
   <string name="error_downloading_status">%s 문서를 제공하는 서버가 %s 때문에 에러를 반환했습니다 (%d).</string>
   <string name="storage_space_warning">저장 공간 부족</string>
   <string name="too_many_jobs">너무 많은 작업이 실행중입니다. 몇 개가 끝나기를 기다린 후 다시 시도하세요.</string>
-  <string name="document_not_installed">\'%s\' 을 다운로드하세요</string>
+  <string name="document_not_installed">‘%s’을(를) 다운로드하세요</string>
   <string name="free_text_search_documents">검색</string>
   <string name="chooce_language_hint">언어</string>
   <string name="one_more_back_press">앱을 닫으려면 뒤로가기 버튼을 다시 누르세요</string>
   <string name="document_filter_results">%d 문서</string>
-  <string name="download_question_title">문서들을 다운로드 하시겠습니까?</string>
+  <string name="download_question_title">문서들을 다운로드하시겠습니까?</string>
   <string name="download_question_message">만약 당신이 박해받는 나라에 살고 계신다면,
 인터넷으로 기독교 관련 파일을 다운로드 받는 것을 조심해야 할 수도 있습니다.
 대신, 더 안전한 방법으로 모듈 zip 파일을 다운로드 받은 후에
-\"Zip 파일에서 문서 가져오기\" 기능으로 설치하는 것이 나을 수 있습니다. 정말 다운로드를 진행할까요?
+“zip 파일에서 문서 가져오기” 기능으로 설치하는 것이 나을 수 있습니다. 정말 다운로드를 진행할까요?
 모듈 서버로부터 받는 모든 다운로드는 암호화(HTTPS) 되어 있습니다.</string>
   <string name="do_not_ask_again">예, 더 물어보지 마세요</string>
   <string name="recommended_document">추천!</string>
@@ -239,21 +239,21 @@
   <string name="failed_repositories_message">다음 서버에 연결하지 못했습니다: \n\n%s\n\n</string>
   <string name="failed_downloads_message">다음 파일들을 다운로드하지 못했습니다:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Zip 파일에서 문서를 설치</string>
+  <string name="install_zip">zip 파일에서 문서 가져오기</string>
   <string name="install_zip_module">성경 모듈 설치</string>
-  <string name="install_zip_successfull">문서가 성공적으로 설치</string>
-  <string name="extracting_zip_file">Zip 파일을 푸는 중...</string>
-  <string name="checking_zip_file">파일 검사 중...</string>
-  <string name="invalid_module">파일이 올바른 Sword 모듈 아니다</string>
-  <string name="install_zip_title">기다려 주세요. Zip 파일을 읽고 있습니다.</string>
+  <string name="install_zip_successfull">문서 설치 성공</string>
+  <string name="extracting_zip_file">zip 파일을 푸는 중…</string>
+  <string name="checking_zip_file">파일 검사 중…</string>
+  <string name="invalid_module">유효한 Sword 모듈이 포함되지 않은 파일</string>
+  <string name="install_zip_title">기다려 주세요. zip 파일을 읽고 있습니다.</string>
   <string name="overwrite_files">이 파일은 이미 있습니다: %s 덮어쓸까요?</string>
   <string name="overwrite_files_title">파일을 덮어쓸까요?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">읽기 계획</string>
   <string name="rdg_plan_selector_title">읽기 계획을 선택</string>
   <string name="rdg_plan_day">일 %s</string>
-  <string name="rdg_plan_set_start_date">시작일 설정...</string>
-  <string name="set_current_day">오늘로 설정...</string>
+  <string name="rdg_plan_set_start_date">시작일 설정…</string>
+  <string name="set_current_day">오늘로 설정…</string>
   <string name="msg_set_current_day_reading_plan">이 계획에서 오늘을 현재일로 설정하고 모든 지난 날은 읽은 것으로 표시합니다. 계속할까요?</string>
   <string name="done">완료</string>
   <string name="reset_plan_question">이 계획을 초기화하기 원하시나요?</string>
@@ -267,21 +267,21 @@
   <string name="reading_plan_deleted">읽기 계획이 삭제되었습니다</string>
   <string name="reading_plan_ships_with_ab">이 읽기 계획은 %s을 포함합니다.</string>
   <string name="confirm_delete_reading_plan">
-         %s 를 읽은 히스토리와 함께 삭제하시겠습니까?
+         %s을(를) 읽은 히스토리와 함께 삭제하시겠습니까?
         힌트: 계획을 업데이트하려면 같은 파일 이름으로 다시 가져오기하면 됩니다
         그러면 읽은 히스토리가 보존됩니다.
     </string>
   <string name="plan_duplicate_user_plan">
-        사용자 읽기 계획이 sd카드에 있습니다
+        사용자 읽기 계획이 SD 카드에 있습니다
         내부 계획과 같은 이름의 jsword/readingplan 이 있습니다. 여기에는 나타나지 않습니다.
         확장자는 .properties로 남기고 파일 이름을 다른 것으로 바꿔주세요
     </string>
-  <string name="plan_name_y1ntpspr">일년에 신약, 시편과 잠언 읽기</string>
+  <string name="plan_name_y1ntpspr">1년에 신약, 시편, 잠언 읽기</string>
   <string name="plan_description_y1ntpspr">
         Courtesy of HEARTLIGHT Internet Magazine,
         http://www.heartlight.org, permission granted
     </string>
-  <string name="plan_name_y1ot1nt1_chronological">연대순으로 일년 일독</string>
+  <string name="plan_name_y1ot1nt1_chronological">연대순으로 1년 1독</string>
   <string name="plan_description_y1ot1nt1_chronological">
         성경의 연대순으로 읽는 계획.
         연대 순서는 대략적인 것입니다.
@@ -294,7 +294,7 @@
   <string name="plan_name_y1ot1nt1_OTthenNT">1년 일독</string>
   <string name="plan_description_y1ot1nt1_OTthenNT">
         성경을 창세기부터 요한계시록까지
-        1년 동안 읽습니다. 구약을 먼저, 그리고 신약입니다.
+        1년 동안 읽습니다. 구약을 먼저 읽고, 그리고 신약을 읽습니다.
     </string>
   <string name="plan_name_y1ot1nt2_mcheyne">맥체인 1년 하루 4장</string>
   <string name="plan_description_y1ot1nt2_mcheyne">
@@ -315,12 +315,12 @@
   <string name="delete_index">검색 색인을 삭제</string>
   <string name="about">소개</string>
   <string name="delete_doc">%s 을 (를) 삭제하시겠습니까?</string>
-  <string name="delete_search_index_doc">%s 의 색인을 삭제하시겠습니까?</string>
+  <string name="delete_search_index_doc">%s의 색인을 삭제하시겠습니까?</string>
   <!--Verse context menu-->
   <string name="notes">각주 및 참고 문헌</string>
   <string name="share_verse">공유...</string>
   <string name="share_verse_widget_title">선택을 공유</string>
-  <string name="share_verse_subject_2">성경 구절을 %s로 공유하였습니다.</string>
+  <string name="share_verse_subject_2">성경 구절을 %s(으)로 공유하였습니다.</string>
   <string name="compare_translations">번역을 비교</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">여기서 링크 열기</string>
@@ -336,7 +336,7 @@
   <string name="new_item">새로운</string>
   <string name="new_label">새 분류</string>
   <string name="label_name_prompt">이름</string>
-  <string name="label_unlabelled">분류되지 않은</string>
+  <string name="label_unlabelled">미분류</string>
   <string name="add_bookmark1">북마크</string>
   <string name="add_bookmark2">북마크 선택</string>
   <string name="add_bookmark3">선택</string>
@@ -365,18 +365,18 @@
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
-  <string name="one_chapter">%d 개의 장</string>
-  <string name="some_chapters">%d 개의 장들</string>
-  <string name="rest_of_book">도서의 종료하려면</string>
+  <string name="one_chapter">%d개의 장</string>
+  <string name="some_chapters">%d개의 장</string>
+  <string name="rest_of_book">책을 끝내기까지</string>
   <!--Speak - Commentary-->
-  <string name="one_verse">%d 개의 구절</string>
-  <string name="some_verses">%d 개의 구절들</string>
+  <string name="one_verse">%d개의 구절</string>
+  <string name="some_verses">%d개의 구절</string>
   <string name="rest_of_chapter">장 종료하려면</string>
   <!--Speak - Dictionary and other-->
   <string name="one_page">%d 개의 페이지</string>
   <string name="some_pages">%d 개의 페이지들</string>
   <!--Speak - Common-->
-  <string name="stop">말하기 정지</string>
+  <string name="stop">정지</string>
   <string name="pause">일시 중지</string>
   <string name="rewind">되감기</string>
   <string name="forward">앞으로</string>
@@ -417,7 +417,7 @@
   <string name="widget_toggle_sleep_timer">잠자기 타이머 켜기/끄기</string>
   <string name="widget_bookmark_helptext">북마크 읽기 버튼이 여기 나타납니다.</string>
   <string name="speak_status_stopped">중지됨</string>
-  <string name="speak_autobookmarking_disabled">북마크 비활성화됨!</string>
+  <string name="speak_autobookmarking_disabled">자동 북마크가 비활성화됐습니다!</string>
   <string name="system_speak_settings">시스템 TTS 설정 열기</string>
   <string name="auto_assing_labels_help1">여기서 만드는 북마크에 자동으로 어떤 레이블을 지정할지 조절할 수 있습니다.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
@@ -490,8 +490,9 @@
   <string name="restore_what">무엇을 복원할까요?</string>
   <string name="restore_app_database">앱 데이터베이스를 다음에서 복원...</string>
   <string name="restore_database">데이터베이스 파일 복원</string>
-  <string name="restore_confirmation">내 노트, 북마크, 스터디 패드, 읽기 계획, 그리고 워크플레이스를 덮어쓸까요?</string>
+  <string name="restore_confirmation">내 노트, 북마크, 스터디 패드, 읽기 계획, 워크플레이스를 덮어쓸까요?</string>
   <string name="reading_plans_plural">읽기 계획</string>
+  <string name="restore_success">내 노트, 북마크, 스터디 패드, 읽기 계획, 워크플레이스 복원 성공</string>
   <string name="loading_backup">백업에서 데이터베이스 읽는 중...</string>
   <string name="backup_success2">내 노트, 북마크, 스터디 패드, 읽기 계획과 워크스페이스를 성공적으로 백업하였습니다.</string>
   <string name="backup_modules_success">선택한 모듈들을 성공적으로 백업하였습니다.</string>
@@ -539,7 +540,7 @@
   <!--Document types-->
   <string name="doc_type_all">모든 타입</string>
   <string name="doc_type_bible">성경</string>
-  <string name="doc_type_commentary">논평</string>
+  <string name="doc_type_commentary">주석</string>
   <string name="doc_type_dictionary">사전</string>
   <string name="doc_type_book">책</string>
   <string name="doc_type_map">지도</string>
@@ -595,9 +596,14 @@
   <string name="workspace_listing_with_current">%s (현재)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">이것은 베타 버전입니다!</string>
+  <string name="beta_notice_content_3">혹시 프로그래밍을 하신다면, %s(으)로 버그 수정에 참여해 주실 것을
+        적극 추천합니다 :-)</string>
   <string name="beta_notice_github_issues">깃허브 이슈</string>
   <string name="beta_notice_github">깃허브</string>
   <string name="beta_notice_dismiss">취소</string>
+  <string name="beta_notice_dismiss_until_update">다음 업데이트 때까지 끄기</string>
+  <string name="stable_notice_title">앱이 업그레이드되었습니다!</string>
+  <string name="upgrade_video_message">이번 릴리즈의 신기능을 소개하는 영상을 시청하세요(%s).</string>
   <!--History-->
   <!--Help-->
   <string name="help_bookmarks_title">북마크와 내 노트</string>
@@ -605,24 +611,91 @@
   <string name="help_workspaces_title">워크스페이스</string>
   <string name="help_window_pinning_title">윈도우 고정</string>
   <!--Welcome text-->
+  <string name="welcome_message">%s을(를) 다운로드해 주셔서 감사합니다. 설치된 역본이나 문서가 하나도 없는 상태입니다. 계속 이용하시려면
+        최소한 1개의 문서를 인터넷으로 다운로드하여 설치하거나, zip 파일 백업으로부터 문서를 복구하시기
+        바랍니다.
+    </string>
   <!--Uncategorized-->
   <string name="close">닫기</string>
+  <string name="first_time_help_do_not_show_again">알겠습니다</string>
+  <string name="first_time_help_show_next_time">다음에 다시 보기</string>
+  <string name="strongs_mode_title">스트롱 코드 모드 선택</string>
+  <string name="download_dialog_message">다음 책은 다운로드할 수 없습니다:</string>
+  <string name="select_multiple">여러 개 선택</string>
   <string name="my_notes_abbreviation">내 참고들</string>
   <string name="compare_description">번역을 비교</string>
   <string name="compare_abbreviation">비교</string>
   <string name="compare">비교</string>
+  <string name="http_forbidden">접근이 금지됨</string>
+  <string name="http_not_found">찾을 수 없음</string>
+  <string name="http_unknown">기타 오류</string>
+  <string name="give_passphrase_for_module">%s 문서는 암호화되었으며 해제하기 위해서는 비밀번호가 필요합니다</string>
+  <string name="unlocking_failed">잠금 해제 실패 (유효하지 않은 비밀번호)</string>
+  <string name="unlock_module">모듈 비밀번호 지정</string>
+  <string name="try_again_passphrase">비밀번호가 맞지 않습니다. 재시도해 보시겠어요?</string>
+  <string name="prefs_show_error_box_title">자바스크립트 오류 창 보기</string>
+  <string name="app_licence_title">오픈소스 라이선스</string>
+  <string name="how_to_contribute">프로젝트에 기여하는 방법</string>
+  <string name="module_size_megabytes">%.1fMB</string>
+  <string name="tell_friend_title">친구에게 추천하기</string>
+  <string name="tell_friend_message1">%s을(를) 추천해 드립니다.</string>
+  <string name="tell_friend_message2">Android용 오프라인 성경 공부 애플리케이션이고, 사용하기 쉬운 강력한 기능들이 있습니다.</string>
+  <string name="tell_friend_message3">Play Store에서 찾아서 설치해 보세요. %s</string>
+  <string name="tell_friend_message4">더 많은 정보와 설치 옵션은 여기를 참고하세요. %s</string>
+  <string name="share_verse_ok">공유 / 복사</string>
   <string name="verse_action_copy">복사</string>
+  <string name="share_verse_menu_title">공유/복사하기</string>
   <string name="show_versenumbers">구절 번호 보기</string>
+  <string name="verse_share_advertise">%s(으)로 공유했습니다.</string>
+  <string name="abbreviate_reference">약어 참조</string>
+  <string name="version_name">번역본 이름</string>
   <string name="backup_button">백업</string>
+  <string name="back_button">뒤로</string>
+  <string name="upgrading_database">데이터베이스를 업그레이드하고 있습니다. 잠시만 기다리세요…</string>
+  <string name="initializing_app">애플리케이션 초기 설정 중…</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">그냥 계속 진행</string>
+  <string name="rate_title">앱 평가 및 리뷰하기</string>
+  <string name="rate_message5">
+        긍정적이고 구체적인 리뷰를 올려 주시면 And Bible 오픈소스 프로젝트에 큰 도움이 됩니다. 감사합니다!
+    </string>
+  <string name="rate_message6">
+        혹시나 부정적인 리뷰를 작성하시려거든, 그 전에 다음 사항들을 확인해 주세요.
+    </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        앱 사용에 문제가 있으시다면 %s 또는 %s을(를) 해 주세요.
+    </string>
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="bug_report">
+        (메인 메뉴에서) 버그 보고하기
+    </string>
+  <string name="send_email">
+       개발자에게 이메일 보내기
+    </string>
+  <string name="proceed_google_play">
+        Google Play로 이동
+    </string>
+  <string name="reorder">재정렬</string>
   <string name="system_items1">기타</string>
+  <string name="text_copied_to_clicpboard">클립보드에 텍스트 복사됨</string>
+  <string name="prefs_double_tap_to_fullscreen_title">두 번 탭하여 전체 화면으로 전환</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">윈도우를 두 번 탭하면 전체 화면으로 전환됩니다</string>
+  <string name="toggle_fullscreen">전체 화면</string>
+  <string name="exit_fullscreen">두 번 탭하여 전체 화면 종료</string>
+  <string name="export_fileformat">%s 형식으로 내보내기</string>
+  <string name="import_items">%s 불러오기</string>
+  <string name="chooser_style_grid">격자</string>
+  <string name="chooser_style_lists">목록</string>
+  <string name="chooser_select">%s 선택</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">죄송합니다. %s 언어로 된 부분적인 사용자 인터페이스 번역만 있습니다. %s은(는) 전적으로 자원 봉사자에 의해 개발되었기 때문입니다. 번역에 도움이 되시면 %s을(를) 참조하십시오.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">번역가를 위한 지침</string>
+  <string name="questions_title">질문이 있나요?</string>
+  <string name="questions_title2">도움이 필요하신가요?</string>
   <string name="strongs_links">링크</string>
   <string name="verse_tip">절의 일부나 여러 절을 선택하려면, 성경 본문을 길게 누릅니다</string>
 </resources>

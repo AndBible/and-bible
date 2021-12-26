@@ -147,7 +147,7 @@ class ReadingPlanTextFileDao {
         val properties = getPlanProperties(planName)
 
         val readings = properties[dayNo.toString()] as String?
-        Log.d(TAG, "Readings for day:$readings")
+        Log.i(TAG, "Readings for day:$readings")
         return OneDaysReadingsDto(dayNo, readings, getReadingPlanInfoDto(planName))
     }
 
@@ -199,7 +199,7 @@ class ReadingPlanTextFileDao {
         }
 
     fun getReadingPlanInfoDto(planCode: String): ReadingPlanInfoDto {
-        Log.d(TAG, "Get reading plan info:$planCode")
+        Log.i(TAG, "Get reading plan info:$planCode")
         val info = ReadingPlanInfoDto(planCode)
 
         info.planName = getPlanName(planCode)
@@ -274,8 +274,8 @@ class ReadingPlanTextFileDao {
                     getNameAndDescFromProperties(ByteArrayInputStream(byteArrayForReuse.toByteArray()), properties)
                 }
 
-                Log.d(TAG, "The properties are now loaded")
-                Log.d(TAG, "properties: $properties")
+                Log.i(TAG, "The properties are now loaded")
+                Log.i(TAG, "properties: $properties")
 
                 // cache it so we don't constantly reload the properties
                 cachedPlanProperties = properties
@@ -298,7 +298,7 @@ class ReadingPlanTextFileDao {
         inputStream.bufferedReader().forEachLine {
             if (it.startsWith("#") && loopCount < 5) {
                 val lineWithoutCommentMarks: String = it.trim().replaceFirst("^(\\s*#*\\s*)".toRegex(), "")
-                Log.d(TAG, lineWithoutCommentMarks)
+                Log.i(TAG, lineWithoutCommentMarks)
                 if (lineCount == 0) {
                     properties.planName = lineWithoutCommentMarks.trim()
                 } else {

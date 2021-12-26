@@ -233,4 +233,12 @@ class TestShare {
                 "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
                 "John the Baptist came preaching in the wilderness of Judea, 2. Repent, for...” (Mat 2:23-3:2, ESV2011)"
         )
+    @Test
+    fun testShare7()  =
+        testShare("ESV2011", "Ps.43.1-Ps.43.3", 0..100, true, false,
+            "“1. Vindicate me, O God, and defend my cause against an ungodly people, from the deceitful and unjust " +
+                "man deliver me! 2. For you are the God in whom I take refuge; why have you rejected me? Why do I go about " +
+                "mourning because of the oppression of the enemy? 3. Send out your light and your truth; let them lead " +
+                "me; let them bring me to your holy hill and to you...” (Psa 43:1-3, ESV2011)"
+        )
 }

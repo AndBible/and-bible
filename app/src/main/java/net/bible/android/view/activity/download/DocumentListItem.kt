@@ -115,8 +115,9 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
     }
 
     fun updateControlState(documentStatus: DocumentStatus): Nothing? = binding.run {
-        undoButton.visibility = View.INVISIBLE
+        undoButton.visibility = View.GONE
         progressBar.visibility = View.INVISIBLE
+        aboutButton.visibility = View.VISIBLE
         when (documentStatus.documentInstallStatus) {
             DocumentInstallStatus.INSTALLED -> {
                 downloadStatusIcon.setImageResource(R.drawable.ic_check_green_24dp)
@@ -129,6 +130,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
                 setProgressPercent(documentStatus.percentDone)
                 progressBar.visibility = View.VISIBLE
                 undoButton.visibility = View.VISIBLE
+                aboutButton.visibility = View.GONE
             }
             DocumentInstallStatus.UPGRADE_AVAILABLE -> {
                 downloadStatusIcon.setImageResource(R.drawable.ic_arrow_upward_amber_24dp)

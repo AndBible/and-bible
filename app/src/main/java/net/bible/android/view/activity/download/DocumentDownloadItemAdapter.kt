@@ -25,11 +25,10 @@ import android.widget.ArrayAdapter
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.download.DownloadControl
+import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.service.common.Ref
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.basic.AbstractPassageBook
-import org.crosswire.jsword.versification.system.SystemKJV
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -37,10 +36,10 @@ import org.crosswire.jsword.versification.system.SystemKJV
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DocumentDownloadItemAdapter(
-    context: Context,
+    val activity: DocumentSelectionBase,
     private val downloadControl: DownloadControl,
     private val recommendedDocuments: Ref<RecommendedDocuments>
-) : ArrayAdapter<Book>(context, R.layout.document_list_item, ArrayList<Book>())
+) : ArrayAdapter<Book>(activity, R.layout.document_list_item, ArrayList<Book>())
 {
     private lateinit var bindings: DocumentListItemBinding
 
@@ -48,7 +47,7 @@ class DocumentDownloadItemAdapter(
         val document = getItem(position)!!
 
         bindings = if (convertView == null) {
-            val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             DocumentListItemBinding.inflate(inflater, parent, false)
         } else {
             DocumentListItemBinding.bind(convertView)
@@ -65,6 +64,11 @@ class DocumentDownloadItemAdapter(
         bindings.undoButton.setOnClickListener {
             downloadControl.cancelDownload(document)
         }
+
+        bindings.aboutButton.setOnClickListener {
+            activity.handleAbout(listOf(document))
+        }
+
         view.updateControlState(downloadControl.getDocumentStatus(document))
 
         // Set value for the first text field

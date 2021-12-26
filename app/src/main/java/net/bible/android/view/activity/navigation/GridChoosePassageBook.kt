@@ -185,12 +185,12 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     }
 
     override fun buttonPressed(buttonInfo: ButtonInfo) {
-        Log.d(TAG, "Book:" + buttonInfo.id + " " + buttonInfo.name)
+        Log.i(TAG, "Book:" + buttonInfo.id + " " + buttonInfo.name)
         bookSelected(buttonInfo.id)
     }
 
     private fun bookSelected(bibleBookNo: Int) {
-        Log.d(TAG, "Book selected:$bibleBookNo")
+        Log.i(TAG, "Book selected:$bibleBookNo")
         try {
             val book = BibleBook.values()[bibleBookNo]
             val v11n = versification

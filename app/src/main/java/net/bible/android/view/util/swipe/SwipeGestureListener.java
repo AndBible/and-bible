@@ -55,7 +55,7 @@ public class SwipeGestureListener extends SimpleOnGestureListener {
 		double vertical = Math.abs( e1.getY() - e2.getY() );
 		double horizontal = Math.abs( e1.getX() - e2.getX() );
 
-		Log.d(TAG, "onFling vertical:"+vertical+" horizontal:"+horizontal+" VelocityX"+velocityX);
+		Log.i(TAG, "onFling vertical:"+vertical+" horizontal:"+horizontal+" VelocityX"+velocityX);
 		
 		// test vertical distance, make sure it's a swipe
 		if ( vertical > scaledDistance ) {

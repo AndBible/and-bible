@@ -69,7 +69,7 @@ public class CurrentActivityHolder {
 	 */
 	private void appIsNowInForeground() {
 		if (!appIsInForeground) {
-			Log.d(TAG, "AppIsInForeground firing event");
+			Log.i(TAG, "AppIsInForeground firing event");
 			appIsInForeground = true;
 			ABEventBus.getDefault().post(new AppToBackgroundEvent(Position.FOREGROUND));
 		}

@@ -20,8 +20,6 @@ package net.bible.android.control.page.window
 
 import android.app.AlertDialog
 import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -108,7 +106,6 @@ open class WindowControl @Inject constructor(
 
     fun showLink(document: Book, key: Key) {
         val linksWindow = windowRepository.dedicatedLinksWindow
-        linksWindow.restoreOngoing = true
         val linksWindowWasVisible = linksWindow.isVisible
 
         linksWindow.initialisePageStateIfClosed(activeWindow)
@@ -123,7 +120,6 @@ open class WindowControl @Inject constructor(
         if (!linksWindowWasVisible) {
             eventManager.post(NumberOfWindowsChangedEvent())
         }
-        linksWindow.restoreOngoing = false
     }
 
 
@@ -193,7 +189,6 @@ open class WindowControl @Inject constructor(
             minimiseWindow(window)
         } else {
             if (window == activeWindow) return
-            window.restoreOngoing = true
 
             if(!window.isPinMode && !window.isLinksWindow) {
                 for (it in windowRepository.windowList.filter { !it.isPinMode }) {
@@ -211,7 +206,6 @@ open class WindowControl @Inject constructor(
 
             eventManager.post(NumberOfWindowsChangedEvent())
             activeWindow = window
-            window.restoreOngoing = false
         }
     }
 
@@ -377,6 +371,17 @@ open class WindowControl @Inject constructor(
 
             secondWindow.bibleView?.updateTextDisplaySettings()
         }
+    }
+
+    fun focusNextWindow() {
+        val pos = windowRepository.visibleWindows.indexOf(activeWindow)
+        activeWindow = windowRepository.visibleWindows[(pos + 1) % windowRepository.visibleWindows.size]
+    }
+
+    fun focusPreviousWindow() {
+        val pos = windowRepository.visibleWindows.indexOf(activeWindow)
+        val s = windowRepository.visibleWindows.size
+        activeWindow = windowRepository.visibleWindows[(pos - 1 + s) % s]
     }
 
     companion object {

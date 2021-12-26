@@ -23,7 +23,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.text.TextUtils
 import android.util.AttributeSet
+import android.util.LayoutDirection
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
@@ -35,6 +37,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
+import java.util.*
 
 class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: Selection):
     LinearLayout(context, attributeSet) {
@@ -72,6 +75,8 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             abbreviateReference = bindings.abbreviateReference.isChecked,
             showNotes = bindings.toggleNotes.isChecked,
         )
+        val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book.language.code)) == LayoutDirection.RTL
+        bindings.preview.textDirection = if(isRtl)  View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
         bindings.preview.text = text
         CommonUtils.settings.apply {
             setBoolean("share_toggle_full", bindings.toggleFullVerses.isChecked)

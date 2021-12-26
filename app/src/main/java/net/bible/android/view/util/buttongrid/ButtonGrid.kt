@@ -27,6 +27,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -196,6 +197,14 @@ fun addButtons(buttonInfoList: List<ButtonInfo>) {
                     button.text = buttonInfo.name
                     button.setTextColor(buttonInfo.textColor)
                     button.backgroundTintList = ColorStateList.valueOf(buttonInfo.tintColor)
+                    button.setOnKeyListener { v, keyCode, event ->
+                        if(event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
+                            buttonSelected(buttonInfo)
+                            true
+                        } else {
+                            false
+                        }
+                    }
                     if (buttonInfo.highlight) {
                         button.setTypeface(Typeface.DEFAULT_BOLD)
                         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
@@ -319,7 +328,7 @@ fun addButtons(buttonInfoList: List<ButtonInfo>) {
         try {
             val preview = previewText ?: return
             if (buttonInfo != currentPreview) {
-                Log.d(TAG, "Previewing " + buttonInfo.description)
+                Log.i(TAG, "Previewing " + buttonInfo.description)
 
                 currentPreview = buttonInfo
                 preview.text = buttonInfo.description

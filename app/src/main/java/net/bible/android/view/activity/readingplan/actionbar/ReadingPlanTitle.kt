@@ -33,6 +33,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.service.common.TitleSplitter
@@ -179,15 +180,15 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
         }
 
     private fun onDocumentTitleClick() {
-        val readingPlanActivity = activity
+        val readingPlanActivity = activity as DailyReading
         val docHandlerIntent = Intent(readingPlanActivity, ReadingPlanSelectorList::class.java)
-        readingPlanActivity.startActivityForResult(docHandlerIntent, 1)
+        readingPlanActivity.selectReadingPlan.launch(docHandlerIntent)
     }
 
     private fun onPageTitleClick() {
-        val currentActivity = activity
-        val pageHandlerIntent = Intent(currentActivity, DailyReadingList::class.java)
-        currentActivity.startActivityForResult(pageHandlerIntent, 1)
+        val readingPlanActivity = activity as DailyReading
+        val pageHandlerIntent = Intent(readingPlanActivity, DailyReadingList::class.java)
+        readingPlanActivity.selectReadingDay.launch(pageHandlerIntent)
     }
 
     companion object {

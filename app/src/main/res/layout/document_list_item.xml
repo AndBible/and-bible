@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <net.bible.android.view.activity.download.DocumentListItem xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:paddingTop="2dip"
 	android:paddingBottom="2dip"
 	android:id="@+id/item"
@@ -35,7 +36,8 @@
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintBottom_toBottomOf="parent"
-				app:tint="@color/grey_600" />
+				app:tint="@color/grey_600"
+				/>
 			<ImageView android:id="@+id/downloadStatusIcon"
 				android:layout_width="24dp"
 				android:layout_height="24dp"
@@ -55,7 +57,8 @@
 				app:layout_constraintStart_toEndOf="@id/documentTypeIcon"
 				app:layout_constraintTop_toTopOf="parent"
 				app:srcCompat="@drawable/ic_star_black_24dp"
-				app:tint="@color/yellow_600" />
+				app:tint="@color/yellow_600"
+				/>
 			<ImageView android:id="@+id/lockedIcon"
 				android:layout_width="15dp"
 				android:layout_height="15dp"
@@ -64,7 +67,8 @@
 				app:layout_constraintStart_toEndOf="@id/documentTypeIcon"
 				app:layout_constraintBottom_toBottomOf="parent"
 				app:srcCompat="@drawable/ic_baseline_lock_24"
-				app:tint="@color/red" />
+				app:tint="@color/red"
+				/>
 		</androidx.constraintlayout.widget.ConstraintLayout>
 		<TextView android:id="@+id/documentAbbreviation"
 			android:layout_width="0dp"
@@ -85,12 +89,12 @@
 		<TextView android:id="@+id/recommendedString"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			app:layout_constraintStart_toStartOf="@id/documentName"
-			app:layout_constraintTop_toBottomOf="@id/documentName"
-			app:layout_constraintEnd_toEndOf="parent"
 			android:text="@string/recommended_document"
+			android:textAppearance="?android:textAppearanceSmall"
 			android:textStyle="bold"
-			android:textAppearance="?android:textAppearanceSmall" />
+			app:layout_constraintEnd_toStartOf="@id/aboutButton"
+			app:layout_constraintStart_toStartOf="@id/documentName"
+			app:layout_constraintTop_toBottomOf="@id/documentName" />
 		<TextView android:id="@+id/documentLanguage"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
@@ -122,14 +126,28 @@
 			android:textAppearance="?android:textAppearanceSmall" />
 
 		<ImageView
+			android:id="@+id/aboutButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="4dp"
+			android:src="@drawable/ic_info_24dp"
+			app:tint="@color/grey_600"
+			android:title="@string/about"
+			app:layout_constraintBottom_toBottomOf="@id/progressBar"
+			app:layout_constraintEnd_toStartOf="@id/undoButton"
+			/>
+
+		<ImageView
 			android:id="@+id/undoButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginBottom="4dp"
 			android:src="@drawable/ic_close_white_24dp"
-			app:layout_constraintBottom_toBottomOf="@id/recommendedString"
+			android:visibility="gone"
+			app:layout_constraintBottom_toBottomOf="@id/progressBar"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:tint="@color/red"
-			android:visibility="invisible"
+			tools:visibility="visible"
 			/>
 
 		<ProgressBar android:id="@+id/progressBar"
@@ -138,7 +156,7 @@
 			android:layout_height="wrap_content"
 			app:layout_constraintTop_toBottomOf="@id/recommendedString"
 			app:layout_constraintStart_toStartOf="@id/documentName"
-			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintEnd_toStartOf="@id/aboutButton"
 			android:visibility="invisible"/>
 	</androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -105,7 +105,7 @@ class TextToSpeechServiceManager @Inject constructor(
     private var mockedTts = false
 
     init {
-        Log.d(TAG, "Creating TextToSpeechServiceManager")
+        Log.i(TAG, "Creating TextToSpeechServiceManager")
         generalSpeakTextProvider = GeneralSpeakTextProvider()
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
         val verse = windowControl.activeWindowPageManager.currentBible.singleKey
@@ -132,14 +132,14 @@ class TextToSpeechServiceManager @Inject constructor(
 
     // Implements TextToSpeech.OnInitListener.
     private var onInitListener: TextToSpeech.OnInitListener = TextToSpeech.OnInitListener { status ->
-        Log.d(TAG, "Tts initialised")
+        Log.i(TAG, "Tts initialised")
         var isOk = false
 
 		val tts = mTts
 
         // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
         if (tts != null && status == TextToSpeech.SUCCESS) {
-            Log.d(TAG, "Tts initialisation succeeded")
+            Log.i(TAG, "Tts initialisation succeeded")
 
             // Add earcons
             tts.addEarcon(EARCON_PRE_FOOTNOTE, BibleApplication.application.packageName, R.raw.short_pling) // TODO: change
@@ -156,11 +156,11 @@ class TextToSpeechServiceManager @Inject constructor(
             var i = 0
             while (i < localePreferenceList.size && !localeOK) {
                 locale = localePreferenceList[i]
-                Log.d(TAG, "Checking for locale:$locale")
+                Log.i(TAG, "Checking for locale:$locale")
                 val result = tts.setLanguage(locale)
                 localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
                 if (localeOK) {
-                    Log.d(TAG, "Successful locale:$locale")
+                    Log.i(TAG, "Successful locale:$locale")
                     currentLocale = locale
                 }
                 i++
@@ -185,7 +185,7 @@ class TextToSpeechServiceManager @Inject constructor(
                 }
             }
         } else {
-            Log.d(TAG, "Tts initialisation failed")
+            Log.i(TAG, "Tts initialisation failed")
             showError(R.string.error_occurred, Exception("Tts Initialisation failed"))
         }
 
@@ -196,13 +196,13 @@ class TextToSpeechServiceManager @Inject constructor(
 
     private val utteranceProgressListener = object : UtteranceProgressListener() {
         override fun onStart(utteranceId: String) {
-            Log.d(TAG, "onStart $utteranceId")
+            Log.i(TAG, "onStart $utteranceId")
             mSpeakTextProvider.startUtterance(utteranceId)
             mSpeakTiming.started(utteranceId, mSpeakTextProvider.getText(utteranceId).length)
         }
 
         override fun onDone(utteranceId: String) {
-            Log.d(TAG, "onUtteranceCompleted:$utteranceId")
+            Log.i(TAG, "onUtteranceCompleted:$utteranceId")
             // pause/rew/ff can sometimes allow old messages to complete so need to prevent move to next sentence if completed utterance is out of date
 
             // estimate cps
@@ -217,7 +217,7 @@ class TextToSpeechServiceManager @Inject constructor(
                     if (mSpeakTextProvider.isMoreTextToSpeak()) {
                         speakNextChunk()
                     } else {
-                        Log.d(TAG, "Shutting down TTS")
+                        Log.i(TAG, "Shutting down TTS")
                         speakControl.stop()
                     }
                 }
@@ -225,7 +225,7 @@ class TextToSpeechServiceManager @Inject constructor(
         }
 
         override fun onError(utteranceId: String) {
-            Log.d(TAG, "onError $utteranceId")
+            Log.i(TAG, "onError $utteranceId")
         }
     }
 
@@ -266,10 +266,10 @@ class TextToSpeechServiceManager @Inject constructor(
 
     private fun handleQueue(queue: Boolean) {
         if (!queue) {
-            Log.d(TAG, "Queue is false so requesting stop")
+            Log.i(TAG, "Queue is false so requesting stop")
             clearTtsQueue()
         } else if (isPaused) {
-            Log.d(TAG, "New speak request while paused so clearing paused speech")
+            Log.i(TAG, "New speak request while paused so clearing paused speech")
             clearTtsQueue()
             isPaused = false
         }
@@ -280,7 +280,7 @@ class TextToSpeechServiceManager @Inject constructor(
         // Set preferred language to the same language as the book.
         // Note that a language may not be available, and so we have a preference list
         var bookLanguageCode = fromBook.language.code
-        Log.d(TAG, "Book has language code:$bookLanguageCode")
+        Log.i(TAG, "Book has language code:$bookLanguageCode")
 
         val localePreferenceList = ArrayList<Locale>()
         if (bookLanguageCode == Locale.getDefault().language) {
@@ -333,7 +333,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
     private fun initializeTtsOrStartSpeaking() {
         if (mTts == null) {
-            Log.d(TAG, "mTts was null so initialising Tts")
+            Log.i(TAG, "mTts was null so initialising Tts")
 
             try {
                 // Initialize text-to-speech. This is an asynchronous operation.
@@ -361,7 +361,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
     @Synchronized
     fun rewind(amount: SpeakSettings.RewindAmount?) {
-        Log.d(TAG, "Rewind TTS")
+        Log.i(TAG, "Rewind TTS")
         // prevent onUtteranceCompleted causing next text to be grabbed
         uniqueUtteranceNo++
         val wasPaused = isPaused
@@ -387,7 +387,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
     @Synchronized
     fun forward(amount: SpeakSettings.RewindAmount?) {
-        Log.d(TAG, "Forward TTS")
+        Log.i(TAG, "Forward TTS")
         // prevent onUtteranceCompleted causing next text to be grabbed
         uniqueUtteranceNo++
         val wasPaused = isPaused
@@ -412,7 +412,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
     @Synchronized
     fun pause(willContinueAfterThis: Boolean) {
-        Log.d(TAG, "Pause TTS")
+        Log.i(TAG, "Pause TTS")
 
         if (isSpeaking) {
             isPaused = true
@@ -437,7 +437,7 @@ class TextToSpeechServiceManager @Inject constructor(
     @Synchronized
     fun continueAfterPause() {
         try {
-            Log.d(TAG, "continue after pause")
+            Log.i(TAG, "continue after pause")
             isPaused = false
             clearPauseState()
             // ask TTs to say the text
@@ -454,7 +454,7 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     private fun startSpeaking() {
-        Log.d(TAG, "about to send some text to TTS")
+        Log.i(TAG, "about to send some text to TTS")
         if (!isSpeaking) {
             speakNextChunk()
             isSpeaking = true
@@ -468,7 +468,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
     private fun speakNextChunk() {
         var utteranceId = ""
-        Log.d(TAG, "Adding items to TTS queue. first utterance id: $uniqueUtteranceNo")
+        Log.i(TAG, "Adding items to TTS queue. first utterance id: $uniqueUtteranceNo")
         for (i in 0 until mSpeakTextProvider.numItemsToTts) {
             utteranceId = UTTERANCE_PREFIX + uniqueUtteranceNo++
             val cmd = mSpeakTextProvider.getNextSpeakCommand(utteranceId, i == 0)
@@ -476,18 +476,18 @@ class TextToSpeechServiceManager @Inject constructor(
                 cmd.speak(mTts!!, utteranceId)
             }
         }
-        Log.d(TAG, "Added items to TTS queue. Last utterance id: $utteranceId")
+        Log.i(TAG, "Added items to TTS queue. Last utterance id: $utteranceId")
     }
 
 
     /** flush cached text
      */
     private fun clearTtsQueue() {
-        Log.d(TAG, "Stop TTS")
+        Log.i(TAG, "Stop TTS")
 
         // Don't forget to shutdown!
         if (isSpeaking) {
-            Log.d(TAG, "Flushing speech")
+            Log.i(TAG, "Flushing speech")
             // flush remaining text
             mTts?.speak(" ", TextToSpeech.QUEUE_FLUSH, null)
         }
@@ -501,7 +501,7 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     fun shutdown(willContinueAfter: Boolean) {
-        Log.d(TAG, "Shutdown TTS")
+        Log.i(TAG, "Shutdown TTS")
 
         isSpeaking = false
         isPaused = false
@@ -515,7 +515,7 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     private fun shutdownTtsEngine() {
-        Log.d(TAG, "Shutdown TTS Engine")
+        Log.i(TAG, "Shutdown TTS Engine")
         try {
             // Don't forget to shutdown!
 			try {
@@ -572,7 +572,7 @@ class TextToSpeechServiceManager @Inject constructor(
     /** persist and restore pause state to allow pauses to continue over an app exit
      */
     private fun persistPauseState() {
-        Log.d(TAG, "Persisting Pause state")
+        Log.i(TAG, "Persisting Pause state")
         val isBible = mSpeakTextProvider === bibleSpeakTextProvider
 
         mSpeakTextProvider.persistState()
@@ -585,7 +585,7 @@ class TextToSpeechServiceManager @Inject constructor(
     private fun restorePauseState() {
         // ensure no relevant current state is overwritten accidentally
         if (!isSpeaking && !isPaused) {
-            Log.d(TAG, "Attempting to restore any Persisted Pause state")
+            Log.i(TAG, "Attempting to restore any Persisted Pause state")
             val isBible = CommonUtils.settings.getBoolean(PERSIST_BIBLE_PROVIDER, true)
             switchProvider(if (isBible) bibleSpeakTextProvider else generalSpeakTextProvider)
 
@@ -599,7 +599,7 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     private fun clearPauseState() {
-        Log.d(TAG, "Clearing Persisted Pause state")
+        Log.i(TAG, "Clearing Persisted Pause state")
         mSpeakTextProvider.clearPersistedState()
         CommonUtils.settings.removeString(PERSIST_LOCALE_KEY)
     }
