@@ -25,6 +25,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
 
@@ -136,6 +137,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             if (StringUtils.isNotEmpty(text)) {
                 binding.searchText.setText(text)
             }
+        } else {
+            binding.searchText.setText(CommonUtils.settings.getString("search_text", ""))
         }
 
         val wordsRadioGroup = findViewById<View>(R.id.wordsGroup) as RadioGroup
@@ -168,6 +171,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             }
         }
         currentBookRadioButton.text = currentBookName
+
+        binding.textClear.setOnClickListener({binding.searchText.setText("")})
 
         Log.i(TAG, "Finished displaying Search view")
     }
@@ -204,6 +209,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         var text = binding.searchText.text.toString()
         if (!StringUtils.isEmpty(text)) {
 
+            CommonUtils.settings.setString("search_text", text)
             // update current intent so search is restored if we return here via history/back
             // the current intent is saved by HistoryManager
             intent.putExtra(SEARCH_TEXT_SAVE, text)
