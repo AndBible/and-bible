@@ -16,6 +16,7 @@
  *
  */
 
+// TODO: Not saving the menu option. Don't know how to set the other menu options when one option is changed.
 package net.bible.android.view.activity.navigation
 
 import android.annotation.SuppressLint
@@ -66,6 +67,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     data class ExtraBookInfo(val Color: Int, val GroupA: String, val GroupB: String)
+    private lateinit var mmenu: Menu
 
     private// this is used for preview
     val bibleBookButtonInfo: List<ButtonInfo>
@@ -133,6 +135,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         buttonGrid = ButtonGrid(this)
         buttonGrid.setOnButtonGridActionListener(this)
         buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
+        buttonGrid.isGroupByCategoryEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY, false)
         buttonGrid.isAlphaSorted = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
         buttonGrid.addBookButtons(bibleBookButtonInfo)
 
@@ -140,12 +143,17 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        mmenu = menu
         val sortOptionItem = menu.findItem(R.id.alphabetical_order_opt)
         sortOptionItem.isChecked = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
-        val rowDistributionItem = menu.findItem(R.id.row_order_opt)
-        buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
         buttonGrid.isAlphaSorted = sortOptionItem.isChecked
-        rowDistributionItem.isChecked  = buttonGrid.isLeftToRightEnabled
+
+        buttonGrid.isGroupByCategoryEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY, false)
+        menu.findItem(R.id.group_by_category).isChecked  = buttonGrid.isGroupByCategoryEnabled
+
+        buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
+        menu.findItem(R.id.row_order_opt).isChecked  = buttonGrid.isLeftToRightEnabled
+
         val deutToggle = menu.findItem(R.id.deut_toggle)
         deutToggle.setTitle(if(isCurrentlyShowingScripture) R.string.bible else R.string.deuterocanonical)
         deutToggle.isVisible = navigationControl.getBibleBooks(false).isNotEmpty()
@@ -155,18 +163,34 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.alphabetical_order_opt -> {
+                buttonGrid.isGroupByCategoryEnabled = false
                 navigationControl.changeBibleBookSortOrder()
                 buttonGrid.clear()
                 buttonGrid.isAlphaSorted = !item.isChecked
                 buttonGrid.addBookButtons(bibleBookButtonInfo)
+                buttonGrid.isGroupByCategoryEnabled = false
+                saveOptions()
                 true
             }
             R.id.row_order_opt -> {
+                buttonGrid.isGroupByCategoryEnabled = false
                 buttonGrid.toggleLeftToRight()
                 item.isChecked = buttonGrid.isLeftToRightEnabled
                 buttonGrid.clear()
                 buttonGrid.addBookButtons(bibleBookButtonInfo)
-                CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS, item.isChecked)
+                buttonGrid.isGroupByCategoryEnabled = false
+                saveOptions()
+                true
+            }
+            R.id.group_by_category -> {
+                navigationControl.bibleBookSortOrder = BibleBookSortOrder.BIBLE_BOOK
+                buttonGrid.isAlphaSorted = false
+                buttonGrid.isLeftToRightEnabled = true
+                buttonGrid.toggleGroupByCategory()
+                item.isChecked = buttonGrid.isGroupByCategoryEnabled
+                buttonGrid.clear()
+                buttonGrid.addBookButtons(bibleBookButtonInfo)
+                saveOptions()
                 true
             }
             R.id.deut_toggle -> {
@@ -184,6 +208,17 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         }
     }
 
+    private fun saveOptions() {
+
+        mmenu.findItem(R.id.alphabetical_order_opt).isChecked  = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
+
+        mmenu.findItem(R.id.row_order_opt).isChecked  = buttonGrid.isLeftToRightEnabled
+        CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS, buttonGrid.isLeftToRightEnabled)
+
+        mmenu.findItem(R.id.group_by_category).isChecked  = buttonGrid.isGroupByCategoryEnabled
+        CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY, buttonGrid.isGroupByCategoryEnabled)
+
+    }
     override fun buttonPressed(buttonInfo: ButtonInfo) {
         Log.i(TAG, "Book:" + buttonInfo.id + " " + buttonInfo.name)
         bookSelected(buttonInfo.id)
@@ -303,6 +338,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         private val OTHER_COLOR = ACTS_COLOR
 
         public const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
+        public const val BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY = "book_grid_group_by_category"
         private const val TAG = "GridChoosePassageBook"
     }
 }

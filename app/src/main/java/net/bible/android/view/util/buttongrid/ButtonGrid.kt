@@ -77,6 +77,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     private var pressed: ButtonInfo? = null
     private var isInitialised = false
     var isLeftToRightEnabled = false
+    var isGroupByCategoryEnabled = false
     var isAlphaSorted = false
 
     fun clear() {
@@ -92,7 +93,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
      * @param buttonInfoList
      */
     fun addBookButtons(buttonInfoList: List<ButtonInfo>) {
-        if (this.isLeftToRightEnabled and !this.isAlphaSorted) {
+        if (this.isGroupByCategoryEnabled) {
             addGroupedButtons(buttonInfoList)
         } else {
             addButtons(buttonInfoList)
@@ -243,7 +244,9 @@ fun addButtons(buttonInfoList: List<ButtonInfo>) {
     fun toggleLeftToRight() {
         isLeftToRightEnabled = !isLeftToRightEnabled
     }
-
+    fun toggleGroupByCategory() {
+        isGroupByCategoryEnabled = !isGroupByCategoryEnabled
+    }
     /** Ensure longer runs by populating in longest direction ie columns if portrait and rows if landscape
      *
      * @param row
