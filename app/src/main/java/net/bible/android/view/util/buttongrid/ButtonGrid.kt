@@ -79,6 +79,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     var isLeftToRightEnabled = false
     var isGroupByCategoryEnabled = false
     var isAlphaSorted = false
+    var isCurrentlyShowingScripture = false
 
     fun clear() {
         removeAllViews()
@@ -93,7 +94,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
      * @param buttonInfoList
      */
     fun addBookButtons(buttonInfoList: List<ButtonInfo>) {
-        if (this.isGroupByCategoryEnabled) {
+        if (this.isGroupByCategoryEnabled and this.isCurrentlyShowingScripture) {
             addGroupedButtons(buttonInfoList)
         } else {
             addButtons(buttonInfoList)

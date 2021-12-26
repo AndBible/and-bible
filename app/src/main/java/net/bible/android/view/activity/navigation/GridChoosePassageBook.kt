@@ -133,6 +133,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buttonGrid = ButtonGrid(this)
+        buttonGrid.isCurrentlyShowingScripture = isCurrentlyShowingScripture
         buttonGrid.setOnButtonGridActionListener(this)
         buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
         buttonGrid.isGroupByCategoryEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY, false)
@@ -195,6 +196,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
             }
             R.id.deut_toggle -> {
                 isCurrentlyShowingScripture = !isCurrentlyShowingScripture
+                buttonGrid.isCurrentlyShowingScripture = isCurrentlyShowingScripture
                 buttonGrid.clear()
                 buttonGrid.addBookButtons(bibleBookButtonInfo)
                 invalidateOptionsMenu()
