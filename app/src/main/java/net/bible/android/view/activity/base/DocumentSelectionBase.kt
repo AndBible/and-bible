@@ -434,7 +434,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                                         else -> 7
                                     }
                                 },
-                                { it.abbreviation.toLowerCase(Locale(it.language.code)) }
+                                { it.abbreviation.lowercase(Locale(it.language.code)) }
                             )
                         )
                     }

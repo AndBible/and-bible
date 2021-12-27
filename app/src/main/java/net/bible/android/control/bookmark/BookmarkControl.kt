@@ -200,7 +200,7 @@ open class BookmarkControl @Inject constructor(
     val allLabels: List<Label>
         get() {
             val labelList = assignableLabels.toMutableList()
-            labelList.sortBy { it.name.toLowerCase(Locale.getDefault()) }
+            labelList.sortBy { it.name.lowercase(Locale.getDefault()) }
             // add special label that is automatically associated with all-bookmarks
             labelList.add(0, labelUnlabelled)
             labelList.add(0, labelAll)

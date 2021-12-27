@@ -84,7 +84,6 @@ open class Window (
             windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
             id = id
         )
-    var restoreOngoing: Boolean = false
     var displayedKey: Key? = null
     var displayedBook: Book? = null
 
