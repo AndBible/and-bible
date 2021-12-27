@@ -176,7 +176,9 @@ object SwordContentFacade {
         val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
 
         val versionText = if (showVersion) (selection.book.abbreviation) else ""
-        val quotation = if (showQuotes) "”" else ""
+        val quotationStart = if (showQuotes) "“" else ""
+        val quotationEnd = if (showQuotes) "”" else ""
+
         val reference = if(showReference) {
             if(abbreviateReference) {
                 synchronized(BookName::class.java) {
@@ -212,7 +214,7 @@ object SwordContentFacade {
                 val end = startVerse.slice(endOffset until startVerse.length)
                 val text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
                 val post = if(showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
-                if(!showSelectionOnly) """$quotation$startVerseNumber$start${text}$end$quotation""" else "$quotation$startVerseNumber$text$post$quotation"
+                if(!showSelectionOnly) """$quotationStart$startVerseNumber$start$text$end$quotationEnd""" else "$quotationStart$startVerseNumber$text$post$quotationEnd"
             }
             verseTexts.size > 1 -> {
                 startVerse = startVerse.slice(startOffset until startVerse.length)
@@ -231,7 +233,7 @@ object SwordContentFacade {
                 val text = "${startVerse.trimEnd()} ${middleVerses.trimStart()}$endVerseNum$endVerse"
                 val post = if(showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
 
-                if(!showSelectionOnly) """$quotation$startVerseNumber$start${text}$end$post$quotation""" else "$quotation$startVerseNumber$text$post$quotation"
+                if(!showSelectionOnly) """$quotationStart$startVerseNumber$start$text$end$post$quotationEnd""" else "$quotationStart$startVerseNumber$text$post$quotationEnd"
             }
             else -> throw RuntimeException("what")
         }
