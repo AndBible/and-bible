@@ -51,7 +51,12 @@
             android:layout_height="wrap_content"
             android:padding="7dip"
             android:text="@string/show_versenumbers" />
-
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleShowQuotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="7dip"
+            android:text="@string/show_quotes" />
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleFullVerses"
             android:layout_width="match_parent"

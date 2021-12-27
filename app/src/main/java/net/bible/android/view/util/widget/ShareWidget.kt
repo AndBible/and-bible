@@ -62,6 +62,8 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleNotes.isChecked = CommonUtils.settings.getBoolean("show_notes", true)
             toggleShowSelectionOnly.isChecked = CommonUtils.settings.getBoolean("show_selection_only", true)
             toggleShowEllipsis.isChecked = CommonUtils.settings.getBoolean("show_ellipsis", true)
+            toggleShowReferenceAtFront.isChecked = CommonUtils.settings.getBoolean("share_show_ref_at_front_of_verse", false)
+            toggleShowQuotes.isChecked = CommonUtils.settings.getBoolean("share_show_quotes", false)
 
             toggleVersenumbers.setOnClickListener { updateText()}
             advertise.setOnClickListener { updateText()}
@@ -72,6 +74,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleNotes.setOnClickListener { updateText()}
             toggleShowSelectionOnly.setOnClickListener { updateText()}
             toggleShowEllipsis.setOnClickListener { updateText()}
+            toggleShowQuotes.setOnClickListener { updateText()}
         }
         updateText()
     }
@@ -86,7 +89,8 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             showReference = bindings.toggleShowReference.isChecked,
             showReferenceAtFront = bindings.toggleShowReferenceAtFront.isChecked,
             showSelectionOnly = bindings.toggleShowSelectionOnly.isChecked,
-            showEllipsis = bindings.toggleShowEllipsis.isChecked
+            showEllipsis = bindings.toggleShowEllipsis.isChecked,
+            showQuotes = bindings.toggleShowQuotes.isChecked
         )
         val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book.language.code)) == LayoutDirection.RTL
         bindings.preview.textDirection = if(isRtl)  View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
@@ -100,6 +104,8 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             setBoolean("show_notes", bindings.toggleNotes.isChecked)
             setBoolean("show_selection_only", bindings.toggleShowSelectionOnly.isChecked)
             setBoolean("show_ellipsis", bindings.toggleShowEllipsis.isChecked)
+            setBoolean("share_show_ref_at_front_of_verse", bindings.toggleShowReferenceAtFront.isChecked)
+            setBoolean("share_show_quotes", bindings.toggleShowQuotes.isChecked)
         }
         bindings.toggleAbbreviateReference.isEnabled = bindings.toggleShowReference.isChecked
         bindings.toggleShowVersion.isEnabled = bindings.toggleShowReference.isChecked

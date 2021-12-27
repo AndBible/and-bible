@@ -159,7 +159,8 @@ class TestShare {
             showSelectionOnly = !showFull,
             showReference = true,
             advertiseApp = false,
-            showReferenceAtFront = false
+            showReferenceAtFront = false,
+            showQuotes = true
         )
 
         assertThat(text, equalTo(compareText))
