@@ -981,7 +981,17 @@ private val MIGRATION_56_57_breaklines_in_notes = object : Migration(56, 57) {
         }
     }
 }
-
+private val MIGRATION_57_58_workspace_colors = object : Migration(57, 58) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            val colDefs = "`text_display_settings_colors_dayWorkspaceColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightWorkspaceColor` INTEGER DEFAULT NULL".split(",")
+            colDefs.forEach {
+                execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
+                execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
+            }
+        }
+    }
+}
 class DataBaseNotReady: Exception()
 
 object DatabaseContainer {
@@ -1084,6 +1094,7 @@ object DatabaseContainer {
                         MIGRATION_54_55_bookmarkType,
                         MIGRATION_55_56_limitAmbiguousSize,
                         MIGRATION_56_57_breaklines_in_notes,
+                        // MIGRATION_57_58_workspace_colors,  // Enable when ready to release I guess.
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
