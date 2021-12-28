@@ -41,6 +41,7 @@
         <attr name="barWindowButtonStrokeColor" format="color"/>
         <attr name="barWindowButtonBackgroundColor" format="color"/>
         <attr name="barWindowButtonActiveBackgroundColor" format="color"/>
+        <attr name="barWindowButtonVisibleBackgroundColor" format="color"/>
     </declare-styleable>
     <declare-styleable name="separatorTheme">
         <attr name="separatorBackgroundColor" format="color"/>

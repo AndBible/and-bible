@@ -112,9 +112,11 @@ class WorkspaceEntities {
 
     @Serializable
     data class Colors(
+        @ColumnInfo(defaultValue = "NULL") var dayWorkspaceColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayNoise: Int?,
+        @ColumnInfo(defaultValue = "NULL") var nightWorkspaceColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightBackground: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?
@@ -244,7 +246,9 @@ class WorkspaceEntities {
                     nightBackground = black,
                     nightTextColor = white,
                     nightNoise = 0,
-                    dayNoise = 0
+                    dayNoise = 0,
+                    dayWorkspaceColor = black,
+                    nightWorkspaceColor = black
                 ),
                 marginSize = MarginSize(
                     marginLeft = 3,

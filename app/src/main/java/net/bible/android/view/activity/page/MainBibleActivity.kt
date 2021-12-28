@@ -25,6 +25,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
@@ -52,6 +54,7 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
@@ -1073,14 +1076,24 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun showSystemUI(setNavBarColor: Boolean=true) {
+        // called when returning from verse selection
+
+//        val toolbar = findViewById<View>(R.id.toolbarLayout) as ConstraintLayout
+//        toolbar.setBackgroundColor(Color.parseColor("#0000ff"))
+
         var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             }
             if(windowRepository.visibleWindows.isNotEmpty()) {
+                val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
+
+                val toolbarColor = if (ScreenSettings.nightMode) (colors.nightWorkspaceColor ?: R.color.actionbar_background_day) else (colors.dayWorkspaceColor ?: R.color.actionbar_background_night)
+                val toolbar = findViewById<View>(R.id.toolbarLayout) as ConstraintLayout
+                toolbar.setBackgroundColor(toolbarColor)
+
                 val color = if (setNavBarColor) {
-                    val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
                     val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
                     color ?: UiUtils.bibleViewDefaultBackgroundColor
                 } else {

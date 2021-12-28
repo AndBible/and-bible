@@ -18,15 +18,16 @@
 		<item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
 		<item name="transportButtonColor">#ffffff</item>
 
-		<item name="windowButtonActiveStrokeColor">@color/bar_window_button_active_stroke_color</item>
+		<item name="windowButtonActiveStrokeColor">@color/transparent</item>
 		<item name="windowButtonStrokeColor">#00FFFFFF</item>
-		<item name="windowButtonBackgroundColor">#B78D8D8D</item>
-		<item name="windowButtonActiveBackgroundColor">#B7525252</item>
+		<item name="windowButtonBackgroundColor">#118D8D8D</item>
+		<item name="windowButtonActiveBackgroundColor">@color/active_window_button_transparent</item>
 
 		<item name="barWindowButtonActiveStrokeColor">@color/bar_window_button_active_stroke_color</item>
 		<item name="barWindowButtonStrokeColor">@color/bar_window_button_stroke_color</item>
 		<item name="barWindowButtonBackgroundColor">@color/bar_window_button_background_colour</item>
-		<item name="barWindowButtonActiveBackgroundColor">@color/bar_window_button_background_colour_visible</item>
+		<item name="barWindowButtonVisibleBackgroundColor">@color/grey_800</item>
+		<item name="barWindowButtonActiveBackgroundColor">@color/active_window_button</item>
 
 		<item name="bibleReferenceOverlayBackgroundColor">@color/bible_reference_overlay</item>
 
@@ -55,7 +56,7 @@
 	</style>
 	<style name="MainBibleActionBar">
 		<item name="actionOverflowButtonStyle">@style/OptionsButtonsStyle</item>
-		<item name="android:background">@color/actionbar_background</item>
+<!--		<item name="android:background">@color/actionbar_background</item>-->
 	</style>
 	<style name="MainBibleActionBarButtons" parent="MainBibleActionBar">
 		<item name="android:textColorSecondary">@color/white</item>

@@ -16,8 +16,8 @@
 	<color name="bar_window_button_category_tint">#AAAAAA</color>
 	<color name="bar_window_button_background_colour">#878787</color>
 	<color name="bar_window_button_background_colour_visible">#535353</color>
-	<color name="bar_window_button_stroke_color">#686868</color>
-	<color name="bar_window_button_active_stroke_color">#002AFF</color>
+	<color name="bar_window_button_stroke_color">@color/transparent</color>
+	<color name="bar_window_button_active_stroke_color">@color/active_window_button</color>
 
 	<color name="window_button_text_colour">#86FFFFFF</color>
 	<color name="window_button_background_colour_visible">#454545</color>
@@ -29,7 +29,7 @@
 	<!-- matches background_holo_dark -->
 	<color name="actionbar_background_night">#ff000000</color>
 	<!-- matches DKGRAY -->
-	<color name="actionbar_background_day">#ff444444</color>
+	<color name="actionbar_background_day">#4CAF50</color>
 
 	<color name="actionbar_background">@color/actionbar_background_day</color>
 
@@ -65,6 +65,9 @@
 
 	<color name="night_link_color_default">#000000</color>
 	<color name="night_title_color_default">#000000</color-->
+
+	<color name="active_window_button">@color/actionbar_background_day</color>
+	<color name="active_window_button_transparent">#667e27a3</color>
 
 	<color name="warning_yellow">#E0C923</color>
 

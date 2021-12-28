@@ -212,6 +212,7 @@
     <string name="window_color_settings_title">Window color settings</string>
     <string name="workspace_color_settings_title">Workspace color setting defaults</string>
 
+    <string name="color_workspace">Workspace color</string>
     <string name="color_text">Text color</string>
     <string name="color_background">Background color</string>
     <string name="colors_day_mode_title">Day mode</string>
