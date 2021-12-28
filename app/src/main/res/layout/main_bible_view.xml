@@ -21,7 +21,8 @@
             android:layout_height="@dimen/toolbar_height"
             android:minHeight="@dimen/toolbar_height"
             android:theme="@style/MainBibleActionBar"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            >
 
             <ImageButton
                 android:id="@+id/homeButton"
@@ -29,12 +30,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:contentDescription="@string/menu"
+                app:tint="?attr/toolbarTextColor"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/pageTitleContainer"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_menu"
-                app:tint="?attr/toolbarTextColor" />
+                app:srcCompat="@drawable/ic_menu" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/pageTitleContainer"
@@ -97,15 +98,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/prefs_show_strongs_title"
-                    app:srcCompat="@drawable/ic_strongs_hebrew" />
-
+                    app:srcCompat="@drawable/ic_strongs_hebrew"
+                    />
                 <ImageButton
                     android:id="@+id/bibleButton"
                     style="@style/MyActionButton"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/doc_type_bible"
-                    app:srcCompat="@drawable/ic_bible_24dp" />
+                    app:srcCompat="@drawable/ic_bible_24dp"
+                    />
 
                 <ImageButton
                     android:id="@+id/commentaryButton"
@@ -113,15 +115,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/doc_type_commentary"
-                    app:srcCompat="@drawable/ic_commentary" />
-
+                    app:srcCompat="@drawable/ic_commentary"
+                    />
                 <ImageButton
                     android:id="@+id/optionsMenu"
                     style="@style/MyActionButton"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/system_items1"
-                    app:srcCompat="@drawable/ic_more_vert_black_24dp" />
+                    app:srcCompat="@drawable/ic_more_vert_black_24dp"
+                    />
 
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

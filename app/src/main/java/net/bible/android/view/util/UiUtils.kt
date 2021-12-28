@@ -28,17 +28,9 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-
-import android.app.Activity
-import android.graphics.Color
-import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.SettingsBundle
-import javax.inject.Inject
-
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
 object UiUtils {
 
 //    @Inject lateinit var windowControl: WindowControl
@@ -62,18 +54,11 @@ object UiUtils {
     /** Change actionBar colour according to day/night state
      */
     fun setActionBarColor(actionBar: ActionBar?) {
-
-        // Called from GridCoosePassageBook
-
-//        val windowRepository get() = windowControl.windowRepository
-//        val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceName = windowRepository.name, workspaceSettings = windowRepository.textDisplaySettings)
-
         val newColor = if (ScreenSettings.nightMode) ACTIONBAR_BACKGROUND_NIGHT else ACTIONBAR_BACKGROUND_DAY
 
         if (actionBar != null) {
             CurrentActivityHolder.getInstance().runOnUiThread {
-//                val colorDrawable = ColorDrawable(newColor)
-                val colorDrawable = ColorDrawable(Color.parseColor("#0000FF"))
+                val colorDrawable = ColorDrawable(newColor)
                 actionBar.setBackgroundDrawable(colorDrawable)
             }
         }

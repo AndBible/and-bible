@@ -56,7 +56,6 @@ abstract class CustomTitlebarActivityBase(private val optionsMenuId: Int = NO_OP
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
 
-        // Called when selecting book in verse selector
         actionBarManager.prepareOptionsMenu(this, menu, supportActionBar)
 
         // must return true for menu to be displayed

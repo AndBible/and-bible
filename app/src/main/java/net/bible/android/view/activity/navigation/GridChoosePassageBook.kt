@@ -22,7 +22,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -134,16 +133,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         buttonGrid.addButtons(bibleBookButtonInfo)
 
         setContentView(buttonGrid)
-
-        // This works v
-//        supportActionBar?.apply {
-//            setBackgroundDrawable(
-//                ColorDrawable(
-//                    Color.parseColor("#B0E0E6")
-//                )
-//            )
-//        }
-
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {

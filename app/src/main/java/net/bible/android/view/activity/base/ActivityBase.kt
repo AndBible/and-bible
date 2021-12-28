@@ -23,8 +23,6 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -71,18 +69,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     fun applyTheme() {
-        // Called when day/night mode changed
-
-        // This does not  error but also does not seem to work. It works in
-        supportActionBar?.apply {
-            setBackgroundDrawable(
-                ColorDrawable(
-                    Color.parseColor("#0000FF")
-                )
-            )
-        }
-
-        val newNightMode = if (ScreenSettings.nightMode) {
+         val newNightMode = if (ScreenSettings.nightMode) {
             AppCompatDelegate.MODE_NIGHT_YES
         } else {
             AppCompatDelegate.MODE_NIGHT_NO

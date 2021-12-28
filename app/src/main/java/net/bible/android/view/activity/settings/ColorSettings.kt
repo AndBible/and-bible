@@ -136,6 +136,8 @@ class ColorSettingsActivity: ActivityBase() {
 
         if(settingsBundle.windowId != null) {
             title = getString(R.string.window_color_settings_title)
+            // TODO: Hide the workspace color picker when editing window colors. We only want to change workspace color at the workspace level
+
         } else {
             title = getString(R.string.workspace_color_settings_title)
         }
