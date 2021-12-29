@@ -1087,8 +1087,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             }
             if(windowRepository.visibleWindows.isNotEmpty()) {
-                // TODO: I think this is accessing the window setting not the workspace setting. Not sure how to access the correct one.
-                val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
+                val colors = windowRepository.textDisplaySettings.colors!!
 
                 val toolbarColor = if (ScreenSettings.nightMode) (colors.nightWorkspaceColor ?: R.color.actionbar_background_day) else (colors.dayWorkspaceColor ?: R.color.actionbar_background_night)
                 val toolbar = findViewById<View>(R.id.toolbarLayout) as ConstraintLayout
