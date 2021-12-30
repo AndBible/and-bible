@@ -1472,8 +1472,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private fun executeJavascript(javascript_: String, callBack: ((rv: String) -> Unit)? = null) {
-        val javascript = javascript_.replace("\\", "\\\\")
+    private fun executeJavascript(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
         val end = min(javascript.length, 500)
         val subStr = javascript.slice(0 until end)
 
