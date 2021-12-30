@@ -230,6 +230,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             field = value
         }
 
+    val htmlReady get() = !htmlLoadingOngoing
+
     var window: Window
         get() = windowRef.get()!!
         set(value) {
