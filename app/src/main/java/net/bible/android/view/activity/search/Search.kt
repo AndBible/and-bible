@@ -130,6 +130,10 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         //    false
         //})
 
+        binding.rememberSearchText.setOnClickListener {
+            CommonUtils.settings.setBoolean("search_remember_search_text", binding.rememberSearchText.isChecked)
+        }
+
         // pre-load search string if passed in
         val extras = intent.extras
         if (extras != null) {
@@ -138,7 +142,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 binding.searchText.setText(text)
             }
         } else {
-            binding.searchText.setText(CommonUtils.settings.getString("search_text", ""))
+            binding.rememberSearchText.isChecked = CommonUtils.settings.getBoolean("search_remember_search_text", false)
+            if (binding.rememberSearchText.isChecked) binding.searchText.setText(CommonUtils.settings.getString("search_text", ""))
         }
 
         val wordsRadioGroup = findViewById<View>(R.id.wordsGroup) as RadioGroup

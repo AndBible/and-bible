@@ -66,6 +66,8 @@
     <string name="search_old_testament">Old Testament</string>
     <string name="search_current_book">Current book</string>
     <string name="error_executing_search">Invalid search query</string>
+    <string name="search_remember_search_text">Remember search text</string>
+    <string name="search_include_all_endings">All endings</string>
 
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
