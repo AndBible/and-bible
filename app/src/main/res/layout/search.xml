@@ -48,7 +48,7 @@
 						android:layout_height="wrap_content"
 						android:layout_weight="0.1"
 						android:text="@string/search_include_all_endings"
-						android:visibility="invisible" />
+						android:visibility="visible" />
 				</LinearLayout>
 
 				<LinearLayout
@@ -88,19 +88,25 @@
 						android:text="@string/search_all_bible"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
+						android:layout_marginLeft="15dip"
 						android:checked="true"/>
 					<RadioButton android:id="@+id/searchOldTestament"
 						android:text="@string/search_old_testament"
 						android:layout_width="wrap_content"
+						android:layout_marginLeft="15dip"
 						android:layout_height="wrap_content"/>
 					<RadioButton android:id="@+id/searchNewTestament"
 						android:text="@string/search_new_testament"
 						android:layout_width="wrap_content"
+						android:layout_marginLeft="15dip"
 						android:layout_height="wrap_content"/>
-					<RadioButton android:id="@+id/searchCurrentBook"
-						android:text="@string/search_current_book"
+
+					<RadioButton
+						android:id="@+id/searchCurrentBook"
 						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"/>
+						android:layout_height="wrap_content"
+						android:layout_marginLeft="15dip"
+						android:text="@string/search_current_book" />
 				</RadioGroup>
 
 				<RadioGroup android:id="@+id/wordsGroup"
@@ -117,17 +123,109 @@
 						android:layout_width="wrap_content"
 						android:text="@string/search_all_words"
 						android:layout_height="wrap_content"
+						android:layout_marginLeft="15dip"
 						android:checked="true"/>
 					<RadioButton android:id="@+id/anyWord"
 						android:layout_width="wrap_content"
 						android:text="@string/search_any_word"
+						android:layout_marginLeft="15dip"
 						android:layout_height="wrap_content"/>
 					<RadioButton android:id="@+id/phrase"
 						android:layout_width="wrap_content"
 						android:text="@string/search_phrase"
+						android:layout_marginLeft="15dip"
 						android:layout_height="wrap_content"/>
 				</RadioGroup>
 			</LinearLayout>
+			<LinearLayout
+				android:id="@+id/centreAreaContainer3"
+				android:orientation="horizontal"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				>
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:orientation="vertical">
+
+					<CheckBox
+						android:id="@+id/fuzzySearch"
+						android:layout_width="match_parent"
+						android:layout_height="60dip"
+						android:layout_weight="1"
+						android:text="@string/search_fuzzy"
+						android:visibility="visible" />
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:orientation="horizontal"
+						android:layout_weight="1">
+
+						<TextView
+							android:id="@+id/editTextTextPersonName"
+							android:layout_width="140dip"
+							android:layout_height="wrap_content"
+							android:layout_weight="1"
+							android:layout_marginLeft="25dip"
+							android:ems="10"
+							android:inputType="textPersonName"
+							android:text="@string/accuracy" />
+
+						<SeekBar
+							android:id="@+id/fuzzySearchAccuracy"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:min="1"
+							android:max="10"
+							android:stepSize="1"
+							android:layout_weight="1" />
+					</LinearLayout>
+				</LinearLayout>
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:orientation="vertical">
+
+					<CheckBox
+						android:id="@+id/proximitySearch"
+						android:layout_width="match_parent"
+						android:layout_height="60dip"
+						android:layout_weight="1"
+						android:text="@string/proximity"
+						android:visibility="visible" />
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:orientation="horizontal"
+						android:layout_weight="1">
+
+						<TextView
+							android:id="@+id/proximityWordsLabel"
+							android:layout_width="140dip"
+							android:layout_height="wrap_content"
+							android:layout_weight="1"
+							android:layout_marginLeft="25dip"
+							android:ems="10"
+							android:inputType="textPersonName"
+							android:text="@string/words" />
+
+						<SeekBar
+							android:id="@+id/proximityWords"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:min="1"
+							android:max="10"
+							android:stepSize="1"
+							android:layout_weight="1" />
+					</LinearLayout>
+				</LinearLayout>
+
+			</LinearLayout>
+
+
 		</LinearLayout>
 	</ScrollView>
 

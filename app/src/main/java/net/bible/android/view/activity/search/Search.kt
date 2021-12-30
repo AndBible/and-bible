@@ -28,6 +28,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.SeekBar
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SearchBinding
@@ -64,6 +65,17 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     /** get all, any, phrase query limitation
      */
+    private var fuzzySearchAccuracySelection: Int = 5
+        get() {
+            return field
+        }
+        set(value) {
+            CommonUtils.settings.setInt("search_fuzzy_accuracy", value)
+            binding.fuzzySearch.text = getString(R.string.search_fuzzy, "(~" + (value * 10).toString() + "%)")
+            binding.fuzzySearchAccuracy.setProgress(value)
+            field = value
+        }
+
     private val searchType: SearchType
         get() {
             return when (wordsRadioSelection) {
@@ -133,6 +145,39 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         binding.rememberSearchText.setOnClickListener {
             CommonUtils.settings.setBoolean("search_remember_search_text", binding.rememberSearchText.isChecked)
         }
+        binding.includeAllEndings.setOnClickListener {
+            CommonUtils.settings.setBoolean("search_include_all_endings", binding.includeAllEndings.isChecked)
+            enableSearchControls()
+        }
+        binding.fuzzySearch.setOnClickListener {
+            CommonUtils.settings.setBoolean("search_fuzzy", binding.fuzzySearch.isChecked)
+            enableSearchControls()
+        }
+
+        binding.fuzzySearchAccuracy.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+//                val newProgress = Math.round(progress.toDouble() / STEP).toInt() * STEP
+//                binding.fuzzySearchAccuracy.setProgress(progress)
+                fuzzySearchAccuracySelection = progress
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        binding.includeAllEndings.isChecked = CommonUtils.settings.getBoolean("search_include_all_endings", false)
+        binding.rememberSearchText.isChecked = CommonUtils.settings.getBoolean("search_remember_search_text", false)
+
+        binding.wordsGroup.check(CommonUtils.settings.getInt("search_words_group_prompt", 0))
+        wordsRadioSelection = binding.wordsGroup.checkedRadioButtonId
+
+        binding.bibleSectionGroup.check(CommonUtils.settings.getInt("search_bible_section_group_prompt", 0))
+        sectionRadioSelection = binding.bibleSectionGroup.checkedRadioButtonId
+
+        // SeekBar Range
+
+        binding.fuzzySearch.isChecked = CommonUtils.settings.getBoolean("search_fuzzy", false)
+        fuzzySearchAccuracySelection = CommonUtils.settings.getInt("search_fuzzy_accuracy", 5)
+
 
         // pre-load search string if passed in
         val extras = intent.extras
@@ -142,12 +187,14 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 binding.searchText.setText(text)
             }
         } else {
-            binding.rememberSearchText.isChecked = CommonUtils.settings.getBoolean("search_remember_search_text", false)
             if (binding.rememberSearchText.isChecked) binding.searchText.setText(CommonUtils.settings.getString("search_text", ""))
         }
 
-        val wordsRadioGroup = findViewById<View>(R.id.wordsGroup) as RadioGroup
-        wordsRadioGroup.setOnCheckedChangeListener { group, checkedId -> wordsRadioSelection = checkedId }
+       val wordsRadioGroup = findViewById<View>(R.id.wordsGroup) as RadioGroup
+        wordsRadioGroup.setOnCheckedChangeListener { group, checkedId ->
+            wordsRadioSelection = checkedId
+            CommonUtils.settings.setInt("search_words_group_prompt", checkedId)
+        }
         if (extras != null) {
             val wordsSelection = extras.getInt(WORDS_SELECTION_SAVE, -1)
             if (wordsSelection != -1) {
@@ -156,7 +203,10 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
 
         val sectionRadioGroup = findViewById<View>(R.id.bibleSectionGroup) as RadioGroup
-        sectionRadioGroup.setOnCheckedChangeListener { group, checkedId -> sectionRadioSelection = checkedId }
+        sectionRadioGroup.setOnCheckedChangeListener { group, checkedId ->
+            sectionRadioSelection = checkedId
+            CommonUtils.settings.setInt("search_bible_section_group_prompt", checkedId)
+        }
         if (extras != null) {
             val sectionSelection = extras.getInt(SECTION_SELECTION_SAVE, -1)
             if (sectionSelection != -1) {
@@ -178,10 +228,16 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         currentBookRadioButton.text = currentBookName
 
         binding.textClear.setOnClickListener({binding.searchText.setText("")})
+        enableSearchControls()
 
         Log.i(TAG, "Finished displaying Search view")
     }
 
+    fun enableSearchControls() {
+        binding.fuzzySearch.isEnabled = !binding.includeAllEndings.isChecked
+        binding.fuzzySearchAccuracy.isEnabled = (!binding.includeAllEndings.isChecked && binding.fuzzySearch.isChecked)
+
+    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.rebuildIndex -> {
@@ -200,7 +256,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         super.onResume()
         binding.searchText.requestFocus()
     }
-
 
     fun onRebuildIndex(v: View?) {
         startActivity(Intent(this, SearchIndex::class.java))
@@ -240,7 +295,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     }
 
     private fun decorateSearchString(searchString: String): String {
-        return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName)
+        val fuzzyAccuarcy = if (binding.fuzzySearch.isChecked) fuzzySearchAccuracySelection.toDouble()/10 else null
+        return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName, binding.includeAllEndings.isChecked, fuzzyAccuarcy)
     }
 
     companion object {

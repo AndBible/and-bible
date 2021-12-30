@@ -99,9 +99,25 @@ class SearchControl @Inject constructor(
             "-"
         }
 
-    fun decorateSearchString(searchString: String, searchType: SearchType, bibleSection: SearchBibleSection, currentBookName: String?): String {
-        val cleanSearchString = cleanSearchString(searchString)
+    fun decorateSearchString(searchString: String, searchType: SearchType, bibleSection: SearchBibleSection, currentBookName: String?,
+                             includeAllEndings: Boolean=false, fuzzySearchAccuracy: Double? = 1.0): String {
+        var cleanSearchString = cleanSearchString(searchString)
         var decorated: String
+
+        if (includeAllEndings) {
+            var newSearchString =""
+            val wordArray: List<String> = cleanSearchString.split(" ")
+            wordArray.forEach {newSearchString += it + "* "}
+            cleanSearchString = newSearchString.trim()
+        }
+
+        if (!includeAllEndings && fuzzySearchAccuracy != null) {
+            var newSearchString =""
+            val wordArray: List<String> = cleanSearchString.split(" ")
+            var fuzzySearchAccuracyAdjusted = if (fuzzySearchAccuracy.equals(1)) 0.99 else fuzzySearchAccuracy
+            wordArray.forEach {newSearchString += it + "~%.2f ".format(fuzzySearchAccuracyAdjusted)}
+            cleanSearchString = newSearchString.trim()
+        }
 
         // add search type (all/any/phrase) to search string
         decorated = searchType.decorate(cleanSearchString)
