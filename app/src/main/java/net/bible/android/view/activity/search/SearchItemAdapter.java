@@ -128,36 +128,42 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 
 		return view;
 	}
-	private String processElementChildren(Element parentElement, String searchTerms, String verseString) {
+	private String processElementChildren(Element parentElement, String searchTerms, String verseString, Boolean isBold) {
 		// Recursive method to walk the verse element tree ignoring tags like 'note' that should not be shown in the search results
-		// and including tags like 'w' that should be included.
+		// and including tags like 'w' that should be included. This routine is needed only to do searches on lemma attributes. That
+		// is why bolding only occurs in that part of the code.
 		for (Object o : parentElement.getContent()) {
 			if (o instanceof Element) {
 				Element el = (Element) o;
 				List<String> elementsToExclude = Arrays.asList("note","reference");
-				List<String> elementsToInclude = Arrays.asList("w","transChange");
-				if (!el.getChildren().isEmpty() && !elementsToExclude.contains(el.getName())) {verseString = processElementChildren(el, searchTerms, verseString);};
+				List<String> elementsToInclude = Arrays.asList("w","transChange","divineName","seg");
 				if (elementsToInclude.contains(el.getName())) {
 					try {
 						String lemma = el.getAttributeValue("lemma");
-						//							if (searchTerms.equalsIgnoreCase(lemma.trim())) {
-						if (lemma != null && Pattern.compile(searchTerms, Pattern.CASE_INSENSITIVE).matcher(lemma.trim()).find()) {
-							verseString += ("<b>" + el.getText() + "</b>");
-						} else {
-							verseString += el.getText();
-						}
+						isBold = (lemma != null && Pattern.compile(searchTerms, Pattern.CASE_INSENSITIVE).matcher(lemma.trim()).find());
 					} catch (Exception e) {
-						verseString += el.getText();
+						isBold = false;
 					}
+					// Only leaf nodes should have their text appended. If a node has child tags, the text will be passed as one of the children .
+					if (el.getChildren().isEmpty()) verseString += buildElementText(el.getText(),isBold);
 				}
+				if (!el.getChildren().isEmpty() && !elementsToExclude.contains(el.getName())) {verseString = processElementChildren(el, searchTerms, verseString, isBold);};
 			} else if (o instanceof Text) {
 				Text t = (Text) o;
-				verseString += t.getText();
+				verseString += buildElementText(t.getText(),false);
 			} else {
-				verseString += o.toString();
+				verseString += buildElementText(o.toString(),false);
 			}
 		}
 		return verseString;
+	}
+
+	private String buildElementText(String elementText, Boolean isBold) {
+		if (isBold) {
+			return String.format("<b>%s</b>",elementText);
+		} else {
+			return elementText;
+		}
 	}
 
 	private SpannableString highlightSearchText(String searchTerms, Element textElement) {
@@ -169,7 +175,7 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 
 			List<Element> verses = textElement.getChildren("verse");
 			for (Element verse : verses) {
-				verseString += processElementChildren(verse, searchTerms, "");
+				verseString += processElementChildren(verse, searchTerms, "", false);
 			}
 			spannableText = new SpannableString(Html.fromHtml(verseString));
 			Matcher m = null;
