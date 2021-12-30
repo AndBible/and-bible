@@ -1455,18 +1455,22 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun runOnUiThread(runnable: () -> Unit) = synchronized(this) {
         // If there are any tasks, we must put them to queue, to make sure they are run in the correct order
-        if(Looper.myLooper() == Looper.getMainLooper() && taskQueue.size == 0) {
+        val isEmpty = taskQueue.isEmpty()
+        if(Looper.myLooper() == Looper.getMainLooper() && isEmpty) {
+            Log.i(TAG, "TaskQueue Executing runnable immediately")
             runnable()
         } else {
+            Log.i(TAG, "TaskQueue Adding runnable to queue")
             taskQueue.addLast(runnable)
-            if (taskQueue.size == 1) {
+            if (isEmpty) {
+                Log.i(TAG, "TaskQueue Scheduling flushing tasks")
                 post { flushTasks() }
             }
         }
     }
 
     private fun flushTasks()  = synchronized(this) {
-        Log.i(TAG, "flushTasks ${taskQueue.size}")
+        Log.i(TAG, "TaskQueue flushTasks ${taskQueue.size}")
         while (taskQueue.size > 0) {
             taskQueue.pop().invoke()
         }
