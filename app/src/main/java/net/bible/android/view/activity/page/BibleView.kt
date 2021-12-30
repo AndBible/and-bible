@@ -1402,6 +1402,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(contentVisible) {
             updateTextDisplaySettings(true)
         }
+        flushTasks()
     }
 
     fun scrollOrJumpToVerse(key: Key, forceNow: Boolean = false) {
@@ -1455,14 +1456,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun runOnUiThread(runnable: () -> Unit) = synchronized(this) {
         // If there are any tasks, we must put them to queue, to make sure they are run in the correct order
-        val isEmpty = taskQueue.isEmpty()
-        if(Looper.myLooper() == Looper.getMainLooper() && isEmpty) {
+        val wasEmpty = taskQueue.isEmpty()
+        val isAttached = isAttachedToWindow
+
+        if(Looper.myLooper() == Looper.getMainLooper() && wasEmpty && isAttached) {
             Log.i(TAG, "TaskQueue Executing runnable immediately")
             runnable()
         } else {
             Log.i(TAG, "TaskQueue Adding runnable to queue")
             taskQueue.addLast(runnable)
-            if (isEmpty) {
+            if (wasEmpty && isAttached) {
                 Log.i(TAG, "TaskQueue Scheduling flushing tasks")
                 post { flushTasks() }
             }
@@ -1474,6 +1477,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         while (taskQueue.size > 0) {
             taskQueue.pop().invoke()
         }
+        Log.i(TAG, "TaskQueue flushTasks done.")
     }
 
     private fun executeJavascript(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
