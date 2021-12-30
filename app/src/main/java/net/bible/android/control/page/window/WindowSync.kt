@@ -81,7 +81,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
     private val syncScope = CoroutineScope(Dispatchers.Default)
     private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit = debounce(200, syncScope) { sourceWindow -> synchronized(this) {
-        Log.i(TAG, "...delayedSynchronizeWindows ${sourceWindow}")
+        Log.i(TAG, "...delayedSynchronizeWindows $sourceWindow")
         ABEventBus.getDefault().post(IncrementBusyCount())
 
         val activePage = sourceWindow.pageManager.currentPage
