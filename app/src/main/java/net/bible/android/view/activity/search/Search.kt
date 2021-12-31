@@ -28,6 +28,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.SeekBar
@@ -164,11 +165,11 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             enableSearchControls()
         }
         binding.fuzzySearch.setOnClickListener {
-            CommonUtils.settings.setBoolean("search_fuzzy", binding.fuzzySearch.isChecked)
+            if (binding.fuzzySearch.isChecked) binding.proximitySearch.isChecked = false
             enableSearchControls()
         }
         binding.proximitySearch.setOnClickListener {
-            CommonUtils.settings.setBoolean("search_proximity", binding.proximitySearch.isChecked)
+            if (binding.proximitySearch.isChecked) binding.fuzzySearch.isChecked = false
             enableSearchControls()
         }
         binding.proximityButtonAdd.setOnClickListener {proximitySearchWordsSelection = binding.proximtyWordNumber.text.toString().toInt() + 1}
@@ -215,6 +216,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         wordsRadioGroup.setOnCheckedChangeListener { group, checkedId ->
             wordsRadioSelection = checkedId
             CommonUtils.settings.setInt("search_words_group_prompt", checkedId)
+            enableSearchControls()
         }
         if (extras != null) {
             val wordsSelection = extras.getInt(WORDS_SELECTION_SAVE, -1)
@@ -255,8 +257,24 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     }
 
     fun enableSearchControls() {
-        binding.fuzzySearch.isEnabled = !binding.includeAllEndings.isChecked
-        binding.fuzzySearchAccuracy.isEnabled = (!binding.includeAllEndings.isChecked && binding.fuzzySearch.isChecked)
+        
+        CommonUtils.settings.setBoolean("search_fuzzy", binding.fuzzySearch.isChecked)
+        CommonUtils.settings.setBoolean("search_proximity", binding.proximitySearch.isChecked)
+
+        enableLayout(binding.fuzzySearchLayout, binding.allWords.id == wordsRadioSelection)
+        enableLayout(binding.fuzzySearchDetailsLayout, binding.fuzzySearch.isChecked && binding.fuzzySearch.isEnabled)
+
+        enableLayout(binding.proximityLayout, (!binding.includeAllEndings.isChecked && binding.allWords.id == wordsRadioSelection))
+        enableLayout(binding.proximityDetailsLayout, binding.proximitySearch.isChecked && binding.proximitySearch.isEnabled)
+    }
+
+    fun enableLayout(layout: LinearLayout, isEnabled: Boolean) {
+        for (i in 0 until layout.childCount) {
+            val view: View = layout.getChildAt(i)
+            if (view is LinearLayout) {enableLayout(view,isEnabled)}
+            view.isEnabled = isEnabled
+        }
+        layout.isEnabled = isEnabled
 
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -316,8 +334,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     }
 
     private fun decorateSearchString(searchString: String): String {
-        val fuzzyAccuracy = if (binding.fuzzySearch.isChecked) fuzzySearchAccuracySelection.toDouble()/10 else null
-        val proximityWords = if (binding.proximitySearch.isChecked) proximitySearchWordsSelection else null
+        val fuzzyAccuracy = if (binding.fuzzySearch.isChecked && binding.fuzzySearch.isEnabled) fuzzySearchAccuracySelection.toDouble()/10 else null
+        val proximityWords = if (binding.proximitySearch.isChecked && binding.proximitySearch.isEnabled) proximitySearchWordsSelection else null
         return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName, binding.includeAllEndings.isChecked, fuzzyAccuracy, proximityWords)
     }
 

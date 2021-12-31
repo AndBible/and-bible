@@ -143,6 +143,7 @@
 				android:layout_height="match_parent"
 				>
 				<LinearLayout
+					android:id="@+id/fuzzySearchLayout"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:layout_weight="1"
@@ -158,6 +159,7 @@
 						android:visibility="visible" />
 
 					<LinearLayout
+						android:id="@+id/fuzzySearchDetailsLayout"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
 						android:layout_weight="1"
@@ -186,6 +188,7 @@
 				</LinearLayout>
 
 				<LinearLayout
+					android:id="@+id/proximityLayout"
 					android:layout_width="match_parent"
 					android:layout_height="80dp"
 					android:layout_weight="1"
@@ -202,6 +205,7 @@
 						android:visibility="visible" />
 
 					<LinearLayout
+						android:id="@+id/proximityDetailsLayout"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
 						android:layout_weight="1"

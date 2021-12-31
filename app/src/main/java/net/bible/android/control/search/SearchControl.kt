@@ -114,7 +114,7 @@ class SearchControl @Inject constructor(
         if (!includeAllEndings && fuzzySearchAccuracy != null) {
             var newSearchString =""
             val wordArray: List<String> = cleanSearchString.split(" ")
-            var fuzzySearchAccuracyAdjusted = if (fuzzySearchAccuracy.equals(1)) 0.99 else fuzzySearchAccuracy
+            var fuzzySearchAccuracyAdjusted = if (fuzzySearchAccuracy.equals(1.0)) 0.99 else fuzzySearchAccuracy
             wordArray.forEach {newSearchString += it + "~%.2f ".format(fuzzySearchAccuracyAdjusted)}
             cleanSearchString = newSearchString.trim()
         }
