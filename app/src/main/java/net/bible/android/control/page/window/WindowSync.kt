@@ -22,8 +22,6 @@ import android.util.Log
 import debounce
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.page.CurrentPage
@@ -66,7 +64,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
     }
 
     /** Synchronise the inactive key and inactive screen with the active key and screen if required */
-    fun synchronizeWindows(sourceWindow_: Window? = null) {
+    fun synchronizeWindows(sourceWindow_: Window? = null, noDelay: Boolean = false) {
         Log.i(TAG, "synchronizeWindows ${sourceWindow_}...")
 
         // if maximized mode and current active window is not in sync, then get previous window that was in sync
@@ -76,12 +74,18 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 lastSyncWindow
             else windowRepository.activeWindow
 
-        delayedSynchronizeWindows(sourceWindow)
+        if(noDelay)
+            immediateSynchronizeWindows(sourceWindow)
+        else
+            delayedSynchronizeWindows(sourceWindow)
     }
 
     private val syncScope = CoroutineScope(Dispatchers.Default)
-    private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit = debounce(200, syncScope) { sourceWindow -> synchronized(this) {
-        Log.i(TAG, "...delayedSynchronizeWindows ${sourceWindow}")
+    private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit
+        = debounce(200, syncScope) {sourceWindow -> immediateSynchronizeWindows(sourceWindow)}
+
+    private fun immediateSynchronizeWindows(sourceWindow: Window) = synchronized(this) {
+        Log.i(TAG, "...delayedSynchronizeWindows $sourceWindow")
         ABEventBus.getDefault().post(IncrementBusyCount())
 
         val activePage = sourceWindow.pageManager.currentPage
@@ -136,7 +140,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         }
 
         ABEventBus.getDefault().post(DecrementBusyCount())
-    }}
+    }
 
     /** Only call if screens are synchronised.  Update synch'd keys even if inactive page not
      * shown so if it is shown then it is correct
