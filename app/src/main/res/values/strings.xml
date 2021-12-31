@@ -69,7 +69,7 @@
     <string name="search_remember_search_text">Remember search</string>
     <string name="search_include_all_endings">All endings</string>
     <string name="search_fuzzy">Fuzzy Search %s</string>
-    <string name="proximity">Proximity %s</string>
+    <string name="proximity">Proximity</string>
     <string name="words">Words</string>
     <string name="accuracy">Accuracy</string>
 

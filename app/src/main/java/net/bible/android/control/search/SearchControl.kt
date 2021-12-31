@@ -100,7 +100,7 @@ class SearchControl @Inject constructor(
         }
 
     fun decorateSearchString(searchString: String, searchType: SearchType, bibleSection: SearchBibleSection, currentBookName: String?,
-                             includeAllEndings: Boolean=false, fuzzySearchAccuracy: Double? = 1.0): String {
+                             includeAllEndings: Boolean=false, fuzzySearchAccuracy: Double? = null, proximityWords: Int? = null): String {
         var cleanSearchString = cleanSearchString(searchString)
         var decorated: String
 
@@ -119,6 +119,9 @@ class SearchControl @Inject constructor(
             cleanSearchString = newSearchString.trim()
         }
 
+        if (proximityWords != null) {
+            cleanSearchString = "\"" + cleanSearchString + "\"~" + proximityWords
+        }
         // add search type (all/any/phrase) to search string
         decorated = searchType.decorate(cleanSearchString)
 

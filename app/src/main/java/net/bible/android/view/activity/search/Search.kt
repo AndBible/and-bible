@@ -21,6 +21,8 @@ package net.bible.android.view.activity.search
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -29,6 +31,7 @@ import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.SeekBar
+import androidx.core.widget.doOnTextChanged
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SearchBinding
@@ -73,6 +76,17 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             CommonUtils.settings.setInt("search_fuzzy_accuracy", value)
             binding.fuzzySearch.text = getString(R.string.search_fuzzy, "(~" + (value * 10).toString() + "%)")
             binding.fuzzySearchAccuracy.setProgress(value)
+            field = value
+        }
+
+    private var proximitySearchWordsSelection: Int = 10
+        get() {
+            return field
+        }
+        set(value) {
+            CommonUtils.settings.setInt("search_proximity_words", value)
+//            binding.proximityWordsLabel.text = getString(R.string.proximity, "(" + (value).toString() + ")")
+            binding.proximtyWordNumber.setText(value.toString())
             field = value
         }
 
@@ -153,11 +167,15 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             CommonUtils.settings.setBoolean("search_fuzzy", binding.fuzzySearch.isChecked)
             enableSearchControls()
         }
+        binding.proximitySearch.setOnClickListener {
+            CommonUtils.settings.setBoolean("search_proximity", binding.proximitySearch.isChecked)
+            enableSearchControls()
+        }
+        binding.proximityButtonAdd.setOnClickListener {proximitySearchWordsSelection = binding.proximtyWordNumber.text.toString().toInt() + 1}
+        binding.proximityButtonSubtract.setOnClickListener {proximitySearchWordsSelection = binding.proximtyWordNumber.text.toString().toInt() - 1}
 
         binding.fuzzySearchAccuracy.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-//                val newProgress = Math.round(progress.toDouble() / STEP).toInt() * STEP
-//                binding.fuzzySearchAccuracy.setProgress(progress)
                 fuzzySearchAccuracySelection = progress
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -166,6 +184,9 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
         binding.includeAllEndings.isChecked = CommonUtils.settings.getBoolean("search_include_all_endings", false)
         binding.rememberSearchText.isChecked = CommonUtils.settings.getBoolean("search_remember_search_text", false)
+
+        binding.proximitySearch.isChecked = CommonUtils.settings.getBoolean("search_proximity",false)
+        proximitySearchWordsSelection = CommonUtils.settings.getInt("search_proximity_words", 10)
 
         binding.wordsGroup.check(CommonUtils.settings.getInt("search_words_group_prompt", 0))
         wordsRadioSelection = binding.wordsGroup.checkedRadioButtonId
@@ -295,8 +316,9 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     }
 
     private fun decorateSearchString(searchString: String): String {
-        val fuzzyAccuarcy = if (binding.fuzzySearch.isChecked) fuzzySearchAccuracySelection.toDouble()/10 else null
-        return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName, binding.includeAllEndings.isChecked, fuzzyAccuarcy)
+        val fuzzyAccuracy = if (binding.fuzzySearch.isChecked) fuzzySearchAccuracySelection.toDouble()/10 else null
+        val proximityWords = if (binding.proximitySearch.isChecked) proximitySearchWordsSelection else null
+        return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName, binding.includeAllEndings.isChecked, fuzzyAccuracy, proximityWords)
     }
 
     companion object {
