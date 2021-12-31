@@ -25,6 +25,7 @@ import javax.inject.Provider
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertThat
+import org.junit.Ignore
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
@@ -96,6 +97,7 @@ class WindowSynchronisationTest {
         assertThat(window2.pageManager.currentBible.currentChapterVerse, equalTo(newChapterVerse))
     }
 
+    @Ignore("Until #1991 is fixed")
     @Test
     @Throws(Exception::class)
     fun testWindowSyncInMaxMode() { // old max mode is in practive new normal mode with no pinned windows
