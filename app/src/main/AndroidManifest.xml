@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="622"
-    android:versionName="4.0.622">
+    android:versionCode="629"
+    android:versionName="4.0.629">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -29,6 +29,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         android:supportsRtl="true"
+        android:exported="true"
         >
         <uses-library
             android:name="org.apache.http.legacy"
@@ -36,7 +37,9 @@
         <activity
             android:name=".StartupActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/app_name_short">
+            android:label="@string/app_name_short"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -209,7 +212,9 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.installzip.InstallZip"
-            android:label="@string/install_zip_module">
+            android:label="@string/install_zip_module"
+            android:exported="true"
+            >
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -230,7 +235,10 @@
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver"
             android:exported="false" />
 
-        <receiver android:name=".SpeakWidgetManager$SmallSpeakControlWidget">
+        <receiver
+            android:name=".SpeakWidgetManager$SmallSpeakControlWidget"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -240,7 +248,9 @@
                 android:resource="@xml/small_speak_control_widget_info" />
         </receiver>
 
-        <receiver android:name=".SpeakWidgetManager$MiddleSpeakControlWidget">
+        <receiver android:name=".SpeakWidgetManager$MiddleSpeakControlWidget"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -250,7 +260,9 @@
                 android:resource="@xml/middle_speak_control_widget_info" />
         </receiver>
 
-        <receiver android:name=".SpeakWidgetManager$LargeSpeakControlWidget">
+        <receiver android:name=".SpeakWidgetManager$LargeSpeakControlWidget"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -259,7 +271,9 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/large_speak_control_widget_info" />
         </receiver>
-        <receiver android:name=".SpeakWidgetManager$SpeakTextControlWidget">
+        <receiver android:name=".SpeakWidgetManager$SpeakTextControlWidget"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -269,7 +283,9 @@
                 android:resource="@xml/speak_text_control_widget_info" />
         </receiver>
 
-        <receiver android:name=".SpeakWidgetManager$SpeakBookmarkWidget">
+        <receiver android:name=".SpeakWidgetManager$SpeakBookmarkWidget"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

@@ -18,7 +18,7 @@ Aplicația are multe caracteristici originale și interesante, care fac ca exper
  * Căutare flexibilă
  * Semne de carte și evidențiere avansată cu notițe de studiu personale
  * Notițe de studiu pentru a adăuga comentarii și trimiteri biblice în timp ce asculți predicile.
- * Planuri de lectură: stabilește obiective pentru citirea Bibliei
+ * Planuri de citire: stabilește obiective pentru citirea Bibliei
  * O vastă bibliotecă de documente: Traduceri ale Bibliei, comentarii teologice, dicționare, hărți și cărți creștine, totalizând peste 1500 documente în peste 700 limbi, distribuite legal de Crosswire și alte depozite SWORD.
  * Offline: singurul moment în care aveți nevoie de internet este pentru a descărca documente.
 
@@ -29,7 +29,7 @@ And Bible este un proiect comunitar open-source. În practică, acest lucru îns
  * realizarea de noi caracteristici,
  * testarea caracteristicilor care nu au fost încă lansate,
  * menținerea la zi a traducerilor interfeței cu utilizatorul și
- * contribuind la extinderea bibliotecii de module prin obținerea de permisiuni de la deținătorii drepturilor de autor sau prin convertirea documentelor în format SWORD.
+ * contribuind la extinderea bibliotecii de documente prin obținerea de permisiuni de la deținătorii drepturilor de autor sau prin convertirea documentelor în format SWORD.
 
 Dacă ești un inginer de software sau un tester profesionist, te rugăm să contribui la acest proiect. Pentru mai multe informații despre cum să contribuiți, vă rugăm să consultați https://git.io/JUnaj.
 

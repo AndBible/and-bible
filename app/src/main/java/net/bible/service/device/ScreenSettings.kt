@@ -25,7 +25,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.PowerManager
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.view.activity.base.CurrentActivityHolder
 
 /** Manage screen related functions
  *
@@ -72,7 +71,9 @@ object ScreenSettings {
     val autoModeAvailable = lightSensor.isLightSensor
 
     fun checkMonitoring() {
-        lightSensor.reading
+        if(autoNightMode) {
+            lightSensor.reading
+        }
     }
 
     fun refreshNightMode(): Boolean {

@@ -392,6 +392,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     private fun updateBibleReference() {
+        if(bibleReferenceOverlay.visibility != View.VISIBLE) return
         mainBibleActivity.runOnUiThread {
             try {
                 bibleReferenceOverlay.text = mainBibleActivity.bibleOverlayText
@@ -685,7 +686,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         val export = menu.findItem(R.id.exportHtml)
         export.title = app.getString(R.string.export_fileformat, "HTML")
 
-        synchronized(BookName::class) {
+        synchronized(BookName::class.java) {
             val oldValue = BookName.isFullBookName()
 
             textOptionsSubMenu.removeItem(R.id.textOptionItem)

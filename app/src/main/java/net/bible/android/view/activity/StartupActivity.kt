@@ -150,7 +150,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         val info = WebViewCompat.getCurrentWebViewPackage(applicationContext)
         Log.i(TAG, "checkWebView: WebView version ${info?.packageName} ${info?.versionName}")
 
-        if(info?.packageName == "com.huawei.version") return true // We won't check huawei version number as it does not follow Chromium version numbering.
+        if(info?.packageName == "com.huawei.webview") return true // We won't check huawei version number as it does not follow Chromium version numbering.
 
         val versionNum = info?.versionName?.split(".")?.first()?.split(" ")?.first()?.toIntOrNull() ?: return true // null -> can't check
         val minimumVersion = 83 // tested with Android Emulator API 30 and looks to function OK
