@@ -58,6 +58,7 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
@@ -238,6 +239,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             field = value
         }
+
+    val htmlReady get() = !htmlLoadingOngoing
 
     var window: Window
         get() = windowRef.get()!!
@@ -1328,7 +1331,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: ScrollSecondaryWindowEvent) {
         if (window == event.window) {
-            scrollOrJumpToVerse(event.verse, window.restoreOngoing)
+            scrollOrJumpToVerse(event.verse)
         }
     }
 
@@ -1436,9 +1439,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(contentVisible) {
             updateTextDisplaySettings(true)
         }
+        flushTasks()
     }
 
-    fun scrollOrJumpToVerse(key: Key, restoreOngoing: Boolean = false) {
+    fun scrollOrJumpToVerse(key: Key, forceNow: Boolean = false) {
         Log.i(TAG, "Scroll or jump to:$key")
         var toVerse: Verse
         var endVerse: Verse? = null
@@ -1464,13 +1468,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             endVerse = endVerse?.toV11n(v.versification)
         }
         val jumpToId = "o-${toVerse.ordinal}"
-        val now = !contentVisible || restoreOngoing
+        val now = !contentVisible || forceNow
         val highlight = !contentVisible || endVerse != null
         fun boolString(value: Boolean?): String {
             if(value == null) return "null"
             return if(value) "true" else "false"
         }
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
+        if(isActive) {
+            PassageChangeMediator.getInstance().onCurrentVerseChanged(window)
+        }
     }
 
     fun executeJavascriptOnUiThread(javascript: String): Boolean {
@@ -1486,21 +1493,28 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun runOnUiThread(runnable: () -> Unit) = synchronized(this) {
         // If there are any tasks, we must put them to queue, to make sure they are run in the correct order
-        if(Looper.myLooper() == Looper.getMainLooper() && taskQueue.size == 0) {
+        val wasEmpty = taskQueue.isEmpty()
+        val isAttached = isAttachedToWindow
+
+        if(Looper.myLooper() == Looper.getMainLooper() && wasEmpty && isAttached) {
+            Log.i(TAG, "TaskQueue Executing runnable immediately")
             runnable()
         } else {
+            Log.i(TAG, "TaskQueue Adding runnable to queue")
             taskQueue.addLast(runnable)
-            if (taskQueue.size == 1) {
+            if (wasEmpty && isAttached) {
+                Log.i(TAG, "TaskQueue Scheduling flushing tasks")
                 post { flushTasks() }
             }
         }
     }
 
     private fun flushTasks()  = synchronized(this) {
-        Log.i(TAG, "flushTasks ${taskQueue.size}")
+        Log.i(TAG, "TaskQueue flushTasks ${taskQueue.size}")
         while (taskQueue.size > 0) {
             taskQueue.pop().invoke()
         }
+        Log.i(TAG, "TaskQueue flushTasks done.")
     }
 
     private fun executeJavascript(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
