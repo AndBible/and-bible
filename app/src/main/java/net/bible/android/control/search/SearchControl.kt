@@ -100,28 +100,31 @@ class SearchControl @Inject constructor(
         }
 
     fun decorateSearchString(searchString: String, searchType: SearchType, bibleSection: SearchBibleSection, currentBookName: String?,
-                             includeAllEndings: Boolean=false, fuzzySearchAccuracy: Double? = null, proximityWords: Int? = null): String {
+                             includeAllEndings: Boolean=false, fuzzySearchAccuracy: Double? = null, proximityWords: Int? = null,
+                             strongs: Char? = null): String {
         var cleanSearchString = cleanSearchString(searchString)
         var decorated: String
 
-        if (includeAllEndings) {
+        if (includeAllEndings || strongs != null || fuzzySearchAccuracy != null) {
             var newSearchString =""
             val wordArray: List<String> = cleanSearchString.split(" ")
-            wordArray.forEach {newSearchString += it + "* "}
-            cleanSearchString = newSearchString.trim()
-        }
-
-        if (!includeAllEndings && fuzzySearchAccuracy != null) {
-            var newSearchString =""
-            val wordArray: List<String> = cleanSearchString.split(" ")
-            var fuzzySearchAccuracyAdjusted = if (fuzzySearchAccuracy.equals(1.0)) 0.99 else fuzzySearchAccuracy
-            wordArray.forEach {newSearchString += it + "~%.2f ".format(fuzzySearchAccuracyAdjusted)}
+            wordArray.forEach {
+                var decoratedWord = it
+                if (includeAllEndings) decoratedWord += "* "
+                if (strongs != null) decoratedWord = "strong:$strongs$decoratedWord "
+                if (fuzzySearchAccuracy != null) {
+                    val fuzzySearchAccuracyAdjusted = if (fuzzySearchAccuracy.equals(1.0)) 0.99 else fuzzySearchAccuracy
+                    decoratedWord += "~%.2f ".format(fuzzySearchAccuracyAdjusted)
+                }
+                newSearchString += decoratedWord
+            }
             cleanSearchString = newSearchString.trim()
         }
 
         if (proximityWords != null) {
             cleanSearchString = "\"" + cleanSearchString + "\"~" + proximityWords
         }
+
         // add search type (all/any/phrase) to search string
         decorated = searchType.decorate(cleanSearchString)
 

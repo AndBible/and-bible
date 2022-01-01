@@ -69,9 +69,13 @@
     <string name="search_remember_search_text">Remember search</string>
     <string name="search_include_all_endings">All endings</string>
     <string name="search_fuzzy">Fuzzy Search %s</string>
-    <string name="proximity">Proximity</string>
-    <string name="words">Words</string>
+    <string name="search_strongs">Strongs Number Search</string>
+    <string name="search_showDecoratedText">Show raw search text</string>
+    <string name="search_proximity">Proximity %s</string>
+    <string name="words">words</string>
     <string name="accuracy">Accuracy</string>
+    <string name="greek">Greek</string>
+    <string name="hebrew">Hebrew</string>
 
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
