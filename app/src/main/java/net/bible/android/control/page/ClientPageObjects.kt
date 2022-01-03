@@ -153,7 +153,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
             val bookmarks = bookmarks.map { ClientBookmark(it, KJVA).asJson }
             return mapOf(
                 "id" to wrapString(verseRange.uniqueId),
-                "type" to wrapString("notes"),
+                "type" to wrapString("notes", true),
                 "bookmarks" to listToJson(bookmarks),
                 "verseRange" to wrapString(verseRange.name),
             )
@@ -202,7 +202,7 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
         "bookAbbreviation" to wrapString(bookmark.book?.abbreviation),
         "createdAt" to bookmark.createdAt.time.toString(),
         "lastUpdatedOn" to bookmark.lastUpdatedOn.time.toString(),
-        "notes" to if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes),
+        "notes" to if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true),
         "verseRange" to wrapString(bookmark.verseRange.name),
         "verseRangeOnlyNumber" to wrapString(bookmark.verseRange.onlyNumber),
         "verseRangeAbbreviated" to wrapString(bookmark.verseRange.abbreviated),
