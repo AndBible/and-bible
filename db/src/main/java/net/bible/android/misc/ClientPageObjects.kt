@@ -45,7 +45,7 @@ val Key.uniqueId: String get() {
     }
 }
 
-fun wrapString(str: String?): String = if(str == null) "null" else "`${str.replace("`", "\\`").replace("\\", "\\\\")}`"
+fun wrapString(str: String?): String = if(str == null) "null" else "`${str.replace("`", "\\`")}`"
 
 
 fun elementToString(e: Element): String {
