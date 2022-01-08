@@ -287,8 +287,8 @@ open class WindowControl @Inject constructor(
     fun unMaximise() {
         val maximizedWindow = windowRepository.maximizedWindow
         windowRepository.maximizedWindowId = null
-        windowSync.reloadAllWindows()
         windowSync.synchronizeWindows(maximizedWindow, noDelay = true)
+        windowSync.reloadAllWindows()
         eventManager.post(NumberOfWindowsChangedEvent())
     }
 
