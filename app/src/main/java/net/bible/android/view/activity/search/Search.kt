@@ -21,12 +21,16 @@ package net.bible.android.view.activity.search
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.SeekBar
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SearchBinding
@@ -63,6 +67,31 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     /** get all, any, phrase query limitation
      */
+
+    private var fuzzySearchAccuracySelection: Int = 5
+        set(value) {
+            binding.fuzzySearch.text = getString(R.string.search_fuzzy, "(~" + (value * 10).toString() + "%)")
+            binding.fuzzySearchAccuracy.setProgress(value)
+            binding.decoratedSearchString.text = decorateSearchString(binding.searchText.text.toString())
+            field = value
+        }
+
+    // I don't know how to do this properly. I want to update the value of proximityWordNumber whenever it is needed (buttons, text, initialising)
+    // But part of the update is to set the text value itself. But this gets into an infinite loop of course when called when the text value is updated.
+    // So i have broken it into two parts. One updates everything and one does not update the text field.
+    private var proximitySearchWordsSelection: Int = 10
+        set(value) {
+            binding.proximityWordNumber.setText(value.toString())
+            proximitySearchWordsSelectionFinal = value
+            binding.decoratedSearchString.text = decorateSearchString(binding.searchText.text.toString())
+            field = value
+        }
+    private var proximitySearchWordsSelectionFinal: Int = 10
+        set(value) {
+            binding.proximitySearch.text = getString(R.string.search_proximity, "(${value.toString()} ${getString(R.string.words)})")
+            field = value
+        }
+
     private val searchType: SearchType
         get() {
             return when (wordsRadioSelection) {
@@ -75,7 +104,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 }
             }
         }
-
     /** get OT, NT, or all query limitation
      *
      * @return
@@ -104,11 +132,19 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
         buildActivityComponent().inject(this)
 
+        // set text for current bible book on appropriate radio button
+        val currentBookRadioButton = findViewById<View>(R.id.searchCurrentBook) as RadioButton
+
+        // set current book to default and allow override if saved - implies returning via Back button
+        currentBookName = searchControl.currentBookName
+
         if (!searchControl.validateIndex(documentToSearch)) {
             Dialogs.instance.showErrorMsg(R.string.error_occurred) { finish() }
         }
 
         title = getString(R.string.search_in, documentToSearch!!.abbreviation)
+
+        // Add all listeners
         binding.searchText.setOnEditorActionListener {v, actionId, event ->
             return@setOnEditorActionListener when (actionId) {
                 EditorInfo.IME_ACTION_SEARCH -> {
@@ -117,6 +153,88 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 }
                 else -> false
         }}
+        binding.searchText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.decoratedSearchString.text = decorateSearchString(binding.searchText.text.toString())
+            }
+        })
+        val sectionRadioGroup = findViewById<View>(R.id.bibleSectionGroup) as RadioGroup
+        sectionRadioGroup.setOnCheckedChangeListener { group, checkedId ->
+            sectionRadioSelection = checkedId
+            CommonUtils.settings.setInt("search_bible_section_group_prompt", checkedId)
+            enableSearchControls()
+        }
+        val wordsRadioGroup = findViewById<View>(R.id.wordsGroup) as RadioGroup
+        wordsRadioGroup.setOnCheckedChangeListener { group, checkedId ->
+            wordsRadioSelection = checkedId
+            CommonUtils.settings.setInt("search_words_group_prompt", checkedId)
+            enableSearchControls()
+        }
+        binding.includeAllEndings.setOnClickListener {
+            CommonUtils.settings.setBoolean("search_include_all_endings", binding.includeAllEndings.isChecked)
+            if (binding.includeAllEndings.isChecked) {
+                binding.proximitySearch.isChecked = false
+                binding.strongsSearch.isChecked = false
+                binding.fuzzySearch.isChecked = false
+            }
+            enableSearchControls()
+        }
+        binding.rememberSearchText.setOnClickListener {
+            CommonUtils.settings.setBoolean("search_remember_search_text", binding.rememberSearchText.isChecked)
+        }
+        binding.fuzzySearch.setOnClickListener {
+            if (binding.fuzzySearch.isChecked) {
+                binding.proximitySearch.isChecked = false
+                binding.strongsSearch.isChecked = false
+                binding.includeAllEndings.isChecked = false
+            }
+            enableSearchControls()
+        }
+        binding.fuzzySearchAccuracy.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                fuzzySearchAccuracySelection = progress
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        binding.proximitySearch.setOnClickListener {
+            if (binding.proximitySearch.isChecked) {
+                binding.fuzzySearch.isChecked = false
+                binding.strongsSearch.isChecked = false
+                binding.includeAllEndings.isChecked = false
+            }
+            enableSearchControls()
+        }
+        binding.proximityButtonAdd.setOnClickListener {proximitySearchWordsSelection = binding.proximityWordNumber.text.toString().toInt() + 1}
+        binding.proximityButtonSubtract.setOnClickListener {proximitySearchWordsSelection = binding.proximityWordNumber.text.toString().toInt() - 1}
+        binding.proximityWordNumber.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {proximitySearchWordsSelectionFinal = s.toString().toInt()}
+        })
+
+        binding.strongsSearch.setOnClickListener {
+            if (binding.strongsSearch.isChecked) {
+                binding.includeAllEndings.isChecked = false
+                binding.fuzzySearch.isChecked = false
+                binding.proximitySearch.isChecked = false
+            }
+            enableSearchControls()
+        }
+        binding.greekOrHebrewGroup.setOnCheckedChangeListener { group, checkedId ->
+            CommonUtils.settings.setInt("search_greek_or_hebrew", checkedId)
+            enableSearchControls()
+        }
+        binding.decoratedTextShow.setOnCheckedChangeListener { group, checkedId ->
+            // I would like to show the actual text that is being used for the search somewhere.
+            // I think it would be good to show it on the list screen. Could also show it here.
+
+            CommonUtils.settings.setBoolean("search_show_decorated_text", checkedId)
+            enableSearchControls()
+        }
 
         binding.submit.setOnClickListener { onSearch() }
         //searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
@@ -129,6 +247,27 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         //    false
         //})
 
+        // Initialise controls
+        binding.includeAllEndings.isChecked = CommonUtils.settings.getBoolean("search_include_all_endings", false)
+        binding.rememberSearchText.isChecked = CommonUtils.settings.getBoolean("search_remember_search_text", false)
+
+        binding.proximitySearch.isChecked = CommonUtils.settings.getBoolean("search_proximity",false)
+        proximitySearchWordsSelection = CommonUtils.settings.getInt("search_proximity_words", 10)
+
+        binding.wordsGroup.check(CommonUtils.settings.getInt("search_words_group_prompt", 0))
+        wordsRadioSelection = binding.wordsGroup.checkedRadioButtonId
+
+        binding.bibleSectionGroup.check(CommonUtils.settings.getInt("search_bible_section_group_prompt", 0))
+        sectionRadioSelection = binding.bibleSectionGroup.checkedRadioButtonId
+
+        binding.fuzzySearch.isChecked = CommonUtils.settings.getBoolean("search_fuzzy", false)
+        fuzzySearchAccuracySelection = CommonUtils.settings.getInt("search_fuzzy_accuracy", 5)
+
+        binding.strongsSearch.isChecked = CommonUtils.settings.getBoolean("search_strongs",false)
+        binding.greekOrHebrewGroup.check(CommonUtils.settings.getInt("search_greek_or_hebrew",0))
+
+        binding.decoratedTextShow.isChecked = CommonUtils.settings.getBoolean("search_show_decorated_text",false)
+
         // pre-load search string if passed in
         val extras = intent.extras
         if (extras != null) {
@@ -136,10 +275,10 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             if (StringUtils.isNotEmpty(text)) {
                 binding.searchText.setText(text)
             }
+        } else {
+            if (binding.rememberSearchText.isChecked) binding.searchText.setText(CommonUtils.settings.getString("search_text", ""))
         }
 
-        val wordsRadioGroup = findViewById<View>(R.id.wordsGroup) as RadioGroup
-        wordsRadioGroup.setOnCheckedChangeListener { group, checkedId -> wordsRadioSelection = checkedId }
         if (extras != null) {
             val wordsSelection = extras.getInt(WORDS_SELECTION_SAVE, -1)
             if (wordsSelection != -1) {
@@ -147,8 +286,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             }
         }
 
-        val sectionRadioGroup = findViewById<View>(R.id.bibleSectionGroup) as RadioGroup
-        sectionRadioGroup.setOnCheckedChangeListener { group, checkedId -> sectionRadioSelection = checkedId }
         if (extras != null) {
             val sectionSelection = extras.getInt(SECTION_SELECTION_SAVE, -1)
             if (sectionSelection != -1) {
@@ -156,11 +293,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             }
         }
 
-        // set text for current bible book on appropriate radio button
-        val currentBookRadioButton = findViewById<View>(R.id.searchCurrentBook) as RadioButton
-
-        // set current book to default and allow override if saved - implies returning via Back button
-        currentBookName = searchControl.currentBookName
         if (extras != null) {
             val currentBibleBookSaved = extras.getString(CURRENT_BIBLE_BOOK_SAVE)
             if (currentBibleBookSaved != null) {
@@ -169,9 +301,40 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
         currentBookRadioButton.text = currentBookName
 
+        binding.textClear.setOnClickListener({binding.searchText.setText("")})
+        enableSearchControls()
+
         Log.i(TAG, "Finished displaying Search view")
     }
 
+    fun enableSearchControls() {
+        
+        // Set control visibility
+        binding.fuzzySearchDetailsLayout.visibility = if (binding.fuzzySearch.isChecked) View.VISIBLE else View.GONE
+        binding.proximityDetailsLayout.visibility = if (binding.proximitySearch.isChecked) View.VISIBLE else View.GONE
+        binding.strongsDetailLayout.visibility = if (binding.strongsSearch.isChecked) View.VISIBLE else View.GONE
+        binding.decoratedSearchDetailLayout.visibility = if (binding.decoratedTextShow.isChecked) View.VISIBLE else View.GONE
+
+        enableLayout(binding.fuzzySearchLayout, binding.allWords.id == wordsRadioSelection)
+        enableLayout(binding.fuzzySearchDetailsLayout, binding.fuzzySearch.isChecked && binding.fuzzySearch.isEnabled)
+
+        enableLayout(binding.strongsDetailLayout, (binding.strongsSearch.isChecked && binding.strongsSearch.isEnabled))
+
+        binding.searchOldTestament.isEnabled = !binding.strongsSearch.isChecked || (binding.strongsSearch.isEnabled && binding.strongsSearch.isChecked && binding.searchHebrew.isChecked)
+        binding.searchNewTestament.isEnabled = !binding.strongsSearch.isChecked || (binding.strongsSearch.isEnabled && binding.strongsSearch.isChecked && binding.searchGreek.isChecked)
+
+        binding.decoratedSearchString.text = decorateSearchString(binding.searchText.text.toString())
+    }
+
+    fun enableLayout(layout: LinearLayout, isEnabled: Boolean) {
+        for (i in 0 until layout.childCount) {
+            val view: View = layout.getChildAt(i)
+            if (view is LinearLayout) {enableLayout(view,isEnabled)}
+            view.isEnabled = isEnabled
+        }
+        layout.isEnabled = isEnabled
+
+    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.rebuildIndex -> {
@@ -191,7 +354,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         binding.searchText.requestFocus()
     }
 
-
     fun onRebuildIndex(v: View?) {
         startActivity(Intent(this, SearchIndex::class.java))
         finish()
@@ -203,6 +365,13 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         Log.i(TAG, "CLICKED")
         var text = binding.searchText.text.toString()
         if (!StringUtils.isEmpty(text)) {
+
+            CommonUtils.settings.setString("search_text", text)
+            CommonUtils.settings.setBoolean("search_fuzzy", binding.fuzzySearch.isChecked)
+            CommonUtils.settings.setInt("search_fuzzy_accuracy", fuzzySearchAccuracySelection)
+            CommonUtils.settings.setBoolean("search_proximity", binding.proximitySearch.isChecked)
+            CommonUtils.settings.setInt("search_proximity_words", proximitySearchWordsSelectionFinal)
+            CommonUtils.settings.setBoolean("search_strongs", binding.strongsSearch.isChecked)
 
             // update current intent so search is restored if we return here via history/back
             // the current intent is saved by HistoryManager
@@ -229,7 +398,11 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     }
 
     private fun decorateSearchString(searchString: String): String {
-        return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName)
+        val fuzzyAccuracy = if (binding.fuzzySearch.isChecked && binding.fuzzySearch.isEnabled) fuzzySearchAccuracySelection.toDouble()/10 else null
+        val proximityWords = if (binding.proximitySearch.isChecked && binding.proximitySearch.isEnabled) proximitySearchWordsSelectionFinal else null
+        val strongs = if (binding.strongsSearch.isChecked && binding.strongsSearch.isEnabled) {if (binding.searchGreek.isChecked) 'G' else 'H'} else null
+
+        return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName, binding.includeAllEndings.isChecked, fuzzyAccuracy, proximityWords, strongs)
     }
 
     companion object {
