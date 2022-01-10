@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,7 +35,7 @@ import org.jdom2.Element;
 import org.jdom2.Text;
 
 
-public class SearchResultsAdapter implements ListAdapter {
+public class SearchResultsAdapter extends BaseAdapter {
 
 	private ArrayList<SearchResultsData> arrayList;
 	private Context context;
@@ -44,6 +46,7 @@ public class SearchResultsAdapter implements ListAdapter {
 		this.context=context;
 		this.searchControl = searchControl;
 	}
+
 	@Override
 	public boolean areAllItemsEnabled() {
 		return false;
@@ -84,11 +87,11 @@ public class SearchResultsAdapter implements ListAdapter {
 		if(convertView==null) {
 			LayoutInflater layoutInflater = LayoutInflater.from(context);
 			convertView=layoutInflater.inflate(R.layout.search_results_list_row, null);
-			convertView.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-				}
-			});
+//			convertView.setOnClickListener(new View.OnClickListener() {
+//				@Override
+//				public void onClick(View v) {
+//				}
+//			});
 
 			TextView reference=convertView.findViewById(R.id.reference);
 			reference.setText(subjectData.reference);
@@ -105,17 +108,16 @@ public class SearchResultsAdapter implements ListAdapter {
 
 				TextView verse=convertView.findViewById(R.id.verse);
 				verse.setText(verseTextHtml);
-				verse.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						// This works but may stop if i have android:descendantFocusability="blocksDescendants" working
-						Toast.makeText(v.getContext() , "Clicked verse control " + position + " " + subjectData.id ,Toast.LENGTH_SHORT).show();
-
-					}});
+//				verse.setOnClickListener(new View.OnClickListener() {
+//					@Override
+//					public void onClick(View v) {
+//						// This works but may stop if i have android:descendantFocusability="blocksDescendants" working
+//						Toast.makeText(v.getContext() , "Clicked verse control " + position + " " + subjectData.id ,Toast.LENGTH_SHORT).show();
+//
+//					}});
 			} catch (NoSuchKeyException e) {
 				e.printStackTrace();
 			}
-
 		}
 		return convertView;
 	}

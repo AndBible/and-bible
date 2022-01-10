@@ -14,7 +14,9 @@
 		android:layout_height="wrap_content"
 		android:orientation="horizontal"
 		android:layout_weight="1"
-		android:descendantFocusability="blocksDescendants">
+		android:descendantFocusability="blocksDescendants"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
 		android:padding="0dip">
 
 		<TextView
@@ -23,6 +25,8 @@
 			android:layout_height="wrap_content"
 			android:text="Reference"
 			android:textSize="15dip"
+			android:focusable="false"
+			android:focusableInTouchMode="false"
 			android:textStyle="" />
 
 		<TextView
@@ -33,6 +37,8 @@
 			android:paddingLeft="10dp"
 			android:text="Translation"
 			android:textSize="10dip"
+			android:focusable="false"
+			android:focusableInTouchMode="false"
 			android:typeface="sans" />
 	</LinearLayout>
 
@@ -42,7 +48,6 @@
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
 		android:focusable="false"
-		android:clickable="false"
 		android:focusableInTouchMode="false"
 		android:text="TextView" />
 

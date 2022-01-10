@@ -2,6 +2,7 @@ package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -17,9 +18,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.appcompat.app.AppCompatActivity
-import ir.smartdevelop.eram.showcaseview.PlaceholderFragment
-import ir.smartdevelop.eram.showcaseview.SearchResultsFragment
-import ir.smartdevelop.eram.showcaseview.SearchStatisticsFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -27,14 +25,12 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.databinding.SearchResultsLayoutActivityBinding
 import java.util.ArrayList
 import net.bible.android.activity.R
-import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchResultsDto
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
 import net.bible.service.common.CommonUtils.buildActivityComponent
-import net.bible.service.sword.SwordContentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.Key
 import javax.inject.Inject
@@ -44,7 +40,7 @@ private val TAB_TITLES = arrayOf(
     R.string.statistics
 )
 private val arrayList = ArrayList<SearchResultsData>()
-
+private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
 
 class SearchResultsData : Parcelable {
     @JvmField
@@ -99,7 +95,6 @@ class MySearchResults : AppCompatActivity() {
 //    private lateinit var binding: ListBinding
     private lateinit var binding: SearchResultsLayoutActivityBinding
     private var mSearchResultsHolder: SearchResultsDto? = null
-    private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
     private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
     private var isScriptureResultsCurrentlyShown = true
     @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
@@ -124,7 +119,7 @@ class MySearchResults : AppCompatActivity() {
         val fragobj = SearchResultsFragment()
         fragobj.setArguments(bundle)
 
-        val sectionsPagerAdapter = SearchResultsPagerAdapter(this, supportFragmentManager, searchControl)
+        val sectionsPagerAdapter = SearchResultsPagerAdapter(this, supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent)
         val viewPager: ViewPager = binding.viewPager
         viewPager.adapter = sectionsPagerAdapter
         val tabs: TabLayout = binding.tabs
@@ -211,6 +206,7 @@ class MySearchResults : AppCompatActivity() {
 
         arrayList!!.clear()
         for (key in mCurrentlyDisplayedSearchResults) {
+//            mKeyArrayAdapter!!.add(key)
             var text = searchControl.getSearchResultVerseText(key)
             arrayList.add(SearchResultsData(1,key.osisRef.toString() , key.osisID.toString(),"KJV",text))
         }
@@ -233,9 +229,15 @@ class MySearchResults : AppCompatActivity() {
 //    }
 //}
 
-class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManager, searchControl: SearchControl) :
+class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManager,
+                                searchControl: SearchControl,
+                                activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
+                                intent: Intent
+) :
     FragmentPagerAdapter(fm) {
     val searchControl = searchControl
+    val activeWindowPageManagerProvider = activeWindowPageManagerProvider
+    val intent = intent
 
     override fun getItem(position: Int): Fragment {
         // getItem is called to instantiate the fragment for the given page.
@@ -250,7 +252,9 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
 //                val fragobj = SearchResultsFragment()
                 frag.setArguments(bundle)
                 frag.setEmployee(searchControl)
-
+                frag.setCurrentlyDisplayedSearchResults(mCurrentlyDisplayedSearchResults)
+                frag.setActiveWindowPageManagerProvider(activeWindowPageManagerProvider)
+                frag.setIntent(intent)
             }
             1-> frag = SearchStatisticsFragment.newInstance("a","b")
             else -> frag = PlaceholderFragment.newInstance(1)

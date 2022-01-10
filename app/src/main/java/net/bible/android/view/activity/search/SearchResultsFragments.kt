@@ -1,9 +1,14 @@
-package ir.smartdevelop.eram.showcaseview
+package net.bible.android.view.activity.search
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import android.widget.ListView
 import android.widget.Toast
@@ -13,6 +18,12 @@ import net.bible.android.view.activity.search.SearchResultsAdapter
 import net.bible.android.view.activity.search.SearchResultsData
 import net.bible.android.activity.R
 import net.bible.android.control.search.SearchControl
+import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.MainBibleActivity
+import org.apache.commons.lang3.StringUtils
+import org.crosswire.jsword.passage.Key
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.service.sword.SwordDocumentFacade
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -38,15 +49,27 @@ class SearchResultsFragment : Fragment() {
 
     private lateinit var pageViewModel: PageViewModel
     private var _binding: SearchResultsVerseFragmentBinding? = null
+    private lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private var mCurrentlyDisplayedSearchResults: List<Key> = java.util.ArrayList()
+    private lateinit var intent: Intent
 
     var searchControl: SearchControl? = null
 
     fun setEmployee(myEmp: SearchControl?) {
         this.searchControl = myEmp
+    }
+    fun setCurrentlyDisplayedSearchResults(results: List<Key>) {
+        this.mCurrentlyDisplayedSearchResults = results
+    }
+    fun setActiveWindowPageManagerProvider(x: ActiveWindowPageManagerProvider) {
+        this.activeWindowPageManagerProvider = x
+    }
+    fun setIntent(x: Intent){
+        this.intent = x
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,6 +105,12 @@ class SearchResultsFragment : Fragment() {
             list.setOnItemClickListener { parent, view, position, id ->
                 val element = customAdapter.getItemAtPosition(position) // The item that was clicked
                 Toast.makeText(list.context, "Hi",Toast.LENGTH_LONG)
+                try { // no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
+                    verseSelected(mCurrentlyDisplayedSearchResults[position])
+                } catch (e: Exception) {
+                    Log.e("blah", "Selection error", e)
+                    Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+                }
 //                val intent = Intent(this, BookDetailActivity::class.java)
 //                startActivity(intent)
             }
@@ -94,6 +123,25 @@ class SearchResultsFragment : Fragment() {
         return root
 
 
+    }
+
+    private fun verseSelected(key: Key?) {
+        Log.i("SearchResults.TAG", "chose:$key")
+        if (key != null) { // which doc do we show
+
+            var targetDocInitials = intent.extras!!.getString(SearchControl.TARGET_DOCUMENT)
+            if (StringUtils.isEmpty(targetDocInitials)) {
+                targetDocInitials = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
+            }
+            val swordDocumentFacade = SwordDocumentFacade()
+            val targetBook = swordDocumentFacade.getDocumentByInitials(targetDocInitials)
+            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
+            // this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
+            val intent = Intent(this.context, MainBibleActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            }
+            startActivity(intent)
+        }
     }
 
     companion object {
