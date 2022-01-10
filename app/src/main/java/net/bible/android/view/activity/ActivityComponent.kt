@@ -34,6 +34,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
+import net.bible.android.view.activity.search.MySearchResults
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchIndexProgressStatus
@@ -94,6 +95,7 @@ interface ActivityComponent {
     fun inject(w: SpeakTransportWidget)
     fun inject(search: Search)
     fun inject(searchResults: SearchResults)
+    fun inject(mySearchResults: MySearchResults)
     fun inject(history: History)
 
     // Services

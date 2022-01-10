@@ -385,7 +385,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
             // specify search string and doc in new Intent;
             // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
-            val intent = Intent(this, SearchResults::class.java)
+//            val intent = Intent(this, SearchResults::class.java)
+            val intent = Intent(this, MySearchResults::class.java)
             intent.putExtra(SearchControl.SEARCH_TEXT, text)
             val currentDocInitials = documentToSearch?.initials
             intent.putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials)

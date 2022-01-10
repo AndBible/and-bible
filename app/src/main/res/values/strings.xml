@@ -72,10 +72,14 @@
     <string name="search_strongs">Strongs Number Search</string>
     <string name="search_showDecoratedText">Show raw search text</string>
     <string name="search_proximity">Proximity %s</string>
+    <string name="search_results">Search Results</string>
+    <string name="search_statistics">Search Statistics</string>
     <string name="words">words</string>
     <string name="accuracy">Accuracy</string>
     <string name="greek">Greek</string>
     <string name="hebrew">Hebrew</string>
+    <string name="results">Results</string>
+    <string name="statistics">Statistics</string>
 
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>

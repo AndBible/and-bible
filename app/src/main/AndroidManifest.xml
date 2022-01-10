@@ -98,6 +98,11 @@
             android:label="@string/search"
             />
         <activity
+            android:name="net.bible.android.view.activity.search.MySearchResults"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/search"
+            />
+        <activity
             android:name="net.bible.android.view.activity.search.SearchIndex"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search_index"
