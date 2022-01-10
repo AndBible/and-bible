@@ -29,6 +29,7 @@ import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.service.common.CommonUtils.limitTextLength
 import net.bible.service.sword.SwordContentFacade.getPlainText
+import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
@@ -42,6 +43,7 @@ import org.crosswire.jsword.index.lucene.LuceneIndex
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
+import org.jdom2.Element
 import javax.inject.Inject
 
 /** Support for the document search functionality
@@ -56,6 +58,7 @@ class SearchControl @Inject constructor(
     )
 {
     private val isSearchShowingScripture = true
+//    public final var originalSearchString = ""
 
     enum class SearchBibleSection {
         OT, NT, CURRENT_BOOK, ALL
@@ -127,6 +130,7 @@ class SearchControl @Inject constructor(
 
         // add search type (all/any/phrase) to search string
         decorated = searchType.decorate(cleanSearchString)
+        originalSearchString = decorated
 
         // add bible section limitation to search text
         decorated = getBibleSectionTerm(bibleSection, currentBookName) + " " + decorated
@@ -186,6 +190,23 @@ class SearchControl @Inject constructor(
         return verseText
     }
 
+    fun getSearchResultVerseElement(key: Key?): Element {
+        // There is similar functionality in BookmarkControl
+        var xmlVerse:Element? = null
+        try {
+            val doc = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
+            val cat = doc!!.bookCategory
+            xmlVerse = if (cat == BookCategory.BIBLE || cat == BookCategory.COMMENTARY) {
+                readOsisFragment(doc, key)
+            } else {
+                val bible = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!
+                readOsisFragment(bible, key)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting verse text", e)
+        }
+        return xmlVerse!!
+    }
     /** double spaces, :, and leading or trailing space cause lucene errors
      */
     private fun cleanSearchString(search: String): String {
@@ -251,6 +272,7 @@ class SearchControl @Inject constructor(
         get() = isSearchShowingScripture || !currentDocumentContainsNonScripture()
 
     companion object {
+        lateinit var originalSearchString: String
         private const val SEARCH_OLD_TESTAMENT = "+[Gen-Mal]"
         private const val SEARCH_NEW_TESTAMENT = "+[Mat-Rev]"
         const val SEARCH_TEXT = "SearchText"
