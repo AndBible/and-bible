@@ -4,26 +4,39 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-
 	>
 
 	<com.google.android.material.appbar.AppBarLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:background="#64CCFB">
+		android:layout_height="50dp"
+		android:theme="@style/AppTheme"
+		>
 
 		<com.google.android.material.tabs.TabLayout
 			android:id="@+id/tabs"
+			app:tabTextColor="@color/white"
+			app:tabSelectedTextColor="@color/white"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content" />
 	</com.google.android.material.appbar.AppBarLayout>
-
+	<ProgressBar
+		android:id="@+id/loadingIndicator"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:visibility="gone"
+		/>
+	<TextView
+		android:id="@+id/empty"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:textAppearance="?attr/textAppearanceListItem"
+		android:gravity="center_horizontal"
+		android:paddingTop="16dip"
+		android:text="@string/empty_list"/>
 	<androidx.viewpager.widget.ViewPager
 		android:id="@+id/view_pager"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:paddingLeft="10dp"
-		android:paddingRight="10dp"
 		app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

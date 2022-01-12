@@ -9,16 +9,15 @@
 	>
 
 	<ListView
-		android:descendantFocusability="blocksDescendants"
 		android:id="@+id/searchResultsList"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:divider="#25020202"
+		android:descendantFocusability="blocksDescendants"
+		android:divider="@color/blue_grey_50"
 		android:dividerHeight="1dp"
 		android:footerDividersEnabled="true"
 		android:headerDividersEnabled="true"
-		app:layout_constraintEnd_toEndOf="parent"
-		>
+		app:layout_constraintEnd_toEndOf="parent">
 
 
 	</ListView>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		>
+
+		<Button
+			android:id="@+id/button3"
+			android:layout_width="170dp"
+			android:layout_height="wrap_content"
+			android:text="Song of Solomon"
+			app:layout_anchor="@+id/button2"
+			app:layout_anchorGravity="end|top" />
+
+		<TextView
+			android:id="@+id/textView"
+			android:layout_width="30dp"
+			android:layout_height="wrap_content"
+			android:text="345"
+			android:textAlignment="center"
+			android:textSize="16sp"
+			android:textStyle="bold" />
+
+		<ProgressBar
+			android:id="@+id/loadingIndicator"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:progressDrawable="@color/accent_night"
+			android:style="@style/Widget.AppCompat.ProgressBar"
+			android:visibility="visible" />
+
+
+	</LinearLayout>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

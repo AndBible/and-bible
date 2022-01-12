@@ -8,39 +8,42 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.ListAdapter
-import android.widget.ListView
 import android.widget.Toast
 import com.google.android.material.tabs.TabLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
-import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.bible.android.activity.databinding.SearchResultsLayoutActivityBinding
 import java.util.ArrayList
 import net.bible.android.activity.R
+import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchResultsDto
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
-import net.bible.service.common.CommonUtils.buildActivityComponent
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Verse
 import javax.inject.Inject
+import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.Versification
+
+
 
 private val TAB_TITLES = arrayOf(
     R.string.results,
     R.string.statistics
 )
-private val arrayList = ArrayList<SearchResultsData>()
+private val mSearchArrayAdapter = ArrayList<SearchResultsData>()
 private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
+private val bookStatistics = mutableListOf<BookStat>()
+
+class BookStat(val book: String, var count: Int, val bookInitials: String, val bookOrdinal:Int, val listIndex:Int) {
+    override fun toString(): String = "$book: $count"
+}
 
 class SearchResultsData : Parcelable {
     @JvmField
@@ -53,6 +56,7 @@ class SearchResultsData : Parcelable {
     var translation: String?
     @JvmField
     var verse: String?
+    /* What I really want to do is make the 'Key' parcelable but I don't know how to do that. So instead I have to send the properties I need and get the key later on */
 
     constructor(Id: Int?, OsisKey: String?, Reference: String?, Translation: String?, Verse: String?) {
         id = Id;
@@ -75,6 +79,8 @@ class SearchResultsData : Parcelable {
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(id!!)
+        dest.writeString(osisKey)
         dest.writeString(reference)
         dest.writeString(translation)
         dest.writeString(verse)
@@ -91,21 +97,28 @@ class SearchResultsData : Parcelable {
     }
 }
 
-class MySearchResults : AppCompatActivity() {
+class MySearchResults : CustomTitlebarActivityBase() {
 //    private lateinit var binding: ListBinding
     private lateinit var binding: SearchResultsLayoutActivityBinding
     private var mSearchResultsHolder: SearchResultsDto? = null
-    private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
+
+    /*  mKeyArrayAdapter is replaced by mSearchArrayAdapter */
+//    private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
+
+    @Inject lateinit var navigationControl: NavigationControl
     private var isScriptureResultsCurrentlyShown = true
     @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
     /** Called when the activity is first created.  */
-    @SuppressLint("MissingSuperCall")
 
+    private val versification: Versification
+        get() = navigationControl.versification
+
+    @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search results view")
 
         binding = SearchResultsLayoutActivityBinding.inflate(layoutInflater)
@@ -125,24 +138,32 @@ class MySearchResults : AppCompatActivity() {
         val tabs: TabLayout = binding.tabs
         tabs.setupWithViewPager(viewPager)
 
-//        searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
-//        setActionBarManager(searchResultsActionBarManager)
-//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
+        setActionBarManager(searchResultsActionBarManager)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         isScriptureResultsCurrentlyShown = searchControl.isCurrentlyShowingScripture
+
+/*      I don't  have a close button so I don't see why this is necessary */
 //        binding.closeButton.setOnClickListener {
 //            finish()
 //        }
-//        GlobalScope.launch {
-//            prepareResults()
-//        }
-        prepareResults()
 
+/*      The GlobalScope code almost works fine. Only trouble is that the search results are delayed by one search.
+        That is, the first time the search is done no results are shown. The second time, the results from the previous
+        search are shown and so on. I believe it is because the Fragment manager is not hooked into the scope so it is
+        processed immediately and doesn't  wait for the code inside the scope to complete. But i don't know how to fix
+        that problem.
+*/
+//        GlobalScope.launch {
+            prepareResults()
+//        }
     }
 
+//    private suspend fun prepareResults() {
     private fun prepareResults() {
 //        withContext(Dispatchers.Main) {
-//            binding.loadingIndicator.visibility = View.VISIBLE
-//            binding.empty.visibility = View.GONE
+            binding.loadingIndicator.visibility = View.VISIBLE
+            binding.empty.visibility = View.GONE
 //        }
         if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
 //            withContext(Dispatchers.Main) {
@@ -152,14 +173,15 @@ class MySearchResults : AppCompatActivity() {
 //            }
         }
 //        withContext(Dispatchers.Main) {
-//            binding.loadingIndicator.visibility = View.GONE
+            binding.loadingIndicator.visibility = View.GONE
 //            if(listAdapter?.isEmpty == true) {
 //                binding.empty.visibility = View.VISIBLE
 //            }
 //        }
     }
 
-    private  fun fetchSearchResults(): Boolean {
+//    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) {
+    private fun fetchSearchResults(): Boolean {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
         try { // get search string - passed in using extras so extras cannot be null
@@ -186,31 +208,53 @@ class MySearchResults : AppCompatActivity() {
             isOk = false
             Dialogs.instance.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
-        return isOk
+//    return@withContext isOk
+    return isOk
     }
 
     /**
      * Move search results into view Adapter
      */
     private fun populateViewResultsAdapter() {
+
         mCurrentlyDisplayedSearchResults = if (isScriptureResultsCurrentlyShown) {
             mSearchResultsHolder!!.mainSearchResults
         } else {
             mSearchResultsHolder!!.otherSearchResults
         }
-        // addAll is only supported in Api 11+
-//        mKeyArrayAdapter!!.clear()
-//        for (key in mCurrentlyDisplayedSearchResults) {
-//            mKeyArrayAdapter!!.add(key)
-//        }
+        val extras = intent.extras
+        var searchDocument = extras!!.getString(SearchControl.SEARCH_DOCUMENT)
 
-        arrayList!!.clear()
+        mSearchArrayAdapter!!.clear()
+        bookStatistics.clear()
+        var listIndex = 0
         for (key in mCurrentlyDisplayedSearchResults) {
-//            mKeyArrayAdapter!!.add(key)
             var text = searchControl.getSearchResultVerseText(key)
-            arrayList.add(SearchResultsData(1,key.osisRef.toString() , key.osisID.toString(),"KJV",text))
+            mSearchArrayAdapter.add(SearchResultsData(1, key.osisID.toString(), key.name,searchDocument, text))
+
+            // Get the text of the verse
+            val bookOrdinal = ((key as Verse).book as BibleBook).ordinal
+            var mBibleBook = BibleBook.values()[bookOrdinal]
+            var bookNameLong = versification.getLongName(mBibleBook)  // key.rootName
+            val bookStat = bookStatistics.firstOrNull{it.book == bookNameLong}
+            if (bookStat == null) {
+                bookStatistics.add(BookStat(bookNameLong, 1, bookNameLong, bookOrdinal, listIndex))
+            } else {
+                bookStatistics.first{it.book == bookNameLong}.count += 1
+            }
+            listIndex += 1
         }
     }
+    /**
+     * Handle scripture/Appendix toggle
+     */
+    private val scriptureToggleClickListener = View.OnClickListener {
+        isScriptureResultsCurrentlyShown = !isScriptureResultsCurrentlyShown
+        populateViewResultsAdapter()
+//        mKeyArrayAdapter!!.notifyDataSetChanged()
+        searchResultsActionBarManager.setScriptureShown(isScriptureResultsCurrentlyShown)
+    }
+
     companion object {
         private const val TAG = " MySearchResults"
         private const val LIST_ITEM_TYPE = android.R.layout.simple_list_item_2
@@ -218,16 +262,6 @@ class MySearchResults : AppCompatActivity() {
 
 }
 
-//class SearchResultsListActivity : AppCompatActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//
-//        val arrayList = ArrayList<SearchResultsData>()
-//        val customAdapter = SearchResultsAdapter(this, arrayList, searchControl)
-//        val list = findViewById<ListView>(R.id.list)
-//        list.adapter = customAdapter
-//    }
-//}
 
 class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManager,
                                 searchControl: SearchControl,
@@ -248,15 +282,17 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
                 frag = SearchResultsFragment.newInstance(1)
                 val bundle = Bundle()
                 bundle.putString("edttext", "From Activity")
-                bundle.putParcelableArrayList("mylist", arrayList)
-//                val fragobj = SearchResultsFragment()
+                bundle.putParcelableArrayList("mylist", mSearchArrayAdapter)
                 frag.setArguments(bundle)
-                frag.setEmployee(searchControl)
-                frag.setCurrentlyDisplayedSearchResults(mCurrentlyDisplayedSearchResults)
-                frag.setActiveWindowPageManagerProvider(activeWindowPageManagerProvider)
-                frag.setIntent(intent)
+                frag.searchControl = searchControl
+                frag.mCurrentlyDisplayedSearchResults = mCurrentlyDisplayedSearchResults
+                frag.activeWindowPageManagerProvider = activeWindowPageManagerProvider
+                frag.intent = intent
             }
-            1-> frag = SearchStatisticsFragment.newInstance("a","b")
+            1-> {
+                frag = SearchStatisticsFragment()
+                frag.bookStatistics = bookStatistics
+            }
             else -> frag = PlaceholderFragment.newInstance(1)
         }
 

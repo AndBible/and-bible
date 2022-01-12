@@ -7,7 +7,7 @@
 	android:focusable="false"
 	android:clickable="false"
 	android:descendantFocusability="blocksDescendants">
-	android:padding="5dip">
+	android:padding="0dip">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -27,6 +27,7 @@
 			android:textSize="15dip"
 			android:focusable="false"
 			android:focusableInTouchMode="false"
+			android:paddingLeft="10dp"
 			android:textStyle="" />
 
 		<TextView
@@ -35,6 +36,7 @@
 			android:layout_height="match_parent"
 			android:gravity="right"
 			android:paddingLeft="10dp"
+			android:paddingRight="5dp"
 			android:text="Translation"
 			android:textSize="10dip"
 			android:focusable="false"
@@ -49,6 +51,10 @@
 		android:layout_weight="1"
 		android:focusable="false"
 		android:focusableInTouchMode="false"
+		android:textSize="13dip"
+		android:paddingLeft="15dp"
+		android:paddingRight="5dp"
+		android:paddingBottom="3dp"
 		android:text="TextView" />
 
 

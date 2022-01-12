@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="wrap_content"
+	android:layout_height="match_parent"
+	android:fillViewport="true">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+	android:id="@+id/buttonLayout"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/blue_A200">
+	android:orientation="vertical">
 
-	<!-- TODO: Update blank fragment layout -->
-	<TextView
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:text="@string/about_version_history" />
+	<androidx.constraintlayout.helper.widget.Flow
+		android:id="@+id/flowContainer"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		app:constraint_referenced_ids=""
+		app:flow_horizontalGap="4dp"
+		app:flow_horizontalStyle="packed"
+		app:flow_horizontalBias="0"
+		app:flow_verticalBias="1"
+		app:flow_verticalGap="4dp"
+		app:flow_wrapMode="chain"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.51"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
+
+

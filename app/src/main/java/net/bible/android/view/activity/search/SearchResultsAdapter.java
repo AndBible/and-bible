@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
@@ -35,15 +36,18 @@ import org.jdom2.Element;
 import org.jdom2.Text;
 
 
-public class SearchResultsAdapter extends BaseAdapter {
+public class SearchResultsAdapter extends ArrayAdapter<SearchResultsData> {
 
+	private int resource;
 	private ArrayList<SearchResultsData> arrayList;
 	private Context context;
 	private SearchControl searchControl;
 
-	public SearchResultsAdapter(Context context, ArrayList<SearchResultsData> arrayList, SearchControl searchControl) {
+	public SearchResultsAdapter(Context _context, int _resource, ArrayList<SearchResultsData> arrayList, SearchControl searchControl) {
+		super(_context, _resource, arrayList);
+		this.resource = _resource;
 		this.arrayList=arrayList;
-		this.context=context;
+		this.context=_context;
 		this.searchControl = searchControl;
 	}
 
@@ -65,10 +69,10 @@ public class SearchResultsAdapter extends BaseAdapter {
 	public int getCount() {
 		return arrayList.size();
 	}
-	@Override
-	public Object getItem(int position) {
-		return position;
-	}
+//	@Override
+//	public Object getItem(int position) {
+//		return position;
+//	}
 
 	public Object getItemAtPosition(int position) {
 		return position;
@@ -83,38 +87,28 @@ public class SearchResultsAdapter extends BaseAdapter {
 	}
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		SearchResultsData subjectData=arrayList.get(position);
+		SearchResultsData resultData=arrayList.get(position);
 		if(convertView==null) {
-			LayoutInflater layoutInflater = LayoutInflater.from(context);
-			convertView=layoutInflater.inflate(R.layout.search_results_list_row, null);
-//			convertView.setOnClickListener(new View.OnClickListener() {
-//				@Override
-//				public void onClick(View v) {
-//				}
-//			});
+
+			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			convertView=inflater.inflate(R.layout.search_results_list_row, null);
 
 			TextView reference=convertView.findViewById(R.id.reference);
-			reference.setText(subjectData.reference);
+			reference.setText(resultData.reference);
 
 			TextView translation=convertView.findViewById(R.id.translation);
-			translation.setText(subjectData.translation);
+			translation.setText(resultData.translation);
 
 			// Get the text of the verse
-			Book book = Books.installed().getBook("KJV");
+			Book book = Books.installed().getBook(resultData.translation);
 			try {
-				Key key = book.getKey(subjectData.osisKey);
+				Key key = book.getKey(resultData.osisKey);
 				Element verseTextElement = searchControl.getSearchResultVerseElement(key);
 				SpannableString verseTextHtml = highlightSearchText(SearchControl.originalSearchString, verseTextElement);
 
 				TextView verse=convertView.findViewById(R.id.verse);
 				verse.setText(verseTextHtml);
-//				verse.setOnClickListener(new View.OnClickListener() {
-//					@Override
-//					public void onClick(View v) {
-//						// This works but may stop if i have android:descendantFocusability="blocksDescendants" working
-//						Toast.makeText(v.getContext() , "Clicked verse control " + position + " " + subjectData.id ,Toast.LENGTH_SHORT).show();
-//
-//					}});
+
 			} catch (NoSuchKeyException e) {
 				e.printStackTrace();
 			}
@@ -127,7 +121,8 @@ public class SearchResultsAdapter extends BaseAdapter {
 	}
 	@Override
 	public int getViewTypeCount() {
-		return arrayList.size();
+		if(getCount()<1) return 1;
+		return getCount();
 	}
 	@Override
 	public boolean isEmpty() {
