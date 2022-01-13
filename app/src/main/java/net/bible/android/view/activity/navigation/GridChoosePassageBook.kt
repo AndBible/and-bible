@@ -16,6 +16,7 @@
  *
  */
 
+
 package net.bible.android.view.activity.navigation
 
 import android.annotation.SuppressLint
@@ -26,8 +27,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View.OnClickListener
-import androidx.core.view.children
 
 import net.bible.android.activity.R
 import net.bible.android.control.navigation.BibleBookSortOrder
@@ -65,8 +64,10 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     @Inject lateinit var navigationControl: NavigationControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
-    private// this is used for preview
-    val bibleBookButtonInfo: List<ButtonInfo>
+    data class ExtraBookInfo(val Color: Int, val GroupA: String, val GroupB: String)
+
+    // this is used for preview
+    private val bibleBookButtonInfo: List<ButtonInfo>
         get() {
             val isShortBookNamesAvailable = isShortBookNames
             val currentBibleBook = KeyUtil.getVerse(activeWindowPageManagerProvider.activeWindowPageManager.currentBible.key).book
@@ -79,20 +80,22 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                     buttonInfo.id = book.ordinal
                     buttonInfo.name = getShortBookName(book, isShortBookNamesAvailable)
                     buttonInfo.description = versification.getLongName(book)
-                    buttonInfo.textColor = getBookTextColor(book.ordinal)
+                    val BookColorAndGroup = getBookColorAndGroup(book.ordinal)
+                    buttonInfo.textColor = BookColorAndGroup.Color
+                    buttonInfo.GroupA = BookColorAndGroup.GroupA
+                    buttonInfo.GroupB = BookColorAndGroup.GroupB
                     buttonInfo.tintColor = if (book.ordinal < BibleBook.MATT.ordinal) Color.DKGRAY else NEW_TESTAMENT_TINT
                     buttonInfo.highlight = book == currentBibleBook
                 } catch (nsve: NoSuchVerseException) {
                     buttonInfo.name = "ERR"
                 }
-
                 keys.add(buttonInfo)
             }
             return keys
         }
 
-    private// should never get here
-    val isShortBookNames: Boolean
+    // should never get here
+    private val isShortBookNames: Boolean
         get() {
             return try {
                 versification.getShortName(BibleBook.GEN) != versification.getLongName(BibleBook.GEN)
@@ -100,7 +103,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                 Log.e(TAG, "No such bible book no: 1", nsve)
                 false
             }
-
         }
 
     private val versification: Versification
@@ -128,54 +130,88 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buttonGrid = ButtonGrid(this)
+        buttonGrid.isCurrentlyShowingScripture = isCurrentlyShowingScripture
         buttonGrid.setOnButtonGridActionListener(this)
         buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
-        buttonGrid.addButtons(bibleBookButtonInfo)
+        buttonGrid.isGroupByCategoryEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY, false)
+        buttonGrid.isAlphaSorted = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
+        buttonGrid.addBookButtons(bibleBookButtonInfo)
 
         setContentView(buttonGrid)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val sortOptionItem = menu.findItem(R.id.alphabetical_order_opt)
-        sortOptionItem.isChecked = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
-        val rowDistributionItem = menu.findItem(R.id.row_order_opt)
+        menu.findItem(R.id.alphabetical_order_opt).run {
+            isChecked = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
+            buttonGrid.isAlphaSorted = isChecked
+        }
+
+        buttonGrid.isGroupByCategoryEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY, false)
+        menu.findItem(R.id.group_by_category).isChecked  = buttonGrid.isGroupByCategoryEnabled
+
         buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
-        rowDistributionItem.isChecked  = buttonGrid.isLeftToRightEnabled
+        menu.findItem(R.id.row_order_opt).isChecked  = buttonGrid.isLeftToRightEnabled
+
         val deutToggle = menu.findItem(R.id.deut_toggle)
         deutToggle.setTitle(if(isCurrentlyShowingScripture) R.string.bible else R.string.deuterocanonical)
         deutToggle.isVisible = navigationControl.getBibleBooks(false).isNotEmpty()
+
         return super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.alphabetical_order_opt -> {
-                navigationControl.changeBibleBookSortOrder()
-                buttonGrid.clear()
-                buttonGrid.addButtons(bibleBookButtonInfo)
-                true
-            }
-            R.id.row_order_opt -> {
-                buttonGrid.toggleLeftToRight()
-                item.isChecked = buttonGrid.isLeftToRightEnabled
-                buttonGrid.clear()
-                buttonGrid.addButtons(bibleBookButtonInfo)
-                CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS, item.isChecked)
-                true
-            }
-            R.id.deut_toggle -> {
-                isCurrentlyShowingScripture = !isCurrentlyShowingScripture
-                buttonGrid.clear()
-                buttonGrid.addButtons(bibleBookButtonInfo)
-                invalidateOptionsMenu()
-                true
-            }
-            android.R.id.home -> {
-                onBackPressed()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.alphabetical_order_opt -> {
+            buttonGrid.isGroupByCategoryEnabled = false
+            navigationControl.changeBibleBookSortOrder()
+            buttonGrid.clear()
+            buttonGrid.isAlphaSorted = !item.isChecked
+            buttonGrid.addBookButtons(bibleBookButtonInfo)
+            buttonGrid.isGroupByCategoryEnabled = false
+            saveOptions()
+            invalidateOptionsMenu()
+            true
         }
+        R.id.row_order_opt -> {
+            buttonGrid.isGroupByCategoryEnabled = false
+            buttonGrid.toggleLeftToRight()
+            item.isChecked = buttonGrid.isLeftToRightEnabled
+            buttonGrid.clear()
+            buttonGrid.addBookButtons(bibleBookButtonInfo)
+            buttonGrid.isGroupByCategoryEnabled = false
+            saveOptions()
+            invalidateOptionsMenu()
+            true
+        }
+        R.id.group_by_category -> {
+            navigationControl.bibleBookSortOrder = BibleBookSortOrder.BIBLE_BOOK
+            buttonGrid.isAlphaSorted = false
+            buttonGrid.isLeftToRightEnabled = true
+            buttonGrid.toggleGroupByCategory()
+            item.isChecked = buttonGrid.isGroupByCategoryEnabled
+            buttonGrid.clear()
+            buttonGrid.addBookButtons(bibleBookButtonInfo)
+            saveOptions()
+            invalidateOptionsMenu()
+            true
+        }
+        R.id.deut_toggle -> {
+            isCurrentlyShowingScripture = !isCurrentlyShowingScripture
+            buttonGrid.isCurrentlyShowingScripture = isCurrentlyShowingScripture
+            buttonGrid.clear()
+            buttonGrid.addBookButtons(bibleBookButtonInfo)
+            invalidateOptionsMenu()
+            true
+        }
+        android.R.id.home -> {
+            onBackPressed()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
+
+    private fun saveOptions() {
+        CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS, buttonGrid.isLeftToRightEnabled)
+        CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY, buttonGrid.isGroupByCategoryEnabled)
     }
 
     override fun buttonPressed(buttonInfo: ButtonInfo) {
@@ -216,7 +252,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         } catch (e: Exception) {
             Log.e(TAG, "error on select of bible book", e)
         }
-
     }
 
     @SuppressLint("MissingSuperCall")
@@ -251,33 +286,32 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         return shortenedName.toString()
     }
 
-    private fun getBookTextColor(bookNo: Int): Int {
+    private fun getBookColorAndGroup(bookNo: Int):  ExtraBookInfo {
         // colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
         return when {
             bookNo <= BibleBook.DEUT.ordinal -> // Pentateuch - books of Moses
-                PENTATEUCH_COLOR
+                ExtraBookInfo(PENTATEUCH_COLOR, "PENTATEUCH", "PENTATEUCH")
             bookNo <= BibleBook.ESTH.ordinal -> // History
-                HISTORY_COLOR
+                ExtraBookInfo(HISTORY_COLOR, "HISTORY", "HISTORY")
             bookNo <= BibleBook.SONG.ordinal -> // Wisdom
-                WISDOM_COLOR
+                ExtraBookInfo(WISDOM_COLOR, "WISDOM", "WISDOM")
             bookNo <= BibleBook.DAN.ordinal -> // Major prophets
-                MAJOR_PROPHETS_COLOR
+                ExtraBookInfo(MAJOR_PROPHETS_COLOR, "MAJOR", "MAJOR")
             bookNo <= BibleBook.MAL.ordinal -> // Minor prophets
-                MINOR_PROPHETS_COLOR
+                ExtraBookInfo(MINOR_PROPHETS_COLOR, "MINOR", "MINOR")
             bookNo <= BibleBook.JOHN.ordinal -> // Gospels
-                GOSPEL_COLOR
+                ExtraBookInfo(GOSPEL_COLOR, "GOSPEL", "GOSPEL+ACTS")
             bookNo <= BibleBook.ACTS.ordinal -> // Acts
-                ACTS_COLOR
+                ExtraBookInfo(ACTS_COLOR, "ACTS", "GOSPEL+ACTS")
             bookNo <= BibleBook.PHLM.ordinal -> // Pauline epistles
-                PAULINE_COLOR
+                ExtraBookInfo(PAULINE_COLOR, "PAULINE", "PAULINE")
             bookNo <= BibleBook.JUDE.ordinal -> // General epistles
-                GENERAL_EPISTLES_COLOR
-            bookNo <= BibleBook.JUDE.ordinal -> // Revelation
-                REVELATION_COLOR
-            else -> OTHER_COLOR
+                ExtraBookInfo(GENERAL_EPISTLES_COLOR, "GENERAL", "GENERAL+REVELATION")
+            bookNo <= BibleBook.REV.ordinal -> // Revelation
+                ExtraBookInfo(REVELATION_COLOR, "REVELATION", "GENERAL+REVELATION")
+            else -> ExtraBookInfo(OTHER_COLOR,"", "")
         }
     }
-
     companion object {
 
         const val BOOK_NO = "BOOK_NO"
@@ -299,6 +333,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         private val OTHER_COLOR = ACTS_COLOR
 
         public const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
+        public const val BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY = "book_grid_group_by_category"
         private const val TAG = "GridChoosePassageBook"
     }
 }
