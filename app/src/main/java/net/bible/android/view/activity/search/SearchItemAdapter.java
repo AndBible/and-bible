@@ -23,6 +23,7 @@ import android.graphics.Typeface;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -180,8 +181,13 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 			spannableText = new SpannableString(Html.fromHtml(verseString));
 			Matcher m = null;
 			String[] splitSearchArray = splitSearchTerms(searchTerms);
-			for (String searchWord : splitSearchArray) {
-				searchWord = prepareSearchWord(searchWord);
+			for (String originalSearchWord : splitSearchArray) {
+				String searchWord = prepareSearchWord(originalSearchWord);
+				if (originalSearchWord.contains("*")) {
+					searchWord = "\\b" + searchWord + "[\\w\\'\\-]*\\b";  // Match whole words including with hyphons and apostrophes
+				} else {
+					searchWord = "\\b" + searchWord + "\\b";
+				}
 				if (searchWord.length() > 0) {
 					m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText);
 					while (m.find()) {
