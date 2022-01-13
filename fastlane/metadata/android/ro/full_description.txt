@@ -31,7 +31,7 @@ And Bible este un proiect comunitar open-source. În practică, acest lucru îns
  * menținerea la zi a traducerilor interfeței cu utilizatorul și
  * contribuind la extinderea bibliotecii de documente prin obținerea de permisiuni de la deținătorii drepturilor de autor sau prin convertirea documentelor în format SWORD.
 
-Dacă ești un inginer de software sau un tester profesionist, te rugăm să contribui la acest proiect. Pentru mai multe informații despre cum să contribuiți, vă rugăm să consultați https://git.io/JUnaj.
+Dacă ești programator sau ai experiență la încercarea aplicațiilor, te rugăm să contribui la acest proiect. Pentru mai multe informații despre cum să contribuiți, vă rugăm să consultați https://git.io/JUnaj.
 
 <b>Legături</b>
 

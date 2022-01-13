@@ -573,6 +573,7 @@ Een item lang indrukken opent het context menu of het actiemenu in verschillende
   <string name="version_name">Vertaling</string>
   <string name="backup_button">Back-up maken</string>
   <string name="back_button">Terug</string>
+  <string name="initializing_app">Bezig met starten...</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Het pakket Android WebView is te oud (%s). U dient uw Android WebView-pakket te updaten naar version %sof hoger, om %s te kunnen gebruiken. Voor de meeste apparaten kunt u dit doen via %s.</string>
   <string name="play">Google Play</string>
@@ -617,6 +618,7 @@ Een item lang indrukken opent het context menu of het actiemenu in verschillende
   <string name="whole_verse_turned_on">De bladwijzer verwijst nu naar het volledige vers</string>
   <string name="this_bookmark">Deze bladwijzer</string>
   <string name="this_workspace">Dit werkblad</string>
+  <string name="edit_label">Label bewerken</string>
   <string name="active_labels">Geselecteerde labels</string>
   <string name="recent_labels">Recente labels</string>
   <string name="other_labels">Overige labels</string>

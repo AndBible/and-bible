@@ -612,7 +612,7 @@
   <string name="workspace_settings">Reglări…</string>
   <string name="give_name_workspace">Dă un nume spațiului de studiu</string>
   <string name="save_and_exit">Salvează</string>
-  <string name="workspace_save_changes">Aplici modificări spațiilor de studiu</string>
+  <string name="workspace_save_changes">Aplici modificări spațiilor de studiu?</string>
   <string name="copy_of_workspace">Copie a %s</string>
   <string name="copy_workspace_settings">Copiază reglările…</string>
   <string name="copy_settings_title">Care reglări vrei să copiezi?</string>

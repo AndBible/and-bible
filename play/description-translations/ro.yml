@@ -51,7 +51,7 @@ contr_2: "testarea caracteristicilor care nu au fost încă lansate,"
 contr_3: menținerea la zi a traducerilor interfeței cu utilizatorul și
 contr_4: contribuind la extinderea bibliotecii de documente prin obținerea de permisiuni de la deținătorii drepturilor de autor sau prin convertirea documentelor în format SWORD.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: "Dacă ești un inginer de software sau un tester profesionist, te rugăm să contribui la acest proiect. Pentru mai multe informații despre cum să contribuiți, vă rugăm să consultați {{how_to_contribute_url}}."
+paragraph_4_1: "Dacă ești programator sau ai experiență la încercarea aplicațiilor, te rugăm să contribui la acest proiect. Pentru mai multe informații despre cum să contribuiți, vă rugăm să consultați {{how_to_contribute_url}}."
 subtitle_4: Legături
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 link_1: >
