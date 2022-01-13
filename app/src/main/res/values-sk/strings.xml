@@ -857,4 +857,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Texty a odkazy</string>
   <string name="verse_tip">Dlhým stlačením Biblického textu označíte časť alebo viacero veršov</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

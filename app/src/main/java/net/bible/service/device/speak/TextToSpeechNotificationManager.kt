@@ -359,6 +359,7 @@ class TextToSpeechNotificationManager {
         intent.action = ForegroundService.START_SERVICE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             app.startForegroundService(intent)
+            Log.i(TAG, "Foreground service started")
         }
         else {
             app.startService(intent)
