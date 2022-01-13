@@ -16,7 +16,7 @@
  *
  */
 
-// TODO: Not saving the menu option. Don't know how to set the other menu options when one option is changed.
+
 package net.bible.android.view.activity.navigation
 
 import android.annotation.SuppressLint
