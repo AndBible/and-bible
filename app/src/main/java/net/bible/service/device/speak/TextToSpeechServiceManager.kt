@@ -40,7 +40,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState
 
-import net.bible.service.sword.SwordContentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook

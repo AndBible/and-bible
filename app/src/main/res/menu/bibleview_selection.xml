@@ -48,6 +48,11 @@
 			android:orderInCategory="2"
 			app:showAsAction="always"
 			/>
+		<item android:id="@+id/search"
+			android:title="@string/search"
+			android:orderInCategory="2"
+			app:showAsAction="always"
+			/>
 		<item android:id="@+id/system_items"
 			android:title="@string/system_items1"
 			android:orderInCategory="2"

@@ -515,6 +515,10 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <!--History-->
   <!--Help-->
   <string name="help_nav_title">Navigatie</string>
+  <string name="help_nav_text">Ga naar het volgende of vorige hoofdstuk door met je vinger over het scherm te vegen. 
+        Dubbel-tik op de Bijbeltekst om over te schakelen naar de volledig scherm-modus. 
+        Bijbelschermen (ook wel vensters genoemd) hebben rechtsboven een menuknop. Hiermee kunt u verschillende venster-specifieke functies gebruiken en het gedrag en de opmaak van het venster aanpassen.
+    </string>
   <string name="help_contextmenus_title">Actiemenu\'s</string>
   <string name="help_contextmenus_text">
 Een item lang indrukken opent het context menu of het actiemenu in verschillende weergaven. 
@@ -524,6 +528,12 @@ Een item lang indrukken opent het context menu of het actiemenu in verschillende
         Houdt de terugknop lang ingedrukt om de geschiedenislijst te openen.
     </string>
   <string name="help_bookmarks_title">Bladwijzers &amp; mijn notities</string>
+  <string name="help_bookmarks_text">Bladwijzers kunnen worden aangemaakt door tekst te selecteren, en in het pop-up-menu op \"Bladwijzer\" te tikken. U kunt uw eigen notities aan de bladwijzer toevoegen door op de nu gemarkeerde tekst in het Bijbelvenster te tikken. Er is ook een speciaal document \"Mijn notities\" in de commentaren; hiermee kunt u uw eigen notities in een apart venster weergeven.</string>
+  <string name="help_studypads_text">
+Studiemappen zijn ontworpen om het schrijven van preeknotities, voorbereiden van preken, of gewoon persoonlijke notities voor Bijbelstudie, die meerdere tekstverwijzingen hebben, gemakkelijk te maken.
+Iedere studiemap is gekoppeld aan een bladwijzerlabel. Alle bladwijzers die met dat label zijn aangemaakt verschijnen automatisch in de studiemap.
+Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te nemen. 
+    </string>
   <string name="help_search_title">Zoeken</string>
   <string name="help_search_text">De zoekopdracht mag speciale tekens bevatten, zoals *, ?, AND, OR, NOT
         (lees \"Apache Lucene - Query Parser Syntax\" voor meer informatie hierover)
@@ -547,6 +557,7 @@ Een item lang indrukken opent het context menu of het actiemenu in verschillende
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Ik begrijp het</string>
   <string name="my_notes_abbreviation">Mijn notities</string>
+  <string name="studypads">Studiemappen</string>
   <string name="multi_description">Meerdere verwijzingen</string>
   <string name="multi_abbreviation">Meerdere</string>
   <string name="compare_description">Vertalingen vergelijken</string>
@@ -647,4 +658,6 @@ Een item lang indrukken opent het context menu of het actiemenu in verschillende
   <string name="instructions_for_translators">instructies voor vertalers</string>
   <string name="questions_title">Vragen?</string>
   <string name="questions_title2">Hulp nodig?</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>
