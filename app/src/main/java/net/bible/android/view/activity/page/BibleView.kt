@@ -994,6 +994,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             // Ps 119 in KJV is only 70k. Let's give gracefully max 500k until we give "page too large" error.
             // Our BibleView.js will freeze and eventually OOM-crash with ridiculously large documents.
             if(docStr.length > 500000) {
+                Log.e(TAG, "Page is too large to be shown, showing error instead, ${docStr.length}")
                 val errorDoc = ErrorDocument(mainBibleActivity.getString(R.string.error_page_too_large), ErrorSeverity.NORMAL)
                 docStr = errorDoc.asJson
                 firstDocument = errorDoc

@@ -1,0 +1,80 @@
+openMyNotes: Ava minu märkmetes
+openStudyPad: Ava õppetükis (%s)
+noteText: Allmärkused (%s)
+noteTextWithoutType: Allmärkused
+crossReferenceText: Ristviited
+findAllOccurrences: Leia kõik esinemised
+reportError: Teata veast
+errorTitle: Tekkis viga
+warningTitle: Hoiatus
+normalTitle: ""
+footnoteTypeUndefined: Tundmatu tüüp
+footnoteTypeStudy: ""
+footnoteTypeExplanation: Selgitus
+footnoteTypeVariant: ""
+footnoteTypeAlternative: ""
+footnoteTypeTranslation: Tõlge
+clearLog: Puhasta vealogi
+editNote: Muuda
+editNotePlaceholder: Muuda märget
+editTextPlaceholder: Puuduta teksti lisamiseks
+inputPlaceholder: Kirjuta siia
+inputReference: Sisesta Piibli kirjakoht
+invalidReference: Salmi ei leitud
+assignLabels: Sildid
+bookmarkAccurate: "%s järjehoidja"
+bookmarkInaccurate: ""
+defaultBook: ""
+ok: OK
+yes: "Jah"
+ambiguousSelection: "Millist tegevust soovid teha?"
+cancel: Loobu
+removeBookmarkConfirmationTitle: "Kustuta järjehoidja?"
+removeBookmarkConfirmation: "Kas oled kindel, et soovid seda järjehoidjat kustutada?"
+closeModal: Sulge
+createdAt: "Loodud: %s"
+lastUpdatedOn: "Viimati uuendatud: %s"
+strongsLink: Strongi definitsioon (%s)
+morphLink: Morfoloogiline kood (%s)
+strongsAndMorph: Definisioon ja morfoloogia
+studyPadLink: Ava õppetükk
+externalLink: ""
+referenceLink: ""
+openFootnote: Ava allmärkus
+openBookmark: Ava järjehoidja (%s)
+noMyNotesTitle: ""
+noMyNotesDescription: >
+emptyStudyPad: >
+  Tühi õppetükk. Lisa siia õppetükki kommentaare ja järjehoidjaid, mille silt langeb õppetükiga kokku.
+studyPadModalTitle: Muuda õppetükki
+doYouWantToDeleteEntry: "Kas kustutada õppetüki sissekanne?"
+removeStudyPadConfirmationTitle: Õppetüki sissekande kustutamine
+dragHelp: Lohista järjekorra muutmiseks
+saved: salvestatud
+openAll: ""
+editBookmarkPlaceholder: ""
+onlyLabel: Ainult silt
+wholeBookmark: ""
+otherNoteText: ""
+assignLabelsMenuEntry: Määra sildid
+assignLabelsMenuEntry1: Vali või muuda silte...
+jumpToStudyPad: Liigu õppetükile
+setAsPrimaryLabel: Muuda peamiseks sildiks
+removeBookmarkLabel: Kustuta silt
+addBookmarkLabel: Lisa silt
+favouriteLabels: Lemmiksildid
+recentLabels: Hiljutised sildid
+frequentlyUsedLabels: Tihti kasutatud sildid
+bookmarkLabels: Järjehoidja sildid
+refParserHelp: ""
+openDownloads: ""
+verseShare: Jaga
+verseCompare: Võrdle
+verseNote: Märge
+verseMyNotes: Minu märkmed
+verseSpeak: Loe ette
+verseShareLong: Jaga seda salmi
+verseCompareLong: Võrdle salmi
+verseNoteLong: Kirjuta märge
+verseSpeakLong: Alusta ette lugemist sellest salmist
+addBookmark: Järjehoidja
