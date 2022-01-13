@@ -1094,7 +1094,7 @@ object DatabaseContainer {
                         MIGRATION_54_55_bookmarkType,
                         MIGRATION_55_56_limitAmbiguousSize,
                         MIGRATION_56_57_breaklines_in_notes,
-                        // MIGRATION_57_58_workspace_colors,  // Enable when ready to release I guess.
+                        MIGRATION_57_58_workspace_colors,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
