@@ -129,6 +129,11 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 getString(R.string.search_result_count, mSearchResultsHolder!!.size())
             }
             withContext(Dispatchers.Main) {
+                var resultAmount = mSearchResultsHolder?.size().toString()
+                if(mSearchResultsHolder?.size()?:0 > SearchControl.MAX_SEARCH_RESULTS) {
+                    resultAmount += "+"
+                }
+                supportActionBar?.title = getString(R.string.search_with_results, resultAmount)
                 Toast.makeText(this@SearchResults, msg, Toast.LENGTH_SHORT).show()
             }
             isOk = true

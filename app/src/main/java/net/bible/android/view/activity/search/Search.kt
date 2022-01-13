@@ -211,7 +211,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             intent.putExtra(SECTION_SELECTION_SAVE, sectionRadioSelection)
             intent.putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName)
 
-            text = decorateSearchString(text)
+            text = searchControl.decorateSearchString(text, searchType, bibleSection, currentBookName)
             Log.i(TAG, "Search text:$text")
 
             // specify search string and doc in new Intent;
@@ -226,10 +226,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             // Back button is now handled by HistoryManager - Back will cause a new Intent instead of just finish
             finish()
         }
-    }
-
-    private fun decorateSearchString(searchString: String): String {
-        return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName)
     }
 
     companion object {

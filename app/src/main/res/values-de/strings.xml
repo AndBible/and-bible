@@ -790,4 +790,6 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="strongs_links">Verweise</string>
   <string name="strongs_text_and_links">Text und Verweise</string>
   <string name="verse_tip">Um Versteile oder mehrere Verse zu markieren, den Bibeltext drücken und halten</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

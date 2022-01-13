@@ -17,6 +17,7 @@
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
+    <string name="search_with_results">Find (%s results)</string>
     <string name="settings">Application preferences</string>
     <string name="history">History</string>
     <string name="speak">Speak</string>
@@ -849,10 +850,16 @@
     <string name="share_verse_menu_title">Share / copy…</string>
     <string name="show_versenumbers">Show verse numbers</string>
     <string name="show_full_verses">Show full verses</string>
+    <string name="show_selection_only">Show selected text only</string>
     <string name="advertise_app">Advertise app</string>
     <string name="verse_share_advertise">Shared using %s.</string>
+    <string name="show_reference">Show reference</string>
+    <string name="show_reference_at_front">Show at front of verse</string>
     <string name="abbreviate_reference">Abbreviate reference</string>
     <string name="version_name">Version name</string>
+    <string name="show_version_name">Include version name</string>
+    <string name="show_ellipsis">Show ellipsis (...)</string>
+    <string name="show_quotes">Show quotes</string>
 
     <string name="backup_button">Backup</string>
     <string name="back_button">Back</string>
@@ -962,4 +969,10 @@
     <string name="strongs_links">Links</string>
     <string name="strongs_text_and_links">Text and Links</string>
     <string name="verse_tip">To select partial or many verses, you can long-press Bible text</string>
+
+    <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
+    <string name="permission_required">Permission needed</string>
+
+    <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
+    <string name="phone_call_permission_rationale">Permission to read phone state is needed in order for the app to be able to automatically pause listening when you receive a phone call.</string>
 </resources>
