@@ -1513,7 +1513,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if(shouldShowRequestPermissionRationale(Manifest.permission.READ_PHONE_STATE)) {
                 cnt = suspendCoroutine {
                     AlertDialog.Builder(this@MainBibleActivity)
-                        .setMessage(getString(R.string.phone_call_permission_rationale))
+                        .setTitle(R.string.permission_required)
+                        .setMessage(R.string.phone_call_permission_rationale)
                         .setCancelable(false)
                         .setPositiveButton(R.string.okay) { _, _ ->
                             it.resume(true)
