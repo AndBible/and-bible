@@ -59,7 +59,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     @Inject lateinit var swordDocumentFacade: SwordDocumentFacade
 
-    protected open val customTheme = true
     open val doNotInitializeApp = false
 
     /** Called when the activity is first created.  */
