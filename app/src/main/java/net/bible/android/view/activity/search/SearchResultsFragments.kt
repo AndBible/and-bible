@@ -1,39 +1,31 @@
 package net.bible.android.view.activity.search
 
 import android.content.Intent
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import android.widget.ListView
-import android.widget.TabHost
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.widget.LinearLayoutCompat
-import androidx.constraintlayout.helper.widget.Flow
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.setPadding
-import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import net.bible.android.activity.databinding.SearchResultsVerseFragmentBinding
 import net.bible.android.activity.R
-import net.bible.android.activity.databinding.SearchResultsLayoutActivityBinding
 import net.bible.android.activity.databinding.SearchResultsStatisticsFragmentBinding
+import net.bible.android.activity.databinding.SearchResultsStatisticsRowBinding
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.Key
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.getBookTextColor
 import net.bible.service.sword.SwordDocumentFacade
-import net.bible.service.common.CommonUtils
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -146,47 +138,73 @@ class SearchStatisticsFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         _binding = SearchResultsStatisticsFragmentBinding.inflate(inflater, container, false)
+        var rowBinding = SearchResultsStatisticsRowBinding.inflate(inflater, container, false)
         val root = binding.root
 
-        val buttonLayout: ConstraintLayout = _binding!!.buttonLayout
-        val flowContainer: Flow = _binding!!.flowContainer
+        val statisticsLayout = binding.statisticsLayout
 
         var buttonIds = intArrayOf()
 
+        val maxCount: Int = bookStatistics.maxOfOrNull { it.count } ?: 0
         bookStatistics.map {
-            val newButton = Button(flowContainer.context)
-            newButton.setLayoutParams(LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-            newButton.setText("${it.book} = ${it.count}")
-            newButton.id = View.generateViewId()
-            newButton.isAllCaps = false
-            newButton.tag = it.listIndex
-//            newButton.setPadding(20)
-//            val drawable = resources.getDrawable(R.drawable.search_result_statistics_button)
-//            val gd = GradientDrawable(
-//                GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(R.color.accent_day, R.color.blue_100, R.color.red)
-//            )
-//            gd.setCornerRadius(0f)
-////            newButton.setBackgroundResource(R.drawable.search_result_statistics_button)
-//            newButton.setBackground(gd)
 
-//            newButton.setBackgroundResource(R.drawable.search_result_statistics_button)
+            val to_add: View = inflater.inflate(
+                R.layout.search_results_statistics_row,
+                statisticsLayout, false
+            )
+            var button = to_add.findViewById<Button>(R.id.searchStatisticsBookButton)
+            button.setText(it.book)
+            var text = to_add.findViewById<TextView>(R.id.searchStatisticsBookCount)
+            text.setText("${it.count}")
+            var progressBar = to_add.findViewById<ProgressBar>(R.id.searchStatisticsBookCountProgress)
+            progressBar.max = maxCount
+            progressBar.progress = it.count
+            progressBar.setProgressTintList(ColorStateList.valueOf(it.color))
+            to_add.visibility = View.VISIBLE
+            statisticsLayout.addView(to_add)
 
-            newButton.setOnClickListener {
+            button.tag = it.listIndex
+            button.setOnClickListener {
                 val tabhost = requireActivity().findViewById<View>(R.id.tabs) as TabLayout
                 tabhost.getTabAt(0)!!.select()
-//                tabs.getTabAt(1)?.select()
-////                viewPager.currentItem = 0
-                val resultLis = requireActivity().findViewById<View>(R.id.searchResultsList) as ListView
-//                resultLis.smoothScrollToPosition(it.tag as Int);
-//                val position: Int = resultLis.getPositionForView(tabhost)
-//                resultLis.setSelection(position+1)
-                resultLis.smoothScrollToPosition(it.tag as Int);
-                Toast.makeText(buttonLayout.context, newButton.text, Toast.LENGTH_LONG)
+                val resultList = requireActivity().findViewById<View>(R.id.searchResultsList) as ListView
+                resultList.setSelection(it.tag as Int);
             }
-            buttonLayout.addView(newButton)
-            buttonIds += newButton.id
+//            to_add.invalidate()
+            to_add.requestLayout()
+//            statisticsLayout.invalidate()
+//        statisticsLayout.requestLayout()
+
+//            val text = to_add.findViewById<View>(R.id.text) as TextView
+//            text.setText(options.get(i))
+//            text.setTypeface(FontSelector.getBold(activity))
+
+//
+//            val newButton = Button(flowContainer.context)
+//            newButton.setLayoutParams(LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+//            newButton.setText("${it.book} = ${it.count}")
+//            newButton.id = View.generateViewId()
+//            newButton.isAllCaps = false
+//            newButton.tag = it.listIndex
+
+
+
+//            newButton.setOnClickListener {
+//                val tabhost = requireActivity().findViewById<View>(R.id.tabs) as TabLayout
+//                tabhost.getTabAt(0)!!.select()
+////                tabs.getTabAt(1)?.select()
+//////                viewPager.currentItem = 0
+//                val resultLis = requireActivity().findViewById<View>(R.id.searchResultsList) as ListView
+////                resultLis.smoothScrollToPosition(it.tag as Int);
+////                val position: Int = resultLis.getPositionForView(tabhost)
+////                resultLis.setSelection(position+1)
+//                resultLis.smoothScrollToPosition(it.tag as Int);
+//                Toast.makeText(buttonLayout.context, newButton.text, Toast.LENGTH_LONG)
+//            }
+//            buttonLayout.addView(newButton)
+//            buttonIds += newButton.id
         }
-        flowContainer.referencedIds = buttonIds
+//        flowContainer.referencedIds = buttonIds
 
         return root
     }

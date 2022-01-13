@@ -6,30 +6,15 @@
 	android:layout_height="match_parent"
 	android:fillViewport="true">
 
-<androidx.constraintlayout.widget.ConstraintLayout
-	android:id="@+id/buttonLayout"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical">
+	<LinearLayout
+		android:id="@+id/statisticsLayout"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		>
 
-	<androidx.constraintlayout.helper.widget.Flow
-		android:id="@+id/flowContainer"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		app:constraint_referenced_ids=""
-		app:flow_horizontalGap="4dp"
-		app:flow_horizontalStyle="packed"
-		app:flow_horizontalBias="0"
-		app:flow_verticalBias="1"
-		app:flow_verticalGap="4dp"
-		app:flow_wrapMode="chain"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.51"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+	</LinearLayout>
 
-
-	</androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
 
 

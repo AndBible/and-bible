@@ -30,18 +30,25 @@ import org.crosswire.jsword.passage.Verse
 import javax.inject.Inject
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
+import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.getBookTextColor
+import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.resources
 
 
-
-private val TAB_TITLES = arrayOf(
-    R.string.results,
-    R.string.statistics
+private var TAB_TITLES = arrayOf(
+    resources.getString(R.string.results_count),
+    resources.getString(R.string.by_book),
+    resources.getString(R.string.by_word)
 )
 private val mSearchArrayAdapter = ArrayList<SearchResultsData>()
 private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
 private val bookStatistics = mutableListOf<BookStat>()
 
-class BookStat(val book: String, var count: Int, val bookInitials: String, val bookOrdinal:Int, val listIndex:Int) {
+class BookStat(val book: String, var count: Int,
+               val bookInitials: String,
+               val bookOrdinal:Int,
+               val listIndex:Int,
+                val color: Int) {
     override fun toString(): String = "$book: $count"
 }
 
@@ -238,12 +245,13 @@ class MySearchResults : CustomTitlebarActivityBase() {
             var bookNameLong = versification.getLongName(mBibleBook)  // key.rootName
             val bookStat = bookStatistics.firstOrNull{it.book == bookNameLong}
             if (bookStat == null) {
-                bookStatistics.add(BookStat(bookNameLong, 1, bookNameLong, bookOrdinal, listIndex))
+                bookStatistics.add(BookStat(bookNameLong, 1, bookNameLong, bookOrdinal, listIndex, getBookTextColor(bookOrdinal) ))
             } else {
                 bookStatistics.first{it.book == bookNameLong}.count += 1
             }
             listIndex += 1
         }
+        TAB_TITLES[0] = resources.getString(R.string.results_count, listIndex)
     }
     /**
      * Handle scripture/Appendix toggle
@@ -261,7 +269,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
     }
 
 }
-
 
 class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManager,
                                 searchControl: SearchControl,
@@ -300,7 +307,7 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
-        return context.resources.getString(TAB_TITLES[position])
+        return TAB_TITLES[position]
     }
 
     override fun getCount(): Int {

@@ -78,8 +78,10 @@
     <string name="accuracy">Accuracy</string>
     <string name="greek">Greek</string>
     <string name="hebrew">Hebrew</string>
-    <string name="results">Results</string>
+    <string name="results_count">Results: %s</string>
     <string name="statistics">Statistics</string>
+    <string name="by_book">By Book</string>
+    <string name="by_word">By Word</string>
 
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
