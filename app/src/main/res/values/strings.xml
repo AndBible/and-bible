@@ -17,6 +17,7 @@
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
+    <string name="search_with_results">Find (%s results)</string>
     <string name="settings">Application preferences</string>
     <string name="history">History</string>
     <string name="speak">Speak</string>
