@@ -50,19 +50,6 @@ abstract class CustomTitlebarActivityBase(private val optionsMenuId: Int = NO_OP
         return super.onCreateOptionsMenu(menu)
     }
 
-    /**
-     * Allow some menu items to be hidden or otherwise altered
-     */
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        super.onPrepareOptionsMenu(menu)
-
-        actionBarManager.prepareOptionsMenu(this, menu, supportActionBar)
-
-        // must return true for menu to be displayed
-        return true
-    }
-
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
