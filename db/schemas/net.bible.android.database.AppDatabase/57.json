@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 57,
-    "identityHash": "a2ea83b20a70deb10d8ce5877faba214",
+    "identityHash": "71160883fbc7a6b7b5e5b9d6b38289b3",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -123,7 +123,6 @@
             "columnNames": [
               "kjvOrdinalStart"
             ],
-            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalStart` ON `${TABLE_NAME}` (`kjvOrdinalStart`)"
           },
           {
@@ -132,7 +131,6 @@
             "columnNames": [
               "kjvOrdinalEnd"
             ],
-            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalEnd` ON `${TABLE_NAME}` (`kjvOrdinalEnd`)"
           },
           {
@@ -141,7 +139,6 @@
             "columnNames": [
               "primaryLabelId"
             ],
-            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Bookmark_primaryLabelId` ON `${TABLE_NAME}` (`primaryLabelId`)"
           }
         ],
@@ -267,7 +264,6 @@
             "columnNames": [
               "labelId"
             ],
-            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_JournalTextEntry_labelId` ON `${TABLE_NAME}` (`labelId`)"
           }
         ],
@@ -337,7 +333,6 @@
             "columnNames": [
               "labelId"
             ],
-            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_BookmarkToLabel_labelId` ON `${TABLE_NAME}` (`labelId`)"
           }
         ],
@@ -409,7 +404,6 @@
             "columnNames": [
               "plan_code"
             ],
-            "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_readingplan_plan_code` ON `${TABLE_NAME}` (`plan_code`)"
           }
         ],
@@ -458,7 +452,6 @@
               "plan_code",
               "plan_day"
             ],
-            "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `code_day` ON `${TABLE_NAME}` (`plan_code`, `plan_day`)"
           }
         ],
@@ -466,7 +459,7 @@
       },
       {
         "tableName": "Workspace",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `contentsText` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `unPinnedWeight` REAL DEFAULT NULL, `maximizedWindowId` INTEGER, `text_display_settings_bookmarks_assignLabels` TEXT DEFAULT NULL, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_topMargin` INTEGER DEFAULT NULL, `text_display_settings_font_fontSize` INTEGER DEFAULT NULL, `text_display_settings_font_fontFamily` TEXT DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_bookmarks_showAll` INTEGER DEFAULT NULL, `text_display_settings_bookmarks_showLabels` TEXT DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayWorkspaceColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightWorkspaceColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, `window_behavior_settings_enableTiltToScroll` INTEGER DEFAULT 0, `window_behavior_settings_enableReverseSplitMode` INTEGER DEFAULT 0, `window_behavior_settings_autoPin` INTEGER DEFAULT 1, `window_behavior_settings_speakSettings` TEXT DEFAULT NULL, `window_behavior_settings_recentLabels` TEXT DEFAULT NULL, `window_behavior_settings_favouriteLabels` TEXT DEFAULT NULL, `window_behavior_settings_autoAssignLabels` TEXT DEFAULT NULL, `window_behavior_settings_autoAssignPrimaryLabel` INTEGER DEFAULT NULL, `window_behavior_settings_hideCompareDocuments` TEXT DEFAULT NULL, `window_behavior_settings_limitAmbiguousModalSize` INTEGER DEFAULT 0)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `contentsText` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `unPinnedWeight` REAL DEFAULT NULL, `maximizedWindowId` INTEGER, `text_display_settings_bookmarks_assignLabels` TEXT DEFAULT NULL, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_topMargin` INTEGER DEFAULT NULL, `text_display_settings_font_fontSize` INTEGER DEFAULT NULL, `text_display_settings_font_fontFamily` TEXT DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_bookmarks_showAll` INTEGER DEFAULT NULL, `text_display_settings_bookmarks_showLabels` TEXT DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, `window_behavior_settings_enableTiltToScroll` INTEGER DEFAULT 0, `window_behavior_settings_enableReverseSplitMode` INTEGER DEFAULT 0, `window_behavior_settings_autoPin` INTEGER DEFAULT 1, `window_behavior_settings_speakSettings` TEXT DEFAULT NULL, `window_behavior_settings_recentLabels` TEXT DEFAULT NULL, `window_behavior_settings_favouriteLabels` TEXT DEFAULT NULL, `window_behavior_settings_autoAssignLabels` TEXT DEFAULT NULL, `window_behavior_settings_autoAssignPrimaryLabel` INTEGER DEFAULT NULL, `window_behavior_settings_hideCompareDocuments` TEXT DEFAULT NULL, `window_behavior_settings_limitAmbiguousModalSize` INTEGER DEFAULT 0)",
         "fields": [
           {
             "fieldPath": "name",
@@ -654,13 +647,6 @@
             "defaultValue": "NULL"
           },
           {
-            "fieldPath": "textDisplaySettings.colors.dayWorkspaceColor",
-            "columnName": "text_display_settings_colors_dayWorkspaceColor",
-            "affinity": "INTEGER",
-            "notNull": false,
-            "defaultValue": "NULL"
-          },
-          {
             "fieldPath": "textDisplaySettings.colors.dayTextColor",
             "columnName": "text_display_settings_colors_dayTextColor",
             "affinity": "INTEGER",
@@ -677,13 +663,6 @@
           {
             "fieldPath": "textDisplaySettings.colors.dayNoise",
             "columnName": "text_display_settings_colors_dayNoise",
-            "affinity": "INTEGER",
-            "notNull": false,
-            "defaultValue": "NULL"
-          },
-          {
-            "fieldPath": "textDisplaySettings.colors.nightWorkspaceColor",
-            "columnName": "text_display_settings_colors_nightWorkspaceColor",
             "affinity": "INTEGER",
             "notNull": false,
             "defaultValue": "NULL"
@@ -855,7 +834,6 @@
             "columnNames": [
               "workspaceId"
             ],
-            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Window_workspaceId` ON `${TABLE_NAME}` (`workspaceId`)"
           }
         ],
@@ -934,7 +912,6 @@
             "columnNames": [
               "windowId"
             ],
-            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_HistoryItem_windowId` ON `${TABLE_NAME}` (`windowId`)"
           }
         ],
@@ -954,7 +931,7 @@
       },
       {
         "tableName": "PageManager",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`windowId` INTEGER NOT NULL, `currentCategoryName` TEXT NOT NULL, `text_display_settings_bookmarks_assignLabels` TEXT DEFAULT NULL, `bible_document` TEXT, `bible_verse_versification` TEXT NOT NULL, `bible_verse_bibleBook` INTEGER NOT NULL, `bible_verse_chapterNo` INTEGER NOT NULL, `bible_verse_verseNo` INTEGER NOT NULL, `commentary_document` TEXT, `commentary_anchorOrdinal` INTEGER DEFAULT NULL, `commentary_currentYOffsetRatio` REAL, `dictionary_document` TEXT, `dictionary_key` TEXT, `dictionary_anchorOrdinal` INTEGER DEFAULT NULL, `dictionary_currentYOffsetRatio` REAL, `general_book_document` TEXT, `general_book_key` TEXT, `general_book_anchorOrdinal` INTEGER DEFAULT NULL, `general_book_currentYOffsetRatio` REAL, `map_document` TEXT, `map_key` TEXT, `map_anchorOrdinal` INTEGER DEFAULT NULL, `map_currentYOffsetRatio` REAL, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_topMargin` INTEGER DEFAULT NULL, `text_display_settings_font_fontSize` INTEGER DEFAULT NULL, `text_display_settings_font_fontFamily` TEXT DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_bookmarks_showAll` INTEGER DEFAULT NULL, `text_display_settings_bookmarks_showLabels` TEXT DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayWorkspaceColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightWorkspaceColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, PRIMARY KEY(`windowId`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`windowId` INTEGER NOT NULL, `currentCategoryName` TEXT NOT NULL, `text_display_settings_bookmarks_assignLabels` TEXT DEFAULT NULL, `bible_document` TEXT, `bible_verse_versification` TEXT NOT NULL, `bible_verse_bibleBook` INTEGER NOT NULL, `bible_verse_chapterNo` INTEGER NOT NULL, `bible_verse_verseNo` INTEGER NOT NULL, `commentary_document` TEXT, `commentary_anchorOrdinal` INTEGER DEFAULT NULL, `commentary_currentYOffsetRatio` REAL, `dictionary_document` TEXT, `dictionary_key` TEXT, `dictionary_anchorOrdinal` INTEGER DEFAULT NULL, `dictionary_currentYOffsetRatio` REAL, `general_book_document` TEXT, `general_book_key` TEXT, `general_book_anchorOrdinal` INTEGER DEFAULT NULL, `general_book_currentYOffsetRatio` REAL, `map_document` TEXT, `map_key` TEXT, `map_anchorOrdinal` INTEGER DEFAULT NULL, `map_currentYOffsetRatio` REAL, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_topMargin` INTEGER DEFAULT NULL, `text_display_settings_font_fontSize` INTEGER DEFAULT NULL, `text_display_settings_font_fontFamily` TEXT DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_bookmarks_showAll` INTEGER DEFAULT NULL, `text_display_settings_bookmarks_showLabels` TEXT DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, PRIMARY KEY(`windowId`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "windowId",
@@ -1240,13 +1217,6 @@
             "defaultValue": "NULL"
           },
           {
-            "fieldPath": "textDisplaySettings.colors.dayWorkspaceColor",
-            "columnName": "text_display_settings_colors_dayWorkspaceColor",
-            "affinity": "INTEGER",
-            "notNull": false,
-            "defaultValue": "NULL"
-          },
-          {
             "fieldPath": "textDisplaySettings.colors.dayTextColor",
             "columnName": "text_display_settings_colors_dayTextColor",
             "affinity": "INTEGER",
@@ -1263,13 +1233,6 @@
           {
             "fieldPath": "textDisplaySettings.colors.dayNoise",
             "columnName": "text_display_settings_colors_dayNoise",
-            "affinity": "INTEGER",
-            "notNull": false,
-            "defaultValue": "NULL"
-          },
-          {
-            "fieldPath": "textDisplaySettings.colors.nightWorkspaceColor",
-            "columnName": "text_display_settings_colors_nightWorkspaceColor",
             "affinity": "INTEGER",
             "notNull": false,
             "defaultValue": "NULL"
@@ -1309,7 +1272,6 @@
             "columnNames": [
               "windowId"
             ],
-            "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_PageManager_windowId` ON `${TABLE_NAME}` (`windowId`)"
           }
         ],
@@ -1541,7 +1503,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a2ea83b20a70deb10d8ce5877faba214')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '71160883fbc7a6b7b5e5b9d6b38289b3')"
     ]
   }
 }
