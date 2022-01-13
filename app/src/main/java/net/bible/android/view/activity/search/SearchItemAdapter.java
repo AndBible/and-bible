@@ -23,7 +23,6 @@ import android.graphics.Typeface;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,19 +55,7 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		this.searchControl = searchControl;
 	}
 
-	public static class testSearch {
-		String searchTerms;
-		String testType;
-		public testSearch(String searchTerms) {
-			this.searchTerms = searchTerms;
-			this.testType = testType;
-		}
-		public String PrepareSearchTerms() {return prepareSearchTerms(searchTerms);}
-		public String[] SplitSearchTerms() {return splitSearchTerms(searchTerms);}
-		public String PrepareSearchWord() {return prepareSearchWord(searchTerms);}
-		}
-
-	private static String prepareSearchTerms(String searchTerms) {
+	static String prepareSearchTerms(String searchTerms) {
 		// Replaces strong:g00123 with REGEX strong:g*123. This is needed because the search term submitted by the 'Find all occcurrences includes extra zeros
 		// The capitalisation is not important since we do a case insensitive search
 		if (searchTerms.contains("strong:")) {
@@ -78,13 +65,13 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		return searchTerms;
 	}
 
-	private static String[] splitSearchTerms(String searchTerms) {
+	static String[] splitSearchTerms(String searchTerms) {
 		// Split the search terms on space characters that are not enclosed in double quotes
 		// Eg: 'moses "burning bush"' -> "moses" and "burning bush"
 		return searchTerms.split("\\s+(?=(?:\"(?:\\\\\"|[^\"])+\"|[^\"])+$)");
 	}
 
-	private static String prepareSearchWord(String searchWord) {
+	static String prepareSearchWord(String searchWord) {
 		// Need to clean up the search word itself before trying to find the searchWord in the text
 		// Eg: '+"burning bush"' -> 'burning bush'
 		searchWord = searchWord.replace("\"", "");  // Remove quotes which indicate phrase searches
@@ -129,15 +116,18 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 
 		return view;
 	}
+
+	private final List<String> elementsToExclude = Arrays.asList("note","reference");
+	private final List<String> elementsToInclude = Arrays.asList("w","transChange","divineName","seg");
+
 	private String processElementChildren(Element parentElement, String searchTerms, String verseString, Boolean isBold) {
 		// Recursive method to walk the verse element tree ignoring tags like 'note' that should not be shown in the search results
 		// and including tags like 'w' that should be included. This routine is needed only to do searches on lemma attributes. That
 		// is why bolding only occurs in that part of the code.
+
 		for (Object o : parentElement.getContent()) {
 			if (o instanceof Element) {
 				Element el = (Element) o;
-				List<String> elementsToExclude = Arrays.asList("note","reference");
-				List<String> elementsToInclude = Arrays.asList("w","transChange","divineName","seg");
 				if (elementsToInclude.contains(el.getName())) {
 					try {
 						String lemma = el.getAttributeValue("lemma");
@@ -146,9 +136,13 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 						isBold = false;
 					}
 					// Only leaf nodes should have their text appended. If a node has child tags, the text will be passed as one of the children .
-					if (el.getChildren().isEmpty()) verseString += buildElementText(el.getText(),isBold);
+					if (el.getChildren().isEmpty()) {
+						verseString += buildElementText(el.getText(), isBold);
+					}
 				}
-				if (!el.getChildren().isEmpty() && !elementsToExclude.contains(el.getName())) {verseString = processElementChildren(el, searchTerms, verseString, isBold);};
+				if (!el.getChildren().isEmpty() && !elementsToExclude.contains(el.getName())) {
+					verseString = processElementChildren(el, searchTerms, verseString, isBold);
+				}
 			} else if (o instanceof Text) {
 				Text t = (Text) o;
 				verseString += buildElementText(t.getText(),false);
@@ -171,20 +165,20 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 
 		SpannableString spannableText = null;
 		try {
-			String verseString = "";
+			StringBuilder verseString = new StringBuilder();
 			searchTerms = prepareSearchTerms(searchTerms);
 
 			List<Element> verses = textElement.getChildren("verse");
 			for (Element verse : verses) {
-				verseString += processElementChildren(verse, searchTerms, "", false);
+				verseString.append(processElementChildren(verse, searchTerms, "", false));
 			}
-			spannableText = new SpannableString(Html.fromHtml(verseString));
-			Matcher m = null;
+			spannableText = new SpannableString(Html.fromHtml(verseString.toString()));
+			Matcher m;
 			String[] splitSearchArray = splitSearchTerms(searchTerms);
 			for (String originalSearchWord : splitSearchArray) {
 				String searchWord = prepareSearchWord(originalSearchWord);
 				if (originalSearchWord.contains("*")) {
-					searchWord = "\\b" + searchWord + "[\\w\\'\\-]*\\b";  // Match whole words including with hyphons and apostrophes
+					searchWord = "\\b" + searchWord + "[\\w'\\-]*\\b";  // Match whole words including with hyphons and apostrophes
 				} else {
 					searchWord = "\\b" + searchWord + "\\b";
 				}
@@ -197,10 +191,8 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 			}
 		}
 		catch (Exception e) {
-			Log.w("SEARCH", e.getMessage());
+			Log.e("SEARCH", "Error in highlightSearchText", e);
 		}
-		finally {
-			return spannableText;
-		}
+		return spannableText;
 	}
 }
