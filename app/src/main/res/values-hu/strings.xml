@@ -812,4 +812,6 @@ jelentse be az észlelt problémát</string>
   <string name="added_to_bookmark">Hozzácsatolva a könyvjelzőhöz</string>
   <string name="strongs_links">Hivatkozások</string>
   <string name="verse_tip">Versrészlet vagy több vers kiválasztásához hosszan nyomjon a Biblia szövegre</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>
