@@ -31,8 +31,7 @@
 import {inject, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {checkUnsupportedProps, useCommon} from "@/composables";
-
-const isPreVerse = ({type, subType}) => type === "x-milestone" && subType === "x-preverse";
+import {computed} from "@vue/reactivity";
 
 export default {
   name: "Div",
@@ -48,6 +47,11 @@ export default {
 
     const verseInfo = inject("verseInfo", null);
     let shown = false;
+
+    function isPreVerse(type, subType) {
+      return type === "x-milestone" && subType === "x-preverse";
+    }
+
     if(isPreVerse(props) && verseInfo) {
       shown = ref(true);
       for (const oldValue of verseInfo.showStack) {
@@ -56,12 +60,17 @@ export default {
       verseInfo.showStack.push(shown);
     }
     const common = useCommon();
-    return {verseInfo, shown, ...common};
-  },
-  computed : {
-    isParagraph: ({type, sID}) => ['x-p', 'paragraph', 'colophon'].includes(type) && sID,
-    isPreVerse,
-    isCanonical: ({canonical}) => canonical !== "false",
+    const isParagraph = computed(() => ['x-p', 'paragraph', 'colophon'].includes(props.type) && props.sID);
+    const isCanonical = computed(() => props.canonical !== "false");
+
+    return {
+      verseInfo,
+      isPreVerse: computed(() => isPreVerse(props.type, props.subType)),
+      isParagraph,
+      isCanonical,
+      shown,
+      ...common
+    };
   },
   props: {
     osisID: {type: String, default: null},

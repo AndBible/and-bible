@@ -573,7 +573,7 @@ class ManageLabels : ListActivityBase() {
                 }
             }, {
                 when (it) {
-                    is BookmarkEntities.Label -> it.name.toLowerCase(Locale.getDefault())
+                    is BookmarkEntities.Label -> it.name.lowercase(Locale.getDefault())
                     else -> ""
                 }
             }))

@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {nextTick} from "@vue/runtime-core";
+import {nextTick, watch} from "@vue/runtime-core";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 import {isInViewport} from "@/utils";
@@ -23,6 +23,14 @@ import {isInViewport} from "@/utils";
 export function useScroll(config, appSettings, calculatedConfig, {highlightVerse, resetHighlights}, documentPromise) {
     const currentScrollAnimation = ref(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
+
+    watch(isScrolling, v => {
+        if(v) {
+            document.addEventListener("touchstart", stopScrolling)
+        } else {
+            document.removeEventListener("touchstart", stopScrolling)
+        }
+    }, {flush: 'sync'});
 
     function setToolbarOffset(topOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
         console.log("setToolbarOffset", {topOffset, bottomOffset, doNotScroll, immediate});
@@ -32,11 +40,12 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
         const delay = immediate ? 0 : 500;
 
         if(diff !== 0 && !doNotScroll) {
-            doScrolling(window.pageYOffset + diff, delay)
+            doScrolling(window.scrollY + diff, delay)
         }
     }
 
     function stopScrolling(nullify = true) {
+        console.log("stopScrolling!");
         if(currentScrollAnimation.value != null) {
             window.cancelAnimationFrame(currentScrollAnimation.value);
             if(nullify) {
@@ -52,7 +61,7 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
         console.log("doScrolling", elementY, duration);
         const noScrolling = duration === 0;
         stopScrolling(!noScrolling);
-        const startingY = window.pageYOffset;
+        const startingY = window.scrollY;
         const diff = elementY - startingY;
         let start;
 
@@ -94,7 +103,7 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
         }
     }
 
-    function scrollToId(toId, {onlyIfInvisible = false, now = false, highlight = false, ordinalStart = null, ordinalEnd = null, force = false, duration = 1000} = {}) {
+    function scrollToId(toId, {onlyIfInvisible = false, now = false, highlight = false, ordinalStart = null, ordinalEnd = null, force = false, duration} = {}) {
         console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd});
         stopScrolling();
         let delta = calculatedConfig.value.topOffset;
@@ -115,7 +124,7 @@ export function useScroll(config, appSettings, calculatedConfig, {highlightVerse
         }
 
         if (toElement != null) {
-            const diff = toElement.offsetTop - window.pageYOffset;
+            const diff = toElement.offsetTop - window.scrollY;
             if(Math.abs(diff) > 800 / window.devicePixelRatio) {
                 now = true;
             }

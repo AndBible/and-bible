@@ -45,8 +45,16 @@ val Key.uniqueId: String get() {
     }
 }
 
-fun wrapString(str: String?): String = if(str == null) "null" else "`${str.replace("`", "\\`")}`"
-
+fun wrapString(str_: String?, replaceBackslash: Boolean = false): String =
+    if(str_ == null) "null"
+    else {
+        var str = str_
+        if(replaceBackslash) {
+            str = str.replace("\\", "\\\\")
+        }
+        str = str.replace("`", "\\`")
+        "`$str`"
+    }
 
 fun elementToString(e: Element): String {
     val format = Format.getRawFormat()

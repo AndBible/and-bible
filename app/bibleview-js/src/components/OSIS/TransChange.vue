@@ -33,7 +33,7 @@ export default {
     const {config, ...common} = useCommon();
     const isNonCanonical = computed(() => props.type.toLowerCase() === "added");
     const show = computed(() => (!isNonCanonical.value) || (isNonCanonical.value && config.showNonCanonical));
-    return {show, isNonCanonical, ...common};
+    return {show, isNonCanonical, config, ...common};
   },
 }
 </script>

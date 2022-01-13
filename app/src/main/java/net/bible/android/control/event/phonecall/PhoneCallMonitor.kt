@@ -1,0 +1,118 @@
+/*
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ *
+ * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ *
+ * And Bible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with And Bible.
+ * If not, see http://www.gnu.org/licenses/.
+ *
+ */
+package net.bible.android.control.event.phonecall
+
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyCallback
+import android.telephony.TelephonyManager
+import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.getMainExecutor
+import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+
+const val TAG = "PhoneCallMonitor"
+
+/**
+ * Monitor phone calls to stop speech, etc
+ */
+
+@RequiresApi(Build.VERSION_CODES.S)
+class CustomTelephonyCallback(private val func: (state: Int) -> Unit) : TelephonyCallback(), TelephonyCallback.CallStateListener {
+    override fun onCallStateChanged(state: Int) {
+        func(state)
+    }
+}
+
+object PhoneCallMonitor {
+    private var isMonitoring = false
+    var requestPermission = true // Request permission max once per session
+
+    var callback: CustomTelephonyCallback? = null
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun startMonitoring() = application.run {
+        val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+        telephonyManager?.registerTelephonyCallback(
+            getMainExecutor(this),
+            CustomTelephonyCallback { state ->
+                Log.i(TAG, "State changed to $state")
+                if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
+                    ABEventBus.getDefault().post(PhoneCallEvent(true))
+                } else if (state == TelephonyManager.CALL_STATE_IDLE) {
+                    ABEventBus.getDefault().post(PhoneCallEvent(false))
+                }
+            }.also {
+                callback = it
+            }
+        )
+    }
+
+    /** If phone rings then notify all PhoneCallEvent listeners.
+     * This was attempted in CurrentActivityHolder but failed if device was on
+     * stand-by and speaking and Android 4.4 (I think it worked on earlier versions of Android)
+     */
+    private fun startMonitoringLegacy() {
+        Log.i("PhoneCallMonitor", "Starting monitoring")
+        phoneStateListener = object : PhoneStateListener() {
+            override fun onCallStateChanged(state: Int, incomingNumber: String) {
+                Log.i("PhoneCallMonitor", "State changed $state")
+                if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
+                    ABEventBus.getDefault().post(PhoneCallEvent(true))
+                } else if (state == TelephonyManager.CALL_STATE_IDLE) {
+                    ABEventBus.getDefault().post(PhoneCallEvent(false))
+                }
+            }
+        }
+        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE)
+    }
+
+    private val telephonyManager: TelephonyManager
+        get() = application.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+
+    // We need to keep reference to phoneStateListener. See
+    // https://stackoverflow.com/questions/42213250/android-nougat-phonestatelistener-is-not-triggered
+    private var phoneStateListener: PhoneStateListener? = null
+
+    fun ensureMonitoringStarted() {
+        Log.i(TAG, "ensureMonitoringStarted ${Build.VERSION.SDK_INT}")
+        if (!isMonitoring) {
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                isMonitoring = true
+                startMonitoringLegacy()
+            } else {
+                // Android 12+
+                if (ActivityCompat.checkSelfPermission(application, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    if(requestPermission) _mainBibleActivity?.requestPhoneStateReadPermission()
+                    requestPermission = false
+                    Log.i(TAG, "Permission denied! $requestPermission")
+                } else {
+                    Log.i(TAG, "Permission granted")
+                    isMonitoring = true
+                    startMonitoring()
+                }
+            }
+        }
+    }
+}

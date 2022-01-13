@@ -845,4 +845,6 @@
   <string name="strongs_links">Посилання</string>
   <string name="strongs_text_and_links">Текст і посилання</string>
   <string name="verse_tip">Щоб вибрати часткові або багато віршів, довго натисніть текст Біблії</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

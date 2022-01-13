@@ -229,7 +229,7 @@
   <string name="one_more_back_press">Znova pritisnite nazaj, da zaprete aplikacijo</string>
   <string name="document_filter_results">%d dokumentov</string>
   <string name="download_question_title">Ali želite nadaljevati s prenosom dokumentov?</string>
-  <string name="download_question_message">Če živite v preganjani državi,
+  <string name="download_question_message">Če živite v državi, kjer preganjajo kristjane,
         boste morda morali biti previdni pri prenosu krščanskega gradiva prek interneta.
         Namesto tega boste morda želeli varneje pridobiti zip datoteke modula in jih namestiti
         prek \"Naloži dokumente iz Zip\". Ali ste prepričani, da želite nadaljevati s prenosom?
@@ -844,4 +844,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="strongs_links">Povezave</string>
   <string name="strongs_text_and_links">Besedilo in povezave</string>
   <string name="verse_tip">Za delno izbiro vrstice ali izbiro več vrstic dolgo pritisnete na biblijsko besedilo</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

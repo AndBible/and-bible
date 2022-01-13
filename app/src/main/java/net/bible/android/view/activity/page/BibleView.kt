@@ -58,6 +58,7 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
@@ -129,6 +130,12 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.math.min
 
+import net.bible.android.control.page.CurrentPageManager
+import android.os.Bundle
+import net.bible.android.view.activity.search.SearchResults
+import net.bible.android.view.activity.search.SearchIndex
+import org.crosswire.jsword.index.IndexStatus
+import org.crosswire.jsword.index.search.SearchType
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
@@ -183,12 +190,13 @@ class Selection(val bookInitials: String?, val startOrdinal: Int,
 @SuppressLint("ViewConstructor")
 class BibleView(val mainBibleActivity: MainBibleActivity,
                 internal var windowRef: WeakReference<Window>,
-                val windowControl: WindowControl,
+                internal val windowControl: WindowControl,
                 private val pageControl: PageControl,
                 private val pageTiltScrollControl: PageTiltScrollControl,
-                val linkControl: LinkControl,
+                internal val linkControl: LinkControl,
                 internal val bookmarkControl: BookmarkControl,
                 internal val downloadControl: DownloadControl,
+                private val searchControl: SearchControl
 ) : WebView(mainBibleActivity.applicationContext), DocumentView
 {
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
@@ -201,7 +209,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private var minChapter = -1
     private var maxChapter = -1
-
 
     private var gestureDetector: GestureDetectorCompat
 
@@ -228,6 +235,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             field = value
         }
+
+    val htmlReady get() = !htmlLoadingOngoing
 
     var window: Window
         get() = windowRef.get()!!
@@ -283,11 +292,29 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             R.id.share_verses -> {
-                val sel = currentSelection
-                if (sel != null)
-                    ShareWidget.dialog(mainBibleActivity, sel)
+                val sel = currentSelection ?: return true
+                ShareWidget.dialog(mainBibleActivity, sel)
                 return true
             }
+            R.id.search -> {
+                val sel = currentSelection ?: return true
+                val currentBible = currentPageManager.currentBible.currentDocument?: return true
+                val searchText = searchControl.decorateSearchString(sel.text, SearchType.PHRASE, SearchControl.SearchBibleSection.ALL, "")
+                val searchParams = Bundle().apply {
+                    putString(SearchControl.SEARCH_TEXT, searchText)
+                    putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
+                }
+
+                val intent = Intent(mainBibleActivity,
+                    if (currentBible.indexStatus != IndexStatus.DONE) SearchIndex::class.java else SearchResults::class.java
+                ).apply {
+                    putExtras(searchParams)
+                }
+                mainBibleActivity.startActivity(intent)
+
+                return true
+            }
+
             R.id.system_items -> {
                 showSystem = true
                 mode.menu.clear()
@@ -817,7 +844,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         UriConstants.SCHEME_DOWNLOAD -> {
             val initials = uri.getQueryParameter("initials")
 
-            val intent = Intent(MainBibleActivity.mainBibleActivity, DownloadActivity::class.java)
+            val intent = Intent(mainBibleActivity, DownloadActivity::class.java)
             intent.putExtra("search", initials)
             mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
             true
@@ -956,6 +983,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             // Ps 119 in KJV is only 70k. Let's give gracefully max 500k until we give "page too large" error.
             // Our BibleView.js will freeze and eventually OOM-crash with ridiculously large documents.
             if(docStr.length > 500000) {
+                Log.e(TAG, "Page is too large to be shown, showing error instead, ${docStr.length}")
                 val errorDoc = ErrorDocument(mainBibleActivity.getString(R.string.error_page_too_large), ErrorSeverity.NORMAL)
                 docStr = errorDoc.asJson
                 firstDocument = errorDoc
@@ -1293,7 +1321,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: ScrollSecondaryWindowEvent) {
         if (window == event.window) {
-            scrollOrJumpToVerse(event.verse, window.restoreOngoing)
+            scrollOrJumpToVerse(event.verse)
         }
     }
 
@@ -1401,9 +1429,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(contentVisible) {
             updateTextDisplaySettings(true)
         }
+        flushTasks()
     }
 
-    fun scrollOrJumpToVerse(key: Key, restoreOngoing: Boolean = false) {
+    fun scrollOrJumpToVerse(key: Key, forceNow: Boolean = false) {
         Log.i(TAG, "Scroll or jump to:$key")
         var toVerse: Verse
         var endVerse: Verse? = null
@@ -1429,13 +1458,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             endVerse = endVerse?.toV11n(v.versification)
         }
         val jumpToId = "o-${toVerse.ordinal}"
-        val now = !contentVisible || restoreOngoing
+        val now = !contentVisible || forceNow
         val highlight = !contentVisible || endVerse != null
         fun boolString(value: Boolean?): String {
             if(value == null) return "null"
             return if(value) "true" else "false"
         }
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
+        if(isActive) {
+            PassageChangeMediator.getInstance().onCurrentVerseChanged(window)
+        }
     }
 
     fun executeJavascriptOnUiThread(javascript: String): Boolean {
@@ -1451,21 +1483,28 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun runOnUiThread(runnable: () -> Unit) = synchronized(this) {
         // If there are any tasks, we must put them to queue, to make sure they are run in the correct order
-        if(Looper.myLooper() == Looper.getMainLooper() && taskQueue.size == 0) {
+        val wasEmpty = taskQueue.isEmpty()
+        val isAttached = isAttachedToWindow
+
+        if(Looper.myLooper() == Looper.getMainLooper() && wasEmpty && isAttached) {
+            Log.i(TAG, "TaskQueue Executing runnable immediately")
             runnable()
         } else {
+            Log.i(TAG, "TaskQueue Adding runnable to queue")
             taskQueue.addLast(runnable)
-            if (taskQueue.size == 1) {
+            if (wasEmpty && isAttached) {
+                Log.i(TAG, "TaskQueue Scheduling flushing tasks")
                 post { flushTasks() }
             }
         }
     }
 
     private fun flushTasks()  = synchronized(this) {
-        Log.i(TAG, "flushTasks ${taskQueue.size}")
+        Log.i(TAG, "TaskQueue flushTasks ${taskQueue.size}")
         while (taskQueue.size > 0) {
             taskQueue.pop().invoke()
         }
+        Log.i(TAG, "TaskQueue flushTasks done.")
     }
 
     private fun executeJavascript(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
@@ -1571,4 +1610,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // no scrollOrJumpToVerse will occur
         private const val TOP_OF_SCREEN = 1
     }
+
+    private val currentPageManager: CurrentPageManager
+        get() = windowControl.activeWindowPageManager
+
+
 }

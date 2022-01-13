@@ -46,19 +46,18 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.view.ActionMode
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -73,6 +72,7 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
+import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.navigation.NavigationControl
@@ -134,6 +134,7 @@ import kotlin.system.exitProcess
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
+    val scope = CoroutineScope(Dispatchers.Default)
 
     private var mWholeAppWasInBackground = false
 
@@ -305,13 +306,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         setupToolbarFlingDetection()
         setSoftKeyboardMode()
 
-        if(!initialized)
+        if(!initialized) {
             requestSdcardPermission()
+        }
 
         binding.speakTransport.visibility = View.GONE
 
         if(!initialized) {
-            GlobalScope.launch(Dispatchers.Main) {
+            scope.launch(Dispatchers.Main) {
                 ErrorReportControl.checkCrash(this@MainBibleActivity)
                 if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
                 showBetaNotice()
@@ -319,7 +321,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 showFirstTimeHelp()
                 ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
             }
-            GlobalScope.launch {
+            scope.launch {
                 checkDocBackupDBInSync()
             }
         }
@@ -813,7 +815,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     val bibleOverlayText: String
         get() {
             val bookName = pageControl.currentPageManager.currentPage.currentDocument?.abbreviation
-            synchronized(BookName::class) {
+            synchronized(BookName::class.java) {
                 val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
                 val text = pageTitleText
@@ -827,7 +829,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             binding.pageTitle.text = pageTitleText
             val layout = binding.pageTitle.layout
             if(layout!= null && layout.lineCount > 0 && layout.getEllipsisCount(0) > 0) {
-                synchronized(BookName::class) {
+                synchronized(BookName::class.java) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
                     binding.pageTitle.text = pageTitleText
@@ -1421,12 +1423,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         resetSystemUi()
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        Log.i(TAG, "onRequestPermissionResult $requestCode")
         when (requestCode) {
             SDCARD_READ_REQUEST -> if (grantResults.isNotEmpty()) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     documentControl.enableManualInstallFolder()
                 } else {
                     documentControl.turnOffManualInstallFolderSetting()
+                }
+            }
+            PHONE_STATE_READ_REQUEST -> if (grantResults.isNotEmpty()) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    PhoneCallMonitor.ensureMonitoringStarted()
                 }
             }
         }
@@ -1497,6 +1505,29 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun requestPhoneStateReadPermission() {
+        scope.launch(Dispatchers.Main) {
+            Log.i(TAG, "requestPhoneStateReadPermission")
+            var cnt = true
+            if(shouldShowRequestPermissionRationale(Manifest.permission.READ_PHONE_STATE)) {
+                cnt = suspendCoroutine {
+                    AlertDialog.Builder(this@MainBibleActivity)
+                        .setTitle(R.string.permission_required)
+                        .setMessage(R.string.phone_call_permission_rationale)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.okay) { _, _ ->
+                            it.resume(true)
+                        }
+                        .show()
+                }
+            }
+            if(cnt) {
+                requestPermissions(arrayOf(Manifest.permission.READ_PHONE_STATE), PHONE_STATE_READ_REQUEST)
+            }
+        }
+    }
+
     val isSplitVertically: Boolean get() {
         val reverse = windowRepository.workspaceSettings.enableReverseSplitMode
         return if(reverse) !CommonUtils.isPortrait else CommonUtils.isPortrait
@@ -1507,6 +1538,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val mainBibleActivity get() = _mainBibleActivity!!
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
+        private const val PHONE_STATE_READ_REQUEST = 3
 
         const val TEXT_DISPLAY_SETTINGS_CHANGED = 92
         const val COLORS_CHANGED = 93
