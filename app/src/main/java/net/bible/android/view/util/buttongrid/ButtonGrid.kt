@@ -103,7 +103,6 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
 
     private fun addGroupedButtons(buttonInfoList: List<ButtonInfo>) {
         this.buttonInfoList = buttonInfoList
-        val numButtons = buttonInfoList.size
         val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp)
         var iRow = -1
         var iCol = 0
@@ -112,20 +111,20 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
         this.rowColLayout = rowColLayout
         val rowInTableLp = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f)
         val cellInRowLp = TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f)
-        var CurrentGroup = ""
+        var currentGroup = ""
         var row = TableRow(context)
-        val MaxColumns = 6
+        val maxColumns = 6
         for (i in buttonInfoList.indices) {
             val buttonInfo = buttonInfoList[i]
             iCol += 1
-            if (CurrentGroup != buttonInfo.GroupB) {
+            if (currentGroup != buttonInfo.GroupB) {
                 // Add a new row
                 row = TableRow(context)
                 addView(row, rowInTableLp)
-                CurrentGroup = buttonInfo.GroupB.toString()
+                currentGroup = buttonInfo.GroupB.toString()
                 iRow += 1
                 iCol = 0
-            } else if (iCol > MaxColumns) {
+            } else if (iCol > maxColumns) {
                 row = TableRow(context)
                 addView(row, rowInTableLp)
                 iRow += 1
@@ -136,7 +135,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
             button.setTextColor(buttonInfo.textColor)
             button.backgroundTintList = ColorStateList.valueOf(buttonInfo.tintColor)
             if (buttonInfo.highlight) {
-                button.setTypeface(Typeface.DEFAULT_BOLD)
+                button.typeface = Typeface.DEFAULT_BOLD
                 button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
                 button.paintFlags = button.paintFlags or Paint.UNDERLINE_TEXT_FLAG
                 button.isPressed = true
@@ -155,7 +154,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
             val newGroup = if (i + 1 == buttonInfoList.size) {
                 true
             } else buttonInfo.GroupB != buttonInfoList[i + 1].GroupB
-            while ((iCol < MaxColumns) and (newGroup)) {
+            while ((iCol < maxColumns) and newGroup) {
                 val spacer = TextView(context)
                 row.addView(spacer, cellInRowLp)
                 iCol += 1
@@ -177,7 +176,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
         previewHeight = (PREVIEW_HEIGHT_DIP * scale).toInt()
     }
 
-fun addButtons(buttonInfoList: List<ButtonInfo>) {
+    fun addButtons(buttonInfoList: List<ButtonInfo>) {
         this.buttonInfoList = buttonInfoList
         val numButtons = buttonInfoList.size
         val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp)
@@ -208,7 +207,7 @@ fun addButtons(buttonInfoList: List<ButtonInfo>) {
                         }
                     }
                     if (buttonInfo.highlight) {
-                        button.setTypeface(Typeface.DEFAULT_BOLD)
+                        button.typeface = Typeface.DEFAULT_BOLD
                         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
                         button.paintFlags = button.paintFlags or Paint.UNDERLINE_TEXT_FLAG
                         button.isPressed = true
