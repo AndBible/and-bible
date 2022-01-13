@@ -21,6 +21,7 @@ import {rybColorMixer} from "@/lib/ryb-color-mixer";
 import {get, sortBy} from "lodash";
 import {highlightRange} from "@/lib/highlight-range";
 import {findNodeAtOffset, lastTextNode} from "@/dom";
+import {sprintf as sprintfOrig} from "sprintf-js";
 
 export function setupWindowEventListener(eventType, handler, options) {
     onMounted(() => window.addEventListener(eventType, handler, options))
@@ -508,4 +509,21 @@ export async function waitUntilRefValue(ref_) {
             }
         });
     });
+}
+
+export function abbreviated(str, n, useWordBoundary = true) {
+    if(!str) return ""
+    if (str.length <= n) { return str; }
+    let subString = str.substr(0, n-1); // the original check
+    let splitPoint = subString.lastIndexOf(" ");
+    if(splitPoint <= 0) {
+        splitPoint = n-1;
+    }
+    return (useWordBoundary
+        ? subString.substr(0, splitPoint)
+        : subString) + "...";
+}
+
+export function sprintf(...args) {
+    return sprintfOrig(...args);
 }

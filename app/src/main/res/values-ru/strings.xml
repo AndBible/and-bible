@@ -847,4 +847,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="strongs_links">Ссылки</string>
   <string name="strongs_text_and_links">Текст и ссылки</string>
   <string name="verse_tip">Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии.</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

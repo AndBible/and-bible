@@ -24,7 +24,7 @@ invalidReference: Versetto non trovato
 assignLabels: Etichette
 bookmarkAccurate: Segnalibro creato in %s
 bookmarkInaccurate: "Informazioni del segnalibro non salvate, il contenuto è mostrato in %s."
-defaultBook: documento Bibbia di default
+defaultBook: documento Bibbia predefinito
 ok: OK
 yes: "Si"
 ambiguousSelection: "Quale azione vuoi eseguire?"

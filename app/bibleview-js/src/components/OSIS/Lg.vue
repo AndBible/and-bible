@@ -21,6 +21,7 @@
 
 <script>
 import {useCommon} from "@/composables";
+import {computed} from "@vue/reactivity";
 
 /** The lg or "line group" element is used to contain any group of poetic lines.
  * Poetic lines are handled at the line level by And Bible, not line group
@@ -34,12 +35,10 @@ export default {
     eID: {type: String, default: null},
     level: {type: String, default: null},
   },
-  setup() {
-    return {...useCommon()};
+  setup(props) {
+    const show = computed(() => props.sID);
+    return {show, ...useCommon()};
   },
-  computed: {
-    show: ({sID}) => sID
-  }
 }
 </script>
 

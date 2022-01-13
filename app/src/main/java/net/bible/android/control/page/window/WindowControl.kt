@@ -20,8 +20,6 @@ package net.bible.android.control.page.window
 
 import android.app.AlertDialog
 import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -77,7 +75,6 @@ open class WindowControl @Inject constructor(
         get() = windowRepository.activeWindow
         set(currentActiveWindow) {
             windowRepository.activeWindow = currentActiveWindow
-            windowRepository.activeWindow.bibleView?.requestFocus()
         }
 
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
@@ -109,7 +106,6 @@ open class WindowControl @Inject constructor(
 
     fun showLink(document: Book, key: Key) {
         val linksWindow = windowRepository.dedicatedLinksWindow
-        linksWindow.restoreOngoing = true
         val linksWindowWasVisible = linksWindow.isVisible
 
         linksWindow.initialisePageStateIfClosed(activeWindow)
@@ -124,7 +120,6 @@ open class WindowControl @Inject constructor(
         if (!linksWindowWasVisible) {
             eventManager.post(NumberOfWindowsChangedEvent())
         }
-        linksWindow.restoreOngoing = false
     }
 
 
@@ -194,7 +189,6 @@ open class WindowControl @Inject constructor(
             minimiseWindow(window)
         } else {
             if (window == activeWindow) return
-            window.restoreOngoing = true
 
             if(!window.isPinMode && !window.isLinksWindow) {
                 for (it in windowRepository.windowList.filter { !it.isPinMode }) {
@@ -204,7 +198,10 @@ open class WindowControl @Inject constructor(
 
             window.windowState = WindowState.SPLIT
 
-            windowSync.synchronizeWindows()
+            val noDelay = window.bibleView?.htmlReady != true
+            // If BibleView is not yet ready, we should do sync without delay to make sure
+            // it loads initial content to the right location.
+            windowSync.synchronizeWindows(noDelay = noDelay)
             windowSync.reloadAllWindows()
 
             if (activeWindow.isSynchronised)
@@ -212,7 +209,6 @@ open class WindowControl @Inject constructor(
 
             eventManager.post(NumberOfWindowsChangedEvent())
             activeWindow = window
-            window.restoreOngoing = false
         }
     }
 
@@ -289,7 +285,9 @@ open class WindowControl @Inject constructor(
     }
 
     fun unMaximise() {
+        val maximizedWindow = windowRepository.maximizedWindow
         windowRepository.maximizedWindowId = null
+        windowSync.synchronizeWindows(maximizedWindow, noDelay = true)
         windowSync.reloadAllWindows()
         eventManager.post(NumberOfWindowsChangedEvent())
     }

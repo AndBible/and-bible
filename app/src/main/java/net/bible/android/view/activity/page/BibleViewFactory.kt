@@ -26,6 +26,7 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControlFactory
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import java.lang.ref.WeakReference
 
@@ -45,6 +46,7 @@ class BibleViewFactory @Inject constructor(
     private val linkControl: LinkControl,
     private val bookmarkControl: BookmarkControl,
     private val downloadControl: DownloadControl,
+    private val searchControl: SearchControl
 ) {
 
     private val windowBibleViewMap: MutableMap<Long, BibleView> = HashMap()
@@ -63,7 +65,7 @@ class BibleViewFactory @Inject constructor(
         if (bibleView == null) {
             val pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window)
             bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl,
-                pageControl, pageTiltScrollControl, linkControl, bookmarkControl, downloadControl)
+                pageControl, pageTiltScrollControl, linkControl, bookmarkControl, downloadControl, searchControl)
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
             Log.i(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")//  ${Log.getStackTraceString(Exception())}")
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)

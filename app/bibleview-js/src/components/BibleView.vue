@@ -45,15 +45,6 @@
 <script>
 import Document from "@/components/documents/Document";
 import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
-import {
-  useAddonFonts,
-  useConfig,
-  useCustomCss,
-  useCustomFeatures,
-  useFontAwesome, useModal, useSharing,
-  useVerseHighlight,
-  useVerseNotifier
-} from "@/composables";
 import {testBookmarkLabels, testData} from "@/testdata";
 import {computed, ref} from "@vue/reactivity";
 import {useInfiniteScroll} from "@/composables/infinite-scroll";
@@ -69,6 +60,15 @@ import Color from "color";
 import {useStrings} from "@/composables/strings";
 import {DocumentTypes} from "@/constants";
 import {useKeyboard} from "@/composables/keyboard";
+import {useVerseNotifier} from "@/composables/verse-notifier";
+import {useAddonFonts} from "@/composables/addon-fonts";
+import {useFontAwesome} from "@/composables/fontawesome";
+import {useConfig} from "@/composables/config";
+import {useVerseHighlight} from "@/composables/verse-highlight";
+import {useModal} from "@/composables/modal";
+import {useCustomCss} from "@/composables/custom-css";
+import {useCustomFeatures} from "@/composables/features";
+import {useSharing} from "@/composables/sharing";
 
 export default {
   name: "BibleView",

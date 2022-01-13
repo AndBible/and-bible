@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -98,6 +98,7 @@ object SwordContentFacade {
             if(book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
                 val div = data.osisFragment
                 val verse = div.getChild("verse")
+                    ?: throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
                 val verseContent = verse.content.toList()
                 verse.removeContent()
                 div.removeContent()
@@ -106,7 +107,11 @@ object SwordContentFacade {
             } else {
                 data.osisFragment
             }
-        } catch (e: Exception) {
+        }
+        catch (e: OsisError) {
+            throw e
+        }
+        catch (e: Exception) {
             log.error("Parsing error", e)
             throw ParseException("Parsing error", e)
         }
@@ -137,11 +142,15 @@ object SwordContentFacade {
 
     fun getSelectionText(selection: Selection,
                          showVerseNumbers: Boolean,
-                         showFull: Boolean,
                          advertiseApp: Boolean,
                          showReference: Boolean = true,
+                         showReferenceAtFront:Boolean = false,
                          abbreviateReference: Boolean = true,
                          showNotes: Boolean = true,
+                         showVersion: Boolean = true,
+                         showSelectionOnly: Boolean = true,
+                         showEllipsis: Boolean = true,
+                         showQuotes: Boolean = true
     ): String {
 
         class VerseAndText(val verse: Verse, val text: String)
@@ -160,24 +169,28 @@ object SwordContentFacade {
         if(showVerseNumbers && verseTexts.size > 1) {
             startVerseNumber = "${selection.verseRange.start.verse}. "
         }
-        if (!showFull && startOffset > 0) {
+        if (showSelectionOnly && startOffset > 0 && showEllipsis) {
             startVerseNumber = "$startVerseNumber..."
         }
         val bookLocale = Locale(selection.book.language.code)
         val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
 
+        val versionText = if (showVersion) (selection.book.abbreviation) else ""
+        val quotationStart = if (showQuotes) "“" else ""
+        val quotationEnd = if (showQuotes) "”" else ""
+
         val reference = if(showReference) {
             if(abbreviateReference) {
-                synchronized(BookName::class) {
+                synchronized(BookName::class.java) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
                     val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
                     BookName.setFullBookName(oldValue)
-                    " ($verseRangeName, ${selection.book.abbreviation})"
+                    "$verseRangeName"
                 }
             } else {
                 val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
-                " ($verseRangeName, ${selection.book.abbreviation})"
+                "$verseRangeName"
             }
         }
         else
@@ -195,12 +208,13 @@ object SwordContentFacade {
             else
                 ""
 
-        return when {
+
+        val verseText = when {
             verseTexts.size == 1 -> {
                 val end = startVerse.slice(endOffset until startVerse.length)
                 val text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
-                val post = if(!showFull && end.isNotEmpty()) "..." else ""
-                if(showFull) """“$startVerseNumber$start${text}$end”""" else "“$startVerseNumber$text$post”"
+                val post = if(showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
+                if(!showSelectionOnly) """$quotationStart$startVerseNumber$start$text$end$quotationEnd""" else "$quotationStart$startVerseNumber$text$post$quotationEnd"
             }
             verseTexts.size > 1 -> {
                 startVerse = startVerse.slice(startOffset until startVerse.length)
@@ -208,18 +222,30 @@ object SwordContentFacade {
                 val endVerseNum = if(showVerseNumbers) "${lastVerse.verse.verse}. " else ""
                 val endVerse = lastVerse.text.slice(0 until min(lastVerse.text.length, endOffset))
                 val end = lastVerse.text.slice(endOffset until lastVerse.text.length)
-                val middleVerses = if(verseTexts.size > 2) {
+                var middleVerses = if(verseTexts.size > 2) {
                     verseTexts.slice(1 until verseTexts.size-1).joinToString(" ") {
                         if(showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
                     }
                 } else ""
-                val text = "$startVerse$middleVerses $endVerseNum$endVerse"
-                val post = if(!showFull && end.isNotEmpty()) "..." else ""
+                if(middleVerses.isNotEmpty()) {
+                    middleVerses += " "
+                }
+                val text = "${startVerse.trimEnd()} ${middleVerses.trimStart()}$endVerseNum$endVerse"
+                val post = if(showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
 
-                if(showFull) """“$startVerseNumber$start${text}$end$post”""" else "“$startVerseNumber$text$post”"
+                if(!showSelectionOnly) """$quotationStart$startVerseNumber$start$text$end$post$quotationEnd""" else "$quotationStart$startVerseNumber$text$post$quotationEnd"
             }
             else -> throw RuntimeException("what")
-        } + reference + notes + advertise
+        }
+        return if (showReference) {
+            if (showReferenceAtFront) {
+                "${("$reference $versionText").trim()} $verseText$notes$advertise"
+            } else {
+                "$verseText (${if (versionText == "") reference else "$reference, $versionText"})$notes$advertise"
+            }
+        } else {
+            "$verseText$notes$advertise"
+        }
     }
 
     private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> = try {

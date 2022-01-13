@@ -115,23 +115,18 @@ tasks.named("preBuild").configure { dependsOn(buildLoaderJs) }
 tasks.named("check").configure { dependsOn(jsTests) }
 
 android {
-    compileSdk = 30
+    compileSdk = 31
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         applicationId = applicationIdStandard
         minSdk =21
-        targetSdk = 30
+        targetSdk = 31
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
         buildConfigField("String", "BuildDate", "\"${SimpleDateFormat("dd/MM/YY HH:mm:ss").format(Date())}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        multiDexEnabled = true
-    }
-
-    dexOptions {
-        preDexLibraries = false
     }
 
     buildTypes {
@@ -274,12 +269,12 @@ dependencies {
     // 1.2.0+ releases (until 1.3.0-alpha02 at least) have issue with translations
     // not showing up on MainBibleActivity. Thus reverting to 1.0.2 for now.
     // https://issuetracker.google.com/issues/141132133
-    implementation("androidx.appcompat:appcompat:1.3.1")
+    implementation("androidx.appcompat:appcompat:1.4.0")
 
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
     implementation("androidx.media:media:1.4.3")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.1")
-    implementation("androidx.core:core-ktx:1.6.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.2")
+    implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.preference:preference:1.1.1")
     implementation("androidx.preference:preference-ktx:1.1.1")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
@@ -293,7 +288,7 @@ dependencies {
     implementation("com.google.android.material:material:1.4.0")
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
-    implementation("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.annotation:annotation:1.3.0")
 
     implementation("androidx.room:room-runtime:$roomVersion")
 
@@ -306,9 +301,9 @@ dependencies {
     //implementation("com.madgag.spongycastle:pkix:1.58.0.0")
     //implementation("com.madgag.spongycastle:pg:1.58.0.0")
 
-    implementation("com.google.dagger:dagger:2.38.1")
-    annotationProcessor("com.google.dagger:dagger-compiler:2.38.1")
-    kapt("com.google.dagger:dagger-compiler:2.38.1")
+    implementation("com.google.dagger:dagger:2.40.5")
+    annotationProcessor("com.google.dagger:dagger-compiler:2.40.5")
+    kapt("com.google.dagger:dagger-compiler:2.40.5")
 
     implementation("de.greenrobot:eventbus:2.4.1")
 

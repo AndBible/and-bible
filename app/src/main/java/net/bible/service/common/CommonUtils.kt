@@ -604,7 +604,7 @@ object CommonUtils : CommonUtilsBase() {
         val intent = Intent(callingActivity, StartupActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, 0)
+        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
         val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
@@ -737,7 +737,13 @@ object CommonUtils : CommonUtilsBase() {
         val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
 
         val versionMessageInstalled = if(existingVersion != null)
-            application.getString(R.string.module_about_installed_version, Version(existingVersion).toString(), existingVersionDate)
+            application.getString(R.string.module_about_installed_version,
+                try {
+                    Version(existingVersion).toString()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error parsing version $existingVersion", e)
+                    existingVersion
+                }, existingVersionDate)
         else null
 
         val versionMessageLatest = if(versionLatest != null)
@@ -1117,7 +1123,7 @@ object CommonUtils : CommonUtilsBase() {
 
         val goodLanguages = listOf(
             "en", "af", "my", "eo", "fi", "fr", "de", "hi", "hu", "it", "lt", "pl", "ru", "sl", "es", "uk", "zh-Hant-TW", "kk", "pt",
-            "zh-Hans-CN", "cs", "sk",
+            "zh-Hans-CN", "cs", "sk", "ro",
             // almost: "ko", "he" (hebrew, check...)
         )
 

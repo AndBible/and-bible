@@ -49,10 +49,10 @@ class LightSensor(val callBack: (newValue: Float) -> Unit) {
             if (isLightSensor) {
                 val sm = application.getSystemService(Context.SENSOR_SERVICE) as SensorManager
                 val oSensor = sm.getDefaultSensor(Sensor.TYPE_LIGHT)
-                sm.registerListener(myLightListener, oSensor, SensorManager.SENSOR_DELAY_UI)
+                sm.registerListener(myLightListener, oSensor, SensorManager.SENSOR_DELAY_NORMAL)
                 // wait for first event
                 try {
-                    Thread.sleep(100)
+                    Thread.sleep(500)
                 } catch (ie: InterruptedException) {
                     Log.e(TAG, "Interrupted getting light signal", ie)
                 }

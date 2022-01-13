@@ -128,12 +128,12 @@ class ChooseDictionaryWord : ListActivityBase() {
         Log.i(TAG, "Search for:$searchText")
         try {
             if (mDictionaryGlobalList != null) {
-                searchText = searchText.toLowerCase(Locale.getDefault())
+                searchText = searchText.lowercase(Locale.getDefault())
                 val iter = mDictionaryGlobalList!!.iterator()
                 mMatchingKeyList.clear()
                 while (iter.hasNext()) {
                     val key = iter.next()
-                    if (key.name.toLowerCase(Locale.getDefault()).contains(searchText)) {
+                    if (key.name.lowercase(Locale.getDefault()).contains(searchText)) {
                         mMatchingKeyList.add(key)
                     }
                 }

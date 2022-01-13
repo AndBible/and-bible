@@ -626,4 +626,6 @@
   <string name="strongs_off">מכובה</string>
   <string name="strongs_links">קישורים</string>
   <string name="strongs_text_and_links">טקסט וקישורים</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

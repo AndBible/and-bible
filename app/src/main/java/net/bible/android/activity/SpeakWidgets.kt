@@ -25,6 +25,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
@@ -181,7 +182,7 @@ class SpeakWidgetManager {
                     action = SpeakBookmarkWidget.ACTION_BOOKMARK
                     data = Uri.parse("bookmarksById://${b.id}")
                 }
-                val bc = PendingIntent.getBroadcast(context, 0, intent, 0)
+                val bc = PendingIntent.getBroadcast(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
                 button.setOnClickPendingIntent(R.id.button, bc)
             }
             views.addView(R.id.layout, button)
@@ -205,7 +206,7 @@ class SpeakWidgetManager {
         val contentIntent = Intent(context, MainBibleActivity::class.java)
         contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-        val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, 0)
+        val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         views.setOnClickPendingIntent(R.id.root, pendingIntent)
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -278,14 +279,14 @@ class SpeakWidgetManager {
                         intent.data = Uri.parse("bible://${book.initials}/${verse.osisRef}")
                     }
                 }
-                val bc = PendingIntent.getBroadcast(context, 0, intent, 0)
+                val bc = PendingIntent.getBroadcast(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
                 views.setOnClickPendingIntent(button, bc)
                 views.setViewVisibility(button, visible)
             }
 
             val contentIntent = Intent(context, MainBibleActivity::class.java)
             contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, 0)
+            val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
             views.setOnClickPendingIntent(R.id.layout, pendingIntent)
 
             for (b in allButtons) {
