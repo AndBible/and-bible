@@ -658,4 +658,6 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="instructions_for_translators">instructies voor vertalers</string>
   <string name="questions_title">Vragen?</string>
   <string name="questions_title2">Hulp nodig?</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

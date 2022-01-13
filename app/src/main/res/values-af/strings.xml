@@ -825,4 +825,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="added_to_bookmark">Toegewys aan hierdie boekmerk</string>
   <string name="strongs_links">Skakels</string>
   <string name="verse_tip">Om gedeeltelike of baie verse te kies, kan jy Bybel teks lank druk</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

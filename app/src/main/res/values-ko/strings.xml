@@ -698,4 +698,6 @@
   <string name="questions_title2">도움이 필요하신가요?</string>
   <string name="strongs_links">링크</string>
   <string name="verse_tip">절의 일부나 여러 절을 선택하려면, 성경 본문을 길게 누릅니다</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>
