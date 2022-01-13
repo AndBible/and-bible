@@ -56,8 +56,8 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -134,6 +134,7 @@ import kotlin.system.exitProcess
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
+    val scope = CoroutineScope(Dispatchers.Default)
 
     private var mWholeAppWasInBackground = false
 
@@ -312,7 +313,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         binding.speakTransport.visibility = View.GONE
 
         if(!initialized) {
-            GlobalScope.launch(Dispatchers.Main) {
+            scope.launch(Dispatchers.Main) {
                 ErrorReportControl.checkCrash(this@MainBibleActivity)
                 if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
                 showBetaNotice()
@@ -320,7 +321,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 showFirstTimeHelp()
                 ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
             }
-            GlobalScope.launch {
+            scope.launch {
                 checkDocBackupDBInSync()
             }
         }
@@ -1506,8 +1507,24 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun requestPhoneStateReadPermission() {
-        Log.i(TAG, "requestPhoneStateReadPermission")
-        requestPermissions(arrayOf(Manifest.permission.READ_PHONE_STATE), PHONE_STATE_READ_REQUEST)
+        scope.launch(Dispatchers.Main) {
+            Log.i(TAG, "requestPhoneStateReadPermission")
+            var cnt = true
+            if(shouldShowRequestPermissionRationale(Manifest.permission.READ_PHONE_STATE)) {
+                cnt = suspendCoroutine {
+                    AlertDialog.Builder(this@MainBibleActivity)
+                        .setMessage(getString(R.string.phone_call_permission_rationale))
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.okay) { _, _ ->
+                            it.resume(true)
+                        }
+                        .show()
+                }
+            }
+            if(cnt) {
+                requestPermissions(arrayOf(Manifest.permission.READ_PHONE_STATE), PHONE_STATE_READ_REQUEST)
+            }
+        }
     }
 
     val isSplitVertically: Boolean get() {
