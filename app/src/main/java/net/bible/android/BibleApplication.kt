@@ -82,7 +82,7 @@ open class BibleApplication : Application() {
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
     override fun onCreate() {
-        Log.d(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
+        Log.i(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
@@ -137,7 +137,7 @@ open class BibleApplication : Application() {
         } catch (e: Throwable) {
             Log.e(TAG, "Couldn't figure out SQLite version due to error: ", e)
         }
-        Log.d(TAG, "SQLite version: $sqliteVersion")
+        Log.i(TAG, "SQLite version: $sqliteVersion")
     }
 
     /**
@@ -156,7 +156,7 @@ open class BibleApplication : Application() {
         if (prevInstalledVersion < CommonUtils.applicationVersionNumber && !newInstall) {
             // there was a problematic Chinese index architecture before ver 24 so delete any old indexes
             if (prevInstalledVersion < 24) {
-                Log.d(TAG, "Deleting old Chinese indexes")
+                Log.i(TAG, "Deleting old Chinese indexes")
                 val chineseLanguage = Language("zh")
 
                 val books = applicationComponent.swordDocumentFacade().documents
@@ -166,7 +166,7 @@ open class BibleApplication : Application() {
                             val bookIndexer = BookIndexer(book)
                             // Delete the book, if present
                             if (bookIndexer.isIndexed) {
-                                Log.d(TAG, "Deleting index for " + book.initials)
+                                Log.i(TAG, "Deleting index for " + book.initials)
                                 bookIndexer.deleteIndex()
                             }
                         } catch (e: Exception) {
@@ -187,7 +187,7 @@ open class BibleApplication : Application() {
             if (prevInstalledVersion < 157) {
                 val appPrefs = appStateSharedPreferences
                 if (appPrefs.contains("screenStateArray")) {
-                    Log.d(TAG, "Removing screenStateArray")
+                    Log.i(TAG, "Removing screenStateArray")
                     appPrefs.edit()
                             .remove("screenStateArray")
                             .apply()
@@ -214,7 +214,7 @@ open class BibleApplication : Application() {
             editor.putString("night_mode_pref3", pref3value).apply()
         }
 
-        Log.d(TAG, "Finished all Upgrading")
+        Log.i(TAG, "Finished all Upgrading")
         editor.putInt("version", CommonUtils.applicationVersionNumber).apply()
     }
 

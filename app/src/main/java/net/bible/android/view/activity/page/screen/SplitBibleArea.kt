@@ -56,6 +56,9 @@ import net.bible.android.activity.databinding.SplitBibleAreaBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.page.MultiFragmentDocument
+import net.bible.android.control.page.MyNotesDocument
+import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
@@ -130,7 +133,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
     private var buttonsVisible = true
 
-    private val binding = SplitBibleAreaBinding.inflate(
+    val binding = SplitBibleAreaBinding.inflate(
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater,
         this, true
     )
@@ -305,7 +308,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)
 
     private fun rebuildRestoreButtons() {
-        Log.d(TAG, "rebuildRestoreButtons")
+        Log.i(TAG, "rebuildRestoreButtons")
         restoreButtonsList.clear()
         binding.restoreButtons.removeAllViews()
 
@@ -389,6 +392,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     private fun updateBibleReference() {
+        if(bibleReferenceOverlay.visibility != View.VISIBLE) return
         mainBibleActivity.runOnUiThread {
             try {
                 bibleReferenceOverlay.text = mainBibleActivity.bibleOverlayText
@@ -409,7 +413,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
     fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) {
         GlobalScope.launch {
-            Log.d(TAG, "on UpdateRestoreWindowButtons")
+            Log.i(TAG, "on UpdateRestoreWindowButtons")
             delay(200)
             withContext(Dispatchers.Main) {
                 updateRestoreButtons()
@@ -453,7 +457,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             val rect3 = Rect().apply {mainBibleActivity.window.decorView.getHitRect(this)}
             val rect4 = Rect().apply {mainBibleActivity.window.decorView.getGlobalVisibleRect(this)}
             val rect5 = Rect().apply {mainBibleActivity.window.decorView.getLocalVisibleRect(this)}
-            Log.d(TAG, "Rect \n$rect \n$grect")
+            Log.i(TAG, "Rect \n$rect \n$grect")
         }
          */
     }
@@ -491,7 +495,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         if(buttonsVisible == show && !force) {
             return
         }
-        Log.d(TAG, "toggleWindowButtonVisibility")
+        Log.i(TAG, "toggleWindowButtonVisibility")
         val mainBibleActivity = _mainBibleActivity ?: return
         mainBibleActivity.runOnUiThread {
             var atLeastOneButtonWillAnimate = false
@@ -549,7 +553,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                     (if (restoreButtonsVisible) 0 else
                         restoreButtonsContainer.width - (hideRestoreButton.width + hideRestoreButtonExtension.width)
                         ).toFloat() - mainBibleActivity.rightOffset1
-            Log.d(TAG, "updateRestoreButtons $animate $transX $restoreButtonsVisible $screenWidth")
+            Log.i(TAG, "updateRestoreButtons $animate $transX $restoreButtonsVisible $screenWidth")
 
             val closeRes = if(isRtl) R.drawable.ic_keyboard_arrow_left_black_24dp else R.drawable.ic_keyboard_arrow_right_black_24dp
             val openRes = if(!isRtl) R.drawable.ic_keyboard_arrow_left_black_24dp else R.drawable.ic_keyboard_arrow_right_black_24dp
@@ -563,15 +567,15 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                 hideRestoreButton.setBackgroundResource(openRes)
             }
             if (animate) {
-                Log.d(TAG, "animate started")
+                Log.i(TAG, "animate started")
                 restoreButtonsContainer.animate()
                     .translationY(-mainBibleActivity.bottomOffset2.toFloat())
                     .translationX(transX)
                     .setInterpolator(DecelerateInterpolator())
-                    .withEndAction { Log.d(TAG, "animate finished") }
+                    .withEndAction { Log.i(TAG, "animate finished") }
                     .start()
             } else {
-                Log.d(TAG, "setting without animate")
+                Log.i(TAG, "setting without animate")
                 restoreButtonsContainer.apply {
                     translationY = -mainBibleActivity.bottomOffset2.toFloat()
                     translationX = transX
@@ -651,7 +655,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             itemOptions.openDialog(mainBibleActivity, {onReady()}, onReady)
         }
     }
-
+    val app get() = BibleApplication.application
     @SuppressLint("RestrictedApi")
     internal fun showPopupMenu(window: Window, view: View) {
         // ensure actions affect the right window
@@ -679,7 +683,10 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
         val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
 
-        synchronized(BookName::class) {
+        val export = menu.findItem(R.id.exportHtml)
+        export.title = app.getString(R.string.export_fileformat, "HTML")
+
+        synchronized(BookName::class.java) {
             val oldValue = BookName.isFullBookName()
 
             textOptionsSubMenu.removeItem(R.id.textOptionItem)
@@ -693,7 +700,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             windowList.forEach {
                 if (it.id != window.id) {
                     val p = it.pageManager.currentPage
-                    val moveWindowTitle = BibleApplication.application.getString(R.string.move_window_to_position2, count + 1, p.currentDocument?.abbreviation, p.key?.name)
+                    val moveWindowTitle = app.getString(R.string.move_window_to_position2, count + 1, p.currentDocument?.abbreviation, p.key?.name)
                     val moveWindowItem = moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, count, moveWindowTitle)
                     moveWindowItem.setIcon(if (thisIdx > count) R.drawable.ic_arrow_drop_up_grey_24dp else R.drawable.ic_arrow_drop_down_grey_24dp)
                 }
@@ -779,7 +786,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         )
 
         val isMaximised = windowRepository.isMaximized
-
+        val firstDoc = window.bibleView?.firstDocument
         return when(itemId) {
 
             R.id.windowNew -> CommandPreference(
@@ -833,7 +840,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             )
             R.id.moveItem -> CommandPreference({_, _, _ ->
                 windowControl.moveWindow(window, order)
-                Log.d(TAG, "Number ${order}")
+                Log.i(TAG, "Number ${order}")
             },
                 visible = !window.isLinksWindow
             )
@@ -845,6 +852,15 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             R.id.copySettingsToWindow -> CommandPreference({_, _, _ ->
                 windowControl.copySettingsToWindow(window, order)
             })
+            R.id.exportHtml -> CommandPreference({ _, _, _ ->
+                window.bibleView?.exportHtml()
+            },
+                visible = window.isVisible && (
+                    firstDoc is StudyPadDocument ||
+                    firstDoc is MultiFragmentDocument  ||
+                    firstDoc is MyNotesDocument
+                )
+            )
             else -> throw RuntimeException("Illegal menu item")
         }
     }

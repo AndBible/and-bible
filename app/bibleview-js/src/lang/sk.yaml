@@ -7,7 +7,7 @@ findAllOccurrences: Nájsť všetky výskyty
 reportError: Nahlásiť chybu
 errorTitle: Vyskytla sa chyba
 warningTitle: Varovanie
-normalTitle: Všimnite si
+normalTitle: Upozornenie
 footnoteTypeUndefined: Nedefinovaný typ
 footnoteTypeStudy: Štúdium
 footnoteTypeExplanation: Vysvetlenie

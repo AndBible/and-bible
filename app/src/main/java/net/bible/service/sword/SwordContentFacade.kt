@@ -98,6 +98,7 @@ object SwordContentFacade {
             if(book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
                 val div = data.osisFragment
                 val verse = div.getChild("verse")
+                    ?: throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
                 val verseContent = verse.content.toList()
                 verse.removeContent()
                 div.removeContent()
@@ -106,7 +107,11 @@ object SwordContentFacade {
             } else {
                 data.osisFragment
             }
-        } catch (e: Exception) {
+        }
+        catch (e: OsisError) {
+            throw e
+        }
+        catch (e: Exception) {
             log.error("Parsing error", e)
             throw ParseException("Parsing error", e)
         }
@@ -168,7 +173,7 @@ object SwordContentFacade {
 
         val reference = if(showReference) {
             if(abbreviateReference) {
-                synchronized(BookName::class) {
+                synchronized(BookName::class.java) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
                     val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
@@ -208,12 +213,15 @@ object SwordContentFacade {
                 val endVerseNum = if(showVerseNumbers) "${lastVerse.verse.verse}. " else ""
                 val endVerse = lastVerse.text.slice(0 until min(lastVerse.text.length, endOffset))
                 val end = lastVerse.text.slice(endOffset until lastVerse.text.length)
-                val middleVerses = if(verseTexts.size > 2) {
+                var middleVerses = if(verseTexts.size > 2) {
                     verseTexts.slice(1 until verseTexts.size-1).joinToString(" ") {
                         if(showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
                     }
                 } else ""
-                val text = "$startVerse$middleVerses $endVerseNum$endVerse"
+                if(middleVerses.isNotEmpty()) {
+                    middleVerses += " "
+                }
+                val text = "${startVerse.trimEnd()} ${middleVerses.trimStart()}$endVerseNum$endVerse"
                 val post = if(!showFull && end.isNotEmpty()) "..." else ""
 
                 if(showFull) """“$startVerseNumber$start${text}$end$post”""" else "“$startVerseNumber$text$post”"
@@ -322,11 +330,11 @@ object SwordContentFacade {
 		// Book book = getDocumentByInitials("KJV");
 		// Key key1 = book.find("strong:h3068");
 		// System.out.println("h3068 result count:"+key1.getCardinality());
-        Log.d(TAG, "Searching:$bible Search term:$searchText")
+        Log.i(TAG, "Searching:$bible Search term:$searchText")
 	    // This does a standard operator search. See the search
 		// documentation for more examples of how to search
         val key = bible.find(searchText) //$NON-NLS-1$
-        Log.d(TAG, "There are " + key.cardinality + " verses containing " + searchText)
+        Log.i(TAG, "There are " + key.cardinality + " verses containing " + searchText)
         return key
     }
 

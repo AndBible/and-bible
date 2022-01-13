@@ -36,8 +36,8 @@
             </slot>
           </div>
         </div>
-        <div v-if="ready" class="modal-body">
-          <slot/>
+        <div ref="body" class="modal-body" @click.stop>
+          <slot v-if="ready"/>
         </div>
         <div v-if="$slots.footer" class="modal-footer">
           <div class="modal-footer-buttons">
@@ -111,18 +111,21 @@ export default {
       resetPosition();
     });
 
+    const body = ref(null);
+
     onMounted(async () => {
       await resetPosition(true)
       draggableElement(modal.value, header.value);
       observer.observe(modal.value);
       ready.value = true;
+      body.value.focus();
     });
 
     onUnmounted(() => {
       observer.disconnect();
     });
 
-    return {height, config, modal, header, ready, ...useCommon()}
+    return {height, config, modal, header, ready, body, ...useCommon()}
   }
 }
 </script>
@@ -147,7 +150,6 @@ $border-radius2: $border-radius - 1.5pt;
 .modal-content {
   font-family: sans-serif;
   font-size: 12pt;
-  opacity: 0.95;
   z-index: 5;
   .blocking & {
     z-index: 15;

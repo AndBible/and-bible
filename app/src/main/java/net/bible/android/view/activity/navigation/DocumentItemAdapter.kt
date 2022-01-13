@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
+import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.android.view.activity.download.DocumentListItem
 import org.crosswire.jsword.book.Book
@@ -37,9 +38,9 @@ import org.crosswire.jsword.versification.system.SystemKJV
  */
 
 class DocumentItemAdapter(
-    context: Context,
+    val activity: DocumentSelectionBase,
     private val recommendedDocuments: RecommendedDocuments? = null
-) : ArrayAdapter<Book>(context, R.layout.document_list_item, ArrayList<Book>()) {
+) : ArrayAdapter<Book>(activity, R.layout.document_list_item, ArrayList<Book>()) {
     private lateinit var bindings: DocumentListItemBinding
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -56,6 +57,10 @@ class DocumentItemAdapter(
         view.document = document
         view.recommendedDocuments = recommendedDocuments
         view.setIcons()
+
+        bindings.aboutButton.setOnClickListener {
+            activity.handleAbout(listOf(document))
+        }
 
         // Set value for the first text field
         bindings.documentAbbreviation.text = document.abbreviation

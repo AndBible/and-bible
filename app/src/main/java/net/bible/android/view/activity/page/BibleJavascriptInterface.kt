@@ -25,15 +25,18 @@ import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.widget.TextView
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
+import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
@@ -46,12 +49,14 @@ import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibl
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
+import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
+import java.io.File
 
 
 class BibleJavascriptInterface(
@@ -80,26 +85,26 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun setClientReady() {
-        Log.d(TAG, "set client ready")
+        Log.i(TAG, "set client ready")
         bibleView.setClientReady()
     }
 
     @JavascriptInterface
     fun setLimitAmbiguousModalSize(value: Boolean) {
-        Log.d(TAG, "set client ready")
+        Log.i(TAG, "setLimitAmbiguousModalSize")
         bibleView.workspaceSettings.limitAmbiguousModalSize = value
         ABEventBus.getDefault().post(AppSettingsUpdated())
     }
 
     @JavascriptInterface
     fun requestPreviousChapter(callId: Long) {
-        Log.d(TAG, "Request more text at top")
+        Log.i(TAG, "Request more text at top")
         bibleView.requestPreviousChapter(callId)
     }
 
     @JavascriptInterface
     fun requestNextChapter(callId: Long) {
-        Log.d(TAG, "Request more text at end")
+        Log.i(TAG, "Request more text at end")
         bibleView.requestNextChapter(callId)
     }
 
@@ -116,7 +121,7 @@ class BibleJavascriptInterface(
 
             val verse = if(verseStr == null) null else VerseFactory.fromString(KJVA, verseStr)
 
-            val verseName = synchronized(BookName::class) {
+            val verseName = synchronized(BookName::class.java) {
                 val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
                 val text = verse?.name ?: ""
@@ -145,18 +150,18 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun console(loggerName: String, message: String) {
-        Log.d(TAG, "Console[$loggerName] $message")
+        Log.i(TAG, "Console[$loggerName] $message")
     }
 
     @JavascriptInterface
     fun selectionCleared() {
-        Log.d(TAG, "Selection cleared!")
+        Log.i(TAG, "Selection cleared!")
         bibleView.stopSelection()
     }
 
     @JavascriptInterface
     fun reportInputFocus(newValue: Boolean) {
-        Log.d(TAG, "Focus mode now $newValue")
+        Log.i(TAG, "Focus mode now $newValue")
         ABEventBus.getDefault().post(BibleViewInputFocusChanged(bibleView, newValue))
     }
 
@@ -326,6 +331,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun toggleCompareDocument(documentId: String) {
+        Log.i(TAG, "toggleCompareDocument")
         val hideDocs = bibleView.workspaceSettings.hideCompareDocuments
         if(hideDocs.contains(documentId)) {
             hideDocs.remove(documentId)
@@ -360,6 +366,52 @@ class BibleJavascriptInterface(
         d.show()
 
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    @JavascriptInterface
+    fun shareHtml(html: String) {
+        val targetDir = File(mainBibleActivity.filesDir, "backup/")
+        targetDir.mkdirs()
+        val targetFile = File(targetDir, "shared.html")
+        targetFile.writeText(html)
+        val uri = FileProvider.getUriForFile(mainBibleActivity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
+
+        val docName = when(val firstDoc = bibleView.firstDocument) {
+            is StudyPadDocument -> firstDoc.label.displayName
+            is MultiFragmentDocument -> mainBibleActivity.getString(R.string.multi_description)
+            is MyNotesDocument -> mainBibleActivity.getString(R.string.my_notes_abbreviation)
+            else -> throw RuntimeException("Illegal doc type")
+        }
+        val titleStr = mainBibleActivity.getString(R.string.export_fileformat, "HTML")
+        val emailIntent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_SUBJECT, docName)
+            putExtra(Intent.EXTRA_TEXT, titleStr)
+            putExtra(Intent.EXTRA_STREAM, uri)
+            type = "text/html"
+        }
+        val chooserIntent = Intent.createChooser(emailIntent, titleStr)
+        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        mainBibleActivity.startActivity(chooserIntent)
+    }
+
+    @JavascriptInterface
+    fun onKeyDown(key: String) {
+        Log.i(TAG, "key $key")
+        GlobalScope.launch(Dispatchers.Main) {
+            when (key) {
+                "AltArrowDown" -> windowControl.focusNextWindow()
+                "AltArrowRight" -> windowControl.focusNextWindow()
+                "AltArrowUp" -> windowControl.focusPreviousWindow()
+                "AltArrowLeft" -> windowControl.focusPreviousWindow()
+                "AltKeyW" -> mainBibleActivity.documentViewManager.splitBibleArea?.binding?.restoreButtons?.requestFocus()
+                "AltKeyM" -> {
+                    mainBibleActivity.binding.drawerLayout.open()
+                    mainBibleActivity.binding.drawerLayout.requestFocus()
+                }
+                "AltKeyO" -> mainBibleActivity.showOptionsMenu()
+                "AltKeyG" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
+            }
+        }
     }
 
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

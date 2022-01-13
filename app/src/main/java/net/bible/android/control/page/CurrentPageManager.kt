@@ -31,6 +31,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils.defaultBible
 import net.bible.service.common.CommonUtils.defaultVerse
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordDocumentFacade
 
 import org.crosswire.jsword.book.Book
@@ -158,18 +159,24 @@ open class CurrentPageManager @Inject constructor(
             val prevDocInPage = nextPage!!.currentDocument
             val sameDoc = nextDocument == prevDocInPage
 
-            // must be in this order because History needs to grab the current doc before change
-            nextPage.setCurrentDocument(nextDocument)
-            currentPage = nextPage
-
-            // page will change due to above
-            // if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
-            if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || nextDocument.contains(nextPage.key))) {
+            if(currentPage.currentDocument == FakeBookFactory.multiDocument && nextPage == currentBible) {
+                currentBible.setCurrentDocument(nextDocument)
+                nextPage = currentPage
                 PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
             } else {
-                val context = CurrentActivityHolder.getInstance().currentActivity
-                // pop up a key selection screen
-                nextPage.startKeyChooser(context)
+                // must be in this order because History needs to grab the current doc before change
+                nextPage.setCurrentDocument(nextDocument)
+                currentPage = nextPage
+
+                // page will change due to above
+                // if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
+                if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || nextDocument.contains(nextPage.key))) {
+                    PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
+                } else {
+                    val context = CurrentActivityHolder.getInstance().currentActivity
+                    // pop up a key selection screen
+                    nextPage.startKeyChooser(context)
+                }
             }
         } else {
             // should never get here because a doc should always be passed in but I have seen errors lie this once or twice

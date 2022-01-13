@@ -60,7 +60,7 @@ class BookAndKey(val key: Key, document: Book? = null): Key {
     }
 
     override fun getName(): String {
-        return "${document?.abbreviation}: ${key.name}"
+        return if(document == null) key.name else "${document?.abbreviation}: ${key.name}"
     }
 
     override fun getName(base: Key?): String {

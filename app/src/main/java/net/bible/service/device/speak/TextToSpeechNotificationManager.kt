@@ -99,7 +99,7 @@ class TextToSpeechNotificationManager {
             if(foreground) {
                 return
             }
-            Log.d(TAG, "START_SERVICE")
+            Log.i(TAG, "START_SERVICE")
             startForeground(NOTIFICATION_ID, foregroundNotification!!)
             foreground = true
             wakeLock.acquire()
@@ -112,7 +112,7 @@ class TextToSpeechNotificationManager {
             // removed. Thus we need to build notification again. This will be done
             // TextToSpeechNotificationManager via this intent.
 
-            Log.d(TAG, "onDestroy")
+            Log.i(TAG, "onDestroy")
             val intent = Intent(this, NotificationReceiver::class.java).apply {
                 action = ACTION_UPDATE_NOTIFICATION
             }
@@ -121,7 +121,7 @@ class TextToSpeechNotificationManager {
         }
 
         override fun onTaskRemoved(rootIntent: Intent?) {
-            Log.d(TAG, "Task removed")
+            Log.i(TAG, "Task removed")
             if(!foreground) {
                 stopSelf()
             }
@@ -133,7 +133,7 @@ class TextToSpeechNotificationManager {
                 return
             }
 
-            Log.d(TAG, "STOP_SERVICE")
+            Log.i(TAG, "STOP_SERVICE")
             wakeLock.release()
             stopForeground(removeNotification)
             foreground = false
@@ -152,7 +152,7 @@ class TextToSpeechNotificationManager {
         override fun onReceive(context: Context?, intent: Intent?) {
             CommonUtils.initializeApp()
             val action = intent?.action
-            Log.d(TAG, "NotificationReceiver onReceive $intent $action")
+            Log.i(TAG, "NotificationReceiver onReceive $intent $action")
             val bookRef = intent?.data?.host
             val osisRef = intent?.data?.path?.removePrefix("/")
             when (action) {
@@ -201,7 +201,7 @@ class TextToSpeechNotificationManager {
     }
 
     init {
-        Log.d(TAG, "Initialize")
+        Log.i(TAG, "Initialize")
 
         if(instance != null) {
             throw RuntimeException("This class is singleton!")
@@ -236,7 +236,7 @@ class TextToSpeechNotificationManager {
     }
 
     private fun shutdown() {
-        Log.d(TAG, "Shutdown")
+        Log.i(TAG, "Shutdown")
         currentTitle = getString(R.string.app_name_medium)
         currentText = ""
         // In case service was no longer foreground, we need do this here.
@@ -249,9 +249,9 @@ class TextToSpeechNotificationManager {
     }
 
     fun onEventMainThread(ev: SpeakEvent) {
-        Log.d(TAG, "SpeakEvent $ev")
+        Log.i(TAG, "SpeakEvent $ev")
         if(!ev.isSpeaking && ev.isPaused) {
-            Log.d(TAG, "Stop foreground (pause)")
+            Log.i(TAG, "Stop foreground (pause)")
             buildNotification(false)
             stopForeground()
         }
@@ -283,7 +283,7 @@ class TextToSpeechNotificationManager {
         val intent = Intent(app, NotificationReceiver::class.java).apply {
             action = command
          }
-        val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, 0)
+        val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         return NotificationCompat.Action.Builder(icon, title, pendingIntent).build()
     }
 
@@ -297,7 +297,7 @@ class TextToSpeechNotificationManager {
         if(book != null && verse != null) {
             intent.data = Uri.parse("bible://${book.initials}/${verse.osisRef}")
         }
-        val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, 0)
+        val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         return NotificationCompat.Action.Builder(android.R.drawable.ic_media_play, getString(R.string.speak), pendingIntent).build()
     }
     private val nextAction = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
@@ -308,12 +308,12 @@ class TextToSpeechNotificationManager {
         val deletePendingIntent = PendingIntent.getBroadcast(app, 0,
                 Intent(app, NotificationReceiver::class.java).apply {
                     action = ACTION_STOP
-                }, 0)
+                }, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
         val contentIntent = Intent(app, MainBibleActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
-        val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, 0)
+        val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         val style = MediaStyle()
             .setShowActionsInCompactView(2)
 
@@ -346,7 +346,7 @@ class TextToSpeechNotificationManager {
 
 
         val notification = builder.build()
-        Log.d(TAG, "Updating notification, isSpeaking: $isSpeaking")
+        Log.i(TAG, "Updating notification, isSpeaking: $isSpeaking")
         if(isSpeaking) {
             foregroundNotification = notification
         }
@@ -359,6 +359,7 @@ class TextToSpeechNotificationManager {
         intent.action = ForegroundService.START_SERVICE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             app.startForegroundService(intent)
+            Log.i(TAG, "Foreground service started")
         }
         else {
             app.startService(intent)

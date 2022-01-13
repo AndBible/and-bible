@@ -52,7 +52,7 @@ object BookInstallWatcher {
     private fun addBookToDb(book: Book) {
         // if book is already installed, we remove it, else it deletes nothing
         docDao.deleteByOsisId(book.initials)
-        Log.d(DownloadManager.TAG, "Adding ${book.name} to document backup database")
+        Log.i(DownloadManager.TAG, "Adding ${book.name} to document backup database")
         // insert the new book info into backup db
         docDao.insert(SwordDocumentInfo(
             book.initials,
@@ -76,7 +76,7 @@ object BookInstallWatcher {
             val versification = book.versification
             // initialise in a background thread to allow normal startup to continue
             Thread {
-                Log.d(TAG, "AVMAP Initialise v11n mappings for " + versification.name)
+                Log.i(TAG, "AVMAP Initialise v11n mappings for " + versification.name)
                 VersificationsMapper.instance().ensureMappingDataLoaded(versification)
             }.start()
         }

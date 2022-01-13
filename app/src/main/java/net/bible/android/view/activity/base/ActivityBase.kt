@@ -229,12 +229,12 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     protected open fun onScreenTurnedOff() {
-        Log.d(TAG, "Window turned off")
+        Log.i(TAG, "Window turned off")
         isScreenOn = false
     }
 
     protected open fun onScreenTurnedOn() {
-        Log.d(TAG, "Window turned on")
+        Log.i(TAG, "Window turned on")
         isScreenOn = true
     }
 
@@ -295,7 +295,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     private var resultByCode = mutableMapOf<Int, CompletableDeferred<Instrumentation.ActivityResult?>>()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "onActivityResult: requestCode = $requestCode, resultCode = $resultCode, data is${if (data != null) " not" else ""} null")
+        Log.i(TAG, "onActivityResult: requestCode = $requestCode, resultCode = $resultCode, data is${if (data != null) " not" else ""} null")
         resultByCode[requestCode - ASYNC_REQUEST_CODE_START]?.let {
             it.complete(Instrumentation.ActivityResult(resultCode, data))
             resultByCode.remove(requestCode)

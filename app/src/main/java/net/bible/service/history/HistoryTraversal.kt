@@ -40,7 +40,7 @@ class HistoryTraversal(private val historyManager: HistoryManager, var isIntegra
 
     fun goBack(): Boolean {
         if (isIntegrateWithHistoryManager && historyManager.canGoBack()) {
-            Log.d(TAG, "Go back")
+            Log.i(TAG, "Go back")
             historyManager.goBack()
             return true
         } else {

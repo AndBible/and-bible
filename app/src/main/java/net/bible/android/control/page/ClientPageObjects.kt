@@ -18,6 +18,7 @@
 
 package net.bible.android.control.page
 
+import android.util.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
@@ -54,14 +55,13 @@ fun mapToJson(map: Map<String, String>?): String =
 
 fun listToJson(list: List<String>) = list.joinToString(",", "[", "]")
 val VerseRange.onlyNumber: String get() = if(cardinality > 1) "${start.verse}-${end.verse}" else "${start.verse}"
-val VerseRange.abbreviated: String get() {
-    synchronized(BookName::class) {
-        val wasFullBookName = BookName.isFullBookName()
-        BookName.setFullBookName(false)
-        val shorter = name
-        BookName.setFullBookName(wasFullBookName)
-        return shorter
-    }
+val VerseRange.abbreviated: String get() = synchronized(BookName::class.java) {
+    Log.i("VerseRange", "BookName::class ${System.identityHashCode(BookName::class.java)}")
+    val wasFullBookName = BookName.isFullBookName()
+    BookName.setFullBookName(false)
+    val shorter = name
+    BookName.setFullBookName(wasFullBookName)
+    return shorter
 }
 
 interface DocumentWithBookmarks
@@ -125,7 +125,8 @@ class BibleDocument(
             put("type", wrapString("bible"))
             put("bibleBookName", wrapString(swordBook.versification.getPreferredNameInLocale(verseRange.start.book, Locale.getDefault())))
             put("ordinalRange", json.encodeToString(serializer(), listOf(vrInV11n.start.ordinal, vrInV11n.end.ordinal)))
-            put("addChapter", json.encodeToString(serializer(), swordBook.getProperty(KEY_SOURCE_TYPE).toString().toLowerCase(Locale.getDefault()) == "gbf" || !osisFragment.hasChapter))
+            put("addChapter", json.encodeToString(serializer(), swordBook.getProperty(KEY_SOURCE_TYPE).toString()
+                .lowercase(Locale.getDefault()) == "gbf" || !osisFragment.hasChapter))
             put("chapterNumber", json.encodeToString(serializer(), verseRange.start.chapter))
             put("originalOrdinalRange", originalOrdinalRange)
             put("v11n", wrapString(swordBook.versification.name))
@@ -152,7 +153,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
             val bookmarks = bookmarks.map { ClientBookmark(it, KJVA).asJson }
             return mapOf(
                 "id" to wrapString(verseRange.uniqueId),
-                "type" to wrapString("notes"),
+                "type" to wrapString("notes", true),
                 "bookmarks" to listToJson(bookmarks),
                 "verseRange" to wrapString(verseRange.name),
             )
@@ -201,7 +202,7 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
         "bookAbbreviation" to wrapString(bookmark.book?.abbreviation),
         "createdAt" to bookmark.createdAt.time.toString(),
         "lastUpdatedOn" to bookmark.lastUpdatedOn.time.toString(),
-        "notes" to if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes),
+        "notes" to if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true),
         "verseRange" to wrapString(bookmark.verseRange.name),
         "verseRangeOnlyNumber" to wrapString(bookmark.verseRange.onlyNumber),
         "verseRangeAbbreviated" to wrapString(bookmark.verseRange.abbreviated),

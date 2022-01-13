@@ -152,7 +152,7 @@ class PageTiltScrollControl {
      */
     private fun getDevianceFromStaticViewingAngle(normalisedPitch: Int): Int {
         if (!mNoScrollViewingPitchCalculated) {
-			//			Log.d(TAG, "Recalculating home/noscroll pitch "+normalisedPitch);
+			//			Log.i(TAG, "Recalculating home/noscroll pitch "+normalisedPitch);
 			// assume user's viewing pitch is the current one
             mNoScrollViewingPitch = normalisedPitch
             // pitch can be 0 before the sensors have fired

@@ -36,7 +36,7 @@
 <script>
 import {ref} from "@vue/reactivity";
 import TextEditor from "@/components/TextEditor";
-import {watch} from "@vue/runtime-core";
+import {inject, watch} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 
 let cancelOpen = () => {}
@@ -56,6 +56,7 @@ export default {
     const editMode = ref(props.editDirectly);
     const parentStyle = ref(`--max-height: ${props.maxEditorHeight}; font-family: var(--font-family); font-size: var(--font-size);`);
     const editText = ref(props.text);
+    const exportMode = inject("exportMode", ref(false));
 
     function cancelFunc() {
       editMode.value = false;
@@ -74,6 +75,12 @@ export default {
       editText.value = t;
     })
 
+    watch(exportMode, mode => {
+      if(mode) {
+        editMode.value = false;
+      }
+    });
+
     function textChanged(newText) {
       editText.value = newText
       emit("save", newText);
@@ -85,7 +92,7 @@ export default {
       }
     }
 
-    return {editMode, parentStyle, editText, textChanged, handleClicks, ...useCommon()}
+    return {editMode, parentStyle, editText, textChanged, handleClicks, exportMode, ...useCommon()}
   }
 }
 </script>

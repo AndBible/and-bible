@@ -91,17 +91,17 @@ class ProgressNotificationManager {
             }
 
             override fun workStateChanged(ev: WorkEvent) {
-                Log.d(TAG, "WorkState changed")
+                Log.i(TAG, "WorkState changed")
                 // we don't care about these events
             }
         }
         JobManager.addWorkListener(workListener)
 
-        Log.d(TAG, "Finished Initializing")
+        Log.i(TAG, "Finished Initializing")
     }
 
     private fun finished(prog: Progress) {
-        Log.d(TAG, "Finished")
+        Log.i(TAG, "Finished")
         notificationManager.cancel(getNotificationId(prog.hashCode()))
         progs.remove(prog)
     }
@@ -127,10 +127,10 @@ class ProgressNotificationManager {
     }
 
     private fun buildNotification(prog: Progress) {
-        Log.d(TAG, "Creating Notification for progress Hash:" + prog.hashCode())
+        Log.i(TAG, "Creating Notification for progress Hash:" + prog.hashCode())
         val app = BibleApplication.application
         val intent = Intent(app, ProgressStatus::class.java)
-        val pendingIntent = PendingIntent.getActivity(app, 0, intent, 0)
+        val pendingIntent = PendingIntent.getActivity(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         val builder = NotificationCompat.Builder(app, PROGRESS_NOTIFICATION_CHANNEL)
 
         builder.setSmallIcon(R.drawable.ic_ichtys)

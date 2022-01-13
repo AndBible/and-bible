@@ -54,12 +54,12 @@ class CurrentBiblePage(
         Intent(context, GridChoosePassageBook::class.java).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
 
     override fun next() {
-        Log.d(TAG, "Next")
+        Log.i(TAG, "Next")
         nextChapter()
     }
 
     override fun previous() {
-        Log.d(TAG, "Previous")
+        Log.i(TAG, "Previous")
         previousChapter()
     }
 
@@ -125,7 +125,7 @@ class CurrentBiblePage(
 
 
     fun setKey(keyText: String) {
-        Log.d(TAG, "key text:$keyText")
+        Log.i(TAG, "key text:$keyText")
         try {
             val key = currentDocument!!.getKey(keyText)
             setKey(key)
@@ -176,9 +176,9 @@ class CurrentBiblePage(
     fun restoreFrom(entity: WorkspaceEntities.BiblePage) {
         originalKey = null
         val document = entity.document
-        Log.d(TAG, "State document:$document")
+        Log.i(TAG, "State document:$document")
         val book = swordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) FakeBookFactory.giveDoesNotExist(document) else null
-        Log.d(TAG, "Restored document:" + book?.name)
+        Log.i(TAG, "Restored document:" + book?.name)
         // bypass setter to avoid automatic notifications
         localSetCurrentDocument(book)
         currentBibleVerse.restoreFrom(entity.verse)

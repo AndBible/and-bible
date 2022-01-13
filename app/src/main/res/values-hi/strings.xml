@@ -855,4 +855,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="added_to_bookmark">इस बुकमार्क को असाइन किया गया</string>
   <string name="strongs_links">लिंक</string>
   <string name="verse_tip">अधूरा या कई छंदों का चयन करने के लिए, आप बाइबिल पाठ को देर तक दबा सकते हैं</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

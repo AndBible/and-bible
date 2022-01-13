@@ -112,7 +112,7 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
 
     override fun buttonPressed(buttonInfo: ButtonInfo) {
         val verse = Verse(navigationControl.versification, mBibleBook, mBibleChapterNo, buttonInfo.id)
-        Log.d(TAG, "Verse selected:$verse")
+        Log.i(TAG, "Verse selected:$verse")
         val resultIntent = Intent(this, GridChoosePassageBook::class.java)
         resultIntent.putExtra("verse", verse.osisID)
         setResult(Activity.RESULT_OK, resultIntent)

@@ -795,4 +795,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="added_to_bookmark">ဤစာညှပ်ကို တာဝန်ပေးပါ</string>
   <string name="strongs_links">လင့်ခ်များ</string>
   <string name="verse_tip">အခန်းငယ် များစွာ သို့မဟုတ် တစ်စိတ်တစ်ပိုင်းကို မှတ်သားလိုလျှင် ကျမ်းစာစာသားအား ကြာကြာဖိထားရပါမည်</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

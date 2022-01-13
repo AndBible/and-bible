@@ -15,7 +15,7 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
-  <AmbiguousSelection ref="ambiguousSelection"/>
+  <AmbiguousSelection do-not-close-modals ref="ambiguousSelection"/>
   <Modal @close="showNote = false" v-if="showNote" :locate-top="locateTop">
     <div class="scrollable" @click="ambiguousSelection.handle">
       <slot/>
@@ -31,7 +31,7 @@
     </template>
   </Modal>
   <span
-    v-if="(config.showFootNotes && isCrossReference) || config.showFootNotes"
+    v-if="showHandle"
     class="skip-offset">
     <span class="highlight-transition" :class="{isHighlighted: showNote, noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
       {{handle}}
@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import {checkUnsupportedProps, useCommon, useReferenceCollector, sprintf} from "@/composables";
+import {checkUnsupportedProps, useCommon, useReferenceCollector} from "@/composables";
 import Modal from "@/components/modals/Modal";
 import {get} from "lodash";
 import {ref, provide, inject} from "@vue/runtime-core";
@@ -71,7 +71,7 @@ export default {
                           ["explanation", "translation", "crossReference", "variant", "alternative", "study", "x-editor-correction"]);
     checkUnsupportedProps(props, "subType",
                           ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
-    const {strings, ...common} = useCommon();
+    const {strings, config, sprintf, ...common} = useCommon();
     const showNote = ref(false);
     const locateTop = ref(false);
     const {getFootNoteCount} = inject("footNoteCount");
@@ -109,9 +109,15 @@ export default {
     const referenceCollector = useReferenceCollector();
     provide("referenceCollector", referenceCollector);
 
+    const exportMode = inject("exportMode", ref(false));
+
+    const showHandle = computed(() => {
+      return !exportMode.value && ((config.showFootNotes && isCrossReference) || config.showFootNotes);
+    });
+
     return {
       handle, showNote, locateTop, ambiguousSelection, v11n, isCrossReference, noteType, isFootNote,
-      isOther, strings, noteClicked, ...common
+      isOther, strings, noteClicked, showHandle, ...common
     }
   },
 }

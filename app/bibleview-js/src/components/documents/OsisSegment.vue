@@ -83,6 +83,9 @@ export default {
     return h({
       template: this.convert ? osisToTemplateString(this.osisTemplate): this.osisTemplate,
       components: {BWA: BibleViewAnchor, ...prefixComponents(osisComponents)},
+      compilerOptions: {
+        whitespace: 'preserve',
+      },
     });
   },
 }

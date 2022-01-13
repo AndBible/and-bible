@@ -155,7 +155,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     override val intentForHistoryList: Intent get()
     {
-        Log.d(TAG, "Saving label no in History Intent")
+        Log.i(TAG, "Saving label no in History Intent")
         val intent = intent
         intent.putExtra(BookmarkControl.LABEL_NO_EXTRA, selectedLabelNo)
         return intent
@@ -243,7 +243,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     }
 
     private fun bookmarkSelected(bookmark: Bookmark) {
-        Log.d(TAG, "Bookmark selected:" + bookmark.verseRange)
+        Log.i(TAG, "Bookmark selected:" + bookmark.verseRange)
         try {
             if (bookmarkControl.isSpeakBookmark(bookmark)) {
                 speakControl.speakFromBookmark(bookmark)

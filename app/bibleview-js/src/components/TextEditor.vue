@@ -36,7 +36,9 @@
   </InputText>
   <div @click.stop class="edit-area pell">
     <div ref="editorElement"/>
-    <div class="saved-notice" v-if="!dirty">&dash;{{strings.saved}}&dash;</div>
+    <div class="saved-notice" v-if="!dirty">
+      <FontAwesomeIcon icon="save"/>
+    </div>
   </div>
 </template>
 
@@ -59,6 +61,7 @@ import {
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 import Modal from "@/components/modals/Modal";
+import {setupElementEventListener} from "@/utils";
 
 export default {
   name: "TextEditor",
@@ -198,6 +201,14 @@ export default {
       android.setEditing(true);
     });
 
+    setupElementEventListener(editorElement, "keyup", e => {
+      if(e.key === "Escape") {
+        save();
+        emit('close')
+        e.stopPropagation()
+      }
+    })
+
     onBeforeUnmount(() => {
       save();
     });
@@ -219,6 +230,8 @@ export default {
   max-height: calc(var(--max-height) - #{$pell-button-height} - 2*#{$pell-content-padding});
   height: inherit;
   padding: 0 7px 5px 7px;
+  z-index:1;
+  position: relative;
 }
 .pell-button {
   color: inherit;
@@ -268,13 +281,13 @@ export default {
   right: 5px;
   bottom: $pell-button-height;
   padding-inline-end: 3pt;
-  color: hsla(0, 0%, 0%, 0.2);
+  color: hsla(112, 40%, 33%, 0.8);
   .night & {
-    color: hsla(0, 0%, 100%, 0.2);
+    color: hsla(112, 40%, 33%, 0.8);
   }
-  background: var(--background-color);
   opacity: 0.8;
-  font-size: 70%;
+  font-size: 10px;
+  z-index:0;
 }
 
 .pell-divider {

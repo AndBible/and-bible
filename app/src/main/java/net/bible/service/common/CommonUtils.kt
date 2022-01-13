@@ -62,7 +62,9 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.activity.BuildConfig.BUILD_TYPE
 import net.bible.android.activity.BuildConfig.BuildDate
+import net.bible.android.activity.BuildConfig.FLAVOR
 import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
@@ -208,7 +210,7 @@ object CommonUtils : CommonUtilsBase() {
                 versionName = "Error"
             }
 
-            return "$versionName#$GitHash (built $BuildDate)"
+            return "$versionName#$GitHash $FLAVOR $BUILD_TYPE (built $BuildDate)"
         }
 
     val mainVersion: String get() {
@@ -267,7 +269,7 @@ object CommonUtils : CommonUtilsBase() {
         get() {
             val bytesAvailable = getFreeSpace(Environment.getExternalStorageDirectory().path)
             val megAvailable = bytesAvailable / 1048576
-            Log.d(TAG, "Megs available on internal memory :$megAvailable")
+            Log.i(TAG, "Megs available on internal memory :$megAvailable")
             return megAvailable
         }
 
@@ -345,7 +347,7 @@ object CommonUtils : CommonUtilsBase() {
     fun getFreeSpace(path: String): Long {
         val stat = StatFs(path)
         val bytesAvailable = stat.blockSize.toLong() * stat.availableBlocks.toLong()
-        Log.d(TAG, "Free space :$bytesAvailable")
+        Log.i(TAG, "Free space :$bytesAvailable")
         return bytesAvailable
     }
 
@@ -382,7 +384,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun deleteDirectory(path: File): Boolean {
-        Log.d(TAG, "Deleting directory:" + path.absolutePath)
+        Log.i(TAG, "Deleting directory:" + path.absolutePath)
         if (path.exists()) {
             if (path.isDirectory) {
                 val files = path.listFiles()
@@ -391,7 +393,7 @@ object CommonUtils : CommonUtilsBase() {
                         deleteDirectory(files[i])
                     } else {
                         files[i].delete()
-                        Log.d(TAG, "Deleted " + files[i])
+                        Log.i(TAG, "Deleted " + files[i])
                     }
                 }
             }
@@ -602,7 +604,7 @@ object CommonUtils : CommonUtilsBase() {
         val intent = Intent(callingActivity, StartupActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, 0)
+        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
         val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
@@ -735,7 +737,13 @@ object CommonUtils : CommonUtilsBase() {
         val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
 
         val versionMessageInstalled = if(existingVersion != null)
-            application.getString(R.string.module_about_installed_version, Version(existingVersion).toString(), existingVersionDate)
+            application.getString(R.string.module_about_installed_version,
+                try {
+                    Version(existingVersion).toString()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error parsing version $existingVersion", e)
+                    existingVersion
+                }, existingVersionDate)
         else null
 
         val versionMessageLatest = if(versionLatest != null)
@@ -800,7 +808,7 @@ object CommonUtils : CommonUtilsBase() {
 
     fun showHelp(callingActivity: Activity, filterItems: List<Int>? = null, showVersion: Boolean = false) {
         val app = application
-        val versionMsg = app.getString(R.string.version_text, CommonUtils.applicationVersionName)
+        val versionMsg = app.getString(R.string.version_text, applicationVersionName)
 
         data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null)
 
@@ -1111,11 +1119,12 @@ object CommonUtils : CommonUtilsBase() {
         val languageTag = Locale.getDefault().toLanguageTag()
         val languageCode = Locale.getDefault().language
 
-        Log.d(TAG, "Language tag $languageTag, code $languageCode")
+        Log.i(TAG, "Language tag $languageTag, code $languageCode")
 
         val goodLanguages = listOf(
             "en", "af", "my", "eo", "fi", "fr", "de", "hi", "hu", "it", "lt", "pl", "ru", "sl", "es", "uk", "zh-Hant-TW", "kk", "pt",
-            "zh-Hans-CN", "cs", "sk"
+            "zh-Hans-CN", "cs", "sk", "ro",
+            // almost: "ko", "he" (hebrew, check...)
         )
 
         fun checkLanguage(lang: String): Boolean =

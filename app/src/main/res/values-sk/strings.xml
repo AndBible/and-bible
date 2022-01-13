@@ -13,7 +13,7 @@
   <string name="search">Hľadať</string>
   <string name="settings">Nastavenia aplikácie</string>
   <string name="history">História</string>
-  <string name="speak">Predčívanie</string>
+  <string name="speak">Predčítanie</string>
   <string name="help">Pomoc</string>
   <string name="information">Informácie</string>
   <string name="other">Iné</string>
@@ -687,7 +687,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="help_window_pinning_title">Pripínanie okna</string>
   <string name="help_window_pinning_text">
         Pripnutie okna môžete povoliť z ponuky možností (tri bodky, pravý horný roh).
-        Ak je zapnuté pripínanie okien, v zobrazení Biblie môžete zobraziť veľa pripnutých okien,,
+        Ak je zapnuté pripínanie okien, v zobrazení Biblie môžete zobraziť veľa pripnutých okien,
         ale iba jedno nepripnuté okno. Najprv sa zobrazia pripnuté okná a potom
         nepripnuté okná. Možno budete chcieť otvoriť biblické dokumenty ako pripnuté okná a
         komentáre a mapy atď. ako nepripnuté okná. Potom môžete ľahko
@@ -857,4 +857,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Texty a odkazy</string>
   <string name="verse_tip">Dlhým stlačením Biblického textu označíte časť alebo viacero veršov</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

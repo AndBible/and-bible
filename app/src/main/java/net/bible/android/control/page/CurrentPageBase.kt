@@ -165,7 +165,7 @@ abstract class CurrentPageBase protected constructor(
             _currentDocument = doc
         }
         if (_currentDocument == null) {
-            Log.d(TAG, "checkCurrentDocumentStillInstalled:$currentDocument")
+            Log.i(TAG, "checkCurrentDocumentStillInstalled:$currentDocument")
             _currentDocument =  FakeBookFactory.giveDoesNotExist(_currentDocument!!.initials)
         }
         return _currentDocument != null && !_currentDocument!!.doesNotExist
@@ -200,7 +200,7 @@ abstract class CurrentPageBase protected constructor(
     }
 
     override fun setCurrentDocument(doc: Book?) {
-        Log.d(TAG, "Set current doc to $doc")
+        Log.i(TAG, "Set current doc to $doc")
         val prevDoc = _currentDocument
         if (doc != _currentDocument && !isShareKeyBetweenDocs && key != null && !doc!!.contains(key)) {
             doSetKey(null)
@@ -246,11 +246,11 @@ abstract class CurrentPageBase protected constructor(
     open fun restoreFrom(entity: WorkspaceEntities.Page?) {
         if(entity == null) return
         val document = entity.document
-        Log.d(TAG, "State document:$document")
+        Log.i(TAG, "State document:$document")
         val book = swordDocumentFacade.getDocumentByInitials(document)
             ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
         if (book != null) {
-            Log.d(TAG, "Restored document: ${book.name} ${book.initials}")
+            Log.i(TAG, "Restored document: ${book.name} ${book.initials}")
             // bypass setter to avoid automatic notifications
             localSetCurrentDocument(book)
             val keyName = entity.key

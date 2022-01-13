@@ -82,16 +82,19 @@
 		<item>@string/lang_estonian</item>
 		<item>@string/lang_finnish</item>
 		<item>@string/lang_french</item>
+		<item>@string/lang_hebrew</item>
 		<item>@string/lang_hindi</item>
 		<item>@string/lang_hungarian</item>
 		<item>@string/lang_indonesian</item>
 		<item>@string/lang_italian</item>
 		<item>@string/lang_kazakh</item>
+		<item>@string/lang_korean</item>
 		<item>@string/lang_lithuanian</item>
 		<item>@string/lang_norwegian_bokmal</item>
 		<item>@string/lang_dutch</item>
 		<item>@string/lang_polish</item>
 		<item>@string/lang_portuguese</item>
+		<item>@string/lang_romanian</item>
 		<item>@string/lang_russian</item>
 		<item>@string/lang_slovak</item>
 		<item>@string/lang_slovenian</item>
@@ -120,16 +123,19 @@
 		<item>et</item>
 		<item>fi</item>
 		<item>fr</item>
+		<item>iw</item>
 		<item>hi</item>
 		<item>hu</item>
 		<item>in</item>
 		<item>it</item>
 		<item>kk</item>
+		<item>ko</item>
 		<item>lt</item>
 		<item>nb</item>
 		<item>nl</item>
 		<item>pl</item>
 		<item>pt</item>
+		<item>ro</item>
 		<item>ru</item>
 		<item>sk</item>
 		<item>sl</item>

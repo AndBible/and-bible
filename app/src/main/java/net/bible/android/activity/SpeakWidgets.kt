@@ -25,6 +25,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
@@ -116,7 +117,7 @@ class SpeakWidgetManager {
     }
 
     private fun updateWidgetSpeakButton(speaking: Boolean) {
-        Log.d(TAG, "updateWidgetSpeakButton")
+        Log.i(TAG, "updateWidgetSpeakButton")
         val views = RemoteViews(app.packageName, R.layout.speak_widget)
         val resource = if (speaking) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
         views.setImageViewResource(R.id.speakButton, resource)
@@ -124,9 +125,9 @@ class SpeakWidgetManager {
     }
 
     private fun updateWidgetTexts() {
-        Log.d(TAG, "updateWidgetTexts")
+        Log.i(TAG, "updateWidgetTexts")
         val views = RemoteViews(app.packageName, R.layout.speak_widget)
-        Log.d(TAG, "updating status")
+        Log.i(TAG, "updating status")
         views.setTextViewText(R.id.titleText, currentTitle)
 
         val manager = AppWidgetManager.getInstance(app.applicationContext)
@@ -169,7 +170,7 @@ class SpeakWidgetManager {
     private var bookmarksAdded = false
 
     fun updateBookmarkWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-        Log.d(TAG, "updateBookmarkWidget")
+        Log.i(TAG, "updateBookmarkWidget")
         val views = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget)
 
         views.removeAllViews(R.id.layout)
@@ -181,7 +182,7 @@ class SpeakWidgetManager {
                     action = SpeakBookmarkWidget.ACTION_BOOKMARK
                     data = Uri.parse("bookmarksById://${b.id}")
                 }
-                val bc = PendingIntent.getBroadcast(context, 0, intent, 0)
+                val bc = PendingIntent.getBroadcast(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
                 button.setOnClickPendingIntent(R.id.button, bc)
             }
             views.addView(R.id.layout, button)
@@ -198,14 +199,14 @@ class SpeakWidgetManager {
         ){
             val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
             addButton("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"}) $repeatSymbol", b)
-            Log.d(TAG, "Added button for $b")
+            Log.i(TAG, "Added button for $b")
         }
         views.setViewVisibility(R.id.helptext, if (bookmarksAdded) View.GONE else View.VISIBLE)
 
         val contentIntent = Intent(context, MainBibleActivity::class.java)
         contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-        val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, 0)
+        val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         views.setOnClickPendingIntent(R.id.root, pendingIntent)
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -226,7 +227,7 @@ class SpeakWidgetManager {
 
         override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
             CommonUtils.initializeApp()
-            Log.d(TAG, "onUpdate")
+            Log.i(TAG, "onUpdate")
             for (appWidgetId in appWidgetIds) {
                 try {
                     setupWidget(context, appWidgetManager, appWidgetId)
@@ -256,14 +257,14 @@ class SpeakWidgetManager {
 
 
         override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-            Log.d(TAG, "onUpdate")
+            Log.i(TAG, "onUpdate")
             for (appWidgetId in appWidgetIds) {
                 setupWidget(context, appWidgetManager, appWidgetId)
             }
         }
 
         override fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-            Log.d(TAG, "setuWidget (speakWidget)")
+            Log.i(TAG, "setuWidget (speakWidget)")
 
             val views = RemoteViews(context.packageName, R.layout.speak_widget)
             views.setTextViewText(R.id.statusText, "- ${app.getString(R.string.speak_status_stopped)} -")
@@ -278,14 +279,14 @@ class SpeakWidgetManager {
                         intent.data = Uri.parse("bible://${book.initials}/${verse.osisRef}")
                     }
                 }
-                val bc = PendingIntent.getBroadcast(context, 0, intent, 0)
+                val bc = PendingIntent.getBroadcast(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
                 views.setOnClickPendingIntent(button, bc)
                 views.setViewVisibility(button, visible)
             }
 
             val contentIntent = Intent(context, MainBibleActivity::class.java)
             contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, 0)
+            val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
             views.setOnClickPendingIntent(R.id.layout, pendingIntent)
 
             for (b in allButtons) {
@@ -318,7 +319,7 @@ class SpeakWidgetManager {
 
         override fun onReceive(context: Context?, intent: Intent?) {
             super.onReceive(context, intent)
-            Log.d(TAG, "onReceive $context ${intent?.action}")
+            Log.i(TAG, "onReceive $context ${intent?.action}")
             val action = intent?.action
             val bookRef = intent?.data?.host
             val osisRef = intent?.data?.path?.removePrefix("/")
@@ -360,10 +361,10 @@ class SpeakWidgetManager {
 
         override fun onReceive(context: Context?, intent: Intent?) {
             super.onReceive(context, intent)
-            Log.d(TAG, "onReceive $context ${intent?.action}")
+            Log.i(TAG, "onReceive $context ${intent?.action}")
             if (intent?.action == ACTION_BOOKMARK) {
                 val bookmarkId = intent.data?.host ?: return
-                Log.d(TAG, "onReceive osisRef $bookmarkId")
+                Log.i(TAG, "onReceive osisRef $bookmarkId")
                 val dto = bookmarkControl.bookmarksByIds(listOf(bookmarkId.toLong())).first()
                 speakControl.speakFromBookmark(dto)
             }

@@ -102,7 +102,7 @@ class LinkControl @Inject constructor(
     }
 
     private fun getBookAndKey(uriStr: String, versification: Versification, forceDoc: Boolean): BookAndKey? {
-        Log.d(TAG, "Loading: $uriStr")
+        Log.i(TAG, "Loading: $uriStr")
         val uriAnalyzer = UriAnalyzer()
         if (uriAnalyzer.analyze(uriStr)) {
             return when (uriAnalyzer.docType) {
@@ -188,19 +188,15 @@ class LinkControl @Inject constructor(
 
     @Throws(NoSuchKeyException::class)
     private fun getStrongsKey(book: Book, key: String): BookAndKey? {
+        val sanitizedKey = Regex("^([GH]?)([0-9]+).*").find(key)?.groups?.get(2)?.value?.padStart(5, '0')
 
-        val k = try {book.getKey(key)} catch (e: NoSuchKeyException) {
-            try {
-                val match = Regex("^([GH]?)([0-9]+).*").find(key) ?: return null
-                //val firstLetter = match.groups[1]?.value!!
-                val sanitizedKey = match.groups[2]?.value?.padStart(5, '0')!!
-                book.getKey(sanitizedKey)
-            } catch(e: NoSuchKeyException) {
-                return null
-            }
-        }
+        val k = try {book.getKey(key)} catch (e: NoSuchKeyException) {null} ?:
+                if(sanitizedKey != null) {
+                    try {book.getKey(sanitizedKey)} catch (e: NoSuchKeyException) {null} ?:
+                    try {book.getKey(sanitizedKey + "\r")} catch (e: NoSuchKeyException) {null}
+                } else null
 
-        return BookAndKey(k, book)
+        return if(k == null) null else BookAndKey(k, book)
     }
 
     @Throws(NoSuchKeyException::class)
@@ -225,13 +221,13 @@ class LinkControl @Inject constructor(
             Dialogs.instance.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
             return
         } else if (currentBible == strongsBible && !checkStrongs(currentBible)) {
-            Log.d(TAG, "Index status is NOT DONE")
+            Log.i(TAG, "Index status is NOT DONE")
             needToDownloadIndex = true
         }
         // The below uses ANY_WORDS because that does not add anything to the search string
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
         val searchText = searchControl.decorateSearchString("strong:$refPrefix$ref", SearchType.ANY_WORDS, biblesection, null)
-        Log.d(TAG, "Search text:$searchText")
+        Log.i(TAG, "Search text:$searchText")
         val activity = CurrentActivityHolder.getInstance().currentActivity
         val searchParams = Bundle()
         searchParams.putString(SearchControl.SEARCH_TEXT, searchText)

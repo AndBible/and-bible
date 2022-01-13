@@ -247,8 +247,8 @@ class WorkspaceEntities {
                     dayNoise = 0
                 ),
                 marginSize = MarginSize(
-                    marginLeft = 0,
-                    marginRight = 0,
+                    marginLeft = 3,
+                    marginRight = 3,
                     maxWidth = 170
                 ),
                 fontSize = 16,
@@ -256,7 +256,7 @@ class WorkspaceEntities {
                 strongsMode = 0,
                 showMorphology = false,
                 showFootNotes = true,
-                showRedLetters = false,
+                showRedLetters = true,
                 showSectionTitles = true,
                 showVerseNumbers = true,
                 showVersePerLine = false,

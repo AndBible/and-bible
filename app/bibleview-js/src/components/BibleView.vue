@@ -45,15 +45,6 @@
 <script>
 import Document from "@/components/documents/Document";
 import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
-import {
-  useAddonFonts,
-  useConfig,
-  useCustomCss,
-  useCustomFeatures,
-  useFontAwesome, useModal,
-  useVerseHighlight,
-  useVerseNotifier
-} from "@/composables";
 import {testBookmarkLabels, testData} from "@/testdata";
 import {computed, ref} from "@vue/reactivity";
 import {useInfiniteScroll} from "@/composables/infinite-scroll";
@@ -68,11 +59,22 @@ import DevelopmentMode from "@/components/DevelopmentMode";
 import Color from "color";
 import {useStrings} from "@/composables/strings";
 import {DocumentTypes} from "@/constants";
+import {useKeyboard} from "@/composables/keyboard";
+import {useVerseNotifier} from "@/composables/verse-notifier";
+import {useAddonFonts} from "@/composables/addon-fonts";
+import {useFontAwesome} from "@/composables/fontawesome";
+import {useConfig} from "@/composables/config";
+import {useVerseHighlight} from "@/composables/verse-highlight";
+import {useModal} from "@/composables/modal";
+import {useCustomCss} from "@/composables/custom-css";
+import {useCustomFeatures} from "@/composables/features";
+import {useSharing} from "@/composables/sharing";
 
 export default {
   name: "BibleView",
   components: {Document, ErrorBox, BookmarkModal, DevelopmentMode},
   setup() {
+    console.log("BibleView setup");
     useAddonFonts();
     useFontAwesome();
     const documents = reactive([]);
@@ -95,6 +97,7 @@ export default {
     provide("scroll", scroll);
     const globalBookmarks = useGlobalBookmarks(config);
     const android = useAndroid(globalBookmarks, config);
+    useKeyboard(android);
 
     const modal = useModal(android);
     provide("modal", modal);
@@ -110,7 +113,11 @@ export default {
     const {closeModals} = modal;
 
     const mounted = ref(false);
-    onMounted(() => mounted.value = true)
+
+    onMounted(() => {
+      mounted.value = true;
+      console.log("BibleView mounted");
+    })
     onUnmounted(() => mounted.value = false)
 
     const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll);
@@ -249,6 +256,14 @@ export default {
           `;
     });
 
+    setupEventBusListener(Events.ADJUST_LOADING_COUNT, a => {
+      loadingCount.value += a;
+      if(loadingCount.value < 0) {
+        console.error("Loading count now below zero, setting to 0", loadingCount.value);
+        loadingCount.value = 0;
+      }
+    });
+
     const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
 
     function scrollUpDown(up = false) {
@@ -258,6 +273,8 @@ export default {
 
     setupEventBusListener(Events.SCROLL_DOWN, () => scrollUpDown());
     setupEventBusListener(Events.SCROLL_UP, () => scrollUpDown(true));
+
+    useSharing({topElement, android});
 
     return {
       direction: computed(() => appSettings.rightToLeft ? "rtl": "ltr"),

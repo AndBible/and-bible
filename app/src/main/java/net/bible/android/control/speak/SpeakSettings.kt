@@ -30,7 +30,7 @@ data class SpeakSettingsChangedEvent(val speakSettings: SpeakSettings, val updat
 fun SpeakSettings.save(updateBookmark: Boolean = false) {
     if(SpeakSettings.Companion.currentSettings?.equals(this) != true) {
         CommonUtils.realSharedPreferences.edit().putString(PERSIST_SETTINGS, toJson()).apply()
-        Log.d(TAG, "SpeakSettings saved! $this")
+        Log.i(TAG, "SpeakSettings saved! $this")
         val oldSettings = SpeakSettings.Companion.currentSettings
         SpeakSettings.Companion.currentSettings = this.makeCopy()
         ABEventBus.getDefault().post(SpeakSettingsChangedEvent(this,
@@ -47,6 +47,6 @@ fun SpeakSettings.Companion.load(): SpeakSettings {
         val sharedPreferences = CommonUtils.realSharedPreferences
         val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, "")!!)
         settings }()
-    Log.d(TAG, "SpeakSettings loaded! $rv")
+    Log.i(TAG, "SpeakSettings loaded! $rv")
     return rv
 }

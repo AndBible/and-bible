@@ -73,7 +73,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
      *
      */
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
-        Log.d(TAG, "get document list from source")
+        Log.i(TAG, "get document list from source")
         return swordDocumentFacade.documents + FakeBookFactory.pseudoDocuments
     }
 
@@ -97,7 +97,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
                 reloadDocuments()
                 return@launch
             }
-            Log.d(TAG, "Book selected:" + selectedDocument.initials)
+            Log.i(TAG, "Book selected:" + selectedDocument.initials)
             try {
                 documentControl.changeDocument(selectedDocument)
                 // if key is valid then the new doc will have been shown already

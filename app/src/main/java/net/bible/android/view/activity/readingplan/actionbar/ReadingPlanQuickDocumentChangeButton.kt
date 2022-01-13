@@ -31,7 +31,10 @@ abstract class ReadingPlanQuickDocumentChangeButton : QuickDocumentChangeToolbar
     override fun onMenuItemClick(arg0: MenuItem): Boolean {
         val isHandled = super.onMenuItemClick(arg0)
         // exit the Daily Reading page, returning up to the Document page display to see the bible
-        CurrentActivityHolder.getInstance().currentActivity.finish()
+        CurrentActivityHolder.getInstance().currentActivity.apply {
+            isIntegrateWithHistoryManager = true
+            finish()
+        }
 
         return isHandled
     }

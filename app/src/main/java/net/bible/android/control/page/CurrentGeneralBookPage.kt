@@ -27,8 +27,10 @@ import net.bible.android.common.toV11n
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
+import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.firstBibleDoc
@@ -79,7 +81,12 @@ class CurrentGeneralBookPage internal constructor(
                         _mainBibleActivity?.workspaceSettings?.updateFrom(resultData)
                     }
                 }
-                FakeBookFactory.multiDocument -> {}
+                FakeBookFactory.multiDocument -> {
+                    context.startActivityForResult(
+                        Intent(context, ChooseDocument::class.java),
+                        IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
+                    )
+                }
                 else -> context.startActivity(Intent(context, ChooseGeneralBookKey::class.java))
             }
         }
@@ -184,13 +191,14 @@ class CurrentGeneralBookPage internal constructor(
             FakeBookFactory.multiDocument.initials -> {
                 val refs = entity!!.key!!.split("||").map { it.split(":") }.mapNotNull {
                     try {
-                        val book: Book? = if(it[0] == "null") pageManager.currentBible.currentDocument else Books.installed().getBook(it[0])
+                        val isUnspecifiedDoc = it[0] == "null"
+                        val book: Book? = if(isUnspecifiedDoc) pageManager.currentBible.currentDocument else Books.installed().getBook(it[0])
                         val key = if (book is SwordBook) {
                             VerseRangeFactory.fromString(book.versification, it[1])
                         } else {
                             book?.getKey(it[1])
                         }
-                        if(book == null || key == null) null else BookAndKey(key, book)
+                        if(book == null || key == null) null else BookAndKey(key, if(isUnspecifiedDoc) null else book)
                     } catch (e: Exception) {
                         null
                     }

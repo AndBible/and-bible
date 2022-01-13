@@ -87,7 +87,7 @@ class LayoutDesigner(private val view: View) {
             rowColLayout.cols = Math.max(minCols, rowColLayout.cols)
         }
         rowColLayout.columnOrder = isPortrait
-        Log.d(TAG, "Rows:" + rowColLayout.rows + " Cols:" + rowColLayout.cols)
+        Log.i(TAG, "Rows:" + rowColLayout.rows + " Cols:" + rowColLayout.cols)
         return rowColLayout
     }
 

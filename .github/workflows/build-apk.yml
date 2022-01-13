@@ -58,7 +58,7 @@ jobs:
         unzip -o -d $HOME/.sword ./testmods.zip
 
     - name: Build with Gradle
-      run: ./gradlew --console plain build -x testDebug -x test
+      run: ./gradlew --console plain assembleGithubRelease
 
     # Test complete, create apk etc
 
@@ -76,10 +76,10 @@ jobs:
       if: contains(github.ref, 'refs/tags/')
       env: 
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
-      working-directory: ./app/build/outputs/apk/release
+      working-directory: ./app/build/outputs/apk/github/release
       run: |
         echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > keystore.jks
-        $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-release-unsigned.apk
+        $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-github-release-unsigned.apk
         rm -f keystore.jks
     - name: Create release
       if: contains(github.ref, 'refs/tags/')
