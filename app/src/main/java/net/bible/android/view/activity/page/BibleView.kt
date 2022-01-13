@@ -67,7 +67,6 @@ import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.StudyPadOrderEvent
 import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
-import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
@@ -132,7 +131,6 @@ import javax.inject.Inject
 import kotlin.math.min
 
 import net.bible.android.control.page.CurrentPageManager
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import android.os.Bundle
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchIndex
@@ -192,10 +190,10 @@ class Selection(val bookInitials: String?, val startOrdinal: Int,
 @SuppressLint("ViewConstructor")
 class BibleView(val mainBibleActivity: MainBibleActivity,
                 internal var windowRef: WeakReference<Window>,
-                val windowControl: WindowControl,
+                internal val windowControl: WindowControl,
                 private val pageControl: PageControl,
                 private val pageTiltScrollControl: PageTiltScrollControl,
-                val linkControl: LinkControl,
+                internal val linkControl: LinkControl,
                 internal val bookmarkControl: BookmarkControl,
                 internal val downloadControl: DownloadControl,
                 private val searchControl: SearchControl
@@ -213,8 +211,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var maxChapter = -1
 
     private var gestureDetector: GestureDetectorCompat
-
-    @Inject public lateinit var documentControl: DocumentControl
 
     /** Used to prevent scroll off bottom using auto-scroll
      * see http://stackoverflow.com/questions/5069765/android-webview-how-to-autoscroll-a-page
@@ -296,32 +292,25 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             R.id.share_verses -> {
-                val sel = currentSelection
-                if (sel != null)
-                    ShareWidget.dialog(mainBibleActivity, sel)
+                val sel = currentSelection ?: return true
+                ShareWidget.dialog(mainBibleActivity, sel)
                 return true
             }
             R.id.search -> {
-                val sel = currentSelection
-                if (sel != null) {
-
-                    val currentBible = currentPageManager.currentBible.currentDocument!!
-
-                    var searchText = searchControl.decorateSearchString(sel.text, SearchType.PHRASE, SearchControl.SearchBibleSection.ALL, "")
-                    val activity = CurrentActivityHolder.getInstance().currentActivity
-                    val searchParams = Bundle()
-                    searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
-                    searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
-
-                    var intent: Intent? = null
-                    intent = if (currentBible.indexStatus != IndexStatus.DONE) {
-                        Intent(activity, SearchIndex::class.java)
-                    } else { //If an indexed Strong's module is in place then do the search - the normal situation
-                        Intent(activity, SearchResults::class.java)
-                    }
-                    intent.putExtras(searchParams)
-                    activity.startActivity(intent)
+                val sel = currentSelection ?: return true
+                val currentBible = currentPageManager.currentBible.currentDocument?: return true
+                val searchText = searchControl.decorateSearchString(sel.text, SearchType.PHRASE, SearchControl.SearchBibleSection.ALL, "")
+                val searchParams = Bundle().apply {
+                    putString(SearchControl.SEARCH_TEXT, searchText)
+                    putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
                 }
+
+                val intent = Intent(mainBibleActivity,
+                    if (currentBible.indexStatus != IndexStatus.DONE) SearchIndex::class.java else SearchResults::class.java
+                ).apply {
+                    putExtras(searchParams)
+                }
+                mainBibleActivity.startActivity(intent)
 
                 return true
             }
@@ -855,7 +844,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         UriConstants.SCHEME_DOWNLOAD -> {
             val initials = uri.getQueryParameter("initials")
 
-            val intent = Intent(MainBibleActivity.mainBibleActivity, DownloadActivity::class.java)
+            val intent = Intent(mainBibleActivity, DownloadActivity::class.java)
             intent.putExtra("search", initials)
             mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
             true
@@ -1620,7 +1609,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so
         // no scrollOrJumpToVerse will occur
         private const val TOP_OF_SCREEN = 1
-        const val STD_REQUEST_CODE = 1
     }
 
     private val currentPageManager: CurrentPageManager
