@@ -437,7 +437,7 @@
   <!--param is refresh icon-->
   <string name="assing_labels_help5">Apasă %s pentru a reordona lista în funcție de alegerile tale.</string>
   <string name="workspace_text_options_help_title">Opțiuni de text ale spațiului de studiu</string>
-  <string name="workspace_text_options_help1">Aceste reglări stabilesc valorile prestabilite pentru toate ferestrele spațiului de studiu.</string>
+  <string name="workspace_text_options_help1">Aceste reglări decid valorile prestabilite pentru toate ferestrele spațiului de studiu.</string>
   <string name="workspace_text_options_help2">Poți să le anulezi modificînd reglările individuale ale ferestrelor.</string>
   <string name="window_text_options_help_title">Opțiuni de text ale ferestrei</string>
   <!--Parameter is actual icon-->

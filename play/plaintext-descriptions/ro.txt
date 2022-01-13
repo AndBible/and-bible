@@ -4,22 +4,22 @@ Aplicația de studiu biblic de la And Bible Open Source Project este o aplicați
 
 Această aplicație este realizată de cititori ai Bibliei, pentru cititorii Bibliei. Scopul ei este de a vă ajuta să vă faceți studiul biblic convenabil, profund și distractiv. Cea mai bună parte a acestui proiect comunitar non-profit este că are sursă publică, este complet gratuit și nu conține reclame. Fiind construită de la zero pentru Android, este mică și, prin urmare, foarte eficientă și remarcabil de rapidă.
 
-Câteva versiuni populare ale Bibliei (din cele multe disponibile) sunt Cornilescu, KJV, NASB, Diodati, precum și comentarii populare precum Matthew Henry și John Gill.
+Cîteva versiuni populare ale Bibliei (din cele multe disponibile) sînt Cornilescu, KJV, NASB, Diodati, precum și comentarii populare precum Matthew Henry și John Gill.
 
 Caracteristici eficiente de studiu biblic
 
-Aplicația are multe caracteristici originale și interesante, care fac ca experiența studiului biblic complex și profund să fie mai ușoară ca niciodată. Cele mai notabile caracteristici sunt următoarele:
+Aplicația are multe caracteristici originale și interesante, care fac ca experiența studiului biblic complex și profund să fie mai ușoară ca niciodată. Cele mai notabile caracteristici sînt următoarele:
 
  * Vizualizări separate ale textului care permit compararea traducerilor și consultarea comentariilor
  * Spațiile de studiu permit organizarea mai multor studii biblice cu propriile reglări
  * Integrarea Strong permite analiza cuvintelor grecești și ebraice
  * Trimiteri, note de subsol și documente; accesezi trimiterile și notele de subsol prin simpla apăsare a unei legături; efectuezi un studiu aprofundat al Scripturilor folosind comentarii cu legături hipertext (Gill, Matthew Henry etc.), colecții de trimiteri (Treasure of Scripture Knowledge, TSKe) și alte resurse.
- * Pronunțarea avansată a textului cu marcaje de vorbire, permițând o experiență de ascultare ușoară a Bibliei
+ * Pronunțarea avansată a textului cu marcaje de vorbire, permițînd o experiență de ascultare ușoară a Bibliei
  * Căutare flexibilă
  * Semne de carte și evidențiere avansată cu notițe de studiu personale
  * Notițe de studiu pentru a adăuga comentarii și trimiteri biblice în timp ce asculți predicile.
  * Planuri de citire: stabilește obiective pentru citirea Bibliei
- * O vastă bibliotecă de documente: Traduceri ale Bibliei, comentarii teologice, dicționare, hărți și cărți creștine, totalizând peste 1500 documente în peste 700 limbi, distribuite legal de Crosswire și alte depozite SWORD.
+ * O vastă bibliotecă de documente: Traduceri ale Bibliei, comentarii teologice, dicționare, hărți și cărți creștine, totalizînd peste 1500 documente în peste 700 limbi, distribuite legal de Crosswire și alte depozite SWORD.
  * Offline: singurul moment în care aveți nevoie de internet este pentru a descărca documente.
 
 Haideți să facem împreună cea mai bună aplicație biblică!
