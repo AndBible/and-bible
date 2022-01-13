@@ -27,8 +27,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View.OnClickListener
-import androidx.core.view.children
 
 import net.bible.android.activity.R
 import net.bible.android.control.navigation.BibleBookSortOrder
@@ -67,10 +65,9 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     data class ExtraBookInfo(val Color: Int, val GroupA: String, val GroupB: String)
-    private lateinit var mmenu: Menu
 
-    private// this is used for preview
-    val bibleBookButtonInfo: List<ButtonInfo>
+    // this is used for preview
+    private val bibleBookButtonInfo: List<ButtonInfo>
         get() {
             val isShortBookNamesAvailable = isShortBookNames
             val currentBibleBook = KeyUtil.getVerse(activeWindowPageManagerProvider.activeWindowPageManager.currentBible.key).book
@@ -97,8 +94,8 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
             return keys
         }
 
-    private// should never get here
-    val isShortBookNames: Boolean
+    // should never get here
+    private val isShortBookNames: Boolean
         get() {
             return try {
                 versification.getShortName(BibleBook.GEN) != versification.getLongName(BibleBook.GEN)
@@ -144,10 +141,10 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        mmenu = menu
-        val sortOptionItem = menu.findItem(R.id.alphabetical_order_opt)
-        sortOptionItem.isChecked = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
-        buttonGrid.isAlphaSorted = sortOptionItem.isChecked
+        menu.findItem(R.id.alphabetical_order_opt).run {
+            isChecked = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
+            buttonGrid.isAlphaSorted = isChecked
+        }
 
         buttonGrid.isGroupByCategoryEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY, false)
         menu.findItem(R.id.group_by_category).isChecked  = buttonGrid.isGroupByCategoryEnabled
@@ -158,69 +155,65 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         val deutToggle = menu.findItem(R.id.deut_toggle)
         deutToggle.setTitle(if(isCurrentlyShowingScripture) R.string.bible else R.string.deuterocanonical)
         deutToggle.isVisible = navigationControl.getBibleBooks(false).isNotEmpty()
+
         return super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.alphabetical_order_opt -> {
-                buttonGrid.isGroupByCategoryEnabled = false
-                navigationControl.changeBibleBookSortOrder()
-                buttonGrid.clear()
-                buttonGrid.isAlphaSorted = !item.isChecked
-                buttonGrid.addBookButtons(bibleBookButtonInfo)
-                buttonGrid.isGroupByCategoryEnabled = false
-                saveOptions()
-                true
-            }
-            R.id.row_order_opt -> {
-                buttonGrid.isGroupByCategoryEnabled = false
-                buttonGrid.toggleLeftToRight()
-                item.isChecked = buttonGrid.isLeftToRightEnabled
-                buttonGrid.clear()
-                buttonGrid.addBookButtons(bibleBookButtonInfo)
-                buttonGrid.isGroupByCategoryEnabled = false
-                saveOptions()
-                true
-            }
-            R.id.group_by_category -> {
-                navigationControl.bibleBookSortOrder = BibleBookSortOrder.BIBLE_BOOK
-                buttonGrid.isAlphaSorted = false
-                buttonGrid.isLeftToRightEnabled = true
-                buttonGrid.toggleGroupByCategory()
-                item.isChecked = buttonGrid.isGroupByCategoryEnabled
-                buttonGrid.clear()
-                buttonGrid.addBookButtons(bibleBookButtonInfo)
-                saveOptions()
-                true
-            }
-            R.id.deut_toggle -> {
-                isCurrentlyShowingScripture = !isCurrentlyShowingScripture
-                buttonGrid.isCurrentlyShowingScripture = isCurrentlyShowingScripture
-                buttonGrid.clear()
-                buttonGrid.addBookButtons(bibleBookButtonInfo)
-                invalidateOptionsMenu()
-                true
-            }
-            android.R.id.home -> {
-                onBackPressed()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.alphabetical_order_opt -> {
+            buttonGrid.isGroupByCategoryEnabled = false
+            navigationControl.changeBibleBookSortOrder()
+            buttonGrid.clear()
+            buttonGrid.isAlphaSorted = !item.isChecked
+            buttonGrid.addBookButtons(bibleBookButtonInfo)
+            buttonGrid.isGroupByCategoryEnabled = false
+            saveOptions()
+            invalidateOptionsMenu()
+            true
         }
+        R.id.row_order_opt -> {
+            buttonGrid.isGroupByCategoryEnabled = false
+            buttonGrid.toggleLeftToRight()
+            item.isChecked = buttonGrid.isLeftToRightEnabled
+            buttonGrid.clear()
+            buttonGrid.addBookButtons(bibleBookButtonInfo)
+            buttonGrid.isGroupByCategoryEnabled = false
+            saveOptions()
+            invalidateOptionsMenu()
+            true
+        }
+        R.id.group_by_category -> {
+            navigationControl.bibleBookSortOrder = BibleBookSortOrder.BIBLE_BOOK
+            buttonGrid.isAlphaSorted = false
+            buttonGrid.isLeftToRightEnabled = true
+            buttonGrid.toggleGroupByCategory()
+            item.isChecked = buttonGrid.isGroupByCategoryEnabled
+            buttonGrid.clear()
+            buttonGrid.addBookButtons(bibleBookButtonInfo)
+            saveOptions()
+            invalidateOptionsMenu()
+            true
+        }
+        R.id.deut_toggle -> {
+            isCurrentlyShowingScripture = !isCurrentlyShowingScripture
+            buttonGrid.isCurrentlyShowingScripture = isCurrentlyShowingScripture
+            buttonGrid.clear()
+            buttonGrid.addBookButtons(bibleBookButtonInfo)
+            invalidateOptionsMenu()
+            true
+        }
+        android.R.id.home -> {
+            onBackPressed()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
     private fun saveOptions() {
-
-        mmenu.findItem(R.id.alphabetical_order_opt).isChecked  = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
-
-        mmenu.findItem(R.id.row_order_opt).isChecked  = buttonGrid.isLeftToRightEnabled
         CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS, buttonGrid.isLeftToRightEnabled)
-
-        mmenu.findItem(R.id.group_by_category).isChecked  = buttonGrid.isGroupByCategoryEnabled
         CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY, buttonGrid.isGroupByCategoryEnabled)
-
     }
+
     override fun buttonPressed(buttonInfo: ButtonInfo) {
         Log.i(TAG, "Book:" + buttonInfo.id + " " + buttonInfo.name)
         bookSelected(buttonInfo.id)
