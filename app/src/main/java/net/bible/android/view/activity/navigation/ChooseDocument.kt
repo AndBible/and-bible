@@ -61,7 +61,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         selectedDocumentFilterNo = when(intent.extras?.getString("type")) {
             "BIBLE" -> 1
             "COMMENTARY" -> 2
-            else -> 0
+            else -> CommonUtils.settings.getInt("selected_document_filter_no", 0)
         }
     }
 
