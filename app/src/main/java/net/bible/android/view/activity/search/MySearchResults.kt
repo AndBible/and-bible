@@ -3,12 +3,15 @@ package net.bible.android.view.activity.search
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import android.text.style.StyleSpan
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.core.text.toHtml
 import com.google.android.material.tabs.TabLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -31,9 +34,7 @@ import javax.inject.Inject
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
 import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.getBookTextColor
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.resources
-
 
 private var TAB_TITLES = arrayOf(
     resources.getString(R.string.results_count),
@@ -43,6 +44,7 @@ private var TAB_TITLES = arrayOf(
 private val mSearchArrayAdapter = ArrayList<SearchResultsData>()
 private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
 private val bookStatistics = mutableListOf<BookStat>()
+private val wordStatistics = mutableListOf<WordStat>()
 
 class BookStat(val book: String, var count: Int,
                val bookInitials: String,
@@ -51,6 +53,13 @@ class BookStat(val book: String, var count: Int,
                 val color: Int) {
     override fun toString(): String = "$book: $count"
 }
+class WordStat(val word: String,
+               var verseIndexes: IntArray,
+               val originalWord: String) {
+    override fun toString(): String = "$originalWord: ${verseIndexes.count()}"
+}
+
+private var wordHits: ArrayList<Pair<String, ArrayList<Int>>> = arrayListOf()
 
 class SearchResultsData : Parcelable {
     @JvmField
@@ -63,14 +72,18 @@ class SearchResultsData : Parcelable {
     var translation: String?
     @JvmField
     var verse: String?
+    @JvmField
+    var verseHtml: String?  // I would prefer to pass a spannable string but i dont know how to make it parcelable
+
     /* What I really want to do is make the 'Key' parcelable but I don't know how to do that. So instead I have to send the properties I need and get the key later on */
 
-    constructor(Id: Int?, OsisKey: String?, Reference: String?, Translation: String?, Verse: String?) {
+    constructor(Id: Int?, OsisKey: String?, Reference: String?, Translation: String?, Verse: String?, VerseHtml: String?) {
         id = Id;
         osisKey = OsisKey
         reference = Reference
         translation = Translation
         verse = Verse
+        verseHtml = VerseHtml
     }
 
     protected constructor(`in`: Parcel) {
@@ -79,6 +92,7 @@ class SearchResultsData : Parcelable {
         reference = `in`.readString()
         translation = `in`.readString()
         verse = `in`.readString()
+        verseHtml = `in`.readString()
     }
 
     override fun describeContents(): Int {
@@ -91,6 +105,8 @@ class SearchResultsData : Parcelable {
         dest.writeString(reference)
         dest.writeString(translation)
         dest.writeString(verse)
+        dest.writeString(verseHtml)
+
     }
 
     companion object CREATOR : Parcelable.Creator<SearchResultsData> {
@@ -234,10 +250,10 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
         mSearchArrayAdapter!!.clear()
         bookStatistics.clear()
+        wordStatistics.clear()
+
         var listIndex = 0
         for (key in mCurrentlyDisplayedSearchResults) {
-            var text = searchControl.getSearchResultVerseText(key)
-            mSearchArrayAdapter.add(SearchResultsData(1, key.osisID.toString(), key.name,searchDocument, text))
 
             // Get the text of the verse
             val bookOrdinal = ((key as Verse).book as BibleBook).ordinal
@@ -249,9 +265,34 @@ class MySearchResults : CustomTitlebarActivityBase() {
             } else {
                 bookStatistics.first{it.book == bookNameLong}.count += 1
             }
+
+            val verseTextElement = searchControl.getSearchResultVerseElement(key)
+            val verseTextSpannable = SearchHighlight.getSpannableText(SearchControl.originalSearchString, verseTextElement)
+
+            mSearchArrayAdapter.add(SearchResultsData(1, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable!!.toHtml()))
+
+            var ss: Array<StyleSpan> = verseTextSpannable!!.getSpans(0, verseTextSpannable?.length, StyleSpan::class.java)
+
+            for (i in ss.indices) {
+                if (ss[i].getStyle() === Typeface.BOLD) {
+                    val start = verseTextSpannable.getSpanStart(ss[i])
+                    val end = verseTextSpannable.getSpanEnd(ss[i])
+
+                    var wordArray = CharArray(end-start)
+                    verseTextSpannable.getChars(start, end, wordArray, 0)
+                    val originalWord = wordArray.joinToString("")
+                    val word = originalWord.lowercase()
+                    val wordStat = wordStatistics.firstOrNull{it.word == word}
+                    if (wordStat == null) {
+                        wordStatistics.add(WordStat(word, intArrayOf(listIndex), originalWord))
+                    } else {
+                        wordStatistics.first{it.word == word}.verseIndexes += listIndex
+                    }
+                }
+            }
             listIndex += 1
         }
-        TAB_TITLES[0] = resources.getString(R.string.results_count, listIndex)
+        TAB_TITLES[0] = resources.getString(R.string.results_count, listIndex.toString())
     }
     /**
      * Handle scripture/Appendix toggle
@@ -297,8 +338,12 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
                 frag.intent = intent
             }
             1-> {
-                frag = SearchStatisticsFragment()
+                frag = SearchBookStatisticsFragment()
                 frag.bookStatistics = bookStatistics
+            }
+            2-> {
+                frag = SearchWordStatisticsFragment()
+                frag.wordStatistics = wordStatistics
             }
             else -> frag = PlaceholderFragment.newInstance(1)
         }
@@ -312,6 +357,6 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
 
     override fun getCount(): Int {
         // Show 2 total pages.
-        return 2
+        return 3
     }
 }

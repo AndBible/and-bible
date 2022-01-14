@@ -8,31 +8,33 @@
 
 	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="35dp"
+		android:layout_height="wrap_content"
 		android:orientation="horizontal"
+		app:layout_constraintHeight="40dp"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent">
 
 		<Button
-			android:id="@+id/searchStatisticsBookButton"
+			android:id="@+id/searchStatisticsWordButton"
 			android:layout_width="170dp"
-			android:layout_height="36dp"
-			android:text="Song of Solomon"
+			android:layout_height="wrap_content"
+			android:text="the word which is very long and might not wrap"
+			android:textAllCaps="false"
 			android:textSize="12dp"
 			app:layout_anchor="@+id/button2"
 			app:layout_anchorGravity="end|top" />
 
 		<TextView
-			android:id="@+id/searchStatisticsBookCount"
+			android:id="@+id/searchStatisticsWordCount"
 			android:layout_width="30dp"
 			android:layout_height="wrap_content"
-			android:text="345"
+			android:text="45"
 			android:textAlignment="center"
 			android:textSize="16sp"
 			android:textStyle="bold" />
 
 		<ProgressBar
-			android:id="@+id/searchStatisticsBookCountProgress"
+			android:id="@+id/searchStatisticsWordCountProgress"
 			style="?android:attr/progressBarStyleHorizontal"
 			android:layout_width="match_parent"
 			android:layout_height="10dp"
@@ -46,14 +48,11 @@
 			android:min="0"
 			android:progress="45"
 			android:progressBackgroundTint="@color/transparent"
-			android:progressTint="@color/red"
+			android:progressTint="@color/sync_on_green"
 			android:scaleY="4"
 			android:visibility="visible" />
 
 
 	</LinearLayout>
-
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

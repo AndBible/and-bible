@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import android.widget.ListView
 import android.widget.ProgressBar
@@ -26,14 +27,56 @@ import org.crosswire.jsword.passage.Key
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.service.sword.SwordDocumentFacade
 
+class PlaceholderFragment: Fragment() {
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-/**
- * A placeholder fragment containing a simple view.
- */
+    //    private lateinit var pageViewModel: PageViewModel
+    private var _binding: SearchResultsVerseFragmentBinding? = null
+
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding!!
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
+        _binding = SearchResultsVerseFragmentBinding.inflate(inflater, container, false)
+        val root = binding.root
+
+        return root
+    }
+
+    companion object {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private const val ARG_SECTION_NUMBER = "section_number"
+
+        /**
+         * Returns a new instance of this fragment for the given section
+         * number.
+         */
+        @JvmStatic
+        fun newInstance(sectionNumber: Int): PlaceholderFragment {
+            return PlaceholderFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(ARG_SECTION_NUMBER, sectionNumber)
+                }
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
 
 class SearchResultsFragment : Fragment() {
 
@@ -126,7 +169,7 @@ class SearchResultsFragment : Fragment() {
     }
 }
 
-class SearchStatisticsFragment : Fragment() {
+class SearchBookStatisticsFragment : Fragment() {
     private var _binding: SearchResultsStatisticsFragmentBinding? = null
 
     private val binding get() = _binding!!
@@ -148,20 +191,23 @@ class SearchStatisticsFragment : Fragment() {
         val maxCount: Int = bookStatistics.maxOfOrNull { it.count } ?: 0
         bookStatistics.map {
 
-            val to_add: View = inflater.inflate(
+            val statsRow: View = inflater.inflate(
                 R.layout.search_results_statistics_row,
                 statisticsLayout, false
             )
-            var button = to_add.findViewById<Button>(R.id.searchStatisticsBookButton)
-            button.setText(it.book)
-            var text = to_add.findViewById<TextView>(R.id.searchStatisticsBookCount)
-            text.setText("${it.count}")
-            var progressBar = to_add.findViewById<ProgressBar>(R.id.searchStatisticsBookCountProgress)
+            var button = statsRow.findViewById<Button>(R.id.searchStatisticsBookButton)
+            button.text = it.book
+            var text = statsRow.findViewById<TextView>(R.id.searchStatisticsBookCount)
+            text.text = "${it.count}"
+            var progressBar = statsRow.findViewById<ProgressBar>(R.id.searchStatisticsBookCountProgress)
             progressBar.max = maxCount
             progressBar.progress = it.count
-            progressBar.setProgressTintList(ColorStateList.valueOf(it.color))
-            to_add.visibility = View.VISIBLE
-            statisticsLayout.addView(to_add)
+            progressBar.progressTintList = ColorStateList.valueOf(it.color)
+            statsRow.visibility = View.VISIBLE
+
+            statisticsLayout.addView(statsRow,
+                FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 90)
+            )
 
             button.tag = it.listIndex
             button.setOnClickListener {
@@ -170,41 +216,7 @@ class SearchStatisticsFragment : Fragment() {
                 val resultList = requireActivity().findViewById<View>(R.id.searchResultsList) as ListView
                 resultList.setSelection(it.tag as Int);
             }
-//            to_add.invalidate()
-            to_add.requestLayout()
-//            statisticsLayout.invalidate()
-//        statisticsLayout.requestLayout()
-
-//            val text = to_add.findViewById<View>(R.id.text) as TextView
-//            text.setText(options.get(i))
-//            text.setTypeface(FontSelector.getBold(activity))
-
-//
-//            val newButton = Button(flowContainer.context)
-//            newButton.setLayoutParams(LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-//            newButton.setText("${it.book} = ${it.count}")
-//            newButton.id = View.generateViewId()
-//            newButton.isAllCaps = false
-//            newButton.tag = it.listIndex
-
-
-
-//            newButton.setOnClickListener {
-//                val tabhost = requireActivity().findViewById<View>(R.id.tabs) as TabLayout
-//                tabhost.getTabAt(0)!!.select()
-////                tabs.getTabAt(1)?.select()
-//////                viewPager.currentItem = 0
-//                val resultLis = requireActivity().findViewById<View>(R.id.searchResultsList) as ListView
-////                resultLis.smoothScrollToPosition(it.tag as Int);
-////                val position: Int = resultLis.getPositionForView(tabhost)
-////                resultLis.setSelection(position+1)
-//                resultLis.smoothScrollToPosition(it.tag as Int);
-//                Toast.makeText(buttonLayout.context, newButton.text, Toast.LENGTH_LONG)
-//            }
-//            buttonLayout.addView(newButton)
-//            buttonIds += newButton.id
         }
-//        flowContainer.referencedIds = buttonIds
 
         return root
     }
@@ -230,53 +242,46 @@ class SearchStatisticsFragment : Fragment() {
 //    }
 }
 
-class PlaceholderFragment : Fragment() {
+class SearchWordStatisticsFragment : Fragment() {
+    private var _binding: SearchResultsStatisticsFragmentBinding? = null
 
-//    private lateinit var pageViewModel: PageViewModel
-    private var _binding: SearchResultsVerseFragmentBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    var wordStatistics = mutableListOf<WordStat>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        _binding = SearchResultsVerseFragmentBinding.inflate(inflater, container, false)
+        // Inflate the layout for this fragment
+        _binding = SearchResultsStatisticsFragmentBinding.inflate(inflater, container, false)
         val root = binding.root
 
+        val statisticsLayout = binding.statisticsLayout
+        val sortedWordStatistics = wordStatistics.sortedBy { it.word }
+        val maxCount: Int = sortedWordStatistics.maxOfOrNull { it.verseIndexes.count() } ?: 0
+        sortedWordStatistics.map {
+
+            val statsRow: View = inflater.inflate(
+                R.layout.search_results_word_statistics_row,
+                statisticsLayout, false
+            )
+            var button = statsRow.findViewById<Button>(R.id.searchStatisticsWordButton)
+            button.setText(it.originalWord)
+            var text = statsRow.findViewById<TextView>(R.id.searchStatisticsWordCount)
+            text.setText("${it.verseIndexes.count()}")
+            var progressBar = statsRow.findViewById<ProgressBar>(R.id.searchStatisticsWordCountProgress)
+            progressBar.max = maxCount
+            progressBar.progress = it.verseIndexes.count()
+            statsRow.visibility = View.VISIBLE
+            statsRow.invalidate()
+            statsRow.requestLayout()
+            statisticsLayout.addView(statsRow,
+//                FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 90)
+                FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+            )
+        }
         return root
     }
-
-    companion object {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private const val ARG_SECTION_NUMBER = "section_number"
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        @JvmStatic
-        fun newInstance(sectionNumber: Int): PlaceholderFragment {
-            return PlaceholderFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(ARG_SECTION_NUMBER, sectionNumber)
-                }
-            }
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }
+

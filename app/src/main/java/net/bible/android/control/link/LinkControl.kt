@@ -31,6 +31,7 @@ import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.search.MySearchResults
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.service.common.CommonUtils.settings
@@ -237,7 +238,7 @@ class LinkControl @Inject constructor(
         intent = if (needToDownloadIndex) {
             Intent(activity, SearchIndex::class.java)
         } else { //If an indexed Strong's module is in place then do the search - the normal situation
-            Intent(activity, SearchResults::class.java)
+            Intent(activity, MySearchResults::class.java)
         }
         intent.putExtras(searchParams)
         activity.startActivity(intent)
