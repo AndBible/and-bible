@@ -137,9 +137,20 @@ class SwordContentFacadeTest {
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk=[28])
 class TestShare {
-    private fun testShare(initials: String, verseRangeStr: String, offsetRange: IntRange,
-                          showVerseNumbers: Boolean, showFull: Boolean,
+    private fun testShare(initials: String,
+                          verseRangeStr: String,
+                          offsetRange: IntRange,
+                          showVerseNumbers: Boolean,
+                          showFull: Boolean,
                           compareText: String,
+                          advertiseApp: Boolean = false,
+                          showReference: Boolean = true,
+                          showReferenceAtFront:Boolean = false,
+                          abbreviateReference: Boolean = true,
+                          showNotes: Boolean = true,
+                          showVersion: Boolean = true,
+                          showEllipsis: Boolean = true,
+                          showQuotes: Boolean = true
     ) {
 
         val book = Books.installed().getBook(initials) as SwordBook
@@ -157,10 +168,14 @@ class TestShare {
         val text = SwordContentFacade.getSelectionText(sel,
             showVerseNumbers = showVerseNumbers,
             showSelectionOnly = !showFull,
-            showReference = true,
-            advertiseApp = false,
-            showReferenceAtFront = false,
-            showQuotes = true
+            showReference = showReference,
+            advertiseApp = advertiseApp,
+            showReferenceAtFront = showReferenceAtFront,
+            showQuotes = showQuotes,
+            abbreviateReference = abbreviateReference,
+            showNotes = showNotes,
+            showVersion = showVersion,
+            showEllipsis = showEllipsis,
         )
 
         assertThat(text, equalTo(compareText))
@@ -250,4 +265,21 @@ class TestShare {
                 "For thou art the God of my strength: why dost thou cast me off? why go I mourning because of the oppression of the enemy? " +
                 "O send out thy light and thy truth: let them lead me; let them bring me unto thy holy hill, and to thy tabernacles.” (Psa 43:1-3, KJV)"
         )
+    @Test
+    fun testShare9()  =
+        testShare(
+            initials = "KJV",
+            verseRangeStr = "Ps.43.1",
+            offsetRange = 0..100,
+            showFull = true,
+            compareText = "Judge me, O God, and plead my cause against an ungodly nation: O deliver me from the deceitful and unjust man.",
+            advertiseApp = false,
+            showReference = false,
+            abbreviateReference = true,
+            showVersion = false,
+            showReferenceAtFront = false,
+            showVerseNumbers = false,
+            showQuotes = false,
+            showNotes = true
+            )
 }
