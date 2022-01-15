@@ -298,7 +298,7 @@ class TestShare {
         testShare(
             initials = "KJV",
             verseRangeStr = "Ps.43.1",
-            offsetRange = 1..5,
+            offsetRange = 0..5,
             showWholeVerse = false,
             compareText = "Judge",
             advertiseApp = false,
@@ -316,7 +316,7 @@ class TestShare {
         testShare(
             initials = "KJV",
             verseRangeStr = "Ps.43.1",
-            offsetRange = 1..5,
+            offsetRange = 0..5,
             showWholeVerse = false,
             compareText = "Judge (Psalms 43:1)",
             advertiseApp = false,
