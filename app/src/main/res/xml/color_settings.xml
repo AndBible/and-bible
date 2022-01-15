@@ -24,6 +24,7 @@
         android:title="@string/colors_day_mode_title"
         >
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:id="@+id/day_workspace_color"
             android:defaultValue="@color/actionbar_background_day"
             android:key="workspace_color_day"
             android:title="@string/color_workspace"
