@@ -1,10 +1,6 @@
 package net.bible.service.sword
 
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
-import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.control.page.window.WindowControl
 import net.bible.android.misc.elementToString
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.ParseException
@@ -17,7 +13,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -26,7 +21,6 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.core.IsNot.not
 import org.junit.Assert.assertThat
-import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
@@ -141,7 +135,7 @@ class TestShare {
                           verseRangeStr: String,
                           offsetRange: IntRange,
                           showVerseNumbers: Boolean,
-                          showFull: Boolean,
+                          showWholeVerse: Boolean,
                           compareText: String,
                           advertiseApp: Boolean = false,
                           showReference: Boolean = true,
@@ -167,7 +161,7 @@ class TestShare {
 
         val text = SwordContentFacade.getSelectionText(sel,
             showVerseNumbers = showVerseNumbers,
-            showSelectionOnly = !showFull,
+            showSelectionOnly = !showWholeVerse,
             showReference = showReference,
             advertiseApp = advertiseApp,
             showReferenceAtFront = showReferenceAtFront,
@@ -271,7 +265,7 @@ class TestShare {
             initials = "KJV",
             verseRangeStr = "Ps.43.1",
             offsetRange = 0..100,
-            showFull = true,
+            showWholeVerse = true,
             compareText = "Judge me, O God, and plead my cause against an ungodly nation: O deliver me from the deceitful and unjust man.",
             advertiseApp = false,
             showReference = false,
@@ -282,4 +276,57 @@ class TestShare {
             showQuotes = false,
             showNotes = true
             )
+    @Test
+    fun testShare10()  =
+        testShare(
+            initials = "KJV",
+            verseRangeStr = "Ps.43.1",
+            offsetRange = 0..100,
+            showWholeVerse = true,
+            compareText = "“Judge me, O God, and plead my cause against an ungodly nation: O deliver me from the deceitful and unjust man.” (Psa 43:1, KJV)",
+            advertiseApp = false,
+            showReference = true,
+            abbreviateReference = true,
+            showVersion = true,
+            showReferenceAtFront = false,
+            showVerseNumbers = false,
+            showQuotes = true,
+            showNotes = true
+        )
+    @Test
+    fun testShare11()  =
+        testShare(
+            initials = "KJV",
+            verseRangeStr = "Ps.43.1",
+            offsetRange = 1..5,
+            showWholeVerse = false,
+            compareText = "Judge",
+            advertiseApp = false,
+            showReference = false,
+            abbreviateReference = true,
+            showVersion = true,
+            showReferenceAtFront = false,
+            showVerseNumbers = false,
+            showQuotes = false,
+            showEllipsis = false,
+            showNotes = false
+        )
+    @Test
+    fun testShare12()  =
+        testShare(
+            initials = "KJV",
+            verseRangeStr = "Ps.43.1",
+            offsetRange = 1..5,
+            showWholeVerse = false,
+            compareText = "Judge (Psalms 43:1)",
+            advertiseApp = false,
+            showReference = true,
+            abbreviateReference = false,
+            showVersion = false,
+            showReferenceAtFront = false,
+            showVerseNumbers = false,
+            showQuotes = false,
+            showEllipsis = false,
+            showNotes = false
+        )
 }
