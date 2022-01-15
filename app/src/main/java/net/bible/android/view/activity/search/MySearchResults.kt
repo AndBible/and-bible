@@ -63,7 +63,7 @@ private var wordHits: ArrayList<Pair<String, ArrayList<Int>>> = arrayListOf()
 
 class SearchResultsData : Parcelable {
     @JvmField
-    var id: Int?
+    var id: Int?  // Holds the original index in the results. Used for selection and filtering.
     @JvmField
     var osisKey: String?
     @JvmField
@@ -216,8 +216,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
             }
             mSearchResultsHolder = searchControl.getSearchResults(searchDocument, searchText)
             // tell user how many results were returned
-            val msg: String
-            msg = if (mCurrentlyDisplayedSearchResults.size >= SearchControl.MAX_SEARCH_RESULTS) {
+            val msg:String = if (mCurrentlyDisplayedSearchResults.size >= SearchControl.MAX_SEARCH_RESULTS) {
                 getString(R.string.search_showing_first, SearchControl.MAX_SEARCH_RESULTS)
             } else {
                 getString(R.string.search_result_count, mSearchResultsHolder!!.size())
@@ -269,7 +268,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
             val verseTextElement = searchControl.getSearchResultVerseElement(key)
             val verseTextSpannable = SearchHighlight.getSpannableText(SearchControl.originalSearchString, verseTextElement)
 
-            mSearchArrayAdapter.add(SearchResultsData(1, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable!!.toHtml()))
+            mSearchArrayAdapter.add(SearchResultsData(listIndex, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable!!.toHtml()))
 
             var ss: Array<StyleSpan> = verseTextSpannable!!.getSpans(0, verseTextSpannable?.length, StyleSpan::class.java)
 
@@ -333,7 +332,7 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
                 bundle.putParcelableArrayList("mylist", mSearchArrayAdapter)
                 frag.setArguments(bundle)
                 frag.searchControl = searchControl
-                frag.mCurrentlyDisplayedSearchResults = mCurrentlyDisplayedSearchResults
+                frag.mVerseSearchResults = mCurrentlyDisplayedSearchResults
                 frag.activeWindowPageManagerProvider = activeWindowPageManagerProvider
                 frag.intent = intent
             }

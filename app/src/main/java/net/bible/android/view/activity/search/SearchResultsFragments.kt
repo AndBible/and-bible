@@ -1,5 +1,7 @@
 package net.bible.android.view.activity.search
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -12,8 +14,10 @@ import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import android.widget.ListView
 import android.widget.ProgressBar
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.allViews
 import com.google.android.material.tabs.TabLayout
 import net.bible.android.activity.databinding.SearchResultsVerseFragmentBinding
 import net.bible.android.activity.R
@@ -25,7 +29,12 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.Key
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordDocumentFacade
+
+private lateinit var searchResultsArray: ArrayList<SearchResultsData>
+private lateinit var displayedResultsArray: ArrayList<SearchResultsData>
+private var isSearchResultsFiltered = false
 
 class PlaceholderFragment: Fragment() {
 
@@ -78,12 +87,20 @@ class PlaceholderFragment: Fragment() {
     }
 }
 
+private fun setResultsAdapter(resultsArray:ArrayList<SearchResultsData>, activity: Activity): SearchResultsAdapter {
+    displayedResultsArray = resultsArray
+    val tabhost = activity.findViewById<View>(R.id.tabs) as TabLayout
+    tabhost.getTabAt(0)!!.text = CommonUtils.resources.getString(R.string.results_count, displayedResultsArray.count().toString())
+    return SearchResultsAdapter(activity, android.R.layout.simple_list_item_2,
+        displayedResultsArray as java.util.ArrayList<SearchResultsData>?
+    )
+}
 class SearchResultsFragment : Fragment() {
 
     private var _binding: SearchResultsVerseFragmentBinding? = null
     private val binding get() = _binding!!
 
-    var mCurrentlyDisplayedSearchResults: List<Key> = java.util.ArrayList()
+    var mVerseSearchResults: List<Key> = java.util.ArrayList()
     var searchControl: SearchControl? = null
     lateinit var intent: Intent
     lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
@@ -91,6 +108,7 @@ class SearchResultsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -100,13 +118,12 @@ class SearchResultsFragment : Fragment() {
         _binding = SearchResultsVerseFragmentBinding.inflate(inflater, container, false)
         val root = binding.root
 
-        val strtext = requireArguments().getString("edttext")
-        val arr: ArrayList<SearchResultsData> = requireArguments().getParcelableArrayList("mylist")!!
+        searchResultsArray = requireArguments().getParcelableArrayList("mylist")!!
 
-        val customAdapter = SearchResultsAdapter(activity, android.R.layout.simple_list_item_2, arr, searchControl)
+//        val customAdapter = SearchResultsAdapter(activity, android.R.layout.simple_list_item_2, searchResultsArray)
 
         val resultList: ListView = binding.searchResultsList
-        resultList.adapter = customAdapter
+        resultList.adapter = setResultsAdapter(searchResultsArray, requireActivity())
         resultList.descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS;
         resultList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         resultList.isVerticalScrollBarEnabled = false
@@ -114,7 +131,7 @@ class SearchResultsFragment : Fragment() {
         resultList.setOnItemClickListener { parent, view, position, id ->
             Toast.makeText(resultList.context, "Hi",Toast.LENGTH_LONG)
             try { // no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
-                verseSelected(mCurrentlyDisplayedSearchResults[position])
+                verseSelected(mVerseSearchResults[displayedResultsArray[position].id!!])
             } catch (e: Exception) {
                 Log.e("blah", "Selection error", e)
                 Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
@@ -185,8 +202,7 @@ class SearchBookStatisticsFragment : Fragment() {
         val root = binding.root
 
         val statisticsLayout = binding.statisticsLayout
-
-        var buttonIds = intArrayOf()
+        binding.showKeyWordOnly.visibility = View.GONE
 
         val maxCount: Int = bookStatistics.maxOfOrNull { it.count } ?: 0
         bookStatistics.map {
@@ -211,9 +227,14 @@ class SearchBookStatisticsFragment : Fragment() {
 
             button.tag = it.listIndex
             button.setOnClickListener {
+
                 val tabhost = requireActivity().findViewById<View>(R.id.tabs) as TabLayout
                 tabhost.getTabAt(0)!!.select()
                 val resultList = requireActivity().findViewById<View>(R.id.searchResultsList) as ListView
+                if (isSearchResultsFiltered) {
+                    resultList.adapter = setResultsAdapter(searchResultsArray, requireActivity())
+                    isSearchResultsFiltered = false
+                }
                 resultList.setSelection(it.tag as Int);
             }
         }
@@ -246,17 +267,29 @@ class SearchWordStatisticsFragment : Fragment() {
     private var _binding: SearchResultsStatisticsFragmentBinding? = null
 
     private val binding get() = _binding!!
+    private lateinit var inflater: LayoutInflater
+
     var wordStatistics = mutableListOf<WordStat>()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        _binding = SearchResultsStatisticsFragmentBinding.inflate(inflater, container, false)
-        val root = binding.root
+    class CustomOnClickListener(val resultIndexes: IntArray, val activity:Activity) : View.OnClickListener {
+        override fun onClick(v: View?) {
+            isSearchResultsFiltered = true
+            val tabhost = activity.findViewById<View>(R.id.tabs) as TabLayout
+            tabhost.getTabAt(0)!!.select()
 
+            val filteredSearchResults = searchResultsArray.filter { resultIndexes.contains(it.id!!) } as ArrayList<SearchResultsData>
+            val resultList = activity.findViewById<View>(R.id.searchResultsList) as ListView
+            resultList.adapter = setResultsAdapter(filteredSearchResults, activity)
+        }
+    }
+
+    private fun ConstructButtonList() {
+
+        var showKeyWordsCheckBox = activity?.findViewById<Button>(R.id.show_key_word_only)
         val statisticsLayout = binding.statisticsLayout
+
+//        if (statisticsLayout.allViews.count() > 2) statisticsLayout.removeViews(3,statisticsLayout.allViews.count()-3)
+        statisticsLayout.removeAllViews()
         val sortedWordStatistics = wordStatistics.sortedBy { it.word }
         val maxCount: Int = sortedWordStatistics.maxOfOrNull { it.verseIndexes.count() } ?: 0
         sortedWordStatistics.map {
@@ -276,11 +309,29 @@ class SearchWordStatisticsFragment : Fragment() {
             statsRow.invalidate()
             statsRow.requestLayout()
             statisticsLayout.addView(statsRow,
-//                FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 90)
                 FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-
             )
+
+            button.setOnClickListener(CustomOnClickListener(it.verseIndexes, requireActivity()))
         }
+
+    }
+    override fun onCreateView(
+        theInflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
+        inflater = theInflater
+        _binding = SearchResultsStatisticsFragmentBinding.inflate(inflater, container, false)
+        val root = binding.root
+
+        ConstructButtonList()
+
+        var showKeyWordsCheckBox = binding.showKeyWordOnly
+        showKeyWordsCheckBox.setOnClickListener {
+            ConstructButtonList()
+        }
+
         return root
     }
 }

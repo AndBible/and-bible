@@ -35,14 +35,12 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResultsData> {
 	private int resource;
 	private ArrayList<SearchResultsData> arrayList;
 	private Context context;
-	private SearchControl searchControl;
 
-	public SearchResultsAdapter(Context _context, int _resource, ArrayList<SearchResultsData> arrayList, SearchControl searchControl) {
+	public SearchResultsAdapter(Context _context, int _resource, ArrayList<SearchResultsData> arrayList) {
 		super(_context, _resource, arrayList);
 		this.resource = _resource;
 		this.arrayList=arrayList;
 		this.context=_context;
-		this.searchControl = searchControl;
 	}
 
 	@Override
@@ -63,7 +61,6 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResultsData> {
 			Book book = Books.installed().getBook(resultData.translation);
 			try {
 				Key key = book.getKey(resultData.osisKey);
-				Element verseTextElement = searchControl.getSearchResultVerseElement(key);
 
 				String verseHtml = resultData.verseHtml.trim();
 

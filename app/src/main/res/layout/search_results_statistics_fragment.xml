@@ -7,11 +7,23 @@
 	android:fillViewport="true">
 
 	<LinearLayout
-		android:id="@+id/statisticsLayout"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical"
 		>
+		<CheckBox
+			android:id="@+id/show_key_word_only"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Show key words only"
+			/>
+		<LinearLayout
+			android:id="@+id/statisticsLayout"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:orientation="vertical"
+			>
+		</LinearLayout>
 
 	</LinearLayout>
 
