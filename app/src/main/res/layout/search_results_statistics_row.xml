@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="35dp"
+		android:orientation="horizontal"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent">
+
+		<Button
+			android:id="@+id/searchStatisticsBookButton"
+			android:layout_width="170dp"
+			android:layout_height="36dp"
+			android:text="Song of Solomon"
+			android:textSize="12dp"
+			app:layout_anchor="@+id/button2"
+			app:layout_anchorGravity="end|top" />
+
+		<TextView
+			android:id="@+id/searchStatisticsBookCount"
+			android:layout_width="30dp"
+			android:layout_height="wrap_content"
+			android:text="345"
+			android:textAlignment="center"
+			android:textSize="16sp"
+			android:textStyle="bold" />
+
+		<ProgressBar
+			android:id="@+id/searchStatisticsBookCountProgress"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="match_parent"
+			android:layout_height="10dp"
+			android:layout_centerInParent="true"
+			android:layout_marginLeft="5dp"
+			android:layout_marginTop="13dp"
+			android:layout_marginRight="10dp"
+			android:layout_weight="1"
+			android:indeterminate="false"
+			android:max="100"
+			android:min="0"
+			android:progress="45"
+			android:progressBackgroundTint="@color/transparent"
+			android:progressTint="@color/red"
+			android:scaleY="4"
+			android:visibility="visible" />
+
+
+	</LinearLayout>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

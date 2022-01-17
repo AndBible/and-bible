@@ -24,8 +24,11 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.Scripture
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
+import net.bible.service.common.CommonUtils.limitTextLength
+import net.bible.service.sword.SwordContentFacade.getPlainText
 import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
@@ -55,6 +58,7 @@ class SearchControl @Inject constructor(
     )
 {
     private val isSearchShowingScripture = true
+//    public final var originalSearchString = ""
 
     enum class SearchBibleSection {
         OT, NT, CURRENT_BOOK, ALL
@@ -98,11 +102,34 @@ class SearchControl @Inject constructor(
             "-"
         }
 
-    fun decorateSearchString(searchString: String, searchType: SearchType, bibleSection: SearchBibleSection, currentBookName: String?): String {
-        val cleanSearchString = cleanSearchString(searchString)
+    fun decorateSearchString(searchString: String, searchType: SearchType, bibleSection: SearchBibleSection, currentBookName: String?,
+                             includeAllEndings: Boolean=false, fuzzySearchAccuracy: Double? = null, proximityWords: Int? = null,
+                             strongs: Char? = null): String {
+        var cleanSearchString = cleanSearchString(searchString)
+        var decorated: String
+
+        if (includeAllEndings || strongs != null || fuzzySearchAccuracy != null) {
+            var newSearchString =""
+            val wordArray: List<String> = cleanSearchString.split(" ")
+            wordArray.forEach {
+                var decoratedWord = it
+                if (includeAllEndings) decoratedWord += "* "
+                if (strongs != null) decoratedWord = "strong:$strongs$decoratedWord "
+                if (fuzzySearchAccuracy != null) {
+                    val fuzzySearchAccuracyAdjusted = if (fuzzySearchAccuracy.equals(1.0)) 0.99 else fuzzySearchAccuracy
+                    decoratedWord += "~%.2f ".format(fuzzySearchAccuracyAdjusted)
+                }
+                newSearchString += decoratedWord
+            }
+            cleanSearchString = newSearchString.trim()
+        }
+
+        if (proximityWords != null) {
+            cleanSearchString = "\"" + cleanSearchString + "\"~" + proximityWords
+        }
 
         // add search type (all/any/phrase) to search string
-        var decorated: String = searchType.decorate(cleanSearchString)
+        decorated = searchType.decorate(cleanSearchString)
         originalSearchString = decorated
 
         // add bible section limitation to search text
@@ -140,6 +167,27 @@ class SearchControl @Inject constructor(
             }
         }
         return searchResults
+    }
+
+    /** get the verse for a search result
+     */
+    fun getSearchResultVerseText(key: Key?): String {
+        // There is similar functionality in BookmarkControl
+        var verseText = ""
+        try {
+            val doc = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
+            val cat = doc!!.bookCategory
+            verseText = if (cat == BookCategory.BIBLE || cat == BookCategory.COMMENTARY) {
+                getPlainText(doc, key)
+            } else {
+                val bible = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!
+                getPlainText(bible, key)
+            }
+            verseText = limitTextLength(verseText)!!
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting verse text", e)
+        }
+        return verseText
     }
 
     fun getSearchResultVerseElement(key: Key?): Element {

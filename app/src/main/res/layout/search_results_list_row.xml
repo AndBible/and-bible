@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:layout_weight="1"
+	android:focusable="false"
+	android:clickable="false"
+	android:descendantFocusability="blocksDescendants">
+	android:padding="0dip">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:layout_weight="1"
+		android:descendantFocusability="blocksDescendants"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		android:padding="0dip">
+
+		<TextView
+			android:id="@+id/reference"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Reference"
+			android:textSize="15dip"
+			android:focusable="false"
+			android:focusableInTouchMode="false"
+			android:paddingLeft="10dp"
+			android:textStyle="" />
+
+		<TextView
+			android:id="@+id/translation"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:gravity="right"
+			android:paddingLeft="10dp"
+			android:paddingRight="5dp"
+			android:text="Translation"
+			android:textSize="10dip"
+			android:focusable="false"
+			android:focusableInTouchMode="false"
+			android:typeface="sans" />
+	</LinearLayout>
+
+	<TextView
+		android:id="@+id/verse"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		android:textSize="13dip"
+		android:paddingLeft="15dp"
+		android:paddingRight="5dp"
+		android:paddingBottom="3dp"
+		android:text="TextView" />
+
+
+</LinearLayout>

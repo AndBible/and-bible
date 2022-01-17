@@ -45,7 +45,7 @@ class KeyHistoryItem(
             val desc = StringBuilder()
             try {
                 val verseDesc = CommonUtils.getKeyDescription(key)
-                desc.append(verseDesc).append(" ").append(document.abbreviation)
+                 desc.append(verseDesc).append(" ").append(document.abbreviation)
             } catch (e: Exception) {
                 Log.e(TAG, "Error getting description", e)
             }

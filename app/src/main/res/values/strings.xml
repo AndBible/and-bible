@@ -67,6 +67,22 @@
     <string name="search_old_testament">Old Testament</string>
     <string name="search_current_book">Current book</string>
     <string name="error_executing_search">Invalid search query</string>
+    <string name="search_remember_search_text">Remember search</string>
+    <string name="search_include_all_endings">All endings</string>
+    <string name="search_fuzzy">Fuzzy Search %s</string>
+    <string name="search_strongs">Strongs Number Search</string>
+    <string name="search_showDecoratedText">Show raw search text</string>
+    <string name="search_proximity">Proximity %s</string>
+    <string name="search_results">Search Results</string>
+    <string name="search_statistics">Search Statistics</string>
+    <string name="words">words</string>
+    <string name="accuracy">Accuracy</string>
+    <string name="greek">Greek</string>
+    <string name="hebrew">Hebrew</string>
+    <string name="results_count">Results: %s</string>
+    <string name="statistics">Statistics</string>
+    <string name="by_book">By Book</string>
+    <string name="by_word">By Word</string>
 
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
