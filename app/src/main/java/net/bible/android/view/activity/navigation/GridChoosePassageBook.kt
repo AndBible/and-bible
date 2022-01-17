@@ -324,10 +324,10 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         private val HISTORY_COLOR = Color.rgb(0xFE, 0xCC, 0x9B)
         private val WISDOM_COLOR = Color.rgb(0x99, 0xFF, 0x99)
         private val MAJOR_PROPHETS_COLOR = Color.rgb(0xFF, 0x99, 0xFF)
-        private val MINOR_PROPHETS_COLOR = Color.rgb(0xFF, 0xFE, 0xCD)
+        private val MINOR_PROPHETS_COLOR = Color.rgb(0xE6, 0xE5, 0xB8)
         private val GOSPEL_COLOR = Color.rgb(0xFF, 0x97, 0x03)
         private val ACTS_COLOR = Color.rgb(0x00, 0x99, 0xFF)
-        private val PAULINE_COLOR = Color.rgb(0xFF, 0xFF, 0x31)
+        private val PAULINE_COLOR = Color.rgb(0xF5, 0xf5, 0x21)
         private val GENERAL_EPISTLES_COLOR = Color.rgb(0x67, 0xCC, 0x66) // changed 99 to CC to make a little clearer on dark background
         private val REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF)
         private val OTHER_COLOR = ACTS_COLOR
