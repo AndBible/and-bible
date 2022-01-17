@@ -31,6 +31,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
 import kotlinx.coroutines.Dispatchers
@@ -61,6 +62,9 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt
+import android.R.attr.button
+import android.view.ViewGroup
+
 
 fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.ManageLabelsData) {
     Log.i("ManageLabels", "WorkspaceEntities.updateRecentLabels")
@@ -206,6 +210,35 @@ class ManageLabels : ListActivityBase() {
                 listView.smoothScrollToPosition(pos)
             }
         }
+
+        var buttonIds = intArrayOf()
+        var c: Char = 'A'
+
+        val allButton = binding.allButton
+        buttonIds += allButton.id
+
+        allButton.setOnClickListener {
+            shownLabels.clear()
+            updateLabelList(true, false)
+        }
+
+        while (c <= 'Z') {
+            var newButton = Button(this)
+            newButton.id = View.generateViewId()
+            newButton.text = c.toString()
+            newButton.setBackgroundResource(R.drawable.button_filter)
+            newButton.layoutParams = ViewGroup.LayoutParams(50, 60)
+            binding.buttonLayout.addView(newButton)
+            buttonIds += newButton.id
+
+            newButton.setOnClickListener {
+                shownLabels.clear()
+                updateLabelList(true,false, newButton.text.toString())
+            }
+            ++c
+        }
+        binding.flowContainer.referencedIds = buttonIds
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -538,10 +571,10 @@ class ManageLabels : ListActivityBase() {
 
     }
 
-    fun updateLabelList(fromDb: Boolean = false, reOrder: Boolean = false) {
+    fun updateLabelList(fromDb: Boolean = false, reOrder: Boolean = false, filterText:String = "") {
         if(fromDb) {
             allLabels.clear()
-            allLabels.addAll(bookmarkControl.assignableLabels.filterNot { it.isUnlabeledLabel })
+            allLabels.addAll(bookmarkControl.assignableLabels.filterNot { it.isUnlabeledLabel or (!it.name.startsWith(filterText))})
             if (data.showUnassigned) {
                 allLabels.add(bookmarkControl.labelUnlabelled)
             }
@@ -581,11 +614,13 @@ class ManageLabels : ListActivityBase() {
 
         val labelIds = shownLabels.filterIsInstance<BookmarkEntities.Label>().map { it.id }.toSet()
 
-        // Some sanity check
-        data.autoAssignLabels.myRemoveIf { !labelIds.contains(it) }
-        data.favouriteLabels.myRemoveIf { !labelIds.contains(it) }
-        data.selectedLabels.myRemoveIf { !labelIds.contains(it) }
-
+        if (filterText == "") {
+            // Some sanity check. These checks clear the changed state of the labels.
+            // TODO: changes made in the label dialog are lost when the filter is applied
+            data.autoAssignLabels.myRemoveIf { !labelIds.contains(it) }
+            data.favouriteLabels.myRemoveIf { !labelIds.contains(it) }
+            data.selectedLabels.myRemoveIf { !labelIds.contains(it) }
+        }
         notifyDataSetChanged()
     }
 

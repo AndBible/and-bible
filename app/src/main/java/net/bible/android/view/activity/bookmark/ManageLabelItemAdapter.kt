@@ -179,6 +179,7 @@ class ManageLabelItemAdapter(context: Context?,
         return convertView?: bindings.root
     }
 
+
     companion object {
         private const val TAG = "ManageLabelItemAdapter"
     }
