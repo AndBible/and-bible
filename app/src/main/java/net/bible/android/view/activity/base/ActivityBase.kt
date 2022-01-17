@@ -68,7 +68,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     fun applyTheme() {
-        val newNightMode = if (ScreenSettings.nightMode) {
+         val newNightMode = if (ScreenSettings.nightMode) {
             AppCompatDelegate.MODE_NIGHT_YES
         } else {
             AppCompatDelegate.MODE_NIGHT_NO

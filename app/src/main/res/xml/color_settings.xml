@@ -19,9 +19,16 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <PreferenceCategory
         android:title="@string/colors_day_mode_title"
         >
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:id="@+id/day_workspace_color"
+            android:defaultValue="@color/actionbar_background_day"
+            android:key="workspace_color_day"
+            android:title="@string/color_workspace"
+            />
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/bible_text_day"
             android:key="text_color_day"
@@ -44,6 +51,11 @@
     <PreferenceCategory
         android:title="@string/colors_night_mode_title"
         >
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/actionbar_background_day"
+            android:key="workspace_color_night"
+            android:title="@string/color_workspace"
+            />
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/bible_text_night"
             android:key="text_color_night"

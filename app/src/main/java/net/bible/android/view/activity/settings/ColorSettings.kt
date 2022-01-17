@@ -44,6 +44,8 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_color_night" -> colors.nightBackground = value
             "noise_day" -> colors.dayNoise = value
             "noise_night" -> colors.nightNoise = value
+            "workspace_color_day" -> colors.dayWorkspaceColor = value
+            "workspace_color_night" -> colors.nightWorkspaceColor = value
         }
         activity.setDirty()
     }
@@ -56,6 +58,8 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_color_night" -> colors.nightBackground?: defValue
             "noise_day" -> colors.dayNoise?: defValue
             "noise_night" -> colors.nightNoise?: defValue
+            "workspace_color_day" -> colors.dayWorkspaceColor?: defValue
+            "workspace_color_night" -> colors.nightWorkspaceColor?: defValue
             else -> defValue
         }
     }
@@ -132,6 +136,8 @@ class ColorSettingsActivity: ActivityBase() {
 
         if(settingsBundle.windowId != null) {
             title = getString(R.string.window_color_settings_title)
+            // TODO: Hide the workspace color picker when editing window colors. We only want to change workspace color at the workspace level
+
         } else {
             title = getString(R.string.workspace_color_settings_title)
         }

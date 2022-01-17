@@ -31,6 +31,8 @@
         android:layout_height="0dp"
         android:padding="10dp"
         android:scaleType="center"
+        app:tint="@color/grey_500"
+        android:tintMode="src_in"
         android:id="@+id/dragHolder"
         app:srcCompat="@drawable/ic_menu_black_24dp"
         app:layout_constraintStart_toStartOf="parent"

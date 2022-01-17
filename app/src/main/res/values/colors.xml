@@ -68,6 +68,8 @@
 	<color name="night_link_color_default">#000000</color>
 	<color name="night_title_color_default">#000000</color-->
 
+	<color name="active_window_button">@color/actionbar_background_day</color>
+
 	<color name="warning_yellow">#E0C923</color>
 
 	<color name="toolbar_text_color">#BDBDBD</color>

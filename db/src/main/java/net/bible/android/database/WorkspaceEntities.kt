@@ -18,6 +18,7 @@
 
 package net.bible.android.database
 
+import android.graphics.Color
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
@@ -31,7 +32,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import org.crosswire.jsword.passage.Verse as JswordVerse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
-
+import android.content.res.Resources
 import java.util.*
 
 val json = Json {
@@ -112,9 +113,11 @@ class WorkspaceEntities {
 
     @Serializable
     data class Colors(
+        @ColumnInfo(defaultValue = "NULL") var dayWorkspaceColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayNoise: Int?,
+        @ColumnInfo(defaultValue = "NULL") var nightWorkspaceColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightBackground: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?
@@ -244,7 +247,9 @@ class WorkspaceEntities {
                     nightBackground = black,
                     nightTextColor = white,
                     nightNoise = 0,
-                    dayNoise = 0
+                    dayNoise = 0,
+                    dayWorkspaceColor = Color.parseColor("#ff444444"),
+                    nightWorkspaceColor = Color.parseColor("#ff000000")
                 ),
                 marginSize = MarginSize(
                     marginLeft = 3,
