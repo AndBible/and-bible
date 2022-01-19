@@ -24,11 +24,9 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.Scripture
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
-import net.bible.service.common.CommonUtils.limitTextLength
-import net.bible.service.sword.SwordContentFacade.getPlainText
+import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
@@ -42,6 +40,7 @@ import org.crosswire.jsword.index.lucene.LuceneIndex
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
+import org.jdom2.Element
 import javax.inject.Inject
 
 /** Support for the document search functionality
@@ -101,10 +100,10 @@ class SearchControl @Inject constructor(
 
     fun decorateSearchString(searchString: String, searchType: SearchType, bibleSection: SearchBibleSection, currentBookName: String?): String {
         val cleanSearchString = cleanSearchString(searchString)
-        var decorated: String
 
         // add search type (all/any/phrase) to search string
-        decorated = searchType.decorate(cleanSearchString)
+        var decorated: String = searchType.decorate(cleanSearchString)
+        originalSearchString = decorated
 
         // add bible section limitation to search text
         decorated = getBibleSectionTerm(bibleSection, currentBookName) + " " + decorated
@@ -143,27 +142,23 @@ class SearchControl @Inject constructor(
         return searchResults
     }
 
-    /** get the verse for a search result
-     */
-    fun getSearchResultVerseText(key: Key?): String {
+    fun getSearchResultVerseElement(key: Key?): Element {
         // There is similar functionality in BookmarkControl
-        var verseText = ""
+        var xmlVerse:Element? = null
         try {
             val doc = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
             val cat = doc!!.bookCategory
-            verseText = if (cat == BookCategory.BIBLE || cat == BookCategory.COMMENTARY) {
-                getPlainText(doc, key)
+            xmlVerse = if (cat == BookCategory.BIBLE || cat == BookCategory.COMMENTARY) {
+                readOsisFragment(doc, key)
             } else {
                 val bible = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!
-                getPlainText(bible, key)
+                readOsisFragment(bible, key)
             }
-            verseText = limitTextLength(verseText)!!
         } catch (e: Exception) {
             Log.e(TAG, "Error getting verse text", e)
         }
-        return verseText
+        return xmlVerse!!
     }
-
     /** double spaces, :, and leading or trailing space cause lucene errors
      */
     private fun cleanSearchString(search: String): String {
@@ -229,6 +224,7 @@ class SearchControl @Inject constructor(
         get() = isSearchShowingScripture || !currentDocumentContainsNonScripture()
 
     companion object {
+        lateinit var originalSearchString: String
         private const val SEARCH_OLD_TESTAMENT = "+[Gen-Mal]"
         private const val SEARCH_NEW_TESTAMENT = "+[Mat-Rev]"
         const val SEARCH_TEXT = "SearchText"

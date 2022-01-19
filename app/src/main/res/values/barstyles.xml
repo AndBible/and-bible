@@ -11,7 +11,9 @@
     -->
 	<style name="AppTheme" parent="@style/BaseAppTheme"/>
 
-	<style name="BaseAppTheme" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
+	<style name="BaseAppTheme" parent="BaseAppTheme1"/>
+
+	<style name="BaseAppTheme1" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
 		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
 		<!-- Prevent sub menu items (e.g. Admin sub-menu) appearing as 'white on white' on Android 2.3 -->
@@ -41,8 +43,8 @@
 		<item name="android:navigationBarColor" tools:targetApi="o_mr1">@color/navigation_bar</item>
 		<item name="android:textAlignment">gravity</item>
 		<item name="android:textDirection">locale</item>
+		<item name="android:statusBarColor" tools:targetApi="o_mr1">@color/status_bar</item>
 	</style>
-
 
 	<style name="MyMenuTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
 		<item name="textAllCaps">false</item>

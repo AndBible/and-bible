@@ -33,7 +33,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.CompletableDeferred
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.util.UiUtils.setActionBarColor
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -59,7 +59,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     @Inject lateinit var swordDocumentFacade: SwordDocumentFacade
 
-    protected open val customTheme = true
     open val doNotInitializeApp = false
 
     /** Called when the activity is first created.  */
@@ -106,6 +105,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
         // if locale is overridden then have to force title to be translated here
         LocaleHelper.translateTitle(this)
+        setActionBarColor(supportActionBar)
     }
 
     protected fun buildActivityComponent() = CommonUtils.buildActivityComponent()
