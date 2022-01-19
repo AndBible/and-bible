@@ -107,6 +107,7 @@
 				android:layout_height="45dp"
 				app:tint="@color/grey_600"
 				android:layout_marginLeft="2dp"
+				android:visibility="gone"
 				app:srcCompat="@drawable/ic_save_20dp" />
 
 		</LinearLayout>

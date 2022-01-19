@@ -124,7 +124,7 @@ class ManageLabels : ListActivityBase() {
     }
     fun filterButtonSelected(button:Button, clearEditText:Boolean = true) {
         // Set the display properties of buttons
-        if (clearEditText) binding.editSearchText.setText("")
+        if (clearEditText && binding.editSearchText.text.toString() != "") binding.editSearchText.setText("")
         SearchTextOptions.setFilterButtonBackground(lastButtonSelected!!, false)
         SearchTextOptions.setFilterButtonBackground(button, true)
         setSearchInsideTextButtonBackground(button=button)
@@ -409,11 +409,14 @@ class ManageLabels : ListActivityBase() {
         editSearchText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 applyTextfilter(editSearchText.text.toString(), searchInsideTextButtonActive)
+
+                binding.saveSearchButton.visibility =if (editSearchText.text.toString()=="") View.GONE else View.VISIBLE
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                filterButtonSelected(binding.allButton,false)
             }
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (count!=0) filterButtonSelected(binding.allButton,false)
+            }
         })
 
         setSearchInsideTextButtonBackground(searchInsideTextButtonActive)  // Initialise the text for this button
