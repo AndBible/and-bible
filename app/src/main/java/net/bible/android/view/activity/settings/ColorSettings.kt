@@ -24,6 +24,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
@@ -131,13 +132,11 @@ class ColorSettingsActivity: ActivityBase() {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.settings_container, ColorSettingsFragment())
+            .replace(R.id.settings_container, ColorSettingsFragment(isWindow = settingsBundle.windowId != null))
             .commit()
 
         if(settingsBundle.windowId != null) {
             title = getString(R.string.window_color_settings_title)
-            // TODO: Hide the workspace color picker when editing window colors. We only want to change workspace color at the workspace level
-
         } else {
             title = getString(R.string.workspace_color_settings_title)
         }
@@ -163,11 +162,17 @@ class ColorSettingsActivity: ActivityBase() {
 }
 
 
-class ColorSettingsFragment: PreferenceFragmentCompat() {
+class ColorSettingsFragment(val isWindow: Boolean = false): PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val activity = activity as ColorSettingsActivity
 
         preferenceManager.preferenceDataStore = ColorSettingsDataStore(activity)
         setPreferencesFromResource(R.xml.color_settings, rootKey)
+        if(isWindow) {
+            val prefDay = findPreference<Preference>("workspace_color_day")
+            val prefNight = findPreference<Preference>("workspace_color_night")
+            prefDay?.isVisible = false
+            prefNight?.isVisible = false
+        }
     }
 }
