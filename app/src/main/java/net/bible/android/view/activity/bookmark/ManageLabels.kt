@@ -20,11 +20,15 @@ package net.bible.android.view.activity.bookmark
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.text.Editable
 import android.text.SpannableString
 import android.text.TextUtils.concat
+import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.text.style.ImageSpan
 import android.util.Log
@@ -62,9 +66,10 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt
-import android.R.attr.button
 import android.view.ViewGroup
-
+import android.widget.LinearLayout
+import net.bible.service.common.CommonUtils.getResourceColor
+import kotlin.collections.ArrayList
 
 fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.ManageLabelsData) {
     Log.i("ManageLabels", "WorkspaceEntities.updateRecentLabels")
@@ -73,6 +78,10 @@ fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.Mana
     autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
     ABEventBus.getDefault().post(AppSettingsUpdated())
 }
+
+private var lastButtonSelected: Button? = null
+private var showTextSearch = false
+private var searchInsideTextButtonActive = false
 
 
 /**
@@ -83,10 +92,188 @@ class ManageLabels : ListActivityBase() {
     private lateinit var binding: ManageLabelsBinding
     private val allLabels: MutableList<BookmarkEntities.Label> = ArrayList()
     private val shownLabels: MutableList<Any> = ArrayList()
+
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS, MANAGELABELS} // TODO: MANAGELABELS deprecated
+
+
+    var selectMultiple: Boolean = false
+
+    lateinit var data: ManageLabelsData
+
+    override fun onBackPressed() {
+        saveAndExit()
+    }
+
+    var highlightLabel: BookmarkEntities.Label? = null
+//    lateinit var filterButtonsCollection: ArrayList<Button>
+
+    fun DisplayTextSearchControls(){
+        // Highlights the search button as required
+        if (showTextSearch) {
+            binding.textSearchLayout.visibility = View.VISIBLE
+//            binding.searchRevealButton.setBackgroundResource(R.drawable.button_filter_selected)
+            (binding.searchRevealButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.grey_500)) // set solid color
+        } else {
+            binding.textSearchLayout.visibility = View.GONE
+//            binding.searchRevealButton.setBackgroundResource(R.drawable.button_filter)
+            (binding.searchRevealButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.transparent)) // set solid color
+        }
+    }
+    fun filterButtonSelected(button:Button, clearEditText:Boolean = true) {
+        // Set the display properties of buttons
+        if (clearEditText) binding.editSearchText.setText("")
+        SearchTextOptions.setFilterButtonBackground(lastButtonSelected!!, false)
+        SearchTextOptions.setFilterButtonBackground(button, true)
+        setSearchInsideTextButtonBackground(button=button)
+    }
+
+    fun setSearchInsideTextButtonBackground(isSearchInsideText:Boolean? = null, button:Button? = null) {
+        // Set the background color of the 'Filter Inside Text' button (to the left of the Search text field)
+
+        if (isSearchInsideText != null) searchInsideTextButtonActive =  isSearchInsideText
+        if ((button != null) && (button!!.tag!=null)) {
+            searchInsideTextButtonActive = SearchTextOptions.listItem(button.tag.toString())!!.isSearchInsideText
+        }
+//        if (isSearchInsideText!=null) {
+            if (searchInsideTextButtonActive) {
+                binding.searchInsideTextButton.text = "*ab*"
+                (binding.searchInsideTextButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.blue_200)) // set solid color
+            } else {
+                binding.searchInsideTextButton.text = "Ab*"
+                (binding.searchInsideTextButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.transparent)) // set solid color
+            }
+//        }
+    }
+    fun applyTextfilter(searchText: String, searchInsideTextButtonActive:Boolean){
+        val regexString = if (searchInsideTextButtonActive) searchText else "^$searchText"
+        updateLabelList(true,false, regexString)
+    }
+
+    object SearchTextOptions {
+        class SearchOption(_text:String, _isSearchInsideText: Boolean){
+            val text = _text.trim()
+            val isSearchInsideText = _isSearchInsideText
+            val id = text + if (isSearchInsideText) "1" else "0"  // The id stores both the text to search for and an indicator  in the last char showing whether it is an 'in text' or 'start of text' search
+            val regex = if (isSearchInsideText) text else "^$text"
+        }
+        val list: ArrayList<SearchOption> = ArrayList()
+        val buttonList: ArrayList<Button> = ArrayList()
+
+        fun initialise (options:String) {
+            list.clear()
+            val x = options.split(",")
+            x.map { if (it.length > 1) list.add(SearchOption( it.take(it.length-1), (it.takeLast(1) == "1" ))) }
+        }
+        override fun toString(): String {
+            var x = list.map {it.id.trim()}.joinToString()
+            return x
+        }
+        public fun listItem (id:String): SearchOption? {
+            return list.find {it.id == id}
+        }
+        fun add(option:String, isSearchInsideText: Boolean) {
+            val newOption = SearchOption(option.trim(),isSearchInsideText)
+            if (!list.any{ (it.id == newOption.id)}){list.add(newOption)}
+        }
+        fun remove(button:Button, binding:ManageLabelsBinding) {
+            list.myRemoveIf { it.id == button.tag }
+            button.visibility = View.GONE
+            button.tag ="removed"
+            // Had troubles trying to delete this button directly. Kept messing with the flow and other things. This way doesn't work either.
+            // So I just rebuild all buttons next time a button gets added so hiding it will be fine.
+//            for (i in 0 until binding.buttonLayout.childCount) {
+//                val child: View = binding.buttonLayout.getChildAt(i)
+//                if (child.id==button.id) {
+//                    binding.buttonLayout.removeView(child)
+//                    break
+//                }
+//            }
+        }
+        fun setFilterButtonBackground(button:Button?, isSelected:Boolean) {
+            // Set the background color of a selected button and clears the background color of the previously selected button
+            if (button != null)  {
+                if ((button!!.tag !=null) && (SearchTextOptions.listItem(button.tag.toString())!!.isSearchInsideText)) {
+                    val backgroundColor = if (isSelected) R.color.blue_200 else R.color.transparent
+                    (button.getBackground() as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
+                    (button.getBackground() as GradientDrawable).setStroke(4,getResourceColor(R.color.blue_200)) // set solid color
+                } else {
+                    val backgroundColor = if (isSelected) R.color.grey_500 else R.color.transparent
+                    (button.getBackground() as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
+                    (button.getBackground() as GradientDrawable).setStroke(4,getResourceColor(R.color.grey_500)) // set solid color
+                }
+            }
+        }
+        fun buildButtons(binding:ManageLabelsBinding, context: Context,
+                         filterButtonSelect:(button:Button)->Unit,
+                         updateLabelList:(fromDb: Boolean, reOrder: Boolean, filterText:String)->Unit,
+                         DisplayTextSearchControls:()->Unit
+        ) {
+            for (i in binding.buttonLayout.childCount-1 downTo 0) {
+                val child: View = binding.buttonLayout.getChildAt(i)
+                if (!arrayListOf(R.id.flowContainer,R.id.all_button, R.id.searchRevealButton).contains(child.id)) {
+                    try {
+                        binding.buttonLayout.removeView(child)
+                    } catch (e:java.lang.Exception){
+                        Log.e(TAG, "Error removing button view", e)
+                    }
+                }
+            }
+
+            var flowButtonIds = intArrayOf()
+            val allButton = binding.allButton
+
+            lastButtonSelected = allButton  // Need to ensure it is initialised to something
+            filterButtonSelect(allButton)
+
+            flowButtonIds += allButton.id
+
+            allButton.setOnClickListener {
+                filterButtonSelect(allButton)
+                updateLabelList(true, false, "")
+                lastButtonSelected = allButton
+            }
+
+            // Setup the text filter layout.
+            flowButtonIds += binding.searchRevealButton.id
+            binding.textSearchLayout.visibility = if (showTextSearch) View.VISIBLE else View.GONE
+            binding.searchRevealButton.setOnClickListener {
+                showTextSearch = !showTextSearch
+                DisplayTextSearchControls()
+            }
+            DisplayTextSearchControls() // Initialise the display of the search reveal button.
+
+            var orderedList = list
+            orderedList.sortWith(compareBy(String.CASE_INSENSITIVE_ORDER, { it.id }))
+            for (searchOption in orderedList) {
+                var newButton = Button(context)
+                newButton.id = View.generateViewId()
+                newButton.text = searchOption.text
+                newButton.tag = searchOption.id
+                newButton.setBackgroundResource(R.drawable.button_filter)
+                newButton.layoutParams = ViewGroup.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 60)
+                newButton.minWidth = 80
+                newButton.minimumWidth = 80
+                newButton.setPadding(5,0,5,0)
+                binding.buttonLayout.addView(newButton)
+                setFilterButtonBackground(newButton, false)
+                buttonList += newButton
+                flowButtonIds += newButton.id
+                newButton.setOnClickListener {
+                    filterButtonSelect(newButton)
+                    updateLabelList(true,false, listItem(newButton.tag.toString())!!.regex)
+                    lastButtonSelected = newButton
+                }
+                newButton.setOnLongClickListener {
+                    remove(newButton, binding)
+//                    updateLabelList(true,false, "")
+                    true}
+            }
+            binding.flowContainer.referencedIds = flowButtonIds
+        }
+    }
 
     @Serializable
     data class ManageLabelsData(
@@ -157,18 +344,13 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    var selectMultiple: Boolean = false
-
-    lateinit var data: ManageLabelsData
-
-    override fun onBackPressed() {
-        saveAndExit()
-    }
-
-    var highlightLabel: BookmarkEntities.Label? = null
-
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
+        searchInsideTextButtonActive = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
+        showTextSearch = CommonUtils.settings.getBoolean("labels_list_filter_showTextSearch", false)
+        SearchTextOptions.initialise(CommonUtils.settings.getString("labels_list_filter_searchTextOptions", "")!!)
+//        SearchTextOptions.initialise("")
+
         super.onCreate(savedInstanceState, false)
         binding = ManageLabelsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -176,16 +358,10 @@ class ManageLabels : ListActivityBase() {
 
         data = ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
 
+        allLabels.addAll(bookmarkControl.assignableLabels.filter {!it.isUnlabeledLabel})
+
         binding.selectMultipleSwitch.visibility = View.GONE
         selectMultiple = true
-        // Let's remove selectMultible and see if anyone notices
-        //selectMultiple = data.selectedLabels.size > 1 || CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
-        //binding.selectMultipleSwitch.isChecked = selectMultiple
-        //binding.selectMultipleSwitch.visibility = if(data.showCheckboxes) View.VISIBLE else View.GONE
-        //binding.selectMultipleSwitch.setOnCheckedChangeListener { _, isChecked ->
-        //    selectMultiple = isChecked
-        //    CommonUtils.sharedPreferences.edit().putBoolean("assignLabelsSelectMultiple", selectMultiple).apply()
-        //}
 
         if(data.mode == Mode.STUDYPAD) {
             title = getString(R.string.studypads)
@@ -211,34 +387,42 @@ class ManageLabels : ListActivityBase() {
             }
         }
 
-        var buttonIds = intArrayOf()
-        var c: Char = 'A'
+        // Setup listeners for the text filter
+        val editSearchText = binding.editSearchText
+        val searchInsideTextButton = binding.searchInsideTextButton
+        val clearSearchTextButton = binding.clearSearchTextButton
+        val saveSearchButton = binding.saveSearchButton
 
-        val allButton = binding.allButton
-        buttonIds += allButton.id
-
-        allButton.setOnClickListener {
-            shownLabels.clear()
-            updateLabelList(true, false)
+        clearSearchTextButton.setOnClickListener {
+            editSearchText.text.clear()
+            applyTextfilter("", false)
         }
 
-        while (c <= 'Z') {
-            var newButton = Button(this)
-            newButton.id = View.generateViewId()
-            newButton.text = c.toString()
-            newButton.setBackgroundResource(R.drawable.button_filter)
-            newButton.layoutParams = ViewGroup.LayoutParams(50, 60)
-            binding.buttonLayout.addView(newButton)
-            buttonIds += newButton.id
-
-            newButton.setOnClickListener {
-                shownLabels.clear()
-                updateLabelList(true,false, newButton.text.toString())
+        saveSearchButton.setOnClickListener {
+            val searchText = editSearchText.text.toString()
+            if ( (searchText != "") ) {
+                // The type of search is appended as either a 1 (in label) or 0 (start of label) search. I am not sure how to serialise a better object for this
+                SearchTextOptions.add(searchText, searchInsideTextButtonActive)
+                SearchTextOptions.buildButtons(binding, getApplicationContext(), this::filterButtonSelected, this::updateLabelList, this::DisplayTextSearchControls)
             }
-            ++c
         }
-        binding.flowContainer.referencedIds = buttonIds
+        editSearchText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                applyTextfilter(editSearchText.text.toString(), searchInsideTextButtonActive)
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                filterButtonSelected(binding.allButton,false)
+            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
 
+        setSearchInsideTextButtonBackground(searchInsideTextButtonActive)  // Initialise the text for this button
+        searchInsideTextButton.setOnClickListener {
+            searchInsideTextButtonActive = !searchInsideTextButtonActive
+            setSearchInsideTextButtonBackground(searchInsideTextButtonActive)
+            applyTextfilter(editSearchText.text.toString(), searchInsideTextButtonActive)
+        }
+        SearchTextOptions.buildButtons(binding, getApplicationContext(), this::filterButtonSelected, this::updateLabelList, this::DisplayTextSearchControls)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -428,7 +612,9 @@ class ManageLabels : ListActivityBase() {
                 } else {
                     val idx = shownLabels.indexOf(label)
                     shownLabels.remove(label)
+                    allLabels.remove(label)
                     label = newLabelData.label
+                    allLabels.add(label)
                     if(idx > 0) {
                         shownLabels.add(idx, label)
                     } else {
@@ -488,13 +674,17 @@ class ManageLabels : ListActivityBase() {
 
     private fun saveAndExit(selected: BookmarkEntities.Label? = null) = GlobalScope.launch(Dispatchers.Main) {
         Log.i(TAG, "Okay clicked")
+        CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideTextButtonActive)
+        CommonUtils.settings.setBoolean("labels_list_filter_showTextSearch", showTextSearch)
+        CommonUtils.settings.setString("labels_list_filter_searchTextOptions", SearchTextOptions.toString())
+
         val deleteLabelIds = data.deletedLabels.filter{ it > 0 }.toList()
         if(deleteLabelIds.isNotEmpty()) {
             bookmarkControl.deleteLabels(deleteLabelIds)
         }
 
         val result = Intent()
-        val saveLabels = shownLabels
+        val saveLabels = allLabels
             .filterIsInstance<BookmarkEntities.Label>()
             .filter{ data.changedLabels.contains(it.id) && !data.deletedLabels.contains(it.id) }
 
@@ -573,19 +763,26 @@ class ManageLabels : ListActivityBase() {
 
     fun updateLabelList(fromDb: Boolean = false, reOrder: Boolean = false, filterText:String = "") {
         if(fromDb) {
-            allLabels.clear()
-            allLabels.addAll(bookmarkControl.assignableLabels.filterNot { it.isUnlabeledLabel or (!it.name.startsWith(filterText))})
+            shownLabels.clear()
+//            allLabels.clear()
+            Log.i("AGR", "Regex: $filterText")
+            // Exclude the 'unlabeled label' but include all selected labels plus those that match the filter clause.
+            // We always want to see the labels we have selected even when filtering.
+            val regex = filterText.toRegex(RegexOption.IGNORE_CASE)
+            shownLabels.addAll(allLabels.filter {
+                !it.isUnlabeledLabel and ((filterText=="") or (regex.containsMatchIn(it.name)) or (data.selectedLabels.contains(it.id))) })
             if (data.showUnassigned) {
-                allLabels.add(bookmarkControl.labelUnlabelled)
+                shownLabels.add(bookmarkControl.labelUnlabelled)
             }
-            if(data.showActiveCategory) {
+            // Don't show the 'Selected' category in Label Settings (assume count=0)
+            if(data.showActiveCategory and (data.selectedLabels.count()>0)) {
                 shownLabels.add(LabelCategory.ACTIVE)
             }
             if(!data.hideCategories) {
                 shownLabels.add(LabelCategory.RECENT)
                 shownLabels.add(LabelCategory.OTHER)
             }
-            shownLabels.addAll(allLabels)
+//            shownLabels.addAll(allLabels)
         }
 
         val recentLabelIds = bookmarkControl.windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId }
@@ -615,10 +812,12 @@ class ManageLabels : ListActivityBase() {
         val labelIds = shownLabels.filterIsInstance<BookmarkEntities.Label>().map { it.id }.toSet()
 
         if (filterText == "") {
-            // Some sanity check. These checks clear the changed state of the labels.
+
             // TODO: changes made in the label dialog are lost when the filter is applied
-            data.autoAssignLabels.myRemoveIf { !labelIds.contains(it) }
-            data.favouriteLabels.myRemoveIf { !labelIds.contains(it) }
+            // Some sanity check. These checks clear the changed state of the labels.
+            // AGR: I don't know whether these are really needed. But having them clear these settings when the filter is applied.
+//            data.autoAssignLabels.myRemoveIf { !labelIds.contains(it) }
+//            data.favouriteLabels.myRemoveIf { !labelIds.contains(it) }
             data.selectedLabels.myRemoveIf { !labelIds.contains(it) }
         }
         notifyDataSetChanged()
@@ -626,6 +825,8 @@ class ManageLabels : ListActivityBase() {
 
     companion object {
         private const val TAG = "BookmarkLabels"
+
+
     }
 }
 
