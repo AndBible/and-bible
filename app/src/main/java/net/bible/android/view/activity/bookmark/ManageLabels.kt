@@ -67,6 +67,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import net.bible.service.common.CommonUtils.getResourceColor
 import kotlin.collections.ArrayList
@@ -83,7 +84,6 @@ private var lastButtonSelected: Button? = null
 private var showTextSearch = false
 private var searchInsideTextButtonActive = false
 
-
 /**
  *
  * ManageLabels serves for bookmark label management, selections (in several contexts) and StudyPad selection.
@@ -98,9 +98,6 @@ class ManageLabels : ListActivityBase() {
 
     enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS, MANAGELABELS} // TODO: MANAGELABELS deprecated
 
-
-    var selectMultiple: Boolean = false
-
     lateinit var data: ManageLabelsData
 
     override fun onBackPressed() {
@@ -114,11 +111,15 @@ class ManageLabels : ListActivityBase() {
         // Highlights the search button as required
         if (showTextSearch) {
             binding.textSearchLayout.visibility = View.VISIBLE
-//            binding.searchRevealButton.setBackgroundResource(R.drawable.button_filter_selected)
             (binding.searchRevealButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.grey_500)) // set solid color
+            // Show the keyboard.
+            binding.editSearchText.requestFocus()
+            val imm: InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(binding.editSearchText, InputMethodManager.SHOW_IMPLICIT)
+
         } else {
+            closeKeyboard()
             binding.textSearchLayout.visibility = View.GONE
-//            binding.searchRevealButton.setBackgroundResource(R.drawable.button_filter)
             (binding.searchRevealButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.transparent)) // set solid color
         }
     }
@@ -128,26 +129,24 @@ class ManageLabels : ListActivityBase() {
         SearchTextOptions.setFilterButtonBackground(lastButtonSelected!!, false)
         SearchTextOptions.setFilterButtonBackground(button, true)
         setSearchInsideTextButtonBackground(button=button)
+        closeKeyboard()
     }
 
     fun setSearchInsideTextButtonBackground(isSearchInsideText:Boolean? = null, button:Button? = null) {
         // Set the background color of the 'Filter Inside Text' button (to the left of the Search text field)
-
-        if (isSearchInsideText != null) searchInsideTextButtonActive =  isSearchInsideText
+        if (isSearchInsideText != null) searchInsideTextButtonActive = isSearchInsideText
         if ((button != null) && (button!!.tag!=null)) {
             searchInsideTextButtonActive = SearchTextOptions.listItem(button.tag.toString())!!.isSearchInsideText
         }
-//        if (isSearchInsideText!=null) {
-            if (searchInsideTextButtonActive) {
-                binding.searchInsideTextButton.text = "*ab*"
-                (binding.searchInsideTextButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.blue_200)) // set solid color
-            } else {
-                binding.searchInsideTextButton.text = "Ab*"
-                (binding.searchInsideTextButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.transparent)) // set solid color
-            }
-//        }
+        if (searchInsideTextButtonActive) {
+            binding.searchInsideTextButton.text = getString(R.string.match_any_text)
+            (binding.searchInsideTextButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.blue_200)) // set solid color
+        } else {
+            binding.searchInsideTextButton.text = getString(R.string.match_start_of_text)
+            (binding.searchInsideTextButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.transparent)) // set solid color
+        }
     }
-    fun applyTextfilter(searchText: String, searchInsideTextButtonActive:Boolean){
+    fun applyTextFilter(searchText: String, searchInsideTextButtonActive:Boolean){
         val regexString = if (searchInsideTextButtonActive) searchText else "^$searchText"
         updateLabelList(true,false, regexString)
     }
@@ -156,11 +155,10 @@ class ManageLabels : ListActivityBase() {
         class SearchOption(_text:String, _isSearchInsideText: Boolean){
             val text = _text.trim()
             val isSearchInsideText = _isSearchInsideText
-            val id = text + if (isSearchInsideText) "1" else "0"  // The id stores both the text to search for and an indicator  in the last char showing whether it is an 'in text' or 'start of text' search
+            val id = text + if (isSearchInsideText) "1" else "0"  // The ID stores both the text to search for and an indicator in the last char showing whether it is an 'in text' or 'start of text' search
             val regex = if (isSearchInsideText) text else "^$text"
         }
         val list: ArrayList<SearchOption> = ArrayList()
-        val buttonList: ArrayList<Button> = ArrayList()
 
         fun initialise (options:String) {
             list.clear()
@@ -171,7 +169,7 @@ class ManageLabels : ListActivityBase() {
             var x = list.map {it.id.trim()}.joinToString()
             return x
         }
-        public fun listItem (id:String): SearchOption? {
+        fun listItem (id:String): SearchOption? {
             return list.find {it.id == id}
         }
         fun add(option:String, isSearchInsideText: Boolean) {
@@ -206,10 +204,10 @@ class ManageLabels : ListActivityBase() {
                 }
             }
         }
-        fun buildButtons(binding:ManageLabelsBinding, context: Context,
-                         filterButtonSelect:(button:Button)->Unit,
-                         updateLabelList:(fromDb: Boolean, reOrder: Boolean, filterText:String)->Unit,
-                         DisplayTextSearchControls:()->Unit
+        fun buildButtonList(binding:ManageLabelsBinding, context: Context,
+                            filterButtonSelect:(button:Button)->Unit,
+                            updateLabelList:(fromDb: Boolean, reOrder: Boolean, filterText:String)->Unit,
+                            DisplayTextSearchControls:()->Unit
         ) {
             for (i in binding.buttonLayout.childCount-1 downTo 0) {
                 val child: View = binding.buttonLayout.getChildAt(i)
@@ -222,13 +220,11 @@ class ManageLabels : ListActivityBase() {
                 }
             }
 
-            var flowButtonIds = intArrayOf()
             val allButton = binding.allButton
+            var flowButtonIds = intArrayOf(allButton.id)
 
-            lastButtonSelected = allButton  // Need to ensure it is initialised to something
+            lastButtonSelected = allButton
             filterButtonSelect(allButton)
-
-            flowButtonIds += allButton.id
 
             allButton.setOnClickListener {
                 filterButtonSelect(allButton)
@@ -255,12 +251,12 @@ class ManageLabels : ListActivityBase() {
                 newButton.setBackgroundResource(R.drawable.button_filter)
                 newButton.layoutParams = ViewGroup.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 60)
                 newButton.minWidth = 80
-                newButton.minimumWidth = 80
+                newButton.minimumWidth = 80  // Both these are required to get the minwidth property to work
                 newButton.setPadding(5,0,5,0)
                 binding.buttonLayout.addView(newButton)
                 setFilterButtonBackground(newButton, false)
-                buttonList += newButton
                 flowButtonIds += newButton.id
+
                 newButton.setOnClickListener {
                     filterButtonSelect(newButton)
                     updateLabelList(true,false, listItem(newButton.tag.toString())!!.regex)
@@ -268,17 +264,14 @@ class ManageLabels : ListActivityBase() {
                 }
                 newButton.setOnLongClickListener {
                     remove(newButton, binding)
-//                    updateLabelList(true,false, "")
                     true}
             }
             binding.flowContainer.referencedIds = flowButtonIds
         }
     }
-
     @Serializable
     data class ManageLabelsData(
         val mode: Mode,
-
         val selectedLabels: MutableSet<Long> = mutableSetOf(),
         val autoAssignLabels: MutableSet<Long> = mutableSetOf(),
         val favouriteLabels: MutableSet<Long> = mutableSetOf(),
@@ -349,7 +342,6 @@ class ManageLabels : ListActivityBase() {
         searchInsideTextButtonActive = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
         showTextSearch = CommonUtils.settings.getBoolean("labels_list_filter_showTextSearch", false)
         SearchTextOptions.initialise(CommonUtils.settings.getString("labels_list_filter_searchTextOptions", "")!!)
-//        SearchTextOptions.initialise("")
 
         super.onCreate(savedInstanceState, false)
         binding = ManageLabelsBinding.inflate(layoutInflater)
@@ -359,9 +351,6 @@ class ManageLabels : ListActivityBase() {
         data = ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
 
         allLabels.addAll(bookmarkControl.assignableLabels.filter {!it.isUnlabeledLabel})
-
-        binding.selectMultipleSwitch.visibility = View.GONE
-        selectMultiple = true
 
         if(data.mode == Mode.STUDYPAD) {
             title = getString(R.string.studypads)
@@ -386,7 +375,6 @@ class ManageLabels : ListActivityBase() {
                 listView.smoothScrollToPosition(pos)
             }
         }
-
         // Setup listeners for the text filter
         val editSearchText = binding.editSearchText
         val searchInsideTextButton = binding.searchInsideTextButton
@@ -395,7 +383,7 @@ class ManageLabels : ListActivityBase() {
 
         clearSearchTextButton.setOnClickListener {
             editSearchText.text.clear()
-            applyTextfilter("", false)
+            applyTextFilter("", false)
         }
 
         saveSearchButton.setOnClickListener {
@@ -403,14 +391,13 @@ class ManageLabels : ListActivityBase() {
             if ( (searchText != "") ) {
                 // The type of search is appended as either a 1 (in label) or 0 (start of label) search. I am not sure how to serialise a better object for this
                 SearchTextOptions.add(searchText, searchInsideTextButtonActive)
-                SearchTextOptions.buildButtons(binding, getApplicationContext(), this::filterButtonSelected, this::updateLabelList, this::DisplayTextSearchControls)
+                SearchTextOptions.buildButtonList(binding, getApplicationContext(), this::filterButtonSelected, this::updateLabelList, this::DisplayTextSearchControls)
             }
         }
         editSearchText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                applyTextfilter(editSearchText.text.toString(), searchInsideTextButtonActive)
-
-                binding.saveSearchButton.visibility =if (editSearchText.text.toString()=="") View.GONE else View.VISIBLE
+                applyTextFilter(editSearchText.text.toString(), searchInsideTextButtonActive)
+                binding.saveSearchButton.visibility = if (editSearchText.text.toString()=="") View.GONE else View.VISIBLE
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
@@ -423,9 +410,9 @@ class ManageLabels : ListActivityBase() {
         searchInsideTextButton.setOnClickListener {
             searchInsideTextButtonActive = !searchInsideTextButtonActive
             setSearchInsideTextButtonBackground(searchInsideTextButtonActive)
-            applyTextfilter(editSearchText.text.toString(), searchInsideTextButtonActive)
+            applyTextFilter(editSearchText.text.toString(), searchInsideTextButtonActive)
         }
-        SearchTextOptions.buildButtons(binding, getApplicationContext(), this::filterButtonSelected, this::updateLabelList, this::DisplayTextSearchControls)
+        SearchTextOptions.buildButtonList(binding, getApplicationContext(), this::filterButtonSelected, this::updateLabelList, this::DisplayTextSearchControls)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -764,14 +751,24 @@ class ManageLabels : ListActivityBase() {
 
     }
 
-    fun updateLabelList(fromDb: Boolean = false, reOrder: Boolean = false, filterText:String = "") {
+    fun updateLabelList(fromDb: Boolean = false, reOrder: Boolean = false, _filterText:String = "") {
+        var filterText = _filterText
         if(fromDb) {
             shownLabels.clear()
-//            allLabels.clear()
-            Log.i("AGR", "Regex: $filterText")
+            Log.i(TAG, "Parsing filter: $filterText")
+            // Check if it is a special type of filter (ie A-C style)
+            val specialRegex = "^\\^.\\-.".toRegex()
+            if (specialRegex.containsMatchIn(filterText)) {
+                filterText = specialRegex.find(filterText)!!.value
+                filterText = "^[" + filterText.takeLast(filterText.length-1) + "]"
+            }
+            val regex = try {
+                    filterText.toRegex(RegexOption.IGNORE_CASE)
+                } catch (e:Exception) {
+                    "".toRegex()
+                }
             // Exclude the 'unlabeled label' but include all selected labels plus those that match the filter clause.
             // We always want to see the labels we have selected even when filtering.
-            val regex = filterText.toRegex(RegexOption.IGNORE_CASE)
             shownLabels.addAll(allLabels.filter {
                 !it.isUnlabeledLabel and ((filterText=="") or (regex.containsMatchIn(it.name)) or (data.selectedLabels.contains(it.id))) })
             if (data.showUnassigned) {
@@ -785,7 +782,6 @@ class ManageLabels : ListActivityBase() {
                 shownLabels.add(LabelCategory.RECENT)
                 shownLabels.add(LabelCategory.OTHER)
             }
-//            shownLabels.addAll(allLabels)
         }
 
         val recentLabelIds = bookmarkControl.windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId }
@@ -828,8 +824,6 @@ class ManageLabels : ListActivityBase() {
 
     companion object {
         private const val TAG = "BookmarkLabels"
-
-
     }
 }
 

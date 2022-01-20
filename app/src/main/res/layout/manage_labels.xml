@@ -50,7 +50,7 @@
 				android:background="@drawable/button_filter"
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintLeft_toLeftOf="parent"
-				android:text="ALL"/>
+				android:text="@string/all"/>
 
 
 			<ImageButton
@@ -80,7 +80,7 @@
 				app:layout_constraintLeft_toLeftOf="parent"
 				android:textAllCaps="false"
 				android:layout_marginLeft="5dp"
-				android:text="*ab*"/>
+				android:text="@string/match_any_text"/>
 
 			<EditText
 				android:id="@+id/editSearchText"
@@ -124,6 +124,7 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
+			android:visibility="gone"
 			/>
 
 		<ListView
@@ -132,8 +133,11 @@
 			android:layout_height="match_parent"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/selectMultipleSwitch" />
-
+			app:layout_constraintTop_toBottomOf="@id/selectMultipleSwitch"
+			android:fastScrollAlwaysVisible="true"
+			android:fastScrollEnabled="true"
+			android:scrollbarThumbVertical="@drawable/button_filter"
+			/>
 
 
 	</LinearLayout>
