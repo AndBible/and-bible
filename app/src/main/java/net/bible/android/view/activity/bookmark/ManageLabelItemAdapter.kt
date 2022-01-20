@@ -72,10 +72,6 @@ class ManageLabelItemAdapter(context: Context?,
                 if (data.showCheckboxes) {
                     checkbox.setOnCheckedChangeListener { _, isChecked ->
                         if (isChecked) {
-                            if (!manageLabels.selectMultiple) {
-                                data.selectedLabels.clear()
-                                data.bookmarkPrimaryLabel = null
-                            }
                             data.selectedLabels.add(label.id)
                             if (data.bookmarkPrimaryLabel == null) {
                                 data.bookmarkPrimaryLabel = label.id

@@ -420,6 +420,8 @@
     <string name="auto_assign_labels_primary">Auto-assign as primary</string>
     <string name="label_color">Label color</string>  <!-- can be removed -->
     <string name="label_color_example">Example</string>
+    <string name="match_any_text">*ab*</string>  <!-- Probably does not need to be translated. They are symbols for a button image -->
+    <string name="match_start_of_text">Ab*</string>  <!-- Probably does not need to be translated. They are symbols for a button image -->
 
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>
