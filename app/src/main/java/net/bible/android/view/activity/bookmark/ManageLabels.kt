@@ -123,13 +123,13 @@ class ManageLabels : ListActivityBase() {
             (binding.searchRevealButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.transparent)) // set solid color
         }
     }
-    fun filterButtonSelected(button:Button, clearEditText:Boolean = true) {
+    fun filterButtonSelected(button:Button, clearEditText:Boolean=true, hideKeyboard:Boolean=true) {
         // Set the display properties of buttons
         if (clearEditText && binding.editSearchText.text.toString() != "") binding.editSearchText.setText("")
         SearchTextOptions.setFilterButtonBackground(lastButtonSelected!!, false)
         SearchTextOptions.setFilterButtonBackground(button, true)
         setSearchInsideTextButtonBackground(button=button)
-        closeKeyboard()
+        if (hideKeyboard) closeKeyboard()
     }
 
     fun setSearchInsideTextButtonBackground(isSearchInsideText:Boolean? = null, button:Button? = null) {
@@ -402,7 +402,7 @@ class ManageLabels : ListActivityBase() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (count!=0) filterButtonSelected(binding.allButton,false)
+                if (count!=0) filterButtonSelected(binding.allButton,false, false)
             }
         })
 
