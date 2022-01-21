@@ -964,7 +964,4 @@
 
     <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
     <string name="permission_required">Permission needed</string>
-
-    <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
-    <string name="phone_call_permission_rationale">Permission to read phone state is needed in order for the app to be able to automatically pause listening when you receive a phone call.</string>
 </resources>
