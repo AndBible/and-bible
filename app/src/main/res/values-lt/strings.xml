@@ -848,5 +848,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="strongs_text_and_links">Tekstas ir nuorodos</string>
   <string name="verse_tip">Norėdami žymėti kelias eilutes ar eilutės dalį, paspauskite ir palaikykite ant Biblijos teksto</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Reikalingas leidimas</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="phone_call_permission_rationale">Tam, kad, kai gaunate telefono skambutį, programėlė galėtų automatiškai pristabdyti klausymąsi, reikalingas leidimas skaityti telefono būseną.</string>
 </resources>

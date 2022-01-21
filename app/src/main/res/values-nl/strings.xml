@@ -170,6 +170,7 @@
   <string name="prefs_font_text_size_summary">Pas de lettergrootte van de tekst aan</string>
   <string name="pref_font_family_label_name">Lettersoort (%s)</string>
   <string name="prefs_font_family_summary">Wijzig de lettersoort. Tip: Meer lettertypes kunnen geinstalleerd worden via Documenten downloaden / Uitbreidingen.</string>
+  <string name="prefs_text_bookmarks_title">Bookmark &amp; Mijn notities instellingen</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleurinstellingen</string>
   <string name="window_color_settings_title">Instellingen voor schermkleur.</string>
