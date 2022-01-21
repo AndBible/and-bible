@@ -64,7 +64,8 @@ object PhoneCallMonitor {
     fun ensureMonitoringStarted() {
         Log.i(TAG, "ensureMonitoringStarted ${Build.VERSION.SDK_INT}")
         if (!isMonitoring) {
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            // From API 26 onwards, we use audio focus change listening (see startSpeaking)
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 isMonitoring = true
                 startMonitoringLegacy()
             }
