@@ -90,7 +90,7 @@ class PlaceholderFragment: Fragment() {
 private fun setResultsAdapter(resultsArray:ArrayList<SearchResultsData>, activity: Activity): SearchResultsAdapter {
     displayedResultsArray = resultsArray
     val tabhost = activity.findViewById<View>(R.id.tabs) as TabLayout
-    tabhost.getTabAt(0)!!.text = CommonUtils.resources.getString(R.string.results_count, displayedResultsArray.count().toString())
+    tabhost.getTabAt(0)!!.text = CommonUtils.resources.getString(R.string.verse_count, displayedResultsArray.count().toString())
     return SearchResultsAdapter(activity, android.R.layout.simple_list_item_2,
         displayedResultsArray as java.util.ArrayList<SearchResultsData>?
     )
