@@ -22,50 +22,52 @@ class SearchHighlight {
             var spannableText: SpannableString? = null
             try {
                 // TODO: Strongs searches are handled differently to normal searches and so cannot be combined either with a normal search term or other strongs searches. This should be done better.
+                var isStrongsSearch = searchTerms.contains("strong:")
 
                 // Part 1: Highlight any strongs words. The raw verse text is returned with <b> added for the strongs words. We always need to process this just to get the plaintext
                 var verseString: String? = ""
                 searchTerms = prepareStrongsSearchTerm(searchTerms)
                 val verses = textElement.getChildren("verse")
+                val strongsSearchTerms = searchTerms + "\\b"  // search on a word boundary (eg find strong:g0123 not strong:g01234567
+
                 for (verse in verses) {
-                    Log.e("AGR", XMLOutputter().outputString(verse))
-                    verseString += processElementChildren(verse, searchTerms, "", false)
+//                    Log.e("AGR", XMLOutputter().outputString(verse))
+                    verseString += processElementChildren(verse, strongsSearchTerms, "", false)
                 }
 
-                // Check for highlighted consecutive words and merge them into a single highlighted phrase. Some translations will indicate multiple
-                // consecutive lemma spans with the same strongs number when in fact all spans represent the single original language word.
-                // This messes with the search statistics as it uses the bolded words to tally search hits by word.
-                var verseStringLength = 0;
-                while (verseStringLength != verseString?.length )
-                {
-                    verseStringLength = verseString!!.length
-                    // This pattern matches two consecutive <b> tag spans separate only by white space and replaces them with a single <b> tag.
-                    val match = Regex("(<b[^<>]*>)([^<>]*?)(<\\/b>)(\\s+)\\1([\\s\\S]*?)\\3",RegexOption.IGNORE_CASE).find((verseString))
-                    if (match != null) {
-                        val matches = match.groupValues
-                        verseString = verseString.replace(
-                            matches[0],
-                            "${matches[1]}${matches[2]}${matches[4]}${matches[5]}${matches[3]}"
-                        )
+                if (isStrongsSearch) {
+                    // Check for highlighted consecutive words and merge them into a single highlighted phrase. Some translations will indicate multiple
+                    // consecutive lemma spans with the same strongs number when in fact all spans represent the single original language word.
+                    // This messes with the search statistics as it uses the bolded words to tally search hits by word.
+
+                    var verseStringLength = 0;
+                    while (verseStringLength != verseString?.length) {
+                        verseStringLength = verseString!!.length
+                        // This pattern matches two consecutive <b> tag spans separate only by white space and replaces them with a single <b> tag.
+                        val match =
+                            Regex("(<b[^<>]*>)([^<>]*?)(<\\/b>)(\\s+)\\1([\\s\\S]*?)\\3", RegexOption.IGNORE_CASE).find(
+                                (verseString)
+                            )
+                        if (match != null) {
+                            val matches = match.groupValues
+                            verseString = verseString.replace(
+                                matches[0],
+                                "${matches[1]}${matches[2]}${matches[4]}${matches[5]}${matches[3]}"
+                            )
+                        }
                     }
                 }
-
                 spannableText = SpannableString(Html.fromHtml(verseString))  // We started with an XML verse which got turned into a string with <b> tags which is now turned into a spannable
 
                 // Part 2: Find and highlight the normal (non-strongs) words or phrases in the PLAIN text verse
                 var m: Matcher? = null
                 val splitSearchArray = splitSearchTerms(searchTerms)
                 for (originalSearchWord in splitSearchArray) {
-                    var isStrongsSearch = originalSearchWord.contains("strong:")
-                    var searchWord =""
-                    if (isStrongsSearch) {
-                        searchWord = prepareSearchWord(originalSearchWord)
-                    } else {
-                        searchWord = if (!isStrongsSearch and originalSearchWord.contains("*")) {
-                            "\\b$searchWord[\\w\\'\\-]*\\b" // Match whole words including with hyphons and apostrophes
+                    var searchWord = prepareSearchWord(originalSearchWord)
+                    searchWord = if (originalSearchWord.contains("*")) {
+                        "\\b$searchWord[\\w\\'\\-]*\\b" // Match whole words including with hyphons and apostrophes
                         } else {
                             "\\b$searchWord\\b"
-                        }
                     }
                     if (searchWord.length > 0) {
                         m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText)
@@ -140,7 +142,6 @@ class SearchHighlight {
             searchTerms = searchTerms.replace("strong:g0*".toRegex(RegexOption.IGNORE_CASE), "strong:g0*")
             searchTerms = searchTerms.replace("strong:h0*".toRegex(RegexOption.IGNORE_CASE), "strong:h0*")
             searchTerms = searchTerms.replace("+", "")        // Remove + which indicates AND searches
-            searchTerms += "\\b"  // search on a word boundary (eg find strong:g0123 not strong:g01234567
 
             return searchTerms
         }
