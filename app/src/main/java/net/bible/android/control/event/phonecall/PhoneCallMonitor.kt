@@ -17,20 +17,13 @@
  */
 package net.bible.android.control.event.phonecall
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
 import android.telephony.PhoneStateListener
-import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.getMainExecutor
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 
 const val TAG = "PhoneCallMonitor"
 
@@ -38,36 +31,9 @@ const val TAG = "PhoneCallMonitor"
  * Monitor phone calls to stop speech, etc
  */
 
-@RequiresApi(Build.VERSION_CODES.S)
-class CustomTelephonyCallback(private val func: (state: Int) -> Unit) : TelephonyCallback(), TelephonyCallback.CallStateListener {
-    override fun onCallStateChanged(state: Int) {
-        func(state)
-    }
-}
 
 object PhoneCallMonitor {
     private var isMonitoring = false
-    var requestPermission = true // Request permission max once per session
-
-    var callback: CustomTelephonyCallback? = null
-
-    @RequiresApi(Build.VERSION_CODES.S)
-    private fun startMonitoring() = application.run {
-        val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-        telephonyManager?.registerTelephonyCallback(
-            getMainExecutor(this),
-            CustomTelephonyCallback { state ->
-                Log.i(TAG, "State changed to $state")
-                if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
-                    ABEventBus.getDefault().post(PhoneCallEvent(true))
-                } else if (state == TelephonyManager.CALL_STATE_IDLE) {
-                    ABEventBus.getDefault().post(PhoneCallEvent(false))
-                }
-            }.also {
-                callback = it
-            }
-        )
-    }
 
     /** If phone rings then notify all PhoneCallEvent listeners.
      * This was attempted in CurrentActivityHolder but failed if device was on
@@ -98,20 +64,10 @@ object PhoneCallMonitor {
     fun ensureMonitoringStarted() {
         Log.i(TAG, "ensureMonitoringStarted ${Build.VERSION.SDK_INT}")
         if (!isMonitoring) {
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            // From API 26 onwards, we use audio focus change listening (see startSpeaking)
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 isMonitoring = true
                 startMonitoringLegacy()
-            } else {
-                // Android 12+
-                if (ActivityCompat.checkSelfPermission(application, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    if(requestPermission) _mainBibleActivity?.requestPhoneStateReadPermission()
-                    requestPermission = false
-                    Log.i(TAG, "Permission denied! $requestPermission")
-                } else {
-                    Log.i(TAG, "Permission granted")
-                    isMonitoring = true
-                    startMonitoring()
-                }
             }
         }
     }

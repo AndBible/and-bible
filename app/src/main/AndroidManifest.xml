@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="631"
-    android:versionName="4.0.631">
+    android:versionCode="633"
+    android:versionName="4.0.633">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" android:maxSdkVersion="22"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
@@ -232,7 +232,12 @@
             </intent-filter>
         </activity>
 
-        <service android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService" />
+        <service android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </service>
         <receiver
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver"
             android:exported="false" />

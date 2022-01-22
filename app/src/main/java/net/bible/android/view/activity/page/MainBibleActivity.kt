@@ -1518,29 +1518,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    fun requestPhoneStateReadPermission() {
-        scope.launch(Dispatchers.Main) {
-            Log.i(TAG, "requestPhoneStateReadPermission")
-            var cnt = true
-            if(shouldShowRequestPermissionRationale(Manifest.permission.READ_PHONE_STATE)) {
-                cnt = suspendCoroutine {
-                    AlertDialog.Builder(this@MainBibleActivity)
-                        .setTitle(R.string.permission_required)
-                        .setMessage(R.string.phone_call_permission_rationale)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.okay) { _, _ ->
-                            it.resume(true)
-                        }
-                        .show()
-                }
-            }
-            if(cnt) {
-                requestPermissions(arrayOf(Manifest.permission.READ_PHONE_STATE), PHONE_STATE_READ_REQUEST)
-            }
-        }
-    }
-
     val isSplitVertically: Boolean get() {
         val reverse = windowRepository.workspaceSettings.enableReverseSplitMode
         return if(reverse) !CommonUtils.isPortrait else CommonUtils.isPortrait
