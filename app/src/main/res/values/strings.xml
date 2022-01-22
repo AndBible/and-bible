@@ -79,6 +79,7 @@
     <string name="greek">Greek</string>
     <string name="hebrew">Hebrew</string>
     <string name="results_count">Results: %s</string>
+    <string name="verse_count">Verse: %s</string>
     <string name="statistics">Statistics</string>
     <string name="by_book">By Book</string>
     <string name="by_word">By Word</string>
