@@ -37,7 +37,7 @@ import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companio
 import net.bible.service.common.CommonUtils.resources
 
 private var TAB_TITLES = arrayOf(
-    resources.getString(R.string.results_count),
+    resources.getString(R.string.verse_count),
     resources.getString(R.string.by_book),
     resources.getString(R.string.by_word)
 )
