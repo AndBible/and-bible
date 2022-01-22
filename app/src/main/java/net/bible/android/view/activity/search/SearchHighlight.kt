@@ -104,12 +104,13 @@ class SearchHighlight {
 
 
         private fun prepareSearchTerms(searchTerms: String): String {
-            // Replaces strong:g00123 with REGEX strong:g*123. This is needed because the search term submitted by the 'Find all occcurrences includes extra zeros
+            // Replaces strong:g00123 or strong:g123 with REGEX strong:g0*123. This is needed because the search term submitted by the 'Find all occcurrences includes extra zeros
             // The capitalisation is not important since we do a case insensitive search
             var searchTerms = searchTerms
             if (searchTerms.contains("strong:")) {
-                searchTerms = searchTerms.replace("strong:g0*".toRegex(), "strong:g0*")
-                searchTerms = searchTerms.replace("strong:h0*".toRegex(), "strong:h0*")
+                searchTerms = searchTerms.replace("strong:g0*".toRegex(RegexOption.IGNORE_CASE), "strong:g0*")
+                searchTerms = searchTerms.replace("strong:h0*".toRegex(RegexOption.IGNORE_CASE), "strong:h0*")
+                searchTerms += "\\b"  // search on a word boundary (eg find strong:g0123 not strong:g01234567
             }
             return searchTerms
         }
@@ -124,9 +125,9 @@ class SearchHighlight {
             // Need to clean up the search word itself before trying to find the searchWord in the text
             // Eg: '+"burning bush"' -> 'burning bush'
             var searchWord = searchWord
-            searchWord = searchWord.replace("\"", "") // Remove quotes which indicate phrase searches
-            searchWord = searchWord.replace("+", "") // Remove + which indicates AND searches
-            searchWord = searchWord.replace("?", "\\p{L}") // Handles any letter from any language
+            searchWord = searchWord.replace("\"", "")       // Remove quotes which indicate phrase searches
+            searchWord = searchWord.replace("+", "")        // Remove + which indicates AND searches
+            searchWord = searchWord.replace("?", "\\p{L}")  // Handles any letter from any language
             if (searchWord.length > 0) {
                 searchWord = if (searchWord.substring(searchWord.length - 1) == "*") {
                     searchWord.replace("*", "")
