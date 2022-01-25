@@ -1,7 +1,6 @@
 package net.bible.android.view.activity.search
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -14,15 +13,13 @@ import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import android.widget.ListView
 import android.widget.ProgressBar
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.view.allViews
 import com.google.android.material.tabs.TabLayout
-import net.bible.android.activity.databinding.SearchResultsVerseFragmentBinding
+import net.bible.android.activity.databinding.SearchResultsStatisticsFragmentVerseBinding
 import net.bible.android.activity.R
-import net.bible.android.activity.databinding.SearchResultsStatisticsFragmentBinding
-import net.bible.android.activity.databinding.SearchResultsStatisticsRowBinding
+import net.bible.android.activity.databinding.SearchResultsStatisticsFragmentByBinding
+import net.bible.android.activity.databinding.SearchResultsStatisticsRowByBookBinding
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -39,7 +36,7 @@ private var isSearchResultsFiltered = false
 class PlaceholderFragment: Fragment() {
 
     //    private lateinit var pageViewModel: PageViewModel
-    private var _binding: SearchResultsVerseFragmentBinding? = null
+    private var _binding: SearchResultsStatisticsFragmentVerseBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -54,7 +51,7 @@ class PlaceholderFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        _binding = SearchResultsVerseFragmentBinding.inflate(inflater, container, false)
+        _binding = SearchResultsStatisticsFragmentVerseBinding.inflate(inflater, container, false)
         val root = binding.root
 
         return root
@@ -97,7 +94,7 @@ private fun setResultsAdapter(resultsArray:ArrayList<SearchResultsData>, activit
 }
 class SearchResultsFragment : Fragment() {
 
-    private var _binding: SearchResultsVerseFragmentBinding? = null
+    private var _binding: SearchResultsStatisticsFragmentVerseBinding? = null
     private val binding get() = _binding!!
 
     var mVerseSearchResults: List<Key> = java.util.ArrayList()
@@ -115,7 +112,7 @@ class SearchResultsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        _binding = SearchResultsVerseFragmentBinding.inflate(inflater, container, false)
+        _binding = SearchResultsStatisticsFragmentVerseBinding.inflate(inflater, container, false)
         val root = binding.root
 
         searchResultsArray = requireArguments().getParcelableArrayList("mylist")!!
@@ -187,7 +184,7 @@ class SearchResultsFragment : Fragment() {
 }
 
 class SearchBookStatisticsFragment : Fragment() {
-    private var _binding: SearchResultsStatisticsFragmentBinding? = null
+    private var _binding: SearchResultsStatisticsFragmentByBinding? = null
 
     private val binding get() = _binding!!
     var bookStatistics = mutableListOf<BookStat>()
@@ -197,8 +194,8 @@ class SearchBookStatisticsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        _binding = SearchResultsStatisticsFragmentBinding.inflate(inflater, container, false)
-        var rowBinding = SearchResultsStatisticsRowBinding.inflate(inflater, container, false)
+        _binding = SearchResultsStatisticsFragmentByBinding.inflate(inflater, container, false)
+        var rowBinding = SearchResultsStatisticsRowByBookBinding.inflate(inflater, container, false)
         val root = binding.root
 
         val statisticsLayout = binding.statisticsLayout
@@ -208,7 +205,7 @@ class SearchBookStatisticsFragment : Fragment() {
         bookStatistics.map {
 
             val statsRow: View = inflater.inflate(
-                R.layout.search_results_statistics_row,
+                R.layout.search_results_statistics_row_by_book,
                 statisticsLayout, false
             )
             var button = statsRow.findViewById<Button>(R.id.searchStatisticsBookButton)
@@ -264,7 +261,7 @@ class SearchBookStatisticsFragment : Fragment() {
 }
 
 class SearchWordStatisticsFragment : Fragment() {
-    private var _binding: SearchResultsStatisticsFragmentBinding? = null
+    private var _binding: SearchResultsStatisticsFragmentByBinding? = null
 
     private val binding get() = _binding!!
     private lateinit var inflater: LayoutInflater
@@ -295,7 +292,7 @@ class SearchWordStatisticsFragment : Fragment() {
         sortedWordStatistics.map {
 
             val statsRow: View = inflater.inflate(
-                R.layout.search_results_word_statistics_row,
+                R.layout.search_results_statistics_row_by_word,
                 statisticsLayout, false
             )
             var button = statsRow.findViewById<Button>(R.id.searchStatisticsWordButton)
@@ -322,7 +319,7 @@ class SearchWordStatisticsFragment : Fragment() {
     ): View? {
 
         inflater = theInflater
-        _binding = SearchResultsStatisticsFragmentBinding.inflate(inflater, container, false)
+        _binding = SearchResultsStatisticsFragmentByBinding.inflate(inflater, container, false)
         val root = binding.root
 
         ConstructButtonList()

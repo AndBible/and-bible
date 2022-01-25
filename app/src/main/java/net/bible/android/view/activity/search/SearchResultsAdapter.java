@@ -1,12 +1,8 @@
 package net.bible.android.view.activity.search;
 
 import android.content.Context;
-import android.database.DataSetObserver;
-import android.graphics.Typeface;
 import android.text.Html;
-import android.text.Spannable;
 import android.text.SpannableString;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,21 +10,13 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.search.SearchControl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
-import org.jdom2.Element;
-import org.jdom2.Text;
 
 public class SearchResultsAdapter extends ArrayAdapter<SearchResultsData> {
 
@@ -49,7 +37,7 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResultsData> {
 		if(convertView==null) {
 
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView=inflater.inflate(R.layout.search_results_list_row, null);
+			convertView=inflater.inflate(R.layout.search_results_statistics_row_verse, null);
 
 			TextView reference=convertView.findViewById(R.id.reference);
 			reference.setText(resultData.reference);
