@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
-import net.bible.android.activity.databinding.SearchResultsLayoutActivityBinding
+import net.bible.android.activity.databinding.SearchResultsStatisticsBinding
 import java.util.ArrayList
 import net.bible.android.activity.R
 import net.bible.android.control.navigation.NavigationControl
@@ -35,6 +35,7 @@ import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
 import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.getBookTextColor
 import net.bible.service.common.CommonUtils.resources
+
 
 private var TAB_TITLES = arrayOf(
     resources.getString(R.string.verse_count),
@@ -122,7 +123,7 @@ class SearchResultsData : Parcelable {
 
 class MySearchResults : CustomTitlebarActivityBase() {
 //    private lateinit var binding: ListBinding
-    private lateinit var binding: SearchResultsLayoutActivityBinding
+    private lateinit var binding: SearchResultsStatisticsBinding
     private var mSearchResultsHolder: SearchResultsDto? = null
 
     /*  mKeyArrayAdapter is replaced by mSearchArrayAdapter */
@@ -144,7 +145,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search results view")
 
-        binding = SearchResultsLayoutActivityBinding.inflate(layoutInflater)
+        binding = SearchResultsStatisticsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         buildActivityComponent().inject(this)
@@ -158,6 +159,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
         val sectionsPagerAdapter = SearchResultsPagerAdapter(this, supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent)
         val viewPager: ViewPager = binding.viewPager
         viewPager.adapter = sectionsPagerAdapter
+        viewPager.offscreenPageLimit = 2
         val tabs: TabLayout = binding.tabs
         tabs.setupWithViewPager(viewPager)
 
@@ -326,7 +328,7 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
         var frag: Fragment
         when (position) {
             0 -> {
-                frag = SearchResultsFragment.newInstance(1)
+                frag = SearchResultsFragment()
                 val bundle = Bundle()
                 bundle.putString("edttext", "From Activity")
                 bundle.putParcelableArrayList("mylist", mSearchArrayAdapter)

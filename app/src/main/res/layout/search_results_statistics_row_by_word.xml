@@ -16,6 +16,10 @@
 
 		<Button
 			android:id="@+id/searchStatisticsWordButton"
+			android:autoSizeTextType="uniform"
+			android:autoSizeMinTextSize="9dp"
+			android:autoSizeMaxTextSize="15dp"
+			android:autoSizeStepGranularity="1dp"
 			android:layout_width="170dp"
 			android:layout_height="wrap_content"
 			android:text="the word which is very long and might not wrap"
@@ -26,7 +30,7 @@
 
 		<TextView
 			android:id="@+id/searchStatisticsWordCount"
-			android:layout_width="30dp"
+			android:layout_width="40dp"
 			android:layout_height="wrap_content"
 			android:text="45"
 			android:textAlignment="center"

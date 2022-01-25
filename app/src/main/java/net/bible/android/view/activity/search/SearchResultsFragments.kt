@@ -156,27 +156,6 @@ class SearchResultsFragment : Fragment() {
         }
     }
 
-    companion object {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private const val ARG_SECTION_NUMBER = "section_number"
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        @JvmStatic
-        fun newInstance(sectionNumber: Int): SearchResultsFragment {
-            return SearchResultsFragment().apply {
-//                arguments = Bundle().apply {
-//                    putInt(ARG_SECTION_NUMBER, sectionNumber)
-//                }
-            }
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -195,7 +174,7 @@ class SearchBookStatisticsFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         _binding = SearchResultsStatisticsFragmentByBinding.inflate(inflater, container, false)
-        var rowBinding = SearchResultsStatisticsRowByBookBinding.inflate(inflater, container, false)
+//        var rowBinding = SearchResultsStatisticsRowByBookBinding.inflate(inflater, container, false)
         val root = binding.root
 
         val statisticsLayout = binding.statisticsLayout
@@ -239,25 +218,10 @@ class SearchBookStatisticsFragment : Fragment() {
         return root
     }
 
-//    companion object {
-//        /**
-//         * Use this factory method to create a new instance of
-//         * this fragment using the provided parameters.
-//         *
-//         * @param param1 Parameter 1.
-//         * @param param2 Parameter 2.
-//         * @return A new instance of fragment SearchStatisticsFragment.
-//         */
-//        // TODO: Rename and change types and number of parameters
-//        @JvmStatic
-//        fun newInstance() =
-//            SearchStatisticsFragment().apply {
-//                arguments = Bundle().apply {
-////                    putString(ARG_PARAM1, param1)
-////                    putString(ARG_PARAM2, param2)
-//                }
-//            }
-//    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
 
 class SearchWordStatisticsFragment : Fragment() {
@@ -267,6 +231,7 @@ class SearchWordStatisticsFragment : Fragment() {
     private lateinit var inflater: LayoutInflater
 
     var wordStatistics = mutableListOf<WordStat>()
+    private lateinit var statsRow: View
 
     class CustomOnClickListener(val resultIndexes: IntArray, val activity:Activity) : View.OnClickListener {
         override fun onClick(v: View?) {
@@ -302,8 +267,8 @@ class SearchWordStatisticsFragment : Fragment() {
             var progressBar = statsRow.findViewById<ProgressBar>(R.id.searchStatisticsWordCountProgress)
             progressBar.max = maxCount
             progressBar.progress = it.verseIndexes.count()
-            statsRow.visibility = View.VISIBLE
-            statsRow.invalidate()
+//            statsRow.visibility = View.VISIBLE
+//            statsRow.invalidate()
             statsRow.requestLayout()
             statisticsLayout.addView(statsRow,
                 FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -313,6 +278,10 @@ class SearchWordStatisticsFragment : Fragment() {
         }
 
     }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
     override fun onCreateView(
         theInflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -320,16 +289,18 @@ class SearchWordStatisticsFragment : Fragment() {
 
         inflater = theInflater
         _binding = SearchResultsStatisticsFragmentByBinding.inflate(inflater, container, false)
-        val root = binding.root
-
         ConstructButtonList()
 
         var showKeyWordsCheckBox = binding.showKeyWordOnly
         showKeyWordsCheckBox.setOnClickListener {
             ConstructButtonList()
         }
+        return binding.root
+    }
 
-        return root
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
 

@@ -15,6 +15,10 @@
 
 		<Button
 			android:id="@+id/searchStatisticsBookButton"
+			android:autoSizeTextType="uniform"
+			android:autoSizeMinTextSize="9dp"
+			android:autoSizeMaxTextSize="15dp"
+			android:autoSizeStepGranularity="1dp"
 			android:layout_width="170dp"
 			android:layout_height="36dp"
 			android:text="Song of Solomon"
@@ -24,7 +28,7 @@
 
 		<TextView
 			android:id="@+id/searchStatisticsBookCount"
-			android:layout_width="30dp"
+			android:layout_width="40dp"
 			android:layout_height="wrap_content"
 			android:text="345"
 			android:textAlignment="center"
