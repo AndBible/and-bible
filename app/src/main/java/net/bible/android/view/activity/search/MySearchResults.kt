@@ -159,7 +159,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
         val sectionsPagerAdapter = SearchResultsPagerAdapter(this, supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent)
         val viewPager: ViewPager = binding.viewPager
         viewPager.adapter = sectionsPagerAdapter
-        viewPager.offscreenPageLimit = 2
+        viewPager.offscreenPageLimit = 2    // The progressbar on the 3rd tab goes to zero when the view is lost. So just keep it in memory and all is fine. It is not a big view so i think it is ok.
         val tabs: TabLayout = binding.tabs
         tabs.setupWithViewPager(viewPager)
 
