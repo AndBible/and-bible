@@ -227,12 +227,8 @@
             </intent-filter>
         </activity>
 
-        <service android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </service>
+        <service android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService" />
+
         <receiver
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver"
             android:exported="false" />
