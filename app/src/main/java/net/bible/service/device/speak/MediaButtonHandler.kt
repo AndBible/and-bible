@@ -102,9 +102,10 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
 
         // Hack to make media button listening work!
         // https://stackoverflow.com/questions/45960265/android-o-oreo-8-and-higher-media-buttons-issue
-        val mMediaPlayer = MediaPlayer.create(BibleApplication.application, R.raw.silence)
-        mMediaPlayer.setOnCompletionListener { mMediaPlayer.release() }
-        mMediaPlayer.start()
+        MediaPlayer.create(application, R.raw.silence).run {
+            setOnCompletionListener { release() }
+            start()
+        }
     }
 
     fun setState(s: Int) {
