@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
@@ -28,7 +29,9 @@ import org.crosswire.jsword.passage.Key
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordDocumentFacade
+import org.crosswire.common.util.Language
 
+lateinit var adapter: ArrayAdapter<SearchResultsData>
 private lateinit var searchResultsArray: ArrayList<SearchResultsData>
 private lateinit var displayedResultsArray: ArrayList<SearchResultsData>
 private var isSearchResultsFiltered = false
@@ -94,6 +97,7 @@ private fun setResultsAdapter(resultsArray:ArrayList<SearchResultsData>, activit
 }
 class SearchResultsFragment : Fragment() {
 
+//    private lateinit var langArrayAdapter: ArrayAdapter<SearchResultsData>
     private var _binding: SearchResultsStatisticsFragmentVerseBinding? = null
     private val binding get() = _binding!!
 
@@ -106,7 +110,6 @@ class SearchResultsFragment : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -115,12 +118,14 @@ class SearchResultsFragment : Fragment() {
         _binding = SearchResultsStatisticsFragmentVerseBinding.inflate(inflater, container, false)
         val root = binding.root
 
-        searchResultsArray = requireArguments().getParcelableArrayList("mylist")!!
-
+//        searchResultsArray = requireArguments().getParcelableArrayList("VerseResultList")!!
+//        searchResultsArray = mSearchResultsArray
 //        val customAdapter = SearchResultsAdapter(activity, android.R.layout.simple_list_item_2, searchResultsArray)
 
         val resultList: ListView = binding.searchResultsList
-        resultList.adapter = setResultsAdapter(searchResultsArray, requireActivity())
+
+        adapter = setResultsAdapter(mSearchResultsArray, requireActivity())
+        resultList.adapter = adapter
         resultList.descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS;
         resultList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         resultList.isVerticalScrollBarEnabled = false

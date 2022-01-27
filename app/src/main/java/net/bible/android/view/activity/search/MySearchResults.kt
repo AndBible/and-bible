@@ -10,6 +10,7 @@ import android.os.Parcelable
 import android.text.style.StyleSpan
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.text.toHtml
 import com.google.android.material.tabs.TabLayout
@@ -17,6 +18,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.databinding.SearchResultsStatisticsBinding
 import java.util.ArrayList
 import net.bible.android.activity.R
@@ -42,7 +47,7 @@ private var TAB_TITLES = arrayOf(
     resources.getString(R.string.by_book),
     resources.getString(R.string.by_word)
 )
-private val mSearchArrayAdapter = ArrayList<SearchResultsData>()
+val mSearchResultsArray = ArrayList<SearchResultsData>()
 private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
 private val bookStatistics = mutableListOf<BookStat>()
 private val wordStatistics = mutableListOf<WordStat>()
@@ -126,7 +131,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
     private lateinit var binding: SearchResultsStatisticsBinding
     private var mSearchResultsHolder: SearchResultsDto? = null
 
-    /*  mKeyArrayAdapter is replaced by mSearchArrayAdapter */
+    /*  mKeyArrayAdapter is replaced by mSearchResultsArray */
 //    private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
 
     @Inject lateinit var navigationControl: NavigationControl
@@ -179,34 +184,34 @@ class MySearchResults : CustomTitlebarActivityBase() {
         processed immediately and doesn't  wait for the code inside the scope to complete. But i don't know how to fix
         that problem.
 */
-//        GlobalScope.launch {
+        GlobalScope.launch {
             prepareResults()
-//        }
+        }
     }
 
-//    private suspend fun prepareResults() {
-    private fun prepareResults() {
-//        withContext(Dispatchers.Main) {
+    private suspend fun prepareResults() {
+//    private fun prepareResults() {
+        withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.VISIBLE
             binding.empty.visibility = View.GONE
-//        }
+        }
         if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
-//            withContext(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
 //                mKeyArrayAdapter = SearchItemAdapter(this@MySearchResults, SearchResults.LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl)
 //                listAdapter = mKeyArrayAdapter as ListAdapter
                 populateViewResultsAdapter()
-//            }
+            }
         }
-//        withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.GONE
 //            if(listAdapter?.isEmpty == true) {
 //                binding.empty.visibility = View.VISIBLE
 //            }
-//        }
+        }
     }
 
-//    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) {
-    private fun fetchSearchResults(): Boolean {
+    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) {
+//    private fun fetchSearchResults(): Boolean {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
         try { // get search string - passed in using extras so extras cannot be null
@@ -223,17 +228,17 @@ class MySearchResults : CustomTitlebarActivityBase() {
             } else {
                 getString(R.string.search_result_count, mSearchResultsHolder!!.size())
             }
-//            withContext(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
                 Toast.makeText(this@MySearchResults, msg, Toast.LENGTH_SHORT).show()
-//            }
+            }
             isOk = true
         } catch (e: Exception) {
             Log.e(TAG, "Error processing search query", e)
             isOk = false
             Dialogs.instance.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
-//    return@withContext isOk
-    return isOk
+    return@withContext isOk
+//    return isOk
     }
 
     /**
@@ -249,14 +254,19 @@ class MySearchResults : CustomTitlebarActivityBase() {
         val extras = intent.extras
         var searchDocument = extras!!.getString(SearchControl.SEARCH_DOCUMENT)
 
-        mSearchArrayAdapter!!.clear()
+        mSearchResultsArray!!.clear()
         bookStatistics.clear()
         wordStatistics.clear()
 
         var listIndex = 0
         for (key in mCurrentlyDisplayedSearchResults) {
 
-            // Get the text of the verse
+            // Add verse to results array
+            val verseTextElement = searchControl.getSearchResultVerseElement(key)
+            val verseTextSpannable = SearchHighlight.getSpannableText(SearchControl.originalSearchString, verseTextElement)
+            mSearchResultsArray.add(SearchResultsData(listIndex, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable!!.toHtml()))
+
+            // Add book to the book statistics array
             val bookOrdinal = ((key as Verse).book as BibleBook).ordinal
             var mBibleBook = BibleBook.values()[bookOrdinal]
             var bookNameLong = versification.getLongName(mBibleBook)  // key.rootName
@@ -267,13 +277,8 @@ class MySearchResults : CustomTitlebarActivityBase() {
                 bookStatistics.first{it.book == bookNameLong}.count += 1
             }
 
-            val verseTextElement = searchControl.getSearchResultVerseElement(key)
-            val verseTextSpannable = SearchHighlight.getSpannableText(SearchControl.originalSearchString, verseTextElement)
-
-            mSearchArrayAdapter.add(SearchResultsData(listIndex, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable!!.toHtml()))
-
+            // Add words in this verse to word statistics array
             var ss: Array<StyleSpan> = verseTextSpannable!!.getSpans(0, verseTextSpannable?.length, StyleSpan::class.java)
-
             for (i in ss.indices) {
                 if (ss[i].getStyle() === Typeface.BOLD) {
                     val start = verseTextSpannable.getSpanStart(ss[i])
@@ -293,6 +298,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
             }
             listIndex += 1
         }
+        adapter.notifyDataSetChanged()
         TAB_TITLES[0] = resources.getString(R.string.results_count, listIndex.toString())
     }
     /**
@@ -331,7 +337,7 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
                 frag = SearchResultsFragment()
                 val bundle = Bundle()
                 bundle.putString("edttext", "From Activity")
-                bundle.putParcelableArrayList("mylist", mSearchArrayAdapter)
+                bundle.putParcelableArrayList("VerseResultList", mSearchResultsArray)
                 frag.setArguments(bundle)
                 frag.searchControl = searchControl
                 frag.mVerseSearchResults = mCurrentlyDisplayedSearchResults
