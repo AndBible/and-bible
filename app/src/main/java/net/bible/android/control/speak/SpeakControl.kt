@@ -55,6 +55,7 @@ import javax.inject.Inject
 import dagger.Lazy
 import de.greenrobot.event.EventBus
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.service.device.speak.MediaButtonHandler
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -129,6 +130,7 @@ class SpeakControl @Inject constructor(
 
     init {
         ABEventBus.getDefault().register(this)
+        MediaButtonHandler.initialize(this)
     }
 
     protected fun finalize() {
