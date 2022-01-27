@@ -23,7 +23,6 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -34,9 +33,13 @@ import net.bible.service.device.speak.event.SpeakEvent
 class MediaButtonHandler(val speakControl: SpeakControl) {
     companion object {
         const val TAG = "MediaButtons"
-        lateinit var handler: MediaButtonHandler
+        var handler: MediaButtonHandler? = null
         fun initialize(speakControl: SpeakControl) {
             handler = MediaButtonHandler(speakControl)
+        }
+        fun release() {
+            handler?.release()
+            handler = null
         }
     }
 
@@ -102,7 +105,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
 
         // Hack to make media button listening work!
         // https://stackoverflow.com/questions/45960265/android-o-oreo-8-and-higher-media-buttons-issue
-        MediaPlayer.create(application, R.raw.silence).run {
+        MediaPlayer.create(application, R.raw.silence)?.run {
             setOnCompletionListener { release() }
             start()
         }
@@ -122,6 +125,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
     }
 
     fun release() {
+        ABEventBus.getDefault().unregister(this)
         ms.run {
             isActive = false
             release()
