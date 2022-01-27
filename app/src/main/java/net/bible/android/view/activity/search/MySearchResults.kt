@@ -47,7 +47,6 @@ private var TAB_TITLES = arrayOf(
     resources.getString(R.string.by_book),
     resources.getString(R.string.by_word)
 )
-val mSearchResultsArray = ArrayList<SearchResultsData>()
 private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
 private val bookStatistics = mutableListOf<BookStat>()
 private val wordStatistics = mutableListOf<WordStat>()
@@ -127,12 +126,10 @@ class SearchResultsData : Parcelable {
 }
 
 class MySearchResults : CustomTitlebarActivityBase() {
-//    private lateinit var binding: ListBinding
     private lateinit var binding: SearchResultsStatisticsBinding
     private var mSearchResultsHolder: SearchResultsDto? = null
 
-    /*  mKeyArrayAdapter is replaced by mSearchResultsArray */
-//    private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
+    val mSearchResultsArray = ArrayList<SearchResultsData>()
 
     @Inject lateinit var navigationControl: NavigationControl
     private var isScriptureResultsCurrentlyShown = true
@@ -158,10 +155,10 @@ class MySearchResults : CustomTitlebarActivityBase() {
         val bundle = Bundle()
         bundle.putString("edttext", "From Activity")
 
-        val fragobj = SearchResultsFragment()
-        fragobj.setArguments(bundle)
+//        val fragobj = SearchResultsFragment(mSearchResultsArray)
+//        fragobj.setArguments(bundle)
 
-        val sectionsPagerAdapter = SearchResultsPagerAdapter(this, supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent)
+        val sectionsPagerAdapter = SearchResultsPagerAdapter(this, supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent, mSearchResultsArray)
         val viewPager: ViewPager = binding.viewPager
         viewPager.adapter = sectionsPagerAdapter
         viewPager.offscreenPageLimit = 2    // The progressbar on the 3rd tab goes to zero when the view is lost. So just keep it in memory and all is fine. It is not a big view so i think it is ok.
@@ -178,12 +175,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
 //            finish()
 //        }
 
-/*      The GlobalScope code almost works fine. Only trouble is that the search results are delayed by one search.
-        That is, the first time the search is done no results are shown. The second time, the results from the previous
-        search are shown and so on. I believe it is because the Fragment manager is not hooked into the scope so it is
-        processed immediately and doesn't  wait for the code inside the scope to complete. But i don't know how to fix
-        that problem.
-*/
+
         GlobalScope.launch {
             prepareResults()
         }
@@ -238,7 +230,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
             Dialogs.instance.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
     return@withContext isOk
-//    return isOk
     }
 
     /**
@@ -321,7 +312,8 @@ class MySearchResults : CustomTitlebarActivityBase() {
 class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManager,
                                 searchControl: SearchControl,
                                 activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
-                                intent: Intent
+                                intent: Intent,
+                                val mSearchResultsArray:ArrayList<SearchResultsData>
 ) :
     FragmentPagerAdapter(fm) {
     val searchControl = searchControl
@@ -334,7 +326,7 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
         var frag: Fragment
         when (position) {
             0 -> {
-                frag = SearchResultsFragment()
+                frag = SearchResultsFragment(mSearchResultsArray)
                 val bundle = Bundle()
                 bundle.putString("edttext", "From Activity")
                 bundle.putParcelableArrayList("VerseResultList", mSearchResultsArray)

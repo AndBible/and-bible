@@ -95,7 +95,7 @@ private fun setResultsAdapter(resultsArray:ArrayList<SearchResultsData>, activit
         displayedResultsArray as java.util.ArrayList<SearchResultsData>?
     )
 }
-class SearchResultsFragment : Fragment() {
+class SearchResultsFragment(val mSearchResultsArray:ArrayList<SearchResultsData>) : Fragment() {
 
 //    private lateinit var langArrayAdapter: ArrayAdapter<SearchResultsData>
     private var _binding: SearchResultsStatisticsFragmentVerseBinding? = null
@@ -117,10 +117,6 @@ class SearchResultsFragment : Fragment() {
 
         _binding = SearchResultsStatisticsFragmentVerseBinding.inflate(inflater, container, false)
         val root = binding.root
-
-//        searchResultsArray = requireArguments().getParcelableArrayList("VerseResultList")!!
-//        searchResultsArray = mSearchResultsArray
-//        val customAdapter = SearchResultsAdapter(activity, android.R.layout.simple_list_item_2, searchResultsArray)
 
         val resultList: ListView = binding.searchResultsList
 
