@@ -104,7 +104,6 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
 
     init {
         ABEventBus.getDefault().register(this)
-        makeTriggerSound()
     }
 
     private fun makeTriggerSound() {
@@ -131,7 +130,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
     }
 
     fun onEvent(event: AppToBackgroundEvent) {
-        if(event.newPosition == AppToBackgroundEvent.Position.FOREGROUND) {
+        if(event.newPosition == AppToBackgroundEvent.Position.FOREGROUND && speakControl.isSpeaking) {
             makeTriggerSound()
         }
     }
