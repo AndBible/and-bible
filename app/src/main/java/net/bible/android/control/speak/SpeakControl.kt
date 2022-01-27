@@ -139,6 +139,7 @@ class SpeakControl @Inject constructor(
         if(sleepTimer.isInitialized()) {
             sleepTimer.value.cancel()
         }
+        MediaButtonHandler.release()
     }
 
     fun onEventMainThread(event: SpeakProgressEvent) {
