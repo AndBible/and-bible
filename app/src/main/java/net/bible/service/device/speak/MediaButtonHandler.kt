@@ -26,6 +26,7 @@ import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.device.speak.event.SpeakEvent
@@ -45,9 +46,10 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
 
     private val state: PlaybackStateCompat = PlaybackStateCompat.Builder()
         .setActions(
-            PlaybackStateCompat.ACTION_PLAY_PAUSE or PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PAUSE or PlaybackStateCompat.ACTION_STOP or
-                PlaybackStateCompat.ACTION_SKIP_TO_NEXT or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
-                PlaybackStateCompat.ACTION_FAST_FORWARD or PlaybackStateCompat.ACTION_REWIND
+            PlaybackStateCompat.ACTION_PLAY_PAUSE or PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PAUSE
+                or PlaybackStateCompat.ACTION_STOP or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or PlaybackStateCompat.ACTION_FAST_FORWARD
+                or PlaybackStateCompat.ACTION_REWIND
         )
         .setState(PlaybackStateCompat.STATE_STOPPED, 0, 1f)
         .build()
@@ -102,7 +104,10 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
 
     init {
         ABEventBus.getDefault().register(this)
+        makeTriggerSound()
+    }
 
+    private fun makeTriggerSound() {
         // Hack to make media button listening work!
         // https://stackoverflow.com/questions/45960265/android-o-oreo-8-and-higher-media-buttons-issue
         MediaPlayer.create(application, R.raw.silence)?.run {
@@ -121,6 +126,13 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
             event.isPaused -> setState(PlaybackStateCompat.STATE_PAUSED)
             event.isStopped -> setState(PlaybackStateCompat.STATE_STOPPED)
             event.isSpeaking -> setState(PlaybackStateCompat.STATE_PLAYING)
+        }
+        makeTriggerSound()
+    }
+
+    fun onEvent(event: AppToBackgroundEvent) {
+        if(event.newPosition == AppToBackgroundEvent.Position.FOREGROUND) {
+            makeTriggerSound()
         }
     }
 
