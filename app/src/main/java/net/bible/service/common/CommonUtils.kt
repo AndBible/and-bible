@@ -889,6 +889,9 @@ object CommonUtils : CommonUtilsBase() {
 
     fun initializeApp() {
         if(!initialized) {
+            val pid = android.os.Process.myPid()
+            Runtime.getRuntime().exec("logcat -P '$pid'").waitFor()
+
             DatabaseContainer.ready = true
             DatabaseContainer.db
 
