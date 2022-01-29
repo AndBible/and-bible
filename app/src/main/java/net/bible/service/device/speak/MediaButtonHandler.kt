@@ -35,6 +35,7 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
+import net.bible.service.device.speak.event.SpeakProgressEvent
 
 class AndBibleMediaButtonReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -147,6 +148,15 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
         if(event.newPosition == AppToBackgroundEvent.Position.FOREGROUND && speakControl.isSpeaking) {
             makeTriggerSound()
         }
+    }
+
+    fun onEventMainThread(ev: SpeakProgressEvent) {
+        ms.setMetadata(
+            MediaMetadataCompat.Builder(nothingPlaying)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, ev.book.name)
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, ev.key.name)
+                .build()
+        )
     }
 
     fun release() {
