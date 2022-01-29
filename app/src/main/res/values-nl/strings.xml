@@ -170,7 +170,7 @@
   <string name="prefs_font_text_size_summary">Pas de lettergrootte van de tekst aan</string>
   <string name="pref_font_family_label_name">Lettersoort (%s)</string>
   <string name="prefs_font_family_summary">Wijzig de lettersoort. Tip: Meer lettertypes kunnen geinstalleerd worden via Documenten downloaden / Uitbreidingen.</string>
-  <string name="prefs_text_bookmarks_title">Bookmark &amp; Mijn notities instellingen</string>
+  <string name="prefs_text_bookmarks_title">Instellingen voor Bladwijzers &amp; Mijn notities</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleurinstellingen</string>
   <string name="window_color_settings_title">Instellingen voor schermkleur.</string>
@@ -280,12 +280,12 @@ Leesplan is gebaseerd op de chronologische volgorde van gebeurtenissen in de bij
 De chronologische tijdlijn is bij benadering.</string>
   <string name="plan_name_y1ot1nt1_OTandNT">1 jaar OT+NT tegelijk</string>
   <string name="plan_description_y1ot1nt1_OTandNT">
-Lees de bijbel in 1 jaar, met hoofdstukken
-uit de OT en NT elke dag.</string>
+Lees de bijbel in 1 jaar, met elke dag hoofdstukken
+uit het OT en NT.</string>
   <string name="plan_name_y1ot1nt1_OTthenNT">1 jaar door de bijbel</string>
   <string name="plan_description_y1ot1nt1_OTthenNT">
 Lees de bijbel in 1 jaar, begin vanaf Genesis
-en eindig in Openbaring. De OT is als eerst en daarna NT.</string>
+en eindig in Openbaring. Eerst het OT en daarna het NT.</string>
   <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 jaar 4 hoofdstukken per dag</string>
   <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10 hoofdstukken per dag Leesplan</string>
   <string name="plan_name_y2ot1ntps2">2 jaar door de bijbel, NT+Psalmen twee keer</string>
@@ -327,7 +327,7 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="add_bookmark_whole_verse2">Volledige verzen</string>
   <string name="remove_bookmark">Verwijderen</string>
   <string name="bookmark_settings_hide_labels_title">Verberg specifieke labels</string>
-  <string name="bookmark_settings_hide_labels_summary">Verberg bladwijzers met gemarkeerde specifieke label(s)</string>
+  <string name="bookmark_settings_hide_labels_summary">Verberg bladwijzers die gemarkeerd zijn met specifieke labels</string>
   <string name="auto_assign_labels_title">Labelinstellingen</string>
   <string name="auto_assign_labels">Auto-toewijzen &amp; Favoriete labels</string>
   <string name="auto_assign_labels1">Auto toewijzen label aan nieuwe bladwijzers</string>
@@ -415,10 +415,17 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="assing_labels_help4">Tik op %s om het label toe te voegen aan uw lijst met favorieten voor snelle toegang.</string>
   <!--param is refresh icon-->
   <string name="assing_labels_help5">Tik op %s om de lijst opnieuw te sorteren op basis van uw selectie.</string>
-  <string name="workspace_text_options_help_title">werkblad tekst opties</string>
+  <string name="workspace_text_options_help_title">Werkblad-tekstopties</string>
+  <string name="workspace_text_options_help1">Deze instellingen bepalen de standaard voor alle vensters in het werkblad.</string>
+  <string name="workspace_text_options_help2">U kunt deze instellingen aanpassen in de individuele vensterinstellingen.</string>
+  <string name="window_text_options_help_title">Venstertekstopties </string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s geeft aan dat de instellingen vanuit de werkbladinstellingen overgenomen is.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s geeft aan dat deze instelling is aangepast voor dit specifieke venster.</string>
+  <string name="window_text_options_help3">De werkblad-instellingen hebben geen effect op dit venster.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Gebruik de knop %s om de instellingen terug te zetten naar %s.</string>
   <string name="reset_defaults">standaardwaarden</string>
   <string name="reset_workspace_defaults">standaardwaarden voor werkblad</string>
   <string name="speak_bookmark_help">Hulp bij voorleesbladwijzers</string>
@@ -483,6 +490,7 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="reading_plans_plural">Leesplannen</string>
   <string name="loading_backup">Database aan het laden vanuit backup...</string>
   <string name="backup_email_subject_2">%sdatabase backup</string>
+  <string name="backup_phone_storage">Telefoonopslag</string>
   <string name="backup_backup_title">Waar backup opslaan?</string>
   <string name="backup_share">Delen</string>
   <!--About-->
@@ -616,7 +624,7 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="tell_friend_message1">Graag wil ik %s bij je aanbevelen.</string>
   <string name="share_verse_ok">Deel / Kopieer</string>
   <string name="verse_action_copy">Kopiëren</string>
-  <string name="share_verse_menu_title">Deel / Kopieer</string>
+  <string name="share_verse_menu_title">Deel / Kopieer...</string>
   <string name="show_versenumbers">Versnummering laten zien</string>
   <string name="show_full_verses">Volledige verzen laten zien</string>
   <string name="advertise_app">App vermelden</string>
@@ -712,6 +720,5 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="strongs_links">Links</string>
   <string name="strongs_text_and_links">Tekst en links</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <string name="permission_required">Rechten nodig</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Permissie nodig</string>
 </resources>

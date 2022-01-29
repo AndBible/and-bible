@@ -776,6 +776,4 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="verse_tip">Valitaksesi osittaisia tai useita jakeita, napauta pitkään Raamatun tekstiä</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Lupa tarvitaan</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <string name="phone_call_permission_rationale">Lupa lukea puhelimen tila tarvitaan jotta sovellus voi automaattisesti keskeyttää raamatun kuuntelun silloin kun vastaanotat puhelun.</string>
 </resources>
