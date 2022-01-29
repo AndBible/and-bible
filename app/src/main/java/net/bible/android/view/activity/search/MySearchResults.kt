@@ -53,6 +53,18 @@ const val verseTabPosition = 0
 private const val bookTabPosition = 1
 private const val wordTabPosition = 2
 
+class MyTimer(val name:String){
+    var startTime = System.nanoTime()
+    var totalTime:Long = 0
+
+    fun start() {startTime = System.nanoTime()}
+    fun stop() {totalTime += System.nanoTime() - startTime}
+    fun log() {
+        Log.e("MyTimer", name + ": " + (totalTime/1000000) + "mS\n")
+    }
+}
+private val totalTime = MyTimer("Total Time")
+
 class BookStat(val book: String, var count: Int,
                val bookInitials: String,
                val bookOrdinal:Int,
@@ -160,6 +172,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search results view")
+        totalTime.start()
 
         binding = SearchResultsStatisticsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -238,7 +251,14 @@ class MySearchResults : CustomTitlebarActivityBase() {
     /**
      * Move search results into view Adapter
      */
+
     private fun populateViewResultsAdapter() {
+
+        val populateViewResultsAdapterTimer = MyTimer("populateViewResultsAdapterTimer Time")
+        val verseTextElementTimer = MyTimer("verseTextElement")
+        val verseTextSpannableTimer = MyTimer("SearchHighlight")
+        val bookStatsTimer = MyTimer("Book Stats")
+        val wordStatsTimer = MyTimer("Word Stats")
 
         mCurrentlyDisplayedSearchResults = if (isScriptureResultsCurrentlyShown) {
             mSearchResultsHolder!!.mainSearchResults
@@ -257,11 +277,18 @@ class MySearchResults : CustomTitlebarActivityBase() {
         for (key in mCurrentlyDisplayedSearchResults) {
 
             // Add verse to results array
+            verseTextElementTimer.start()
             val verseTextElement = searchControl.getSearchResultVerseElement(key)
+            verseTextElementTimer.stop()
+
+            verseTextSpannableTimer.start()
             val verseTextSpannable = SearchHighlight.getSpannableText(SearchControl.originalSearchString, verseTextElement)
+            verseTextSpannableTimer.stop()
+
             mSearchResultsArray.add(SearchResultsData(listIndex, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable!!.toHtml()))
 
             // Add book to the book statistics array
+            bookStatsTimer.start()
             val bookOrdinal = ((key as Verse).book as BibleBook).ordinal
             var mBibleBook = BibleBook.values()[bookOrdinal]
             var bookNameLong = versification.getLongName(mBibleBook)  // key.rootName
@@ -271,8 +298,10 @@ class MySearchResults : CustomTitlebarActivityBase() {
             } else {
                 bookStatistics.first{it.book == bookNameLong}.count += 1
             }
+            bookStatsTimer.stop()
 
             // Add words in this verse to word statistics array
+            wordStatsTimer.start()
             var verseSpans: Array<StyleSpan> = verseTextSpannable!!.getSpans(0, verseTextSpannable?.length, StyleSpan::class.java)
             for (i in verseSpans.indices) {
                 if (verseSpans[i].getStyle() === Typeface.BOLD) {
@@ -292,6 +321,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
                     }
                 }
             }
+            wordStatsTimer.stop()
             listIndex += 1
         }
         sectionsPagerAdapter.verseListFrag.arrayAdapter.notifyDataSetChanged()
@@ -303,6 +333,15 @@ class MySearchResults : CustomTitlebarActivityBase() {
         tabHost.getTabAt(verseTabPosition)!!.text = CommonUtils.resources.getString(R.string.verse_count, mSearchResultsArray.count().toString())  // For some reason the value set in 'setResultsAdapter' get's cleared so I need to do it here as well.
         tabHost.getTabAt(bookTabPosition)!!.text = CommonUtils.resources.getString(R.string.book_count, bookStatistics.count().toString())
         tabHost.getTabAt(wordTabPosition)!!.text = CommonUtils.resources.getString(R.string.word_count, totalWords.toString())
+
+        populateViewResultsAdapterTimer.stop()
+        populateViewResultsAdapterTimer.log()
+        verseTextElementTimer.log()             // 'God' 514ms
+        verseTextSpannableTimer.log()           // 'God' 866ms
+        bookStatsTimer.log()                    // Negligible
+        wordStatsTimer.log()
+        totalTime.stop()
+        totalTime.log()
     }
     /**
      * Handle scripture/Appendix toggle
