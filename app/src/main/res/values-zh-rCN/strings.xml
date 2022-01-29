@@ -838,5 +838,4 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="strongs_text_and_links">文字及连结</string>
   <string name="verse_tip">长按以选择部份或多节经文</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

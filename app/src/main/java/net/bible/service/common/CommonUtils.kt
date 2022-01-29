@@ -889,6 +889,13 @@ object CommonUtils : CommonUtilsBase() {
 
     fun initializeApp() {
         if(!initialized) {
+            try {
+                val pid = android.os.Process.myPid()
+                Runtime.getRuntime().exec("logcat -P '$pid'").waitFor()
+            } catch (e: Exception) {
+                Log.w(TAG, "Logcat could not be run")
+            }
+
             DatabaseContainer.ready = true
             DatabaseContainer.db
 
