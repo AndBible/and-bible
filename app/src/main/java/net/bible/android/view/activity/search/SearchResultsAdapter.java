@@ -3,6 +3,7 @@ package net.bible.android.view.activity.search;
 import android.content.Context;
 import android.text.Html;
 import android.text.SpannableString;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,9 +32,15 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResultsData> {
 		this.context=_context;
 	}
 
+	private void scaleTextView(TextView textView, Float scale) {
+		if (textView.getTag()==null) textView.setTag(Float.valueOf(textView.getTextSize()));
+		textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, (Float) textView.getTag() * scale);
+	}
+
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		SearchResultsData resultData=arrayList.get(position);
+		Float scaleText = 1.2F; // TODO: I would like to add an application preference that allows the user to set the size of their results list
 		if(convertView==null) {
 
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -41,9 +48,11 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResultsData> {
 
 			TextView reference=convertView.findViewById(R.id.reference);
 			reference.setText(resultData.reference);
+			scaleTextView(reference, scaleText);
 
 			TextView translation=convertView.findViewById(R.id.translation);
 			translation.setText(resultData.translation);
+			scaleTextView(translation, scaleText);
 
 			// Get the text of the verse
 			Book book = Books.installed().getBook(resultData.translation);
@@ -62,6 +71,7 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResultsData> {
 
 				TextView verse=convertView.findViewById(R.id.verse);
 				verse.setText(verseTextHtml);
+				scaleTextView(verse, scaleText);
 
 			} catch (NoSuchKeyException e) {
 				e.printStackTrace();
