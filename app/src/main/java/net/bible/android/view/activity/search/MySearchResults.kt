@@ -17,6 +17,8 @@ import com.google.android.material.tabs.TabLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentTransaction
+import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -48,7 +50,7 @@ private var TAB_TITLES = arrayOf(
     resources.getString(R.string.by_word)
 )
 private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
-private val bookStatistics = mutableListOf<BookStat>()
+//private val bookStatistics = mutableListOf<BookStat>()
 private val wordStatistics = mutableListOf<WordStat>()
 
 class BookStat(val book: String, var count: Int,
@@ -128,8 +130,9 @@ class SearchResultsData : Parcelable {
 class MySearchResults : CustomTitlebarActivityBase() {
     private lateinit var binding: SearchResultsStatisticsBinding
     private var mSearchResultsHolder: SearchResultsDto? = null
-
+    private lateinit var sectionsPagerAdapter: SearchResultsPagerAdapter
     val mSearchResultsArray = ArrayList<SearchResultsData>()
+    private val bookStatistics = mutableListOf<BookStat>()
 
     @Inject lateinit var navigationControl: NavigationControl
     private var isScriptureResultsCurrentlyShown = true
@@ -158,7 +161,9 @@ class MySearchResults : CustomTitlebarActivityBase() {
 //        val fragobj = SearchResultsFragment(mSearchResultsArray)
 //        fragobj.setArguments(bundle)
 
-        val sectionsPagerAdapter = SearchResultsPagerAdapter(this, supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent, mSearchResultsArray)
+        sectionsPagerAdapter = SearchResultsPagerAdapter(this,
+                                                                supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent,
+                                                                mSearchResultsArray, bookStatistics)
         val viewPager: ViewPager = binding.viewPager
         viewPager.adapter = sectionsPagerAdapter
         viewPager.offscreenPageLimit = 2    // The progressbar on the 3rd tab goes to zero when the view is lost. So just keep it in memory and all is fine. It is not a big view so i think it is ok.
@@ -290,6 +295,10 @@ class MySearchResults : CustomTitlebarActivityBase() {
             listIndex += 1
         }
         adapter.notifyDataSetChanged()
+
+        sectionsPagerAdapter.getItem(1)
+        sectionsPagerAdapter.notifyDataSetChanged()
+
         TAB_TITLES[0] = resources.getString(R.string.results_count, listIndex.toString())
     }
     /**
@@ -313,12 +322,14 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
                                 searchControl: SearchControl,
                                 activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
                                 intent: Intent,
-                                val mSearchResultsArray:ArrayList<SearchResultsData>
+                                val mSearchResultsArray:ArrayList<SearchResultsData>,
+                                val bookStatistics: MutableList<BookStat>
 ) :
     FragmentPagerAdapter(fm) {
     val searchControl = searchControl
     val activeWindowPageManagerProvider = activeWindowPageManagerProvider
     val intent = intent
+    lateinit var bookStatisticsFrag: Fragment
 
     override fun getItem(position: Int): Fragment {
         // getItem is called to instantiate the fragment for the given page.
@@ -339,6 +350,7 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
             1-> {
                 frag = SearchBookStatisticsFragment()
                 frag.bookStatistics = bookStatistics
+                bookStatisticsFrag = frag
             }
             2-> {
                 frag = SearchWordStatisticsFragment()
@@ -350,6 +362,9 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
         return frag
     }
 
+    override fun getItemPosition(`object`: Any): Int {
+        return POSITION_NONE
+    }
     override fun getPageTitle(position: Int): CharSequence? {
         return TAB_TITLES[position]
     }
@@ -358,4 +373,5 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
         // Show 2 total pages.
         return 3
     }
+
 }
