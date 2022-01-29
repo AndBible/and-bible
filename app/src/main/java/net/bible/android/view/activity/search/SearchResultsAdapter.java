@@ -1,12 +1,9 @@
 package net.bible.android.view.activity.search;
 
 import android.content.Context;
-import android.database.DataSetObserver;
-import android.graphics.Typeface;
 import android.text.Html;
-import android.text.Spannable;
 import android.text.SpannableString;
-import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,21 +11,13 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.search.SearchControl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
-import org.jdom2.Element;
-import org.jdom2.Text;
 
 public class SearchResultsAdapter extends ArrayAdapter<SearchResultsData> {
 
@@ -43,19 +32,27 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResultsData> {
 		this.context=_context;
 	}
 
+	private void scaleTextView(TextView textView, Float scale) {
+		if (textView.getTag()==null) textView.setTag(Float.valueOf(textView.getTextSize()));
+		textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, (Float) textView.getTag() * scale);
+	}
+
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		SearchResultsData resultData=arrayList.get(position);
+		Float scaleText = 1.2F; // TODO: I would like to add an application preference that allows the user to set the size of their results list
 		if(convertView==null) {
 
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView=inflater.inflate(R.layout.search_results_list_row, null);
+			convertView=inflater.inflate(R.layout.search_results_statistics_row_verse, null);
 
 			TextView reference=convertView.findViewById(R.id.reference);
 			reference.setText(resultData.reference);
+			scaleTextView(reference, scaleText);
 
 			TextView translation=convertView.findViewById(R.id.translation);
 			translation.setText(resultData.translation);
+			scaleTextView(translation, scaleText);
 
 			// Get the text of the verse
 			Book book = Books.installed().getBook(resultData.translation);
@@ -74,6 +71,7 @@ public class SearchResultsAdapter extends ArrayAdapter<SearchResultsData> {
 
 				TextView verse=convertView.findViewById(R.id.verse);
 				verse.setText(verseTextHtml);
+				scaleTextView(verse, scaleText);
 
 			} catch (NoSuchKeyException e) {
 				e.printStackTrace();

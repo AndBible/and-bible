@@ -39,8 +39,8 @@ class SearchHighlight {
                     // Check for highlighted consecutive words and merge them into a single highlighted phrase. Some translations will indicate multiple
                     // consecutive lemma spans with the same strongs number when in fact all spans represent the single original language word.
                     // This messes with the search statistics as it uses the bolded words to tally search hits by word.
-
-                    var verseStringLength = 0;
+                    // TODO: This is slow! Adds 5secs or so for a search on 'God'
+                    var verseStringLength = 0
                     while (verseStringLength != verseString?.length) {
                         verseStringLength = verseString!!.length
                         // This pattern matches two consecutive <b> tag spans separate only by white space and replaces them with a single <b> tag.

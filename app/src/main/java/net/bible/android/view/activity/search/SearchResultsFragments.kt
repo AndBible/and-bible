@@ -1,7 +1,6 @@
 package net.bible.android.view.activity.search
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -9,20 +8,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import android.widget.ListView
 import android.widget.ProgressBar
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.view.allViews
 import com.google.android.material.tabs.TabLayout
-import net.bible.android.activity.databinding.SearchResultsVerseFragmentBinding
+import net.bible.android.activity.databinding.SearchResultsStatisticsFragmentVerseBinding
 import net.bible.android.activity.R
-import net.bible.android.activity.databinding.SearchResultsStatisticsFragmentBinding
-import net.bible.android.activity.databinding.SearchResultsStatisticsRowBinding
+import net.bible.android.activity.databinding.SearchResultsStatisticsFragmentByBinding
+import net.bible.android.activity.databinding.SearchResultsStatisticsRowByBookBinding
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -31,15 +29,15 @@ import org.crosswire.jsword.passage.Key
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordDocumentFacade
+import org.crosswire.common.util.Language
 
-private lateinit var searchResultsArray: ArrayList<SearchResultsData>
 private lateinit var displayedResultsArray: ArrayList<SearchResultsData>
 private var isSearchResultsFiltered = false
 
 class PlaceholderFragment: Fragment() {
 
     //    private lateinit var pageViewModel: PageViewModel
-    private var _binding: SearchResultsVerseFragmentBinding? = null
+    private var _binding: SearchResultsStatisticsFragmentVerseBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -54,7 +52,7 @@ class PlaceholderFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        _binding = SearchResultsVerseFragmentBinding.inflate(inflater, container, false)
+        _binding = SearchResultsStatisticsFragmentVerseBinding.inflate(inflater, container, false)
         val root = binding.root
 
         return root
@@ -88,42 +86,39 @@ class PlaceholderFragment: Fragment() {
 }
 
 private fun setResultsAdapter(resultsArray:ArrayList<SearchResultsData>, activity: Activity): SearchResultsAdapter {
-    displayedResultsArray = resultsArray
+    // This function is called from both the SearchResultsFragment and the SearchWordStatistics (for filtering)
+
+    // The count needs to be set here because it can be changed when filtering the list by word
     val tabhost = activity.findViewById<View>(R.id.tabs) as TabLayout
-    tabhost.getTabAt(0)!!.text = CommonUtils.resources.getString(R.string.verse_count, displayedResultsArray.count().toString())
+    val verseCount = if(resultsArray.count()==0) "" else resultsArray.count().toString()
+    tabhost.getTabAt(verseTabPosition)!!.text = CommonUtils.resources.getString(R.string.verse_count, verseCount)
+
+    displayedResultsArray = resultsArray
     return SearchResultsAdapter(activity, android.R.layout.simple_list_item_2,
         displayedResultsArray as java.util.ArrayList<SearchResultsData>?
     )
 }
-class SearchResultsFragment : Fragment() {
-
-    private var _binding: SearchResultsVerseFragmentBinding? = null
+class SearchResultsFragment(val mSearchResultsArray:ArrayList<SearchResultsData>) : Fragment() {
+    private var _binding: SearchResultsStatisticsFragmentVerseBinding? = null
     private val binding get() = _binding!!
+    lateinit var arrayAdapter: ArrayAdapter<SearchResultsData>
 
-    var mVerseSearchResults: List<Key> = java.util.ArrayList()
     var searchControl: SearchControl? = null
     lateinit var intent: Intent
     lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        _binding = SearchResultsVerseFragmentBinding.inflate(inflater, container, false)
+        _binding = SearchResultsStatisticsFragmentVerseBinding.inflate(inflater, container, false)
         val root = binding.root
 
-        searchResultsArray = requireArguments().getParcelableArrayList("mylist")!!
-
-//        val customAdapter = SearchResultsAdapter(activity, android.R.layout.simple_list_item_2, searchResultsArray)
-
         val resultList: ListView = binding.searchResultsList
-        resultList.adapter = setResultsAdapter(searchResultsArray, requireActivity())
+
+        arrayAdapter = setResultsAdapter(mSearchResultsArray, requireActivity())
+        resultList.adapter = arrayAdapter
         resultList.descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS;
         resultList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         resultList.isVerticalScrollBarEnabled = false
@@ -131,7 +126,8 @@ class SearchResultsFragment : Fragment() {
         resultList.setOnItemClickListener { parent, view, position, id ->
             Toast.makeText(resultList.context, "Hi",Toast.LENGTH_LONG)
             try { // no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
-                verseSelected(mVerseSearchResults[displayedResultsArray[position].id!!])
+                verseSelected(mCurrentlyDisplayedSearchResults[displayedResultsArray[position].id!!])
+//                verseSelected(mCurrentlyDisplayedSearchResults[displayedResultsArray[position].id!!])
             } catch (e: Exception) {
                 Log.e("blah", "Selection error", e)
                 Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
@@ -159,27 +155,6 @@ class SearchResultsFragment : Fragment() {
         }
     }
 
-    companion object {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private const val ARG_SECTION_NUMBER = "section_number"
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        @JvmStatic
-        fun newInstance(sectionNumber: Int): SearchResultsFragment {
-            return SearchResultsFragment().apply {
-//                arguments = Bundle().apply {
-//                    putInt(ARG_SECTION_NUMBER, sectionNumber)
-//                }
-            }
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -187,18 +162,19 @@ class SearchResultsFragment : Fragment() {
 }
 
 class SearchBookStatisticsFragment : Fragment() {
-    private var _binding: SearchResultsStatisticsFragmentBinding? = null
+    private var _binding: SearchResultsStatisticsFragmentByBinding? = null
 
     private val binding get() = _binding!!
     var bookStatistics = mutableListOf<BookStat>()
+     lateinit var searchResultsArray: ArrayList<SearchResultsData>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        _binding = SearchResultsStatisticsFragmentBinding.inflate(inflater, container, false)
-        var rowBinding = SearchResultsStatisticsRowBinding.inflate(inflater, container, false)
+        _binding = SearchResultsStatisticsFragmentByBinding.inflate(inflater, container, false)
+//        var rowBinding = SearchResultsStatisticsRowByBookBinding.inflate(inflater, container, false)
         val root = binding.root
 
         val statisticsLayout = binding.statisticsLayout
@@ -208,7 +184,7 @@ class SearchBookStatisticsFragment : Fragment() {
         bookStatistics.map {
 
             val statsRow: View = inflater.inflate(
-                R.layout.search_results_statistics_row,
+                R.layout.search_results_statistics_row_by_book,
                 statisticsLayout, false
             )
             var button = statsRow.findViewById<Button>(R.id.searchStatisticsBookButton)
@@ -242,36 +218,22 @@ class SearchBookStatisticsFragment : Fragment() {
         return root
     }
 
-//    companion object {
-//        /**
-//         * Use this factory method to create a new instance of
-//         * this fragment using the provided parameters.
-//         *
-//         * @param param1 Parameter 1.
-//         * @param param2 Parameter 2.
-//         * @return A new instance of fragment SearchStatisticsFragment.
-//         */
-//        // TODO: Rename and change types and number of parameters
-//        @JvmStatic
-//        fun newInstance() =
-//            SearchStatisticsFragment().apply {
-//                arguments = Bundle().apply {
-////                    putString(ARG_PARAM1, param1)
-////                    putString(ARG_PARAM2, param2)
-//                }
-//            }
-//    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
 
-class SearchWordStatisticsFragment : Fragment() {
-    private var _binding: SearchResultsStatisticsFragmentBinding? = null
+class SearchWordStatisticsFragment() : Fragment() {
+    var wordStatistics = mutableListOf<WordStat>()
+    var searchResultsArray = arrayListOf<SearchResultsData>()
 
+    private var _binding: SearchResultsStatisticsFragmentByBinding? = null
     private val binding get() = _binding!!
     private lateinit var inflater: LayoutInflater
+    private lateinit var statsRow: View
 
-    var wordStatistics = mutableListOf<WordStat>()
-
-    class CustomOnClickListener(val resultIndexes: IntArray, val activity:Activity) : View.OnClickListener {
+    class CustomOnClickListener(val resultIndexes: IntArray, val activity:Activity, val searchResultsArray:ArrayList<SearchResultsData>) : View.OnClickListener {
         override fun onClick(v: View?) {
             isSearchResultsFiltered = true
             val tabhost = activity.findViewById<View>(R.id.tabs) as TabLayout
@@ -288,14 +250,13 @@ class SearchWordStatisticsFragment : Fragment() {
         var showKeyWordsCheckBox = activity?.findViewById<Button>(R.id.show_key_word_only)
         val statisticsLayout = binding.statisticsLayout
 
-//        if (statisticsLayout.allViews.count() > 2) statisticsLayout.removeViews(3,statisticsLayout.allViews.count()-3)
         statisticsLayout.removeAllViews()
         val sortedWordStatistics = wordStatistics.sortedBy { it.word }
         val maxCount: Int = sortedWordStatistics.maxOfOrNull { it.verseIndexes.count() } ?: 0
         sortedWordStatistics.map {
 
             val statsRow: View = inflater.inflate(
-                R.layout.search_results_word_statistics_row,
+                R.layout.search_results_statistics_row_by_word,
                 statisticsLayout, false
             )
             var button = statsRow.findViewById<Button>(R.id.searchStatisticsWordButton)
@@ -305,34 +266,38 @@ class SearchWordStatisticsFragment : Fragment() {
             var progressBar = statsRow.findViewById<ProgressBar>(R.id.searchStatisticsWordCountProgress)
             progressBar.max = maxCount
             progressBar.progress = it.verseIndexes.count()
-            statsRow.visibility = View.VISIBLE
-            statsRow.invalidate()
             statsRow.requestLayout()
             statisticsLayout.addView(statsRow,
                 FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             )
 
-            button.setOnClickListener(CustomOnClickListener(it.verseIndexes, requireActivity()))
+            button.setOnClickListener(CustomOnClickListener(it.verseIndexes, requireActivity(), searchResultsArray))
         }
 
     }
+
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//    }
     override fun onCreateView(
         theInflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
         inflater = theInflater
-        _binding = SearchResultsStatisticsFragmentBinding.inflate(inflater, container, false)
-        val root = binding.root
-
+        _binding = SearchResultsStatisticsFragmentByBinding.inflate(inflater, container, false)
         ConstructButtonList()
 
         var showKeyWordsCheckBox = binding.showKeyWordOnly
         showKeyWordsCheckBox.setOnClickListener {
             ConstructButtonList()
         }
+        return binding.root
+    }
 
-        return root
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
 

@@ -9,6 +9,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.text.style.StyleSpan
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.core.text.toHtml
@@ -17,7 +18,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
-import net.bible.android.activity.databinding.SearchResultsLayoutActivityBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.bible.android.activity.databinding.SearchResultsStatisticsBinding
 import java.util.ArrayList
 import net.bible.android.activity.R
 import net.bible.android.control.navigation.NavigationControl
@@ -34,17 +39,31 @@ import javax.inject.Inject
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
 import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.getBookTextColor
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.resources
 
+
 private var TAB_TITLES = arrayOf(
-    resources.getString(R.string.verse_count),
+    resources.getString(R.string.add_bookmark_whole_verse1),
     resources.getString(R.string.by_book),
     resources.getString(R.string.by_word)
 )
-private val mSearchArrayAdapter = ArrayList<SearchResultsData>()
-private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
-private val bookStatistics = mutableListOf<BookStat>()
-private val wordStatistics = mutableListOf<WordStat>()
+var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()  // I tried to make this a non-global but i had the same problem as before where the values in the variable was one behind the search. I don't know why!!
+const val verseTabPosition = 0
+private const val bookTabPosition = 1
+private const val wordTabPosition = 2
+
+class MyTimer(val name:String){
+    var startTime = System.nanoTime()
+    var totalTime:Long = 0
+
+    fun start() {startTime = System.nanoTime()}
+    fun stop() {totalTime += System.nanoTime() - startTime}
+    fun log() {
+        Log.e("MyTimer", name + ": " + (totalTime/1000000) + "mS\n")
+    }
+}
+private val totalTime = MyTimer("Total Time")
 
 class BookStat(val book: String, var count: Int,
                val bookInitials: String,
@@ -121,12 +140,12 @@ class SearchResultsData : Parcelable {
 }
 
 class MySearchResults : CustomTitlebarActivityBase() {
-//    private lateinit var binding: ListBinding
-    private lateinit var binding: SearchResultsLayoutActivityBinding
+    private lateinit var binding: SearchResultsStatisticsBinding
     private var mSearchResultsHolder: SearchResultsDto? = null
-
-    /*  mKeyArrayAdapter is replaced by mSearchArrayAdapter */
-//    private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
+    private lateinit var sectionsPagerAdapter: SearchResultsPagerAdapter
+    val mSearchResultsArray = ArrayList<SearchResultsData>()
+    private val bookStatistics = mutableListOf<BookStat>()
+    private val wordStatistics = mutableListOf<WordStat>()
 
     @Inject lateinit var navigationControl: NavigationControl
     private var isScriptureResultsCurrentlyShown = true
@@ -138,13 +157,24 @@ class MySearchResults : CustomTitlebarActivityBase() {
     private val versification: Versification
         get() = navigationControl.versification
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search results view")
+        totalTime.start()
 
-        binding = SearchResultsLayoutActivityBinding.inflate(layoutInflater)
+        binding = SearchResultsStatisticsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         buildActivityComponent().inject(this)
@@ -152,12 +182,12 @@ class MySearchResults : CustomTitlebarActivityBase() {
         val bundle = Bundle()
         bundle.putString("edttext", "From Activity")
 
-        val fragobj = SearchResultsFragment()
-        fragobj.setArguments(bundle)
-
-        val sectionsPagerAdapter = SearchResultsPagerAdapter(this, supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent)
+        sectionsPagerAdapter = SearchResultsPagerAdapter(this,
+                                                                supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent,
+                                                                mSearchResultsArray, bookStatistics, wordStatistics)
         val viewPager: ViewPager = binding.viewPager
         viewPager.adapter = sectionsPagerAdapter
+        viewPager.offscreenPageLimit = 2    // The progressbar on the 3rd tab goes to zero when the view is lost. So just keep it in memory and all is fine. It is not a big view so i think it is ok.
         val tabs: TabLayout = binding.tabs
         tabs.setupWithViewPager(viewPager)
 
@@ -166,45 +196,30 @@ class MySearchResults : CustomTitlebarActivityBase() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         isScriptureResultsCurrentlyShown = searchControl.isCurrentlyShowingScripture
 
-/*      I don't  have a close button so I don't see why this is necessary */
-//        binding.closeButton.setOnClickListener {
-//            finish()
-//        }
-
-/*      The GlobalScope code almost works fine. Only trouble is that the search results are delayed by one search.
-        That is, the first time the search is done no results are shown. The second time, the results from the previous
-        search are shown and so on. I believe it is because the Fragment manager is not hooked into the scope so it is
-        processed immediately and doesn't  wait for the code inside the scope to complete. But i don't know how to fix
-        that problem.
-*/
-//        GlobalScope.launch {
+        GlobalScope.launch {
             prepareResults()
-//        }
+        }
     }
 
-//    private suspend fun prepareResults() {
-    private fun prepareResults() {
-//        withContext(Dispatchers.Main) {
+    private suspend fun prepareResults() {
+        withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.VISIBLE
             binding.empty.visibility = View.GONE
-//        }
-        if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
-//            withContext(Dispatchers.Main) {
-//                mKeyArrayAdapter = SearchItemAdapter(this@MySearchResults, SearchResults.LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl)
-//                listAdapter = mKeyArrayAdapter as ListAdapter
-                populateViewResultsAdapter()
-//            }
         }
-//        withContext(Dispatchers.Main) {
+        if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
+            withContext(Dispatchers.Main) {
+                populateViewResultsAdapter()
+            }
+        }
+        withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.GONE
 //            if(listAdapter?.isEmpty == true) {
 //                binding.empty.visibility = View.VISIBLE
 //            }
-//        }
+        }
     }
 
-//    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) {
-    private fun fetchSearchResults(): Boolean {
+    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
         try { // get search string - passed in using extras so extras cannot be null
@@ -221,23 +236,29 @@ class MySearchResults : CustomTitlebarActivityBase() {
             } else {
                 getString(R.string.search_result_count, mSearchResultsHolder!!.size())
             }
-//            withContext(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
                 Toast.makeText(this@MySearchResults, msg, Toast.LENGTH_SHORT).show()
-//            }
+            }
             isOk = true
         } catch (e: Exception) {
             Log.e(TAG, "Error processing search query", e)
             isOk = false
             Dialogs.instance.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
-//    return@withContext isOk
-    return isOk
+    return@withContext isOk
     }
 
     /**
      * Move search results into view Adapter
      */
+
     private fun populateViewResultsAdapter() {
+
+        val populateViewResultsAdapterTimer = MyTimer("populateViewResultsAdapterTimer Time")
+        val verseTextElementTimer = MyTimer("verseTextElement")
+        val verseTextSpannableTimer = MyTimer("SearchHighlight")
+        val bookStatsTimer = MyTimer("Book Stats")
+        val wordStatsTimer = MyTimer("Word Stats")
 
         mCurrentlyDisplayedSearchResults = if (isScriptureResultsCurrentlyShown) {
             mSearchResultsHolder!!.mainSearchResults
@@ -247,14 +268,27 @@ class MySearchResults : CustomTitlebarActivityBase() {
         val extras = intent.extras
         var searchDocument = extras!!.getString(SearchControl.SEARCH_DOCUMENT)
 
-        mSearchArrayAdapter!!.clear()
+        mSearchResultsArray!!.clear()
         bookStatistics.clear()
         wordStatistics.clear()
 
         var listIndex = 0
+        var totalWords = 0
         for (key in mCurrentlyDisplayedSearchResults) {
 
-            // Get the text of the verse
+            // Add verse to results array
+            verseTextElementTimer.start()
+            val verseTextElement = searchControl.getSearchResultVerseElement(key)
+            verseTextElementTimer.stop()
+
+            verseTextSpannableTimer.start()
+            val verseTextSpannable = SearchHighlight.getSpannableText(SearchControl.originalSearchString, verseTextElement)
+            verseTextSpannableTimer.stop()
+
+            mSearchResultsArray.add(SearchResultsData(listIndex, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable!!.toHtml()))
+
+            // Add book to the book statistics array
+            bookStatsTimer.start()
             val bookOrdinal = ((key as Verse).book as BibleBook).ordinal
             var mBibleBook = BibleBook.values()[bookOrdinal]
             var bookNameLong = versification.getLongName(mBibleBook)  // key.rootName
@@ -264,18 +298,16 @@ class MySearchResults : CustomTitlebarActivityBase() {
             } else {
                 bookStatistics.first{it.book == bookNameLong}.count += 1
             }
+            bookStatsTimer.stop()
 
-            val verseTextElement = searchControl.getSearchResultVerseElement(key)
-            val verseTextSpannable = SearchHighlight.getSpannableText(SearchControl.originalSearchString, verseTextElement)
-
-            mSearchArrayAdapter.add(SearchResultsData(listIndex, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable!!.toHtml()))
-
-            var ss: Array<StyleSpan> = verseTextSpannable!!.getSpans(0, verseTextSpannable?.length, StyleSpan::class.java)
-
-            for (i in ss.indices) {
-                if (ss[i].getStyle() === Typeface.BOLD) {
-                    val start = verseTextSpannable.getSpanStart(ss[i])
-                    val end = verseTextSpannable.getSpanEnd(ss[i])
+            // Add words in this verse to word statistics array
+            wordStatsTimer.start()
+            var verseSpans: Array<StyleSpan> = verseTextSpannable!!.getSpans(0, verseTextSpannable?.length, StyleSpan::class.java)
+            for (i in verseSpans.indices) {
+                if (verseSpans[i].getStyle() === Typeface.BOLD) {
+                    totalWords += 1
+                    val start = verseTextSpannable.getSpanStart(verseSpans[i])
+                    val end = verseTextSpannable.getSpanEnd(verseSpans[i])
 
                     var wordArray = CharArray(end-start)
                     verseTextSpannable.getChars(start, end, wordArray, 0)
@@ -289,9 +321,27 @@ class MySearchResults : CustomTitlebarActivityBase() {
                     }
                 }
             }
+            wordStatsTimer.stop()
             listIndex += 1
         }
-        TAB_TITLES[0] = resources.getString(R.string.results_count, listIndex.toString())
+        sectionsPagerAdapter.verseListFrag.arrayAdapter.notifyDataSetChanged()
+        sectionsPagerAdapter.getItem(bookTabPosition)
+        sectionsPagerAdapter.getItem(wordTabPosition)
+        sectionsPagerAdapter.notifyDataSetChanged()
+
+        val tabHost = this.findViewById<View>(R.id.tabs) as TabLayout
+        tabHost.getTabAt(verseTabPosition)!!.text = CommonUtils.resources.getString(R.string.verse_count, mSearchResultsArray.count().toString())  // For some reason the value set in 'setResultsAdapter' get's cleared so I need to do it here as well.
+        tabHost.getTabAt(bookTabPosition)!!.text = CommonUtils.resources.getString(R.string.book_count, bookStatistics.count().toString())
+        tabHost.getTabAt(wordTabPosition)!!.text = CommonUtils.resources.getString(R.string.word_count, totalWords.toString())
+
+        populateViewResultsAdapterTimer.stop()
+        populateViewResultsAdapterTimer.log()
+        verseTextElementTimer.log()             // 'God' 514ms
+        verseTextSpannableTimer.log()           // 'God' 866ms
+        bookStatsTimer.log()                    // Negligible
+        wordStatsTimer.log()
+        totalTime.stop()
+        totalTime.log()
     }
     /**
      * Handle scripture/Appendix toggle
@@ -307,55 +357,68 @@ class MySearchResults : CustomTitlebarActivityBase() {
         private const val TAG = " MySearchResults"
         private const val LIST_ITEM_TYPE = android.R.layout.simple_list_item_2
     }
-
 }
 
 class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManager,
                                 searchControl: SearchControl,
                                 activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
-                                intent: Intent
+                                intent: Intent,
+                                val mSearchResultsArray:ArrayList<SearchResultsData>,
+                                val bookStatistics: MutableList<BookStat>,
+                                val wordStatistics: MutableList<WordStat>
 ) :
     FragmentPagerAdapter(fm) {
     val searchControl = searchControl
     val activeWindowPageManagerProvider = activeWindowPageManagerProvider
     val intent = intent
+    lateinit var verseListFrag: SearchResultsFragment
+//    lateinit var bookStatisticsFrag: SearchBookStatisticsFragment
 
     override fun getItem(position: Int): Fragment {
         // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
+        // This initialises the fragment but only if POSITION_NONE is returned from getItemPosition.
+        // This happens naturally when pages are moving in and out of view but not when we try to refresh.
+        // The individual fragment code gets called twice - first with no data to display and then with the correct data.
+        // This is because the page is shown in the GlobalScope in order to allow us to show a progress indicator.
         var frag: Fragment
         when (position) {
-            0 -> {
-                frag = SearchResultsFragment.newInstance(1)
+            verseTabPosition -> {
+                frag = SearchResultsFragment(mSearchResultsArray)
                 val bundle = Bundle()
                 bundle.putString("edttext", "From Activity")
-                bundle.putParcelableArrayList("mylist", mSearchArrayAdapter)
+                bundle.putParcelableArrayList("VerseResultList", mSearchResultsArray)
                 frag.setArguments(bundle)
                 frag.searchControl = searchControl
-                frag.mVerseSearchResults = mCurrentlyDisplayedSearchResults
                 frag.activeWindowPageManagerProvider = activeWindowPageManagerProvider
                 frag.intent = intent
+                verseListFrag = frag
             }
-            1-> {
+            bookTabPosition-> {
                 frag = SearchBookStatisticsFragment()
                 frag.bookStatistics = bookStatistics
+                frag.searchResultsArray = mSearchResultsArray
+//                bookStatisticsFrag = frag
             }
             2-> {
                 frag = SearchWordStatisticsFragment()
+                frag.searchResultsArray = mSearchResultsArray
                 frag.wordStatistics = wordStatistics
             }
             else -> frag = PlaceholderFragment.newInstance(1)
         }
-
         return frag
     }
 
-    override fun getPageTitle(position: Int): CharSequence? {
-        return TAB_TITLES[position]
+    override fun getItemPosition(`object`: Any): Int {
+        // This line is needed to force a refresh of the fragment.
+        // It doesn't seem to affect anything adversely, I think because all tabs remain in memory the whole time.
+        return POSITION_NONE
     }
+//    override fun getPageTitle(position: Int): CharSequence? {
+//        return TAB_TITLES[position]
+//    }
 
     override fun getCount(): Int {
-        // Show 2 total pages.
         return 3
     }
 }

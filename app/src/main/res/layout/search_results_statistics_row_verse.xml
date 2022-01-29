@@ -24,7 +24,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="Reference"
-			android:textSize="15dip"
+			android:textSize="13dip"
 			android:focusable="false"
 			android:focusableInTouchMode="false"
 			android:paddingLeft="10dp"

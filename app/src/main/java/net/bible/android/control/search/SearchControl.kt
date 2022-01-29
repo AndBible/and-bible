@@ -280,7 +280,7 @@ class SearchControl @Inject constructor(
         const val TARGET_DOCUMENT = "TargetDocument"
         private const val STRONG_COLON_STRING = LuceneIndex.FIELD_STRONG + ":"
         private const val STRONG_COLON_STRING_PLACE_HOLDER = LuceneIndex.FIELD_STRONG + "COLON"
-        const val MAX_SEARCH_RESULTS = 1000
+        const val MAX_SEARCH_RESULTS = 10000
         private const val TAG = "SearchControl"
     }
 }
