@@ -18,18 +18,32 @@
 
 package net.bible.service.device.speak
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 import android.media.MediaPlayer
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import androidx.media.session.MediaButtonReceiver
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
+
+class AndBibleMediaButtonReceiver: BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        CommonUtils.initializeApp()
+        Log.i("MediaButtons", "MediaButtonReceiver onReceive")
+        MediaButtonReceiver.handleIntent(MediaButtonHandler.handler!!.ms, intent)
+    }
+}
+
 
 class MediaButtonHandler(val speakControl: SpeakControl) {
     companion object {
@@ -59,43 +73,43 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 0)
         .build()
 
-    var ms = MediaSessionCompat(application, TAG).apply {
-        val cb = object : MediaSessionCompat.Callback() {
-            override fun onPause() {
-                Log.i(TAG, "onPause")
-                speakControl.pause()
-            }
-
-            override fun onPlay() {
-                Log.i(TAG, "onPlay")
-                speakControl.toggleSpeak()
-            }
-
-            override fun onStop() {
-                Log.i(TAG, "onStop")
-                speakControl.stop()
-            }
-
-            override fun onSkipToNext() {
-                Log.i(TAG, "onSkipToNext")
-                speakControl.forward(SpeakSettings.RewindAmount.SMART)
-            }
-
-            override fun onSkipToPrevious() {
-                Log.i(TAG, "onSkipToPrevious")
-                speakControl.rewind(SpeakSettings.RewindAmount.SMART)
-            }
-
-            override fun onFastForward() {
-                Log.i(TAG, "onFastForward")
-                speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
-            }
-
-            override fun onRewind() {
-                Log.i(TAG, "onFastForward")
-                speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-            }
+    val cb = object : MediaSessionCompat.Callback() {
+        override fun onPause() {
+            Log.i(TAG, "onPause")
+            speakControl.pause()
         }
+
+        override fun onPlay() {
+            Log.i(TAG, "onPlay")
+            speakControl.toggleSpeak()
+        }
+
+        override fun onStop() {
+            Log.i(TAG, "onStop")
+            speakControl.stop()
+        }
+
+        override fun onSkipToNext() {
+            Log.i(TAG, "onSkipToNext")
+            speakControl.forward(SpeakSettings.RewindAmount.SMART)
+        }
+
+        override fun onSkipToPrevious() {
+            Log.i(TAG, "onSkipToPrevious")
+            speakControl.rewind(SpeakSettings.RewindAmount.SMART)
+        }
+
+        override fun onFastForward() {
+            Log.i(TAG, "onFastForward")
+            speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
+        }
+
+        override fun onRewind() {
+            Log.i(TAG, "onFastForward")
+            speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
+        }
+    }
+    var ms = MediaSessionCompat(application, TAG).apply {
         setCallback(cb)
         setPlaybackState(state)
         isActive = true

@@ -232,6 +232,12 @@
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver"
             android:exported="false" />
 
+        <receiver android:name="net.bible.service.device.speak.AndBibleMediaButtonReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".SpeakWidgetManager$SmallSpeakControlWidget"
             android:exported="true"
