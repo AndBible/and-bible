@@ -504,5 +504,4 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="bookmark_style">Bokmerkestil</string>
   <string name="strongs_links">Lenker</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>
