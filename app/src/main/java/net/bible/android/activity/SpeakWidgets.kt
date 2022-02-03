@@ -41,6 +41,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_PERCENT
@@ -203,9 +204,7 @@ class SpeakWidgetManager {
         }
         views.setViewVisibility(R.id.helptext, if (bookmarksAdded) View.GONE else View.VISIBLE)
 
-        val contentIntent = Intent(context, MainBibleActivity::class.java)
-        contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-
+        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
         val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         views.setOnClickPendingIntent(R.id.root, pendingIntent)
 
@@ -284,8 +283,7 @@ class SpeakWidgetManager {
                 views.setViewVisibility(button, visible)
             }
 
-            val contentIntent = Intent(context, MainBibleActivity::class.java)
-            contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
             val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
             views.setOnClickPendingIntent(R.id.layout, pendingIntent)
 
