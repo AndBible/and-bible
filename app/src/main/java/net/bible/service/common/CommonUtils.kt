@@ -601,10 +601,8 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun restartApp(callingActivity: Activity) {
-        val intent = Intent(callingActivity, StartupActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-
-        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
+        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
         val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)

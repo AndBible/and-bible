@@ -33,6 +33,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.CompletableDeferred
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.UiUtils.setActionBarColor
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
@@ -256,6 +257,10 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         Log.i(localClassName, "onStart:" + this)
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        Log.i(localClassName, "onNewIntent $this ${intent?.action}")
+    }
 
     override fun onStop() {
         super.onStop()
