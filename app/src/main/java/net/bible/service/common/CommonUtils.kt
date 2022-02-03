@@ -752,7 +752,7 @@ object CommonUtils : CommonUtilsBase() {
                     R.string.module_about_latest_version
                 else
                     R.string.module_about_installed_version),
-                Version(versionLatest).toString(), versionLatestDate)
+                try {Version(versionLatest).toString()} catch(e: Exception) {versionLatest}, versionLatestDate)
         else null
 
         if(versionMessageLatest != null) {
@@ -860,6 +860,7 @@ object CommonUtils : CommonUtilsBase() {
 
     fun verifySignature(file: File, signatureFile: File): Boolean {
         // Adapted from https://stackoverflow.com/questions/34066949/verify-digital-signature-on-android
+        if(!signatureFile.canRead()) return false
         val reader = PemReader(InputStreamReader(application.resources.openRawResource(R.raw.publickey)))
         val data = file.inputStream()
         val signatureData = signatureFile.inputStream()
