@@ -865,4 +865,5 @@
   <string name="strongs_text_and_links">Text și legături</string>
   <string name="verse_tip">Pentru a alege un text din Biblie, ține degetul apăsat pe el</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Permisiune necesară</string>
 </resources>
