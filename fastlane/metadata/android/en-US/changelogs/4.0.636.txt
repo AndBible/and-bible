@@ -1,4 +1,4 @@
-4.0.635
+4.0.636
 - Control TTS with Bluetooth media buttons
 - Add search to popup context menu (#1978)
 - Bugfixes
