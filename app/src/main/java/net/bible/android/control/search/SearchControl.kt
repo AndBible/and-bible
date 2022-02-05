@@ -26,6 +26,8 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
+import net.bible.service.common.CommonUtils.limitTextLength
+import net.bible.service.sword.SwordContentFacade.getPlainText
 import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
@@ -55,6 +57,7 @@ class SearchControl @Inject constructor(
     )
 {
     private val isSearchShowingScripture = true
+    var isStrongsSearch: Boolean = false
 
     enum class SearchBibleSection {
         OT, NT, CURRENT_BOOK, ALL
@@ -102,8 +105,7 @@ class SearchControl @Inject constructor(
                              includeAllEndings: Boolean=false, fuzzySearchAccuracy: Double? = null, proximityWords: Int? = null,
                              strongs: Char? = null): String {
         var cleanSearchString = cleanSearchString(searchString)
-        var decorated: String
-
+        isStrongsSearch = (strongs != null)
         if (includeAllEndings || strongs != null || fuzzySearchAccuracy != null) {
             var newSearchString =""
             val wordArray: List<String> = cleanSearchString.split(" ")
@@ -163,6 +165,26 @@ class SearchControl @Inject constructor(
             }
         }
         return searchResults
+    }
+
+    fun getSearchResultVerseText(key: Key?): String {
+        // There is similar functionality in BookmarkControl
+        // This is much slower than 'getSearchResultVerseElement' and 'generateSpannableFromVerseElement'. Why?
+        var verseText = ""
+        try {
+            val doc = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
+            val cat = doc!!.bookCategory
+            verseText = if (cat == BookCategory.BIBLE || cat == BookCategory.COMMENTARY) {
+                getPlainText(doc, key)
+            } else {
+                val bible = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!
+                getPlainText(bible, key)
+            }
+            verseText = limitTextLength(verseText)!!
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting verse text", e)
+        }
+        return verseText
     }
 
     fun getSearchResultVerseElement(key: Key?): Element {

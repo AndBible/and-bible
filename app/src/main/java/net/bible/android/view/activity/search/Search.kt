@@ -333,8 +333,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             view.isEnabled = isEnabled
         }
         layout.isEnabled = isEnabled
-
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.rebuildIndex -> {
@@ -380,12 +380,12 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             intent.putExtra(SECTION_SELECTION_SAVE, sectionRadioSelection)
             intent.putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName)
 
-            text = searchControl.decorateSearchString(text, searchType, bibleSection, currentBookName)
+//            text = searchControl.decorateSearchString(text, searchType, bibleSection, currentBookName)
+            text = decorateSearchString(text)
             Log.i(TAG, "Search text:$text")
 
             // specify search string and doc in new Intent;
             // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
-//            val intent = Intent(this, SearchResults::class.java)
             val intent = Intent(this, MySearchResults::class.java)
             intent.putExtra(SearchControl.SEARCH_TEXT, text)
             val currentDocInitials = documentToSearch?.initials
