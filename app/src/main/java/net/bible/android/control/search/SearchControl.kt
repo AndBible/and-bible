@@ -24,7 +24,6 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.Scripture
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.service.common.CommonUtils.limitTextLength
@@ -58,7 +57,7 @@ class SearchControl @Inject constructor(
     )
 {
     private val isSearchShowingScripture = true
-//    public final var originalSearchString = ""
+    var isStrongsSearch: Boolean = false
 
     enum class SearchBibleSection {
         OT, NT, CURRENT_BOOK, ALL
@@ -106,8 +105,7 @@ class SearchControl @Inject constructor(
                              includeAllEndings: Boolean=false, fuzzySearchAccuracy: Double? = null, proximityWords: Int? = null,
                              strongs: Char? = null): String {
         var cleanSearchString = cleanSearchString(searchString)
-        var decorated: String
-
+        isStrongsSearch = (strongs != null)
         if (includeAllEndings || strongs != null || fuzzySearchAccuracy != null) {
             var newSearchString =""
             val wordArray: List<String> = cleanSearchString.split(" ")
@@ -129,7 +127,7 @@ class SearchControl @Inject constructor(
         }
 
         // add search type (all/any/phrase) to search string
-        decorated = searchType.decorate(cleanSearchString)
+        var decorated: String = searchType.decorate(cleanSearchString)
         originalSearchString = decorated
 
         // add bible section limitation to search text
@@ -169,10 +167,9 @@ class SearchControl @Inject constructor(
         return searchResults
     }
 
-    /** get the verse for a search result
-     */
     fun getSearchResultVerseText(key: Key?): String {
         // There is similar functionality in BookmarkControl
+        // This is much slower than 'getSearchResultVerseElement' and 'generateSpannableFromVerseElement'. Why?
         var verseText = ""
         try {
             val doc = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument

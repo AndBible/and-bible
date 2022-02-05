@@ -7,6 +7,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import android.text.SpannableString
 import android.text.style.StyleSpan
 import android.util.Log
 import android.view.MenuItem
@@ -58,12 +59,15 @@ class MyTimer(val name:String){
     var totalTime:Long = 0
 
     fun start() {startTime = System.nanoTime()}
-    fun stop() {totalTime += System.nanoTime() - startTime}
+    fun stop(addToLog: Boolean = false) {
+        totalTime += System.nanoTime() - startTime
+        if (addToLog) log()
+    }
+    fun reset() {totalTime = 0}
     fun log() {
         Log.e("MyTimer", name + ": " + (totalTime/1000000) + "mS\n")
     }
 }
-private val totalTime = MyTimer("Total Time")
 
 class BookStat(val book: String, var count: Int,
                val bookInitials: String,
@@ -154,6 +158,8 @@ class MySearchResults : CustomTitlebarActivityBase() {
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
     /** Called when the activity is first created.  */
 
+    private val totalTime = MyTimer("Total Time")
+
     private val versification: Versification
         get() = navigationControl.versification
 
@@ -172,7 +178,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search results view")
-        totalTime.start()
+        totalTime.reset()
 
         binding = SearchResultsStatisticsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -223,6 +229,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
         try { // get search string - passed in using extras so extras cannot be null
+            val fetchResultsTimer = MyTimer("fetchResultsTimer")
             val extras = intent.extras
             val searchText = extras!!.getString(SearchControl.SEARCH_TEXT)
             var searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT)
@@ -240,6 +247,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
                 Toast.makeText(this@MySearchResults, msg, Toast.LENGTH_SHORT).show()
             }
             isOk = true
+            fetchResultsTimer.stop(true)
         } catch (e: Exception) {
             Log.e(TAG, "Error processing search query", e)
             isOk = false
@@ -254,8 +262,8 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
     private fun populateViewResultsAdapter() {
 
-        val populateViewResultsAdapterTimer = MyTimer("populateViewResultsAdapterTimer Time")
-        val verseTextElementTimer = MyTimer("verseTextElement")
+        val populateViewResultsAdapterTimer = MyTimer("populateViewResultsAdapterTimer")
+        val getSearchResultVerseElementTimer = MyTimer("getSearchResultVerseElement")
         val verseTextSpannableTimer = MyTimer("SearchHighlight")
         val bookStatsTimer = MyTimer("Book Stats")
         val wordStatsTimer = MyTimer("Word Stats")
@@ -274,15 +282,17 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
         var listIndex = 0
         var totalWords = 0
+        val searchHighlight = SearchHighlight(SearchControl.originalSearchString)
         for (key in mCurrentlyDisplayedSearchResults) {
-
             // Add verse to results array
-            verseTextElementTimer.start()
+
+            var verseTextSpannable: SpannableString? = null
+            getSearchResultVerseElementTimer.start()
             val verseTextElement = searchControl.getSearchResultVerseElement(key)
-            verseTextElementTimer.stop()
+            getSearchResultVerseElementTimer.stop()
 
             verseTextSpannableTimer.start()
-            val verseTextSpannable = SearchHighlight.getSpannableText(SearchControl.originalSearchString, verseTextElement)
+            verseTextSpannable = searchHighlight.generateSpannableFromVerseElement(verseTextElement)
             verseTextSpannableTimer.stop()
 
             mSearchResultsArray.add(SearchResultsData(listIndex, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable!!.toHtml()))
@@ -336,12 +346,11 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
         populateViewResultsAdapterTimer.stop()
         populateViewResultsAdapterTimer.log()
-        verseTextElementTimer.log()             // 'God' 514ms
-        verseTextSpannableTimer.log()           // 'God' 866ms
-        bookStatsTimer.log()                    // Negligible
+        getSearchResultVerseElementTimer.log()
+        verseTextSpannableTimer.log()
+        bookStatsTimer.log()
         wordStatsTimer.log()
-        totalTime.stop()
-        totalTime.log()
+        totalTime.stop(true)
     }
     /**
      * Handle scripture/Appendix toggle
@@ -372,7 +381,6 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
     val activeWindowPageManagerProvider = activeWindowPageManagerProvider
     val intent = intent
     lateinit var verseListFrag: SearchResultsFragment
-//    lateinit var bookStatisticsFrag: SearchBookStatisticsFragment
 
     override fun getItem(position: Int): Fragment {
         // getItem is called to instantiate the fragment for the given page.
@@ -384,10 +392,10 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
         when (position) {
             verseTabPosition -> {
                 frag = SearchResultsFragment(mSearchResultsArray)
-                val bundle = Bundle()
-                bundle.putString("edttext", "From Activity")
-                bundle.putParcelableArrayList("VerseResultList", mSearchResultsArray)
-                frag.setArguments(bundle)
+//                val bundle = Bundle()
+//                bundle.putString("edttext", "From Activity")
+//                bundle.putParcelableArrayList("VerseResultList", mSearchResultsArray)
+//                frag.setArguments(bundle)
                 frag.searchControl = searchControl
                 frag.activeWindowPageManagerProvider = activeWindowPageManagerProvider
                 frag.intent = intent
@@ -408,16 +416,11 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
         }
         return frag
     }
-
     override fun getItemPosition(`object`: Any): Int {
         // This line is needed to force a refresh of the fragment.
         // It doesn't seem to affect anything adversely, I think because all tabs remain in memory the whole time.
         return POSITION_NONE
     }
-//    override fun getPageTitle(position: Int): CharSequence? {
-//        return TAB_TITLES[position]
-//    }
-
     override fun getCount(): Int {
         return 3
     }

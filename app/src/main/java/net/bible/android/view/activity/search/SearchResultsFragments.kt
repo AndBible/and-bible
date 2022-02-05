@@ -20,7 +20,6 @@ import com.google.android.material.tabs.TabLayout
 import net.bible.android.activity.databinding.SearchResultsStatisticsFragmentVerseBinding
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SearchResultsStatisticsFragmentByBinding
-import net.bible.android.activity.databinding.SearchResultsStatisticsRowByBookBinding
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -29,23 +28,17 @@ import org.crosswire.jsword.passage.Key
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordDocumentFacade
-import org.crosswire.common.util.Language
 
 private lateinit var displayedResultsArray: ArrayList<SearchResultsData>
 private var isSearchResultsFiltered = false
 
 class PlaceholderFragment: Fragment() {
 
-    //    private lateinit var pageViewModel: PageViewModel
     private var _binding: SearchResultsStatisticsFragmentVerseBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -78,7 +71,6 @@ class PlaceholderFragment: Fragment() {
             }
         }
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -87,11 +79,9 @@ class PlaceholderFragment: Fragment() {
 
 private fun setResultsAdapter(resultsArray:ArrayList<SearchResultsData>, activity: Activity): SearchResultsAdapter {
     // This function is called from both the SearchResultsFragment and the SearchWordStatistics (for filtering)
-
-    // The count needs to be set here because it can be changed when filtering the list by word
     val tabhost = activity.findViewById<View>(R.id.tabs) as TabLayout
-    val verseCount = if(resultsArray.count()==0) "" else resultsArray.count().toString()
-    tabhost.getTabAt(verseTabPosition)!!.text = CommonUtils.resources.getString(R.string.verse_count, verseCount)
+    val verseCount = if(resultsArray.count()==0) "..." else resultsArray.count().toString()
+    tabhost.getTabAt(verseTabPosition)!!.text = CommonUtils.resources.getString(R.string.verse_count, verseCount)  // The count needs to be set here because it can be changed when filtering the list by word
 
     displayedResultsArray = resultsArray
     return SearchResultsAdapter(activity, android.R.layout.simple_list_item_2,
@@ -127,7 +117,6 @@ class SearchResultsFragment(val mSearchResultsArray:ArrayList<SearchResultsData>
             Toast.makeText(resultList.context, "Hi",Toast.LENGTH_LONG)
             try { // no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
                 verseSelected(mCurrentlyDisplayedSearchResults[displayedResultsArray[position].id!!])
-//                verseSelected(mCurrentlyDisplayedSearchResults[displayedResultsArray[position].id!!])
             } catch (e: Exception) {
                 Log.e("blah", "Selection error", e)
                 Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
@@ -174,7 +163,6 @@ class SearchBookStatisticsFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         _binding = SearchResultsStatisticsFragmentByBinding.inflate(inflater, container, false)
-//        var rowBinding = SearchResultsStatisticsRowByBookBinding.inflate(inflater, container, false)
         val root = binding.root
 
         val statisticsLayout = binding.statisticsLayout
@@ -214,7 +202,6 @@ class SearchBookStatisticsFragment : Fragment() {
                 resultList.setSelection(it.tag as Int);
             }
         }
-
         return root
     }
 
@@ -244,57 +231,59 @@ class SearchWordStatisticsFragment() : Fragment() {
             resultList.adapter = setResultsAdapter(filteredSearchResults, activity)
         }
     }
+    private fun constructButtonList() {
 
-    private fun ConstructButtonList() {
-
-        var showKeyWordsCheckBox = activity?.findViewById<Button>(R.id.show_key_word_only)
         val statisticsLayout = binding.statisticsLayout
-
-        statisticsLayout.removeAllViews()
         val sortedWordStatistics = wordStatistics.sortedBy { it.word }
         val maxCount: Int = sortedWordStatistics.maxOfOrNull { it.verseIndexes.count() } ?: 0
-        sortedWordStatistics.map {
+        statisticsLayout.removeAllViews()
 
+        // TODO: This works but it kills the progress bars for ALL buttons. Why??????
+//        val statsRow: View = inflater.inflate(
+//            R.layout.search_results_statistics_row_by_word,
+//            statisticsLayout, false
+//        )
+//        val button = statsRow.findViewById<Button>(R.id.searchStatisticsWordButton)
+//        button.text = "ALL"
+//        val text = statsRow.findViewById<TextView>(R.id.searchStatisticsWordCount)
+//        text.text = "${sortedWordStatistics.sumOf {it.verseIndexes.count()}}"
+//        val progressBar = statsRow.findViewById<ProgressBar>(R.id.searchStatisticsWordCountProgress)
+//        progressBar.visibility = View.GONE
+//        statsRow.requestLayout()
+//        statisticsLayout.addView(statsRow, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+//        button.setOnClickListener(CustomOnClickListener(sortedWordStatistics.flatMap { it.verseIndexes.toList() }.toIntArray(), requireActivity(), searchResultsArray))
+
+        sortedWordStatistics.map {
             val statsRow: View = inflater.inflate(
                 R.layout.search_results_statistics_row_by_word,
                 statisticsLayout, false
             )
-            var button = statsRow.findViewById<Button>(R.id.searchStatisticsWordButton)
+            val button = statsRow.findViewById<Button>(R.id.searchStatisticsWordButton)
             button.setText(it.originalWord)
-            var text = statsRow.findViewById<TextView>(R.id.searchStatisticsWordCount)
+            val text = statsRow.findViewById<TextView>(R.id.searchStatisticsWordCount)
             text.setText("${it.verseIndexes.count()}")
-            var progressBar = statsRow.findViewById<ProgressBar>(R.id.searchStatisticsWordCountProgress)
+            val progressBar = statsRow.findViewById<ProgressBar>(R.id.searchStatisticsWordCountProgress)
             progressBar.max = maxCount
             progressBar.progress = it.verseIndexes.count()
             statsRow.requestLayout()
-            statisticsLayout.addView(statsRow,
-                FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            )
-
+            statisticsLayout.addView(statsRow, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             button.setOnClickListener(CustomOnClickListener(it.verseIndexes, requireActivity(), searchResultsArray))
         }
-
     }
-
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//    }
     override fun onCreateView(
         theInflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         inflater = theInflater
         _binding = SearchResultsStatisticsFragmentByBinding.inflate(inflater, container, false)
-        ConstructButtonList()
+        constructButtonList()
 
         var showKeyWordsCheckBox = binding.showKeyWordOnly
         showKeyWordsCheckBox.setOnClickListener {
-            ConstructButtonList()
+            constructButtonList()
         }
         return binding.root
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

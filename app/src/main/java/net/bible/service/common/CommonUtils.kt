@@ -601,10 +601,8 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun restartApp(callingActivity: Activity) {
-        val intent = Intent(callingActivity, StartupActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-
-        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
+        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
         val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
@@ -752,7 +750,7 @@ object CommonUtils : CommonUtilsBase() {
                     R.string.module_about_latest_version
                 else
                     R.string.module_about_installed_version),
-                Version(versionLatest).toString(), versionLatestDate)
+                try {Version(versionLatest).toString()} catch(e: Exception) {versionLatest}, versionLatestDate)
         else null
 
         if(versionMessageLatest != null) {
@@ -860,6 +858,7 @@ object CommonUtils : CommonUtilsBase() {
 
     fun verifySignature(file: File, signatureFile: File): Boolean {
         // Adapted from https://stackoverflow.com/questions/34066949/verify-digital-signature-on-android
+        if(!signatureFile.canRead()) return false
         val reader = PemReader(InputStreamReader(application.resources.openRawResource(R.raw.publickey)))
         val data = file.inputStream()
         val signatureData = signatureFile.inputStream()

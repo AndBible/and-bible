@@ -312,7 +312,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
             else -> ExtraBookInfo(OTHER_COLOR,"", "")
         }
     }
-
     companion object {
 
         const val BOOK_NO = "BOOK_NO"

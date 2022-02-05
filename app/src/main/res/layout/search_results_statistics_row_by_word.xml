@@ -50,13 +50,11 @@
 			android:indeterminate="false"
 			android:max="100"
 			android:min="0"
-			android:progress="45"
+			android:progress="15"
 			android:progressBackgroundTint="@color/transparent"
 			android:progressTint="@color/sync_on_green"
 			android:scaleY="4"
 			android:visibility="visible" />
-
-
 	</LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

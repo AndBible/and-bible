@@ -8,46 +8,56 @@ import android.text.style.StyleSpan
 import android.util.Log
 import org.jdom2.Element
 import org.jdom2.Text
-import org.jdom2.output.XMLOutputter
 import java.lang.Exception
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-class SearchHighlight {
+class SearchHighlight(searchTerms: String) {
 
-    companion object {
-        fun getSpannableText(searchTerms: String, textElement: Element): SpannableString? {
-            var searchTerms = searchTerms
-            var spannableText: SpannableString? = null
+    val isStrongsSearch = searchTerms.contains("strong:")
+    val elementsToExclude: List<String> = listOf("note", "reference")
+    val elementsToInclude: List<String> = listOf("w", "transChange", "divineName", "seg")
+    val consecutiveWordsRegex = Regex("(<b[^<>]*>)([^<>]*?)(<\\/b>)(\\s+)\\1([\\s\\S]*?)\\3", RegexOption.IGNORE_CASE)
+    val strongsSearchPattern: Pattern = Pattern.compile(prepareStrongsSearchTerm(searchTerms) + "\\b", Pattern.CASE_INSENSITIVE)  // search on a word boundary (eg find strong:g0123 not strong:g01234567
+
+    private val preparedSearchWordsPatternList:List<Pattern> = // Build a list of Patterns representing each search word.
+        splitSearchTerms(searchTerms).map {
+            var searchWord = prepareSearchWord(it)
+            searchWord =  if (it.contains("*") or it.contains("~")) {
+                "\\b$searchWord[\\w\\'\\-]*\\b" // Match whole words including with hyphons and apostrophes
+            } else {
+                "\\b$searchWord\\b"
+            }
+            Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE)
+        }
+
+        fun generateSpannableFromVerseElement(verseElement: Element): SpannableString? {
+            /* Takes a verse in Element form and rebuilds the verse in string form.
+             * Interestingly it is faster to get the text in Element form and convert it myself than to call 'getSearchResultVerseText'.
+             * Once the verse is in String format which includes <b> tags for Strongs numbers it is passed to 'generateSpannableFromVerseString'
+             * which does the actual conversion to a spannable.
+            `*/
+            var verseString = ""
             try {
                 // TODO: Strongs searches are handled differently to normal searches and so cannot be combined either with a normal search term or other strongs searches. This should be done better.
-                var isStrongsSearch = searchTerms.contains("strong:")
 
                 // Part 1: Highlight any strongs words. The raw verse text is returned with <b> added for the strongs words. We always need to process this just to get the plaintext
-                var verseString: String? = ""
-                searchTerms = prepareStrongsSearchTerm(searchTerms)
-                val verses = textElement.getChildren("verse")
-                val strongsSearchTerms = searchTerms + "\\b"  // search on a word boundary (eg find strong:g0123 not strong:g01234567
+                val verses = verseElement.getChildren("verse")
 
                 for (verse in verses) {
-//                    Log.e("AGR", XMLOutputter().outputString(verse))
-                    verseString += processElementChildren(verse, strongsSearchTerms, "", false)
+                    verseString += processElementChildren(verse, "", false)
                 }
 
                 if (isStrongsSearch) {
                     // Check for highlighted consecutive words and merge them into a single highlighted phrase. Some translations will indicate multiple
                     // consecutive lemma spans with the same strongs number when in fact all spans represent the single original language word.
                     // This messes with the search statistics as it uses the bolded words to tally search hits by word.
-                    // TODO: This is slow! Adds 5secs or so for a search on 'God'
                     var verseStringLength = 0
                     while (verseStringLength != verseString?.length) {
                         verseStringLength = verseString!!.length
                         // This pattern matches two consecutive <b> tag spans separate only by white space and replaces them with a single <b> tag.
-                        val match =
-                            Regex("(<b[^<>]*>)([^<>]*?)(<\\/b>)(\\s+)\\1([\\s\\S]*?)\\3", RegexOption.IGNORE_CASE).find(
-                                (verseString)
-                            )
+                        val match = consecutiveWordsRegex.find(verseString)
                         if (match != null) {
                             val matches = match.groupValues
                             verseString = verseString.replace(
@@ -57,30 +67,32 @@ class SearchHighlight {
                         }
                     }
                 }
-                spannableText = SpannableString(Html.fromHtml(verseString))  // We started with an XML verse which got turned into a string with <b> tags which is now turned into a spannable
+            } catch (e: Exception) {
+                Log.w("SEARCH", e.message!!)
+            } finally {
+                return generateSpannableFromVerseString(verseString)
+            }
+        }
+
+        fun generateSpannableFromVerseString(verseString:String): SpannableString {
+
+            var spannableText = SpannableString(Html.fromHtml(verseString))  // We started with an XML verse which got turned into a string with <b> tags which is now turned into a spannable
+            try {
 
                 // Part 2: Find and highlight the normal (non-strongs) words or phrases in the PLAIN text verse
                 var m: Matcher? = null
-                val splitSearchArray = splitSearchTerms(searchTerms)
-                for (originalSearchWord in splitSearchArray) {
-                    var searchWord = prepareSearchWord(originalSearchWord)
-                    searchWord = if (originalSearchWord.contains("*")) {
-                        "\\b$searchWord[\\w\\'\\-]*\\b" // Match whole words including with hyphons and apostrophes
-                        } else {
-                            "\\b$searchWord\\b"
-                    }
-                    if (searchWord.length > 0) {
-                        m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText)
-                        while (m.find()) {
-                            spannableText.setSpan(
-                                StyleSpan(Typeface.BOLD),
-                                m.start(),
-                                m.end(),
-                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                            )
-                        }
+                for (searchPattern in preparedSearchWordsPatternList) {
+                    m = searchPattern.matcher(spannableText)
+                    while (m.find()) {
+                        spannableText.setSpan(
+                            StyleSpan(Typeface.BOLD),
+                            m.start(),
+                            m.end(),
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
                     }
                 }
+
             } catch (e: Exception) {
                 Log.w("SEARCH", e.message!!)
             } finally {
@@ -90,7 +102,6 @@ class SearchHighlight {
 
         private fun processElementChildren(
             parentElement: Element,
-            strongsSearchTerm: String,
             verseString: String?,
             isBold: Boolean
         ): String? {
@@ -102,13 +113,14 @@ class SearchHighlight {
             for (o in parentElement.content) {
                 if (o is Element) {
                     val el = o
-                    val elementsToExclude = Arrays.asList("note", "reference")
-                    val elementsToInclude = Arrays.asList("w", "transChange", "divineName", "seg")
                     if (elementsToInclude.contains(el.name)) {
                         isBold = try {
-                            val lemma = el.getAttributeValue("lemma")
-                            lemma != null && Pattern.compile(strongsSearchTerm, Pattern.CASE_INSENSITIVE)
-                                .matcher(lemma.trim { it <= ' ' }).find()
+                            if (isStrongsSearch) {
+                                val lemma = el.getAttributeValue("lemma")
+                                lemma != null && strongsSearchPattern.matcher(lemma.trim { it <= ' ' }).find()
+                            } else {
+                                false
+                            }
                         } catch (e: Exception) {
                             false
                         }
@@ -116,7 +128,7 @@ class SearchHighlight {
                         if (el.children.isEmpty()) verseString += buildElementText(el.text, isBold)
                     }
                     if (!el.children.isEmpty() && !elementsToExclude.contains(el.name)) {
-                        verseString = processElementChildren(el, strongsSearchTerm, verseString, isBold)
+                        verseString = processElementChildren(el, verseString, isBold)
                     }
                 } else if (o is Text) {
                     verseString += buildElementText(o.text, false)
@@ -155,12 +167,13 @@ class SearchHighlight {
         private fun prepareSearchWord(searchWord: String): String {
             // Need to clean up the search word itself before trying to find the searchWord in the text. Routine is called for each part of the search term
             // Eg: '+"burning bush"' -> 'burning bush'
-            var searchWord = searchWord
+            val fuzzySearch = searchWord.indexOf("~")
+            var searchWord = if (fuzzySearch > -1) { searchWord.substring(0,fuzzySearch) } else searchWord
             searchWord = searchWord.replace("\"", "")       // Remove quotes which indicate phrase searches
             searchWord = searchWord.replace("+", "")        // Remove + which indicates AND searches
             searchWord = searchWord.replace("?", "\\p{L}")  // Handles any letter from any language
             if (searchWord.length > 0) {
-                searchWord = if (searchWord.substring(searchWord.length - 1) == "*") {
+                searchWord = if ((searchWord.substring(searchWord.length - 1) == "*") or (fuzzySearch>-1)){
                     // The last character in the search is a * so remove it since the default sword search assumes a wildcard search
                     searchWord.replace("*", "")
                 } else {
@@ -172,5 +185,5 @@ class SearchHighlight {
             }
             return searchWord
         }
-    }
+
 }
