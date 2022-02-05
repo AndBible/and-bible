@@ -604,4 +604,5 @@ Kas jätkame?</string>
   <string name="questions_title">Küsimus arendajatele</string>
   <string name="bookmark_style">Järjehoidja kujundus</string>
   <string name="added_to_bookmark">Määratud käesolevale järjehoidjale</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

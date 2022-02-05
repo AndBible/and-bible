@@ -157,7 +157,6 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
         //prepare the documentType spinner
         setInitialDocumentType()
-
         binding.apply {
             okButtonPanel.visibility = if (showOkButton) View.VISIBLE else View.GONE
 
@@ -165,6 +164,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             documentTypeSpinner.onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     selectedDocumentFilterNo = position
+                    CommonUtils.settings.setInt("selected_document_filter_no", position)
                     filterDocuments()
                 }
 
@@ -589,7 +589,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     /** allow selection of initial doc type
      */
     protected open fun setInitialDocumentType() {
-        selectedDocumentFilterNo = if(intent?.getBooleanExtra("addons", false) == true) 6 else 0
+        selectedDocumentFilterNo = if(intent?.getBooleanExtra("addons", false) == true) 6 else CommonUtils.settings.getInt("selected_document_filter_no", 0)
     }
 
     fun setShowOkButtonBar(visible: Boolean) {

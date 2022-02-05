@@ -157,4 +157,5 @@ The developers of this app are not responsible for maintaining documents (Bibles
   <string name="reset_hide_labels">Do you want to reset the hidden label settings?</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <!--will be added to incomplete_translation as a link-->
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

@@ -25,11 +25,13 @@ import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.event.ABEventBus
 
+const val TAG = "PhoneCallMonitor"
+
 /**
  * Monitor phone calls to stop speech, etc
- *
- * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+
 object PhoneCallMonitor {
     private var isMonitoring = false
 
@@ -37,7 +39,7 @@ object PhoneCallMonitor {
      * This was attempted in CurrentActivityHolder but failed if device was on
      * stand-by and speaking and Android 4.4 (I think it worked on earlier versions of Android)
      */
-    private fun startMonitoring() {
+    private fun startMonitoringLegacy() {
         Log.i("PhoneCallMonitor", "Starting monitoring")
         phoneStateListener = object : PhoneStateListener() {
             override fun onCallStateChanged(state: Int, incomingNumber: String) {
@@ -58,12 +60,14 @@ object PhoneCallMonitor {
     // We need to keep reference to phoneStateListener. See
     // https://stackoverflow.com/questions/42213250/android-nougat-phonestatelistener-is-not-triggered
     private var phoneStateListener: PhoneStateListener? = null
+
     fun ensureMonitoringStarted() {
+        Log.i(TAG, "ensureMonitoringStarted ${Build.VERSION.SDK_INT}")
         if (!isMonitoring) {
-            isMonitoring = true
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                // TODO: support Android 12+
-                startMonitoring()
+            // From API 26 onwards, we use audio focus change listening (see startSpeaking)
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                isMonitoring = true
+                startMonitoringLegacy()
             }
         }
     }

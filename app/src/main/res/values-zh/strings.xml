@@ -837,4 +837,5 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="strongs_links">連結</string>
   <string name="strongs_text_and_links">文字及連結</string>
   <string name="verse_tip">長按以選擇部份或多節經文</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

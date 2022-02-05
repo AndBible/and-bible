@@ -1,79 +1,81 @@
-openMyNotes: ""
-openStudyPad: ""
-noteText: ""
+openMyNotes: Open in Mijn notities
+openStudyPad: In de studiemap (%s) openen
+noteText: Voetnoten (%s)
 noteTextWithoutType: Voetnoten
-crossReferenceText: ""
+crossReferenceText: Verwijzingen
 findAllOccurrences: Alle gebeurtenissen zoeken
-reportError: ""
-errorTitle: ""
-warningTitle: ""
-normalTitle: ""
-footnoteTypeUndefined: ""
-footnoteTypeStudy: ""
-footnoteTypeExplanation: ""
-footnoteTypeVariant: ""
-footnoteTypeAlternative: ""
-footnoteTypeTranslation: ""
-clearLog: ""
+reportError: Rapporteer een fout
+errorTitle: Er is een fout opgetreden
+warningTitle: Waarschuwing
+normalTitle: Schrijf op
+footnoteTypeUndefined: Niet gedefinieerde type
+footnoteTypeStudy: Studie
+footnoteTypeExplanation: Uitleg
+footnoteTypeVariant: Variant
+footnoteTypeAlternative: Alternatief
+footnoteTypeTranslation: Vertaling
+clearLog: Leeg fout log
 editNote: Bewerken
-editNotePlaceholder: ""
-editTextPlaceholder: ""
-inputPlaceholder: ""
-inputReference: ""
-invalidReference: ""
-assignLabels: ""
-bookmarkAccurate: ""
-bookmarkInaccurate: ""
-defaultBook: ""
+editNotePlaceholder: Bewerk notitie
+editTextPlaceholder: Tap hier om tekst te bewerken
+inputPlaceholder: Schrijf hier
+inputReference: Voer bijbelverwijzing in
+invalidReference: Vers niet gevonden
+assignLabels: Labels
+bookmarkAccurate: Bladwijzer was gecreëerd in %s
+bookmarkInaccurate: "Bladwijzer boek informatie niet opgeslagen, inhoud is te zien in %s"
+defaultBook: Standaard bijbel document
 ok: Oké
 yes: "Ja"
-ambiguousSelection: ""
+ambiguousSelection: "Welke actie wil je doen?"
 cancel: Annuleren
-removeBookmarkConfirmationTitle: ""
-removeBookmarkConfirmation: ""
+removeBookmarkConfirmationTitle: "Bladwijzer verwijderen?"
+removeBookmarkConfirmation: "Weet u zeker dat u deze bladwijzer wilt verwijderen?"
 closeModal: Sluiten
-createdAt: ""
-lastUpdatedOn: ""
-strongsLink: ""
-morphLink: ""
-strongsAndMorph: ""
-studyPadLink: ""
-externalLink: ""
-referenceLink: ""
-openFootnote: ""
-openBookmark: ""
-noMyNotesTitle: ""
+createdAt: "Gecreëerd: %s"
+lastUpdatedOn: "Laatst geüpdatet: %s"
+strongsLink: Sterke definitie (%s)
+morphLink: Morfologische code (%s)
+strongsAndMorph: Definitie & Morfologie
+studyPadLink: Studiemap openen
+externalLink: Open externe link
+referenceLink: Open referentie link
+openFootnote: Voetnoot openen
+openBookmark: Bladwijzer openen (%s)
+noMyNotesTitle: Geen notities voor dit hoofdstuk.
 noMyNotesDescription: >
-emptyStudyPad: >
-studyPadModalTitle: ""
-doYouWantToDeleteEntry: ""
-removeStudyPadConfirmationTitle: ""
-dragHelp: ""
-saved: ""
-openAll: ""
-editBookmarkPlaceholder: ""
-onlyLabel: ""
-wholeBookmark: ""
-otherNoteText: ""
+  Start met creëren bladwijzers in een bijbel document. Deze bladwijzers zullen hier verschijnen en je kan ook persoonlijke notities toevoegen.
+emptyStudyPad: >-
+  Leeg studieblok. Start toevoegen aan deze studieblok door creëren van teksten of creëer bladwijzers met een bladwijzer label dat correspondeert met deze studieblok. 
+studyPadModalTitle: Wijzig studieblok invoer
+doYouWantToDeleteEntry: Verwijder deze studieblok invoer
+removeStudyPadConfirmationTitle: Verwijder deze studieblok invoer
+dragHelp: Wijzig volgorde
+saved: opgeslagen
+openAll: Open alle referenties
+editBookmarkPlaceholder: "Druk om Mijn Notities te wijzigen voor deze bladwijzer. "
+onlyLabel: Alleen label
+wholeBookmark: Hele bladwijzer
+otherNoteText: Andere notitie
 assignLabelsMenuEntry: Labels toewijzen
-assignLabelsMenuEntry1: ""
-jumpToStudyPad: ""
-setAsPrimaryLabel: ""
-removeBookmarkLabel: ""
-addBookmarkLabel: ""
-favouriteLabels: ""
-recentLabels: ""
-frequentlyUsedLabels: ""
-bookmarkLabels: ""
-refParserHelp: ""
-openDownloads: ""
-verseShare: ""
+assignLabelsMenuEntry1: Selecteer of wijzig labels...
+jumpToStudyPad: Ga naar studiemap
+setAsPrimaryLabel: Stel in als primair label
+removeBookmarkLabel: Label verwijderen
+addBookmarkLabel: Label toevoegen
+favouriteLabels: Favoriete labels
+recentLabels: Recente labels
+frequentlyUsedLabels: Veelgebruikte labels
+bookmarkLabels: Bladwijzerlabels
+refParserHelp: "Installeer %s module om referenties in andere talen (anders dan Engels) te gebruiken "
+openDownloads: Ga naar uitbreiding downloads
+verseShare: Delen
 verseCompare: Vergelijken
-verseNote: ""
+verseNote: Notitie
 verseMyNotes: Mijn notities
 verseSpeak: Voorlezen
-verseShareLong: ""
-verseCompareLong: ""
-verseNoteLong: ""
-verseSpeakLong: ""
+verseShareLong: Dit vers delen
+verseCompareLong: Vers vergelijken
+verseNoteLong: Schrijf een notitie
+verseSpeakLong: Start luisteren vanaf deze vers
 addBookmark: Bladwijzer

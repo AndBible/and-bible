@@ -825,4 +825,5 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="added_to_bookmark">Assigner à ce signet</string>
   <string name="strongs_links">Liens</string>
   <string name="verse_tip">Pour sélectionner un ou plusieurs versets, vous pouvez appuyer longuement sur le texte biblique.</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

@@ -851,4 +851,5 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Text a odkazy</string>
   <string name="verse_tip">Pasáž textu označíte přidržením textu na delší dobu.</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

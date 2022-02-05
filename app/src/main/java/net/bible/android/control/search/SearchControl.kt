@@ -24,11 +24,8 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.Scripture
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
-import net.bible.service.common.CommonUtils.limitTextLength
-import net.bible.service.sword.SwordContentFacade.getPlainText
 import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
@@ -58,7 +55,6 @@ class SearchControl @Inject constructor(
     )
 {
     private val isSearchShowingScripture = true
-//    public final var originalSearchString = ""
 
     enum class SearchBibleSection {
         OT, NT, CURRENT_BOOK, ALL
@@ -129,7 +125,7 @@ class SearchControl @Inject constructor(
         }
 
         // add search type (all/any/phrase) to search string
-        decorated = searchType.decorate(cleanSearchString)
+        var decorated: String = searchType.decorate(cleanSearchString)
         originalSearchString = decorated
 
         // add bible section limitation to search text
@@ -167,27 +163,6 @@ class SearchControl @Inject constructor(
             }
         }
         return searchResults
-    }
-
-    /** get the verse for a search result
-     */
-    fun getSearchResultVerseText(key: Key?): String {
-        // There is similar functionality in BookmarkControl
-        var verseText = ""
-        try {
-            val doc = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
-            val cat = doc!!.bookCategory
-            verseText = if (cat == BookCategory.BIBLE || cat == BookCategory.COMMENTARY) {
-                getPlainText(doc, key)
-            } else {
-                val bible = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!
-                getPlainText(bible, key)
-            }
-            verseText = limitTextLength(verseText)!!
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting verse text", e)
-        }
-        return verseText
     }
 
     fun getSearchResultVerseElement(key: Key?): Element {

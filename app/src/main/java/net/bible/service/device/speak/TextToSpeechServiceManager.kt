@@ -18,11 +18,18 @@
 
 package net.bible.service.device.speak
 
+import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
+import androidx.annotation.RequiresApi
 
 import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
@@ -40,7 +47,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState
 
-import net.bible.service.sword.SwordContentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
@@ -101,6 +107,9 @@ class TextToSpeechServiceManager @Inject constructor(
 
     var isPaused = false
         private set
+
+    private var pauseDueCall = false
+
     private var temporary = false
     private var mockedTts = false
 
@@ -453,8 +462,49 @@ class TextToSpeechServiceManager @Inject constructor(
         isPaused = false
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getNewAudioFocusRequest() =
+        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+            .setOnAudioFocusChangeListener { focusChange ->
+                Log.i(TAG, "Audio focus changed $focusChange")
+                when(focusChange) {
+                    AudioManager.AUDIOFOCUS_GAIN -> {
+                        pauseDueCall = false
+                        callStateChanged(false)
+                    }
+                    AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                        pauseDueCall = true
+                        callStateChanged(true)
+                    }
+                }
+            }
+            .build()
+
+    var audioFocusRequest: AudioFocusRequest? = null
+    val am = application.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
     private fun startSpeaking() {
         Log.i(TAG, "about to send some text to TTS")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if(audioFocusRequest == null) {
+                val req = getNewAudioFocusRequest()
+                val granted = am.requestAudioFocus(req)
+                if (granted != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    Log.i(TAG, "Could not gain audio focus, not starting")
+                    shutdown()
+                    return
+                } else {
+                    audioFocusRequest = req
+                }
+            }
+        }
+
         if (!isSpeaking) {
             speakNextChunk()
             isSpeaking = true
@@ -500,7 +550,7 @@ class TextToSpeechServiceManager @Inject constructor(
         Dialogs.instance.showErrorMsg(msgId)
     }
 
-    fun shutdown(willContinueAfter: Boolean) {
+    fun shutdown(willContinueAfter: Boolean = false) {
         Log.i(TAG, "Shutdown TTS")
 
         isSpeaking = false
@@ -529,6 +579,13 @@ class TextToSpeechServiceManager @Inject constructor(
         } finally {
             mTts = null
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if(!pauseDueCall) {
+                audioFocusRequest?.also { am.abandonAudioFocusRequest(it) }
+                audioFocusRequest = null
+            }
+        }
     }
 
     private fun fireStateChangeEvent() {
@@ -549,8 +606,8 @@ class TextToSpeechServiceManager @Inject constructor(
     /**
      * Pause speak if phone call starts
      */
-    fun onEvent(event: PhoneCallEvent) {
-        if (event.callActivating) {
+    private fun callStateChanged(activating: Boolean) {
+        if (activating) {
             if (isSpeaking) {
                 wasPaused = true
                 pause(false)
@@ -567,6 +624,10 @@ class TextToSpeechServiceManager @Inject constructor(
                 continueAfterPause()
             }
         }
+    }
+
+    fun onEvent(event: PhoneCallEvent) {
+        callStateChanged(event.callActivating)
     }
 
     /** persist and restore pause state to allow pauses to continue over an app exit

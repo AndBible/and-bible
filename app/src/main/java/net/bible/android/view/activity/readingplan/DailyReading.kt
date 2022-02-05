@@ -57,7 +57,9 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     private lateinit var binding: ReadingPlanOneDayBinding
 
-    private var dayLoaded: Int = 0
+    var dayLoaded: Int = 0
+        private set
+
     private var planCodeLoaded: String? = null
 
     private lateinit var readingsDto: OneDaysReadingsDto

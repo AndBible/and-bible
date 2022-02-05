@@ -801,4 +801,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="strongs_links">Collegamenti</string>
   <string name="strongs_text_and_links">Testo e collegamenti</string>
   <string name="verse_tip">Per scegliere versetti parziali o multipli, puoi tenere premuto a lungo il testo biblico</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Autorizzazione necessaria</string>
 </resources>

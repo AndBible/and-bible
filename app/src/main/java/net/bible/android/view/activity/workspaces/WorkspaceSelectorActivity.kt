@@ -136,7 +136,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
     private var isDirty: Boolean = false
     private val workspacesToBeDeleted = HashSet<Long>()
     private val workspacesCreated = HashSet<Long>()
-    override val customTheme: Boolean = false
     private lateinit var resultIntent: Intent
     @Inject lateinit var windowControl: WindowControl
     internal lateinit var dataSet: MutableList<WorkspaceEntities.Workspace>
