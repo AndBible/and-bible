@@ -1,13 +1,8 @@
 package net.bible.service.sword
 
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
-import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.control.page.window.WindowControl
 import net.bible.android.misc.elementToString
 import net.bible.android.view.activity.page.Selection
-import net.bible.service.common.ParseException
 import net.bible.test.DatabaseResetter
 
 import org.crosswire.jsword.book.Book
@@ -84,7 +79,7 @@ class SwordContentFacadeTest {
 
         val html = try {
             SwordContentFacade.readOsisFragment(esv, key)
-        } catch (e: ParseException) {
+        } catch (e: JSwordError) {
             "broken"
         }
         assertThat(html, not(equalTo("broken")))
