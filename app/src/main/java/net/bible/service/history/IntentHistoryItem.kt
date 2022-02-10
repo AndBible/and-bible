@@ -60,7 +60,7 @@ class IntentHistoryItem(
 
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
         // start activity chosen from activity
-        currentActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+        currentActivity?.startActivityForResult(intent, STD_REQUEST_CODE)
     }
 
     override fun hashCode(): Int {
