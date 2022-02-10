@@ -268,14 +268,14 @@ dependencies {
     // 1.2.0+ releases (until 1.3.0-alpha02 at least) have issue with translations
     // not showing up on MainBibleActivity. Thus reverting to 1.0.2 for now.
     // https://issuetracker.google.com/issues/141132133
-    implementation("androidx.appcompat:appcompat:1.4.0")
+    implementation("androidx.appcompat:appcompat:1.4.1")
 
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
-    implementation("androidx.media:media:1.4.3")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.2")
+    implementation("androidx.media:media:1.5.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
     implementation("androidx.core:core-ktx:1.7.0")
-    implementation("androidx.preference:preference:1.1.1")
-    implementation("androidx.preference:preference-ktx:1.1.1")
+    implementation("androidx.preference:preference:1.2.0")
+    implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.webkit:webkit:1.4.0")
 
@@ -284,7 +284,7 @@ dependencies {
     //implementation("com.jaredrummler:colorpicker:1.1.0")
     implementation("com.github.AndBible:ColorPicker:ab-fix-1")
 
-    implementation("com.google.android.material:material:1.4.0")
+    implementation("com.google.android.material:material:1.5.0")
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
     implementation("androidx.annotation:annotation:1.3.0")
@@ -293,7 +293,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
 
     implementation("com.madgag.spongycastle:core:1.58.0.0")
     //implementation("com.madgag.spongycastle:prov:1.58.0.0")
