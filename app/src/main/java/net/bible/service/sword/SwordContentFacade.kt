@@ -344,13 +344,17 @@ object SwordContentFacade {
      * This can be removed if SwordBook.contains is converted to be containsAnyOf as discussed in JS-273
      */
     private fun bookContainsAnyOf(book: Book, key: Key): Boolean {
-        if (book.contains(key)) {
-            return true
-        }
-        for (aKey in key) {
-            if (book.contains(aKey)) {
+        try {
+            if (book.contains(key)) {
                 return true
             }
+            for (aKey in key) {
+                if (book.contains(aKey)) {
+                    return true
+                }
+            }
+        } catch (e: ArrayIndexOutOfBoundsException){
+            return false
         }
         return false
     }
