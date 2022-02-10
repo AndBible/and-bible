@@ -153,8 +153,7 @@ android {
 //			zipAlignEnabled true
         }
     }
-
-    flavorDimensions(dimAppearance)
+    flavorDimensions += listOf(dimAppearance)
 
     productFlavors {
         create("standard") {
@@ -188,7 +187,7 @@ android {
     }
 
 
-    lint {
+    lintOptions {
         disable("MissingTranslation")
         disable("ExtraTranslation")
         warning("InvalidPackage")
