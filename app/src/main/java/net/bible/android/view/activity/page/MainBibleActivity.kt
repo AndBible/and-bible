@@ -226,11 +226,41 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         // use context to setup backup control dirs
         BackupControl.setupDirs(this)
-
         BackupControl.clearBackupDir()
 
         windowRepository.initialize()
 
+        resolveVariables()
+        setupUi()
+
+        // register for passage change and appToBackground events
+        ABEventBus.getDefault().register(this)
+
+        setupToolbarButtons()
+        setupToolbarFlingDetection()
+        setSoftKeyboardMode()
+
+        if(!initialized) {
+            requestSdcardPermission()
+        }
+
+        if(!initialized) {
+            scope.launch(Dispatchers.Main) {
+                ErrorReportControl.checkCrash(this@MainBibleActivity)
+                if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
+                showBetaNotice()
+                showStableNotice()
+                showFirstTimeHelp()
+                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
+            }
+            scope.launch {
+                checkDocBackupDBInSync()
+            }
+        }
+        initialized = true
+    }
+
+    private fun setupUi() {
         documentViewManager.buildView()
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
@@ -238,27 +268,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         updateToolbar()
         updateBottomBars()
-
-        // Mainly for old devices (older than API 21)
-        hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
-
-        val navBarId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
-        if (navBarId > 0) {
-            navigationBarHeight = resources.getDimensionPixelSize(navBarId)
-        }
-
-        val tv = TypedValue()
-        if (theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        }
-
-        if (theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
-            transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        }
-
-        if (theme.resolveAttribute(R.attr.windowButtonHeight, tv, true)) {
-            windowButtonHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        }
 
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
@@ -298,33 +307,32 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowRepository.activeWindow.bibleView?.requestFocus()
             }
         })
-        // register for passage change and appToBackground events
-        ABEventBus.getDefault().register(this)
+    }
 
-        setupToolbarButtons()
-        setupToolbarFlingDetection()
-        setSoftKeyboardMode()
+    private fun resolveVariables() {
+        // Mainly for old devices (older than API 21)
+        hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
-        if(!initialized) {
-            requestSdcardPermission()
+        val navBarId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        if (navBarId > 0) {
+            navigationBarHeight = resources.getDimensionPixelSize(navBarId)
         }
 
-        binding.speakTransport.visibility = View.GONE
-
-        if(!initialized) {
-            scope.launch(Dispatchers.Main) {
-                ErrorReportControl.checkCrash(this@MainBibleActivity)
-                if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
-                showBetaNotice()
-                showStableNotice()
-                showFirstTimeHelp()
-                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
-            }
-            scope.launch {
-                checkDocBackupDBInSync()
-            }
+        val tv = TypedValue()
+        if (theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
-        initialized = true
+
+        if (theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
+            transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+        }
+
+        if (theme.resolveAttribute(R.attr.windowButtonHeight, tv, true)) {
+            windowButtonHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+        }
+
+        transportBarVisible = !speakControl.isStopped
+
     }
 
     /**
