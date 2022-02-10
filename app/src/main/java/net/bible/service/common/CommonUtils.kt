@@ -925,6 +925,10 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
+    fun prepareForDestruction() {
+        windowControl.windowRepository.saveIntoDb(false)
+    }
+
     fun destroy() {
         ttsNotificationManager?.destroy()
         ttsWidgetManager?.destroy()

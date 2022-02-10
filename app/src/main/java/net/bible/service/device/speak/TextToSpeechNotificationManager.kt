@@ -106,6 +106,8 @@ class TextToSpeechNotificationManager {
         }
 
         override fun onDestroy() {
+            CommonUtils.prepareForDestruction()
+
             // If application is in background (no activity is active) and this service is not foreground either,
             // this service will be stopped by android some time (1 minute when I tested). App itself remains
             // running until OOM killer stops it. Because notification is bound to this service, it will be
