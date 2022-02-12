@@ -22,6 +22,7 @@
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment"/>
+    <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
   </div>
 </template>
 

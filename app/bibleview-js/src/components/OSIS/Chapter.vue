@@ -16,7 +16,8 @@
   -->
 
 <template>
-  <div class="chapter-number ordinal" :data-ordinal="ordinal" v-if="config.showChapterNumbers && startTag && chapterNum !== '0'">{{sprintf(strings.chapterNum, chapterNum)}}</div>
+  <div class="chapter-number ordinal">BLAH</div>
+  <div style="color:green" class="chapter-number ordinal" :data-ordinal="ordinal" v-if="config.showChapterNumbers && startTag && chapterNum !== '0'">blah {{sprintf(strings.chapterNum, chapterNum)}}</div>
   <slot/>
 </template>
 
