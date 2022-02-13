@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div style="color:green" class="chapter-number ordinal" :data-ordinal="ordinal" v-if="config.showChapterNumbers && startTag && chapterNum !== '0'">blah yah1 {{sprintf(strings.chapterNum, chapterNum)}}</div>
+  <div style="color:green" class="chapter-number ordinal" :data-ordinal="ordinal" v-if="config.showChapterNumbers && startTag && chapterNum !== '0'">I READ CHAPTER {{sprintf(strings.chapterNum, chapterNum)}}</div>
   <slot/>
 </template>
 
@@ -26,7 +26,7 @@ import {inject} from "@vue/runtime-core";
 import {computed} from "@vue/reactivity";
 
 export default {
-  name: "Chapter",
+  name: "ChapterComplete",
   props: {
     n: {type: String, default: null},
     osisID: {type: String, default: null},

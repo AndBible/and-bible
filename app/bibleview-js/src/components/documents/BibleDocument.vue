@@ -22,7 +22,11 @@
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment"/>
-    <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
+    <div style="color:red">After chapter 1</div>
+    <Chapter n="document.chapterNumber.toString()"/>
+    <div style="color:red">Chapter Complete 2</div>
+    <ChapterComplete n="document.chapterNumber.toString()"/>
+    <div style="color:red">OK 3</div>
   </div>
 </template>
 
@@ -33,10 +37,11 @@ import {ref} from "@vue/reactivity";
 import OsisFragment from "@/components/documents/OsisFragment";
 import {useCommon} from "@/composables";
 import Chapter from "@/components/OSIS/Chapter";
+import ChapterComplete from "@/components/OSIS/ChapterComplete";
 
 export default {
   name: "BibleDocument",
-  components: {OsisFragment, Chapter},
+  components: {OsisFragment, Chapter, ChapterComplete},
   props: {
     document: {type: Object, required: true},
   },

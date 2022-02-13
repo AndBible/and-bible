@@ -20,7 +20,7 @@ import {testMode} from "@/composables/config";
 
 const untranslated = {
     chapterNum: "xxx — %s — yyy",
-    verseNum: "vvv %s",
+    verseNum: "%s",
     multiDocumentLink: "%s (%s)"
 }
 
