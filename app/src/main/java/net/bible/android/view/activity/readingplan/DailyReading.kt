@@ -39,7 +39,6 @@ import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.readingplan.OneDaysReadingsDto
@@ -50,11 +49,7 @@ import java.util.Calendar
 
 import javax.inject.Inject
 
-/** Allow user to enter search criteria
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
-class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
+class DailyReading : CustomTitlebarActivityBase() {
 
     private lateinit var binding: ReadingPlanOneDayBinding
 
@@ -67,7 +62,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     private lateinit var readingsDto: OneDaysReadingsDto
 
     @Inject lateinit var readingPlanControl: ReadingPlanControl
-    @Inject lateinit var readingPlanActionBarManager: ReadingPlanActionBarManager
 
     private var readingStatus: ReadingStatus? = null
     private val getReadingStatus: ReadingStatus
@@ -87,8 +81,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         Log.i(TAG, "Displaying one day reading plan")
         binding = ReadingPlanOneDayBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        super.setActionBarManager(readingPlanActionBarManager)
 
         if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists) {
             val intent = Intent(this, ReadingPlanSelectorList::class.java)
@@ -130,8 +122,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             }
 
             planCodeLoaded = readingPlanControl.currentPlanCode
-
-            readingPlanActionBarManager.updateButtons()
 
             // get readings for chosen day
             readingsDto = readingPlanControl.getDaysReading(dayLoaded)
@@ -230,8 +220,17 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.reading_plan, menu)
         MenuCompat.setGroupDividerEnabled(menu, true)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        if (::readingsDto.isInitialized && readingsDto.isDateBasedPlan) {
+            menu.findItem(R.id.setCurrentDay).isVisible = false
+            menu.findItem(R.id.setStartDate).isVisible = false
+        }
+        return super.onPrepareOptionsMenu(menu)
     }
 
     /** user pressed read button by 1 reading
@@ -328,14 +327,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         val intent = intent
         finish()
         startActivity(intent)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        if (::readingsDto.isInitialized && readingsDto.isDateBasedPlan) {
-            menu.findItem(R.id.setCurrentDay).isVisible = false
-            menu.findItem(R.id.setStartDate).isVisible = false
-        }
-        return super.onPrepareOptionsMenu(menu)
     }
 
     /**
@@ -441,7 +432,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         }
     }
 
-    val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+    private val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         // TODO load imported plan if result is OK
         //  still need to set up "InstallZip" to return reading plan fileName (code)
     }
@@ -495,7 +486,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             val planDescription: String
         )
 
-        val PLAN = "net.bible.android.view.activity.readingplan.Plan"
-        val DAY = "net.bible.android.view.activity.readingplan.Day"
+        const val PLAN = "net.bible.android.view.activity.readingplan.Plan"
+        const val DAY = "net.bible.android.view.activity.readingplan.Day"
     }
 }
