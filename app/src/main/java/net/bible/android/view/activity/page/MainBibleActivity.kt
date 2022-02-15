@@ -398,6 +398,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val ver = CommonUtils.mainVersion
 
         val displayedVer = preferences.getString("stable-notice-displayed", "")
+        Log.i(TAG, "showStableNotice: $displayedVer $ver")
 
         if(displayedVer != ver) {
             val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
@@ -419,6 +420,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setIcon(R.drawable.ic_logo)
                 .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
+                    Log.i(TAG, "showStableNotice: saving $ver")
                     preferences.setString("stable-notice-displayed", ver)
                     it.resume(true)
                 }
