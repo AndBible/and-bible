@@ -20,11 +20,13 @@ package net.bible.service.download
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.PseudoBook
+import net.bible.service.sword.getBook
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookMetaData
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
@@ -33,6 +35,7 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordDictionary
 import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.Key
+import java.io.File
 import java.io.IOException
 import java.util.*
 
@@ -183,7 +186,11 @@ Versification=KJVA"""
 
     fun pseudoDocuments(l: List<PseudoBook>?): List<Book> = l?.map { getPseudoBook(it.id, it.suggested) }?: emptyList()
 
-    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
+    val sqliteBook = getBook(File(application.getExternalFilesDir(null), "slite/gsb1951.bbl.mybible"))
+    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument, sqliteBook)
+    init {
+        Books.installed().addBook(sqliteBook)
+    }
 }
 
 val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != null

@@ -19,123 +19,109 @@
 package net.bible.service.sword
 
 import android.database.sqlite.SQLiteDatabase
-import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.book.BookMetaData
-import org.crosswire.jsword.book.basic.AbstractBookMetaData
-import org.crosswire.jsword.book.basic.AbstractPassageBook
-import org.crosswire.jsword.book.filter.SourceFilter
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
-import org.crosswire.jsword.book.sword.Backend
-import org.crosswire.jsword.book.sword.processing.RawTextToXmlProcessor
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.Key
-import org.jdom2.Content
+import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.system.Versifications
 
 import java.io.File
+import java.io.IOException
 
-class MySwordMetadata(
-    private val _name: String,
-    private val _abbreviation: String
-
-): AbstractBookMetaData() {
-    override fun getName(): String = _name
-    override fun getAbbreviation(): String = _abbreviation
-    override fun getInitials(): String = _abbreviation
-    override fun getBookCharset(): String = "UTF-8"
-    override fun getBookCategory(): BookCategory = BookCategory.BIBLE
-    override fun isLeftToRight(): Boolean = true
-
-    val keys = emptySet<String>().toMutableSet()
-    val props = emptyMap<String, String>().toMutableMap()
-    val collections = emptyMap<String, MutableCollection<String>>().toMutableMap()
-
-    override fun getPropertyKeys(): MutableSet<String> = keys
-    override fun getProperty(key: String?): String? = props[key]
-    override fun getValues(key: String?): MutableCollection<String>? = collections[key]
-    override fun setProperty(key: String, value: String) = props.set(key, value)
-    override fun putProperty(key: String, value: String, forFrontend: Boolean) = setProperty(key, value)
+private fun getConfig(abbreviation: String, description: String): String {
+    return """[mysword-$abbreviation]
+Description=$description
+Abbreviation=$abbreviation
+Category=Biblical Texts
+AndBibleSqliteSwordBook=1
+Language=en
+Version=0.0
+Encoding=UTF-8
+LCSH=Bible
+ModDrv=zText
+BlockType=BOOK
+Versification=KJV"""
 }
 
+fun readBookMetaData(sqlDb: SQLiteDatabase): SwordBookMetaData {
+    val c = sqlDb.query("Details", arrayOf("Description", "Abbreviation"), null, null, null, null, null)
+    c.moveToFirst()
+    val description = c.getString(0)
+    val abbreviation = c.getString(1)
+    c.close()
+    val conf = getConfig(abbreviation, description)
+    return SwordBookMetaData(conf.toByteArray(), "mysword-$abbreviation")
+}
 
-class SqliteOpenFileState(sqliteFile: File): OpenFileState {
-    val sqlDb = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
+class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
+    val sqlDb: SQLiteDatabase = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
 
     override fun close() {
-        sqlDb.close()
+        //sqlDb.close()
     }
 
-    override fun getBookMetaData(): BookMetaData {
-        sqlDb.use { d ->
-            val c = d.query("Details", arrayOf("Description", "Abbreviation"), null, null, null, null, null)
-            c.moveToFirst()
-            val description = c.getString(0)
-            val abbreviation = c.getString(1)
-            c.close()
-            return MySwordMetadata(description, abbreviation)
-        }
-    }
-
-    override fun releaseResources() {
-        sqlDb.close()
-    }
+    override fun getBookMetaData(): SwordBookMetaData = readBookMetaData(sqlDb)
+    override fun releaseResources() {} //sqlDb.close()
 
     private var _lastAccess: Long  = 0L
-
     override fun getLastAccess(): Long = _lastAccess
     override fun setLastAccess(lastAccess: Long) {
         _lastAccess = lastAccess
     }
 }
 
-class SqliteBackend(metadata: BookMetaData): AbstractKeyBackend<SqliteOpenFileState>() {
-    override fun initState(): SqliteOpenFileState {
-        TODO("Not yet implemented")
-    }
+class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<SqliteVerseBackendState>(metadata) {
+    override fun initState(): SqliteVerseBackendState = state
 
     override fun getCardinality(): Int {
-        TODO("Not yet implemented")
+        val cur = state.sqlDb.rawQuery("select count(*) as count from Bible", null)
+        cur.moveToNext()
+        val count = cur.getInt(0);
+        cur.close()
+        return count
     }
 
     override fun get(index: Int): Key {
-        TODO("Not yet implemented")
+        val cur = state.sqlDb.rawQuery("select Book,Chapter,Verse from Bible WHERE _rowid_ = ?", arrayOf("$index"))
+        cur.moveToNext()
+        val bookNum = cur.getInt(0)
+        val v11n = Versifications.instance().getVersification(Versifications.DEFAULT_V11N)
+        val book = v11n.getBook(bookNum)
+        val chapter = cur.getInt(1)
+        val verse = cur.getInt(2)
+        cur.close()
+        return Verse(v11n, book, chapter, verse)
     }
 
-    override fun indexOf(that: Key?): Int {
-        TODO("Not yet implemented")
+    override fun indexOf(that: Key): Int {
+        val verse = KeyUtil.getVerse(that)
+        val cur = state.sqlDb.rawQuery("select _rowid_ from Bible WHERE Book = ? AND Chapter = ? AND Verse = ?",
+            arrayOf("${verse.book.ordinal-1}", "${verse.chapter}", "${verse.verse}"))
+        cur.moveToNext() || return -1
+        val rowid = cur.getInt(0)
+        cur.close()
+        return rowid
     }
 
-    override fun readRawContent(state: SqliteOpenFileState?, key: Key?): String {
-        TODO("Not yet implemented")
+    override fun readRawContent(state: SqliteVerseBackendState, key: Key): String {
+        val verse = KeyUtil.getVerse(key)
+        val cur = state.sqlDb.rawQuery(
+            "select Scripture from Bible WHERE Book = ? AND Chapter = ? AND Verse = ?",
+            arrayOf("${verse.book.ordinal-1}", "${verse.chapter}", "${verse.verse}")
+        )
+        cur.moveToNext() || throw IOException("Can't read")
+        val text = cur.getString(0)
+        cur.close()
+        return text
     }
-
 }
 
-class MySwordBook(metadata: BookMetaData, backend: Backend<SqliteOpenFileState>): AbstractPassageBook(metadata, backend) {
-    override fun getGlobalKeyList(): Key {
-        TODO("Not yet implemented")
-    }
-
-    override fun contains(key: Key?): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun getRawText(key: Key?): String {
-        TODO("Not yet implemented")
-    }
-
-    override fun setRawText(key: Key?, rawData: String?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setAliasKey(alias: Key?, source: Key?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getOsis(key: Key?, noOpRawTextProcessor: RawTextToXmlProcessor?): MutableList<Content> {
-        TODO("Not yet implemented")
-    }
-
-    override fun getFilter(): SourceFilter {
-        TODO("Not yet implemented")
-    }
+fun getBook(file: File): SwordBook {
+    val state = SqliteVerseBackendState(file)
+    val metadata = state.bookMetaData
+    val backend = SqliteBackend(state, metadata)
+    return SwordBook(metadata, backend)
 }
