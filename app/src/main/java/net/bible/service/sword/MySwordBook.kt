@@ -41,6 +41,7 @@ Language=en
 Version=0.0
 Encoding=UTF-8
 LCSH=Bible
+SourceType=OSIS
 ModDrv=zText
 BlockType=BOOK
 Versification=KJV"""
@@ -113,7 +114,8 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             arrayOf("${verse.book.ordinal-1}", "${verse.chapter}", "${verse.verse}")
         )
         cur.moveToNext() || throw IOException("Can't read")
-        val text = cur.getString(0)
+        var text = cur.getString(0)
+        text = text.replace("<CM>", "<div type=\"x-p\" sID=\"1\"/>")
         cur.close()
         return text
     }
