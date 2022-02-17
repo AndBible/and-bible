@@ -186,9 +186,10 @@ Versification=KJVA"""
 
     fun pseudoDocuments(l: List<PseudoBook>?): List<Book> = l?.map { getPseudoBook(it.id, it.suggested) }?: emptyList()
 
-    val sqliteBook = getBook(File(application.getExternalFilesDir(null), "slite/gsb1951.bbl.mybible"))
-    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument, sqliteBook)
+    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
+
     init {
+        val sqliteBook = getBook(File(application.getExternalFilesDir(null), "slite/gsb1951.bbl.mybible"))
         Books.installed().addBook(sqliteBook)
     }
 }
