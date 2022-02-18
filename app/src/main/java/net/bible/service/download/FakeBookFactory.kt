@@ -189,7 +189,7 @@ Versification=KJVA"""
     val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
 
     init {
-        val sqliteBook = getBook(File(application.getExternalFilesDir(null), "slite/gsb1951.bbl.mybible"))
+        val sqliteBook = getBook(File(application.getExternalFilesDir(null), "slite/KJVstrongs.sqlite3"))
         Books.installed().addBook(sqliteBook)
     }
 }

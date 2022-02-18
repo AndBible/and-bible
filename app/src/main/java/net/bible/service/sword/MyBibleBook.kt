@@ -26,13 +26,104 @@ import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.BibleBook.*
 import org.crosswire.jsword.versification.system.Versifications
 
 import java.io.File
 import java.io.IOException
 
+val intToBibleBook = mapOf(
+    10 to GEN,
+    20 to EXOD,
+    30 to LEV,
+    40 to NUM,
+    50 to DEUT,
+    60 to JOSH,
+    70 to JUDG,
+    80 to RUTH,
+    90 to SAM1,
+    100 to SAM2,
+    110 to KGS1,
+    120 to KGS2,
+    //180 to
+    130 to CHR1,
+    140 to CHR2,
+    //145 to
+    150 to EZRA,
+    160 to NEH,
+    //165 to
+    170 to TOB,
+    190 to ESTH,
+    192 to ADD_ESTH,
+    220 to JOB,
+    230 to PS,
+    240 to PROV,
+    250 to ECCL,
+    260 to SONG,
+    270 to WIS,
+    280 to SIR,
+    290 to ISA,
+    300 to JER,
+    305 to PR_AZAR,
+    310 to LAM,
+    315 to EP_JER,
+    320 to BAR,
+    //323 to
+    325 to SUS,
+    330 to EZEK,
+    340 to DAN,
+    345 to ADD_DAN,
+    350 to HOS,
+    360 to JOEL,
+    370 to AMOS,
+    380 to OBAD,
+    390 to JONAH,
+    400 to MIC,
+    410 to NAH,
+    420 to HAB,
+    430 to ZEPH,
+    440 to HAG,
+    450 to ZECH,
+    460 to MAL,
+    462 to MACC1,
+    464 to MACC2,
+    466 to MACC3,
+    467 to MACC4,
+    468 to ESD2,
+    470 to MATT,
+    480 to MARK,
+    490 to LUKE,
+    500 to JOHN,
+    510 to ACTS,
+    660 to JAS,
+    670 to PET1,
+    680 to PET2,
+    690 to JOHN1,
+    700 to JOHN2,
+    710 to JOHN3,
+    720 to JUDE,
+    520 to ROM,
+    530 to COR1,
+    540 to COR2,
+    550 to GAL,
+    560 to EPH,
+    570 to PHIL,
+    580 to COL,
+    590 to THESS1,
+    600 to THESS2,
+    610 to TIM1,
+    620 to TIM2,
+    630 to TITUS,
+    640 to PHLM,
+    650 to HEB,
+    730 to REV,
+    780 to EP_LAO,
+)
+
+val bibleBookToInt = intToBibleBook.toList().associate { (k, v) -> v to k }
+
 private fun getConfig(abbreviation: String, description: String): String {
-    return """[mysword-$abbreviation]
+    return """[mybible-$abbreviation]
 Description=$description
 Abbreviation=$abbreviation
 Category=Biblical Texts
@@ -48,21 +139,18 @@ Versification=KJV"""
 }
 
 fun readBookMetaData(sqlDb: SQLiteDatabase): SwordBookMetaData {
-    val c = sqlDb.query("Details", arrayOf("Description", "Abbreviation"), null, null, null, null, null)
+    val c = sqlDb.rawQuery("select value from info where name = ?", arrayOf("description"))
     c.moveToFirst()
     val description = c.getString(0)
-    val abbreviation = c.getString(1)
     c.close()
-    val conf = getConfig(abbreviation, description)
-    return SwordBookMetaData(conf.toByteArray(), "mysword-$abbreviation")
+    val conf = getConfig("kjvstrongs", description)
+    return SwordBookMetaData(conf.toByteArray(), "mybible-kjvstrongs")
 }
 
 class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
     val sqlDb: SQLiteDatabase = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
 
-    override fun close() {
-        //sqlDb.close()
-    }
+    override fun close() = sqlDb.close()
 
     override fun getBookMetaData(): SwordBookMetaData = readBookMetaData(sqlDb)
     override fun releaseResources() {} //sqlDb.close()
@@ -75,7 +163,9 @@ class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
 }
 
 class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<SqliteVerseBackendState>(metadata) {
-    override fun initState(): SqliteVerseBackendState = state
+    override fun initState(): SqliteVerseBackendState {
+        return state
+    }
 
     override fun getCardinality(): Int {
         val cur = state.sqlDb.rawQuery("select count(*) as count from Bible", null)
@@ -86,11 +176,11 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     }
 
     override fun get(index: Int): Key {
-        val cur = state.sqlDb.rawQuery("select Book,Chapter,Verse from Bible WHERE _rowid_ = ?", arrayOf("$index"))
+        val cur = state.sqlDb.rawQuery("select book_number,chapter,verse from verses WHERE _rowid_ = ?", arrayOf("$index"))
         cur.moveToNext()
         val bookNum = cur.getInt(0)
         val v11n = Versifications.instance().getVersification(Versifications.DEFAULT_V11N)
-        val book = v11n.getBook(bookNum)
+        val book = intToBibleBook[bookNum]
         val chapter = cur.getInt(1)
         val verse = cur.getInt(2)
         cur.close()
@@ -99,8 +189,8 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     override fun indexOf(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
-        val cur = state.sqlDb.rawQuery("select _rowid_ from Bible WHERE Book = ? AND Chapter = ? AND Verse = ?",
-            arrayOf("${verse.book.ordinal-1}", "${verse.chapter}", "${verse.verse}"))
+        val cur = state.sqlDb.rawQuery("select _rowid_ from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
+            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}"))
         cur.moveToNext() || return -1
         val rowid = cur.getInt(0)
         cur.close()
@@ -110,12 +200,11 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     override fun readRawContent(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
         val cur = state.sqlDb.rawQuery(
-            "select Scripture from Bible WHERE Book = ? AND Chapter = ? AND Verse = ?",
-            arrayOf("${verse.book.ordinal-1}", "${verse.chapter}", "${verse.verse}")
+            "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
+            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
         )
         cur.moveToNext() || throw IOException("Can't read")
-        var text = cur.getString(0)
-        text = text.replace("<CM>", "<div type=\"x-p\" sID=\"1\"/>")
+        val text = cur.getString(0)
         cur.close()
         return text
     }
