@@ -20,6 +20,7 @@ package net.bible.service.download
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.PseudoBook
+import net.bible.service.sword.addMyBibleBooks
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory

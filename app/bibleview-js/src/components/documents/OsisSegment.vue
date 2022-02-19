@@ -48,6 +48,9 @@ import Abbr from "@/components/OSIS/Abbr";
 import {osisToTemplateString} from "@/utils";
 import BibleViewAnchor from "@/components/BibleViewAnchor";
 import AndBibleLink from "@/components/OSIS/AndBibleLink";
+import Pb from "@/components/MyBible/Pb";
+import NoOp from "@/components/OSIS/NoOp";
+import H3 from "@/components/MyBible/H3";
 
 const teiComponents = {
   Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
@@ -58,11 +61,15 @@ const andBibleComponents = {
   AndBibleLink
 }
 
+const myBibleComponents = {
+  S: NoOp, M: NoOp, I:Hi, J:Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3,
+}
+
 const osisComponents = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,
   DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
   Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
-  ...teiComponents, ...andBibleComponents
+  ...teiComponents, ...andBibleComponents, ...myBibleComponents,
 }
 
 function prefixComponents() {
