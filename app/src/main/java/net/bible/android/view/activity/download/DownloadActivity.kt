@@ -63,6 +63,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.serializer
 import net.bible.android.database.SwordDocumentInfo
+import net.bible.service.sword.isMyBibleBook
 
 /**
  * Choose Document (Book) to download
