@@ -143,44 +143,43 @@ Versification=KJV"""
 
 const val TAG = "MyBibleBook"
 
-fun readBookMetaData(sqlDb: SQLiteDatabase): SwordBookMetaData {
-    val initials = File(sqlDb.path).nameWithoutExtension
-    val description = sqlDb.rawQuery("select value from info where name = ?", arrayOf("description")).use {
-        it.moveToFirst()
-        it.getString(0)
-    }
-    val language = sqlDb.rawQuery("select value from info where name = ?", arrayOf("language")).use {
-        it.moveToFirst()
-        it.getString(0)
-    }
-
-    val tables = sqlDb.rawQuery("select name from sqlite_master where type = 'table' AND name not like 'sqlite_%'", null).use {
-        val names = arrayListOf<String>()
-        while(it.moveToNext()) {
-            names.add(it.getString(0))
-        }
-        names
-    }
-    val isCommentary = tables.contains("commentaries")
-    val isBible = tables.contains("verses")
-
-    val category = when {
-        isBible -> "Biblical Texts"
-        isCommentary -> "Commentaries"
-        else -> "Illegal"
-    }
-
-    val conf = getConfig(initials, description, language, category)
-    Log.i(TAG, "Adding MyBibleBook $initials, $description $language $category")
-    return SwordBookMetaData(conf.toByteArray(), "mybible-$initials")
-}
-
 class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
     val sqlDb: SQLiteDatabase = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
 
     override fun close() = sqlDb.close()
 
-    override fun getBookMetaData(): SwordBookMetaData = readBookMetaData(sqlDb)
+    override fun getBookMetaData(): SwordBookMetaData {
+        val initials = File(sqlDb.path).nameWithoutExtension
+        val description = sqlDb.rawQuery("select value from info where name = ?", arrayOf("description")).use {
+            it.moveToFirst()
+            it.getString(0)
+        }
+        val language = sqlDb.rawQuery("select value from info where name = ?", arrayOf("language")).use {
+            it.moveToFirst()
+            it.getString(0)
+        }
+
+        val tables = sqlDb.rawQuery("select name from sqlite_master where type = 'table' AND name not like 'sqlite_%'", null).use {
+            val names = arrayListOf<String>()
+            while(it.moveToNext()) {
+                names.add(it.getString(0))
+            }
+            names
+        }
+        val isCommentary = tables.contains("commentaries")
+        val isBible = tables.contains("verses")
+
+        val category = when {
+            isBible -> "Biblical Texts"
+            isCommentary -> "Commentaries"
+            else -> "Illegal"
+        }
+
+        val conf = getConfig(initials, description, language, category)
+        Log.i(TAG, "Adding MyBibleBook $initials, $description $language $category")
+        return SwordBookMetaData(conf.toByteArray(), "mybible-$initials")
+    }
+
     override fun releaseResources() {} //sqlDb.close()
 
     private var _lastAccess: Long  = 0L
