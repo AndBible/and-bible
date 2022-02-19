@@ -19,6 +19,7 @@
 package net.bible.service.sword
 
 import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 import net.bible.android.BibleApplication
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -131,7 +132,7 @@ Description=$description
 Abbreviation=$abbreviation
 Category=$category
 AndBibleSqliteSwordBook=1
-Language=$language
+Lang=$language
 Version=0.0
 Encoding=UTF-8
 LCSH=Bible
@@ -139,6 +140,8 @@ SourceType=OSIS
 ModDrv=zText
 BlockType=BOOK
 Versification=KJV"""
+
+const val TAG = "MyBibleBook"
 
 fun readBookMetaData(sqlDb: SQLiteDatabase): SwordBookMetaData {
     val initials = File(sqlDb.path).nameWithoutExtension
@@ -168,6 +171,7 @@ fun readBookMetaData(sqlDb: SQLiteDatabase): SwordBookMetaData {
     }
 
     val conf = getConfig(initials, description, language, category)
+    Log.i(TAG, "Adding MyBibleBook $initials, $description $language $category")
     return SwordBookMetaData(conf.toByteArray(), "mybible-$initials")
 }
 
