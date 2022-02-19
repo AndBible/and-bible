@@ -30,6 +30,8 @@ import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.state.OpenFileState
+import org.crosswire.jsword.index.IndexManagerFactory
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
@@ -341,6 +343,12 @@ fun addMyBibleBooks() {
         val metadata = state.bookMetaData
         val backend = SqliteBackend(state, metadata)
         val book =SwordBook(metadata, backend)
+        if(IndexManagerFactory.getIndexManager().isIndexed(book)) {
+            metadata.indexStatus = IndexStatus.DONE
+        } else {
+            metadata.indexStatus = IndexStatus.UNDONE
+        }
+
         Books.installed().addBook(book)
     }
 }
