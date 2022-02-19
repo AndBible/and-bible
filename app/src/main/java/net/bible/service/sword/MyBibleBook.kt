@@ -300,8 +300,8 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     }
 }
 
-fun addBooks() {
-    val dir = File(BibleApplication.application.getExternalFilesDir(null), "slite")
+fun addMyBibleBooks() {
+    val dir = File(BibleApplication.application.getExternalFilesDir(null), "mybible")
     if(!(dir.isDirectory && dir.canRead())) return
 
     for(f in dir.listFiles()?: emptyArray()) {
