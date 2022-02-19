@@ -20,6 +20,7 @@ package net.bible.service.sword
 
 import android.database.sqlite.SQLiteDatabase
 import net.bible.android.BibleApplication
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordBook
@@ -124,11 +125,11 @@ val intToBibleBook = mapOf(
 
 val bibleBookToInt = intToBibleBook.toList().associate { (k, v) -> v to k }
 
-private fun getConfig(abbreviation: String, description: String, language: String): String = """
+private fun getConfig(abbreviation: String, description: String, language: String, category: String): String = """
 [mybible-$abbreviation]
 Description=$description
 Abbreviation=$abbreviation
-Category=Biblical Texts
+Category=$category
 AndBibleSqliteSwordBook=1
 Language=$language
 Version=0.0
@@ -150,7 +151,23 @@ fun readBookMetaData(sqlDb: SQLiteDatabase): SwordBookMetaData {
         it.getString(0)
     }
 
-    val conf = getConfig(initials, description, language)
+    val tables = sqlDb.rawQuery("select name from sqlite_master where type = 'table' AND name not like 'sqlite_%'", null).use {
+        val names = arrayListOf<String>()
+        while(it.moveToNext()) {
+            names.add(it.getString(0))
+        }
+        names
+    }
+    val isCommentary = tables.contains("commentaries")
+    val isBible = tables.contains("verses")
+
+    val category = when {
+        isBible -> "Biblical Texts"
+        isCommentary -> "Commentaries"
+        else -> "Illegal"
+    }
+
+    val conf = getConfig(initials, description, language, category)
     return SwordBookMetaData(conf.toByteArray(), "mybible-$initials")
 }
 
@@ -194,7 +211,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         return Verse(v11n, book, chapter, verse)
     }
 
-    override fun indexOf(that: Key): Int {
+    private fun indexOfBible(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
         val cur = state.sqlDb.rawQuery("select _rowid_ from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
             arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}"))
@@ -204,7 +221,25 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         return rowid
     }
 
-    override fun readRawContent(state: SqliteVerseBackendState, key: Key): String {
+    private fun indexOfCommentary(that: Key): Int {
+        val verse = KeyUtil.getVerse(that)
+        val cur = state.sqlDb.rawQuery("select _rowid_ from commentaries WHERE book_number = ? AND chapter_number_from = ? AND verse_number_from = ?",
+            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}"))
+        cur.moveToNext() || return -1
+        val rowid = cur.getInt(0)
+        cur.close()
+        return rowid
+    }
+
+    override fun indexOf(that: Key): Int {
+        return when(bookMetaData.bookCategory) {
+            BookCategory.BIBLE -> indexOfBible(that)
+            BookCategory.COMMENTARY -> indexOfCommentary(that)
+            else -> -1
+        }
+    }
+
+    private fun readBible(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
         var text = state.sqlDb.rawQuery(
             "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
@@ -233,6 +268,25 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             }
         }
         return text
+    }
+
+    private fun readCommentary(state: SqliteVerseBackendState, key: Key): String {
+        val verse = KeyUtil.getVerse(key)
+        return state.sqlDb.rawQuery(
+            "select text from commentaries WHERE book_number = ? AND chapter_number_from = ? AND verse_number_from = ?",
+            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
+        ).use {
+            it.moveToNext() || throw IOException("Can't read")
+            it.getString(0)
+        }
+    }
+
+    override fun readRawContent(state: SqliteVerseBackendState, key: Key): String {
+        return when(bookMetaData.bookCategory) {
+            BookCategory.BIBLE -> readBible(state, key)
+            BookCategory.COMMENTARY -> readCommentary(state, key)
+            else -> ""
+        }
     }
 }
 
