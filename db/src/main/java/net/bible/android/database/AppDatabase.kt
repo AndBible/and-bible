@@ -30,6 +30,8 @@ import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.android.database.readinghistory.ReadingHistoryDao
+import net.bible.android.database.readinghistory.ReadingHistoryEntities
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 import org.crosswire.jsword.book.Books
@@ -46,7 +48,7 @@ import java.io.ObjectOutputStream
 
 import java.util.*
 
-const val DATABASE_VERSION = 57
+const val DATABASE_VERSION = 58
 
 class Converters {
     @TypeConverter
@@ -202,6 +204,7 @@ class Converters {
         BookmarkEntities.BookmarkToLabel::class,
         ReadingPlanEntities.ReadingPlan::class,
         ReadingPlanEntities.ReadingPlanStatus::class,
+        ReadingHistoryEntities.ReadingHistory::class,
         WorkspaceEntities.Workspace::class,
         WorkspaceEntities.Window::class,
         WorkspaceEntities.HistoryItem::class,
@@ -218,6 +221,7 @@ class Converters {
 @TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun readingPlanDao(): ReadingPlanDao
+    abstract fun readingHistoryDao(): ReadingHistoryDao
     abstract fun workspaceDao(): WorkspaceDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun documentDao(): DocumentSearchDao

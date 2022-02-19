@@ -982,6 +982,25 @@ private val MIGRATION_56_57_breaklines_in_notes = object : Migration(56, 57) {
     }
 }
 
+private val MIGRATION_57_58_create_reading_history = object : Migration(57, 58) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        // Stores what chapters the user has read or listened to.
+        // bible_document: KJV, ESV, PEV etc
+        // docFormat: Normal, TTS, Audio Bible
+        // bookInitials: The book of the Bible
+        // chapterNo: Chapter of the Bible
+        db.apply {
+            execSQL("CREATE TABLE IF NOT EXISTS `ReadingHistory` (`createdAt` INTEGER NOT NULL, `bible_document` TEXT NOT NULL, `docFormat` TEXT DEFAULT 'Normal', `bookInitials` TEXT NOT NULL, `chapterNo` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_ReadingHistory_createdAt` ON `ReadingHistory` (`createdAt`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_ReadingHistory_bible_document` ON `ReadingHistory` (`bible_document`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_ReadingHistory_docFormat` ON `ReadingHistory` (`docFormat`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_ReadingHistory_bookInitials` ON `ReadingHistory` (`bookInitials`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_ReadingHistory_chapterNo` ON `ReadingHistory` (`chapterNo`)")
+        }
+    }
+}
+
+
 class DataBaseNotReady: Exception()
 
 object DatabaseContainer {
@@ -1084,6 +1103,7 @@ object DatabaseContainer {
                         MIGRATION_54_55_bookmarkType,
                         MIGRATION_55_56_limitAmbiguousSize,
                         MIGRATION_56_57_breaklines_in_notes,
+                        MIGRATION_57_58_create_reading_history,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

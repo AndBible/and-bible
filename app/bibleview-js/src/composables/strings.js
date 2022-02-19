@@ -19,7 +19,7 @@ import {reactive} from "@vue/runtime-core";
 import {testMode} from "@/composables/config";
 
 const untranslated = {
-    chapterNum: "xxx — %s — yyy",
+    chapterNum: "— %s —",
     verseNum: "%s",
     multiDocumentLink: "%s (%s)"
 }

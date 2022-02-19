@@ -247,6 +247,10 @@ export function useAndroid({bookmarks}, config) {
         android.compare(bookInitials, startOrdinal, endOrdinal ? endOrdinal: -1);
     }
 
+    function chapterCompleted() {
+        console.log("chapterCompleted: ");
+    }
+
     function openStudyPad(labelId, bookmarkId) {
         android.openStudyPad(labelId, bookmarkId);
     }
@@ -362,6 +366,7 @@ export function useAndroid({bookmarks}, config) {
         speak,
         helpDialog,
         onKeyDown,
+        chapterCompleted,
     }
 
     if(config.developmentMode) return {

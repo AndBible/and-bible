@@ -42,6 +42,8 @@ import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.readinghistory.ReadingHistoryDao
+import net.bible.android.database.readinghistory.ReadingHistoryEntities
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -51,6 +53,7 @@ import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
 import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
+import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
@@ -263,6 +266,14 @@ class BibleJavascriptInterface(
         GlobalScope.launch(Dispatchers.Main) {
             bibleView.compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
         }
+    }
+
+    @JavascriptInterface
+    fun chapterCompleted() {
+        Log.i(TAG, "chapterCompleted KT")
+        val readingHistoryDao = DatabaseContainer.db.readingHistoryDao()
+        val rh = ReadingHistoryEntities.ReadingHistory(1,"KJV","Normal","GEN",1)
+        readingHistoryDao.insert(rh)
     }
 
     @JavascriptInterface

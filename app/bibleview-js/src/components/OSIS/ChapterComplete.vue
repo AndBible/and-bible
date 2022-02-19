@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div style="color:green" class="chapter-number ordinal" :data-ordinal="ordinal" v-if="config.showChapterNumbers && startTag && chapterNum !== '0'">I READ CHAPTER {{sprintf(strings.chapterNum, chapterNum)}}</div>
+  <div class="chapter-number ordinal" :data-ordinal="ordinal" @click="chapterCompleted">I READ CHAPTER <b>{{chapterNum}}</b></div>
   <slot/>
 </template>
 
@@ -47,17 +47,38 @@ export default {
       return (props.n || props.osisID.split(".")[1]).trim()
     });
 
-    return {ordinal, chapterNum, startTag, ...useCommon()};
+    function chapterCompleted() {
+      android.chapterCompleted();
+    }
+    return {ordinal, chapterNum, startTag, chapterCompleted, ...useCommon()};
   },
 }
 </script>
 
 <style scoped lang="scss">
 .chapter-number {
-  color: var(--verse-number-color);
+  color: green;
+  border: solid 1px green;
+  background-color: white;
+  border-radius: 0px 0px 25px 25px;
   font-size: 70%;
-	margin-top: 1em;
-	margin-bottom: 0.5em;
+	margin-top: 0.5em;
+	margin-bottom: 1em;
 	text-align: center;
+	margin: auto;
+	max-width: 150px;
+	transition-duration: 3.4s;
 }
+.chapter-number:active {
+  content: "";
+  background: green;
+  color: white;
+  transition: all 0.1s
+}
+.chapter-number:active:after {
+  content: "";
+  background: green;
+  color: white;
+}
+
 </style>
