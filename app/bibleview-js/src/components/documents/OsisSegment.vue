@@ -62,7 +62,7 @@ const andBibleComponents = {
 }
 
 const myBibleComponents = {
-  S: NoOp, M: NoOp, I:Hi, J:Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3,
+  S: NoOp, M: NoOp, I:Note, J:Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3,
 }
 
 const osisComponents = {
