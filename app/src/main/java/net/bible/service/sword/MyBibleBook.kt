@@ -21,8 +21,11 @@ package net.bible.service.sword
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import net.bible.android.BibleApplication
+import net.bible.android.database.bookmarks.KJVA
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
@@ -31,7 +34,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook.*
-import org.crosswire.jsword.versification.system.Versifications
 
 import java.io.File
 import java.io.IOException
@@ -127,7 +129,7 @@ val intToBibleBook = mapOf(
 val bibleBookToInt = intToBibleBook.toList().associate { (k, v) -> v to k }
 
 private fun getConfig(abbreviation: String, description: String, language: String, category: String): String = """
-[mybible-$abbreviation]
+[MyBible-$abbreviation]
 Description=$description
 Abbreviation=$abbreviation
 Category=$category
@@ -139,9 +141,20 @@ LCSH=Bible
 SourceType=OSIS
 ModDrv=zText
 BlockType=BOOK
-Versification=KJV"""
+Versification=KJVA"""
 
 const val TAG = "MyBibleBook"
+
+class MockDriver: AbstractBookDriver() {
+    override fun getBooks(): Array<Book> {
+        return emptyArray()
+    }
+
+    override fun getDriverName(): String {
+        return "MyBible"
+    }
+
+}
 
 class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
     val sqlDb: SQLiteDatabase = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
@@ -150,37 +163,47 @@ class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
 
     var hasStories: Boolean = false
 
+    var metadata: SwordBookMetaData? = null
+
     override fun getBookMetaData(): SwordBookMetaData {
-        val initials = File(sqlDb.path).nameWithoutExtension.split(".", limit = 2)[0]
-        val description = sqlDb.rawQuery("select value from info where name = ?", arrayOf("description")).use {
-            it.moveToFirst()
-            it.getString(0)
-        }
-        val language = sqlDb.rawQuery("select value from info where name = ?", arrayOf("language")).use {
-            it.moveToFirst()
-            it.getString(0)
-        }
-
-        val tables = sqlDb.rawQuery("select name from sqlite_master where type = 'table' AND name not like 'sqlite_%'", null).use {
-            val names = arrayListOf<String>()
-            while(it.moveToNext()) {
-                names.add(it.getString(0))
+        return metadata?: synchronized(this) {
+            val initials = File(sqlDb.path).nameWithoutExtension.split(".", limit = 2)[0]
+            val description = sqlDb.rawQuery("select value from info where name = ?", arrayOf("description")).use {
+                it.moveToFirst()
+                it.getString(0)
             }
-            names
-        }
-        val isCommentary = tables.contains("commentaries")
-        val isBible = tables.contains("verses")
-        hasStories = tables.contains("stories")
+            val language = sqlDb.rawQuery("select value from info where name = ?", arrayOf("language")).use {
+                it.moveToFirst()
+                it.getString(0)
+            }
 
-        val category = when {
-            isBible -> "Biblical Texts"
-            isCommentary -> "Commentaries"
-            else -> "Illegal"
-        }
+            val tables =
+                sqlDb.rawQuery("select name from sqlite_master where type = 'table' AND name not like 'sqlite_%'", null)
+                    .use {
+                        val names = arrayListOf<String>()
+                        while (it.moveToNext()) {
+                            names.add(it.getString(0))
+                        }
+                        names
+                    }
+            val isCommentary = tables.contains("commentaries")
+            val isBible = tables.contains("verses")
+            hasStories = tables.contains("stories")
 
-        val conf = getConfig(initials, description, language, category)
-        Log.i(TAG, "Adding MyBibleBook $initials, $description $language $category")
-        return SwordBookMetaData(conf.toByteArray(), "mybible-$initials")
+            val category = when {
+                isBible -> "Biblical Texts"
+                isCommentary -> "Commentaries"
+                else -> "Illegal"
+            }
+
+            val conf = getConfig(initials, description, language, category)
+            Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
+            val metadata = SwordBookMetaData(conf.toByteArray(), "MyBible-$initials")
+
+            metadata.driver = MockDriver()
+            this.metadata = metadata
+            return@synchronized metadata
+        }
     }
 
     override fun releaseResources() {}
@@ -209,12 +232,11 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         val cur = state.sqlDb.rawQuery("select book_number,chapter,verse from verses WHERE _rowid_ = ?", arrayOf("$index"))
         cur.moveToNext()
         val bookNum = cur.getInt(0)
-        val v11n = Versifications.instance().getVersification(Versifications.DEFAULT_V11N)
         val book = intToBibleBook[bookNum]
         val chapter = cur.getInt(1)
         val verse = cur.getInt(2)
         cur.close()
-        return Verse(v11n, book, chapter, verse)
+        return Verse(KJVA, book, chapter, verse)
     }
 
     private fun indexOfBible(that: Key): Int {
@@ -253,7 +275,6 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun readBible(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
-        Log.i(TAG, "Trying to read $key")
         var text = state.sqlDb.rawQuery(
             "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
             arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
