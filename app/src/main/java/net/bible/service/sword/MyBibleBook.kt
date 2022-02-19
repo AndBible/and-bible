@@ -156,6 +156,9 @@ class MockDriver: AbstractBookDriver() {
         return "MyBible"
     }
 
+    override fun isDeletable(dead: Book?): Boolean {
+        return false
+    }
 }
 
 class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
@@ -352,3 +355,5 @@ fun addMyBibleBooks() {
         Books.installed().addBook(book)
     }
 }
+
+val Book.isMyBibleBook get() = bookMetaData.getProperty("AndBibleMyBibleModule") != null
