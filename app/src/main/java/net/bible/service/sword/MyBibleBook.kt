@@ -223,8 +223,14 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun indexOfCommentary(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
-        val cur = state.sqlDb.rawQuery("select _rowid_ from commentaries WHERE book_number = ? AND chapter_number_from = ? AND verse_number_from = ?",
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}"))
+        val cur = state.sqlDb.rawQuery(
+            """select _rowid_ from commentaries WHERE book_number = ? AND 
+                            ((chapter_number_from <= ? AND verse_number_from <= ? AND
+                            chapter_number_to >= ? AND verse_number_to >= ?) OR
+                            (chapter_number_from = ? AND verse_number_from = ? AND chapter_number_to IS NULL AND verse_number_to IS NULL))
+
+                            """,
+            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}"))
         cur.moveToNext() || return -1
         val rowid = cur.getInt(0)
         cur.close()
@@ -273,8 +279,12 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     private fun readCommentary(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
         return state.sqlDb.rawQuery(
-            "select text from commentaries WHERE book_number = ? AND chapter_number_from = ? AND verse_number_from = ?",
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
+            """select text from commentaries WHERE book_number = ? AND
+                            ((chapter_number_from <= ? AND verse_number_from <= ? AND
+                            chapter_number_to >= ? AND verse_number_to >= ?) OR
+                            (chapter_number_from = ? AND verse_number_from = ? AND chapter_number_to IS NULL AND verse_number_to IS NULL))
+                """,
+            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
         ).use {
             it.moveToNext() || throw IOException("Can't read")
             it.getString(0)
