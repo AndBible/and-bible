@@ -131,7 +131,7 @@ private fun getConfig(abbreviation: String, description: String, language: Strin
 Description=$description
 Abbreviation=$abbreviation
 Category=$category
-AndBibleSqliteSwordBook=1
+AndBibleMyBibleModule=1
 Lang=$language
 Version=0.0
 Encoding=UTF-8
@@ -147,6 +147,8 @@ class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
     val sqlDb: SQLiteDatabase = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
 
     override fun close() = sqlDb.close()
+
+    var hasStories: Boolean = false
 
     override fun getBookMetaData(): SwordBookMetaData {
         val initials = File(sqlDb.path).nameWithoutExtension
@@ -168,6 +170,7 @@ class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
         }
         val isCommentary = tables.contains("commentaries")
         val isBible = tables.contains("verses")
+        hasStories = tables.contains("stories")
 
         val category = when {
             isBible -> "Biblical Texts"
@@ -180,7 +183,7 @@ class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
         return SwordBookMetaData(conf.toByteArray(), "mybible-$initials")
     }
 
-    override fun releaseResources() {} //sqlDb.close()
+    override fun releaseResources() {}
 
     private var _lastAccess: Long  = 0L
     override fun getLastAccess(): Long = _lastAccess
@@ -250,6 +253,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun readBible(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
+        Log.i(TAG, "Trying to read $key")
         var text = state.sqlDb.rawQuery(
             "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
             arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
@@ -258,15 +262,19 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             it.getString(0)
         }
 
-        val stories = state.sqlDb.rawQuery(
-            "select title from stories WHERE book_number = ? AND chapter = ? AND verse = ?",
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
-        ).use {
-            val result = arrayListOf<String>()
-            while(it.moveToNext()) {
-                result.add(it.getString(0))
+        val stories = if(state.hasStories) {
+            state.sqlDb.rawQuery(
+                "select title from stories WHERE book_number = ? AND chapter = ? AND verse = ?",
+                arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
+            ).use {
+                val result = arrayListOf<String>()
+                while (it.moveToNext()) {
+                    result.add(it.getString(0))
+                }
+                result
             }
-            result
+        } else {
+            arrayListOf()
         }
 
         for(story in stories) {
