@@ -48,6 +48,7 @@ import Abbr from "@/components/OSIS/Abbr";
 import {osisToTemplateString} from "@/utils";
 import BibleViewAnchor from "@/components/BibleViewAnchor";
 import AndBibleLink from "@/components/OSIS/AndBibleLink";
+import Pb from "@/components/MyBible/Pb";
 import NoOp from "@/components/OSIS/NoOp";
 
 const teiComponents = {
@@ -60,7 +61,7 @@ const andBibleComponents = {
 }
 
 const mySwordComponents = {
-  S: NoOp, N: NoOp,
+  S: NoOp, M: NoOp, I:Hi, J:Q, N: Note, Pb, F: NoOp, H: Title, E: Hi,
 }
 
 const osisComponents = {

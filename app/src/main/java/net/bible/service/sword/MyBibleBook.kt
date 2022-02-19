@@ -19,6 +19,8 @@
 package net.bible.service.sword
 
 import android.database.sqlite.SQLiteDatabase
+import net.bible.android.BibleApplication
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
@@ -122,13 +124,13 @@ val intToBibleBook = mapOf(
 
 val bibleBookToInt = intToBibleBook.toList().associate { (k, v) -> v to k }
 
-private fun getConfig(abbreviation: String, description: String): String {
-    return """[mybible-$abbreviation]
+private fun getConfig(abbreviation: String, description: String, language: String): String = """
+[mybible-$abbreviation]
 Description=$description
 Abbreviation=$abbreviation
 Category=Biblical Texts
 AndBibleSqliteSwordBook=1
-Language=en
+Language=$language
 Version=0.0
 Encoding=UTF-8
 LCSH=Bible
@@ -136,15 +138,20 @@ SourceType=OSIS
 ModDrv=zText
 BlockType=BOOK
 Versification=KJV"""
-}
 
 fun readBookMetaData(sqlDb: SQLiteDatabase): SwordBookMetaData {
-    val c = sqlDb.rawQuery("select value from info where name = ?", arrayOf("description"))
-    c.moveToFirst()
-    val description = c.getString(0)
-    c.close()
-    val conf = getConfig("kjvstrongs", description)
-    return SwordBookMetaData(conf.toByteArray(), "mybible-kjvstrongs")
+    val initials = File(sqlDb.path).nameWithoutExtension
+    val description = sqlDb.rawQuery("select value from info where name = ?", arrayOf("description")).use {
+        it.moveToFirst()
+        it.getString(0)
+    }
+    val language = sqlDb.rawQuery("select value from info where name = ?", arrayOf("language")).use {
+        it.moveToFirst()
+        it.getString(0)
+    }
+
+    val conf = getConfig(initials, description, language)
+    return SwordBookMetaData(conf.toByteArray(), "mybible-$initials")
 }
 
 class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
@@ -199,20 +206,45 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     override fun readRawContent(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
-        val cur = state.sqlDb.rawQuery(
+        var text = state.sqlDb.rawQuery(
             "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
             arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
-        )
-        cur.moveToNext() || throw IOException("Can't read")
-        val text = cur.getString(0)
-        cur.close()
+        ).use {
+            it.moveToNext() || throw IOException("Can't read")
+            it.getString(0)
+        }
+
+        val stories = state.sqlDb.rawQuery(
+            "select title from stories WHERE book_number = ? AND chapter = ? AND verse = ?",
+            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
+        ).use {
+            val result = arrayListOf<String>()
+            while(it.moveToNext()) {
+                result.add(it.getString(0))
+            }
+            result
+        }
+
+        for(story in stories) {
+            text = if(story.startsWith("<")) {
+                "$text$story"
+            } else {
+                "<title canonical=\"false\">$story</title>$text"
+            }
+        }
         return text
     }
 }
 
-fun getBook(file: File): SwordBook {
-    val state = SqliteVerseBackendState(file)
-    val metadata = state.bookMetaData
-    val backend = SqliteBackend(state, metadata)
-    return SwordBook(metadata, backend)
+fun addBooks() {
+    val dir = File(BibleApplication.application.getExternalFilesDir(null), "slite")
+    if(!(dir.isDirectory && dir.canRead())) return
+
+    for(f in dir.listFiles()?: emptyArray()) {
+        val state = SqliteVerseBackendState(f)
+        val metadata = state.bookMetaData
+        val backend = SqliteBackend(state, metadata)
+        val book =SwordBook(metadata, backend)
+        Books.installed().addBook(book)
+    }
 }

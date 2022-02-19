@@ -20,13 +20,12 @@ package net.bible.service.download
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.PseudoBook
-import net.bible.service.sword.getBook
+import net.bible.service.sword.addBooks
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookMetaData
-import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
@@ -35,7 +34,6 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordDictionary
 import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.Key
-import java.io.File
 import java.io.IOException
 import java.util.*
 
@@ -189,8 +187,7 @@ Versification=KJVA"""
     val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
 
     init {
-        val sqliteBook = getBook(File(application.getExternalFilesDir(null), "slite/KJVstrongs.sqlite3"))
-        Books.installed().addBook(sqliteBook)
+        addBooks()
     }
 }
 
