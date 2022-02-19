@@ -151,7 +151,7 @@ class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
     var hasStories: Boolean = false
 
     override fun getBookMetaData(): SwordBookMetaData {
-        val initials = File(sqlDb.path).nameWithoutExtension
+        val initials = File(sqlDb.path).nameWithoutExtension.split(".", limit = 2)[0]
         val description = sqlDb.rawQuery("select value from info where name = ?", arrayOf("description")).use {
             it.moveToFirst()
             it.getString(0)
