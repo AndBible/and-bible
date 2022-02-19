@@ -29,6 +29,7 @@ export default {
   name: "ChapterComplete",
   props: {
     n: {type: String, default: null},
+    x: {type: String, default: null},
     osisID: {type: String, default: null},
     sID: {type: String, default: null},
     eID: {type: String, default: null},
@@ -46,11 +47,13 @@ export default {
     const chapterNum = computed(() => {
       return (props.n || props.osisID.split(".")[1]).trim()
     });
-
+    const bookInitials = computed(() => {
+      return props.x;
+    });
     function chapterCompleted() {
-      android.chapterCompleted();
-    }
-    return {ordinal, chapterNum, startTag, chapterCompleted, ...useCommon()};
+      android.chapterCompleted(bookInitials, Number(chapterNum.value));
+    };
+    return {ordinal, chapterNum, bookInitials, startTag, chapterCompleted, ...useCommon()};
   },
 }
 </script>

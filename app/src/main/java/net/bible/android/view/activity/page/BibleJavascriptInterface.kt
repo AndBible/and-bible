@@ -269,10 +269,10 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun chapterCompleted() {
+    fun chapterCompleted(bookInitials: String, chapterNo:Int) {
         Log.i(TAG, "chapterCompleted KT")
         val readingHistoryDao = DatabaseContainer.db.readingHistoryDao()
-        val rh = ReadingHistoryEntities.ReadingHistory(1,"KJV","Normal","GEN",1)
+        val rh = ReadingHistoryEntities.ReadingHistory(1,"KJV","Normal",bookInitials,chapterNo)
         readingHistoryDao.insert(rh)
     }
 

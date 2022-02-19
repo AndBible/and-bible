@@ -247,8 +247,9 @@ export function useAndroid({bookmarks}, config) {
         android.compare(bookInitials, startOrdinal, endOrdinal ? endOrdinal: -1);
     }
 
-    function chapterCompleted() {
+    function chapterCompleted(bookInitials, chapterNo) {
         console.log("chapterCompleted: ");
+        android.chapterCompleted(bookInitials, chapterNo);
     }
 
     function openStudyPad(labelId, bookmarkId) {
