@@ -69,9 +69,18 @@ import kotlin.random.Random.Default.nextInt
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
+import androidx.room.ColumnInfo
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.CommonUtils.getResourceColor
 import kotlin.collections.ArrayList
 
+val json = Json {
+    allowStructuredMapKeys = true
+    encodeDefaults = true
+}
 fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.ManageLabelsData) {
     Log.i("ManageLabels", "WorkspaceEntities.updateRecentLabels")
     autoAssignLabels = resultData.autoAssignLabels
@@ -151,14 +160,45 @@ class ManageLabels : ListActivityBase() {
         updateLabelList(true,false, regexString)
     }
 
+    @Serializable
     object SearchTextOptions {
-        class SearchOption(_text:String, _isSearchInsideText: Boolean){
-            val text = _text.trim()
-            val isSearchInsideText = _isSearchInsideText
-            val id = text + if (isSearchInsideText) "1" else "0"  // The ID stores both the text to search for and an indicator in the last char showing whether it is an 'in text' or 'start of text' search
-            val regex = if (isSearchInsideText) text else "^$text"
+
+        @Serializable
+        class Project(
+            var name: String // Property with a backing field; allowed
+        ) {
+            var stars: Int = 0 // property with a backing field; allowed
+
+            val path: String // no backing field; ignored by the serializer
+                get() = "kotlin/$name"
+
+            var id by ::name // delegated property; ignored by the serializer
+        }
+
+        @Serializable
+        class SearchOption(var text:String,
+                           var isSearchInsideText:Boolean,
+                           var id:String = "",
+                           var regex:String=""){
+            init {
+                text = text.trim()
+                id = text + if (isSearchInsideText) "1" else "0"  // The ID stores both the text to search for and an indicator in the last char showing whether it is an 'in text' or 'start of text' search
+                regex = if (isSearchInsideText) text else "^${text}"
+            }
+            fun toJson():String {
+                return json.encodeToString(serializer(), this)
+            }
         }
         val list: ArrayList<SearchOption> = ArrayList()
+
+        fun toJson(): String {
+            return Json.encodeToString(ListSerializer(SearchOption.serializer()),list)
+        }
+        fun fromJson(jsonString: String): SearchTextOptions {
+            // ToDO: https://www.raywenderlich.com/26883403-android-data-serialization-tutorial-with-the-kotlin-serialization-library
+            // TODO: https://medium.com/@gurpreetsk/getting-started-with-kotlin-serialization-3315c59bafb2
+            return net.bible.android.database.json.decodeFromString(serializer(), jsonString)
+        }
 
         fun initialise (options:String) {
             list.clear()
@@ -175,6 +215,9 @@ class ManageLabels : ListActivityBase() {
         fun add(option:String, isSearchInsideText: Boolean) {
             val newOption = SearchOption(option.trim(),isSearchInsideText)
             if (!list.any{ (it.id == newOption.id)}){list.add(newOption)}
+//            val json_string = json.encodeToString(SearchOption.serializer(), newOption)
+            Log.i("AGR","4: " + newOption.toJson())
+            Log.i("AGR", "5: " + this.toJson())
         }
         fun remove(button:Button, binding:ManageLabelsBinding) {
             list.myRemoveIf { it.id == button.tag }
