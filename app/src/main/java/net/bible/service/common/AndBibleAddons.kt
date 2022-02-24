@@ -65,26 +65,6 @@ object AndBibleAddons {
         return fontsByName
     }
 
-    fun refreshMyBibleModules() {
-        val installed = Books.installed()
-        installed.getBooks {it.isMyBibleBook}.forEach {
-            installed.removeBook(it)
-        }
-        for (book in addons) {
-            for (it in book.bookMetaData.getValues("AndBibleProvidesMyBibleModule")?: emptyList()) {
-                val values = it.split(";")
-                val name = values[0]
-                val filename = values[1]
-                val file = File(File(book.bookMetaData.location), filename)
-                val myBibleMod = addMyBibleBook(file, name)
-                if(myBibleMod == null) {
-                    Log.e("ProvidedMyBible", "Could not read MyBible module ${file.path}")
-                }
-            }
-        }
-        addManuallyInstalledMyBibleBooks()
-    }
-
     val fontsByModule: Map<String, List<ProvidedFont>> get() {
         val fontsByModule = mutableMapOf<String, MutableList<ProvidedFont>>()
         for (it in providedFonts.values) {
@@ -110,7 +90,6 @@ object AndBibleAddons {
     fun clearCaches() {
         _addons =null
         ABEventBus.getDefault().post(ReloadAddonsEvent())
-        refreshMyBibleModules()
     }
 
     val fontModuleNames: List<String> get() =
