@@ -345,17 +345,10 @@ fun addMyBibleBooks() {
 
     for(f in dir.listFiles()?: emptyArray()) {
         val state = SqliteVerseBackendState(f)
-        val metadata: BookMetaData
-        // guard against corrupt or incompatible files
-        // (eg incomplete database file,
-        //  or a sqlite database that does not conform to the expected schema)
-        try
-            { metadata = state.bookMetaData }
-        catch (err: SQLiteException)
-            {
+        val metadata = try { state.bookMetaData } catch (err: SQLiteException) {
             Log.e(TAG, "Failed to load MyBible module ${f}", err)
             continue
-            }
+        }
         val backend = SqliteBackend(state, metadata)
         val book =SwordBook(metadata, backend)
         if(IndexManagerFactory.getIndexManager().isIndexed(book)) {
