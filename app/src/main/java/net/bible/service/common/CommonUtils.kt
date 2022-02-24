@@ -87,6 +87,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.addManuallyInstalledMyBibleBooks
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.IOUtil
 import org.crosswire.common.util.Version
@@ -901,7 +902,7 @@ object CommonUtils : CommonUtilsBase() {
             ttsNotificationManager = TextToSpeechNotificationManager()
             ttsWidgetManager = SpeakWidgetManager()
 
-            AndBibleAddons.refreshMyBibleModules()
+            addManuallyInstalledMyBibleBooks()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
