@@ -26,8 +26,11 @@ import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.KeyType
 import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
+import org.crosswire.jsword.book.sword.Backend
+import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.state.OpenFileState
@@ -40,10 +43,10 @@ import org.crosswire.jsword.passage.Verse
 import java.io.File
 import java.io.IOException
 
-private fun getConfig(abbreviation: String, description: String, language: String, category: String): String = """
-[MyBible-$abbreviation]
+private fun getConfig(initials: String, description: String, language: String, category: String): String = """
+[$initials]
 Description=$description
-Abbreviation=$abbreviation
+Abbreviation=$initials
 Category=$category
 AndBibleMyBibleModule=1
 Lang=$language
@@ -72,6 +75,10 @@ class MockDriver: AbstractBookDriver() {
 }
 
 class SqliteVerseBackendState(sqliteFile: File, val moduleName: String?): OpenFileState {
+    constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile, null) {
+        this.metadata = metadata
+    }
+
     val sqlDb: SQLiteDatabase = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
 
     override fun close() = sqlDb.close()
@@ -82,7 +89,7 @@ class SqliteVerseBackendState(sqliteFile: File, val moduleName: String?): OpenFi
 
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
-            val initials = moduleName ?: File(sqlDb.path).nameWithoutExtension.split(".", limit = 2)[0]
+            val initials = moduleName ?: "MyBible-" + File(sqlDb.path).nameWithoutExtension.split(".", limit = 2)[0]
             val description = sqlDb.rawQuery("select value from info where name = ?", arrayOf("description")).use {
                 it.moveToFirst()
                 it.getString(0)
@@ -113,7 +120,7 @@ class SqliteVerseBackendState(sqliteFile: File, val moduleName: String?): OpenFi
 
             val conf = getConfig(initials, description, language, category)
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
-            val metadata = SwordBookMetaData(conf.toByteArray(), "MyBible-$initials")
+            val metadata = SwordBookMetaData(conf.toByteArray(), initials)
 
             metadata.driver = MockDriver()
             this.metadata = metadata
@@ -244,6 +251,30 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             BookCategory.COMMENTARY -> readCommentary(state, key)
             else -> ""
         }
+    }
+}
+
+val myBibleBible = object: BookType("MyBibleBible", BookCategory.BIBLE, KeyType.VERSE) {
+    override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book {
+        return SwordBook(sbmd, backend)
+    }
+
+    override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
+        val file = File(File(sbmd.location), "module.SQLite3")
+        val state = SqliteVerseBackendState(file, sbmd)
+        return SqliteBackend(state, sbmd)
+    }
+}
+
+val myBibleCommentary = object: BookType("MyBibleCommentary", BookCategory.COMMENTARY, KeyType.VERSE) {
+    override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book {
+        return SwordBook(sbmd, backend)
+    }
+
+    override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
+        val file = File(File(sbmd.location), "module.SQLite3")
+        val state = SqliteVerseBackendState(file, sbmd)
+        return SqliteBackend(state, sbmd)
     }
 }
 
