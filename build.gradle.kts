@@ -3,7 +3,7 @@
 buildscript {
     val kotlinVersion by extra("1.6.10")
     val roomVersion by extra("2.4.1")
-    val jswordVersion by extra("2.3.60")
+    val jswordVersion by extra("2.3.63")
     val jdomVersion by extra("2.0.6") // make sure this is same version as in jsword!
     val commonsTextVersion by extra("1.9")
     val kotlinxSerializationVersion by extra("1.3.2")
