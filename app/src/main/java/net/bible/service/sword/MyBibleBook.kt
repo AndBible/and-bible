@@ -25,7 +25,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.book.BookMetaData
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
@@ -37,100 +36,9 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.BibleBook.*
 
 import java.io.File
 import java.io.IOException
-
-val intToBibleBook = mapOf(
-    10 to GEN,
-    20 to EXOD,
-    30 to LEV,
-    40 to NUM,
-    50 to DEUT,
-    60 to JOSH,
-    70 to JUDG,
-    80 to RUTH,
-    90 to SAM1,
-    100 to SAM2,
-    110 to KGS1,
-    120 to KGS2,
-    //180 to
-    130 to CHR1,
-    140 to CHR2,
-    //145 to
-    150 to EZRA,
-    160 to NEH,
-    //165 to
-    170 to TOB,
-    190 to ESTH,
-    192 to ADD_ESTH,
-    220 to JOB,
-    230 to PS,
-    240 to PROV,
-    250 to ECCL,
-    260 to SONG,
-    270 to WIS,
-    280 to SIR,
-    290 to ISA,
-    300 to JER,
-    305 to PR_AZAR,
-    310 to LAM,
-    315 to EP_JER,
-    320 to BAR,
-    //323 to
-    325 to SUS,
-    330 to EZEK,
-    340 to DAN,
-    345 to ADD_DAN,
-    350 to HOS,
-    360 to JOEL,
-    370 to AMOS,
-    380 to OBAD,
-    390 to JONAH,
-    400 to MIC,
-    410 to NAH,
-    420 to HAB,
-    430 to ZEPH,
-    440 to HAG,
-    450 to ZECH,
-    460 to MAL,
-    462 to MACC1,
-    464 to MACC2,
-    466 to MACC3,
-    467 to MACC4,
-    468 to ESD2,
-    470 to MATT,
-    480 to MARK,
-    490 to LUKE,
-    500 to JOHN,
-    510 to ACTS,
-    660 to JAS,
-    670 to PET1,
-    680 to PET2,
-    690 to JOHN1,
-    700 to JOHN2,
-    710 to JOHN3,
-    720 to JUDE,
-    520 to ROM,
-    530 to COR1,
-    540 to COR2,
-    550 to GAL,
-    560 to EPH,
-    570 to PHIL,
-    580 to COL,
-    590 to THESS1,
-    600 to THESS2,
-    610 to TIM1,
-    620 to TIM2,
-    630 to TITUS,
-    640 to PHLM,
-    650 to HEB,
-    730 to REV,
-    780 to EP_LAO,
-)
-
-val bibleBookToInt = intToBibleBook.toList().associate { (k, v) -> v to k }
 
 private fun getConfig(abbreviation: String, description: String, language: String, category: String): String = """
 [MyBible-$abbreviation]
@@ -163,7 +71,7 @@ class MockDriver: AbstractBookDriver() {
     }
 }
 
-class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
+class SqliteVerseBackendState(sqliteFile: File, val moduleName: String?): OpenFileState {
     val sqlDb: SQLiteDatabase = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
 
     override fun close() = sqlDb.close()
@@ -174,7 +82,7 @@ class SqliteVerseBackendState(sqliteFile: File): OpenFileState {
 
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
-            val initials = File(sqlDb.path).nameWithoutExtension.split(".", limit = 2)[0]
+            val initials = moduleName ?: File(sqlDb.path).nameWithoutExtension.split(".", limit = 2)[0]
             val description = sqlDb.rawQuery("select value from info where name = ?", arrayOf("description")).use {
                 it.moveToFirst()
                 it.getString(0)
@@ -339,25 +247,31 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     }
 }
 
-fun addMyBibleBooks() {
+fun addMyBibleBook(file: File, name: String? = null): SwordBook? {
+    if(!(file.canRead() && file.isFile)) return null
+    val state = SqliteVerseBackendState(file, name)
+    val metadata = try { state.bookMetaData } catch (err: SQLiteException) {
+        Log.e(TAG, "Failed to load MyBible module $file", err)
+        return null
+    }
+    val backend = SqliteBackend(state, metadata)
+    val book = SwordBook(metadata, backend)
+    if(IndexManagerFactory.getIndexManager().isIndexed(book)) {
+        metadata.indexStatus = IndexStatus.DONE
+    } else {
+        metadata.indexStatus = IndexStatus.UNDONE
+    }
+
+    Books.installed().addBook(book)
+    return book
+}
+
+fun addManuallyInstalledMyBibleBooks() {
     val dir = File(BibleApplication.application.getExternalFilesDir(null), "mybible")
     if(!(dir.isDirectory && dir.canRead())) return
 
     for(f in dir.listFiles()?: emptyArray()) {
-        val state = SqliteVerseBackendState(f)
-        val metadata = try { state.bookMetaData } catch (err: SQLiteException) {
-            Log.e(TAG, "Failed to load MyBible module ${f}", err)
-            continue
-        }
-        val backend = SqliteBackend(state, metadata)
-        val book =SwordBook(metadata, backend)
-        if(IndexManagerFactory.getIndexManager().isIndexed(book)) {
-            metadata.indexStatus = IndexStatus.DONE
-        } else {
-            metadata.indexStatus = IndexStatus.UNDONE
-        }
-
-        Books.installed().addBook(book)
+        addMyBibleBook(f)
     }
 }
 

@@ -22,6 +22,7 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
+import net.bible.service.sword.isMyBibleBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.BooksEvent
@@ -40,11 +41,15 @@ object BookInstallWatcher {
                 val book = ev.book
                 initialiseRequiredMapping(book)
                 addBookToDb(book)
-                AndBibleAddons.clearCaches()
+                if(!book.isMyBibleBook) {
+                    AndBibleAddons.clearCaches()
+                }
             }
 
             override fun bookRemoved(ev: BooksEvent) {
-                AndBibleAddons.clearCaches()
+                if(!ev.book.isMyBibleBook) {
+                    AndBibleAddons.clearCaches()
+                }
                 removeBookFromDb(ev.book)
             }
         })
