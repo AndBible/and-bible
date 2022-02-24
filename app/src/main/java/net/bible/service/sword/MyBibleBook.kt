@@ -19,11 +19,13 @@
 package net.bible.service.sword
 
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteException
 import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.BookMetaData
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
@@ -343,7 +345,17 @@ fun addMyBibleBooks() {
 
     for(f in dir.listFiles()?: emptyArray()) {
         val state = SqliteVerseBackendState(f)
-        val metadata = state.bookMetaData
+        val metadata: BookMetaData
+        // guard against corrupt or incompatible files
+        // (eg incomplete database file,
+        //  or a sqlite database that does not conform to the expected schema)
+        try
+            { metadata = state.bookMetaData }
+        catch (err: SQLiteException)
+            {
+            Log.e(TAG, "Failed to load MyBible module ${f}", err)
+            continue
+            }
         val backend = SqliteBackend(state, metadata)
         val book =SwordBook(metadata, backend)
         if(IndexManagerFactory.getIndexManager().isIndexed(book)) {
