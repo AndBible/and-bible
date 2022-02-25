@@ -54,7 +54,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
         const val TAG = "MediaButtons"
         var handler: MediaButtonHandler? = null
         fun initialize(speakControl: SpeakControl) {
-            if(CommonUtils.booleanSettings.get("enable_bluetooth_pref", true)) {
+            if(!application.isRunningTests && CommonUtils.booleanSettings.get("enable_bluetooth_pref", true)) {
                 handler = MediaButtonHandler(speakControl)
             }
         }
