@@ -41,7 +41,10 @@ class AndBibleMediaButtonReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         CommonUtils.initializeApp()
         Log.i("MediaButtons", "MediaButtonReceiver onReceive")
-        MediaButtonReceiver.handleIntent(MediaButtonHandler.handler!!.ms, intent)
+        val handler = MediaButtonHandler.handler
+        if(handler != null) {
+            MediaButtonReceiver.handleIntent(handler.ms, intent)
+        }
     }
 }
 
@@ -51,7 +54,9 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
         const val TAG = "MediaButtons"
         var handler: MediaButtonHandler? = null
         fun initialize(speakControl: SpeakControl) {
-            handler = MediaButtonHandler(speakControl)
+            if(CommonUtils.booleanSettings.get("enable_bluetooth_pref", true)) {
+                handler = MediaButtonHandler(speakControl)
+            }
         }
         fun release() {
             handler?.release()
