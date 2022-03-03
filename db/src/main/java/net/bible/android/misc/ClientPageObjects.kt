@@ -82,9 +82,13 @@ class OsisFragment(
     val hasChapter: Boolean get() = xml.getChild("div")?.getChild("chapter") != null
 
     private val features: Map<String, String> get () {
+        val hasHebrew = book.hasFeature(FeatureType.HEBREW_DEFINITIONS)
+        val hasGreek = book.hasFeature(FeatureType.GREEK_DEFINITIONS)
+
         val type = when {
-            book.hasFeature(FeatureType.HEBREW_DEFINITIONS) -> "hebrew"
-            book.hasFeature(FeatureType.GREEK_DEFINITIONS) -> "greek"
+            hasHebrew && hasGreek -> "hebrew-and-greek"
+            hasHebrew -> "hebrew"
+            hasGreek -> "greek"
             else -> null
         }
         return if (type != null) {
