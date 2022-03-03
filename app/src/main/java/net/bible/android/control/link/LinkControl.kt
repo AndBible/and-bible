@@ -232,13 +232,13 @@ class LinkControl @Inject constructor(
             swordDocumentFacade.defaultBibleWithStrongs
         }
         // possibly no Strong's bible or it has not been indexed
-        var needToDownloadIndex = false
+        var needToIndex = false
         if (strongsBible == null) {
             Dialogs.instance.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
             return
         } else if (currentBible == strongsBible && !checkStrongs(currentBible)) {
             Log.i(TAG, "Index status is NOT DONE")
-            needToDownloadIndex = true
+            needToIndex = true
         }
         // The below uses ANY_WORDS because that does not add anything to the search string
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
@@ -250,7 +250,7 @@ class LinkControl @Inject constructor(
         searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)
         searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
         var intent: Intent? = null
-        intent = if (needToDownloadIndex) {
+        intent = if (needToIndex) {
             Intent(activity, SearchIndex::class.java)
         } else { //If an indexed Strong's module is in place then do the search - the normal situation
             Intent(activity, SearchResults::class.java)
