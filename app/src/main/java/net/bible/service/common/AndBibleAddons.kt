@@ -21,9 +21,6 @@ package net.bible.service.common
 import android.util.Log
 import net.bible.android.control.event.ABEventBus
 import net.bible.service.sword.AndBibleAddonFilter
-import net.bible.service.sword.addMyBibleBook
-import net.bible.service.sword.addManuallyInstalledMyBibleBooks
-import net.bible.service.sword.isMyBibleBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import java.io.File
