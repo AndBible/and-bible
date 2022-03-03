@@ -55,6 +55,7 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
+import java.io.FileNotFoundException
 import java.net.URLDecoder
 import java.util.regex.Pattern
 import javax.inject.Inject
@@ -232,13 +233,13 @@ class LinkControl @Inject constructor(
             swordDocumentFacade.defaultBibleWithStrongs
         }
         // possibly no Strong's bible or it has not been indexed
-        var needToDownloadIndex = false
+        var needToIndex = false
         if (strongsBible == null) {
             Dialogs.instance.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
             return
         } else if (currentBible == strongsBible && !checkStrongs(currentBible)) {
             Log.i(TAG, "Index status is NOT DONE")
-            needToDownloadIndex = true
+            needToIndex = true
         }
         // The below uses ANY_WORDS because that does not add anything to the search string
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
@@ -250,7 +251,7 @@ class LinkControl @Inject constructor(
         searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)
         searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
         var intent: Intent? = null
-        intent = if (needToDownloadIndex) {
+        intent = if (needToIndex) {
             Intent(activity, SearchIndex::class.java)
         } else { //If an indexed Strong's module is in place then do the search - the normal situation
             Intent(activity, SearchResults::class.java)
@@ -267,6 +268,9 @@ class LinkControl @Inject constructor(
                 (bible.find("+[Gen 1:1] strong:h7225").cardinality > 0 || bible.find("+[John 1:1] strong:g746").cardinality > 0 || bible.find("+[Gen 1:1] strong:g746").cardinality > 0)
         } catch (be: BookException) {
             Log.e(TAG, "Error checking strongs numbers", be)
+            false
+        } catch (e: FileNotFoundException) {
+            Log.e(TAG, "Error checking strongs numbers", e)
             false
         }
     }
