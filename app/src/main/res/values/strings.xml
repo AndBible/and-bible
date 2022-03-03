@@ -208,7 +208,7 @@
     <string name="prefs_text_bookmarks_title">Bookmark &amp; My Notes settings</string>
 
     <string name="prefs_enable_bluetooth_title">Enable Bluetooth media buttons</string>
-    <string name="prefs_enable_bluetooth_summary">Handle Bluetooth media buttons to start/stop speaking. Setting is applied only after app is restarted.</string>
+    <string name="prefs_enable_bluetooth_summary">Handle Bluetooth media buttons to start/stop speaking.</string>
 
     <!-- Colors preferences -->
     <string name="prefs_text_colors_menutitle">Color settings</string>
