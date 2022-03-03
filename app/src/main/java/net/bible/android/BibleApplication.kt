@@ -40,6 +40,7 @@ import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.sword.myBibleBible
 import net.bible.service.sword.myBibleCommentary
+import net.bible.service.sword.myBibleDictionary
 
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.PropertyMap
@@ -101,6 +102,7 @@ open class BibleApplication : Application() {
             })
         BookType.addSupportedBookType(myBibleBible)
         BookType.addSupportedBookType(myBibleCommentary)
+        BookType.addSupportedBookType(myBibleDictionary)
 
         LocaleProviderManager.setLocaleProvider(MyLocaleProvider())
 
