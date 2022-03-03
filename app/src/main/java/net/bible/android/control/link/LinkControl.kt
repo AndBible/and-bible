@@ -55,6 +55,7 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
+import java.io.FileNotFoundException
 import java.net.URLDecoder
 import java.util.regex.Pattern
 import javax.inject.Inject
@@ -267,6 +268,9 @@ class LinkControl @Inject constructor(
                 (bible.find("+[Gen 1:1] strong:h7225").cardinality > 0 || bible.find("+[John 1:1] strong:g746").cardinality > 0 || bible.find("+[Gen 1:1] strong:g746").cardinality > 0)
         } catch (be: BookException) {
             Log.e(TAG, "Error checking strongs numbers", be)
+            false
+        } catch (e: FileNotFoundException) {
+            Log.e(TAG, "Error checking strongs numbers", e)
             false
         }
     }
