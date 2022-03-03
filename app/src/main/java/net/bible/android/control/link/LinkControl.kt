@@ -188,13 +188,29 @@ class LinkControl @Inject constructor(
 
     @Throws(NoSuchKeyException::class)
     private fun getStrongsKey(book: Book, key: String): BookAndKey? {
-        val sanitizedKey = Regex("^([GH]?)([0-9]+).*").find(key)?.groups?.get(2)?.value?.padStart(5, '0')
+        val match = Regex("^([GH]?)(0+)([0-9]+).*").find(key)
+        val category = match?.groups?.get(1)?.value
+        val sanitizedKeyBase = match?.groups?.get(3)?.value
 
-        val k = try {book.getKey(key)} catch (e: NoSuchKeyException) {null} ?:
-                if(sanitizedKey != null) {
-                    try {book.getKey(sanitizedKey)} catch (e: NoSuchKeyException) {null} ?:
-                    try {book.getKey(sanitizedKey + "\r")} catch (e: NoSuchKeyException) {null}
-                } else null
+        val zeroPaddedKey = sanitizedKeyBase?.padStart(5, '0') ?: ""
+
+        val keyOptions = listOf(
+            key,
+            zeroPaddedKey,
+            zeroPaddedKey + "\r",
+
+            // MyBible dictionaries
+            category + sanitizedKeyBase
+        )
+
+        val k = run {
+            for(opt in keyOptions) {
+                val candidate = try {book.getKey(opt)} catch (e: NoSuchKeyException) {null}
+                if(candidate != null)
+                    return@run candidate
+            }
+            null
+        }
 
         return if(k == null) null else BookAndKey(k, book)
     }

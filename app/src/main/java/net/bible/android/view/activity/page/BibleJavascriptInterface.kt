@@ -178,6 +178,12 @@ class BibleJavascriptInterface(
             GlobalScope.launch(Dispatchers.Main) {
                 bibleView.linkControl.loadApplicationUrl(bibleLink)
             }
+        } else if(link.startsWith("S:")) {
+            val (prefix, rest) = link.split(":", limit=2)
+            val bibleLink = BibleView.BibleLink("strong", target=rest)
+            GlobalScope.launch(Dispatchers.Main) {
+                bibleView.linkControl.loadApplicationUrl(bibleLink)
+            }
         } else {
             mainBibleActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
         }
