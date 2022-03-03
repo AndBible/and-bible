@@ -88,15 +88,21 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
 
     private var _sqlDb: SQLiteDatabase? = null
 
-    val sqlDb: SQLiteDatabase get() = _sqlDb ?: synchronized(this) {
-        Log.i(TAG, "initDatabase $sqliteFile")
-        val db = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
-        _sqlDb = db
-        db
+    val sqlDb: SQLiteDatabase get() = synchronized(this) {
+        _sqlDb?.run {
+            if (isOpen) this else null
+        } ?: run {
+            Log.i(TAG, "initDatabase $moduleName ${sqliteFile.name}")
+            val db = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
+            _sqlDb = db
+            db
+        }
     }
 
+
+
     override fun close() {
-        Log.i(TAG, "close database $sqliteFile")
+        Log.i(TAG, "close database $moduleName ${sqliteFile.name}")
         _sqlDb?.close()
         _sqlDb = null
     }
