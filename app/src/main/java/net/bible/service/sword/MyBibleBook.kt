@@ -409,7 +409,7 @@ fun addManuallyInstalledMyBibleBooks() {
     val dir = File(BibleApplication.application.getExternalFilesDir(null), "mybible")
     if(!(dir.isDirectory && dir.canRead())) return
 
-    for(f in dir.listFiles()?.filter { it.path.endsWith(".SQLite3") }?: emptyList()) {
+    for(f in dir.listFiles()?.filter { it.path.lowercase().endsWith(".sqlite3") }?: emptyList()) {
         addMyBibleBook(f)
     }
 }
