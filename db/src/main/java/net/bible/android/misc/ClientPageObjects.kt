@@ -28,6 +28,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.BibleBook
 import org.jdom2.Element
 import org.jdom2.Text
 import org.jdom2.output.Format
@@ -107,6 +108,8 @@ class OsisFragment(
             serializer(),
             if(key is VerseRange) listOf(key.start.ordinal, key.end.ordinal) else null
         )
+        val isNewTestament = key is VerseRange && key.start.ordinal >= BibleBook.MATT.ordinal
+
         return mapOf(
             "xml" to wrapString(xmlStr),
             "key" to wrapString(keyStr),
@@ -116,6 +119,7 @@ class OsisFragment(
             "bookInitials" to wrapString(book.initials),
             "bookAbbreviation" to wrapString(book.abbreviation),
             "osisRef" to wrapString(key.osisRef),
+            "isNewTestament" to json.encodeToString(serializer(), isNewTestament),
             "features" to json.encodeToString(serializer(), features),
             "ordinalRange" to ordinalRangeStr,
             "language" to wrapString(book.language.code),
