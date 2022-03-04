@@ -43,7 +43,7 @@ import org.crosswire.jsword.passage.KeyUtil
 import java.io.File
 import java.io.IOException
 
-private fun getConfig(initials: String, description: String, language: String, category: String, isStrong: Boolean): String {
+private fun getConfig(initials: String, description: String, language: String, category: String, hasStrongsDef: Boolean, hasStrongs: Boolean): String {
     var conf = """
 [$initials]
 Description=$description
@@ -58,9 +58,12 @@ SourceType=OSIS
 ModDrv=zText
 BlockType=BOOK
 Versification=KJVA"""
-    if(isStrong) {
+    if(hasStrongsDef) {
         conf += "\nFeature=GreekDef"
         conf += "\nFeature=HebrewDef"
+    }
+    if(hasStrongs) {
+        conf += "\nGlobalOptionFilter = OSISStrongs"
     }
     return conf
 }
@@ -123,7 +126,11 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                 it.moveToFirst()
                 it.getString(0)
             }
-            val isStrong = db.rawQuery("select value from info where name = ?", arrayOf("is_strong")).use {
+            val hasStrongsDef = db.rawQuery("select value from info where name = ?", arrayOf("is_strong")).use {
+                it.moveToFirst() || return@use false
+                it.getString(0) == "true"
+            }
+            val hasStrongs = db.rawQuery("select value from info where name = ?", arrayOf("strong_numbers")).use {
                 it.moveToFirst() || return@use false
                 it.getString(0) == "true"
             }
@@ -149,7 +156,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                 else -> "Illegal"
             }
 
-            val conf = getConfig(initials, description, language, category, isStrong)
+            val conf = getConfig(initials, description, language, category, hasStrongsDef, hasStrongs)
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
 
