@@ -69,13 +69,11 @@ import kotlin.random.Random.Default.nextInt
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
-import androidx.room.ColumnInfo
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
-import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.CommonUtils.getResourceColor
 import kotlin.collections.ArrayList
+import net.bible.service.device.ScreenSettings
 
 val json = Json {
     allowStructuredMapKeys = true
@@ -114,7 +112,6 @@ class ManageLabels : ListActivityBase() {
     }
 
     var highlightLabel: BookmarkEntities.Label? = null
-//    lateinit var filterButtonsCollection: ArrayList<Button>
 
     fun DisplayTextSearchControls(){
         // Highlights the search button as required
@@ -129,7 +126,7 @@ class ManageLabels : ListActivityBase() {
         } else {
             closeKeyboard()
             binding.textSearchLayout.visibility = View.GONE
-            (binding.searchRevealButton.getBackground() as GradientDrawable).setColor(getResourceColor(R.color.transparent)) // set solid color
+            (binding.searchRevealButton.background as GradientDrawable).setColor(getResourceColor(R.color.transparent)) // set solid color
         }
     }
     fun filterButtonSelected(button:Button, clearEditText:Boolean = true) {
@@ -142,7 +139,7 @@ class ManageLabels : ListActivityBase() {
     }
 
     fun setSearchInsideTextButtonBackground(isSearchInsideText:Boolean? = null, button:Button? = null) {
-        // Set the background color of the 'Filter Inside Text' button (to the left of the Search text field)
+        // Set the background color of the 'Filter Inside Text' button
         if (isSearchInsideText != null) searchInsideTextButtonActive = isSearchInsideText
         if ((button != null) && (button!!.tag!=null)) {
             searchInsideTextButtonActive = SearchTextOptions.listItem(button.tag.toString())!!.isSearchInsideText
@@ -164,26 +161,18 @@ class ManageLabels : ListActivityBase() {
     object SearchTextOptions {
 
         @Serializable
-        class Project(
-            var name: String // Property with a backing field; allowed
-        ) {
-            var stars: Int = 0 // property with a backing field; allowed
-
-            val path: String // no backing field; ignored by the serializer
-                get() = "kotlin/$name"
-
-            var id by ::name // delegated property; ignored by the serializer
-        }
-
-        @Serializable
         class SearchOption(var text:String,
                            var isSearchInsideText:Boolean,
                            var id:String = "",
-                           var regex:String=""){
+                           var regex:String="",
+                           var name:String=""){
+            // TODO: Presently 'name' is not used. I want to show a dialog on the long press of a button
+            //  that allows the deleting or renaming of a button. This allows for complex regex strings but with a more human readable name
             init {
                 text = text.trim()
                 id = text + if (isSearchInsideText) "1" else "0"  // The ID stores both the text to search for and an indicator in the last char showing whether it is an 'in text' or 'start of text' search
                 regex = if (isSearchInsideText) text else "^${text}"
+                if (name.isEmpty()) name = text
             }
             fun toJson():String {
                 return json.encodeToString(serializer(), this)
@@ -194,16 +183,9 @@ class ManageLabels : ListActivityBase() {
         fun toJson(): String {
             return Json.encodeToString(ListSerializer(SearchOption.serializer()),list)
         }
-        fun fromJson(jsonString: String): SearchTextOptions {
-            // ToDO: https://www.raywenderlich.com/26883403-android-data-serialization-tutorial-with-the-kotlin-serialization-library
-            // TODO: https://medium.com/@gurpreetsk/getting-started-with-kotlin-serialization-3315c59bafb2
-            return net.bible.android.database.json.decodeFromString(serializer(), jsonString)
-        }
-
         fun initialise (options:String) {
             list.clear()
-            val x = options.split(",")
-            x.map { if (it.length > 1) list.add(SearchOption( it.take(it.length-1), (it.takeLast(1) == "1" ))) }
+            if (options.isNotEmpty()) list.addAll(json.decodeFromString(ListSerializer(SearchOption.serializer()), options))
         }
         override fun toString(): String {
             var x = list.map {it.id.trim()}.joinToString()
@@ -215,9 +197,6 @@ class ManageLabels : ListActivityBase() {
         fun add(option:String, isSearchInsideText: Boolean) {
             val newOption = SearchOption(option.trim(),isSearchInsideText)
             if (!list.any{ (it.id == newOption.id)}){list.add(newOption)}
-//            val json_string = json.encodeToString(SearchOption.serializer(), newOption)
-            Log.i("AGR","4: " + newOption.toJson())
-            Log.i("AGR", "5: " + this.toJson())
         }
         fun remove(button:Button, binding:ManageLabelsBinding) {
             list.myRemoveIf { it.id == button.tag }
@@ -238,12 +217,12 @@ class ManageLabels : ListActivityBase() {
             if (button != null)  {
                 if ((button!!.tag !=null) && (SearchTextOptions.listItem(button.tag.toString())!!.isSearchInsideText)) {
                     val backgroundColor = if (isSelected) R.color.blue_200 else R.color.transparent
-                    (button.getBackground() as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
-                    (button.getBackground() as GradientDrawable).setStroke(4,getResourceColor(R.color.blue_200)) // set solid color
+                    (button.background as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
+                    (button.background as GradientDrawable).setStroke(4,getResourceColor(R.color.blue_200)) // set solid color
                 } else {
                     val backgroundColor = if (isSelected) R.color.grey_500 else R.color.transparent
-                    (button.getBackground() as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
-                    (button.getBackground() as GradientDrawable).setStroke(4,getResourceColor(R.color.grey_500)) // set solid color
+                    (button.background as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
+                    (button.background as GradientDrawable).setStroke(4,getResourceColor(R.color.grey_500)) // set solid color
                 }
             }
         }
@@ -296,6 +275,8 @@ class ManageLabels : ListActivityBase() {
                 newButton.minWidth = 80
                 newButton.minimumWidth = 80  // Both these are required to get the minwidth property to work
                 newButton.setPadding(5,0,5,0)
+                newButton.setTextColor(getResourceColor(if (ScreenSettings.nightMode) R.color.blue_grey_50 else R.color.grey_900))
+
                 binding.buttonLayout.addView(newButton)
                 setFilterButtonBackground(newButton, false)
                 flowButtonIds += newButton.id
@@ -432,7 +413,6 @@ class ManageLabels : ListActivityBase() {
         saveSearchButton.setOnClickListener {
             val searchText = editSearchText.text.toString()
             if ( (searchText != "") ) {
-                // The type of search is appended as either a 1 (in label) or 0 (start of label) search. I am not sure how to serialise a better object for this
                 SearchTextOptions.add(searchText, searchInsideTextButtonActive)
                 SearchTextOptions.buildButtonList(binding, getApplicationContext(), this::filterButtonSelected, this::updateLabelList, this::DisplayTextSearchControls)
             }
@@ -455,7 +435,8 @@ class ManageLabels : ListActivityBase() {
             setSearchInsideTextButtonBackground(searchInsideTextButtonActive)
             applyTextFilter(editSearchText.text.toString(), searchInsideTextButtonActive)
         }
-        SearchTextOptions.buildButtonList(binding, getApplicationContext(), this::filterButtonSelected, this::updateLabelList, this::DisplayTextSearchControls)
+        SearchTextOptions.buildButtonList(binding,
+            applicationContext, this::filterButtonSelected, this::updateLabelList, this::DisplayTextSearchControls)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -709,7 +690,7 @@ class ManageLabels : ListActivityBase() {
         Log.i(TAG, "Okay clicked")
         CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideTextButtonActive)
         CommonUtils.settings.setBoolean("labels_list_filter_showTextSearch", showTextSearch)
-        CommonUtils.settings.setString("labels_list_filter_searchTextOptions", SearchTextOptions.toString())
+        CommonUtils.settings.setString("labels_list_filter_searchTextOptions", SearchTextOptions.toJson())
 
         val deleteLabelIds = data.deletedLabels.filter{ it > 0 }.toList()
         if(deleteLabelIds.isNotEmpty()) {
@@ -857,7 +838,7 @@ class ManageLabels : ListActivityBase() {
 
             // TODO: changes made in the label dialog are lost when the filter is applied
             // Some sanity check. These checks clear the changed state of the labels.
-            // AGR: I don't know whether these are really needed. But having them clear these settings when the filter is applied.
+            // AGR: I don't know whether these are really needed. But having them clear these settings when the filter is applied causes me trouble.
 //            data.autoAssignLabels.myRemoveIf { !labelIds.contains(it) }
 //            data.favouriteLabels.myRemoveIf { !labelIds.contains(it) }
             data.selectedLabels.myRemoveIf { !labelIds.contains(it) }
@@ -874,4 +855,3 @@ enum class LabelCategory {ACTIVE, RECENT, OTHER}
 
 private fun <E> MutableSet<E>.myRemoveIf(function: (it: E) -> Boolean)  = filter { function.invoke(it) }.forEach { remove(it) }
 private fun <E> MutableList<E>.myRemoveIf(function: (it: E) -> Boolean)  = filter { function.invoke(it) }.forEach { remove(it) }
-
