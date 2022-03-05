@@ -185,7 +185,7 @@ class ManageLabels : ListActivityBase() {
         }
         fun initialise (options:String) {
             list.clear()
-            if (options.isNotEmpty()) list.addAll(json.decodeFromString(ListSerializer(SearchOption.serializer()), options))
+            if (options.isNotEmpty()) if (options.first() == '[') list.addAll(json.decodeFromString(ListSerializer(SearchOption.serializer()), options))
         }
         override fun toString(): String {
             var x = list.map {it.id.trim()}.joinToString()
