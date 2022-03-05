@@ -114,6 +114,16 @@ class ReadingPlanSelectorList : ListActivityBase() {
         return false
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     companion object {
         private const val TAG = "ReadingPlanList"
 

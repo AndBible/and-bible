@@ -775,5 +775,5 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="strongs_text_and_links">Teksty i odnośniki</string>
   <string name="verse_tip">Aby wybrać część bądź kilka wersetów, stuknij i przytrzymaj tekst Biblii</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Wymagane uprawnienie</string>
 </resources>

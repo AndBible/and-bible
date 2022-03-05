@@ -808,5 +808,4 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="strongs_links">Atalhos</string>
   <string name="verse_tip">Para selecionar parte ou vários versículos, mantenha premido o texto da Bíblia</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

@@ -85,9 +85,6 @@ export default {
 }
 </script>
 
-<style scoped>
-  .paragraphBreak {
-    display: block;
-    height: 0.5em;
-  }
+<style lang="scss" scoped>
+  @import "~@/common.scss";
 </style>

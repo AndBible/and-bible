@@ -24,7 +24,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         distribution: 'zulu'
-        java-version: '11' # later than 1.8 not working with roboelectric as of 2020-06-15
+        java-version: '11'
 
     - name: Set up Node.js environment
       uses: actions/setup-node@v2
@@ -56,6 +56,16 @@ jobs:
         openssl enc -in ./testmods.zip.enc -out ./testmods.zip -d -aes-256-cbc -pbkdf2 -pass 'pass:${{ secrets.TEST_MODULE_ENCRYPTION_KEY }}'
         mkdir -p $HOME/.sword
         unzip -o -d $HOME/.sword ./testmods.zip
+
+    - name: Check/set alpha version suffix
+      if: contains(github.ref, 'refs/tags/alpha-')
+      run: |
+        sed -i 's/\(android:versionName="[0-9]*.[0-9]*.[0-9]*\)/\1-alpha/' ./app/src/main/AndroidManifest.xml
+
+    - name: Check/set beta version suffix
+      if: contains(github.ref, 'refs/tags/beta-')
+      run: |
+        sed -i 's/\(android:versionName="[0-9]*.[0-9]*.[0-9]*\)/\1-beta/' ./app/src/main/AndroidManifest.xml
 
     - name: Build with Gradle
       run: ./gradlew --console plain assembleGithubRelease

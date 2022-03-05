@@ -38,13 +38,18 @@ import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.sword.SwordEnvironmentInitialisation
+import net.bible.service.sword.myBibleBible
+import net.bible.service.sword.myBibleCommentary
+import net.bible.service.sword.myBibleDictionary
 
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.PropertyMap
 import org.crosswire.jsword.book.install.InstallManager
+import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.bridge.BookIndexer
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
+import org.crosswire.jsword.versification.BibleBook
 import java.util.Locale
 
 class MyLocaleProvider: LocaleProvider {
@@ -95,6 +100,10 @@ open class BibleApplication : Application() {
             PropertyMap().apply {
                 load(resources.openRawResource(R.raw.repositories))
             })
+        BookType.addSupportedBookType(myBibleBible)
+        BookType.addSupportedBookType(myBibleCommentary)
+        BookType.addSupportedBookType(myBibleDictionary)
+
         LocaleProviderManager.setLocaleProvider(MyLocaleProvider())
 
         Log.i(TAG, "OS:" + System.getProperty("os.name") + " ver " + System.getProperty("os.version"))

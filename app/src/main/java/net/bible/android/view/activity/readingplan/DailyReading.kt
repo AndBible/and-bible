@@ -57,7 +57,9 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     private lateinit var binding: ReadingPlanOneDayBinding
 
-    private var dayLoaded: Int = 0
+    var dayLoaded: Int = 0
+        private set
+
     private var planCodeLoaded: String? = null
 
     private lateinit var readingsDto: OneDaysReadingsDto
@@ -405,6 +407,10 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
             loadDailyReading(planCode, null)
         }
+            ?: if (!readingPlanControl.isReadingPlanSelected) {
+                Log.i(TAG, "Reading plan has not been selected and there's none active. Exiting")
+                finish()
+            }
     }
 
     val selectReadingDay = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

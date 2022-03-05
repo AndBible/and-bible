@@ -46,7 +46,6 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
@@ -227,11 +226,41 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         // use context to setup backup control dirs
         BackupControl.setupDirs(this)
-
         BackupControl.clearBackupDir()
 
         windowRepository.initialize()
 
+        resolveVariables()
+        setupUi()
+
+        // register for passage change and appToBackground events
+        ABEventBus.getDefault().register(this)
+
+        setupToolbarButtons()
+        setupToolbarFlingDetection()
+        setSoftKeyboardMode()
+
+        if(!initialized) {
+            requestSdcardPermission()
+        }
+
+        if(!initialized) {
+            scope.launch(Dispatchers.Main) {
+                ErrorReportControl.checkCrash(this@MainBibleActivity)
+                if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
+                showBetaNotice()
+                showStableNotice()
+                showFirstTimeHelp()
+                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
+            }
+            scope.launch {
+                checkDocBackupDBInSync()
+            }
+        }
+        initialized = true
+    }
+
+    private fun setupUi() {
         documentViewManager.buildView()
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
@@ -239,27 +268,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         updateToolbar()
         updateBottomBars()
-
-        // Mainly for old devices (older than API 21)
-        hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
-
-        val navBarId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
-        if (navBarId > 0) {
-            navigationBarHeight = resources.getDimensionPixelSize(navBarId)
-        }
-
-        val tv = TypedValue()
-        if (theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        }
-
-        if (theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
-            transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        }
-
-        if (theme.resolveAttribute(R.attr.windowButtonHeight, tv, true)) {
-            windowButtonHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        }
 
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
@@ -299,33 +307,32 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowRepository.activeWindow.bibleView?.requestFocus()
             }
         })
-        // register for passage change and appToBackground events
-        ABEventBus.getDefault().register(this)
+    }
 
-        setupToolbarButtons()
-        setupToolbarFlingDetection()
-        setSoftKeyboardMode()
+    private fun resolveVariables() {
+        // Mainly for old devices (older than API 21)
+        hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
-        if(!initialized) {
-            requestSdcardPermission()
+        val navBarId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        if (navBarId > 0) {
+            navigationBarHeight = resources.getDimensionPixelSize(navBarId)
         }
 
-        binding.speakTransport.visibility = View.GONE
-
-        if(!initialized) {
-            scope.launch(Dispatchers.Main) {
-                ErrorReportControl.checkCrash(this@MainBibleActivity)
-                if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
-                showBetaNotice()
-                showStableNotice()
-                showFirstTimeHelp()
-                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
-            }
-            scope.launch {
-                checkDocBackupDBInSync()
-            }
+        val tv = TypedValue()
+        if (theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
-        initialized = true
+
+        if (theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
+            transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+        }
+
+        if (theme.resolveAttribute(R.attr.windowButtonHeight, tv, true)) {
+            windowButtonHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+        }
+
+        transportBarVisible = !speakControl.isStopped
+
     }
 
     /**
@@ -391,6 +398,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val ver = CommonUtils.mainVersion
 
         val displayedVer = preferences.getString("stable-notice-displayed", "")
+        Log.i(TAG, "showStableNotice: $displayedVer $ver")
 
         if(displayedVer != ver) {
             val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
@@ -412,6 +420,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setIcon(R.drawable.ic_logo)
                 .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
+                    Log.i(TAG, "showStableNotice: saving $ver")
                     preferences.setString("stable-notice-displayed", ver)
                     it.resume(true)
                 }
@@ -1502,29 +1511,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     fun previous() {
         if (documentViewManager.documentView.isPagePreviousOkay) {
             windowControl.activeWindowPageManager.currentPage.previous()
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    fun requestPhoneStateReadPermission() {
-        scope.launch(Dispatchers.Main) {
-            Log.i(TAG, "requestPhoneStateReadPermission")
-            var cnt = true
-            if(shouldShowRequestPermissionRationale(Manifest.permission.READ_PHONE_STATE)) {
-                cnt = suspendCoroutine {
-                    AlertDialog.Builder(this@MainBibleActivity)
-                        .setTitle(R.string.permission_required)
-                        .setMessage(R.string.phone_call_permission_rationale)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.okay) { _, _ ->
-                            it.resume(true)
-                        }
-                        .show()
-                }
-            }
-            if(cnt) {
-                requestPermissions(arrayOf(Manifest.permission.READ_PHONE_STATE), PHONE_STATE_READ_REQUEST)
-            }
         }
     }
 
