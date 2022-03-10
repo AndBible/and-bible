@@ -336,9 +336,17 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             try {
                 Dialogs.instance.showMsg(R.string.msg_set_current_day_reading_plan, true)
                 {
+                    // Change start date so that the current plan day is today
+                    val planStartDate = Calendar.getInstance()
+                    planStartDate.add(Calendar.DATE, - (dayLoaded - 1))
+                    readingPlanControl.setStartDate(readingsDto.readingPlanInfo, planStartDate.time)
+
                     // set previous day as finish, so that today's reading status will not be changed
                     readingPlanControl.done(readingsDto.readingPlanInfo, dayLoaded - 1, true)
+
                     updateTicksAndDone()
+
+                    loadDailyReading(planCodeLoaded, dayLoaded)
                 }
 
             } catch (e: Exception) {
