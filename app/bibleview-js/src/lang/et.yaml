@@ -42,8 +42,9 @@ externalLink: ""
 referenceLink: ""
 openFootnote: Ava allmärkus
 openBookmark: Ava järjehoidja (%s)
-noMyNotesTitle: ""
+noMyNotesTitle: Selle peatüki kohta märkmeid pole
 noMyNotesDescription: >
+  Alusta sellest, et lisad järjehoidjad Piibli teksti kohta. Järjehoidjad ilmuvad siis siia ja sa saad neile lisada oma märkmed.
 emptyStudyPad: >
   Tühi õppetükk. Lisa siia õppetükki kommentaare ja järjehoidjaid, mille silt langeb õppetükiga kokku.
 studyPadModalTitle: Muuda õppetükki
@@ -52,7 +53,7 @@ removeStudyPadConfirmationTitle: Õppetüki sissekande kustutamine
 dragHelp: Lohista järjekorra muutmiseks
 saved: salvestatud
 openAll: ""
-editBookmarkPlaceholder: ""
+editBookmarkPlaceholder: Puuduta minu märkmete lisamiseks
 onlyLabel: Ainult silt
 wholeBookmark: ""
 otherNoteText: ""
