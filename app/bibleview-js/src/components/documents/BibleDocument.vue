@@ -52,6 +52,14 @@ export default {
 
     useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common, config, appSettings);
 
+    let footNoteCount = ordinalRange[0] || 0;
+
+    function getFootNoteCount() {
+      return footNoteCount ++;
+    }
+
+    provide("footNoteCount", {getFootNoteCount});
+
     return {bookInitials, ...common}
   }
 }
