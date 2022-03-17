@@ -98,7 +98,9 @@ open class BibleApplication : Application() {
         ABEventBus.getDefault().register(this)
         InstallManager.installSiteMap(
             PropertyMap().apply {
-                load(resources.openRawResource(R.raw.repositories))
+                resources.openRawResource(R.raw.repositories).use {
+                    load(it)
+                }
             })
         BookType.addSupportedBookType(myBibleBible)
         BookType.addSupportedBookType(myBibleCommentary)
