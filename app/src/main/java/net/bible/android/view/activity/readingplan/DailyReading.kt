@@ -344,8 +344,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                     // set previous day as finish, so that today's reading status will not be changed
                     readingPlanControl.done(readingsDto.readingPlanInfo, dayLoaded - 1, true)
 
-                    updateTicksAndDone()
-
                     loadDailyReading(planCodeLoaded, dayLoaded)
                 }
 
