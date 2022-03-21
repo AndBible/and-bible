@@ -76,8 +76,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             field = value
         }
 
-    // I don't know how to do this properly. I want to update the value of proximityWordNumber whenever it is needed (buttons, text, initialising)
-    // But part of the update is to set the text value itself. But this gets into an infinite loop of course when called when the text value is updated.
+    // I don't know how to do this properly. I want to update the value of proximityWordNumber whenever it is changed via buttons, text or initialisation
+    // But part of the update is to set the text value itself. This gets into an infinite loop because the text value change fires the update again.
     // So i have broken it into two parts. One updates everything and one does not update the text field.
     private var proximitySearchWordsSelection: Int = 10
         set(value) {
@@ -208,12 +208,12 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             }
             enableSearchControls()
         }
-        binding.proximityButtonAdd.setOnClickListener {proximitySearchWordsSelection = binding.proximityWordNumber.text.toString().toInt() + 1}
-        binding.proximityButtonSubtract.setOnClickListener {proximitySearchWordsSelection = binding.proximityWordNumber.text.toString().toInt() - 1}
+        binding.proximityButtonAdd.setOnClickListener {proximitySearchWordsSelection = adjustProximityWordNumber(1)}
+        binding.proximityButtonSubtract.setOnClickListener {proximitySearchWordsSelection = adjustProximityWordNumber(-1)}
         binding.proximityWordNumber.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {proximitySearchWordsSelectionFinal = s.toString().toInt()}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {proximitySearchWordsSelectionFinal = if(s.isNullOrEmpty())  1 else  s.toString().toInt()}
         })
 
         binding.strongsSearch.setOnClickListener {
@@ -229,23 +229,11 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             enableSearchControls()
         }
         binding.decoratedTextShow.setOnCheckedChangeListener { group, checkedId ->
-            // I would like to show the actual text that is being used for the search somewhere.
-            // I think it would be good to show it on the list screen. Could also show it here.
-
             CommonUtils.settings.setBoolean("search_show_decorated_text", checkedId)
             enableSearchControls()
         }
 
         binding.submit.setOnClickListener { onSearch() }
-        //searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
-        //    // If the event is a key-down event on the "enter" button
-        //    if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-        //        // Perform action on key press
-        //        onSearch(null)
-        //        return@OnKeyListener true
-        //    }
-        //    false
-        //})
 
         // Initialise controls
         binding.includeAllEndings.isChecked = CommonUtils.settings.getBoolean("search_include_all_endings", false)
@@ -305,6 +293,12 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         enableSearchControls()
 
         Log.i(TAG, "Finished displaying Search view")
+    }
+
+    private fun adjustProximityWordNumber(changeAmt: Int):Int {
+        var newProximityWordNumber = binding.proximityWordNumber.text.toString().toInt() + changeAmt
+        if (newProximityWordNumber < 1) newProximityWordNumber = 1
+        return newProximityWordNumber
     }
 
     fun enableSearchControls() {
@@ -384,7 +378,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             Log.i(TAG, "Search text:$text")
 
             // specify search string and doc in new Intent;
-            // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
+            // if doc is not specifed a possibly invalid doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
             val intent = Intent(this, SearchResults::class.java)
             intent.putExtra(SearchControl.SEARCH_TEXT, text)
             val currentDocInitials = documentToSearch?.initials
