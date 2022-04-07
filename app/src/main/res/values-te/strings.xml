@@ -558,7 +558,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="doc_type_map">పటము</string>
   <string name="doc_type_addons">Add-ons</string>
   <!--Languages-->
-  <string name="lang_default">లోపము</string>
+  <string name="lang_default">డిఫాల్ట్</string>
   <!--General-->
   <string name="okay">ఒకె</string>
   <string name="cancel">క్యాన్సిల్</string>
