@@ -227,6 +227,9 @@
 
     <string name="prefs_text_bookmarks_title">Bookmark &amp; My Notes settings</string>
 
+    <string name="prefs_enable_bluetooth_title">Enable Bluetooth media buttons</string>
+    <string name="prefs_enable_bluetooth_summary">Handle Bluetooth media buttons to start/stop speaking.</string>
+
     <!-- Colors preferences -->
     <string name="prefs_text_colors_menutitle">Color settings</string>
     <string name="window_color_settings_title">Window color settings</string>
@@ -268,7 +271,7 @@
 
     <!--  Strongs -->
     <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
-    <string name="no_indexed_bible_with_strongs_ref">You must download a Bible containing Strong\'s numbers and download its index via Search</string>
+    <string name="no_indexed_bible_with_strongs_ref">You must download a Bible containing Strong\'s numbers and build its index via Search</string>
     <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
     <string name="go_to_downloads">Go to Downloads</string>
 
@@ -994,4 +997,5 @@
 
     <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
     <string name="permission_required">Permission needed</string>
+
 </resources>

@@ -23,7 +23,6 @@ import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.NameNotFoundException
@@ -79,7 +78,6 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
-import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.DownloadActivity
@@ -89,6 +87,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.addManuallyInstalledMyBibleBooks
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.IOUtil
 import org.crosswire.common.util.Version
@@ -903,6 +902,7 @@ object CommonUtils : CommonUtilsBase() {
             ttsNotificationManager = TextToSpeechNotificationManager()
             ttsWidgetManager = SpeakWidgetManager()
 
+            addManuallyInstalledMyBibleBooks()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -923,6 +923,10 @@ object CommonUtils : CommonUtilsBase() {
             }
             booksInitialized = true
         }
+    }
+
+    fun prepareForDestruction() {
+        windowControl.windowRepository.saveIntoDb(false)
     }
 
     fun destroy() {
@@ -1129,7 +1133,7 @@ object CommonUtils : CommonUtilsBase() {
 
         val goodLanguages = listOf(
             "en", "af", "my", "eo", "fi", "fr", "de", "hi", "hu", "it", "lt", "pl", "ru", "sl", "es", "uk", "zh-Hant-TW", "kk", "pt",
-            "zh-Hans-CN", "cs", "sk", "ro",
+            "zh-Hans-CN", "cs", "sk", "ro", "te",
             // almost: "ko", "he" (hebrew, check...)
         )
 

@@ -832,9 +832,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             true
         }
         UriConstants.SCHEME_FIND_ALL_OCCURRENCES -> {
-            val type = uri.getQueryParameter("type")
-            val name = uri.getQueryParameter("name")
-            linkControl.showAllOccurrences(name!!, SearchControl.SearchBibleSection.ALL, type!![0].toString())
+            val type = uri.getQueryParameter("type")!!
+            var name = uri.getQueryParameter("name")!!.lowercase()
+            if(!(name.startsWith("g") || name.startsWith("h"))) {
+                name = type[0] + name
+            }
+            linkControl.showAllOccurrences(name, SearchControl.SearchBibleSection.ALL)
             true
         }
         UriConstants.SCHEME_ERROR -> {

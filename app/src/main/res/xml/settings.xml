@@ -116,6 +116,11 @@
 
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
+		<SwitchPreferenceCompat android:key="enable_bluetooth_pref"
+			android:title="@string/prefs_enable_bluetooth_title"
+			android:summary="@string/prefs_enable_bluetooth_summary"
+			android:icon="@drawable/ic_baseline_media_bluetooth_on_24"
+			android:defaultValue="true"/>
 		<SwitchPreferenceCompat android:key="request_sdcard_permission_pref"
 			android:title="@string/prefs_request_sdcard_permission_title"
 			android:summary="@string/prefs_request_sdcard_permission_summary"
