@@ -27,7 +27,6 @@ import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.Logger
-import net.bible.service.common.ParseException
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
@@ -59,6 +58,7 @@ open class OsisError(xmlMessage: String): Exception(xmlMessage) {
     val xml: Element = SAXBuilder().build(StringReader("<div>$xmlMessage</div>")).rootElement
 }
 class DocumentNotFound(xmlMessage: String): OsisError(xmlMessage)
+class JSwordError(xmlMessage: String): OsisError(xmlMessage)
 
 /** JSword facade
  *
@@ -69,7 +69,7 @@ object SwordContentFacade {
 
     /** top level method to fetch html from the raw document data
      */
-    @Throws(ParseException::class, OsisError::class)
+    @Throws(OsisError::class)
     fun readOsisFragment(book: Book?, key: Key?,): Element = when {
         book == null || key == null -> {
             Log.e(TAG, "Key or book was null")
@@ -90,7 +90,7 @@ object SwordContentFacade {
         }
     }
 
-    @Throws(ParseException::class)
+    @Throws(OsisError::class)
     private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
         log.debug("Using standard JSword to fetch document data")
         return try {
@@ -111,9 +111,12 @@ object SwordContentFacade {
         catch (e: OsisError) {
             throw e
         }
-        catch (e: Exception) {
-            log.error("Parsing error", e)
-            throw ParseException("Parsing error", e)
+        catch (e: Throwable) {
+            if(e is Exception)
+                log.error("Parsing error", e)
+            else
+                log.error("Parsing error $e")
+            throw JSwordError(application.getString(R.string.error_occurred))
         }
     }
 
@@ -126,7 +129,7 @@ object SwordContentFacade {
      * @param key
      * a reference, appropriate for the book, of one or more entries
      */
-    @Throws(NoSuchKeyException::class, BookException::class, ParseException::class)
+    @Throws(NoSuchKeyException::class, BookException::class, OsisError::class)
     open fun getCanonicalText(book: Book?, key: Key?, compatibleOffsets: Boolean = false): String {
         return try {
             val data = BookData(book, key)
@@ -362,13 +365,17 @@ object SwordContentFacade {
      * This can be removed if SwordBook.contains is converted to be containsAnyOf as discussed in JS-273
      */
     private fun bookContainsAnyOf(book: Book, key: Key): Boolean {
-        if (book.contains(key)) {
-            return true
-        }
-        for (aKey in key) {
-            if (book.contains(aKey)) {
+        try {
+            if (book.contains(key)) {
                 return true
             }
+            for (aKey in key) {
+                if (book.contains(aKey)) {
+                    return true
+                }
+            }
+        } catch (e: ArrayIndexOutOfBoundsException){
+            return false
         }
         return false
     }

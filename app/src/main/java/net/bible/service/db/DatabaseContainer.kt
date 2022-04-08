@@ -51,7 +51,7 @@ import androidx.room.migration.Migration as RoomMigration
 
 
 const val DATABASE_NAME = "andBibleDatabase.db"
-const val TAG = "Migration"
+const val TAG = "DbContainer"
 
 abstract class Migration(startVersion: Int, endVersion: Int): RoomMigration(startVersion, endVersion) {
     abstract fun doMigrate(db: SupportSQLiteDatabase)
@@ -992,6 +992,7 @@ object DatabaseContainer {
     private fun backupDatabaseIfNeeded() {
         val dbPath = BibleApplication.application.getDatabasePath(DATABASE_NAME)
         var dbVersion: Int? = null
+        Log.i(TAG, "backupDatabaseIfNeeded")
         try {
             val db = SQLiteDatabase.openDatabase(dbPath.absolutePath, null, OPEN_READONLY)
             db.use { d ->
@@ -1006,6 +1007,7 @@ object DatabaseContainer {
             Log.i(TAG, "Could not backup database. Maybe fresh install.")
         }
         if(dbVersion != null && dbVersion != DATABASE_VERSION) {
+            Log.i(TAG, "backupping database of version $dbVersion (current: $DATABASE_VERSION)")
             val backupPath = CommonUtils.dbBackupPath
             val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
             val backupFile = File(backupPath, "dbBackup-$dbVersion-$timeStamp.db")
@@ -1020,6 +1022,7 @@ object DatabaseContainer {
             return instance ?: synchronized(this) {
                 backupDatabaseIfNeeded()
 
+                Log.i(TAG, "Opening database")
                 instance ?: Room.databaseBuilder(
                     BibleApplication.application, AppDatabase::class.java, DATABASE_NAME
                 )
@@ -1087,7 +1090,10 @@ object DatabaseContainer {
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
-                    .also { instance = it }
+                    .also {
+                        instance = it
+                        Log.i(TAG, "Database opened.")
+                    }
             }
         }
     fun reset() {

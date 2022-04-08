@@ -46,6 +46,8 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Passage
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import java.lang.Exception
 
@@ -111,8 +113,13 @@ class CurrentGeneralBookPage internal constructor(
                         val doc = it.document ?: defaultBibleDoc
                         var k = it.key
                         try {
-                            if(doc is SwordBook && k is Passage) {
-                                k = k.toV11n(doc.versification)
+                            if(doc is SwordBook) {
+                                k = when(k) {
+                                    is Passage -> k.toV11n(doc.versification)
+                                    is VerseRange -> k.toV11n(doc.versification)
+                                    is Verse -> k.toV11n(doc.versification)
+                                    else -> k
+                                }
                             }
                             OsisFragment(SwordContentFacade.readOsisFragment(doc, k), k, doc)
                         } catch (e: OsisError) {

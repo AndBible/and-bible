@@ -101,6 +101,7 @@
 		<item>@string/lang_serbian</item>
 		<item>@string/lang_serbian_latin</item>
 		<item>@string/lang_turkish</item>
+		<item>@string/lang_telugu</item>
 		<item>@string/lang_ukrainian</item>
 		<item>@string/lang_uzbek</item>
 		<item>@string/lang_chinese_traditional</item>
@@ -142,6 +143,7 @@
 		<item>sr</item>
 		<item>sr-Latn</item>
 		<item>tr</item>
+		<item>te</item>
 		<item>uk</item>
 		<item>uz</item>
 		<item>zh-Hant-TW</item>

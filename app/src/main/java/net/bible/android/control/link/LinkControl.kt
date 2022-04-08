@@ -56,6 +56,7 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
+import java.io.FileNotFoundException
 import java.net.URLDecoder
 import java.util.regex.Pattern
 import javax.inject.Inject
@@ -189,13 +190,29 @@ class LinkControl @Inject constructor(
 
     @Throws(NoSuchKeyException::class)
     private fun getStrongsKey(book: Book, key: String): BookAndKey? {
-        val sanitizedKey = Regex("^([GH]?)([0-9]+).*").find(key)?.groups?.get(2)?.value?.padStart(5, '0')
+        val match = Regex("^([GH]?)(0+)([0-9]+).*").find(key)
+        val category = match?.groups?.get(1)?.value
+        val sanitizedKeyBase = match?.groups?.get(3)?.value
 
-        val k = try {book.getKey(key)} catch (e: NoSuchKeyException) {null} ?:
-                if(sanitizedKey != null) {
-                    try {book.getKey(sanitizedKey)} catch (e: NoSuchKeyException) {null} ?:
-                    try {book.getKey(sanitizedKey + "\r")} catch (e: NoSuchKeyException) {null}
-                } else null
+        val zeroPaddedKey = sanitizedKeyBase?.padStart(5, '0') ?: ""
+
+        val keyOptions = listOf(
+            key,
+            zeroPaddedKey,
+            zeroPaddedKey + "\r",
+
+            // MyBible dictionaries
+            category + sanitizedKeyBase
+        )
+
+        val k = run {
+            for(opt in keyOptions) {
+                val candidate = try {book.getKey(opt)} catch (e: NoSuchKeyException) {null}
+                if(candidate != null)
+                    return@run candidate
+            }
+            null
+        }
 
         return if(k == null) null else BookAndKey(k, book)
     }
@@ -207,7 +224,7 @@ class LinkControl @Inject constructor(
         return BookAndKey(robinsonNumberKey, robinson)
     }
 
-    fun showAllOccurrences(ref: String, biblesection: SearchBibleSection, refPrefix: String) {
+    fun showAllOccurrences(ref: String, biblesection: SearchBibleSection) {
         val currentBible = currentPageManager.currentBible.currentDocument!!
         var strongsBible: Book? = null
         // if current bible has no Strongs refs then try to find one that has
@@ -217,17 +234,17 @@ class LinkControl @Inject constructor(
             swordDocumentFacade.defaultBibleWithStrongs
         }
         // possibly no Strong's bible or it has not been indexed
-        var needToDownloadIndex = false
+        var needToIndex = false
         if (strongsBible == null) {
             Dialogs.instance.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
             return
         } else if (currentBible == strongsBible && !checkStrongs(currentBible)) {
             Log.i(TAG, "Index status is NOT DONE")
-            needToDownloadIndex = true
+            needToIndex = true
         }
         // The below uses ANY_WORDS because that does not add anything to the search string
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
-        val searchText = searchControl.decorateSearchString("strong:$refPrefix$ref", SearchType.ANY_WORDS, biblesection, null)
+        val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, biblesection, null)
         Log.i(TAG, "Search text:$searchText")
         val activity = CurrentActivityHolder.getInstance().currentActivity
         val searchParams = Bundle()
@@ -235,7 +252,7 @@ class LinkControl @Inject constructor(
         searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)
         searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
         var intent: Intent? = null
-        intent = if (needToDownloadIndex) {
+        intent = if (needToIndex) {
             Intent(activity, SearchIndex::class.java)
         } else { //If an indexed Strong's module is in place then do the search - the normal situation
             Intent(activity, MySearchResults::class.java)
@@ -252,6 +269,9 @@ class LinkControl @Inject constructor(
                 (bible.find("+[Gen 1:1] strong:h7225").cardinality > 0 || bible.find("+[John 1:1] strong:g746").cardinality > 0 || bible.find("+[Gen 1:1] strong:g746").cardinality > 0)
         } catch (be: BookException) {
             Log.e(TAG, "Error checking strongs numbers", be)
+            false
+        } catch (e: FileNotFoundException) {
+            Log.e(TAG, "Error checking strongs numbers", e)
             false
         }
     }
