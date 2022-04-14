@@ -20,13 +20,11 @@ package net.bible.android.view.activity.navigation
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.EditText
 import android.widget.ListView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -37,7 +35,10 @@ import net.bible.android.activity.databinding.ChooseDictionaryPageBinding
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.service.sword.SwordContentFacade.readOsisFragment
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
+import org.jdom2.Element
 import java.util.*
 import javax.inject.Inject
 
@@ -51,7 +52,81 @@ class ChooseDictionaryWord : ListActivityBase() {
     private lateinit var binding: ChooseDictionaryPageBinding
 
     private var mDictionaryGlobalList: List<Key>? = null
-    private lateinit var mMatchingKeyList: MutableList<Key>
+
+    /**
+     * Internal class to help show additional information in the
+     * dictionary word picker, rather than just a key.
+     */
+    private class KeyInfo(_key: Key, _book: Book ) {
+        val key: Key = _key;
+        val book: Book = _book;
+
+        companion object {
+
+            private fun cleanUpSnippet(snippet: String, key: String): String {
+                var noNewLines = snippet.replace('\n', ' ');
+                if (noNewLines.startsWith(key)) {
+                    noNewLines = noNewLines.substring(key.length)
+                }
+                return maxLettersWholeWords(noNewLines);
+            }
+
+            /**
+             * Returns the first few words in text, up to a maximum of max letters.
+             * @param text The text to trim down.
+             * @param max Maximum number of letters in the returned string.
+             */
+            private fun maxLettersWholeWords(text: String, max: Int = 50): String {
+                val words = text.split(' ').toMutableList();
+                var result = "";
+                while (result.length < max && words.size > 0) {
+                    result += words[0] + ' ';
+                    words.removeAt(0);
+                }
+                if (result.isNotEmpty()) {
+                    // remove the extra space
+                    result.dropLast(1);
+                }
+                val append = if (words.isNotEmpty()) "..." else "";
+                return "$result$append";
+            }
+
+            private fun getEntrySnippet(text: Element, key: String): String {
+                text.removeChild("title")
+                val entry = text
+                    ?.getChild("entryFree")
+                if (entry === null) {
+                    return cleanUpSnippet(text.value, key);
+                }
+
+                // if a greek or hebrew word, look up any orthographic entries.
+                var greekOrHebrewWord =  entry
+                    .getChildren("orth")
+                    ?.map { it.text }
+                    ?.filter { it !== "" }
+                    ?.joinToString(" - ")
+                    ?: "";
+
+                if (greekOrHebrewWord !== "") {
+                    return greekOrHebrewWord
+                }
+
+                // return the first 100 chars or so of the entry
+                return cleanUpSnippet(entry.value, key);
+
+            }
+        }
+
+        override fun toString(): String {
+            val text = readOsisFragment(book, key);
+            val snippet = getEntrySnippet(text, key.toString())
+            return if (snippet !== "")
+                "$key - $snippet"
+             else
+                key.toString();
+        }
+    }
+    private lateinit var mMatchingKeyList: MutableList<KeyInfo>
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     /** Called when the activity is first created.  */
@@ -93,6 +168,8 @@ class ChooseDictionaryWord : ListActivityBase() {
         listAdapter = ArrayAdapter(this@ChooseDictionaryWord,
             LIST_ITEM_TYPE,
             mMatchingKeyList)
+        mList?.isFastScrollEnabled = true
+
 
         GlobalScope.launch {
             withContext(Dispatchers.Main) {
@@ -131,10 +208,11 @@ class ChooseDictionaryWord : ListActivityBase() {
                 searchText = searchText.lowercase(Locale.getDefault())
                 val iter = mDictionaryGlobalList!!.iterator()
                 mMatchingKeyList.clear()
+                val book = activeWindowPageManagerProvider.activeWindowPageManager.currentDictionary.currentDocument!!
                 while (iter.hasNext()) {
                     val key = iter.next()
                     if (key.name.lowercase(Locale.getDefault()).contains(searchText)) {
-                        mMatchingKeyList.add(key)
+                        mMatchingKeyList.add(KeyInfo(key, book))
                     }
                 }
                 Log.i(TAG, "matches found:" + mMatchingKeyList.size)
@@ -150,7 +228,7 @@ class ChooseDictionaryWord : ListActivityBase() {
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
-        itemSelected(mMatchingKeyList[position])
+        itemSelected(mMatchingKeyList[position].key)
     }
 
     private fun itemSelected(selectedKey: Key?) {

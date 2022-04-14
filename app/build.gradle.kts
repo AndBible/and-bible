@@ -81,7 +81,7 @@ val vueCli by tasks.registering(Exec::class) {
     println("Task names "+gradle.startParameter.taskNames)
     val taskNames = gradle.startParameter.taskNames
     println(taskNames)
-    val isDebug = taskNames.contains(":app:packageDebug")
+    val isDebug = taskNames.contains(":app:assembleStandardDebug")
 
     val buildCmd: String = if(!isDebug) {
         println("Building js for production")

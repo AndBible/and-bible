@@ -156,7 +156,7 @@
   <string name="hide_window_buttons_summary">Tlačidlá okien, ktoré sa zobrazujú na pravej strane zobrazení Biblie, sú skryté. Navigačný panel v spodnej časti okna je stále zobrazený a vyskakovacie okno je možné otvoriť dlhým kliknutím. </string>
   <string name="hide_bible_reference_overlay_title">Skryť prekrytie odkazov na Bibliu </string>
   <string name="hide_bible_reference_overlay_summary">Nezobrazovať polo-transparentné okno s Biblickými referencia pri celo-obrazovkovom režime aplikácie</string>
-  <string name="full_screen_hide_buttons_pref_title">Skryť panel tlačidiel pri celo*obrazovkovom režime</string>
+  <string name="full_screen_hide_buttons_pref_title">Skryť panel tlačidiel pri celoobrázkovom režime</string>
   <string name="full_screen_hide_buttons_pref_summary">Pri prepínaní do režimu celej obrazovky automaticky skryť panel s tlačidlami v spodnej časti obrazovky </string>
   <string name="prefs_dictionaries_cat">Slovníky</string>
   <string name="choose_strongs_greek_dictionary_title">Strongov grécky slovník </string>
@@ -858,4 +858,5 @@ Režim opakovania bol vypnutý, pretože
   <string name="strongs_text_and_links">Texty a odkazy</string>
   <string name="verse_tip">Dlhým stlačením Biblického textu označíte časť alebo viacero veršov</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Vyžaduje sa povolenie</string>
 </resources>

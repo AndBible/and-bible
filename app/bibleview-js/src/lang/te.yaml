@@ -1,0 +1,81 @@
+openMyNotes: నా నోట్స్‌లో తెరవండి
+openStudyPad: స్టడీ ప్యాడ్‌లో తెరవండి (%s)
+noteText: ఫుట్ నోట్స్ (%s)
+noteTextWithoutType: ఫుట్ నోట్స్
+crossReferenceText: క్రాస్ రిఫరెన్సెస్
+findAllOccurrences: అన్ని చోట్లలో కనుక్కోండి
+reportError: లోపాన్ని నివేదించండి
+errorTitle: లోపం సంభవించింది
+warningTitle: హెచ్చరిక
+normalTitle: దయచేసి గమనించండి
+footnoteTypeUndefined: నిర్వచించబడని రకం
+footnoteTypeStudy: అధ్యయనం
+footnoteTypeExplanation: వివరణ
+footnoteTypeVariant: "మార్పు "
+footnoteTypeAlternative: ప్రత్యామ్నాయం
+footnoteTypeTranslation: అనువాదం
+clearLog: లోపాల లాగ్‌ను క్లియర్ చేయండి
+editNote: సవరించు
+editNotePlaceholder: నోట్స్ సవరించండి
+editTextPlaceholder: వచనాన్ని సవరించడానికి నొక్కండి
+inputPlaceholder: ఇక్కడ వ్రాయండి
+inputReference: బైబిల్ రిఫరెన్సెస్ నమోదు చేయండి
+invalidReference: వచనం దొరకలేదు
+assignLabels: లేబుల్స్
+bookmarkAccurate: బుక్‌మార్క్ %s లో సృష్టించబడింది
+bookmarkInaccurate: "బుక్‌మార్క్ పుస్తక సమాచారం నిల్వ చేయబడలేదు, విషయము %s లో ప్రదర్శించబడుతుంది."
+defaultBook: డిఫాల్ట్ బైబిల్ పత్రం
+ok: ఒకె
+yes: "అవును"
+ambiguousSelection: "మీరు ఏ చర్య తీసుకోవాలనుకుంటున్నారు?"
+cancel: క్యాన్సిల్
+removeBookmarkConfirmationTitle: "బుక్‌మార్క్‌ని తీసివేయాలా?"
+removeBookmarkConfirmation: "మీరు ఖచ్చితంగా ఈ బుక్‌మార్క్‌ని తొలగించాలనుకుంటున్నారా?"
+closeModal: మూసివేయండి
+createdAt: "సృష్టించబడింది: %s"
+lastUpdatedOn: "చివరిగా నవీకరించబడింది: %s"
+strongsLink: స్త్రోంగ్స్ నిర్వచనం (%s)
+morphLink: పదనిర్మాణ కోడ్ (%s)
+strongsAndMorph: నిర్వచనం & పదనిర్మాణం
+studyPadLink: స్టడీ ప్యాడ్ తెరవండి
+externalLink: బాహ్య లింక్‌ని తెరవండి
+referenceLink: రిఫరెన్స్ లింక్‌ని తెరవండి
+openFootnote: ఫుట్‌నోట్ తెరవండి
+openBookmark: బుక్‌మార్క్‌ని తెరవండి (%s)
+noMyNotesTitle: ఈ అధ్యాయానికి నా నోట్స్ లేవు.
+noMyNotesDescription: >
+  బైబిల్ పత్రంలో బుక్‌మార్క్‌లను సృష్టించడం ద్వారా ప్రారంభించండి. అప్పుడు బుక్‌మార్క్‌లు ఇక్కడ కనిపిస్తాయి మరియు మీరు వాటికి మీ వ్యక్తిగత "నోట్స్" గమనికలను జోడించవచ్చు. 
+emptyStudyPad: >
+  ఖాళీ స్టడీ ప్యాడ్. ఇక్కడ వచనం నమోదు "టెక్స్ట్ ఎంట్రీలను" సృష్టించడం ద్వారా లేదా ఈ స్టడీ ప్యాడ్‌తో సరిపోయే బుక్‌మార్క్ లేబుల్‌తో బుక్‌మార్క్‌లను సృష్టించడం ద్వారా ఈ స్టడీ ప్యాడ్‌కి జోడించడం ప్రారంభించండి.
+studyPadModalTitle: స్టడీ ప్యాడ్ ఎంట్రీని సవరించండి
+doYouWantToDeleteEntry: "ఈ స్టడీ ప్యాడ్ ఎంట్రీని తొలగించాలా?"
+removeStudyPadConfirmationTitle: "స్టడీ ప్యాడ్ ఎంట్రీని తీసివేయాలా?"
+dragHelp: క్రమాన్ని మార్చడానికి లాగండి
+saved: సేవ్డ్
+openAll: అన్ని రిఫరెన్సెస్ తెరవండి
+editBookmarkPlaceholder: ఈ బుక్‌మార్క్ కోసం నా నోట్స్ సవరించడానికి నొక్కండి
+onlyLabel: లేబుల్ మాత్రమే
+wholeBookmark: మొత్తం బుక్మార్క్
+otherNoteText: ఇతర నోట్
+assignLabelsMenuEntry: లేబుల్‌లను కేటాయించండి
+assignLabelsMenuEntry1: లేబుల్‌లను ఎంచుకోండి లేదా సవరించండి...
+jumpToStudyPad: స్టడీ ప్యాడ్‌కి వెళ్లండి
+setAsPrimaryLabel: ప్రాథమిక లేబుల్‌గా సెట్ చేయండి
+removeBookmarkLabel: లేబుల్‌ని తీసివేయండి
+addBookmarkLabel: లేబుల్ జోడించండి
+favouriteLabels: ఇష్టమైన లేబుల్‌లు
+recentLabels: ఇటీవలి లేబుల్స్
+frequentlyUsedLabels: తరచుగా ఉపయోగించే లేబుల్స్
+bookmarkLabels: లేబుల్‌లను బుక్‌మార్క్ చేయండి
+refParserHelp: దయచేసి ఆంగ్లంలో కాకుండా ఇతర భాషలలో రిఫరెన్సెస్ ఉపయోగించడానికి %s మాడ్యూల్‌ని ఇన్‌స్టాల్ చేయండి.
+openDownloads: యాడ్-ఆన్ డౌన్‌లోడ్‌లకు వెళ్లండి
+verseShare: షేర్ చేయండి
+verseCompare: సరిపోల్చండి
+verseNote: నోట్
+verseMyNotes: నా నోట్స్
+verseSpeak: మాట్లాడు
+verseShareLong: ఈ వచనం షేర్ చేయండి
+verseCompareLong: వచనం సరిపోల్చండి
+verseNoteLong: ఒక నోట్ వ్రాయండి
+verseSpeakLong: ఈ వచనం నుండి వినడం ప్రారంభించండి
+addBookmark: బుక్మార్క్
