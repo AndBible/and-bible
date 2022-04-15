@@ -20,7 +20,6 @@ package net.bible.android.view.activity.bookmark
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -69,11 +68,12 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import net.bible.service.common.CommonUtils.getResourceColor
 import kotlin.collections.ArrayList
 import net.bible.service.device.ScreenSettings
+
+private const val TAG = "BookmarkLabels"
 
 val json = Json {
     allowStructuredMapKeys = true
@@ -87,9 +87,23 @@ fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.Mana
     ABEventBus.getDefault().post(AppSettingsUpdated())
 }
 
-private var lastButtonSelected: Button? = null
-private var showTextSearch = false
-private var searchInsideTextButtonActive = false
+@Serializable
+class SearchOption(
+    var text: String,
+    var isSearchInsideText: Boolean,
+    var id: String = "",
+    var regex: String = "",
+    var name: String = ""
+) {
+    // TODO: Presently 'name' is not used. I want to show a dialog on the long press of a button
+    //  that allows the deleting or renaming of a button. This allows for complex regex strings but with a more human readable name
+    init {
+        text = text.trim()
+        id = text + if (isSearchInsideText) "1" else "0" // The ID stores both the text to search for and an indicator in the last char showing whether it is an 'in text' or 'start of text' search
+        regex = if (isSearchInsideText) text else "^${text}"
+        if (name.isEmpty()) name = text
+    }
+}
 
 /**
  *
@@ -107,13 +121,28 @@ class ManageLabels : ListActivityBase() {
 
     lateinit var data: ManageLabelsData
 
+    private var lastButtonSelected: Button? = null
+    private var showTextSearch = false
+    private var searchInsideTextButtonActive = false
+
+    private val searchOptionList: ArrayList<SearchOption> = ArrayList()
+    private fun findSearchOptionListItem(id: String): SearchOption? = searchOptionList.find { it.id == id }
+
+    private fun initializeSearchOptionList() {
+        val options = CommonUtils.settings.getString("labels_list_filter_searchTextOptions", "")!!
+        searchOptionList.clear()
+        if (options.isNotEmpty() && options.first() == '[') {
+            searchOptionList.addAll(json.decodeFromString(serializer(), options))
+        }
+    }
+
     override fun onBackPressed() {
         saveAndExit()
     }
 
     var highlightLabel: BookmarkEntities.Label? = null
 
-    private fun displayTextSearchControls() = binding.apply {
+    private fun updateTextSearchControls() = binding.apply {
         // Highlights the search button as required
         if (showTextSearch) {
             textSearchLayout.visibility = View.VISIBLE
@@ -130,14 +159,115 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    fun filterButtonSelected(button:Button, clearEditText:Boolean = true) {
+    fun filterQuickSearchButtonSelected(button:Button, clearEditText:Boolean = true) {
         // Set the display properties of buttons
-        if (clearEditText && binding.editSearchText.text.toString() != "")
+        if (clearEditText && binding.editSearchText.text.toString() != "") {
             binding.editSearchText.setText("")
-        SearchTextOptions.setFilterButtonBackground(lastButtonSelected!!, false)
-        SearchTextOptions.setFilterButtonBackground(button, true)
+        }
+        setFilterButtonBackground(lastButtonSelected!!, false)
+        setFilterButtonBackground(button, true)
         setSearchInsideTextButtonBackground(button=button)
         closeKeyboard()
+    }
+
+    private fun buildQuickSearchButtonList() {
+        for (i in binding.buttonLayout.childCount - 1 downTo 0) {
+            val child = binding.buttonLayout.getChildAt(i)
+            if (!arrayListOf(R.id.flowContainer, R.id.all_button, R.id.searchRevealButton).contains(child.id)) {
+                try {
+                    binding.buttonLayout.removeView(child)
+                } catch (e: java.lang.Exception) {
+                    Log.e(TAG, "Error removing button view", e)
+                }
+            }
+        }
+
+        val allButton = binding.allButton
+        val flowButtonIds = arrayListOf(allButton.id)
+
+        lastButtonSelected = allButton
+        filterQuickSearchButtonSelected(allButton)
+
+        allButton.setOnClickListener {
+            filterQuickSearchButtonSelected(allButton)
+            updateLabelList(true, false, "")
+            lastButtonSelected = allButton
+        }
+
+        // Setup the text filter layout.
+        flowButtonIds += binding.searchRevealButton.id
+        binding.textSearchLayout.visibility = if (showTextSearch) View.VISIBLE else View.GONE
+        binding.searchRevealButton.setOnClickListener {
+            showTextSearch = !showTextSearch
+            updateTextSearchControls()
+        }
+        updateTextSearchControls() // Initialise the display of the search reveal button.
+
+        searchOptionList.sortWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.id })
+        for (searchOption in searchOptionList) {
+            val newButton = Button(this).apply {
+                id = View.generateViewId()
+                text = searchOption.text
+                tag = searchOption.id
+                setBackgroundResource(R.drawable.button_filter)
+                layoutParams = ViewGroup.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 60)
+                minWidth = 80
+                minimumWidth = 80  // Both these are required to get the minwidth property to work
+                setPadding(5, 0, 5, 0)
+                setTextColor(getResourceColor(if (ScreenSettings.nightMode) R.color.blue_grey_50 else R.color.grey_900))
+                binding.buttonLayout.addView(this)
+                setOnClickListener {
+                    filterQuickSearchButtonSelected(this)
+                    updateLabelList(true, false, findSearchOptionListItem(this.tag.toString())!!.regex)
+                    lastButtonSelected = this
+                }
+                setOnLongClickListener {
+                    removeQuickSearchButton(this)
+                    true
+                }
+
+            }
+
+            setFilterButtonBackground(newButton, false)
+            flowButtonIds += newButton.id
+        }
+        binding.flowContainer.referencedIds = flowButtonIds.toIntArray()
+    }
+
+    private fun addQuickSearchButton(option: String, isSearchInsideText: Boolean) {
+        val newOption = SearchOption(option.trim(), isSearchInsideText)
+        if (!searchOptionList.any { (it.id == newOption.id) }) {
+            searchOptionList.add(newOption)
+        }
+    }
+
+    private fun removeQuickSearchButton(button: Button) {
+        searchOptionList.myRemoveIf { it.id == button.tag }
+        button.visibility = View.GONE
+        button.tag = "removed"
+        // Had troubles trying to delete this button directly. Kept messing with the flow and other things. This way doesn't work either.
+        // So I just rebuild all buttons next time a button gets added so hiding it will be fine.
+//            for (i in 0 until binding.buttonLayout.childCount) {
+//                val child: View = binding.buttonLayout.getChildAt(i)
+//                if (child.id==button.id) {
+//                    binding.buttonLayout.removeView(child)
+//                    break
+//                }
+//            }
+    }
+
+    private fun setFilterButtonBackground(button: Button?, isSelected: Boolean) {
+        // Set the background color of a selected button and clears the background color of the previously selected button
+        button ?: return
+        if ((button.tag != null) && (findSearchOptionListItem(button.tag.toString())!!.isSearchInsideText)) {
+            val backgroundColor = if (isSelected) R.color.blue_200 else R.color.transparent
+            (button.background as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
+            (button.background as GradientDrawable).setStroke(4,getResourceColor(R.color.blue_200)) // set solid color
+        } else {
+            val backgroundColor = if (isSelected) R.color.grey_500 else R.color.transparent
+            (button.background as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
+            (button.background as GradientDrawable).setStroke(4,getResourceColor(R.color.grey_500)) // set solid color
+        }
     }
 
     private fun setSearchInsideTextButtonBackground(isSearchInsideText:Boolean? = null, button:Button? = null) {
@@ -145,7 +275,7 @@ class ManageLabels : ListActivityBase() {
         if (isSearchInsideText != null)
             searchInsideTextButtonActive = isSearchInsideText
         if (button?.tag != null) {
-            searchInsideTextButtonActive = SearchTextOptions.listItem(button.tag.toString())!!.isSearchInsideText
+            searchInsideTextButtonActive = findSearchOptionListItem(button.tag.toString())!!.isSearchInsideText
         }
         if (searchInsideTextButtonActive) {
             binding.searchInsideTextButton.text = getString(R.string.match_any_text)
@@ -160,140 +290,6 @@ class ManageLabels : ListActivityBase() {
         updateLabelList(true,false, regexString)
     }
 
-    @Serializable
-    object SearchTextOptions {
-
-        @Serializable
-        class SearchOption(var text:String,
-                           var isSearchInsideText:Boolean,
-                           var id:String = "",
-                           var regex:String="",
-                           var name:String=""){
-            // TODO: Presently 'name' is not used. I want to show a dialog on the long press of a button
-            //  that allows the deleting or renaming of a button. This allows for complex regex strings but with a more human readable name
-            init {
-                text = text.trim()
-                id = text + if (isSearchInsideText) "1" else "0"  // The ID stores both the text to search for and an indicator in the last char showing whether it is an 'in text' or 'start of text' search
-                regex = if (isSearchInsideText) text else "^${text}"
-                if (name.isEmpty()) name = text
-            }
-            fun toJson():String {
-                return json.encodeToString(serializer(), this)
-            }
-        }
-        val list: ArrayList<SearchOption> = ArrayList()
-
-        fun toJson(): String = Json.encodeToString(ListSerializer(SearchOption.serializer()),list)
-
-        fun initialise (options:String) {
-            list.clear()
-            if (options.isNotEmpty()) if (options.first() == '[') list.addAll(json.decodeFromString(ListSerializer(SearchOption.serializer()), options))
-        }
-
-        override fun toString(): String = list.map { it.id.trim() }.joinToString()
-
-        fun listItem (id:String): SearchOption? = list.find {it.id == id}
-
-        fun add(option:String, isSearchInsideText: Boolean) {
-            val newOption = SearchOption(option.trim(),isSearchInsideText)
-            if (!list.any{ (it.id == newOption.id)}){list.add(newOption)}
-        }
-        fun remove(button:Button, binding:ManageLabelsBinding) {
-            list.myRemoveIf { it.id == button.tag }
-            button.visibility = View.GONE
-            button.tag ="removed"
-            // Had troubles trying to delete this button directly. Kept messing with the flow and other things. This way doesn't work either.
-            // So I just rebuild all buttons next time a button gets added so hiding it will be fine.
-//            for (i in 0 until binding.buttonLayout.childCount) {
-//                val child: View = binding.buttonLayout.getChildAt(i)
-//                if (child.id==button.id) {
-//                    binding.buttonLayout.removeView(child)
-//                    break
-//                }
-//            }
-        }
-        fun setFilterButtonBackground(button:Button?, isSelected:Boolean) {
-            // Set the background color of a selected button and clears the background color of the previously selected button
-            if (button != null)  {
-                if ((button.tag !=null) && (listItem(button.tag.toString())!!.isSearchInsideText)) {
-                    val backgroundColor = if (isSelected) R.color.blue_200 else R.color.transparent
-                    (button.background as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
-                    (button.background as GradientDrawable).setStroke(4,getResourceColor(R.color.blue_200)) // set solid color
-                } else {
-                    val backgroundColor = if (isSelected) R.color.grey_500 else R.color.transparent
-                    (button.background as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
-                    (button.background as GradientDrawable).setStroke(4,getResourceColor(R.color.grey_500)) // set solid color
-                }
-            }
-        }
-        fun buildButtonList(binding:ManageLabelsBinding, context: Context,
-                            filterButtonSelect:(button:Button)->Unit,
-                            updateLabelList:(fromDb: Boolean, reOrder: Boolean, filterText:String)->Unit,
-                            displayTextSearchControls:()->Unit
-        ) {
-            for (i in binding.buttonLayout.childCount-1 downTo 0) {
-                val child = binding.buttonLayout.getChildAt(i)
-                if (!arrayListOf(R.id.flowContainer,R.id.all_button, R.id.searchRevealButton).contains(child.id)) {
-                    try {
-                        binding.buttonLayout.removeView(child)
-                    } catch (e:java.lang.Exception){
-                        Log.e(TAG, "Error removing button view", e)
-                    }
-                }
-            }
-
-            val allButton = binding.allButton
-            val flowButtonIds = arrayListOf(allButton.id)
-
-            lastButtonSelected = allButton
-            filterButtonSelect(allButton)
-
-            allButton.setOnClickListener {
-                filterButtonSelect(allButton)
-                updateLabelList(true, false, "")
-                lastButtonSelected = allButton
-            }
-
-            // Setup the text filter layout.
-            flowButtonIds += binding.searchRevealButton.id
-            binding.textSearchLayout.visibility = if (showTextSearch) View.VISIBLE else View.GONE
-            binding.searchRevealButton.setOnClickListener {
-                showTextSearch = !showTextSearch
-                displayTextSearchControls()
-            }
-            displayTextSearchControls() // Initialise the display of the search reveal button.
-
-            val orderedList = list
-            orderedList.sortWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.id })
-            for (searchOption in orderedList) {
-                val newButton = Button(context).apply {
-                    id = View.generateViewId()
-                    text = searchOption.text
-                    tag = searchOption.id
-                    setBackgroundResource(R.drawable.button_filter)
-                    layoutParams = ViewGroup.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 60)
-                    minWidth = 80
-                    minimumWidth = 80  // Both these are required to get the minwidth property to work
-                    setPadding(5,0,5,0)
-                    setTextColor(getResourceColor(if (ScreenSettings.nightMode) R.color.blue_grey_50 else R.color.grey_900))
-                    binding.buttonLayout.addView(this)
-                }
-
-                setFilterButtonBackground(newButton, false)
-                flowButtonIds += newButton.id
-
-                newButton.setOnClickListener {
-                    filterButtonSelect(newButton)
-                    updateLabelList(true,false, listItem(newButton.tag.toString())!!.regex)
-                    lastButtonSelected = newButton
-                }
-                newButton.setOnLongClickListener {
-                    remove(newButton, binding)
-                    true}
-            }
-            binding.flowContainer.referencedIds = flowButtonIds.toIntArray()
-        }
-    }
     @Serializable
     data class ManageLabelsData(
         val mode: Mode,
@@ -365,7 +361,7 @@ class ManageLabels : ListActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         searchInsideTextButtonActive = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
         showTextSearch = CommonUtils.settings.getBoolean("labels_list_filter_showTextSearch", false)
-        SearchTextOptions.initialise(CommonUtils.settings.getString("labels_list_filter_searchTextOptions", "")!!)
+        initializeSearchOptionList()
 
         super.onCreate(savedInstanceState, false)
         binding = ManageLabelsBinding.inflate(layoutInflater)
@@ -401,7 +397,6 @@ class ManageLabels : ListActivityBase() {
         }
         // Setup listeners for the text filter
         binding.run {
-
             clearSearchTextButton.setOnClickListener {
                 editSearchText.text.clear()
                 applyTextFilter("", false)
@@ -410,13 +405,8 @@ class ManageLabels : ListActivityBase() {
             saveSearchButton.setOnClickListener {
                 val searchText = editSearchText.text.toString()
                 if (searchText != "") {
-                    SearchTextOptions.add(searchText, searchInsideTextButtonActive)
-                    SearchTextOptions.buildButtonList(binding,
-                        applicationContext,
-                        this@ManageLabels::filterButtonSelected,
-                        this@ManageLabels::updateLabelList,
-                        this@ManageLabels::displayTextSearchControls
-                    )
+                    addQuickSearchButton(searchText, searchInsideTextButtonActive)
+                    buildQuickSearchButtonList()
                 }
             }
             editSearchText.addTextChangedListener(object : TextWatcher {
@@ -427,7 +417,7 @@ class ManageLabels : ListActivityBase() {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 }
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    if (count!=0) filterButtonSelected(binding.allButton,false)
+                    if (count!=0) filterQuickSearchButtonSelected(binding.allButton,false)
                 }
             })
 
@@ -437,14 +427,8 @@ class ManageLabels : ListActivityBase() {
                 setSearchInsideTextButtonBackground(searchInsideTextButtonActive)
                 applyTextFilter(editSearchText.text.toString(), searchInsideTextButtonActive)
             }
-            SearchTextOptions.buildButtonList(binding,
-                applicationContext,
-                this@ManageLabels::filterButtonSelected,
-                this@ManageLabels::updateLabelList,
-                this@ManageLabels::displayTextSearchControls
-            )
+            buildQuickSearchButtonList()
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -699,7 +683,7 @@ class ManageLabels : ListActivityBase() {
         Log.i(TAG, "Okay clicked")
         CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideTextButtonActive)
         CommonUtils.settings.setBoolean("labels_list_filter_showTextSearch", showTextSearch)
-        CommonUtils.settings.setString("labels_list_filter_searchTextOptions", SearchTextOptions.toJson())
+        CommonUtils.settings.setString("labels_list_filter_searchTextOptions", json.encodeToString(serializer(), searchOptionList))
 
         val deleteLabelIds = data.deletedLabels.filter { it > 0 }.toList()
         if(deleteLabelIds.isNotEmpty()) {
@@ -855,10 +839,6 @@ class ManageLabels : ListActivityBase() {
             data.selectedLabels.myRemoveIf { !labelIds.contains(it) }
         }
         notifyDataSetChanged()
-    }
-
-    companion object {
-        private const val TAG = "BookmarkLabels"
     }
 }
 
