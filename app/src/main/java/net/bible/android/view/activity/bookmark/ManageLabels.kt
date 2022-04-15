@@ -167,7 +167,7 @@ class ManageLabels : ListActivityBase() {
         setFilterButtonBackground(lastButtonSelected!!, false)
         setFilterButtonBackground(button, true)
         setSearchInsideTextButtonBackground(button=button)
-        if (hideKeyboard) closeKeyboard()
+        closeKeyboard()
     }
 
     private fun buildQuickSearchButtonList() {
