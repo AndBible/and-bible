@@ -208,6 +208,7 @@ class ManageLabels : ListActivityBase() {
             val newButton = Button(this).apply {
                 id = View.generateViewId()
                 text = searchOption.text
+                isAllCaps = false
                 tag = searchOption.id
                 setBackgroundResource(R.drawable.button_filter)
                 layoutParams = ViewGroup.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 60)
@@ -225,7 +226,6 @@ class ManageLabels : ListActivityBase() {
                     removeQuickSearchButton(this)
                     true
                 }
-
             }
 
             setFilterButtonBackground(newButton, false)
