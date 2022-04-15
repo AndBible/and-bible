@@ -40,7 +40,7 @@
 			</androidx.constraintlayout.helper.widget.Flow>
 
 			<Button
-				android:textSize="12dp"
+				android:textSize="12sp"
 				android:id="@+id/all_button"
 				android:layout_width="wrap_content"
 				android:layout_height="21dp"
@@ -71,7 +71,7 @@
 			android:visibility="visible"
 			>
 			<Button
-				android:textSize="12dp"
+				android:textSize="12sp"
 				android:id="@+id/searchInsideTextButton"
 				android:layout_width="35dp"
 				android:layout_height="30dp"
@@ -79,17 +79,17 @@
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintLeft_toLeftOf="parent"
 				android:textAllCaps="false"
-				android:layout_marginLeft="5dp"
+				android:layout_marginStart="5dp"
 				android:text="@string/match_any_text"/>
 
 			<EditText
 				android:id="@+id/editSearchText"
-				android:layout_width="match_parent"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:ems="10"
 				android:inputType="textPersonName"
-				android:hint="Search" />
+				android:hint="@string/labels_search_hint" />
 
 			<ImageButton
 				android:id="@+id/clearSearchTextButton"
@@ -106,34 +106,18 @@
 				android:layout_width="40dp"
 				android:layout_height="45dp"
 				app:tint="@color/grey_600"
-				android:layout_marginLeft="2dp"
+				android:layout_marginStart="2dp"
 				android:visibility="gone"
 				app:srcCompat="@drawable/ic_save_20dp" />
 
 		</LinearLayout>
-		<androidx.appcompat.widget.SwitchCompat
-			android:id="@+id/selectMultipleSwitch"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/select_multiple"
-			android:paddingTop="10dp"
-			android:paddingBottom="10dp"
-			android:paddingStart="10dp"
-			android:paddingEnd="10dp"
-			style="@style/TextAppearance.AppCompat.Widget.Switch"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent"
-			android:visibility="gone"
-			/>
-
 		<ListView
 			android:id="@android:id/list"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/selectMultipleSwitch"
+			app:layout_constraintTop_toBottomOf="@id/textSearchLayout"
 			android:fastScrollAlwaysVisible="true"
 			android:fastScrollEnabled="true"
 			android:scrollbarThumbVertical="@drawable/button_filter"

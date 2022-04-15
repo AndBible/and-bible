@@ -997,5 +997,6 @@
 
     <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
     <string name="permission_required">Permission needed</string>
+    <string name="labels_search_hint">Search</string>
 
 </resources>
