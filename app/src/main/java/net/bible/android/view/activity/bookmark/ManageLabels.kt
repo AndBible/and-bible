@@ -81,6 +81,7 @@ val json = Json {
     allowStructuredMapKeys = true
     encodeDefaults = true
 }
+
 fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.ManageLabelsData) {
     Log.i("ManageLabels", "WorkspaceEntities.updateRecentLabels")
     autoAssignLabels = resultData.autoAssignLabels
@@ -129,8 +130,10 @@ class ManageLabels : ListActivityBase() {
     private val searchOptionList: ArrayList<SearchOption> = ArrayList()
     private fun findSearchOptionListItem(id: String): SearchOption? = searchOptionList.find { it.id == id }
 
-    private fun initializeSearchOptionList() {
-        val options = CommonUtils.settings.getString("labels_list_filter_searchTextOptions", "")!!
+    private fun loadFilteringSettings() {
+        searchInsideTextButtonActive = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
+        showTextSearch = CommonUtils.settings.getBoolean("labels_list_filter_showTextSearch", false)
+        val options = CommonUtils.settings.getString("labels_list_filter_searchTextOptions") ?: ""
         searchOptionList.clear()
         if (options.isNotEmpty() && options.first() == '[') {
             searchOptionList.addAll(json.decodeFromString(serializer(), options))
@@ -141,7 +144,7 @@ class ManageLabels : ListActivityBase() {
         saveAndExit()
     }
 
-    var highlightLabel: BookmarkEntities.Label? = null
+    private var highlightLabel: BookmarkEntities.Label? = null
 
     private fun updateTextSearchControlsVisibility() = binding.apply {
         // Highlights the search button as required
@@ -160,7 +163,7 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    fun setQuickSearchButtonProperties(button:Button, clearEditText:Boolean = true, hideKeyboard:Boolean=true) {
+    private fun setQuickSearchButtonProperties(button:Button, clearEditText:Boolean = true, hideKeyboard:Boolean=true) {
         if (clearEditText && binding.editSearchText.text.toString() != "") {
             binding.editSearchText.setText("")
         }
@@ -281,9 +284,10 @@ class ManageLabels : ListActivityBase() {
             (binding.searchInsideTextButton.background as GradientDrawable).setColor(getResourceColor(R.color.transparent)) // set solid color
         }
     }
-    fun applyTextFilter(searchText: String, searchInsideTextButtonActive:Boolean){
+
+    private fun applyTextFilter(searchText: String, searchInsideTextButtonActive:Boolean){
         val regexString = if (searchInsideTextButtonActive) searchText else "^$searchText"
-        updateLabelList(true,false, regexString)
+        updateLabelList(fromDb = true, reOrder = false, _filterText = regexString)
     }
 
     @Serializable
@@ -355,9 +359,7 @@ class ManageLabels : ListActivityBase() {
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        searchInsideTextButtonActive = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
-        showTextSearch = CommonUtils.settings.getBoolean("labels_list_filter_showTextSearch", false)
-        initializeSearchOptionList()
+        loadFilteringSettings()
 
         super.onCreate(savedInstanceState, false)
         binding = ManageLabelsBinding.inflate(layoutInflater)
