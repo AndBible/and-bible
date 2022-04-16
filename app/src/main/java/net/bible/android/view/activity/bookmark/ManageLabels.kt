@@ -159,7 +159,7 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    fun filterQuickSearchButtonSelected(button:Button, clearEditText:Boolean = true) {
+    fun filterQuickSearchButtonSelected(button:Button, clearEditText:Boolean = true, hideKeyboard:Boolean=true) {
         // Set the display properties of buttons
         if (clearEditText && binding.editSearchText.text.toString() != "") {
             binding.editSearchText.setText("")
@@ -167,7 +167,7 @@ class ManageLabels : ListActivityBase() {
         setFilterButtonBackground(lastButtonSelected!!, false)
         setFilterButtonBackground(button, true)
         setSearchInsideTextButtonBackground(button=button)
-        closeKeyboard()
+        if (hideKeyboard) closeKeyboard()
     }
 
     private fun buildQuickSearchButtonList() {
@@ -208,6 +208,7 @@ class ManageLabels : ListActivityBase() {
             val newButton = Button(this).apply {
                 id = View.generateViewId()
                 text = searchOption.text
+                isAllCaps = false
                 tag = searchOption.id
                 setBackgroundResource(R.drawable.button_filter)
                 layoutParams = ViewGroup.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 60)
@@ -225,7 +226,6 @@ class ManageLabels : ListActivityBase() {
                     removeQuickSearchButton(this)
                     true
                 }
-
             }
 
             setFilterButtonBackground(newButton, false)
@@ -417,7 +417,7 @@ class ManageLabels : ListActivityBase() {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 }
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    if (count!=0) filterQuickSearchButtonSelected(binding.allButton,false)
+                    if (count!=0) filterQuickSearchButtonSelected(binding.allButton,false, false)
                 }
             })
 
