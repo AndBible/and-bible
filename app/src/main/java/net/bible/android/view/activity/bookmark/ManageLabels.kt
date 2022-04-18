@@ -144,7 +144,7 @@ class ManageLabels : ListActivityBase() {
         saveAndExit()
     }
 
-    private var highlightLabel: BookmarkEntities.Label? = null
+    var highlightLabel: BookmarkEntities.Label? = null
 
     private fun updateTextSearchControlsVisibility() = binding.apply {
         // Highlights the search button as required
