@@ -9,8 +9,6 @@ import android.util.Log
 import org.jdom2.Element
 import org.jdom2.Text
 import java.lang.Exception
-import java.util.*
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 class SearchHighlight(searchTerms: String) {
@@ -25,14 +23,14 @@ class SearchHighlight(searchTerms: String) {
         splitSearchTerms(searchTerms).map {
             var searchWord = prepareSearchWord(it)
             searchWord =  if (it.contains("*") or it.contains("~")) {
-                "\\b$searchWord[\\w\\'\\-]*\\b" // Match whole words including with hyphons and apostrophes
+                "\\b$searchWord[\\w\\'\\-]*\\b" // Match whole words including with hyphens and apostrophes
             } else {
                 "\\b$searchWord\\b"
             }
             Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE)
         }
 
-        fun generateSpannableFromVerseElement(verseElement: Element): SpannableString? {
+        fun generateSpannableFromVerseElement(verseElement: Element): SpannableString {
             /* Takes a verse in Element form and rebuilds the verse in string form.
              * Interestingly it is faster to get the text in Element form and convert it myself than to call 'getSearchResultVerseText'.
              * Once the verse is in String format which includes <b> tags for Strongs numbers it is passed to 'generateSpannableFromVerseString'
@@ -54,8 +52,8 @@ class SearchHighlight(searchTerms: String) {
                     // consecutive lemma spans with the same strongs number when in fact all spans represent the single original language word.
                     // This messes with the search statistics as it uses the bolded words to tally search hits by word.
                     var verseStringLength = 0
-                    while (verseStringLength != verseString?.length) {
-                        verseStringLength = verseString!!.length
+                    while (verseStringLength != verseString.length) {
+                        verseStringLength = verseString.length
                         // This pattern matches two consecutive <b> tag spans separate only by white space and replaces them with a single <b> tag.
                         val match = consecutiveWordsRegex.find(verseString)
                         if (match != null) {
@@ -76,13 +74,12 @@ class SearchHighlight(searchTerms: String) {
 
         fun generateSpannableFromVerseString(verseString:String): SpannableString {
 
-            var spannableText = SpannableString(Html.fromHtml(verseString))  // We started with an XML verse which got turned into a string with <b> tags which is now turned into a spannable
+            val spannableText = SpannableString(Html.fromHtml(verseString))  // We started with an XML verse which got turned into a string with <b> tags which is now turned into a spannable
             try {
 
                 // Part 2: Find and highlight the normal (non-strongs) words or phrases in the PLAIN text verse
-                var m: Matcher? = null
                 for (searchPattern in preparedSearchWordsPatternList) {
-                    m = searchPattern.matcher(spannableText)
+                    val m = searchPattern.matcher(spannableText)
                     while (m.find()) {
                         spannableText.setSpan(
                             StyleSpan(Typeface.BOLD),
@@ -102,17 +99,16 @@ class SearchHighlight(searchTerms: String) {
 
         private fun processElementChildren(
             parentElement: Element,
-            verseString: String?,
-            isBold: Boolean
+            verseStringInitial: String?,
+            isBoldInitial: Boolean
         ): String? {
             // Recursive method to walk the verse element tree ignoring tags like 'note' that should not be shown in the search results
             // and including tags like 'w' that should be included. This routine is needed only to do searches on lemma attributes. That
             // is why bolding only occurs in that part of the code.
-            var verseString = verseString
-            var isBold = isBold
-            for (o in parentElement.content) {
-                if (o is Element) {
-                    val el = o
+            var verseString = verseStringInitial
+            var isBold = isBoldInitial
+            for (el in parentElement.content) {
+                if (el is Element) {
                     if (elementsToInclude.contains(el.name)) {
                         isBold = try {
                             if (isStrongsSearch) {
@@ -127,19 +123,19 @@ class SearchHighlight(searchTerms: String) {
                         // Only leaf nodes should have their text appended. If a node has child tags, the text will be passed as one of the children .
                         if (el.children.isEmpty()) verseString += buildElementText(el.text, isBold)
                     }
-                    if (!el.children.isEmpty() && !elementsToExclude.contains(el.name)) {
+                    if (el.children.isNotEmpty() && !elementsToExclude.contains(el.name)) {
                         verseString = processElementChildren(el, verseString, isBold)
                     }
-                } else if (o is Text) {
-                    verseString += buildElementText(o.text, false)
+                } else if (el is Text) {
+                    verseString += buildElementText(el.text, false)
                 } else {
-                    verseString += buildElementText(o.toString(), false)
+                    verseString += buildElementText(el.toString(), false)
                 }
             }
             return verseString
         }
 
-        private fun buildElementText(elementText: String, isBold: Boolean): String? {
+        private fun buildElementText(elementText: String, isBold: Boolean): String {
             return if (isBold) {
                 String.format("<b>%s</b>", elementText)
             } else {
@@ -148,7 +144,7 @@ class SearchHighlight(searchTerms: String) {
         }
 
         private fun prepareStrongsSearchTerm(_searchTerms: String): String {
-            // Replaces strong:g00123 or strong:g123 with REGEX strong:g0*123. This is needed because the search term submitted by the 'Find all occcurrences includes extra zeros
+            // Replaces strong:g00123 or strong:g123 with REGEX strong:g0*123. This is needed because the search term submitted by the 'Find all occurrences includes extra zeros
             // The capitalisation is not important since we do a case insensitive search
             var searchTerms = _searchTerms
             searchTerms = searchTerms.replace("strong:g0*".toRegex(RegexOption.IGNORE_CASE), "strong:g0*")
@@ -159,31 +155,37 @@ class SearchHighlight(searchTerms: String) {
         }
 
         private fun splitSearchTerms(searchTerms: String): Array<String> {
-            // Split the search terms on space characters that are not enclosed in double quotes
+            // Find the individual words that we are looking for so we can highlight them.
+            // Proximity searches wrap the words in quotes the quotes need to be removed.
+            val fuzzySearch = searchTerms.indexOf("~")
+            val newSearchTerms = if (fuzzySearch > -1) {
+                searchTerms.substring(0,fuzzySearch).replace("\"","")
+            } else searchTerms
+            // Split the search terms on space characters that are not enclosed in double quotes.
             // Eg: 'moses "burning bush"' -> "moses" and "burning bush"
-            return searchTerms.split("\\s+(?=(?:\"(?:\\\\\"|[^\"])+\"|[^\"])+$)".toRegex()).toTypedArray()
+            return newSearchTerms.split("\\s+(?=(?:\"(?:\\\\\"|[^\"])+\"|[^\"])+$)".toRegex()).toTypedArray()
         }
 
         private fun prepareSearchWord(searchWord: String): String {
             // Need to clean up the search word itself before trying to find the searchWord in the text. Routine is called for each part of the search term
             // Eg: '+"burning bush"' -> 'burning bush'
             val fuzzySearch = searchWord.indexOf("~")
-            var searchWord = if (fuzzySearch > -1) { searchWord.substring(0,fuzzySearch) } else searchWord
-            searchWord = searchWord.replace("\"", "")       // Remove quotes which indicate phrase searches
-            searchWord = searchWord.replace("+", "")        // Remove + which indicates AND searches
-            searchWord = searchWord.replace("?", "\\p{L}")  // Handles any letter from any language
-            if (searchWord.length > 0) {
-                searchWord = if ((searchWord.substring(searchWord.length - 1) == "*") or (fuzzySearch>-1)){
+            var newSearchWord = if (fuzzySearch > -1) { searchWord.substring(0,fuzzySearch) } else searchWord
+            newSearchWord = newSearchWord.replace("\"", "")       // Remove quotes which indicate phrase searches
+            newSearchWord = newSearchWord.replace("+", "")        // Remove + which indicates AND searches
+            newSearchWord = newSearchWord.replace("?", "\\p{L}")  // Handles any letter from any language
+            if (newSearchWord.isNotEmpty()) {
+                newSearchWord = if ((newSearchWord.substring(newSearchWord.length - 1) == "*") or (fuzzySearch>-1)){
                     // The last character in the search is a * so remove it since the default sword search assumes a wildcard search
-                    searchWord.replace("*", "")
+                    newSearchWord.replace("*", "")
                 } else {
                     // A * found inside a search term should probably be ignored.
                     // It can happen normally as part of a strongs search since the regex expression uses a * to find any number of leading 0s.
-                    searchWord.replace("*", "\b") // Match on a word boundary - I am not sure why this was needed.
+                    newSearchWord.replace("*", "\b") // Match on a word boundary - I am not sure why this was needed.
 
                 }
             }
-            return searchWord
+            return newSearchWord
         }
 
 }
