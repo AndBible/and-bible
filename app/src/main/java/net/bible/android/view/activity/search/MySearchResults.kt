@@ -264,6 +264,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
         val populateViewResultsAdapterTimer = MyTimer("populateViewResultsAdapterTimer")
         val getSearchResultVerseElementTimer = MyTimer("getSearchResultVerseElement")
+        val getSearchResultVerseStringTimer = MyTimer("getSearchResultVerseString")
         val verseTextSpannableTimer = MyTimer("SearchHighlight")
         val bookStatsTimer = MyTimer("Book Stats")
         val wordStatsTimer = MyTimer("Word Stats")
@@ -290,6 +291,15 @@ class MySearchResults : CustomTitlebarActivityBase() {
             getSearchResultVerseElementTimer.start()
             val verseTextElement = searchControl.getSearchResultVerseElement(key)
             getSearchResultVerseElementTimer.stop()
+
+//            getSearchResultVerseStringTimer.start()
+            // This takes 3 to 4 times longer than 'getSearchResultVerseElement' which itself takes 3 to 4 times longer than the old search which is almost instant.
+            // I have converted the code to Kotlin. But apart from that it seems the same. I would like to use 'getSearchResultVerseText' for non-Strongs searches
+            // if it is faster because the Element parsing is only necessary for Strongs searches.
+            // Perhaps the performance of 'getSearchResultVerseElement' can be improved if we can work out why 'getSearchResultVerseText' is so slow.
+//            val verseTextString = searchControl.getSearchResultVerseText(key)
+//            getSearchResultVerseStringTimer.stop()
+
 
             verseTextSpannableTimer.start()
             verseTextSpannable = searchHighlight.generateSpannableFromVerseElement(verseTextElement)
@@ -342,11 +352,12 @@ class MySearchResults : CustomTitlebarActivityBase() {
         val tabHost = this.findViewById<View>(R.id.tabs) as TabLayout
         tabHost.getTabAt(verseTabPosition)!!.text = CommonUtils.resources.getString(R.string.verse_count, mSearchResultsArray.count().toString())  // For some reason the value set in 'setResultsAdapter' get's cleared so I need to do it here as well.
         tabHost.getTabAt(bookTabPosition)!!.text = CommonUtils.resources.getString(R.string.book_count, bookStatistics.count().toString())
-        tabHost.getTabAt(wordTabPosition)!!.text = CommonUtils.resources.getString(R.string.word_count, totalWords.toString())
+        tabHost.getTabAt(wordTabPosition)!!.text = CommonUtils.resources.getString(R.string.word_count, wordStatistics.count().toString())
 
         populateViewResultsAdapterTimer.stop()
         populateViewResultsAdapterTimer.log()
         getSearchResultVerseElementTimer.log()
+        getSearchResultVerseStringTimer.log()
         verseTextSpannableTimer.log()
         bookStatsTimer.log()
         wordStatsTimer.log()

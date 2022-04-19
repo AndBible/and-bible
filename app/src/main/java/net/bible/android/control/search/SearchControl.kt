@@ -169,7 +169,7 @@ class SearchControl @Inject constructor(
 
     fun getSearchResultVerseText(key: Key?): String {
         // There is similar functionality in BookmarkControl
-        // This is much slower than 'getSearchResultVerseElement' and 'generateSpannableFromVerseElement'. Why?
+        // This is much slower than 'getSearchResultVerseElement'. Why? In the old version this was VERY fast.
         var verseText = ""
         try {
             val doc = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
