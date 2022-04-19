@@ -25,7 +25,7 @@
 				android:id="@+id/flowContainer"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				app:constraint_referenced_ids="searchRevealButton, all_button"
+				app:constraint_referenced_ids="searchRevealButton, allButton"
 				app:flow_horizontalGap="3dp"
 				app:flow_horizontalStyle="packed"
 				app:flow_horizontalBias="0.5"
@@ -41,7 +41,7 @@
 
 			<Button
 				android:textSize="12sp"
-				android:id="@+id/all_button"
+				android:id="@+id/allButton"
 				android:layout_width="wrap_content"
 				android:layout_height="21dp"
 				android:minWidth="30dp"
