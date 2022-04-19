@@ -106,7 +106,7 @@ class ManageLabelItemAdapter(context: Context?,
                 favouriteIcon.visibility = if (data.workspaceEdits) View.VISIBLE else View.GONE
 
                 if (data.primaryShown) {
-                    primaryIcon.visibility = if (data.contextSelectedItems.contains(label.id)) View.VISIBLE else View.INVISIBLE
+                    primaryIcon.visibility = if (data.contextSelectedItems.contains(label.id)) View.VISIBLE else View.GONE
                     primaryIcon.setImageResource(if (isPrimary) R.drawable.ic_baseline_bookmark_24 else R.drawable.ic_bookmark_24dp)
                     primaryIcon.setOnClickListener {
                         data.contextPrimaryLabel = label.id
@@ -118,7 +118,7 @@ class ManageLabelItemAdapter(context: Context?,
 
                 if(data.workspaceEdits && label.isUnlabeledLabel) {
                     favouriteIcon.visibility = View.INVISIBLE
-                    primaryIcon.visibility = View.INVISIBLE
+                    primaryIcon.visibility = View.GONE
                 }
 
                 if (data.workspaceEdits && !label.isUnlabeledLabel) {
