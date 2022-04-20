@@ -51,6 +51,7 @@ import AndBibleLink from "@/components/OSIS/AndBibleLink";
 import Pb from "@/components/MyBible/Pb";
 import NoOp from "@/components/OSIS/NoOp";
 import H3 from "@/components/MyBible/H3";
+import I from "@/components/MyBible/I";
 import S from "@/components/MyBible/S";
 
 const teiComponents = {
@@ -63,7 +64,7 @@ const andBibleComponents = {
 }
 
 const myBibleComponents = {
-  S, M: NoOp, I:Note, J:Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3,
+  S, M: NoOp, I, J:Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3,
 }
 
 const osisComponents = {
