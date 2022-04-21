@@ -401,7 +401,7 @@ class ManageLabels : ListActivityBase() {
 
             saveSearchButton.setOnClickListener {
                 val searchText = editSearchText.text.toString()
-                if (!searchText.isEmpty()) {
+                if (searchText.isNotEmpty()) {
                     addQuickSearchButton(searchText, searchInsideText)
                     buildQuickSearchButtonList()
                 }
