@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span v-if="show" :class="{nonCanonical: config.makeNonCanonicalItalic && isNonCanonical}"><slot/></span>
+  <span v-if="show" :class="{nonCanonical: config.makeNonCanonicalItalic}"><slot/></span>
 </template>
 
 <script>
@@ -27,9 +27,8 @@ export default {
   name: "I",
   setup() {
     const {config, ...common} = useCommon();
-    const isNonCanonical = computed(() => true);
-    const show = computed(() => (!isNonCanonical.value) || (isNonCanonical.value && config.showNonCanonical));
-    return {show, isNonCanonical, config, ...common};
+    const show = computed(() => config.showNonCanonical);
+    return {show, config, ...common};
   },
 }
 </script>
