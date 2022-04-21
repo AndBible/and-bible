@@ -93,18 +93,13 @@ fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.Mana
 
 @Serializable
 class SearchOption(
-    var text: String,
-    var isSearchInsideText: Boolean,
-    var regex: String = "",
+    val text: String,
+    val isSearchInsideText: Boolean,
 ) {
     @Transient var button: Button? = null
-
-    val displayText: String get() = if(isSearchInsideText) "*$text*" else "$text*"
-
-    init {
-        text = text.trim()
-        regex = if (isSearchInsideText) text else "^${text}"
-    }
+    private val trimmed = text.trim()
+    val displayText: String get() = if(isSearchInsideText) "*$trimmed*" else "$trimmed*"
+    val regex: String get() = if (isSearchInsideText) trimmed else "^${trimmed}"
 }
 
 /**
@@ -175,9 +170,8 @@ class ManageLabels : ListActivityBase() {
     }
 
     private fun removeAllQuickSearchButtons() {
-        val otherButtons = arrayListOf(R.id.flowContainer, R.id.allButton, R.id.searchRevealButton)
-        for (child in binding.buttonLayout.children.filter { !otherButtons.contains(it.id) }) {
-            binding.buttonLayout.removeView(child)
+        for (btn in searchOptionList.mapNotNull { it.button }) {
+            binding.buttonLayout.removeView(btn)
         }
     }
 
@@ -205,7 +199,7 @@ class ManageLabels : ListActivityBase() {
 
         searchOptionList.sortWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.regex })
         for (searchOption in searchOptionList) {
-            val newButton = Button(this@ManageLabels).apply {
+            val button = searchOption.button ?: Button(this@ManageLabels).apply {
                 id = View.generateViewId()
                 text = searchOption.displayText
                 isAllCaps = false
@@ -216,7 +210,6 @@ class ManageLabels : ListActivityBase() {
                 minimumWidth = convertDipsToPx(30)  // Both these are required to get the minwidth property to work
                 setPadding(convertDipsToPx(5), 0, convertDipsToPx(5), 0)
                 setTextColor(getResourceColor(if (ScreenSettings.nightMode) R.color.blue_grey_50 else R.color.grey_900))
-                buttonLayout.addView(this)
                 setOnClickListener {
                     searchInsideText = searchOption.isSearchInsideText
                     updateSearchButtonsProperties(searchOption)
@@ -232,12 +225,12 @@ class ManageLabels : ListActivityBase() {
                     true
                 }
             }
-
-            setFilterButtonBackground(newButton, false)
+            buttonLayout.addView(button)
+            setFilterButtonBackground(button, false)
         }
-        flowContainer.referencedIds =
-            (arrayOf(R.id.allButton, R.id.searchRevealButton) +
-                searchOptionList.mapNotNull { it.button?.id }).toIntArray()
+        flowContainer.referencedIds = (
+            arrayOf(R.id.allButton, R.id.searchRevealButton) + searchOptionList.mapNotNull { it.button?.id }
+            ).toIntArray()
     }
 
     private fun addQuickSearchButton(searchText: String, isSearchInsideText: Boolean) {
