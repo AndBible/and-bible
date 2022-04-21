@@ -95,15 +95,14 @@ fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.Mana
 class SearchOption(
     var text: String,
     var isSearchInsideText: Boolean,
-    var id: String = "",
     var regex: String = "",
 ) {
     @Transient var button: Button? = null
 
+    val displayText: String get() = if(isSearchInsideText) "*$text*" else "$text*"
+
     init {
         text = text.trim()
-        // The ID stores both the text to search for and an indicator in the last char showing whether it is an 'in text' or 'start of text' search
-        id = "${text}_${if (isSearchInsideText) "1" else "0"}"
         regex = if (isSearchInsideText) text else "^${text}"
     }
 }
@@ -129,7 +128,6 @@ class ManageLabels : ListActivityBase() {
     private var searchInsideText = false
 
     private val searchOptionList: ArrayList<SearchOption> = ArrayList()
-    private fun findSearchOptionListItem(id: String): SearchOption? = searchOptionList.find { it.id == id }
 
     private fun loadFilteringSettings() {
         searchInsideText = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
@@ -205,13 +203,12 @@ class ManageLabels : ListActivityBase() {
 
         setupTextFilterLayout()
 
-        searchOptionList.sortWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.id })
+        searchOptionList.sortWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.regex })
         for (searchOption in searchOptionList) {
             val newButton = Button(this@ManageLabels).apply {
                 id = View.generateViewId()
-                text = searchOption.text
+                text = searchOption.displayText
                 isAllCaps = false
-                tag = searchOption.id
                 searchOption.button = this
                 setBackgroundResource(R.drawable.button_filter)
                 layoutParams = ViewGroup.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, convertDipsToPx(21))
@@ -243,35 +240,27 @@ class ManageLabels : ListActivityBase() {
                 searchOptionList.mapNotNull { it.button?.id }).toIntArray()
     }
 
-    private fun addQuickSearchButton(option: String, isSearchInsideText: Boolean) {
-        val newOption = SearchOption(option.trim(), isSearchInsideText)
-        if (!searchOptionList.any { (it.id == newOption.id) }) {
+    private fun addQuickSearchButton(searchText: String, isSearchInsideText: Boolean) {
+        val newOption = SearchOption(searchText, isSearchInsideText)
+        if (!searchOptionList.any { (it.regex == newOption.regex) }) {
             searchOptionList.add(newOption)
         }
     }
 
     private fun removeQuickSearchButton(btn: SearchOption) {
         val button = btn.button
-        searchOptionList.myRemoveIf { it.id == btn.id }
+        searchOptionList.myRemoveIf { it.regex == btn.regex }
         if(button != null) {
             binding.flowContainer.removeView(button)
             binding.buttonLayout.removeView(button)
         }
     }
 
-    private fun setFilterButtonBackground(button: Button?, isSelected: Boolean) {
-        // Set the background color of a selected button and clears the background color of the previously selected button
-        button ?: return
+    private fun setFilterButtonBackground(button: Button, isSelected: Boolean) {
         val background = button.background as GradientDrawable
-        if ((button.tag != null) && (findSearchOptionListItem(button.tag.toString())!!.isSearchInsideText)) {
-            val backgroundColor = if (isSelected) R.color.blue_200 else R.color.transparent
-            background.setColor(getResourceColor(backgroundColor))
-            background.setStroke(4,getResourceColor(R.color.blue_200))
-        } else {
-            val backgroundColor = if (isSelected) R.color.grey_500 else R.color.transparent
-            background.setColor(getResourceColor(backgroundColor))
-            background.setStroke(4,getResourceColor(R.color.grey_500))
-        }
+        val backgroundColor = getResourceColor(if (isSelected) R.color.grey_500 else R.color.transparent)
+        background.setColor(backgroundColor)
+        background.setStroke(4,getResourceColor(R.color.grey_500))
     }
 
     private fun setSearchInsideTextButtonBackground() = binding.run {
