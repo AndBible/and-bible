@@ -71,6 +71,7 @@ import androidx.core.view.children
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
+import net.bible.service.common.CommonUtils.convertDipsToPx
 import net.bible.service.common.CommonUtils.getResourceColor
 import kotlin.collections.ArrayList
 import net.bible.service.device.ScreenSettings
@@ -213,10 +214,10 @@ class ManageLabels : ListActivityBase() {
                 tag = searchOption.id
                 searchOption.button = this
                 setBackgroundResource(R.drawable.button_filter)
-                layoutParams = ViewGroup.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 60)
-                minWidth = 80
-                minimumWidth = 80  // Both these are required to get the minwidth property to work
-                setPadding(5, 0, 5, 0)
+                layoutParams = ViewGroup.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, convertDipsToPx(21))
+                minWidth = convertDipsToPx(30)
+                minimumWidth = convertDipsToPx(30)  // Both these are required to get the minwidth property to work
+                setPadding(convertDipsToPx(5), 0, convertDipsToPx(5), 0)
                 setTextColor(getResourceColor(if (ScreenSettings.nightMode) R.color.blue_grey_50 else R.color.grey_900))
                 buttonLayout.addView(this)
                 setOnClickListener {
@@ -261,14 +262,15 @@ class ManageLabels : ListActivityBase() {
     private fun setFilterButtonBackground(button: Button?, isSelected: Boolean) {
         // Set the background color of a selected button and clears the background color of the previously selected button
         button ?: return
+        val background = button.background as GradientDrawable
         if ((button.tag != null) && (findSearchOptionListItem(button.tag.toString())!!.isSearchInsideText)) {
             val backgroundColor = if (isSelected) R.color.blue_200 else R.color.transparent
-            (button.background as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
-            (button.background as GradientDrawable).setStroke(4,getResourceColor(R.color.blue_200)) // set solid color
+            background.setColor(getResourceColor(backgroundColor))
+            background.setStroke(4,getResourceColor(R.color.blue_200))
         } else {
             val backgroundColor = if (isSelected) R.color.grey_500 else R.color.transparent
-            (button.background as GradientDrawable).setColor(getResourceColor(backgroundColor)) // set solid color
-            (button.background as GradientDrawable).setStroke(4,getResourceColor(R.color.grey_500)) // set solid color
+            background.setColor(getResourceColor(backgroundColor))
+            background.setStroke(4,getResourceColor(R.color.grey_500))
         }
     }
 
