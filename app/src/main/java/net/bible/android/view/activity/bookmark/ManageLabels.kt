@@ -125,13 +125,13 @@ class ManageLabels : ListActivityBase() {
 
     private lateinit var lastSelectedQuickSearchButton: Button
     private var showTextSearch = false
-    private var searchInsideTextButtonActive = false
+    private var searchInsideText = false
 
     private val searchOptionList: ArrayList<SearchOption> = ArrayList()
     private fun findSearchOptionListItem(id: String): SearchOption? = searchOptionList.find { it.id == id }
 
     private fun loadFilteringSettings() {
-        searchInsideTextButtonActive = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
+        searchInsideText = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
         showTextSearch = CommonUtils.settings.getBoolean("labels_list_filter_showTextSearch", false)
         val options = CommonUtils.settings.getString("labels_list_filter_searchTextOptions") ?: ""
         searchOptionList.clear()
@@ -146,16 +146,11 @@ class ManageLabels : ListActivityBase() {
 
     var highlightLabel: BookmarkEntities.Label? = null
 
-    private fun updateTextSearchControlsVisibility() = binding.apply {
-        // Highlights the search button as required
+    private fun updateTextSearchControlsVisibility() = binding.run {
         if (showTextSearch) {
             textSearchLayout.visibility = View.VISIBLE
             searchRevealButton.setBackgroundColor(getResourceColor(R.color.grey_500))
-            // Show the keyboard.
-            editSearchText.requestFocus()
-            val imm: InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(editSearchText, InputMethodManager.SHOW_IMPLICIT)
-
+            showKeyboard()
         } else {
             closeKeyboard()
             textSearchLayout.visibility = View.GONE
@@ -163,14 +158,21 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    private fun setQuickSearchButtonProperties(button:Button, clearEditText:Boolean = true, hideKeyboard:Boolean=true) {
-        if (clearEditText && binding.editSearchText.text.toString() != "") {
-            binding.editSearchText.setText("")
-        }
+    private fun showKeyboard() = binding.run {
+        editSearchText.requestFocus()
+        val imm: InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(editSearchText, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun updateSearchButtonsProperties(searchOption: SearchOption? = null, clearText:Boolean = true) {
         setFilterButtonBackground(lastSelectedQuickSearchButton, false)
-        setFilterButtonBackground(button, true)
-        setSearchInsideTextButtonBackground(button=button)
-        if (hideKeyboard) closeKeyboard()
+        setFilterButtonBackground(searchOption?.button ?: binding.allButton, true)
+
+        setSearchInsideTextButtonBackground()
+        if(clearText) {
+            binding.editSearchText.setText("")
+            closeKeyboard()
+        }
     }
 
     private fun removeAllQuickSearchButtons() {
@@ -192,10 +194,10 @@ class ManageLabels : ListActivityBase() {
     private fun buildQuickSearchButtonList() = binding.run {
         removeAllQuickSearchButtons()
         lastSelectedQuickSearchButton = allButton
-        setQuickSearchButtonProperties(allButton)
+        updateSearchButtonsProperties()
 
         allButton.setOnClickListener {
-            setQuickSearchButtonProperties(allButton)
+            updateSearchButtonsProperties()
             updateLabelList(fromDb = true, reOrder = false, _filterText = "")
             lastSelectedQuickSearchButton = allButton
         }
@@ -218,7 +220,8 @@ class ManageLabels : ListActivityBase() {
                 setTextColor(getResourceColor(if (ScreenSettings.nightMode) R.color.blue_grey_50 else R.color.grey_900))
                 buttonLayout.addView(this)
                 setOnClickListener {
-                    setQuickSearchButtonProperties(this)
+                    searchInsideText = searchOption.isSearchInsideText
+                    updateSearchButtonsProperties(searchOption)
                     updateLabelList(
                         fromDb = true,
                         reOrder = false,
@@ -269,19 +272,13 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    private fun setSearchInsideTextButtonBackground(isSearchInsideText:Boolean? = null, button:Button? = null) {
-        // Set the background color of the 'Filter Inside Text' button
-        if (isSearchInsideText != null)
-            searchInsideTextButtonActive = isSearchInsideText
-        if (button?.tag != null) {
-            searchInsideTextButtonActive = findSearchOptionListItem(button.tag.toString())!!.isSearchInsideText
-        }
-        if (searchInsideTextButtonActive) {
-            binding.searchInsideTextButton.text = getString(R.string.match_any_text)
-            (binding.searchInsideTextButton.background as GradientDrawable).setColor(getResourceColor(R.color.blue_200)) // set solid color
+    private fun setSearchInsideTextButtonBackground() = binding.run {
+        if (searchInsideText) {
+            searchInsideTextButton.text = getString(R.string.match_any_text)
+            (searchInsideTextButton.background as GradientDrawable).setColor(getResourceColor(R.color.blue_200))
         } else {
-            binding.searchInsideTextButton.text = getString(R.string.match_start_of_text)
-            (binding.searchInsideTextButton.background as GradientDrawable).setColor(getResourceColor(R.color.transparent)) // set solid color
+            searchInsideTextButton.text = getString(R.string.match_start_of_text)
+            (searchInsideTextButton.background as GradientDrawable).setColor(getResourceColor(R.color.transparent))
         }
     }
 
@@ -402,28 +399,29 @@ class ManageLabels : ListActivityBase() {
 
             saveSearchButton.setOnClickListener {
                 val searchText = editSearchText.text.toString()
-                if (searchText != "") {
-                    addQuickSearchButton(searchText, searchInsideTextButtonActive)
+                if (searchText.isEmpty()) {
+                    addQuickSearchButton(searchText, searchInsideText)
                     buildQuickSearchButtonList()
                 }
             }
             editSearchText.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
-                    applyTextFilter(editSearchText.text.toString(), searchInsideTextButtonActive)
-                    binding.saveSearchButton.visibility = if (editSearchText.text.toString()=="") View.GONE else View.VISIBLE
+                    applyTextFilter(editSearchText.text.toString(), searchInsideText)
+                    saveSearchButton.visibility = if (editSearchText.text.isEmpty()) View.GONE else View.VISIBLE
                 }
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                }
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    if (count!=0) setQuickSearchButtonProperties(binding.allButton,false, false)
+                    if (count!=0) {
+                        updateSearchButtonsProperties(clearText = false)
+                    }
                 }
             })
 
-            setSearchInsideTextButtonBackground(searchInsideTextButtonActive)  // Initialise the text for this button
+            setSearchInsideTextButtonBackground()
             searchInsideTextButton.setOnClickListener {
-                searchInsideTextButtonActive = !searchInsideTextButtonActive
-                setSearchInsideTextButtonBackground(searchInsideTextButtonActive)
-                applyTextFilter(editSearchText.text.toString(), searchInsideTextButtonActive)
+                searchInsideText = !searchInsideText
+                setSearchInsideTextButtonBackground()
+                applyTextFilter(editSearchText.text.toString(), searchInsideText)
             }
         }
         buildQuickSearchButtonList()
@@ -679,7 +677,7 @@ class ManageLabels : ListActivityBase() {
 
     private fun saveAndExit(selected: BookmarkEntities.Label? = null) = mainScope.launch {
         Log.i(TAG, "Okay clicked")
-        CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideTextButtonActive)
+        CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideText)
         CommonUtils.settings.setBoolean("labels_list_filter_showTextSearch", showTextSearch)
         CommonUtils.settings.setString("labels_list_filter_searchTextOptions", json.encodeToString(serializer(), searchOptionList))
 
