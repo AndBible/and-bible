@@ -102,8 +102,6 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
         }
     }
 
-
-
     override fun close() {
         Log.i(TAG, "close database $moduleName ${sqliteFile.name}")
         _sqlDb?.close()
@@ -114,10 +112,13 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
 
     var metadata: SwordBookMetaData? = null
 
+    private val re = Regex("[^a-zA-z0-9]")
+    private fun sanitizeModuleName(name: String): String = name.replace(re, "_")
+
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
             val db = this.sqlDb
-            val initials = moduleName ?: "MyBible-" + File(db.path).nameWithoutExtension.split(".", limit = 2)[0]
+            val initials = moduleName ?: "MyBible-" + sanitizeModuleName(File(db.path).nameWithoutExtension.split(".", limit = 2)[0])
             val description = db.rawQuery("select value from info where name = ?", arrayOf("description")).use {
                 it.moveToFirst()
                 it.getString(0)
