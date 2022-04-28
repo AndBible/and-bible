@@ -67,14 +67,15 @@ import kotlin.random.Random.Default.nextInt
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
-import androidx.core.view.children
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import net.bible.service.common.CommonUtils.convertDipsToPx
 import net.bible.service.common.CommonUtils.getResourceColor
+import net.bible.service.common.displayName
 import kotlin.collections.ArrayList
 import net.bible.service.device.ScreenSettings
+import java.util.regex.PatternSyntaxException
 
 private const val TAG = "BookmarkLabels"
 
@@ -97,9 +98,8 @@ class SearchOption(
     val isSearchInsideText: Boolean,
 ) {
     @Transient var button: Button? = null
-    private val trimmed = text.trim()
-    val displayText: String get() = if(isSearchInsideText) "*$trimmed*" else "$trimmed*"
-    val regex: String get() = if (isSearchInsideText) trimmed else "^${trimmed}"
+    val trimmedText = text.trim()
+    val displayText: String get() = if(isSearchInsideText) "*$trimmedText*" else "$trimmedText*"
 }
 
 /**
@@ -158,15 +158,11 @@ class ManageLabels : ListActivityBase() {
         imm.showSoftInput(editSearchText, InputMethodManager.SHOW_IMPLICIT)
     }
 
-    private fun updateSearchButtonsProperties(searchOption: SearchOption? = null, clearText:Boolean = true) {
+    private fun updateSearchButtonsProperties(searchOption: SearchOption? = null) {
         setFilterButtonBackground(lastSelectedQuickSearchButton, false)
         setFilterButtonBackground(searchOption?.button ?: binding.allButton, true)
 
         setSearchInsideTextButtonBackground()
-        if(clearText) {
-            binding.editSearchText.setText("")
-            closeKeyboard()
-        }
     }
 
     private fun removeAllQuickSearchButtons() {
@@ -191,13 +187,14 @@ class ManageLabels : ListActivityBase() {
 
         allButton.setOnClickListener {
             updateSearchButtonsProperties()
-            updateLabelList(fromDb = true, reOrder = false, _filterText = "")
+            searchText = ""
+            updateLabelList(rePopulate = true, reOrder = false)
             lastSelectedQuickSearchButton = allButton
         }
 
         setupTextFilterLayout()
 
-        searchOptionList.sortWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.regex })
+        searchOptionList.sortWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.displayText })
         for (searchOption in searchOptionList) {
             val button = searchOption.button ?: Button(this@ManageLabels).apply {
                 id = View.generateViewId()
@@ -212,12 +209,9 @@ class ManageLabels : ListActivityBase() {
                 setTextColor(getResourceColor(if (ScreenSettings.nightMode) R.color.blue_grey_50 else R.color.grey_900))
                 setOnClickListener {
                     searchInsideText = searchOption.isSearchInsideText
+                    searchText = searchOption.trimmedText
                     updateSearchButtonsProperties(searchOption)
-                    updateLabelList(
-                        fromDb = true,
-                        reOrder = false,
-                        _filterText = searchOption.regex
-                    )
+                    updateLabelList(rePopulate = true)
                     lastSelectedQuickSearchButton = this
                 }
                 setOnLongClickListener {
@@ -235,14 +229,14 @@ class ManageLabels : ListActivityBase() {
 
     private fun addQuickSearchButton(searchText: String, isSearchInsideText: Boolean) {
         val newOption = SearchOption(searchText, isSearchInsideText)
-        if (!searchOptionList.any { (it.regex == newOption.regex) }) {
+        if (!searchOptionList.any { (it.displayText == newOption.displayText) }) {
             searchOptionList.add(newOption)
         }
     }
 
     private fun removeQuickSearchButton(btn: SearchOption) {
         val button = btn.button
-        searchOptionList.myRemoveIf { it.regex == btn.regex }
+        searchOptionList.myRemoveIf { it.displayText == btn.displayText }
         if(button != null) {
             binding.flowContainer.removeView(button)
             binding.buttonLayout.removeView(button)
@@ -264,11 +258,6 @@ class ManageLabels : ListActivityBase() {
             searchInsideTextButton.text = getString(R.string.match_start_of_text)
             (searchInsideTextButton.background as GradientDrawable).setColor(getResourceColor(R.color.transparent))
         }
-    }
-
-    private fun applyTextFilter(searchText: String, searchInsideTextButtonActive:Boolean){
-        val regexString = if (searchInsideTextButtonActive) searchText else "^$searchText"
-        updateLabelList(fromDb = true, reOrder = false, _filterText = regexString)
     }
 
     @Serializable
@@ -358,7 +347,7 @@ class ManageLabels : ListActivityBase() {
         title = getString(data.titleId)
 
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
-        updateLabelList(fromDb = true)
+        updateLabelList(rePopulate = true)
 
         val key = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.key
         if(key is StudyPadKey) {
@@ -377,35 +366,31 @@ class ManageLabels : ListActivityBase() {
         // Setup listeners for the text filter
         binding.run {
             clearSearchTextButton.setOnClickListener {
-                editSearchText.text.clear()
-                applyTextFilter("", false)
+                searchText = ""
+                updateLabelList(rePopulate = true, reOrder = false)
             }
 
             saveSearchButton.setOnClickListener {
-                val searchText = editSearchText.text.toString()
                 if (searchText.isNotEmpty()) {
                     addQuickSearchButton(searchText, searchInsideText)
                     buildQuickSearchButtonList()
                 }
             }
             editSearchText.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                    applyTextFilter(editSearchText.text.toString(), searchInsideText)
-                    saveSearchButton.visibility = if (editSearchText.text.isEmpty()) View.GONE else View.VISIBLE
+                override fun afterTextChanged(s: Editable) {
+                    _searchText = s.toString()
+                    updateLabelList(rePopulate = true, reOrder = false)
+                    saveSearchButton.visibility = if (s.isEmpty()) View.GONE else View.VISIBLE
                 }
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    if (count!=0) {
-                        updateSearchButtonsProperties(clearText = false)
-                    }
-                }
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
 
             setSearchInsideTextButtonBackground()
             searchInsideTextButton.setOnClickListener {
                 searchInsideText = !searchInsideText
                 setSearchInsideTextButtonBackground()
-                applyTextFilter(editSearchText.text.toString(), searchInsideText)
+                updateLabelList(rePopulate = true, reOrder = false)
             }
         }
         buildQuickSearchButtonList()
@@ -747,34 +732,39 @@ class ManageLabels : ListActivityBase() {
 
     }
 
-    private val specialRegex = "^\\^.-.".toRegex()
 
-    fun updateLabelList(fromDb: Boolean = false, reOrder: Boolean = false, _filterText:String = "") {
-        var filterText = _filterText
-        if (fromDb) {
+    private var _searchText: String = ""
+    private var searchText: String
+        get() = _searchText
+        set(value) {
+            _searchText = value
+            binding.editSearchText.setText(value)
+        }
+
+    private val filterRegex: Regex get() {
+        val regex = if (searchInsideText) searchText else "^$searchText"
+        return try {
+            regex.toRegex(RegexOption.IGNORE_CASE)
+        } catch (e: PatternSyntaxException) {
+            "".toRegex()
+        }
+    }
+
+    fun updateLabelList(rePopulate: Boolean = false, reOrder: Boolean = false) {
+        if (rePopulate) {
             shownLabels.clear()
-            Log.i(TAG, "Parsing filter: $filterText")
-            // Check if it is a special type of filter (ie A-C style)
-            if (specialRegex.containsMatchIn(filterText)) {
-                filterText = specialRegex.find(filterText)!!.value
-                filterText = "^[" + filterText.takeLast(filterText.length-1) + "]"
-            }
-            // TODO: too wide catch!
-            val regex = try {filterText.toRegex(RegexOption.IGNORE_CASE)} catch (e:Exception) {"".toRegex()}
-            // Exclude the 'unlabeled label' but include all selected labels plus those that match the filter clause.
-            // We always want to see the labels we have selected even when filtering.
-            shownLabels.addAll(allLabels.filter {
-                !it.isUnlabeledLabel and (
-                    (filterText=="")
-                    or (regex.containsMatchIn(it.name))
-                    or (data.selectedLabels.contains(it.id))
-                    )
-            })
-            if (data.showUnassigned) {
+            Log.i(TAG, "Parsing filter: $filterRegex")
+
+            fun labelMatches(label: BookmarkEntities.Label): Boolean =
+                searchText.isEmpty() || filterRegex.containsMatchIn(label.displayName) || data.selectedLabels.contains(label.id)
+
+            shownLabels.addAll(allLabels.filter { labelMatches(it) })
+
+            if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled)) {
                 shownLabels.add(bookmarkControl.labelUnlabelled)
             }
             // Don't show the 'Selected' category in Label Settings (assume count=0)
-            if(data.showActiveCategory and (data.selectedLabels.count()>0)) {
+            if(data.showActiveCategory && data.selectedLabels.count()>0) {
                 shownLabels.add(LabelCategory.ACTIVE)
             }
             if(!data.hideCategories) {
@@ -785,7 +775,7 @@ class ManageLabels : ListActivityBase() {
 
         val recentLabelIds = bookmarkControl.windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId }
         shownLabels.myRemoveIf { it is BookmarkEntities.Label && data.deletedLabels.contains(it.id) }
-        if(fromDb || reOrder) {
+        if(rePopulate || reOrder) {
             shownLabels.sortWith(compareBy({
                 val inActiveCategory = data.showActiveCategory && (it == LabelCategory.ACTIVE || (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id)))
                 val inRecentCategory = !data.hideCategories && (it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id)))
@@ -809,7 +799,7 @@ class ManageLabels : ListActivityBase() {
 
         val labelIds = shownLabels.filterIsInstance<BookmarkEntities.Label>().map { it.id }.toSet()
 
-        if (filterText == "") {
+        if (searchText.isEmpty()) {
 
             // TODO: changes made in the label dialog are lost when the filter is applied
             // Some sanity check. These checks clear the changed state of the labels.
