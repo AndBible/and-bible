@@ -190,8 +190,10 @@ class LinkControl @Inject constructor(
     @Throws(NoSuchKeyException::class)
     private fun getStrongsKey(book: Book, key: String): BookAndKey? {
         val match = Regex("^([GH]?)(0+)([0-9]+).*").find(key)
-        val category = match?.groups?.get(1)?.value
-        val sanitizedKeyBase = match?.groups?.get(3)?.value
+        val match2 = Regex("^(0*)([0-9]+).*").find(key)
+
+        val category = match?.groups?.get(1)?.value ?: if(book.isHebrewDef) "H" else if(book.isGreekDef) "G" else ""
+        val sanitizedKeyBase = match?.groups?.get(3)?.value ?: match2?.groups?.get(2)?.value
 
         val zeroPaddedKey = sanitizedKeyBase?.padStart(5, '0') ?: ""
 
