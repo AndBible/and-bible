@@ -68,6 +68,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import net.bible.service.common.CommonUtils.convertDipsToPx
@@ -127,10 +128,15 @@ class ManageLabels : ListActivityBase() {
     private fun loadFilteringSettings() {
         searchInsideText = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
         showTextSearch = CommonUtils.settings.getBoolean("labels_list_filter_showTextSearch", false)
-        val options = CommonUtils.settings.getString("labels_list_filter_searchTextOptions") ?: ""
         searchOptionList.clear()
-        if (options.isNotEmpty() && options.first() == '[') {
-            searchOptionList.addAll(json.decodeFromString(serializer(), options))
+
+        val options = CommonUtils.settings.getString("labels_list_filter_searchTextOptions")
+        if (options != null) {
+            try {
+                searchOptionList.addAll(json.decodeFromString(serializer(), options))
+            } catch (e: SerializationException) {
+                Log.e(TAG, "Could not deserialize setting", e)
+            }
         }
     }
 
