@@ -188,7 +188,7 @@ class ManageLabels : ListActivityBase() {
         allButton.setOnClickListener {
             updateSearchButtonsProperties()
             searchText = ""
-            updateLabelList(rePopulate = true, reOrder = false)
+            updateLabelList(rePopulate = true)
             lastSelectedQuickSearchButton = allButton
         }
 
@@ -367,7 +367,7 @@ class ManageLabels : ListActivityBase() {
         binding.run {
             clearSearchTextButton.setOnClickListener {
                 searchText = ""
-                updateLabelList(rePopulate = true, reOrder = false)
+                updateLabelList(rePopulate = true)
             }
 
             saveSearchButton.setOnClickListener {
@@ -378,8 +378,7 @@ class ManageLabels : ListActivityBase() {
             }
             editSearchText.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable) {
-                    _searchText = s.toString()
-                    updateLabelList(rePopulate = true, reOrder = false)
+                    updateLabelList(rePopulate = true)
                     saveSearchButton.visibility = if (s.isEmpty()) View.GONE else View.VISIBLE
                 }
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -390,7 +389,7 @@ class ManageLabels : ListActivityBase() {
             searchInsideTextButton.setOnClickListener {
                 searchInsideText = !searchInsideText
                 setSearchInsideTextButtonBackground()
-                updateLabelList(rePopulate = true, reOrder = false)
+                updateLabelList(rePopulate = true)
             }
         }
         buildQuickSearchButtonList()
@@ -732,11 +731,9 @@ class ManageLabels : ListActivityBase() {
 
     }
 
-    private var _searchText: String = ""
     private var searchText: String
-        get() = _searchText
+        get() = binding.editSearchText.text.toString()
         set(value) {
-            _searchText = value
             binding.editSearchText.setText(value)
         }
 
