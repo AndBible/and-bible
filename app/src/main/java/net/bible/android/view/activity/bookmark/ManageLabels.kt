@@ -732,7 +732,6 @@ class ManageLabels : ListActivityBase() {
 
     }
 
-
     private var _searchText: String = ""
     private var searchText: String
         get() = _searchText
@@ -742,7 +741,8 @@ class ManageLabels : ListActivityBase() {
         }
 
     private val filterRegex: Regex get() {
-        val regex = if (searchInsideText) searchText else "^$searchText"
+        val text = Regex.escape(searchText)
+        val regex = if (searchInsideText) text else "^$text"
         return try {
             regex.toRegex(RegexOption.IGNORE_CASE)
         } catch (e: PatternSyntaxException) {
