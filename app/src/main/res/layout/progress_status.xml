@@ -23,14 +23,21 @@
 		android:visibility="invisible"
 		android:layout_below="@id/progressStatusMessage"
 		android:layout_margin="20dip"/>
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_margin="20dip"
+		android:layout_below="@id/noTasksRunning"
+        android:layout_above="@id/button_panel"
+		>
 	<LinearLayout android:id="@+id/progressControlContainer"
     	android:orientation="vertical"
 	    android:layout_width="fill_parent"
-    	android:layout_height="fill_parent"
-    	android:layout_margin="20dip"
-		android:layout_below="@id/noTasksRunning">
+    	android:layout_height="wrap_content"
+		>
     </LinearLayout>
-    
+	</ScrollView>
+
 	<!-- Button bar with OK button -->
 	<LinearLayout android:id="@+id/button_panel"
 	    android:layout_width="fill_parent"
