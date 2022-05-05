@@ -342,9 +342,16 @@ dependencies {
 
     // Espresso dependencies
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.4.0") {
+        // https://github.com/android/android-test/issues/861#issuecomment-1067448610
+        exclude(group="org.checkerframework", module="checker")
+    }
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.4.0")
-    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.4.0") {
+        // https://github.com/android/android-test/issues/861#issuecomment-872582819
+        exclude(group="org.checkerframework", module="checker")
+    }
+    
     androidTestImplementation("androidx.test.espresso:espresso-web:3.4.0")
     androidTestImplementation("androidx.test.espresso.idling:idling-concurrent:3.4.0")
 
