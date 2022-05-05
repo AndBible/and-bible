@@ -78,8 +78,8 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
     </plurals>
 
 	<!-- No translation needed -->
-	<string name="match_any_text">*ab*</string>  <!-- Probably does not need to be translated. They are symbols for a button image -->
-	<string name="match_start_of_text">Ab*</string>  <!-- Probably does not need to be translated. They are symbols for a button image -->
+	<string name="match_any_text">*ab*</string>
+	<string name="match_start_of_text">Ab*</string>
 
 	<!-- English-only feature -->
 	<string name="easy_start_title">Easy start</string>
