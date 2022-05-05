@@ -102,8 +102,6 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
         }
     }
 
-
-
     override fun close() {
         Log.i(TAG, "close database $moduleName ${sqliteFile.name}")
         _sqlDb?.close()
@@ -114,10 +112,13 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
 
     var metadata: SwordBookMetaData? = null
 
+    private val re = Regex("[^a-zA-z0-9]")
+    private fun sanitizeModuleName(name: String): String = name.replace(re, "_")
+
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
             val db = this.sqlDb
-            val initials = moduleName ?: "MyBible-" + File(db.path).nameWithoutExtension.split(".", limit = 2)[0]
+            val initials = moduleName ?: "MyBible-" + sanitizeModuleName(File(db.path).nameWithoutExtension.split(".", limit = 2)[0])
             val description = db.rawQuery("select value from info where name = ?", arrayOf("description")).use {
                 it.moveToFirst()
                 it.getString(0)
@@ -240,38 +241,37 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun indexOfBible(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
-        val cur = state.sqlDb.rawQuery("select _rowid_ from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}"))
-        cur.moveToNext() || return -1
-        val rowid = cur.getInt(0)
-        cur.close()
-        return rowid
+        state.sqlDb.rawQuery("select _rowid_ from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
+            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")).use {
+            it.moveToNext() || return -1
+            return it.getInt(0)
+        }
     }
 
     private fun indexOfDictionary(that: Key): Int {
         if(that !is DefaultLeafKeyList) return -1;
         val keyName = that.name
-        val cur = state.sqlDb.rawQuery("select _rowid_ from dictionary WHERE topic = ?", arrayOf(keyName))
-        cur.moveToNext() || return -1
-        val rowid = cur.getInt(0)
-        cur.close()
-        return rowid
+        state.sqlDb.rawQuery("select _rowid_ from dictionary WHERE topic = ?", arrayOf(keyName)).use {
+            it.moveToNext() || return -1
+            return it.getInt(0)
+        }
+
     }
 
     private fun indexOfCommentary(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
-        val cur = state.sqlDb.rawQuery(
+        state.sqlDb.rawQuery(
             """select _rowid_ from commentaries WHERE book_number = ? AND 
                             ((chapter_number_from <= ? AND verse_number_from <= ? AND
                             chapter_number_to >= ? AND verse_number_to >= ?) OR
                             (chapter_number_from = ? AND verse_number_from = ? AND chapter_number_to IS NULL AND verse_number_to IS NULL))
 
                             """,
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}"))
-        cur.moveToNext() || return -1
-        val rowid = cur.getInt(0)
-        cur.close()
-        return rowid
+            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
+
+            it.moveToNext() || return -1
+            return it.getInt(0)
+        }
     }
 
     override fun indexOf(that: Key): Int {

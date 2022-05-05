@@ -6,27 +6,110 @@
 	android:layout_height="fill_parent"
 	android:orientation="vertical">
 
-
-	<androidx.appcompat.widget.SwitchCompat
-		android:id="@+id/selectMultipleSwitch"
+	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:text="@string/select_multiple"
-		android:paddingTop="10dp"
-		android:paddingBottom="10dp"
-		android:paddingStart="10dp"
-		android:paddingEnd="10dp"
-		style="@style/TextAppearance.AppCompat.Widget.Switch"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		/>
+		>
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:id="@+id/buttonLayout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingTop="5dp"
+			android:orientation="vertical">
 
-	<ListView
-		android:id="@android:id/list"
-		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/selectMultipleSwitch" />
+			<androidx.constraintlayout.helper.widget.Flow
+				android:id="@+id/flowContainer"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				app:constraint_referenced_ids="searchRevealButton"
+				app:flow_horizontalGap="3dp"
+				app:flow_horizontalStyle="packed"
+				app:flow_horizontalBias="0.5"
+				app:flow_verticalBias="1"
+				app:flow_verticalGap="3dp"
+				app:flow_wrapMode="chain"
+				android:paddingBottom="5dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintHorizontal_bias="0.51"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent" >
+			</androidx.constraintlayout.helper.widget.Flow>
+
+			<ImageButton
+				android:id="@+id/searchRevealButton"
+				android:layout_width="wrap_content"
+				android:layout_height="21dp"
+				android:background="@drawable/button_filter"
+				app:tint="@color/grey_800"
+				app:srcCompat="@drawable/ic_search_20dp" />
+
+		</androidx.constraintlayout.widget.ConstraintLayout>
+
+		<LinearLayout
+			android:id="@+id/textSearchLayout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:visibility="visible"
+			>
+			<Button
+				android:textSize="12sp"
+				android:id="@+id/searchInsideTextButton"
+				android:layout_width="35dp"
+				android:layout_height="30dp"
+				android:background="@drawable/button_filter"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintLeft_toLeftOf="parent"
+				android:textAllCaps="false"
+				android:layout_marginStart="5dp"
+				android:text="@string/match_any_text"/>
+
+			<EditText
+				android:id="@+id/editSearchText"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:ems="10"
+				android:inputType="textPersonName"
+				android:hint="@string/labels_search_hint" />
+
+			<ImageButton
+				android:id="@+id/clearSearchTextButton"
+				app:tint="@color/grey_600"
+				app:srcCompat="@drawable/ic_close_white_24dp"
+				android:layout_width="31dp"
+				android:layout_height="35dp"
+				android:layout_marginStart="-35dp"
+				android:layout_marginTop="5dp"
+				android:backgroundTint="@color/transparent"
+				/>
+			<ImageButton
+				android:id="@+id/saveSearchButton"
+				android:layout_width="40dp"
+				android:layout_height="45dp"
+				app:tint="@color/grey_600"
+				android:layout_marginStart="2dp"
+				android:visibility="gone"
+				app:srcCompat="@drawable/ic_save_20dp" />
+
+		</LinearLayout>
+		<ListView
+			android:id="@android:id/list"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/textSearchLayout"
+			android:fastScrollAlwaysVisible="true"
+			android:fastScrollEnabled="true"
+			android:scrollbarThumbVertical="@drawable/button_filter"
+			/>
+
+
+	</LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

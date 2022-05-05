@@ -77,6 +77,10 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
         <item quantity="other">@string/some_pages</item>
     </plurals>
 
+	<!-- No translation needed -->
+	<string name="match_any_text">*ab*</string>
+	<string name="match_start_of_text">Ab*</string>
+
 	<!-- English-only feature -->
 	<string name="easy_start_title">Easy start</string>
 	<string name="easy_start_message">

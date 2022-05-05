@@ -231,7 +231,9 @@
             </intent-filter>
         </activity>
 
-        <service android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService" />
+        <service
+            android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService"
+            android:foregroundServiceType="mediaPlayback" />
 
         <receiver
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver"
