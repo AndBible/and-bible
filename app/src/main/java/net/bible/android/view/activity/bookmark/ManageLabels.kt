@@ -119,7 +119,7 @@ class ManageLabels : ListActivityBase() {
 
     lateinit var data: ManageLabelsData
 
-    private lateinit var lastSelectedQuickSearchButton: Button
+    private var lastSelectedQuickSearchButton: Button? = null
     private var showTextSearch = false
     private var searchInsideText = false
 
@@ -166,7 +166,7 @@ class ManageLabels : ListActivityBase() {
 
     private fun updateSearchButtonsProperties(searchOption: SearchOption? = null) {
         setFilterButtonBackground(lastSelectedQuickSearchButton, false)
-        setFilterButtonBackground(searchOption?.button ?: binding.allButton, true)
+        setFilterButtonBackground(searchOption?.button, true)
 
         setSearchInsideTextButtonBackground()
     }
@@ -178,18 +178,19 @@ class ManageLabels : ListActivityBase() {
     }
 
     private fun resetFilter() {
-        updateSearchButtonsProperties()
+        resetSearchButtonProperties()
         searchText = ""
         updateLabelList(rePopulate = true)
-        lastSelectedQuickSearchButton = binding.allButton
+    }
+
+    private fun resetSearchButtonProperties() {
+        updateSearchButtonsProperties()
+        lastSelectedQuickSearchButton = null
     }
 
     private fun reBuildQuickSearchButtonList() = binding.run {
         removeAllQuickSearchButtons()
-        lastSelectedQuickSearchButton = allButton
         updateSearchButtonsProperties()
-
-        allButton.setOnClickListener { resetFilter() }
 
         updateTextSearchControlsVisibility()
 
@@ -226,7 +227,7 @@ class ManageLabels : ListActivityBase() {
             setFilterButtonBackground(button, false)
         }
         flowContainer.referencedIds = (
-            arrayOf(R.id.allButton, R.id.searchRevealButton) + searchOptionList.mapNotNull { it.button?.id }
+            arrayOf(R.id.searchRevealButton) + searchOptionList.mapNotNull { it.button?.id }
             ).toIntArray()
     }
 
@@ -246,7 +247,8 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    private fun setFilterButtonBackground(button: Button, isSelected: Boolean) {
+    private fun setFilterButtonBackground(button: Button?, isSelected: Boolean) {
+        button?: return
         (button.background as GradientDrawable).run {
             setColor(getResourceColor(if (isSelected) R.color.grey_500 else R.color.transparent))
             setStroke(4, getResourceColor(R.color.grey_500))
@@ -388,6 +390,7 @@ class ManageLabels : ListActivityBase() {
             editSearchText.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable) {
                     updateLabelList(rePopulate = true)
+                    resetSearchButtonProperties()
                     saveSearchButton.visibility = if (s.isEmpty()) View.GONE else View.VISIBLE
                 }
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
