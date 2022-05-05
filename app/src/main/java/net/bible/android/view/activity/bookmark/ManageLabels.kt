@@ -483,8 +483,9 @@ class ManageLabels : ListActivityBase() {
         val h4 = concat("\n\n", getIconString(R.string.assing_labels_help4, R.drawable.ic_baseline_favorite_24))
         val h5 = concat("\n\n", getIconString(R.string.assing_labels_help5, R.drawable.ic_baseline_refresh_24))
         val h6 = concat("\n\n",
-            getIconString(R.string.assing_labels_help6, R.drawable.ic_search_24dp),
-            getIconString(R.string.assing_labels_help7, R.drawable.ic_save_24dp),
+            getIconString(R.string.assing_labels_help6, R.drawable.ic_search_24dp), " ",
+            getIconString(R.string.assing_labels_help7, R.drawable.ic_save_24dp), " ",
+            getString(R.string.assing_labels_help7_1), " ",
             getString(R.string.assing_labels_help8))
 
         val span = concat(
