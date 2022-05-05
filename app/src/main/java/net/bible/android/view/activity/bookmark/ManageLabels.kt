@@ -177,17 +177,19 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
+    private fun resetFilter() {
+        updateSearchButtonsProperties()
+        searchText = ""
+        updateLabelList(rePopulate = true)
+        lastSelectedQuickSearchButton = binding.allButton
+    }
+
     private fun reBuildQuickSearchButtonList() = binding.run {
         removeAllQuickSearchButtons()
         lastSelectedQuickSearchButton = allButton
         updateSearchButtonsProperties()
 
-        allButton.setOnClickListener {
-            updateSearchButtonsProperties()
-            searchText = ""
-            updateLabelList(rePopulate = true)
-            lastSelectedQuickSearchButton = allButton
-        }
+        allButton.setOnClickListener { resetFilter() }
 
         updateTextSearchControlsVisibility()
 
@@ -205,11 +207,15 @@ class ManageLabels : ListActivityBase() {
                 setPadding(convertDipsToPx(5), 0, convertDipsToPx(5), 0)
                 setTextColor(getResourceColor(if (ScreenSettings.nightMode) R.color.blue_grey_50 else R.color.grey_900))
                 setOnClickListener {
-                    searchInsideText = searchOption.isSearchInsideText
-                    searchText = searchOption.trimmedText
-                    updateSearchButtonsProperties(searchOption)
-                    updateLabelList(rePopulate = true)
-                    lastSelectedQuickSearchButton = this
+                    if(searchInsideText == searchOption.isSearchInsideText && searchText == searchOption.trimmedText) {
+                        resetFilter()
+                    } else {
+                        searchInsideText = searchOption.isSearchInsideText
+                        searchText = searchOption.trimmedText
+                        updateSearchButtonsProperties(searchOption)
+                        lastSelectedQuickSearchButton = this
+                        updateLabelList(rePopulate = true)
+                    }
                 }
                 setOnLongClickListener {
                     removeQuickSearchButton(searchOption)
