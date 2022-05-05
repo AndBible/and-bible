@@ -420,7 +420,7 @@ class ManageLabels : ListActivityBase() {
             R.id.help -> help()
             R.id.newLabel -> newLabel()
             R.id.resetButton -> reset()
-            R.id.reOrder -> updateLabelList(reOrder = true)
+            R.id.reOrder -> updateLabelList(rePopulate = true, reOrder = true)
             android.R.id.home -> saveAndExit()
             else -> isHandled = false
         }
@@ -771,8 +771,7 @@ class ManageLabels : ListActivityBase() {
             if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled)) {
                 shownLabels.add(bookmarkControl.labelUnlabelled)
             }
-            // Don't show the 'Selected' category in Label Settings (assume count=0)
-            if(data.showActiveCategory && data.selectedLabels.count()>0) {
+            if(data.showActiveCategory && data.contextSelectedItems.count()>0) {
                 shownLabels.add(LabelCategory.ACTIVE)
             }
             if(!data.hideCategories) {
