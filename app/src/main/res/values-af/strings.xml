@@ -823,7 +823,10 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="questions_title2">Het jy hulp nodig?</string>
   <string name="bookmark_style">Boekmerk styl</string>
   <string name="added_to_bookmark">Toegewys aan hierdie boekmerk</string>
+  <string name="strongs_off">Af</string>
   <string name="strongs_links">Skakels</string>
+  <string name="strongs_text_and_links">Teks en Skakels</string>
   <string name="verse_tip">Om gedeeltelike of baie verse te kies, kan jy Bybel teks lank druk</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Toestemming benodig</string>
 </resources>
