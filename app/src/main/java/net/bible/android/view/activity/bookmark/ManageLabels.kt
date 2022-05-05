@@ -541,6 +541,7 @@ class ManageLabels : ListActivityBase() {
         data.autoAssignLabels.remove(label.id)
         data.favouriteLabels.remove(label.id)
         data.changedLabels.remove(label.id)
+        allLabels.myRemoveIf { it.id == label.id }
 
         ensureNotBookmarkPrimaryLabel(label)
         ensureNotAutoAssignPrimaryLabel(label)
@@ -585,18 +586,10 @@ class ManageLabels : ListActivityBase() {
 
                 if (newLabelData.delete) {
                     deleteLabel(label)
-
                 } else {
-                    val idx = shownLabels.indexOf(label)
-                    shownLabels.remove(label)
                     allLabels.remove(label)
                     label = newLabelData.label
                     allLabels.add(label)
-                    if(idx > 0) {
-                        shownLabels.add(idx, label)
-                    } else {
-                        shownLabels.add(label)
-                    }
                     data.changedLabels.add(label.id)
 
                     if (newLabelData.isAutoAssign) {
@@ -627,7 +620,7 @@ class ManageLabels : ListActivityBase() {
                         }
                     }
                 }
-                updateLabelList(reOrder = isNew)
+                updateLabelList(rePopulate = true, reOrder = isNew)
                 if(isNew) {
                     listView.smoothScrollToPosition(shownLabels.indexOf(label))
                 }
@@ -777,7 +770,6 @@ class ManageLabels : ListActivityBase() {
         }
 
         val recentLabelIds = bookmarkControl.windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId }
-        shownLabels.myRemoveIf { it is BookmarkEntities.Label && data.deletedLabels.contains(it.id) }
         if(rePopulate || reOrder) {
             shownLabels.sortWith(compareBy({
                 val inActiveCategory = data.showActiveCategory && (it == LabelCategory.ACTIVE || (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id)))
