@@ -177,16 +177,7 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    private fun setupTextFilterLayout() = binding.run {
-        textSearchLayout.visibility = if (showTextSearch) View.VISIBLE else View.GONE
-        searchRevealButton.setOnClickListener {
-            showTextSearch = !showTextSearch
-            updateTextSearchControlsVisibility()
-        }
-        updateTextSearchControlsVisibility()
-    }
-
-    private fun buildQuickSearchButtonList() = binding.run {
+    private fun reBuildQuickSearchButtonList() = binding.run {
         removeAllQuickSearchButtons()
         lastSelectedQuickSearchButton = allButton
         updateSearchButtonsProperties()
@@ -198,7 +189,7 @@ class ManageLabels : ListActivityBase() {
             lastSelectedQuickSearchButton = allButton
         }
 
-        setupTextFilterLayout()
+        updateTextSearchControlsVisibility()
 
         searchOptionList.sortWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.displayText })
         for (searchOption in searchOptionList) {
@@ -233,36 +224,37 @@ class ManageLabels : ListActivityBase() {
             ).toIntArray()
     }
 
-    private fun addQuickSearchButton(searchText: String, isSearchInsideText: Boolean) {
-        val newOption = SearchOption(searchText, isSearchInsideText)
+    private fun addQuickSearchButton() {
+        val newOption = SearchOption(searchText, searchInsideText)
         if (!searchOptionList.any { (it.displayText == newOption.displayText) }) {
             searchOptionList.add(newOption)
         }
     }
 
-    private fun removeQuickSearchButton(btn: SearchOption) {
-        val button = btn.button
+    private fun removeQuickSearchButton(btn: SearchOption) = binding.run {
         searchOptionList.myRemoveIf { it.displayText == btn.displayText }
+        val button = btn.button
         if(button != null) {
-            binding.flowContainer.removeView(button)
-            binding.buttonLayout.removeView(button)
+            flowContainer.removeView(button)
+            buttonLayout.removeView(button)
         }
     }
 
     private fun setFilterButtonBackground(button: Button, isSelected: Boolean) {
-        val background = button.background as GradientDrawable
-        val backgroundColor = getResourceColor(if (isSelected) R.color.grey_500 else R.color.transparent)
-        background.setColor(backgroundColor)
-        background.setStroke(4,getResourceColor(R.color.grey_500))
+        (button.background as GradientDrawable).run {
+            setColor(getResourceColor(if (isSelected) R.color.grey_500 else R.color.transparent))
+            setStroke(4, getResourceColor(R.color.grey_500))
+        }
     }
 
     private fun setSearchInsideTextButtonBackground() = binding.run {
+        val background = searchInsideTextButton.background as GradientDrawable
         if (searchInsideText) {
             searchInsideTextButton.text = getString(R.string.match_any_text)
-            (searchInsideTextButton.background as GradientDrawable).setColor(getResourceColor(R.color.blue_200))
+            background.setColor(getResourceColor(R.color.blue_200))
         } else {
             searchInsideTextButton.text = getString(R.string.match_start_of_text)
-            (searchInsideTextButton.background as GradientDrawable).setColor(getResourceColor(R.color.transparent))
+            background.setColor(getResourceColor(R.color.transparent))
         }
     }
 
@@ -371,6 +363,11 @@ class ManageLabels : ListActivityBase() {
         }
         // Setup listeners for the text filter
         binding.run {
+            searchRevealButton.setOnClickListener {
+                showTextSearch = !showTextSearch
+                updateTextSearchControlsVisibility()
+            }
+
             clearSearchTextButton.setOnClickListener {
                 searchText = ""
                 updateLabelList(rePopulate = true)
@@ -378,8 +375,8 @@ class ManageLabels : ListActivityBase() {
 
             saveSearchButton.setOnClickListener {
                 if (searchText.isNotEmpty()) {
-                    addQuickSearchButton(searchText, searchInsideText)
-                    buildQuickSearchButtonList()
+                    addQuickSearchButton()
+                    reBuildQuickSearchButtonList()
                 }
             }
             editSearchText.addTextChangedListener(object : TextWatcher {
@@ -398,7 +395,7 @@ class ManageLabels : ListActivityBase() {
                 updateLabelList(rePopulate = true)
             }
         }
-        buildQuickSearchButtonList()
+        reBuildQuickSearchButtonList()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
