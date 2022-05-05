@@ -800,17 +800,6 @@ class ManageLabels : ListActivityBase() {
             }))
         }
 
-        val labelIds = shownLabels.filterIsInstance<BookmarkEntities.Label>().map { it.id }.toSet()
-
-        if (searchText.isEmpty()) {
-
-            // TODO: changes made in the label dialog are lost when the filter is applied
-            // Some sanity check. These checks clear the changed state of the labels.
-            // AGR: I don't know whether these are really needed. But having them clear these settings when the filter is applied causes me trouble.
-//            data.autoAssignLabels.myRemoveIf { !labelIds.contains(it) }
-//            data.favouriteLabels.myRemoveIf { !labelIds.contains(it) }
-            data.selectedLabels.myRemoveIf { !labelIds.contains(it) }
-        }
         notifyDataSetChanged()
     }
 }
