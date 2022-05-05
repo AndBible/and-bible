@@ -187,10 +187,10 @@ android {
     }
 
 
-    lintOptions {
-        disable("MissingTranslation")
-        disable("ExtraTranslation")
-        warning("InvalidPackage")
+    lint {
+        disable += "MissingTranslation"
+        disable += "ExtraTranslation"
+        warning += "InvalidPackage"
     }
 
     compileOptions {
