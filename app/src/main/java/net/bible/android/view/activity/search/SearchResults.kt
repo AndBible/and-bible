@@ -176,7 +176,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
             // this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
             val intent = Intent(this, MainBibleActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
             startActivity(intent)
         }
