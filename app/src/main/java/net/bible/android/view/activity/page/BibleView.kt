@@ -140,6 +140,7 @@ import org.crosswire.jsword.index.search.SearchType
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
 
+const val MAX_DOC_STR_LENGTH = 1000000;
 
 @Serializable
 class Selection(val bookInitials: String?, val startOrdinal: Int,
@@ -985,7 +986,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             var docStr = document.asJson
             // Ps 119 in KJV is only 70k. Let's give gracefully max 500k until we give "page too large" error.
             // Our BibleView.js will freeze and eventually OOM-crash with ridiculously large documents.
-            if(docStr.length > 500000) {
+            if(docStr.length > MAX_DOC_STR_LENGTH) {
                 Log.e(TAG, "Page is too large to be shown, showing error instead, ${docStr.length}")
                 val errorDoc = ErrorDocument(mainBibleActivity.getString(R.string.error_page_too_large), ErrorSeverity.NORMAL)
                 docStr = errorDoc.asJson
