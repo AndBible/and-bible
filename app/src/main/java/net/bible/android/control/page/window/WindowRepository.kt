@@ -322,6 +322,7 @@ open class WindowRepository @Inject constructor(
 
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.i(TAG, "saveIntoDb")
+        if(!initialized) return;
         if(stopSpeak) _mainBibleActivity?.speakControl?.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()
