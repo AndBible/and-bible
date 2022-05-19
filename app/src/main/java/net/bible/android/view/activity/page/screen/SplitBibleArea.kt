@@ -403,7 +403,9 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     private fun updateMinimizedButtonText(w: Window) {
-        restoreButtonsList.find { it.window?.id == w.id }?.text = getDocumentAbbreviation(w)
+        mainBibleActivity.runOnUiThread {
+            restoreButtonsList.find { it.window?.id == w.id }?.text = getDocumentAbbreviation(w)
+        }
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
