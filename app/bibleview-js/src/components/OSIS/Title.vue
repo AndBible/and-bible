@@ -21,8 +21,8 @@
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {computed} from "@vue/reactivity";
-import {inject} from "@vue/runtime-core";
+import {computed} from "vue";
+import {inject} from "vue";
 
 export default {
   name: "Title",
@@ -43,7 +43,7 @@ export default {
 
     const show = computed(() =>
       !hideTitles && config.showSectionTitles
-      && ((config.showNonCanonical && !isCanonical) || isCanonical)
+      && ((config.showNonCanonical && !isCanonical.value) || isCanonical)
       && !(props.type === "sub" && props.subType === "x-Chapter")
       && !(props.type === "chapter")
       && props.type !== "x-gen",

@@ -35,7 +35,7 @@
 <script>
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment";
-import {computed, ref} from "@vue/reactivity";
+import {computed, ref} from "vue";
 
 export default {
   name: "BookmarkText",

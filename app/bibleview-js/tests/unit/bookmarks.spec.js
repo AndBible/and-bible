@@ -16,7 +16,7 @@
  */
 
 import {useBookmarks, useGlobalBookmarks, verseHighlighting} from "@/composables/bookmarks";
-import {ref} from "@vue/reactivity";
+import {ref} from "vue";
 import Color from "color";
 import {useConfig} from "@/composables/config";
 import {abbreviated} from "@/utils";

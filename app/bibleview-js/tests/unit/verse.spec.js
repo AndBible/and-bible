@@ -18,7 +18,7 @@
 
 import {shallowMount} from "@vue/test-utils";
 import Verse from "@/components/OSIS/Verse";
-import {ref} from "@vue/reactivity";
+import {ref} from "vue";
 import {arrayLeq, mapFrom, rangeInside, rangesOverlap, setFrom} from "@/utils";
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
 import {useStrings} from "@/composables/strings";

@@ -26,7 +26,7 @@
 
 <script>
 import {useCommon} from "@/composables";
-import {computed} from "@vue/reactivity";
+import {computed} from "vue";
 import OsisSegment from "@/components/documents/OsisSegment";
 
 const ErrorSeverity = {

@@ -30,7 +30,7 @@
 
 <script>
 import Modal from "@/components/modals/Modal";
-import {ref} from "@vue/reactivity";
+import {ref} from "vue";
 import {useCommon} from "@/composables";
 import {Deferred} from "@/utils";
 export default {

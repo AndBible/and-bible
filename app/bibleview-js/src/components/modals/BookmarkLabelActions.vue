@@ -62,10 +62,10 @@
 
 <script>
 import Modal from "@/components/modals/Modal";
-import {computed, ref} from "@vue/reactivity";
+import {computed, ref} from "vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {inject} from "@vue/runtime-core";
+import {inject} from "vue";
 export default {
   name: "BookmarkLabelActions",
   components: {Modal, FontAwesomeIcon},

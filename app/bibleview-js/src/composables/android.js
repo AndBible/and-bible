@@ -17,10 +17,10 @@
  */
 import {emit} from "@/eventbus";
 import {Deferred, rangeInside, setupDocumentEventListener, sleep, stubsFor} from "@/utils";
-import {onMounted} from "@vue/runtime-core";
+import {onMounted} from "vue";
 import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
-import {reactive} from "@vue/reactivity";
+import {reactive} from "vue";
 import {StudyPadEntryTypes} from "@/constants";
 import {errorBox} from "@/composables/config";
 

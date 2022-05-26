@@ -41,8 +41,8 @@
 
 <script>
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {ref} from "@vue/reactivity";
-import {inject, watch} from "@vue/runtime-core";
+import {ref} from "vue";
+import {inject, watch} from "vue";
 import {useCommon} from "@/composables";
 import {eventBus, Events} from "@/eventbus";
 

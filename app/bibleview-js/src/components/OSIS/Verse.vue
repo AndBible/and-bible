@@ -32,11 +32,11 @@
 </template>
 
 <script>
-import {inject, provide, reactive, ref} from "@vue/runtime-core";
+import {inject, provide, reactive, ref} from "vue";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
 import {addEventVerseInfo, getVerseInfo} from "@/utils";
-import {computed} from "@vue/reactivity";
+import {computed} from "vue";
 
 export default {
   name: "Verse",
