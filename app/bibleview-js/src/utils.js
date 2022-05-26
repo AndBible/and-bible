@@ -524,6 +524,7 @@ export function abbreviated(str, n, useWordBoundary = true) {
         : subString) + "...";
 }
 
+
 export function sprintf(...args) {
     return sprintfOrig(...args);
 }
