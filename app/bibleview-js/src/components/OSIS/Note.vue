@@ -43,10 +43,10 @@
 import {checkUnsupportedProps, useCommon, useReferenceCollector} from "@/composables";
 import Modal from "@/components/modals/Modal";
 import {get} from "lodash";
-import {ref, provide, inject} from "@vue/runtime-core";
+import {ref, provide, inject} from "vue";
 import {addEventFunction, EventPriorities, isBottomHalfClicked} from "@/utils";
 import OpenAllLink from "@/components/OpenAllLink";
-import {computed} from "@vue/reactivity";
+import {computed} from "vue";
 
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
 

@@ -22,8 +22,8 @@
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {inject} from "@vue/runtime-core";
-import {computed} from "@vue/reactivity";
+import {inject} from "vue";
+import {computed} from "vue";
 
 export default {
   name: "Chapter",

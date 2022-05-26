@@ -89,8 +89,8 @@
 
 <script>
 import {useCommon} from "@/composables";
-import {computed, ref} from "@vue/reactivity";
-import {inject} from "@vue/runtime-core";
+import {computed, ref} from "vue";
+import {inject} from "vue";
 import AreYouSure from "@/components/modals/AreYouSure";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Color from "color";

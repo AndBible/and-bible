@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {onBeforeUnmount, onMounted, onUnmounted, watch} from "@vue/runtime-core";
+import {onBeforeUnmount, onMounted, onUnmounted, watch} from "vue";
 import Color from "color";
 import {rybColorMixer} from "@/lib/ryb-color-mixer";
 import {get, sortBy} from "lodash";

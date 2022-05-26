@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import {computed} from "@vue/reactivity";
-import {inject} from "@vue/runtime-core";
+import {computed} from "vue";
+import {inject} from "vue";
 import {useCommon} from "@/composables";
 
 export default {

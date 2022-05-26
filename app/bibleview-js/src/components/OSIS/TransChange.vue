@@ -21,7 +21,7 @@
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {computed} from "@vue/reactivity";
+import {computed} from "vue";
 
 export default {
   name: "TransChange",

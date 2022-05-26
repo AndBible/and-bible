@@ -22,8 +22,8 @@
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
-import {computed, ref} from "@vue/reactivity";
-import {inject} from "@vue/runtime-core";
+import {computed, ref} from "vue";
+import {inject} from "vue";
 
 export default {
   name: "Reference",

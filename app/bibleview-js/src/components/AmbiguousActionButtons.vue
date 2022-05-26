@@ -51,8 +51,8 @@
 </template>
 
 <script>
-import {computed} from "@vue/reactivity";
-import {inject} from "@vue/runtime-core";
+import {computed} from "vue";
+import {inject} from "vue";
 import {FontAwesomeIcon, FontAwesomeLayers} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 

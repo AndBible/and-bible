@@ -75,9 +75,9 @@ import BookmarkText from "@/components/BookmarkText";
 import EditableText from "@/components/EditableText";
 import ButtonRow from "@/components/ButtonRow";
 import {emit as ebEmit, Events} from "@/eventbus";
-import {inject} from "@vue/runtime-core";
+import {inject} from "vue";
 import AreYouSure from "@/components/modals/AreYouSure";
-import {computed, ref} from "@vue/reactivity";
+import {computed, ref} from "vue";
 import {StudyPadEntryTypes} from "@/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
@@ -119,6 +119,7 @@ export default {
     const journalText = computed(() => {
       if (props.journalEntry.type === StudyPadEntryTypes.BOOKMARK) return props.journalEntry.notes;
       else if (props.journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT) return props.journalEntry.text;
+      return null;
     });
 
     function editBookmark(event) {

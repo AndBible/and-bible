@@ -21,7 +21,7 @@
 
 <script>
 import {useCommon} from "@/composables";
-import {computed} from "@vue/reactivity";
+import {computed} from "vue";
 
 /** The lg or "line group" element is used to contain any group of poetic lines.
  * Poetic lines are handled at the line level by And Bible, not line group

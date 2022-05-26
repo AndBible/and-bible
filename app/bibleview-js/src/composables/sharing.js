@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {nextTick, provide, ref} from "@vue/runtime-core";
+import {nextTick, provide, ref} from "vue";
 import {Events, setupEventBusListener} from "@/eventbus";
 
 export function useSharing({topElement, android}) {

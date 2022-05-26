@@ -68,7 +68,7 @@
 import Modal from "@/components/modals/Modal";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {provide, inject, ref} from "@vue/runtime-core";
+import {provide, inject, ref} from "vue";
 import {
   Deferred,
   getHighestPriorityEventFunctions,
@@ -78,7 +78,7 @@ import {
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton";
 import {emit, Events} from "@/eventbus";
-import {computed} from "@vue/reactivity";
+import {computed} from "vue";
 import AmbiguousActionButtons from "@/components/AmbiguousActionButtons";
 
 export default {

@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
+import {onMounted, onUnmounted, reactive, watch} from "vue";
 import {sortBy, uniqWith} from "lodash";
 import {
     addEventFunction,
@@ -24,7 +24,7 @@ import {
     findNodeAtOffsetWithNullOffset, intersection,
     rangesOverlap
 } from "@/utils";
-import {computed, ref} from "@vue/reactivity";
+import {computed, ref} from "vue";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
 import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";

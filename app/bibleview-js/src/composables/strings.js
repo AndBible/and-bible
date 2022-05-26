@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {reactive} from "@vue/runtime-core";
+import {reactive} from "vue";
 import {testMode} from "@/composables/config";
 
 const untranslated = {

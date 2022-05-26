@@ -29,7 +29,7 @@ import FeaturesLink from "@/components/FeaturesLink";
 import OpenAllLink from "@/components/OpenAllLink";
 import {useReferenceCollector} from "@/composables";
 import {BookCategories} from "@/constants";
-import {provide} from "@vue/runtime-core";
+import {provide} from "vue";
 import {osisToTemplateString} from "@/utils";
 
 const parser = new DOMParser();
