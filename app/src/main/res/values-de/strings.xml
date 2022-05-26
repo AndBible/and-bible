@@ -559,7 +559,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="error_no_content">Kein Inhalt für diesen Vers</string>
   <string name="error_page_too_large">Seite zu groß zum Laden</string>
   <string name="error_key_not_in_document">Nichts gefunden</string>
-  <string name="error_key_not_in_document2">%s wurde nicht in Dokumen %sgefunden.</string>
+  <string name="error_key_not_in_document2">%s wurde nicht in Dokumen %s gefunden.</string>
   <string name="empty_list">Nichts anzuzeigen</string>
   <string name="error_skip">Üerspringen</string>
   <!--Notifications-->
