@@ -67,6 +67,8 @@
     <string name="search_old_testament">Old Testament</string>
     <string name="search_current_book">Current book</string>
     <string name="error_executing_search">Invalid search query</string>
+
+    <!-- #2061 strings (not yet merged) -->
     <string name="search_remember_search_text">Remember search</string>
     <string name="search_include_all_endings">All endings</string>
     <string name="search_fuzzy">Fuzzy Search %s</string>

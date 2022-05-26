@@ -170,6 +170,7 @@
   <string name="prefs_noise_title">Bakgrunnsstøy</string>
   <string name="prefs_noise_summary">Det blir mer behagelig for øynene dersom man legger til litt støy i bakgrunnen.</string>
   <string name="cpv_default_title">Velg farge</string>
+  <string name="cpv_presets">Forhåndsinnstillinger</string>
   <string name="cpv_select">Velg</string>
   <string name="cpv_transparency">Gjennomsiktighet</string>
   <!--Window-->
@@ -199,15 +200,19 @@
   <string name="download">Last ned moduler</string>
   <string name="redownload">Last ned dokumenter på nytt</string>
   <string name="download_confirmation">Laste ned en bibel fra internett?</string>
+  <string name="download_source_last_updated">Dokumentlisten ble sist oppdatert: %s.</string>
   <string name="download_refreshing_book_list">Oppdaterer liste over tilgjengelige dokumenter fra dokumentservere...</string>
   <string name="download_source_message1">Dokumenter lastes ned fra følgende kilder:</string>
   <string name="download_document_confirm_prefix">Last ned</string>
   <string name="download_refresh_book_list_menu_item">Oppdater</string>
   <string name="error_downloading">En feil oppstod under nedlasting. Vennligst sjekk internettilkoblingen din.</string>
+  <string name="error_downloading_status">Serveren som inneholder %s returnerte en feil på grunn av %s (%d).</string>
   <string name="storage_space_warning">Ikke nok lokal lagringsplass.</string>
+  <string name="too_many_jobs">For mange oppgaver kjører. Vennligst vent til noen avslutter og prøv igjen.</string>
   <string name="document_not_installed">Vennligst last ned \'%s\'</string>
   <string name="free_text_search_documents">Søk</string>
   <string name="chooce_language_hint">Språk</string>
+  <string name="one_more_back_press">Trykk tilbake igjen for å lukke applikasjonen</string>
   <string name="document_filter_results">%d moduler</string>
   <string name="download_question_title">Ønsker du å fortsette å laste ned moduler?</string>
   <string name="download_question_message">Dersom du bor i et land med forfølgelse
@@ -219,6 +224,7 @@
   <string name="recommended_document">Anbefalt!</string>
   <string name="about_version_history">Versjonshistorikk: %s</string>
   <string name="download_errors">Nedlastingsfeil</string>
+  <string name="failed_repositories_message">Kunne ikke koble til modulserver: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Følgende filer kunne ikke lastes ned:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Last inn moduler fra ZIP</string>
@@ -235,8 +241,24 @@
   <string name="rdg_plan_selector_title">Velg en leseplan</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Sett startdato...</string>
+  <string name="set_current_day">Sett som gjeldende dag...</string>
+  <string name="msg_set_current_day_reading_plan">Dette vil sette dagen i dag som gjeldende dag i denne leseplanen, og merke alle tidligere dager som lest. Forsette?</string>
   <string name="done">Ferdig</string>
   <string name="reset_plan_question">Er du sikker på at du vil tilbakestille denne planen?</string>
+  <string name="import_reading_plan">Laste inn leseplan...</string>
+  <string name="import_reading_plan_error">Feil ved innlasting</string>
+  <string name="import_reading_plan_error_duplicate">Følgende dager var like: %s</string>
+  <string name="import_reading_plan_error_days">Følgende dager har feil: %s</string>
+  <string name="import_reading_plan_anyway">Last inn allikevel</string>
+  <string name="overwrite_reading_plan">Vil du skrive over %s?</string>
+  <string name="delete_reading_plan">Slett denne leseplanen</string>
+  <string name="reading_plan_deleted">Leseplanen har blitt slettet</string>
+  <string name="reading_plan_ships_with_ab">Denne leseplanen kommer med %s</string>
+  <string name="confirm_delete_reading_plan">
+       Er du sikker på at du vil slette %s sammen med lesehistorikken?
+      Hint: Dersom du ønsker å oppdatere leseplanen, kan du laste den inn på nytt med samme filnavn
+       og historikken blir bevart.
+</string>
   <string name="plan_duplicate_user_plan">
 Det finnes en leseplan på minnekortet
 jsword/readingplan med samme navn som en intern leseplan. Den kan ikke vises her.
@@ -399,6 +421,9 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="module_about_versification">Versifisering: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_feedback_title">Tilbakemelding</string>
+  <string name="send_bug_report_title">Tilbakemelding/feilrapport</string>
+  <string name="report_bug_big_heading">VENNLIGST SKRIV DIN TILBAKEMELDING ELLER FEILRAPPORT OVER DENNE LINJEN</string>
   <!--Document types-->
   <string name="doc_type_all">Alle dokumenter</string>
   <string name="doc_type_bible">Bibler</string>
@@ -451,6 +476,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="select_all">Velg alle</string>
   <string name="copy_settings_workspaces_title">Hvilke arbeidsområder ønsker du å kopiere innstillinger?</string>
   <string name="reset_settings">Tilbakestill</string>
+  <string name="workspace_dismiss">Avvis</string>
   <string name="workspace_listing_with_current">%s (gjeldende)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dette er en prøveutgave (beta)</string>
@@ -463,6 +489,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="beta_notice_content_3">Dersom du er en programmerer, vennligst vurder om du kan bidra med feilutbedringer (bugfix) via %s selv. :-)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Avvis</string>
+  <string name="beta_notice_dismiss_until_update">Avvis til neste oppdatering</string>
   <!--History-->
   <!--Help-->
   <string name="help_nav_title">Navigasjon</string>
@@ -488,19 +516,35 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="first_time_help_show_next_time">Vis igjen neste gang</string>
   <string name="my_notes_abbreviation">Mine notater</string>
   <string name="compare_description">Sammenlign oversettelser</string>
+  <string name="app_licence_title">Lisens for åpen kildekode</string>
+  <string name="how_to_contribute">Hvordan bidra?</string>
+  <string name="tell_friend_title">Anbefal til en venn</string>
   <string name="verse_action_copy">Kopier</string>
   <string name="show_versenumbers">Vis versnummer</string>
+  <string name="verse_share_advertise">Delt gjennom %s.</string>
   <string name="backup_button">Sikkerhetskopi</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="proceed_anyway">Fortsett allikevel</string>
+  <string name="rate_message5">
+      Positive og detaljerte anmeldelser hjelper And Bible-prosjektet mye. Tusen takk!</string>
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
+  <string name="proceed_google_play">Fortsett til Google Play</string>
+  <string name="bookmark_underline_style_arbitrary">Understrekingsstil for bokmerker av utvalg</string>
+  <string name="bookmark_underline_style_whole_verse">Understrekingsstil for bokmerker på hele vers</string>
   <string name="system_items1">Mer</string>
   <string name="toggle_fullscreen">Fullskjerm</string>
+  <string name="label_red">Rød</string>
+  <string name="label_green">Grønn</string>
+  <string name="label_blue">Blå</string>
+  <string name="label_salvation">Frelse</string>
+  <string name="label_underline">Understreket</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Vi beklager, men vi har bare delvis brukergrensesnittoversettelse på %s språk. Det er fordi %s er helt utviklet av frivillige. Hvis du kan hjelpe til med å oversette, kan du se %s. </string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instruksjoner for oversettere</string>
+  <string name="questions_title">Spørsmål?</string>
   <string name="bookmark_style">Bokmerkestil</string>
   <string name="strongs_links">Lenker</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
