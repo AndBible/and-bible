@@ -39,7 +39,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
 import java.util.*
 
-class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: Selection):
+class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: Selection) :
     LinearLayout(context, attributeSet) {
     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val bindings = ShareVersesBinding.inflate(inflater, this, true)
@@ -47,7 +47,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
     init {
         CommonUtils.buildActivityComponent().inject(this)
         bindings.run {
-            if(!selection.hasRange) {
+            if (!selection.hasRange) {
                 toggleShowSelectionOnly.visibility = View.GONE
                 toggleShowEllipsis.visibility = View.GONE
             }
@@ -57,30 +57,33 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleShowReference.isChecked = CommonUtils.settings.getBoolean("share_show_reference", true)
             toggleAbbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
             toggleShowVersion.isChecked = CommonUtils.settings.getBoolean("share_show_version", true)
-            toggleShowReferenceAtFront.isChecked = CommonUtils.settings.getBoolean("share_show_reference_at_front", true)
-            toggleNotes.visibility = if(selection.notes!= null) View.VISIBLE else View.GONE
+            toggleShowReferenceAtFront.isChecked =
+                CommonUtils.settings.getBoolean("share_show_reference_at_front", true)
+            toggleNotes.visibility = if (selection.notes != null) View.VISIBLE else View.GONE
             toggleNotes.isChecked = CommonUtils.settings.getBoolean("show_notes", true)
             toggleShowSelectionOnly.isChecked = CommonUtils.settings.getBoolean("show_selection_only", true)
             toggleShowEllipsis.isChecked = CommonUtils.settings.getBoolean("show_ellipsis", true)
-            toggleShowReferenceAtFront.isChecked = CommonUtils.settings.getBoolean("share_show_ref_at_front_of_verse", false)
+            toggleShowReferenceAtFront.isChecked =
+                CommonUtils.settings.getBoolean("share_show_ref_at_front_of_verse", false)
             toggleShowQuotes.isChecked = CommonUtils.settings.getBoolean("share_show_quotes", false)
 
-            toggleVersenumbers.setOnClickListener { updateText()}
-            advertise.setOnClickListener { updateText()}
-            toggleShowReference.setOnClickListener { updateText()}
-            toggleAbbreviateReference.setOnClickListener { updateText()}
-            toggleShowVersion.setOnClickListener { updateText()}
-            toggleShowReferenceAtFront.setOnClickListener { updateText()}
-            toggleNotes.setOnClickListener { updateText()}
-            toggleShowSelectionOnly.setOnClickListener { updateText()}
-            toggleShowEllipsis.setOnClickListener { updateText()}
-            toggleShowQuotes.setOnClickListener { updateText()}
+            toggleVersenumbers.setOnClickListener { updateText() }
+            advertise.setOnClickListener { updateText() }
+            toggleShowReference.setOnClickListener { updateText() }
+            toggleAbbreviateReference.setOnClickListener { updateText() }
+            toggleShowVersion.setOnClickListener { updateText() }
+            toggleShowReferenceAtFront.setOnClickListener { updateText() }
+            toggleNotes.setOnClickListener { updateText() }
+            toggleShowSelectionOnly.setOnClickListener { updateText() }
+            toggleShowEllipsis.setOnClickListener { updateText() }
+            toggleShowQuotes.setOnClickListener { updateText() }
         }
         updateText()
     }
 
     private fun updateText() {
-        val text = SwordContentFacade.getSelectionText(selection,
+        val text = SwordContentFacade.getSelectionText(
+            selection,
             showVerseNumbers = bindings.toggleVersenumbers.isChecked,
             advertiseApp = bindings.advertise.isChecked,
             abbreviateReference = bindings.toggleAbbreviateReference.isChecked,
@@ -93,7 +96,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             showQuotes = bindings.toggleShowQuotes.isChecked
         )
         val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book.language.code)) == LayoutDirection.RTL
-        bindings.preview.textDirection = if(isRtl)  View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
+        bindings.preview.textDirection = if (isRtl) View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
         bindings.preview.text = text
         CommonUtils.settings.apply {
             setBoolean("share_verse_numbers", bindings.toggleVersenumbers.isChecked)
@@ -118,14 +121,14 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             AlertDialog.Builder(context).apply {
                 val layout = ShareWidget(context, null, selection)
                 setView(layout)
-                setPositiveButton(R.string.backup_share) {
-                    _, _ ->
+                setPositiveButton(R.string.backup_share) { _, _ ->
 
                     val emailIntent = Intent(Intent.ACTION_SEND).apply {
                         putExtra(Intent.EXTRA_TEXT, layout.bindings.preview.text)
                         type = "text/plain"
                     }
-                    val chooserIntent = Intent.createChooser(emailIntent, context.getString(R.string.share_verse_menu_title))
+                    val chooserIntent =
+                        Intent.createChooser(emailIntent, context.getString(R.string.share_verse_menu_title))
                     context.startActivity(chooserIntent)
 
                 }
@@ -141,6 +144,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
                 create().show()
             }
         }
+
         fun dialog(context: Context, bookmark: BookmarkEntities.Bookmark) =
             dialog(context, Selection(bookmark))
     }

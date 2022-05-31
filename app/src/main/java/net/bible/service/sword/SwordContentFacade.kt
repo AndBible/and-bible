@@ -54,11 +54,12 @@ import java.lang.RuntimeException
 import java.util.*
 import kotlin.math.min
 
-open class OsisError(xmlMessage: String): Exception(xmlMessage) {
+open class OsisError(xmlMessage: String) : Exception(xmlMessage) {
     val xml: Element = SAXBuilder().build(StringReader("<div>$xmlMessage</div>")).rootElement
 }
-class DocumentNotFound(xmlMessage: String): OsisError(xmlMessage)
-class JSwordError(xmlMessage: String): OsisError(xmlMessage)
+
+class DocumentNotFound(xmlMessage: String) : OsisError(xmlMessage)
+class JSwordError(xmlMessage: String) : OsisError(xmlMessage)
 
 /** JSword facade
  *
@@ -70,7 +71,7 @@ object SwordContentFacade {
     /** top level method to fetch html from the raw document data
      */
     @Throws(OsisError::class)
-    fun readOsisFragment(book: Book?, key: Key?,): Element = when {
+    fun readOsisFragment(book: Book?, key: Key?): Element = when {
         book == null || key == null -> {
             Log.e(TAG, "Key or book was null")
             throw OsisError(application.getString(R.string.error_no_content))
@@ -95,10 +96,16 @@ object SwordContentFacade {
         log.debug("Using standard JSword to fetch document data")
         return try {
             val data = BookData(book, key)
-            if(book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
+            if (book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
                 val div = data.osisFragment
                 val verse = div.getChild("verse")
-                    ?: throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
+                    ?: throw DocumentNotFound(
+                        application.getString(
+                            R.string.error_key_not_in_document2,
+                            key.name,
+                            book.initials
+                        )
+                    )
                 val verseContent = verse.content.toList()
                 verse.removeContent()
                 div.removeContent()
@@ -107,12 +114,10 @@ object SwordContentFacade {
             } else {
                 data.osisFragment
             }
-        }
-        catch (e: OsisError) {
+        } catch (e: OsisError) {
             throw e
-        }
-        catch (e: Throwable) {
-            if(e is Exception)
+        } catch (e: Throwable) {
+            if (e is Exception)
                 log.error("Parsing error", e)
             else
                 log.error("Parsing error $e")
@@ -143,17 +148,18 @@ object SwordContentFacade {
         }
     }
 
-    fun getSelectionText(selection: Selection,
-                         showVerseNumbers: Boolean,
-                         advertiseApp: Boolean,
-                         showReference: Boolean = true,
-                         showReferenceAtFront:Boolean = false,
-                         abbreviateReference: Boolean = true,
-                         showNotes: Boolean = true,
-                         showVersion: Boolean = true,
-                         showSelectionOnly: Boolean = true,
-                         showEllipsis: Boolean = true,
-                         showQuotes: Boolean = true
+    fun getSelectionText(
+        selection: Selection,
+        showVerseNumbers: Boolean,
+        advertiseApp: Boolean,
+        showReference: Boolean = true,
+        showReferenceAtFront: Boolean = false,
+        abbreviateReference: Boolean = true,
+        showNotes: Boolean = true,
+        showVersion: Boolean = true,
+        showSelectionOnly: Boolean = true,
+        showEllipsis: Boolean = true,
+        showQuotes: Boolean = true
     ): String {
 
         class VerseAndText(val verse: Verse, val text: String)
@@ -169,7 +175,7 @@ object SwordContentFacade {
         val start = startVerse.slice(0 until min(startOffset, startVerse.length))
 
         var startVerseNumber = ""
-        if(showVerseNumbers && verseTexts.size > 1) {
+        if (showVerseNumbers && verseTexts.size > 1) {
             startVerseNumber = "${selection.verseRange.start.verse}. "
         }
         if (showSelectionOnly && startOffset > 0 && showEllipsis) {
@@ -182,8 +188,8 @@ object SwordContentFacade {
         val quotationStart = if (showQuotes) "“" else ""
         val quotationEnd = if (showQuotes) "”" else ""
 
-        val reference = if(showReference) {
-            if(abbreviateReference) {
+        val reference = if (showReference) {
+            if (abbreviateReference) {
                 synchronized(BookName::class.java) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
@@ -195,14 +201,18 @@ object SwordContentFacade {
                 val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
                 "$verseRangeName"
             }
-        }
-        else
+        } else
             ""
 
-        val advertise = if(advertiseApp) "\n\n${application.getString(R.string.verse_share_advertise, application.getString(R.string.app_name_long))} (https://andbible.github.io)" else ""
+        val advertise = if (advertiseApp) "\n\n${
+            application.getString(
+                R.string.verse_share_advertise,
+                application.getString(R.string.app_name_long)
+            )
+        } (https://andbible.github.io)" else ""
         val notesOrig = selection.notes
         val notes =
-            if(showNotes && notesOrig != null)
+            if (showNotes && notesOrig != null)
                 "\n\n" + if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Html.fromHtml(notesOrig, Html.FROM_HTML_MODE_LEGACY)
                 } else {
@@ -216,27 +226,27 @@ object SwordContentFacade {
             verseTexts.size == 1 -> {
                 val end = startVerse.slice(endOffset until startVerse.length)
                 val text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
-                val post = if(showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
-                if(!showSelectionOnly) """$quotationStart$startVerseNumber$start$text$end$quotationEnd""" else "$quotationStart$startVerseNumber$text$post$quotationEnd"
+                val post = if (showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
+                if (!showSelectionOnly) """$quotationStart$startVerseNumber$start$text$end$quotationEnd""" else "$quotationStart$startVerseNumber$text$post$quotationEnd"
             }
             verseTexts.size > 1 -> {
                 startVerse = startVerse.slice(startOffset until startVerse.length)
                 val lastVerse = verseTexts.last()
-                val endVerseNum = if(showVerseNumbers) "${lastVerse.verse.verse}. " else ""
+                val endVerseNum = if (showVerseNumbers) "${lastVerse.verse.verse}. " else ""
                 val endVerse = lastVerse.text.slice(0 until min(lastVerse.text.length, endOffset))
                 val end = lastVerse.text.slice(endOffset until lastVerse.text.length)
-                var middleVerses = if(verseTexts.size > 2) {
-                    verseTexts.slice(1 until verseTexts.size-1).joinToString(" ") {
-                        if(showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
+                var middleVerses = if (verseTexts.size > 2) {
+                    verseTexts.slice(1 until verseTexts.size - 1).joinToString(" ") {
+                        if (showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
                     }
                 } else ""
-                if(middleVerses.isNotEmpty()) {
+                if (middleVerses.isNotEmpty()) {
                     middleVerses += " "
                 }
                 val text = "${startVerse.trimEnd()} ${middleVerses.trimStart()}$endVerseNum$endVerse"
-                val post = if(showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
+                val post = if (showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
 
-                if(!showSelectionOnly) """$quotationStart$startVerseNumber$start$text$end$post$quotationEnd""" else "$quotationStart$startVerseNumber$text$post$quotationEnd"
+                if (!showSelectionOnly) """$quotationStart$startVerseNumber$start$text$end$post$quotationEnd""" else "$quotationStart$startVerseNumber$text$post$quotationEnd"
             }
             else -> throw RuntimeException("what")
         }
@@ -269,8 +279,12 @@ object SwordContentFacade {
         val verse_ = v11nConverter.convert(verse, book.versification)
         val lst = SpeakCommandArray()
         if (verse_.verse == 1) {
-            lst.addAll(getSpeakCommandsForVerse(settings, book,
-                Verse(book.versification, verse_.book, verse_.chapter, 0)))
+            lst.addAll(
+                getSpeakCommandsForVerse(
+                    settings, book,
+                    Verse(book.versification, verse_.book, verse_.chapter, 0)
+                )
+            )
         }
         lst.addAll(getSpeakCommandsForVerse(settings, book, verse_))
         return lst
@@ -347,13 +361,13 @@ object SwordContentFacade {
 
     @Throws(BookException::class)
     fun search(bible: Book, searchText: String?): Key {
-		// example of fetching Strongs ref - only works with downloaded indexes!
-		// Book book = getDocumentByInitials("KJV");
-		// Key key1 = book.find("strong:h3068");
-		// System.out.println("h3068 result count:"+key1.getCardinality());
+        // example of fetching Strongs ref - only works with downloaded indexes!
+        // Book book = getDocumentByInitials("KJV");
+        // Key key1 = book.find("strong:h3068");
+        // System.out.println("h3068 result count:"+key1.getCardinality());
         Log.i(TAG, "Searching:$bible Search term:$searchText")
-	    // This does a standard operator search. See the search
-		// documentation for more examples of how to search
+        // This does a standard operator search. See the search
+        // documentation for more examples of how to search
         val key = bible.find(searchText) //$NON-NLS-1$
         Log.i(TAG, "There are " + key.cardinality + " verses containing " + searchText)
         return key
@@ -374,13 +388,14 @@ object SwordContentFacade {
                     return true
                 }
             }
-        } catch (e: ArrayIndexOutOfBoundsException){
+        } catch (e: ArrayIndexOutOfBoundsException) {
             return false
         }
         return false
     }
 
     private const val TAG = "SwordContentFacade"
+
     // set to false for testing
     private var isAndroid = true //CommonUtils.isAndroid();
     private val log = Logger(SwordContentFacade::class.java.name)
