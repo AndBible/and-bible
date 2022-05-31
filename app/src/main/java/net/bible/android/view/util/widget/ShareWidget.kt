@@ -70,46 +70,39 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleShowQuotes.isChecked = CommonUtils.settings.getBoolean("share_show_quotes", false)
 
             // update text when any toggle is clicked
-            toggleVersenumbers.setOnClickListener { updateText() }
-            advertise.setOnClickListener { updateText() }
-            toggleShowReference.setOnClickListener { updateText() }
-            toggleAbbreviateReference.setOnClickListener { updateText() }
-            toggleShowVersion.setOnClickListener { updateText() }
-            toggleShowReferenceAtFront.setOnClickListener { updateText() }
-            toggleNotes.setOnClickListener { updateText() }
-            toggleShowSelectionOnly.setOnClickListener { updateText() }
-            toggleShowEllipsis.setOnClickListener { updateText() }
-            toggleShowQuotes.setOnClickListener { updateText() }
+            toggleVersenumbers.setOnClickListener { updateWidgetState() }
+            advertise.setOnClickListener { updateWidgetState() }
+            toggleShowReference.setOnClickListener { updateWidgetState() }
+            toggleAbbreviateReference.setOnClickListener { updateWidgetState() }
+            toggleShowVersion.setOnClickListener { updateWidgetState() }
+            toggleShowReferenceAtFront.setOnClickListener { updateWidgetState() }
+            toggleNotes.setOnClickListener { updateWidgetState() }
+            toggleShowSelectionOnly.setOnClickListener { updateWidgetState() }
+            toggleShowEllipsis.setOnClickListener { updateWidgetState() }
+            toggleShowQuotes.setOnClickListener { updateWidgetState() }
         }
 
         // update text automatically at end of share widget init
-        updateText()
+        updateWidgetState()
     }
 
     /**
      * Updates the following:
-     *   - share widget text, based on selected text and share widget options
-     *   - selection options
+     *   - widget text, based on selected text and widget share options
+     *   - available widget selection options, based on dependent widget options
+     *   - CommonUtils counterparts of widget options
      */
-    private fun updateText() {
-        val text = SwordContentFacade.getSelectionText(
-            selection,
-            showVerseNumbers = bindings.toggleVersenumbers.isChecked,
-            advertiseApp = bindings.advertise.isChecked,
-            abbreviateReference = bindings.toggleAbbreviateReference.isChecked,
-            showNotes = bindings.toggleNotes.isChecked,
-            showVersion = bindings.toggleShowVersion.isChecked,
-            showReference = bindings.toggleShowReference.isChecked,
-            showReferenceAtFront = bindings.toggleShowReferenceAtFront.isChecked,
-            showSelectionOnly = bindings.toggleShowSelectionOnly.isChecked,
-            showEllipsis = bindings.toggleShowEllipsis.isChecked,
-            showQuotes = bindings.toggleShowQuotes.isChecked
-        )
-        // update widget text
-        val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book.language.code)) == LayoutDirection.RTL
-        bindings.preview.textDirection = if (isRtl) View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
-        bindings.preview.text = text
+    private fun updateWidgetState() {
+        updateText()
+        updateSelectionOptions()
+    }
 
+    /**
+     * Updates the following:
+     *   - available widget selection options, based on dependent widget options
+     *   - CommonUtils counterparts of widget options
+     */
+    private fun updateSelectionOptions() {
         // update widget share option settings
         CommonUtils.settings.apply {
             setBoolean("share_verse_numbers", bindings.toggleVersenumbers.isChecked)
@@ -129,6 +122,31 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
         bindings.toggleShowVersion.isEnabled = bindings.toggleShowReference.isChecked
         bindings.toggleShowReferenceAtFront.isEnabled = bindings.toggleShowReference.isChecked
         bindings.toggleShowEllipsis.isEnabled = bindings.toggleShowSelectionOnly.isChecked
+    }
+
+    /**
+     * Updates widget text, based on selected text and widget share options
+     */
+    private fun updateText() {
+        // get currently selected text with markup, based on widget options
+        val text = SwordContentFacade.getSelectionText(
+            selection,
+            showVerseNumbers = bindings.toggleVersenumbers.isChecked,
+            advertiseApp = bindings.advertise.isChecked,
+            abbreviateReference = bindings.toggleAbbreviateReference.isChecked,
+            showNotes = bindings.toggleNotes.isChecked,
+            showVersion = bindings.toggleShowVersion.isChecked,
+            showReference = bindings.toggleShowReference.isChecked,
+            showReferenceAtFront = bindings.toggleShowReferenceAtFront.isChecked,
+            showSelectionOnly = bindings.toggleShowSelectionOnly.isChecked,
+            showEllipsis = bindings.toggleShowEllipsis.isChecked,
+            showQuotes = bindings.toggleShowQuotes.isChecked
+        )
+        val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book.language.code)) == LayoutDirection.RTL
+
+        // set widget text based on the new text
+        bindings.preview.textDirection = if (isRtl) View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
+        bindings.preview.text = text
     }
 
     companion object {
