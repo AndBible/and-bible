@@ -148,6 +148,46 @@ object SwordContentFacade {
         }
     }
 
+    /**
+     * Gets the user's selected text, with markup options
+     *
+     * @param selection
+     * verse or verse range Selection
+     *
+     * @param showVerseNumbers
+     * if true and selection contains multiple verses, verse numbers are included
+     *
+     * @param advertiseApp
+     * if true, an ad for the app is included
+     *
+     * @param showReference
+     * if true, verse reference is included
+     *
+     * @param showReferenceAtFront
+     * if true and showReference is true, the verse reference appears before the verse text
+     *
+     * @param abbreviateReference
+     * if true and showReference is true, the verse reference is abbreviated
+     *
+     * @param showNotes
+     * if true, any notes the user has added to any part of the selection is included
+     *
+     * @param showVersion
+     * if true, the Bible translation version is included
+     *
+     * @param showSelectionOnly
+     * if true, the selection is based on the user's exact text selection, not a verse or range of verses
+     *
+     * @param showEllipsis
+     * if true and showSelectionOnly is true, an ellipsis appears where the user's exact text selection truncates verse
+     * text
+     *
+     * @param showQuotes
+     * if true, quotation marks surround the returned String
+     *
+     * @return
+     * the selected text, with markup according to options
+     */
     fun getSelectionText(
         selection: Selection,
         showVerseNumbers: Boolean,

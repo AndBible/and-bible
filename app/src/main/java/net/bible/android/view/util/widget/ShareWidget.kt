@@ -47,11 +47,13 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
     init {
         CommonUtils.buildActivityComponent().inject(this)
         bindings.run {
+            // handle special cases for selections of only one verse
             if (!selection.hasRange) {
                 toggleShowSelectionOnly.visibility = View.GONE
                 toggleShowEllipsis.visibility = View.GONE
             }
 
+            // apply isChecked to toggles based on settings
             toggleVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_verse_numbers", true)
             advertise.isChecked = CommonUtils.settings.getBoolean("share_show_add", true)
             toggleShowReference.isChecked = CommonUtils.settings.getBoolean("share_show_reference", true)
@@ -67,6 +69,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
                 CommonUtils.settings.getBoolean("share_show_ref_at_front_of_verse", false)
             toggleShowQuotes.isChecked = CommonUtils.settings.getBoolean("share_show_quotes", false)
 
+            // update text when any toggle is clicked
             toggleVersenumbers.setOnClickListener { updateText() }
             advertise.setOnClickListener { updateText() }
             toggleShowReference.setOnClickListener { updateText() }
@@ -78,9 +81,16 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleShowEllipsis.setOnClickListener { updateText() }
             toggleShowQuotes.setOnClickListener { updateText() }
         }
+
+        // update text automatically at end of share widget init
         updateText()
     }
 
+    /**
+     * Updates the following:
+     *   - share widget text, based on selected text and share widget options
+     *   - selection options
+     */
     private fun updateText() {
         val text = SwordContentFacade.getSelectionText(
             selection,
@@ -95,9 +105,12 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             showEllipsis = bindings.toggleShowEllipsis.isChecked,
             showQuotes = bindings.toggleShowQuotes.isChecked
         )
+        // update widget text
         val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book.language.code)) == LayoutDirection.RTL
         bindings.preview.textDirection = if (isRtl) View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
         bindings.preview.text = text
+
+        // update widget share option settings
         CommonUtils.settings.apply {
             setBoolean("share_verse_numbers", bindings.toggleVersenumbers.isChecked)
             setBoolean("share_show_add", bindings.advertise.isChecked)
@@ -110,6 +123,8 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             setBoolean("share_show_ref_at_front_of_verse", bindings.toggleShowReferenceAtFront.isChecked)
             setBoolean("share_show_quotes", bindings.toggleShowQuotes.isChecked)
         }
+
+        // disable dependent child checkboxes if the parent is not checked
         bindings.toggleAbbreviateReference.isEnabled = bindings.toggleShowReference.isChecked
         bindings.toggleShowVersion.isEnabled = bindings.toggleShowReference.isChecked
         bindings.toggleShowReferenceAtFront.isEnabled = bindings.toggleShowReference.isChecked
