@@ -100,7 +100,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
     /**
      * Updates the following:
      *   - available widget selection options, based on dependent widget options
-     *   - CommonUtils counterparts of widget options
+     *   - Global settings of widget options
      */
     private fun updateSelectionOptions() {
         // update widget share option settings
