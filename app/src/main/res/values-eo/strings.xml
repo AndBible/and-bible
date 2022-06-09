@@ -504,7 +504,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="backup_modules_title">Elekti modulojn por sekurkopii</string>
   <string name="install_zip_canceled">Rezignis instali modulon</string>
   <!--About-->
-  <string name="module_about_copyright">Kopirajto: %s</string>
+  <string name="module_about_copyright">Aŭtorrajto: %s</string>
   <string name="module_about_installed_version">Instalita versio: %s (%s)</string>
   <string name="module_about_latest_version">Plej nova versio: %s (%s)</string>
   <string name="module_about_versification">Versarto: %s</string>

@@ -37,7 +37,7 @@
   <string name="index_create">Crea</string>
   <string name="rebuild_index">Ricostruisci indice</string>
   <string name="search_in">Trova in %s</string>
-  <string name="do_in_background">Continua in sfondo</string>
+  <string name="do_in_background">Continua in sottofondo</string>
   <string name="rebuild_index_button">Ricostruisci</string>
   <!--Tasks-->
   <string name="progress_status">Progresso</string>
@@ -742,7 +742,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
        segnala i problemi a chi si occupa della manutenzione dei testi
     </string>
   <string name="does_not_exist_abbreviation">Non esiste</string>
-  <string name="cant_change_wholeverse">Impossibile disattivare la selezione dell\' intero versetto per questo segnalibro</string>
+  <string name="cant_change_wholeverse">Impossibile disattivare la selezione dell\'intero versetto per questo segnalibro</string>
   <string name="whole_verse_turned_on">Segnalibro impostato per l\'intero versetto</string>
   <string name="this_bookmark">Questo segnalibro</string>
   <string name="this_workspace">Questo spazio di lavoro</string>
