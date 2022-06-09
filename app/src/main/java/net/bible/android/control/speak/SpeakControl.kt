@@ -102,10 +102,10 @@ class SpeakControl @Inject constructor(
         }
 
     val isSpeaking: Boolean
-        get() = booksAvailable && ttsInitialized && ttsServiceManager.isSpeaking
+        get() = booksAvailable && ttsServiceManager.isSpeaking
 
     val isPaused: Boolean
-        get() = booksAvailable && ttsInitialized && ttsServiceManager.isPaused
+        get() = booksAvailable && ttsServiceManager.isPaused
 
     val isStopped: Boolean
         get() = !isSpeaking && !isPaused
