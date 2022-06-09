@@ -290,7 +290,7 @@ export default {
 @import "~@/common.scss";
 
 $ring-size: 35px;
-$ring-thickness: $ring-size/12;
+$ring-thickness: calc(#{$ring-size}/12);
 
 .loading {
   position: fixed;
