@@ -360,7 +360,7 @@ class TestShare {
             verseRangeStr = "Ps.43.1",
             offsetRange = 0..100,
             showWholeVerse = false,
-            compareText = "Psalms 43:1",
+            compareText = "Psalms 43:1 ",
             advertiseApp = false,
             showReference = true,
             abbreviateReference = false,
