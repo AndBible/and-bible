@@ -26,9 +26,9 @@
 </template>
 
 <script>
-import {inject, provide} from "@vue/runtime-core";
+import {inject, provide} from "vue";
 import {useBookmarks} from "@/composables/bookmarks";
-import {ref} from "@vue/reactivity";
+import {ref} from "vue";
 import OsisFragment from "@/components/documents/OsisFragment";
 import {useCommon} from "@/composables";
 import Chapter from "@/components/OSIS/Chapter";

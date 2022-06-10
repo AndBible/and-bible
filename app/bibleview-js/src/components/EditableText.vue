@@ -34,9 +34,9 @@
 </template>
 
 <script>
-import {ref} from "@vue/reactivity";
+import {ref} from "vue";
 import TextEditor from "@/components/TextEditor";
-import {inject, watch} from "@vue/runtime-core";
+import {inject, watch} from "vue";
 import {useCommon} from "@/composables";
 
 let cancelOpen = () => {}

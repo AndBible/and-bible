@@ -19,7 +19,7 @@ import {
     getCurrentInstance,
     inject,
     reactive,
-} from "@vue/runtime-core";
+} from "vue";
 import {abbreviated, sprintf, adjustedColor} from "@/utils";
 import {emit, Events} from "@/eventbus";
 

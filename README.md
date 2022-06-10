@@ -35,6 +35,9 @@ Everyone is welcome to help translating And Bible to different languages via
 easy to use web-based Transifex tool. Please see our [Wiki page](https://github.com/AndBible/and-bible/wiki/Translating-User-Interface)
 to get started.
 
+## All Contributors
+There are so many ways to contribute to AndBible! See our [contributor guide](https://github.com/AndBible/and-bible/wiki/How-to-contribute).
+
 ## Development team
 
 - [Tuomas Airaksinen](https://github.com/tuomas2) project lead, developer

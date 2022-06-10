@@ -429,6 +429,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
             mSpeakTextProvider.savePosition(mSpeakTiming.fractionCompleted)
             mSpeakTextProvider.pause()
+            persistPauseState()
 
             if (willContinueAfterThis) {
                 clearTtsQueue()
@@ -651,6 +652,7 @@ class TextToSpeechServiceManager @Inject constructor(
             switchProvider(if (isBible) bibleSpeakTextProvider else generalSpeakTextProvider)
 
             isPaused = mSpeakTextProvider.restoreState()
+            Log.i(TAG, "Now pause state is $isPaused")
 
             // restore locale information so tts knows which voice to load when it initialises
             currentLocale = Locale(CommonUtils.settings.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString()))

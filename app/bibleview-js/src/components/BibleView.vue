@@ -44,9 +44,9 @@
 </template>
 <script>
 import Document from "@/components/documents/Document";
-import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
+import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "vue";
 import {testBookmarkLabels, testData} from "@/testdata";
-import {computed, ref} from "@vue/reactivity";
+import {computed, ref} from "vue";
 import {useInfiniteScroll} from "@/composables/infinite-scroll";
 import {useGlobalBookmarks} from "@/composables/bookmarks";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
@@ -290,7 +290,7 @@ export default {
 @import "~@/common.scss";
 
 $ring-size: 35px;
-$ring-thickness: $ring-size/12;
+$ring-thickness: calc(#{$ring-size}/12);
 
 .loading {
   position: fixed;

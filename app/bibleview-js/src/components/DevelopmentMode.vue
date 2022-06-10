@@ -29,7 +29,7 @@
 <script>
 import {useCommon} from "@/composables";
 import {emit, Events} from "@/eventbus";
-import {inject} from "@vue/runtime-core";
+import {inject} from "vue";
 
 export default {
   name: "DevelopmentMode",

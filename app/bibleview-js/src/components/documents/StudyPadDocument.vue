@@ -63,8 +63,8 @@
 </template>
 
 <script>
-import {computed, ref} from "@vue/reactivity";
-import {inject, provide, nextTick, onBeforeUpdate} from "@vue/runtime-core";
+import {computed, ref} from "vue";
+import {inject, provide, nextTick, onBeforeUpdate} from "vue";
 import {useCommon} from "@/composables";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";

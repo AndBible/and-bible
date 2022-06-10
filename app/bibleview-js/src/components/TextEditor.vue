@@ -43,8 +43,8 @@
 </template>
 
 <script>
-import {inject, onBeforeUnmount, onMounted, onUnmounted, watch} from "@vue/runtime-core";
-import {computed, ref} from "@vue/reactivity";
+import {inject, onBeforeUnmount, onMounted, onUnmounted, watch} from "vue";
+import {computed, ref} from "vue";
 import {useCommon} from "@/composables";
 import {init, exec, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText";

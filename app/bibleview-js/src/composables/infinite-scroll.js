@@ -21,7 +21,7 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-import {nextTick, onMounted} from "@vue/runtime-core";
+import {nextTick, onMounted} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {DocumentTypes} from "@/constants";
 

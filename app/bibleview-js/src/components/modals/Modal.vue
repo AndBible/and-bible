@@ -50,9 +50,9 @@
 </template>
 <script>
 
-import {inject, nextTick, onMounted, onUnmounted} from "@vue/runtime-core";
+import {inject, nextTick, onMounted, onUnmounted} from "vue";
 import {useCommon} from "@/composables";
-import {ref} from "@vue/reactivity";
+import {ref} from "vue";
 import {
   draggableElement,
   setupDocumentEventListener,

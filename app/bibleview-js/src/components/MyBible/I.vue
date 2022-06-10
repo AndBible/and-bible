@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   -
   - This file is part of And Bible (http://github.com/AndBible/and-bible).
   -
@@ -16,28 +16,25 @@
   -->
 
 <template>
-  <a href="#link" @click.prevent="openLink($event, href)"><slot/></a>
+  <span v-if="show" :class="{nonCanonical: config.makeNonCanonicalItalic}"><slot/></span>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
-import {inject} from "vue";
-import {addEventFunction, EventPriorities} from "@/utils";
+import {computed} from "vue";
 
 export default {
-  name: "A",
-  props: {href: {type: String, required: true}},
+  name: "I",
   setup() {
-    const {openExternalLink} = inject("android");
-    const {strings, ...common} = useCommon()
-    function openLink(event, url) {
-      addEventFunction(event, () => openExternalLink(url), {title: strings.externalLink, priority: EventPriorities.EXTERNAL_LINK});
-    }
-    return {openLink, ...common};
+    const {config, ...common} = useCommon();
+    const show = computed(() => config.showNonCanonical);
+    return {show, config, ...common};
   },
 }
 </script>
 
 <style scoped>
-
+.nonCanonical {
+  font-style: italic;
+}
 </style>

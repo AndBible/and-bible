@@ -926,6 +926,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun prepareForDestruction() {
+        if(!initialized) return
         windowControl.windowRepository.saveIntoDb(false)
     }
 

@@ -25,7 +25,7 @@
 				android:id="@+id/flowContainer"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				app:constraint_referenced_ids="searchRevealButton, allButton"
+				app:constraint_referenced_ids="searchRevealButton"
 				app:flow_horizontalGap="3dp"
 				app:flow_horizontalStyle="packed"
 				app:flow_horizontalBias="0.5"
@@ -38,20 +38,6 @@
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent" >
 			</androidx.constraintlayout.helper.widget.Flow>
-
-			<Button
-				android:textSize="12sp"
-				android:id="@+id/allButton"
-				android:layout_width="wrap_content"
-				android:layout_height="21dp"
-				android:minWidth="30dp"
-				android:paddingLeft="5dp"
-				android:paddingRight="5dp"
-				android:background="@drawable/button_filter"
-				app:layout_constraintTop_toTopOf="parent"
-				app:layout_constraintLeft_toLeftOf="parent"
-				android:text="@string/all"/>
-
 
 			<ImageButton
 				android:id="@+id/searchRevealButton"
