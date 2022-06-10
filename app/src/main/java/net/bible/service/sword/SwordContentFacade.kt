@@ -199,7 +199,8 @@ object SwordContentFacade {
         showVersion: Boolean = true,
         showSelectionOnly: Boolean = true,
         showEllipsis: Boolean = true,
-        showQuotes: Boolean = true
+        showQuotes: Boolean = true,
+        showVerseText: Boolean = true
     ): String {
 
         class VerseAndText(val verse: Verse, val text: String)
@@ -263,6 +264,7 @@ object SwordContentFacade {
 
 
         val verseText = when {
+            !showVerseText -> {""}
             verseTexts.size == 1 -> {
                 val end = startVerse.slice(endOffset until startVerse.length)
                 val text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
