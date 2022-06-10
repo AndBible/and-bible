@@ -46,9 +46,16 @@
             android:padding="7dip"
             android:text="@string/show_reference_at_front" />
         <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleShowVerseText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="7dip"
+            android:text="@string/show_verse_text" />
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleVersenumbers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:padding="7dip"
             android:text="@string/show_versenumbers" />
         <androidx.appcompat.widget.SwitchCompat
@@ -56,25 +63,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="7dip"
+            android:layout_marginLeft="10dp"
             android:text="@string/show_quotes" />
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleFullVerses"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="7dip"
+            android:layout_marginLeft="10dp"
             android:text="@string/show_full_verses"
             android:visibility="gone" />
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleShowSelectionOnly"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:padding="7dip"
             android:text="@string/show_selection_only"/>
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleShowEllipsis"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="27dp"
             android:padding="7dip"
             android:text="@string/show_ellipsis" />
         <androidx.appcompat.widget.SwitchCompat

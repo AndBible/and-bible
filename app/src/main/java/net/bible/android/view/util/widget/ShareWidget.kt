@@ -57,6 +57,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_verse_numbers", true)
             advertise.isChecked = CommonUtils.settings.getBoolean("share_show_add", true)
             toggleShowReference.isChecked = CommonUtils.settings.getBoolean("share_show_reference", true)
+            toggleShowVerseText.isChecked = CommonUtils.settings.getBoolean("share_show_verse_text", true)
             toggleAbbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
             toggleShowVersion.isChecked = CommonUtils.settings.getBoolean("share_show_version", true)
             toggleShowReferenceAtFront.isChecked =
@@ -73,9 +74,11 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleVersenumbers.setOnClickListener { updateWidgetState() }
             advertise.setOnClickListener { updateWidgetState() }
             toggleShowReference.setOnClickListener { updateWidgetState() }
+            toggleShowVerseText.setOnClickListener { updateWidgetState() }
             toggleAbbreviateReference.setOnClickListener { updateWidgetState() }
             toggleShowVersion.setOnClickListener { updateWidgetState() }
             toggleShowReferenceAtFront.setOnClickListener { updateWidgetState() }
+            toggleShowReference.setOnClickListener { updateWidgetState() }
             toggleNotes.setOnClickListener { updateWidgetState() }
             toggleShowSelectionOnly.setOnClickListener { updateWidgetState() }
             toggleShowEllipsis.setOnClickListener { updateWidgetState() }
@@ -108,6 +111,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             setBoolean("share_verse_numbers", bindings.toggleVersenumbers.isChecked)
             setBoolean("share_show_add", bindings.advertise.isChecked)
             setBoolean("share_show_reference", bindings.toggleShowReference.isChecked)
+            setBoolean("share_show_verse_text", bindings.toggleShowVerseText.isChecked)
             setBoolean("share_abbreviate_reference", bindings.toggleAbbreviateReference.isChecked)
             setBoolean("share_show_version", bindings.toggleShowVersion.isChecked)
             setBoolean("show_notes", bindings.toggleNotes.isChecked)
@@ -121,7 +125,12 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
         bindings.toggleAbbreviateReference.isEnabled = bindings.toggleShowReference.isChecked
         bindings.toggleShowVersion.isEnabled = bindings.toggleShowReference.isChecked
         bindings.toggleShowReferenceAtFront.isEnabled = bindings.toggleShowReference.isChecked
-        bindings.toggleShowEllipsis.isEnabled = bindings.toggleShowSelectionOnly.isChecked
+
+        bindings.toggleShowQuotes.isEnabled = bindings.toggleShowVerseText.isChecked
+        bindings.toggleVersenumbers.isEnabled = bindings.toggleShowVerseText.isChecked
+        bindings.toggleShowSelectionOnly.isEnabled = bindings.toggleShowVerseText.isChecked
+        bindings.toggleShowEllipsis.isEnabled = bindings.toggleShowVerseText.isChecked && bindings.toggleShowSelectionOnly.isChecked
+
     }
 
     /**
@@ -140,7 +149,8 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             showReferenceAtFront = bindings.toggleShowReferenceAtFront.isChecked,
             showSelectionOnly = bindings.toggleShowSelectionOnly.isChecked,
             showEllipsis = bindings.toggleShowEllipsis.isChecked,
-            showQuotes = bindings.toggleShowQuotes.isChecked
+            showQuotes = bindings.toggleShowQuotes.isChecked,
+            showVerseText = bindings.toggleShowVerseText.isChecked
         )
         val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book.language.code)) == LayoutDirection.RTL
 
