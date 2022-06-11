@@ -26,7 +26,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
@@ -43,6 +42,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.Window
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
@@ -1094,6 +1094,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val toolbarColor = if (ScreenSettings.nightMode) (colors.nightWorkspaceColor ?: R.color.actionbar_background_day) else (colors.dayWorkspaceColor ?: R.color.actionbar_background_night)
                 val toolbar = findViewById<View>(R.id.toolbarLayout) as ConstraintLayout
                 toolbar.setBackgroundColor(toolbarColor)
+
+                // Set the status bar to the same color
+                val activity = CurrentActivityHolder.getInstance().currentActivity
+                val window: Window = activity.window
+                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                window.statusBarColor = Color.parseColor("#" + Integer.toHexString(toolbarColor))
 
                 val color = if (setNavBarColor) {
                     val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
