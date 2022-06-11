@@ -88,7 +88,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
         override fun onPlay() {
             Log.i(TAG, "onPlay")
             if(!CommonUtils.booleanSettings.get("enable_bluetooth_pref", true)) return
-            speakControl.toggleSpeak()
+            speakControl.continueLastPosition()
         }
 
         override fun onStop() {

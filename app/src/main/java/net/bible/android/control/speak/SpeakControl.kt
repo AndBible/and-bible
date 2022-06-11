@@ -382,6 +382,7 @@ class SpeakControl @Inject constructor(
     }
 
     fun pause(willContinueAfterThis: Boolean, toast: Boolean = !willContinueAfterThis) {
+        saveCurrentPosition()
         if (!willContinueAfterThis) {
             stopTimer()
         }
@@ -405,8 +406,27 @@ class SpeakControl @Inject constructor(
         }
     }
 
+    private fun saveCurrentPosition() {
+        val bookRef = currentlyPlayingBook?.initials
+        val osisRef = currentlyPlayingVerse?.osisRef
+        if(bookRef != null && osisRef != null) {
+            CommonUtils.settings.setString("lastSpeakBook",bookRef);
+            CommonUtils.settings.setString("lastSpeakRef",osisRef);
+        } else {
+            CommonUtils.settings.removeString("lastSpeakBook");
+            CommonUtils.settings.removeString("lastSpeakRef");
+        }
+    }
+
     fun continueAfterPause() {
         continueAfterPause(false)
+    }
+
+    fun continueLastPosition() {
+        val bookRef = CommonUtils.settings.getString("lastSpeakBook")
+        val osisRef = CommonUtils.settings.getString("lastSpeakRef")
+        if(bookRef != null && osisRef != null) speakBible(bookRef, osisRef)
+        else toggleSpeak()
     }
 
     private fun continueAfterPause(automated: Boolean) {
@@ -419,6 +439,7 @@ class SpeakControl @Inject constructor(
 
     fun stop(willContinueAfter: Boolean=false, force: Boolean=false) {
         // Reset page manager
+        saveCurrentPosition()
         if(!willContinueAfter) {
             _speakPageManager = null
         }
