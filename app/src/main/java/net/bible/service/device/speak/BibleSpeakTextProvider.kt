@@ -302,9 +302,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         return result
     }
 
-    override fun getText(utteranceId: String): String {
-        return currentState.command.toString()
-    }
+    override fun getText(utteranceId: String): String = currentState.command.toString()
 
     val verseRange: VerseRange get() = VerseRange(currentState.book.versification, currentState.startVerse, currentState.endVerse)
 
@@ -433,13 +431,8 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         return nextIfZero(verse)
     }
 
-    private fun getNextVerse(verse: Verse): Verse {
-        return limitToRange(bibleTraverser.getNextVerse(book, verse))
-    }
-
-    override fun rewind(amount: SpeakSettings.RewindAmount?) {
-        rewind(amount, false)
-    }
+    private fun getNextVerse(verse: Verse): Verse = limitToRange(bibleTraverser.getNextVerse(book, verse))
+    override fun rewind(amount: SpeakSettings.RewindAmount?) = rewind(amount, false)
 
     fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean) {
         val lastTitle = this.lastVerseWithTitle
@@ -549,13 +542,8 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         verseRenderLruCache.evictAll()
     }
 
-    override fun getCurrentlyPlayingVerse(): Verse? {
-        return currentVerse
-    }
-
-    override fun getCurrentlyPlayingBook(): SwordBook {
-        return book
-    }
+    override fun getCurrentlyPlayingVerse(): Verse = startVerse
+    override fun getCurrentlyPlayingBook(): SwordBook = book
 
     override fun persistState() {
         CommonUtils.settings.apply {
@@ -595,15 +583,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         }
     }
 
-    override fun getTotalChars(): Long {
-        return 0
-    }
-
-    override fun getSpokenChars(): Long {
-        return 0
-    }
-
-    override fun isMoreTextToSpeak(): Boolean {
-        return true
-    }
+    override fun getTotalChars(): Long = 0
+    override fun getSpokenChars(): Long = 0
+    override fun isMoreTextToSpeak(): Boolean = true
 }
