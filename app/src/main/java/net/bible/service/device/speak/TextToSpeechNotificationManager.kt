@@ -59,6 +59,7 @@ class TextToSpeechNotificationManager {
         private const val ACTION_NEXT="action_next"
         private const val ACTION_FAST_FORWARD="action_fast_forward"
         private const val ACTION_STOP="action_stop"
+        private const val ACTION_DELETE_NOTIFICATION="action_delete_notification"
 
         private const val SPEAK_NOTIFICATIONS_CHANNEL="speak-notifications"
 
@@ -173,6 +174,7 @@ class TextToSpeechNotificationManager {
                 ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
                 ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
                 ACTION_STOP -> speakControl.stop()
+                ACTION_DELETE_NOTIFICATION -> {}
                 ACTION_UPDATE_NOTIFICATION -> {
                     if(speakControl.isPaused) {
                         instance!!.buildNotification(false)
@@ -309,7 +311,7 @@ class TextToSpeechNotificationManager {
     private fun buildNotification(isSpeaking: Boolean) {
         val deletePendingIntent = PendingIntent.getBroadcast(app, 0,
                 Intent(app, NotificationReceiver::class.java).apply {
-                    action = ACTION_STOP
+                    action = ACTION_DELETE_NOTIFICATION
                 }, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
         val contentIntent = Intent(app, MainBibleActivity::class.java).apply {
