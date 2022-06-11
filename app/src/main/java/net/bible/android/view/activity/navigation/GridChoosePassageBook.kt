@@ -336,8 +336,8 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         public const val BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY = "book_grid_group_by_category"
         private const val TAG = "GridChoosePassageBook"
 
-        fun getBookTextColor(bookNo: Int): Int {
-            // colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
+        fun getBookColorAndGroup(bookNo: Int):  ExtraBookInfo {
+            // Colour and Grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
             return when {
                 bookNo <= BibleBook.DEUT.ordinal -> // Pentateuch - books of Moses
                     PENTATEUCH_COLOR
