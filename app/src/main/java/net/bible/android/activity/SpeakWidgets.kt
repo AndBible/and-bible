@@ -262,7 +262,7 @@ class SpeakWidgetManager {
         }
 
         override fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-            Log.i(TAG, "setuWidget (speakWidget)")
+            Log.i(TAG, "setupWidget (speakWidget)")
 
             val views = RemoteViews(context.packageName, R.layout.speak_widget)
             views.setTextViewText(R.id.statusText, "- ${app.getString(R.string.speak_status_stopped)} -")
@@ -270,13 +270,6 @@ class SpeakWidgetManager {
             fun setupButton(action: String, button: Int, visible: Int) {
                 val intent = Intent(context, javaClass)
                 intent.action = action
-                if(action== ACTION_SPEAK) {
-                    val book = speakControl.currentlyPlayingBook
-                    val verse = speakControl.currentlyPlayingVerse
-                    if(speakControl.isPaused && book != null && verse != null) {
-                        intent.data = Uri.parse("bible://${book.initials}/${verse.osisRef}")
-                    }
-                }
                 val bc = PendingIntent.getBroadcast(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
                 views.setOnClickPendingIntent(button, bc)
                 views.setViewVisibility(button, visible)
@@ -317,20 +310,8 @@ class SpeakWidgetManager {
         override fun onReceive(context: Context?, intent: Intent?) {
             super.onReceive(context, intent)
             Log.i(TAG, "onReceive $context ${intent?.action}")
-            val action = intent?.action
-            val bookRef = intent?.data?.host
-            val osisRef = intent?.data?.path?.removePrefix("/")
-            when (action) {
-                ACTION_SPEAK -> {
-                    if(!speakControl.isPaused && !speakControl.isSpeaking && bookRef != null && osisRef!=null) {
-                        // if application has been stopped and intent has bible reference,
-                        // start playback from the correct position
-                        speakControl.speakBible(bookRef, osisRef)
-                    }
-                    else {
-                        speakControl.continueLastPosition()
-                    }
-                }
+            when (intent?.action) {
+                ACTION_SPEAK -> speakControl.toggleSpeak(preferLast = true)
                 ACTION_REWIND -> speakControl.rewind()
                 ACTION_FAST_FORWARD -> speakControl.forward()
                 ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)

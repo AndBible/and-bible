@@ -211,7 +211,8 @@ class SpeakControl @Inject constructor(
 
     /** Toggle speech - prepare to speak single page OR if speaking then stop speaking
      */
-    fun toggleSpeak() {
+    @JvmOverloads
+    fun toggleSpeak(preferLast: Boolean = false) {
         Log.i(TAG, "Speak toggle current page")
         // Continue
         when {
@@ -224,31 +225,37 @@ class SpeakControl @Inject constructor(
                 // Start Speak
             }
             else -> {
-                if (!booksAvailable) {
-                    EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
-                    return
-                }
-                try {
-                    val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
-                    if(!page.isSpeakable) {
-                        EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
-                        return
-                    }
-                    val fromBook = page.currentDocument
-                    if (fromBook?.bookCategory == BookCategory.BIBLE) {
-                        resetPassageRepeatIfOutsideRange()
-                        speakBible()
-                    } else {
-                        speakText()
-                    }
-
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error getting chapters to speak", e)
-                    EventBus.getDefault().post(ToastEvent(R.string.speak_general_error))
-                    return
-                }
-
+                if(preferLast)
+                    continueLastPosition()
+                else
+                    startSpeakingFromDefault()
             }
+        }
+    }
+
+    private fun startSpeakingFromDefault() {
+        if (!booksAvailable) {
+            EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+            return
+        }
+        try {
+            val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
+            if(!page.isSpeakable) {
+                EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+                return
+            }
+            val fromBook = page.currentDocument
+            if (fromBook?.bookCategory == BookCategory.BIBLE) {
+                resetPassageRepeatIfOutsideRange()
+                speakBible()
+            } else {
+                speakText()
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting chapters to speak", e)
+            EventBus.getDefault().post(ToastEvent(R.string.speak_general_error))
+            return
         }
     }
 
@@ -426,7 +433,7 @@ class SpeakControl @Inject constructor(
         val bookRef = CommonUtils.settings.getString("lastSpeakBook")
         val osisRef = CommonUtils.settings.getString("lastSpeakRef")
         if(bookRef != null && osisRef != null) speakBible(bookRef, osisRef)
-        else toggleSpeak()
+        else startSpeakingFromDefault()
     }
 
     private fun continueAfterPause(automated: Boolean) {
