@@ -106,9 +106,8 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
         } catch (nsve: Exception) {
             -1
         }
-        val currentVerse = KeyUtil.getVerse(activeWindowPageManagerProvider.activeWindowPageManager.currentBible.key)
-        val currentBibleBook = currentVerse.book
-        val currentBibleChapter = currentVerse.chapter
+        val currentVerse = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.singleKey as Verse
+        val bookColorAndGroup = GridChoosePassageBook.getBookColorAndGroup(book.ordinal)
 
         val keys = ArrayList<ButtonInfo>()
         for (i in 1..chapters) {
@@ -117,9 +116,9 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
             buttonInfo.id = i
             buttonInfo.name = i.toString()
             buttonInfo.description = i.toString()
-            if (currentBibleBook == book && i == currentBibleChapter) {
-                buttonInfo.textColor = Color.YELLOW
-                buttonInfo.highlight = true
+            if (currentVerse.book == book && i == currentVerse.chapter) {
+                buttonInfo.tintColor = bookColorAndGroup.Color
+                buttonInfo.textColor = Color.DKGRAY
             }
             keys.add(buttonInfo)
         }

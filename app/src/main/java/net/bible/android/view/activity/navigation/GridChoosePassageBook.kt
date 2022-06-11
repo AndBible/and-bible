@@ -81,11 +81,16 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                     buttonInfo.name = getShortBookName(book, isShortBookNamesAvailable)
                     buttonInfo.description = versification.getLongName(book)
                     val BookColorAndGroup = getBookColorAndGroup(book.ordinal)
-                    buttonInfo.textColor = BookColorAndGroup.Color
                     buttonInfo.GroupA = BookColorAndGroup.GroupA
                     buttonInfo.GroupB = BookColorAndGroup.GroupB
-                    buttonInfo.tintColor = if (book.ordinal < BibleBook.MATT.ordinal) Color.DKGRAY else NEW_TESTAMENT_TINT
-                    buttonInfo.highlight = book == currentBibleBook
+                    if (book == currentBibleBook) {
+                        buttonInfo.tintColor = BookColorAndGroup.Color
+                        buttonInfo.textColor = Color.DKGRAY
+                    } else {
+                        buttonInfo.textColor = BookColorAndGroup.Color
+                        buttonInfo.tintColor = if (book.ordinal < BibleBook.MATT.ordinal) Color.DKGRAY else NEW_TESTAMENT_TINT
+                    }
+//                    buttonInfo.highlight = book == currentBibleBook  // Highlighting the button adds an underline which is no longer need and looks a little ugly.
                 } catch (nsve: NoSuchVerseException) {
                     buttonInfo.name = "ERR"
                 }
@@ -286,32 +291,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         return shortenedName.toString()
     }
 
-    private fun getBookColorAndGroup(bookNo: Int):  ExtraBookInfo {
-        // colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
-        return when {
-            bookNo <= BibleBook.DEUT.ordinal -> // Pentateuch - books of Moses
-                ExtraBookInfo(PENTATEUCH_COLOR, "PENTATEUCH", "PENTATEUCH")
-            bookNo <= BibleBook.ESTH.ordinal -> // History
-                ExtraBookInfo(HISTORY_COLOR, "HISTORY", "HISTORY")
-            bookNo <= BibleBook.SONG.ordinal -> // Wisdom
-                ExtraBookInfo(WISDOM_COLOR, "WISDOM", "WISDOM")
-            bookNo <= BibleBook.DAN.ordinal -> // Major prophets
-                ExtraBookInfo(MAJOR_PROPHETS_COLOR, "MAJOR", "MAJOR")
-            bookNo <= BibleBook.MAL.ordinal -> // Minor prophets
-                ExtraBookInfo(MINOR_PROPHETS_COLOR, "MINOR", "MINOR")
-            bookNo <= BibleBook.JOHN.ordinal -> // Gospels
-                ExtraBookInfo(GOSPEL_COLOR, "GOSPEL", "GOSPEL+ACTS")
-            bookNo <= BibleBook.ACTS.ordinal -> // Acts
-                ExtraBookInfo(ACTS_COLOR, "ACTS", "GOSPEL+ACTS")
-            bookNo <= BibleBook.PHLM.ordinal -> // Pauline epistles
-                ExtraBookInfo(PAULINE_COLOR, "PAULINE", "PAULINE")
-            bookNo <= BibleBook.JUDE.ordinal -> // General epistles
-                ExtraBookInfo(GENERAL_EPISTLES_COLOR, "GENERAL", "GENERAL+REVELATION")
-            bookNo <= BibleBook.REV.ordinal -> // Revelation
-                ExtraBookInfo(REVELATION_COLOR, "REVELATION", "GENERAL+REVELATION")
-            else -> ExtraBookInfo(OTHER_COLOR,"", "")
-        }
-    }
+
     companion object {
 
         const val BOOK_NO = "BOOK_NO"
@@ -335,5 +315,32 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         public const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
         public const val BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY = "book_grid_group_by_category"
         private const val TAG = "GridChoosePassageBook"
+
+        fun getBookColorAndGroup(bookNo: Int):  ExtraBookInfo {
+            // Colour and Grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
+            return when {
+                bookNo <= BibleBook.DEUT.ordinal -> // Pentateuch - books of Moses
+                    ExtraBookInfo(PENTATEUCH_COLOR, "PENTATEUCH", "PENTATEUCH")
+                bookNo <= BibleBook.ESTH.ordinal -> // History
+                    ExtraBookInfo(HISTORY_COLOR, "HISTORY", "HISTORY")
+                bookNo <= BibleBook.SONG.ordinal -> // Wisdom
+                    ExtraBookInfo(WISDOM_COLOR, "WISDOM", "WISDOM")
+                bookNo <= BibleBook.DAN.ordinal -> // Major prophets
+                    ExtraBookInfo(MAJOR_PROPHETS_COLOR, "MAJOR", "MAJOR")
+                bookNo <= BibleBook.MAL.ordinal -> // Minor prophets
+                    ExtraBookInfo(MINOR_PROPHETS_COLOR, "MINOR", "MINOR")
+                bookNo <= BibleBook.JOHN.ordinal -> // Gospels
+                    ExtraBookInfo(GOSPEL_COLOR, "GOSPEL", "GOSPEL+ACTS")
+                bookNo <= BibleBook.ACTS.ordinal -> // Acts
+                    ExtraBookInfo(ACTS_COLOR, "ACTS", "GOSPEL+ACTS")
+                bookNo <= BibleBook.PHLM.ordinal -> // Pauline epistles
+                    ExtraBookInfo(PAULINE_COLOR, "PAULINE", "PAULINE")
+                bookNo <= BibleBook.JUDE.ordinal -> // General epistles
+                    ExtraBookInfo(GENERAL_EPISTLES_COLOR, "GENERAL", "GENERAL+REVELATION")
+                bookNo <= BibleBook.REV.ordinal -> // Revelation
+                    ExtraBookInfo(REVELATION_COLOR, "REVELATION", "GENERAL+REVELATION")
+                else -> ExtraBookInfo(OTHER_COLOR,"", "")
+            }
+        }
     }
 }
