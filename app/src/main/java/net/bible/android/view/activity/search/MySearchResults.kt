@@ -39,7 +39,7 @@ import org.crosswire.jsword.passage.Verse
 import javax.inject.Inject
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
-import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.getBookTextColor
+import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.getBookColorAndGroup
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.resources
 
@@ -314,7 +314,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
             var bookNameLong = versification.getLongName(mBibleBook)  // key.rootName
             val bookStat = bookStatistics.firstOrNull{it.book == bookNameLong}
             if (bookStat == null) {
-                bookStatistics.add(BookStat(bookNameLong, 1, bookNameLong, bookOrdinal, listIndex, getBookTextColor(bookOrdinal) ))
+                bookStatistics.add(BookStat(bookNameLong, 1, bookNameLong, bookOrdinal, listIndex, getBookColorAndGroup(bookOrdinal).Color ))
             } else {
                 bookStatistics.first{it.book == bookNameLong}.count += 1
             }
