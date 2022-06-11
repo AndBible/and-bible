@@ -122,10 +122,11 @@ class SpeakControl @Inject constructor(
         } else {
             Date(timerTask!!.scheduledExecutionTime())
         }
-    val currentlyPlayingBook: Book?
+
+    private val currentlyPlayingBook: Book?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingBook
 
-    val currentlyPlayingVerse: Verse?
+    private val currentlyPlayingVerse: Verse?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingVerse
 
     init {
@@ -445,8 +446,6 @@ class SpeakControl @Inject constructor(
     }
 
     fun stop(willContinueAfter: Boolean=false, force: Boolean=false) {
-        // Reset page manager
-        saveCurrentPosition()
         if(!willContinueAfter) {
             _speakPageManager = null
         }
@@ -457,6 +456,7 @@ class SpeakControl @Inject constructor(
 
         Log.i(TAG, "Stop TTS speaking")
         ttsServiceManager.shutdown(willContinueAfter)
+        saveCurrentPosition()
         stopTimer()
         if(!force) {
             ABEventBus.getDefault().post(ToastEvent(R.string.stop))
