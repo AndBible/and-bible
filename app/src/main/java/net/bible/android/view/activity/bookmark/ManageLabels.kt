@@ -100,7 +100,7 @@ class SearchOption(
 ) {
     @Transient var button: Button? = null
     val trimmedText = text.trim()
-    val displayText: String get() = if(isSearchInsideText) "*$trimmedText*" else "$trimmedText*"
+    val displayText: String get() = if(isSearchInsideText) "$trimmedText" else "$trimmedText"
 }
 
 /**
@@ -119,7 +119,7 @@ class ManageLabels : ListActivityBase() {
 
     lateinit var data: ManageLabelsData
 
-    private var lastSelectedQuickSearchButton: Button? = null
+    private var lastSelectedQuickSearchButton: SearchOption? = null
     private var showTextSearch = false
     private var searchInsideText = false
 
@@ -165,8 +165,8 @@ class ManageLabels : ListActivityBase() {
     }
 
     private fun updateSearchButtonsProperties(searchOption: SearchOption? = null) {
-        setFilterButtonBackground(lastSelectedQuickSearchButton, false)
-        setFilterButtonBackground(searchOption?.button, true)
+        setFilterButtonBackground(lastSelectedQuickSearchButton?.button, false, lastSelectedQuickSearchButton?.isSearchInsideText)
+        setFilterButtonBackground(searchOption?.button, true,searchOption?.isSearchInsideText)
 
         setSearchInsideTextButtonBackground()
     }
@@ -207,6 +207,11 @@ class ManageLabels : ListActivityBase() {
                 minimumWidth = convertDipsToPx(30)  // Both these are required to get the minwidth property to work
                 setPadding(convertDipsToPx(5), 0, convertDipsToPx(5), 0)
                 setTextColor(getResourceColor(if (ScreenSettings.nightMode) R.color.blue_grey_50 else R.color.grey_900))
+//                if (searchOption.isSearchInsideText) {
+//                    (background as GradientDrawable).setStroke(4, getResourceColor(R.color.blue_200))
+//                } else {
+//                    (background as GradientDrawable).setStroke(4, getResourceColor(R.color.grey_900))
+//                } // set solid color
                 setOnClickListener {
                     if(searchInsideText == searchOption.isSearchInsideText && searchText == searchOption.trimmedText) {
                         resetFilter()
@@ -214,7 +219,7 @@ class ManageLabels : ListActivityBase() {
                         searchInsideText = searchOption.isSearchInsideText
                         searchText = searchOption.trimmedText
                         updateSearchButtonsProperties(searchOption)
-                        lastSelectedQuickSearchButton = this
+                        lastSelectedQuickSearchButton = searchOption
                         updateLabelList(rePopulate = true)
                     }
                 }
@@ -224,7 +229,7 @@ class ManageLabels : ListActivityBase() {
                 }
             }
             buttonLayout.addView(button)
-            setFilterButtonBackground(button, false)
+            setFilterButtonBackground(button, false, searchOption.isSearchInsideText)
         }
         flowContainer.referencedIds = (
             arrayOf(R.id.searchRevealButton) + searchOptionList.mapNotNull { it.button?.id }
@@ -247,11 +252,12 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    private fun setFilterButtonBackground(button: Button?, isSelected: Boolean) {
+    private fun setFilterButtonBackground(button: Button?, isSelected: Boolean, isSearchInsideText:Boolean?) {
         button?: return
+        val buttonColor = if (isSearchInsideText == true) R.color.blue_200 else R.color.grey_500
         (button.background as GradientDrawable).run {
-            setColor(getResourceColor(if (isSelected) R.color.grey_500 else R.color.transparent))
-            setStroke(4, getResourceColor(R.color.grey_500))
+            setColor(getResourceColor(if (isSelected) buttonColor else R.color.transparent))
+            setStroke(4, getResourceColor(buttonColor))
         }
     }
 
@@ -749,8 +755,16 @@ class ManageLabels : ListActivityBase() {
         }
 
     private val filterRegex: Regex get() {
-        val text = Regex.escape(searchText)
-        val regex = if (searchInsideText) text else "^$text"
+
+        var regex = ""
+        // Check if it is a special type of filter (ie X-Z style which shows all labels in the range)
+        regex = if (("^.\\-.".toRegex()).containsMatchIn(searchText)) {
+            "^[$searchText]"
+        } else {
+            val text = Regex.escape(searchText)
+            if (searchInsideText) text else "^$text"
+        }
+
         return try {
             regex.toRegex(RegexOption.IGNORE_CASE)
         } catch (e: PatternSyntaxException) {

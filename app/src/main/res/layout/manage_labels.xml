@@ -94,6 +94,7 @@
 				app:tint="@color/grey_600"
 				android:layout_marginStart="2dp"
 				android:visibility="gone"
+				android:backgroundTint="@color/transparent"
 				app:srcCompat="@drawable/ic_save_20dp" />
 
 		</LinearLayout>
