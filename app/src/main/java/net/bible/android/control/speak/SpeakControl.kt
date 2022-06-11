@@ -235,6 +235,7 @@ class SpeakControl @Inject constructor(
     }
 
     private fun startSpeakingFromDefault() {
+        Log.i(TAG, "startSpeakingFromDefault")
         if (!booksAvailable) {
             EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
             return
@@ -390,7 +391,6 @@ class SpeakControl @Inject constructor(
     }
 
     fun pause(willContinueAfterThis: Boolean, toast: Boolean = !willContinueAfterThis) {
-        saveCurrentPosition()
         if (!willContinueAfterThis) {
             stopTimer()
         }
@@ -412,6 +412,7 @@ class SpeakControl @Inject constructor(
                 ABEventBus.getDefault().post(ToastEvent(pauseToastText))
             }
         }
+        saveCurrentPosition()
     }
 
     private fun saveCurrentPosition() {
@@ -433,6 +434,7 @@ class SpeakControl @Inject constructor(
     fun continueLastPosition() {
         val bookRef = CommonUtils.settings.getString("lastSpeakBook")
         val osisRef = CommonUtils.settings.getString("lastSpeakRef")
+        Log.i(TAG, "continueLastPosition $bookRef $osisRef")
         if(bookRef != null && osisRef != null) speakBible(bookRef, osisRef)
         else startSpeakingFromDefault()
     }
