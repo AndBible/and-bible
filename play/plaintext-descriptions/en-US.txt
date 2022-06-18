@@ -1,4 +1,4 @@
-<b>Powerful Bible Study tool</b>
+Powerful Bible Study tool
 
 "AndBible: Bible Study" is a powerful, yet easy to use, offline Bible study application for Android. The app does not aim to be simply a Bible reader, but focuses on being an advanced tool to do in-depth personal Bible study.
 
@@ -6,7 +6,7 @@ This application is developed by Bible readers, for Bible readers. It aims at he
 
 A few popular Bible versions (of the many available) are KJV, NASB, NET, and also popular commentaries like Matthew Henry and John Gill.
 
-<b>Powerful Bible Study features</b>
+Powerful Bible Study features
 
 The application has many insightful, original features, that makes a complex and deep Bible study experience smoother than ever. The most notable features are as follows:
 
@@ -22,7 +22,7 @@ The application has many insightful, original features, that makes a complex and
  * Vast library of documents: Bible translations, theological commentaries, dictionaries, maps, and christian books, totaling over 1500 documents in over 700 languages, legally distributed by Crosswire and other SWORD repositories.
  * Offline: the only time you need internet is for downloading documents.
 
-<b>Let’s make the best Bible app together!</b>
+Let’s make the best Bible app together!
 
 And Bible is an open-source community project. In practice, this means that anyone with suitable skills can, and is encouraged to, contribute to the project by:
 
@@ -33,7 +33,7 @@ And Bible is an open-source community project. In practice, this means that anyo
 
 If you are a professional software engineer or tester, please consider contributing to the project. For more information on how to contribute, please see https://git.io/JUnaj.
 
-<b>Links</b>
+Links
 
  * Homepage: https://andbible.github.io
  * Like And Bible on Facebook: https://www.facebook.com/AndBible/
