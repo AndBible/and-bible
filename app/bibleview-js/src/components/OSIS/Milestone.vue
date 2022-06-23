@@ -16,11 +16,12 @@
   -->
 
 <template>
-  <span>{{marker}}<slot/></span>
+  <span :class="{paragraphBreak}">{{marker}}<slot/></span>
 </template>
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {computed} from "vue";
 
 export default {
   name: "Milestone",
@@ -34,11 +35,13 @@ export default {
     checkUnsupportedProps(props, "resp");
     checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
     checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
-    return useCommon();
+    const paragraphBreak = computed(() => props.type === "line");
+    return {paragraphBreak, ...useCommon()};
   },
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import "~@/common.scss";
 
 </style>
