@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Bijbelstudie</string>
   <string name="app_name_medium">Bijbelstudie (And Bible)</string>
-  <string name="app_name_long">Bijbelstudie app, door And Bible open-source-project</string>
+  <string name="app_name_long">AndBible: Bijbelstudie</string>
   <string name="project">And Bible open-source-project</string>
   <string name="version_text">Versie %s</string>
   <string name="no_sdcard_error">Voer een SD-kaart in en start And Bible opnieuw.</string>
@@ -16,9 +16,9 @@
   <string name="speak">Voorlezen</string>
   <string name="help">Hulp</string>
   <string name="information">Informatie</string>
-  <string name="other">Anders</string>
+  <string name="other">Overig</string>
   <string name="contact">Contact</string>
-  <string name="help_and_tips">Hulp &amp; tips</string>
+  <string name="help_and_tips">Help &amp; tips</string>
   <string name="administration">Administratie</string>
   <string name="rate_application">Beoordelen</string>
   <string name="chooce_document">Document kiezen</string>
@@ -206,7 +206,6 @@
   <string name="next">Volgende</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Download Strong\'s Hebreeuws en Grieks woordenboek</string>
-  <string name="no_indexed_bible_with_strongs_ref">Je moet een bijbel met Strong-nummers downloaden en de index downloaden via Zoeken</string>
   <string name="morph_robinson_not_installed">Download \'Robinson\'s Morfologische analyse Codes\' woordenboek</string>
   <string name="go_to_downloads">Ga naar downloads</string>
   <!--Module download-->

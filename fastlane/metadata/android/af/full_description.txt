@@ -1,6 +1,6 @@
 <b>Kragtige Bybelstudie instrument</b>
 
-Bybelstudie-toep deur And Biblel Oop Bron projekt is 'n kragtige, maar tog maklik om te gebruik, vanlyn Bybelstudie applikasie vir Android. Die toep beoog nie om bloot 'n Bybelleser te wees nie, maar fokus daarop om 'n gevorderde hulpmiddel te wees om diepgaande persoonlike Bybelstudie te doen.
+"AndBible: Bybel Studie" is 'n kragtige, maar tog maklik om te gebruik, vanlyn Bybelstudie applikasie vir Android. Die toep beoog nie om bloot 'n Bybelleser te wees nie, maar fokus daarop om 'n gevorderde hulpmiddel te wees om diepgaande persoonlike Bybelstudie te doen.
 
 Hierdie toepassing word ontwikkel deur Bybellesers, vir Bybellesers. Dit is daarop gemik om jou te help om jou Bybelstudie gerieflik, diep en pret te maak. Die beste deel van hierdie nie-winsgewende gemeenskapsprojek is dat dit oop bron, heeltemal gratis is en geen advertensies bevat nie. Nadat dit van die grond af gebou is vir Android, is dit 'n klein aflaai, en dus baie doeltreffend en merkwaardig vinnig
 

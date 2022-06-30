@@ -1,6 +1,6 @@
 <b>O unealtă pentru studiul Bibliei</b>
 
-Aplicația de studiu biblic de la And Bible Open Source Project este o aplicație de studiu biblic offline, dar ușor de utilizat, pentru Android. Aplicația nu își propune să fie doar pentru citit Biblia, ci se concentrează pe a fi un instrument avansat pentru a face un studiu personal aprofundat al Bibliei.
+"AndBible: Biblia" este o aplicație complexă de studiu biblic, dar ușor de utilizat, pentru Android. Aplicația nu își propune să fie doar pentru citit Biblia, ci se concentrează pe a fi un instrument pentru a face un studiu aprofundat al Bibliei.
 
 Această aplicație este realizată de cititori ai Bibliei, pentru cititorii Bibliei. Scopul ei este de a vă ajuta să vă faceți studiul biblic convenabil, profund și distractiv. Cea mai bună parte a acestui proiect comunitar non-profit este că are sursă publică, este complet gratuit și nu conține reclame. Fiind construită de la zero pentru Android, este mică și, prin urmare, foarte eficientă și remarcabil de rapidă.
 

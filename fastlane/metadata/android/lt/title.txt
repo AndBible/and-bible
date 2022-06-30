@@ -1,1 +1,1 @@
-Biblijos studijų programėlė, sukurta And Bible OSP
+AndBible: Biblija
