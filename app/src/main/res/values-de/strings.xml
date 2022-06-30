@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Bibel+</string>
   <string name="app_name_medium">Bibel+ (And Bibel)</string>
-  <string name="app_name_long">Bibel+, vom And Bibel Open Source Projekt</string>
+  <string name="app_name_long">AndBible: Bibel+</string>
   <string name="project">And Bible Open Source Projekt</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Bitte setzen Sie eine SD-Karte ein und starten das Programm neu.</string>
@@ -205,7 +205,6 @@
   <string name="next">Vorwärts</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Bitte laden Sie die Strong\'s Wörterbücher für Griechisch und Hebräisch herunter</string>
-  <string name="no_indexed_bible_with_strongs_ref">Sie müssen zuerst ein Bibelmodul mit Strongs Nummer sowie den Suchindex dazu herunterladen</string>
   <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
   <string name="go_to_downloads">Gehe zu Downloads</string>
   <!--Module download-->

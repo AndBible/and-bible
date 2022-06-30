@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "Вивчення Біблії, проект And Bible Open Source Proj"
+title: "AndBible: Вивчення Біблії"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Читайте Біблію, вивчайте коментарі, словники, або читайте книги в офлайн режимі."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Потужний інструмент для вивчення Біблії
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  Програма Bible Study (Вивчення Біблії) від And Bible Open Source Project - це потужний, але простий у використанні додаток для вивчення Біблії в автономному режимі для Android. Додаток не є просто для читання Біблії, а зосереджується на тому, щоб бути вдосконаленим інструментом для глибокого, особистого вивчення Біблії.
+  "{{ title }}" це потужний, але простий у використанні додаток для вивчення Біблії в автономному режимі для Android. Додаток не є просто для читання Біблії, а зосереджується на тому, щоб бути вдосконаленим інструментом для глибокого, особистого вивчення Біблії.
 paragraph_1_2: >
   Ця програма розроблена читачами Біблії для читачів Біблії. Вона спрямована на те, щоб допомогти вам зробити вивчення Біблії зручним, глибоким та інтересним. Найкращий аспект цього некомерційного проекту полягає в тому, що він є відкритим, повністю безкоштовним і не містить реклами. Побудоване з нуля для Android, це невелике завантаження, а отже, дуже ефективне та надзвичайно швидке.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: "Розділені текстові подання, що дозволяють порівнювати переклади та консультаційні коментарі"
 feature_02: Робочі області дозволяють налаштування вивчення Біблії з різними параметрами
 feature_03: Інтеграція з нумерацією Стронґа дозволяє аналізувати грецькі та єврейські слова
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Пов’язані перехресні посилання, ссилки та документи; перейти до перехресних посилань та виносок, просто натиснувши посилання; виконати поглиблене вивчення Писання, використовуючи гіперпосилання на коментарі ({{comment_examples}}), колекції перехресних посилань ({{cross_reference_examples}}) та інші ресурси.
 # Examples of commentaries. You can add here also other commentaries of your language if they

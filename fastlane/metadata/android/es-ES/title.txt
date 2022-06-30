@@ -1,1 +1,1 @@
-Biblia Estudio, Proyecto Código Abierto And Bible
+AndBible: Biblia Estudio
