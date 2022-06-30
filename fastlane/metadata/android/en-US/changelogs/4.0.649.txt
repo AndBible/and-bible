@@ -1,7 +1,5 @@
 Latest changes
 - App name change due to Google Play's new restriction (30 characters)
-- Experimental support for MyBible modules, see
-  https://github.com/AndBible/and-bible/wiki/MyBible-module-support
 - Bugfixes
 
 4.0
