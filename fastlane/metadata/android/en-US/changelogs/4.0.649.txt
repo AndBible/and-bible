@@ -1,0 +1,15 @@
+Latest changes
+- App name change due to Google Play's new restriction (30 characters)
+- Experimental support for MyBible modules, see
+  https://github.com/AndBible/and-bible/wiki/MyBible-module-support
+- Bugfixes
+
+4.0
+See "what's new" video: https://youtu.be/f2cf6-7liMo
+Release notes: https://github.com/AndBible/and-bible/wiki/v4.0-Release-Notes
+Highlights:
+- Char-accurate bookmarks
+- Bookmarks & My Notes merged & improved
+- My Notes commentary view
+- Study Pads for creating sermon notes etc.
+- Strongs dictionary by clicking words
