@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">And Biblija</string>
   <string name="app_name_medium">And Biblija (And Bible)</string>
-  <string name="app_name_long">Aplikacija za proučevanje Biblije, avtor projekta And Bible Open Source Project</string>
+  <string name="app_name_long">AndBible: Proučevanje Biblije</string>
   <string name="project">And Bible odprtokodni projekt</string>
   <string name="version_text">Verzija %s</string>
   <string name="no_sdcard_error">Vstavite kartico SD in znova zaženite aplikacijo.</string>
@@ -172,6 +172,8 @@
   <string name="pref_font_family_label_name">Družina pisav (%s)</string>
   <string name="prefs_font_family_summary">Spremeni družino pisav. Namig: več pisav lahko namestite preko Prenosa dokumentov.</string>
   <string name="prefs_text_bookmarks_title">Nastavitve Zaznamkov in Mojih opomb</string>
+  <string name="prefs_enable_bluetooth_title">Omogoči predstavnostne gumbe Bluetooth</string>
+  <string name="prefs_enable_bluetooth_summary">Upravljajte z medijskimi gumbi Bluetooth za začetek/ustavitev govora.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Nastavitve barv</string>
   <string name="window_color_settings_title">Nastavitve barv okna</string>
@@ -207,7 +209,7 @@
   <string name="next">Naslednji</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Prosim prenesi Strong-ove hebrejske in grške slovarje</string>
-  <string name="no_indexed_bible_with_strongs_ref">Potreben je prenos biblije, ki vsebuje Strong-ove številke in prenos njegovega indeksa preko Iskanja</string>
+  <string name="no_indexed_bible_with_strongs_ref">Prenesti morate Biblijo, ki vsebuje Strongove številke in prek Iskanja zgraditi kazalo</string>
   <string name="morph_robinson_not_installed">Prenesite slovar \'Robinson\ove analize oblikoslovnih kod\'</string>
   <string name="go_to_downloads">Pojdi na Prenose</string>
   <!--Module download-->
@@ -845,4 +847,5 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="strongs_text_and_links">Besedilo in povezave</string>
   <string name="verse_tip">Za delno izbiro vrstice ali izbiro več vrstic dolgo pritisnete na biblijsko besedilo</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Potrebno je dovoljenje</string>
 </resources>

@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Studi Biblion</string>
   <string name="app_name_medium">Studi Biblion (And Biblio)</string>
-  <string name="app_name_long">Studi Biblion, la malfermkoda projekto de And Bible</string>
+  <string name="app_name_long">AndBible: Studi Biblion</string>
   <string name="project">La malfermkoda projekto de And Bible</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Enmetu SD‑karton kaj restartigu la aplikaĵon.</string>
@@ -205,7 +205,6 @@
   <string name="next">Sekva</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Bonvolu elŝuti grekan kaj hebrean vortarojn de Strong</string>
-  <string name="no_indexed_bible_with_strongs_ref">Vi devas elŝuti Biblion enhavantan numerojn de Strong kaj elŝuti ĝian indekson per “serĉi”</string>
   <string name="morph_robinson_not_installed">Bonvolu elŝuti la vortaron “Morfologiaj analizaj kodoj de Robinson”</string>
   <string name="go_to_downloads">Malfermi elŝutojn</string>
   <!--Module download-->

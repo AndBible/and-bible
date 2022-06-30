@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Изучение Библии</string>
   <string name="app_name_medium">Изучение Библии (And Bible)</string>
-  <string name="app_name_long">Приложение «Изучение Библии», автор проекта «And Bible с открытым исходным кодом»</string>
+  <string name="app_name_long">AndBible: Изучение Библии</string>
   <string name="project">And Bible с открытым исходным кодом</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">Вставьте SD-карту и перезапустите приложение.</string>
@@ -206,7 +206,6 @@
   <string name="next">Вперед</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Скачать словари Стронга на греческом и иврите</string>
-  <string name="no_indexed_bible_with_strongs_ref">Необходимо скачать Библию с числами Стронга и скачать индекс через Поиск.</string>
   <string name="morph_robinson_not_installed">Пожалуйста скачайте словарь \'Морфолочические коды анализа Робинсона\'.</string>
   <string name="go_to_downloads">Перейти к Загрузке</string>
   <!--Module download-->

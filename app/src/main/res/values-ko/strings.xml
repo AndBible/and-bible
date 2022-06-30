@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">성경 공부</string>
   <string name="app_name_medium">성경 공부 (And Bible)</string>
-  <string name="app_name_long">성경 공부 앱, by And Bible 오픈소스 프로젝트</string>
+  <string name="app_name_long">AndBible: 성경 공부</string>
   <string name="project">And Bible 오픈 소스 프로젝트</string>
   <string name="version_text">버전 %s</string>
   <string name="no_sdcard_error">SD 카드를 넣고 어플리케이션을 다시 시작하세요.</string>
@@ -205,7 +205,6 @@
   <string name="next">다음</string>
   <!--Strongs-->
   <string name="strongs_not_installed">스트롱 히브리어 및 그리어스어 사전을 다운로드 하세요</string>
-  <string name="no_indexed_bible_with_strongs_ref">스트롱 넘버가 포함된 성경과 그 색인을 검색으로 다운로드해야 합니다.</string>
   <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\'사전을 다운로드하십시오</string>
   <string name="go_to_downloads">다운로드로 이동</string>
   <!--Module download-->

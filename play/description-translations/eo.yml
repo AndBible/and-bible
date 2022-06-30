@@ -1,11 +1,13 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: Studi Biblion (And Biblio)
+title: "AndBible: Studi Biblion"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Studi Biblion, legi komentojn kaj vortarojn; malkonekte."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Ampleksa aplikaĵo por studi Biblion
-paragraph_1_1: >
-  Studi Biblion «Bible Study» de la malfermkoda projekto And Biblio estas ampleksa, tamen facile uzebla ilo por studi la Sanktan Skribon por la operaciumo Android. Ĝi ne celas esti simpla legilo de Biblio, sed koncentriĝas esti spertula ilo por profunde persone studi Biblion.
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >+
+  "{{ title }}" estas ampleksa, tamen facile uzebla ilo por studi la Sanktan Skribon por la operaciumo Android. Ĝi ne celas esti simpla legilo de Biblio, sed koncentriĝas esti spertula ilo por profunde persone studi Biblion.
+
 paragraph_1_2: >
   Tiu ĉi aplikaĵo estas evoluigata de legantoj de Biblio kaj por legantoj de Biblio. Ĝia celo estas igi studadon de Biblio oportuna, profunda kaj amuza. La plej grava fakto de tiu ĉi neprofitcela komunuma projekto estas, ke ĝi estas malfermkoda, tute senpaga kaj enhavas neniun reklamon. Programita cele por Android, la aplikaĵo estas malgranda, do tre efika kaj rapida.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +19,7 @@ paragraph_2_1: >
 feature_01: dividi vidon de teksto por kompari tradukojn kaj legi komentarojn
 feature_02: "laborspacoj ebligantaj havi plurajn mediojn por studi Biblion, ĉiu kun propraj agordoj"
 feature_03: numeroj de Strong por analizi vortojn en greka kaj hebrea
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   entekstaj malfermeblaj ligiloj al internaj referencoj, piednotoj kaj dokumentoj; komentaroj ({{commentary_examples}}), kolektoj de internaj referencoj ({{cross_reference_examples}}) kaj aliaj tekstoj
 # Examples of commentaries. You can add here also other commentaries of your language if they

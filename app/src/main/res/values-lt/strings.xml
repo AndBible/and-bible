@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Biblijos studijos</string>
   <string name="app_name_medium">Biblijos studijos (And Bible)</string>
-  <string name="app_name_long">Biblijos studijų programėlė, sukurta And Bible atvirojo kodo projekto</string>
+  <string name="app_name_long">AndBible: Biblija</string>
   <string name="project">And Bible atvirojo kodo projektas</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Įdėkite SD kortelę ir paleiskite programėlę iš naujo.</string>
@@ -205,7 +205,6 @@
   <string name="next">Kitas</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Atsisiųskite Strongo hebrajų ir graikų žodynus</string>
-  <string name="no_indexed_bible_with_strongs_ref">Jums per „Paiešką“ reikia atsisiųsti Bibliją su Strongo numeriais, o taip pat ir jos indeksus</string>
   <string name="morph_robinson_not_installed">Atsisiųskite žodyną „Robinson\'s Morphological Analysis Codes“</string>
   <string name="go_to_downloads">Pereiti į Atsiuntimus</string>
   <!--Module download-->
