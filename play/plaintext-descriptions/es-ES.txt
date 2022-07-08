@@ -1,6 +1,6 @@
 Poderoso Instrumento para Estudiar la Biblia
 
-La aplicación Estudio de Biblia de Proyecto Código Abierto And Bible es una aplicación de estudio bíblico fuera de línea, poderosa, pero fácil de usar, para Android. La aplicación no pretende ser simplemente un lector de la Biblia, sino que se centra en ser una herramienta avanzada para realizar un estudio bíblico personal en profundidad.
+AndBible: Biblia Estudio es una aplicación de estudio bíblico fuera de línea, poderosa, pero fácil de usar, para Android. La aplicación no pretende ser simplemente un lector de la Biblia, sino que se centra en ser una herramienta avanzada para realizar un estudio bíblico personal en profundidad.
 
 Esta aplicación está desarrollada por lectores de la Biblia, para lectores de la Biblia. Su objetivo es ayudarlo a que su estudio Bíblico sea conveniente, profundo y divertido. La mejor parte de este proyecto comunitario sin fines de lucro es que es de código abierto, completamente gratuito y no contiene anuncios. Habiendo sido construido desde cero para Android, es una descarga pequeña y, por lo tanto, muy eficiente y notablemente rápida.
 

@@ -2,7 +2,9 @@
 <resources>
   <string name="app_name_short">לימוד הכתובים</string>
   <string name="app_name_medium">לימוד הכתובים (And Bible)</string>
-  <string name="app_name_long">אפליקציה לתנ\"ך, מאת And Bible Open</string>
+  <string name="app_name_long">לתנ\"ך, :AndBible
+
+</string>
   <string name="project">פרוייק הקוד הפתוח And Bible</string>
   <string name="version_text">גרסה %s</string>
   <string name="no_sdcard_error">אנא הכנס כרטיס זכרון והפעל מחדש את המכשיר</string>
@@ -190,7 +192,6 @@
   <string name="next">קדימה</string>
   <!--Strongs-->
   <string name="strongs_not_installed">אנא הורד מילוני Strong לעברית ויוונית</string>
-  <string name="no_indexed_bible_with_strongs_ref">עליך להוריד טקסט שמכיל מספרי Strong, וגם להוריד את קובץ האינדקס שלו, ממסך החיפוש</string>
   <string name="morph_robinson_not_installed">נא להוריד את המילון \'Robinson\'s Morphological Analysis Codes\'</string>
   <string name="go_to_downloads">לך להורדות</string>
   <!--Module download-->

@@ -347,8 +347,8 @@ class TextToSpeechServiceManager @Inject constructor(
             try {
                 // Initialize text-to-speech. This is an asynchronous operation.
                 // The OnInitListener (second argument) (this class) is called after initialization completes.
-                mTts = TextToSpeech(BibleApplication.application.applicationContext, this.onInitListener)
-                if(BibleApplication.application.isRunningTests) {
+                mTts = TextToSpeech(application.applicationContext, this.onInitListener)
+                if(application.isRunningTests) {
                     this.onInitListener.onInit(TextToSpeech.SUCCESS)
                 }
             } catch (e: Exception) {

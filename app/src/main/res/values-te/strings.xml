@@ -2,7 +2,8 @@
 <resources>
   <string name="app_name_short">బైబిల్ అధ్యయనం</string>
   <string name="app_name_medium">బైబిల్ అధ్యయనం (అండ్ బైబిల్)</string>
-  <string name="app_name_long">&amp; బైబిల్ ఓపెన్ సోర్స్ వారి బైబిల్ స్టడీ యాప్</string>
+  <string name="app_name_long">AndBible: బైబిల్
+</string>
   <string name="project">అండ్ బైబిల్ ఒపెన్ సోర్స్ ప్రాజెక్ట్</string>
   <string name="version_text">వర్షన్ %s</string>
   <string name="no_sdcard_error">దయచేసి SD కార్డ్‌ని చొప్పించి, అప్లికేషన్‌ను పునఃప్రారంభించండి.</string>
@@ -206,7 +207,6 @@
   <string name="next">తరువాతి విషయానికి</string>
   <!--Strongs-->
   <string name="strongs_not_installed">దయచేసి స్ట్రాంగ్ గారి హెబ్రీ మరియు గ్రీకు నిఘంటువులను డౌవ్న్‌లోడ్ చేయండి</string>
-  <string name="no_indexed_bible_with_strongs_ref">సర్చ్ ద్వారా స్ట్రాంగ్ గారి బైబిల్లోని సంఖ్యలు గల విషయ సూచికను తప్పకుండా డవున్ లోడ్ చేసుకోవాలి</string>
   <string name="morph_robinson_not_installed">దయచేసి రాబిన్ సన్ గారి పదనిర్మాణ విశ్లేషణ కోడ్స్ గల నిఘంటువును డవున్ లోడ్ చేసుకోండి</string>
   <string name="go_to_downloads">డౌన్‌లోడ్‌లకు వెళ్లండి</string>
   <!--Module download-->

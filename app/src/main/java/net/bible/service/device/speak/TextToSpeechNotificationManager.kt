@@ -59,7 +59,6 @@ class TextToSpeechNotificationManager {
         private const val ACTION_NEXT="action_next"
         private const val ACTION_FAST_FORWARD="action_fast_forward"
         private const val ACTION_STOP="action_stop"
-        private const val ACTION_DELETE_NOTIFICATION="action_delete_notification"
 
         private const val SPEAK_NOTIFICATIONS_CHANNEL="speak-notifications"
 
@@ -156,25 +155,13 @@ class TextToSpeechNotificationManager {
             CommonUtils.initializeApp()
             val action = intent?.action
             Log.i(TAG, "NotificationReceiver onReceive $intent $action")
-            val bookRef = intent?.data?.host
-            val osisRef = intent?.data?.path?.removePrefix("/")
             when (action) {
-                ACTION_SPEAK_OR_PAUSE -> {
-                    if(!speakControl.isPaused && bookRef != null && osisRef!=null) {
-                        // if application has been stopped and intent has bible reference,
-                        // start playback from the correct position
-                        speakControl.speakBible(bookRef, osisRef)
-                    }
-                    else {
-                        speakControl.toggleSpeak()
-                    }
-                }
+                ACTION_SPEAK_OR_PAUSE -> speakControl.toggleSpeak(preferLast = true)
                 ACTION_FAST_FORWARD -> speakControl.forward()
                 ACTION_REWIND -> speakControl.rewind()
                 ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
                 ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
                 ACTION_STOP -> speakControl.stop()
-                ACTION_DELETE_NOTIFICATION -> {}
                 ACTION_UPDATE_NOTIFICATION -> {
                     if(speakControl.isPaused) {
                         instance!!.buildNotification(false)
@@ -193,7 +180,7 @@ class TextToSpeechNotificationManager {
                 if (intent?.getIntExtra("state", 0) == 0 && speakControl.isSpeaking) {
                     speakControl.pause()
                 } else if (intent?.getIntExtra("state", 0) == 1 && speakControl.isPaused) {
-                    speakControl.continueAfterPause()
+                    speakControl.continueLastPosition()
                 }
             }
         }
@@ -294,15 +281,12 @@ class TextToSpeechNotificationManager {
     private val rewindAction = generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND)
     private val prevAction = generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS)
     private val pauseAction = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_SPEAK_OR_PAUSE)
-    private fun getPlayAction(book: Book?, verse: Verse?): NotificationCompat.Action {
+    private val playAction = run {
         val intent = Intent(app, NotificationReceiver::class.java).apply {
             action = ACTION_SPEAK_OR_PAUSE
-         }
-        if(book != null && verse != null) {
-            intent.data = Uri.parse("bible://${book.initials}/${verse.osisRef}")
         }
         val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-        return NotificationCompat.Action.Builder(android.R.drawable.ic_media_play, getString(R.string.speak), pendingIntent).build()
+        NotificationCompat.Action.Builder(android.R.drawable.ic_media_play, getString(R.string.speak), pendingIntent).build()
     }
     private val nextAction = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
     private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
@@ -311,7 +295,7 @@ class TextToSpeechNotificationManager {
     private fun buildNotification(isSpeaking: Boolean) {
         val deletePendingIntent = PendingIntent.getBroadcast(app, 0,
                 Intent(app, NotificationReceiver::class.java).apply {
-                    action = ACTION_DELETE_NOTIFICATION
+                    action = ACTION_STOP
                 }, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
         val contentIntent = Intent(app, MainBibleActivity::class.java).apply {
@@ -333,8 +317,7 @@ class TextToSpeechNotificationManager {
                 .setStyle(style)
                 .addAction(rewindAction)
                 .addAction(prevAction)
-                .addAction(if(isSpeaking) pauseAction else getPlayAction(
-                        speakControl.currentlyPlayingBook, speakControl.currentlyPlayingVerse))
+                .addAction(if(isSpeaking) pauseAction else playAction)
                 .addAction(nextAction)
                 .addAction(forwardAction)
                 .setOnlyAlertOnce(true)

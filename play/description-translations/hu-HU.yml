@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: Bible Study app az And Bible projekttől
+title: "AndBible: Biblia"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Bibliaolvasás, bibliakommentárok és -szótárak tanulmányozása."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Bibliatanulmányozó alkalmazás
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  Az 'And Bible' nyílt forráskódú projekt által fejlesztett 'Bible Study' app funkciógazdag, mégis egyszerűen kezelhető, folyamatos internetkapcsolatot nem igénylő bibliatanulmányozó alkalmazás Android operációs rendszerre. Az alkalmazás nem csak egy egyszerű bibliaolvasó, hanem fejlett funkciókkal támogatja a személyes bibliatanulmányozást.
+  " {{ title }}" funkciógazdag, mégis egyszerűen kezelhető, folyamatos internetkapcsolatot nem igénylő bibliatanulmányozó alkalmazás Android operációs rendszerre. Az alkalmazás nem csak egy egyszerű bibliaolvasó, hanem fejlett funkciókkal támogatja a személyes bibliatanulmányozást.
 paragraph_1_2: >-
   Az alkalmazást bibliaolvasó emberek fejlesztik bibliaolvasó embereknek. A cél az, hogy a Biblia tanulmányozása egyszerű, szórakoztató, de alapos is legyen. A non-profit közösségi modell előnye, hogy az alkalmazás nyílt forráskódú, teljesen ingyenes és nem tartalmaz hirdetéseket. Az alkalmazást teljesen az alapoktól készítettük Androidra, így kifejezetten kicsi a mérete, erőforrásbarát és meglepően gyors.
    
@@ -18,7 +19,7 @@ paragraph_2_1: >
 feature_01: "Megosztott képernyős mód, amely lehetővé teszi a különböző forditások összehasonlítását, vagy a kommentárok a Bibilia szövegével párhuzamos olvasását"
 feature_02: A Munkaasztalok segítségével több kölönböző saját beállításokkal rendelkező bibliatanulmányozási konfiguráció létrehozására van lehetőség
 feature_03: A Strong-konkordancia (szómutató) integráció lehetővé teszi a görög és héber szóanalízist.
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Interaktív, egyszerű kattintással elérhető kereszthivatkozások, lábjegyzetek; a kéziratok tanulmányozása hiperlinkelt magyarázatokkal ({{commentary_examples}}), kereszthivatkozás gyűjteményekkel ({{cross_reference_examples}}) és egyéb források segítségével.
 # Examples of commentaries. You can add here also other commentaries of your language if they

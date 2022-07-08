@@ -67,13 +67,6 @@ class GeneralSpeakTextProvider : SpeakTextProvider {
     }
 
     override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {}
-    override fun getCurrentlyPlayingVerse(): Verse? {
-        return null
-    }
-
-    override fun getCurrentlyPlayingBook(): Book? {
-        return null
-    }
 
     override var isSpeaking: Boolean
         get() = false

@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: Studium Bible od open-source projektu And Bible
+title: "AndBible: Studium Bible"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Čtěte Bibli, studujte komentáře či slovníky nebo čtěte knihy offline."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Rozsáhlý nástroj pro studium Bible
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  Aplikace Bible Study projektu otevřeného softwaru And Bible je obsáhlá a přitom snadná aplikace na offline studium Bible pro Android. Aplikace nemá za cíl jen zprostředkovat četbu Bible, ale je pokročilým nástrojem pro hluboké osobní studium Bible.
+  "{{ title }}" je obsáhlá a přitom snadná aplikace na offline studium Bible pro Android. Aplikace nemá za cíl jen zprostředkovat četbu Bible, ale je pokročilým nástrojem pro hluboké osobní studium Bible.
 paragraph_1_2: >
   Tuto aplikaci vyvíjí čtenáři Bible pro čtenáře Bible. Má za cíl vám studium Bible zjednodušit, prohloubit a zpříjemnit. Nejlepší na tomto neziskovém komunitním projektu je to, že jde o otevřený software zcela zdarma a neobsahuje žádné reklamy. Aplikace je postavena od základů pro Android, proto je malá, a tedy výkonná a překvapivě rychlá.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: Oddělené zobrazení textu umožňující porovnávat překlady a nahlížet do komentářů
 feature_02: "Pracovní plochy, ve kterých si můžete vytvořit vlastní sady nastavení"
 feature_03: Integrace Strongových čísel umožňuje rozbor řeckých a hebrejských slov
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Propojené odkazy, poznámky a dokumenty: přejděte na odkazy a poznámky pod čarou pouhým poklepáním; pracujte s Písmem do hloubky pomocí odkazovaných komentářů ({{commentary_examples}}), sbírek křížových odkazů ({{cross_reference_examples}}) a dalších zdrojů.
 # Examples of commentaries. You can add here also other commentaries of your language if they

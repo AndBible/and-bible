@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Biblia</string>
   <string name="app_name_medium">Biblia (And Bible)</string>
-  <string name="app_name_long">Bibliatanulmányozó alkalmazás, készítette az And Bible Open Source Project</string>
+  <string name="app_name_long">AndBible: Biblia</string>
   <string name="project">And Bible Nyílt Forráskódú Projekt</string>
   <string name="version_text">Verzió: %s</string>
   <string name="no_sdcard_error">Helyezzen be egy SD-kártyát és indítsa újra az alkalmazást!</string>
@@ -205,7 +205,6 @@
   <string name="next">Következő</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Kérlek, töltsd le a Strong héber és görög szószedeteket</string>
-  <string name="no_indexed_bible_with_strongs_ref">Le kell töltened egy Strong számokat tartalmazó Bibliát és a hozzá tartozó indexet is a Keresés segítségével.</string>
   <string name="morph_robinson_not_installed">Kérlek, töltsd le Robinson morfológiai elemző szótárát</string>
   <string name="go_to_downloads">Letöltések megnyitása</string>
   <!--Module download-->

@@ -51,8 +51,18 @@ def give_path(lang, path="../fastlane/metadata/android/", txt_file="full_descrip
     return os.path.join(dir_path, f"{path}{lang}/{txt_file}")
 
 
+en_US_yml = os.path.join(dir_path,"playstore-description.yml")
 with open(give_path("en-US"), "w") as f:
-    f.write(render(os.path.join(dir_path,"playstore-description.yml")))
+    f.write(render(en_US_yml))
+
+with open(give_path("en-US", txt_file="title.txt"), "w") as f:
+    f.write(render(en_US_yml, title_template))
+
+with open(os.path.join(dir_path, f"./plaintext-descriptions/en-US.txt"), "w") as f:
+    f.write(render(en_US_yml, full_description_template_plaintext))
+
+with open(give_path("en-US", txt_file="short_description.txt"), "w") as f:
+    f.write(render(en_US_yml, short_description_template))
 
 #with open(os.path.join(dir_path, "../../homepage/index.html"), "w") as f:
 #    f.write(render(os.path.join(dir_path,"playstore-description.yml"), homepage_template, skip_issues=True))

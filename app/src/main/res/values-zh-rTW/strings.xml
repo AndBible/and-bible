@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">研經工具</string>
   <string name="app_name_medium">研經工具 (And Bible)</string>
-  <string name="app_name_long">研經工具 - 由And Bible開源計劃開發</string>
+  <string name="app_name_long">AndBible: 研經工具</string>
   <string name="project">And Bible 開源計劃</string>
   <string name="version_text"> %s 版本 </string>
   <string name="no_sdcard_error">請插入SD Card及重新開始程式</string>
@@ -207,7 +207,6 @@
   <string name="next">下一頁</string>
   <!--Strongs-->
   <string name="strongs_not_installed">請下載Strong\'s希伯來文和希臘文字典</string>
-  <string name="no_indexed_bible_with_strongs_ref">需要下載包含Strong\'s原文編號的聖經，並於搜尋下載相應的索引</string>
   <string name="morph_robinson_not_installed">請下載 Robinson\'s 詞形分析碼的字典</string>
   <string name="go_to_downloads">移至下載</string>
   <!--Module download-->
