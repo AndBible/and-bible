@@ -3,9 +3,9 @@
 [![Android CI](https://github.com/AndBible/and-bible/workflows/Run%20tests/badge.svg?branch=develop)](https://github.com/AndBible/and-bible/actions/workflows/run-tests.yml)
 [![Licence](https://img.shields.io/badge/licence-GPL-blue.svg)](https://github.com/tuomas2/automate/blob/master/LICENSE.txt)
    
-# Bible Study App by And Bible Open Source Project
+# AndBible: Bible Study
 
-Powerful offline Bible Study tool for Android
+Powerful offline open source Bible Study tool for Android
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
@@ -34,6 +34,9 @@ in wiki.
 Everyone is welcome to help translating And Bible to different languages via
 easy to use web-based Transifex tool. Please see our [Wiki page](https://github.com/AndBible/and-bible/wiki/Translating-User-Interface)
 to get started.
+
+## All Contributors
+There are so many ways to contribute to AndBible! See our [contributor guide](https://github.com/AndBible/and-bible/wiki/How-to-contribute).
 
 ## Development team
 

@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Raamattu</string>
   <string name="app_name_medium">Raamattu (And Bible)</string>
-  <string name="app_name_long">Raamatuntutkimissovellus, And Bible Open Source Projektilta</string>
+  <string name="app_name_long">AndBible: Raamattu</string>
   <string name="project">And Bible avoimen lähdekoodin projekti</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä ohjelma uudelleen.</string>
@@ -170,6 +170,8 @@
   <string name="pref_font_family_label_name">Kirjasimen tyyppi (%s)</string>
   <string name="prefs_font_family_summary">Muuta kirjasimen tyyppiä. Vinkki: voit asentaa lisää kirjasimia Lataa Teoksia / Lisäosat</string>
   <string name="prefs_text_bookmarks_title">Kirjanmerkkien &amp; Omien merkintöjen asetukset</string>
+  <string name="prefs_enable_bluetooth_title">Laita päälle bluetooth media-painikkeet</string>
+  <string name="prefs_enable_bluetooth_summary">Käytä bluetooth mediapainikkeita puheen aloittamiseen/lopettamiseen.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Värien asetukset</string>
   <string name="window_color_settings_title">Ikkunan värien asetukset</string>
@@ -205,7 +207,7 @@
   <string name="next">Seuraava</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Ole hyvä ja lataa ensin Strongin heprean- ja kreikankielen sanakirjat</string>
-  <string name="no_indexed_bible_with_strongs_ref">Lataa ensin Raamattu, joka sisältää Strongin numeroinnin ja ladata myös sen indeksi Haku-toiminnossa</string>
+  <string name="no_indexed_bible_with_strongs_ref">Lataa ensin Raamattu, joka sisältää Strongin numeroinnin ja muodosta myös sen indeksi Haku-toiminnossa</string>
   <string name="morph_robinson_not_installed">Lataa \'Robinsonin muoto-opilliset koodit\' -sanakirja</string>
   <string name="go_to_downloads">Siirry latauksiin</string>
   <!--Module download-->
@@ -776,6 +778,4 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="verse_tip">Valitaksesi osittaisia tai useita jakeita, napauta pitkään Raamatun tekstiä</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Lupa tarvitaan</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <string name="phone_call_permission_rationale">Lupa lukea puhelimen tila tarvitaan jotta sovellus voi automaattisesti keskeyttää raamatun kuuntelun silloin kun vastaanotat puhelun.</string>
 </resources>

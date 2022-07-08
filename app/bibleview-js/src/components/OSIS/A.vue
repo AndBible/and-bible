@@ -21,7 +21,7 @@
 
 <script>
 import {useCommon} from "@/composables";
-import {inject} from "@vue/runtime-core";
+import {inject} from "vue";
 import {addEventFunction, EventPriorities} from "@/utils";
 
 export default {

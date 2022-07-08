@@ -145,7 +145,7 @@ class SettingsActivity: ActivityBase() {
 }
 
 class SettingsFragment : PreferenceFragmentCompat() {
-	override fun onDisplayPreferenceDialog(preference: Preference?) {
+	override fun onDisplayPreferenceDialog(preference: Preference) {
 		if(parentFragmentManager.findFragmentByTag("customTag") != null)
 			return
 
@@ -211,8 +211,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         for(p in getPreferenceList()) {
-            if(p.icon != null) {
-                p.icon = makeLarger(p.icon, 1.5f)
+            val icon = p.icon
+            if(icon != null) {
+                p.icon = makeLarger(icon, 1.5f)
             }
         }
 

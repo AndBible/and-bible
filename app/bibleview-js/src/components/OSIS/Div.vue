@@ -28,10 +28,10 @@
 </template>
 
 <script>
-import {inject, ref} from "@vue/runtime-core";
+import {inject, ref} from "vue";
 import VerseNumber from "@/components/VerseNumber";
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {computed} from "@vue/reactivity";
+import {computed} from "vue";
 
 export default {
   name: "Div",
@@ -85,9 +85,6 @@ export default {
 }
 </script>
 
-<style scoped>
-  .paragraphBreak {
-    display: block;
-    height: 0.5em;
-  }
+<style lang="scss" scoped>
+  @import "~@/common.scss";
 </style>

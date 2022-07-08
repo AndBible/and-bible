@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "Studi Biblici, app open source di And Bible"
+title: "AndBible: Studi Biblici"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Leggi la Bibbia, studia i commentari o i dizionari, o leggi i libri offline."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Un potente strumento di studio della Bibbia
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  L'app Studi Biblici del progetto open source And Bible è un'applicazione per lo studio della Bibbia per Android potente, ma facile da usare. L'app non è limitata alla sola lettura del testo biblico, ma offre strumenti avanzati per lo studio personale della Bibbia.
+  "{{ title }}" è un'applicazione potente, ma facile da usare, per lo studio offline della Bibbia su Android. L'app non si limita alle funzionalità di lettura, ma è progettata per essere uno strumento avanzato per lo studio approfondito personale della Bibbia.
 paragraph_1_2: >
   Questa applicazione è sviluppata da lettori della Bibbia, per i lettori della Bibbia. Vuole essere d'aiuto per facilitarti lo studio e l'approfondimento della Bibbia. La parte migliore di questo progetto non-profit è che è open source, completamente gratuito, e non contiene pubblicità. Interamente progettato per Android, è un programma piccolo da scaricare, e quindi molto efficiente e veloce.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: Le finestre di testo separate permettono di confrontare le traduzioni e consultare i commentari
 feature_02: Le aree di lavoro consentono ambienti separati di studio biblico con impostazioni differenti
 feature_03: L'integrazione dei numeri Strong consente l'analisi delle parole in greco ed ebraico
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Riferimenti incrociati, note a piè di pagina, e documenti collegati; passa ai riferimenti incrociati e alle note semplicemente toccando un collegamento; esegui uno studio approfondito delle Scritture usando i commentari collegati ({{commentary_examples}}), le raccolte di riferimenti incrociati ({{cross_reference_examples}}) e altre risorse.
 # Examples of commentaries. You can add here also other commentaries of your language if they

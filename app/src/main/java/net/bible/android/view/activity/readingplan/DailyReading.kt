@@ -57,7 +57,9 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     private lateinit var binding: ReadingPlanOneDayBinding
 
-    private var dayLoaded: Int = 0
+    var dayLoaded: Int = 0
+        private set
+
     private var planCodeLoaded: String? = null
 
     private lateinit var readingsDto: OneDaysReadingsDto
@@ -334,9 +336,15 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             try {
                 Dialogs.instance.showMsg(R.string.msg_set_current_day_reading_plan, true)
                 {
+                    // Change start date so that the current plan day is today
+                    val planStartDate = Calendar.getInstance()
+                    planStartDate.add(Calendar.DATE, - (dayLoaded - 1))
+                    readingPlanControl.setStartDate(readingsDto.readingPlanInfo, planStartDate.time)
+
                     // set previous day as finish, so that today's reading status will not be changed
                     readingPlanControl.done(readingsDto.readingPlanInfo, dayLoaded - 1, true)
-                    updateTicksAndDone()
+
+                    loadDailyReading(planCodeLoaded, dayLoaded)
                 }
 
             } catch (e: Exception) {
@@ -405,6 +413,10 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
             loadDailyReading(planCode, null)
         }
+            ?: if (!readingPlanControl.isReadingPlanSelected) {
+                Log.i(TAG, "Reading plan has not been selected and there's none active. Exiting")
+                finish()
+            }
     }
 
     val selectReadingDay = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

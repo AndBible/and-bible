@@ -26,7 +26,7 @@ import {useConfig} from "@/composables/config";
 import {useStrings} from "@/composables/strings";
 import {useAndroid} from "@/composables/android";
 import {useVerseHighlight} from "@/composables/verse-highlight";
-import {ref} from "@vue/reactivity";
+import {ref} from "vue";
 import {BookCategories, DocumentTypes} from "@/constants";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions";

@@ -16,7 +16,7 @@
  */
 
 import {Events, setupEventBusListener} from "@/eventbus";
-import {onBeforeMount} from "@vue/runtime-core";
+import {onBeforeMount} from "vue";
 
 export function useAddonFonts() {
     const elements = [];

@@ -40,7 +40,7 @@ import Lb from "@/components/OSIS/Lb";
 import Lg from "@/components/OSIS/Lg";
 import Row from "@/components/OSIS/Row";
 import Table from "@/components/OSIS/Table";
-import {h} from "@vue/runtime-core";
+import {h} from "vue";
 import Foreign from "@/components/OSIS/Foreign";
 import Figure from "@/components/OSIS/Figure";
 import A from "@/components/OSIS/A";
@@ -48,6 +48,11 @@ import Abbr from "@/components/OSIS/Abbr";
 import {osisToTemplateString} from "@/utils";
 import BibleViewAnchor from "@/components/BibleViewAnchor";
 import AndBibleLink from "@/components/OSIS/AndBibleLink";
+import Pb from "@/components/MyBible/Pb";
+import NoOp from "@/components/OSIS/NoOp";
+import H3 from "@/components/MyBible/H3";
+import I from "@/components/MyBible/I";
+import S from "@/components/MyBible/S";
 
 const teiComponents = {
   Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
@@ -58,11 +63,15 @@ const andBibleComponents = {
   AndBibleLink
 }
 
+const myBibleComponents = {
+  S, M: NoOp, I, J:Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3,
+}
+
 const osisComponents = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,
   DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
   Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
-  ...teiComponents, ...andBibleComponents
+  ...teiComponents, ...andBibleComponents, ...myBibleComponents,
 }
 
 function prefixComponents() {

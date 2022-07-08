@@ -16,7 +16,7 @@
  */
 
 import {Deferred} from "@/utils";
-import {onUnmounted, reactive} from "@vue/runtime-core";
+import {onUnmounted, reactive} from "vue";
 import {Events, setupEventBusListener} from "@/eventbus";
 
 export function useCustomCss() {

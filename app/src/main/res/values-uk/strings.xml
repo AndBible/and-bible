@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Дослідження Біблії</string>
   <string name="app_name_medium">Дослідження Біблії (And Bible)</string>
-  <string name="app_name_long">Додаток «Дослідження Біблії», автор проекту And Bible з відкритим кодом.</string>
+  <string name="app_name_long">AndBible: Вивчення Біблії</string>
   <string name="project">And Bible проект з відкритим кодом</string>
   <string name="version_text">Версія %s</string>
   <string name="no_sdcard_error">Вставте SD-карту та перезавантажте програму.</string>
@@ -206,7 +206,6 @@
   <string name="next">Наступний</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Завантажте єврейський і грецький словники Стронга</string>
-  <string name="no_indexed_bible_with_strongs_ref">Ви повинні завантажити Біблію, що містить номера Стронга і завантажити її індекс за допомогою пошуку</string>
   <string name="morph_robinson_not_installed">Завантажте словник Робінсона з кодами морфологічного аналізу</string>
   <string name="go_to_downloads">Перейти до Завантаження</string>
   <!--Module download-->
@@ -845,6 +844,5 @@
   <string name="strongs_links">Посилання</string>
   <string name="strongs_text_and_links">Текст і посилання</string>
   <string name="verse_tip">Щоб вибрати часткові або багато віршів, довго натисніть текст Біблії</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

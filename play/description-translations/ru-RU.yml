@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "Изучение Библии, проект And Bible Open Source"
+title: "AndBible: Изучение Библии"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Читайте Библию, изучайте комментарии, словари или читайте книги офлайн."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Мощный инструмент для изучения Библии
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  Приложение «Изучение Библии», автор проекта «And Bible с открытым исходным кодом» - это мощное, но простое в использовании приложение для автономного изучения Библии для Android. Приложение не нацелено на то, чтобы просто читать Библию, но ориентировано на то, чтобы быть продвинутым инструментом для углубленного, личного изучения Библии.
+  "{{ title }}" это мощное, но простое в использовании приложение для автономного изучения Библии для Android. Приложение не нацелено на то, чтобы просто читать Библию, но ориентировано на то, чтобы быть продвинутым инструментом для углубленного, личного изучения Библии.
 paragraph_1_2: >
   Это приложение разработано читателями Библии для читателей Библии. Его цель - помочь вам сделать изучение Библии удобным, глубоким и увлекательным. Лучшее в этом некоммерческом проекте сообщества то, что он имеет открытый исходный код, полностью бесплатен и не содержит рекламы. Созданный с нуля для Android, это небольшая загрузка, поэтому она очень эффективна и замечательно быстра.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: "Разделение текстовых представлений, позволяющих сравнивать переводы и комментарии"
 feature_02: Рабочие области позволяют использовать несколько установок для изучения Библии с собственными настройками.
 feature_03: Интеграция Стронга позволяет анализировать слова на греческом и иврите
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Связанные перекрестные ссылки, сноски и ресурсы; переходить к перекрестным ссылкам и сноскам, просто нажимая на ссылку; выполнять углубленное изучение Священного Писания, используя гиперссылки на комментарии ({{commentary_examples}}), коллекции перекрестных ссылок ({{cross_reference_examples}}) и другие ресурсы.
 # Examples of commentaries. You can add here also other commentaries of your language if they

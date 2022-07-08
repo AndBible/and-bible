@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {onBeforeMount, reactive, ref} from "@vue/runtime-core";
+import {onBeforeMount, reactive, ref} from "vue";
 import {Deferred} from "@/utils";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {useParsers} from "@/composables/parsers";

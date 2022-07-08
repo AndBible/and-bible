@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License along with And Bible.
  * If not, see http://www.gnu.org/licenses/.
  */
-import {ref, watch} from "@vue/runtime-core";
-import {computed} from "@vue/reactivity";
+import {ref, watch} from "vue";
+import {computed} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {throttle} from "lodash";
 

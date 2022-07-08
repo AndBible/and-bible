@@ -175,7 +175,8 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
 
     private val pageTitleParts: Array<String>
         get() {
-            val planDayDesc = readingPlanControl.currentDayDescription
+            // get the current day loaded for the page title, not the current plan day
+            val planDayDesc = readingPlanControl.getDaysReading((activity as DailyReading).dayLoaded).dayDesc
             return getTwoTitleParts(planDayDesc, true)
         }
 

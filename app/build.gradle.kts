@@ -81,7 +81,7 @@ val vueCli by tasks.registering(Exec::class) {
     println("Task names "+gradle.startParameter.taskNames)
     val taskNames = gradle.startParameter.taskNames
     println(taskNames)
-    val isDebug = taskNames.contains(":app:packageDebug")
+    val isDebug = taskNames.contains(":app:assembleStandardDebug")
 
     val buildCmd: String = if(!isDebug) {
         println("Building js for production")
@@ -153,8 +153,7 @@ android {
 //			zipAlignEnabled true
         }
     }
-
-    flavorDimensions(dimAppearance)
+    flavorDimensions += listOf(dimAppearance)
 
     productFlavors {
         create("standard") {
@@ -187,11 +186,10 @@ android {
         }
     }
 
-
     lint {
-        disable("MissingTranslation")
-        disable("ExtraTranslation")
-        warning("InvalidPackage")
+        disable +="MissingTranslation"
+        disable += "ExtraTranslation"
+        disable +="InvalidPackage"
     }
 
     compileOptions {
@@ -269,14 +267,14 @@ dependencies {
     // 1.2.0+ releases (until 1.3.0-alpha02 at least) have issue with translations
     // not showing up on MainBibleActivity. Thus reverting to 1.0.2 for now.
     // https://issuetracker.google.com/issues/141132133
-    implementation("androidx.appcompat:appcompat:1.4.0")
+    implementation("androidx.appcompat:appcompat:1.4.1")
 
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
-    implementation("androidx.media:media:1.4.3")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.2")
+    implementation("androidx.media:media:1.5.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
     implementation("androidx.core:core-ktx:1.7.0")
-    implementation("androidx.preference:preference:1.1.1")
-    implementation("androidx.preference:preference-ktx:1.1.1")
+    implementation("androidx.preference:preference:1.2.0")
+    implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.webkit:webkit:1.4.0")
 
@@ -285,7 +283,7 @@ dependencies {
     //implementation("com.jaredrummler:colorpicker:1.1.0")
     implementation("com.github.AndBible:ColorPicker:ab-fix-1")
 
-    implementation("com.google.android.material:material:1.4.0")
+    implementation("com.google.android.material:material:1.5.0")
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
     implementation("androidx.annotation:annotation:1.3.0")
@@ -294,7 +292,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
 
     implementation("com.madgag.spongycastle:core:1.58.0.0")
     //implementation("com.madgag.spongycastle:prov:1.58.0.0")
@@ -343,9 +341,16 @@ dependencies {
 
     // Espresso dependencies
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.4.0") {
+        // https://github.com/android/android-test/issues/861#issuecomment-1067448610
+        exclude(group="org.checkerframework", module="checker")
+    }
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.4.0")
-    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.4.0") {
+        // https://github.com/android/android-test/issues/861#issuecomment-872582819
+        exclude(group="org.checkerframework", module="checker")
+    }
+    
     androidTestImplementation("androidx.test.espresso:espresso-web:3.4.0")
     androidTestImplementation("androidx.test.espresso.idling:idling-concurrent:3.4.0")
 

@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Bibel+</string>
   <string name="app_name_medium">Bibel+ (And Bibel)</string>
-  <string name="app_name_long">Bibel+, vom And Bibel Open Source Projekt</string>
+  <string name="app_name_long">AndBible: Bibel+</string>
   <string name="project">And Bible Open Source Projekt</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Bitte setzen Sie eine SD-Karte ein und starten das Programm neu.</string>
@@ -205,7 +205,6 @@
   <string name="next">Vorwärts</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Bitte laden Sie die Strong\'s Wörterbücher für Griechisch und Hebräisch herunter</string>
-  <string name="no_indexed_bible_with_strongs_ref">Sie müssen zuerst ein Bibelmodul mit Strongs Nummer sowie den Suchindex dazu herunterladen</string>
   <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
   <string name="go_to_downloads">Gehe zu Downloads</string>
   <!--Module download-->
@@ -559,7 +558,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="error_no_content">Kein Inhalt für diesen Vers</string>
   <string name="error_page_too_large">Seite zu groß zum Laden</string>
   <string name="error_key_not_in_document">Nichts gefunden</string>
-  <string name="error_key_not_in_document2">%s wurde nicht in Dokumen %sgefunden.</string>
+  <string name="error_key_not_in_document2">%s wurde nicht in Dokumen %s gefunden.</string>
   <string name="empty_list">Nichts anzuzeigen</string>
   <string name="error_skip">Üerspringen</string>
   <!--Notifications-->
@@ -791,5 +790,5 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="strongs_text_and_links">Text und Verweise</string>
   <string name="verse_tip">Um Versteile oder mehrere Verse zu markieren, den Bibeltext drücken und halten</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Genehmigung benötigt</string>
 </resources>

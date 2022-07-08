@@ -6,7 +6,7 @@
 <resources>
     <string name="app_name_short">Bible Study</string>
     <string name="app_name_medium">Bible Study (And Bible)</string>
-    <string name="app_name_long">Bible Study app, by And Bible Open Source Project</string>
+    <string name="app_name_long">AndBible: Bible Study</string>
     <string name="project">And Bible Open Source Project</string>
 
     <string name="version_text">Version %s</string>
@@ -67,6 +67,27 @@
     <string name="search_old_testament">Old Testament</string>
     <string name="search_current_book">Current book</string>
     <string name="error_executing_search">Invalid search query</string>
+
+    <!-- #2061 strings (not yet merged) -->
+    <string name="search_remember_search_text">Remember search</string>
+    <string name="search_include_all_endings">All endings</string>
+    <string name="search_fuzzy">Fuzzy Search %s</string>
+    <string name="search_strongs">Strongs Number Search</string>
+    <string name="search_showDecoratedText">Show raw search text</string>
+    <string name="search_proximity">Proximity %s</string>
+    <string name="search_results">Search Results</string>
+    <string name="search_statistics">Search Statistics</string>
+    <string name="words">words</string>
+    <string name="accuracy">Accuracy</string>
+    <string name="greek">Greek</string>
+    <string name="hebrew">Hebrew</string>
+    <string name="results_count">Results: %s</string>
+    <string name="verse_count">Verses: %s</string>
+    <string name="book_count">Books: %s</string>
+    <string name="word_count">Words: %s</string>
+    <string name="statistics">Statistics</string>
+    <string name="by_book">By Book</string>
+    <string name="by_word">By Word</string>
 
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
@@ -208,6 +229,9 @@
 
     <string name="prefs_text_bookmarks_title">Bookmark &amp; My Notes settings</string>
 
+    <string name="prefs_enable_bluetooth_title">Enable Bluetooth media buttons</string>
+    <string name="prefs_enable_bluetooth_summary">Handle Bluetooth media buttons to start/stop speaking.</string>
+
     <!-- Colors preferences -->
     <string name="prefs_text_colors_menutitle">Color settings</string>
     <string name="window_color_settings_title">Window color settings</string>
@@ -249,7 +273,7 @@
 
     <!--  Strongs -->
     <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
-    <string name="no_indexed_bible_with_strongs_ref">You must download a Bible containing Strong\'s numbers and download its index via Search</string>
+    <string name="no_indexed_bible_with_strongs_ref">You must download a Bible containing Strong\'s numbers and build its index via Search</string>
     <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
     <string name="go_to_downloads">Go to Downloads</string>
 
@@ -973,7 +997,9 @@
 
     <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
     <string name="permission_required">Permission needed</string>
-
-    <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
-    <string name="phone_call_permission_rationale">Permission to read phone state is needed in order for the app to be able to automatically pause listening when you receive a phone call.</string>
+    <string name="labels_search_hint">Search</string>
+    <string name="assing_labels_help6">Tap %s to show or hide filter labels text input.</string>
+    <string name="assing_labels_help7">You can add quick filter button by pressing %s button.</string>
+    <string name="assing_labels_help7_1">Tap each quick filter button to activate or deactivate them.</string>
+    <string name="assing_labels_help8">Long-press quick filter button to remove it.</string>
 </resources>

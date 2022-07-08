@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "Studium Biblii, otwartoźródłowy projekt And Bible"
+title: "AndBible: Studium Biblii"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Czytaj Biblię, komentarze i słowniki; bez internetu."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Zaawansowane narzędzie do studiowania Pisma Świętego
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  Aplikacja Studium Biblii «Bible Study» otwartoźródłowego projektu And Bible jest potężnym i zarazem łatwym w użyciu narzędziem do czytania Biblii bez dostępu do internetu na system Android. Nie jest to zwykły czytnik Pisma Świętego, ale zaawansowane narzędzie do głębokiego osobistego studiowania Biblii.
+  "{{ title }}" jest potężnym i zarazem łatwym w użyciu narzędziem do czytania Biblii bez dostępu do internetu na system Android. Nie jest to zwykły czytnik Pisma Świętego, ale zaawansowane narzędzie do głębokiego osobistego studiowania Biblii.
 paragraph_1_2: >
   Ta aplikacja jest rozwijana przez i dla czytaczy Pisma Świętego. Jej celem jest sprawienie, aby czytanie Biblii było wygodne, głębokie i radosne. Najważniejsze w naszym projekcie jest to, że jest on otwartoźródłowy (open source), całkowicie darmowy i nie zawiera reklam. Stworzona od podstaw na system Android, nasza aplikacja zajmuje niewiele miejsca, jest lekka i szybka.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: podzielny widok tekstu umożliwiający porównywanie tłumaczeń i czytanie komentarza
 feature_02: "obszary robocze umożliwiające posiadanie kilku oddzielnych środowisk do studiowania Biblii, każde z własnymi ustawieniami"
 feature_03: "numeracja Stronga, aby móc analizować słowa w grece i hebrajskim"
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   klikalne odsyłacze, przypisy i dokumenty; komentarze ({{commentary_examples}}), kolekcje odsyłaczy ({{cross_reference_examples}}) i inne materiały
 # Examples of commentaries. You can add here also other commentaries of your language if they
@@ -43,7 +44,7 @@ unavailable_documents: Biblia Warszawska
 feature_12: >
   działa w pełni offline: połączenie internetowe jest potrzebne tylko do pobrania dokumentów
 feature_13: >-
-  “bloczki notatek” umożliwiające dodawanie notatek i odnośników do Biblii podczas słuchania kazań
+  „bloczki notatek” umożliwiające dodawanie notatek i odnośników do Biblii podczas słuchania kazań
 subtitle_3: Razem stwórzmy najlepszą apkę do czytania Biblii!
 paragraph_3_1: >
   And Bible jest otwartoźródłowym projektem społecznościowym. Oznacza to, że każdy posiadający odpowiednie umiejętności może – i jest zachęcany – do uczestnictwa w rozwoju projektu poprzez:

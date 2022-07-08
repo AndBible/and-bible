@@ -52,6 +52,8 @@ import net.bible.service.common.FileManager
 import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.db
+import net.bible.service.download.isPseudoBook
+import net.bible.service.sword.isMyBibleBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -178,7 +180,7 @@ object BackupControl {
         var result: List<Book>? = null
         withContext(Dispatchers.Main) {
             result = suspendCoroutine {
-                val books = Books.installed().books.sortedBy { it.language }
+                val books = Books.installed().books.filter { !it.isMyBibleBook && !it.isPseudoBook }.sortedBy { it.language }
                 val bookNames = books.map {
                     context.getString(R.string.something_with_parenthesis, it.name, it.language.code)
                 }.toTypedArray()

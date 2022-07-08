@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Bible</string>
   <string name="app_name_medium">Bible (And Bible)</string>
-  <string name="app_name_long">Apka ke studiu Bible od And Bible Open Source projektu</string>
+  <string name="app_name_long">AndBible: Studium Bible</string>
   <string name="project">And Bible Open Source Projekt</string>
   <string name="version_text">Verze %s</string>
   <string name="no_sdcard_error">Prosím zasuňte SD kartu a restartujte aplikaci.</string>
@@ -205,7 +205,6 @@
   <string name="next">Další</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Prosím stáhněte Strongův hebrejský a řecký slovník</string>
-  <string name="no_indexed_bible_with_strongs_ref">Je potřeba stáhnout Bibli, obsahující Strongova čísla a také stáhnout k této Bibli index přes Hledat</string>
   <string name="morph_robinson_not_installed">Stáhněte prosím slovník \'Robinson\'s Morphological Analysis Codes\'</string>
   <string name="go_to_downloads">Přejít na stažené položky</string>
   <!--Module download-->
@@ -851,6 +850,5 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Text a odkazy</string>
   <string name="verse_tip">Pasáž textu označíte přidržením textu na delší dobu.</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

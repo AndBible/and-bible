@@ -1,6 +1,6 @@
 Ferramenta poderosa de estudo da Bíblia
 
-A aplicação de estudo da Bíblia por And Bible Open Source Project é um aplicativo de estudo da Bíblia off-line poderoso, mas fácil de usar, para Android. A aplicação não pretende ser simplesmente um leitor da Bíblia, mas é também uma ferramenta avançada para fazer um estudo bíblico pessoal em profundidade.
+"AndBible: Estudo Biblico" é um aplicativo de estudo da Bíblia off-line poderoso, mas fácil de usar, para Android. A aplicação não pretende ser simplesmente um leitor da Bíblia, mas é também uma ferramenta avançada para fazer um estudo bíblico pessoal em profundidade.
 
 Esta aplicação é desenvolvida por leitores da Bíblia, para leitores da Bíblia. O seu  objetivo é ajudá-lo a tornar o seu estudo da Bíblia conveniente, profundo e divertido. A melhor parte desse projeto comunitário sem fins lucrativos é que ele é de código aberto, totalmente gratuito e não contém anúncios. Tendo sido desenvolvido desde o início para o Android, é um download pequeno e, portanto, muito eficiente e incrivelmente rápido.
 

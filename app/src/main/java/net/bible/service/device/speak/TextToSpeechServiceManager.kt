@@ -18,11 +18,18 @@
 
 package net.bible.service.device.speak
 
+import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
+import androidx.annotation.RequiresApi
 
 import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
@@ -100,6 +107,9 @@ class TextToSpeechServiceManager @Inject constructor(
 
     var isPaused = false
         private set
+
+    private var pauseDueCall = false
+
     private var temporary = false
     private var mockedTts = false
 
@@ -337,8 +347,8 @@ class TextToSpeechServiceManager @Inject constructor(
             try {
                 // Initialize text-to-speech. This is an asynchronous operation.
                 // The OnInitListener (second argument) (this class) is called after initialization completes.
-                mTts = TextToSpeech(BibleApplication.application.applicationContext, this.onInitListener)
-                if(BibleApplication.application.isRunningTests) {
+                mTts = TextToSpeech(application.applicationContext, this.onInitListener)
+                if(application.isRunningTests) {
                     this.onInitListener.onInit(TextToSpeech.SUCCESS)
                 }
             } catch (e: Exception) {
@@ -419,6 +429,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
             mSpeakTextProvider.savePosition(mSpeakTiming.fractionCompleted)
             mSpeakTextProvider.pause()
+            persistPauseState()
 
             if (willContinueAfterThis) {
                 clearTtsQueue()
@@ -452,8 +463,49 @@ class TextToSpeechServiceManager @Inject constructor(
         isPaused = false
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getNewAudioFocusRequest() =
+        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+            .setOnAudioFocusChangeListener { focusChange ->
+                Log.i(TAG, "Audio focus changed $focusChange")
+                when(focusChange) {
+                    AudioManager.AUDIOFOCUS_GAIN -> {
+                        pauseDueCall = false
+                        callStateChanged(false)
+                    }
+                    AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                        pauseDueCall = true
+                        callStateChanged(true)
+                    }
+                }
+            }
+            .build()
+
+    var audioFocusRequest: AudioFocusRequest? = null
+    val am = application.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
     private fun startSpeaking() {
         Log.i(TAG, "about to send some text to TTS")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if(audioFocusRequest == null) {
+                val req = getNewAudioFocusRequest()
+                val granted = am.requestAudioFocus(req)
+                if (granted != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    Log.i(TAG, "Could not gain audio focus, not starting")
+                    shutdown()
+                    return
+                } else {
+                    audioFocusRequest = req
+                }
+            }
+        }
+
         if (!isSpeaking) {
             speakNextChunk()
             isSpeaking = true
@@ -499,7 +551,7 @@ class TextToSpeechServiceManager @Inject constructor(
         Dialogs.instance.showErrorMsg(msgId)
     }
 
-    fun shutdown(willContinueAfter: Boolean) {
+    fun shutdown(willContinueAfter: Boolean = false) {
         Log.i(TAG, "Shutdown TTS")
 
         isSpeaking = false
@@ -528,6 +580,13 @@ class TextToSpeechServiceManager @Inject constructor(
         } finally {
             mTts = null
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if(!pauseDueCall) {
+                audioFocusRequest?.also { am.abandonAudioFocusRequest(it) }
+                audioFocusRequest = null
+            }
+        }
     }
 
     private fun fireStateChangeEvent() {
@@ -548,8 +607,8 @@ class TextToSpeechServiceManager @Inject constructor(
     /**
      * Pause speak if phone call starts
      */
-    fun onEvent(event: PhoneCallEvent) {
-        if (event.callActivating) {
+    private fun callStateChanged(activating: Boolean) {
+        if (activating) {
             if (isSpeaking) {
                 wasPaused = true
                 pause(false)
@@ -566,6 +625,10 @@ class TextToSpeechServiceManager @Inject constructor(
                 continueAfterPause()
             }
         }
+    }
+
+    fun onEvent(event: PhoneCallEvent) {
+        callStateChanged(event.callActivating)
     }
 
     /** persist and restore pause state to allow pauses to continue over an app exit
@@ -589,6 +652,7 @@ class TextToSpeechServiceManager @Inject constructor(
             switchProvider(if (isBible) bibleSpeakTextProvider else generalSpeakTextProvider)
 
             isPaused = mSpeakTextProvider.restoreState()
+            Log.i(TAG, "Now pause state is $isPaused")
 
             // restore locale information so tts knows which voice to load when it initialises
             currentLocale = Locale(CommonUtils.settings.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString()))

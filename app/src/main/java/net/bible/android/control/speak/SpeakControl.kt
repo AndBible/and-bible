@@ -55,6 +55,7 @@ import javax.inject.Inject
 import dagger.Lazy
 import de.greenrobot.event.EventBus
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.service.device.speak.MediaButtonHandler
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -101,10 +102,10 @@ class SpeakControl @Inject constructor(
         }
 
     val isSpeaking: Boolean
-        get() = booksAvailable && ttsInitialized && ttsServiceManager.isSpeaking
+        get() = booksAvailable && ttsServiceManager.isSpeaking
 
     val isPaused: Boolean
-        get() = booksAvailable && ttsInitialized && ttsServiceManager.isPaused
+        get() = booksAvailable && ttsServiceManager.isPaused
 
     val isStopped: Boolean
         get() = !isSpeaking && !isPaused
@@ -121,14 +122,16 @@ class SpeakControl @Inject constructor(
         } else {
             Date(timerTask!!.scheduledExecutionTime())
         }
-    val currentlyPlayingBook: Book?
+
+    private val currentlyPlayingBook: Book?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingBook
 
-    val currentlyPlayingVerse: Verse?
+    private val currentlyPlayingVerse: Verse?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingVerse
 
     init {
         ABEventBus.getDefault().register(this)
+        MediaButtonHandler.initialize(this)
     }
 
     protected fun finalize() {
@@ -137,6 +140,7 @@ class SpeakControl @Inject constructor(
         if(sleepTimer.isInitialized()) {
             sleepTimer.value.cancel()
         }
+        MediaButtonHandler.release()
     }
 
     fun onEventMainThread(event: SpeakProgressEvent) {
@@ -208,7 +212,8 @@ class SpeakControl @Inject constructor(
 
     /** Toggle speech - prepare to speak single page OR if speaking then stop speaking
      */
-    fun toggleSpeak() {
+    @JvmOverloads
+    fun toggleSpeak(preferLast: Boolean = false) {
         Log.i(TAG, "Speak toggle current page")
         // Continue
         when {
@@ -221,31 +226,38 @@ class SpeakControl @Inject constructor(
                 // Start Speak
             }
             else -> {
-                if (!booksAvailable) {
-                    EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
-                    return
-                }
-                try {
-                    val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
-                    if(!page.isSpeakable) {
-                        EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
-                        return
-                    }
-                    val fromBook = page.currentDocument
-                    if (fromBook?.bookCategory == BookCategory.BIBLE) {
-                        resetPassageRepeatIfOutsideRange()
-                        speakBible()
-                    } else {
-                        speakText()
-                    }
-
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error getting chapters to speak", e)
-                    EventBus.getDefault().post(ToastEvent(R.string.speak_general_error))
-                    return
-                }
-
+                if(preferLast)
+                    continueLastPosition()
+                else
+                    startSpeakingFromDefault()
             }
+        }
+    }
+
+    private fun startSpeakingFromDefault() {
+        Log.i(TAG, "startSpeakingFromDefault")
+        if (!booksAvailable) {
+            EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+            return
+        }
+        try {
+            val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
+            if(!page.isSpeakable) {
+                EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+                return
+            }
+            val fromBook = page.currentDocument
+            if (fromBook?.bookCategory == BookCategory.BIBLE) {
+                resetPassageRepeatIfOutsideRange()
+                speakBible()
+            } else {
+                speakText()
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting chapters to speak", e)
+            EventBus.getDefault().post(ToastEvent(R.string.speak_general_error))
+            return
         }
     }
 
@@ -400,10 +412,31 @@ class SpeakControl @Inject constructor(
                 ABEventBus.getDefault().post(ToastEvent(pauseToastText))
             }
         }
+        saveCurrentPosition()
+    }
+
+    private fun saveCurrentPosition() {
+        val bookRef = currentlyPlayingBook?.initials
+        val osisRef = currentlyPlayingVerse?.osisRef
+        if(bookRef != null && osisRef != null) {
+            CommonUtils.settings.setString("lastSpeakBook",bookRef);
+            CommonUtils.settings.setString("lastSpeakRef",osisRef);
+        } else {
+            CommonUtils.settings.removeString("lastSpeakBook");
+            CommonUtils.settings.removeString("lastSpeakRef");
+        }
     }
 
     fun continueAfterPause() {
         continueAfterPause(false)
+    }
+
+    fun continueLastPosition() {
+        val bookRef = CommonUtils.settings.getString("lastSpeakBook")
+        val osisRef = CommonUtils.settings.getString("lastSpeakRef")
+        Log.i(TAG, "continueLastPosition $bookRef $osisRef")
+        if(bookRef != null && osisRef != null) speakBible(bookRef, osisRef)
+        else startSpeakingFromDefault()
     }
 
     private fun continueAfterPause(automated: Boolean) {
@@ -415,7 +448,6 @@ class SpeakControl @Inject constructor(
     }
 
     fun stop(willContinueAfter: Boolean=false, force: Boolean=false) {
-        // Reset page manager
         if(!willContinueAfter) {
             _speakPageManager = null
         }
@@ -426,6 +458,7 @@ class SpeakControl @Inject constructor(
 
         Log.i(TAG, "Stop TTS speaking")
         ttsServiceManager.shutdown(willContinueAfter)
+        saveCurrentPosition()
         stopTimer()
         if(!force) {
             ABEventBus.getDefault().post(ToastEvent(R.string.stop))

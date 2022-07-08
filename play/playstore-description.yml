@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: Bible Study app, by And Bible Open Source Project
+title: "AndBible: Bible Study"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: Read the Bible, study commentaries or dictionaries, or read books offline.
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Powerful Bible Study tool
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  Bible Study app by And Bible Open Source Project is a powerful, yet easy to use, offline Bible
+  "{{ title }}" is a powerful, yet easy to use, offline Bible
   study application for Android. The app does not aim to be simply a Bible reader, but focuses on
   being an advanced tool to do in-depth personal Bible study.
 paragraph_1_2: >
@@ -25,7 +26,7 @@ paragraph_2_1: >
 feature_01: Split text views that enable comparing translations and consulting commentaries
 feature_02: Workspaces allow multiple Bible study setups with their own settings
 feature_03: Strong's integration allows Greek and Hebrew word analysis
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Linked cross-references, footnotes, and documents; jump to cross-references
   and footnotes by simply tapping a link; perform in-depth study of the Scriptures

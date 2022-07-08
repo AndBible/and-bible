@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "성경 공부 앱, by And Bible 오픈소스 프로젝트"
+title: "AndBible: 성경 공부"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "오프라인으로 성경을 읽고, 주석이나 사전을 공부하고, 신앙서적을 읽으세요"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: 강력한 성경 공부 도구
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  And Bible 오픈소스 프로젝트의 성경 공부 앱은 강력하고 사용하기 쉬운 안드로이드용 오프라인 성경 공부 앱입니다. 이 앱은 단순히 성경 읽기만이 아니라 깊이 있는 개인 성경 연구를 목표로 하는 강력한 도구입니다.
+  "{{ title }}" 은 강력하고 사용하기 쉬운 안드로이드용 오프라인 성경 공부 앱입니다. 이 앱은 단순히 성경 읽기만이 아니라 깊이 있는 개인 성경 연구를 목표로 하는 강력한 도구입니다.
 paragraph_1_2: >
   이 앱은 성경을 읽는 사람들이 성경을 읽는 사람들을 위해 만들었습니다. 이 앱은 당신의 성경 공부를 편리하고 깊고 재미있게 만드는 것을 목표로 합니다. 비영리 커뮤니티 프로젝트에서 가장 좋은 점은 오픈 소스이고, 완전히 무료이며 광고가 없다는 점입니다. 완전히 안드로이드를 위해서만 만들어졌기 때문에 앱 크기가 작고, 따라서 매우 효율적이며 빠릅니다.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: 번역본들을 비교하거나 주석을 참조하는 것을 가능하게 하는 창 나누기
 feature_02: 여러 개의 성경 공부 세팅을 활용할 수 있는 워크스페이스
 feature_03: 헬라어와 히브리어 단어 분석을 위한 스트롱 통합
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >-
   링크된 상호 참조, 각주와 문서; 링크를 클릭하여 바로 상호 참조와 각주로 이동; 하이퍼링크 주석 ({{commentary_examples}}), 상호 참조 컬렉션 ({{cross_reference_examples}}) 그리고 다른 자료를 활용한 성경 본문에 대한 깊이 있는 연구
 # Examples of commentaries. You can add here also other commentaries of your language if they

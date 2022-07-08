@@ -23,7 +23,7 @@
 
 <script>
 import {useCommon} from "@/composables";
-import {computed} from "@vue/reactivity";
+import {computed} from "vue";
 
 export default {
   name: "FeaturesLink",

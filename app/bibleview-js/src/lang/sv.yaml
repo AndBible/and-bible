@@ -1,0 +1,80 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+openMyNotes: Öppna mina anteckningar
+openStudyPad: Öppna i Study Pad (%s)
+noteText: Fotnoter (%s)
+noteTextWithoutType: Fotnoter
+crossReferenceText: Korshänvisningar
+findAllOccurrences: Hitta alla förekomster
+reportError: Rapporera ett problem
+errorTitle: Problem uppstod
+warningTitle: Varning
+normalTitle: Vänligen notera
+footnoteTypeUndefined: Odefinerad typ
+footnoteTypeStudy: Studera
+footnoteTypeExplanation: Förklarning
+footnoteTypeVariant: Variant
+footnoteTypeAlternative: Alternativ
+footnoteTypeTranslation: Översättning
+clearLog: Rensa error loggen
+editNote: Ändra
+editNotePlaceholder: Ändra anteckningen
+editTextPlaceholder: Tryck för att ändra texten
+inputPlaceholder: Skriv här
+inputReference: Skriv Bibel referensen
+invalidReference: Versen hittades inte
+assignLabels: ""
+bookmarkAccurate: Bokmärket var skapat %s
+bookmarkInaccurate: ""
+defaultBook: standard Bibel dokument
+ok: OK
+yes: "Ja"
+ambiguousSelection: "Vilken åtgärd vill du ta?"
+cancel: Avbryt
+removeBookmarkConfirmationTitle: Radera bokmärke
+removeBookmarkConfirmation: "Är du säker på att du vill radera detta bokmärke?"
+closeModal: Stäng
+createdAt: "Skapad: %s"
+lastUpdatedOn: "Senast uppdaterad: %s"
+strongsLink: Strongs förklarning (%s)
+morphLink: ""
+strongsAndMorph: ""
+studyPadLink: Öppna study pad
+externalLink: Öppna extern länk
+referenceLink: Öppna referens länk
+openFootnote: Öppna fotnot
+openBookmark: Öppna bokmärke (%s)
+noMyNotesTitle: Inga Mina Anteckningar för denna kapitel.
+noMyNotesDescription: >
+emptyStudyPad: >
+studyPadModalTitle: ""
+doYouWantToDeleteEntry: ""
+removeStudyPadConfirmationTitle: ""
+dragHelp: ""
+saved: sparad
+openAll: Öppna alla referenser
+editBookmarkPlaceholder: ""
+onlyLabel: ""
+wholeBookmark: Hela bokmärket
+otherNoteText: Andra anteckningen
+assignLabelsMenuEntry: Tilldela etiketter
+assignLabelsMenuEntry1: ""
+jumpToStudyPad: ""
+setAsPrimaryLabel: ""
+removeBookmarkLabel: ""
+addBookmarkLabel: ""
+favouriteLabels: ""
+recentLabels: ""
+frequentlyUsedLabels: ""
+bookmarkLabels: ""
+refParserHelp: ""
+openDownloads: Gå till Tillägg nerladdningar
+verseShare: Dela
+verseCompare: Jämföra
+verseNote: Anteckning
+verseMyNotes: Anteckningar
+verseSpeak: Läs upp
+verseShareLong: Dela denna vers
+verseCompareLong: Jämför denna vers
+verseNoteLong: Skriv en anteckning
+verseSpeakLong: Börja lyssna från denna vers
+addBookmark: Bokmärke

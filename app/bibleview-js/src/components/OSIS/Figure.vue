@@ -23,7 +23,7 @@
 
 <script>
 import {useCommon} from "@/composables";
-import {inject} from "@vue/runtime-core";
+import {inject} from "vue";
 
 export default {
   name: "Figure",

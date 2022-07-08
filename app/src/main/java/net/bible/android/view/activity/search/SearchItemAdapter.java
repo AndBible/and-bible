@@ -118,7 +118,7 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 	}
 
 	private final List<String> elementsToExclude = Arrays.asList("note","reference");
-	private final List<String> elementsToInclude = Arrays.asList("w","transChange","divineName","seg");
+	//private final List<String> elementsToInclude = Arrays.asList("w","transChange","divineName","seg","q", "p");
 
 	private String processElementChildren(Element parentElement, String searchTerms, String verseString, Boolean isBold) {
 		// Recursive method to walk the verse element tree ignoring tags like 'note' that should not be shown in the search results
@@ -128,7 +128,7 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 		for (Object o : parentElement.getContent()) {
 			if (o instanceof Element) {
 				Element el = (Element) o;
-				if (elementsToInclude.contains(el.getName())) {
+				if (!elementsToExclude.contains(el.getName())) {
 					try {
 						String lemma = el.getAttributeValue("lemma");
 						isBold = (lemma != null && Pattern.compile(searchTerms, Pattern.CASE_INSENSITIVE).matcher(lemma.trim()).find());
@@ -182,11 +182,9 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 				} else {
 					searchWord = "\\b" + searchWord + "\\b";
 				}
-				if (searchWord.length() > 0) {
-					m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText);
-					while (m.find()) {
-						spannableText.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), m.start(), m.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-					}
+				m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText);
+				while (m.find()) {
+					spannableText.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), m.start(), m.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				}
 			}
 		}

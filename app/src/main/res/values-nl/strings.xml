@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Bijbelstudie</string>
   <string name="app_name_medium">Bijbelstudie (And Bible)</string>
-  <string name="app_name_long">Bijbelstudie app, door And Bible open-source-project</string>
+  <string name="app_name_long">AndBible: Bijbelstudie</string>
   <string name="project">And Bible open-source-project</string>
   <string name="version_text">Versie %s</string>
   <string name="no_sdcard_error">Voer een SD-kaart in en start And Bible opnieuw.</string>
@@ -16,9 +16,9 @@
   <string name="speak">Voorlezen</string>
   <string name="help">Hulp</string>
   <string name="information">Informatie</string>
-  <string name="other">Anders</string>
+  <string name="other">Overig</string>
   <string name="contact">Contact</string>
-  <string name="help_and_tips">Hulp &amp; tips</string>
+  <string name="help_and_tips">Help &amp; tips</string>
   <string name="administration">Administratie</string>
   <string name="rate_application">Beoordelen</string>
   <string name="chooce_document">Document kiezen</string>
@@ -170,6 +170,7 @@
   <string name="prefs_font_text_size_summary">Pas de lettergrootte van de tekst aan</string>
   <string name="pref_font_family_label_name">Lettersoort (%s)</string>
   <string name="prefs_font_family_summary">Wijzig de lettersoort. Tip: Meer lettertypes kunnen geinstalleerd worden via Documenten downloaden / Uitbreidingen.</string>
+  <string name="prefs_text_bookmarks_title">Instellingen voor Bladwijzers &amp; Mijn notities</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleurinstellingen</string>
   <string name="window_color_settings_title">Instellingen voor schermkleur.</string>
@@ -182,6 +183,8 @@
   <string name="prefs_noise_summary">Het toevoegen van ruis aan de achtergrond kan comfortabeler zijn voor de ogen.</string>
   <string name="cpv_default_title">Kies een kleur</string>
   <string name="cpv_presets">Voorinstellingen</string>
+  <string name="cpv_custom">Op maat</string>
+  <string name="cpv_select">Selecteer </string>
   <string name="cpv_transparency">Transparantie</string>
   <!--Window-->
   <string name="new_window">Nieuw venster</string>
@@ -203,7 +206,6 @@
   <string name="next">Volgende</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Download Strong\'s Hebreeuws en Grieks woordenboek</string>
-  <string name="no_indexed_bible_with_strongs_ref">Je moet een bijbel met Strong-nummers downloaden en de index downloaden via Zoeken</string>
   <string name="morph_robinson_not_installed">Download \'Robinson\'s Morfologische analyse Codes\' woordenboek</string>
   <string name="go_to_downloads">Ga naar downloads</string>
   <!--Module download-->
@@ -262,7 +264,33 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="overwrite_reading_plan">Wilt u %s overschrijven?</string>
   <string name="delete_reading_plan">Verwijder dit plan</string>
   <string name="reading_plan_deleted">Het leesplan is verwijderd</string>
+  <string name="reading_plan_ships_with_ab">Deze leesplan met %s</string>
+  <string name="confirm_delete_reading_plan">
+Ben je zeker van verwijderen %s met de leesgeschiedenis? 
+Hint: Wil je het leesplan updaten, dan kan je deze importeren met dezelfde bestandsnaam en de geschiedenis blijft bewaard.  </string>
+  <string name="plan_duplicate_user_plan">
+Er is een gebruikers leesplan in de SD-kaart
+jsword/readingplan met dezelfde naam als het interne leesplan. Het kan niet in de lijst gezet worden hier. 
+Verander de naam van het bestand naar iets anders, maar laat de bestandsextensie hetzelfde als .properties</string>
   <string name="plan_name_y1ntpspr">NT, Psalmen en Spreuken in een jaar</string>
+  <string name="plan_name_y1ot1nt1_chronological">Chronologisch 1 jaar door de bijbel</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+Leesplan is gebaseerd op de chronologische volgorde van gebeurtenissen in de bijbel. 
+De chronologische tijdlijn is bij benadering.</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1 jaar OT+NT tegelijk</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+Lees de bijbel in 1 jaar, met elke dag hoofdstukken
+uit het OT en NT.</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">1 jaar door de bijbel</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+Lees de bijbel in 1 jaar, begin vanaf Genesis
+en eindig in Openbaring. Eerst het OT en daarna het NT.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 jaar 4 hoofdstukken per dag</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10 hoofdstukken per dag Leesplan</string>
+  <string name="plan_name_y2ot1ntps2">2 jaar door de bijbel, NT+Psalmen twee keer</string>
+  <string name="plan_description_y2ot1ntps2">
+Lees de bijbel in 2 jaar, lees de NT en Psalmen twee keer. 
+Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.</string>
   <!--Document context menu-->
   <string name="delete">Verwijderen</string>
   <string name="delete_index">Zoekindex verwijderen</string>
@@ -281,6 +309,7 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="open_link_in_special_window">Link openen in speciaal venster</string>
   <!--Bookmarks-->
   <string name="bookmarks_and_mynotes_title">Bladwijzers &amp; mijn notities</string>
+  <string name="migrated_my_notes">Migreer mijn notities</string>
   <string name="bookmarks">Bladwijzers</string>
   <string name="bookmark_added">Bladwijzer toegevoegd</string>
   <string name="manage_labels">Labels beheren</string>
@@ -290,10 +319,18 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="label_name_prompt">Naam</string>
   <string name="label_unlabelled">Ongelabeld</string>
   <string name="add_bookmark1">Bladwijzer</string>
+  <string name="add_bookmark2">bladwijzer selectie</string>
   <string name="add_bookmark3">Selectie</string>
+  <string name="add_bookmark_whole_verse">bladwijzer vers</string>
   <string name="add_bookmark_whole_verse1">Verzen</string>
+  <string name="add_bookmark_whole_verse2">Volledige verzen</string>
   <string name="remove_bookmark">Verwijderen</string>
+  <string name="bookmark_settings_hide_labels_title">Verberg specifieke labels</string>
+  <string name="bookmark_settings_hide_labels_summary">Verberg bladwijzers die gemarkeerd zijn met specifieke labels</string>
   <string name="auto_assign_labels_title">Labelinstellingen</string>
+  <string name="auto_assign_labels">Auto-toewijzen &amp; Favoriete labels</string>
+  <string name="auto_assign_labels1">Auto toewijzen label aan nieuwe bladwijzers</string>
+  <string name="auto_assign_labels_primary">Auto-toewijzen als primair</string>
   <string name="label_color">Labelkleur</string>
   <!--can be removed-->
   <string name="label_color_example">Voorbeeld</string>
@@ -377,9 +414,17 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="assing_labels_help4">Tik op %s om het label toe te voegen aan uw lijst met favorieten voor snelle toegang.</string>
   <!--param is refresh icon-->
   <string name="assing_labels_help5">Tik op %s om de lijst opnieuw te sorteren op basis van uw selectie.</string>
+  <string name="workspace_text_options_help_title">Werkblad-tekstopties</string>
+  <string name="workspace_text_options_help1">Deze instellingen bepalen de standaard voor alle vensters in het werkblad.</string>
+  <string name="workspace_text_options_help2">U kunt deze instellingen aanpassen in de individuele vensterinstellingen.</string>
+  <string name="window_text_options_help_title">Venstertekstopties </string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s geeft aan dat de instellingen vanuit de werkbladinstellingen overgenomen is.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s geeft aan dat deze instelling is aangepast voor dit specifieke venster.</string>
+  <string name="window_text_options_help3">De werkblad-instellingen hebben geen effect op dit venster.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Gebruik de knop %s om de instellingen terug te zetten naar %s.</string>
   <string name="reset_defaults">standaardwaarden</string>
   <string name="reset_workspace_defaults">standaardwaarden voor werkblad</string>
   <string name="speak_bookmark_help">Hulp bij voorleesbladwijzers</string>
@@ -444,6 +489,7 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="reading_plans_plural">Leesplannen</string>
   <string name="loading_backup">Database aan het laden vanuit backup...</string>
   <string name="backup_email_subject_2">%sdatabase backup</string>
+  <string name="backup_phone_storage">Telefoonopslag</string>
   <string name="backup_backup_title">Waar backup opslaan?</string>
   <string name="backup_share">Delen</string>
   <!--About-->
@@ -454,6 +500,7 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <!--Bug reporting-->
   <string name="send_bug_report_title1">Bug-melding</string>
   <string name="report_bug_email_subject_3">[%s] Bug-melding voor %s %s</string>
+  <string name="report_bug_heading2">Bijvoorbeeld:</string>
   <string name="report_bug_heading_3">Bijlagen:</string>
   <!--Document types-->
   <string name="doc_type_bible">Bijbel</string>
@@ -575,7 +622,9 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Aanbevelen bij een vriend</string>
   <string name="tell_friend_message1">Graag wil ik %s bij je aanbevelen.</string>
+  <string name="share_verse_ok">Deel / Kopieer</string>
   <string name="verse_action_copy">Kopiëren</string>
+  <string name="share_verse_menu_title">Deel / Kopieer...</string>
   <string name="show_versenumbers">Versnummering laten zien</string>
   <string name="show_full_verses">Volledige verzen laten zien</string>
   <string name="advertise_app">App vermelden</string>
@@ -584,7 +633,9 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="version_name">Vertaling</string>
   <string name="backup_button">Back-up maken</string>
   <string name="back_button">Terug</string>
+  <string name="upgrading_database">Upgrade van database. Even geduld alstublieft.</string>
   <string name="initializing_app">Bezig met starten...</string>
+  <string name="show_notes">Notities zien</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Het pakket Android WebView is te oud (%s). U dient uw Android WebView-pakket te updaten naar version %sof hoger, om %s te kunnen gebruiken. Voor de meeste apparaten kunt u dit doen via %s.</string>
   <string name="play">Google Play</string>
@@ -625,17 +676,22 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="text_maintainers">
         meld deze alstublieft bij de beheerders van de teksten
     </string>
+  <string name="does_not_exist_abbreviation">Bestaat niet</string>
   <string name="cant_change_wholeverse">Het is niet mogelijk om de volledige-vers-markering uit te schakelen voor deze bladwijzer</string>
   <string name="whole_verse_turned_on">De bladwijzer verwijst nu naar het volledige vers</string>
   <string name="this_bookmark">Deze bladwijzer</string>
   <string name="this_workspace">Dit werkblad</string>
+  <string name="primary_label">Primaire label</string>
   <string name="edit_label">Label bewerken</string>
   <string name="active_labels">Geselecteerde labels</string>
   <string name="recent_labels">Recente labels</string>
   <string name="other_labels">Overige labels</string>
   <string name="book_menu_sort_row_opt">Horizontaal rangschikken</string>
   <string name="reorder">Herschikken</string>
+  <string name="system_items">Systeem acties</string>
   <string name="system_items1">Meer</string>
+  <string name="system_action2">Android acties</string>
+  <string name="text_copied_to_clicpboard">Tekst gekopieerd naar klembord</string>
   <string name="prefs_disable_two_step_bookmarking_title">Snel bladwijzers toevoegen</string>
   <string name="prefs_disable_two_step_bookmarking_summary">De knoppen \"Selectie\" en \"Verzen\" direct tonen in het selectiemenu in de Bijbelweergave.</string>
   <string name="prefs_double_tap_to_fullscreen_title">Dubbeltikken voor volledig scherm</string>
@@ -648,6 +704,8 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="label_salvation">Zaligheid</string>
   <string name="export_fileformat">Exporteer als %s</string>
   <string name="import_items">Importeer %s</string>
+  <string name="chooser_range">Reikwijdte</string>
+  <string name="chooser_jump">Verspring</string>
   <string name="chooser_OT_abbrev">OT</string>
   <string name="chooser_NT_abbrev">NT</string>
   <string name="chooser_style_lists">Lijsten</string>
@@ -658,6 +716,9 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="instructions_for_translators">instructies voor vertalers</string>
   <string name="questions_title">Vragen?</string>
   <string name="questions_title2">Hulp nodig?</string>
+  <string name="strongs_off">Uit</string>
+  <string name="strongs_links">Links</string>
+  <string name="strongs_text_and_links">Tekst en links</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Permissie nodig</string>
 </resources>

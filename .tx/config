@@ -9,7 +9,7 @@ source_lang = en
 minimum_perc = 60
 
 [andbible.play-store-main-description]
-lang_map = bn: bn-BD, pt: pt-PT, az@latin: az-AZ, cs: cs-CZ, de: de-DE, en_GB: en-US, es: es-ES, fi: fi-FI, fr: fr-FR, nl: nl-NL, pl: pl-PL, ru: ru-RU, zh_TW: zh-TW, zh_CN: zh-CN, tr: tr-TR, hi: hi-IN, nb: no-NO, hu: hu-HU, he: iw-IL, sr_RS: sr, my: my-MM, it: it-IT, ko: ko-KR
+lang_map = bn: bn-BD, pt: pt-PT, az@latin: az-AZ, cs: cs-CZ, de: de-DE, en_GB: en-US, es: es-ES, fi: fi-FI, fr: fr-FR, nl: nl-NL, pl: pl-PL, ru: ru-RU, zh_TW: zh-TW, zh_CN: zh-CN, tr: tr-TR, hi: hi-IN, nb: no-NO, hu: hu-HU, he: iw-IL, sr_RS: sr, my: my-MM, it: it-IT, ko: ko-KR, te:te-IN
 file_filter = play/description-translations/<lang>.yml
 source_file = play/playstore-description.yml
 source_lang = en
