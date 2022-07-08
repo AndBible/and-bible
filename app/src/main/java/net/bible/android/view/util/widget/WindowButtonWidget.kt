@@ -20,6 +20,7 @@ package net.bible.android.view.util.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.KeyEvent
@@ -35,8 +36,10 @@ import net.bible.android.control.page.window.WindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.download.imageResource
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.windowRepository
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceColor
+import net.bible.service.device.ScreenSettings
 
 @SuppressLint("ViewConstructor")
 class WindowButtonWidget(
@@ -125,11 +128,16 @@ class WindowButtonWidget(
 
             val theme = MainBibleActivity._mainBibleActivity?.theme
             val roundDrawable: Drawable = resources.getDrawable(buttonResource,theme)
+            if(windowRepository.visibleWindows.isNotEmpty()) {
+                val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
+                val toolbarColor = if (ScreenSettings.nightMode) (colors.nightWorkspaceColor
+                    ?: R.color.actionbar_background_day) else (colors.dayWorkspaceColor
+                    ?: R.color.actionbar_background_night)
 
-            if (isActive) roundDrawable.mutate().setTint(getResourceColor(R.color.blue_600))
-            else if (isWindowVisible) roundDrawable.mutate().setTint(getResourceColor(R.color.sync_on_green))
-            else roundDrawable.mutate().setTint(getResourceColor(R.color.grey_500))
-
+                if (isActive) roundDrawable.mutate().setTint(Color.parseColor("#" + Integer.toHexString(toolbarColor)))
+                else if (isWindowVisible) roundDrawable.mutate().setTint(getResourceColor(R.color.window_button_background_colour_visible))
+                else roundDrawable.mutate().setTint(getResourceColor(R.color.bar_window_button_background_colour))
+            }
             windowButton.background = roundDrawable
 
             if (isRestoreButton) {
