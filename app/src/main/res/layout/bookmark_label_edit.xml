@@ -27,6 +27,7 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:hint="@string/label_name_prompt"
+			android:inputType="textPersonName"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toEndOf="@id/titleIcon"
