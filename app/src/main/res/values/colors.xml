@@ -12,6 +12,8 @@
 	<color name="bible_reference_overlay">#DEE4E4E4</color>
 
 	<color name="bar_window_button_text_colour">#E8E8E8</color>
+	<color name="bar_window_button_icon_colour">#ddffffff</color>
+	<color name="bar_window_button_icon_colour_night">#99ffffff</color>
 	<color name="bar_window_button_icon_tint">@color/bar_window_button_text_colour</color>
 	<color name="bar_window_button_category_tint">#AAAAAA</color>
 	<color name="bar_window_button_background_colour">#878787</color>
