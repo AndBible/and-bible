@@ -142,11 +142,14 @@ class WindowButtonWidget(
 
             if (isRestoreButton) {
                 buttonText.textSize = 13.0f
-                val color = getResourceColor(R.color.bar_window_button_text_colour)
+                val color = if (ScreenSettings.nightMode) getResourceColor(R.color.bar_window_button_icon_colour_night)
+                    else getResourceColor(R.color.bar_window_button_icon_colour)
                 buttonText.setTextColor(color)
                 val image = window?.pageManager?.currentPage?.currentDocument?.imageResource
-                if (image != null)
-                    docType.setImageResource(image)
+                if (image != null) {
+                    docType.setImageResource(image)  // Document icon shown in top right of the button in the button bar
+                    docType.setColorFilter(color)
+                }
             } else {
                 buttonText.setTextColor(getResourceColor(R.color.window_button_text_colour))
                 windowButton.setTextColor(getResourceColor(R.color.window_button_text_colour))
