@@ -37,6 +37,7 @@ import android.widget.PopupWindow
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import net.bible.android.activity.R
 import net.bible.android.view.util.buttongrid.LayoutDesigner.RowColLayout
 import kotlin.math.max
@@ -50,7 +51,8 @@ class ButtonInfo (
     var textColor: Int = Color.WHITE,
     var tintColor: Int = Color.DKGRAY,
     var highlight: Boolean = false,
-
+    var showLongBookName: Boolean = true,
+    var type: GridButtonTypes = GridButtonTypes.CHAPTER,
     var top: Int = 0,
     var bottom: Int = 0,
     var left: Int = 0,
@@ -59,6 +61,10 @@ class ButtonInfo (
     var colNo: Int = 0
 ) {
     lateinit var button: Button
+
+    companion object {
+        enum class GridButtonTypes {BOOK, CHAPTER, VERSE}
+    }
 }
 
 /** Show a grid of buttons to allow selection for navigation
@@ -80,6 +86,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     var isGroupByCategoryEnabled = false
     var isAlphaSorted = false
     var isCurrentlyShowingScripture = false
+    var isShowLongBookName = false
 
     fun clear() {
         removeAllViews()
@@ -103,7 +110,6 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
 
     private fun addGroupedButtons(buttonInfoList: List<ButtonInfo>) {
         this.buttonInfoList = buttonInfoList
-        val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp)
         var iRow = -1
         var iCol = 0
         // calculate the number of rows and columns so that the grid looks nice
@@ -130,21 +136,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                 iRow += 1
                 iCol = 0
             }
-            val button = Button(context)
-            button.text = buttonInfo.name
-            button.setTextColor(buttonInfo.textColor)
-            button.backgroundTintList = ColorStateList.valueOf(buttonInfo.tintColor)
-            if (buttonInfo.highlight) {
-                button.typeface = Typeface.DEFAULT_BOLD
-                button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
-                button.paintFlags = button.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-                button.isPressed = true
-            } else {
-                button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            }
-            // set pad to 0 prevents text being pushed off the bottom of buttons on small screens
-            button.setPadding(0, 0, 0, 0)
-            button.isAllCaps = false
+            val button = newButton(buttonInfo)
             buttonInfo.button = button
             buttonInfo.rowNo = iRow
             buttonInfo.colNo = iCol
@@ -179,7 +171,6 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     fun addButtons(buttonInfoList: List<ButtonInfo>) {
         this.buttonInfoList = buttonInfoList
         val numButtons = buttonInfoList.size
-        val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp)
 
         // calculate the number of rows and columns so that the grid looks nice
         val rowColLayout = LayoutDesigner(this).calculateLayout(buttonInfoList)
@@ -194,29 +185,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                 if (buttonInfoIndex < numButtons) {
                     // create a graphical Button View object to show on the screen and link it to the ButtonInfo object
                     val buttonInfo = buttonInfoList[buttonInfoIndex]
-                    val button = Button(context)
-                    button.text = buttonInfo.name
-                    button.setTextColor(buttonInfo.textColor)
-                    button.backgroundTintList = ColorStateList.valueOf(buttonInfo.tintColor)
-                    button.setOnKeyListener { v, keyCode, event ->
-                        if(event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
-                            buttonSelected(buttonInfo)
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                    if (buttonInfo.highlight) {
-                        button.typeface = Typeface.DEFAULT_BOLD
-                        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
-                        button.paintFlags = button.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-                        button.isPressed = true
-                    } else {
-                        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-                    }
-                    // set pad to 0 prevents text being pushed off the bottom of buttons on small screens
-                    button.setPadding(0, 0, 0, 0)
-                    button.isAllCaps = false
+                    val button = newButton(buttonInfo)
                     buttonInfo.button = button
                     buttonInfo.rowNo = iRow
                     buttonInfo.colNo = iCol
@@ -241,11 +210,60 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
         val scale = context.resources.displayMetrics.density
         previewHeight = (PREVIEW_HEIGHT_DIP * scale).toInt()
     }
+
+    private fun newButton(buttonInfo:ButtonInfo): Button {
+        val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp)
+        val trimChars = 130
+        val button = Button(context)
+        button.text = if (buttonInfo.showLongBookName && buttonInfo.type == ButtonInfo.Companion.GridButtonTypes.BOOK) {
+            HtmlCompat.fromHtml("<normal><b>" + buttonInfo.name?.uppercase() + "</b></normal><br/><small><small><small>" + buttonInfo.description?.take(trimChars) + "</small></small></small>", HtmlCompat.FROM_HTML_MODE_LEGACY)
+        } else {
+            HtmlCompat.fromHtml(buttonInfo.name!!, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        }
+        button.setTextColor(buttonInfo.textColor)
+        button.backgroundTintList = ColorStateList.valueOf(buttonInfo.tintColor)
+        if (buttonInfo.highlight) {
+            button.typeface = Typeface.DEFAULT_BOLD
+            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
+            button.paintFlags = button.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+            button.isPressed = true
+        } else {
+            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+        }
+        // set pad to 0 prevents text being pushed off the bottom of buttons on small screens
+        // set left and right pad to 3 prevents text from appearing off the button background
+        button.setPadding(3, 0, 3, 0)
+        button.minHeight = 0
+        button.minWidth = 0
+        button.isAllCaps = false
+
+        button.setOnKeyListener { _, keyCode, event ->
+            if(event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
+                buttonSelected(buttonInfo)
+                true
+            } else {
+                false
+            }
+        }
+        if (buttonInfo.highlight) {
+            button.typeface = Typeface.DEFAULT_BOLD
+            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
+            button.paintFlags = button.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+            button.isPressed = true
+        } else {
+            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+        }
+        return button
+    }
+
     fun toggleLeftToRight() {
         isLeftToRightEnabled = !isLeftToRightEnabled
     }
     fun toggleGroupByCategory() {
         isGroupByCategoryEnabled = !isGroupByCategoryEnabled
+    }
+    fun toggleShowLongName() {
+        isShowLongBookName = !isShowLongBookName
     }
     /** Ensure longer runs by populating in longest direction ie columns if portrait and rows if landscape
      *
@@ -266,7 +284,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
 	 */
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
 
-        // wait until the columns have been layed out and adjusted before recording button positions
+        // wait until the columns have been laid out and adjusted before recording button positions
         if (!isInitialised) {
             synchronized(buttonInfoList!!) {
                 if (!isInitialised) {
@@ -414,7 +432,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
         }
 
         // calculate offset of 2 button heights so users can see the buttons surrounding the current button pressed
-        if (buttonInfoList!!.size > 0) {
+        if (buttonInfoList!!.isNotEmpty()) {
             val but1 = buttonInfoList!![0]
             previewOffset = but1.top - but1.bottom
         }
@@ -431,6 +449,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     companion object {
         private const val PREVIEW_HEIGHT_DIP = 70
         private const val TAG = "ButtonGrid"
+//        enum class GRID_BUTTON_TYPES {BOOK, CHAPTER, VERSE}
     }
 
     init {
