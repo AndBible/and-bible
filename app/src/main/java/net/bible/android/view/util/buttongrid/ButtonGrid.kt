@@ -214,9 +214,21 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     private fun newButton(buttonInfo:ButtonInfo): Button {
         val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp)
         val trimChars = 130
+        var smallTagStart = ""
+        var smallTagEnd = ""
         val button = Button(context)
         button.text = if (buttonInfo.showLongBookName && buttonInfo.type == ButtonInfo.Companion.GridButtonTypes.BOOK) {
-            HtmlCompat.fromHtml("<normal><b>" + buttonInfo.name?.uppercase() + "</b></normal><br/><small><small><small>" + buttonInfo.description?.take(trimChars) + "</small></small></small>", HtmlCompat.FROM_HTML_MODE_LEGACY)
+            // Check the length of the words in the long description and set the <size> tag accordingly
+            val maxLengthForSmall = 5
+            val maxLengthForXSmall = 9
+            val words = buttonInfo.description?.split("\\s".toRegex())?.toTypedArray()
+            var smallCnt = 1
+            words?.map { if (it.length > maxLengthForXSmall) {smallCnt = 3} else if (it.length > maxLengthForSmall) { smallCnt=2}  }
+            for (i in 1..smallCnt){
+                smallTagStart += "<small>"
+                smallTagEnd += "</small>"
+            }
+            HtmlCompat.fromHtml("<normal><b>" + buttonInfo.name?.uppercase() + "</b></normal><br/>" + smallTagStart + buttonInfo.description?.take(trimChars) + smallTagEnd, HtmlCompat.FROM_HTML_MODE_LEGACY)
         } else {
             HtmlCompat.fromHtml(buttonInfo.name!!, HtmlCompat.FROM_HTML_MODE_LEGACY)
         }
@@ -232,7 +244,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
         }
         // set pad to 0 prevents text being pushed off the bottom of buttons on small screens
         // set left and right pad to 3 prevents text from appearing off the button background
-        button.setPadding(3, 0, 3, 0)
+        button.setPadding(4, 0, 4, 0)
         button.minHeight = 0
         button.minWidth = 0
         button.isAllCaps = false
