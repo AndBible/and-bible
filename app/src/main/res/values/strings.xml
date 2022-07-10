@@ -951,6 +951,7 @@
     <string name="other_labels">Other labels</string>
     <string name="book_menu_sort_row_opt">Order books horizontally</string>
     <string name="book_menu_group_by_category">Group books by category</string>
+    <string name="book_menu_show_long_book_name">Show long book name</string>
     <string name="reset_workspace_labels">Do you want to reset auto-assign and favorite settings for this workspace?</string>
     <string name="reset_hide_labels">Do you want to reset setting for hiding specified labels settings?</string>
     <string name="reorder">Re-order</string>

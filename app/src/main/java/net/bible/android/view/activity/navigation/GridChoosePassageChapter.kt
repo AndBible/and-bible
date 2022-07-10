@@ -34,7 +34,6 @@ import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
 import net.bible.service.common.CommonUtils
 
-import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 
@@ -116,6 +115,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
             buttonInfo.id = i
             buttonInfo.name = i.toString()
             buttonInfo.description = i.toString()
+            buttonInfo.type = ButtonInfo.Companion.GridButtonTypes.CHAPTER
             if (currentVerse.book == book && i == currentVerse.chapter) {
                 buttonInfo.tintColor = bookColorAndGroup.Color
                 buttonInfo.textColor = Color.DKGRAY
