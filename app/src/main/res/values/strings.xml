@@ -609,6 +609,15 @@
     <string name="backup_app_database">Share or Backup app database to…</string>
 
     <string name="backup_app">Share or Backup app (.apk file) to …</string>
+    <string name="application">Application</string>
+    <string name="database">Database</string>
+    <string name="documents">Documents</string>
+    <string name="application_info">Bible Study application file (.APK)</string>
+    <string name="database_info">Bookmarks, labels, notes, study pads, reading plan, workspaces etc</string>
+    <string name="document_info">Bibles, commentaries, dictionaries, maps etc</string>
+    <string name="share_or_backup_to">Share or backup to...</string>
+    <string name="restore_from">Restore from...</string>
+    <string name="restore">Restore</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
     <string name="restore_what">What do you want to restore?</string>
