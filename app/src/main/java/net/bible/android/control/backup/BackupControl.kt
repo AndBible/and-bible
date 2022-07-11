@@ -529,7 +529,7 @@ class BackupActivity: ActivityBase() {
         binding = BackupViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.apply {
-            restoreModules.text = "${getString(R.string.install_zip)} / ${getString(R.string.restore_modules)}"
+//            restoreModules.text = "${getString(R.string.install_zip)} / ${getString(R.string.restore_modules)}"
 
             toggleBackupApplication.isChecked = CommonUtils.settings.getBoolean("backup_application", false)
             toggleBackupDatabase.isChecked = CommonUtils.settings.getBoolean("backup_database", false)

@@ -19,45 +19,48 @@
             android:textStyle="bold" />
 
         <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/toggleBackupApplication"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/application" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="@string/application_info" />
-
-        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleBackupDatabase"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:text="@string/database" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="20dp"
             android:text="@string/database_info" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleBackupDocuments"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:text="@string/documents" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="20dp"
             android:text="@string/document_info" />
 
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleBackupApplication"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="@string/application" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="@string/application_info" />
         <Button
             android:id="@+id/buttonBackup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp"
             android:text="@string/share_or_backup_to" />
@@ -65,8 +68,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:text="@string/restore"
+            android:layout_marginTop="20dp"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -74,74 +77,46 @@
             android:id="@+id/toggleRestoreDatabase"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:text="@string/database" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="20dp"
             android:text="@string/database_info" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleRestoreDocuments"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:text="@string/documents" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="20dp"
             android:text="@string/document_info" />
 
         <Button
             android:id="@+id/buttonRestore"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp"
             android:text="@string/restore_from" />
 
-        <Button
-            android:id="@+id/backup_app"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/backup_app" />
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/backup_app_database"
-            android:text="@string/backup_app_database"
-            />
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/backup_modules"
-            android:text="@string/backup_modules"
-            />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/restore_what"
-            />
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/restore_app_database"
-            android:text="@string/restore_app_database"
-            />
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/restore_modules"
-            android:text="@string/restore_modules"
-            />
         <TextView
             android:id="@+id/import_export_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/import_menu"
+            android:layout_marginTop="20dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
             />
         <LinearLayout
             android:id="@+id/backup_db_buttons"
