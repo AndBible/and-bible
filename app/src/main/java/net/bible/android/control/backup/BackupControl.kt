@@ -529,13 +529,42 @@ class BackupActivity: ActivityBase() {
         binding = BackupViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.apply {
-            restoreModules.text = "${getString(R.string.install_zip)} / ${getString(R.string.restore_modules)}"
+//            restoreModules.text = "${getString(R.string.install_zip)} / ${getString(R.string.restore_modules)}"
 
-            backupApp.setOnClickListener { GlobalScope.launch { BackupControl.backupApp(this@BackupActivity) } }
-            backupAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) } }
-            backupModules.setOnClickListener { GlobalScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) } }
-            restoreAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) } }
-            restoreModules.setOnClickListener { GlobalScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) } }
+            toggleBackupApplication.isChecked = CommonUtils.settings.getBoolean("backup_application", false)
+            toggleBackupDatabase.isChecked = CommonUtils.settings.getBoolean("backup_database", false)
+            toggleBackupDocuments.isChecked = CommonUtils.settings.getBoolean("backup_documents", false)
+            toggleRestoreDatabase.isChecked = CommonUtils.settings.getBoolean("restore_database", false)
+            toggleRestoreDocuments.isChecked = CommonUtils.settings.getBoolean("restore_documents", false)
+
+            // update toggles when another toggle is clicked
+            toggleBackupApplication.setOnClickListener {
+                toggleBackupDatabase.isChecked = false
+                toggleBackupDocuments.isChecked = false
+                updateWidgetState() }
+            toggleBackupDatabase.setOnClickListener {
+                toggleBackupApplication.isChecked = false
+                toggleBackupDocuments.isChecked = false
+                updateWidgetState() }
+            toggleBackupDocuments.setOnClickListener {
+                toggleBackupApplication.isChecked = false
+                toggleBackupDatabase.isChecked = false
+                updateWidgetState() }
+            toggleRestoreDatabase.setOnClickListener {
+                toggleRestoreDocuments.isChecked = false
+                updateWidgetState() }
+            toggleRestoreDocuments.setOnClickListener {
+                toggleRestoreDatabase.isChecked = false
+                updateWidgetState() }
+            buttonBackup.setOnClickListener {
+                if (toggleBackupApplication.isChecked) GlobalScope.launch { BackupControl.backupApp(this@BackupActivity) }
+                else if (toggleBackupDatabase.isChecked) GlobalScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) }
+                else if (toggleBackupDocuments.isChecked) GlobalScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) }
+            }
+            buttonRestore.setOnClickListener {
+                if (toggleRestoreDatabase.isChecked)  GlobalScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) }
+                else if (toggleRestoreDocuments.isChecked) GlobalScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
+            }
             CommonUtils.dbBackupPath.listFiles()?.forEach { f ->
                 val b = Button(this@BackupActivity)
                 val s = f.name
@@ -548,6 +577,19 @@ class BackupActivity: ActivityBase() {
             if(backupDbButtons.childCount == 0) {
                 importExportTitle.visibility = View.GONE
             }
+        }
+    }
+    private fun updateWidgetState() {
+        updateSelectionOptions()
+    }
+    private fun updateSelectionOptions() {
+        // update widget share option settings
+        CommonUtils.settings.apply {
+            setBoolean("backup_application", binding.toggleBackupApplication.isChecked)
+            setBoolean("backup_database", binding.toggleBackupDatabase.isChecked)
+            setBoolean("backup_documents", binding.toggleBackupDocuments.isChecked)
+            setBoolean("restore_database", binding.toggleRestoreDatabase.isChecked)
+            setBoolean("restore_documents", binding.toggleRestoreDocuments.isChecked)
         }
     }
 }
