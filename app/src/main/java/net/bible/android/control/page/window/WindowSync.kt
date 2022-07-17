@@ -138,7 +138,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
             }
         }
-
+//        if (targetActiveWindowKey != null) {
+//            windowRepository.syncKey = targetActiveWindowKey
+//        }
         ABEventBus.getDefault().post(DecrementBusyCount())
     }
 

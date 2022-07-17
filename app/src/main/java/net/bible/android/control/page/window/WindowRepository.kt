@@ -43,6 +43,7 @@ import org.crosswire.jsword.versification.BookName
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.min
+import org.crosswire.jsword.passage.Key
 
 class IncrementBusyCount
 class DecrementBusyCount
@@ -58,6 +59,7 @@ open class WindowRepository @Inject constructor(
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
+    var syncKey: Key? = null
     var windowList: MutableList<Window> = ArrayList()
     var busyCount: Int = 0
         set(value) {
