@@ -22,11 +22,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.text.Spanned
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.core.text.HtmlCompat
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.WindowButtonBinding
 import net.bible.android.control.event.ABEventBus
@@ -87,14 +89,15 @@ class WindowButtonWidget(
             View.VISIBLE
         else View.INVISIBLE
         binding.docType.visibility = if(isMaximised) View.INVISIBLE else View.VISIBLE
-        binding.pinMode.visibility =
-            if(!windowControl.windowRepository.workspaceSettings.autoPin
-                && window?.isPinMode == true
-                && !isMaximised
-            )
-                View.VISIBLE
-            else
-                View.INVISIBLE
+        binding.pinMode.visibility = GONE
+//        binding.pinMode.visibility =
+//            if(!windowControl.windowRepository.workspaceSettings.autoPin
+//                && window?.isPinMode == true
+//                && !isMaximised
+//            )
+//                View.VISIBLE
+//            else
+//                View.INVISIBLE
     }
 
     private fun updateBackground() {
@@ -197,11 +200,19 @@ class WindowButtonWidget(
     }
 
     var text: String
-        get() = (if(isRestoreButton) binding.buttonText else binding.windowButton).text.toString()
+        get() = (if(isRestoreButton) binding.buttonText else binding.windowButton).toString()
 
         set(value) {
             (if(isRestoreButton) binding.buttonText else binding.windowButton).text = value
         }
+
+    var topText: String
+        get() = (if(isRestoreButton) binding.topButtonText else binding.windowButton).toString()
+
+        set(value) {
+            (if(isRestoreButton) binding.topButtonText else binding.windowButton).text = value
+        }
+
 
     override fun onAttachedToWindow() {
         ABEventBus.getDefault().register(this)

@@ -28,6 +28,7 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.text.HtmlCompat
 import androidx.core.view.GestureDetectorCompat
 import net.bible.android.BibleApplication
 import net.bible.android.control.event.ABEventBus
@@ -200,6 +201,7 @@ class BibleFrame(
                                  onTouchListener: ((View, MotionEvent) -> Boolean)? = null,
                                  window: Window?): WindowButtonWidget =
         WindowButtonWidget(window, windowControl, false, mainBibleActivity).apply {
+
             this.text = text
             setOnTouchListener(onTouchListener)
         }

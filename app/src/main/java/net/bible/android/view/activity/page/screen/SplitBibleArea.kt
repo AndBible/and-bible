@@ -43,6 +43,7 @@ import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.text.HtmlCompat
 import androidx.core.view.MenuItemCompat
 import androidx.core.view.children
 import kotlinx.coroutines.Dispatchers
@@ -61,6 +62,7 @@ import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.versification.chapterVerse
 import net.bible.android.database.SettingsBundle
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
@@ -78,12 +80,15 @@ import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BookName
 import java.lang.IndexOutOfBoundsException
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.roundToInt
+import org.crosswire.jsword.versification.Versification
 
 internal val isSplitVertically get() = mainBibleActivity.isSplitVertically
 
@@ -392,6 +397,14 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     private fun updateBibleReference() {
+        if (windowRepository.activeWindow.isSynchronised && mainBibleActivity.displayVerse!=null) windowRepository.syncKey = mainBibleActivity.displayVerse
+        mainBibleActivity.runOnUiThread {
+            try {
+                rebuildRestoreButtons()  // Needed to update the verse references in the button bars
+            } catch(e: MainBibleActivity.KeyIsNull) {
+                Log.e(TAG, "AGR: Something went wrong", e)
+            }
+        }
         if(bibleReferenceOverlay.visibility != View.VISIBLE) return
         mainBibleActivity.runOnUiThread {
             try {
@@ -400,10 +413,12 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                 Log.e(TAG, "Key is null, can't update", e)
             }
         }
+
     }
 
     private fun updateMinimizedButtonText(w: Window) {
         mainBibleActivity.runOnUiThread {
+//            restoreButtonsList.find { it.window?.id == w.id }?.text = getDocumentAbbreviation(w)
             restoreButtonsList.find { it.window?.id == w.id }?.text = getDocumentAbbreviation(w)
         }
     }
@@ -613,7 +628,28 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
     private fun createRestoreButton(window: Window): WindowButtonWidget {
         return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
+            val topTextValue = if (window.pageManager.isBibleShown or window.pageManager.isCommentaryShown) {
+                var book = ""
+                var chapter = ""
+                var verse = ""
+                val v11n = (window.pageManager.currentPage.currentDocument as SwordBook).versification
+
+                if (window.isSynchronised) {
+                    if(windowRepository.syncKey is Verse)
+                        (v11n.getShortName((windowRepository.syncKey as Verse).book)) + " " + (windowRepository.syncKey as Verse).chapter.toString() + ":" + (windowRepository.syncKey as Verse).verse.toString()
+                    else ""
+                } else {
+                    book = window.pageManager.currentBibleVerse.verse.book.toString()
+                    chapter = window.pageManager.currentBibleVerse.verse.chapter.toString()
+                    verse = window.pageManager.currentBibleVerse.verse.verse.toString()
+                    book + " " + chapter + ":" + verse
+                }
+
+            } else {
+                ""
+            }
             text = getDocumentAbbreviation(window)
+            topText = topTextValue
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { v-> showPopupMenu(window, v); true }
         }
@@ -627,6 +663,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             context = mainBibleActivity
         ).apply {
             setOnClickListener { windowControl.unMaximise() }
+//            text = ""
             text = ""
             setOnLongClickListener { v-> showPopupMenu(window, v); true }
         }

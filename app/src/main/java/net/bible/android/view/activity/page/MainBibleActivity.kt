@@ -811,7 +811,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     class KeyIsNull: Exception()
 
-    private val pageTitleText: String
+    val displayVerse: Verse?
+        get () {
+            val doc = pageControl.currentPageManager.currentPage.currentDocument
+            var key = pageControl.currentPageManager.currentPage.displayKey
+            val isBible = doc?.bookCategory == BookCategory.BIBLE
+            return if(isBible) {
+                pageControl.currentBibleVerse
+            } else if(key is Verse) {
+                key
+            } else null
+        }
+
+    val pageTitleText: String
         get() {
             val doc = pageControl.currentPageManager.currentPage.currentDocument
             var key = pageControl.currentPageManager.currentPage.displayKey
@@ -823,6 +835,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 CommonUtils.getWholeChapter(key, false).name
             } else key?.name ?: throw KeyIsNull()
         }
+
 
     val bibleOverlayText: String
         get() {

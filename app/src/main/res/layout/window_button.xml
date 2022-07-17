@@ -35,22 +35,42 @@
         app:layout_constraintTop_toTopOf="parent"
         android:elevation="1dp"
         />
+
+    <TextView
+        android:id="@+id/topButtonText"
+        android:layout_width="36dp"
+        android:layout_height="11dp"
+        android:background="#00000000 "
+        android:elevation="3dp"
+        android:ellipsize="none"
+        android:paddingStart="1dip"
+        android:paddingTop="2dp"
+        android:paddingEnd="2dip"
+        android:singleLine="true"
+        android:text="Abcd 5:1"
+        android:textColor="@color/window_button_text_colour"
+        android:textSize="8sp"
+        app:layout_constraintBottom_toTopOf="@id/buttonText"
+        app:layout_constraintEnd_toEndOf="@id/windowButton"
+        app:layout_constraintStart_toStartOf="@id/windowButton" />
+
     <TextView
         android:id="@+id/buttonText"
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:singleLine="true"
+        android:layout_width="38dp"
+        android:layout_height="16dp"
+        android:background="#00000000 "
+        android:elevation="3dp"
         android:ellipsize="none"
-        android:text=""
         android:paddingStart="1dip"
         android:paddingEnd="2dip"
+        android:paddingBottom="-3dip"
+        android:singleLine="true"
+        android:text=""
         android:textColor="@color/window_button_text_colour"
         android:textSize="22sp"
-        android:elevation="3dp"
-        app:layout_constraintStart_toStartOf="@id/windowButton"
-        app:layout_constraintEnd_toEndOf="@id/windowButton"
         app:layout_constraintBottom_toBottomOf="@id/windowButton"
-        />
+        app:layout_constraintEnd_toEndOf="@id/windowButton"
+        app:layout_constraintStart_toStartOf="@id/topButtonText" />
     <ImageView
         android:id="@+id/unMaximiseImage"
         android:padding="10dip"
@@ -89,7 +109,7 @@
     <ImageView
         android:id="@+id/docType"
         android:layout_width="0dp"
-        android:layout_height="15dip"
+        android:layout_height="14dip"
         android:layout_marginTop="2dip"
         android:layout_marginEnd="2dip"
         app:tint="@color/bar_window_button_category_tint"
