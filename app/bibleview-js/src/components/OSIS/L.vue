@@ -17,8 +17,8 @@
 
 <template>
   <span class="skip-offset">
-    <br v-if="type==='x-br' || eID"/>
-    <template v-else-if="type==='x-indent'">
+    <br v-if="isBreakLine"/>
+    <template v-else-if="isIndent">
       <template v-for="i in levelInt" :key="i">
         &nbsp;
       </template>
@@ -39,7 +39,7 @@
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {computed} from "vue";
+import {computed, toRefs} from "vue";
 
 export default {
   name: "L",
@@ -51,8 +51,14 @@ export default {
   },
   setup(props) {
     checkUnsupportedProps(props, "type", ["x-br", "x-indent"]);
-    const levelInt = computed(() => parseInt(props.level));
-    return {levelInt, ...useCommon()};
+    const {sID, eID, level, type} = toRefs(props);
+    const levelInt = computed(() => parseInt(level.value));
+    const isBreakLine = computed(() => {
+      const allNull = sID.value === null && eID.value === null && level.value === "1" && type.value === null;
+      return type.value === 'x-br' || eID.value || allNull;
+    })
+    const isIndent = computed(() => type.value === "x-indent");
+    return {levelInt, isBreakLine, isIndent, ...useCommon()};
   },
 }
 </script>
