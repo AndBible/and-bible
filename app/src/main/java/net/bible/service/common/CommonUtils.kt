@@ -482,11 +482,13 @@ object CommonUtils : CommonUtilsBase() {
     /**
      * convert dip measurements to pixels
      */
-    fun convertDipsToPx(dips: Int): Int {
+    fun convertDipsToPx(dips: Float): Int {
         // Converts 14 dip into its equivalent px
         val scale = resources.displayMetrics.density
         return (dips * scale + 0.5f).toInt()
     }
+
+    fun convertDipsToPx(dips: Int): Int = convertDipsToPx(dips.toFloat())
 
     /**
      * convert dip measurements to pixels
