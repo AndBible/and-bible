@@ -223,7 +223,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
             val maxLengthForXSmall = 9
             val words = buttonInfo.description?.split("\\s".toRegex())?.toTypedArray()
             var smallCnt = 1
-            words?.map { if (it.length > maxLengthForXSmall) {smallCnt = 3} else if (it.length > maxLengthForSmall) { smallCnt=2}  }
+            words?.map { if (it.length > maxLengthForXSmall) {smallCnt = 3} else if (it.length > maxLengthForSmall && smallCnt<3) { smallCnt=2}  }
             for (i in 1..smallCnt){
                 smallTagStart += "<small>"
                 smallTagEnd += "</small>"
