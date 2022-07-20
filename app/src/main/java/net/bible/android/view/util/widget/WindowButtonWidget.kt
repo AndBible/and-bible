@@ -134,9 +134,23 @@ class WindowButtonWidget(
                     ?: R.color.actionbar_background_day) else (colors.dayWorkspaceColor
                     ?: R.color.actionbar_background_night)
 
-                if (isActive) roundDrawable.mutate().setTint(Color.parseColor("#" + Integer.toHexString(toolbarColor)))
-                else if (isWindowVisible) roundDrawable.mutate().setTint(getResourceColor(R.color.window_button_background_colour_visible))
-                else roundDrawable.mutate().setTint(getResourceColor(R.color.bar_window_button_background_colour))
+                if(CommonUtils.booleanSettings.get("enable_colored_window_buttons_pref", true)) {
+                    // Set the button background color to the workspace color
+                    if (isActive) roundDrawable.mutate()
+                        .setTint(Color.parseColor("#" + Integer.toHexString(toolbarColor)))
+                    else if (isWindowVisible) roundDrawable.mutate()
+                        .setTint(getResourceColor(R.color.window_button_background_colour_visible))
+                    else roundDrawable.mutate().setTint(getResourceColor(R.color.bar_window_button_background_colour))
+                } else {
+                        // Set the border color if not using colored buttons
+                    val theme = MainBibleActivity._mainBibleActivity?.theme
+                    val roundDrawable: Drawable = resources.getDrawable(buttonResource, theme)
+
+                    if (isActive) roundDrawable.mutate().setTint(getResourceColor(R.color.blue_600))
+                    else if (isWindowVisible) roundDrawable.mutate()
+                        .setTint(getResourceColor(R.color.sync_on_green))
+                    else roundDrawable.mutate().setTint(getResourceColor(R.color.grey_500))
+                    }
             }
             windowButton.background = roundDrawable
 
