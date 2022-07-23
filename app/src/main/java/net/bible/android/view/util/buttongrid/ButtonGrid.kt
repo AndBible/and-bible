@@ -224,16 +224,19 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
             text = if (buttonInfo.showLongBookName && buttonInfo.type == ButtonInfo.Companion.GridButtonTypes.BOOK) {
                 // Check the length of the words in the long description and set the <size> tag accordingly
                 val words = buttonInfo.description?.split("\\s".toRegex())?: listOf()
-                var smallCnt = 1
+                var smallTagCount = 1
+                var longestWordLength = -1;
 
-                for(w in words) { // TODO: is this loop necessary?
-                    when {
-                        w.length > maxLengthForXSmall -> smallCnt = 3
-                        w.length > maxLengthForSmall -> smallCnt = 2
-                    }
+                for(w in words) {
+                    longestWordLength = if(longestWordLength > w.length) longestWordLength else w.length
                 }
 
-                for (i in 1..smallCnt){
+                when {
+                    longestWordLength > maxLengthForXSmall -> smallTagCount = 3
+                    longestWordLength > maxLengthForSmall -> smallTagCount = 2
+                }
+
+                for (i in 1..smallTagCount){
                     smallTagStart += "<small>"
                     smallTagEnd += "</small>"
                 }
