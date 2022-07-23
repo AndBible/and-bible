@@ -475,7 +475,6 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     companion object {
         private const val PREVIEW_HEIGHT_DIP = 70
         private const val TAG = "ButtonGrid"
-//        enum class GRID_BUTTON_TYPES {BOOK, CHAPTER, VERSE}
     }
 
     init {
