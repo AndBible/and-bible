@@ -18,21 +18,40 @@
 
 package net.bible.android.view.activity.readingplan
 
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ReadingDayBarBoxBinding
 import net.bible.android.view.activity.readingplan.model.DayBarItem
+import net.bible.service.common.CommonUtils.getResourceColor
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class DailyReadingDayBarAdapter : ListAdapter<DayBarItem, DailyReadingDayBarAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        TODO("Not yet implemented")
+        val binding = ReadingDayBarBoxBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        TODO("Not yet implemented")
+        val item = getItem(position) ?: return
+        holder.binding.apply {
+            dayNumberView.text = item.dayNumber.toString()
+            dateView.text = SimpleDateFormat("MMM dd", Locale.getDefault()).format(item.date)
+
+            boxContainer.setBackgroundColor(
+                if (item.dayActive)
+                    getResourceColor(R.color.sync_on_green)
+                else if (item.dayReadComplete)
+                    getResourceColor(R.color.grey_700)
+                else
+                    getResourceColor(R.color.grey_500)
+            )
+        }
     }
 
     inner class ViewHolder(val binding: ReadingDayBarBoxBinding) : RecyclerView.ViewHolder(binding.root)

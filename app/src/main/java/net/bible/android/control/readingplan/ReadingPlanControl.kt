@@ -25,6 +25,7 @@ import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.view.activity.readingplan.model.DayBarItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.db.readingplan.ReadingPlanRepository
@@ -101,6 +102,20 @@ class ReadingPlanControl @Inject constructor(
      */
     val currentPlansReadingList: List<OneDaysReadingsDto>
         get() = readingPlanTextDao.getReadingList(currentPlanCode)
+
+    val currentPlansReadingDayBarItems: List<DayBarItem>
+        get() {
+            val planCurrentDay = currentPlanDay
+            return readingPlanTextDao.getReadingList(currentPlanCode).map {
+                DayBarItem(
+                    it.day,
+                    it.readingDate,
+                    it.day == planCurrentDay,
+                    false, // TODO add functionality
+                    it.day < planCurrentDay
+                )
+            }
+        }
 
     val currentPlanExists: Boolean get() = try {
         readingPlanTextDao.getReading(currentPlanCode, 1)

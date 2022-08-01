@@ -28,6 +28,9 @@ import android.view.View
 import android.widget.TableLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuCompat
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import net.bible.android.BibleApplication
 
 import net.bible.android.activity.R
@@ -39,6 +42,7 @@ import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.activity.readingplan.model.DayBarItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.readingplan.OneDaysReadingsDto
@@ -211,12 +215,26 @@ class DailyReading : CustomTitlebarActivityBase() {
             }
             // end All
 
+            setupRecycler()
+
             Log.i(TAG, "Finished displaying Reading view")
         } catch (e: Exception) {
             Log.e(TAG, "Error showing daily readings", e)
             Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
 
+    }
+
+    private lateinit var viewAdapter: DailyReadingDayBarAdapter
+    private fun setupRecycler() {
+        val days = readingPlanControl.currentPlansReadingDayBarItems
+        viewAdapter = DailyReadingDayBarAdapter()
+        viewAdapter.submitList(days)
+        binding.daysRecycler.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+            adapter = viewAdapter
+            addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.HORIZONTAL))
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
