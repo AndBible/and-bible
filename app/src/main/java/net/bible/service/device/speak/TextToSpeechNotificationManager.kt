@@ -44,8 +44,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
-import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.passage.Verse
 import java.util.*
 import javax.inject.Inject
 
@@ -172,7 +170,7 @@ class TextToSpeechNotificationManager {
     }
 
 
-    private var app = BibleApplication.application
+    private val app get() = BibleApplication.application
     private var currentTitle = getString(R.string.app_name_medium)
     private var notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var headsetReceiver  = object: BroadcastReceiver() {
@@ -188,7 +186,7 @@ class TextToSpeechNotificationManager {
     private var currentText = ""
 
     private fun getString(id: Int): String {
-        return BibleApplication.application.getString(id)
+        return app.getString(id)
     }
 
     init {
@@ -200,10 +198,10 @@ class TextToSpeechNotificationManager {
 
         instance = this
         DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.application.applicationComponent)
+                .applicationComponent(app.applicationComponent)
                 .build().inject(this)
 
-        val powerManager = BibleApplication.application.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val powerManager = app.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
 
         app.registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
