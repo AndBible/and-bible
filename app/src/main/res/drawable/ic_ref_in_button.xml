@@ -1,0 +1,22 @@
+<!--
+  ~ Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<vector android:height="24dp" android:viewportHeight="100" android:tint="@color/grey_500"
+    android:viewportWidth="100" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#000000"
+        android:pathData="m75.8 69.6 3.7-.4q.2 1.4.9 2.1.8.8 1.9.8 1.2 0 2-.9.8-.9.8-2.4 0-1.4-.8-2.3-.8-.8-1.9-.8-.7 0-1.7.3l.4-3.1q1.5 0 2.3-.7.9-.7.9-1.9 0-.9-.6-1.5-.6-.6-1.6-.6-1 0-1.7.6-.7.7-.8 2l-3.5-.6q.4-1.8 1.1-2.8.7-1.1 2-1.7 1.4-.6 3-.6 2.8 0 4.5 1.7 1.3 1.5 1.3 3.3 0 2.6-2.8 4.2 1.7.3 2.7 1.6 1 1.3 1 3 0 2.6-1.9 4.5-1.9 1.8-4.7 1.8-2.7 0-4.4-1.5-1.8-1.6-2.1-4.1zm-26.5 5.3v-19.8h3.9v7.8h7.9v-7.8h3.9v19.8h-3.9v-8.7h-7.9v8.7zm-22.3-9.8q0-3 .9-5 .7-1.5 1.9-2.7 1.1-1.2 2.5-1.8 1.8-.8 4.3-.8 4.3 0 6.9 2.7 2.6 2.7 2.6 7.5 0 4.8-2.5 7.5-2.6 2.7-7 2.7-4.4 0-7-2.7-2.6-2.7-2.6-7.4zm4.1-.1q0 3.3 1.6 5.1 1.5 1.7 3.9 1.7 2.4 0 3.9-1.7 1.5-1.7 1.5-5.2 0-3.4-1.5-5-1.4-1.7-3.9-1.7-2.5 0-4 1.7-1.5 1.7-1.5 5.1zm-11.5-9.9h4v12.5q0 2.5-.4 3.8-.6 1.7-2.1 2.8-1.6 1-4 1-3 0-4.5-1.6-1.6-1.7-1.6-4.8l3.7-.5q.1 1.7.5 2.4.7 1.1 2 1.1 1.3 0 1.9-.8.5-.7.5-3.1zm-19.6-54.9v99.8h100v-100h-100v.1zm94.2 5.6v88.4h-88.4v-88.4z" android:strokeWidth="0.60710084"/>
+</vector>
