@@ -47,7 +47,7 @@
         android:paddingTop="2dp"
         android:paddingEnd="2dip"
         android:singleLine="true"
-        android:text="Abcd 5:1"
+        android:text=""
         android:textColor="@color/window_button_text_colour"
         android:textSize="8sp"
         app:layout_constraintBottom_toTopOf="@id/buttonText"

@@ -43,7 +43,6 @@ import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.text.HtmlCompat
 import androidx.core.view.MenuItemCompat
 import androidx.core.view.children
 import kotlinx.coroutines.Dispatchers
@@ -62,7 +61,6 @@ import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.versification.chapterVerse
 import net.bible.android.database.SettingsBundle
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
@@ -88,7 +86,6 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.roundToInt
-import org.crosswire.jsword.versification.Versification
 
 internal val isSplitVertically get() = mainBibleActivity.isSplitVertically
 
@@ -312,6 +309,40 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     private val autoHideWindowButtonBarInFullScreen get() =
         CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)
 
+    private fun refreshRestoreButtons() {
+        // Updates the text and icons on the window buttons.
+        Log.i(TAG, "refreshRestoreButtons")
+
+        restoreButtonsList.forEach{
+            Log.i(TAG, it.toString())
+            it.updateSettings()
+            val topTextValue = if(CommonUtils.booleanSettings.get("enable_show_verse_in_button_pref", false)) {
+                if (it.window?.pageManager?.isBibleShown!! or it.window?.pageManager?.isCommentaryShown) {
+                    var book = ""
+                    var chapter = ""
+                    var verse = ""
+                    val v11n = (it.window.pageManager.currentPage.currentDocument as SwordBook).versification
+
+                    if (it.window.isSynchronised) {
+                        if(windowRepository.syncKey is Verse)
+                            (v11n.getShortName((windowRepository.syncKey as Verse).book)) + " " + (windowRepository.syncKey as Verse).chapter.toString() + ":" + (windowRepository.syncKey as Verse).verse.toString()
+                        else ""
+                    } else {
+                        book = it.window.pageManager.currentBibleVerse.verse.book.toString()
+                        chapter = it.window.pageManager.currentBibleVerse.verse.chapter.toString()
+                        verse = it.window.pageManager.currentBibleVerse.verse.verse.toString()
+                        book + " " + chapter + ":" + verse
+                    }
+
+                } else {
+                    ""
+                }} else {
+                    ""
+            }
+            it.topText = topTextValue
+        }
+    }
+
     private fun rebuildRestoreButtons() {
         Log.i(TAG, "rebuildRestoreButtons")
         restoreButtonsList.clear()
@@ -382,6 +413,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
         binding.hideRestoreButton.visibility = hideArrow
         binding.hideRestoreButtonExtension.visibility = hideArrow
+        refreshRestoreButtons()
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
@@ -392,28 +424,10 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
-        updateBibleReference()
+        if (windowRepository.activeWindow.isSynchronised && mainBibleActivity.displayVerse != null) windowRepository.syncKey =
+                mainBibleActivity.displayVerse
+        if(CommonUtils.booleanSettings.get("enable_show_verse_in_button_pref", false))  refreshRestoreButtons()
         if (event.window != null) updateMinimizedButtonText(event.window)
-    }
-
-    private fun updateBibleReference() {
-        if (windowRepository.activeWindow.isSynchronised && mainBibleActivity.displayVerse!=null) windowRepository.syncKey = mainBibleActivity.displayVerse
-        mainBibleActivity.runOnUiThread {
-            try {
-                rebuildRestoreButtons()  // Needed to update the verse references in the button bars
-            } catch(e: MainBibleActivity.KeyIsNull) {
-                Log.e(TAG, "AGR: Something went wrong", e)
-            }
-        }
-        if(bibleReferenceOverlay.visibility != View.VISIBLE) return
-        mainBibleActivity.runOnUiThread {
-            try {
-                bibleReferenceOverlay.text = mainBibleActivity.bibleOverlayText
-            } catch(e: MainBibleActivity.KeyIsNull) {
-                Log.e(TAG, "Key is null, can't update", e)
-            }
-        }
-
     }
 
     private fun updateMinimizedButtonText(w: Window) {
@@ -441,7 +455,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     fun onEvent(event: CurrentWindowChangedEvent) {
         toggleWindowButtonVisibility(true, force=true)
         resetTouchTimer()
-        updateBibleReference()
+        refreshRestoreButtons()
         ensureRestoreButtonVisible()
     }
 
@@ -628,28 +642,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
     private fun createRestoreButton(window: Window): WindowButtonWidget {
         return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
-            val topTextValue = if (window.pageManager.isBibleShown or window.pageManager.isCommentaryShown) {
-                var book = ""
-                var chapter = ""
-                var verse = ""
-                val v11n = (window.pageManager.currentPage.currentDocument as SwordBook).versification
-
-                if (window.isSynchronised) {
-                    if(windowRepository.syncKey is Verse)
-                        (v11n.getShortName((windowRepository.syncKey as Verse).book)) + " " + (windowRepository.syncKey as Verse).chapter.toString() + ":" + (windowRepository.syncKey as Verse).verse.toString()
-                    else ""
-                } else {
-                    book = window.pageManager.currentBibleVerse.verse.book.toString()
-                    chapter = window.pageManager.currentBibleVerse.verse.chapter.toString()
-                    verse = window.pageManager.currentBibleVerse.verse.verse.toString()
-                    book + " " + chapter + ":" + verse
-                }
-
-            } else {
-                ""
-            }
             text = getDocumentAbbreviation(window)
-            topText = topTextValue
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { v-> showPopupMenu(window, v); true }
         }
