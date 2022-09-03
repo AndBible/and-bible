@@ -141,7 +141,7 @@
 		<SwitchPreferenceCompat android:key="enable_show_verse_in_button_pref"
 			android:title="@string/prefs_enable_show_verse_in_button"
 			android:summary="@string/prefs_enable_show_verse_in_button_summary"
-			android:icon="@drawable/ic_text_options_24dp"
+			android:icon="@drawable/ic_ref_in_button"
 			android:defaultValue="true"/>
 		<SwitchPreferenceCompat android:key="request_sdcard_permission_pref"
 			android:title="@string/prefs_request_sdcard_permission_title"
