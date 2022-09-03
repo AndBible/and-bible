@@ -215,7 +215,7 @@ object SwordContentFacade {
         val start = startVerse.slice(0 until min(startOffset, startVerse.length))
 
         var startVerseNumber = ""
-        if (showVerseNumbers && verseTexts.size > 1) {
+        if (showVerseNumbers && !showReferenceAtFront && verseTexts.size > 1) {
             startVerseNumber = "${selection.verseRange.start.verse}. "
         }
         if (showSelectionOnly && startOffset > 0 && showEllipsis) {
