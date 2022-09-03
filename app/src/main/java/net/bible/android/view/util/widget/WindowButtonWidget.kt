@@ -83,20 +83,23 @@ class WindowButtonWidget(
 
     private val isMaximised get() = windowControl.windowRepository.isMaximized
 
-    private fun updateSettings() {
+    fun updateSettings() {
         binding.synchronize.visibility = if(window !== null && window.isSyncable && window.isSynchronised && !isMaximised)
             View.VISIBLE
         else View.INVISIBLE
         binding.docType.visibility = if(isMaximised) View.INVISIBLE else View.VISIBLE
-        binding.pinMode.visibility = GONE
-//        binding.pinMode.visibility =
-//            if(!windowControl.windowRepository.workspaceSettings.autoPin
-//                && window?.isPinMode == true
-//                && !isMaximised
-//            )
-//                View.VISIBLE
-//            else
-//                View.INVISIBLE
+        if(CommonUtils.booleanSettings.get("enable_show_verse_in_button_pref", false)) {
+            binding.pinMode.visibility = GONE
+        } else {
+            binding.pinMode.visibility =
+                if (!windowControl.windowRepository.workspaceSettings.autoPin
+                    && window?.isPinMode == true
+                    && !isMaximised
+                )
+                    View.VISIBLE
+                else
+                    View.INVISIBLE
+        }
     }
 
     private fun updateBackground() {

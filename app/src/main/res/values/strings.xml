@@ -249,8 +249,8 @@
     <string name="prefs_enable_bluetooth_title">Enable Bluetooth media buttons</string>
     <string name="prefs_enable_bluetooth_summary">Handle Bluetooth media buttons to start/stop speaking.</string>
 
-    <string name="prefs_enable_colored_window_button_title">Enable colored window buttons</string>
-    <string name="prefs_enable_colored_window_button_summary">Set the active window button to the same color as the workspace.</string>
+    <string name="prefs_enable_show_verse_in_button">Show verse reference in window buttons</string>
+    <string name="prefs_enable_show_verse_in_button_summary">Display the verse reference of that window in the window button.</string>
 
     <!-- Colors preferences -->
     <string name="prefs_text_colors_menutitle">Color settings</string>
