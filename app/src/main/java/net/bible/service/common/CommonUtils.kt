@@ -116,6 +116,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
+@Suppress("DEPRECATION")
 fun htmlToSpan(html: String): Spanned {
     val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
@@ -784,11 +785,7 @@ object CommonUtils : CommonUtilsBase() {
                 """.trimIndent()
         }
         about = about.replace("\n", "<br>")
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(about, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(about)
-        }
+        val spanned = htmlToSpan(about)
         suspendCoroutine<Any?> {
             val d = AlertDialog.Builder(context)
                 .setMessage(spanned)
@@ -837,12 +834,7 @@ object CommonUtils : CommonUtilsBase() {
         if(showVersion)
             htmlMessage += "<i>$versionMsg</i>"
 
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(htmlMessage)
-        }
-
+        val spanned = htmlToSpan(htmlMessage)
         val d = androidx.appcompat.app.AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
             .setIcon(R.drawable.ic_logo)
