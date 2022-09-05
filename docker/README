@@ -1,0 +1,37 @@
+About:
+
+AndBible's build system requires a newer version of nodejs than is packaged
+for Ubuntu 20.04.  As a result I can no longer build AndBible.  I created
+this Docker image based on Ubuntu 22.04 so that I can use it to build
+AndBible.
+
+I build the docker image, then I run it using a directory that I have
+prepared to be my "home" directory within the container.  The contents of
+this directory are accessible from outside the container, and remain even
+when the container is stopped.  It contains my dotfiles (.zshrc, .zshenv,
+.vimrc, .gitconfig), the .android directory where Android Studio stores
+various data, and my git repository for AndBible.  I also mount the
+directory with the X11 UNIX Domain Sockets into the container so GUI
+applications (Android Studio in particular) can be run.  This directory is
+not my home directory on the host OS.
+
+
+
+Build the Docker image:  
+
+    $ docker image build -t andbible-dev \
+        --build-arg MY_UID=`id -u` \
+        ./docker/
+
+Run the Docker container:  
+
+    $ docker container run \
+        --interactive --tty \
+        --name andbible-dev \
+        --user `id -u`:`id -g` \
+        --network="host" \
+        -e DISPLAY=$DISPLAY \
+        -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+        -v `pwd`:/space/home/:rw \
+        andbible-dev:latest
+
