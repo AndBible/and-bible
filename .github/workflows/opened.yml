@@ -1,55 +1,24 @@
-name: Add issue to project
+name: Assign to projects when opened issues/prs
+
 on:
   issues:
-    types:
-      - opened
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
-  track_issue:
+  assign_to_tuomas_project:
+    permissions:
+      repository-projects: write
+      issues: read
     runs-on: ubuntu-latest
+    name: Add all new issues to Tuomas' project board
     steps:
-      - name: Get project data
-        env:
-          GITHUB_TOKEN: ${{ secrets.PROJECT_ACCESS_TOKEN }}
-          ORGANIZATION: AndBible
-          PROJECT_NUMBER: 4
-        run: |
-          gh api graphql -f query='
-            query($org: String!, $number: Int!) {
-              organization(login: $org){
-                projectV2(number: $number) {
-                  id
-                  fields(first:20) {
-                    nodes {
-                      ... on ProjectV2Field {
-                        id
-                        name
-                      }
-                      ... on ProjectV2SingleSelectField {
-                        id
-                        name
-                        options {
-                          id
-                          name
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
-
-          echo 'PROJECT_ID='$(jq '.data.organization.projectV2.id' project_data.json) >> $GITHUB_ENV
-
-      - name: Add issue to project
-        env:
-          GITHUB_TOKEN: ${{ secrets.PROJECT_ACCESS_TOKEN }}
-          ISSUE_ID: ${{ github.event.issue.node_id }}
-        run: |
-          item_id="$( gh api graphql -f query='
-            mutation($project:ID!, $issue:ID!) {
-              addProjectV2ItemById(input: {projectId: $project, contentId: $issue}) {
-                item {
-                  id
-                }
-              }
-            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectV2ItemById.projectV2Item.id')"
+    - uses: srggrs/assign-one-project-github-action@42352f30e8f3608e29350741411ab7061c953972 # 1.2.1
+      if: github.event.action == 'opened'
+      with:
+        project: 'https://github.com/AndBible/and-bible/projects/2'
+        column_name: 'Needs triage'
