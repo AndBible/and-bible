@@ -20,6 +20,8 @@ import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.Dialogs
@@ -139,6 +141,7 @@ abstract class CurrentPageBase protected constructor(
         }
 
         annotateKey = frag.annotateRef
+        ABEventBus.getDefault().post(CurrentVerseChangedEvent())
 
         OsisDocument(
             book = currentDocument,
