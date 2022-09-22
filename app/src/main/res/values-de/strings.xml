@@ -170,6 +170,8 @@
   <string name="pref_font_family_label_name">Schriftart (%s)</string>
   <string name="prefs_font_family_summary">Die Schriftart ändern. Tipp: weitere Schriftarten können über Dokumente herunterladen/Addons installieren</string>
   <string name="prefs_text_bookmarks_title">Einstellungen für Lesezeichen &amp; eigene Notizen</string>
+  <string name="prefs_enable_bluetooth_title">Aktiviere Bluetooth-Mediensteuerung</string>
+  <string name="prefs_enable_bluetooth_summary">Verwende Tasten auf Bluetooth Gerät zum An- und Ausschalten des Vorlesens.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Farbeinstellungen</string>
   <string name="window_color_settings_title">Fensterfarben</string>
@@ -205,6 +207,7 @@
   <string name="next">Vorwärts</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Bitte laden Sie die Strong\'s Wörterbücher für Griechisch und Hebräisch herunter</string>
+  <string name="no_indexed_bible_with_strongs_ref">Du musst eine Bibelübersetzung mit inkludierten Strong-Nummern herunterladen und im Suchmenü die Indizierung durchführen</string>
   <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
   <string name="go_to_downloads">Gehe zu Downloads</string>
   <!--Module download-->

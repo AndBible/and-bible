@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 package net.bible.test
 
 import android.os.Looper
@@ -32,7 +49,7 @@ object DatabaseResetter {
         // Something is hanging there still due to kotlin coroutines. This seem to help.
         // Sorry, not motivated at this time to investigate this any further if this workaround works.
 
-        Thread.sleep(200)
+        Thread.sleep(500)
         resetSingleton(DatabaseContainer::class.java, "instance")
     }
 
