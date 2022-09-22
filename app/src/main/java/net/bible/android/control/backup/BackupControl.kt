@@ -26,9 +26,11 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -522,31 +524,78 @@ object BackupControl {
 
 class BackupActivity: ActivityBase() {
     lateinit var binding: BackupViewBinding
+    private val backupScope = CoroutineScope(Dispatchers.Default)
+
+    override fun onBackPressed() {
+        updateSelectionOptions()
+        super.onBackPressed()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        var isHandled = true
+        when(item.itemId){
+            android.R.id.home -> {
+                updateSelectionOptions()
+                finish()
+            }
+            else -> isHandled = false
+        }
+        if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item)
+        }
+        return isHandled
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         binding = BackupViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.apply {
-            restoreModules.text = "${getString(R.string.install_zip)} / ${getString(R.string.restore_modules)}"
+            toggleBackupApplication.isChecked = CommonUtils.settings.getBoolean("backup_application", false)
+            toggleBackupDatabase.isChecked = CommonUtils.settings.getBoolean("backup_database", false)
+            toggleBackupDocuments.isChecked = CommonUtils.settings.getBoolean("backup_documents", false)
+            toggleRestoreDatabase.isChecked = CommonUtils.settings.getBoolean("restore_database", false)
+            toggleRestoreDocuments.isChecked = CommonUtils.settings.getBoolean("restore_documents", false)
 
-            backupApp.setOnClickListener { GlobalScope.launch { BackupControl.backupApp(this@BackupActivity) } }
-            backupAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) } }
-            backupModules.setOnClickListener { GlobalScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) } }
-            restoreAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) } }
-            restoreModules.setOnClickListener { GlobalScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) } }
+            buttonBackup.setOnClickListener {
+                updateSelectionOptions()
+                when {
+                    toggleBackupApplication.isChecked -> backupScope.launch { BackupControl.backupApp(this@BackupActivity) }
+                    toggleBackupDatabase.isChecked -> backupScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) }
+                    toggleBackupDocuments.isChecked -> backupScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) }
+                }
+            }
+            buttonRestore.setOnClickListener {
+                updateSelectionOptions()
+                when {
+                    toggleRestoreDatabase.isChecked -> backupScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) }
+                    toggleRestoreDocuments.isChecked -> backupScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
+                }
+            }
             CommonUtils.dbBackupPath.listFiles()?.forEach { f ->
                 val b = Button(this@BackupActivity)
                 val s = f.name
                 b.text = s
                 b.setOnClickListener {
-                    GlobalScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
+                    backupScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
                 }
                 backupDbButtons.addView(b)
             }
             if(backupDbButtons.childCount == 0) {
                 importExportTitle.visibility = View.GONE
             }
+        }
+    }
+
+    private fun updateSelectionOptions() {
+        // update widget share option settings
+        CommonUtils.settings.apply {
+            setBoolean("backup_application", binding.toggleBackupApplication.isChecked)
+            setBoolean("backup_database", binding.toggleBackupDatabase.isChecked)
+            setBoolean("backup_documents", binding.toggleBackupDocuments.isChecked)
+            setBoolean("restore_database", binding.toggleRestoreDatabase.isChecked)
+            setBoolean("restore_documents", binding.toggleRestoreDocuments.isChecked)
         }
     }
 }
