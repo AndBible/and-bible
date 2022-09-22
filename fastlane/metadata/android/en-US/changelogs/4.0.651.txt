@@ -1,5 +1,4 @@
 Latest changes
-- UI translation updates (NL)
 - Bugfixes
 
 4.0
