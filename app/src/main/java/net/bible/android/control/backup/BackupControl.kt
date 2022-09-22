@@ -532,18 +532,14 @@ class BackupActivity: ActivityBase() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        var isHandled = true
-        when(item.itemId){
+        return when(item.itemId){
             android.R.id.home -> {
                 updateSelectionOptions()
                 finish()
+                true
             }
-            else -> isHandled = false
+            else -> super.onOptionsItemSelected(item)
         }
-        if (!isHandled) {
-            isHandled = super.onOptionsItemSelected(item)
-        }
-        return isHandled
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
