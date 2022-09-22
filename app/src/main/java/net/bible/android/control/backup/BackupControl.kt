@@ -26,6 +26,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import androidx.core.content.FileProvider
@@ -523,7 +524,27 @@ object BackupControl {
 
 class BackupActivity: ActivityBase() {
     lateinit var binding: BackupViewBinding
-    val backupScope = CoroutineScope(Dispatchers.Default)
+    private val backupScope = CoroutineScope(Dispatchers.Default)
+
+    override fun onBackPressed() {
+        updateSelectionOptions()
+        super.onBackPressed()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        var isHandled = true
+        when(item.itemId){
+            android.R.id.home -> {
+                updateSelectionOptions()
+                finish()
+            }
+            else -> isHandled = false
+        }
+        if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item)
+        }
+        return isHandled
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
