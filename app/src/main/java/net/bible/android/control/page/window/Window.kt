@@ -18,8 +18,8 @@
 package net.bible.android.control.page.window
 
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -156,6 +156,7 @@ open class Window (
         }
 
     val initialized get() = lastUpdated != 0L
+    val updateScope = CoroutineScope(Dispatchers.IO)
 
     fun updateText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible
@@ -178,7 +179,7 @@ open class Window (
         displayedKey = currentPage.key
         Log.i(TAG, "updateText ${this.hashCode()}") // ${Log.getStackTraceString(Exception())}")
 
-        GlobalScope.launch(Dispatchers.IO) {
+        updateScope.launch {
             if (notifyLocationChange) {
                 PassageChangeMediator.getInstance().contentChangeStarted()
             }

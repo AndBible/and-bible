@@ -35,44 +35,49 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/toggleBackupDatabase"
+        <RadioGroup
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="@string/database" />
+            android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="@string/database_info" />
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/toggleBackupDatabase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="@string/database" />
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/toggleBackupDocuments"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="@string/documents" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/database_info" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="@string/document_info" />
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/toggleBackupDocuments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="@string/documents" />
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/toggleBackupApplication"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="@string/application" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/document_info" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="@string/application_info" />
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/toggleBackupApplication"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="@string/application" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/application_info" />
+        </RadioGroup>
         <Button
             android:id="@+id/buttonBackup"
             android:layout_width="match_parent"
@@ -89,33 +94,36 @@
             android:layout_marginTop="20dp"
             android:textSize="20sp"
             android:textStyle="bold" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/toggleRestoreDatabase"
+        <RadioGroup
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="@string/database" />
+            android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:text="@string/database_info" />
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/toggleRestoreDatabase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="@string/database" />
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/toggleRestoreDocuments"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="@string/documents" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="@string/database_info" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:text="@string/document_info" />
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/toggleRestoreDocuments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="@string/documents" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="@string/document_info" />
+        </RadioGroup>
         <Button
             android:id="@+id/buttonRestore"
             android:layout_width="match_parent"
