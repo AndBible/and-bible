@@ -23,7 +23,7 @@ buildscript {
     val jswordVersion by extra("2.3.65")
     val jdomVersion by extra("2.0.6") // make sure this is same version as in jsword!
     val commonsTextVersion by extra("1.9")
-    val kotlinxSerializationVersion by extra("1.3.2")
+    val kotlinxSerializationVersion by extra("1.4.0")
 
     repositories {
         google()
