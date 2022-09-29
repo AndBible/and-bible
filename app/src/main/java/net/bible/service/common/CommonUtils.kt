@@ -385,13 +385,12 @@ object CommonUtils : CommonUtilsBase() {
         Log.i(TAG, "Deleting directory:" + path.absolutePath)
         if (path.exists()) {
             if (path.isDirectory) {
-                val files = path.listFiles()
-                for (i in files.indices) {
-                    if (files[i].isDirectory) {
-                        deleteDirectory(files[i])
+                path.listFiles()?.forEach { file ->
+                    if (file.isDirectory) {
+                        deleteDirectory(file)
                     } else {
-                        files[i].delete()
-                        Log.i(TAG, "Deleted " + files[i])
+                        file.delete()
+                        Log.i(TAG, "Deleted " + file)
                     }
                 }
             }
