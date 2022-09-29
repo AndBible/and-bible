@@ -345,7 +345,7 @@ object CommonUtils : CommonUtilsBase() {
 
     fun getFreeSpace(path: String): Long {
         val stat = StatFs(path)
-        val bytesAvailable = stat.blockSize.toLong() * stat.availableBlocks.toLong()
+        val bytesAvailable = stat.availableBytes
         Log.i(TAG, "Free space :$bytesAvailable")
         return bytesAvailable
     }
