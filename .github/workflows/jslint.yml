@@ -30,6 +30,10 @@ jobs:
         with:
           node-version: '14'
 
+      - name: Upgrade npm
+        working-directory: app/bibleview-js
+        run: npm install -g npm
+
       - name: Run npm install
         working-directory: app/bibleview-js
         run: npm ci
