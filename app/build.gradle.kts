@@ -281,10 +281,6 @@ dependencies {
     val roomVersion: String by rootProject.extra
 
     implementation(project(":db"))
-    // Appcompat:
-    // 1.2.0+ releases (until 1.3.0-alpha02 at least) have issue with translations
-    // not showing up on MainBibleActivity. Thus reverting to 1.0.2 for now.
-    // https://issuetracker.google.com/issues/141132133
     implementation("androidx.appcompat:appcompat:1.6.0-rc01")
 
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
@@ -303,9 +299,6 @@ dependencies {
 
     implementation("com.google.android.material:material:1.6.1")
 
-    // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
-    implementation("androidx.annotation:annotation:1.5.0")
-
     implementation("androidx.room:room-runtime:$roomVersion")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
@@ -317,9 +310,10 @@ dependencies {
     //implementation("com.madgag.spongycastle:pkix:1.58.0.0")
     //implementation("com.madgag.spongycastle:pg:1.58.0.0")
 
-    implementation("com.google.dagger:dagger:2.44")
-    annotationProcessor("com.google.dagger:dagger-compiler:2.44")
-    kapt("com.google.dagger:dagger-compiler:2.44")
+    val daggerVersion = "2.44"
+    implementation("com.google.dagger:dagger:$daggerVersion")
+    annotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
+    kapt("com.google.dagger:dagger-compiler:$daggerVersion")
 
     implementation("de.greenrobot:eventbus:2.4.1")
 
