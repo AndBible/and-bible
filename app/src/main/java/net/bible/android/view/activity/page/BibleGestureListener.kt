@@ -129,8 +129,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         return false
     }
 
-
-    override fun onSingleTapUp(e: MotionEvent?): Boolean {
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
         ABEventBus.getDefault().post(BibleView.BibleViewTouched(onlyTouch = true))
         return super.onSingleTapUp(e)
     }

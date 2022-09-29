@@ -23,12 +23,12 @@ plugins {
 }
 
 android {
-    compileSdk = 30
+    compileSdk = 33
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         minSdk =19
-        targetSdk = 30
+        targetSdk = 33
         javaCompileOptions {
             annotationProcessorOptions {
                 argument("room.schemaLocation", "$projectDir/schemas".toString())

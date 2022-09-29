@@ -511,11 +511,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 return super.onFling(e1, e2, velocityX, velocityY)
             }
 
-            override fun onLongPress(e: MotionEvent?) {
+            override fun onLongPress(e: MotionEvent) {
                 startActivityForResult(Intent(this@MainBibleActivity, ChooseDocument::class.java), IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
             }
 
-            override fun onSingleTapUp(e: MotionEvent?): Boolean {
+            override fun onSingleTapUp(e: MotionEvent): Boolean {
                 pageControl.currentPageManager.currentPage.startKeyChooser(this@MainBibleActivity)
                 return true
             }
@@ -759,7 +759,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     item.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_workspace_overlay_24dp)
                 }
                 if(item.hasSubMenu()) {
-                    handleMenu(item.subMenu)
+                    handleMenu(item.subMenu!!)
                     continue;
                 }
 
