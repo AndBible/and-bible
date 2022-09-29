@@ -16,7 +16,6 @@
  */
 import {bcv_parser as BcvParser} from "bible-passage-reference-parser/js/en_bcv_parser.min";
 
-
 export function useParsers(android) {
     const enParser = new BcvParser;
     const parsers = [enParser];

@@ -73,11 +73,11 @@ class WindowButtonGestureListener: GestureDetector.SimpleOnGestureListener() {
         return super.onFling(e1, e2, velocityX, velocityY)
     }
 
-    override fun onLongPress(e: MotionEvent?) {
+    override fun onLongPress(e: MotionEvent) {
         gesturePerformed = BibleFrame.GestureType.LONG_PRESS
     }
 
-    override fun onSingleTapUp(e: MotionEvent?): Boolean {
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
         gesturePerformed = BibleFrame.GestureType.SINGLE_TAP
         return true
     }

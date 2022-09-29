@@ -67,7 +67,7 @@ class ProgressNotificationManager {
 
         workListener = object : WorkListener {
 
-            override fun workProgressed(ev: WorkEvent) {
+            override fun workProgressed(ev: WorkEvent) = synchronized(this) {
                 val prog = ev.job
                 val done = prog.work
                 progs.add(prog)

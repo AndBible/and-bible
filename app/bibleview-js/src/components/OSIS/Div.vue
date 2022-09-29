@@ -53,6 +53,7 @@ export default {
     }
 
     if(isPreVerse(props) && verseInfo) {
+      // eslint-disable-next-line vue/no-ref-as-operand
       shown = ref(true);
       for (const oldValue of verseInfo.showStack) {
         oldValue.value = false;
