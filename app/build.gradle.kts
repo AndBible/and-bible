@@ -285,7 +285,7 @@ dependencies {
     // 1.2.0+ releases (until 1.3.0-alpha02 at least) have issue with translations
     // not showing up on MainBibleActivity. Thus reverting to 1.0.2 for now.
     // https://issuetracker.google.com/issues/141132133
-    implementation("androidx.appcompat:appcompat:1.4.1")
+    implementation("androidx.appcompat:appcompat:1.4.2") // 1.5+ requires SDK 33
 
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
     implementation("androidx.media:media:1.6.0")
