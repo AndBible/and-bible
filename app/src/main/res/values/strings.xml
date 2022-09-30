@@ -982,7 +982,7 @@
     <string name="strongs_text_and_links">Text and Links</string>
     <string name="verse_tip">To select partial or many verses, you can long-press Bible text</string>
 
-    <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
     <string name="permission_required">Permission needed</string>
+    <string name="progress_status_permission">To show progress status notification (download status, index processing etc), we need your permission. </string>
 
 </resources>

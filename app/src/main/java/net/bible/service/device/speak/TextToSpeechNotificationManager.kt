@@ -302,6 +302,10 @@ class TextToSpeechNotificationManager {
         val style = MediaStyle()
             .setShowActionsInCompactView(2)
 
+        MediaButtonHandler.handler?.ms?.sessionToken?.apply {
+            style.setMediaSession(this)
+        }
+
         val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 
         builder.setSmallIcon(R.drawable.ic_ichtys)

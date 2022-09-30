@@ -17,6 +17,7 @@
 
 package net.bible.service.common
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.AlertDialog
@@ -24,6 +25,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -55,6 +57,7 @@ import androidx.preference.PreferenceScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -834,7 +837,7 @@ object CommonUtils : CommonUtilsBase() {
             htmlMessage += "<i>$versionMsg</i>"
 
         val spanned = htmlToSpan(htmlMessage)
-        val d = androidx.appcompat.app.AlertDialog.Builder(callingActivity)
+        val d = AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
             .setIcon(R.drawable.ic_logo)
             .setMessage(spanned)
@@ -1166,6 +1169,30 @@ object CommonUtils : CommonUtilsBase() {
 
             val d = dlgBuilder.show()
             d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        }
+    }
+
+    suspend fun requestNotificationPermission(activity: ActivityBase) = withContext(Dispatchers.Main) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
+                var request = true
+                if (activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                    val answer = suspendCoroutine {
+                        AlertDialog.Builder(activity)
+                            .setTitle(R.string.permission_required)
+                            .setIcon(R.drawable.ic_logo)
+                            .setMessage(R.string.progress_status_permission)
+                            .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
+                            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
+                            .setOnCancelListener { _ -> it.resume(null) }
+                            .show()
+                    }
+                    request = answer == true
+                }
+                if(request) {
+                    activity.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 999)
+                }
+            }
         }
     }
 }
