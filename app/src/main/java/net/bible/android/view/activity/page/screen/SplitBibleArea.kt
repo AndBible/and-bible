@@ -731,12 +731,12 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         val menu = popup.menu
         inflater.inflate(R.menu.window_popup_menu, menu)
 
-        val moveWindowsSubMenu = menu.findItem(R.id.moveWindowSubMenu).subMenu
+        val moveWindowsSubMenu = menu.findItem(R.id.moveWindowSubMenu).subMenu!!
         moveWindowsSubMenu.removeItem(R.id.moveItem)
 
         var count = 0
 
-        val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
+        val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu!!
 
         val export = menu.findItem(R.id.exportHtml)
         export.title = app.getString(R.string.export_fileformat, "HTML")
@@ -746,7 +746,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
             textOptionsSubMenu.removeItem(R.id.textOptionItem)
 
-            val copySettingSubMenu = textOptionsSubMenu.findItem(R.id.copySettingsTo).subMenu
+            val copySettingSubMenu = textOptionsSubMenu.findItem(R.id.copySettingsTo).subMenu!!
             copySettingSubMenu.removeItem(R.id.copySettingsToWindow)
 
             BookName.setFullBookName(false)
@@ -810,7 +810,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                     )
                 }
                 if(item.hasSubMenu()) {
-                    handleMenu(item.subMenu)
+                    handleMenu(item.subMenu!!)
                     continue
                 }
 

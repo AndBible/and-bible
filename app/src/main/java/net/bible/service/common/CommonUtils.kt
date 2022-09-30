@@ -116,6 +116,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
+@Suppress("DEPRECATION")
 fun htmlToSpan(html: String): Spanned {
     val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
@@ -344,7 +345,7 @@ object CommonUtils : CommonUtilsBase() {
 
     fun getFreeSpace(path: String): Long {
         val stat = StatFs(path)
-        val bytesAvailable = stat.blockSize.toLong() * stat.availableBlocks.toLong()
+        val bytesAvailable = stat.availableBytes
         Log.i(TAG, "Free space :$bytesAvailable")
         return bytesAvailable
     }
@@ -385,13 +386,12 @@ object CommonUtils : CommonUtilsBase() {
         Log.i(TAG, "Deleting directory:" + path.absolutePath)
         if (path.exists()) {
             if (path.isDirectory) {
-                val files = path.listFiles()
-                for (i in files.indices) {
-                    if (files[i].isDirectory) {
-                        deleteDirectory(files[i])
+                path.listFiles()?.forEach { file ->
+                    if (file.isDirectory) {
+                        deleteDirectory(file)
                     } else {
-                        files[i].delete()
-                        Log.i(TAG, "Deleted " + files[i])
+                        file.delete()
+                        Log.i(TAG, "Deleted " + file)
                     }
                 }
             }
@@ -784,11 +784,7 @@ object CommonUtils : CommonUtilsBase() {
                 """.trimIndent()
         }
         about = about.replace("\n", "<br>")
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(about, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(about)
-        }
+        val spanned = htmlToSpan(about)
         suspendCoroutine<Any?> {
             val d = AlertDialog.Builder(context)
                 .setMessage(spanned)
@@ -837,12 +833,7 @@ object CommonUtils : CommonUtilsBase() {
         if(showVersion)
             htmlMessage += "<i>$versionMsg</i>"
 
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(htmlMessage)
-        }
-
+        val spanned = htmlToSpan(htmlMessage)
         val d = androidx.appcompat.app.AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
             .setIcon(R.drawable.ic_logo)
