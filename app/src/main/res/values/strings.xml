@@ -1020,11 +1020,12 @@
     <string name="strongs_text_and_links">Text and Links</string>
     <string name="verse_tip">To select partial or many verses, you can long-press Bible text</string>
 
-    <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
     <string name="permission_required">Permission needed</string>
     <string name="labels_search_hint">Search</string>
     <string name="assing_labels_help6">Tap %s to show or hide filter labels text input.</string>
     <string name="assing_labels_help7">You can add quick filter button by pressing %s button.</string>
     <string name="assing_labels_help7_1">Tap each quick filter button to activate or deactivate them.</string>
     <string name="assing_labels_help8">Long-press quick filter button to remove it.</string>
+    <string name="progress_status_permission">To show progress status notification (download status, index processing etc), we need your permission. </string>
+
 </resources>

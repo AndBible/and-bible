@@ -198,7 +198,7 @@ class TextToSpeechServiceManager @Inject constructor(
         }
 
         if (!isOk) {
-            speakControl.stop(false, true)
+            speakControl.stop(willContinueAfter = false, force = true)
         }
     }
 

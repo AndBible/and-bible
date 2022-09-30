@@ -1440,11 +1440,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     documentControl.turnOffManualInstallFolderSetting()
                 }
             }
-            PHONE_STATE_READ_REQUEST -> if (grantResults.isNotEmpty()) {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    PhoneCallMonitor.ensureMonitoringStarted()
-                }
-            }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -1523,7 +1518,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val mainBibleActivity get() = _mainBibleActivity!!
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
-        private const val PHONE_STATE_READ_REQUEST = 3
 
         const val TEXT_DISPLAY_SETTINGS_CHANGED = 92
         const val COLORS_CHANGED = 93
