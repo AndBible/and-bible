@@ -319,7 +319,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             Log.i(TAG, it.toString())
             it.updateSettings()
             val topTextValue = if(CommonUtils.booleanSettings.get("enable_show_verse_in_button_pref", false)) {
-                if (it.window?.pageManager?.isBibleShown!! or it.window?.pageManager?.isCommentaryShown) {
+                if (it.window?.pageManager?.isBibleShown!! or (it.window?.pageManager?.isCommentaryShown == true)) {
                     var book = ""
                     var chapter = ""
                     var verse = ""

@@ -322,7 +322,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
             // Add words in this verse to word statistics array
             wordStatsTimer.start()
-            var verseSpans: Array<StyleSpan> = verseTextSpannable!!.getSpans(0, verseTextSpannable?.length, StyleSpan::class.java)
+            var verseSpans: Array<StyleSpan> = verseTextSpannable!!.getSpans(0, verseTextSpannable.length, StyleSpan::class.java)
             for (i in verseSpans.indices) {
                 if (verseSpans[i].getStyle() === Typeface.BOLD) {
                     totalWords += 1
