@@ -32,7 +32,7 @@ import org.crosswire.jsword.book.BooksEvent
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class DocumentBibleBooksFactory @Inject constructor() {
+open class DocumentBibleBooksFactory @Inject constructor() {
     private val cache: LruCache<AbstractPassageBook, DocumentBibleBooks> = object : LruCache<AbstractPassageBook, DocumentBibleBooks>(CACHE_SIZE) {
         override fun create(document: AbstractPassageBook): DocumentBibleBooks {
             return DocumentBibleBooks(document)
