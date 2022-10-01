@@ -14,37 +14,22 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-
-package net.bible.service.device.speak.event;
+package net.bible.service.device.speak.event
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class SpeakEvent {
+class SpeakEvent(val speakState: SpeakState) {
+    enum class SpeakState {
+        SPEAKING, PAUSED, SILENT, TEMPORARY_STOP
+    }
 
-	public enum SpeakState {SPEAKING, PAUSED, SILENT, TEMPORARY_STOP};
-	
-	private SpeakState speakState;
-
-	public SpeakEvent(SpeakState newSpeakState) {
-		this.speakState = newSpeakState;
-	}
-
-	public SpeakState getSpeakState() {
-		return speakState;
-	}
-	
-	public boolean isSpeaking() {
-		return speakState == SpeakState.SPEAKING;
-	}
-
-	public boolean isPaused() {
-		return speakState == SpeakState.PAUSED;
-	}
-	public boolean isStopped() {
-		return speakState == SpeakState.SILENT;
-	}
-	public boolean isTemporarilyStopped() {
-		return speakState == SpeakState.TEMPORARY_STOP;
-	}
+    val isSpeaking: Boolean
+        get() = speakState == SpeakState.SPEAKING
+    val isPaused: Boolean
+        get() = speakState == SpeakState.PAUSED
+    val isStopped: Boolean
+        get() = speakState == SpeakState.SILENT
+    val isTemporarilyStopped: Boolean
+        get() = speakState == SpeakState.TEMPORARY_STOP
 }
