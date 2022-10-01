@@ -54,7 +54,6 @@ class WindowTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        val eventManager = ABEventBus
         val bibleTraverser = mock(BibleTraverser::class.java)
 
         val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
@@ -63,7 +62,7 @@ class WindowTest {
         }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
-        windowControl = WindowControl(windowRepository!!, eventManager)
+        windowControl = WindowControl(windowRepository!!)
         windowRepository!!.initialize()
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
     }

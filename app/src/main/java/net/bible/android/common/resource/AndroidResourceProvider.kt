@@ -21,7 +21,7 @@ import net.bible.android.control.ApplicationScope
 import javax.inject.Inject
 
 @ApplicationScope
-class AndroidResourceProvider @Inject constructor() : ResourceProvider {
+open class AndroidResourceProvider @Inject constructor() : ResourceProvider {
     override fun getString(resourceId: Int): String {
         return application.getString(resourceId)
     }
