@@ -92,14 +92,14 @@ abstract class CurrentPageBase protected constructor(
     /** notify mediator that page has changed and a lot of things need to update themselves
      */
     private fun beforePageChange() {
-        PassageChangeMediator.getInstance().onBeforeCurrentPageChanged()
+        PassageChangeMediator.onBeforeCurrentPageChanged()
     }
 
     /** notify mediator that page has changed and a lot of things need to update themselves
      */
     private fun pageChange() {
         if (!isInhibitChangeNotifications) {
-            PassageChangeMediator.getInstance().onCurrentPageChanged()
+            PassageChangeMediator.onCurrentPageChanged()
         }
     }
 

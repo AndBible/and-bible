@@ -181,7 +181,7 @@ open class Window (
 
         updateScope.launch {
             if (notifyLocationChange) {
-                PassageChangeMediator.getInstance().contentChangeStarted()
+                PassageChangeMediator.contentChangeStarted()
             }
             val b = bibleView
             val adjusted = b?.adjustLoadingCount(1)?: false
@@ -211,7 +211,7 @@ open class Window (
             }
 
             if(notifyLocationChange)
-                PassageChangeMediator.getInstance().contentChangeFinished()
+                PassageChangeMediator.contentChangeFinished()
             }
         }
 

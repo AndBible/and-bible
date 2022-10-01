@@ -1469,7 +1469,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
         if(isActive) {
-            PassageChangeMediator.getInstance().onCurrentVerseChanged(window)
+            PassageChangeMediator.onCurrentVerseChanged(window)
         }
     }
 

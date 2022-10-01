@@ -150,7 +150,7 @@ open class CurrentPageManager @Inject constructor(
     fun setCurrentDocument(nextDocument: Book?): CurrentPage {
         var nextPage: CurrentPage? = null
         if (nextDocument != null) {
-            PassageChangeMediator.getInstance().onBeforeCurrentPageChanged()
+            PassageChangeMediator.onBeforeCurrentPageChanged()
 
             nextPage = getBookPage(nextDocument)
 
@@ -161,7 +161,7 @@ open class CurrentPageManager @Inject constructor(
             if(currentPage.currentDocument == FakeBookFactory.multiDocument && nextPage == currentBible) {
                 currentBible.setCurrentDocument(nextDocument)
                 nextPage = currentPage
-                PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
+                PassageChangeMediator.onCurrentPageChanged(this.window)
             } else {
                 // must be in this order because History needs to grab the current doc before change
                 nextPage.setCurrentDocument(nextDocument)
@@ -170,7 +170,7 @@ open class CurrentPageManager @Inject constructor(
                 // page will change due to above
                 // if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
                 if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || nextDocument.contains(nextPage.key))) {
-                    PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
+                    PassageChangeMediator.onCurrentPageChanged(this.window)
                 } else {
                     // pop up a key selection screen
                     nextPage.startKeyChooser(CurrentActivityHolder.currentActivity!!)
@@ -189,7 +189,7 @@ open class CurrentPageManager @Inject constructor(
                                  updateHistory: Boolean = true,
                                  anchorOrdinal: Int? = null
     ): CurrentPage? {
-        PassageChangeMediator.getInstance().onBeforeCurrentPageChanged(updateHistory)
+        PassageChangeMediator.onBeforeCurrentPageChanged(updateHistory)
 
         val nextPage = getBookPage(currentBook)
         if (nextPage != null) {
@@ -206,7 +206,7 @@ open class CurrentPageManager @Inject constructor(
             }
         }
         // valid key has been set so do not need to show a key chooser therefore just update main view
-        PassageChangeMediator.getInstance().onCurrentPageChanged(window)
+        PassageChangeMediator.onCurrentPageChanged(window)
 
         return nextPage
     }
@@ -234,9 +234,9 @@ open class CurrentPageManager @Inject constructor(
         }
 
     fun showBible() {
-        PassageChangeMediator.getInstance().onBeforeCurrentPageChanged()
+        PassageChangeMediator.onBeforeCurrentPageChanged()
         currentPage = currentBible
-        PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
+        PassageChangeMediator.onCurrentPageChanged(this.window)
     }
 
     val entity get() =
