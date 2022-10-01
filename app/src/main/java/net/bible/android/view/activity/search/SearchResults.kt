@@ -125,7 +125,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             msg = if (mCurrentlyDisplayedSearchResults.size >= SearchControl.MAX_SEARCH_RESULTS) {
                 getString(R.string.search_showing_first, SearchControl.MAX_SEARCH_RESULTS)
             } else {
-                getString(R.string.search_result_count, mSearchResultsHolder!!.size())
+                getString(R.string.search_result_count, mSearchResultsHolder!!.size)
             }
             withContext(Dispatchers.Main) {
                 Toast.makeText(this@SearchResults, msg, Toast.LENGTH_SHORT).show()

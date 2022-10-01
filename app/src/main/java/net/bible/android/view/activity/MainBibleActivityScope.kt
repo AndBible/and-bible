@@ -14,37 +14,15 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.view.activity
 
-package net.bible.android.control.search;
+import javax.inject.Scope
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.crosswire.jsword.passage.Key;
-
-public class SearchResultsDto {
-	
-    private List<Key> mainSearchResults = new ArrayList<Key>();
-    
-    private List<Key> otherSearchResults = new ArrayList<Key>();
-    
-    public void add(Key resultKey, boolean isMain) {
-    	if (isMain) {
-    		mainSearchResults.add(resultKey);
-    	} else {
-    		otherSearchResults.add(resultKey);
-    	}
-    }
-    
-	public List<Key> getMainSearchResults() {
-		return mainSearchResults;
-	}
-
-	public List<Key> getOtherSearchResults() {
-		return otherSearchResults;
-	}
-	
-	public int size() {
-		return mainSearchResults.size()+otherSearchResults.size();
-	}
-}
+/**
+ * Named Dagger scope.
+ *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ */
+@Scope
+@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
+annotation class MainBibleActivityScope 
