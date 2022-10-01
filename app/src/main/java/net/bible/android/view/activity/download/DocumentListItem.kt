@@ -75,7 +75,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
     }
 
     fun onEventMainThread(event: DocumentDownloadEvent) {
@@ -157,6 +157,6 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
      * https://code.google.com/p/android/issues/detail?id=65617
      */
     private fun ensureRegisteredForDownloadEvents() {
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
     }
 }

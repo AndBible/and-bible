@@ -61,15 +61,15 @@ class DownloadQueue {
                 log.info("Downloading " + document.osisID + " from repo " + repo.repoName)
                 try {
                     repo.downloadDocument(document)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
+                    ABEventBus.post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.INSTALLED, 100))
                 } catch (e: DownloadCancelledException) {
                     log.error("Cancelled downloading $document", e)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
+                    ABEventBus.post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.INSTALL_CANCELLED, 0))
                 } catch (e: DownloadException) {
                     log.error("Error downloading $document", e)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
+                    ABEventBus.post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
                     val downloadStatusStr = httpError(e.statusCode)
@@ -77,14 +77,14 @@ class DownloadQueue {
                     Dialogs.showErrorMsg(errorMessage)
                 } catch (e: InstallException) {
                     log.error("Error downloading $document", e)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
+                    ABEventBus.post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
                     Dialogs.showErrorMsg(R.string.error_downloading)
                 } catch (e: Exception) {
                     log.error("Error downloading $document", e)
                     Dialogs.showErrorMsg(R.string.error_occurred, e)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
+                    ABEventBus.post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
                 }

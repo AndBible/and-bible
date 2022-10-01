@@ -54,7 +54,7 @@ class WindowTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        val eventManager = ABEventBus.getDefault()
+        val eventManager = ABEventBus
         val bibleTraverser = mock(BibleTraverser::class.java)
 
         val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))

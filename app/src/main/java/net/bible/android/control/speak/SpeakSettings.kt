@@ -32,7 +32,7 @@ fun SpeakSettings.save(updateBookmark: Boolean = false) {
         Log.i(TAG, "SpeakSettings saved! $this")
         val oldSettings = SpeakSettings.Companion.currentSettings
         SpeakSettings.Companion.currentSettings = this.makeCopy()
-        ABEventBus.getDefault().post(SpeakSettingsChangedEvent(this,
+        ABEventBus.post(SpeakSettingsChangedEvent(this,
                 updateBookmark && oldSettings?.playbackSettings?.equals(this.playbackSettings) != true,
                  oldSettings?.sleepTimer != this.sleepTimer))
     }

@@ -66,7 +66,7 @@ fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.Mana
     autoAssignLabels = resultData.autoAssignLabels
     favouriteLabels = resultData.favouriteLabels
     autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
-    ABEventBus.getDefault().post(AppSettingsUpdated())
+    ABEventBus.post(AppSettingsUpdated())
 }
 
 

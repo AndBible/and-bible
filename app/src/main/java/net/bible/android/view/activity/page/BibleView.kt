@@ -231,7 +231,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @Volatile private var htmlLoadingOngoing: Boolean = true
         set(value) {
             if(value != field) {
-                ABEventBus.getDefault().post(if (value) IncrementBusyCount() else DecrementBusyCount())
+                ABEventBus.post(if (value) IncrementBusyCount() else DecrementBusyCount())
             }
             field = value
         }
@@ -666,9 +666,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         set(value) {
             if(value == field) return
             if(value) {
-                ABEventBus.getDefault().register(this)
+                ABEventBus.register(this)
             } else {
-                ABEventBus.getDefault().unregister(this)
+                ABEventBus.unregister(this)
             }
             field = value
         }

@@ -93,7 +93,7 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
             forwardButton.setOnClickListener { onButtonClick(forwardButton) }
         }
         resetView(this.currentSettings)
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
 
         Log.i(TAG, "Finished displaying Speak view")
     }
@@ -101,7 +101,7 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
     override val sleepTimer: CheckBox get() = binding.sleepTimer
 
     override fun onDestroy() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         super.onDestroy()
     }
 

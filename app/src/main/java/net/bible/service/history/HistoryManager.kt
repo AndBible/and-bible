@@ -117,7 +117,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
     init {
         // register for BeforePageChangeEvent
         Log.i(TAG, "Registering HistoryManager with EventBus")
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
     }
 
     /** allow current page to save any settings or data before being changed

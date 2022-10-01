@@ -94,13 +94,13 @@ class Separator(
     }
 
     override fun onDetachedFromWindow() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         super.onDetachedFromWindow()
     }
 
     override fun onAttachedToWindow() {
         updateBackground()
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         super.onAttachedToWindow()
     }
 

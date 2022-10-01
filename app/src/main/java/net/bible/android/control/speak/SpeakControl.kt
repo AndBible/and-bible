@@ -129,7 +129,7 @@ class SpeakControl @Inject constructor(
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingVerse
 
     init {
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         MediaButtonHandler.initialize(this)
     }
 
@@ -201,7 +201,7 @@ class SpeakControl @Inject constructor(
                 && range.end.ordinal >= currentVerse.ordinal)) {
             settings.playbackSettings.verseRange = null
             settings.save()
-            ABEventBus.getDefault().post(ToastEvent(
+            ABEventBus.post(ToastEvent(
                 messageId = R.string.verse_range_mode_disabled,
                 duration = Toast.LENGTH_LONG
             ))
@@ -369,7 +369,7 @@ class SpeakControl @Inject constructor(
         if (isSpeaking || isPaused) {
             Log.i(TAG, "Rewind TTS speaking")
             ttsServiceManager.rewind(amount)
-            ABEventBus.getDefault().post(ToastEvent(R.string.rewind))
+            ABEventBus.post(ToastEvent(R.string.rewind))
         }
     }
 
@@ -377,7 +377,7 @@ class SpeakControl @Inject constructor(
         if (isSpeaking || isPaused) {
             Log.i(TAG, "Forward TTS speaking")
             ttsServiceManager.forward(amount)
-            ABEventBus.getDefault().post(ToastEvent(R.string.forward))
+            ABEventBus.post(ToastEvent(R.string.forward))
         }
     }
 
@@ -408,7 +408,7 @@ class SpeakControl @Inject constructor(
             }
 
             if (!willContinueAfterThis && toast) {
-                ABEventBus.getDefault().post(ToastEvent(pauseToastText))
+                ABEventBus.post(ToastEvent(pauseToastText))
             }
         }
         saveCurrentPosition()
@@ -460,7 +460,7 @@ class SpeakControl @Inject constructor(
         saveCurrentPosition()
         stopTimer()
         if(!force) {
-            ABEventBus.getDefault().post(ToastEvent(R.string.stop))
+            ABEventBus.post(ToastEvent(R.string.stop))
         }
     }
 
@@ -506,7 +506,7 @@ class SpeakControl @Inject constructor(
         if (sleepTimerAmount > 0) {
             Log.i(TAG, "Activating sleep timer")
             val app = BibleApplication.application
-            ABEventBus.getDefault().post(ToastEvent(app.getString(R.string.sleep_timer_started, sleepTimerAmount)))
+            ABEventBus.post(ToastEvent(app.getString(R.string.sleep_timer_started, sleepTimerAmount)))
             timerTask = object : TimerTask() {
                 override fun run() {
                     pause(false, false)

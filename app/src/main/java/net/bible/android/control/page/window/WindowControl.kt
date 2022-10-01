@@ -302,7 +302,7 @@ open class WindowControl @Inject constructor(
                 windowRepository.minimise(unpinnedWindows[i])
             }
         }
-        ABEventBus.getDefault().post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine<BooleanArray?> {

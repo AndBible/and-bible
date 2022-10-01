@@ -231,7 +231,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         setupUi()
 
         // register for passage change and appToBackground events
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
 
         setupToolbarButtons()
         setupToolbarFlingDetection()
@@ -248,7 +248,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 showBetaNotice()
                 showStableNotice()
                 showFirstTimeHelp()
-                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
+                ABEventBus.post(ToastEvent(windowRepository.name))
             }
             scope.launch {
                 checkDocBackupDBInSync()
@@ -261,7 +261,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         documentViewManager.buildView()
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
-        ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
+        ABEventBus.post(ConfigurationChanged(resources.configuration))
 
         updateToolbar()
         updateBottomBars()
@@ -686,7 +686,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             windowControl.windowSync.reloadAllWindows()
             windowRepository.updateAllWindowsTextDisplaySettings()
 
-            ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
+            ABEventBus.post(ToastEvent(windowRepository.name))
 
             updateBottomBars()
             updateTitle()
@@ -1044,11 +1044,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun toggleFullScreen() {
         sharedActivityState.toggleFullScreen()
         isFullScreen = sharedActivityState.isFullScreen
-        ABEventBus.getDefault().post(FullScreenEvent(isFullScreen))
+        ABEventBus.post(FullScreenEvent(isFullScreen))
         updateToolbar()
         updateBottomBars()
         if(isFullScreen) {
-            ABEventBus.getDefault().post(ToastEvent(R.string.exit_fullscreen))
+            ABEventBus.post(ToastEvent(R.string.exit_fullscreen))
         }
     }
 
@@ -1118,7 +1118,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setInterpolator(DecelerateInterpolator())
                 .start()
         }
-        ABEventBus.getDefault().post(UpdateRestoreWindowButtons())
+        ABEventBus.post(UpdateRestoreWindowButtons())
     }
 
     class UpdateRestoreWindowButtons
@@ -1128,7 +1128,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         bibleViewFactory.clear()
         super.onDestroy()
         beforeDestroy()
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         _mainBibleActivity = null
     }
 
@@ -1336,7 +1336,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         val verse = try {
                             VerseFactory.fromString(navigationControl.versification, verseStr)
                         } catch (e: NoSuchVerseException) {
-                            ABEventBus.getDefault().post(ToastEvent(getString(R.string.verse_not_found)))
+                            ABEventBus.post(ToastEvent(getString(R.string.verse_not_found)))
                             return
                         }
                         val pageManager = windowControl.activeWindowPageManager
@@ -1420,7 +1420,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
             }
             if(requiresReload) {
-                ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                ABEventBus.post(SynchronizeWindowsEvent(true))
             } else {
                 windowRepository.updateAllWindowsTextDisplaySettings()
             }
@@ -1445,7 +1445,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         resetSystemUi()
         requestSdcardPermission()
         documentViewManager.buildView()
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+        ABEventBus.post(SynchronizeWindowsEvent(true))
     }
 
     private fun requestSdcardPermission() {

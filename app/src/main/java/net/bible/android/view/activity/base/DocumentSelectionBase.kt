@@ -438,7 +438,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error initialising view", e)
-                    ABEventBus.getDefault().post(
+                    ABEventBus.post(
                         ToastEvent(getString(R.string.error) + " " + e.message,
                             Toast.LENGTH_SHORT)
                     )
@@ -540,7 +540,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     .create()
                     .show()
             } else {
-                ABEventBus.getDefault().post(ToastEvent(R.string.cant_delete_last_bible))
+                ABEventBus.post(ToastEvent(R.string.cant_delete_last_bible))
             }
         }
     }

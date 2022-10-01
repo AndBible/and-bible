@@ -46,7 +46,7 @@ object CurrentActivityHolder {
             currentActivity = null
             if (appIsInForeground) {
                 appIsInForeground = false
-                ABEventBus.getDefault()
+                ABEventBus
                     .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND))
             }
         }
@@ -58,7 +58,7 @@ object CurrentActivityHolder {
         if (!appIsInForeground) {
             Log.i(TAG, "AppIsInForeground firing event")
             appIsInForeground = true
-            ABEventBus.getDefault()
+            ABEventBus
                 .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.FOREGROUND))
         }
     }

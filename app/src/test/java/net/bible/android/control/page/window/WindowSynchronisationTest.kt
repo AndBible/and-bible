@@ -61,7 +61,7 @@ class WindowSynchronisationTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        eventManager = ABEventBus.getDefault()
+        eventManager = ABEventBus
 
         val bibleTraverser = mock(BibleTraverser::class.java)
 

@@ -124,7 +124,7 @@ class TextToSpeechServiceManager @Inject constructor(
         mSpeakTextProvider = bibleSpeakTextProvider
 
         mSpeakTiming = SpeakTiming()
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
         restorePauseState()
     }
 
@@ -592,13 +592,13 @@ class TextToSpeechServiceManager @Inject constructor(
 		when {
 			isPaused -> {
 				temporary = false
-				ABEventBus.getDefault().post(SpeakEvent(SpeakState.PAUSED))
+				ABEventBus.post(SpeakEvent(SpeakState.PAUSED))
 			}
 			isSpeaking -> {
 				temporary = false
-				ABEventBus.getDefault().post(SpeakEvent(SpeakState.SPEAKING))
+				ABEventBus.post(SpeakEvent(SpeakState.SPEAKING))
 			}
-			else -> ABEventBus.getDefault().post(SpeakEvent(if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT))
+			else -> ABEventBus.post(SpeakEvent(if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT))
 		}
 
     }

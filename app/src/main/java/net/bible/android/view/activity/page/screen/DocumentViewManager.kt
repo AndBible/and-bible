@@ -49,7 +49,7 @@ class DocumentViewManager @Inject constructor(
 
 	fun destroy() {
         removeView()
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         splitBibleArea?.destroy()
     }
 
@@ -67,7 +67,7 @@ class DocumentViewManager @Inject constructor(
     fun removeView() {
         parent.removeAllViews()
         lastView = null
-        ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
+        ABEventBus.post(AfterRemoveWebViewEvent())
     }
 
     private fun buildWebViews(forceUpdate: Boolean): SplitBibleArea {
@@ -90,7 +90,7 @@ class DocumentViewManager @Inject constructor(
                     ViewGroup.LayoutParams.MATCH_PARENT)
             )
         }
-        ABEventBus.getDefault().post(WebViewsBuiltEvent())
+        ABEventBus.post(WebViewsBuiltEvent())
     }
 
     val documentView: BibleView get() = getDocumentView(windowControl.activeWindow)
@@ -101,6 +101,6 @@ class DocumentViewManager @Inject constructor(
     }
 
     init {
-		ABEventBus.getDefault().register(this)
+		ABEventBus.register(this)
     }
 }

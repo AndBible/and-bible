@@ -141,7 +141,7 @@ abstract class CurrentPageBase protected constructor(
         }
 
         annotateKey = frag.annotateRef
-        ABEventBus.getDefault().post(CurrentVerseChangedEvent())
+        ABEventBus.post(CurrentVerseChangedEvent())
 
         OsisDocument(
             book = currentDocument,

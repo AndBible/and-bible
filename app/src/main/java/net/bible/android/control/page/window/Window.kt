@@ -89,7 +89,7 @@ open class Window (
     open var isSynchronised = window.isSynchronized
         set(value) {
             field = value
-            ABEventBus.getDefault().post(WindowChangedEvent(this))
+            ABEventBus.post(WindowChangedEvent(this))
         }
 
     open var isPinMode: Boolean = window.isPinMode
@@ -100,7 +100,7 @@ open class Window (
         }
         set(value) {
             field = value
-            ABEventBus.getDefault().post(WindowChangedEvent(this))
+            ABEventBus.post(WindowChangedEvent(this))
         }
 
     val isMinimised: Boolean

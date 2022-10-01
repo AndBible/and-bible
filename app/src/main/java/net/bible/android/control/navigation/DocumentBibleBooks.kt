@@ -93,14 +93,10 @@ class DocumentBibleBooks(private val document: AbstractPassageBook) {
         }
 
         // IBT Synodal documents sometimes return stub data for missing verses in dc books e.g. <chapter eID="gen7" osisID="1Esd.1"/>
-        return if (isProbablyIBTDocument(document, v11n) && isProbablyEmptyVerseInDocument(
-                document,
-                verse
-            )
-        ) {
-            // it is just IBT dummy empty verse content 
-            false
-        } else true
+        return !(isProbablyIBTDocument(document, v11n) && isProbablyEmptyVerseInDocument(
+            document,
+            verse
+        ))
     }
 
     /** IBT books are Synodal but are known to have mistakenly added empty verses for all dc books
@@ -130,18 +126,14 @@ class DocumentBibleBooks(private val document: AbstractPassageBook) {
 
     /** There is a standard type of tag padding in each empty verse that has a fairly predictable length
      */
-    private fun isProbablyEmptyVerseStub(rawTextLength: Int): Boolean {
-        return rawTextLength >= IBT_EMPTY_VERSE_STUB_MIN_LENGTH &&
-                rawTextLength <= IBT_EMPTY_VERSE_STUB_MAX_LENGTH
-    }
+    private fun isProbablyEmptyVerseStub(rawTextLength: Int): Boolean =
+        rawTextLength in IBT_EMPTY_VERSE_STUB_MIN_LENGTH..IBT_EMPTY_VERSE_STUB_MAX_LENGTH
 
     /** 1 chapter books have a different type of empty verse stub that includes the end of chapter tag
      * <chapter eID="gen955" osisID="Obad.1"></chapter> <div eID="gen954" osisID="Obad" type="book"></div> <div eID="gen953" type="x-Synodal-empty"></div>
      */
-    private fun isProbablyShortBookEmptyVerseStub(rawTextLength: Int): Boolean {
-        return rawTextLength >= IBT_1_CHAPTER_BOOK_EMPTY_VERSE_STUB_MIN_LENGTH &&
-                rawTextLength <= IBT_1_CHAPTER_BOOK_EMPTY_VERSE_STUB_MAX_LENGTH
-    }
+    private fun isProbablyShortBookEmptyVerseStub(rawTextLength: Int): Boolean =
+        rawTextLength in IBT_1_CHAPTER_BOOK_EMPTY_VERSE_STUB_MIN_LENGTH..IBT_1_CHAPTER_BOOK_EMPTY_VERSE_STUB_MAX_LENGTH
 
     companion object {
         private const val IBT_EMPTY_VERSE_STUB_MIN_LENGTH =
@@ -152,7 +144,6 @@ class DocumentBibleBooks(private val document: AbstractPassageBook) {
             "<chapter eID=\"gen955\" osisID=\"Obad.1\"/> <div eID=\"gen954\" osisID=\"Obad\" type=\"book\"/> <div eID=\"gen953\" type=\"x-Synodal-empty\"/>".length
         private const val IBT_1_CHAPTER_BOOK_EMPTY_VERSE_STUB_MAX_LENGTH =
             "<chapter eID=\"gen1136\" osisID=\"EpJer.1\"/> <div eID=\"gen1135\" osisID=\"EpJer\" type=\"book\"/> <div eID=\"gen1134\" type=\"x-Synodal-non-canonical\"/>".length
-        private val scripture = Scripture()
         private const val TAG = "DocumentBibleBooks"
     }
 }

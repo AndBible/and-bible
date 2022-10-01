@@ -58,6 +58,6 @@ class ApplicationModule {
     @Provides
     @ApplicationScope
     fun eventManagerProvider(): EventManager {
-        return ABEventBus.getDefault()
+        return ABEventBus
     }
 }

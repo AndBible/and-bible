@@ -350,7 +350,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             if (resultCode == Activity.RESULT_OK) {
                 CurrentActivityHolder.currentActivity = this
                 Dialogs.showMsg(R.string.restore_confirmation, true) {
-                    ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
+                    ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
                     val hourglass = Hourglass(this)
                     GlobalScope.launch(Dispatchers.IO) {
                         hourglass.show()

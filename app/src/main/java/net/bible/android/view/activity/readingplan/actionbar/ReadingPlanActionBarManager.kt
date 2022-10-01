@@ -45,7 +45,7 @@ constructor(
 ) : DefaultActionBarManager(), ActionBarManager {
 
     init {
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
 
     fun onEvent(e: SpeakEvent) {

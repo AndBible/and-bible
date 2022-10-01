@@ -94,7 +94,7 @@ open class BibleApplication : Application() {
             CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
             defaultExceptionHandler.uncaughtException(t, e)
         }
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         InstallManager.installSiteMap(
             PropertyMap().apply {
                 resources.openRawResource(R.raw.repositories).use { load(it) }

@@ -476,7 +476,7 @@ object BackupControl {
         if (result.resultCode == Activity.RESULT_OK) {
             val result2 = Dialogs.showMsg2(activity, R.string.restore_confirmation, true)
             if(result2 != Dialogs.Result.OK) return
-            ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
+            ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
             val hourglass = Hourglass(activity)
             hourglass.show()
             withContext(Dispatchers.IO) {

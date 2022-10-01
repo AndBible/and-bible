@@ -38,7 +38,7 @@ object PassageChangeMediator {
      */
     @JvmOverloads
     fun onBeforeCurrentPageChanged(updateHistory: Boolean = true) {
-        ABEventBus.getDefault().post(BeforeCurrentPageChangeEvent(updateHistory))
+        ABEventBus.post(BeforeCurrentPageChangeEvent(updateHistory))
     }
 
     /** the document has changed so ask the view to refresh itself
@@ -50,25 +50,25 @@ object PassageChangeMediator {
         } else {
             Log.w(TAG, "BibleContentManager not yet registered")
         }
-        ABEventBus.getDefault().post(CurrentVerseChangedEvent(window))
+        ABEventBus.post(CurrentVerseChangedEvent(window))
     }
 
     /** this is triggered on scroll
      */
     fun onCurrentVerseChanged(window: Window) {
-        ABEventBus.getDefault().post(CurrentVerseChangedEvent(window))
+        ABEventBus.post(CurrentVerseChangedEvent(window))
     }
 
     /** The thread which fetches the new page html has started
      */
     fun contentChangeStarted() {
-        ABEventBus.getDefault().post(PassageChangeStartedEvent())
+        ABEventBus.post(PassageChangeStartedEvent())
     }
 
     /** finished fetching html so should hide hourglass
      */
     fun contentChangeFinished() {
-        ABEventBus.getDefault().post(PassageChangedEvent())
+        ABEventBus.post(PassageChangedEvent())
     }
 
     fun setBibleContentManager(bibleContentManager: BibleContentManager?) {
