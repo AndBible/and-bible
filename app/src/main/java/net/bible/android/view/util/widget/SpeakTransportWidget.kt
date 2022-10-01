@@ -146,7 +146,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                 }
             }
         } catch (e: Exception) {
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
             Log.e(TAG, "Error: ", e)
         }
     }

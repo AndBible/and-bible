@@ -61,7 +61,7 @@ interface OptionsMenuItemInterface {
     val icon: Int?
 }
 
-val currentActivity: ActivityBase get() = CurrentActivityHolder.getInstance().currentActivity
+val currentActivity: ActivityBase get() = CurrentActivityHolder.currentActivity!!
 val application get() = BibleApplication.application
 val windowControl get() = CommonUtils.windowControl
 val windowRepository get() = CommonUtils.windowControl.windowRepository

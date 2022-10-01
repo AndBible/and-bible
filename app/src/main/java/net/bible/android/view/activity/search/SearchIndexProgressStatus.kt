@@ -18,7 +18,6 @@ package net.bible.android.view.activity.search
 
 
 import net.bible.service.common.CommonUtils.pause
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.control.search.SearchControl
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ProgressActivityBase
@@ -28,6 +27,7 @@ import org.crosswire.jsword.index.IndexStatus
 import android.content.Intent
 import android.util.Log
 import android.view.View
+import net.bible.android.view.activity.base.Dialogs
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 
@@ -76,7 +76,7 @@ class SearchIndexProgressStatus : ProgressActivityBase() {
             // if jobs still running then just wait else error
             if (isAllJobsFinished) {
                 Log.e(TAG, "Index finished but document's index is invalid")
-                instance.showErrorMsg(R.string.error_occurred)
+                Dialogs.showErrorMsg(R.string.error_occurred)
             }
         }
     }

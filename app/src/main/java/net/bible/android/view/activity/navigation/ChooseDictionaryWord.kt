@@ -34,7 +34,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ChooseDictionaryPageBinding
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import org.crosswire.jsword.passage.Key
 import java.util.*
@@ -109,7 +109,7 @@ class ChooseDictionaryWord : ListActivityBase() {
                 Log.i(TAG, "Finished Initialising")
             } catch (e: Exception) {
                 Log.e(TAG, "Error creating dictionary key list")
-                instance.showErrorMsg(R.string.error_occurred, e)
+                Dialogs.showErrorMsg(R.string.error_occurred, e)
             } finally {
                 withContext(Dispatchers.Main) {
                     binding.loadingIndicator.visibility = View.GONE
@@ -144,7 +144,7 @@ class ChooseDictionaryWord : ListActivityBase() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error finding matching keys", e)
-            instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 
@@ -161,7 +161,7 @@ class ChooseDictionaryWord : ListActivityBase() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Key not found", e)
-            instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 

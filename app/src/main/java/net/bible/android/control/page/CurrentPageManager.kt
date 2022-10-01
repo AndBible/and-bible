@@ -172,9 +172,8 @@ open class CurrentPageManager @Inject constructor(
                 if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || nextDocument.contains(nextPage.key))) {
                     PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
                 } else {
-                    val context = CurrentActivityHolder.getInstance().currentActivity
                     // pop up a key selection screen
-                    nextPage.startKeyChooser(context)
+                    nextPage.startKeyChooser(CurrentActivityHolder.currentActivity!!)
                 }
             }
         } else {

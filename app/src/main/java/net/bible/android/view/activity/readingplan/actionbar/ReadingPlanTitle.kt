@@ -126,7 +126,7 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
     private fun update(everything: Boolean) {
         if (!::pageTitle.isInitialized || !::pageSubtitle.isInitialized) return
 
-        CurrentActivityHolder.getInstance().runOnUiThread {
+        CurrentActivityHolder.runOnUiThread {
             // always update verse number
             val pageParts = twoPageTitleParts
             if (pageParts.isNotEmpty()) pageTitle.text = pageParts[0]

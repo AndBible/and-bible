@@ -55,7 +55,7 @@ class SearchResultsActionBarManager @Inject constructor(private val scriptureTog
         super.updateButtons()
 
         // this can be called on end of speech in non-ui thread
-        CurrentActivityHolder.getInstance()
+        CurrentActivityHolder
             .runOnUiThread { scriptureToggleActionBarButton.update() }
     }
 }

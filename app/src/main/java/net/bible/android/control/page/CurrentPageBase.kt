@@ -262,7 +262,7 @@ abstract class CurrentPageBase protected constructor(
                 } catch (e: Exception) {
                     Log.e(TAG, "Key $keyName not be loaded from $document", e)
                     if(e !is NoSuchKeyException) {
-                        Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+                        Dialogs.showErrorMsg(R.string.error_occurred, e)
                     }
                 }
             }

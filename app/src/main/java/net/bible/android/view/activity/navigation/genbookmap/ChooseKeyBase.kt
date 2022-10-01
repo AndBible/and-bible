@@ -25,7 +25,7 @@ import android.widget.ListAdapter
 import android.widget.ListView
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
 import org.crosswire.jsword.passage.Key
@@ -87,7 +87,7 @@ abstract class ChooseKeyBase : ListActivityBase() {
             returnToMainScreen()
         } catch (e: Exception) {
             Log.e(TAG, "Selection error", e)
-            instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 

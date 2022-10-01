@@ -54,7 +54,7 @@ object UiUtils {
         val newColor = if (ScreenSettings.nightMode) ACTIONBAR_BACKGROUND_NIGHT else ACTIONBAR_BACKGROUND_DAY
 
         if (actionBar != null) {
-            CurrentActivityHolder.getInstance().runOnUiThread {
+            CurrentActivityHolder.runOnUiThread {
                 val colorDrawable = ColorDrawable(newColor)
                 actionBar.setBackgroundDrawable(colorDrawable)
             }

@@ -263,7 +263,7 @@ object CommonUtils : CommonUtilsBase() {
 
 
     val isPortrait: Boolean get() {
-        val res = CurrentActivityHolder.getInstance().currentActivity?.resources?: BibleApplication.application.resources
+        val res = CurrentActivityHolder.currentActivity?.resources?: BibleApplication.application.resources
         return res.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     }
 
@@ -452,7 +452,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     val resources: Resources get() =
-        CurrentActivityHolder.getInstance()?.currentActivity?.resources?: application.resources
+        CurrentActivityHolder?.currentActivity?.resources?: application.resources
 
 
     fun getResourceColor(resourceId: Int): Int =

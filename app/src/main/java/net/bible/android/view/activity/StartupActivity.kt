@@ -137,7 +137,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         }
 
         if (abortErrorMsgId != 0) {
-            Dialogs.instance.showErrorMsg(abortErrorMsgId) {
+            Dialogs.showErrorMsg(abortErrorMsgId) {
                 finish()
             }
             return false;
@@ -290,7 +290,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             val handlerIntent = Intent(this, FirstDownload::class.java)
             startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
         } else {
-            Dialogs.instance.showErrorMsg(errorMessage) { finish() }
+            Dialogs.showErrorMsg(errorMessage) { finish() }
         }
     }
 
@@ -348,8 +348,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         } else if (requestCode == REQUEST_PICK_FILE_FOR_BACKUP_RESTORE) {
             // this and the one in MainActivity could potentially be merged into the same thing
             if (resultCode == Activity.RESULT_OK) {
-                CurrentActivityHolder.getInstance().currentActivity = this
-                Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
+                CurrentActivityHolder.currentActivity = this
+                Dialogs.showMsg(R.string.restore_confirmation, true) {
                     ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
                     val hourglass = Hourglass(this)
                     GlobalScope.launch(Dispatchers.IO) {
@@ -359,7 +359,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                             Log.i(TAG, "Restored database successfully")
 
                             withContext(Dispatchers.Main) {
-                                Dialogs.instance.showMsg(R.string.restore_success)
+                                Dialogs.showMsg(R.string.restore_success)
                                 postBasicInitialisationControl()
                             }
                         }

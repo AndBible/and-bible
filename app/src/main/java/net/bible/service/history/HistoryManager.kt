@@ -146,7 +146,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
     private fun createHistoryItem(): HistoryItem? {
         var historyItem: HistoryItem? = null
 
-        val currentActivity = CurrentActivityHolder.getInstance().currentActivity
+        val currentActivity = CurrentActivityHolder.currentActivity
         if (currentActivity is MainBibleActivity) {
             val currentPage = windowControl.activeWindowPageManager.currentPage
             val doc = currentPage.currentDocument
@@ -186,7 +186,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                     previousItem.revertTo()
 
                     // finish current activity if not the Main screen
-                    val currentActivity = CurrentActivityHolder.getInstance().currentActivity
+                    val currentActivity = CurrentActivityHolder.currentActivity
                     if (currentActivity !is MainBibleActivity) {
                         currentActivity?.finish()
                     }

@@ -1198,7 +1198,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEvent(event: ScreenSettings.NightModeChanged) {
-        if(CurrentActivityHolder.getInstance().currentActivity == this) {
+        if(CurrentActivityHolder.currentActivity == this) {
             refreshIfNightModeChange()
         }
     }
@@ -1257,7 +1257,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         documentViewManager.removeView()
         bibleViewFactory.clear()
         windowControl.windowSync.setResyncRequired()
-        Dialogs.instance.showMsg(R.string.restore_success)
+        Dialogs.showMsg(R.string.restore_success)
         currentWorkspaceId = 0
     }
 

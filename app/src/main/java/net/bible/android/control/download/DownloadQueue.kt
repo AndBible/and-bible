@@ -22,7 +22,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.Logger
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoBase
@@ -74,16 +74,16 @@ class DownloadQueue {
                     downloadError.add(repoIdentity)
                     val downloadStatusStr = httpError(e.statusCode)
                     val errorMessage = application.getString(R.string.error_downloading_status, e.uri.toString(), downloadStatusStr, e.statusCode)
-                    instance.showErrorMsg(errorMessage)
+                    Dialogs.showErrorMsg(errorMessage)
                 } catch (e: InstallException) {
                     log.error("Error downloading $document", e)
                     ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
-                    instance.showErrorMsg(R.string.error_downloading)
+                    Dialogs.showErrorMsg(R.string.error_downloading)
                 } catch (e: Exception) {
                     log.error("Error downloading $document", e)
-                    instance.showErrorMsg(R.string.error_occurred, e)
+                    Dialogs.showErrorMsg(R.string.error_occurred, e)
                     ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
