@@ -14,21 +14,15 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.control
 
-package net.bible.android.control;
+import javax.inject.Scope
 
 /**
  * Named Dagger scope.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-import javax.inject.Scope;
-
 @Scope
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ApplicationScope {
-}
+@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
+annotation class ApplicationScope 
