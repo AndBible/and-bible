@@ -14,27 +14,23 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.control.navigation
 
-package net.bible.android.control.navigation;
+import org.crosswire.jsword.book.basic.AbstractPassageBook
+import org.crosswire.jsword.book.Books
+import org.hamcrest.CoreMatchers
+import org.crosswire.jsword.versification.BibleBook
+import org.junit.Assert
+import org.junit.Test
 
-import org.crosswire.jsword.book.Books;
-import org.crosswire.jsword.book.basic.AbstractPassageBook;
-import org.crosswire.jsword.versification.BibleBook;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-public class DocumentBibleBooksTest {
-
-	//@Ignore("Until ESV comes back")
-	@Test
-	public void testContains() {
-		AbstractPassageBook esv = (AbstractPassageBook)Books.installed().getBook("ESV2011");
-		DocumentBibleBooks esvBibleBooks = new DocumentBibleBooks(esv);
-		assertThat(true, is(esvBibleBooks.contains(BibleBook.GEN)));
-		assertThat(true, is(esvBibleBooks.contains(BibleBook.OBAD)));
-		assertThat(false, is(esvBibleBooks.contains(BibleBook.PR_AZAR)));
-	}
+class DocumentBibleBooksTest {
+    //@Ignore("Until ESV comes back")
+    @Test
+    fun testContains() {
+        val esv = Books.installed().getBook("ESV2011") as AbstractPassageBook
+        val esvBibleBooks = DocumentBibleBooks(esv)
+        Assert.assertThat(true, CoreMatchers.`is`(esvBibleBooks.contains(BibleBook.GEN)))
+        Assert.assertThat(true, CoreMatchers.`is`(esvBibleBooks.contains(BibleBook.OBAD)))
+        Assert.assertThat(false, CoreMatchers.`is`(esvBibleBooks.contains(BibleBook.PR_AZAR)))
+    }
 }

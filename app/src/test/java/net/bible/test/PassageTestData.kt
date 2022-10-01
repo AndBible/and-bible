@@ -14,12 +14,17 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.test
 
-package net.bible.test;
+import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.system.Versifications
+import org.crosswire.jsword.versification.BibleBook
 
-/**
- * This class serves only as a flag that it is the test environment if this class exists.
- * Likewise if this class is not found it is a real Android environment - not test. 
- */
-public class TestEnvironmentFlag {
+object PassageTestData {
+    val ESV: Book = Books.installed().getBook("ESV2011")
+    val KJV_V11N: Versification = Versifications.instance().getVersification("KJV")
+    val PS_139_2: Verse = Verse(KJV_V11N, BibleBook.PS, 139, 2)
 }
