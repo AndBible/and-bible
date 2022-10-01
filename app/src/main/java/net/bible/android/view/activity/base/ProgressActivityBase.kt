@@ -126,7 +126,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
         }
     }
 
-    protected open fun jobFinished(job: Progress?) {
+    protected open fun jobFinished(job: Progress) {
         // do nothing by default
     }
 
@@ -160,7 +160,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
         return status
     }
 
-    protected fun setMainText(text: String?) {
+    protected fun setMainText(text: String) {
         (findViewById<View>(R.id.progressStatusMessage) as TextView).text = text
     }
 
