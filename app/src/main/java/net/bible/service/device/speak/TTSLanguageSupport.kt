@@ -30,7 +30,7 @@ class TTSLanguageSupport {
             val langCode = locale.language
             val langList = supportedLangList
             settings
-                .setString(TTS_LANG_SUPPORTED_KEY, langList + LANG_SEPERATOR + langCode)
+                .setString(TTS_LANG_SUPPORTED_KEY, langList + LANG_SEPARATOR + langCode)
         }
     }
 
@@ -41,7 +41,7 @@ class TTSLanguageSupport {
             settings
                 .setString(
                     TTS_LANG_SUPPORTED_KEY,
-                    langList.replace(LANG_SEPERATOR + langCode, "")
+                    langList.replace(LANG_SEPARATOR + langCode, "")
                 )
         }
     }
@@ -55,6 +55,6 @@ class TTSLanguageSupport {
 
     companion object {
         private const val TTS_LANG_SUPPORTED_KEY = "TTS_LANG_SUPPORTED"
-        private const val LANG_SEPERATOR = ","
+        private const val LANG_SEPARATOR = ","
     }
 }

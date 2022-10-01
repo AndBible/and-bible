@@ -177,11 +177,11 @@ class TextToSpeechServiceManager @Inject constructor(
             if (!localeOK) {
                 Log.e(TAG, "TTS missing or not supported")
                 // Language data is missing or the language is not supported.
-                ttsLanguageSupport.addUnsupportedLocale(locale)
+                if(locale != null) ttsLanguageSupport.addUnsupportedLocale(locale)
                 showError(R.string.tts_lang_not_available, Exception("Tts missing or not supported"))
             } else {
                 // The TTS engine has been successfully initialized.
-                ttsLanguageSupport.addSupportedLocale(locale)
+                if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
                 val ok = tts.setOnUtteranceProgressListener(utteranceProgressListener)
                 if (ok == TextToSpeech.ERROR) {
                     Log.e(TAG, "Error registering utteranceProgressListener")
