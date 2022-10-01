@@ -34,9 +34,8 @@ import java.lang.Exception
  */
 @ApplicationScope
 open class SpeakActionBarButton @Inject constructor(
-    speakControl: SpeakControl,
     private val documentControl: DocumentControl
-) : SpeakActionBarButtonBase(speakControl) {
+) : SpeakActionBarButtonBase() {
     override fun onMenuItemClick(menuItem: MenuItem): Boolean {
         try {
             speakControl.toggleSpeak()
@@ -48,25 +47,19 @@ open class SpeakActionBarButton @Inject constructor(
         return true
     }
 
-    override fun getTitle(): String {
-        return getResourceString(R.string.speak)
+    override val title: String get() = getResourceString(R.string.speak)
+
+    override val icon: Int get() = if (speakControl.isSpeaking) {
+        android.R.drawable.ic_media_pause
+    } else if (speakControl.isPaused) {
+        android.R.drawable.ic_media_play
+    } else {
+        R.drawable.ic_baseline_headphones_24
     }
 
-    override fun getIcon(): Int {
-        return if (speakControl.isSpeaking) {
-            android.R.drawable.ic_media_pause
-        } else if (speakControl.isPaused) {
-            android.R.drawable.ic_media_play
-        } else {
-            R.drawable.ic_baseline_headphones_24
-        }
-    }
-
-    override fun canShow(): Boolean {
-        // show if speakable or already speaking (to pause), and only if plenty of room
-        return (super.canSpeak() || isSpeakMode) &&
-                (isWide || !documentControl.isStrongsInBook || isSpeakMode)
-    }
+    override val canShow: Boolean get() = // show if speakable or already speaking (to pause), and only if plenty of room
+        (super.canSpeak || isSpeakMode) &&
+            (isWide || !documentControl.isStrongsInBook || isSpeakMode)
 
     companion object {
         private const val TAG = "SpeakActionBarButtonBas"

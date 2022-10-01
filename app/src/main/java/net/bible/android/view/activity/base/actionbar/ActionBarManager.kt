@@ -14,42 +14,16 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.view.activity.base.actionbar
 
-package net.bible.android.view.activity.base.actionbar;
+import android.app.Activity
+import android.view.Menu
+import androidx.appcompat.app.ActionBar
 
-import androidx.core.view.MenuItemCompat;
-
-/** Two state actionbar button
- * 
+/**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public abstract class ToggleActionBarButton extends QuickActionButton {
-
-	private boolean isOn = true;
-	private int onIcon;
-	private int offIcon;
-	
-	public ToggleActionBarButton(int onIcon, int offIcon) {
-		// overridden by canShow
-		super(MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
-		
-		this.onIcon = onIcon;
-		this.offIcon = offIcon;
-	}
-
-	/** 
-	 * Show a different icon to represent switch to 'Appendix' or back to scripture
-	 */
-	@Override
-	protected int getIcon() {
-		return isOn() ? onIcon : offIcon;
-	}
-	
-	public boolean isOn() {
-		return isOn;
-	}
-
-	public void setOn(boolean isOn) {
-		this.isOn = isOn;
-	}
+interface ActionBarManager {
+    fun prepareOptionsMenu(activity: Activity, menu: Menu, actionBar: ActionBar)
+    fun updateButtons()
 }

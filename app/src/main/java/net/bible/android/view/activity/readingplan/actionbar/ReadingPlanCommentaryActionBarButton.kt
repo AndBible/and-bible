@@ -31,16 +31,11 @@ class ReadingPlanCommentaryActionBarButton @Inject
 constructor() : ReadingPlanQuickDocumentChangeButton() {
 
 
-    override fun getSuggestedDocument(): Book? {
-        return currentPageManager.currentCommentary.currentDocument
-    }
+    override fun getSuggestedDocument(): Book? =
+        activeWindowPageManagerProvider.activeWindowPageManager.currentCommentary.currentDocument
 
     /**
      * Portrait actionbar is a bit squashed if speak controls are displayed so hide commentary
      */
-    override fun canShow(): Boolean {
-        return super.canShow() && (isWide || !isSpeakMode)
-    }
-
-
+    override val canShow get(): Boolean = super.canShow && (isWide || !isSpeakMode)
 }

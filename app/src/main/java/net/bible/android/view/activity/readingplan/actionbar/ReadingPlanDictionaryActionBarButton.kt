@@ -28,15 +28,12 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class ReadingPlanDictionaryActionBarButton @Inject
-constructor(activeWindowPageManagerProvider: ActiveWindowPageManagerProvider) : ReadingPlanQuickDocumentChangeButton() {
+class ReadingPlanDictionaryActionBarButton @Inject constructor(activeWindowPageManagerProvider: ActiveWindowPageManagerProvider) : ReadingPlanQuickDocumentChangeButton() {
 
     override fun getSuggestedDocument(): Book? {
-        return currentPageManager.currentDictionary.currentDocument
+        return activeWindowPageManagerProvider.activeWindowPageManager.currentDictionary.currentDocument
     }
 
     /** return true if Strongs are relevant to this doc & screen  */
-    override fun canShow(): Boolean {
-        return super.canShow() && isWide
-    }
+    override val canShow: Boolean get() = super.canShow && isWide
 }

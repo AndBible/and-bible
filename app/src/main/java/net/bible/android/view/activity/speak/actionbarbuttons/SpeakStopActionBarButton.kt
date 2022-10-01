@@ -14,50 +14,29 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.view.activity.speak.actionbarbuttons
 
-package net.bible.android.view.activity.speak.actionbarbuttons;
+import android.view.MenuItem
+import net.bible.service.common.CommonUtils.getResourceString
+import net.bible.android.control.ApplicationScope
+import net.bible.android.activity.R
+import javax.inject.Inject
 
-import android.view.MenuItem;
-
-import net.bible.android.activity.R;
-import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.speak.SpeakControl;
-import net.bible.service.common.CommonUtils;
-
-import javax.inject.Inject;
-
-/** 
+/**
  * Stop Speaking
- * 
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-public class SpeakStopActionBarButton extends SpeakActionBarButtonBase {
+open class SpeakStopActionBarButton @Inject constructor() : SpeakActionBarButtonBase()
+{
+    override fun onMenuItemClick(menuItem: MenuItem): Boolean {
+        speakControl.stop(false, false)
+        return true
+    }
 
-	@Inject
-	public SpeakStopActionBarButton(SpeakControl speakControl) {
-		super(speakControl);
-	}
+    override val title: String get() = getResourceString(R.string.stop)
+    override val icon: Int get() = R.drawable.ic_media_stop
 
-	@Override
-	public boolean onMenuItemClick(MenuItem menuItem) {
-		getSpeakControl().stop(false, false);
-
-		return true;
-	}
-
-	@Override
-	protected String getTitle() {
-		return CommonUtils.INSTANCE.getResourceString(R.string.stop);
-	}
-	
-	@Override
-	protected int getIcon() {
-		return R.drawable.ic_media_stop;
-	}
-
-	@Override
-	protected boolean canShow() {
-		return isSpeakMode();
-	}
+    override val canShow get() = isSpeakMode
 }

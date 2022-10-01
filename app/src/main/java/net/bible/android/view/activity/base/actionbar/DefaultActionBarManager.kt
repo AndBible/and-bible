@@ -14,31 +14,24 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.view.activity.base.actionbar
 
-package net.bible.android.view.activity.base.actionbar;
-
-import android.app.Activity;
-import androidx.appcompat.app.ActionBar;
-import android.view.Menu;
-
-import net.bible.android.view.util.UiUtils;
+import net.bible.android.view.util.UiUtils.setActionBarColor
+import android.app.Activity
+import android.view.Menu
+import androidx.appcompat.app.ActionBar
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class DefaultActionBarManager implements ActionBarManager {
+open class DefaultActionBarManager : ActionBarManager {
+    private lateinit var actionBar: ActionBar
+    override fun prepareOptionsMenu(activity: Activity, menu: Menu, actionBar: ActionBar) {
+        this.actionBar = actionBar
+        setActionBarColor(actionBar)
+    }
 
-	private ActionBar actionBar;
-	
-	@Override
-	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
-		this.actionBar = actionBar;
-		
-		UiUtils.INSTANCE.setActionBarColor(actionBar);
-	}
-
-	@Override
-	public void updateButtons() {
-		UiUtils.INSTANCE.setActionBarColor(actionBar);
-	}
+    override fun updateButtons() {
+        setActionBarColor(actionBar)
+    }
 }

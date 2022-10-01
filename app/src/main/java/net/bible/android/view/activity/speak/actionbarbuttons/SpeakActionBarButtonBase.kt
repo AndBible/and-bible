@@ -14,20 +14,19 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.view.activity.speak.actionbarbuttons
 
-package net.bible.android.view.activity.base.actionbar;
-
-import android.app.Activity;
-import androidx.appcompat.app.ActionBar;
-import android.view.Menu;
+import net.bible.android.view.activity.base.actionbar.QuickActionButton
+import androidx.core.view.MenuItemCompat
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public interface ActionBarManager {
+abstract class SpeakActionBarButtonBase :  QuickActionButton(MenuItemCompat.SHOW_AS_ACTION_ALWAYS) {
+    /**  return true if Speak button can be shown  */
+    val canSpeak get() = speakControl.isCurrentDocSpeakAvailable
 
-	void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar);
-
-	void updateButtons();
-
+    companion object {
+        protected const val SPEAK_START_PRIORITY = 10
+    }
 }

@@ -30,15 +30,11 @@ import net.bible.android.activity.R
 @ApplicationScope
 class ScriptureToggleActionBarButton @Inject constructor(private val searchControl: SearchControl) :
     ToggleActionBarButton(R.drawable.ic_action_new, R.drawable.ic_baseline_undo_24) {
-    override fun getTitle(): String {
-        return if (isOn) {
-            getResourceString(R.string.deuterocanonical)
-        } else {
-            getResourceString(R.string.bible)
-        }
+    override val title: String get() = if (isOn) {
+        getResourceString(R.string.deuterocanonical)
+    } else {
+        getResourceString(R.string.bible)
     }
 
-    override fun canShow(): Boolean {
-        return searchControl.currentDocumentContainsNonScripture()
-    }
+    override val canShow: Boolean get() = searchControl.currentDocumentContainsNonScripture()
 }

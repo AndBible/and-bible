@@ -14,17 +14,15 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-
-package net.bible.android.view.activity.base;
+package net.bible.android.view.activity.base
 
 /**
  * Save and fetch a verse range from/to intent extras and othr intent fucntionality
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class IntentHelper {
-
-	// request codes passed to and returned from sub-activities
-	public static final int REFRESH_DISPLAY_ON_FINISH = 2;
-	public static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
+object IntentHelper {
+    // request codes passed to and returned from sub-activities
+    const val REFRESH_DISPLAY_ON_FINISH = 2
+    const val UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3
 }

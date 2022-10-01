@@ -139,7 +139,7 @@ open class CurrentPageManager @Inject constructor(
 
     val isDictionaryShown: Boolean
         get() = currentDictionary === currentPage
-    val isGenBookShown: Boolean
+    private val isGenBookShown: Boolean
         get() = currentGeneralBook === currentPage
     val isMapShown: Boolean
         get() = currentMap === currentPage
@@ -301,5 +301,5 @@ open class CurrentPageManager @Inject constructor(
                 !currentVersification.containsBook(currentBibleBook)
         }
 
-    val TAG get() = "PageManager[${window.id}]"
+    private val TAG get() = "PageManager[${window.id}]"
 }

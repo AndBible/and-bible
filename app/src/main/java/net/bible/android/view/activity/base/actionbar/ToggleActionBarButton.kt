@@ -14,37 +14,21 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.view.activity.base.actionbar
 
-package net.bible.android.view.activity.speak.actionbarbuttons;
+import androidx.core.view.MenuItemCompat
 
-import androidx.core.view.MenuItemCompat;
-
-import net.bible.android.control.speak.SpeakControl;
-import net.bible.android.view.activity.base.actionbar.QuickActionButton;
-
-/**
+/** Two state actionbar button
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public abstract class SpeakActionBarButtonBase extends QuickActionButton {
+abstract class ToggleActionBarButton     // overridden by canShow
+    (private val onIcon: Int, private val offIcon: Int) :
+    QuickActionButton(MenuItemCompat.SHOW_AS_ACTION_ALWAYS) {
+    var isOn = true
 
-	private SpeakControl speakControl;
-	
-	protected static final int SPEAK_START_PRIORITY = 10;
-
-	public SpeakActionBarButtonBase(SpeakControl speakControl) {
-		// overridden by canShow
-		super(MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
-		this.speakControl = speakControl;
-	}
-
-	/**  return true if Speak button can be shown */
-	public boolean canSpeak() {
-		boolean canspeakDoc = speakControl.isCurrentDocSpeakAvailable();
-		return //isEnoughRoomInToolbar() && 
-				canspeakDoc;
-	}
-	
-	protected SpeakControl getSpeakControl() {
-		return speakControl;
-	}
+    /**
+     * Show a different icon to represent switch to 'Appendix' or back to scripture
+     */
+    override val icon: Int get() = if (isOn) onIcon else offIcon
 }

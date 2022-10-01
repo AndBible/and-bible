@@ -32,7 +32,7 @@ import androidx.appcompat.app.ActionBar
 @ApplicationScope
 class SearchResultsActionBarManager @Inject constructor(private val scriptureToggleActionBarButton: ScriptureToggleActionBarButton) :
     DefaultActionBarManager(), ActionBarManager {
-    fun registerScriptureToggleClickListener(scriptureToggleClickListener: View.OnClickListener?) {
+    fun registerScriptureToggleClickListener(scriptureToggleClickListener: View.OnClickListener) {
         scriptureToggleActionBarButton.registerClickListener(scriptureToggleClickListener)
     }
 
