@@ -14,13 +14,11 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-
-package net.bible.android.common.resource;
+package net.bible.android.common.resource
 
 /**
  * Bridge to Android resources
  */
-public interface ResourceProvider {
-
-	String getString(int resourceId);
+interface ResourceProvider {
+    fun getString(resourceId: Int): String?
 }

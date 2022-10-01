@@ -14,39 +14,28 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.view.util.locale
 
-package net.bible.android.view.util.locale;
-
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.res.Configuration;
-import android.os.Build;
-
-import net.bible.service.common.Logger;
-
-import java.util.Locale;
+import android.annotation.TargetApi
+import android.content.Context
+import android.os.Build
+import net.bible.service.common.Logger
+import java.util.*
 
 /**
  * Change locale on older Nougat+ Android devices.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
-public class NougatPlusLocaleChanger implements LocaleChanger {
-
-	private final Logger logger = new Logger(this.getClass().getName());
-
-	@TargetApi(Build.VERSION_CODES.N)
-	@Override
-	public Context changeLocale(Context context, String language) {
-		logger.debug("Update resources N plus");
-
-		Locale locale = Locale.forLanguageTag(language);
-		Locale.setDefault(locale);
-
-		Configuration configuration = context.getResources().getConfiguration();
-		configuration.setLocale(locale);
-
-		return context.createConfigurationContext(configuration);
-	}
+class NougatPlusLocaleChanger : LocaleChanger {
+    private val logger = Logger(this.javaClass.name)
+    @TargetApi(Build.VERSION_CODES.N)
+    override fun changeLocale(context: Context, language: String): Context {
+        logger.debug("Update resources N plus")
+        val locale = Locale.forLanguageTag(language)
+        Locale.setDefault(locale)
+        val configuration = context.resources.configuration
+        configuration.setLocale(locale)
+        return context.createConfigurationContext(configuration)
+    }
 }

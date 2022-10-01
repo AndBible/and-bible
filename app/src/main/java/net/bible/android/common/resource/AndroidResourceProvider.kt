@@ -14,24 +14,15 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.common.resource
 
-package net.bible.android.common.resource;
-
-import net.bible.android.BibleApplication;
-import net.bible.android.control.ApplicationScope;
-
-import javax.inject.Inject;
+import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.control.ApplicationScope
+import javax.inject.Inject
 
 @ApplicationScope
-public class AndroidResourceProvider implements ResourceProvider {
-
-	@Inject
-	public AndroidResourceProvider() {
-	}
-
-	@Override
-	public String getString(int resourceId) {
-		return BibleApplication.Companion.getApplication().getString(resourceId);
-	}
-
+class AndroidResourceProvider @Inject constructor() : ResourceProvider {
+    override fun getString(resourceId: Int): String {
+        return application.getString(resourceId)
+    }
 }
