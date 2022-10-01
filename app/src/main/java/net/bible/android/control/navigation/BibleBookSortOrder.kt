@@ -14,15 +14,13 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-
-package net.bible.android.control.navigation;
+package net.bible.android.control.navigation
 
 /**
  * Support sort of books alphabetically or canonically
- * 
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public enum BibleBookSortOrder {
-	BIBLE_BOOK,
-	ALPHABETICAL
+enum class BibleBookSortOrder {
+    BIBLE_BOOK, ALPHABETICAL
 }
