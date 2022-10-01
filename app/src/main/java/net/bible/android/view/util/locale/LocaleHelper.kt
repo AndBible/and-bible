@@ -42,7 +42,7 @@ object LocaleHelper {
         }
     }
 
-    fun onAttach(context: Context?): Context? {
+    fun onAttach(context: Context): Context {
         val overrideLang = getOverrideLanguage(context)
         return if (StringUtils.isNotEmpty(overrideLang)) {
             localeChangerFactory.localeChanger.changeLocale(context, overrideLang)
@@ -55,8 +55,8 @@ object LocaleHelper {
         return StringUtils.isNotEmpty(getOverrideLanguage(context))
     }
 
-    fun getOverrideLanguage(context: Context?): String? {
+    fun getOverrideLanguage(context: Context): String {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        return preferences.getString(SELECTED_LANGUAGE, "")
+        return preferences.getString(SELECTED_LANGUAGE, "")!!
     }
 }

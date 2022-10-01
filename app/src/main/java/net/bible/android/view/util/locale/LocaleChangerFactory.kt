@@ -14,29 +14,23 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.view.util.locale
 
-package net.bible.android.view.util.locale;
-import android.os.Build;
-
+import android.os.Build
+import net.bible.android.view.util.locale.LocaleChanger
+import net.bible.android.view.util.locale.NougatPlusLocaleChanger
+import net.bible.android.view.util.locale.LegacyLocaleChanger
 
 /**
  * Prevent 'Could not find method' warnings due to old Android versions not having configuration.setLocale(x)
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
-public class LocaleChangerFactory {
-	private LocaleChanger localeChanger;
-
-	public LocaleChangerFactory() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			localeChanger = new NougatPlusLocaleChanger();
-		} else {
-			localeChanger = new LegacyLocaleChanger();
-		}
-	}
-
-	public LocaleChanger getLocaleChanger() {
-		return localeChanger;
-	}
+class LocaleChangerFactory {
+    val localeChanger: LocaleChanger =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            NougatPlusLocaleChanger()
+        } else {
+            LegacyLocaleChanger()
+        }
 }

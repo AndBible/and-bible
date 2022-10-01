@@ -14,17 +14,15 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.view.util.locale
 
-package net.bible.android.view.util.locale;
-
-import android.content.Context;
+import android.content.Context
 
 /**
  * Version specific locale overrider
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
-public interface LocaleChanger {
-	Context changeLocale(Context context, String language);
+interface LocaleChanger {
+    fun changeLocale(context: Context, language: String): Context
 }

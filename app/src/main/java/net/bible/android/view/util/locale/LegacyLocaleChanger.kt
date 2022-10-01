@@ -14,42 +14,28 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.view.util.locale
 
-package net.bible.android.view.util.locale;
-
-import android.content.Context;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-
-import net.bible.service.common.Logger;
-
-import java.util.Locale;
+import android.content.Context
+import net.bible.android.view.util.locale.LocaleChanger
+import net.bible.service.common.Logger
+import java.util.*
 
 /**
  * Change locale on older (pre-N) Android devices.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
-public class LegacyLocaleChanger implements LocaleChanger {
-
-	private final Logger logger = new Logger(this.getClass().getName());
-
-	@Override
-	public Context changeLocale(Context context, String language) {
-		logger.debug("Update resources legacy to:"+language);
-		Locale locale = Locale.forLanguageTag(language);
-
-		Locale.setDefault(locale);
-
-		Resources resources = context.getResources();
-
-		Configuration configuration = resources.getConfiguration();
-		configuration.locale = locale;
-
-		resources.updateConfiguration(configuration, resources.getDisplayMetrics());
-
-		return context;
-
-	}
+class LegacyLocaleChanger : LocaleChanger {
+    private val logger = Logger(this.javaClass.name)
+    override fun changeLocale(context: Context, language: String): Context {
+        logger.debug("Update resources legacy to:$language")
+        val locale = Locale.forLanguageTag(language)
+        Locale.setDefault(locale)
+        val resources = context.resources
+        val configuration = resources.configuration
+        configuration.locale = locale
+        resources.updateConfiguration(configuration, resources.displayMetrics)
+        return context
+    }
 }
