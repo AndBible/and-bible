@@ -19,13 +19,13 @@ package net.bible.android.control.event
 import de.greenrobot.event.EventBus
 import java.util.ArrayList
 
-object ABEventBus : EventManager {
+object ABEventBus  {
     private val subscribers = ArrayList<Any>()
 
     /**
      * Check not registered before registering to avoid exception
      */
-    override fun safelyRegister(subscriber: Any) {
+    fun safelyRegister(subscriber: Any) {
         val defaulteventBus = EventBus.getDefault()
         if (!defaulteventBus.isRegistered(subscriber)) {
             defaulteventBus.register(subscriber)
@@ -33,12 +33,12 @@ object ABEventBus : EventManager {
         }
     }
 
-    override fun register(subscriber: Any) {
+    fun register(subscriber: Any) {
         EventBus.getDefault().register(subscriber)
         subscribers.add(subscriber)
     }
 
-    override fun unregister(subscriber: Any) {
+    fun unregister(subscriber: Any) {
         EventBus.getDefault().unregister(subscriber)
         subscribers.remove(subscriber)
     }
@@ -46,13 +46,13 @@ object ABEventBus : EventManager {
     /**
      * Between tests we need to clean up
      */
-    override fun unregisterAll() {
+    fun unregisterAll() {
         for (subscriber in ArrayList(subscribers)) {
             unregister(subscriber)
         }
     }
 
-    override fun post(event: Any) {
+    fun post(event: Any) {
         EventBus.getDefault().post(event)
     }
 }

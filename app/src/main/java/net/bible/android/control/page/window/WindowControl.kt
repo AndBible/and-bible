@@ -25,7 +25,6 @@ import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.EventManager
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
@@ -57,7 +56,6 @@ import kotlin.coroutines.suspendCoroutine
 @ApplicationScope
 open class WindowControl @Inject constructor(
         val windowRepository: WindowRepository,
-        private val eventManager: EventManager
 ) : ActiveWindowPageManagerProvider {
 
     val windowSync: WindowSync = WindowSync(windowRepository)
@@ -81,7 +79,7 @@ open class WindowControl @Inject constructor(
     val isSingleWindow get () = !windowRepository.isMultiWindow && windowRepository.minimisedWindows.isEmpty() && !windowRepository.isMaximized
 
     init {
-        eventManager.register(this)
+        ABEventBus.register(this)
     }
 
     fun isActiveWindow(window: Window): Boolean {
@@ -117,7 +115,7 @@ open class WindowControl @Inject constructor(
         linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
 
         if (!linksWindowWasVisible) {
-            eventManager.post(NumberOfWindowsChangedEvent())
+            ABEventBus.post(NumberOfWindowsChangedEvent())
         }
     }
 
@@ -144,7 +142,7 @@ open class WindowControl @Inject constructor(
             windowRepository.minimise(window)
 
             // redisplay the current page
-            eventManager.post(NumberOfWindowsChangedEvent())
+            ABEventBus.post(NumberOfWindowsChangedEvent())
         }
     }
 
@@ -158,7 +156,7 @@ open class WindowControl @Inject constructor(
             if (visibleWindows.count() == 1) visibleWindows[0].weight = 1.0F
 
             // redisplay the current page
-            eventManager.post(NumberOfWindowsChangedEvent())
+            ABEventBus.post(NumberOfWindowsChangedEvent())
             windowSync.reloadAllWindows()
         }
     }
@@ -206,7 +204,7 @@ open class WindowControl @Inject constructor(
             if (activeWindow.isSynchronised)
                 windowRepository.lastSyncWindowId = activeWindow.id
 
-            eventManager.post(NumberOfWindowsChangedEvent())
+            ABEventBus.post(NumberOfWindowsChangedEvent())
             activeWindow = window
         }
     }
@@ -218,7 +216,7 @@ open class WindowControl @Inject constructor(
     /** screen orientation has changed  */
     fun orientationChange() {
         // causes BibleViews to be created and laid out
-        eventManager.post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
@@ -238,7 +236,7 @@ open class WindowControl @Inject constructor(
         set(value) {
         field = value
         val isMoveFinished = !value
-        eventManager.post(WindowSizeChangedEvent(isMoveFinished))
+        ABEventBus.post(WindowSizeChangedEvent(isMoveFinished))
     }
 
     fun windowSizesChanged() {
@@ -264,7 +262,7 @@ open class WindowControl @Inject constructor(
         windowRepository.moveWindowToPosition(window, position)
 
         // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun setPinMode(window: Window, value: Boolean) {
@@ -274,13 +272,13 @@ open class WindowControl @Inject constructor(
         } else if(!value && window.isVisible && windowRepository.visibleWindows.filter {!it.isPinMode}.size > 1) {
             minimiseWindow(window, true)
         }
-        eventManager.post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun maximiseWindow(window: Window) {
         windowRepository.maximizedWindowId = window.id
         windowSync.reloadAllWindows()
-        eventManager.post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun unMaximise() {
@@ -288,7 +286,7 @@ open class WindowControl @Inject constructor(
         windowRepository.maximizedWindowId = null
         windowSync.synchronizeWindows(maximizedWindow, noDelay = true)
         windowSync.reloadAllWindows()
-        eventManager.post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun hasMoveItems(window: Window): Boolean {
