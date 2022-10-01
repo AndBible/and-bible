@@ -14,8 +14,34 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.service.common
 
-package net.bible.android.control.event.passage;
+import net.bible.service.common.TestUtils
 
-public class PassageChangeStartedEvent {
+/** support junit tests
+ *
+ * @author denha1m
+ */
+object TestUtils {
+    private var _isAndroid = false
+    private var isAndroidCheckDone = false
+
+    /** return true id running in an Android vm
+     *
+     * @return
+     */
+	val isAndroid: Boolean get(){
+        if (!isAndroidCheckDone) {
+            try {
+                Class.forName("net.bible.test.TestEnvironmentFlag")
+                _isAndroid = false
+                println("Running as test")
+            } catch (cnfe: ClassNotFoundException) {
+                _isAndroid = true
+                println("Running on Android")
+            }
+            isAndroidCheckDone = true
+        }
+        return _isAndroid
+    }
 }

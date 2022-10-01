@@ -14,40 +14,18 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.service.common
 
-package net.bible.service.common;
+import java.lang.RuntimeException
 
-/** support junit tests
- * 
- * @author denha1m
- *
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class TestUtils {
-	
-	private static boolean isAndroid;
-	private static boolean isAndroidCheckDone;
-	
-	/** return true id running in an Android vm
-	 * 
-	 * @return
-	 */
-	public static boolean isAndroid() {
-		if (!isAndroidCheckDone) {
-			try {
-				Class.forName("net.bible.test.TestEnvironmentFlag");
-				isAndroid = false;
-				System.out.println("Running as test");
-			} catch (ClassNotFoundException cnfe) {
-				isAndroid = true;
-				System.out.println("Running on Android");
-			}
-			isAndroidCheckDone = true;
-		}
-		return isAndroid;
-	}
-	
-	public static void setTestMode() {
-		isAndroid = false;
-		isAndroidCheckDone = true;
-	}
+class AndRuntimeException : RuntimeException {
+    constructor(detailMessage: String?, throwable: Throwable?) : super(detailMessage, throwable) {}
+    constructor(detailMessage: String?) : super(detailMessage) {}
+
+    companion object {
+        private const val serialVersionUID = 1L
+    }
 }

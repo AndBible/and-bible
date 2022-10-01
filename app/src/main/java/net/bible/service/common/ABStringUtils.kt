@@ -14,22 +14,27 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.service.common
 
-package net.bible.service.common;
+import org.apache.commons.lang3.StringUtils
 
-/**
- * @author Martin Denham [mjdenham at gmail dot com]
- */
-public class AndRuntimeException extends RuntimeException {
-
-	private static final long serialVersionUID = 1L;
-
-	public AndRuntimeException(String detailMessage, Throwable throwable) {
-		super(detailMessage, throwable);
-	}
-
-	public AndRuntimeException(String detailMessage) {
-		super(detailMessage);
-	}
-
+object ABStringUtils : StringUtils() {
+    /** It doesn't make sense to say a string is not all uppercase just becasue it contains characters like numbers that can't be uppercase
+     *
+     * @param cs
+     * @return
+     */
+    fun isAllUpperCaseWherePossible(cs: CharSequence): Boolean {
+        if (isEmpty(cs)) {
+            return false
+        }
+        val sz = cs.length
+        for (i in 0 until sz) {
+            val ch = cs[i]
+            if (Character.isLowerCase(ch)) {
+                return false
+            }
+        }
+        return true
+    }
 }
