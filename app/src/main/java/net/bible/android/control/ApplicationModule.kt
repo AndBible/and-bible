@@ -22,12 +22,9 @@ import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.download.DownloadQueue
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.EventManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.service.sword.SwordDocumentFacade
-import java.util.concurrent.Executors
 
 /**
  * Dagger module to create application scoped dependencies
@@ -53,11 +50,5 @@ class ApplicationModule {
     @ApplicationScope
     fun provideResourceProvider(androidResourceProvider: AndroidResourceProvider): ResourceProvider {
         return androidResourceProvider
-    }
-
-    @Provides
-    @ApplicationScope
-    fun eventManagerProvider(): EventManager {
-        return ABEventBus.getDefault()
     }
 }

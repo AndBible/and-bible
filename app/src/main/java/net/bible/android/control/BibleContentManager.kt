@@ -35,7 +35,7 @@ import javax.inject.Inject
 class BibleContentManager @Inject
 constructor(private val windowControl: WindowControl) {
     init {
-        PassageChangeMediator.getInstance().setBibleContentManager(this)
+        PassageChangeMediator.setBibleContentManager(this)
     }
 
     @JvmOverloads
@@ -62,7 +62,7 @@ constructor(private val windowControl: WindowControl) {
         ) {
             val originalKey = window.pageManager.currentBible.originalKey
             window.bibleView?.scrollOrJumpToVerse(originalKey ?: verse)
-            PassageChangeMediator.getInstance().contentChangeFinished()
+            PassageChangeMediator.contentChangeFinished()
             return
         }
         if(prevVerse == verse) return

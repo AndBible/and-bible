@@ -28,13 +28,10 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class ReadingPlanPauseActionBarButton @Inject
-constructor(speakControl: SpeakControl, documentControl: DocumentControl) : SpeakActionBarButton(speakControl, documentControl) {
+class ReadingPlanPauseActionBarButton @Inject constructor(documentControl: DocumentControl) : SpeakActionBarButton(documentControl) {
 
     /**
      * do not show if nothing is being said.  If speaking then allow pause and vice-versa
      */
-    public override fun canShow(): Boolean {
-        return super.canShow() && isSpeakMode
-    }
+    override val canShow: Boolean get() = super.canShow && isSpeakMode
 }

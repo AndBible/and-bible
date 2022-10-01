@@ -69,7 +69,7 @@ abstract class VersePage protected constructor(
      */
     protected fun onVerseChange(window: Window) {
         if (!isInhibitChangeNotifications) {
-            PassageChangeMediator.getInstance().onCurrentVerseChanged(window)
+            PassageChangeMediator.onCurrentVerseChanged(window)
         }
     }
 

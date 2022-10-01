@@ -55,7 +55,7 @@ abstract class CustomTitlebarActivityBase(private val optionsMenuId: Int = NO_OP
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
 
-        actionBarManager.prepareOptionsMenu(this, menu, supportActionBar)
+        actionBarManager.prepareOptionsMenu(this, menu, supportActionBar?: return false)
 
         // must return true for menu to be displayed
         return true

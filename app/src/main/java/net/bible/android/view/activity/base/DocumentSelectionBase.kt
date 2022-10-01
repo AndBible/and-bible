@@ -46,7 +46,6 @@ import net.bible.android.control.download.repo
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.DocumentSearch
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
@@ -138,8 +137,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     protected abstract fun sortLanguages(languages: Collection<Language>?): List<Language>
 
     /** Called when the activity is first created.  */
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreate(savedDialogsState: Bundle?) {
+        super.onCreate(savedDialogsState)
         binding = DocumentSelectionBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
@@ -330,7 +329,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             }
         } catch (e: Exception) {
             Log.e(TAG, "document selection error", e)
-            instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 
@@ -372,7 +371,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 Log.i(TAG, "Number of documents:" + allDocuments.size)
             } catch (e: Exception) {
                 Log.e(TAG, "Error getting documents", e)
-                instance.showErrorMsg(R.string.error_occurred, e)
+                Dialogs.showErrorMsg(R.string.error_occurred, e)
             }
         }
         withContext(Dispatchers.Main) {
@@ -439,7 +438,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error initialising view", e)
-                    ABEventBus.getDefault().post(
+                    ABEventBus.post(
                         ToastEvent(getString(R.string.error) + " " + e.message,
                             Toast.LENGTH_SHORT)
                     )
@@ -513,7 +512,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             GlobalScope.launch(Dispatchers.Main) {CommonUtils.showAbout(this@DocumentSelectionBase, document) }
         } catch (e: BookException) {
             Log.e(TAG, "Error expanding SwordBookMetaData for $document", e)
-            instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 
@@ -534,14 +533,14 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                             _mainBibleActivity?.updateDocuments()
                         } catch (e: Exception) {
                             Log.e(TAG, "Deleting document crashed", e)
-                            instance.showErrorMsg(R.string.error_occurred, e)
+                            Dialogs.showErrorMsg(R.string.error_occurred, e)
                         }
                     }
                     .setNegativeButton(R.string.no, null)
                     .create()
                     .show()
             } else {
-                ABEventBus.getDefault().post(ToastEvent(R.string.cant_delete_last_bible))
+                ABEventBus.post(ToastEvent(R.string.cant_delete_last_bible))
             }
         }
     }
@@ -558,7 +557,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                         swordDocumentFacade.deleteDocumentIndex(document.installedDocument)
                     } catch (e: Exception) {
                         Log.e(TAG, "Deleting index crashed", e)
-                        instance.showErrorMsg(R.string.error_occurred, e)
+                        Dialogs.showErrorMsg(R.string.error_occurred, e)
                     }
                 }
                 .setNegativeButton(R.string.cancel, null)

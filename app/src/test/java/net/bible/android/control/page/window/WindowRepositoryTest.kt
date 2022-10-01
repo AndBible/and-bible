@@ -20,7 +20,6 @@ package net.bible.android.control.page.window
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.EventManagerStub
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.device.speak.AbstractSpeakTests
@@ -54,14 +53,13 @@ class WindowRepositoryTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        val eventManager = EventManagerStub()
         val bibleTraverser = mock(BibleTraverser::class.java)
 
         val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
         val mockCurrentPageManagerProvider = Provider { CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
-        windowControl = WindowControl(windowRepository!!, eventManager)
+        windowControl = WindowControl(windowRepository!!)
         windowRepository!!.initialize()
     }
 

@@ -50,7 +50,7 @@ class DocumentDownloadProgressCache {
             val id = jobID.substring(INSTALL_BOOK_JOB_NAME.length)
             val percentDone = progress.work
             percentDoneByInitials[id] = percentDone
-            ABEventBus.getDefault().post(DocumentDownloadEvent(id, DocumentStatus.DocumentInstallStatus.BEING_INSTALLED, percentDone))
+            ABEventBus.post(DocumentDownloadEvent(id, DocumentStatus.DocumentInstallStatus.BEING_INSTALLED, percentDone))
         }
     }
 

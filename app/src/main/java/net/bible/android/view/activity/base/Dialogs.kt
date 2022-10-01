@@ -36,21 +36,15 @@ import kotlin.coroutines.suspendCoroutine
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class Dialogs private constructor() {
-    private val doNothingCallback = Callback {
-        // by default do nothing when user clicks okay
-    }
+private const val TAG = "Dialogs"
 
+object Dialogs {
     fun showMsg(msgId: Int, param: String?) {
         showErrorMsg(application.getString(msgId, param))
     }
 
-    fun showMsg(msgId: Int, isCancelable: Boolean, okayCallback: Callback) {
+    fun showMsg(msgId: Int, isCancelable: Boolean, okayCallback: (() -> Unit)) {
         showMsg(application.getString(msgId), isCancelable, okayCallback, null)
-    }
-
-    fun showMsg(msgId: Int, isCancelable: Boolean, okayCallback: () -> Unit) {
-        showMsg(application.getString(msgId), isCancelable, Callback(okayCallback), null)
     }
 
     fun showMsg(msgId: Int) {
@@ -65,12 +59,8 @@ class Dialogs private constructor() {
         showErrorMsg(application.getString(msgId, param))
     }
 
-    fun showErrorMsg(msgId: Int, okayCallback: Callback) {
-        showErrorMsg(application.getString(msgId), okayCallback)
-    }
-
     fun showErrorMsg(msgId: Int, okayCallback: () -> Unit) {
-        showErrorMsg(application.getString(msgId), Callback(okayCallback))
+        showErrorMsg(application.getString(msgId), okayCallback)
     }
 
     /**
@@ -84,24 +74,19 @@ class Dialogs private constructor() {
      * Show error message and allow reporting of exception via e-mail to and-bible
      */
     fun showErrorMsg(message: String?, e: Exception?) {
-        val reportCallback = Callback { ErrorReportControl.sendErrorReportEmail(e, source = "error message") }
-        showMsg(message, false, doNothingCallback, reportCallback)
+        val reportCallback = { ErrorReportControl.sendErrorReportEmail(e, source = "error message") }
+        showMsg(message, false, null, reportCallback)
     }
 
-    @JvmOverloads
-    fun showErrorMsg(msg: String?, okayCallback: Callback = doNothingCallback) {
+    fun showErrorMsg(msg: String?, okayCallback: (() -> Unit)? = null) {
         showMsg(msg, false, okayCallback, null)
     }
 
-    fun showErrorMsg(msg: String?, okayCallback: () -> Unit) {
-        showErrorMsg(msg, Callback(okayCallback))
-    }
-
     // TODO: use instead ErrorReportControl.showErrorDialog coroutine for error messages.
-    private fun showMsg(msg: String?, isCancelable: Boolean, okayCallback: Callback, reportCallback: Callback?) {
-        Log.i(TAG, "showErrorMesage message:$msg")
+    private fun showMsg(msg: String?, isCancelable: Boolean, okayCallback: (() -> Unit)?, reportCallback: (() -> Unit)?) {
+        Log.i(TAG, "showErrorMessage message:$msg")
         try {
-            val activity = CurrentActivityHolder.getInstance().currentActivity
+            val activity = CurrentActivityHolder.currentActivity
             if (activity != null) {
                 activity.runOnUiThread {
                     val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -113,18 +98,16 @@ class Dialogs private constructor() {
                     val dlgBuilder = AlertDialog.Builder(activity)
                         .setMessage(spanned)
                         .setCancelable(isCancelable)
-                        .setPositiveButton(R.string.okay) { dialog, buttonId -> okayCallback.okay() }
+                        .setPositiveButton(R.string.okay) { _, _ -> okayCallback?.invoke() }
 
                     // if cancelable then show a Cancel button
                     if (isCancelable) {
-                        dlgBuilder.setNegativeButton(R.string.cancel) { dialog, buttonId ->
-                            // do nothing
-                        }
+                        dlgBuilder.setNegativeButton(R.string.cancel, null)
                     }
 
                     // enable report to andbible errors email list
                     if (reportCallback != null) {
-                        dlgBuilder.setNeutralButton(R.string.report_error) { dialog, buttonId -> reportCallback.okay() }
+                        dlgBuilder.setNeutralButton(R.string.report_error) { dialog, buttonId -> reportCallback.invoke() }
                     }
                     val d = dlgBuilder.show()
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
@@ -143,7 +126,7 @@ class Dialogs private constructor() {
 
     enum class Result {OK, CANCEL, REPORT, ERROR}
 
-    suspend fun showMsg2(activity: ActivityBase, msg: String, isCancelable: Boolean = false, showReport: Boolean = false): Result {
+    private suspend fun showMsg2(activity: ActivityBase, msg: String, isCancelable: Boolean = false, showReport: Boolean = false): Result {
         Log.i(TAG, "showErrorMesage message:$msg")
         var result = Result.ERROR
         try {
@@ -178,11 +161,4 @@ class Dialogs private constructor() {
         }
         return result
     }
-
-
-    companion object {
-        private const val TAG = "Dialogs"
-        val instance = Dialogs()
-    }
-
 }

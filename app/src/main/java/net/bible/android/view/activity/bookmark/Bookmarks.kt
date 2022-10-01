@@ -41,7 +41,6 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
@@ -49,6 +48,7 @@ import net.bible.service.common.CommonUtils.settings
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import java.lang.IllegalArgumentException
@@ -148,7 +148,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             }
         } catch (e: Exception) {
             Log.e(TAG, "document selection error", e)
-            instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 
@@ -299,7 +299,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                     loadBookmarkList()
                 } catch (e: Exception) {
                     Log.e(TAG, "Error sorting bookmarks", e)
-                    instance.showErrorMsg(R.string.error_occurred, e)
+                    Dialogs.showErrorMsg(R.string.error_occurred, e)
                 }
             }
             R.id.manageLabels -> {

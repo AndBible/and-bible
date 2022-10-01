@@ -27,7 +27,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
@@ -142,7 +142,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error sorting bookmarks", e)
-                    instance.showErrorMsg(R.string.error_occurred, e)
+                    Dialogs.showErrorMsg(R.string.error_occurred, e)
                 }
             }
             R.id.backupButton -> {

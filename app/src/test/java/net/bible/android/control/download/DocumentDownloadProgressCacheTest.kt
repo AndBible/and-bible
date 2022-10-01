@@ -62,7 +62,7 @@ class DocumentDownloadProgressCacheTest {
     @Throws(InterruptedException::class)
     fun sendEventOnProgress() {
         val eventReceiver = EventReceiver()
-        ABEventBus.getDefault().register(eventReceiver)
+        ABEventBus.register(eventReceiver)
         documentDownloadProgressCache!!.startMonitoringDownloads()
         testData!!.progress.workDone = 30
         Thread.sleep(10)
@@ -71,7 +71,7 @@ class DocumentDownloadProgressCacheTest {
 
     @After
     fun tearDown() {
-        ABEventBus.getDefault().unregisterAll()
+        ABEventBus.unregisterAll()
         DatabaseResetter.resetDatabase()
     }
 

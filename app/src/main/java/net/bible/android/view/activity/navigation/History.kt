@@ -30,7 +30,7 @@ import android.widget.TextView
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.HistoryBinding
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.base.SharedActivityState.Companion.currentWorkspaceName
 import net.bible.service.history.HistoryItem
@@ -91,7 +91,7 @@ class History : ListActivityBase() {
             historyItemSelected(mHistoryItemList!![position])
         } catch (e: Exception) {
             Log.e(TAG, "Selection error", e)
-            instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 

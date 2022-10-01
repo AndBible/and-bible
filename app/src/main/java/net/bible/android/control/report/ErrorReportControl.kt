@@ -115,32 +115,33 @@ const val SCREENSHOT_FILE = "screenshot.webp"
 
 object BugReport {
     private fun createErrorText(exception: Throwable? = null) = try {
-        val text = StringBuilder()
-        text.append("And Bible version: ").append(applicationVersionName).append("\n")
-        text.append("Android version: ").append(Build.VERSION.RELEASE).append("\n")
-        text.append("Android SDK version: ").append(Build.VERSION.SDK_INT).append("\n")
-        text.append("Manufacturer: ").append(Build.MANUFACTURER).append("\n")
-        text.append("Model: ").append(Build.MODEL).append("\n")
-        text.append("Storage Mb free: ").append(megabytesFree).append("\n")
-        text.append("WebView version: ").append(WebViewCompat.getCurrentWebViewPackage(BibleApplication.application)?.versionName).append("\n")
-        text.append("SQLITE version: ").append(BibleApplication.application.sqliteVersion).append("\n")
-        val runtime = Runtime.getRuntime()
-        val usedMemInMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L
-        val maxHeapSizeInMB = runtime.maxMemory() / 1048576L
-        text.append("Used heap memory in Mb: ").append(usedMemInMB).append("\n")
-        text.append("Max heap memory in Mb: ").append(maxHeapSizeInMB).append("\n\n")
-        if (exception != null) {
-            val errors = StringWriter()
-            exception.printStackTrace(PrintWriter(errors))
-            text.append("Exception:\n").append(errors.toString())
+        StringBuilder().run {
+            append("And Bible version: ").append(applicationVersionName).append("\n")
+            append("Android version: ").append(Build.VERSION.RELEASE).append("\n")
+            append("Android SDK version: ").append(Build.VERSION.SDK_INT).append("\n")
+            append("Manufacturer: ").append(Build.MANUFACTURER).append("\n")
+            append("Model: ").append(Build.MODEL).append("\n")
+            append("Storage Mb free: ").append(megabytesFree).append("\n")
+            append("WebView version: ").append(WebViewCompat.getCurrentWebViewPackage(BibleApplication.application)?.versionName).append("\n")
+            append("SQLITE version: ").append(BibleApplication.application.sqliteVersion).append("\n")
+            val runtime = Runtime.getRuntime()
+            val usedMemInMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L
+            val maxHeapSizeInMB = runtime.maxMemory() / 1048576L
+            append("Used heap memory in Mb: ").append(usedMemInMB).append("\n")
+            append("Max heap memory in Mb: ").append(maxHeapSizeInMB).append("\n\n")
+            if (exception != null) {
+                val errors = StringWriter()
+                exception.printStackTrace(PrintWriter(errors))
+                append("Exception:\n").append(errors.toString())
+            }
+            toString()
         }
-        text.toString()
     } catch (e: Exception) {
         "Exception occurred preparing error text:" + e.message
     }
 
     private fun getSubject(e: Throwable?): String? {
-        if (e == null || e.stackTrace.size == 0) {
+        if (e == null || e.stackTrace.isEmpty()) {
             return applicationVersionName
         }
         val stack = e.stackTrace
@@ -164,7 +165,7 @@ object BugReport {
     }
 
     fun saveScreenshot() {
-        val activity = CurrentActivityHolder.getInstance().currentActivity?: return
+        val activity = CurrentActivityHolder.currentActivity?: return
         val dir = File(activity.filesDir, "/log")
         dir.mkdirs()
         val screenshotFile = File(dir, SCREENSHOT_FILE)
@@ -227,7 +228,7 @@ object BugReport {
         }
 
     suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, useSaved: Boolean = false, source: String) {
-        val context = context_ ?: CurrentActivityHolder.getInstance().currentActivity
+        val context = context_ ?: CurrentActivityHolder.currentActivity!!
         val dir = File(context.filesDir, "/log")
         val f = File(dir, "logcat.txt.gz")
         val screenshotFile = File(dir, SCREENSHOT_FILE)
@@ -246,7 +247,7 @@ object BugReport {
                     log.append(line + '\n');
                     line = bufferedReader.readLine()
                 }
-            } catch (e: IOException) {}
+            } catch (_: IOException) {}
 
             dir.mkdirs()
 
@@ -280,11 +281,7 @@ object BugReport {
             }
             val chooserIntent = Intent.createChooser(email, context.getString(R.string.send_bug_report_title))
             chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            if (context is ActivityBase) {
-                context.awaitIntent(chooserIntent)
-            } else {
-                context.startActivity(chooserIntent)
-            }
+            context.awaitIntent(chooserIntent)
         }
     }
 

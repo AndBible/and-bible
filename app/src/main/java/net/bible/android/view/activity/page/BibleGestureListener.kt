@@ -48,7 +48,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
         // make it easier to swipe
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
@@ -62,7 +62,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         }
 
         // prevent interference with window separator drag - fast drags were causing a fling
-        if (!TouchOwner.getInstance().isTouchOwned) {
+        if (!TouchOwner.isTouchOwned) {
             // get distance between points of the fling
             val vertical = Math.abs(flingEv.y - e2.y).toDouble()
             val horizontal = Math.abs(flingEv.x - e2.x).toDouble()
@@ -101,7 +101,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
             // New scroll event
             scrollEv = MotionEvent.obtain(e1)
         }
-		ABEventBus.getDefault().post(BibleView.BibleViewTouched(onlyTouch = true))
+		ABEventBus.post(BibleView.BibleViewTouched(onlyTouch = true))
         if (e2.eventTime - scrollEv.eventTime > 1000) {
             // Too slow motion
             scrollEv = MotionEvent.obtain(e2)
@@ -130,7 +130,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
     }
 
     override fun onSingleTapUp(e: MotionEvent): Boolean {
-        ABEventBus.getDefault().post(BibleView.BibleViewTouched(onlyTouch = true))
+        ABEventBus.post(BibleView.BibleViewTouched(onlyTouch = true))
         return super.onSingleTapUp(e)
     }
 

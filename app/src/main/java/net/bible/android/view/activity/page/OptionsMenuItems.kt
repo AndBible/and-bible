@@ -61,7 +61,7 @@ interface OptionsMenuItemInterface {
     val icon: Int?
 }
 
-val currentActivity: ActivityBase get() = CurrentActivityHolder.getInstance().currentActivity
+val currentActivity: ActivityBase get() = CurrentActivityHolder.currentActivity!!
 val application get() = BibleApplication.application
 val windowControl get() = CommonUtils.windowControl
 val windowRepository get() = CommonUtils.windowControl.windowRepository
@@ -482,7 +482,7 @@ class SplitModePreference :
     private val wsBehaviorSettings = windowRepository.workspaceSettings
     override fun handle() {
         windowControl.windowSizesChanged()
-        ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged(_mainBibleActivity!!.resources.configuration))
+        ABEventBus.post(MainBibleActivity.ConfigurationChanged(_mainBibleActivity!!.resources.configuration))
     }
 
     override var value: Any

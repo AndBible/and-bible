@@ -77,11 +77,11 @@ class SpeakWidgetManager {
         DaggerActivityComponent.builder()
                 .applicationComponent(BibleApplication.application.applicationComponent)
                 .build().inject(this)
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
 
     fun destroy() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         instance = null
     }
 

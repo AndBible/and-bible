@@ -48,7 +48,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         setContentView(binding.root)
 
         super.buildActivityComponent().inject(this)
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         resetView(SpeakSettings.load())
         binding.apply {
             synchronize.setOnClickListener { updateSettings() }
@@ -61,7 +61,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
     override val sleepTimer: CheckBox? = null
 
     override fun onDestroy() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         super.onDestroy()
     }
 

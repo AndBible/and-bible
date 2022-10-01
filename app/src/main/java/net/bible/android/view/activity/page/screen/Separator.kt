@@ -73,8 +73,6 @@ class Separator(
     val touchDelegateView1 = TouchDelegateView(context, this)
     val touchDelegateView2 = TouchDelegateView(context, this)
 
-    private val touchOwner = TouchOwner.getInstance()
-
     private val aveScreenSize: Int
         get() = parentDimensionPx / numWindows
 
@@ -96,13 +94,13 @@ class Separator(
     }
 
     override fun onDetachedFromWindow() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         super.onDetachedFromWindow()
     }
 
     override fun onAttachedToWindow() {
         updateBackground()
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         super.onAttachedToWindow()
     }
 
@@ -122,7 +120,7 @@ class Separator(
             window1.weight = view1LayoutParams.weight
             window2.weight = view2LayoutParams.weight
             windowControl.isSeparatorMoving = false
-            touchOwner.releaseOwnership(this)
+            TouchOwner.releaseOwnership()
         }
     }
 
@@ -133,7 +131,7 @@ class Separator(
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
                 Log.i(TAG, " y:" + event.rawY)
-                touchOwner.setTouchOwner(this)
+                TouchOwner.setTouchOwner(this)
                 windowControl.isSeparatorMoving = true
                 setBackgroundResource(dragResource)
 

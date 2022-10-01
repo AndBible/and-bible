@@ -39,7 +39,7 @@ object ScreenSettings {
                 lastNightMode = false
             }
             if(oldValue != lastNightMode) {
-                ABEventBus.getDefault().post(NightModeChanged())
+                ABEventBus.post(NightModeChanged())
             }
         }
     }

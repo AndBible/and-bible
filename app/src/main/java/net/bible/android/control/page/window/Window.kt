@@ -89,7 +89,7 @@ open class Window (
     open var isSynchronised = window.isSynchronized
         set(value) {
             field = value
-            ABEventBus.getDefault().post(WindowChangedEvent(this))
+            ABEventBus.post(WindowChangedEvent(this))
         }
 
     open var isPinMode: Boolean = window.isPinMode
@@ -100,7 +100,7 @@ open class Window (
         }
         set(value) {
             field = value
-            ABEventBus.getDefault().post(WindowChangedEvent(this))
+            ABEventBus.post(WindowChangedEvent(this))
         }
 
     val isMinimised: Boolean
@@ -181,7 +181,7 @@ open class Window (
 
         updateScope.launch {
             if (notifyLocationChange) {
-                PassageChangeMediator.getInstance().contentChangeStarted()
+                PassageChangeMediator.contentChangeStarted()
             }
             val b = bibleView
             val adjusted = b?.adjustLoadingCount(1)?: false
@@ -211,7 +211,7 @@ open class Window (
             }
 
             if(notifyLocationChange)
-                PassageChangeMediator.getInstance().contentChangeFinished()
+                PassageChangeMediator.contentChangeFinished()
             }
         }
 

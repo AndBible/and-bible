@@ -18,7 +18,7 @@ package net.bible.service.download
 
 import net.bible.android.activity.R
 import net.bible.android.control.download.repoIdentity
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
@@ -64,7 +64,7 @@ class DownloadManager(
             installer = installManager.getInstaller(repo)
             documents = if (installer == null) {
                 log.error("Error getting installer for repo $repo")
-                instance.showErrorMsg(R.string.error_occurred, Exception("Error getting installer for repo $repo"))
+                Dialogs.showErrorMsg(R.string.error_occurred, Exception("Error getting installer for repo $repo"))
                 emptyList()
             } else {
                 // Now we can get the list of books

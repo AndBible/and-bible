@@ -123,7 +123,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
     }
 
     init {
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
 
     private fun makeTriggerSound() {
@@ -166,7 +166,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
     }
 
     fun release() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         ms.run {
             isActive = false
             release()

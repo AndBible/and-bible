@@ -93,7 +93,7 @@ class BibleJavascriptInterface(
     fun setLimitAmbiguousModalSize(value: Boolean) {
         Log.i(TAG, "setLimitAmbiguousModalSize")
         bibleView.workspaceSettings.limitAmbiguousModalSize = value
-        ABEventBus.getDefault().post(AppSettingsUpdated())
+        ABEventBus.post(AppSettingsUpdated())
     }
 
     @JavascriptInterface
@@ -162,7 +162,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun reportInputFocus(newValue: Boolean) {
         Log.i(TAG, "Focus mode now $newValue")
-        ABEventBus.getDefault().post(BibleViewInputFocusChanged(bibleView, newValue))
+        ABEventBus.post(BibleViewInputFocusChanged(bibleView, newValue))
     }
 
     @JavascriptInterface
@@ -235,7 +235,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun toast(text: String) {
-        ABEventBus.getDefault().post(ToastEvent(text))
+        ABEventBus.post(ToastEvent(text))
     }
 
     @JavascriptInterface
@@ -338,13 +338,13 @@ class BibleJavascriptInterface(
     fun setBookmarkWholeVerse(bookmarkId: Long, value: Boolean) {
         val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
         if(!value && bookmark.textRange == null) {
-            ABEventBus.getDefault().post(ToastEvent(R.string.cant_change_wholeverse))
+            ABEventBus.post(ToastEvent(R.string.cant_change_wholeverse))
             return
         }
         bookmark.wholeVerse = value
 
         bookmarkControl.addOrUpdateBookmark(bookmark)
-        if(value) ABEventBus.getDefault().post(ToastEvent(R.string.whole_verse_turned_on))
+        if(value) ABEventBus.post(ToastEvent(R.string.whole_verse_turned_on))
     }
 
     @JavascriptInterface
@@ -356,7 +356,7 @@ class BibleJavascriptInterface(
         } else {
             hideDocs.add(documentId)
         }
-        ABEventBus.getDefault().post(AppSettingsUpdated())
+        ABEventBus.post(AppSettingsUpdated())
     }
 
     @JavascriptInterface

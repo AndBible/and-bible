@@ -130,7 +130,7 @@ object SwordEnvironmentInitialisation {
                 } else {
                     Exception("JSword Exception")
                 }
-                Dialogs.instance.showErrorMsg(msg, e)
+                Dialogs.showErrorMsg(msg, e)
             }
         })
     }

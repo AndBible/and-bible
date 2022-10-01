@@ -47,6 +47,6 @@ class TestBibleApplication : BibleApplication() {
     override fun onTerminate() {
         CommonUtils.destroy()
         super.onTerminate()
-        ABEventBus.getDefault().unregisterAll()
+        ABEventBus.unregisterAll()
     }
 }

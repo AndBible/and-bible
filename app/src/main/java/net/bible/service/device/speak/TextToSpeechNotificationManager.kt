@@ -205,7 +205,7 @@ class TextToSpeechNotificationManager {
 
         app.registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
 
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL,

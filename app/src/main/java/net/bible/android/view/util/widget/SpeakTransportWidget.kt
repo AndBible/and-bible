@@ -104,12 +104,12 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
     }
 
     override fun onDetachedFromWindow() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         super.onDetachedFromWindow()
     }
 
     override fun onAttachedToWindow() {
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
         super.onAttachedToWindow()
         resetView(SpeakSettings.load())
     }
@@ -124,7 +124,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                     rewindButton -> speakControl.rewind()
                     stopButton -> {
                         if(speakControl.isStopped) {
-                            ABEventBus.getDefault().post(HideTransportEvent())
+                            ABEventBus.post(HideTransportEvent())
                         } else {
                             speakControl.stop()
                         }
@@ -146,7 +146,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                 }
             }
         } catch (e: Exception) {
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
             Log.e(TAG, "Error: ", e)
         }
     }
