@@ -62,7 +62,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         }
 
         // prevent interference with window separator drag - fast drags were causing a fling
-        if (!TouchOwner.getInstance().isTouchOwned) {
+        if (!TouchOwner.isTouchOwned) {
             // get distance between points of the fling
             val vertical = Math.abs(flingEv.y - e2.y).toDouble()
             val horizontal = Math.abs(flingEv.x - e2.x).toDouble()

@@ -14,49 +14,39 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.view.util
 
-package net.bible.android.view.util;
-
-import android.view.View;
+import android.annotation.SuppressLint
+import android.view.View
 
 /** primarily to prevent long-touch being handled while dragging a separator on v slow mobiles
- * 
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class TouchOwner {
 
-	private long ownershipTime;
-	private View currentOwner;
-	
-	private static final long MAX_OWNERSHIP_TIME = 20*1000; // 20 secs
+private const val MAX_OWNERSHIP_TIME = (20 * 1000).toLong() // 20 seconds
 
-	private static final TouchOwner singleton = new TouchOwner();
-	
-	public static TouchOwner getInstance() {
-		return singleton;
-	}
-	
-	public void setTouchOwner(View owner) {
-		currentOwner = owner;
-		ownershipTime = System.currentTimeMillis();
-	}
-	public void releaseOwnership(View owner) {
-		currentOwner = null;
-	}
-	
-	public boolean isTouchOwned() {
-		if (currentOwner==null) {
-			// Not owned
-			return false;
-		} else if (System.currentTimeMillis()-ownershipTime>MAX_OWNERSHIP_TIME) {
-			// Ownership timed out
-			currentOwner = null;
-			return false;
-		} else {
-			// is owned
-			return true;
-		}
-	}
+@SuppressLint("StaticFieldLeak") // Used only in MainBibleActivity context
+object TouchOwner {
+    private var ownershipTime: Long = 0
+    private var currentOwner: View? = null
+    fun setTouchOwner(owner: View) {
+        currentOwner = owner
+        ownershipTime = System.currentTimeMillis()
+    }
 
-	
+    fun releaseOwnership() {
+        currentOwner = null
+    }
+
+    // Not owned
+    val isTouchOwned: Boolean
+        get() = if (currentOwner == null) {
+            false
+        } else if (System.currentTimeMillis() - ownershipTime > MAX_OWNERSHIP_TIME) {
+            currentOwner = null
+            false
+        } else {
+            true
+        }
 }

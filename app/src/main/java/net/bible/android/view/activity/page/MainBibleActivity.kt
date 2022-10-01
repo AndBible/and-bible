@@ -95,7 +95,6 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.navigation.History
-import net.bible.android.view.activity.page.actionbar.BibleActionBarManager
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
@@ -139,7 +138,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // We need to have this here in order to initialize BibleContentManager early enough.
     @Inject lateinit var bibleContentManager: BibleContentManager
     @Inject lateinit var documentViewManager: DocumentViewManager
-    @Inject lateinit var bibleActionBarManager: BibleActionBarManager
     @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
@@ -1189,7 +1187,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun beforeDestroy() {
         documentViewManager.destroy()
-        bibleActionBarManager.destroy()
     }
 
     fun refreshIfNightModeChange(): Boolean {
