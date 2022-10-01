@@ -85,7 +85,7 @@ object AndBibleAddons {
 
     fun clearCaches() {
         _addons =null
-        ABEventBus.getDefault().post(ReloadAddonsEvent())
+        ABEventBus.post(ReloadAddonsEvent())
     }
 
     val fontModuleNames: List<String> get() =

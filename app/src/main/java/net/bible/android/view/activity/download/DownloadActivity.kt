@@ -38,7 +38,6 @@ import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.android.view.activity.installzip.InstallZip
@@ -65,6 +64,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.serializer
 import net.bible.android.database.SwordDocumentInfo
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.isMyBibleBook
 
@@ -352,7 +352,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
     private fun showTooManyJobsDialog() {
         Log.i(TAG, "Too many jobs:" + JobManager.getJobCount())
-        instance.showErrorMsg(R.string.too_many_jobs)
+        Dialogs.showErrorMsg(R.string.too_many_jobs)
     }
 
     private fun manageDownload(documentToDownload: Book?) {

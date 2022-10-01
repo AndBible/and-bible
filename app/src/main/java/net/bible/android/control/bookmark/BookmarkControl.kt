@@ -125,7 +125,7 @@ open class BookmarkControl @Inject constructor(
 
         addText(bookmark)
         addLabels(bookmark)
-        ABEventBus.getDefault().post(
+        ABEventBus.post(
             BookmarkAddedOrUpdatedEvent(bookmark)
         )
         return bookmark
@@ -142,7 +142,7 @@ open class BookmarkControl @Inject constructor(
     fun deleteBookmark(bookmark: Bookmark) {
         dao.delete(bookmark)
         sanitizeStudyPadOrder(bookmark)
-        ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark.id)))
+        ABEventBus.post(BookmarksDeletedEvent(listOf(bookmark.id)))
     }
 
     fun deleteBookmarks(bookmarks: List<Bookmark>) {
@@ -154,7 +154,7 @@ open class BookmarkControl @Inject constructor(
         for (l in labels) {
             sanitizeStudyPadOrder(l)
         }
-        ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks.map { it.id }))
+        ABEventBus.post(BookmarksDeletedEvent(bookmarks.map { it.id }))
     }
 
     fun deleteBookmarksById(bookmarkIds: List<Long>) = deleteBookmarks(dao.bookmarksByIds(bookmarkIds))
@@ -189,7 +189,7 @@ open class BookmarkControl @Inject constructor(
         } else {
             label.id = dao.insert(label)
         }
-        ABEventBus.getDefault().post(LabelAddedOrUpdatedEvent(label))
+        ABEventBus.post(LabelAddedOrUpdatedEvent(label))
         return label
     }
 
@@ -237,7 +237,7 @@ open class BookmarkControl @Inject constructor(
         val bookmark = dao.bookmarkById(bookmarkId)!!
         addLabels(bookmark)
         addText(bookmark)
-        ABEventBus.getDefault().post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
+        ABEventBus.post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
     }
 
     fun deleteLabels(toList: List<Long>) {
@@ -308,12 +308,12 @@ open class BookmarkControl @Inject constructor(
 
     fun updateJournalTextEntry(entry: StudyPadTextEntry) {
         dao.update(entry)
-        ABEventBus.getDefault().post(StudyPadOrderEvent(entry.labelId, entry, emptyList(), emptyList()))
+        ABEventBus.post(StudyPadOrderEvent(entry.labelId, entry, emptyList(), emptyList()))
     }
 
     fun updateBookmarkToLabel(bookmarkToLabel: BookmarkToLabel) {
         dao.update(bookmarkToLabel)
-        ABEventBus.getDefault().post(BookmarkToLabelAddedOrUpdatedEvent(bookmarkToLabel))
+        ABEventBus.post(BookmarkToLabelAddedOrUpdatedEvent(bookmarkToLabel))
     }
 
     fun updateBookmarkTimestamp(bookmarkId: Long) {
@@ -328,7 +328,7 @@ open class BookmarkControl @Inject constructor(
     fun deleteStudyPadTextEntry(textEntryId: Long) {
         val entry = dao.journalTextEntryById(textEntryId)!!
         dao.delete(entry)
-        ABEventBus.getDefault().post(StudyPadTextEntryDeleted(textEntryId))
+        ABEventBus.post(StudyPadTextEntryDeleted(textEntryId))
         sanitizeStudyPadOrder(entry.labelId)
     }
 
@@ -367,7 +367,7 @@ open class BookmarkControl @Inject constructor(
         dao.updateBookmarkToLabels(changedBookmarkToLabels)
         dao.updateJournalTextEntries(changedJournalTextEntries)
         if(changedBookmarkToLabels.size > 0 || changedJournalTextEntries.size > 0)
-            ABEventBus.getDefault().post(
+            ABEventBus.post(
                 StudyPadOrderEvent(
                     labelId, null, changedBookmarkToLabels, changedJournalTextEntries
                 )
@@ -389,7 +389,7 @@ open class BookmarkControl @Inject constructor(
         updateJournalTextEntries(journals)
         dao.insert(entry).also { entry.id = it }
 
-        ABEventBus.getDefault().post(StudyPadOrderEvent(labelId, entry, bookmarkToLabels, journals))
+        ABEventBus.post(StudyPadOrderEvent(labelId, entry, bookmarkToLabels, journals))
     }
 
     fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) {
@@ -413,7 +413,7 @@ open class BookmarkControl @Inject constructor(
     fun updateOrderNumbers(labelId: Long, bookmarksToLabels: List<BookmarkToLabel>, studyPadTextEntries: List<StudyPadTextEntry>) {
         dao.updateJournalTextEntries(studyPadTextEntries)
         dao.updateBookmarkToLabels(bookmarksToLabels)
-        ABEventBus.getDefault().post(StudyPadOrderEvent(labelId, null, bookmarksToLabels, studyPadTextEntries))
+        ABEventBus.post(StudyPadOrderEvent(labelId, null, bookmarksToLabels, studyPadTextEntries))
     }
 
     fun setAsPrimaryLabel(bookmarkId: Long, labelId: Long) {

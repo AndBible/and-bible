@@ -47,9 +47,9 @@ class GeneralSpeakTextProvider : SpeakTextProvider {
     private var keyList: List<Key>? = null
     override fun startUtterance(utteranceId: String) {
         if (keyList != null && keyList!!.size > 0) {
-            ABEventBus.getDefault().post(SpeakProgressEvent(book!!, keyList!![0],
+            ABEventBus.post(SpeakProgressEvent(book!!, keyList!![0],
                 TextCommand(currentText, TextCommand.TextType.NORMAL)))
-            ABEventBus.getDefault().post(SpeakProgressEvent(book!!, keyList!![0],
+            ABEventBus.post(SpeakProgressEvent(book!!, keyList!![0],
                 TextCommand(book!!.name, TextCommand.TextType.TITLE)))
         }
     }

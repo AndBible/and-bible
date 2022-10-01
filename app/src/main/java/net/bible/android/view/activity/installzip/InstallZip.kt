@@ -207,7 +207,7 @@ class ZipHandler(
             }
         }
 
-        val bus = ABEventBus.getDefault()
+        val bus = ABEventBus
         when (result) {
             R_ERROR -> bus.post(ToastEvent(R.string.error_occurred))
             R_CANCEL -> bus.post(ToastEvent(R.string.install_zip_canceled))

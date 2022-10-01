@@ -100,7 +100,7 @@ open class WindowRepository @Inject constructor(
         }
 
     init {
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
     }
 
     fun initialize() {
@@ -132,7 +132,7 @@ open class WindowRepository @Inject constructor(
             if (!initialized || newActiveWindow != this._activeWindow) {
                 _activeWindow = newActiveWindow
                 Log.i(TAG, "Active window: ${newActiveWindow}")
-                ABEventBus.getDefault().post(CurrentWindowChangedEvent(newActiveWindow))
+                ABEventBus.post(CurrentWindowChangedEvent(newActiveWindow))
             }
             _activeWindow?.bibleView?.requestFocus()
         }
@@ -403,7 +403,7 @@ open class WindowRepository @Inject constructor(
             historyManager.restoreFrom(window, dao.historyItems(it.id))
         }
         setDefaultActiveWindow()
-        ABEventBus.getDefault().post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun clear(destroy: Boolean = false) {
@@ -458,7 +458,7 @@ open class WindowRepository @Inject constructor(
                 }
             }
         }
-        ABEventBus.getDefault().post(AppSettingsUpdated())
+        ABEventBus.post(AppSettingsUpdated())
     }
 
     companion object {

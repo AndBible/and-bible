@@ -44,9 +44,9 @@ object PhoneCallMonitor {
             override fun onCallStateChanged(state: Int, incomingNumber: String) {
                 Log.i("PhoneCallMonitor", "State changed $state")
                 if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
-                    ABEventBus.getDefault().post(PhoneCallEvent(true))
+                    ABEventBus.post(PhoneCallEvent(true))
                 } else if (state == TelephonyManager.CALL_STATE_IDLE) {
-                    ABEventBus.getDefault().post(PhoneCallEvent(false))
+                    ABEventBus.post(PhoneCallEvent(false))
                 }
             }
         }

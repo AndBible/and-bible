@@ -279,7 +279,7 @@ class ReadingPlanControl @Inject constructor(
             // mark reading as 'read'
             getReadingStatus(day).setRead(readingNo)
 
-            ABEventBus.getDefault().post(BeforeCurrentPageChangeEvent())
+            ABEventBus.post(BeforeCurrentPageChangeEvent())
 
             // show the current bible
             val currentPageManager = currentPageManager

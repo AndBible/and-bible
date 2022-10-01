@@ -28,10 +28,8 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class ReadingPlanBibleActionBarButton @Inject
-constructor() : ReadingPlanQuickDocumentChangeButton() {
-
+class ReadingPlanBibleActionBarButton @Inject constructor() : ReadingPlanQuickDocumentChangeButton() {
     override fun getSuggestedDocument(): Book? {
-        return currentPageManager.currentBible.currentDocument
+        return activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument
     }
 }

@@ -125,7 +125,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             msg = if (mCurrentlyDisplayedSearchResults.size >= SearchControl.MAX_SEARCH_RESULTS) {
                 getString(R.string.search_showing_first, SearchControl.MAX_SEARCH_RESULTS)
             } else {
-                getString(R.string.search_result_count, mSearchResultsHolder!!.size())
+                getString(R.string.search_result_count, mSearchResultsHolder!!.size)
             }
             withContext(Dispatchers.Main) {
                 Toast.makeText(this@SearchResults, msg, Toast.LENGTH_SHORT).show()
@@ -134,7 +134,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         } catch (e: Exception) {
             Log.e(TAG, "Error processing search query", e)
             isOk = false
-            Dialogs.instance.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
+            Dialogs.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
         return@withContext isOk
     }
@@ -160,7 +160,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             verseSelected(mCurrentlyDisplayedSearchResults[position])
         } catch (e: Exception) {
             Log.e(TAG, "Selection error", e)
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 

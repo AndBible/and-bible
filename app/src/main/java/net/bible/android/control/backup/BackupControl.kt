@@ -96,7 +96,7 @@ object BackupControl {
         withContext(Dispatchers.Main) {
             if (ok) {
                 Log.i(TAG, "Copied database to chosen backup location successfully")
-                Dialogs.instance.showMsg2(activity, R.string.backup_success2)
+                Dialogs.showMsg2(activity, R.string.backup_success2)
             } else {
                 Log.e(TAG, "Error copying database to chosen location.")
                 ErrorReportControl.showErrorDialog(activity, activity.getString(R.string.error_occurred))
@@ -163,7 +163,7 @@ object BackupControl {
         if(!ok) {
             withContext(Dispatchers.Main) {
                 Log.e(TAG, "Error restoring database")
-                Dialogs.instance.showErrorMsg(R.string.restore_unsuccessfull)
+                Dialogs.showErrorMsg(R.string.restore_unsuccessfull)
             }
         }
 
@@ -357,10 +357,10 @@ object BackupControl {
         hourglass.dismiss()
         if (ok) {
             Log.i(TAG, "Copied modules to chosen backup location successfully")
-            Dialogs.instance.showMsg(R.string.backup_modules_success)
+            Dialogs.showMsg(R.string.backup_modules_success)
         } else {
             Log.e(TAG, "Error copying modules to chosen location.")
-            Dialogs.instance.showErrorMsg(R.string.error_occurred)
+            Dialogs.showErrorMsg(R.string.error_occurred)
         }
 
     }
@@ -474,9 +474,9 @@ object BackupControl {
         intent.type = "application/*"
         val result = activity.awaitIntent(intent) ?: return
         if (result.resultCode == Activity.RESULT_OK) {
-            val result2 = Dialogs.instance.showMsg2(activity, R.string.restore_confirmation, true)
+            val result2 = Dialogs.showMsg2(activity, R.string.restore_confirmation, true)
             if(result2 != Dialogs.Result.OK) return
-            ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
+            ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
             val hourglass = Hourglass(activity)
             hourglass.show()
             withContext(Dispatchers.IO) {
@@ -489,7 +489,7 @@ object BackupControl {
                         _mainBibleActivity?.afterRestore()
                     }
                 } else {
-                    Dialogs.instance.showMsg(R.string.restore_unsuccessfull)
+                    Dialogs.showMsg(R.string.restore_unsuccessfull)
                 }
             }
             hourglass.dismiss()

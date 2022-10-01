@@ -20,13 +20,12 @@ import android.util.Log
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils.megabytesFree
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.progress.JobManager
-import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.Progress.INSTALL_BOOK
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.LucidException
@@ -51,7 +50,7 @@ class DownloadControl(
     fun checkDownloadOkay(): Boolean {
         var okay = true
         if (megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
-            instance.showErrorMsg(R.string.storage_space_warning)
+            Dialogs.showErrorMsg(R.string.storage_space_warning)
             okay = false
         }
         return okay

@@ -72,7 +72,7 @@ class DailyReadingList : ListActivityBase() {
             itemSelected(readingsList[position])
         } catch (e: Exception) {
             Log.e(TAG, "Selection error", e)
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
 
     }

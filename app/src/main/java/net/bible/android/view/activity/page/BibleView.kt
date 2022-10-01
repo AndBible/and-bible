@@ -231,7 +231,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @Volatile private var htmlLoadingOngoing: Boolean = true
         set(value) {
             if(value != field) {
-                ABEventBus.getDefault().post(if (value) IncrementBusyCount() else DecrementBusyCount())
+                ABEventBus.post(if (value) IncrementBusyCount() else DecrementBusyCount())
             }
             field = value
         }
@@ -666,9 +666,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         set(value) {
             if(value == field) return
             if(value) {
-                ABEventBus.getDefault().register(this)
+                ABEventBus.register(this)
             } else {
-                ABEventBus.getDefault().unregister(this)
+                ABEventBus.unregister(this)
             }
             field = value
         }
@@ -1469,7 +1469,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
         if(isActive) {
-            PassageChangeMediator.getInstance().onCurrentVerseChanged(window)
+            PassageChangeMediator.onCurrentVerseChanged(window)
         }
     }
 

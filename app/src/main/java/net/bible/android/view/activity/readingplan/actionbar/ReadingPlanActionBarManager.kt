@@ -45,7 +45,7 @@ constructor(
 ) : DefaultActionBarManager(), ActionBarManager {
 
     init {
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
 
     fun onEvent(e: SpeakEvent) {
@@ -69,7 +69,7 @@ constructor(
     override fun updateButtons() {
         super.updateButtons()
 
-        CurrentActivityHolder.getInstance().runOnUiThread {
+        CurrentActivityHolder.runOnUiThread {
             readingPlanTitle.update()
 
             bibleActionBarButton.update()

@@ -33,7 +33,7 @@ class HistoryTraversal(private val historyManager: HistoryManager, var isIntegra
      */
     fun beforeStartActivity() {
         if (isIntegrateWithHistoryManager) {
-            ABEventBus.getDefault().post(BeforeCurrentPageChangeEvent())
+            ABEventBus.post(BeforeCurrentPageChangeEvent())
         }
     }
 

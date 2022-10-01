@@ -71,7 +71,7 @@ abstract class CachedKeyPage internal constructor(
                     keylist = null
                     System.gc()
                     Log.e(TAG, "Error getting keys for $currentDocument", e)
-                    Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+                    Dialogs.showErrorMsg(R.string.error_occurred, e)
                 }
                 Log.i(TAG, "Finished creating cached key list len:" + keylist!!.size)
             }

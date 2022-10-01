@@ -35,7 +35,7 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
 
     /** Get next Scriptural Verse with same scriptural status
      */
-    fun getNextVerse(document: AbstractPassageBook?, verse: Verse): Verse {
+    fun getNextVerse(document: AbstractPassageBook, verse: Verse): Verse {
         val v11n = verse.versification
         val book = verse.book
         val chapter = verse.chapter
@@ -50,7 +50,7 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
 
     /** Get previous Verse with same scriptural status
      */
-    fun getPrevVerse(document: AbstractPassageBook?, verse: Verse): Verse {
+    fun getPrevVerse(document: AbstractPassageBook, verse: Verse): Verse {
         val v11n = verse.versification
         var book = verse.book
         var chapter = verse.chapter
@@ -68,11 +68,11 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
         return Verse(v11n, book, chapter, verseNo)
     }
 
-    fun getNextVerseRange(document: AbstractPassageBook?, verseRange: VerseRange): VerseRange {
+    fun getNextVerseRange(document: AbstractPassageBook, verseRange: VerseRange): VerseRange {
         return getNextVerseRange(document, verseRange, true)
     }
 
-    fun getNextVerseRange(document: AbstractPassageBook?, verseRange: VerseRange, continueToNextChapter: Boolean): VerseRange {
+    fun getNextVerseRange(document: AbstractPassageBook, verseRange: VerseRange, continueToNextChapter: Boolean): VerseRange {
         val v11n = verseRange.versification
         val verseCount = verseRange.cardinality
 
@@ -87,11 +87,11 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
         return VerseRange(v11n, start, end)
     }
 
-    fun getPreviousVerseRange(document: AbstractPassageBook?, verseRange: VerseRange): VerseRange {
+    fun getPreviousVerseRange(document: AbstractPassageBook, verseRange: VerseRange): VerseRange {
         return getPreviousVerseRange(document, verseRange, true)
     }
 
-    fun getPreviousVerseRange(document: AbstractPassageBook?, verseRange: VerseRange, continueToPreviousChapter: Boolean): VerseRange {
+    private fun getPreviousVerseRange(document: AbstractPassageBook, verseRange: VerseRange, continueToPreviousChapter: Boolean): VerseRange {
         val v11n = verseRange.versification
         val verseCount = verseRange.cardinality
 
@@ -108,7 +108,7 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
 
     /** Get next chapter consistent with current verses scriptural status ie don't hop between book with different scriptural states
      */
-    fun getNextChapter(document: AbstractPassageBook?, verse: Verse): Verse {
+    fun getNextChapter(document: AbstractPassageBook, verse: Verse): Verse {
         val v11n = verse.versification
         var book = verse.book
         var chapter = verse.chapter
@@ -126,7 +126,7 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
 
     /** Get previous chapter consistent with current verses scriptural status ie don't hop between book with different scriptural states
      */
-    fun getPrevChapter(document: AbstractPassageBook?, verse: Verse): Verse {
+    fun getPrevChapter(document: AbstractPassageBook, verse: Verse): Verse {
         val v11n = verse.versification
         var book = verse.book
         var chapter = verse.chapter
@@ -147,7 +147,7 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
     /**
      * Get next book but separate scripture from other books to prevent unintentional jumping between Scripture and other
      */
-    private fun getNextBook(document: AbstractPassageBook?, v11n: Versification, book: BibleBook): BibleBook? {
+    private fun getNextBook(document: AbstractPassageBook, v11n: Versification, book: BibleBook): BibleBook? {
         val isCurrentlyScripture = Scripture.isScripture(book)
         val documentBibleBooks = documentBibleBooksFactory.getDocumentBibleBooksFor(document)
         var nextBook: BibleBook? = book
@@ -160,7 +160,7 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
         return nextBook
     }
 
-    private fun getPrevBook(document: AbstractPassageBook?, v11n: Versification, book: BibleBook): BibleBook? {
+    private fun getPrevBook(document: AbstractPassageBook, v11n: Versification, book: BibleBook): BibleBook? {
         val isCurrentlyScripture = Scripture.isScripture(book)
         val documentBibleBooks = documentBibleBooksFactory.getDocumentBibleBooksFor(document)
         var prevBook: BibleBook? = book
