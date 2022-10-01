@@ -57,24 +57,24 @@ class DocumentBibleBooksFactoryTest {
         Assert.assertThat(documentBibleBooksFactory!!.size, CoreMatchers.equalTo(0))
     }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val documentBibleBooksFor: Unit
-        get() {
-            val esvBibleBooks = documentBibleBooksFactory!!.getBooksFor(
-                esv!!
-            )
-            Assert.assertThat(documentBibleBooksFactory!!.size, CoreMatchers.equalTo(1))
-            Assert.assertThat(true, CoreMatchers.`is`(esvBibleBooks.contains(BibleBook.GEN)))
-        }
+    @Throws(Exception::class)
+    @Test
+    fun getDocumentBibleBooksFor()
+    {
+        val esvBibleBooks = documentBibleBooksFactory!!.getBooksFor(
+            esv!!
+        )
+        Assert.assertThat(documentBibleBooksFactory!!.size, CoreMatchers.equalTo(1))
+        Assert.assertThat(true, CoreMatchers.`is`(esvBibleBooks.contains(BibleBook.GEN)))
+    }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val booksFor: Unit
-        get() {
-            val esvBibleBooks = documentBibleBooksFactory!!.getBooksFor(
-                esv!!
-            )
-            Assert.assertThat(true, CoreMatchers.`is`(esvBibleBooks.contains(BibleBook.GEN)))
-        }
+    @Throws(Exception::class)
+    @Test
+    fun getBooksFor()
+    {
+        val esvBibleBooks = documentBibleBooksFactory!!.getBooksFor(
+            esv!!
+        )
+        Assert.assertThat(true, CoreMatchers.`is`(esvBibleBooks.contains(BibleBook.GEN)))
+    }
 }
