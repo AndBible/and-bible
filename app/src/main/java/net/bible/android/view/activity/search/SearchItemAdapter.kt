@@ -50,11 +50,11 @@ fun prepareSearchTerms(searchTerms_: String): String {
     return searchTerms
 }
 
-fun splitSearchTerms(searchTerms: String): Array<String> {
-    // Split the search terms on space characters that are not enclosed in double quotes
-    // Eg: 'moses "burning bush"' -> "moses" and "burning bush"
-    return searchTerms.split("\\s+(?=(?:\"(?:\\\\\"|[^\"])+\"|[^\"])+$)").toTypedArray()
-}
+val splitSearchTermsRegex = Regex("""\s+(?=(?:"(?:\\"|[^"])+"|[^"])+$)""")
+
+// Split the search terms on space characters that are not enclosed in double quotes
+// Eg: 'moses "burning bush"' -> "moses" and "burning bush"
+fun splitSearchTerms(searchTerms: String): List<String> = splitSearchTermsRegex.split(searchTerms)
 
 fun prepareSearchWord(searchWord_: String): String {
     // Need to clean up the search word itself before trying to find the searchWord in the text
@@ -178,8 +178,8 @@ class SearchItemAdapter(
             }
             spannableText = SpannableString(Html.fromHtml(verseString.toString()))
             var m: Matcher
-            val splitSearchArray = splitSearchTerms(searchTerms)
-            for (originalSearchWord in splitSearchArray) {
+            val splitSearchTerms = splitSearchTerms(searchTerms)
+            for (originalSearchWord in splitSearchTerms) {
                 var searchWord = prepareSearchWord(originalSearchWord)
                 searchWord = if (originalSearchWord.contains("*")) {
                     "\\b$searchWord[\\w'\\-]*\\b" // Match whole words including with hyphons and apostrophes

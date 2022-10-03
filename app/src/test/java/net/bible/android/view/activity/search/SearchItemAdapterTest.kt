@@ -18,7 +18,7 @@ class SearchItemAdapterTest {
     @Throws(Exception::class)
     fun testSplitSearchTerms() {
         val result = splitSearchTerms("moses \"burning bush\"")
-        val expectedResult = arrayOf("moses", "\"burning bush\"")
+        val expectedResult = listOf("moses", "\"burning bush\"")
         MatcherAssert.assertThat(result, IsEqual.equalTo(expectedResult))
     }
 
