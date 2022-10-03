@@ -25,7 +25,7 @@ import androidx.appcompat.app.ActionBar
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 open class DefaultActionBarManager : ActionBarManager {
-    private lateinit var actionBar: ActionBar
+    private var actionBar: ActionBar? = null
     override fun prepareOptionsMenu(activity: Activity, menu: Menu, actionBar: ActionBar) {
         this.actionBar = actionBar
         setActionBarColor(actionBar)
