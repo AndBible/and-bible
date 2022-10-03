@@ -39,10 +39,10 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 
-fun prepareSearchTerms(searchTerms: String): String {
+fun prepareSearchTerms(searchTerms_: String): String {
     // Replaces strong:g00123 with REGEX strong:g*123. This is needed because the search term submitted by the 'Find all occcurrences includes extra zeros
     // The capitalisation is not important since we do a case insensitive search
-    var searchTerms = searchTerms
+    var searchTerms = searchTerms_
     if (searchTerms.contains("strong:")) {
         searchTerms = searchTerms.replace("strong:g0*".toRegex(), "strong:g0*")
         searchTerms = searchTerms.replace("strong:h0*".toRegex(), "strong:h0*")
@@ -56,10 +56,10 @@ fun splitSearchTerms(searchTerms: String): Array<String> {
     return searchTerms.split("\\s+(?=(?:\"(?:\\\\\"|[^\"])+\"|[^\"])+$)").toTypedArray()
 }
 
-fun prepareSearchWord(searchWord: String): String {
+fun prepareSearchWord(searchWord_: String): String {
     // Need to clean up the search word itself before trying to find the searchWord in the text
     // Eg: '+"burning bush"' -> 'burning bush'
-    var searchWord = searchWord
+    var searchWord = searchWord_
     searchWord =
         searchWord.replace("\"", "") // Remove quotes which indicate phrase searches
     searchWord = searchWord.replace("+", "") // Remove + which indicates AND searches
@@ -122,14 +122,14 @@ class SearchItemAdapter(
     private fun processElementChildren(
         parentElement: Element,
         searchTerms: String,
-        verseString: String,
-        isBold: Boolean
+        verseString_: String,
+        isBold_: Boolean
     ): String {
         // Recursive method to walk the verse element tree ignoring tags like 'note' that should not be shown in the search results
         // and including tags like 'w' that should be included. This routine is needed only to do searches on lemma attributes. That
         // is why bolding only occurs in that part of the code.
-        var verseString = verseString
-        var isBold = isBold
+        var verseString = verseString_
+        var isBold = isBold_
         for (o in parentElement.content) {
             if (o is Element) {
                 val el = o
@@ -166,8 +166,8 @@ class SearchItemAdapter(
         }
     }
 
-    private fun highlightSearchText(searchTerms: String, textElement: Element): SpannableString?{
-        var searchTerms = searchTerms
+    private fun highlightSearchText(searchTerms_: String, textElement: Element): SpannableString?{
+        var searchTerms = searchTerms_
         var spannableText: SpannableString? = null
         try {
             val verseString = StringBuilder()
