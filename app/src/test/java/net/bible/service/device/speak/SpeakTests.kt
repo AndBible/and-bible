@@ -18,6 +18,7 @@
 package net.bible.service.device.speak
 
 import net.bible.android.BibleApplication
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
@@ -60,8 +61,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLog
 
-
-@Config(qualifiers="fi", application = TestBibleApplication::class, sdk=[28])
+@Config(qualifiers="fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
 open class SpeakIntegrationTestBase {
     lateinit var app: TestBibleApplication
     lateinit var bookmarkControl: BookmarkControl
@@ -96,7 +96,7 @@ open class SpeakIntegrationTestBase {
 @RunWith(RobolectricTestRunner::class)
 class SpeakActivityTests : SpeakIntegrationTestBase() {
     @Test
-    fun testSpeaActivityIsUpdatedWhenSettingsAreChanged() {
+    fun testSpeakActivityIsUpdatedWhenSettingsAreChanged() {
         var s = SpeakSettings(synchronize = true)
         s.save()
         val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
@@ -107,7 +107,7 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
     }
 
     @Test
-    fun testSpeaActivityUpdatesSettings() {
+    fun testSpeakActivityUpdatesSettings() {
         var s = SpeakSettings(synchronize = true)
         s.save()
         val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
@@ -232,7 +232,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
 }
 
 
-@Config(qualifiers = "fi", application = TestBibleApplication::class, sdk = [28])
+@Config(qualifiers = "fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
 open class AbstractSpeakTests {
     lateinit var provider: BibleSpeakTextProvider
     internal var text: String = ""
@@ -246,7 +246,7 @@ open class AbstractSpeakTests {
 
     @After
     fun tearDown() {
-        DatabaseResetter.resetDatabase(windowRepository.windowUpdateScope)
+        DatabaseResetter.resetDatabase()
     }
 
     protected fun getVerse(verseStr: String): Verse {
@@ -538,7 +538,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @After
     fun resetDatabase() {
         bookmarkControl.reset()
-        DatabaseResetter.resetDatabase(windowRepository.windowUpdateScope)
+        DatabaseResetter.resetDatabase()
     }
 
     @Test
