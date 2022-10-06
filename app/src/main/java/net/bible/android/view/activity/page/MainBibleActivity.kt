@@ -1446,6 +1446,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         requestSdcardPermission()
         documentViewManager.buildView()
         ABEventBus.post(SynchronizeWindowsEvent(true))
+        CommonUtils.changeAppIconAndName()
     }
 
     private fun requestSdcardPermission() {

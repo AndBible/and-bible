@@ -126,7 +126,8 @@ class SettingsActivity: ActivityBase() {
                     "double_tap_to_fullscreen",
                     "night_mode_pref3",
                     "request_sdcard_permission_pref",
-                    "show_errorbox"
+                    "show_errorbox",
+                    "discrete_mode"
                 )
                 for(key in keys) {
                     editor.removeString(key)

@@ -142,6 +142,12 @@
 			android:title="@string/prefs_request_sdcard_permission_title"
 			android:summary="@string/prefs_request_sdcard_permission_summary"
 			android:defaultValue="false"/>
+		<SwitchPreferenceCompat android:key="discrete_mode"
+			android:title="@string/prefs_discrete_mode"
+			android:summary="@string/prefs_discrete_mode_desc"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_baseline_calculate_24"
+			/>
 		<SwitchPreferenceCompat android:key="show_errorbox"
 			android:title="@string/prefs_show_error_box_title"
 			android:summary="@string/prefs_show_error_box_summary"

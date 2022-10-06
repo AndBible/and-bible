@@ -22,6 +22,7 @@ import android.app.Activity
 import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageInfo
@@ -63,6 +64,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.BuildConfig.BUILD_TYPE
 import net.bible.android.activity.BuildConfig.BuildDate
 import net.bible.android.activity.BuildConfig.FLAVOR
@@ -1193,6 +1195,28 @@ object CommonUtils : CommonUtilsBase() {
                     activity.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 999)
                 }
             }
+        }
+    }
+
+    fun changeAppIconAndName() {
+        val discrete = settings.getBoolean("discrete_mode", false)
+        val packageName = BuildConfig.APPLICATION_ID
+        val allNames: List<String> = listOf(
+            "net.bible.android.view.activity.Bible",
+            "net.bible.android.view.activity.Calculator"
+        )
+        val activeName = allNames[if(discrete) 1 else 0]
+
+        Log.d(TAG, "Changing app icon / name to $activeName")
+
+        for (name in allNames) {
+            application.packageManager.setComponentEnabledSetting(
+                ComponentName(packageName, name),
+                if(name == activeName)
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                0
+            )
         }
     }
 }
