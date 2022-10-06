@@ -38,6 +38,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.android.view.activity.page.windowRepository
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
@@ -88,7 +89,7 @@ open class SpeakIntegrationTestBase {
 
     @After
     fun tearDown() {
-        DatabaseResetter.resetDatabase()
+        DatabaseResetter.resetDatabase(listOf(windowRepository.windowUpdateScope))
     }
 }
 
@@ -245,7 +246,7 @@ open class AbstractSpeakTests {
 
     @After
     fun tearDown() {
-        DatabaseResetter.resetDatabase()
+        DatabaseResetter.resetDatabase(listOf(net.bible.android.view.activity.page.windowRepository.windowUpdateScope))
     }
 
     protected fun getVerse(verseStr: String): Verse {
@@ -537,7 +538,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @After
     fun resetDatabase() {
         bookmarkControl.reset()
-        DatabaseResetter.resetDatabase()
+        DatabaseResetter.resetDatabase(listOf(net.bible.android.view.activity.page.windowRepository.windowUpdateScope))
     }
 
     @Test
