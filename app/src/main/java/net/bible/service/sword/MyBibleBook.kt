@@ -19,6 +19,7 @@ package net.bible.service.sword
 
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
+import android.os.Environment
 import android.util.Log
 import net.bible.android.BibleApplication
 import org.crosswire.jsword.book.Book
@@ -413,6 +414,12 @@ fun addMyBibleBook(file: File, name: String? = null): AbstractBook? {
 
 fun addManuallyInstalledMyBibleBooks() {
     val dir = File(BibleApplication.application.getExternalFilesDir(null), "mybible")
+//    val dir = File(BibleApplication.application.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "MyBible")
+//    val dir = File(BibleApplication.application.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "")
+//    val dir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"MyBible")
+//    val g = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"MyBible/Summ-c.commentaries.SQLite3")
+//    addMyBibleBook(g)
+
     if(!(dir.isDirectory && dir.canRead())) return
 
     for(f in dir.listFiles()?.filter { it.path.lowercase().endsWith(".sqlite3") }?: emptyList()) {
