@@ -291,6 +291,7 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.webkit:webkit:1.5.0")
+    implementation("io.apisense:rhino-android:1.0")
 
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 

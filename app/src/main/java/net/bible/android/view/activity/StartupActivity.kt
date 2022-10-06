@@ -53,6 +53,7 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
@@ -227,7 +228,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         } else {
             Log.i(TAG, "Going to main bible view")
 
-            gotoMainBibleActivity()
+            gotoCalculator()
+            //gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)
         }
     }
@@ -301,6 +303,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         Log.i(TAG, "Load from Zip clicked")
         val handlerIntent = Intent(this, InstallZip::class.java).apply { putExtra("doNotInitializeApp", true) }
         startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
+    }
+
+    private fun gotoCalculator() {
+        Log.i(TAG, "Going to Calculator")
+        val handlerIntent = Intent(this, CalculatorActivity::class.java)
+        startActivity(handlerIntent)
     }
 
     private fun gotoMainBibleActivity() {
