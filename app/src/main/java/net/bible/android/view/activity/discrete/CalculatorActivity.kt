@@ -27,6 +27,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import net.bible.service.common.CommonUtils
 import java.lang.Exception
 import java.lang.NumberFormatException
 import java.math.BigDecimal
@@ -171,7 +172,7 @@ class CalculatorActivity : AppCompatActivity(), View.OnClickListener, OnTouchLis
     override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
         when (motionEvent.action) {
             MotionEvent.ACTION_DOWN -> {
-                view.background.setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP)
+                view.background.setColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP)
                 view.invalidate()
             }
             MotionEvent.ACTION_UP -> {
@@ -314,6 +315,11 @@ class CalculatorActivity : AppCompatActivity(), View.OnClickListener, OnTouchLis
     }
 
     private fun calculate(input: String) {
+        val pin = CommonUtils.settings.getString("calculator_pin", "1234")
+        if(input == pin) {
+            setResult(RESULT_OK)
+            finish()
+        }
         var result = ""
         try {
             var temp = input
