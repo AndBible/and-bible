@@ -96,7 +96,7 @@ open class SpeakIntegrationTestBase {
 @RunWith(RobolectricTestRunner::class)
 class SpeakActivityTests : SpeakIntegrationTestBase() {
     @Test
-    fun testSpeaActivityIsUpdatedWhenSettingsAreChanged() {
+    fun testSpeakActivityIsUpdatedWhenSettingsAreChanged() {
         var s = SpeakSettings(synchronize = true)
         s.save()
         val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
@@ -107,7 +107,7 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
     }
 
     @Test
-    fun testSpeaActivityUpdatesSettings() {
+    fun testSpeakActivityUpdatesSettings() {
         var s = SpeakSettings(synchronize = true)
         s.save()
         val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
