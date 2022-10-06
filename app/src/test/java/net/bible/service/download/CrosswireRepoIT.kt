@@ -17,6 +17,7 @@
 
 package net.bible.service.download
 
+import net.bible.android.TEST_SDK
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.install.InstallException
 import org.hamcrest.Matchers.*
@@ -30,7 +31,7 @@ import org.robolectric.annotation.Config
 
 @Ignore("Test documents need to be downloaded separately (see .travis.yml)")
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk=[28])
+@Config(sdk=[TEST_SDK])
 class CrosswireRepoIT {
 
     private lateinit var crosswireRepo: CrosswireRepo

@@ -18,6 +18,7 @@
 package net.bible.service.device.speak
 
 import net.bible.android.BibleApplication
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
@@ -60,8 +61,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLog
 
-
-@Config(qualifiers="fi", application = TestBibleApplication::class, sdk=[28])
+@Config(qualifiers="fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
 open class SpeakIntegrationTestBase {
     lateinit var app: TestBibleApplication
     lateinit var bookmarkControl: BookmarkControl
@@ -232,7 +232,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
 }
 
 
-@Config(qualifiers = "fi", application = TestBibleApplication::class, sdk = [28])
+@Config(qualifiers = "fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
 open class AbstractSpeakTests {
     lateinit var provider: BibleSpeakTextProvider
     internal var text: String = ""

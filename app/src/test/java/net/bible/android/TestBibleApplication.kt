@@ -25,6 +25,8 @@ import net.bible.service.common.CommonUtils
 /**
  * Override settings if required
  */
+
+const val TEST_SDK = 28
 class TestBibleApplication : BibleApplication() {
     init {
         println("TestBibleApplication BibleApplication subclass being used.")

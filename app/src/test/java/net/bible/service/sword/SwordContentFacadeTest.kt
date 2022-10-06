@@ -17,6 +17,7 @@
 
 package net.bible.service.sword
 
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.misc.elementToString
 import net.bible.android.view.activity.page.Selection
@@ -42,7 +43,7 @@ import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk=[28])
+@Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class SwordContentFacadeTest {
 
     //@Before
@@ -147,7 +148,7 @@ class SwordContentFacadeTest {
 }
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk=[28])
+@Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class TestShare {
     private fun testShare(initials: String, verseRangeStr: String, offsetRange: IntRange,
                           showVerseNumbers: Boolean, showFull: Boolean,

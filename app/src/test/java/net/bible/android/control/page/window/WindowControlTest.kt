@@ -19,6 +19,7 @@ package net.bible.android.control.page.window
 
 
 import android.view.Menu
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.common.resource.AndroidResourceProvider
@@ -55,7 +56,7 @@ import org.robolectric.fakes.RoboMenu
 import javax.inject.Provider
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [28])
+@Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class WindowControlTest {
     private var windowRepository: WindowRepository? = null
 
