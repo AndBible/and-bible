@@ -20,6 +20,7 @@ package net.bible.android.control.page.window
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -156,7 +157,7 @@ open class Window (
         }
 
     val initialized get() = lastUpdated != 0L
-    val updateScope = CoroutineScope(Dispatchers.IO)
+    private val updateScope get() = windowRepository.windowUpdateScope
 
     fun updateText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible

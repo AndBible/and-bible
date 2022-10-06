@@ -18,6 +18,7 @@
 package net.bible.test
 
 import android.os.Looper
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
@@ -33,12 +34,19 @@ import java.lang.reflect.Field
  */
 object DatabaseResetter {
     @JvmStatic
-    fun resetDatabase() {
-        try {
-            GlobalScope.cancel("Time to stop! Test already ended...")
-        } catch (e: IllegalStateException) {
-            if(e.message?.startsWith("Scope cannot be cancelled because") == false) {
-                throw e
+    fun resetDatabase(scopes_: List<CoroutineScope>? = null) {
+        val scopes = ArrayList<CoroutineScope>()
+        if(scopes_ !== null) {
+            scopes.addAll(scopes_)
+        }
+        scopes.add(GlobalScope)
+        for(scope in scopes) {
+            try {
+                scope.cancel("Time to stop! Test already ended...")
+            } catch (e: IllegalStateException) {
+                if (e.message?.startsWith("Scope cannot be cancelled because") == false) {
+                    throw e
+                }
             }
         }
         //DatabaseContainer.db.openHelper.close()
