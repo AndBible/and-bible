@@ -236,13 +236,13 @@ class SpeakControl @Inject constructor(
     private fun startSpeakingFromDefault() {
         Log.i(TAG, "startSpeakingFromDefault")
         if (!booksAvailable) {
-            EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+            ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
             return
         }
         try {
             val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
             if(!page.isSpeakable) {
-                EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+                ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
                 return
             }
             val fromBook = page.currentDocument
@@ -255,7 +255,7 @@ class SpeakControl @Inject constructor(
 
         } catch (e: Exception) {
             Log.e(TAG, "Error getting chapters to speak", e)
-            EventBus.getDefault().post(ToastEvent(R.string.speak_general_error))
+            ABEventBus.post(ToastEvent(R.string.speak_general_error))
             return
         }
     }
@@ -335,7 +335,7 @@ class SpeakControl @Inject constructor(
     fun speakBible() {
         val page = speakPageManager.currentPage
         if(!page.isSpeakable) {
-            EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+            ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
             return
         }
         speakBible(page.singleKey as Verse)
