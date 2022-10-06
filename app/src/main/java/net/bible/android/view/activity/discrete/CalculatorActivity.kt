@@ -18,15 +18,13 @@ package net.bible.android.view.activity.discrete
 
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
-import android.view.View.OnTouchListener
-import android.widget.TextView
 import android.os.Bundle
 import net.bible.android.activity.R
 import android.graphics.PorterDuff
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Button
 import android.widget.Toast
+import net.bible.android.activity.databinding.CalculatorLayoutBinding
 import net.bible.service.common.CommonUtils
 import java.lang.Exception
 import java.lang.NumberFormatException
@@ -36,156 +34,86 @@ import javax.script.ScriptEngineManager
 
 // Copied and adapted from https://github.com/eloyzone/android-calculator (5fb1d5e)
 
-class CalculatorActivity : AppCompatActivity(), View.OnClickListener, OnTouchListener {
+class CalculatorActivity : AppCompatActivity() {
     private var openParenthesis = 0
     private var dotUsed = false
     private var equalClicked = false
     private var lastExpression = ""
-    lateinit var buttonNumber0: Button
-    lateinit var buttonNumber1: Button
-    lateinit var buttonNumber2: Button
-    lateinit var buttonNumber3: Button
-    lateinit var buttonNumber4: Button
-    lateinit var buttonNumber5: Button
-    lateinit var buttonNumber6: Button
-    lateinit var buttonNumber7: Button
-    lateinit var buttonNumber8: Button
-    lateinit var buttonNumber9: Button
-    lateinit var buttonClear: Button
-    lateinit var buttonParentheses: Button
-    lateinit var buttonPercent: Button
-    lateinit var buttonDivision: Button
-    lateinit var buttonMultiplication: Button
-    lateinit var buttonSubtraction: Button
-    lateinit var buttonAddition: Button
-    lateinit var buttonEqual: Button
-    lateinit var buttonDot: Button
-    lateinit var textViewInputNumbers: TextView
+
     lateinit var scriptEngine: ScriptEngine
 
+    private lateinit var calculatorBinding: CalculatorLayoutBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        calculatorBinding = CalculatorLayoutBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.calculator_layout)
+        setContentView(calculatorBinding.root)
         scriptEngine = ScriptEngineManager().getEngineByName("rhino")
-        initializeViewVariables()
         setOnClickListeners()
         setOnTouchListener()
     }
 
-    private fun initializeViewVariables() {
-        buttonNumber0 = findViewById<View>(R.id.button_zero) as Button
-        buttonNumber1 = findViewById<View>(R.id.button_one) as Button
-        buttonNumber2 = findViewById<View>(R.id.button_two) as Button
-        buttonNumber3 = findViewById<View>(R.id.button_three) as Button
-        buttonNumber4 = findViewById<View>(R.id.button_four) as Button
-        buttonNumber5 = findViewById<View>(R.id.button_five) as Button
-        buttonNumber6 = findViewById<View>(R.id.button_six) as Button
-        buttonNumber7 = findViewById<View>(R.id.button_seven) as Button
-        buttonNumber8 = findViewById<View>(R.id.button_eight) as Button
-        buttonNumber9 = findViewById<View>(R.id.button_nine) as Button
-        buttonClear = findViewById<View>(R.id.button_clear) as Button
-        buttonParentheses = findViewById<View>(R.id.button_parentheses) as Button
-        buttonPercent = findViewById<View>(R.id.button_percent) as Button
-        buttonDivision = findViewById<View>(R.id.button_division) as Button
-        buttonMultiplication = findViewById<View>(R.id.button_multiplication) as Button
-        buttonSubtraction = findViewById<View>(R.id.button_subtraction) as Button
-        buttonAddition = findViewById<View>(R.id.button_addition) as Button
-        buttonEqual = findViewById<View>(R.id.button_equal) as Button
-        buttonDot = findViewById<View>(R.id.button_dot) as Button
-        textViewInputNumbers = findViewById<View>(R.id.textView_input_numbers) as TextView
-    }
-
-    private fun setOnClickListeners() {
-        buttonNumber0.setOnClickListener(this)
-        buttonNumber1.setOnClickListener(this)
-        buttonNumber2.setOnClickListener(this)
-        buttonNumber3.setOnClickListener(this)
-        buttonNumber4.setOnClickListener(this)
-        buttonNumber5.setOnClickListener(this)
-        buttonNumber6.setOnClickListener(this)
-        buttonNumber7.setOnClickListener(this)
-        buttonNumber8.setOnClickListener(this)
-        buttonNumber9.setOnClickListener(this)
-        buttonClear.setOnClickListener(this)
-        buttonParentheses.setOnClickListener(this)
-        buttonPercent.setOnClickListener(this)
-        buttonDivision.setOnClickListener(this)
-        buttonMultiplication.setOnClickListener(this)
-        buttonSubtraction.setOnClickListener(this)
-        buttonAddition.setOnClickListener(this)
-        buttonEqual.setOnClickListener(this)
-        buttonDot.setOnClickListener(this)
-    }
-
-    private fun setOnTouchListener() {
-        buttonNumber0.setOnTouchListener(this)
-        buttonNumber1.setOnTouchListener(this)
-        buttonNumber2.setOnTouchListener(this)
-        buttonNumber3.setOnTouchListener(this)
-        buttonNumber4.setOnTouchListener(this)
-        buttonNumber5.setOnTouchListener(this)
-        buttonNumber6.setOnTouchListener(this)
-        buttonNumber7.setOnTouchListener(this)
-        buttonNumber8.setOnTouchListener(this)
-        buttonNumber9.setOnTouchListener(this)
-        buttonClear.setOnTouchListener(this)
-        buttonParentheses.setOnTouchListener(this)
-        buttonPercent.setOnTouchListener(this)
-        buttonDivision.setOnTouchListener(this)
-        buttonMultiplication.setOnTouchListener(this)
-        buttonSubtraction.setOnTouchListener(this)
-        buttonAddition.setOnTouchListener(this)
-        buttonDot.setOnTouchListener(this)
-    }
-
-    override fun onClick(view: View) {
-        when (view.id) {
-            R.id.button_zero -> if (addNumber("0")) equalClicked = false
-            R.id.button_one -> if (addNumber("1")) equalClicked = false
-            R.id.button_two -> if (addNumber("2")) equalClicked = false
-            R.id.button_three -> if (addNumber("3")) equalClicked = false
-            R.id.button_four -> if (addNumber("4")) equalClicked = false
-            R.id.button_five -> if (addNumber("5")) equalClicked = false
-            R.id.button_six -> if (addNumber("6")) equalClicked = false
-            R.id.button_seven -> if (addNumber("7")) equalClicked = false
-            R.id.button_eight -> if (addNumber("8")) equalClicked = false
-            R.id.button_nine -> if (addNumber("9")) equalClicked = false
-            R.id.button_addition -> if (addOperand("+")) equalClicked = false
-            R.id.button_subtraction -> if (addOperand("-")) equalClicked = false
-            R.id.button_multiplication -> if (addOperand("x")) equalClicked = false
-            R.id.button_division -> if (addOperand("\u00F7")) equalClicked = false
-            R.id.button_percent -> if (addOperand("%")) equalClicked = false
-            R.id.button_dot -> if (addDot()) equalClicked = false
-            R.id.button_parentheses -> if (addParenthesis()) equalClicked = false
-            R.id.button_clear -> {
-                textViewInputNumbers.text = ""
-                openParenthesis = 0
-                dotUsed = false
-                equalClicked = false
-            }
-            R.id.button_equal -> if (textViewInputNumbers.text.toString() != null && textViewInputNumbers.text.toString() != "") calculate(
-                textViewInputNumbers.text.toString()
-            )
+    private fun setOnClickListeners() = calculatorBinding.run {
+        buttonNumber0.setOnClickListener { if (addNumber("0")) equalClicked = false }
+        buttonNumber1.setOnClickListener { if (addNumber("1")) equalClicked = false }
+        buttonNumber2.setOnClickListener { if (addNumber("2")) equalClicked = false }
+        buttonNumber3.setOnClickListener { if (addNumber("3")) equalClicked = false }
+        buttonNumber4.setOnClickListener { if (addNumber("4")) equalClicked = false }
+        buttonNumber5.setOnClickListener { if (addNumber("5")) equalClicked = false }
+        buttonNumber6.setOnClickListener { if (addNumber("6")) equalClicked = false }
+        buttonNumber7.setOnClickListener { if (addNumber("7")) equalClicked = false }
+        buttonNumber8.setOnClickListener { if (addNumber("8")) equalClicked = false }
+        buttonNumber9.setOnClickListener { if (addNumber("9")) equalClicked = false }
+        buttonClear.setOnClickListener {
+            textViewInputNumbers.text = ""
+            openParenthesis = 0
+            dotUsed = false
+            equalClicked = false
+        }
+        buttonParentheses.setOnClickListener { if (addParenthesis()) equalClicked = false }
+        buttonPercent.setOnClickListener { if (addOperand("%")) equalClicked = false }
+        buttonDivision.setOnClickListener { if (addOperand("\u00F7")) equalClicked = false }
+        buttonMultiplication.setOnClickListener { if (addOperand("x")) equalClicked = false }
+        buttonSubtraction.setOnClickListener { if (addOperand("-")) equalClicked = false }
+        buttonAddition.setOnClickListener { if (addOperand("+")) equalClicked = false }
+        buttonEqual.setOnClickListener {
+            if (textViewInputNumbers.text.toString() != "") calculate(textViewInputNumbers.text.toString())
+        }
+        buttonDot.setOnClickListener {
+            if (addDot()) equalClicked = false
         }
     }
 
-    override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
-        when (motionEvent.action) {
-            MotionEvent.ACTION_DOWN -> {
-                view.background.setColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP)
-                view.invalidate()
+    private fun setOnTouchListener() = calculatorBinding.run {
+        val onTouchListener = { view: View, motionEvent: MotionEvent ->
+            when (motionEvent.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.background.setColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP)
+                    view.invalidate()
+                }
+                MotionEvent.ACTION_UP -> {
+                    view.background.clearColorFilter()
+                    view.invalidate()
+                }
             }
-            MotionEvent.ACTION_UP -> {
-                view.background.clearColorFilter()
-                view.invalidate()
-            }
+            false
         }
-        return false
+        val buttons = arrayOf(
+            buttonNumber0, buttonNumber1, buttonNumber2, buttonNumber3, buttonNumber4,
+            buttonNumber5, buttonNumber6, buttonNumber7, buttonNumber8, buttonNumber9,
+            buttonClear, buttonParentheses, buttonPercent, buttonDivision,
+            buttonMultiplication, buttonSubtraction, buttonAddition, buttonDot
+        )
+
+        for(button in buttons) {
+            button.setOnTouchListener(onTouchListener)
+        }
     }
 
-    private fun addDot(): Boolean {
+
+    private fun addDot(): Boolean = calculatorBinding.run {
         var done = false
-        if (textViewInputNumbers.text.length == 0) {
+        if (textViewInputNumbers.text.isEmpty()) {
             textViewInputNumbers.text = "0."
             dotUsed = true
             done = true
@@ -205,7 +133,7 @@ class CalculatorActivity : AppCompatActivity(), View.OnClickListener, OnTouchLis
         return done
     }
 
-    private fun addParenthesis(): Boolean {
+    private fun addParenthesis(): Boolean = calculatorBinding.run {
         var done = false
         val operationLength = textViewInputNumbers.text.length
         if (operationLength == 0) {
@@ -258,13 +186,13 @@ class CalculatorActivity : AppCompatActivity(), View.OnClickListener, OnTouchLis
         return done
     }
 
-    private fun addOperand(operand: String): Boolean {
+    private fun addOperand(operand: String): Boolean = calculatorBinding.run {
         var done = false
         val operationLength = textViewInputNumbers.text.length
         if (operationLength > 0) {
             val lastInput = textViewInputNumbers.text[operationLength - 1].toString() + ""
             if (lastInput == "+" || lastInput == "-" || lastInput == "*" || lastInput == "\u00F7" || lastInput == "%") {
-                Toast.makeText(applicationContext, "Wrong format", Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, getString(R.string.calc_wrong_format), Toast.LENGTH_LONG).show()
             } else if (operand == "%" && defineLastCharacter(lastInput) == IS_NUMBER) {
                 textViewInputNumbers.text = textViewInputNumbers.text.toString() + operand
                 dotUsed = false
@@ -281,14 +209,14 @@ class CalculatorActivity : AppCompatActivity(), View.OnClickListener, OnTouchLis
         } else {
             Toast.makeText(
                 applicationContext,
-                "Wrong Format. Operand Without any numbers?",
+                getString(R.string.calc_wrong_format_operand),
                 Toast.LENGTH_LONG
             ).show()
         }
         return done
     }
 
-    private fun addNumber(number: String): Boolean {
+    private fun addNumber(number: String): Boolean = calculatorBinding.run {
         var done = false
         val operationLength = textViewInputNumbers.text.length
         if (operationLength > 0) {
@@ -314,7 +242,7 @@ class CalculatorActivity : AppCompatActivity(), View.OnClickListener, OnTouchLis
         return done
     }
 
-    private fun calculate(input: String) {
+    private fun calculate(input: String) = calculatorBinding.run {
         val pin = CommonUtils.settings.getString("calculator_pin", "1234")
         if(input == pin) {
             setResult(RESULT_OK)
@@ -336,13 +264,13 @@ class CalculatorActivity : AppCompatActivity(), View.OnClickListener, OnTouchLis
             result = decimal.setScale(8, BigDecimal.ROUND_HALF_UP).toPlainString()
             equalClicked = true
         } catch (e: Exception) {
-            Toast.makeText(applicationContext, "Wrong Format", Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, getString(R.string.calc_wrong_format), Toast.LENGTH_SHORT).show()
             return
         }
         if (result == "Infinity") {
             Toast.makeText(
                 applicationContext,
-                "Division by zero is not allowed",
+                getString(R.string.calc_division_by_zero),
                 Toast.LENGTH_SHORT
             ).show()
             textViewInputNumbers.text = input
