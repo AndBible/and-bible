@@ -39,7 +39,7 @@ val discreteFlavor = "discrete"
 // release in 2010 for continuity of updates for existing users.
 val applicationIdStandard = "net.bible.android.activity"
 // An alternative applicationId, to be used for the "discrete" flavor.
-val applicationIdDiscrete = "com.example.ToDo"
+val applicationIdDiscrete = "com.app.calculator"
 
 
 fun getGitHash(): String =
