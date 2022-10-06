@@ -30,7 +30,6 @@ const val TAG = "PhoneCallMonitor"
  * Monitor phone calls to stop speech, etc
  */
 
-
 object PhoneCallMonitor {
     private var isMonitoring = false
 
