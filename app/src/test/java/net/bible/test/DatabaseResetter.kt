@@ -57,9 +57,9 @@ object DatabaseResetter {
         // Something is hanging there still due to kotlin coroutines. This seem to help.
         // Sorry, not motivated at this time to investigate this any further if this workaround works.
 
-        Thread.sleep(100)
-        resetSingleton(DatabaseContainer::class.java, "instance")
-        DatabaseContainer.db.close()
+        Thread.sleep(300)
+        DatabaseContainer.reset()
+        //resetSingleton(DatabaseContainer::class.java, "instance")
     }
 
     private fun resetSingleton(class_: Class<*>, fieldName: String) {
