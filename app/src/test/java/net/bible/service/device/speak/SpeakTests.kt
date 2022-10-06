@@ -246,7 +246,7 @@ open class AbstractSpeakTests {
 
     @After
     fun tearDown() {
-        DatabaseResetter.resetDatabase(windowRepository.windowUpdateScope)
+        DatabaseResetter.resetDatabase()
     }
 
     protected fun getVerse(verseStr: String): Verse {
@@ -538,7 +538,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @After
     fun resetDatabase() {
         bookmarkControl.reset()
-        DatabaseResetter.resetDatabase(windowRepository.windowUpdateScope)
+        DatabaseResetter.resetDatabase()
     }
 
     @Test
