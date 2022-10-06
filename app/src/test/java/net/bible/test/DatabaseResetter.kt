@@ -34,11 +34,9 @@ import java.lang.reflect.Field
  */
 object DatabaseResetter {
     @JvmStatic
-    fun resetDatabase(scopes_: List<CoroutineScope>? = null) {
+    fun resetDatabase(vararg scopes_: CoroutineScope) {
         val scopes = ArrayList<CoroutineScope>()
-        if(scopes_ !== null) {
-            scopes.addAll(scopes_)
-        }
+        scopes.addAll(scopes_)
         scopes.add(GlobalScope)
         for(scope in scopes) {
             try {

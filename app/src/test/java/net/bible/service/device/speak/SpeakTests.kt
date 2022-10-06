@@ -89,7 +89,7 @@ open class SpeakIntegrationTestBase {
 
     @After
     fun tearDown() {
-        DatabaseResetter.resetDatabase(listOf(windowRepository.windowUpdateScope))
+        DatabaseResetter.resetDatabase(windowRepository.windowUpdateScope)
     }
 }
 
@@ -246,7 +246,7 @@ open class AbstractSpeakTests {
 
     @After
     fun tearDown() {
-        DatabaseResetter.resetDatabase(listOf(net.bible.android.view.activity.page.windowRepository.windowUpdateScope))
+        DatabaseResetter.resetDatabase(windowRepository.windowUpdateScope)
     }
 
     protected fun getVerse(verseStr: String): Verse {
@@ -538,7 +538,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @After
     fun resetDatabase() {
         bookmarkControl.reset()
-        DatabaseResetter.resetDatabase(listOf(net.bible.android.view.activity.page.windowRepository.windowUpdateScope))
+        DatabaseResetter.resetDatabase(windowRepository.windowUpdateScope)
     }
 
     @Test
