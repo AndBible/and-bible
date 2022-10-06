@@ -21,6 +21,7 @@ import android.app.Activity
 import android.util.Log
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
+import net.bible.service.common.CommonUtils
 
 /** Allow operations form middle tier that require a reference to the current Activity
  *
@@ -48,6 +49,10 @@ object CurrentActivityHolder {
                 appIsInForeground = false
                 ABEventBus
                     .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND))
+                if (CommonUtils.initialized && CommonUtils.settings.getBoolean("show_calculator", false)) {
+                    Log.d(TAG, "Closing app to start from calculator again...")
+                    CommonUtils.forceStopApp()
+                }
             }
         }
     }
