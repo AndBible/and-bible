@@ -79,7 +79,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             delayedSynchronizeWindows(sourceWindow)
     }
 
-    private val syncScope = CoroutineScope(Dispatchers.Default)
+    val syncScope = CoroutineScope(Dispatchers.Default)
     private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit
         = debounce(200, syncScope) {sourceWindow -> immediateSynchronizeWindows(sourceWindow)}
 

@@ -66,7 +66,7 @@ class WindowRepositoryTest {
 
     @After
     fun tearDown() {
-        DatabaseResetter.resetDatabase(windowRepository!!.windowUpdateScope)
+        DatabaseResetter.resetDatabase()
         windowRepository!!.clear()
     }
 
