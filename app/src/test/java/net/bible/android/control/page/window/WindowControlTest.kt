@@ -77,7 +77,7 @@ class WindowControlTest {
 
     @After
     fun tearDown() {
-        DatabaseResetter.resetDatabase(listOf(windowRepository!!.windowUpdateScope))
+        DatabaseResetter.resetDatabase(windowRepository!!.windowUpdateScope)
     }
 
     @Test

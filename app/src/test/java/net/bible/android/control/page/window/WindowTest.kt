@@ -70,7 +70,7 @@ class WindowTest {
     @After
     @Throws(Exception::class)
     fun tearDown() {
-        DatabaseResetter.resetDatabase(listOf(windowRepository!!.windowUpdateScope))
+        DatabaseResetter.resetDatabase(windowRepository!!.windowUpdateScope)
     }
 
     //@Ignore("Until ESV comes back")
