@@ -32,7 +32,7 @@ RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG en_US.UTF-8
 
 
-ENV STUDIO_VERSION 2021.2.1.16
+ENV STUDIO_VERSION 2021.3.1.16
 WORKDIR /space
 # Download and unpack Android Studio
 RUN curl -L https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${STUDIO_VERSION}/android-studio-${STUDIO_VERSION}-linux.tar.gz \
