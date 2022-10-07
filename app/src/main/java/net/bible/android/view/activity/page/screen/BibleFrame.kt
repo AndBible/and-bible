@@ -128,11 +128,11 @@ class BibleFrame(
 
     init {
         build()
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
     }
 
     fun destroy() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         mainBibleActivity.unregisterForContextMenu(bibleView as View)
         removeView(bibleView)
     }

@@ -84,7 +84,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?, integrateWithHistoryManager: Boolean) {
-        CurrentActivityHolder.getInstance().currentActivity = this
+        CurrentActivityHolder.currentActivity = this
 
         if(!doNotInitializeApp) {
             CommonUtils.initializeApp()
@@ -174,7 +174,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     override val intentForHistoryList: Intent get() = intent
 
     fun showErrorMsg(msgResId: Int) {
-        Dialogs.instance.showErrorMsg(msgResId)
+        Dialogs.showErrorMsg(msgResId)
     }
 
     protected fun returnErrorToPreviousScreen() {
@@ -199,7 +199,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     override fun onResume() {
-        CurrentActivityHolder.getInstance().currentActivity = this
+        CurrentActivityHolder.currentActivity = this
         super.onResume()
         Log.i(localClassName, "onResume:" + this)
 
@@ -268,7 +268,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         // removing this if causes speech to stop when screen is put on stand-by
         if (isScreenOn) {
             // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
-            CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this)
+            CurrentActivityHolder.iAmNoLongerCurrent(this)
         }
     }
 

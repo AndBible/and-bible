@@ -21,6 +21,7 @@ import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.ProgressBar
+import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.event.ABEventBus
@@ -46,7 +47,7 @@ import java.io.IOException
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [28])
+@Config(sdk=[TEST_SDK])
 class DocumentDownloadProgressCacheTest {
     private var documentDownloadProgressCache: DocumentDownloadProgressCache? = null
     private var testData: TestData? = null
@@ -62,7 +63,7 @@ class DocumentDownloadProgressCacheTest {
     @Throws(InterruptedException::class)
     fun sendEventOnProgress() {
         val eventReceiver = EventReceiver()
-        ABEventBus.getDefault().register(eventReceiver)
+        ABEventBus.register(eventReceiver)
         documentDownloadProgressCache!!.startMonitoringDownloads()
         testData!!.progress.workDone = 30
         Thread.sleep(10)
@@ -71,7 +72,7 @@ class DocumentDownloadProgressCacheTest {
 
     @After
     fun tearDown() {
-        ABEventBus.getDefault().unregisterAll()
+        ABEventBus.unregisterAll()
         DatabaseResetter.resetDatabase()
     }
 

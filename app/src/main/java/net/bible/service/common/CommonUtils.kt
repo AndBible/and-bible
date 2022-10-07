@@ -17,13 +17,17 @@
 
 package net.bible.service.common
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -55,11 +59,13 @@ import androidx.preference.PreferenceScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.BuildConfig.BUILD_TYPE
 import net.bible.android.activity.BuildConfig.BuildDate
 import net.bible.android.activity.BuildConfig.FLAVOR
@@ -77,6 +83,7 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
+import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.DownloadActivity
@@ -260,7 +267,7 @@ object CommonUtils : CommonUtilsBase() {
 
 
     val isPortrait: Boolean get() {
-        val res = CurrentActivityHolder.getInstance().currentActivity?.resources?: BibleApplication.application.resources
+        val res = CurrentActivityHolder.currentActivity?.resources?: BibleApplication.application.resources
         return res.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     }
 
@@ -449,7 +456,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     val resources: Resources get() =
-        CurrentActivityHolder.getInstance()?.currentActivity?.resources?: application.resources
+        CurrentActivityHolder?.currentActivity?.resources?: application.resources
 
 
     fun getResourceColor(resourceId: Int): Int =
@@ -599,11 +606,15 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun restartApp(callingActivity: Activity) {
-        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
+        val contentIntent = Intent(callingActivity, StartupActivity::class.java)//application.packageManager.getLaunchIntentForPackage(application.packageName)
         val pendingIntent = PendingIntent.getActivity(callingActivity, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
         val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
+        exitProcess(2)
+    }
+
+    fun forceStopApp() {
         exitProcess(2)
     }
 
@@ -834,7 +845,7 @@ object CommonUtils : CommonUtilsBase() {
             htmlMessage += "<i>$versionMsg</i>"
 
         val spanned = htmlToSpan(htmlMessage)
-        val d = androidx.appcompat.app.AlertDialog.Builder(callingActivity)
+        val d = AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
             .setIcon(R.drawable.ic_logo)
             .setMessage(spanned)
@@ -1166,6 +1177,52 @@ object CommonUtils : CommonUtilsBase() {
 
             val d = dlgBuilder.show()
             d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        }
+    }
+
+    suspend fun requestNotificationPermission(activity: ActivityBase) = withContext(Dispatchers.Main) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
+                var request = true
+                if (activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                    val answer = suspendCoroutine {
+                        AlertDialog.Builder(activity)
+                            .setTitle(R.string.permission_required)
+                            .setIcon(R.drawable.ic_logo)
+                            .setMessage(R.string.progress_status_permission)
+                            .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
+                            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
+                            .setOnCancelListener { _ -> it.resume(null) }
+                            .show()
+                    }
+                    request = answer == true
+                }
+                if(request) {
+                    activity.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 999)
+                }
+            }
+        }
+    }
+
+    fun changeAppIconAndName() {
+        val discrete = settings.getBoolean("discrete_mode", false)
+        val packageName = BuildConfig.APPLICATION_ID
+        val allNames: List<String> = listOf(
+            "net.bible.android.view.activity.Bible",
+            "net.bible.android.view.activity.Calculator"
+        )
+        val activeName = allNames[if(discrete) 1 else 0]
+
+        Log.d(TAG, "Changing app icon / name to $activeName")
+
+        for (name in allNames) {
+            application.packageManager.setComponentEnabledSetting(
+                ComponentName(packageName, name),
+                if(name == activeName)
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                0
+            )
         }
     }
 }

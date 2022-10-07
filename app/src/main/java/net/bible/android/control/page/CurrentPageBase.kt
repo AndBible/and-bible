@@ -92,14 +92,14 @@ abstract class CurrentPageBase protected constructor(
     /** notify mediator that page has changed and a lot of things need to update themselves
      */
     private fun beforePageChange() {
-        PassageChangeMediator.getInstance().onBeforeCurrentPageChanged()
+        PassageChangeMediator.onBeforeCurrentPageChanged()
     }
 
     /** notify mediator that page has changed and a lot of things need to update themselves
      */
     private fun pageChange() {
         if (!isInhibitChangeNotifications) {
-            PassageChangeMediator.getInstance().onCurrentPageChanged()
+            PassageChangeMediator.onCurrentPageChanged()
         }
     }
 
@@ -141,7 +141,7 @@ abstract class CurrentPageBase protected constructor(
         }
 
         annotateKey = frag.annotateRef
-        ABEventBus.getDefault().post(CurrentVerseChangedEvent())
+        ABEventBus.post(CurrentVerseChangedEvent())
 
         OsisDocument(
             book = currentDocument,
@@ -262,7 +262,7 @@ abstract class CurrentPageBase protected constructor(
                 } catch (e: Exception) {
                     Log.e(TAG, "Key $keyName not be loaded from $document", e)
                     if(e !is NoSuchKeyException) {
-                        Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+                        Dialogs.showErrorMsg(R.string.error_occurred, e)
                     }
                 }
             }

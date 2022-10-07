@@ -39,7 +39,7 @@ val discreteFlavor = "discrete"
 // release in 2010 for continuity of updates for existing users.
 val applicationIdStandard = "net.bible.android.activity"
 // An alternative applicationId, to be used for the "discrete" flavor.
-val applicationIdDiscrete = "com.example.ToDo"
+val applicationIdDiscrete = "com.app.calculator"
 
 
 fun getGitHash(): String =
@@ -291,6 +291,7 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.webkit:webkit:1.5.0")
+    implementation("io.apisense:rhino-android:1.1.1")
 
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 
@@ -330,7 +331,7 @@ dependencies {
 
     // TESTS
     //testImplementation("com.github.AndBible:robolectric:4.3.1-andbible3")
-    testImplementation("org.robolectric:robolectric:4.6.1")
+    testImplementation("org.robolectric:robolectric:4.9")
     //testImplementation("org.robolectric:shadows-multidex:4.3.1")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("org.hamcrest:hamcrest-library:2.2")

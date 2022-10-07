@@ -180,7 +180,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     val clip = ClipData.newPlainText(selection.verseRange.name, layout.bindings.preview.text)
                     clipboard.setPrimaryClip(clip)
-                    ABEventBus.getDefault().post(ToastEvent(context.getString(R.string.text_copied_to_clicpboard)))
+                    ABEventBus.post(ToastEvent(context.getString(R.string.text_copied_to_clicpboard)))
                 }
                 setTitle(R.string.share_verse_widget_title)
                 create().show()

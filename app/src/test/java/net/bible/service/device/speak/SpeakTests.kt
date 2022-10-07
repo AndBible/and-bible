@@ -18,6 +18,7 @@
 package net.bible.service.device.speak
 
 import net.bible.android.BibleApplication
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
@@ -38,6 +39,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.android.view.activity.page.windowRepository
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
@@ -59,8 +61,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLog
 
-
-@Config(qualifiers="fi", application = TestBibleApplication::class, sdk=[28])
+@Config(qualifiers="fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
 open class SpeakIntegrationTestBase {
     lateinit var app: TestBibleApplication
     lateinit var bookmarkControl: BookmarkControl
@@ -95,7 +96,7 @@ open class SpeakIntegrationTestBase {
 @RunWith(RobolectricTestRunner::class)
 class SpeakActivityTests : SpeakIntegrationTestBase() {
     @Test
-    fun testSpeaActivityIsUpdatedWhenSettingsAreChanged() {
+    fun testSpeakActivityIsUpdatedWhenSettingsAreChanged() {
         var s = SpeakSettings(synchronize = true)
         s.save()
         val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
@@ -106,7 +107,7 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
     }
 
     @Test
-    fun testSpeaActivityUpdatesSettings() {
+    fun testSpeakActivityUpdatesSettings() {
         var s = SpeakSettings(synchronize = true)
         s.save()
         val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
@@ -231,7 +232,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
 }
 
 
-@Config(qualifiers = "fi", application = TestBibleApplication::class, sdk = [28])
+@Config(qualifiers = "fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
 open class AbstractSpeakTests {
     lateinit var provider: BibleSpeakTextProvider
     internal var text: String = ""

@@ -18,9 +18,11 @@
 package net.bible.test
 
 import android.os.Looper
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import org.robolectric.Shadows
 import java.lang.IllegalStateException
@@ -33,15 +35,21 @@ import java.lang.reflect.Field
  */
 object DatabaseResetter {
     @JvmStatic
-    fun resetDatabase() {
-        try {
-            GlobalScope.cancel("Time to stop! Test already ended...")
-        } catch (e: IllegalStateException) {
-            if(e.message?.startsWith("Scope cannot be cancelled because") == false) {
-                throw e
+    fun resetDatabase(vararg scopes_: CoroutineScope) {
+        val scopes = ArrayList<CoroutineScope>()
+        scopes.addAll(scopes_)
+        scopes.add(GlobalScope)
+        scopes.add(CommonUtils.windowControl.windowRepository.windowUpdateScope)
+        scopes.add(CommonUtils.windowControl.windowSync.syncScope)
+        for(scope in scopes) {
+            try {
+                scope.cancel("Time to stop! Test already ended...")
+            } catch (e: IllegalStateException) {
+                if (e.message?.startsWith("Scope cannot be cancelled because") == false) {
+                    throw e
+                }
             }
         }
-        //DatabaseContainer.db.openHelper.close()
         //val looper = Shadows.shadowOf(Looper.getMainLooper())
         //looper.idle()
         //val stacks = Thread.getAllStackTraces()
@@ -49,8 +57,9 @@ object DatabaseResetter {
         // Something is hanging there still due to kotlin coroutines. This seem to help.
         // Sorry, not motivated at this time to investigate this any further if this workaround works.
 
-        Thread.sleep(500)
-        resetSingleton(DatabaseContainer::class.java, "instance")
+        Thread.sleep(300)
+        DatabaseContainer.reset()
+        //resetSingleton(DatabaseContainer::class.java, "instance")
     }
 
     private fun resetSingleton(class_: Class<*>, fieldName: String) {

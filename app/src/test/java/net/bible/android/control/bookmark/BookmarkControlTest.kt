@@ -17,6 +17,7 @@
 
 package net.bible.android.control.bookmark
 
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
@@ -43,7 +44,7 @@ import org.robolectric.annotation.Config
 import java.util.*
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [28])
+@Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class BookmarkControlTest {
     private var testVerseCounter = 0
     private var currentTestVerse: String? = null

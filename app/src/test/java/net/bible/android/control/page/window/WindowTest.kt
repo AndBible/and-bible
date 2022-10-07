@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page.window
 
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
@@ -45,7 +46,7 @@ import org.robolectric.RobolectricTestRunner
 import javax.inject.Provider
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [28])
+@Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class WindowTest {
     private lateinit var mockCurrentPageManagerProvider: Provider<CurrentPageManager>
     private var windowControl: WindowControl? = null
@@ -54,7 +55,6 @@ class WindowTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        val eventManager = ABEventBus.getDefault()
         val bibleTraverser = mock(BibleTraverser::class.java)
 
         val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
@@ -63,7 +63,7 @@ class WindowTest {
         }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
-        windowControl = WindowControl(windowRepository!!, eventManager)
+        windowControl = WindowControl(windowRepository!!)
         windowRepository!!.initialize()
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
     }

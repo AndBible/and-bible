@@ -151,13 +151,13 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         addView(bibleReferenceOverlay,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
     private val windowRepository = windowControl.windowRepository
 
     fun destroy() {
         removeAllViews()
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         bibleViewFactory.clear()
     }
 
@@ -620,7 +620,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     private var restoreButtonsVisible = CommonUtils.settings.getBoolean("restoreButtonsVisible", true)
         set(value) {
             CommonUtils.settings.setBoolean("restoreButtonsVisible", value)
-            ABEventBus.getDefault().post(RestoreButtonsVisibilityChanged())
+            ABEventBus.post(RestoreButtonsVisibilityChanged())
             field = value
         }
 

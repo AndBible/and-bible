@@ -64,7 +64,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         binding = SpeakBibleBinding.inflate(layoutInflater)
         setContentView(binding.root)
         buildActivityComponent().inject(this)
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         binding.apply {
             speakSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -89,7 +89,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     override val sleepTimer: CheckBox get() = binding.sleepTimer
 
     override fun onDestroy() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         super.onDestroy()
     }
 
@@ -201,7 +201,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 else {
                     startVerse = null
                     endVerse = null
-                    ABEventBus.getDefault().post(ToastEvent(R.string.speak_ending_verse_must_be_later))
+                    ABEventBus.post(ToastEvent(R.string.speak_ending_verse_must_be_later))
                     resetView(settings)
                 }
             }

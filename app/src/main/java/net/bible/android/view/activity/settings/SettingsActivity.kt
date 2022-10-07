@@ -19,8 +19,10 @@ package net.bible.android.view.activity.settings
 import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
+import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
@@ -126,7 +128,10 @@ class SettingsActivity: ActivityBase() {
                     "double_tap_to_fullscreen",
                     "night_mode_pref3",
                     "request_sdcard_permission_pref",
-                    "show_errorbox"
+                    "show_errorbox",
+                    "discrete_mode",
+                    "show_calculator",
+                    "calculator_pin",
                 )
                 for(key in keys) {
                     editor.removeString(key)
@@ -207,6 +212,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val pref = preferenceScreen.findPreference<ListPreference>("request_sdcard_permission_pref") as Preference
             pref.isVisible = false
+        }
+
+        (preferenceScreen.findPreference<EditTextPreference>("calculator_pin") as EditTextPreference).apply {
+            setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_NUMBER }
         }
 
         for(p in getPreferenceList()) {

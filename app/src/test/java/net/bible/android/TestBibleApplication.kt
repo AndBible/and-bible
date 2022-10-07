@@ -25,6 +25,8 @@ import net.bible.service.common.CommonUtils
 /**
  * Override settings if required
  */
+
+const val TEST_SDK = 33
 class TestBibleApplication : BibleApplication() {
     init {
         println("TestBibleApplication BibleApplication subclass being used.")
@@ -32,9 +34,7 @@ class TestBibleApplication : BibleApplication() {
 
     override val isRunningTests: Boolean = true
 
-    override fun getLocalizedResources(language: String): Resources {
-        return application.getResources()
-    }
+    override fun getLocalizedResources(language: String): Resources = application.resources
 
     override fun onCreate() {
         super.onCreate()
@@ -47,6 +47,6 @@ class TestBibleApplication : BibleApplication() {
     override fun onTerminate() {
         CommonUtils.destroy()
         super.onTerminate()
-        ABEventBus.getDefault().unregisterAll()
+        ABEventBus.unregisterAll()
     }
 }

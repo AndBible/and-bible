@@ -141,7 +141,7 @@ class LinkControl @Inject constructor(
         } else {
             val document = swordDocumentFacade.getDocumentByInitials(initials)
             if (document == null) { // tell user to install book
-                Dialogs.instance.showErrorMsg(R.string.document_not_installed, initials)
+                Dialogs.showErrorMsg(R.string.document_not_installed, initials)
             } else if(document.bookCategory == BookCategory.BIBLE && !forceDoc) {
                 return getBibleKey(ref, versification)
             } else if(document.isGreekDef || document.isHebrewDef) {
@@ -237,7 +237,7 @@ class LinkControl @Inject constructor(
         // possibly no Strong's bible or it has not been indexed
         var needToIndex = false
         if (strongsBible == null) {
-            Dialogs.instance.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
+            Dialogs.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
             return
         } else if (currentBible == strongsBible && !checkStrongs(currentBible)) {
             Log.i(TAG, "Index status is NOT DONE")
@@ -247,7 +247,7 @@ class LinkControl @Inject constructor(
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
         val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, biblesection, null)
         Log.i(TAG, "Search text:$searchText")
-        val activity = CurrentActivityHolder.getInstance().currentActivity
+        val activity = CurrentActivityHolder.currentActivity!!
         val searchParams = Bundle()
         searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
         searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)

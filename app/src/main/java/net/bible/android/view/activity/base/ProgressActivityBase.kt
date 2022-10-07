@@ -16,6 +16,9 @@
  */
 package net.bible.android.view.activity.base
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -23,9 +26,13 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ProgressActivityBase
+import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
@@ -56,7 +63,9 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
     }
 
     private fun initialiseView() {
+        GlobalScope.launch { CommonUtils.requestNotificationPermission(this@ProgressActivityBase) }
         // prepare to show no tasks msg
+
         noTasksMessageView = findViewById<View>(R.id.noTasksRunning) as TextView
         taskKillWarningView = findViewById<View>(R.id.progressStatusMessage) as TextView
         val jobsIterator = JobManager.iterator()
@@ -117,7 +126,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
         }
     }
 
-    protected open fun jobFinished(job: Progress?) {
+    protected open fun jobFinished(job: Progress) {
         // do nothing by default
     }
 
@@ -151,7 +160,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
         return status
     }
 
-    protected fun setMainText(text: String?) {
+    protected fun setMainText(text: String) {
         (findViewById<View>(R.id.progressStatusMessage) as TextView).text = text
     }
 

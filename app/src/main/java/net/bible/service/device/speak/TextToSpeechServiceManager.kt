@@ -124,7 +124,7 @@ class TextToSpeechServiceManager @Inject constructor(
         mSpeakTextProvider = bibleSpeakTextProvider
 
         mSpeakTiming = SpeakTiming()
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
         restorePauseState()
     }
 
@@ -177,11 +177,11 @@ class TextToSpeechServiceManager @Inject constructor(
             if (!localeOK) {
                 Log.e(TAG, "TTS missing or not supported")
                 // Language data is missing or the language is not supported.
-                ttsLanguageSupport.addUnsupportedLocale(locale)
+                if(locale != null) ttsLanguageSupport.addUnsupportedLocale(locale)
                 showError(R.string.tts_lang_not_available, Exception("Tts missing or not supported"))
             } else {
                 // The TTS engine has been successfully initialized.
-                ttsLanguageSupport.addSupportedLocale(locale)
+                if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
                 val ok = tts.setOnUtteranceProgressListener(utteranceProgressListener)
                 if (ok == TextToSpeech.ERROR) {
                     Log.e(TAG, "Error registering utteranceProgressListener")
@@ -198,7 +198,7 @@ class TextToSpeechServiceManager @Inject constructor(
         }
 
         if (!isOk) {
-            speakControl.stop(false, true)
+            speakControl.stop(willContinueAfter = false, force = true)
         }
     }
 
@@ -547,7 +547,7 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     private fun showError(msgId: Int, e: Exception) {
-        Dialogs.instance.showErrorMsg(msgId)
+        Dialogs.showErrorMsg(msgId)
     }
 
     fun shutdown(willContinueAfter: Boolean = false) {
@@ -592,13 +592,13 @@ class TextToSpeechServiceManager @Inject constructor(
 		when {
 			isPaused -> {
 				temporary = false
-				ABEventBus.getDefault().post(SpeakEvent(SpeakState.PAUSED))
+				ABEventBus.post(SpeakEvent(SpeakState.PAUSED))
 			}
 			isSpeaking -> {
 				temporary = false
-				ABEventBus.getDefault().post(SpeakEvent(SpeakState.SPEAKING))
+				ABEventBus.post(SpeakEvent(SpeakState.SPEAKING))
 			}
-			else -> ABEventBus.getDefault().post(SpeakEvent(if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT))
+			else -> ABEventBus.post(SpeakEvent(if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT))
 		}
 
     }

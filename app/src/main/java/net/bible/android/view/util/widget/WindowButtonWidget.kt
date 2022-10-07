@@ -231,12 +231,12 @@ class WindowButtonWidget(
 
 
     override fun onAttachedToWindow() {
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         super.onAttachedToWindow()
     }
 
     override fun onDetachedFromWindow() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         super.onDetachedFromWindow()
     }
 }

@@ -205,7 +205,7 @@ class TextToSpeechNotificationManager {
 
         app.registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
 
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL,
@@ -301,6 +301,10 @@ class TextToSpeechNotificationManager {
         val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         val style = MediaStyle()
             .setShowActionsInCompactView(2)
+
+        MediaButtonHandler.handler?.ms?.sessionToken?.apply {
+            style.setMediaSession(this)
+        }
 
         val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 

@@ -128,7 +128,7 @@ class GenericFileDownloader(
                 val tempFile = NetUtil.getAsFile(temp)
                 if (!copyFile(tempFile, target)) {
                     Log.e(TAG, "Download Error renaming temp file $tempFile to:$target")
-                    Dialogs.instance.showErrorMsg(getResourceString(R.string.error_occurred))
+                    Dialogs.showErrorMsg(getResourceString(R.string.error_occurred))
                     job.cancel()
                 }
             }

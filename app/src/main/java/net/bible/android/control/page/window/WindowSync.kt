@@ -47,7 +47,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
     }
 
     fun reloadAllWindows(force: Boolean = false) {
-        ABEventBus.getDefault().post(IncrementBusyCount())
+        ABEventBus.post(IncrementBusyCount())
         if(force)
             setResyncRequired()
 
@@ -59,7 +59,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 window.updateText()
         }
         lastSynchWasInNightMode = ScreenSettings.nightMode
-        ABEventBus.getDefault().post(DecrementBusyCount())
+        ABEventBus.post(DecrementBusyCount())
     }
 
     /** Synchronise the inactive key and inactive screen with the active key and screen if required */
@@ -79,13 +79,13 @@ class WindowSync(private val windowRepository: WindowRepository) {
             delayedSynchronizeWindows(sourceWindow)
     }
 
-    private val syncScope = CoroutineScope(Dispatchers.Default)
+    val syncScope = CoroutineScope(Dispatchers.Default)
     private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit
         = debounce(200, syncScope) {sourceWindow -> immediateSynchronizeWindows(sourceWindow)}
 
     private fun immediateSynchronizeWindows(sourceWindow: Window) = synchronized(this) {
         Log.i(TAG, "...delayedSynchronizeWindows $sourceWindow")
-        ABEventBus.getDefault().post(IncrementBusyCount())
+        ABEventBus.post(IncrementBusyCount())
 
         val activePage = sourceWindow.pageManager.currentPage
         var targetActiveWindowKey = activePage.singleKey
@@ -137,10 +137,8 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
             }
         }
-//        if (targetActiveWindowKey != null) {
-//            windowRepository.syncKey = targetActiveWindowKey
-//        }
-        ABEventBus.getDefault().post(DecrementBusyCount())
+
+        ABEventBus.post(DecrementBusyCount())
     }
 
     /** Only call if screens are synchronised.  Update synch'd keys even if inactive page not
@@ -173,7 +171,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             } else {
                 if ((isBible||isMyNotes) && currentVerse != null && targetVerse != null) {
                     if(targetVerse.book == currentVerse.book && inactiveWindow.hasChapterLoaded(targetVerse.chapter)) {
-                        ABEventBus.getDefault()
+                        ABEventBus
                             .post(ScrollSecondaryWindowEvent(inactiveWindow, targetVerse))
                     } else if(targetVerse != currentVerse) {
                         inactiveWindow.updateText()
