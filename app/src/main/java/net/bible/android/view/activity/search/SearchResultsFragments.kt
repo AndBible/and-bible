@@ -118,8 +118,8 @@ class SearchResultsFragment(val mSearchResultsArray:ArrayList<SearchResultsData>
             try { // no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
                 verseSelected(mCurrentlyDisplayedSearchResults[displayedResultsArray[position].id!!])
             } catch (e: Exception) {
-                Log.e("blah", "Selection error", e)
-                Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+                Log.e("SearchResults", "Selection error", e)
+                Dialogs.showErrorMsg(R.string.error_occurred, e)
             }
         }
         return root

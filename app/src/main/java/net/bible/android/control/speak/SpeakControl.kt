@@ -53,6 +53,8 @@ import javax.inject.Inject
 
 import dagger.Lazy
 import de.greenrobot.event.EventBus
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
 
@@ -332,7 +334,7 @@ class SpeakControl @Inject constructor(
 
     }
 
-    fun speakBible() {
+    private fun speakBible() {
         val page = speakPageManager.currentPage
         if(!page.isSpeakable) {
             ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
@@ -345,7 +347,7 @@ class SpeakControl @Inject constructor(
         speakBible(currentBook as SwordBook, verse)
     }
 
-    fun speakBible(bookRef: String, osisRef: String) {
+    private fun speakBible(bookRef: String, osisRef: String) {
         val book = Books.installed().getBook(bookRef) as SwordBook
 
         try {
@@ -465,6 +467,11 @@ class SpeakControl @Inject constructor(
     }
 
     private fun prepareForSpeaking() {
+        if(CommonUtils.isDiscrete) {
+            GlobalScope.launch {
+                CommonUtils.requestNotificationPermission()
+            }
+        }
         // ensure volume controls adjust correct stream - not phone which is the default
         // STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead:
         // http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method

@@ -1180,7 +1180,8 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    suspend fun requestNotificationPermission(activity: ActivityBase) = withContext(Dispatchers.Main) {
+    suspend fun requestNotificationPermission(activity_: ActivityBase? = null) = withContext(Dispatchers.Main) {
+        val activity = activity_?:CurrentActivityHolder.currentActivity?: return@withContext
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
                 var request = true
@@ -1225,6 +1226,8 @@ object CommonUtils : CommonUtilsBase() {
             )
         }
     }
+
+    val isDiscrete get() = settings.getBoolean("discrete_mode", false) || FLAVOR == "discrete"
 }
 
 @Serializable

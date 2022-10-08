@@ -104,14 +104,14 @@ class SearchControl @Inject constructor(
                              includeAllEndings: Boolean=false, fuzzySearchAccuracy: Double? = null, proximityWords: Int? = null,
                              strongs: Char? = null): String {
         var cleanSearchString = cleanSearchString(searchString)
-        isStrongsSearch = (strongs != null)
-        if (includeAllEndings || strongs != null || fuzzySearchAccuracy != null) {
-            var newSearchString =""
+        isStrongsSearch = strongs != null
+        if (includeAllEndings || isStrongsSearch || fuzzySearchAccuracy != null) {
+            var newSearchString = ""
             val wordArray: List<String> = cleanSearchString.split(" ")
-            wordArray.forEach {
+            for (it in wordArray) {
                 var decoratedWord = it
                 if (includeAllEndings) decoratedWord += "* "
-                if (strongs != null) decoratedWord = "strong:$strongs$decoratedWord "
+                if (isStrongsSearch) decoratedWord = "strong:$strongs$decoratedWord "
                 if (fuzzySearchAccuracy != null) {
                     val fuzzySearchAccuracyAdjusted = if (fuzzySearchAccuracy.equals(1.0)) 0.99 else fuzzySearchAccuracy
                     decoratedWord += "~%.2f ".format(fuzzySearchAccuracyAdjusted)
@@ -122,11 +122,11 @@ class SearchControl @Inject constructor(
         }
 
         if (proximityWords != null) {
-            cleanSearchString = "\"" + cleanSearchString + "\"~" + proximityWords
+            cleanSearchString = "\"$cleanSearchString\"~$proximityWords"
         }
 
         // add search type (all/any/phrase) to search string
-        var decorated: String = searchType.decorate(cleanSearchString)
+        var decorated = searchType.decorate(cleanSearchString)
         originalSearchString = decorated
 
         // add bible section limitation to search text

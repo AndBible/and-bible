@@ -28,6 +28,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
@@ -150,8 +151,8 @@ class SettingsActivity: ActivityBase() {
 
 class SettingsFragment : PreferenceFragmentCompat() {
 	override fun onDisplayPreferenceDialog(preference: Preference) {
-		if(parentFragmentManager.findFragmentByTag("customTag") != null)
-			return
+        if(parentFragmentManager.findFragmentByTag("customTag") != null)
+            return
 
         super.onDisplayPreferenceDialog(preference)
 	}
@@ -218,6 +219,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
             setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_NUMBER }
         }
 
+        (preferenceScreen.findPreference<EditTextPreference>("discrete_mode") as Preference).apply {
+            if(BuildConfig.FLAVOR == "discrete") {
+                isVisible = false
+            }
+        }
         for(p in getPreferenceList()) {
             val icon = p.icon
             if(icon != null) {

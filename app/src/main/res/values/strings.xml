@@ -86,25 +86,6 @@
     <string name="search_old_testament">Old Testament</string>
     <string name="search_current_book">Current book</string>
     <string name="error_executing_search">Invalid search query</string>
-    <string name="search_remember_search_text">Remember search</string>
-    <string name="search_include_all_endings">All endings</string>
-    <string name="search_fuzzy">Fuzzy Search %s</string>
-    <string name="search_strongs">Strongs Number Search</string>
-    <string name="search_showDecoratedText">Show raw search text</string>
-    <string name="search_proximity">Proximity %s</string>
-    <string name="search_results">Search Results</string>
-    <string name="search_statistics">Search Statistics</string>
-    <string name="words">words</string>
-    <string name="accuracy">Accuracy</string>
-    <string name="greek">Greek</string>
-    <string name="hebrew">Hebrew</string>
-    <string name="results_count">Results: %s</string>
-    <string name="verse_count">Verses: %s</string>
-    <string name="book_count">Books: %s</string>
-    <string name="word_count">Words: %s</string>
-    <string name="statistics">Statistics</string>
-    <string name="by_book">By Book</string>
-    <string name="by_word">By Word</string>
 
 
 
@@ -1037,14 +1018,14 @@
     <string name="assing_labels_help7">You can add quick filter button by pressing %s button.</string>
     <string name="assing_labels_help7_1">Tap each quick filter button to activate or deactivate them.</string>
     <string name="assing_labels_help8">Long-press quick filter button to remove it.</string>
-    <string name="progress_status_permission">To show progress status notification (download status, index processing etc), we need your permission. </string>
+    <string name="progress_status_permission">To show notifications (download status, processing, speak status), we need your permission. </string>
     <string name="prefs_discrete_mode">Discrete mode</string>
     <string name="prefs_discrete_mode_desc">Hide religious symbols. Show calculator icon and name in launcher instead.</string>
     <string name="prefs_persecution_cat">Settings for the persecuted</string>
     <string name="prefs_show_calculator">Show calculator smoke screen</string>
-    <string name="prefs_show_calculator_desc">When launching app, show calculator app. You can set up your pin code to get into actual bible app.</string>
-    <string name="prefs_calculator_pin">Calculator pin</string>
-    <string name="prefs_calculator_pin_desc">"Pin code to enter app, if smoke calculator is enabled. "</string>
+    <string name="prefs_show_calculator_desc">When launching app, show calculator app. You can set up your pin code to get into actual bible app. Default PIN is 1234, which can be changed with the "Calculator PIN" setting.</string>
+    <string name="prefs_calculator_pin">Calculator PIN</string>
+    <string name="prefs_calculator_pin_desc">PIN code to enter app, if smoke calculator is enabled. </string>
     <string name="calc_division_by_zero">Division by zero is not allowed</string>
     <string name="calc_wrong_format">Wrong Format</string>
     <string name="calc_wrong_format_operand">Wrong Format. Operand Without any numbers?</string>

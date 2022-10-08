@@ -32,6 +32,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchResultsDto
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.Key
@@ -39,7 +40,6 @@ import org.crosswire.jsword.passage.Verse
 import javax.inject.Inject
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
-import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.getBookColorAndGroup
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.resources
 
@@ -85,37 +85,31 @@ class WordStat(val word: String,
 private var wordHits: ArrayList<Pair<String, ArrayList<Int>>> = arrayListOf()
 
 class SearchResultsData : Parcelable {
-    @JvmField
-    var id: Int?  // Holds the original index in the results. Used for selection and filtering.
-    @JvmField
-    var osisKey: String?
-    @JvmField
-    var reference: String?
-    @JvmField
-    var translation: String?
-    @JvmField
-    var verse: String?
-    @JvmField
-    var verseHtml: String?  // I would prefer to pass a spannable string but i dont know how to make it parcelable
+    @JvmField var id: Int?  // Holds the original index in the results. Used for selection and filtering.
+    @JvmField var osisKey: String?
+    @JvmField var reference: String?
+    @JvmField var translation: String?
+    @JvmField var verse: String?
+    @JvmField var verseHtml: String?  // I would prefer to pass a spannable string but i dont know how to make it parcelable
 
     /* What I really want to do is make the 'Key' parcelable but I don't know how to do that. So instead I have to send the properties I need and get the key later on */
 
-    constructor(Id: Int?, OsisKey: String?, Reference: String?, Translation: String?, Verse: String?, VerseHtml: String?) {
-        id = Id;
-        osisKey = OsisKey
-        reference = Reference
-        translation = Translation
-        verse = Verse
-        verseHtml = VerseHtml
+    constructor(id: Int?, osisKey: String?, reference: String?, translation: String?, verseStr: String?, verseHtml: String?) {
+        this.id = id;
+        this.osisKey = osisKey
+        this.reference = reference
+        this.translation = translation
+        this.verse = verseStr
+        this.verseHtml = verseHtml
     }
 
-    protected constructor(`in`: Parcel) {
-        id = `in`.readInt()
-        osisKey = `in`.readString()
-        reference = `in`.readString()
-        translation = `in`.readString()
-        verse = `in`.readString()
-        verseHtml = `in`.readString()
+    private constructor(p: Parcel) {
+        id = p.readInt()
+        osisKey = p.readString()
+        reference = p.readString()
+        translation = p.readString()
+        verse = p.readString()
+        verseHtml = p.readString()
     }
 
     override fun describeContents(): Int {
@@ -132,7 +126,7 @@ class SearchResultsData : Parcelable {
 
     }
 
-    companion object CREATOR : Parcelable.Creator<SearchResultsData> {
+    companion object CREATOR: Parcelable.Creator<SearchResultsData> {
         override fun createFromParcel(parcel: Parcel): SearchResultsData {
             return SearchResultsData(parcel)
         }
@@ -147,7 +141,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
     private lateinit var binding: SearchResultsStatisticsBinding
     private var mSearchResultsHolder: SearchResultsDto? = null
     private lateinit var sectionsPagerAdapter: SearchResultsPagerAdapter
-    val mSearchResultsArray = ArrayList<SearchResultsData>()
+    private val mSearchResultsArray = ArrayList<SearchResultsData>()
     private val bookStatistics = mutableListOf<BookStat>()
     private val wordStatistics = mutableListOf<WordStat>()
 
@@ -156,12 +150,9 @@ class MySearchResults : CustomTitlebarActivityBase() {
     @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
-    /** Called when the activity is first created.  */
 
     private val totalTime = MyTimer("Total Time")
-
-    private val versification: Versification
-        get() = navigationControl.versification
+    private val versification get() = navigationControl.versification
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -175,7 +166,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search results view")
         totalTime.reset()
@@ -189,13 +179,18 @@ class MySearchResults : CustomTitlebarActivityBase() {
         bundle.putString("edttext", "From Activity")
 
         sectionsPagerAdapter = SearchResultsPagerAdapter(this,
-                                                                supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent,
-                                                                mSearchResultsArray, bookStatistics, wordStatistics)
-        val viewPager: ViewPager = binding.viewPager
-        viewPager.adapter = sectionsPagerAdapter
-        viewPager.offscreenPageLimit = 2    // The progressbar on the 3rd tab goes to zero when the view is lost. So just keep it in memory and all is fine. It is not a big view so i think it is ok.
-        val tabs: TabLayout = binding.tabs
-        tabs.setupWithViewPager(viewPager)
+            supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent,
+            mSearchResultsArray, bookStatistics, wordStatistics
+        )
+
+
+        binding.viewPager.run {
+            adapter = sectionsPagerAdapter
+            // The progressbar on the 3rd tab goes to zero when the view is lost.
+            // So just keep it in memory and all is fine. It is not a big view so i think it is ok.
+            offscreenPageLimit = 2
+            binding.tabs.setupWithViewPager(this)
+        }
 
         searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
         setActionBarManager(searchResultsActionBarManager)
@@ -207,22 +202,16 @@ class MySearchResults : CustomTitlebarActivityBase() {
         }
     }
 
-    private suspend fun prepareResults() {
-        withContext(Dispatchers.Main) {
-            binding.loadingIndicator.visibility = View.VISIBLE
-            binding.empty.visibility = View.GONE
-        }
+    private suspend fun prepareResults() = withContext(Dispatchers.Main){
+        binding.loadingIndicator.visibility = View.VISIBLE
+        binding.empty.visibility = View.GONE
         if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
-            withContext(Dispatchers.Main) {
-                populateViewResultsAdapter()
-            }
+            populateViewResultsAdapter()
         }
-        withContext(Dispatchers.Main) {
-            binding.loadingIndicator.visibility = View.GONE
-//            if(listAdapter?.isEmpty == true) {
-//                binding.empty.visibility = View.VISIBLE
-//            }
-        }
+        binding.loadingIndicator.visibility = View.GONE
+//      if(listAdapter?.isEmpty == true) {
+//          binding.empty.visibility = View.VISIBLE
+//      }
     }
 
     private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) {
@@ -230,8 +219,8 @@ class MySearchResults : CustomTitlebarActivityBase() {
         var isOk: Boolean
         try { // get search string - passed in using extras so extras cannot be null
             val fetchResultsTimer = MyTimer("fetchResultsTimer")
-            val extras = intent.extras
-            val searchText = extras!!.getString(SearchControl.SEARCH_TEXT)
+            val extras = intent.extras!!
+            val searchText = extras.getString(SearchControl.SEARCH_TEXT)
             var searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT)
             if (StringUtils.isEmpty(searchDocument)) {
                 searchDocument = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
@@ -241,7 +230,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
             val msg:String = if (mCurrentlyDisplayedSearchResults.size >= SearchControl.MAX_SEARCH_RESULTS) {
                 getString(R.string.search_showing_first, SearchControl.MAX_SEARCH_RESULTS)
             } else {
-                getString(R.string.search_result_count, mSearchResultsHolder!!.size())
+                getString(R.string.search_result_count, mSearchResultsHolder!!.size)
             }
             withContext(Dispatchers.Main) {
                 Toast.makeText(this@MySearchResults, msg, Toast.LENGTH_SHORT).show()
@@ -251,9 +240,9 @@ class MySearchResults : CustomTitlebarActivityBase() {
         } catch (e: Exception) {
             Log.e(TAG, "Error processing search query", e)
             isOk = false
-            Dialogs.instance.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
+            Dialogs.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
-    return@withContext isOk
+        return@withContext isOk
     }
 
     /**
@@ -261,7 +250,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
      */
 
     private fun populateViewResultsAdapter() {
-
         val populateViewResultsAdapterTimer = MyTimer("populateViewResultsAdapterTimer")
         val getSearchResultVerseElementTimer = MyTimer("getSearchResultVerseElement")
         val getSearchResultVerseStringTimer = MyTimer("getSearchResultVerseString")
@@ -275,9 +263,9 @@ class MySearchResults : CustomTitlebarActivityBase() {
             mSearchResultsHolder!!.otherSearchResults
         }
         val extras = intent.extras
-        var searchDocument = extras!!.getString(SearchControl.SEARCH_DOCUMENT)
+        val searchDocument = extras!!.getString(SearchControl.SEARCH_DOCUMENT)
 
-        mSearchResultsArray!!.clear()
+        mSearchResultsArray.clear()
         bookStatistics.clear()
         wordStatistics.clear()
 
@@ -287,7 +275,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
         for (key in mCurrentlyDisplayedSearchResults) {
             // Add verse to results array
 
-            var verseTextSpannable: SpannableString? = null
+            var verseTextSpannable: SpannableString?
             getSearchResultVerseElementTimer.start()
             val verseTextElement = searchControl.getSearchResultVerseElement(key)
             getSearchResultVerseElementTimer.stop()
@@ -305,39 +293,39 @@ class MySearchResults : CustomTitlebarActivityBase() {
             verseTextSpannable = searchHighlight.generateSpannableFromVerseElement(verseTextElement)
             verseTextSpannableTimer.stop()
 
-            mSearchResultsArray.add(SearchResultsData(listIndex, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable!!.toHtml()))
+            mSearchResultsArray.add(SearchResultsData(listIndex, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable.toHtml()))
 
             // Add book to the book statistics array
             bookStatsTimer.start()
-            val bookOrdinal = ((key as Verse).book as BibleBook).ordinal
-            var mBibleBook = BibleBook.values()[bookOrdinal]
-            var bookNameLong = versification.getLongName(mBibleBook)  // key.rootName
-            val bookStat = bookStatistics.firstOrNull{it.book == bookNameLong}
+            val mBibleBook = (key as Verse).book
+            val bookOrdinal = mBibleBook.ordinal
+            val bookNameLong = versification.getLongName(mBibleBook)  // key.rootName
+            val bookStat = bookStatistics.firstOrNull { it.book == bookNameLong }
             if (bookStat == null) {
-                bookStatistics.add(BookStat(bookNameLong, 1, bookNameLong, bookOrdinal, listIndex, getBookColorAndGroup(bookOrdinal).Color ))
+                bookStatistics.add(BookStat(bookNameLong, 1, bookNameLong, bookOrdinal, listIndex, GridChoosePassageBook.getBookColorAndGroup(bookOrdinal).Color ))
             } else {
-                bookStatistics.first{it.book == bookNameLong}.count += 1
+                bookStatistics.first { it.book == bookNameLong }.count += 1
             }
             bookStatsTimer.stop()
 
             // Add words in this verse to word statistics array
             wordStatsTimer.start()
-            var verseSpans: Array<StyleSpan> = verseTextSpannable!!.getSpans(0, verseTextSpannable.length, StyleSpan::class.java)
+            val verseSpans: Array<StyleSpan> = verseTextSpannable.getSpans(0, verseTextSpannable.length, StyleSpan::class.java)
             for (i in verseSpans.indices) {
-                if (verseSpans[i].getStyle() === Typeface.BOLD) {
+                if (verseSpans[i].style == Typeface.BOLD) {
                     totalWords += 1
                     val start = verseTextSpannable.getSpanStart(verseSpans[i])
                     val end = verseTextSpannable.getSpanEnd(verseSpans[i])
 
-                    var wordArray = CharArray(end-start)
+                    val wordArray = CharArray(end-start)
                     verseTextSpannable.getChars(start, end, wordArray, 0)
                     val originalWord = wordArray.joinToString("")
                     val word = originalWord.lowercase()
-                    val wordStat = wordStatistics.firstOrNull{it.word == word}
+                    val wordStat = wordStatistics.firstOrNull { it.word == word }
                     if (wordStat == null) {
                         wordStatistics.add(WordStat(word, intArrayOf(listIndex), originalWord))
                     } else {
-                        wordStatistics.first{it.word == word}.verseIndexes += listIndex
+                        wordStatistics.first { it.word == word }.verseIndexes += listIndex
                     }
                 }
             }
@@ -383,9 +371,9 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
                                 searchControl: SearchControl,
                                 activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
                                 intent: Intent,
-                                val mSearchResultsArray:ArrayList<SearchResultsData>,
-                                val bookStatistics: MutableList<BookStat>,
-                                val wordStatistics: MutableList<WordStat>
+                                private val mSearchResultsArray:ArrayList<SearchResultsData>,
+                                private val bookStatistics: MutableList<BookStat>,
+                                private val wordStatistics: MutableList<WordStat>
 ) :
     FragmentPagerAdapter(fm) {
     val searchControl = searchControl
@@ -399,7 +387,7 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
         // This happens naturally when pages are moving in and out of view but not when we try to refresh.
         // The individual fragment code gets called twice - first with no data to display and then with the correct data.
         // This is because the page is shown in the GlobalScope in order to allow us to show a progress indicator.
-        var frag: Fragment
+        val frag: Fragment
         when (position) {
             verseTabPosition -> {
                 frag = SearchResultsFragment(mSearchResultsArray)

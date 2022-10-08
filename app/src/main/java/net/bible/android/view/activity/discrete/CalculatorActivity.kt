@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.discrete
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -26,21 +27,21 @@ import android.view.View
 import android.widget.Toast
 import net.bible.android.activity.databinding.CalculatorLayoutBinding
 import net.bible.service.common.CommonUtils
+import net.objecthunter.exp4j.ExpressionBuilder
 import java.lang.Exception
 import java.lang.NumberFormatException
 import java.math.BigDecimal
-import javax.script.ScriptEngine
-import javax.script.ScriptEngineManager
 
 // Copied and adapted from https://github.com/eloyzone/android-calculator (5fb1d5e)
 
+@SuppressLint("SetTextI18n")
 class CalculatorActivity : AppCompatActivity() {
     private var openParenthesis = 0
     private var dotUsed = false
     private var equalClicked = false
     private var lastExpression = ""
 
-    lateinit var scriptEngine: ScriptEngine
+    private fun evaluate(formula: String): String = ExpressionBuilder(formula).build().evaluate().toString()
 
     private lateinit var calculatorBinding: CalculatorLayoutBinding
 
@@ -48,7 +49,7 @@ class CalculatorActivity : AppCompatActivity() {
         calculatorBinding = CalculatorLayoutBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(calculatorBinding.root)
-        scriptEngine = ScriptEngineManager().getEngineByName("rhino")
+
         setOnClickListeners()
         setOnTouchListener()
     }
@@ -256,10 +257,10 @@ class CalculatorActivity : AppCompatActivity() {
             } else {
                 saveLastExpression(input)
             }
-            result = scriptEngine.eval(
+            result = evaluate(
                 temp.replace("%".toRegex(), "/100").replace("x".toRegex(), "*")
                     .replace("[^\\x00-\\x7F]".toRegex(), "/")
-            ).toString()
+            )
             val decimal = BigDecimal(result)
             result = decimal.setScale(8, BigDecimal.ROUND_HALF_UP).toPlainString()
             equalClicked = true
@@ -324,8 +325,7 @@ class CalculatorActivity : AppCompatActivity() {
         try {
             lastCharacter.toInt()
             return IS_NUMBER
-        } catch (e: NumberFormatException) {
-        }
+        } catch (e: NumberFormatException) {}
         if (lastCharacter == "+" || lastCharacter == "-" || lastCharacter == "x" || lastCharacter == "\u00F7" || lastCharacter == "%") return IS_OPERAND
         if (lastCharacter == "(") return IS_OPEN_PARENTHESIS
         if (lastCharacter == ")") return IS_CLOSE_PARENTHESIS
