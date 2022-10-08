@@ -17,7 +17,7 @@
   -->
 
 <resources>
-    <string name="app_name_short">(short name)</string>
+    <string name="app_name_short">@string/app_name_calculator</string>
     <string name="app_name_medium">@string/app_name_short</string>
     <string name="app_name_long">@string/app_name_short</string>
     <string name="project">Open Source Project</string>
