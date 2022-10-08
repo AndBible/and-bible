@@ -1035,7 +1035,7 @@
     <string name="prefs_show_calculator">Show calculator smoke screen</string>
     <string name="prefs_show_calculator_desc">When launching app, show calculator app. You can set up your pin code to get into actual bible app. Default PIN is 1234, which can be changed with the "Calculator PIN" setting.</string>
     <string name="prefs_calculator_pin">Calculator PIN</string>
-    <string name="prefs_calculator_pin_desc">"PIN code to enter app, if smoke calculator is enabled. "</string>
+    <string name="prefs_calculator_pin_desc">PIN code to enter app, if smoke calculator is enabled. </string>
     <string name="calc_division_by_zero">Division by zero is not allowed</string>
     <string name="calc_wrong_format">Wrong Format</string>
     <string name="calc_wrong_format_operand">Wrong Format. Operand Without any numbers?</string>
