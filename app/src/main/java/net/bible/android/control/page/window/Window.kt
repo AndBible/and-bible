@@ -1,24 +1,24 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.page.window
 
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -90,7 +90,7 @@ open class Window (
     open var isSynchronised = window.isSynchronized
         set(value) {
             field = value
-            ABEventBus.getDefault().post(WindowChangedEvent(this))
+            ABEventBus.post(WindowChangedEvent(this))
         }
 
     open var isPinMode: Boolean = window.isPinMode
@@ -101,7 +101,7 @@ open class Window (
         }
         set(value) {
             field = value
-            ABEventBus.getDefault().post(WindowChangedEvent(this))
+            ABEventBus.post(WindowChangedEvent(this))
         }
 
     val isMinimised: Boolean
@@ -157,6 +157,7 @@ open class Window (
         }
 
     val initialized get() = lastUpdated != 0L
+    private val updateScope get() = windowRepository.windowUpdateScope
 
     fun updateText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible
@@ -179,9 +180,9 @@ open class Window (
         displayedKey = currentPage.key
         Log.i(TAG, "updateText ${this.hashCode()}") // ${Log.getStackTraceString(Exception())}")
 
-        GlobalScope.launch(Dispatchers.IO) {
+        updateScope.launch {
             if (notifyLocationChange) {
-                PassageChangeMediator.getInstance().contentChangeStarted()
+                PassageChangeMediator.contentChangeStarted()
             }
             val b = bibleView
             val adjusted = b?.adjustLoadingCount(1)?: false
@@ -211,7 +212,7 @@ open class Window (
             }
 
             if(notifyLocationChange)
-                PassageChangeMediator.getInstance().contentChangeFinished()
+                PassageChangeMediator.contentChangeFinished()
             }
         }
 

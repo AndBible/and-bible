@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.readingplan
@@ -212,7 +211,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             Log.i(TAG, "Finished displaying Reading view")
         } catch (e: Exception) {
             Log.e(TAG, "Error showing daily readings", e)
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
 
     }
@@ -282,7 +281,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error when Done daily reading", e)
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
 
     }
@@ -334,7 +333,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             // selected to allow jump to a certain day
             Log.i(TAG, "Set current day")
             try {
-                Dialogs.instance.showMsg(R.string.msg_set_current_day_reading_plan, true)
+                Dialogs.showMsg(R.string.msg_set_current_day_reading_plan, true)
                 {
                     // Change start date so that the current plan day is today
                     val planStartDate = Calendar.getInstance()
@@ -349,7 +348,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
             } catch (e: Exception) {
                 Log.e(TAG, "Error when Done daily reading", e)
-                Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+                Dialogs.showErrorMsg(R.string.error_occurred, e)
             }
 
             true
@@ -358,9 +357,9 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             val code = planCodeLoaded
             if (code.isNullOrEmpty()) {
                 Log.e(TAG, "Could not reset plan because no plan is properly loaded")
-                Dialogs.instance.showErrorMsg(R.string.error_occurred)
+                Dialogs.showErrorMsg(R.string.error_occurred)
             } else {
-                Dialogs.instance.showMsg(R.string.reset_plan_question, true)
+                Dialogs.showMsg(R.string.reset_plan_question, true)
                 {
                     readingPlanControl.reset(code)
                     finish()

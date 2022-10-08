@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Bíblia</string>
   <string name="app_name_medium">Bíblia (And Bible)</string>
-  <string name="app_name_long">Aplicação para estudo da Bíblia, por And Bible Open Source Project</string>
+  <string name="app_name_long">AndBible: Estudo Biblico</string>
   <string name="project">Projeto Open Source And Bible</string>
   <string name="version_text">Versão %s</string>
   <string name="no_sdcard_error">Insira um cartão SD e reinicie a aplicação.</string>
@@ -205,7 +205,6 @@
   <string name="next">Próximo</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Por favor instale os dicionários Strong em Hebraico e Grego</string>
-  <string name="no_indexed_bible_with_strongs_ref">Você deve fazer o download de uma bíblia contendo números do dicionário Strong e fazer o download do índice através da Pesquisa</string>
   <string name="morph_robinson_not_installed">Faça o download do dicionário \'Robinson\'s Morphological Analysis Codes\' (em inglês)</string>
   <string name="go_to_downloads">Ir para Downloads</string>
   <!--Module download-->

@@ -1,25 +1,25 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.navigation
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -31,6 +31,7 @@ import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
 import net.bible.service.common.CommonUtils
+import org.crosswire.jsword.passage.KeyUtil
 
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -99,12 +100,20 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
             -1
         }
 
+        val bookColorAndGroup = GridChoosePassageBook.getBookColorAndGroup(book.ordinal)
+        val currentVerse = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.singleKey as Verse
+
         val keys = ArrayList<ButtonInfo>()
         for (i in 1..verses) {
             val buttonInfo = ButtonInfo()
             // this is used for preview
             buttonInfo.id = i
             buttonInfo.name = Integer.toString(i)
+            if (i == currentVerse.verse && chapterNo == currentVerse.chapter && book == currentVerse.book) {
+                buttonInfo.tintColor = bookColorAndGroup.Color
+                buttonInfo.textColor = Color.DKGRAY
+            }
+
             keys.add(buttonInfo)
         }
         return keys

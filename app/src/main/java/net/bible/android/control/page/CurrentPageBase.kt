@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.page
 
@@ -21,6 +20,8 @@ import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.Dialogs
@@ -91,14 +92,14 @@ abstract class CurrentPageBase protected constructor(
     /** notify mediator that page has changed and a lot of things need to update themselves
      */
     private fun beforePageChange() {
-        PassageChangeMediator.getInstance().onBeforeCurrentPageChanged()
+        PassageChangeMediator.onBeforeCurrentPageChanged()
     }
 
     /** notify mediator that page has changed and a lot of things need to update themselves
      */
     private fun pageChange() {
         if (!isInhibitChangeNotifications) {
-            PassageChangeMediator.getInstance().onCurrentPageChanged()
+            PassageChangeMediator.onCurrentPageChanged()
         }
     }
 
@@ -140,6 +141,7 @@ abstract class CurrentPageBase protected constructor(
         }
 
         annotateKey = frag.annotateRef
+        ABEventBus.post(CurrentVerseChangedEvent())
 
         OsisDocument(
             book = currentDocument,
@@ -260,7 +262,7 @@ abstract class CurrentPageBase protected constructor(
                 } catch (e: Exception) {
                     Log.e(TAG, "Key $keyName not be loaded from $document", e)
                     if(e !is NoSuchKeyException) {
-                        Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+                        Dialogs.showErrorMsg(R.string.error_occurred, e)
                     }
                 }
             }

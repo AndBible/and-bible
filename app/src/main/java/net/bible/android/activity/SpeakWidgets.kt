@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.activity
@@ -40,7 +39,6 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.DaggerActivityComponent
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
@@ -79,11 +77,11 @@ class SpeakWidgetManager {
         DaggerActivityComponent.builder()
                 .applicationComponent(BibleApplication.application.applicationComponent)
                 .build().inject(this)
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
 
     fun destroy() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         instance = null
     }
 
@@ -263,7 +261,7 @@ class SpeakWidgetManager {
         }
 
         override fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-            Log.i(TAG, "setuWidget (speakWidget)")
+            Log.i(TAG, "setupWidget (speakWidget)")
 
             val views = RemoteViews(context.packageName, R.layout.speak_widget)
             views.setTextViewText(R.id.statusText, "- ${app.getString(R.string.speak_status_stopped)} -")
@@ -271,13 +269,6 @@ class SpeakWidgetManager {
             fun setupButton(action: String, button: Int, visible: Int) {
                 val intent = Intent(context, javaClass)
                 intent.action = action
-                if(action== ACTION_SPEAK) {
-                    val book = speakControl.currentlyPlayingBook
-                    val verse = speakControl.currentlyPlayingVerse
-                    if(speakControl.isPaused && book != null && verse != null) {
-                        intent.data = Uri.parse("bible://${book.initials}/${verse.osisRef}")
-                    }
-                }
                 val bc = PendingIntent.getBroadcast(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
                 views.setOnClickPendingIntent(button, bc)
                 views.setViewVisibility(button, visible)
@@ -318,20 +309,8 @@ class SpeakWidgetManager {
         override fun onReceive(context: Context?, intent: Intent?) {
             super.onReceive(context, intent)
             Log.i(TAG, "onReceive $context ${intent?.action}")
-            val action = intent?.action
-            val bookRef = intent?.data?.host
-            val osisRef = intent?.data?.path?.removePrefix("/")
-            when (action) {
-                ACTION_SPEAK -> {
-                    if(!speakControl.isPaused && !speakControl.isSpeaking && bookRef != null && osisRef!=null) {
-                        // if application has been stopped and intent has bible reference,
-                        // start playback from the correct position
-                        speakControl.speakBible(bookRef, osisRef)
-                    }
-                    else {
-                        speakControl.toggleSpeak()
-                    }
-                }
+            when (intent?.action) {
+                ACTION_SPEAK -> speakControl.toggleSpeak(preferLast = true)
                 ACTION_REWIND -> speakControl.rewind()
                 ACTION_FAST_FORWARD -> speakControl.forward()
                 ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)

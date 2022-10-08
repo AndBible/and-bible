@@ -1,6 +1,6 @@
 <b>Powerful Bible Study tool</b>
 
-Bible Study app by And Bible Open Source Project is a powerful, yet easy to use, offline Bible study application for Android. The app does not aim to be simply a Bible reader, but focuses on being an advanced tool to do in-depth personal Bible study.
+"AndBible: Bible Study" is a powerful, yet easy to use, offline Bible study application for Android. The app does not aim to be simply a Bible reader, but focuses on being an advanced tool to do in-depth personal Bible study.
 
 This application is developed by Bible readers, for Bible readers. It aims at helping you make your Bible study convenient, deep and fun. The best part about this non-profit community project is that it is open-source, completely free, and contains no advertisements. Having been built from the ground up for Android, it is a small download, and therefore very efficient and remarkably fast.
 

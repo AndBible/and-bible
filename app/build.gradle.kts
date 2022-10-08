@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
@@ -22,7 +39,7 @@ val discreteFlavor = "discrete"
 // release in 2010 for continuity of updates for existing users.
 val applicationIdStandard = "net.bible.android.activity"
 // An alternative applicationId, to be used for the "discrete" flavor.
-val applicationIdDiscrete = "com.example.ToDo"
+val applicationIdDiscrete = "com.app.calculator"
 
 
 fun getGitHash(): String =
@@ -115,13 +132,13 @@ tasks.named("preBuild").configure { dependsOn(buildLoaderJs) }
 tasks.named("check").configure { dependsOn(jsTests) }
 
 android {
-    compileSdk = 31
+    compileSdk = 33
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         applicationId = applicationIdStandard
         minSdk =21
-        targetSdk = 31
+        targetSdk = 33
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
@@ -237,6 +254,7 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    namespace = "net.bible.android.activity"
 
 }
 
@@ -263,45 +281,40 @@ dependencies {
     val roomVersion: String by rootProject.extra
 
     implementation(project(":db"))
-    // Appcompat:
-    // 1.2.0+ releases (until 1.3.0-alpha02 at least) have issue with translations
-    // not showing up on MainBibleActivity. Thus reverting to 1.0.2 for now.
-    // https://issuetracker.google.com/issues/141132133
-    implementation("androidx.appcompat:appcompat:1.4.1")
+    implementation("androidx.appcompat:appcompat:1.6.0-rc01")
 
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
-    implementation("androidx.media:media:1.5.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
-    implementation("androidx.core:core-ktx:1.7.0")
+    implementation("androidx.media:media:1.6.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.preference:preference:1.2.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("androidx.webkit:webkit:1.4.0")
+    implementation("androidx.webkit:webkit:1.5.0")
+    implementation("net.objecthunter:exp4j:0.4.8")
 
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 
     //implementation("com.jaredrummler:colorpicker:1.1.0")
     implementation("com.github.AndBible:ColorPicker:ab-fix-1")
 
-    implementation("com.google.android.material:material:1.5.0")
-
-    // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
-    implementation("androidx.annotation:annotation:1.3.0")
+    implementation("com.google.android.material:material:1.6.1")
 
     implementation("androidx.room:room-runtime:$roomVersion")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
     implementation("com.madgag.spongycastle:core:1.58.0.0")
     //implementation("com.madgag.spongycastle:prov:1.58.0.0")
     //implementation("com.madgag.spongycastle:pkix:1.58.0.0")
     //implementation("com.madgag.spongycastle:pg:1.58.0.0")
 
-    implementation("com.google.dagger:dagger:2.40.5")
-    annotationProcessor("com.google.dagger:dagger-compiler:2.40.5")
-    kapt("com.google.dagger:dagger-compiler:2.40.5")
+    val daggerVersion = "2.44"
+    implementation("com.google.dagger:dagger:$daggerVersion")
+    annotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
+    kapt("com.google.dagger:dagger-compiler:$daggerVersion")
 
     implementation("de.greenrobot:eventbus:2.4.1")
 
@@ -318,7 +331,7 @@ dependencies {
 
     // TESTS
     //testImplementation("com.github.AndBible:robolectric:4.3.1-andbible3")
-    testImplementation("org.robolectric:robolectric:4.6.1")
+    testImplementation("org.robolectric:robolectric:4.9")
     //testImplementation("org.robolectric:shadows-multidex:4.3.1")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("org.hamcrest:hamcrest-library:2.2")

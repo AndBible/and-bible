@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page
@@ -140,7 +139,7 @@ import org.crosswire.jsword.index.search.SearchType
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
 
-const val MAX_DOC_STR_LENGTH = 1000000;
+const val MAX_DOC_STR_LENGTH = 4000000;
 
 @Serializable
 class Selection(val bookInitials: String?, val startOrdinal: Int,
@@ -232,7 +231,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @Volatile private var htmlLoadingOngoing: Boolean = true
         set(value) {
             if(value != field) {
-                ABEventBus.getDefault().post(if (value) IncrementBusyCount() else DecrementBusyCount())
+                ABEventBus.post(if (value) IncrementBusyCount() else DecrementBusyCount())
             }
             field = value
         }
@@ -667,9 +666,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         set(value) {
             if(value == field) return
             if(value) {
-                ABEventBus.getDefault().register(this)
+                ABEventBus.register(this)
             } else {
-                ABEventBus.getDefault().unregister(this)
+                ABEventBus.unregister(this)
             }
             field = value
         }
@@ -984,7 +983,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         this.firstDocument = document
         synchronized(this) {
             var docStr = document.asJson
-            // Ps 119 in KJV is only 70k. Let's give gracefully max 500k until we give "page too large" error.
+            // Ps 119 in KJV is only 70k. Let's give gracefully max 4000k until we give "page too large" error.
             // Our BibleView.js will freeze and eventually OOM-crash with ridiculously large documents.
             if(docStr.length > MAX_DOC_STR_LENGTH) {
                 Log.e(TAG, "Page is too large to be shown, showing error instead, ${docStr.length}")
@@ -1470,7 +1469,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
         if(isActive) {
-            PassageChangeMediator.getInstance().onCurrentVerseChanged(window)
+            PassageChangeMediator.onCurrentVerseChanged(window)
         }
     }
 

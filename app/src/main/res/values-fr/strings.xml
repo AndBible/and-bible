@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Bible Study</string>
   <string name="app_name_medium">Bible Study (And Bible)</string>
-  <string name="app_name_long">Bible Study app, du projet à code source ouvert And Bible</string>
+  <string name="app_name_long">AndBible: la Bible</string>
   <string name="project">Projet Open source And Bible</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer l\'application.</string>
@@ -205,7 +205,6 @@
   <string name="next">Suivant</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Merci de télécharger un lexique Hébreu/Araméen et Grec de Strong</string>
-  <string name="no_indexed_bible_with_strongs_ref">Merci de télécharger une bible contenant les codes de Strong,  puis de télécharger son index via la page Rechercher</string>
   <string name="morph_robinson_not_installed">Merci de télécharger le lexique « Robinson\'s Morphological Analysis Codes »</string>
   <string name="go_to_downloads">Aller au téléchargements</string>
   <!--Module download-->

@@ -1,12 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
 <!-- Application text
 
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
+    <string name="app_name_calculator">Calculator</string>
+
     <string name="app_name_short">Bible Study</string>
     <string name="app_name_medium">Bible Study (And Bible)</string>
-    <string name="app_name_long">Bible Study app, by And Bible Open Source Project</string>
+    <string name="app_name_long">AndBible: Bible Study</string>
     <string name="project">And Bible Open Source Project</string>
 
     <string name="version_text">Version %s</string>
@@ -609,6 +628,15 @@
     <string name="backup_app_database">Share or Backup app database to…</string>
 
     <string name="backup_app">Share or Backup app (.apk file) to …</string>
+    <string name="application">Application</string>
+    <string name="database">Database</string>
+    <string name="documents">Documents</string>
+    <string name="application_info">Bible Study application file (.APK)</string>
+    <string name="database_info">Bookmarks, labels, notes, study pads, reading plans, workspaces etc.</string>
+    <string name="document_info">Bibles, commentaries, dictionaries, maps etc.</string>
+    <string name="share_or_backup_to">Share or backup to…</string>
+    <string name="restore_from">Restore from…</string>
+    <string name="restore">Restore</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
     <string name="restore_what">What do you want to restore?</string>
@@ -994,11 +1022,22 @@
     <string name="strongs_text_and_links">Text and Links</string>
     <string name="verse_tip">To select partial or many verses, you can long-press Bible text</string>
 
-    <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
     <string name="permission_required">Permission needed</string>
     <string name="labels_search_hint">Search</string>
     <string name="assing_labels_help6">Tap %s to show or hide filter labels text input.</string>
     <string name="assing_labels_help7">You can add quick filter button by pressing %s button.</string>
     <string name="assing_labels_help7_1">Tap each quick filter button to activate or deactivate them.</string>
     <string name="assing_labels_help8">Long-press quick filter button to remove it.</string>
+    <string name="progress_status_permission">To show notifications (download status, processing, speak status), we need your permission. </string>
+    <string name="prefs_discrete_mode">Discrete mode</string>
+    <string name="prefs_discrete_mode_desc">Hide religious symbols. Show calculator icon and name in launcher instead.</string>
+    <string name="prefs_persecution_cat">Settings for the persecuted</string>
+    <string name="prefs_show_calculator">Show calculator smoke screen</string>
+    <string name="prefs_show_calculator_desc">When launching app, show calculator app. You can set up your pin code to get into actual bible app. Default PIN is 1234, which can be changed with the "Calculator PIN" setting.</string>
+    <string name="prefs_calculator_pin">Calculator PIN</string>
+    <string name="prefs_calculator_pin_desc">PIN code to enter app, if smoke calculator is enabled. </string>
+    <string name="calc_division_by_zero">Division by zero is not allowed</string>
+    <string name="calc_wrong_format">Wrong Format</string>
+    <string name="calc_wrong_format_operand">Wrong Format. Operand Without any numbers?</string>
+
 </resources>

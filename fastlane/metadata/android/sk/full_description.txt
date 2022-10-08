@@ -1,6 +1,6 @@
 <b>Účinný nástroj na štúdium Biblie</b>
 
-Aplikácia Bible Study od And Bible Open Source Project je výkonná, ale ľahko použiteľná offline aplikácia na štúdium Biblie pre Android. Aplikácie nemá za cieľ len sprostredkovať čítanie Biblie, ale je pokročilým nástrojom na hlboké osobné štúdium Biblie.
+"AndBible: Bible Study" je výkonná, ale ľahko použiteľná offline aplikácia na štúdium Biblie pre Android. Aplikácia si nekladie za cieľ byť len čítačkou Biblie, ale zameriava sa na to, aby bola pokročilým nástrojom na hĺbkové osobné štúdium Biblie.
 
 Táto aplikácia je vyvinutá čitateľmi Biblie pre čitateľov Biblie. Cieľom je pomôcť vám urobiť štúdium Biblie pohodlným, hlbokým a zábavným. Najlepšie na tomto neziskovom komunitnom projekte je, že je s otvoreným kódom, úplne zadarmo a neobsahuje žiadne reklamy. Keďže bol vyvinutý od základu pre Android, je malá na sťahnutie, a preto aj veľmi efektívna a pozoruhodne rýchla.
 

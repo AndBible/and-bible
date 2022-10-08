@@ -1,25 +1,24 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.service.download
 
 import net.bible.android.activity.R
 import net.bible.android.control.download.repoIdentity
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
@@ -65,7 +64,7 @@ class DownloadManager(
             installer = installManager.getInstaller(repo)
             documents = if (installer == null) {
                 log.error("Error getting installer for repo $repo")
-                instance.showErrorMsg(R.string.error_occurred, Exception("Error getting installer for repo $repo"))
+                Dialogs.showErrorMsg(R.string.error_occurred, Exception("Error getting installer for repo $repo"))
                 emptyList()
             } else {
                 // Now we can get the list of books

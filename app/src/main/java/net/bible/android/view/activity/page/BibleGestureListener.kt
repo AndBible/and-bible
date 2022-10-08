@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page
@@ -49,7 +48,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
         // make it easier to swipe
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
@@ -63,7 +62,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         }
 
         // prevent interference with window separator drag - fast drags were causing a fling
-        if (!TouchOwner.getInstance().isTouchOwned) {
+        if (!TouchOwner.isTouchOwned) {
             // get distance between points of the fling
             val vertical = Math.abs(flingEv.y - e2.y).toDouble()
             val horizontal = Math.abs(flingEv.x - e2.x).toDouble()
@@ -102,7 +101,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
             // New scroll event
             scrollEv = MotionEvent.obtain(e1)
         }
-		ABEventBus.getDefault().post(BibleView.BibleViewTouched(onlyTouch = true))
+		ABEventBus.post(BibleView.BibleViewTouched(onlyTouch = true))
         if (e2.eventTime - scrollEv.eventTime > 1000) {
             // Too slow motion
             scrollEv = MotionEvent.obtain(e2)
@@ -130,9 +129,8 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         return false
     }
 
-
-    override fun onSingleTapUp(e: MotionEvent?): Boolean {
-        ABEventBus.getDefault().post(BibleView.BibleViewTouched(onlyTouch = true))
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        ABEventBus.post(BibleView.BibleViewTouched(onlyTouch = true))
         return super.onSingleTapUp(e)
     }
 

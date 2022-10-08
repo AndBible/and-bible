@@ -1,15 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="645"
-    android:versionName="4.0.645">
+    android:versionCode="655"
+    android:versionName="4.0.655">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- allow use on Google TV -->
     <uses-feature
@@ -31,11 +48,18 @@
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
-        <activity
-            android:name=".StartupActivity"
+
+        <activity android:name=".StartupActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:icon="@mipmap/ic_launcher" />
+
+        <activity-alias
+            android:name="net.bible.android.view.activity.Bible"
+            android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name_short"
+            android:targetActivity=".StartupActivity"
             android:exported="true"
+            android:enabled="true"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,7 +67,23 @@
                 <!-- see Samsung multi-window info at bottom -->
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+        <activity-alias
+            android:name="net.bible.android.view.activity.Calculator"
+            android:icon="@drawable/ic_baseline_calculate_24"
+            android:label="@string/app_name_calculator"
+            android:enabled="false"
+            android:exported="true"
+            android:targetActivity=".StartupActivity"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <!-- see Samsung multi-window info at bottom -->
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
         <activity
             android:name="net.bible.android.view.activity.page.MainBibleActivity"
             android:configChanges="keyboard|navigation|keyboardHidden|screenSize|locale"
@@ -230,6 +270,10 @@
                 <data android:mimeType="application/zip" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="net.bible.android.view.activity.discrete.CalculatorActivity"
+            android:label="@string/app_name_calculator"
+            />
 
         <service
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService"

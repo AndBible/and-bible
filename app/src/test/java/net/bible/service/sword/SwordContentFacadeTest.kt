@@ -1,5 +1,23 @@
+/*
+ * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 package net.bible.service.sword
 
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.misc.elementToString
 import net.bible.android.view.activity.page.Selection
@@ -23,7 +41,7 @@ import org.junit.Assert.assertThat
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk=[28])
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class SwordContentFacadeTest {
 
     //@Before
@@ -93,7 +111,7 @@ class SwordContentFacadeTest {
         val html = try {
             SwordContentFacade.readOsisFragment(esv, verse)
         } catch (e: Exception) {
-            if(e is OsisError) "fixed" else "broken"
+            if (e is OsisError) "fixed" else "broken"
         }
         assertThat(html, not(equalTo("broken")))
     }
@@ -103,13 +121,13 @@ class SwordContentFacadeTest {
     fun testReadEsvIssue141b() {
         val esv = getBook("ESV2011")
 
-        for(i in 1..35) {
+        for (i in 1..35) {
             val verse = getVerse(esv, "Matt.18.$i")
 
             val html = try {
                 SwordContentFacade.readOsisFragment(esv, verse)
             } catch (e: Exception) {
-                if(e is OsisError) "fixed" else "broken"
+                if (e is OsisError) "fixed" else "broken"
             }
             assertThat(html, not(equalTo("broken")))
         }
@@ -128,22 +146,23 @@ class SwordContentFacadeTest {
 }
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk=[28])
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class TestShare {
-    private fun testShare(initials: String,
-                          verseRangeStr: String,
-                          offsetRange: IntRange,
-                          showVerseNumbers: Boolean,
-                          showWholeVerse: Boolean,
-                          compareText: String,
-                          advertiseApp: Boolean = false,
-                          showReference: Boolean = true,
-                          showReferenceAtFront:Boolean = false,
-                          abbreviateReference: Boolean = true,
-                          showNotes: Boolean = true,
-                          showVersion: Boolean = true,
-                          showEllipsis: Boolean = true,
-                          showQuotes: Boolean = true
+    private fun testShare(
+        initials: String,
+        verseRangeStr: String,
+        offsetRange: IntRange,
+        showVerseNumbers: Boolean,
+        showWholeVerse: Boolean,
+        compareText: String,
+        advertiseApp: Boolean = false,
+        showReference: Boolean = true,
+        showReferenceAtFront: Boolean = false,
+        abbreviateReference: Boolean = true,
+        showNotes: Boolean = true,
+        showVersion: Boolean = true,
+        showEllipsis: Boolean = true,
+        showQuotes: Boolean = true
     ) {
 
         val book = Books.installed().getBook(initials) as SwordBook
@@ -151,14 +170,17 @@ class TestShare {
         val verseRange = VerseRangeFactory.fromString(v11n, verseRangeStr)
 
 
-        val sel = Selection(initials,
+        val sel = Selection(
+            initials,
             verseRange.start.ordinal,
             offsetRange.first,
             verseRange.end.ordinal,
             offsetRange.last,
-            emptyList())
+            emptyList()
+        )
 
-        val text = SwordContentFacade.getSelectionText(sel,
+        val text = SwordContentFacade.getSelectionText(
+            sel,
             showVerseNumbers = showVerseNumbers,
             showSelectionOnly = !showWholeVerse,
             showReference = showReference,
@@ -175,61 +197,70 @@ class TestShare {
     }
 
     @Test
-    fun testShare1a()  =
-        testShare("ESV2011", "Ps.83.1", 7..30, true, false,
+    fun testShare1a() =
+        testShare(
+            "ESV2011", "Ps.83.1", 7..30, true, false,
             "“...do not keep silence; do...” (Psa 83:1, ESV2011)"
         )
 
     @Test
-    fun testShare2a()  =
-        testShare("ESV2011", "Ps.83.1", 7..30, false, false,
+    fun testShare2a() =
+        testShare(
+            "ESV2011", "Ps.83.1", 7..30, false, false,
             "“...do not keep silence; do...” (Psa 83:1, ESV2011)"
         )
 
     @Test
-    fun testShare3a()  =
-        testShare("ESV2011", "Ps.83.1", 7..30, true, true,
+    fun testShare3a() =
+        testShare(
+            "ESV2011", "Ps.83.1", 7..30, true, true,
             "“O God, do not keep silence; do not hold your peace or be still, O God!” (Psa 83:1, ESV2011)"
         )
 
     @Test
-    fun testShare4a()  =
-        testShare("ESV2011", "Ps.83.1", 7..30, false, true,
+    fun testShare4a() =
+        testShare(
+            "ESV2011", "Ps.83.1", 7..30, false, true,
             "“O God, do not keep silence; do not hold your peace or be still, O God!” (Psa 83:1, ESV2011)"
         )
 
 
     @Test
-    fun testShare1()  =
-        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, false,
+    fun testShare1() =
+        testShare(
+            "ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, false,
             "“1. ...do not keep silence; do not hold your peace or be still, O God! 2. For behold, " +
                 "your enemies make ...” (Psa 83:1-2, ESV2011)"
         )
 
     @Test
-    fun testShare2()  =
-        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, false, false,
+    fun testShare2() =
+        testShare(
+            "ESV2011", "Ps.83.1-Ps.83.2", 7..30, false, false,
             "“...do not keep silence; do not hold your peace or be still, O God! For behold, " +
                 "your enemies make ...” (Psa 83:1-2, ESV2011)"
         )
 
     @Test
-    fun testShare3()  =
-        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, true,
+    fun testShare3() =
+        testShare(
+            "ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, true,
             "“1. O God, do not keep silence; do not hold your peace or be still, O God! 2. For behold, your " +
                 "enemies make an uproar; those who hate you have raised their heads.” (Psa 83:1-2, ESV2011)"
         )
 
     @Test
-    fun testShare4()  =
-        testShare("ESV2011", "Ps.83.1-Ps.83.2", 7..30, false, true,
+    fun testShare4() =
+        testShare(
+            "ESV2011", "Ps.83.1-Ps.83.2", 7..30, false, true,
             "“O God, do not keep silence; do not hold your peace or be still, O God! For behold, your " +
                 "enemies make an uproar; those who hate you have raised their heads.” (Psa 83:1-2, ESV2011)"
         )
 
     @Test
-    fun testShare5()  =
-        testShare("ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, true,
+    fun testShare5() =
+        testShare(
+            "ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, true,
             "“23. And he went and lived in a city called Nazareth, so that what was spoken " +
                 "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
                 "John the Baptist came preaching in the wilderness of Judea, 2. Repent, for the kingdom " +
@@ -237,29 +268,35 @@ class TestShare {
         )
 
     @Test
-    fun testShare6()  =
-        testShare("ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, false,
+    fun testShare6() =
+        testShare(
+            "ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, false,
             "“23. ...went and lived in a city called Nazareth, so that what was spoken " +
                 "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
                 "John the Baptist came preaching in the wilderness of Judea, 2. Repent, for...” (Mat 2:23-3:2, ESV2011)"
         )
+
     @Test
-    fun testShare7()  =
-        testShare("ESV2011", "Ps.43.1-Ps.43.3", 0..100, true, false,
+    fun testShare7() =
+        testShare(
+            "ESV2011", "Ps.43.1-Ps.43.3", 0..100, true, false,
             "“1. Vindicate me, O God, and defend my cause against an ungodly people, from the deceitful and unjust " +
                 "man deliver me! 2. For you are the God in whom I take refuge; why have you rejected me? Why do I go about " +
                 "mourning because of the oppression of the enemy? 3. Send out your light and your truth; let them lead " +
                 "me; let them bring me to your holy hill and to you...” (Psa 43:1-3, ESV2011)"
         )
+
     @Test
-    fun testShare8()  =
-        testShare("KJV", "Ps.43.1-Ps.43.3", 0..100, false, true,
+    fun testShare8() =
+        testShare(
+            "KJV", "Ps.43.1-Ps.43.3", 0..100, false, true,
             "“Judge me, O God, and plead my cause against an ungodly nation: O deliver me from the deceitful and unjust man. " +
                 "For thou art the God of my strength: why dost thou cast me off? why go I mourning because of the oppression of the enemy? " +
                 "O send out thy light and thy truth: let them lead me; let them bring me unto thy holy hill, and to thy tabernacles.” (Psa 43:1-3, KJV)"
         )
+
     @Test
-    fun testShare9()  =
+    fun testShare9() =
         testShare(
             initials = "KJV",
             verseRangeStr = "Ps.43.1",
@@ -274,9 +311,10 @@ class TestShare {
             showVerseNumbers = false,
             showQuotes = false,
             showNotes = true
-            )
+        )
+
     @Test
-    fun testShare10()  =
+    fun testShare10() =
         testShare(
             initials = "KJV",
             verseRangeStr = "Ps.43.1",
@@ -292,8 +330,9 @@ class TestShare {
             showQuotes = true,
             showNotes = true
         )
+
     @Test
-    fun testShare11()  =
+    fun testShare11() =
         testShare(
             initials = "KJV",
             verseRangeStr = "Ps.43.1",
@@ -310,8 +349,9 @@ class TestShare {
             showEllipsis = false,
             showNotes = false
         )
+
     @Test
-    fun testShare12()  =
+    fun testShare12() =
         testShare(
             initials = "KJV",
             verseRangeStr = "Ps.43.1",

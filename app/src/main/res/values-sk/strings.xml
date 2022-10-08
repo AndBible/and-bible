@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Štúdium Biblie</string>
   <string name="app_name_medium">Štúdium Biblie (And Bible)</string>
-  <string name="app_name_long">Aplikácia pre štúdium Biblie od And Bible Open Source Project</string>
+  <string name="app_name_long">AndBible: Bible Study</string>
   <string name="project">And Bible Open Source Project</string>
   <string name="version_text">Verzia %s</string>
   <string name="no_sdcard_error">Prosím vložte SD kartu a reštartujte aplikáciu.</string>
@@ -172,6 +172,8 @@
   <string name="pref_font_family_label_name">Typ písma (%s)</string>
   <string name="prefs_font_family_summary">Zmena typu písma. Rada: ďalšie písma môžu byť nainštalované cez Stiahnuť dokumenty / doplnky</string>
   <string name="prefs_text_bookmarks_title">Nastavenie Záložiek a Mojich poznámok</string>
+  <string name="prefs_enable_bluetooth_title">Povoliť Bluetooth mediálne tlačidlá</string>
+  <string name="prefs_enable_bluetooth_summary">Ovládať spustenie/zastavenie predčítavania pomocou bluetooth mediálne tlačidlá</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Nastavenia farieb</string>
   <string name="window_color_settings_title">Nastavenie farieb okna</string>
@@ -207,7 +209,7 @@
   <string name="next">Ďalšia</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Prosím stiahnite Strongov hebrejský a grécky slovník</string>
-  <string name="no_indexed_bible_with_strongs_ref">Je potrebné stiahnuť Bibliu obsahujúcu Strongove čísla a tiež stiahnuť k nej index pre vyhľadávanie</string>
+  <string name="no_indexed_bible_with_strongs_ref">Musíte si stiahnuť Bibliu obsahujúci Strongové čísla a vytvoriť ich index cez Hľadanie</string>
   <string name="morph_robinson_not_installed">Prosím stiahnite si slovník - Robinsonov Morfologický Analytický Kódex</string>
   <string name="go_to_downloads">Prejsť do sťahovania</string>
   <!--Module download-->

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.speak
@@ -54,6 +53,8 @@ import javax.inject.Inject
 
 import dagger.Lazy
 import de.greenrobot.event.EventBus
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
 
@@ -102,10 +103,10 @@ class SpeakControl @Inject constructor(
         }
 
     val isSpeaking: Boolean
-        get() = booksAvailable && ttsInitialized && ttsServiceManager.isSpeaking
+        get() = booksAvailable && ttsServiceManager.isSpeaking
 
     val isPaused: Boolean
-        get() = booksAvailable && ttsInitialized && ttsServiceManager.isPaused
+        get() = booksAvailable && ttsServiceManager.isPaused
 
     val isStopped: Boolean
         get() = !isSpeaking && !isPaused
@@ -122,14 +123,15 @@ class SpeakControl @Inject constructor(
         } else {
             Date(timerTask!!.scheduledExecutionTime())
         }
-    val currentlyPlayingBook: Book?
+
+    private val currentlyPlayingBook: Book?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingBook
 
-    val currentlyPlayingVerse: Verse?
+    private val currentlyPlayingVerse: Verse?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingVerse
 
     init {
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         MediaButtonHandler.initialize(this)
     }
 
@@ -201,7 +203,7 @@ class SpeakControl @Inject constructor(
                 && range.end.ordinal >= currentVerse.ordinal)) {
             settings.playbackSettings.verseRange = null
             settings.save()
-            ABEventBus.getDefault().post(ToastEvent(
+            ABEventBus.post(ToastEvent(
                 messageId = R.string.verse_range_mode_disabled,
                 duration = Toast.LENGTH_LONG
             ))
@@ -211,7 +213,8 @@ class SpeakControl @Inject constructor(
 
     /** Toggle speech - prepare to speak single page OR if speaking then stop speaking
      */
-    fun toggleSpeak() {
+    @JvmOverloads
+    fun toggleSpeak(preferLast: Boolean = false) {
         Log.i(TAG, "Speak toggle current page")
         // Continue
         when {
@@ -224,31 +227,38 @@ class SpeakControl @Inject constructor(
                 // Start Speak
             }
             else -> {
-                if (!booksAvailable) {
-                    EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
-                    return
-                }
-                try {
-                    val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
-                    if(!page.isSpeakable) {
-                        EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
-                        return
-                    }
-                    val fromBook = page.currentDocument
-                    if (fromBook?.bookCategory == BookCategory.BIBLE) {
-                        resetPassageRepeatIfOutsideRange()
-                        speakBible()
-                    } else {
-                        speakText()
-                    }
-
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error getting chapters to speak", e)
-                    EventBus.getDefault().post(ToastEvent(R.string.speak_general_error))
-                    return
-                }
-
+                if(preferLast)
+                    continueLastPosition()
+                else
+                    startSpeakingFromDefault()
             }
+        }
+    }
+
+    private fun startSpeakingFromDefault() {
+        Log.i(TAG, "startSpeakingFromDefault")
+        if (!booksAvailable) {
+            ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
+            return
+        }
+        try {
+            val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
+            if(!page.isSpeakable) {
+                ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
+                return
+            }
+            val fromBook = page.currentDocument
+            if (fromBook?.bookCategory == BookCategory.BIBLE) {
+                resetPassageRepeatIfOutsideRange()
+                speakBible()
+            } else {
+                speakText()
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting chapters to speak", e)
+            ABEventBus.post(ToastEvent(R.string.speak_general_error))
+            return
         }
     }
 
@@ -324,10 +334,10 @@ class SpeakControl @Inject constructor(
 
     }
 
-    fun speakBible() {
+    private fun speakBible() {
         val page = speakPageManager.currentPage
         if(!page.isSpeakable) {
-            EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
+            ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
             return
         }
         speakBible(page.singleKey as Verse)
@@ -337,7 +347,7 @@ class SpeakControl @Inject constructor(
         speakBible(currentBook as SwordBook, verse)
     }
 
-    fun speakBible(bookRef: String, osisRef: String) {
+    private fun speakBible(bookRef: String, osisRef: String) {
         val book = Books.installed().getBook(bookRef) as SwordBook
 
         try {
@@ -361,7 +371,7 @@ class SpeakControl @Inject constructor(
         if (isSpeaking || isPaused) {
             Log.i(TAG, "Rewind TTS speaking")
             ttsServiceManager.rewind(amount)
-            ABEventBus.getDefault().post(ToastEvent(R.string.rewind))
+            ABEventBus.post(ToastEvent(R.string.rewind))
         }
     }
 
@@ -369,7 +379,7 @@ class SpeakControl @Inject constructor(
         if (isSpeaking || isPaused) {
             Log.i(TAG, "Forward TTS speaking")
             ttsServiceManager.forward(amount)
-            ABEventBus.getDefault().post(ToastEvent(R.string.forward))
+            ABEventBus.post(ToastEvent(R.string.forward))
         }
     }
 
@@ -400,13 +410,34 @@ class SpeakControl @Inject constructor(
             }
 
             if (!willContinueAfterThis && toast) {
-                ABEventBus.getDefault().post(ToastEvent(pauseToastText))
+                ABEventBus.post(ToastEvent(pauseToastText))
             }
+        }
+        saveCurrentPosition()
+    }
+
+    private fun saveCurrentPosition() {
+        val bookRef = currentlyPlayingBook?.initials
+        val osisRef = currentlyPlayingVerse?.osisRef
+        if(bookRef != null && osisRef != null) {
+            CommonUtils.settings.setString("lastSpeakBook",bookRef);
+            CommonUtils.settings.setString("lastSpeakRef",osisRef);
+        } else {
+            CommonUtils.settings.removeString("lastSpeakBook");
+            CommonUtils.settings.removeString("lastSpeakRef");
         }
     }
 
     fun continueAfterPause() {
         continueAfterPause(false)
+    }
+
+    fun continueLastPosition() {
+        val bookRef = CommonUtils.settings.getString("lastSpeakBook")
+        val osisRef = CommonUtils.settings.getString("lastSpeakRef")
+        Log.i(TAG, "continueLastPosition $bookRef $osisRef")
+        if(bookRef != null && osisRef != null) speakBible(bookRef, osisRef)
+        else startSpeakingFromDefault()
     }
 
     private fun continueAfterPause(automated: Boolean) {
@@ -418,7 +449,6 @@ class SpeakControl @Inject constructor(
     }
 
     fun stop(willContinueAfter: Boolean=false, force: Boolean=false) {
-        // Reset page manager
         if(!willContinueAfter) {
             _speakPageManager = null
         }
@@ -429,18 +459,24 @@ class SpeakControl @Inject constructor(
 
         Log.i(TAG, "Stop TTS speaking")
         ttsServiceManager.shutdown(willContinueAfter)
+        saveCurrentPosition()
         stopTimer()
         if(!force) {
-            ABEventBus.getDefault().post(ToastEvent(R.string.stop))
+            ABEventBus.post(ToastEvent(R.string.stop))
         }
     }
 
     private fun prepareForSpeaking() {
+        if(CommonUtils.isDiscrete) {
+            GlobalScope.launch {
+                CommonUtils.requestNotificationPermission()
+            }
+        }
         // ensure volume controls adjust correct stream - not phone which is the default
         // STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead:
         // http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
         CommonUtils.settings.setLong("speak-last-used", System.currentTimeMillis())
-        val activity = CurrentActivityHolder.getInstance().currentActivity
+        val activity = CurrentActivityHolder.currentActivity
         if (activity != null) {
             activity.volumeControlStream = AudioManager.STREAM_MUSIC
         }
@@ -477,7 +513,7 @@ class SpeakControl @Inject constructor(
         if (sleepTimerAmount > 0) {
             Log.i(TAG, "Activating sleep timer")
             val app = BibleApplication.application
-            ABEventBus.getDefault().post(ToastEvent(app.getString(R.string.sleep_timer_started, sleepTimerAmount)))
+            ABEventBus.post(ToastEvent(app.getString(R.string.sleep_timer_started, sleepTimerAmount)))
             timerTask = object : TimerTask() {
                 override fun run() {
                     pause(false, false)

@@ -1,19 +1,34 @@
+/*
+ * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 package net.bible.android.control.page.window
 
 
 import android.view.Menu
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.EventManager
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.device.speak.AbstractSpeakTests
 import net.bible.service.history.HistoryManager
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.test.DatabaseResetter
 import net.bible.test.PassageTestData
@@ -28,19 +43,12 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.hasItem
-import org.hamcrest.Matchers.isA
 import org.junit.After
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.reset
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyZeroInteractions
-import org.mockito.hamcrest.MockitoHamcrest.argThat
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
@@ -48,10 +56,8 @@ import org.robolectric.fakes.RoboMenu
 import javax.inject.Provider
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [28])
+@Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class WindowControlTest {
-    private var eventManager: EventManager? = null
-
     private var windowRepository: WindowRepository? = null
 
     private var windowControl: WindowControl? = null
@@ -59,22 +65,20 @@ class WindowControlTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        eventManager = mock(EventManager::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
         val mockCurrentPageManagerProvider = Provider { CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
-        windowControl = WindowControl(windowRepository!!, eventManager!!)
+        windowControl = WindowControl(windowRepository!!)
         windowRepository!!.initialize()
-        reset<EventManager>(eventManager)
         windowRepository!!.workspaceSettings.autoPin = true
         windowControl!!.activeWindow.isPinMode = true
     }
 
     @After
     fun tearDown() {
-        DatabaseResetter.resetDatabase()
+        DatabaseResetter.resetDatabase(windowRepository!!.windowUpdateScope)
     }
 
     @Test
@@ -157,8 +161,6 @@ class WindowControlTest {
         val biblePage = newWindow.pageManager.currentBible
         assertThat(biblePage.currentDocument, equalTo(PassageTestData.ESV))
         assertThat(biblePage.singleKey.name, equalTo(PassageTestData.PS_139_2.name))
-
-        verify<EventManager>(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent::class.java)))
     }
 
     @Test
@@ -177,12 +179,9 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun testMinimiseWindow() {
         val newWindow = windowControl!!.addNewWindow(windowControl!!.activeWindow)
-        reset<EventManager>(eventManager)
 
         windowControl!!.minimiseWindow(newWindow)
         assertThat<List<Window>>(windowRepository!!.visibleWindows, not(hasItem(newWindow)))
-
-        verify<EventManager>(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent::class.java)))
     }
 
     @Test
@@ -191,13 +190,11 @@ class WindowControlTest {
         val onlyWindow = windowControl!!.activeWindow
         windowControl!!.minimiseWindow(onlyWindow)
         assertThat<List<Window>>(windowRepository!!.visibleWindows, hasItem(onlyWindow))
-        verifyZeroInteractions(eventManager)
 
         // test still prevented if links window is visible
         windowRepository!!.dedicatedLinksWindow.windowState = WindowState.SPLIT
         windowControl!!.minimiseWindow(onlyWindow)
         assertThat<List<Window>>(windowRepository!!.visibleWindows, hasItem(onlyWindow))
-        verifyZeroInteractions(eventManager)
     }
 
 
@@ -223,12 +220,9 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun testCloseWindow() {
         val newWindow = windowControl!!.addNewWindow(windowControl!!.activeWindow)
-        reset<EventManager>(eventManager)
 
         windowControl!!.closeWindow(newWindow)
         assertThat(windowRepository!!.windows, not(hasItem(newWindow)))
-
-        verify<EventManager>(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent::class.java)))
     }
 
     @Test
@@ -237,8 +231,6 @@ class WindowControlTest {
         val onlyWindow = windowRepository!!.activeWindow
         windowControl!!.closeWindow(onlyWindow)
         assertThat(windowRepository!!.windows, hasItem(onlyWindow))
-
-        verifyZeroInteractions(eventManager)
     }
 
     @Test
@@ -248,8 +240,6 @@ class WindowControlTest {
         val onlyNormalWindow = windowRepository!!.activeWindow
         windowControl!!.closeWindow(onlyNormalWindow)
         assertThat(windowRepository!!.windows, hasItem(onlyNormalWindow))
-
-        verifyZeroInteractions(eventManager)
     }
 
     @Test
@@ -257,7 +247,6 @@ class WindowControlTest {
     fun testCloseActiveWindow() {
         val activeWindow = windowControl!!.activeWindow
         val newWindow = windowControl!!.addNewWindow(activeWindow)
-        reset<EventManager>(eventManager)
 
         windowControl!!.closeWindow(activeWindow)
         assertThat(windowRepository!!.activeWindow, equalTo(newWindow))
@@ -270,19 +259,16 @@ class WindowControlTest {
         val newWindow = windowControl!!.addNewWindow(activeWindow)
         windowControl!!.minimiseWindow(newWindow)
         assertThat<List<Window>>(windowRepository!!.visibleWindows, contains(activeWindow))
-        reset<EventManager>(eventManager)
 
         windowControl!!.restoreWindow(newWindow)
         assertThat<List<Window>>(windowRepository!!.visibleWindows, containsInAnyOrder(activeWindow, newWindow))
 
-        verify<EventManager>(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent::class.java)))
     }
 
     @Test
     @Throws(Exception::class)
     fun testOrientationChange() {
         windowControl!!.orientationChange()
-        verify<EventManager>(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent::class.java)))
     }
 
     @Test

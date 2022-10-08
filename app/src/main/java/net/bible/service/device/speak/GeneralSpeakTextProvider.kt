@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.service.device.speak
 
@@ -48,9 +47,9 @@ class GeneralSpeakTextProvider : SpeakTextProvider {
     private var keyList: List<Key>? = null
     override fun startUtterance(utteranceId: String) {
         if (keyList != null && keyList!!.size > 0) {
-            ABEventBus.getDefault().post(SpeakProgressEvent(book!!, keyList!![0],
+            ABEventBus.post(SpeakProgressEvent(book!!, keyList!![0],
                 TextCommand(currentText, TextCommand.TextType.NORMAL)))
-            ABEventBus.getDefault().post(SpeakProgressEvent(book!!, keyList!![0],
+            ABEventBus.post(SpeakProgressEvent(book!!, keyList!![0],
                 TextCommand(book!!.name, TextCommand.TextType.TITLE)))
         }
     }
@@ -67,13 +66,6 @@ class GeneralSpeakTextProvider : SpeakTextProvider {
     }
 
     override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {}
-    override fun getCurrentlyPlayingVerse(): Verse? {
-        return null
-    }
-
-    override fun getCurrentlyPlayingBook(): Book? {
-        return null
-    }
 
     override var isSpeaking: Boolean
         get() = false

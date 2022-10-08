@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Biblijos studijos</string>
   <string name="app_name_medium">Biblijos studijos (And Bible)</string>
-  <string name="app_name_long">Biblijos studijų programėlė, sukurta And Bible atvirojo kodo projekto</string>
+  <string name="app_name_long">AndBible: Biblija</string>
   <string name="project">And Bible atvirojo kodo projektas</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Įdėkite SD kortelę ir paleiskite programėlę iš naujo.</string>
@@ -170,6 +170,8 @@
   <string name="pref_font_family_label_name">Šriftas (%s)</string>
   <string name="prefs_font_family_summary">Pakeisti šriftą. Patarimas: galima įdiegti daugiau šriftų naudojant Atsisiųsti dokumentus / Papildiniai.</string>
   <string name="prefs_text_bookmarks_title">Žymių ir mano pastabų nustatymai</string>
+  <string name="prefs_enable_bluetooth_title">Įjungti Bluetooth medijos mygtukus</string>
+  <string name="prefs_enable_bluetooth_summary">Apdoroti Bluetooth medijos mygtukus siekiant pradėti/stabdyti kalbėjimą.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Spalvos nustatymai</string>
   <string name="window_color_settings_title">Lango spalvų nustatymai</string>
@@ -205,7 +207,7 @@
   <string name="next">Kitas</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Atsisiųskite Strongo hebrajų ir graikų žodynus</string>
-  <string name="no_indexed_bible_with_strongs_ref">Jums per „Paiešką“ reikia atsisiųsti Bibliją su Strongo numeriais, o taip pat ir jos indeksus</string>
+  <string name="no_indexed_bible_with_strongs_ref">Jūs privalote atsisiųsti Biblija su Strongo numeriais ir per paiešką sudaryti jos indeksą</string>
   <string name="morph_robinson_not_installed">Atsisiųskite žodyną „Robinson\'s Morphological Analysis Codes“</string>
   <string name="go_to_downloads">Pereiti į Atsiuntimus</string>
   <!--Module download-->

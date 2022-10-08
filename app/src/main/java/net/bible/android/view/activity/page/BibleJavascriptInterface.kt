@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page
@@ -94,7 +93,7 @@ class BibleJavascriptInterface(
     fun setLimitAmbiguousModalSize(value: Boolean) {
         Log.i(TAG, "setLimitAmbiguousModalSize")
         bibleView.workspaceSettings.limitAmbiguousModalSize = value
-        ABEventBus.getDefault().post(AppSettingsUpdated())
+        ABEventBus.post(AppSettingsUpdated())
     }
 
     @JavascriptInterface
@@ -163,7 +162,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun reportInputFocus(newValue: Boolean) {
         Log.i(TAG, "Focus mode now $newValue")
-        ABEventBus.getDefault().post(BibleViewInputFocusChanged(bibleView, newValue))
+        ABEventBus.post(BibleViewInputFocusChanged(bibleView, newValue))
     }
 
     @JavascriptInterface
@@ -236,7 +235,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun toast(text: String) {
-        ABEventBus.getDefault().post(ToastEvent(text))
+        ABEventBus.post(ToastEvent(text))
     }
 
     @JavascriptInterface
@@ -339,13 +338,13 @@ class BibleJavascriptInterface(
     fun setBookmarkWholeVerse(bookmarkId: Long, value: Boolean) {
         val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
         if(!value && bookmark.textRange == null) {
-            ABEventBus.getDefault().post(ToastEvent(R.string.cant_change_wholeverse))
+            ABEventBus.post(ToastEvent(R.string.cant_change_wholeverse))
             return
         }
         bookmark.wholeVerse = value
 
         bookmarkControl.addOrUpdateBookmark(bookmark)
-        if(value) ABEventBus.getDefault().post(ToastEvent(R.string.whole_verse_turned_on))
+        if(value) ABEventBus.post(ToastEvent(R.string.whole_verse_turned_on))
     }
 
     @JavascriptInterface
@@ -357,7 +356,7 @@ class BibleJavascriptInterface(
         } else {
             hideDocs.add(documentId)
         }
-        ABEventBus.getDefault().post(AppSettingsUpdated())
+        ABEventBus.post(AppSettingsUpdated())
     }
 
     @JavascriptInterface

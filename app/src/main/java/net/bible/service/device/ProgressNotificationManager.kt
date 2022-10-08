@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.device
@@ -29,6 +28,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.view.activity.download.ProgressStatus
+import net.bible.service.common.CommonUtils
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.progress.JobManager
@@ -68,7 +68,7 @@ class ProgressNotificationManager {
 
         workListener = object : WorkListener {
 
-            override fun workProgressed(ev: WorkEvent) {
+            override fun workProgressed(ev: WorkEvent) = synchronized(this) {
                 val prog = ev.job
                 val done = prog.work
                 progs.add(prog)
@@ -133,14 +133,21 @@ class ProgressNotificationManager {
         val pendingIntent = PendingIntent.getActivity(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         val builder = NotificationCompat.Builder(app, PROGRESS_NOTIFICATION_CHANNEL)
 
-        builder.setSmallIcon(R.drawable.ic_ichtys)
-                .setContentTitle(prog.jobName)
-                .setShowWhen(true)
-                .setContentIntent(pendingIntent)
-                .setProgress(100, prog.work, false)
-                .setOngoing(true)
-                .setAutoCancel(true)
-                .setOnlyAlertOnce(true)
+        builder
+            .setSmallIcon(R.drawable.ic_ichtys)
+            .setContentTitle(prog.jobName)
+            .setShowWhen(true)
+            .setContentIntent(pendingIntent)
+            .setProgress(100, prog.work, false)
+            .setOngoing(true)
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
+
+        if(CommonUtils.isDiscrete) {
+            builder
+                .setSmallIcon(R.drawable.ic_baseline_calculate_24)
+                .setContentTitle(app.getString(R.string.progress_status))
+            }
 
         val notification = builder.build()
 

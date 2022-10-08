@@ -1,24 +1,25 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.page.window
 
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
@@ -36,6 +37,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
@@ -54,6 +56,7 @@ open class WindowRepository @Inject constructor(
     private val historyManagerProvider: Provider<HistoryManager>,
 )
 {
+    val windowUpdateScope = CoroutineScope(Dispatchers.IO)
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
@@ -100,7 +103,7 @@ open class WindowRepository @Inject constructor(
         }
 
     init {
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
     }
 
     fun initialize() {
@@ -132,7 +135,7 @@ open class WindowRepository @Inject constructor(
             if (!initialized || newActiveWindow != this._activeWindow) {
                 _activeWindow = newActiveWindow
                 Log.i(TAG, "Active window: ${newActiveWindow}")
-                ABEventBus.getDefault().post(CurrentWindowChangedEvent(newActiveWindow))
+                ABEventBus.post(CurrentWindowChangedEvent(newActiveWindow))
             }
             _activeWindow?.bibleView?.requestFocus()
         }
@@ -322,7 +325,7 @@ open class WindowRepository @Inject constructor(
 
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.i(TAG, "saveIntoDb")
-        if(!initialized) return;
+        if(!CommonUtils.initialized) return;
         if(stopSpeak) _mainBibleActivity?.speakControl?.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()
@@ -403,7 +406,7 @@ open class WindowRepository @Inject constructor(
             historyManager.restoreFrom(window, dao.historyItems(it.id))
         }
         setDefaultActiveWindow()
-        ABEventBus.getDefault().post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun clear(destroy: Boolean = false) {
@@ -458,7 +461,7 @@ open class WindowRepository @Inject constructor(
                 }
             }
         }
-        ABEventBus.getDefault().post(AppSettingsUpdated())
+        ABEventBus.post(AppSettingsUpdated())
     }
 
     companion object {

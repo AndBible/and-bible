@@ -1,1 +1,1 @@
-Bible Study app, du projet opensource And Bible
+AndBible: La Bible

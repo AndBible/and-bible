@@ -1,6 +1,6 @@
 Galingas Biblijos studijavimo įrankis
 
-Biblijos Studijų programėlė, sukurta And Bible atvirojo kodo projekto - tai galinga, bet tuo pačiu metu lengva naudoti „Android“ Biblijos studijų programėlė, kuri nereikalauja interneto. Ši programėlė nesiekia būti paprasta Biblijos skaitytuve, bet verčiau yra sutelkta į tai, kad būtų išplėstiniu įrankiu, kuris yra skirtas išsamiai asmeniškai nagrinėti Bibliją.
+"AndBible: Biblija" tai galinga, bet tuo pačiu metu lengva naudoti „Android“ Biblijos studijų programėlė, kuri nereikalauja interneto. Ši programėlė nesiekia būti paprasta Biblijos skaitytuve, bet verčiau yra sutelkta į tai, kad būtų išplėstiniu įrankiu, kuris yra skirtas išsamiai asmeniškai nagrinėti Bibliją.
 
 Šią programėlę Biblijos skaitytojams sukūrė Biblijos skaitytojai. Jos tikslas - padėti jums patogiai, išsamiai ir linksmai nagrinėti Bibliją. Geriausia, kas yra šiame nekomerciniame bendruomenės projekte yra tai, jog jis yra atvirojo kodo, visiškai nemokamas ir be jokių reklamų. Kadangi ši programėlė nuo pat pradžių buvo kuriama „Android“ sistemai, ji yra mažo dydžio ir todėl, labai efektyvi bei išskirtinai greita.
 

@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Bibel+</string>
   <string name="app_name_medium">Bibel+ (And Bibel)</string>
-  <string name="app_name_long">Bibel+, vom And Bibel Open Source Projekt</string>
+  <string name="app_name_long">AndBible: Bibel+</string>
   <string name="project">And Bible Open Source Projekt</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Bitte setzen Sie eine SD-Karte ein und starten das Programm neu.</string>
@@ -170,6 +170,8 @@
   <string name="pref_font_family_label_name">Schriftart (%s)</string>
   <string name="prefs_font_family_summary">Die Schriftart ändern. Tipp: weitere Schriftarten können über Dokumente herunterladen/Addons installieren</string>
   <string name="prefs_text_bookmarks_title">Einstellungen für Lesezeichen &amp; eigene Notizen</string>
+  <string name="prefs_enable_bluetooth_title">Aktiviere Bluetooth-Mediensteuerung</string>
+  <string name="prefs_enable_bluetooth_summary">Verwende Tasten auf Bluetooth Gerät zum An- und Ausschalten des Vorlesens.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Farbeinstellungen</string>
   <string name="window_color_settings_title">Fensterfarben</string>
@@ -205,7 +207,7 @@
   <string name="next">Vorwärts</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Bitte laden Sie die Strong\'s Wörterbücher für Griechisch und Hebräisch herunter</string>
-  <string name="no_indexed_bible_with_strongs_ref">Sie müssen zuerst ein Bibelmodul mit Strongs Nummer sowie den Suchindex dazu herunterladen</string>
+  <string name="no_indexed_bible_with_strongs_ref">Du musst eine Bibelübersetzung mit inkludierten Strong-Nummern herunterladen und im Suchmenü die Indizierung durchführen</string>
   <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
   <string name="go_to_downloads">Gehe zu Downloads</string>
   <!--Module download-->
@@ -559,7 +561,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="error_no_content">Kein Inhalt für diesen Vers</string>
   <string name="error_page_too_large">Seite zu groß zum Laden</string>
   <string name="error_key_not_in_document">Nichts gefunden</string>
-  <string name="error_key_not_in_document2">%s wurde nicht in Dokumen %sgefunden.</string>
+  <string name="error_key_not_in_document2">%s wurde nicht in Dokumen %s gefunden.</string>
   <string name="empty_list">Nichts anzuzeigen</string>
   <string name="error_skip">Üerspringen</string>
   <!--Notifications-->

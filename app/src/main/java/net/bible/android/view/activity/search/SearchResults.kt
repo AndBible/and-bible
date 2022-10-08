@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.search
 
@@ -126,11 +125,11 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             msg = if (mCurrentlyDisplayedSearchResults.size >= SearchControl.MAX_SEARCH_RESULTS) {
                 getString(R.string.search_showing_first, SearchControl.MAX_SEARCH_RESULTS)
             } else {
-                getString(R.string.search_result_count, mSearchResultsHolder!!.size())
+                getString(R.string.search_result_count, mSearchResultsHolder!!.size)
             }
             withContext(Dispatchers.Main) {
-                var resultAmount = mSearchResultsHolder?.size().toString()
-                if(mSearchResultsHolder?.size()?:0 > SearchControl.MAX_SEARCH_RESULTS) {
+                var resultAmount = mSearchResultsHolder?.size.toString()
+                if((mSearchResultsHolder?.size ?: 0) > SearchControl.MAX_SEARCH_RESULTS) {
                     resultAmount += "+"
                 }
                 supportActionBar?.title = getString(R.string.search_with_results, resultAmount)
@@ -140,7 +139,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         } catch (e: Exception) {
             Log.e(TAG, "Error processing search query", e)
             isOk = false
-            Dialogs.instance.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
+            Dialogs.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
         return@withContext isOk
     }
@@ -166,7 +165,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             verseSelected(mCurrentlyDisplayedSearchResults[position])
         } catch (e: Exception) {
             Log.e(TAG, "Selection error", e)
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 

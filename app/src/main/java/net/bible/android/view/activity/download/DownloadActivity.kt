@@ -1,25 +1,27 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.download
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -36,7 +38,6 @@ import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.android.view.activity.installzip.InstallZip
@@ -63,6 +64,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.serializer
 import net.bible.android.database.SwordDocumentInfo
+import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.common.CommonUtils
 import net.bible.service.sword.isMyBibleBook
 
 /**
@@ -162,11 +165,15 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
+
         GlobalScope.launch {
+
             if (!askIfWantToProceed()) {
                 finish()
                 return@launch
             }
+
+            CommonUtils.requestNotificationPermission(this@DownloadActivity)
 
             withContext(Dispatchers.Default) {
                 withContext(Dispatchers.Main) {
@@ -345,7 +352,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
     private fun showTooManyJobsDialog() {
         Log.i(TAG, "Too many jobs:" + JobManager.getJobCount())
-        instance.showErrorMsg(R.string.too_many_jobs)
+        Dialogs.showErrorMsg(R.string.too_many_jobs)
     }
 
     private fun manageDownload(documentToDownload: Book?) {

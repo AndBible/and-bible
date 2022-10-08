@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.link
 
@@ -142,7 +141,7 @@ class LinkControl @Inject constructor(
         } else {
             val document = swordDocumentFacade.getDocumentByInitials(initials)
             if (document == null) { // tell user to install book
-                Dialogs.instance.showErrorMsg(R.string.document_not_installed, initials)
+                Dialogs.showErrorMsg(R.string.document_not_installed, initials)
             } else if(document.bookCategory == BookCategory.BIBLE && !forceDoc) {
                 return getBibleKey(ref, versification)
             } else if(document.isGreekDef || document.isHebrewDef) {
@@ -238,7 +237,7 @@ class LinkControl @Inject constructor(
         // possibly no Strong's bible or it has not been indexed
         var needToIndex = false
         if (strongsBible == null) {
-            Dialogs.instance.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
+            Dialogs.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
             return
         } else if (currentBible == strongsBible && !checkStrongs(currentBible)) {
             Log.i(TAG, "Index status is NOT DONE")
@@ -248,7 +247,7 @@ class LinkControl @Inject constructor(
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
         val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, biblesection, null)
         Log.i(TAG, "Search text:$searchText")
-        val activity = CurrentActivityHolder.getInstance().currentActivity
+        val activity = CurrentActivityHolder.currentActivity!!
         val searchParams = Bundle()
         searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
         searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page
@@ -34,12 +33,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.BibleApplication
+import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.report.BugReport
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.MainBibleActivityScope
@@ -52,7 +51,6 @@ import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.readingplan.DailyReading
-import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
@@ -76,6 +74,7 @@ constructor(private val callingActivity: MainBibleActivity,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
 ) {
+    private val isSamsung get() = BuildConfig.FLAVOR == "samsung"
     /**
      * on Click handlers
      */
@@ -131,9 +130,10 @@ constructor(private val callingActivity: MainBibleActivity,
                     val d = AlertDialog.Builder(callingActivity)
                         .setTitle(R.string.rate_title)
                         .setMessage(spanned)
-                        .setPositiveButton(R.string.proceed_google_play) {_, _ ->
+                        .setPositiveButton(if(isSamsung) R.string.okay else R.string.proceed_google_play) {_, _ ->
+                            val samsungUri = Uri.parse("samsungapps://AppRating/"+callingActivity.packageName)
                             val uri = Uri.parse("market://details?id=" + callingActivity.packageName)
-                            val intent = Intent(Intent.ACTION_VIEW, uri).apply{
+                            val intent = Intent(Intent.ACTION_VIEW, if(isSamsung) samsungUri else uri).apply{
                                 // To count with Play market backstack, After pressing back button,
                                 // to taken back to our application, we need to add following flags to intent.
                                 addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
@@ -142,8 +142,9 @@ constructor(private val callingActivity: MainBibleActivity,
                             try {
                                 callingActivity.startActivity(intent)
                             } catch (e: ActivityNotFoundException) {
+                                val httpSamsungUri = Uri.parse("https://apps.samsung.com/appquery/AppRating.as?appId=" +callingActivity.packageName)
                                 val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + callingActivity.packageName)
-                                callingActivity.startActivity(Intent(Intent.ACTION_VIEW, httpUri))
+                                callingActivity.startActivity(Intent(Intent.ACTION_VIEW, if(isSamsung) httpSamsungUri else httpUri))
                             }
                         }
                         .setNegativeButton(R.string.cancel, null)
@@ -235,13 +236,19 @@ constructor(private val callingActivity: MainBibleActivity,
                     val appName = callingActivity.getString(R.string.app_name_long)
                     val message1 = callingActivity.getString(R.string.tell_friend_message1, appName)
                     val message2 = callingActivity.getString(R.string.tell_friend_message2)
-                    val message3 = callingActivity.getString(R.string.tell_friend_message3, playstore)
+                    val playStoreLink = callingActivity.getString(R.string.tell_friend_message3, playstore)
                     val message4 = callingActivity.getString(R.string.tell_friend_message4, homepage)
 
-                    val message = """
+                    val message = if(isSamsung)
+                        """
                         $message1 $message2 
                         
-                        $message3 
+                        $message4
+                    """.trimIndent()
+                    else """
+                        $message1 $message2 
+                        
+                        $playStoreLink 
                         
                         $message4
                     """.trimIndent()

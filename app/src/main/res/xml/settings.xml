@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
 <!-- Preference configuration
  
  @author Martin Denham [mjdenham at gmail dot com]
@@ -114,6 +131,27 @@
 			android:defaultValue="true"
 			/>
 
+	</PreferenceCategory>
+
+	<PreferenceCategory android:title="@string/prefs_persecution_cat">
+		<SwitchPreferenceCompat android:key="discrete_mode"
+			android:title="@string/prefs_discrete_mode"
+			android:summary="@string/prefs_discrete_mode_desc"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_baseline_calculate_24"
+			/>
+		<SwitchPreferenceCompat android:key="show_calculator"
+			android:title="@string/prefs_show_calculator"
+			android:summary="@string/prefs_show_calculator_desc"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_baseline_calculate_24"
+			/>
+		<EditTextPreference android:key="calculator_pin"
+			android:title="@string/prefs_calculator_pin"
+			android:summary="@string/prefs_calculator_pin_desc"
+			android:defaultValue="1234"
+			android:icon="@drawable/ic_baseline_calculate_24"
+			/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
 		<SwitchPreferenceCompat android:key="enable_bluetooth_pref"
