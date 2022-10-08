@@ -24,7 +24,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -302,16 +301,13 @@ class TextToSpeechNotificationManager {
         val style = MediaStyle()
             .setShowActionsInCompactView(2)
 
-        MediaButtonHandler.handler?.ms?.sessionToken?.apply {
-            style.setMediaSession(this)
+        if(!CommonUtils.isDiscrete) {
+            MediaButtonHandler.handler?.ms?.sessionToken?.apply { style.setMediaSession(this) }
         }
 
         val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 
-        builder.setSmallIcon(R.drawable.ic_ichtys)
-                .setLargeIcon(bibleBitmap)
-                .setContentTitle(currentTitle)
-                .setSubText(speakControl.getStatusText(FLAG_SHOW_ALL))
+        builder
                 .setShowWhen(false)
                 .setDeleteIntent(deletePendingIntent)
                 .setContentIntent(contentPendingIntent)
@@ -323,15 +319,27 @@ class TextToSpeechNotificationManager {
                 .addAction(forwardAction)
                 .setOnlyAlertOnce(true)
 
+
+        if(CommonUtils.isDiscrete) {
+            builder
+                .setSmallIcon(R.drawable.ic_baseline_calculate_24)
+                .setContentTitle(getString(R.string.speak))
+        } else {
+            builder
+                .setSmallIcon(R.drawable.ic_ichtys)
+                .setLargeIcon(bibleBitmap)
+                .setContentTitle(currentTitle)
+                .setSubText(speakControl.getStatusText(FLAG_SHOW_ALL))
+        }
+
         val sleepTime = speakControl.sleepTimerActivationTime
         if(sleepTime!=null) {
             val minutes = (sleepTime.time - Calendar.getInstance().timeInMillis) / 60000
             builder.setContentText(app.getString(R.string.sleep_timer_active_at, minutes.toString()))
         }
-        else {
+        else if(!CommonUtils.isDiscrete) {
             builder.setContentText(currentText)
         }
-
 
         val notification = builder.build()
         Log.i(TAG, "Updating notification, isSpeaking: $isSpeaking")

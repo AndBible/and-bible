@@ -1028,7 +1028,7 @@
     <string name="assing_labels_help7">You can add quick filter button by pressing %s button.</string>
     <string name="assing_labels_help7_1">Tap each quick filter button to activate or deactivate them.</string>
     <string name="assing_labels_help8">Long-press quick filter button to remove it.</string>
-    <string name="progress_status_permission">To show progress status notification (download status, index processing etc), we need your permission. </string>
+    <string name="progress_status_permission">To show notifications (download status, processing, speak status), we need your permission. </string>
     <string name="prefs_discrete_mode">Discrete mode</string>
     <string name="prefs_discrete_mode_desc">Hide religious symbols. Show calculator icon and name in launcher instead.</string>
     <string name="prefs_persecution_cat">Settings for the persecuted</string>
