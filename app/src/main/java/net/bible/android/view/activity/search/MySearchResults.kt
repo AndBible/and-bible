@@ -32,6 +32,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchResultsDto
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.Key
@@ -39,7 +40,6 @@ import org.crosswire.jsword.passage.Verse
 import javax.inject.Inject
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
-import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.getBookTextColor
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.resources
 
@@ -230,7 +230,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
             val msg:String = if (mCurrentlyDisplayedSearchResults.size >= SearchControl.MAX_SEARCH_RESULTS) {
                 getString(R.string.search_showing_first, SearchControl.MAX_SEARCH_RESULTS)
             } else {
-                getString(R.string.search_result_count, mSearchResultsHolder!!.size())
+                getString(R.string.search_result_count, mSearchResultsHolder!!.size)
             }
             withContext(Dispatchers.Main) {
                 Toast.makeText(this@MySearchResults, msg, Toast.LENGTH_SHORT).show()
@@ -240,7 +240,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
         } catch (e: Exception) {
             Log.e(TAG, "Error processing search query", e)
             isOk = false
-            Dialogs.instance.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
+            Dialogs.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
         return@withContext isOk
     }
@@ -302,7 +302,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
             val bookNameLong = versification.getLongName(mBibleBook)  // key.rootName
             val bookStat = bookStatistics.firstOrNull { it.book == bookNameLong }
             if (bookStat == null) {
-                bookStatistics.add(BookStat(bookNameLong, 1, bookNameLong, bookOrdinal, listIndex, getBookTextColor(bookOrdinal) ))
+                bookStatistics.add(BookStat(bookNameLong, 1, bookNameLong, bookOrdinal, listIndex, GridChoosePassageBook.getBookColorAndGroup(bookOrdinal).Color ))
             } else {
                 bookStatistics.first { it.book == bookNameLong }.count += 1
             }
