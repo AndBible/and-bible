@@ -39,9 +39,7 @@ class CalculatorActivity : AppCompatActivity() {
     private var equalClicked = false
     private var lastExpression = ""
 
-    private fun evaluate(formula: String): String {
-        return ExpressionBuilder(formula).build().evaluate().toString()
-    }
+    private fun evaluate(formula: String): String = ExpressionBuilder(formula).build().evaluate().toString()
 
     private lateinit var calculatorBinding: CalculatorLayoutBinding
 
