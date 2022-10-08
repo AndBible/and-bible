@@ -101,7 +101,7 @@
     <string name="greek">Greek</string>
     <string name="hebrew">Hebrew</string>
     <string name="results_count">Results: %s</string>
-    <string name="verse_count">Verses: %s</string>
+    <string name="verse_count">Verses: %s </string>
     <string name="book_count">Books: %s</string>
     <string name="word_count">Words: %s</string>
     <string name="statistics">Statistics</string>
