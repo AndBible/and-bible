@@ -1020,12 +1020,12 @@
     <string name="assing_labels_help8">Long-press quick filter button to remove it.</string>
     <string name="progress_status_permission">To show notifications (download status, processing, speak status), we need your permission. </string>
     <string name="prefs_discrete_mode">Discrete mode</string>
-    <string name="prefs_discrete_mode_desc">Hide religious symbols. Show calculator icon and name in launcher instead.</string>
+    <string name="prefs_discrete_mode_desc">Hide religious symbols. Rename the app to \'Calculator\' and show a different icon in the launcher.</string>
     <string name="prefs_persecution_cat">Settings for the persecuted</string>
     <string name="prefs_show_calculator">Show calculator smoke screen</string>
-    <string name="prefs_show_calculator_desc">When launching app, show calculator app. You can set up your pin code to get into actual bible app. Default PIN is 1234, which can be changed with the "Calculator PIN" setting.</string>
+    <string name="prefs_show_calculator_desc">Launch a calculator app before the Bible then use a PIN to access the bible app (default PIN is 1234=).</string>
     <string name="prefs_calculator_pin">Calculator PIN</string>
-    <string name="prefs_calculator_pin_desc">PIN code to enter app, if smoke calculator is enabled. </string>
+    <string name="prefs_calculator_pin_desc">PIN code to enter the Bible app when the smoke screen calculator is enabled. </string>
     <string name="calc_division_by_zero">Division by zero is not allowed</string>
     <string name="calc_wrong_format">Wrong Format</string>
     <string name="calc_wrong_format_operand">Wrong Format. Operand Without any numbers?</string>

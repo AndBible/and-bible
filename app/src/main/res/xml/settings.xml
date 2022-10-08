@@ -121,19 +121,19 @@
 			android:title="@string/prefs_discrete_mode"
 			android:summary="@string/prefs_discrete_mode_desc"
 			android:defaultValue="false"
-			android:icon="@drawable/ic_baseline_calculate_24"
+			android:icon="@drawable/ic_calc_24"
 			/>
 		<SwitchPreferenceCompat android:key="show_calculator"
 			android:title="@string/prefs_show_calculator"
 			android:summary="@string/prefs_show_calculator_desc"
 			android:defaultValue="false"
-			android:icon="@drawable/ic_baseline_calculate_24"
+			android:icon="@drawable/ic_calc_smoke_screen"
 			/>
 		<EditTextPreference android:key="calculator_pin"
 			android:title="@string/prefs_calculator_pin"
 			android:summary="@string/prefs_calculator_pin_desc"
 			android:defaultValue="1234"
-			android:icon="@drawable/ic_baseline_calculate_24"
+			android:icon="@drawable/ic_calc_pin"
 			/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
