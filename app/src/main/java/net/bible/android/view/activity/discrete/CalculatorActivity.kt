@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.discrete
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -33,6 +34,7 @@ import java.math.BigDecimal
 
 // Copied and adapted from https://github.com/eloyzone/android-calculator (5fb1d5e)
 
+@SuppressLint("SetTextI18n")
 class CalculatorActivity : AppCompatActivity() {
     private var openParenthesis = 0
     private var dotUsed = false
@@ -323,8 +325,7 @@ class CalculatorActivity : AppCompatActivity() {
         try {
             lastCharacter.toInt()
             return IS_NUMBER
-        } catch (e: NumberFormatException) {
-        }
+        } catch (e: NumberFormatException) {}
         if (lastCharacter == "+" || lastCharacter == "-" || lastCharacter == "x" || lastCharacter == "\u00F7" || lastCharacter == "%") return IS_OPERAND
         if (lastCharacter == "(") return IS_OPEN_PARENTHESIS
         if (lastCharacter == ")") return IS_CLOSE_PARENTHESIS
