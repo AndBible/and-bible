@@ -227,6 +227,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         initializeDatabase()
 
+        // For the 'discrete' variant, go directly to the calculator first,
+        // even when there are no Bible documents already installed.
+        gotoCalculator()
+
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
@@ -335,7 +339,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 }
             }
 
-            gotoCalculator()
             startActivity(handlerIntent)
             finish()
         }
