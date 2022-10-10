@@ -17,6 +17,7 @@
 
 package net.bible.android
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
@@ -85,6 +86,7 @@ open class BibleApplication : Application() {
     private val appStateSharedPreferences: SharedPreferences
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
+    @SuppressLint("ApplySharedPref")
     override fun onCreate() {
         Log.i(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
