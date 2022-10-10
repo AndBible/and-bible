@@ -1227,7 +1227,7 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    val isDiscrete get() = settings.getBoolean("discrete_mode", false) || FLAVOR == "discrete"
+    val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.isDiscrete
 }
 
 @Serializable
