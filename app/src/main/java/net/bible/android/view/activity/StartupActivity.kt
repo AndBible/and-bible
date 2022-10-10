@@ -227,7 +227,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         initializeDatabase()
 
-        // For the 'discrete' variant, go directly to the calculator first,
+        // When enabled, go to the calculator first,
         // even when there are no Bible documents already installed.
         gotoCalculator()
 
