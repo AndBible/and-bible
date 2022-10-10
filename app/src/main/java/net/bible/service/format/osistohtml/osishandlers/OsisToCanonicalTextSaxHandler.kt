@@ -30,7 +30,7 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-open class OsisToCanonicalTextSaxHandler(val compatibleOffsets: Boolean = false): OsisSaxHandler() {
+open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean = false): OsisSaxHandler() {
     private var currentVerseNo = 0
     protected var writeContentStack = Stack<CONTENT_STATE>()
 
@@ -89,6 +89,9 @@ open class OsisToCanonicalTextSaxHandler(val compatibleOffsets: Boolean = false)
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
             writeContentStack.push(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
+            writeContentStack.push(CONTENT_STATE.IGNORE)
+        } else if (name == OSISUtil.OSIS_ELEMENT_Q) {
+            write(attrs?.getValue("marker")?:"")
             writeContentStack.push(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
             // text content of top level references should be output but in notes it should not
