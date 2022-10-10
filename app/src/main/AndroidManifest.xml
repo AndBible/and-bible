@@ -54,21 +54,6 @@
             android:icon="@mipmap/ic_launcher" />
 
         <activity-alias
-            android:name="net.bible.android.view.activity.Bible"
-            android:icon="@mipmap/ic_launcher"
-            android:label="@string/app_name_short"
-            android:targetActivity=".StartupActivity"
-            android:exported="true"
-            android:enabled="true"
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <!-- see Samsung multi-window info at bottom -->
-                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-        <activity-alias
             android:name="net.bible.android.view.activity.Calculator"
             android:icon="@drawable/ic_calculator_color"
             android:label="@string/app_name_calculator"

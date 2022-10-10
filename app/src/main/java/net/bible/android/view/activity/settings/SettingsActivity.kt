@@ -28,9 +28,9 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.makeLarger
 import net.bible.service.common.getPreferenceList
@@ -220,7 +220,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         (preferenceScreen.findPreference<EditTextPreference>("discrete_mode") as Preference).apply {
-            if(BuildConfig.FLAVOR == "discrete") {
+            if (BuildVariant.Appearance.isDiscrete) {
                 isVisible = false
             }
         }

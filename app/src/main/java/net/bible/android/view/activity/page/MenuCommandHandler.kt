@@ -33,7 +33,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.BibleApplication
-import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.download.DownloadControl
@@ -55,6 +54,7 @@ import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.BuildVariant
 
 import javax.inject.Inject
 
@@ -74,7 +74,8 @@ constructor(private val callingActivity: MainBibleActivity,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
 ) {
-    private val isSamsung get() = BuildConfig.FLAVOR == "samsung"
+    private inline val isSamsung get() = BuildVariant.DistributionChannel.isSamsung
+
     /**
      * on Click handlers
      */

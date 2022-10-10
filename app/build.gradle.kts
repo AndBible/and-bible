@@ -41,6 +41,9 @@ val applicationIdStandard = "net.bible.android.activity"
 // An alternative applicationId, to be used for the "discrete" flavor.
 val applicationIdDiscrete = "com.app.calculator"
 
+// The flavor dimension for the app's distribution channel
+val dimDistributionChannel = "distchannel"
+
 
 fun getGitHash(): String =
     ByteArrayOutputStream().use { stdout ->
@@ -170,7 +173,8 @@ android {
 //			zipAlignEnabled true
         }
     }
-    flavorDimensions += listOf(dimAppearance)
+
+    flavorDimensions += listOf(dimAppearance, dimDistributionChannel)
 
     productFlavors {
         create("standard") {
@@ -182,24 +186,29 @@ android {
             dimension = dimAppearance
         }
 
+        create("googleplay") {
+            dimension = dimDistributionChannel
+            isDefault = true
+        }
+
         create("fdroid") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannel
         }
 
         create("samsung") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannel
         }
 
         create("huawei") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannel
         }
 
         create("amazon") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannel
         }
 
         create("github") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannel
         }
     }
 

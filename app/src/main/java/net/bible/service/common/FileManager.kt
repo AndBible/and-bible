@@ -76,7 +76,7 @@ object FileManager {
                         var len: Int = src.read(buf)
                         while (len > 0) {
                             dest.write(buf, 0, len)
-							len = src.read(buf)
+                            len = src.read(buf)
                         }
                         ok = true
                     } finally {
