@@ -203,8 +203,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             withContext(Dispatchers.Main) {
                 postBasicInitialisationControl()
                 if(CommonUtils.settings.getBoolean("show_calculator", false)) {
-                    spinnerBinding.imageView.setImageDrawable(
-                        CommonUtils.getTintedDrawable(R.drawable.ic_baseline_calculate_24, R.color.grey_500)
+                    spinnerBinding.imageView.setImageResource(
+                        R.drawable.ic_calculator_color
                     )
                     spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
                 }
