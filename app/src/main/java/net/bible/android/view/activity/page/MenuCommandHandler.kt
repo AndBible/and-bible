@@ -74,7 +74,7 @@ constructor(private val callingActivity: MainBibleActivity,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
 ) {
-    private inline val isSamsung get() = BuildVariant.isSamsung
+    private inline val isSamsung get() = BuildVariant.DistributionChannel.isSamsung
 
     /**
      * on Click handlers

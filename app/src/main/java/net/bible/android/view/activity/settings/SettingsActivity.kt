@@ -220,7 +220,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         (preferenceScreen.findPreference<EditTextPreference>("discrete_mode") as Preference).apply {
-            if (BuildVariant.isDiscrete) {
+            if (BuildVariant.Appearance.isDiscrete) {
                 isVisible = false
             }
         }

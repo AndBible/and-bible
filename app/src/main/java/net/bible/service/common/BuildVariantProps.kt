@@ -16,11 +16,18 @@
  */
 package net.bible.service.common
 
-import net.bible.android.activity.BuildConfig.FLAVOR
+import net.bible.android.activity.BuildConfig.FLAVOR_appearance
+import net.bible.android.activity.BuildConfig.FLAVOR_distchannel
 
 object BuildVariant {
-    inline val isDiscrete get() = FLAVOR == "discrete"
+    // Group the properties according to their flavorDimension
 
-    inline val isSamsung get() = FLAVOR == "samsung"
+    object Appearance {
+        inline val isDiscrete get() = FLAVOR_appearance == "discrete"
+    }
+
+    object DistributionChannel {
+        inline val isSamsung get() = FLAVOR_distchannel == "samsung"
+    }
 }
 
