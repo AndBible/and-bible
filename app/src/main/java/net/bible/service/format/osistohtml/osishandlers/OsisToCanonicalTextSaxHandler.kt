@@ -65,7 +65,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
      * Encountered while parsing the Current XML File. The AttributeList Parameter has
      * the list of all Attributes declared for the Current Element in the XML File.
     */
-    var insideVerse = false;
+    private var insideVerse = false;
     override fun startElement(namespaceURI: String?,
                           sName: String?,  // simple name
                           qName: String,  // qualified name
