@@ -56,7 +56,7 @@ class DailyReadingList : ListActivityBase() {
 
         buildActivityComponent().inject(this)
 
-		readingsList = readingPlanControl.currentPlansReadingList
+        readingsList = readingPlanControl.currentPlansReadingList
 
         adapter = DailyReadingItemAdapter(this, R.layout.two_line_list_item, readingsList)
         listAdapter = adapter

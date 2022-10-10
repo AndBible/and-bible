@@ -164,7 +164,7 @@ abstract class CurrentPageBase protected constructor(
         if(_currentDocument?.doesNotExist == true) {
             val doc = swordDocumentFacade.getDocumentByInitials(_currentDocument!!.initials)
             if(doc != null)
-            _currentDocument = doc
+                _currentDocument = doc
         }
         if (_currentDocument == null) {
             Log.i(TAG, "checkCurrentDocumentStillInstalled:$currentDocument")

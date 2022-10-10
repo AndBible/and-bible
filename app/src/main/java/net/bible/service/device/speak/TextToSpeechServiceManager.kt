@@ -143,7 +143,7 @@ class TextToSpeechServiceManager @Inject constructor(
         Log.i(TAG, "Tts initialised")
         var isOk = false
 
-		val tts = mTts
+        val tts = mTts
 
         // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
         if (tts != null && status == TextToSpeech.SUCCESS) {

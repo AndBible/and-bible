@@ -64,8 +64,8 @@ class LightSensor(val callBack: (newValue: Float) -> Unit) {
         override fun onSensorChanged(sensorEvent: SensorEvent) {
             if (sensorEvent.sensor.type == Sensor.TYPE_LIGHT) {
                 mReading = sensorEvent.values[0]
-				// Log.i(TAG, "Reading: $mReading")
-				callBack(mReading)
+                // Log.i(TAG, "Reading: $mReading")
+                callBack(mReading)
             }
         }
 
