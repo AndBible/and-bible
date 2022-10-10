@@ -145,8 +145,8 @@ class SettingsActivity: ActivityBase() {
 
 class SettingsFragment : PreferenceFragmentCompat() {
 	override fun onDisplayPreferenceDialog(preference: Preference) {
-		if(parentFragmentManager.findFragmentByTag("customTag") != null)
-			return
+        if(parentFragmentManager.findFragmentByTag("customTag") != null)
+            return
 
         super.onDisplayPreferenceDialog(preference)
 	}
