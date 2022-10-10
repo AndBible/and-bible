@@ -177,7 +177,7 @@ class ReadingPlanControl @Inject constructor(
             } else {
                 ReadingStatus(planCode, day, oneDaysReadingsDto.numReadings)
             }
-			this.readingStatus = readingStatus.apply { reloadStatus() }
+            this.readingStatus = readingStatus.apply { reloadStatus() }
         }
         return readingStatus
     }

@@ -51,9 +51,9 @@ abstract class CachedKeyPage internal constructor(
      */
     val cachedGlobalKeyList: List<Key>?
         get() {
-			var keylist = mCachedGlobalKeyList
+            var keylist = mCachedGlobalKeyList
             val currentDocument = currentDocument
-			if (currentDocument != null && keylist == null) {
+            if (currentDocument != null && keylist == null) {
                 try {
                     Log.i(TAG, "Start to create cached key list for $currentDocument")
                     // this cache is cleared in setCurrentDoc

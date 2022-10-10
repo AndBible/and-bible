@@ -116,8 +116,8 @@ object BackupControl {
         val targetFile =  File(internalDbBackupDir, file.name)
         if(targetFile.exists()) targetFile.delete()
         file.copyTo(targetFile)
-		val subject = callingActivity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
-		val message = callingActivity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
+        val subject = callingActivity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
+        val message = callingActivity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
         val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
 		val email = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)

@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.report
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -101,6 +102,7 @@ object ErrorReportControl {
         }
     }
 
+    @SuppressLint("ApplySharedPref")
     suspend fun checkCrash(activity: ActivityBase) {
         val crashed = CommonUtils.realSharedPreferences.getBoolean("app-crashed", false)
         if (crashed) {

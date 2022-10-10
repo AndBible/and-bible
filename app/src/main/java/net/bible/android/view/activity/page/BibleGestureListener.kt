@@ -31,8 +31,8 @@ import net.bible.service.common.CommonUtils
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : SimpleOnGestureListener() {
-    private val scaledMinimumDistance: Int
-    private val scaledMinimumFullScreenScrollDistance: Int
+    private val scaledMinimumDistance: Int = CommonUtils.convertDipsToPx(DISTANCE_DIP)
+    private val scaledMinimumFullScreenScrollDistance: Int = CommonUtils.convertDipsToPx(SCROLL_DIP)
 
     private var minScaledVelocity: Int = 0
     private val autoFullScreen: Boolean get() = CommonUtils.settings.getBoolean("auto_fullscreen_pref", false)
@@ -43,8 +43,6 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
     private var lastDirection = false
 
     init {
-        scaledMinimumDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP)
-        scaledMinimumFullScreenScrollDistance = CommonUtils.convertDipsToPx(SCROLL_DIP)
         minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
         // make it easier to swipe
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
@@ -101,7 +99,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
             // New scroll event
             scrollEv = MotionEvent.obtain(e1)
         }
-		ABEventBus.post(BibleView.BibleViewTouched(onlyTouch = true))
+        ABEventBus.post(BibleView.BibleViewTouched(onlyTouch = true))
         if (e2.eventTime - scrollEv.eventTime > 1000) {
             // Too slow motion
             scrollEv = MotionEvent.obtain(e2)
