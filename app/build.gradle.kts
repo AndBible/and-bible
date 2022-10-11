@@ -32,8 +32,8 @@ plugins {
 val jsDir = "bibleview-js"
 
 // The flavor dimension for the appearance of the app
-val dimAppearance = "appearance"
-val discreteFlavor = "discrete"
+val dimAppearanceName = "appearance"
+val discreteFlavorName = "discrete"
 // This is the "standard" applicationId.
 // This value must remain the same as it has been since the original
 // release in 2010 for continuity of updates for existing users.
@@ -42,7 +42,7 @@ val applicationIdStandard = "net.bible.android.activity"
 val applicationIdDiscrete = "com.app.calculator"
 
 // The flavor dimension for the app's distribution channel
-val dimDistributionChannel = "distchannel"
+val dimDistributionChannelName = "distchannel"
 
 
 fun getGitHash(): String =
@@ -174,41 +174,41 @@ android {
         }
     }
 
-    flavorDimensions += listOf(dimAppearance, dimDistributionChannel)
+    flavorDimensions += listOf(dimAppearanceName, dimDistributionChannelName)
 
     productFlavors {
         create("standard") {
-            dimension = dimAppearance
+            dimension = dimAppearanceName
             isDefault = true
         }
 
-        create(discreteFlavor) {
-            dimension = dimAppearance
+        create(discreteFlavorName) {
+            dimension = dimAppearanceName
         }
 
         create("googleplay") {
-            dimension = dimDistributionChannel
+            dimension = dimDistributionChannelName
             isDefault = true
         }
 
         create("fdroid") {
-            dimension = dimDistributionChannel
+            dimension = dimDistributionChannelName
         }
 
         create("samsung") {
-            dimension = dimDistributionChannel
+            dimension = dimDistributionChannelName
         }
 
         create("huawei") {
-            dimension = dimDistributionChannel
+            dimension = dimDistributionChannelName
         }
 
         create("amazon") {
-            dimension = dimDistributionChannel
+            dimension = dimDistributionChannelName
         }
 
         create("github") {
-            dimension = dimDistributionChannel
+            dimension = dimDistributionChannelName
         }
     }
 
@@ -264,11 +264,10 @@ android {
         jvmTarget = "1.8"
     }
     namespace = "net.bible.android.activity"
-
 }
 
 androidComponents {
-    val discreteSelector = selector().withFlavor(dimAppearance to discreteFlavor )
+    val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
     // Set the applicationId to a more discrete alternative.
     // Replace only the "standard" prefix, in order to preserve any
     // suffixes that are contributed by the build types or product flavors.
@@ -276,7 +275,16 @@ androidComponents {
         val originalAppId = variant.applicationId.get()
         val alternateAppId = originalAppId.replace(applicationIdStandard, applicationIdDiscrete)
         variant.applicationId.set(alternateAppId)
-        logger.info("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
+        println("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
+    }
+    beforeVariants(selector()
+        .withFlavor(dimAppearanceName to "discrete")
+    ) { variant ->
+        for((dimension, value) in variant.productFlavors) {
+            if(dimension == dimDistributionChannelName && !listOf("github").contains(value)) {
+                variant.enable = false
+            }
+        }
     }
 }
 
