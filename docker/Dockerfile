@@ -19,6 +19,7 @@ RUN apt-get update -y \
           npm \
           openjdk-18-jdk \
           openssh-server \
+          patch \
           screen \
           tzdata \
           unzip \
