@@ -60,6 +60,7 @@ import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
@@ -312,7 +313,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     private suspend fun gotoCalculator() {
-        val show = CommonUtils.settings.getBoolean("show_calculator", false)
+        val show = BuildVariant.Appearance.isDiscrete || CommonUtils.settings.getBoolean("show_calculator", false)
         if(show) {
             Log.i(TAG, "Going to Calculator")
             val handlerIntent = Intent(this, CalculatorActivity::class.java)
