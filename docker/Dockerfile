@@ -1,5 +1,6 @@
 FROM ubuntu:22.04
 
+# Note: this needs to match your UID on the host system
 ARG MY_UID
 
 ENV DEBIAN_FRONTEND  noninteractive
@@ -45,7 +46,6 @@ RUN ln -s /space/home/Android/Sdk/platform-tools/adb /usr/local/bin/
 
 ENV HOME /space/home/
 # Create an entry in /etc/passwd so that Android Studio can find the data it needs (eg home directory path)
-# Note: adjust the UID to match your UID on the host system
 RUN useradd --home-dir $HOME --create-home \
         --shell /bin/zsh \
         -u $MY_UID \
@@ -60,7 +60,6 @@ RUN mkdir /var/run/sshd
     # Tell sshd to bind to the wildcard address instead of localhost
 RUN echo 'X11UseLocalhost no' >> /etc/ssh/sshd_config
     # Create a user account definition for ssh access
-#RUN useradd --home-dir $HOME --create-home --shell /bin/zsh -u $MY_UID andbible
 #RUN echo 'andbible:andbible' | chpasswd
 ## ------------------------------------------------------------------------
 
