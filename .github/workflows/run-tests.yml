@@ -24,22 +24,22 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 10 # so that recent tags can be found
     - name: Set up JDK
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
         java-version: '11' # later than 1.8 not working with roboelectric as of 2020-06-15
 
     - name: Set up Node.js environment
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
         node-version: '14'
     - name: Cache gradle dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           ~/.gradle/caches
@@ -50,7 +50,7 @@ jobs:
 
     - name: Cache test modules
       id: cache-test-modules
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.sword
         key: ${{ runner.os }}-test-modules # cache auto-removes if not accessed in 7 days. If data needs to refresh, change key name here (till https://github.com/actions/cache/issues/2 is addressed)
@@ -67,7 +67,7 @@ jobs:
       run: ./gradlew --console plain testStandardRelease
 
     - name: Upload test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-a-build-artifact@v3
       if: ${{ always() }}
       with:
         name: test-results
