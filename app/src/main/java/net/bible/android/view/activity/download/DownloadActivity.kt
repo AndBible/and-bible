@@ -129,7 +129,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
             Log.e(TAG, "Could not load default document list")
         }
     }
-    
+
     private suspend fun loadPseudoBooks() = withContext(Dispatchers.IO) {
         val source = URI("https://andbible.github.io/data/${SharedConstants.PSEUDO_BOOKS}")
         val target = File(SharedConstants.MODULE_DIR, SharedConstants.PSEUDO_BOOKS)
