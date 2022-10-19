@@ -68,12 +68,10 @@ interface BookmarkDao {
     @Query("SELECT * from Bookmark where id IN (:bookmarkIds)")
     fun bookmarksByIds(bookmarkIds: List<Long>): List<Bookmark>
 
+    //https://stackoverflow.com/questions/325933/determine-whether-two-date-ranges-overlap
     @Query("""SELECT * from Bookmark where
-        kjvOrdinalStart BETWEEN :rangeStart AND :rangeEnd OR
-        kjvOrdinalEnd BETWEEN :rangeStart AND :rangeEnd OR 
-        (:rangeStart BETWEEN kjvOrdinalStart AND kjvOrdinalEnd AND 
-         :rangeEnd BETWEEN kjvOrdinalStart AND kjvOrdinalEnd
-        ) ORDER BY kjvOrdinalStart, startOffset
+        kjvOrdinalStart <= :rangeEnd AND :rangeStart <= kjvOrdinalEnd
+        ORDER BY kjvOrdinalStart, startOffset
         """)
     fun bookmarksForKjvOrdinalRange(rangeStart: Int, rangeEnd: Int): List<Bookmark>
     fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> {
