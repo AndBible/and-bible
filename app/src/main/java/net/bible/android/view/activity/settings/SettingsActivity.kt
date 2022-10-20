@@ -224,6 +224,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 isVisible = false
             }
         }
+        (preferenceScreen.findPreference<EditTextPreference>("show_calculator") as Preference).apply {
+            if (BuildVariant.Appearance.isDiscrete) {
+                isVisible = false
+            }
+        }
         for(p in getPreferenceList()) {
             val icon = p.icon
             if(icon != null) {
