@@ -544,6 +544,7 @@ export function useBookmarks(documentId,
         for (const b of markerBookmarks.value) {
             for(let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ordinal}`);
+                if(!elem) continue;
                 const func = event => {
                     addEventFunction(event, null, {bookmarkId: b.id, hidden: true, priority: EventPriorities.HIDDEN_BOOKMARK})
                 };
