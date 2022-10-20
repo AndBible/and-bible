@@ -17,6 +17,7 @@ jobs:
     environment: And Bible Builds
     runs-on: ubuntu-20.04
     steps:
+    - run: find $ANDROID_SDK_HOME/build-tools/
     - uses: actions/checkout@v3
       with:
         fetch-depth: 10 # so that recent tags can be found
