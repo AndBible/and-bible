@@ -134,6 +134,12 @@
 	</PreferenceCategory>
 
 	<PreferenceCategory android:title="@string/prefs_persecution_cat">
+		<Preference
+			android:key="discrete_help"
+			android:title="@string/prefs_persecuted_help"
+			android:summary="@string/prefs_persecuted_summary"
+			android:icon="@drawable/ic_warning_red_24dp"
+			/>
 		<SwitchPreferenceCompat android:key="discrete_mode"
 			android:title="@string/prefs_discrete_mode"
 			android:summary="@string/prefs_discrete_mode_desc"
@@ -142,7 +148,6 @@
 			/>
 		<SwitchPreferenceCompat android:key="show_calculator"
 			android:title="@string/prefs_show_calculator"
-			android:summary="@string/prefs_show_calculator_desc"
 			android:defaultValue="false"
 			android:icon="@drawable/ic_calc_smoke_screen"
 			/>

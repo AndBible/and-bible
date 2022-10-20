@@ -701,7 +701,7 @@ class ManageLabels : ListActivityBase() {
         finish()
     }
 
-    private suspend fun askConfirmation(message: String, yesNo: Boolean = false)  = suspendCoroutine<Boolean> {
+    private suspend fun askConfirmation(message: String, yesNo: Boolean = false)  = suspendCoroutine {
         AlertDialog.Builder(this).apply {
             setMessage(message)
             setPositiveButton(R.string.yes) { _, _ ->

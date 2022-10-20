@@ -70,7 +70,7 @@ object ErrorReportControl {
             var askAgain = true
             while(askAgain) {
                 askAgain = false
-                val result = suspendCoroutine<ErrorDialogResult> {
+                val result = suspendCoroutine {
                     val dlgBuilder = AlertDialog.Builder(context)
                         .setMessage(msg)
                         .setCancelable(isCancelable)

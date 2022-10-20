@@ -107,6 +107,7 @@ import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.betaIntroVideo
+import net.bible.service.common.htmlToSpan
 import net.bible.service.common.windowPinningVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
@@ -404,11 +405,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             val htmlMessage = "$par1<br><br>$videoMessageLink"
 
-            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-            } else {
-                Html.fromHtml(htmlMessage)
-            }
+            val spanned = htmlToSpan(htmlMessage)
 
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.stable_notice_title))

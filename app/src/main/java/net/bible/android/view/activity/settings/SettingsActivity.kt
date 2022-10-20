@@ -20,8 +20,10 @@ import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
 import android.text.InputType
+import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -34,6 +36,7 @@ import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.makeLarger
 import net.bible.service.common.getPreferenceList
+import net.bible.service.common.htmlToSpan
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.device.ScreenSettings.systemModeAvailable
 import org.crosswire.jsword.book.Books
@@ -215,18 +218,53 @@ class SettingsFragment : PreferenceFragmentCompat() {
             pref.isVisible = false
         }
 
-        (preferenceScreen.findPreference<EditTextPreference>("calculator_pin") as EditTextPreference).apply {
+        (preferenceScreen.findPreference<EditTextPreference>("calculator_pin") as EditTextPreference).run {
             setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_NUMBER }
         }
 
-        (preferenceScreen.findPreference<EditTextPreference>("discrete_mode") as Preference).apply {
+        (preferenceScreen.findPreference<EditTextPreference>("discrete_mode") as Preference).run {
             if (BuildVariant.Appearance.isDiscrete) {
                 isVisible = false
             }
         }
-        (preferenceScreen.findPreference<EditTextPreference>("show_calculator") as Preference).apply {
+        (preferenceScreen.findPreference<EditTextPreference>("show_calculator") as Preference).run {
             if (BuildVariant.Appearance.isDiscrete) {
                 isVisible = false
+            }
+            summary = listOf(
+                getString(R.string.calculator_par1),
+                getString(R.string.calculator_par2),
+                getString(R.string.calculator_par3),
+            ).joinToString(" ")
+        }
+        (preferenceScreen.findPreference<EditTextPreference>("discrete_help") as Preference).run {
+            setOnPreferenceClickListener {
+                val linkUrl = "https://github.com/AndBible/and-bible/wiki/Discrete-build"
+                val linkText = "<a href=\"$linkUrl\">$linkUrl</a>"
+
+                val dPar1 = getString(R.string.discrete_mode_info_par1)
+                val dPar2 = getString(R.string.discrete_mode_info_par2)
+                val dLink = getString(R.string.discrete_mode_link, linkText)
+
+                val calcPar1 = getString(R.string.calculator_par1)
+                val calcPar2 = getString(R.string.calculator_par2)
+                val calcPar3 = getString(R.string.calculator_par3)
+
+                val dText = "$dPar1<br><br>$dPar2<br><br>$dLink<br><br>"
+                val calcText = "$calcPar1$calcPar2<br><br>$calcPar3<br><br>$dLink"
+                val htmlMessage = if(!BuildVariant.Appearance.isDiscrete) dText else calcText
+
+                val spanned = htmlToSpan(htmlMessage)
+
+                val d = AlertDialog.Builder(context).apply {
+                    setTitle(getString(R.string.prefs_persecution_cat))
+                    setMessage(spanned)
+                    setPositiveButton(R.string.okay, null)
+                    setCancelable(true)
+                }.create()
+                d.show()
+                d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                true
             }
         }
         for(p in getPreferenceList()) {

@@ -1029,15 +1029,41 @@
     <string name="assing_labels_help7_1">Tap each quick filter button to activate or deactivate them.</string>
     <string name="assing_labels_help8">Long-press quick filter button to remove it.</string>
     <string name="progress_status_permission">To show notifications (download status, processing, speak status), we need your permission. </string>
-    <string name="prefs_discrete_mode">Discrete mode</string>
-    <string name="prefs_discrete_mode_desc">Hide religious symbols. Rename the app to \'Calculator\' and show a different icon in the launcher.</string>
+
+    <!-- Discrete mode settings -->
     <string name="prefs_persecution_cat">Settings for the persecuted</string>
-    <string name="prefs_show_calculator">Show calculator smoke screen</string>
-    <string name="prefs_show_calculator_desc">Launch a calculator app before the Bible then use a PIN to access the bible app (default PIN is 1234).</string>
+    <string name="prefs_discrete_mode">Hide religious symbols</string>
+    <string name="prefs_discrete_mode_desc">Rename the app to \'Calculator\' and show a different icon in the launcher.</string>
+
+    <string name="prefs_show_calculator">Calculator</string>
+
     <string name="prefs_calculator_pin">Calculator PIN</string>
-    <string name="prefs_calculator_pin_desc">PIN code to enter the Bible app when the smoke screen calculator is enabled. </string>
+    <string name="prefs_calculator_pin_desc">PIN code to enter the app when the calculator is shown. </string>
     <string name="calc_division_by_zero">Division by zero is not allowed</string>
     <string name="calc_wrong_format">Wrong Format</string>
     <string name="calc_wrong_format_operand">Wrong Format. Operand Without any numbers?</string>
+    <string name="prefs_persecuted_help">Read this first!</string>
+    <string name="prefs_persecuted_summary">Instructions for the settings and information about specific discrete build.</string>
 
+    <string name="calculator_par1">
+        Before entering the app, calculator screen is displayed.
+    </string>
+    <string name="calculator_par2">
+        In it, you can do standard calculus, and when you want to enter the app, you
+        just type your PIN code (default is 1234) and then press "=" button.
+    </string>
+    <string name="calculator_par3">
+        You can set up a custom PIN code by "Calculator PIN" setting.
+    </string>
+    <string name="discrete_mode_info_par1">
+        You are using standard application version, which means that it is still possible to see
+        the real name and icon of the application in app info.
+    </string>
+    <string name="discrete_mode_info_par2">
+        For improved security in persecuted environment, we highly recommend using discrete
+        version of the app, which always displays calculator, even if the app data is deleted.
+    </string>
+    <string name="discrete_mode_link">
+        You can download the latest version of discrete version from %s.
+    </string>
 </resources>
