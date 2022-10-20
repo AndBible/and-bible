@@ -92,7 +92,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
             writeContentStack.push(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_Q) {
             write(attrs?.getValue("marker")?:"")
-            writeContentStack.push(CONTENT_STATE.IGNORE)
+            writeContentStack.push(CONTENT_STATE.WRITE)
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
             // text content of top level references should be output but in notes it should not
             writeContentStack.push(writeContentStack.peek())
