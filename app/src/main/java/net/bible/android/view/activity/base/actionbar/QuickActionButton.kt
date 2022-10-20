@@ -34,7 +34,7 @@ abstract class QuickActionButton(private val showAsActionFlags: Int) : MenuItem.
 
     // weak to prevent ref from this (normally static) menu preventing gc of book selector
     private var weakOnClickListener: WeakReference<View.OnClickListener>? = null
-    protected abstract val title: String?
+    protected abstract val title: String
     protected abstract val canShow: Boolean
     private val thisItemId = nextItemId++
     @Inject lateinit var speakControl: SpeakControl
@@ -44,6 +44,7 @@ abstract class QuickActionButton(private val showAsActionFlags: Int) : MenuItem.
             _menuItem = menu.add(Menu.NONE, thisItemId, Menu.NONE, "")
             _menuItem.setShowAsAction(showAsActionFlags)
             _menuItem.setOnMenuItemClickListener(this)
+            menuItem = _menuItem
             update(_menuItem)
         }
     }

@@ -55,7 +55,7 @@ abstract class QuickDocumentChangeToolbarButton:
 
     override val canShow get(): Boolean = mSuggestedDocument != null
 
-    override val title: String?
+    override val title: String
         get() = if (mSuggestedDocument != null) {
             titleSplitter.shorten(
                 mSuggestedDocument!!.abbreviation,
