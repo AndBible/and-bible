@@ -203,7 +203,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             // switch back to ui thread to continue
             withContext(Dispatchers.Main) {
                 postBasicInitialisationControl()
-                if(CommonUtils.settings.getBoolean("show_calculator", false)) {
+                if(CommonUtils.isDiscrete) {
                     spinnerBinding.imageView.setImageResource(
                         R.drawable.ic_calculator_color
                     )

@@ -39,7 +39,7 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 
 val Book.imageResource: Int
     get() = when(bookCategory) {
-        BookCategory.BIBLE -> R.drawable.ic_bible_24dp
+        BookCategory.BIBLE -> if(CommonUtils.isDiscrete) R.drawable.ic_baseline_menu_book_24 else  R.drawable.ic_bible_24dp
         BookCategory.COMMENTARY -> R.drawable.ic_commentary
         BookCategory.DICTIONARY -> R.drawable.ic_dictionary_24dp
         BookCategory.MAPS -> R.drawable.ic_map_black_24dp

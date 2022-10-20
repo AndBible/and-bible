@@ -16,12 +16,9 @@
  */
 package net.bible.android.view.activity.download
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -66,7 +63,6 @@ import kotlinx.serialization.serializer
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
-import net.bible.service.sword.isMyBibleBook
 
 /**
  * Choose Document (Book) to download
