@@ -92,7 +92,7 @@ jobs:
       working-directory: ./app/build/outputs/apk/github/release
       run: |
         echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > keystore.jks
-        $ANDROID_HOME/build-tools/*/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-github-release-unsigned.apk
+        $ANDROID_HOME/build-tools/30.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-github-release-unsigned.apk
         rm -f keystore.jks
     - name: Create release
       if: contains(github.ref, 'refs/tags/')
