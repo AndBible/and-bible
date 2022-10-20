@@ -70,10 +70,10 @@ jobs:
     - name: Get variables
       id: tag_name
       run: |
-        echo name=TAG::${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
+        echo TAG=${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
         grep versionName ./app/src/main/AndroidManifest.xml | cut -d\" -f2 > VNAME
-        echo name=VERSION_NAME::$(cat VNAME) >> $GITHUB_OUTPUT
-        echo name=RELEASE_TITLE::$( if [[ $GITHUB_REF =~ build- ]]; then git log -1 --pretty=%B; else echo "Release $(cat VNAME)"; fi ) >> $GITHUB_OUTPUT
+        echo VERSION_NAME=$(cat VNAME) >> $GITHUB_OUTPUT
+        echo RELEASE_TITLE=$( if [[ $GITHUB_REF =~ build- ]]; then git log -1 --pretty=%B; else echo "Release $(cat VNAME)"; fi ) >> $GITHUB_OUTPUT
         echo "./fastlane/metadata/android/en-US/changelogs/$(cat VNAME).txt" > CLPATH
         if [[ -f $(cat CLPATH) ]] && ! [[ $GITHUB_REF =~ build- ]]; then cp $(cat CLPATH) RELEASENOTES.txt; else cat > ./RELEASENOTES.txt; fi
 
