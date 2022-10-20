@@ -302,7 +302,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         Log.i(TAG, "onActivityResult: requestCode = $requestCode, resultCode = $resultCode, data is${if (data != null) " not" else ""} null")
         resultByCode[requestCode - ASYNC_REQUEST_CODE_START]?.let {
             it.complete(Instrumentation.ActivityResult(resultCode, data))
-            resultByCode.remove(requestCode)
+            resultByCode.remove(requestCode - ASYNC_REQUEST_CODE_START)
         } ?: run {
             super.onActivityResult(requestCode, resultCode, data)
         }
