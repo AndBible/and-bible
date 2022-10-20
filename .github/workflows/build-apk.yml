@@ -77,14 +77,21 @@ jobs:
         echo "./fastlane/metadata/android/en-US/changelogs/$(cat VNAME).txt" > CLPATH
         if [[ -f $(cat CLPATH) ]] && ! [[ $GITHUB_REF =~ build- ]]; then cp $(cat CLPATH) RELEASENOTES.txt; else cat > ./RELEASENOTES.txt; fi
 
+    - name: Build standard build with Gradle
+      if: ${{ !endsWith(github.ref, '-discrete') }}
+      run: ./gradlew --console plain assembleStandardGithubRelease
+
+    - name: Build discrete build with Gradle
+      if: endsWith(github.ref, '-discrete')
+      run: ./gradlew --console plain assembleDiscreteGithubRelease
+
     - name: Sign apk
       if: contains(github.ref, 'refs/tags/')
       env: 
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
-      working-directory: ./app/build/outputs/apk/github/release
       run: |
         echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > keystore.jks
-        $ANDROID_SDK_ROOT/build-tools/33.0.0/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-github-release-unsigned.apk
+        $ANDROID_SDK_ROOT/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app/build/outputs/apk/*/release/*-unsigned.apk
         rm -f keystore.jks
     - name: Create release
       if: contains(github.ref, 'refs/tags/')
