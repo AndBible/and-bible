@@ -226,6 +226,7 @@ class TextToSpeechNotificationManager {
         Log.i(TAG, "Shutdown")
         currentTitle = getString(R.string.app_name_medium)
         currentText = ""
+
         // In case service was no longer foreground, we need do this here.
         if(foreground) {
             stopForeground(true)

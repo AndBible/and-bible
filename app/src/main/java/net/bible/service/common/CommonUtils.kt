@@ -617,6 +617,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun forceStopApp() {
+        Log.i(TAG, "forceStopApp!")
         exitProcess(2)
     }
 
@@ -902,8 +903,12 @@ object CommonUtils : CommonUtilsBase() {
 
             buildActivityComponent().inject(this)
 
-            ttsNotificationManager = TextToSpeechNotificationManager()
-            ttsWidgetManager = SpeakWidgetManager()
+            if(!showCalculator) {
+                ttsNotificationManager = TextToSpeechNotificationManager()
+            }
+            if(!BuildVariant.Appearance.isDiscrete) {
+                ttsWidgetManager = SpeakWidgetManager()
+            }
 
             addManuallyInstalledMyBibleBooks()
 
