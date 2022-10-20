@@ -18,7 +18,6 @@ package net.bible.android.view.activity.discrete
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import net.bible.android.activity.R
 import android.graphics.PorterDuff
@@ -26,6 +25,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import net.bible.android.activity.databinding.CalculatorLayoutBinding
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.lang.Exception
@@ -35,7 +35,7 @@ import java.math.BigDecimal
 // Copied and adapted from https://github.com/eloyzone/android-calculator (5fb1d5e)
 
 @SuppressLint("SetTextI18n")
-class CalculatorActivity : AppCompatActivity() {
+class CalculatorActivity : ActivityBase() {
     private var openParenthesis = 0
     private var dotUsed = false
     private var equalClicked = false

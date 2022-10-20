@@ -549,9 +549,9 @@ class BackupActivity: ActivityBase() {
         setContentView(binding.root)
         binding.apply {
             toggleBackupApplication.isChecked = CommonUtils.settings.getBoolean("backup_application", false)
-            toggleBackupDatabase.isChecked = CommonUtils.settings.getBoolean("backup_database", false)
+            toggleBackupDatabase.isChecked = CommonUtils.settings.getBoolean("backup_database", true)
             toggleBackupDocuments.isChecked = CommonUtils.settings.getBoolean("backup_documents", false)
-            toggleRestoreDatabase.isChecked = CommonUtils.settings.getBoolean("restore_database", false)
+            toggleRestoreDatabase.isChecked = CommonUtils.settings.getBoolean("restore_database", true)
             toggleRestoreDocuments.isChecked = CommonUtils.settings.getBoolean("restore_documents", false)
 
             buttonBackup.setOnClickListener {
