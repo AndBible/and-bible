@@ -8,7 +8,7 @@ permissions: {}
 
 jobs:
   build:
-    environment: And Bible branch management
+    environment: AndBible branch management
     runs-on: ubuntu-20.04
     steps:
     - name: Checkout current-stable branch

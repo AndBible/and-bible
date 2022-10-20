@@ -93,7 +93,7 @@ class BookmarkDatabaseDefinition {
     }
 
     private fun bootstrapDB(db: SupportSQLiteDatabase) {
-        Log.i(TAG, "Bootstrapping And Bible database (Bookmarks)")
+        Log.i(TAG, "Bootstrapping AndBible database (Bookmarks)")
         db.execSQL("CREATE TABLE " + Table.BOOKMARK + " (" +
             BookmarkColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
             BookmarkColumn.KEY + " TEXT NOT NULL," +

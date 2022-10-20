@@ -158,7 +158,7 @@ class DocumentControl @Inject constructor(
 
     /**
      * Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
-     * and according to And Bible if it is not currently selected
+     * and according to AndBible if it is not currently selected
      */
     fun canDelete(document: Book?): Boolean {
         if (document == null) {

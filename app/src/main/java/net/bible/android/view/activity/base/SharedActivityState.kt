@@ -18,7 +18,7 @@ package net.bible.android.view.activity.base
 
 /**
  * Base class for List activities.  Copied from Android source.
- * A copy of ListActivity from Android source which also extends ActionBarActivity and the And Bible Activity base class.
+ * A copy of ListActivity from Android source which also extends ActionBarActivity and the AndBible Activity base class.
  *
  * ListActivity does not extend ActionBarActivity so when implementing ActionBar functionality I created this, which does.
  *

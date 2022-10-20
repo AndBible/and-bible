@@ -22,9 +22,9 @@
 -->
 <resources>
     <string name="app_name_short">Bible Study</string>
-    <string name="app_name_medium">Bible Study (And Bible)</string>
+    <string name="app_name_medium">Bible Study (AndBible)</string>
     <string name="app_name_long">AndBible: Bible Study</string>
-    <string name="project">And Bible Open Source Project</string>
+    <string name="project">AndBible Open Source Project</string>
 
     <string name="version_text">Version %s</string>
     <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
@@ -885,7 +885,7 @@
     <string name="proceed_anyway">Proceed anyway</string>
     <string name="rate_title">Rating and reviewing app</string>
     <string name="rate_message5">
-        Positive and detailed reviews help And Bible Open Source Project a lot. Thank you!
+        Positive and detailed reviews help AndBible Open Source Project a lot. Thank you!
     </string>
     <string name="rate_message6">
         Before reviewing negative review, please consider the following:
