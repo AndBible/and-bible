@@ -36,7 +36,68 @@
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
         </activity-alias>
+        <receiver
+            android:name=".SpeakWidgetManager$SmallSpeakControlWidget"
+            android:exported="true"
+            android:enabled="false"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
 
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/small_speak_control_widget_info" />
+        </receiver>
+
+        <receiver android:name=".SpeakWidgetManager$MiddleSpeakControlWidget"
+            android:exported="true"
+            android:enabled="false"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/middle_speak_control_widget_info" />
+        </receiver>
+
+        <receiver android:name=".SpeakWidgetManager$LargeSpeakControlWidget"
+            android:exported="true"
+            android:enabled="false"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/large_speak_control_widget_info" />
+        </receiver>
+        <receiver android:name=".SpeakWidgetManager$SpeakTextControlWidget"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/speak_text_control_widget_info" />
+        </receiver>
+
+        <receiver android:name=".SpeakWidgetManager$SpeakBookmarkWidget"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/speak_bookmark_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

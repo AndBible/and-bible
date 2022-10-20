@@ -74,6 +74,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -178,6 +179,7 @@ val BookmarkEntities.Label.displayName get() =
 
 open class CommonUtilsBase {
     @Inject lateinit var windowControl: WindowControl
+    @Inject lateinit var speakControl: SpeakControl
 }
 
 class Ref<T>(var value: T? = null)
@@ -1208,10 +1210,11 @@ object CommonUtils : CommonUtilsBase() {
     fun changeAppIconAndName() {
         val discrete = settings.getBoolean("discrete_mode", false)
         val packageName = BuildConfig.APPLICATION_ID
-        val allNames: List<String> = listOf(
+        val allNames = listOf(
             "net.bible.android.view.activity.Bible",
             "net.bible.android.view.activity.Calculator"
         )
+
         val activeName = allNames[if(discrete) 1 else 0]
 
         Log.d(TAG, "Changing app icon / name to $activeName")

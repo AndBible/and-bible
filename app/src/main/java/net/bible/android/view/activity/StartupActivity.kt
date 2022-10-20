@@ -188,6 +188,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     /** Called when the activity is first created.  */
     @SuppressLint("ApplySharedPref")
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i(TAG, "StartupActivity.onCreate")
         super.onCreate(savedInstanceState)
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
         startupViewBinding = StartupViewBinding.inflate(layoutInflater)
@@ -195,7 +196,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         // do not show an actionBar/title on the splash screen
         buildActivityComponent().inject(this)
         supportActionBar!!.hide()
-        if (!checkForExternalStorage()) return;
+        if (!checkForExternalStorage()) return
 
         BackupControl.setupDirs(this)
         GlobalScope.launch {
