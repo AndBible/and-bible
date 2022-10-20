@@ -43,14 +43,14 @@ object CurrentActivityHolder {
     fun iAmNoLongerCurrent(activity: Activity) {
         // if the next activity has not already overwritten my registration 
         if (currentActivity != null && currentActivity == activity) {
-            Log.w(TAG, "Temporarily null current ativity")
+            Log.w(TAG, "Temporarily null current activity")
             currentActivity = null
             if (appIsInForeground) {
                 appIsInForeground = false
                 ABEventBus
                     .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND))
-                if (CommonUtils.initialized && CommonUtils.settings.getBoolean("show_calculator", false)) {
-                    Log.d(TAG, "Closing app to start from calculator again...")
+                if (CommonUtils.initialized && CommonUtils.showCalculator) {
+                    Log.i(TAG, "Closing app to start from calculator again...")
                     CommonUtils.forceStopApp()
                 }
             }

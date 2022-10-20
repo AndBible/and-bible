@@ -1033,7 +1033,7 @@
     <string name="prefs_discrete_mode_desc">Hide religious symbols. Rename the app to \'Calculator\' and show a different icon in the launcher.</string>
     <string name="prefs_persecution_cat">Settings for the persecuted</string>
     <string name="prefs_show_calculator">Show calculator smoke screen</string>
-    <string name="prefs_show_calculator_desc">Launch a calculator app before the Bible then use a PIN to access the bible app (default PIN is 1234=).</string>
+    <string name="prefs_show_calculator_desc">Launch a calculator app before the Bible then use a PIN to access the bible app (default PIN is 1234).</string>
     <string name="prefs_calculator_pin">Calculator PIN</string>
     <string name="prefs_calculator_pin_desc">PIN code to enter the Bible app when the smoke screen calculator is enabled. </string>
     <string name="calc_division_by_zero">Division by zero is not allowed</string>

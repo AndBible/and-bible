@@ -1228,6 +1228,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
+    val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
 }
 
 @Serializable

@@ -317,8 +317,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     private suspend fun gotoCalculator() {
-        val show = BuildVariant.Appearance.isDiscrete || CommonUtils.settings.getBoolean("show_calculator", false)
-        if(show) {
+        if(CommonUtils.showCalculator) {
             Log.i(TAG, "Going to Calculator")
             val handlerIntent = Intent(this, CalculatorActivity::class.java)
             while(awaitIntent(handlerIntent)?.resultCode != RESULT_OK) {}
