@@ -49,10 +49,6 @@ object CurrentActivityHolder {
                 appIsInForeground = false
                 ABEventBus
                     .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND))
-                if (CommonUtils.initialized && CommonUtils.showCalculator && !CommonUtils.speakControl.isSpeaking) {
-                    Log.i(TAG, "Closing app to start from calculator again...")
-                    CommonUtils.forceStopApp()
-                }
             }
         }
     }

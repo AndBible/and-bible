@@ -20,7 +20,6 @@ package net.bible.android.view.activity
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -60,7 +59,6 @@ import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
-import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
@@ -231,7 +229,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         // When enabled, go to the calculator first,
         // even when there are no Bible documents already installed.
-        gotoCalculator()
+        if(!checkCalculator()) return@withContext
 
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
@@ -317,12 +315,21 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
     }
 
-    private suspend fun gotoCalculator() {
+    private suspend fun checkCalculator(): Boolean {
         if(CommonUtils.showCalculator) {
             Log.i(TAG, "Going to Calculator")
             val handlerIntent = Intent(this, CalculatorActivity::class.java)
-            while(awaitIntent(handlerIntent)?.resultCode != RESULT_OK) {}
+            while(true) {
+                when(awaitIntent(handlerIntent).resultCode) {
+                    RESULT_OK -> break
+                    RESULT_CANCELED -> {
+                        finish()
+                        return false
+                    }
+                }
+            }
         }
+        return true
     }
 
     private fun gotoMainBibleActivity() {

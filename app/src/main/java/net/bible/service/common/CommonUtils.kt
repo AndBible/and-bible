@@ -608,7 +608,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun restartApp(callingActivity: Activity) {
-        val contentIntent = Intent(callingActivity, StartupActivity::class.java)//application.packageManager.getLaunchIntentForPackage(application.packageName)
+        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
         val pendingIntent = PendingIntent.getActivity(callingActivity, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
         val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager

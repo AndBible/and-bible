@@ -332,7 +332,7 @@ object BackupControl {
                     type = "application/zip"
                     putExtra(Intent.EXTRA_TITLE, fileName)
                 }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data
+                val r = callingActivity.awaitIntent(intent).resultData?.data
                 ok = if(r == null) false else backupModulesToUri(r)
             }
             BackupResult.SHARE -> {
@@ -414,7 +414,7 @@ object BackupControl {
                     type = "application/x-sqlite3"
                     putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
                 }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return
+                val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
 
                 _mainBibleActivity?.windowRepository?.saveIntoDb()
                 db.sync()
@@ -456,7 +456,7 @@ object BackupControl {
                     type = "application/x-sqlite3"
                     putExtra(Intent.EXTRA_TITLE, file.name)
                 }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return
+                val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
 
                 _mainBibleActivity?.windowRepository?.saveIntoDb()
                 db.sync()
@@ -474,7 +474,7 @@ object BackupControl {
     suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "application/*"
-        val result = activity.awaitIntent(intent) ?: return
+        val result = activity.awaitIntent(intent)
         if (result.resultCode == Activity.RESULT_OK) {
             val result2 = Dialogs.showMsg2(activity, R.string.restore_confirmation, true)
             if(result2 != Dialogs.Result.OK) return
@@ -501,7 +501,7 @@ object BackupControl {
     suspend fun restoreModulesViaIntent(activity: ActivityBase) {
         val intent = Intent(activity, InstallZip::class.java)
         val result = activity.awaitIntent(intent)
-        if(result?.resultData?.data == null) return
+        if(result.resultData?.data == null) return
 
         _mainBibleActivity?.updateDocuments()
     }

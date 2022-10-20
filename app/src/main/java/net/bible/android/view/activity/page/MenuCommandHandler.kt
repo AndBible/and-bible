@@ -17,7 +17,6 @@
 
 package net.bible.android.view.activity.page
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -41,7 +40,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.BugReport
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.MainBibleActivityScope
-import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
@@ -69,7 +68,7 @@ const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-te
  */
 @MainBibleActivityScope
 class MenuCommandHandler @Inject
-constructor(private val callingActivity: MainBibleActivity,
+constructor(private val mainBibleActivity: MainBibleActivity,
             private val searchControl: SearchControl,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
@@ -79,23 +78,22 @@ constructor(private val callingActivity: MainBibleActivity,
     /**
      * on Click handlers
      */
-    @SuppressLint("RestrictedApi")
     fun handleMenuRequest(menuItem: MenuItem): Boolean {
         var isHandled = false
 
         // Activities
         run {
             var handlerIntent: Intent? = null
-            var requestCode = ActivityBase.STD_REQUEST_CODE
+            var requestCode = STD_REQUEST_CODE
             // Handle item selection
             val currentPage = windowControl.activeWindowPageManager.currentPage
             when (menuItem.itemId) {
                 R.id.chooseDocumentButton -> {
-                    val intent = Intent(callingActivity, ChooseDocument::class.java)
-                    callingActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+                    val intent = Intent(mainBibleActivity, ChooseDocument::class.java)
+                    mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
                 }
                 R.id.rateButton -> {
-                    val htmlMessage = callingActivity.run {
+                    val htmlMessage = mainBibleActivity.run {
                         val email = "help.andbible@gmail.com"
                         val bugReport = getString(R.string.bug_report)
 
@@ -128,12 +126,12 @@ constructor(private val callingActivity: MainBibleActivity,
                         Html.fromHtml(htmlMessage)
                     }
 
-                    val d = AlertDialog.Builder(callingActivity)
+                    val d = AlertDialog.Builder(mainBibleActivity)
                         .setTitle(R.string.rate_title)
                         .setMessage(spanned)
                         .setPositiveButton(if(isSamsung) R.string.okay else R.string.proceed_google_play) {_, _ ->
-                            val samsungUri = Uri.parse("samsungapps://AppRating/"+callingActivity.packageName)
-                            val uri = Uri.parse("market://details?id=" + callingActivity.packageName)
+                            val samsungUri = Uri.parse("samsungapps://AppRating/"+mainBibleActivity.packageName)
+                            val uri = Uri.parse("market://details?id=" + mainBibleActivity.packageName)
                             val intent = Intent(Intent.ACTION_VIEW, if(isSamsung) samsungUri else uri).apply{
                                 // To count with Play market backstack, After pressing back button,
                                 // to taken back to our application, we need to add following flags to intent.
@@ -141,11 +139,11 @@ constructor(private val callingActivity: MainBibleActivity,
                                 addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
                             }
                             try {
-                                callingActivity.startActivity(intent)
+                                mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
                             } catch (e: ActivityNotFoundException) {
-                                val httpSamsungUri = Uri.parse("https://apps.samsung.com/appquery/AppRating.as?appId=" +callingActivity.packageName)
-                                val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + callingActivity.packageName)
-                                callingActivity.startActivity(Intent(Intent.ACTION_VIEW, if(isSamsung) httpSamsungUri else httpUri))
+                                val httpSamsungUri = Uri.parse("https://apps.samsung.com/appquery/AppRating.as?appId=" +mainBibleActivity.packageName)
+                                val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + mainBibleActivity.packageName)
+                                mainBibleActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, if(isSamsung) httpSamsungUri else httpUri), STD_REQUEST_CODE)
                             }
                         }
                         .setNegativeButton(R.string.cancel, null)
@@ -158,30 +156,30 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.backupMainMenu -> {
                     GlobalScope.launch(Dispatchers.Main) {
-                        BackupControl.backupPopup(callingActivity)
+                        BackupControl.backupPopup(mainBibleActivity)
                     }
                     isHandled = true
                 }
                 R.id.searchButton -> {
                     if(currentPage.isSearchable) {
-                        handlerIntent = searchControl.getSearchIntent(currentPage.currentDocument, callingActivity)
+                        handlerIntent = searchControl.getSearchIntent(currentPage.currentDocument, mainBibleActivity)
                     }
                 }
                 R.id.settingsButton -> {
-                    handlerIntent = Intent(callingActivity, SettingsActivity::class.java)
+                    handlerIntent = Intent(mainBibleActivity, SettingsActivity::class.java)
                     // force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
                     requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
                 }
-                R.id.historyButton -> handlerIntent = Intent(callingActivity, History::class.java)
-                R.id.bookmarksButton -> handlerIntent = Intent(callingActivity, Bookmarks::class.java)
+                R.id.historyButton -> handlerIntent = Intent(mainBibleActivity, History::class.java)
+                R.id.bookmarksButton -> handlerIntent = Intent(mainBibleActivity, Bookmarks::class.java)
                 R.id.studyPadsButton -> {
-                    val intent = Intent(callingActivity, ManageLabels::class.java)
+                    val intent = Intent(mainBibleActivity, ManageLabels::class.java)
                     intent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
                         .applyFrom(windowControl.windowRepository.workspaceSettings)
                         .toJSON())
                     GlobalScope.launch (Dispatchers.Main) {
-                        val result = callingActivity.awaitIntent(intent)
-                        if(result?.resultCode == Activity.RESULT_OK) {
+                        val result = mainBibleActivity.awaitIntent(intent)
+                        if(result.resultCode == Activity.RESULT_OK) {
                             val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
                             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         }
@@ -190,23 +188,23 @@ constructor(private val callingActivity: MainBibleActivity,
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {
                         val isBible = currentPage.documentCategory == DocumentCategory.BIBLE
-                        handlerIntent = Intent(callingActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                        handlerIntent = Intent(mainBibleActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
                     }
                 }
                 R.id.dailyReadingPlanButton -> {
-                    handlerIntent = Intent(callingActivity, DailyReading::class.java)
+                    handlerIntent = Intent(mainBibleActivity, DailyReading::class.java)
                     isHandled = true
                 }
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
-                    handlerIntent = Intent(callingActivity, DownloadActivity::class.java)
+                    handlerIntent = Intent(mainBibleActivity, DownloadActivity::class.java)
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
                 R.id.helpButton -> {
-                    CommonUtils.showHelp(callingActivity, showVersion = true)
+                    CommonUtils.showHelp(mainBibleActivity, showVersion = true)
                     isHandled = true
                 }
                 R.id.appLicence -> {
-                    val messageHtml = callingActivity.resources.openRawResource(R.raw.license).readBytes().decodeToString()
+                    val messageHtml = mainBibleActivity.resources.openRawResource(R.raw.license).readBytes().decodeToString()
 
                     val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         Html.fromHtml(messageHtml, Html.FROM_HTML_MODE_LEGACY)
@@ -214,7 +212,7 @@ constructor(private val callingActivity: MainBibleActivity,
                         Html.fromHtml(messageHtml)
                     }
 
-                    val d = AlertDialog.Builder(callingActivity)
+                    val d = AlertDialog.Builder(mainBibleActivity)
                         .setTitle(R.string.app_licence_title)
                         .setMessage(spanned)
                         .setPositiveButton(android.R.string.ok) { _, _ ->  }
@@ -226,19 +224,19 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.bugReport -> {
                     GlobalScope.launch {
-                        BugReport.reportBug(callingActivity, source = "manual")
+                        BugReport.reportBug(mainBibleActivity, source = "manual")
                     }
                     isHandled = true
                 }
                 R.id.tellFriend -> {
                     val homepage = Uri.parse("https://andbible.github.io")
-                    val playstore = Uri.parse("https://play.google.com/store/apps/details?id=" + callingActivity.packageName)
+                    val playstore = Uri.parse("https://play.google.com/store/apps/details?id=" + mainBibleActivity.packageName)
 
-                    val appName = callingActivity.getString(R.string.app_name_long)
-                    val message1 = callingActivity.getString(R.string.tell_friend_message1, appName)
-                    val message2 = callingActivity.getString(R.string.tell_friend_message2)
-                    val playStoreLink = callingActivity.getString(R.string.tell_friend_message3, playstore)
-                    val message4 = callingActivity.getString(R.string.tell_friend_message4, homepage)
+                    val appName = mainBibleActivity.getString(R.string.app_name_long)
+                    val message1 = mainBibleActivity.getString(R.string.tell_friend_message1, appName)
+                    val message2 = mainBibleActivity.getString(R.string.tell_friend_message2)
+                    val playStoreLink = mainBibleActivity.getString(R.string.tell_friend_message3, playstore)
+                    val message4 = mainBibleActivity.getString(R.string.tell_friend_message4, homepage)
 
                     val message = if(isSamsung)
                         """
@@ -259,24 +257,22 @@ constructor(private val callingActivity: MainBibleActivity,
                         putExtra(Intent.EXTRA_TEXT, message)
                         type = "text/plain"
                     }
-                    val chooserIntent = Intent.createChooser(emailIntent, callingActivity.getString(R.string.tell_friend_title))
-                    callingActivity.startActivity(chooserIntent)
+                    val chooserIntent = Intent.createChooser(emailIntent, mainBibleActivity.getString(R.string.tell_friend_title))
+                    mainBibleActivity.startActivityForResult(chooserIntent, STD_REQUEST_CODE)
                     isHandled = true
                 }
                 R.id.howToContribute -> {
-                   callingActivity.startActivity(Intent(Intent.ACTION_VIEW,
-                       Uri.parse(contributeLink)))
+                   mainBibleActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(contributeLink)), STD_REQUEST_CODE)
                    isHandled = true
                 }
                 R.id.needHelp -> {
-                    callingActivity.startActivity(Intent(Intent.ACTION_VIEW,
-                        Uri.parse(needHelpLink)))
+                    mainBibleActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(needHelpLink)), STD_REQUEST_CODE)
                     isHandled = true
                 }
             }
 
             if (handlerIntent != null) {
-                callingActivity.startActivityForResult(handlerIntent, requestCode)
+                mainBibleActivity.startActivityForResult(handlerIntent, requestCode)
                 isHandled = true
             }
         }
@@ -289,7 +285,7 @@ constructor(private val callingActivity: MainBibleActivity,
             Log.i(TAG, "Refresh on finish")
             if (!equals(CommonUtils.localePref ?: "", BibleApplication.application.localeOverrideAtStartUp)) {
                 // must restart to change locale
-                CommonUtils.restartApp(callingActivity)
+                CommonUtils.restartApp(mainBibleActivity)
             }
         }
         return false

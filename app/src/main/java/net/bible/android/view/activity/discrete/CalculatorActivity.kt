@@ -40,6 +40,7 @@ class CalculatorActivity : ActivityBase() {
     private var dotUsed = false
     private var equalClicked = false
     private var lastExpression = ""
+    override val doNotInitializeApp: Boolean = true
 
     private fun evaluate(formula: String): String = ExpressionBuilder(formula).build().evaluate().toString()
 
@@ -49,9 +50,15 @@ class CalculatorActivity : ActivityBase() {
         calculatorBinding = CalculatorLayoutBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(calculatorBinding.root)
+        buildActivityComponent().inject(this)
 
         setOnClickListeners()
         setOnTouchListener()
+    }
+
+    override fun onBackPressed() {
+        setResult(RESULT_CANCELED)
+        finish()
     }
 
     private fun setOnClickListeners() = calculatorBinding.run {

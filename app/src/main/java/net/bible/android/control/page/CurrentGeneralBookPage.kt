@@ -77,7 +77,7 @@ class CurrentGeneralBookPage internal constructor(
                             .applyFrom(_mainBibleActivity?.workspaceSettings)
                             .toJSON())
                     )
-                    if(result?.resultCode == Activity.RESULT_OK) {
+                    if(result.resultCode == Activity.RESULT_OK) {
                         val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
                         _mainBibleActivity?.workspaceSettings?.updateFrom(resultData)
                     }

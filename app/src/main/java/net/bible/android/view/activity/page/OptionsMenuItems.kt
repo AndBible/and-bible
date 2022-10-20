@@ -410,7 +410,7 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
         ).applyFrom(windowRepository.workspaceSettings).toJSON())
         GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
-            if(result?.resultCode == Activity.RESULT_OK) {
+            if(result.resultCode == Activity.RESULT_OK) {
                 val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
                 if(resultData.reset) {
                     setNonSpecific()
@@ -437,7 +437,7 @@ class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSet
 
         GlobalScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
-            if(result?.resultCode == Activity.RESULT_OK) {
+            if(result.resultCode == Activity.RESULT_OK) {
                 val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
                 if (resultData.reset) {
                     workspaceSettings.autoAssignLabels = mutableSetOf()

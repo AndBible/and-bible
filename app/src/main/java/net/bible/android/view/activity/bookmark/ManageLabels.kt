@@ -586,7 +586,7 @@ class ManageLabels : ListActivityBase() {
         intent.putExtra("data", json.encodeToString(serializer(), labelData))
 
         mainScope.launch {
-            val result = awaitIntent(intent) ?: return@launch
+            val result = awaitIntent(intent)
             if (result.resultCode != Activity.RESULT_CANCELED) {
                 val newLabelData: LabelEditActivity.LabelData = json.decodeFromString(
                     serializer(), result.resultData.getStringExtra("data")!!)

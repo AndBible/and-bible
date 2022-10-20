@@ -20,6 +20,7 @@ package net.bible.android.view.activity.page
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Instrumentation.ActivityResult
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -240,24 +241,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         setupToolbarFlingDetection()
         setSoftKeyboardMode()
 
-        if(!initialized) {
-            requestSdcardPermission()
-        }
-
-        if(!initialized) {
-            scope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Main) {
+            if(!initialized) {
+                requestSdcardPermission()
                 ErrorReportControl.checkCrash(this@MainBibleActivity)
                 if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
                 showBetaNotice()
                 showStableNotice()
                 showFirstTimeHelp()
                 ABEventBus.post(ToastEvent(windowRepository.name))
-            }
-            scope.launch {
                 checkDocBackupDBInSync()
             }
+            initialized = true
         }
-        initialized = true
     }
 
     private fun setupUi() {
@@ -572,7 +568,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
             // been performed on the long press, so will set the cancelled flag for the following up event.
             val intent = Intent(this, History::class.java)
-            startActivityForResult(intent, 1)
+            startActivityForResult(intent, STD_REQUEST_CODE)
             return true
         }
 
@@ -622,7 +618,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             speakButton.setOnLongClickListener {
                 val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
                 val intent = Intent(this@MainBibleActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
-                startActivity(intent)
+                startActivityForResult(intent, STD_REQUEST_CODE)
                 true
             }
             searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument, this@MainBibleActivity), STD_REQUEST_CODE) }
@@ -1151,7 +1147,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     /**
-     * called if the app is re-entered after returning from another app.
+     * called if the activity is re-entered.
      * Trigger redisplay in case mobile has gone from light to dark or vice-versa
      */
     override fun onRestart() {
@@ -1160,6 +1156,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             mWholeAppWasInBackground = false
             refreshIfNightModeChange()
         }
+        if(lastRequest == null) {
+            scope.launch(Dispatchers.Main) {
+                val handlerIntent = Intent(this@MainBibleActivity, CalculatorActivity::class.java)
+                while(true) {
+                    when(awaitIntent(handlerIntent).resultCode) {
+                        RESULT_OK -> break
+                        RESULT_CANCELED -> {
+                            finish()
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        lastRequest = null
     }
 
     /**
@@ -1269,7 +1280,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         updateActions()
     }
 
+    var lastRequest: Int? = null
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        lastRequest = requestCode
         Log.i(TAG, "Activity result:$resultCode")
         val extras = data?.extras
         if (extras != null) {
