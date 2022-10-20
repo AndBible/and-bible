@@ -1156,7 +1156,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             mWholeAppWasInBackground = false
             refreshIfNightModeChange()
         }
-        if(lastRequest == null) {
+        if(CommonUtils.showCalculator && lastRequest == null) {
             scope.launch(Dispatchers.Main) {
                 val handlerIntent = Intent(this@MainBibleActivity, CalculatorActivity::class.java)
                 while(true) {
