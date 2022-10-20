@@ -221,6 +221,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             .build()
             .inject(this)
 
+        if(CommonUtils.isDiscrete) {
+            binding.bibleButton.setImageResource(R.drawable.ic_baseline_menu_book_24)
+        }
         // use context to setup backup control dirs
         BackupControl.setupDirs(this)
         BackupControl.clearBackupDir()
