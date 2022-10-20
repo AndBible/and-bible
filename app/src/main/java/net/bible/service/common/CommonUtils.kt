@@ -903,9 +903,7 @@ object CommonUtils : CommonUtilsBase() {
 
             buildActivityComponent().inject(this)
 
-            if(!showCalculator) {
-                ttsNotificationManager = TextToSpeechNotificationManager()
-            }
+            ttsNotificationManager = TextToSpeechNotificationManager()
             if(!BuildVariant.Appearance.isDiscrete) {
                 ttsWidgetManager = SpeakWidgetManager()
             }
