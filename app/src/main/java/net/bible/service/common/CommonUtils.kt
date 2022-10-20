@@ -321,7 +321,7 @@ object CommonUtils : CommonUtilsBase() {
     val localePref: String?
         get() = realSharedPreferences.getString("locale_pref", null)
 
-    // Note: use And BibleSettings always if possible to save preferences. They are persisted in DB.
+    // Note: use AndBibleSettings always if possible to save preferences. They are persisted in DB.
     val realSharedPreferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 

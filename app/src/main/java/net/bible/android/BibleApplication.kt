@@ -66,7 +66,7 @@ class MyLocaleProvider: LocaleProvider {
     }
 }
 
-/** Main And Bible application singleton object
+/** Main AndBible application singleton object
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
@@ -88,7 +88,7 @@ open class BibleApplication : Application() {
 
     @SuppressLint("ApplySharedPref")
     override fun onCreate() {
-        Log.i(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
+        Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->

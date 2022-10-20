@@ -24,7 +24,7 @@ The application has many insightful, original features, that makes a complex and
 
 Let’s make the best Bible app together!
 
-And Bible is an open-source community project. In practice, this means that anyone with suitable skills can, and is encouraged to, contribute to the project by:
+AndBible is an open-source community project. In practice, this means that anyone with suitable skills can, and is encouraged to, contribute to the project by:
 
  * developing new features,
  * testing not-yet-released features,
@@ -36,7 +36,7 @@ If you are a professional software engineer or tester, please consider contribut
 Links
 
  * Homepage: https://andbible.github.io
- * Like And Bible on Facebook: https://www.facebook.com/AndBible/
+ * Like AndBible on Facebook: https://www.facebook.com/AndBible/
  * Our Youtube Channel: https://www.youtube.com/c/AndBible
  * Frequently Asked Questions: https://git.io/JJm8E
  * Project page on Github: https://github.com/AndBible/and-bible
