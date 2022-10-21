@@ -95,7 +95,11 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
 
         super.onCreate(savedInstanceState)
+
         if(!doNotInitializeApp) {
+            if(CommonUtils.showCalculator) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
             refreshScreenKeepOn()
         }
 
