@@ -321,7 +321,7 @@ class TextToSpeechNotificationManager {
 
         if(CommonUtils.isDiscrete) {
             builder
-                .setSmallIcon(R.drawable.ic_calculator_color)
+                .setSmallIcon(R.drawable.ic_baseline_headphones_24)
                 .setContentTitle(getString(R.string.speak))
         } else {
             builder
