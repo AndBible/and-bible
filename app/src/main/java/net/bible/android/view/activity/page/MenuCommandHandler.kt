@@ -41,6 +41,7 @@ import net.bible.android.control.report.BugReport
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
@@ -259,11 +260,11 @@ constructor(private val mainBibleActivity: MainBibleActivity,
                     isHandled = true
                 }
                 R.id.howToContribute -> {
-                   mainBibleActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(contributeLink)), STD_REQUEST_CODE)
+                   openLink(contributeLink)
                    isHandled = true
                 }
                 R.id.needHelp -> {
-                    mainBibleActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(needHelpLink)), STD_REQUEST_CODE)
+                    openLink(needHelpLink)
                     isHandled = true
                 }
             }
@@ -275,6 +276,21 @@ constructor(private val mainBibleActivity: MainBibleActivity,
         }
 
         return isHandled
+    }
+
+    private fun openLink(link: String) {
+        if (CommonUtils.isDiscrete) {
+            GlobalScope.launch (Dispatchers.Main){
+                if(Dialogs.simpleQuestion(mainBibleActivity,
+                        application.getString(R.string.external_link),
+                        application.getString(R.string.external_link_question, link))
+                ) {
+                    mainBibleActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)), STD_REQUEST_CODE)
+                }
+            }
+        } else {
+            mainBibleActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)), STD_REQUEST_CODE)
+        }
     }
 
     fun restartIfRequiredOnReturn(requestCode: Int): Boolean {

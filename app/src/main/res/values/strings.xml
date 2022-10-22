@@ -1066,4 +1066,6 @@
     <string name="discrete_mode_link">
         You can download the latest version of discrete version from %s.
     </string>
+    <string name="external_link">External link</string>
+    <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
 </resources>
