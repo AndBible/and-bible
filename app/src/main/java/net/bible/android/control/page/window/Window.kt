@@ -110,7 +110,7 @@ open class Window (
     val isSplit: Boolean
         get() = windowLayout.state == WindowState.SPLIT
 
-    val isSyncable: Boolean
+    open val isSyncable: Boolean
         get() = pageManager.currentPage.isSyncable
 
     val isClosed: Boolean
