@@ -218,7 +218,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         binding = MainBibleViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if(!(BuildVariant.DistributionChannel.isPlay || BuildVariant.DistributionChannel.isSamsung)) {
+        if(BuildVariant.Appearance.isDiscrete ||
+            BuildVariant.DistributionChannel.isHuawei ||
+            BuildVariant.DistributionChannel.isFdroid ||
+            BuildVariant.DistributionChannel.isAmazon
+        ) {
             binding.navigationView.menu.findItem(R.id.rateButton).isVisible = false
         }
 

@@ -29,6 +29,9 @@ object BuildVariant {
     object DistributionChannel {
         inline val isSamsung get() = FLAVOR_distchannel == "samsung"
         inline val isPlay get() = FLAVOR_distchannel == "googleplay"
+        inline val isHuawei get() = FLAVOR_distchannel == "huawei"
+        inline val isFdroid get() = FLAVOR_distchannel == "fdroid"
+        inline val isAmazon get() = FLAVOR_distchannel == "amazon"
     }
 }
 
