@@ -93,7 +93,7 @@
 			android:entries="@array/prefs_night_mode_descriptions"
 			android:entryValues="@array/prefs_night_mode_values"
 			android:icon="@drawable/ic_night_mode_switching_24dp"
-			android:defaultValue="manual"/>
+			android:defaultValue="system"/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/prefs_display_customization_cat">
