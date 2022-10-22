@@ -38,6 +38,7 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
@@ -206,7 +207,7 @@ class TextToSpeechNotificationManager {
 
         ABEventBus.register(this)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !BuildVariant.Appearance.isDiscrete) {
             val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL,
                     getString(R.string.notification_channel_tts_status), NotificationManager.IMPORTANCE_LOW).apply {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
