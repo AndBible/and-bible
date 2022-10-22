@@ -184,11 +184,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         if (autoModeAvailable) {
             nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_auto_manual)
             nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_auto_manual)
-            nightModePref.setDefaultValue(R.string.prefs_night_mode_system)
+            nightModePref.setDefaultValue("system")
         } else {
             nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_manual)
             nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
-            nightModePref.setDefaultValue(R.string.prefs_night_mode_system)
+            nightModePref.setDefaultValue("system")
         }
         val showErrorBox = preferenceScreen.findPreference<ListPreference>("show_errorbox") as Preference
         showErrorBox.isVisible = CommonUtils.isBeta

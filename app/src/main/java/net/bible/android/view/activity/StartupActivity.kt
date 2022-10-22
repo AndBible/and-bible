@@ -192,7 +192,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
         startupViewBinding = StartupViewBinding.inflate(layoutInflater)
         setContentView(spinnerBinding.root)
-        // do not show an actionBar/title on the splash screen
         buildActivityComponent().inject(this)
         supportActionBar!!.hide()
         if (!checkForExternalStorage()) return
