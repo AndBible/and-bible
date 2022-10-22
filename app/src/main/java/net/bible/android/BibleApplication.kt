@@ -205,7 +205,7 @@ open class BibleApplication : Application() {
             }
         }
 
-        if(prevInstalledVersion <= 350) {
+        if(prevInstalledVersion <= 350 && !newInstall) {
             val oldPrefValue = appStateSharedPreferences.getBoolean("night_mode_pref", false)
             val pref2value = appStateSharedPreferences.getString("night_mode_pref2", "false")
             val pref3value = when(pref2value) {
