@@ -59,6 +59,7 @@ import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
@@ -198,7 +199,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         BackupControl.setupDirs(this)
         GlobalScope.launch {
-            ErrorReportControl.checkCrash(this@StartupActivity)
+            if(!BuildVariant.Appearance.isDiscrete) {
+                ErrorReportControl.checkCrash(this@StartupActivity)
+            }
             // switch back to ui thread to continue
             withContext(Dispatchers.Main) {
                 postBasicInitialisationControl()
@@ -230,7 +233,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         // When enabled, go to the calculator first,
         // even when there are no Bible documents already installed.
         if(!checkCalculator()) return@withContext
-
+        if(BuildVariant.Appearance.isDiscrete) {
+            ErrorReportControl.checkCrash(this@StartupActivity)
+        }
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
