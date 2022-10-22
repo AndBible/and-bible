@@ -146,7 +146,7 @@ class ProgressNotificationManager {
 
         if(CommonUtils.isDiscrete) {
             builder
-                .setSmallIcon(R.drawable.ic_calculator_color)
+                .setSmallIcon(R.drawable.ic_calc_24)
                 .setContentTitle(app.getString(R.string.progress_status))
             }
 
