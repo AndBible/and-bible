@@ -38,7 +38,6 @@ import net.bible.service.common.CommonUtils.makeLarger
 import net.bible.service.common.getPreferenceList
 import net.bible.service.common.htmlToSpan
 import net.bible.service.device.ScreenSettings.autoModeAvailable
-import net.bible.service.device.ScreenSettings.systemModeAvailable
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
 
@@ -182,20 +181,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
         //If no light sensor exists switch to old boolean check box
         // see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
         val nightModePref = preferenceScreen.findPreference<ListPreference>("night_mode_pref3") as ListPreference
-        if (systemModeAvailable) {
-            if (autoModeAvailable) {
-                nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_auto_manual)
-                nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_auto_manual)
-                nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
-            } else {
-                nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_manual)
-                nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
-                nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
-            }
+        if (autoModeAvailable) {
+            nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_auto_manual)
+            nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_auto_manual)
+            nightModePref.setDefaultValue(R.string.prefs_night_mode_system)
         } else {
-            if (!autoModeAvailable) {
-                nightModePref.isVisible = false
-            }
+            nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_manual)
+            nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
+            nightModePref.setDefaultValue(R.string.prefs_night_mode_system)
         }
         val showErrorBox = preferenceScreen.findPreference<ListPreference>("show_errorbox") as Preference
         showErrorBox.isVisible = CommonUtils.isBeta
