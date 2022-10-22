@@ -73,25 +73,21 @@ jobs:
         echo TAG=${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
         grep versionName ./app/src/main/AndroidManifest.xml | cut -d\" -f2 > VNAME
         echo VERSION_NAME=$(cat VNAME) >> $GITHUB_OUTPUT
-        echo RELEASE_TITLE=$( if [[ $GITHUB_REF =~ build- ]]; then git log -1 --pretty=%B; elif [[ $GITHUB_REF =~ -discrete ]]; then echo "Release $(cat VNAME) (discrete version!)"; else echo "Release $(cat VNAME)"; fi ) >> $GITHUB_OUTPUT
+        echo RELEASE_TITLE=$( if [[ $GITHUB_REF =~ build- ]]; then git log -1 --pretty=%B; else echo "Release $(cat VNAME)"; fi ) >> $GITHUB_OUTPUT
         echo "./fastlane/metadata/android/en-US/changelogs/$(cat VNAME).txt" > CLPATH
         if [[ -f $(cat CLPATH) ]] && ! [[ $GITHUB_REF =~ build- ]]; then cp $(cat CLPATH) RELEASENOTES.txt; else cat > ./RELEASENOTES.txt; fi
 
-    - name: Build standard build with Gradle
-      if: ${{ !endsWith(github.ref, '-discrete') }}
-      run: ./gradlew --console plain assembleStandardGithubRelease
+    - name: Build with Gradle
+      run: ./gradlew --console plain assembleStandardGithubRelease assembleDiscreteGithubRelease
 
-    - name: Build discrete build with Gradle
-      if: endsWith(github.ref, '-discrete')
-      run: ./gradlew --console plain assembleDiscreteGithubRelease
-
-    - name: Sign apk
+    - name: Sign apks
       if: contains(github.ref, 'refs/tags/')
       env: 
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
       run: |
         echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > keystore.jks
-        $ANDROID_SDK_ROOT/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app/build/outputs/apk/*/release/*-unsigned.apk
+        $ANDROID_SDK_ROOT/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app/build/outputs/apk/standardGithub/release/*-unsigned.apk
+        $ANDROID_SDK_ROOT/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/calc-$TAG_NAME.apk app/build/outputs/apk/discreteGithub/release/*-unsigned.apk
         rm -f keystore.jks
     - name: Create release
       if: contains(github.ref, 'refs/tags/')
@@ -108,7 +104,7 @@ jobs:
         body_path: ./RELEASENOTES.txt
         prerelease: true
 
-    - name: Upload Release Apk
+    - name: Upload Standard release Apk
       if: contains(github.ref, 'refs/tags/')
       uses: actions/upload-release-asset@v1
       env:
@@ -118,6 +114,17 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./andbible-${{ env.TAG_NAME }}.apk
         asset_name: andbible-${{ env.TAG_NAME }}.apk
+        asset_content_type: application/vnd.android.package-archive
+    - name: Upload Discrete release Apk
+      if: contains(github.ref, 'refs/tags/')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./calc-${{ env.TAG_NAME }}.apk
+        asset_name: discrete-calculator-${{ env.TAG_NAME }}.apk
         asset_content_type: application/vnd.android.package-archive
 
     - name: Before saving cache
