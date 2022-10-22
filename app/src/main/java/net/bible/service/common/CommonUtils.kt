@@ -1211,6 +1211,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun changeAppIconAndName() {
+        if (BuildVariant.Appearance.isDiscrete) return
         val discrete = settings.getBoolean("discrete_mode", false)
         val packageName = BuildConfig.APPLICATION_ID
         val allNames = listOf(
