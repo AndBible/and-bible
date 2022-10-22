@@ -54,6 +54,7 @@ import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.BuildVariant
+import net.bible.service.common.htmlToSpan
 
 import javax.inject.Inject
 
@@ -120,11 +121,7 @@ constructor(private val mainBibleActivity: MainBibleActivity,
                             $msg2 <br><br>
                             $msg3 $msg4""".trimIndent()
                     }
-                    val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-                    } else {
-                        Html.fromHtml(htmlMessage)
-                    }
+                    val spanned = htmlToSpan(htmlMessage)
 
                     val d = AlertDialog.Builder(mainBibleActivity)
                         .setTitle(R.string.rate_title)

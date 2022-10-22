@@ -105,6 +105,7 @@ import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.SpeakTransportWidget
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.betaIntroVideo
 import net.bible.service.common.htmlToSpan
@@ -216,6 +217,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         binding = MainBibleViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if(!(BuildVariant.DistributionChannel.isPlay || BuildVariant.DistributionChannel.isSamsung)) {
+            binding.navigationView.menu.findItem(R.id.rateButton).isVisible = false
+        }
 
         DaggerMainBibleActivityComponent.builder()
             .applicationComponent(BibleApplication.application.applicationComponent)
