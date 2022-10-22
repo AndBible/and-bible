@@ -19,7 +19,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     >
 
-    <application>
+    <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        tools:replace="android:allowBackup,android:fullBackupContent"
+        >
 
         <!-- enable the discrete main activity -->
         <activity-alias
