@@ -658,6 +658,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun destroy() {
         toBeDestroyed = true
+        gestureListener.destroy()
         pageTiltScroller.destroy()
         removeJavascriptInterface("android")
     }
