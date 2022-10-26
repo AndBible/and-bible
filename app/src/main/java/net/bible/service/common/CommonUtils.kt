@@ -1126,7 +1126,7 @@ object CommonUtils : CommonUtilsBase() {
         Log.i(TAG, "Language tag $languageTag, code $languageCode")
 
         val goodLanguages = listOf(
-            "af", "cs", "de", "en", "eo", "es", "fi", "fr", "hi", "hu", "it", "kk", "lt", "my", "pl", "pt", "ro", "ru",
+            "af", "cs", "de", "en", "eo", "es", "fi", "fr", "hi", "hu", "it", "kk", "lt", "my", "nl", "pl", "pt", "ro", "ru",
             "sk", "sl", "te", "uk", "zh-Hans-CN", "zh-Hant-TW",
             // almost: "ko", "he" (hebrew, check...)
         )
