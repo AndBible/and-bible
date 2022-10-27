@@ -49,6 +49,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
@@ -57,9 +58,9 @@ import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.lifecycleScope
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -650,7 +651,7 @@ object CommonUtils : CommonUtilsBase() {
 
     private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
-    suspend fun unlockDocument(context: Context, book: Book): Boolean {
+    suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
         class ShowAgain: Exception()
         var repeat = true
         while(repeat) {
@@ -666,7 +667,7 @@ object CommonUtils : CommonUtilsBase() {
                     }
                     .setView(name)
                     .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
-                    .setNeutralButton(R.string.show_unlock_info) { _, _ -> GlobalScope.launch(Dispatchers.Main) {
+                    .setNeutralButton(R.string.show_unlock_info) { _, _ -> context.lifecycleScope.launch(Dispatchers.Main) {
                         showAbout(context, book)
                         it.resumeWithException(ShowAgain())
                     } }

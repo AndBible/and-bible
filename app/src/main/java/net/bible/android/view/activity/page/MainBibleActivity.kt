@@ -55,6 +55,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -134,7 +135,6 @@ import kotlin.system.exitProcess
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
-    val scope = CoroutineScope(Dispatchers.Default)
 
     private var mWholeAppWasInBackground = false
 
@@ -251,7 +251,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         setupToolbarFlingDetection()
         setSoftKeyboardMode()
 
-        scope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
             if(!initialized) {
                 requestSdcardPermission()
                 ErrorReportControl.checkCrash(this@MainBibleActivity)
@@ -1163,7 +1163,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             refreshIfNightModeChange()
         }
         if(CommonUtils.showCalculator && lastRequest == null) {
-            scope.launch(Dispatchers.Main) {
+            lifecycleScope.launch(Dispatchers.Main) {
                 val handlerIntent = Intent(this@MainBibleActivity, CalculatorActivity::class.java)
                 while(true) {
                     when(awaitIntent(handlerIntent).resultCode) {

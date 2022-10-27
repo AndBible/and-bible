@@ -36,6 +36,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -363,7 +364,7 @@ class ManageLabels : ListActivityBase() {
 
         highlightLabel?.also {
             val pos = shownLabels.indexOf(it)
-            mainScope.launch {
+            lifecycleScope.launch(Dispatchers.Main) {
                 delay(100)
                 listView.smoothScrollToPosition(pos)
             }
@@ -558,8 +559,6 @@ class ManageLabels : ListActivityBase() {
         ensureNotAutoAssignPrimaryLabel(label)
     }
 
-    private val mainScope = CoroutineScope(Dispatchers.Main)
-
     fun editLabel(label_: BookmarkEntities.Label) {
         var label = label_
         val isNew = label.id < 0
@@ -585,8 +584,8 @@ class ManageLabels : ListActivityBase() {
 
         intent.putExtra("data", json.encodeToString(serializer(), labelData))
 
-        mainScope.launch {
-            val result = awaitIntent(intent)
+        lifecycleScope.launch(Dispatchers.Main) {
+            val result = awaitIntent(intent) ?: return@launch
             if (result.resultCode != Activity.RESULT_CANCELED) {
                 val newLabelData: LabelEditActivity.LabelData = json.decodeFromString(
                     serializer(), result.resultData.getStringExtra("data")!!)
@@ -653,7 +652,7 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    private fun saveAndExit(selected: BookmarkEntities.Label? = null) = mainScope.launch {
+    private fun saveAndExit(selected: BookmarkEntities.Label? = null) = lifecycleScope.launch(Dispatchers.Main) {
         Log.i(TAG, "Okay clicked")
         CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideText)
         CommonUtils.settings.setBoolean("labels_list_filter_showTextSearch", showTextSearch)
@@ -722,7 +721,7 @@ class ManageLabels : ListActivityBase() {
     }
 
     fun reset() {
-        mainScope.launch {
+        lifecycleScope.launch(Dispatchers.Main) {
             val msgId = when(data.mode) {
                 Mode.WORKSPACE -> R.string.reset_workspace_labels
                 Mode.HIDELABELS -> R.string.reset_hide_labels

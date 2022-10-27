@@ -31,8 +31,8 @@ import android.view.View
 import android.widget.Button
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
@@ -418,7 +418,7 @@ object BackupControl {
 
                 _mainBibleActivity?.windowRepository?.saveIntoDb()
                 db.sync()
-                GlobalScope.launch(Dispatchers.IO) {
+                callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, dbFile)
                 }
             }
@@ -460,7 +460,7 @@ object BackupControl {
 
                 _mainBibleActivity?.windowRepository?.saveIntoDb()
                 db.sync()
-                GlobalScope.launch(Dispatchers.IO) {
+                callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, file)
                 }
             }
@@ -524,7 +524,6 @@ object BackupControl {
 
 class BackupActivity: ActivityBase() {
     lateinit var binding: BackupViewBinding
-    private val backupScope = CoroutineScope(Dispatchers.Default)
 
     override fun onBackPressed() {
         updateSelectionOptions()
@@ -557,16 +556,16 @@ class BackupActivity: ActivityBase() {
             buttonBackup.setOnClickListener {
                 updateSelectionOptions()
                 when {
-                    toggleBackupApplication.isChecked -> backupScope.launch { BackupControl.backupApp(this@BackupActivity) }
-                    toggleBackupDatabase.isChecked -> backupScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) }
-                    toggleBackupDocuments.isChecked -> backupScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) }
+                    toggleBackupApplication.isChecked -> lifecycleScope.launch { BackupControl.backupApp(this@BackupActivity) }
+                    toggleBackupDatabase.isChecked -> lifecycleScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) }
+                    toggleBackupDocuments.isChecked -> lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) }
                 }
             }
             buttonRestore.setOnClickListener {
                 updateSelectionOptions()
                 when {
-                    toggleRestoreDatabase.isChecked -> backupScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) }
-                    toggleRestoreDocuments.isChecked -> backupScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
+                    toggleRestoreDatabase.isChecked -> lifecycleScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) }
+                    toggleRestoreDocuments.isChecked -> lifecycleScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
                 }
             }
             CommonUtils.dbBackupPath.listFiles()?.forEach { f ->
@@ -574,7 +573,7 @@ class BackupActivity: ActivityBase() {
                 val s = f.name
                 b.text = s
                 b.setOnClickListener {
-                    backupScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
+                    lifecycleScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
                 }
                 backupDbButtons.addView(b)
             }
