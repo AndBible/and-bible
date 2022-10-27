@@ -49,6 +49,10 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         ABEventBus.register(this)
     }
 
+    fun destroy() {
+        ABEventBus.unregister(this)
+    }
+
     override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
         if (!::flingEv.isInitialized || e1.eventTime > flingEv.eventTime) {
             // New fling event
