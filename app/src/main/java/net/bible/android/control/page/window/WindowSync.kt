@@ -20,10 +20,13 @@ package net.bible.android.control.page.window
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import debounce
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.page.CurrentPage
 import net.bible.android.control.page.DocumentCategory
+import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.device.ScreenSettings
 
@@ -79,7 +82,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             delayedSynchronizeWindows(sourceWindow)
     }
 
-    val scope get() = mainBibleActivity.lifecycleScope
+    val scope get() = _mainBibleActivity?.lifecycleScope?: CoroutineScope(Dispatchers.Default) // for tests
     private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit
         = debounce(200, scope) { sourceWindow -> immediateSynchronizeWindows(sourceWindow)}
 
