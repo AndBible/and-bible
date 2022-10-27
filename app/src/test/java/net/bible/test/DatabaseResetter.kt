@@ -17,14 +17,11 @@
 
 package net.bible.test
 
-import android.os.Looper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import org.robolectric.Shadows
 import java.lang.IllegalStateException
 import java.lang.reflect.Field
 
@@ -39,8 +36,8 @@ object DatabaseResetter {
         val scopes = ArrayList<CoroutineScope>()
         scopes.addAll(scopes_)
         scopes.add(GlobalScope)
-        scopes.add(CommonUtils.windowControl.windowRepository.windowUpdateScope)
-        scopes.add(CommonUtils.windowControl.windowSync.syncScope)
+        scopes.add(CommonUtils.windowControl.windowRepository.scope)
+        scopes.add(CommonUtils.windowControl.windowSync.scope)
         for(scope in scopes) {
             try {
                 scope.cancel("Time to stop! Test already ended...")

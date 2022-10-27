@@ -155,7 +155,7 @@ open class Window (
         }
 
     val initialized get() = lastUpdated != 0L
-    private val updateScope get() = windowRepository.windowUpdateScope
+    private val updateScope get() = windowRepository.scope
 
     fun updateText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible
