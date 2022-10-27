@@ -28,6 +28,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
@@ -280,7 +281,7 @@ constructor(private val mainBibleActivity: MainBibleActivity,
 
     private fun openLink(link: String) {
         if (CommonUtils.isDiscrete) {
-            GlobalScope.launch (Dispatchers.Main){
+            mainBibleActivity.lifecycleScope.launch(Dispatchers.Main) {
                 if(Dialogs.simpleQuestion(mainBibleActivity,
                         application.getString(R.string.external_link),
                         application.getString(R.string.external_link_question, link))
