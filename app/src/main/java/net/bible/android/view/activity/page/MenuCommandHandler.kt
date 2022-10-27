@@ -29,7 +29,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import kotlinx.coroutines.GlobalScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.BibleApplication
@@ -156,7 +156,7 @@ constructor(private val callingActivity: MainBibleActivity,
 
                 }
                 R.id.backupMainMenu -> {
-                    GlobalScope.launch(Dispatchers.Main) {
+                    callingActivity.lifecycleScope.launch(Dispatchers.Main) {
                         BackupControl.backupPopup(callingActivity)
                     }
                     isHandled = true
@@ -178,7 +178,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     intent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
                         .applyFrom(windowControl.windowRepository.workspaceSettings)
                         .toJSON())
-                    GlobalScope.launch (Dispatchers.Main) {
+                    callingActivity.lifecycleScope.launch (Dispatchers.Main) {
                         val result = callingActivity.awaitIntent(intent)
                         if(result?.resultCode == Activity.RESULT_OK) {
                             val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
@@ -224,7 +224,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     isHandled = true
                 }
                 R.id.bugReport -> {
-                    GlobalScope.launch {
+                    callingActivity.lifecycleScope.launch {
                         BugReport.reportBug(callingActivity, source = "manual")
                     }
                     isHandled = true

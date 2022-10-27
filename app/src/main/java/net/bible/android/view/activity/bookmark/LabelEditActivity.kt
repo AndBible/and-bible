@@ -28,10 +28,10 @@ import android.view.View.GONE
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.lifecycle.lifecycleScope
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
@@ -164,8 +164,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     private fun remove() {
         updateData()
 
-        GlobalScope.launch(Dispatchers.Main) {
-            val result = suspendCoroutine<Boolean> {
+        lifecycleScope.launch(Dispatchers.Main) {
+            val result = suspendCoroutine {
                 AlertDialog.Builder(this@LabelEditActivity)
                     .setMessage(getString(R.string.delete_label_confirmation, data.label.name))
                     .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }

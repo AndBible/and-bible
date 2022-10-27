@@ -19,8 +19,8 @@ package net.bible.android.control.page
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.common.toV11n
 import net.bible.android.database.WorkspaceEntities
@@ -69,7 +69,7 @@ class CurrentGeneralBookPage internal constructor(
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
     override fun startKeyChooser(context: ActivityBase) {
-        GlobalScope.launch(Dispatchers.Main) {
+        context.lifecycleScope.launch(Dispatchers.Main) {
             when (currentDocument) {
                 FakeBookFactory.journalDocument -> {
                     val result = context.awaitIntent(Intent(context, ManageLabels::class.java)

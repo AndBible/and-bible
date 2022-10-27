@@ -40,8 +40,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.databinding.ActivityInstallZipBinding
@@ -278,7 +278,7 @@ class InstallZip : ActivityBase() {
                 },
             this
         )
-        GlobalScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.VISIBLE
             zh.execute()
             binding.loadingIndicator.visibility = View.GONE

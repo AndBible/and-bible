@@ -26,8 +26,8 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -72,7 +72,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         binding.closeButton.setOnClickListener {
             finish()
         }
-        GlobalScope.launch {
+        lifecycleScope.launch {
             prepareResults()
         }
     }

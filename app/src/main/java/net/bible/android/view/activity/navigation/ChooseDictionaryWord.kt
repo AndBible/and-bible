@@ -27,8 +27,8 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ListView
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -93,7 +93,7 @@ class ChooseDictionaryWord : ListActivityBase() {
             LIST_ITEM_TYPE,
             mMatchingKeyList)
 
-        GlobalScope.launch {
+        lifecycleScope.launch {
             withContext(Dispatchers.Main) {
                 binding.loadingIndicator.visibility = View.VISIBLE
             }
