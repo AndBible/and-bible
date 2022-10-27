@@ -31,9 +31,9 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
@@ -194,7 +194,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         if (!checkForExternalStorage()) return
 
         BackupControl.setupDirs(this)
-        GlobalScope.launch {
+        lifecycleScope.launch {
             ErrorReportControl.checkCrash(this@StartupActivity)
             // switch back to ui thread to continue
             withContext(Dispatchers.Main) {
@@ -246,7 +246,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 redownloadMessage.visibility = View.VISIBLE
                 redownloadButton.visibility = View.VISIBLE
                 redownloadButton.setOnClickListener {
-                    GlobalScope.launch(Dispatchers.Main) {
+                    lifecycleScope.launch(Dispatchers.Main) {
                         val books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
                         if (books != null) {
                             val intent = Intent(this@StartupActivity, FirstDownload::class.java)
@@ -306,7 +306,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         Log.i(TAG, "Going to MainBibleActivity")
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
         handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        GlobalScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
             if(swordDocumentFacade.bibles.none { !it.isLocked }) {
                 for (it in swordDocumentFacade.bibles.filter { it.isLocked }) {
                     CommonUtils.unlockDocument(this@StartupActivity, it)
@@ -334,13 +334,13 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             if (swordDocumentFacade.bibles.isNotEmpty()) {
                 Log.i(TAG, "Bibles now exist so go to main bible view")
                 // select appropriate default verse e.g. John 3.16 if NT only
-                GlobalScope.launch(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main) {
                     gotoMainBibleActivity()
                 }
 
             } else {
                 Log.i(TAG, "No Bibles exist so start again")
-                GlobalScope.launch(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main) {
                     postBasicInitialisationControl()
                 }
             }
@@ -351,7 +351,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 Dialogs.showMsg(R.string.restore_confirmation, true) {
                     ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
                     val hourglass = Hourglass(this)
-                    GlobalScope.launch(Dispatchers.IO) {
+                    lifecycleScope.launch(Dispatchers.IO) {
                         hourglass.show()
                         val inputStream = contentResolver.openInputStream(data!!.data!!)
                         if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {

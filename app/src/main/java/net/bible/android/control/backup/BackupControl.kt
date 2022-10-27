@@ -29,8 +29,8 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
@@ -416,7 +416,7 @@ object BackupControl {
 
                 _mainBibleActivity?.windowRepository?.saveIntoDb()
                 db.sync()
-                GlobalScope.launch(Dispatchers.IO) {
+                callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, dbFile)
                 }
             }
@@ -458,7 +458,7 @@ object BackupControl {
 
                 _mainBibleActivity?.windowRepository?.saveIntoDb()
                 db.sync()
-                GlobalScope.launch(Dispatchers.IO) {
+                callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, file)
                 }
             }
@@ -530,17 +530,17 @@ class BackupActivity: ActivityBase() {
         binding.apply {
             restoreModules.text = "${getString(R.string.install_zip)} / ${getString(R.string.restore_modules)}"
 
-            backupApp.setOnClickListener { GlobalScope.launch { BackupControl.backupApp(this@BackupActivity) } }
-            backupAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) } }
-            backupModules.setOnClickListener { GlobalScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) } }
-            restoreAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) } }
-            restoreModules.setOnClickListener { GlobalScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) } }
+            backupApp.setOnClickListener { lifecycleScope.launch { BackupControl.backupApp(this@BackupActivity) } }
+            backupAppDatabase.setOnClickListener { lifecycleScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) } }
+            backupModules.setOnClickListener { lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) } }
+            restoreAppDatabase.setOnClickListener { lifecycleScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) } }
+            restoreModules.setOnClickListener { lifecycleScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) } }
             CommonUtils.dbBackupPath.listFiles()?.forEach { f ->
                 val b = Button(this@BackupActivity)
                 val s = f.name
                 b.text = s
                 b.setOnClickListener {
-                    GlobalScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
+                    lifecycleScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
                 }
                 backupDbButtons.addView(b)
             }

@@ -22,8 +22,8 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.view.ActionMode
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
@@ -50,7 +50,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         documentItemAdapter = DocumentItemAdapter(this)
         initialiseView()
 
-        GlobalScope.launch {
+        lifecycleScope.launch {
             populateMasterDocumentList(false)
         }
         Log.i(TAG, "ChooseDocument downloadControl:$downloadControl")
@@ -91,7 +91,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     }
 
     override fun handleDocumentSelection(selectedDocument: Book) {
-        GlobalScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
             if(selectedDocument.isLocked && !CommonUtils.unlockDocument(this@ChooseDocument, selectedDocument)) {
                 reloadDocuments()
                 return@launch
@@ -116,7 +116,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
 
     override fun onActionItemClicked(item: MenuItem, selectedItemPositions: List<Int>): Boolean {
         when(item.itemId) {
-            R.id.unlock -> GlobalScope.launch(Dispatchers.Main) {
+            R.id.unlock -> lifecycleScope.launch(Dispatchers.Main) {
                 CommonUtils.unlockDocument(this@ChooseDocument, displayedDocuments[selectedItemPositions[0]])
                 reloadDocuments()
             }
@@ -146,7 +146,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
                 }
             }
             R.id.backupButton -> {
-                GlobalScope.launch {
+                lifecycleScope.launch {
                     BackupControl.backupModulesViaIntent(this@ChooseDocument)
                 }
             }

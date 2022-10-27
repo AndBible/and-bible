@@ -54,6 +54,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -131,7 +132,6 @@ import kotlin.system.exitProcess
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
-    val scope = CoroutineScope(Dispatchers.Default)
 
     private var mWholeAppWasInBackground = false
 
@@ -242,7 +242,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         if(!initialized) {
-            scope.launch(Dispatchers.Main) {
+            lifecycleScope.launch(Dispatchers.Main) {
                 ErrorReportControl.checkCrash(this@MainBibleActivity)
                 if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
                 showBetaNotice()
@@ -250,7 +250,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 showFirstTimeHelp()
                 ABEventBus.post(ToastEvent(windowRepository.name))
             }
-            scope.launch {
+            lifecycleScope.launch {
                 checkDocBackupDBInSync()
             }
         }

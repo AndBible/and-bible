@@ -30,8 +30,8 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.view.ActionMode
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -66,7 +66,6 @@ import kotlinx.serialization.serializer
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
-import net.bible.service.sword.isMyBibleBook
 
 /**
  * Choose Document (Book) to download
@@ -91,7 +90,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         return super.onPrepareActionMode(mode, menu, selectedItemPositions)
     }
 
-    private val genericFileDownloader = GenericFileDownloader {
+    private val genericFileDownloader = GenericFileDownloader(this) {
         invalidateOptionsMenu()
     }
     private val downloadManager = DownloadManager {
@@ -167,7 +166,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
 
-        GlobalScope.launch {
+        lifecycleScope.launch {
 
             if (!askIfWantToProceed()) {
                 finish()
@@ -243,7 +242,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         val books = booksNotFound.toTypedArray()
         // books here is a list of osisIds
         // look up their full names in the local database
-        GlobalScope.launch {
+        lifecycleScope.launch {
             val notInstalled: Array<String> = books.map {
                 docDao.getBook(it)?.name
             }.filterNotNull().toTypedArray()
@@ -369,7 +368,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         }
     }
 
-    private fun doDownload(document: Book) = GlobalScope.launch (Dispatchers.Main) {
+    private fun doDownload(document: Book) = lifecycleScope.launch (Dispatchers.Main) {
         try {
             // the download happens in another thread
             downloadControl.downloadDocument(repoFactory, document)
@@ -426,7 +425,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                 binding.freeTextSearch.setText("")
 
                 // prepare the document list view - done in another thread
-                GlobalScope.launch {
+                lifecycleScope.launch {
                     downloadDocJson()
                     populateMasterDocumentList(true)
                     updateLastRepoRefreshDate()
@@ -457,7 +456,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                     .create().show()
             }
             R.id.installZip -> {
-                GlobalScope.launch (Dispatchers.Main){
+                lifecycleScope.launch (Dispatchers.Main){
                     val intent = Intent(this@DownloadActivity, InstallZip::class.java)
                     awaitIntent(intent)
                     _mainBibleActivity?.updateDocuments()

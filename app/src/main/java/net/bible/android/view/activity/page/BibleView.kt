@@ -49,7 +49,6 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.webkit.WebViewAssetLoader
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -131,6 +130,8 @@ import kotlin.math.min
 
 import net.bible.android.control.page.CurrentPageManager
 import android.os.Bundle
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchIndex
 import org.crosswire.jsword.index.IndexStatus
@@ -271,6 +272,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.add_bookmark -> {
+                findViewTreeLifecycleOwner()
                 step2 = true
                 mode.menu.clear()
                 mode.invalidate()
@@ -372,7 +374,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         linkControl.openCompare(verseRange)
     }
 
-    internal fun assignLabels(bookmarkId: Long) = GlobalScope.launch(Dispatchers.IO) {
+    val scope get() = mainBibleActivity.lifecycleScope
+
+    internal fun assignLabels(bookmarkId: Long) = scope.launch(Dispatchers.IO) {
         val bookmark = bookmarkControl.bookmarksByIds(listOf(bookmarkId)).first()
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
         val intent = Intent(mainBibleActivity, ManageLabels::class.java)
@@ -476,7 +480,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             } else {
                 menu.clear()
-                GlobalScope.launch {
+                scope.launch {
                     val result = evaluateJavascriptAsync("bibleView.querySelection()")
                     val sel = json.decodeFromString(serializer<Selection?>(), result)
                     if (sel !== null) {
@@ -1531,7 +1535,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return result.await()
     }
 
-    fun requestPreviousChapter(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
+    fun requestPreviousChapter(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtTop")
         if (firstDocument is BibleDocument) {
             val newChap = minChapter - 1
@@ -1545,7 +1549,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun requestNextChapter(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
+    fun requestNextChapter(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtEnd")
         if (firstDocument is BibleDocument) {
             val newChap = maxChapter + 1

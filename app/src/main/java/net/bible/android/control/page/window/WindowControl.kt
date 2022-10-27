@@ -19,8 +19,8 @@ package net.bible.android.control.page.window
 
 import android.app.AlertDialog
 import android.widget.Button
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
@@ -34,6 +34,7 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
@@ -303,6 +304,8 @@ open class WindowControl @Inject constructor(
         ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
+    val scope get() = mainBibleActivity.lifecycleScope
+
     private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine<BooleanArray?> {
         val context = CurrentActivityHolder.currentActivity!!
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
@@ -341,7 +344,7 @@ open class WindowControl @Inject constructor(
     }
 
 
-    fun copySettingsToWorkspace(window: Window)  = GlobalScope.launch(Dispatchers.Main) {
+    fun copySettingsToWorkspace(window: Window)  = scope.launch(Dispatchers.Main) {
         val types = WorkspaceEntities.TextDisplaySettings.Types.values()
         val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
         val target = windowRepository.textDisplaySettings
@@ -359,7 +362,7 @@ open class WindowControl @Inject constructor(
     fun copySettingsToWindow(window: Window, order: Int) {
         val secondWindow = windowRepository.visibleWindows[order]
 
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Main) {
             val types = WorkspaceEntities.TextDisplaySettings.Types.values()
             val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
             val target = secondWindow.pageManager.textDisplaySettings

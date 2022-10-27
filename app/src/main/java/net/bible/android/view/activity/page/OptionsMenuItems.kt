@@ -20,8 +20,8 @@ package net.bible.android.view.activity.page
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -408,7 +408,7 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
             selectedLabels = originalValues.toMutableSet(),
             isWindow = settings.windowId != null
         ).applyFrom(windowRepository.workspaceSettings).toJSON())
-        GlobalScope.launch (Dispatchers.Main) {
+        activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
             if(result?.resultCode == Activity.RESULT_OK) {
                 val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
@@ -435,7 +435,7 @@ class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSet
             ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.WORKSPACE).applyFrom(workspaceSettings).toJSON()
         )
 
-        GlobalScope.launch (Dispatchers.Main) {
+        activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
             if(result?.resultCode == Activity.RESULT_OK) {
                 val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
