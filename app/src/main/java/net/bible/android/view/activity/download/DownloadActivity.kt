@@ -28,6 +28,7 @@ import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.view.ActionMode
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -365,7 +366,8 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         }
     }
 
-    private fun doDownload(document: Book) = lifecycleScope.launch (Dispatchers.Main) {
+    private val downloadScope = CoroutineScope(Dispatchers.Default)
+    private fun doDownload(document: Book) = downloadScope.launch (Dispatchers.Main) {
         try {
             // the download happens in another thread
             downloadControl.downloadDocument(repoFactory, document)
