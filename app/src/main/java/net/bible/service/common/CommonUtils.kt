@@ -87,7 +87,6 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
-import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.DownloadActivity
@@ -1214,7 +1213,9 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun changeAppIconAndName() {
-        if (BuildVariant.Appearance.isDiscrete) return
+        // There's issue on Android 5 that icon simply disappears and calculator does not appear.
+        // See https://github.com/AndBible/and-bible/issues/2310
+        if (BuildVariant.Appearance.isDiscrete || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) return
         val discrete = settings.getBoolean("discrete_mode", false)
         val packageName = BuildConfig.APPLICATION_ID
         val allNames = listOf(
