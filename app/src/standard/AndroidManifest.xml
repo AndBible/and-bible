@@ -22,7 +22,7 @@
     <application>
 
         <activity-alias
-            android:name="net.bible.android.view.activity.Bible"
+            android:name=".StartupActivity"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name_short"
             android:targetActivity=".StartupActivity"

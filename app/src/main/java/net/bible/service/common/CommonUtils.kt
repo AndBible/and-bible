@@ -1218,7 +1218,7 @@ object CommonUtils : CommonUtilsBase() {
         val discrete = settings.getBoolean("discrete_mode", false)
         val packageName = BuildConfig.APPLICATION_ID
         val allNames = listOf(
-            "net.bible.android.view.activity.Bible",
+            "net.bible.android.activity.StartupActivity",
             "net.bible.android.view.activity.Calculator"
         )
 
