@@ -41,6 +41,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
@@ -61,6 +62,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.EmptyBinding
 import net.bible.android.activity.databinding.MainBibleViewBinding
 import net.bible.android.control.BibleContentManager
 import net.bible.android.control.backup.BackupControl
@@ -135,6 +137,7 @@ import kotlin.system.exitProcess
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
+    lateinit var empty: EmptyBinding
 
     private var mWholeAppWasInBackground = false
 
@@ -216,6 +219,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         CommonUtils.prepareData()
 
         binding = MainBibleViewBinding.inflate(layoutInflater)
+        empty = EmptyBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         if(BuildVariant.Appearance.isDiscrete ||
@@ -533,7 +537,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onPause() {
         fullScreen = false;
-        isPaused = true;
+        isPaused = true
+        if(CommonUtils.showCalculator) {
+            (window.decorView as ViewGroup).removeView(binding.root)
+            super.setContentView(empty.root)
+        }
         super.onPause()
     }
 
@@ -1505,6 +1513,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onResume() {
         super.onResume()
+        if(CommonUtils.showCalculator && empty.root.parent != null) {
+            (window.decorView as ViewGroup).removeView(empty.root)
+            super.setContentView(binding.root)
+        }
+
         isPaused = false
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()

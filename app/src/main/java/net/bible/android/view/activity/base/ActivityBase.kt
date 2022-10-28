@@ -19,7 +19,6 @@ package net.bible.android.view.activity.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Instrumentation
 import android.app.Instrumentation.ActivityResult
 import android.content.Context
 import android.content.Intent
@@ -28,11 +27,13 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.CompletableDeferred
+import net.bible.android.activity.databinding.EmptyBinding
 import net.bible.android.view.util.UiUtils.setActionBarColor
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
@@ -52,7 +53,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     // some screens are highly customised and the theme looks odd if it changes
     open val allowThemeChange = true
 
-    private lateinit var _contentView: View
     protected lateinit var historyTraversal: HistoryTraversal
 
     private var integrateWithHistoryManagerInitialValue: Boolean = false
@@ -138,16 +138,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     override fun onBackPressed() {
         if (!historyTraversal.goBack()) {
             super.onBackPressed()
-        }
-    }
-
-    private fun setLightsOutMode(isLightsOut: Boolean) {
-        if (::_contentView.isInitialized) {
-            if (isLightsOut) {
-                _contentView.systemUiVisibility = View.SYSTEM_UI_FLAG_LOW_PROFILE
-            } else {
-                _contentView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-            }
         }
     }
 
@@ -275,17 +265,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
             CurrentActivityHolder.iAmNoLongerCurrent(this)
         }
     }
-
-    /** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
-     * and set the new titlebar layout just after
-     */
-    override fun setContentView(layoutResID: Int) {
-        super.setContentView(layoutResID)
-
-        _contentView = window.decorView.findViewById(android.R.id.content)
-    }
-
-    fun getContentView() = _contentView
 
     /**
      * Each activity instance needs its own HistoryTraversal object
