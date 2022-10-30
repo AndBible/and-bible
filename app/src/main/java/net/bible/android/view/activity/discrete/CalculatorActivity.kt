@@ -251,7 +251,7 @@ class CalculatorActivity : ActivityBase() {
     }
 
     private fun calculate(input: String) = calculatorBinding.run {
-        val pin = CommonUtils.settings.getString("calculator_pin", "1234")
+        val pin = CommonUtils.realSharedPreferences.getString("calculator_pin", "1234")
         if(input == pin) {
             setResult(RESULT_OK)
             finish()

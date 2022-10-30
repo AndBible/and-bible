@@ -53,7 +53,7 @@ class PreferenceStore: PreferenceDataStore() {
 
     override fun putBoolean(key: String, value: Boolean) = prefs.setBoolean(key, value)
 
-    private fun useRealShared(key: String): Boolean = key == "locale_pref" || key.startsWith("night_mode")
+    private fun useRealShared(key: String): Boolean = key == "locale_pref" || key == "calculator_pin" || key.startsWith("night_mode")
 
     override fun putString(key: String, value: String?) =
         if(useRealShared(key)) CommonUtils.realSharedPreferences.edit().putString(key, value).apply()
