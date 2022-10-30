@@ -143,6 +143,7 @@ class SettingsActivity: ActivityBase() {
                     editor.removeDouble(key)
                 }
                 CommonUtils.realSharedPreferences.edit().remove("locale_pref").apply()
+                CommonUtils.realSharedPreferences.edit().remove("calculator_pin").apply()
                 recreate()
             }
             .setNegativeButton(R.string.cancel, null)
