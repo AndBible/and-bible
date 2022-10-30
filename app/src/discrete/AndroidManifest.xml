@@ -34,7 +34,6 @@
         <activity
             android:name="net.bible.android.view.activity.installzip.InstallZip"
             android:label="@string/install_zip_module_discrete"
-            android:exported="true"
             tools:replace="android:label"
             />
     </application>
