@@ -31,7 +31,25 @@
             android:enabled="true"
             tools:replace="android:enabled"
             />
+        <activity
+            android:name="net.bible.android.view.activity.installzip.InstallZip"
+            android:label="@string/install_zip_module_discrete"
+            android:exported="true"
+            tools:replace="android:label"
+            >
+            <intent-filter tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/zip" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/zip" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
