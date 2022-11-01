@@ -1115,7 +1115,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 toolbar.setBackgroundColor(toolbarColor)
 
                 // Set the status bar to the same color
-                val activity = CurrentActivityHolder.getInstance().currentActivity
+                val activity = CurrentActivityHolder.currentActivity!!
                 val window: Window = activity.window
                 window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
