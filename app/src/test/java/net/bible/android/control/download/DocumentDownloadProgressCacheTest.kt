@@ -1,9 +1,27 @@
+/*
+ * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 package net.bible.android.control.download
 
 import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.ProgressBar
+import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.event.ABEventBus
@@ -29,7 +47,7 @@ import java.io.IOException
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [28])
+@Config(sdk=[TEST_SDK])
 class DocumentDownloadProgressCacheTest {
     private var documentDownloadProgressCache: DocumentDownloadProgressCache? = null
     private var testData: TestData? = null
@@ -45,7 +63,7 @@ class DocumentDownloadProgressCacheTest {
     @Throws(InterruptedException::class)
     fun sendEventOnProgress() {
         val eventReceiver = EventReceiver()
-        ABEventBus.getDefault().register(eventReceiver)
+        ABEventBus.register(eventReceiver)
         documentDownloadProgressCache!!.startMonitoringDownloads()
         testData!!.progress.workDone = 30
         Thread.sleep(10)
@@ -54,7 +72,7 @@ class DocumentDownloadProgressCacheTest {
 
     @After
     fun tearDown() {
-        ABEventBus.getDefault().unregisterAll()
+        ABEventBus.unregisterAll()
         DatabaseResetter.resetDatabase()
     }
 

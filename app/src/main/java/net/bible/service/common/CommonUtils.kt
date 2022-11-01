@@ -1,30 +1,33 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.common
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -46,6 +49,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
@@ -54,21 +58,26 @@ import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.lifecycle.lifecycleScope
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.BuildConfig.BUILD_TYPE
 import net.bible.android.activity.BuildConfig.BuildDate
 import net.bible.android.activity.BuildConfig.FLAVOR
+import net.bible.android.activity.BuildConfig.FLAVOR_appearance
+import net.bible.android.activity.BuildConfig.FLAVOR_distchannel
 import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -87,6 +96,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.sword.addManuallyInstalledMyBibleBooks
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.IOUtil
@@ -117,6 +127,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
+@Suppress("DEPRECATION")
 fun htmlToSpan(html: String): Spanned {
     val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
@@ -171,6 +182,7 @@ val BookmarkEntities.Label.displayName get() =
 
 open class CommonUtilsBase {
     @Inject lateinit var windowControl: WindowControl
+    @Inject lateinit var speakControl: SpeakControl
 }
 
 class Ref<T>(var value: T? = null)
@@ -209,7 +221,7 @@ object CommonUtils : CommonUtilsBase() {
                 versionName = "Error"
             }
 
-            return "$versionName#$GitHash $FLAVOR $BUILD_TYPE (built $BuildDate)"
+            return "$versionName#$GitHash $FLAVOR_distchannel $FLAVOR_appearance $BUILD_TYPE (built $BuildDate)"
         }
 
     val mainVersion: String get() {
@@ -260,7 +272,7 @@ object CommonUtils : CommonUtilsBase() {
 
 
     val isPortrait: Boolean get() {
-        val res = CurrentActivityHolder.getInstance().currentActivity?.resources?: BibleApplication.application.resources
+        val res = CurrentActivityHolder.currentActivity?.resources?: BibleApplication.application.resources
         return res.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     }
 
@@ -312,7 +324,7 @@ object CommonUtils : CommonUtilsBase() {
     val localePref: String?
         get() = realSharedPreferences.getString("locale_pref", null)
 
-    // Note: use And BibleSettings always if possible to save preferences. They are persisted in DB.
+    // Note: use AndBibleSettings always if possible to save preferences. They are persisted in DB.
     val realSharedPreferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 
@@ -345,7 +357,7 @@ object CommonUtils : CommonUtilsBase() {
 
     fun getFreeSpace(path: String): Long {
         val stat = StatFs(path)
-        val bytesAvailable = stat.blockSize.toLong() * stat.availableBlocks.toLong()
+        val bytesAvailable = stat.availableBytes
         Log.i(TAG, "Free space :$bytesAvailable")
         return bytesAvailable
     }
@@ -386,13 +398,12 @@ object CommonUtils : CommonUtilsBase() {
         Log.i(TAG, "Deleting directory:" + path.absolutePath)
         if (path.exists()) {
             if (path.isDirectory) {
-                val files = path.listFiles()
-                for (i in files.indices) {
-                    if (files[i].isDirectory) {
-                        deleteDirectory(files[i])
+                path.listFiles()?.forEach { file ->
+                    if (file.isDirectory) {
+                        deleteDirectory(file)
                     } else {
-                        files[i].delete()
-                        Log.i(TAG, "Deleted " + files[i])
+                        file.delete()
+                        Log.i(TAG, "Deleted " + file)
                     }
                 }
             }
@@ -450,7 +461,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     val resources: Resources get() =
-        CurrentActivityHolder.getInstance()?.currentActivity?.resources?: application.resources
+        CurrentActivityHolder?.currentActivity?.resources?: application.resources
 
 
     fun getResourceColor(resourceId: Int): Int =
@@ -608,6 +619,11 @@ object CommonUtils : CommonUtilsBase() {
         exitProcess(2)
     }
 
+    fun forceStopApp() {
+        Log.i(TAG, "forceStopApp!")
+        exitProcess(2)
+    }
+
     val lastDisplaySettings: List<WorkspaceEntities.TextDisplaySettings.Types> get() {
         val lastDisplaySettingsString = settings.getString("lastDisplaySettings", null)
         var lastTypes = mutableListOf<WorkspaceEntities.TextDisplaySettings.Types>()
@@ -635,7 +651,7 @@ object CommonUtils : CommonUtilsBase() {
 
     private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
-    suspend fun unlockDocument(context: Context, book: Book): Boolean {
+    suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
         class ShowAgain: Exception()
         var repeat = true
         while(repeat) {
@@ -651,7 +667,7 @@ object CommonUtils : CommonUtilsBase() {
                     }
                     .setView(name)
                     .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
-                    .setNeutralButton(R.string.show_unlock_info) { _, _ -> GlobalScope.launch(Dispatchers.Main) {
+                    .setNeutralButton(R.string.show_unlock_info) { _, _ -> context.lifecycleScope.launch(Dispatchers.Main) {
                         showAbout(context, book)
                         it.resumeWithException(ShowAgain())
                     } }
@@ -785,11 +801,7 @@ object CommonUtils : CommonUtilsBase() {
                 """.trimIndent()
         }
         about = about.replace("\n", "<br>")
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(about, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(about)
-        }
+        val spanned = htmlToSpan(about)
         suspendCoroutine<Any?> {
             val d = AlertDialog.Builder(context)
                 .setMessage(spanned)
@@ -838,13 +850,8 @@ object CommonUtils : CommonUtilsBase() {
         if(showVersion)
             htmlMessage += "<i>$versionMsg</i>"
 
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(htmlMessage)
-        }
-
-        val d = androidx.appcompat.app.AlertDialog.Builder(callingActivity)
+        val spanned = htmlToSpan(htmlMessage)
+        val d = AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
             .setIcon(R.drawable.ic_logo)
             .setMessage(spanned)
@@ -900,7 +907,9 @@ object CommonUtils : CommonUtilsBase() {
             buildActivityComponent().inject(this)
 
             ttsNotificationManager = TextToSpeechNotificationManager()
-            ttsWidgetManager = SpeakWidgetManager()
+            if(!BuildVariant.Appearance.isDiscrete) {
+                ttsWidgetManager = SpeakWidgetManager()
+            }
 
             addManuallyInstalledMyBibleBooks()
 
@@ -1133,8 +1142,8 @@ object CommonUtils : CommonUtilsBase() {
         Log.i(TAG, "Language tag $languageTag, code $languageCode")
 
         val goodLanguages = listOf(
-            "en", "af", "my", "eo", "fi", "fr", "de", "hi", "hu", "it", "lt", "pl", "ru", "sl", "es", "uk", "zh-Hant-TW", "kk", "pt",
-            "zh-Hans-CN", "cs", "sk", "ro", "te",
+            "af", "cs", "de", "en", "eo", "es", "fi", "fr", "hi", "hu", "it", "kk", "lt", "my", "nl", "pl", "pt", "ro", "ru",
+            "sk", "sl", "te", "uk", "zh-Hans-CN", "zh-Hant-TW",
             // almost: "ko", "he" (hebrew, check...)
         )
 
@@ -1178,6 +1187,60 @@ object CommonUtils : CommonUtilsBase() {
             d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
         }
     }
+
+    suspend fun requestNotificationPermission(activity_: ActivityBase? = null) = withContext(Dispatchers.Main) {
+        val activity = activity_?:CurrentActivityHolder.currentActivity?: return@withContext
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
+                var request = true
+                if (activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                    val answer = suspendCoroutine {
+                        AlertDialog.Builder(activity)
+                            .setTitle(R.string.permission_required)
+                            .setIcon(R.drawable.ic_logo)
+                            .setMessage(R.string.progress_status_permission)
+                            .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
+                            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
+                            .setOnCancelListener { _ -> it.resume(null) }
+                            .show()
+                    }
+                    request = answer == true
+                }
+                if(request) {
+                    activity.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 999)
+                }
+            }
+        }
+    }
+
+    fun changeAppIconAndName() {
+        // There's issue on Android 5 that icon simply disappears and calculator does not appear.
+        // See https://github.com/AndBible/and-bible/issues/2310
+        if (BuildVariant.Appearance.isDiscrete || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) return
+        val discrete = settings.getBoolean("discrete_mode", false)
+        val packageName = BuildConfig.APPLICATION_ID
+        val allNames = listOf(
+            "net.bible.android.activity.StartupActivity",
+            "net.bible.android.view.activity.Calculator"
+        )
+
+        val activeName = allNames[if(discrete) 1 else 0]
+
+        Log.d(TAG, "Changing app icon / name to $activeName")
+
+        for (name in allNames) {
+            application.packageManager.setComponentEnabledSetting(
+                ComponentName(packageName, name),
+                if(name == activeName)
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                0
+            )
+        }
+    }
+
+    val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
+    val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
 }
 
 @Serializable

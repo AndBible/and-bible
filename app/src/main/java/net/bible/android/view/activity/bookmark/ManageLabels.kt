@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.bookmark
 
@@ -37,6 +36,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -90,7 +90,7 @@ fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.Mana
     autoAssignLabels = resultData.autoAssignLabels
     favouriteLabels = resultData.favouriteLabels
     autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
-    ABEventBus.getDefault().post(AppSettingsUpdated())
+    ABEventBus.post(AppSettingsUpdated())
 }
 
 @Serializable
@@ -364,7 +364,7 @@ class ManageLabels : ListActivityBase() {
 
         highlightLabel?.also {
             val pos = shownLabels.indexOf(it)
-            mainScope.launch {
+            lifecycleScope.launch(Dispatchers.Main) {
                 delay(100)
                 listView.smoothScrollToPosition(pos)
             }
@@ -519,7 +519,7 @@ class ManageLabels : ListActivityBase() {
             activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show journal", e)
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 
@@ -559,8 +559,6 @@ class ManageLabels : ListActivityBase() {
         ensureNotAutoAssignPrimaryLabel(label)
     }
 
-    private val mainScope = CoroutineScope(Dispatchers.Main)
-
     fun editLabel(label_: BookmarkEntities.Label) {
         var label = label_
         val isNew = label.id < 0
@@ -586,7 +584,7 @@ class ManageLabels : ListActivityBase() {
 
         intent.putExtra("data", json.encodeToString(serializer(), labelData))
 
-        mainScope.launch {
+        lifecycleScope.launch(Dispatchers.Main) {
             val result = awaitIntent(intent) ?: return@launch
             if (result.resultCode != Activity.RESULT_CANCELED) {
                 val newLabelData: LabelEditActivity.LabelData = json.decodeFromString(
@@ -654,7 +652,7 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    private fun saveAndExit(selected: BookmarkEntities.Label? = null) = mainScope.launch {
+    private fun saveAndExit(selected: BookmarkEntities.Label? = null) = lifecycleScope.launch(Dispatchers.Main) {
         Log.i(TAG, "Okay clicked")
         CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideText)
         CommonUtils.settings.setBoolean("labels_list_filter_showTextSearch", showTextSearch)
@@ -702,7 +700,7 @@ class ManageLabels : ListActivityBase() {
         finish()
     }
 
-    private suspend fun askConfirmation(message: String, yesNo: Boolean = false)  = suspendCoroutine<Boolean> {
+    private suspend fun askConfirmation(message: String, yesNo: Boolean = false)  = suspendCoroutine {
         AlertDialog.Builder(this).apply {
             setMessage(message)
             setPositiveButton(R.string.yes) { _, _ ->
@@ -723,7 +721,7 @@ class ManageLabels : ListActivityBase() {
     }
 
     fun reset() {
-        mainScope.launch {
+        lifecycleScope.launch(Dispatchers.Main) {
             val msgId = when(data.mode) {
                 Mode.WORKSPACE -> R.string.reset_workspace_labels
                 Mode.HIDELABELS -> R.string.reset_hide_labels

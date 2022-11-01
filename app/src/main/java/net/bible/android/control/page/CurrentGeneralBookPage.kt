@@ -1,27 +1,26 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.page
 
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.common.toV11n
 import net.bible.android.database.WorkspaceEntities
@@ -70,7 +69,7 @@ class CurrentGeneralBookPage internal constructor(
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
     override fun startKeyChooser(context: ActivityBase) {
-        GlobalScope.launch(Dispatchers.Main) {
+        context.lifecycleScope.launch(Dispatchers.Main) {
             when (currentDocument) {
                 FakeBookFactory.journalDocument -> {
                     val result = context.awaitIntent(Intent(context, ManageLabels::class.java)
@@ -78,7 +77,7 @@ class CurrentGeneralBookPage internal constructor(
                             .applyFrom(_mainBibleActivity?.workspaceSettings)
                             .toJSON())
                     )
-                    if(result?.resultCode == Activity.RESULT_OK) {
+                    if(result.resultCode == Activity.RESULT_OK) {
                         val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
                         _mainBibleActivity?.workspaceSettings?.updateFrom(resultData)
                     }

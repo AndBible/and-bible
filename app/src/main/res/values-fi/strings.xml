@@ -676,7 +676,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="active_window_indicator_summary">Korosta ikkunan nurkkia siten että aktiivinen ikkuna erottuu paremmin</string>
   <string name="app_licence_title">Avoimen lähdekoodin lisenssi</string>
   <string name="how_to_contribute">Kuinka voin auttaa?</string>
-  <string name="confirm_delete_bookmarks">Haluatko poistaa %dkirjanmerkkiä merkintöineen?</string>
+  <string name="confirm_delete_bookmarks">Haluatko poistaa %d kirjanmerkkiä merkintöineen?</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Suosittele ystävälle</string>
   <string name="tell_friend_message1">Haluaisin suositella sinulle sovellusta %s.</string>

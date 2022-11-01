@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page
@@ -50,7 +49,6 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.webkit.WebViewAssetLoader
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -132,6 +130,8 @@ import kotlin.math.min
 
 import net.bible.android.control.page.CurrentPageManager
 import android.os.Bundle
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchIndex
 import org.crosswire.jsword.index.IndexStatus
@@ -232,7 +232,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @Volatile private var htmlLoadingOngoing: Boolean = true
         set(value) {
             if(value != field) {
-                ABEventBus.getDefault().post(if (value) IncrementBusyCount() else DecrementBusyCount())
+                ABEventBus.post(if (value) IncrementBusyCount() else DecrementBusyCount())
             }
             field = value
         }
@@ -272,6 +272,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.add_bookmark -> {
+                findViewTreeLifecycleOwner()
                 step2 = true
                 mode.menu.clear()
                 mode.invalidate()
@@ -373,7 +374,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         linkControl.openCompare(verseRange)
     }
 
-    internal fun assignLabels(bookmarkId: Long) = GlobalScope.launch(Dispatchers.IO) {
+    val scope get() = mainBibleActivity.lifecycleScope
+
+    internal fun assignLabels(bookmarkId: Long) = scope.launch(Dispatchers.IO) {
         val bookmark = bookmarkControl.bookmarksByIds(listOf(bookmarkId)).first()
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
         val intent = Intent(mainBibleActivity, ManageLabels::class.java)
@@ -477,7 +480,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             } else {
                 menu.clear()
-                GlobalScope.launch {
+                scope.launch {
                     val result = evaluateJavascriptAsync("bibleView.querySelection()")
                     val sel = json.decodeFromString(serializer<Selection?>(), result)
                     if (sel !== null) {
@@ -659,6 +662,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun destroy() {
         toBeDestroyed = true
+        gestureListener.destroy()
         pageTiltScroller.destroy()
         removeJavascriptInterface("android")
     }
@@ -667,9 +671,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         set(value) {
             if(value == field) return
             if(value) {
-                ABEventBus.getDefault().register(this)
+                ABEventBus.register(this)
             } else {
-                ABEventBus.getDefault().unregister(this)
+                ABEventBus.unregister(this)
             }
             field = value
         }
@@ -1470,7 +1474,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
         if(isActive) {
-            PassageChangeMediator.getInstance().onCurrentVerseChanged(window)
+            PassageChangeMediator.onCurrentVerseChanged(window)
         }
     }
 
@@ -1531,7 +1535,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return result.await()
     }
 
-    fun requestPreviousChapter(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
+    fun requestPreviousChapter(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtTop")
         if (firstDocument is BibleDocument) {
             val newChap = minChapter - 1
@@ -1545,7 +1549,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun requestNextChapter(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
+    fun requestNextChapter(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtEnd")
         if (firstDocument is BibleDocument) {
             val newChap = maxChapter + 1

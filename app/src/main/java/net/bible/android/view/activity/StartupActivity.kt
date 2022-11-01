@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity
@@ -32,9 +31,9 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
@@ -54,11 +53,13 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
@@ -138,7 +139,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         }
 
         if (abortErrorMsgId != 0) {
-            Dialogs.instance.showErrorMsg(abortErrorMsgId) {
+            Dialogs.showErrorMsg(abortErrorMsgId) {
                 finish()
             }
             return false;
@@ -186,21 +187,29 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     /** Called when the activity is first created.  */
     @SuppressLint("ApplySharedPref")
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i(TAG, "StartupActivity.onCreate")
         super.onCreate(savedInstanceState)
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
         startupViewBinding = StartupViewBinding.inflate(layoutInflater)
         setContentView(spinnerBinding.root)
-        // do not show an actionBar/title on the splash screen
         buildActivityComponent().inject(this)
         supportActionBar!!.hide()
-        if (!checkForExternalStorage()) return;
+        if (!checkForExternalStorage()) return
 
         BackupControl.setupDirs(this)
-        GlobalScope.launch {
-            ErrorReportControl.checkCrash(this@StartupActivity)
+        lifecycleScope.launch {
+            if(!BuildVariant.Appearance.isDiscrete) {
+                ErrorReportControl.checkCrash(this@StartupActivity)
+            }
             // switch back to ui thread to continue
             withContext(Dispatchers.Main) {
                 postBasicInitialisationControl()
+                if(CommonUtils.isDiscrete) {
+                    spinnerBinding.imageView.setImageResource(
+                        R.drawable.ic_calculator_color
+                    )
+                    spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
+                }
             }
         }
     }
@@ -220,6 +229,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         initializeDatabase()
 
+        // When enabled, go to the calculator first,
+        // even when there are no Bible documents already installed.
+        if(!checkCalculator()) return@withContext
+        if(BuildVariant.Appearance.isDiscrete) {
+            ErrorReportControl.checkCrash(this@StartupActivity)
+        }
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
@@ -248,7 +263,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 redownloadMessage.visibility = View.VISIBLE
                 redownloadButton.visibility = View.VISIBLE
                 redownloadButton.setOnClickListener {
-                    GlobalScope.launch(Dispatchers.Main) {
+                    lifecycleScope.launch(Dispatchers.Main) {
                         val books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
                         if (books != null) {
                             val intent = Intent(this@StartupActivity, FirstDownload::class.java)
@@ -291,7 +306,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             val handlerIntent = Intent(this, FirstDownload::class.java)
             startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
         } else {
-            Dialogs.instance.showErrorMsg(errorMessage) { finish() }
+            Dialogs.showErrorMsg(errorMessage) { finish() }
         }
     }
 
@@ -304,11 +319,28 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
     }
 
+    private suspend fun checkCalculator(): Boolean {
+        if(CommonUtils.showCalculator) {
+            Log.i(TAG, "Going to Calculator")
+            val handlerIntent = Intent(this, CalculatorActivity::class.java)
+            while(true) {
+                when(awaitIntent(handlerIntent).resultCode) {
+                    RESULT_OK -> break
+                    RESULT_CANCELED -> {
+                        finish()
+                        return false
+                    }
+                }
+            }
+        }
+        return true
+    }
+
     private fun gotoMainBibleActivity() {
         Log.i(TAG, "Going to MainBibleActivity")
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
         handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        GlobalScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
             if(swordDocumentFacade.bibles.none { !it.isLocked }) {
                 for (it in swordDocumentFacade.bibles.filter { it.isLocked }) {
                     CommonUtils.unlockDocument(this@StartupActivity, it)
@@ -331,40 +363,43 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         Log.i(TAG, "Activity result:$resultCode")
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == DOWNLOAD_DOCUMENT_REQUEST) {
-            Log.i(TAG, "Returned from Download")
-            if (swordDocumentFacade.bibles.isNotEmpty()) {
-                Log.i(TAG, "Bibles now exist so go to main bible view")
-                // select appropriate default verse e.g. John 3.16 if NT only
-                GlobalScope.launch(Dispatchers.Main) {
-                    gotoMainBibleActivity()
-                }
+        when (requestCode) {
+            DOWNLOAD_DOCUMENT_REQUEST -> {
+                Log.i(TAG, "Returned from Download")
+                if (swordDocumentFacade.bibles.isNotEmpty()) {
+                    Log.i(TAG, "Bibles now exist so go to main bible view")
+                    // select appropriate default verse e.g. John 3.16 if NT only
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        gotoMainBibleActivity()
+                    }
 
-            } else {
-                Log.i(TAG, "No Bibles exist so start again")
-                GlobalScope.launch(Dispatchers.Main) {
-                    postBasicInitialisationControl()
+                } else {
+                    Log.i(TAG, "No Bibles exist so start again")
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        postBasicInitialisationControl()
+                    }
                 }
             }
-        } else if (requestCode == REQUEST_PICK_FILE_FOR_BACKUP_RESTORE) {
-            // this and the one in MainActivity could potentially be merged into the same thing
-            if (resultCode == Activity.RESULT_OK) {
-                CurrentActivityHolder.getInstance().currentActivity = this
-                Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
-                    ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
-                    val hourglass = Hourglass(this)
-                    GlobalScope.launch(Dispatchers.IO) {
-                        hourglass.show()
-                        val inputStream = contentResolver.openInputStream(data!!.data!!)
-                        if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {
-                            Log.i(TAG, "Restored database successfully")
+            REQUEST_PICK_FILE_FOR_BACKUP_RESTORE -> {
+                // this and the one in MainActivity could potentially be merged into the same thing
+                if (resultCode == Activity.RESULT_OK) {
+                    CurrentActivityHolder.currentActivity = this
+                    Dialogs.showMsg(R.string.restore_confirmation, true) {
+                        ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
+                        val hourglass = Hourglass(this)
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            hourglass.show()
+                            val inputStream = contentResolver.openInputStream(data!!.data!!)
+                            if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {
+                                Log.i(TAG, "Restored database successfully")
 
-                            withContext(Dispatchers.Main) {
-                                Dialogs.instance.showMsg(R.string.restore_success)
-                                postBasicInitialisationControl()
+                                withContext(Dispatchers.Main) {
+                                    Dialogs.showMsg(R.string.restore_success)
+                                    postBasicInitialisationControl()
+                                }
                             }
+                            hourglass.dismiss()
                         }
-                        hourglass.dismiss()
                     }
                 }
             }
