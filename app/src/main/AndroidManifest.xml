@@ -19,8 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="655"
-    android:versionName="4.0.655">
+    android:versionCode="660"
+    android:versionName="4.0.660">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -53,21 +53,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:icon="@mipmap/ic_launcher" />
 
-        <activity-alias
-            android:name="net.bible.android.view.activity.Bible"
-            android:icon="@mipmap/ic_launcher"
-            android:label="@string/app_name_short"
-            android:targetActivity=".StartupActivity"
-            android:exported="true"
-            android:enabled="true"
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <!-- see Samsung multi-window info at bottom -->
-                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
         <activity-alias
             android:name="net.bible.android.view.activity.Calculator"
             android:icon="@drawable/ic_calculator_color"
@@ -287,66 +272,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name=".SpeakWidgetManager$SmallSpeakControlWidget"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/small_speak_control_widget_info" />
-        </receiver>
-
-        <receiver android:name=".SpeakWidgetManager$MiddleSpeakControlWidget"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/middle_speak_control_widget_info" />
-        </receiver>
-
-        <receiver android:name=".SpeakWidgetManager$LargeSpeakControlWidget"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/large_speak_control_widget_info" />
-        </receiver>
-        <receiver android:name=".SpeakWidgetManager$SpeakTextControlWidget"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/speak_text_control_widget_info" />
-        </receiver>
-
-        <receiver android:name=".SpeakWidgetManager$SpeakBookmarkWidget"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/speak_bookmark_widget_info" />
         </receiver>
 
         <!-- allow use with Samsung Note multi-window http://stackoverflow.com/questions/14111052/adding-multi-window-support-to-android-application -->

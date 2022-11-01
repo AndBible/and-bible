@@ -30,7 +30,7 @@ class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageMana
     override val isLinksWindow = true
     override var isPinMode: Boolean = true
         get() = windowRepository.workspaceSettings.autoPin
-
+    override val isSyncable = false
     /**
      * Page state should reflect active window when links window is being used after being closed.
      * Not enough to select default bible because another module type may be selected in link.

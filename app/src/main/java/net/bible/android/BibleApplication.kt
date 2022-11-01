@@ -17,6 +17,7 @@
 
 package net.bible.android
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
@@ -65,7 +66,7 @@ class MyLocaleProvider: LocaleProvider {
     }
 }
 
-/** Main And Bible application singleton object
+/** Main AndBible application singleton object
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
@@ -85,8 +86,9 @@ open class BibleApplication : Application() {
     private val appStateSharedPreferences: SharedPreferences
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
+    @SuppressLint("ApplySharedPref")
     override fun onCreate() {
-        Log.i(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
+        Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
@@ -203,7 +205,7 @@ open class BibleApplication : Application() {
             }
         }
 
-        if(prevInstalledVersion <= 350) {
+        if(prevInstalledVersion <= 350 && !newInstall) {
             val oldPrefValue = appStateSharedPreferences.getBoolean("night_mode_pref", false)
             val pref2value = appStateSharedPreferences.getString("night_mode_pref2", "false")
             val pref3value = when(pref2value) {

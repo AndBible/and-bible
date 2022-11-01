@@ -70,7 +70,7 @@ private constructor() {
     }
 
     private fun bootstrapDB(db: SupportSQLiteDatabase) {
-        Log.i(TAG, "Bootstrapping And Bible database (MyNotes)")
+        Log.i(TAG, "Bootstrapping AndBible database (MyNotes)")
         db.execSQL("CREATE TABLE " + Table.MYNOTE + " (" +
             MyNoteColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
             MyNoteColumn.KEY + " TEXT NOT NULL, " +

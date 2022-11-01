@@ -17,6 +17,7 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Build
 import android.text.Html
 import android.text.method.LinkMovementMethod
@@ -160,5 +161,15 @@ object Dialogs {
             Log.e(TAG, "Error showing error message.  Original error msg:$msg", e)
         }
         return result
+    }
+
+    suspend fun simpleQuestion(context: Context, title: String, message: String) = suspendCoroutine {
+        AlertDialog.Builder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
+            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
+            .setOnCancelListener { _ -> it.resume(false) }
+            .show()
     }
 }

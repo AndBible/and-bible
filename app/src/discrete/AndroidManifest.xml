@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   ~
@@ -15,10 +15,27 @@
   ~ You should have received a copy of the GNU General Public License along with AndBible.
   ~ If not, see http://www.gnu.org/licenses/.
   -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
 
-<resources>
-    <string name="app_name_short">Bible Study *Debug*</string>
-    <string name="app_name_medium">Bible Study (AndBible) *Debug*</string>
-    <string name="app_name_long">AndBible: Bible Study *Debug*</string>
-    <string name="install_zip_module">Install Bible Module *Debug*</string>
-</resources>
+    <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        tools:replace="android:allowBackup,android:fullBackupContent"
+        >
+
+        <!-- enable the discrete main activity -->
+        <activity-alias
+            android:name="net.bible.android.view.activity.Calculator"
+            android:enabled="true"
+            tools:replace="android:enabled"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.installzip.InstallZip"
+            android:label="@string/install_zip_module_discrete"
+            tools:replace="android:label"
+            />
+    </application>
+
+</manifest>

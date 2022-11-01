@@ -80,8 +80,8 @@ class KeyHistoryItem(
         if (javaClass != obj.javaClass)
             return false
         val other = obj as KeyHistoryItem?
-		if (document.initials == null) {
-			if (other!!.document.initials != null)
+        if (document.initials == null) {
+            if (other!!.document.initials != null)
 				return false
 		} else if (document.initials != other!!.document.initials)
 			return false

@@ -20,7 +20,6 @@ package net.bible.android.view.activity
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -32,9 +31,9 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
@@ -60,6 +59,7 @@ import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
@@ -187,24 +187,26 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     /** Called when the activity is first created.  */
     @SuppressLint("ApplySharedPref")
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i(TAG, "StartupActivity.onCreate")
         super.onCreate(savedInstanceState)
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
         startupViewBinding = StartupViewBinding.inflate(layoutInflater)
         setContentView(spinnerBinding.root)
-        // do not show an actionBar/title on the splash screen
         buildActivityComponent().inject(this)
         supportActionBar!!.hide()
-        if (!checkForExternalStorage()) return;
+        if (!checkForExternalStorage()) return
 
         BackupControl.setupDirs(this)
-        GlobalScope.launch {
-            ErrorReportControl.checkCrash(this@StartupActivity)
+        lifecycleScope.launch {
+            if(!BuildVariant.Appearance.isDiscrete) {
+                ErrorReportControl.checkCrash(this@StartupActivity)
+            }
             // switch back to ui thread to continue
             withContext(Dispatchers.Main) {
                 postBasicInitialisationControl()
-                if(CommonUtils.settings.getBoolean("show_calculator", false)) {
-                    spinnerBinding.imageView.setImageDrawable(
-                        CommonUtils.getTintedDrawable(R.drawable.ic_baseline_calculate_24, R.color.grey_500)
+                if(CommonUtils.isDiscrete) {
+                    spinnerBinding.imageView.setImageResource(
+                        R.drawable.ic_calculator_color
                     )
                     spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
                 }
@@ -227,6 +229,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         initializeDatabase()
 
+        // When enabled, go to the calculator first,
+        // even when there are no Bible documents already installed.
+        if(!checkCalculator()) return@withContext
+        if(BuildVariant.Appearance.isDiscrete) {
+            ErrorReportControl.checkCrash(this@StartupActivity)
+        }
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
@@ -255,7 +263,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 redownloadMessage.visibility = View.VISIBLE
                 redownloadButton.visibility = View.VISIBLE
                 redownloadButton.setOnClickListener {
-                    GlobalScope.launch(Dispatchers.Main) {
+                    lifecycleScope.launch(Dispatchers.Main) {
                         val books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
                         if (books != null) {
                             val intent = Intent(this@StartupActivity, FirstDownload::class.java)
@@ -311,20 +319,28 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
     }
 
-    private suspend fun gotoCalculator() {
-        val show = CommonUtils.settings.getBoolean("show_calculator", false)
-        if(show) {
+    private suspend fun checkCalculator(): Boolean {
+        if(CommonUtils.showCalculator) {
             Log.i(TAG, "Going to Calculator")
             val handlerIntent = Intent(this, CalculatorActivity::class.java)
-            while(awaitIntent(handlerIntent)?.resultCode != RESULT_OK) {}
+            while(true) {
+                when(awaitIntent(handlerIntent).resultCode) {
+                    RESULT_OK -> break
+                    RESULT_CANCELED -> {
+                        finish()
+                        return false
+                    }
+                }
+            }
         }
+        return true
     }
 
     private fun gotoMainBibleActivity() {
         Log.i(TAG, "Going to MainBibleActivity")
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
         handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        GlobalScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
             if(swordDocumentFacade.bibles.none { !it.isLocked }) {
                 for (it in swordDocumentFacade.bibles.filter { it.isLocked }) {
                     CommonUtils.unlockDocument(this@StartupActivity, it)
@@ -335,7 +351,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 }
             }
 
-            gotoCalculator()
             startActivity(handlerIntent)
             finish()
         }
@@ -354,13 +369,13 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 if (swordDocumentFacade.bibles.isNotEmpty()) {
                     Log.i(TAG, "Bibles now exist so go to main bible view")
                     // select appropriate default verse e.g. John 3.16 if NT only
-                    GlobalScope.launch(Dispatchers.Main) {
+                    lifecycleScope.launch(Dispatchers.Main) {
                         gotoMainBibleActivity()
                     }
 
                 } else {
                     Log.i(TAG, "No Bibles exist so start again")
-                    GlobalScope.launch(Dispatchers.Main) {
+                    lifecycleScope.launch(Dispatchers.Main) {
                         postBasicInitialisationControl()
                     }
                 }
@@ -372,7 +387,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     Dialogs.showMsg(R.string.restore_confirmation, true) {
                         ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
                         val hourglass = Hourglass(this)
-                        GlobalScope.launch(Dispatchers.IO) {
+                        lifecycleScope.launch(Dispatchers.IO) {
                             hourglass.show()
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
                             if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {

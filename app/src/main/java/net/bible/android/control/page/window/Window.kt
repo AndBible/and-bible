@@ -18,9 +18,7 @@
 package net.bible.android.control.page.window
 
 import android.util.Log
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -110,7 +108,7 @@ open class Window (
     val isSplit: Boolean
         get() = windowLayout.state == WindowState.SPLIT
 
-    val isSyncable: Boolean
+    open val isSyncable: Boolean
         get() = pageManager.currentPage.isSyncable
 
     val isClosed: Boolean
@@ -157,7 +155,7 @@ open class Window (
         }
 
     val initialized get() = lastUpdated != 0L
-    private val updateScope get() = windowRepository.windowUpdateScope
+    private val updateScope get() = windowRepository.scope
 
     fun updateText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible

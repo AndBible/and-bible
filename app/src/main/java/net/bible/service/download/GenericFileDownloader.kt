@@ -17,8 +17,10 @@
 package net.bible.service.download
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -43,6 +45,7 @@ import javax.net.ssl.HttpsURLConnection
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class GenericFileDownloader(
+    val activity: AppCompatActivity,
     private val onErrorsChange: (() -> Unit)? = null
 ) {
     val errors = TreeSet<URI>()
@@ -57,8 +60,10 @@ class GenericFileDownloader(
         onErrorsChange?.invoke()
     }
 
+    val scope = activity.lifecycleScope
+
     fun downloadFileInBackground(source: URI, target: File, description: String) =
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             // So now we know what we want to install - all we need to do
             // is installer.install(name) however we are doing it in the
             // background so we create a job for it.

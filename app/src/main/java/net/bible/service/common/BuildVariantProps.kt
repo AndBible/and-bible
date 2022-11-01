@@ -14,29 +14,24 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-package net.bible.android.view.activity.base
+package net.bible.service.common
 
-/**
- * Base class for List activities.  Copied from Android source.
- * A copy of ListActivity from Android source which also extends ActionBarActivity and the AndBible Activity base class.
- *
- * ListActivity does not extend ActionBarActivity so when implementing ActionBar functionality I created this, which does.
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
-class SharedActivityState {
-    // show title bar state is shared by all Activity windows
-    var isFullScreen = false
-        private set
+import net.bible.android.activity.BuildConfig.FLAVOR_appearance
+import net.bible.android.activity.BuildConfig.FLAVOR_distchannel
 
-    fun toggleFullScreen() {
-        isFullScreen = !isFullScreen
+object BuildVariant {
+    // Group the properties according to their flavorDimension
+
+    object Appearance {
+        inline val isDiscrete get() = FLAVOR_appearance == "discrete"
     }
 
-    companion object {
-        @JvmStatic
-		var currentWorkspaceName = ""
-        val instance = SharedActivityState()
-
+    object DistributionChannel {
+        inline val isSamsung get() = FLAVOR_distchannel == "samsung"
+        inline val isPlay get() = FLAVOR_distchannel == "googleplay"
+        inline val isHuawei get() = FLAVOR_distchannel == "huawei"
+        inline val isFdroid get() = FLAVOR_distchannel == "fdroid"
+        inline val isAmazon get() = FLAVOR_distchannel == "amazon"
     }
 }
+

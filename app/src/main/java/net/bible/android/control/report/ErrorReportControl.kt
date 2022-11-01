@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.report
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -69,7 +70,7 @@ object ErrorReportControl {
             var askAgain = true
             while(askAgain) {
                 askAgain = false
-                val result = suspendCoroutine<ErrorDialogResult> {
+                val result = suspendCoroutine {
                     val dlgBuilder = AlertDialog.Builder(context)
                         .setMessage(msg)
                         .setCancelable(isCancelable)
@@ -101,6 +102,7 @@ object ErrorReportControl {
         }
     }
 
+    @SuppressLint("ApplySharedPref")
     suspend fun checkCrash(activity: ActivityBase) {
         val crashed = CommonUtils.realSharedPreferences.getBoolean("app-crashed", false)
         if (crashed) {
@@ -116,7 +118,7 @@ const val SCREENSHOT_FILE = "screenshot.webp"
 object BugReport {
     private fun createErrorText(exception: Throwable? = null) = try {
         StringBuilder().run {
-            append("And Bible version: ").append(applicationVersionName).append("\n")
+            append("Version: ").append(applicationVersionName).append("\n")
             append("Android version: ").append(Build.VERSION.RELEASE).append("\n")
             append("Android SDK version: ").append(Build.VERSION.SDK_INT).append("\n")
             append("Manufacturer: ").append(Build.MANUFACTURER).append("\n")

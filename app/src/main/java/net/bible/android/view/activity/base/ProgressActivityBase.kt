@@ -16,22 +16,16 @@
  */
 package net.bible.android.view.activity.base
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import kotlinx.coroutines.GlobalScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
-import net.bible.android.view.activity.base.ProgressActivityBase
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.progress.JobManager
@@ -63,7 +57,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
     }
 
     private fun initialiseView() {
-        GlobalScope.launch { CommonUtils.requestNotificationPermission(this@ProgressActivityBase) }
+        lifecycleScope.launch { CommonUtils.requestNotificationPermission(this@ProgressActivityBase) }
         // prepare to show no tasks msg
 
         noTasksMessageView = findViewById<View>(R.id.noTasksRunning) as TextView

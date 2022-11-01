@@ -265,17 +265,17 @@ class TestShare {
             "ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, true,
             "“23. And he went and lived in a city called Nazareth, so that what was spoken " +
                 "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
-                "John the Baptist came preaching in the wilderness of Judea, 2. Repent, for the kingdom " +
-                "of heaven is at hand.” (Mat 2:23-3:2, ESV2011)"
+                "John the Baptist came preaching in the wilderness of Judea, 2. “Repent, for the kingdom " +
+                "of heaven is at hand.”” (Mat 2:23-3:2, ESV2011)"
         )
 
     @Test
     fun testShare6() =
         testShare(
-            "ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, false,
+            "ESV2011", "Matt.2.23-Matt.3.2", 7..12, true, false,
             "“23. ...went and lived in a city called Nazareth, so that what was spoken " +
                 "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
-                "John the Baptist came preaching in the wilderness of Judea, 2. Repent, for...” (Mat 2:23-3:2, ESV2011)"
+                "John the Baptist came preaching in the wilderness of Judea, 2. “Repent, for...” (Mat 2:23-3:2, ESV2011)"
         )
 
     @Test

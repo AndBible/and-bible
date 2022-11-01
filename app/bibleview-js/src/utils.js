@@ -146,19 +146,12 @@ export function rangesOverlap(bookmarkRange, testRange, {addRange = false, inclu
         [bs, be] = bookmarkRange;
     }
 
+    //https://stackoverflow.com/questions/325933/determine-whether-two-date-ranges-overlap
     if(inclusive) {
-        const ex1 = arrayLeq(rs, bs) && arrayLeq(bs, re);
-        const ex2 = arrayLeq(rs, be) && arrayLeq(be, re);
-        const ex4 = arrayLeq(bs, rs) && arrayLeq(rs, be) && arrayLeq(bs, re) && arrayLeq(re, be);
-
-        return (ex1 || ex2 || ex4)
-    } else {
         // Same condition as in kotlin side BookmarksDao.bookmarksForVerseRange
-        const ex1 = arrayLeq(rs, bs) && arrayLe(bs, re);
-        const ex2 = arrayLe(rs, be) && arrayLeq(be, re);
-        const ex4 = arrayLeq(bs, rs) && arrayLe(rs, be) && arrayLe(bs, re) && arrayLeq(re, be);
-
-        return (ex1 || ex2 || ex4)
+        return arrayLeq(rs, be) && arrayLeq(bs, re);
+    } else {
+        return arrayLe(rs, be) && arrayLe(bs, re);
     }
 }
 

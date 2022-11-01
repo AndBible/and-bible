@@ -18,6 +18,7 @@
 package net.bible.android.control.page.window
 
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.activity.R
@@ -37,6 +38,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
@@ -57,7 +59,7 @@ open class WindowRepository @Inject constructor(
     private val historyManagerProvider: Provider<HistoryManager>,
 )
 {
-    val windowUpdateScope = CoroutineScope(Dispatchers.IO)
+    val scope get() = _mainBibleActivity?.lifecycleScope?: CoroutineScope(Dispatchers.Default) // null -> For tests
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)

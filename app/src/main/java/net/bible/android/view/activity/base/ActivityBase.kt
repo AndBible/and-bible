@@ -19,7 +19,7 @@ package net.bible.android.view.activity.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Instrumentation
+import android.app.Instrumentation.ActivityResult
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -32,7 +32,6 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.CompletableDeferred
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.UiUtils.setActionBarColor
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
@@ -52,7 +51,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     // some screens are highly customised and the theme looks odd if it changes
     open val allowThemeChange = true
 
-    private lateinit var _contentView: View
     protected lateinit var historyTraversal: HistoryTraversal
 
     private var integrateWithHistoryManagerInitialValue: Boolean = false
@@ -95,7 +93,11 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
 
         super.onCreate(savedInstanceState)
+
         if(!doNotInitializeApp) {
+            if(CommonUtils.showCalculator) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
             refreshScreenKeepOn()
         }
 
@@ -134,16 +136,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     override fun onBackPressed() {
         if (!historyTraversal.goBack()) {
             super.onBackPressed()
-        }
-    }
-
-    private fun setLightsOutMode(isLightsOut: Boolean) {
-        if (::_contentView.isInitialized) {
-            if (isLightsOut) {
-                _contentView.systemUiVisibility = View.SYSTEM_UI_FLAG_LOW_PROFILE
-            } else {
-                _contentView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-            }
         }
     }
 
@@ -272,17 +264,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
-    /** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
-     * and set the new titlebar layout just after
-     */
-    override fun setContentView(layoutResID: Int) {
-        super.setContentView(layoutResID)
-
-        _contentView = window.decorView.findViewById(android.R.id.content)
-    }
-
-    fun getContentView() = _contentView
-
     /**
      * Each activity instance needs its own HistoryTraversal object
      * @param historyTraversalFactory
@@ -296,21 +277,21 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     private var currentCode : Int = 0
-    private var resultByCode = mutableMapOf<Int, CompletableDeferred<Instrumentation.ActivityResult?>>()
+    private var resultByCode = mutableMapOf<Int, CompletableDeferred<ActivityResult>>()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "onActivityResult: requestCode = $requestCode, resultCode = $resultCode, data is${if (data != null) " not" else ""} null")
         resultByCode[requestCode - ASYNC_REQUEST_CODE_START]?.let {
-            it.complete(Instrumentation.ActivityResult(resultCode, data))
-            resultByCode.remove(requestCode)
+            it.complete(ActivityResult(resultCode, data))
+            resultByCode.remove(requestCode - ASYNC_REQUEST_CODE_START)
         } ?: run {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
-    suspend fun awaitIntent(intent: Intent) : Instrumentation.ActivityResult?
+    suspend fun awaitIntent(intent: Intent) : ActivityResult
     {
-        val activityResult = CompletableDeferred<Instrumentation.ActivityResult?>()
+        val activityResult = CompletableDeferred<ActivityResult>()
         val resultCode = currentCode++
         resultByCode[resultCode] = activityResult
         startActivityForResult(intent, resultCode + ASYNC_REQUEST_CODE_START)
@@ -319,7 +300,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     val preferences get() = CommonUtils.settings
 
-    fun refreshScreenKeepOn() {
+    private fun refreshScreenKeepOn() {
         val keepOn = preferences.getBoolean(SCREEN_KEEP_ON_PREF, false)
         if (keepOn) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

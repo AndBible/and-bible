@@ -31,8 +31,8 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -160,7 +160,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return intent
     }
 
-    private fun assignLabels(bookmarks: List<Bookmark>) = GlobalScope.launch(Dispatchers.IO) {
+    private fun assignLabels(bookmarks: List<Bookmark>) = lifecycleScope.launch(Dispatchers.IO) {
         val labels = mutableSetOf<Long>()
         for (b in bookmarks) {
             labels.addAll(bookmarkControl.labelsForBookmark(b).map { it.id })
@@ -209,7 +209,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     /** a spinner has changed so refilter the doc list
      */
-    private fun loadBookmarkList() = GlobalScope.launch(Dispatchers.IO) {
+    private fun loadBookmarkList() = lifecycleScope.launch(Dispatchers.IO) {
         withContext(Dispatchers.Main) {
             binding.empty.visibility = View.GONE
             binding.list.visibility = View.GONE
@@ -304,7 +304,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             }
             R.id.manageLabels -> {
                 isHandled = true
-                GlobalScope.launch(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main) {
                     val intent = Intent(this@Bookmarks, ManageLabels::class.java)
                     intent.putExtra("data", ManageLabels.ManageLabelsData(
                         mode = ManageLabels.Mode.WORKSPACE,
