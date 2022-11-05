@@ -32,6 +32,8 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.CompletableDeferred
+import net.bible.android.view.activity.StartupActivity
+import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.util.UiUtils.setActionBarColor
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
@@ -59,10 +61,15 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     open val doNotInitializeApp = false
 
+    var doNotMarkPaused = false
+    var wasPaused = false
+    var returningFromCalculator = false
+
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
         this.onCreate(savedInstanceState, false)
+        wasPaused = false
     }
 
     fun applyTheme() {
@@ -193,6 +200,16 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     override fun onResume() {
         CurrentActivityHolder.currentActivity = this
         super.onResume()
+
+        if(CommonUtils.showCalculator && wasPaused && !returningFromCalculator && this !is CalculatorActivity && this !is StartupActivity) {
+            val handlerIntent = Intent(this@ActivityBase, CalculatorActivity::class.java)
+            startActivityForResult(handlerIntent, CALCULATOR_REQUEST)
+            returningFromCalculator = true
+        } else {
+            returningFromCalculator = false
+        }
+        wasPaused = false
+
         Log.i(localClassName, "onResume:" + this)
 
         //allow action to be called on screen being turned on
@@ -201,8 +218,22 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
+    override fun startActivity(intent: Intent?, options: Bundle?) {
+        doNotMarkPaused = true
+        super.startActivity(intent, options)
+    }
+
+    override fun startActivityForResult(intent: Intent, requestCode: Int, options: Bundle?) {
+        doNotMarkPaused = true
+        super.startActivityForResult(intent, requestCode, options)
+    }
+
     override fun onPause() {
         super.onPause()
+        if(!doNotMarkPaused) {
+            wasPaused = true
+        }
+        doNotMarkPaused = false
         Log.i(localClassName, "onPause:" + this)
         if (isScreenOn && !ScreenSettings.isScreenOn) {
             onScreenTurnedOff()
@@ -281,6 +312,12 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "onActivityResult: requestCode = $requestCode, resultCode = $resultCode, data is${if (data != null) " not" else ""} null")
+        if(requestCode == CALCULATOR_REQUEST) {
+            if(resultCode == RESULT_CANCELED) {
+                finishAffinity()
+            }
+            return
+        }
         resultByCode[requestCode - ASYNC_REQUEST_CODE_START]?.let {
             it.complete(ActivityResult(resultCode, data))
             resultByCode.remove(requestCode - ASYNC_REQUEST_CODE_START)
@@ -314,6 +351,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
         // standard request code for startActivityForResult
         const val STD_REQUEST_CODE = 1
+        const val CALCULATOR_REQUEST = 6000
         const val ASYNC_REQUEST_CODE_START = 1900
 
         // Special result that requests all activities to exit until the main/top Activity is reached
