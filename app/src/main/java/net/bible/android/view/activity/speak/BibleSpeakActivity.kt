@@ -41,6 +41,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.service.common.htmlToSpan
 import net.bible.service.common.speakHelpVideo
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
@@ -140,11 +141,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 + "${getString(R.string.watch_tutorial_video)}</a></b>"
                 )
 
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(htmlMessage)
-        }
+        val spanned = htmlToSpan(htmlMessage)
 
         val d = AlertDialog.Builder(this)
                 .setMessage(spanned)

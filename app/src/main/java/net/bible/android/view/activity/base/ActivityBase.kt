@@ -201,7 +201,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         CurrentActivityHolder.currentActivity = this
         super.onResume()
 
-        if(CommonUtils.showCalculator && wasPaused && !returningFromCalculator && this !is CalculatorActivity && this !is StartupActivity) {
+        if(this !is CalculatorActivity && this !is StartupActivity && CommonUtils.showCalculator && wasPaused && !returningFromCalculator) {
             val handlerIntent = Intent(this@ActivityBase, CalculatorActivity::class.java)
             startActivityForResult(handlerIntent, CALCULATOR_REQUEST)
             returningFromCalculator = true

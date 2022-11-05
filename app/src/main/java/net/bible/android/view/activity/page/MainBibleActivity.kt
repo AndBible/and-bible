@@ -375,11 +375,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
                 pinningText += "<br><i><a href=\"$windowPinningVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
                 
-                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Html.fromHtml(pinningText, Html.FROM_HTML_MODE_LEGACY)
-                } else {
-                    Html.fromHtml(pinningText)
-                }
+                val spanned = htmlToSpan(pinningText)
+
                 val d = AlertDialog.Builder(this)
                     .setTitle(pinningTitle)
                     .setMessage(spanned)
@@ -464,11 +461,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             )
             val htmlMessage = "$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, verFull)}</i>"
 
-            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-            } else {
-                Html.fromHtml(htmlMessage)
-            }
+            val spanned = htmlToSpan(htmlMessage)
 
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.beta_notice_title))

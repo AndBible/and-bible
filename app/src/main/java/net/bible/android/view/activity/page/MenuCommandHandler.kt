@@ -204,11 +204,7 @@ constructor(private val mainBibleActivity: MainBibleActivity,
                 R.id.appLicence -> {
                     val messageHtml = mainBibleActivity.resources.openRawResource(R.raw.license).readBytes().decodeToString()
 
-                    val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        Html.fromHtml(messageHtml, Html.FROM_HTML_MODE_LEGACY)
-                    } else {
-                        Html.fromHtml(messageHtml)
-                    }
+                    val spanned = htmlToSpan(messageHtml)
 
                     val d = AlertDialog.Builder(mainBibleActivity)
                         .setTitle(R.string.app_licence_title)
@@ -260,11 +256,11 @@ constructor(private val mainBibleActivity: MainBibleActivity,
                     isHandled = true
                 }
                 R.id.howToContribute -> {
-                   openLink(contributeLink)
+                   CommonUtils.openLink(contributeLink)
                    isHandled = true
                 }
                 R.id.needHelp -> {
-                    openLink(needHelpLink)
+                    CommonUtils.openLink(needHelpLink)
                     isHandled = true
                 }
             }
@@ -276,21 +272,6 @@ constructor(private val mainBibleActivity: MainBibleActivity,
         }
 
         return isHandled
-    }
-
-    private fun openLink(link: String) {
-        if (CommonUtils.isDiscrete) {
-            mainBibleActivity.lifecycleScope.launch(Dispatchers.Main) {
-                if(Dialogs.simpleQuestion(mainBibleActivity,
-                        application.getString(R.string.external_link),
-                        application.getString(R.string.external_link_question, link))
-                ) {
-                    mainBibleActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)), STD_REQUEST_CODE)
-                }
-            }
-        } else {
-            mainBibleActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)), STD_REQUEST_CODE)
-        }
     }
 
     fun restartIfRequiredOnReturn(requestCode: Int): Boolean {

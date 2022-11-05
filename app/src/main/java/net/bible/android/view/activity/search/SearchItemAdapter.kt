@@ -29,6 +29,7 @@ import android.text.style.StyleSpan
 import android.util.Log
 import android.view.View
 import android.widget.TwoLineListItem
+import net.bible.service.common.htmlToSpan
 import org.crosswire.jsword.passage.Key
 import org.jdom2.Element
 import org.jdom2.Text
@@ -176,7 +177,7 @@ class SearchItemAdapter(
             for (verse in verses) {
                 verseString.append(processElementChildren(verse, searchTerms, "", false))
             }
-            spannableText = SpannableString(Html.fromHtml(verseString.toString()))
+            spannableText = SpannableString(htmlToSpan(verseString.toString()))
             var m: Matcher
             val splitSearchTerms = splitSearchTerms(searchTerms)
             for (originalSearchWord in splitSearchTerms) {
