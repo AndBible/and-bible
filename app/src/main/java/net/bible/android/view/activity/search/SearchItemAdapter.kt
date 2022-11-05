@@ -110,7 +110,7 @@ class SearchItemAdapter(
         if (view.text2 != null) {
             val verseTextElement = searchControl.getSearchResultVerseElement(item)
             val verseTextHtml =
-                highlightSearchText(SearchControl.originalSearchString, verseTextElement)
+                highlightSearchText(SearchControl.originalSearchString?: "____", verseTextElement)
             view.text2.text = verseTextHtml
         }
         return view
