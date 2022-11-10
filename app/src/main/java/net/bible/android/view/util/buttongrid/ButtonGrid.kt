@@ -63,11 +63,8 @@ class ButtonInfo (
     var rowNo: Int = 0,
     var colNo: Int = 0
 ) {
+    enum class GridButtonTypes {BOOK, CHAPTER, VERSE}
     lateinit var button: Button
-
-    companion object {
-        enum class GridButtonTypes {BOOK, CHAPTER, VERSE}
-    }
 }
 
 /** Show a grid of buttons to allow selection for navigation
@@ -215,31 +212,38 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     }
 
     private fun newButton(buttonInfo:ButtonInfo): Button {
-        val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp)
+        val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp).toFloat()
         val trimChars = 130
         var smallTagStart = ""
         var smallTagEnd = ""
         return Button(context).apply {
-            text = if (buttonInfo.showLongBookName && buttonInfo.type == ButtonInfo.Companion.GridButtonTypes.BOOK) {
+            text = if (buttonInfo.showLongBookName && buttonInfo.type == ButtonInfo.GridButtonTypes.BOOK) {
                 // Check the length of the words in the long description and set the <size> tag accordingly
                 val words = buttonInfo.description?.split("\\s".toRegex())?: listOf()
                 var smallTagCount = 1
                 var longestWordLength = -1;
 
                 for(w in words) {
-                    longestWordLength = if(longestWordLength > w.length) longestWordLength else w.length
+                    longestWordLength =
+                        if (longestWordLength > w.length)
+                            longestWordLength
+                        else
+                            w.length
                 }
 
-                when {
-                    longestWordLength > maxLengthForXSmall -> smallTagCount = 3
-                    longestWordLength > maxLengthForSmall -> smallTagCount = 2
-                }
+                if (longestWordLength > maxLengthForXSmall)
+                    smallTagCount = 3
+                else if (longestWordLength > maxLengthForSmall)
+                    smallTagCount = 2
 
                 for (i in 1..smallTagCount){
                     smallTagStart += "<small>"
                     smallTagEnd += "</small>"
                 }
-                HtmlCompat.fromHtml("<normal><b>" + buttonInfo.name?.uppercase() + "</b></normal><br/>" + smallTagStart + buttonInfo.description?.take(trimChars) + smallTagEnd, HtmlCompat.FROM_HTML_MODE_LEGACY)
+                HtmlCompat.fromHtml(
+                    "<normal><b>" + buttonInfo.name?.uppercase() + "</b></normal><br/>" + smallTagStart +
+                        buttonInfo.description?.take(trimChars) + smallTagEnd, HtmlCompat.FROM_HTML_MODE_LEGACY
+                )
             } else {
                 HtmlCompat.fromHtml(buttonInfo.name!!, HtmlCompat.FROM_HTML_MODE_LEGACY)
             }
@@ -272,11 +276,11 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
             }
             if (buttonInfo.highlight) {
                 typeface = Typeface.DEFAULT_BOLD
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1F)
                 paintFlags = paintFlags or Paint.UNDERLINE_TEXT_FLAG
                 isPressed = true
             } else {
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
             }
         }
     }
