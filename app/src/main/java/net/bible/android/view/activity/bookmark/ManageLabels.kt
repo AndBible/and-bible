@@ -337,7 +337,7 @@ class ManageLabels : ListActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         loadFilteringSettings()
 
-        super.onCreate(savedInstanceState, false)
+        super.onCreate(savedInstanceState)
         binding = ManageLabelsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         super.buildActivityComponent().inject(this)

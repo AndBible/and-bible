@@ -21,6 +21,7 @@ import android.graphics.Color
 import android.os.Bundle
 import net.bible.android.activity.R
 import android.graphics.PorterDuff
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
@@ -33,6 +34,8 @@ import java.lang.NumberFormatException
 import java.math.BigDecimal
 
 // Copied and adapted from https://github.com/eloyzone/android-calculator (5fb1d5e)
+
+const val TAG = "Calculator"
 
 @SuppressLint("SetTextI18n")
 class CalculatorActivity : ActivityBase() {
@@ -47,6 +50,7 @@ class CalculatorActivity : ActivityBase() {
     private lateinit var calculatorBinding: CalculatorLayoutBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i(TAG, "Calculator: onCreate")
         calculatorBinding = CalculatorLayoutBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(calculatorBinding.root)
@@ -57,6 +61,7 @@ class CalculatorActivity : ActivityBase() {
     }
 
     override fun onBackPressed() {
+        Log.i(TAG, "Calculator: onBackPressed")
         setResult(RESULT_CANCELED)
         finish()
     }
@@ -253,6 +258,7 @@ class CalculatorActivity : ActivityBase() {
     private fun calculate(input: String) = calculatorBinding.run {
         val pin = CommonUtils.realSharedPreferences.getString("calculator_pin", "1234")
         if(input == pin) {
+            Log.i(TAG, "Calculator: PIN OK!")
             setResult(RESULT_OK)
             finish()
         }

@@ -197,6 +197,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
+    override val integrateWithHistoryManager: Boolean = true
 
     /**
      * Called when the activity is first created.
@@ -212,7 +213,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         ScreenSettings.refreshNightMode()
         currentNightMode = ScreenSettings.nightMode
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
 
         CommonUtils.prepareData()
 
