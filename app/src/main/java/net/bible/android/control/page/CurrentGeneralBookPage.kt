@@ -45,9 +45,9 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Passage
+import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import org.crosswire.jsword.passage.VerseRangeFactory
 import java.lang.Exception
 
 /** Reference to current passage shown by viewer
@@ -200,7 +200,7 @@ class CurrentGeneralBookPage internal constructor(
                         val isUnspecifiedDoc = it[0] == "null"
                         val book: Book? = if(isUnspecifiedDoc) pageManager.currentBible.currentDocument else Books.installed().getBook(it[0])
                         val key = if (book is SwordBook) {
-                            VerseRangeFactory.fromString(book.versification, it[1])
+                            PassageKeyFactory.instance().getKey(book.versification, it[1])
                         } else {
                             book?.getKey(it[1])
                         }
