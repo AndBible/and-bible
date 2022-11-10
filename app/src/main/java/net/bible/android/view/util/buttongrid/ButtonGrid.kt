@@ -54,7 +54,6 @@ class ButtonInfo (
     var textColor: Int = Color.WHITE,
     var tintColor: Int = Color.DKGRAY,
     var highlight: Boolean = false,
-    var showLongBookName: Boolean = true,
     var type: GridButtonTypes = GridButtonTypes.CHAPTER,
     var top: Int = 0,
     var bottom: Int = 0,
@@ -89,7 +88,6 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     var isGroupByCategoryEnabled = false
     var isAlphaSorted = false
     var isCurrentlyShowingScripture = false
-    var isShowLongBookName = false
 
     fun clear() {
         removeAllViews()
@@ -220,7 +218,7 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
         var smallTagStart = ""
         var smallTagEnd = ""
         return Button(context).apply {
-            text = if (buttonInfo.showLongBookName && buttonInfo.type == ButtonInfo.Companion.GridButtonTypes.BOOK) {
+            text = if (buttonInfo.type == ButtonInfo.Companion.GridButtonTypes.BOOK) {
                 // Check the length of the words in the long description and set the <size> tag accordingly
                 val words = buttonInfo.description?.split("\\s".toRegex())?: listOf()
                 var smallTagCount = 1
@@ -286,9 +284,6 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     }
     fun toggleGroupByCategory() {
         isGroupByCategoryEnabled = !isGroupByCategoryEnabled
-    }
-    fun toggleShowLongName() {
-        isShowLongBookName = !isShowLongBookName
     }
     /** Ensure longer runs by populating in longest direction ie columns if portrait and rows if landscape
      *

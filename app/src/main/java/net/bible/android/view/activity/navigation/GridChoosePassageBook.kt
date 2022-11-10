@@ -82,7 +82,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                     val BookColorAndGroup = getBookColorAndGroup(book.ordinal)
                     buttonInfo.GroupA = BookColorAndGroup.GroupA
                     buttonInfo.GroupB = BookColorAndGroup.GroupB
-                    buttonInfo.showLongBookName = buttonGrid.isShowLongBookName
                     buttonInfo.type = ButtonInfo.Companion.GridButtonTypes.BOOK
                     if (book == currentBibleBook) {
                         buttonInfo.tintColor = BookColorAndGroup.Color
@@ -140,7 +139,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         buttonGrid.setOnButtonGridActionListener(this)
         buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
         buttonGrid.isGroupByCategoryEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY, false)
-        buttonGrid.isShowLongBookName = CommonUtils.settings.getBoolean(BOOK_GRID_SHOW_LONG_NAME, false)
         buttonGrid.isAlphaSorted = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL
         buttonGrid.addBookButtons(bibleBookButtonInfo)
 
@@ -158,9 +156,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
 
         buttonGrid.isLeftToRightEnabled = CommonUtils.settings.getBoolean(BOOK_GRID_FLOW_PREFS, false)
         menu.findItem(R.id.row_order_opt).isChecked  = buttonGrid.isLeftToRightEnabled
-
-        buttonGrid.isShowLongBookName = CommonUtils.settings.getBoolean(BOOK_GRID_SHOW_LONG_NAME, false)
-        menu.findItem(R.id.show_long_book_name).isChecked  = buttonGrid.isShowLongBookName
 
         val deutToggle = menu.findItem(R.id.deut_toggle)
         deutToggle.setTitle(if(isCurrentlyShowingScripture) R.string.bible else R.string.deuterocanonical)
@@ -204,15 +199,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
             invalidateOptionsMenu()
             true
         }
-        R.id.show_long_book_name -> {
-            buttonGrid.toggleShowLongName()
-            item.isChecked = buttonGrid.isShowLongBookName
-            buttonGrid.clear()
-            buttonGrid.addBookButtons(bibleBookButtonInfo)
-            saveOptions()
-            invalidateOptionsMenu()
-            true
-        }
         R.id.deut_toggle -> {
             isCurrentlyShowingScripture = !isCurrentlyShowingScripture
             buttonGrid.isCurrentlyShowingScripture = isCurrentlyShowingScripture
@@ -231,8 +217,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     private fun saveOptions() {
         CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS, buttonGrid.isLeftToRightEnabled)
         CommonUtils.settings.setBoolean(BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY, buttonGrid.isGroupByCategoryEnabled)
-        CommonUtils.settings.setBoolean(BOOK_GRID_SHOW_LONG_NAME, buttonGrid.isShowLongBookName)
-
     }
 
     override fun buttonPressed(buttonInfo: ButtonInfo) {
