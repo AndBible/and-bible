@@ -42,8 +42,8 @@ import net.bible.android.view.util.buttongrid.LayoutDesigner.RowColLayout
 import net.bible.service.common.CommonUtils
 import kotlin.math.max
 
-const val maxLengthForSmall = 5
-const val maxLengthForXSmall = 9
+const val MAX_LENGTH_FOR_SMALL = 5
+const val MAX_LENGTH_FOR_EXTRA_SMALL = 9
 
 class ButtonInfo (
     var id: Int = 0,
@@ -231,9 +231,9 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                             w.length
                 }
 
-                if (longestWordLength > maxLengthForXSmall)
+                if (longestWordLength > MAX_LENGTH_FOR_EXTRA_SMALL)
                     smallTagCount = 3
-                else if (longestWordLength > maxLengthForSmall)
+                else if (longestWordLength > MAX_LENGTH_FOR_SMALL)
                     smallTagCount = 2
 
                 for (i in 1..smallTagCount){
@@ -253,11 +253,11 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
 
             if (buttonInfo.highlight) {
                 typeface = Typeface.DEFAULT_BOLD
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1F)
                 paintFlags = paintFlags or Paint.UNDERLINE_TEXT_FLAG
                 isPressed = true
             } else {
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
             }
             // set pad to 0 prevents text being pushed off the bottom of buttons on small screens
             // set left and right pad to small padding to prevents text from appearing off the button background
