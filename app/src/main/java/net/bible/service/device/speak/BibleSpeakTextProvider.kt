@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.device.speak
@@ -475,14 +474,14 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         startVerse = currentVerse
         endVerse = currentVerse
 
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, verseRange, null))
+        ABEventBus.post(SpeakProgressEvent(book, verseRange, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
         // Clear title and text from widget and notification.
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse,
+        ABEventBus.post(SpeakProgressEvent(book, startVerse,
                 TextCommand("", type=TextCommand.TextType.TITLE)))
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse,
+        ABEventBus.post(SpeakProgressEvent(book, startVerse,
                 TextCommand("", type=TextCommand.TextType.NORMAL)))
     }
 
@@ -507,7 +506,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         startVerse = currentVerse
         endVerse = currentVerse
         clearNotificationAndWidgetTitles()
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, verseRange, null))
+        ABEventBus.post(SpeakProgressEvent(book, verseRange, null))
     }
 
     override fun finishedUtterance(utteranceId: String) {}
@@ -520,7 +519,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startVerse
             }
-            ABEventBus.getDefault().post(SpeakProgressEvent(state.book, VerseRange(state.book.versification, state.startVerse, state.endVerse), state.command!!))
+            ABEventBus.post(SpeakProgressEvent(state.book, VerseRange(state.book.versification, state.startVerse, state.endVerse), state.command!!))
         }
     }
 

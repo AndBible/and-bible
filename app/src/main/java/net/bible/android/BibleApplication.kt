@@ -1,23 +1,23 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
@@ -66,7 +66,7 @@ class MyLocaleProvider: LocaleProvider {
     }
 }
 
-/** Main And Bible application singleton object
+/** Main AndBible application singleton object
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
@@ -86,8 +86,9 @@ open class BibleApplication : Application() {
     private val appStateSharedPreferences: SharedPreferences
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
+    @SuppressLint("ApplySharedPref")
     override fun onCreate() {
-        Log.i(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
+        Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
@@ -95,7 +96,7 @@ open class BibleApplication : Application() {
             CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
             defaultExceptionHandler.uncaughtException(t, e)
         }
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         InstallManager.installSiteMap(
             PropertyMap().apply {
                 resources.openRawResource(R.raw.repositories).use { load(it) }
@@ -204,7 +205,7 @@ open class BibleApplication : Application() {
             }
         }
 
-        if(prevInstalledVersion <= 350) {
+        if(prevInstalledVersion <= 350 && !newInstall) {
             val oldPrefValue = appStateSharedPreferences.getBoolean("night_mode_pref", false)
             val pref2value = appStateSharedPreferences.getString("night_mode_pref2", "false")
             val pref3value = when(pref2value) {

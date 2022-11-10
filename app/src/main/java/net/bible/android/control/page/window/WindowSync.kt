@@ -1,24 +1,24 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.page.window
 
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import debounce
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +26,8 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.page.CurrentPage
 import net.bible.android.control.page.DocumentCategory
+import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.device.ScreenSettings
 
 import org.crosswire.jsword.book.BookCategory
@@ -48,7 +50,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
     }
 
     fun reloadAllWindows(force: Boolean = false) {
-        ABEventBus.getDefault().post(IncrementBusyCount())
+        ABEventBus.post(IncrementBusyCount())
         if(force)
             setResyncRequired()
 
@@ -60,7 +62,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 window.updateText()
         }
         lastSynchWasInNightMode = ScreenSettings.nightMode
-        ABEventBus.getDefault().post(DecrementBusyCount())
+        ABEventBus.post(DecrementBusyCount())
     }
 
     /** Synchronise the inactive key and inactive screen with the active key and screen if required */
@@ -80,13 +82,13 @@ class WindowSync(private val windowRepository: WindowRepository) {
             delayedSynchronizeWindows(sourceWindow)
     }
 
-    private val syncScope = CoroutineScope(Dispatchers.Default)
+    val scope get() = _mainBibleActivity?.lifecycleScope?: CoroutineScope(Dispatchers.Default) // for tests
     private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit
-        = debounce(200, syncScope) {sourceWindow -> immediateSynchronizeWindows(sourceWindow)}
+        = debounce(200, scope) { sourceWindow -> immediateSynchronizeWindows(sourceWindow)}
 
     private fun immediateSynchronizeWindows(sourceWindow: Window) = synchronized(this) {
         Log.i(TAG, "...delayedSynchronizeWindows $sourceWindow")
-        ABEventBus.getDefault().post(IncrementBusyCount())
+        ABEventBus.post(IncrementBusyCount())
 
         val activePage = sourceWindow.pageManager.currentPage
         var targetActiveWindowKey = activePage.singleKey
@@ -139,7 +141,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             }
         }
 
-        ABEventBus.getDefault().post(DecrementBusyCount())
+        ABEventBus.post(DecrementBusyCount())
     }
 
     /** Only call if screens are synchronised.  Update synch'd keys even if inactive page not
@@ -172,7 +174,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             } else {
                 if ((isBible||isMyNotes) && currentVerse != null && targetVerse != null) {
                     if(targetVerse.book == currentVerse.book && inactiveWindow.hasChapterLoaded(targetVerse.chapter)) {
-                        ABEventBus.getDefault()
+                        ABEventBus
                             .post(ScrollSecondaryWindowEvent(inactiveWindow, targetVerse))
                     } else if(targetVerse != currentVerse) {
                         inactiveWindow.updateText()

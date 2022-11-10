@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page.screen
@@ -45,8 +44,8 @@ import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.MenuItemCompat
 import androidx.core.view.children
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -116,6 +115,8 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
     private val bibleRefOverlayOffset: Int = res.getDimensionPixelSize(R.dimen.bible_ref_overlay_offset)
 
+    val scope get() = mainBibleActivity.lifecycleScope
+
     private val bibleFrames: MutableList<BibleFrame> = ArrayList()
     private val hiddenAlpha get() = if(ScreenSettings.nightMode) HIDDEN_ALPHA_NIGHT else HIDDEN_ALPHA
     private val restoreButtonsList: MutableList<WindowButtonWidget> = ArrayList()
@@ -147,13 +148,16 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         addView(bibleReferenceOverlay,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
     private val windowRepository = windowControl.windowRepository
 
     fun destroy() {
+        // First explicitly remove the BibleFrames, to explicitly notify them to
+        // unregister from the EventBus
+        removeAllFrames()
         removeAllViews()
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         bibleViewFactory.clear()
     }
 
@@ -414,7 +418,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) {
-        GlobalScope.launch {
+        scope.launch {
             Log.i(TAG, "on UpdateRestoreWindowButtons")
             delay(200)
             withContext(Dispatchers.Main) {
@@ -430,7 +434,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         ensureRestoreButtonVisible()
     }
 
-    private fun ensureRestoreButtonVisible() = GlobalScope.launch {
+    private fun ensureRestoreButtonVisible() = scope.launch {
         // Give time for button bar to be rendered.
         delay(200)
         withContext(Dispatchers.Main) {
@@ -589,7 +593,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     private var restoreButtonsVisible = CommonUtils.settings.getBoolean("restoreButtonsVisible", true)
         set(value) {
             CommonUtils.settings.setBoolean("restoreButtonsVisible", value)
-            ABEventBus.getDefault().post(RestoreButtonsVisibilityChanged())
+            ABEventBus.post(RestoreButtonsVisibilityChanged())
             field = value
         }
 
@@ -678,12 +682,12 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         val menu = popup.menu
         inflater.inflate(R.menu.window_popup_menu, menu)
 
-        val moveWindowsSubMenu = menu.findItem(R.id.moveWindowSubMenu).subMenu
+        val moveWindowsSubMenu = menu.findItem(R.id.moveWindowSubMenu).subMenu!!
         moveWindowsSubMenu.removeItem(R.id.moveItem)
 
         var count = 0
 
-        val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
+        val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu!!
 
         val export = menu.findItem(R.id.exportHtml)
         export.title = app.getString(R.string.export_fileformat, "HTML")
@@ -693,7 +697,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
             textOptionsSubMenu.removeItem(R.id.textOptionItem)
 
-            val copySettingSubMenu = textOptionsSubMenu.findItem(R.id.copySettingsTo).subMenu
+            val copySettingSubMenu = textOptionsSubMenu.findItem(R.id.copySettingsTo).subMenu!!
             copySettingSubMenu.removeItem(R.id.copySettingsToWindow)
 
             BookName.setFullBookName(false)
@@ -757,7 +761,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                     )
                 }
                 if(item.hasSubMenu()) {
-                    handleMenu(item.subMenu)
+                    handleMenu(item.subMenu!!)
                     continue
                 }
 

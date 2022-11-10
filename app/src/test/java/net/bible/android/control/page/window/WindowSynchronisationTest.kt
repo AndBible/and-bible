@@ -1,17 +1,33 @@
+/*
+ * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 package net.bible.android.control.page.window
 
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.EventManager
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.AbstractSpeakTests
 import net.bible.service.history.HistoryManager
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 
 import net.bible.test.DatabaseResetter
@@ -32,10 +48,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [28])
+@Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class WindowSynchronisationTest {
-
-    private var eventManager: EventManager? = null
 
     private var windowRepository: WindowRepository? = null
 
@@ -44,15 +58,13 @@ class WindowSynchronisationTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        eventManager = ABEventBus.getDefault()
-
         val bibleTraverser = mock(BibleTraverser::class.java)
 
         val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
         val mockCurrentPageManagerProvider = Provider { CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
-        windowControl = WindowControl(windowRepository!!, eventManager!!)
+        windowControl = WindowControl(windowRepository!!)
         CommonUtils.settings.setBoolean("first-time", false)
         windowRepository!!.initialize()
     }

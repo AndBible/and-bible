@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.service.format.osistohtml.osishandlers
 
@@ -31,7 +30,7 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-open class OsisToCanonicalTextSaxHandler(val compatibleOffsets: Boolean = false): OsisSaxHandler() {
+open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean = false): OsisSaxHandler() {
     private var currentVerseNo = 0
     protected var writeContentStack = Stack<CONTENT_STATE>()
 
@@ -66,7 +65,7 @@ open class OsisToCanonicalTextSaxHandler(val compatibleOffsets: Boolean = false)
      * Encountered while parsing the Current XML File. The AttributeList Parameter has
      * the list of all Attributes declared for the Current Element in the XML File.
     */
-    var insideVerse = false;
+    private var insideVerse = false;
     override fun startElement(namespaceURI: String?,
                           sName: String?,  // simple name
                           qName: String,  // qualified name
@@ -91,6 +90,9 @@ open class OsisToCanonicalTextSaxHandler(val compatibleOffsets: Boolean = false)
             writeContentStack.push(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
             writeContentStack.push(CONTENT_STATE.IGNORE)
+        } else if (name == OSISUtil.OSIS_ELEMENT_Q) {
+            write(attrs?.getValue("marker")?:"")
+            writeContentStack.push(CONTENT_STATE.WRITE)
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
             // text content of top level references should be output but in notes it should not
             writeContentStack.push(writeContentStack.peek())

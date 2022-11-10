@@ -31,7 +31,7 @@
   <!--Search-->
   <string name="search_index">Index doorzoeken</string>
   <string name="index_creation_required">Een index is vereist om te zoeken</string>
-  <string name="create_index_for">Een index is vereist om te zoeken. \n\Index aanmaken voor %s?</string>
+  <string name="create_index_for">Een index is vereist om te zoeken. \n\nIndex aanmaken voor %s?</string>
   <string name="rebuild_index_for">Index opnieuw opbouwen voor %s?</string>
   <string name="indexing_wait_msg">Als het indexeren klaar is, zal het zoekscherm verschijnen.</string>
   <string name="index_create">Creëren</string>
@@ -171,6 +171,8 @@
   <string name="pref_font_family_label_name">Lettersoort (%s)</string>
   <string name="prefs_font_family_summary">Wijzig de lettersoort. Tip: Meer lettertypes kunnen geinstalleerd worden via Documenten downloaden / Uitbreidingen.</string>
   <string name="prefs_text_bookmarks_title">Instellingen voor Bladwijzers &amp; Mijn notities</string>
+  <string name="prefs_enable_bluetooth_title">Schakel Bluetooth-mediaknoppen in</string>
+  <string name="prefs_enable_bluetooth_summary">Gebruik Bluetooth-mediaknoppen om spreken te starten/stoppen.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleurinstellingen</string>
   <string name="window_color_settings_title">Instellingen voor schermkleur.</string>
@@ -206,6 +208,7 @@
   <string name="next">Volgende</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Download Strong\'s Hebreeuws en Grieks woordenboek</string>
+  <string name="no_indexed_bible_with_strongs_ref">U moet een Bijbel met Strong\'s codering downloaden en de index bouwen via Zoeken</string>
   <string name="morph_robinson_not_installed">Download \'Robinson\'s Morfologische analyse Codes\' woordenboek</string>
   <string name="go_to_downloads">Ga naar downloads</string>
   <!--Module download-->
@@ -273,6 +276,9 @@ Er is een gebruikers leesplan in de SD-kaart
 jsword/readingplan met dezelfde naam als het interne leesplan. Het kan niet in de lijst gezet worden hier. 
 Verander de naam van het bestand naar iets anders, maar laat de bestandsextensie hetzelfde als .properties</string>
   <string name="plan_name_y1ntpspr">NT, Psalmen en Spreuken in een jaar</string>
+  <string name="plan_description_y1ntpspr">
+Met dank aan HEARTLIGHT Internet Magazine,
+http://www.heartlight.org, toestemming verleend</string>
   <string name="plan_name_y1ot1nt1_chronological">Chronologisch 1 jaar door de bijbel</string>
   <string name="plan_description_y1ot1nt1_chronological">
 Leesplan is gebaseerd op de chronologische volgorde van gebeurtenissen in de bijbel. 
@@ -286,7 +292,12 @@ uit het OT en NT.</string>
 Lees de bijbel in 1 jaar, begin vanaf Genesis
 en eindig in Openbaring. Eerst het OT en daarna het NT.</string>
   <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 jaar 4 hoofdstukken per dag</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+Dit plan is gebaseerd op het M\'Cheyne leessysteem, met vier verschillende lezingen voor het gebruik in zowel familie als persoonlijke toewijding.
+Elke dag bevat twee passages uit het Oude Testament, een uit het Nieuwe Testament en een uit ofwel de Psalmen of de Evangeliën.
+In een jaar leest u het Oude Testament eenmaal en het Nieuwe Testament en de Psalmen tweemaal.</string>
   <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10 hoofdstukken per dag Leesplan</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Met dank aan Prof. Horner, toestemming verleend</string>
   <string name="plan_name_y2ot1ntps2">2 jaar door de bijbel, NT+Psalmen twee keer</string>
   <string name="plan_description_y2ot1ntps2">
 Lees de bijbel in 2 jaar, lees de NT en Psalmen twee keer. 
@@ -480,29 +491,67 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="speak_third">Derde</string>
   <string name="speak_fourth">Vierde</string>
   <string name="speak_fifth">Vijfde</string>
+  <string name="verse_range_mode_disabled">
+Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buiten het gedefinieerde vers bereik.</string>
   <!--User Notes-->
   <string name="mynotes">Mijn notities</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Back-up en herstel</string>
+  <string name="backup_modules">Deel of back-up Documenten naar...</string>
+  <string name="backup_app_database">Deel of Back-up app database naar...</string>
+  <string name="backup_app">Deel of Back-up app (.apk bestand) naar...</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Wat wilt u herstellen?</string>
+  <string name="restore_app_database">Terugzetten app database vanuit...</string>
+  <string name="restore_database">Terugzetten Database bestand</string>
+  <string name="restore_confirmation">Overschrijf Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen?</string>
   <string name="reading_plans_plural">Leesplannen</string>
+  <string name="restore_success">Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen succesvol teruggezet</string>
   <string name="loading_backup">Database aan het laden vanuit backup...</string>
+  <string name="backup_success2">Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen succesvol geback-upt.</string>
+  <string name="backup_modules_success">Geselecteerde modules succesvol geback-upt.</string>
+  <string name="backup_modules_email_subject_2">%s modules back-up</string>
+  <string name="backup_modules_email_message_2">Toegevoegd is uw %s modules back-up, welke de volgende modules bevat: %s</string>
   <string name="backup_email_subject_2">%sdatabase backup</string>
+  <string name="backup_email_message_2">Uw %s database met bladwijzers, notities, leesplannen en werkbladen is toegevoegd</string>
+  <string name="restore_unsuccessfull">Database herstellen is mislukt. Misschien gaf u een verkeerd database bestand.</string>
   <string name="backup_phone_storage">Telefoonopslag</string>
   <string name="backup_backup_title">Waar backup opslaan?</string>
+  <string name="backup_backup_message">Back-up naar telefoon of elders via Deel functie (email, Google Drive etc.)?</string>
   <string name="backup_share">Delen</string>
+  <string name="restore_modules">Terugzetten Documenten vanuit...</string>
+  <string name="send_backup_file">Back-up bestand verzenden</string>
+  <string name="backup_modules_title">Selecteer welke modules geback-upt moeten worden</string>
+  <string name="install_zip_canceled">Module installatie afgebroken</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Geïnstalleerde versie: %s (%s)</string>
   <string name="module_about_latest_version">Nieuwste versie: %s(%s)</string>
   <string name="module_about_versification">Versificatie: %s</string>
+  <string name="module_about_repository">Distributie server: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title1">Bug-melding</string>
+  <string name="send_feedback_title">Terugkoppeling</string>
+  <string name="send_bug_report_title">Terugkoppeling / foutrapportage</string>
   <string name="report_bug_email_subject_3">[%s] Bug-melding voor %s %s</string>
+  <string name="report_bug_big_heading">SCHRIJF ALSTUBLIEFT UW TERUGKOPPELING OF FOUT RAPPORTAGE BOVEN DEZE LIJN</string>
+  <string name="report_bug_heading1">Instructies:</string>
+  <string name="report_bug_line_1">Vertel in het kort wat u deed of wat er gebeurde toen het probleem zich voor deed.</string>
   <string name="report_bug_heading2">Bijvoorbeeld:</string>
+  <string name="report_bug_instructions1">1. App geopend</string>
+  <string name="report_bug_instructions2">2. Op Venster menu geklikt</string>
+  <string name="report_bug_instructions3">-&gt; Crash</string>
+  <string name="report_bug_line_2">Soms zijn handmatig gemaakte schermafbeeldingen ook nuttig om problemen op te lossen.</string>
+  <string name="report_bug_line_3">Gebruik deze functie om een probleem te rapporteren zodra deze opgemerkt word.</string>
+  <string name="report_bug_line_4">Deze functie kan ook gebruikt worden na het openen van de app, nadat er een crash geweest is.</string>
   <string name="report_bug_heading_3">Bijlagen:</string>
+  <string name="bug_report_logcat">Logbestand door deze app geproduceerd. Het bevat geen informatie van andere apps.</string>
+  <string name="bug_report_screenshot">Schermafbeelding van app toen de crash plaatsvond, of toen het foutrapport is gemaakt.</string>
+  <string name="bug_report_attachment_line_1">Het toevoegen van deze bestanden zal de app-ontwikkelaars veel kunnen helpen in het oplossen van de gerapporteerde fout.</string>
+  <string name="report_bug_heading_4">Apparaat info:</string>
   <!--Document types-->
+  <string name="doc_type_all">Alle types</string>
   <string name="doc_type_bible">Bijbel</string>
   <string name="doc_type_commentary">Commentaar</string>
   <string name="doc_type_dictionary">Woordenboek</string>
@@ -518,6 +567,7 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="no">Nee</string>
   <string name="error">Fout</string>
   <string name="delete_generic">Verwijderen</string>
+  <string name="please_wait">Wachten a.u.b.</string>
   <string name="all">Alles</string>
   <string name="edit">Bewerken</string>
   <string name="reset_generic">Reset</string>
@@ -526,6 +576,7 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <!--Errors-->
   <string name="report_error">Rapportage versturen</string>
   <string name="error_occurred">Er is een fout opgetreden</string>
+  <string name="error_occurred_crash_last_time">De laatste keer dat de applicatie werd gebruikt is het vastgelopen. Om ons te helpen om de fout op te lossen, zouden we het waarderen wanneer u ons een foutrapportage verstuurd.</string>
   <string name="error_occurred_with_link">Er is een fout opgetreden. %s</string>
   <string name="error_no_content">Het geselecteerde vers bevat geen inhoud</string>
   <string name="error_page_too_large">De pagina is te groot om te worden geladen</string>
@@ -551,15 +602,28 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="copy_of_workspace">Kopie van %s</string>
   <string name="copy_workspace_settings">Kopieer instellingen...</string>
   <string name="copy_settings_title">Welke instellingen wilt u kopiëren?</string>
+  <string name="select_all">Selecteer alles</string>
   <string name="copy_settings_workspaces_title">Naar welke werkbladen wilt u de instellingen kopiëren?</string>
   <string name="reset_settings">Reset</string>
   <string name="workspace_dismiss">Negeren</string>
+  <string name="workspace_listing_with_current">%s (huidig)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dit is een bètaversie!</string>
+  <string name="beta_notice_content_1">
+In de beta-versie zitten nieuwe functies die nog niet goed zijn getest, waaruit volgt dat het gebruik van beta onverwacht gedrag kan opleveren, ofwel bugs.
+Het is aangeraden dat gewone Bijbel lezers in plaats daarvan de stabiele versie gebruiken.</string>
+  <string name="beta_notice_content_2">
+Beta gebruikers worden aangemoedigd om foutrapportages te sturen via Google Play of (bij voorkeur) via %s.</string>
+  <string name="beta_notice_content_3">Als je een programmeur bent, overweeg dan alsjeblieft om zelf foutoplossingen bij te dragen via %s. :-)</string>
+  <string name="beta_notice_github_issues">Github issues</string>
+  <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Negeren</string>
   <string name="beta_notice_dismiss_until_update">Negeren tot volgende update</string>
+  <string name="stable_notice_title">Applicatie is vernieuwd!</string>
+  <string name="upgrade_video_message">Bekijk alstublieft de video waar de nieuwe functies van deze uitgave worden belicht (%s).</string>
   <string name="stable_notice_par1">Nieuwe versie %s van %s is succesvol geïnstalleerd!</string>
   <!--History-->
+  <string name="history_for">Geschiedenis (%s: Venster %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigatie</string>
   <string name="help_nav_text">Ga naar het volgende of vorige hoofdstuk door met je vinger over het scherm te vegen. 
@@ -598,11 +662,26 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
        Houdt de vers locatie titel in de taakbalk lang ingedrukt om naar het document-selectie venster te gaan.
        Houdt de Terug knop lang ingedrukt om de Geschiedenis lijst te bekijken.</string>
   <string name="help_window_pinning_title">Vensters vastzetten</string>
+  <string name="help_window_pinning_text">
+Je kunt venster vastmaken aanzetten vanuit menu Opties (drie stippen, rechter bovenhoek).
+Wanneer venster vastmaken aan staat, kun je meerdere vastgemaakte vensters laten zien in Bijbel weergave, maar slechts één niet-vast venster. Vastgemaakte vensters worden als eerste getoond, daarna de niet-vaste vensters.
+Je wilt misschien Bijbel documenten als vastgemaakt venster en commentaren en mappen als niet-vastgemaakte vensters. Dan kun je gemakkelijk Bijbel documenten altijd open hebben en snel wisselen tussen commentaren en ander extra materiaal tijdens de bijbelstudie.
+</string>
   <!--Welcome text-->
+  <string name="redownload_documents">Snel herdownloaden</string>
+  <string name="welcome_message">Bedankt voor het downloaden van %s. Er zijn momenteel geen Bijbels of documenten geïnstalleerd. Om verder te gaan, installeer dan minstens 1 document van internet, of door het laden van een zip document backup bestand.</string>
+  <string name="redownload_message">
+Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om ze makkelijk nogmaals te downloaden.</string>
   <!--Uncategorized-->
   <string name="close">Sluiten</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Ik begrijp het</string>
+  <string name="first_time_help_show_next_time">Laat volgende keer weer zien</string>
+  <string name="strongs_mode_title">Kies Strong\'s modus</string>
+  <string name="download_dialog_message">The volgende boeken konden iet worden gedownload:</string>
+  <string name="select_multiple">Selecteer meerdere</string>
+  <string name="journal_description">Door gebruiker bewerkbare studiemappen met aangepaste tekst en bladwijzers</string>
+  <string name="my_notes_description">Door gebruiker bewerkbare notities gekoppeld aan bladwijzers</string>
   <string name="my_notes_abbreviation">Mijn notities</string>
   <string name="studypads">Studiemappen</string>
   <string name="multi_description">Meerdere verwijzingen</string>
@@ -613,7 +692,15 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="http_forbidden">Verboden</string>
   <string name="http_not_found">Niet gevonden</string>
   <string name="http_unknown">Andere fout</string>
+  <string name="give_passphrase_for_module">Document %s is versleuteld en heeft een wachtwoordzin nodig om te ontgrendelen</string>
+  <string name="unlocking_failed">Ontgrendelen mislukt, onjuiste wachtwoordzin</string>
+  <string name="unlock_module">Instellen module wachtwoordzin</string>
+  <string name="unlock_info">Versleutelde module ontgrendel info</string>
   <string name="try_again_passphrase">Wachtwoord werkte niet, probeer het nog eens?</string>
+  <string name="cant_delete_last_bible">Kan laatste Bijbeldocument niet verwijderen</string>
+  <string name="show_unlock_info">Module &amp; ontgrendel info</string>
+  <string name="prefs_show_error_box_title">Toon Javascript foutvenster</string>
+  <string name="prefs_show_error_box_summary">Handig voor ontwikkelaars tijdens foutzoeken naar BibleView javascript fouten. Dit zal de app langzamer maken.</string>
   <string name="active_window_indicator_title">Indicator voor actief venster tonen</string>
   <string name="active_window_indicator_summary">De vensterhoeken markeren om aan te geven welk venster actief is.</string>
   <string name="app_licence_title">Open-source-licentie</string>
@@ -622,6 +709,9 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Aanbevelen bij een vriend</string>
   <string name="tell_friend_message1">Graag wil ik %s bij je aanbevelen.</string>
+  <string name="tell_friend_message2">Het is een krachtige, maar toch makkelijk te gebruiken, offline Bijbelstudie applicatie voor Android.</string>
+  <string name="tell_friend_message3">Installeer het vanuit de Play Store: %s</string>
+  <string name="tell_friend_message4">Lees meer &amp; meer installatieopties: %s</string>
   <string name="share_verse_ok">Deel / Kopieer</string>
   <string name="verse_action_copy">Kopiëren</string>
   <string name="share_verse_menu_title">Deel / Kopieer...</string>
@@ -682,11 +772,18 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="this_bookmark">Deze bladwijzer</string>
   <string name="this_workspace">Dit werkblad</string>
   <string name="primary_label">Primaire label</string>
+  <string name="highlight_entire_verse">Markeer gehele vers</string>
+  <string name="favourite_label">Favouriet label</string>
   <string name="edit_label">Label bewerken</string>
+  <string name="delete_label_confirmation">Wilt u bladwijzer label \"%s\" verwijderen? Ook alle gekoppelde Studeermap notities worden verwijderd.</string>
+  <string name="bookmark_underline_style_arbitrary">Onderstreepstijl voor selectie-bladwijzers</string>
+  <string name="bookmark_underline_style_whole_verse">Onderstreepstijl voor hele-vers bladwijzers</string>
   <string name="active_labels">Geselecteerde labels</string>
   <string name="recent_labels">Recente labels</string>
   <string name="other_labels">Overige labels</string>
   <string name="book_menu_sort_row_opt">Horizontaal rangschikken</string>
+  <string name="reset_workspace_labels">Wilt u auto-toewijzen en favouriet instelling resetten voor dit werkblad?</string>
+  <string name="reset_hide_labels">Wilt u de instelling resetten voor het automatisch verbergen van genoemde label instellingen?</string>
   <string name="reorder">Herschikken</string>
   <string name="system_items">Systeem acties</string>
   <string name="system_items1">Meer</string>
@@ -698,27 +795,37 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <string name="prefs_double_tap_to_fullscreen_summary">Dubbeltik het venster voor volledig-scherm-weergave</string>
   <string name="toggle_fullscreen">Volledig scherm</string>
   <string name="exit_fullscreen">Dubbeltikken om volledig scherm te verlaten</string>
+  <string name="reset_app_prefs">Wilt u alle globale applicatievoorkeuren die in dit scherm getoond worden resetten naar hun standaard waarden?</string>
   <string name="label_red">Rood</string>
   <string name="label_green">Groen</string>
   <string name="label_blue">Blauw</string>
   <string name="label_salvation">Zaligheid</string>
+  <string name="label_underline">Onderstreping</string>
+  <string name="import_menu">Importeren &amp; Exporteren</string>
   <string name="export_fileformat">Exporteer als %s</string>
   <string name="import_items">Importeer %s</string>
+  <string name="import_from_db">Importeren van App Database bestand</string>
+  <string name="import_error">Importeren vanuit App Database mislukt. Database bestand zou verkeerd formaat kunnen zijn of gemaakt zijn met een te oude versie van %s.</string>
   <string name="chooser_range">Reikwijdte</string>
   <string name="chooser_jump">Verspring</string>
   <string name="chooser_OT_abbrev">OT</string>
   <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_grid">Raster</string>
   <string name="chooser_style_lists">Lijsten</string>
   <string name="chooser_select">Selecteer %s</string>
+  <string name="chooser_pref_reset">Reset niet het hoofdstuk/vers naar 1 wanneer boek/hoofdstuk is geselecteerd</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Het spijt ons, maar we hebben slechts een gedeeltelijke vertaling van de gebruikersinterface in de taal %s. Dat komt omdat %s volledig door vrijwilligers is ontwikkeld. Als je kunt helpen bij het vertalen, zie %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instructies voor vertalers</string>
   <string name="questions_title">Vragen?</string>
   <string name="questions_title2">Hulp nodig?</string>
+  <string name="bookmark_style">Bladwijzer stijl</string>
+  <string name="added_to_bookmark">Toewijzen aan deze bladwijzer</string>
   <string name="strongs_off">Uit</string>
   <string name="strongs_links">Links</string>
   <string name="strongs_text_and_links">Tekst en links</string>
+  <string name="verse_tip">Om gedeeltes of meerdere versen te selecteerd, kunt u lang drukken op Bijbel tekst</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Permissie nodig</string>
 </resources>

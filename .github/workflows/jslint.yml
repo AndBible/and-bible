@@ -21,14 +21,18 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 10 # so that recent tags can be found
 
       - name: Set up Node.js environment
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '14'
+
+      - name: Upgrade npm
+        working-directory: app/bibleview-js
+        run: npm install -g npm
 
       - name: Run npm install
         working-directory: app/bibleview-js
@@ -44,7 +48,7 @@ jobs:
         if: ${{ always() }}
 
       - name: Upload lint results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           name: js-results
@@ -53,7 +57,7 @@ jobs:
 
       - name: Upload jest results
         if: ${{ always() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: js-results
           path: app/bibleview-js/test-report.html

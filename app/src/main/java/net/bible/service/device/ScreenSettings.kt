@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.device
@@ -40,7 +39,7 @@ object ScreenSettings {
                 lastNightMode = false
             }
             if(oldValue != lastNightMode) {
-                ABEventBus.getDefault().post(NightModeChanged())
+                ABEventBus.post(NightModeChanged())
             }
         }
     }
@@ -59,14 +58,10 @@ object ScreenSettings {
             return pm.isScreenOn
         }
 
-    const val systemModeAvailable = true
-
-    private val autoNightMode	get() =
-        autoModeAvailable && preferences.getString("night_mode_pref3", "manual") == "automatic"
-    val manualMode: Boolean get() =
-        preferences.getString("night_mode_pref3", "manual") == "manual"
-    val systemMode: Boolean get() =
-        systemModeAvailable && preferences.getString("night_mode_pref3", "manual") == "system"
+    private val autoNightMode get() =
+        autoModeAvailable && preferences.getString("night_mode_pref3", "system") == "automatic"
+    val manualMode: Boolean get() = preferences.getString("night_mode_pref3", "system") == "manual"
+    val systemMode: Boolean get() = preferences.getString("night_mode_pref3", "system") == "system"
 
     val autoModeAvailable = lightSensor.isLightSensor
 

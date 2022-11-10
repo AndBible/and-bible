@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.download
 
@@ -40,7 +39,7 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 
 val Book.imageResource: Int
     get() = when(bookCategory) {
-        BookCategory.BIBLE -> R.drawable.ic_bible_24dp
+        BookCategory.BIBLE -> if(CommonUtils.isDiscrete) R.drawable.ic_baseline_menu_book_24 else  R.drawable.ic_bible_24dp
         BookCategory.COMMENTARY -> R.drawable.ic_commentary
         BookCategory.DICTIONARY -> R.drawable.ic_dictionary_24dp
         BookCategory.MAPS -> R.drawable.ic_map_black_24dp
@@ -76,7 +75,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
     }
 
     fun onEventMainThread(event: DocumentDownloadEvent) {
@@ -158,6 +157,6 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
      * https://code.google.com/p/android/issues/detail?id=65617
      */
     private fun ensureRegisteredForDownloadEvents() {
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
     }
 }

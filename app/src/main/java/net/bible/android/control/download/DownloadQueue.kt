@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.download
 
@@ -23,7 +22,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.Logger
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoBase
@@ -62,30 +61,30 @@ class DownloadQueue {
                 log.info("Downloading " + document.osisID + " from repo " + repo.repoName)
                 try {
                     repo.downloadDocument(document)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
+                    ABEventBus.post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.INSTALLED, 100))
                 } catch (e: DownloadCancelledException) {
                     log.error("Cancelled downloading $document", e)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
+                    ABEventBus.post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.INSTALL_CANCELLED, 0))
                 } catch (e: DownloadException) {
                     log.error("Error downloading $document", e)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
+                    ABEventBus.post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
                     val downloadStatusStr = httpError(e.statusCode)
                     val errorMessage = application.getString(R.string.error_downloading_status, e.uri.toString(), downloadStatusStr, e.statusCode)
-                    instance.showErrorMsg(errorMessage)
+                    Dialogs.showErrorMsg(errorMessage)
                 } catch (e: InstallException) {
                     log.error("Error downloading $document", e)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
+                    ABEventBus.post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
-                    instance.showErrorMsg(R.string.error_downloading)
+                    Dialogs.showErrorMsg(R.string.error_downloading)
                 } catch (e: Exception) {
                     log.error("Error downloading $document", e)
-                    instance.showErrorMsg(R.string.error_occurred, e)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(repoIdentity,
+                    Dialogs.showErrorMsg(R.string.error_occurred, e)
+                    ABEventBus.post(DocumentDownloadEvent(repoIdentity,
                         DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
                 }
