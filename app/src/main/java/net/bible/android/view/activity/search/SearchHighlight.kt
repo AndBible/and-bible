@@ -17,7 +17,7 @@ class SearchHighlight(searchTerms: String) {
     val elementsToExclude: List<String> = listOf("note", "reference")
     val elementsToInclude: List<String> = listOf("w", "transChange", "divineName", "seg")
     val consecutiveWordsRegex = Regex("(<b[^<>]*>)([^<>]*?)(<\\/b>)(\\s+)\\1([\\s\\S]*?)\\3", RegexOption.IGNORE_CASE)
-    val strongsSearchPattern: Pattern = Pattern.compile(prepareStrongsSearchTerm(searchTerms) + "\\b", Pattern.CASE_INSENSITIVE)  // search on a word boundary (eg find strong:g0123 not strong:g01234567
+    val strongsSearchPattern: Pattern = Pattern.compile(prepareStrongsSearchTerm(searchTerms) + "[a-z]?\\b", Pattern.CASE_INSENSITIVE)  // search on a word boundary (eg find strong:g0123 not strong:g01234567
 
     private val preparedSearchWordsPatternList:List<Pattern> = // Build a list of Patterns representing each search word.
         splitSearchTerms(searchTerms).map {
