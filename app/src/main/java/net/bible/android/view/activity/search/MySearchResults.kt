@@ -166,7 +166,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Search results view")
         totalTime.reset()
 
@@ -271,7 +271,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
         var listIndex = 0
         var totalWords = 0
-        val searchHighlight = SearchHighlight(SearchControl.originalSearchString)
+        val searchHighlight = SearchHighlight(SearchControl.originalSearchString!!)
         for (key in mCurrentlyDisplayedSearchResults) {
             // Add verse to results array
 
@@ -288,10 +288,8 @@ class MySearchResults : CustomTitlebarActivityBase() {
 //            val verseTextString = searchControl.getSearchResultVerseText(key)
 //            getSearchResultVerseStringTimer.stop()
 
-
-            verseTextSpannableTimer.start()
+            // Build a spannable verse highlighting the relevant words.
             verseTextSpannable = searchHighlight.generateSpannableFromVerseElement(verseTextElement)
-            verseTextSpannableTimer.stop()
 
             mSearchResultsArray.add(SearchResultsData(listIndex, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable.toHtml()))
 
