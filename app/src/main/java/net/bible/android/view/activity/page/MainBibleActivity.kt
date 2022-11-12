@@ -265,7 +265,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 showBetaNotice()
                 showStableNotice()
                 showFirstTimeHelp()
-                ABEventBus.post(ToastEvent(windowRepository.name))
+                if(!CommonUtils.isDiscrete) {
+                    ABEventBus.post(ToastEvent(windowRepository.name))
+                }
                 checkDocBackupDBInSync()
             }
             initialized = true

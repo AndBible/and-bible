@@ -68,26 +68,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
-        this.onCreate(savedInstanceState, false)
-    }
-
-    fun applyTheme() {
-         val newNightMode = if (ScreenSettings.nightMode) {
-            AppCompatDelegate.MODE_NIGHT_YES
-        } else {
-            AppCompatDelegate.MODE_NIGHT_NO
-        }
-        AppCompatDelegate.setDefaultNightMode(newNightMode)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!ScreenSettings.nightMode) {
-                val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                window.decorView.systemUiVisibility = uiFlags
-            }
-        }
-    }
-
-    /** Called when the activity is first created.  */
-    override fun onCreate(savedInstanceState: Bundle?, integrateWithHistoryManager: Boolean) {
         CurrentActivityHolder.currentActivity = this
 
         if(!doNotInitializeApp) {
