@@ -19,8 +19,8 @@ package net.bible.android.control.page
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.common.toV11n
 import net.bible.android.database.WorkspaceEntities
@@ -45,9 +45,9 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Passage
+import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import org.crosswire.jsword.passage.VerseRangeFactory
 import java.lang.Exception
 
 /** Reference to current passage shown by viewer
@@ -69,7 +69,7 @@ class CurrentGeneralBookPage internal constructor(
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
     override fun startKeyChooser(context: ActivityBase) {
-        GlobalScope.launch(Dispatchers.Main) {
+        context.lifecycleScope.launch(Dispatchers.Main) {
             when (currentDocument) {
                 FakeBookFactory.journalDocument -> {
                     val result = context.awaitIntent(Intent(context, ManageLabels::class.java)
@@ -77,7 +77,7 @@ class CurrentGeneralBookPage internal constructor(
                             .applyFrom(_mainBibleActivity?.workspaceSettings)
                             .toJSON())
                     )
-                    if(result?.resultCode == Activity.RESULT_OK) {
+                    if(result.resultCode == Activity.RESULT_OK) {
                         val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
                         _mainBibleActivity?.workspaceSettings?.updateFrom(resultData)
                     }
@@ -200,7 +200,7 @@ class CurrentGeneralBookPage internal constructor(
                         val isUnspecifiedDoc = it[0] == "null"
                         val book: Book? = if(isUnspecifiedDoc) pageManager.currentBible.currentDocument else Books.installed().getBook(it[0])
                         val key = if (book is SwordBook) {
-                            VerseRangeFactory.fromString(book.versification, it[1])
+                            PassageKeyFactory.instance().getKey(book.versification, it[1])
                         } else {
                             book?.getKey(it[1])
                         }

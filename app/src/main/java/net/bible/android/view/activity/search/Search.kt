@@ -57,6 +57,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
     private lateinit var currentBookName: String
+    override val integrateWithHistoryManager: Boolean = true
 
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var pageControl: PageControl
@@ -124,7 +125,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Search view")
         binding = SearchBinding.inflate(layoutInflater)
         setContentView(binding.root)

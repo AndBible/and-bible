@@ -223,7 +223,7 @@ class ReadingPlanTextFileDao {
 
     private fun getReadingPlanCodes(files: Array<String>): List<String> {
         val codes = ArrayList<String>()
-		for (file in files) {
+        for (file in files) {
 			// this if statement ensures we only deal with .properties files - not folders or anything else
 			if (file.endsWith(DOT_PROPERTIES)) {
 				// remove the file extension to get the code

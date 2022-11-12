@@ -25,8 +25,8 @@ import android.util.Log
 import android.webkit.JavascriptInterface
 import android.widget.TextView
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 import net.bible.android.activity.BuildConfig
@@ -67,6 +67,7 @@ class BibleJavascriptInterface(
     val downloadControl get() = bibleView.downloadControl
 
     var notificationsEnabled = false
+    val scope get() = mainBibleActivity.lifecycleScope
 
     @JavascriptInterface
     fun scrolledToOrdinal(ordinal: Int) {
@@ -110,7 +111,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun refChooserDialog(callId: Long) {
-        GlobalScope.launch {
+        scope.launch {
             val intent = Intent(mainBibleActivity, GridChoosePassageBook::class.java).apply {
                 putExtra("isScripture", true)
                 putExtra("navigateToVerse", true)
@@ -174,13 +175,13 @@ class BibleJavascriptInterface(
             val bibleBook = intToBibleBook[bookInt]?: return
             val lnk = "${bibleBook.osis} $rest"
             val bibleLink = BibleView.BibleLink("content", target=lnk)
-            GlobalScope.launch(Dispatchers.Main) {
+            scope.launch(Dispatchers.Main) {
                 bibleView.linkControl.loadApplicationUrl(bibleLink)
             }
         } else if(link.startsWith("S:")) {
             val (prefix, rest) = link.split(":", limit=2)
             val bibleLink = BibleView.BibleLink("strong", target=rest)
-            GlobalScope.launch(Dispatchers.Main) {
+            scope.launch(Dispatchers.Main) {
                 bibleView.linkControl.loadApplicationUrl(bibleLink)
             }
         } else {
@@ -254,7 +255,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun shareBookmarkVerse(bookmarkId: Long) {
         val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Main) {
             ShareWidget.dialog(mainBibleActivity, bookmark)
         }
     }
@@ -266,7 +267,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Main) {
             ShareWidget.dialog(mainBibleActivity, Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
         }
     }
@@ -278,28 +279,28 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Main) {
             bibleView.compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
         }
     }
 
     @JavascriptInterface
     fun openStudyPad(labelId: Long, bookmarkId: Long) {
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Main) {
             bibleView.linkControl.openJournal(labelId, bookmarkId)
         }
     }
 
     @JavascriptInterface
     fun openMyNotes(v11n: String, ordinal: Int) {
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Main) {
             bibleView.linkControl.openMyNotes(v11n, ordinal)
         }
     }
 
     @JavascriptInterface
     fun speak(bookInitials: String?, ordinal: Int) {
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials) as SwordBook
             val verse = Verse(book.versification, ordinal)
             mainBibleActivity.speakControl.speakBible(book, verse, force = true)
@@ -415,7 +416,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun onKeyDown(key: String) {
         Log.i(TAG, "key $key")
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Main) {
             when (key) {
                 "AltArrowDown" -> windowControl.focusNextWindow()
                 "AltArrowRight" -> windowControl.focusNextWindow()

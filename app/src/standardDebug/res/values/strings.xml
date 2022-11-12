@@ -18,7 +18,7 @@
 
 <resources>
     <string name="app_name_short">Bible Study *Debug*</string>
-    <string name="app_name_medium">Bible Study (And Bible) *Debug*</string>
-    <string name="app_name_long">Bible Study app, by And Bible Open Source Project *Debug*</string>
+    <string name="app_name_medium">Bible Study (AndBible) *Debug*</string>
+    <string name="app_name_long">AndBible: Bible Study *Debug*</string>
     <string name="install_zip_module">Install Bible Module *Debug*</string>
 </resources>

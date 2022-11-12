@@ -45,18 +45,19 @@ class DailyReadingList : ListActivityBase() {
 
     private lateinit var readingsList: List<OneDaysReadingsDto>
     private lateinit var adapter: ArrayAdapter<OneDaysReadingsDto>
+    override val integrateWithHistoryManager: Boolean = true
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying General Book Key chooser")
         binding = ListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         buildActivityComponent().inject(this)
 
-		readingsList = readingPlanControl.currentPlansReadingList
+        readingsList = readingPlanControl.currentPlansReadingList
 
         adapter = DailyReadingItemAdapter(this, R.layout.two_line_list_item, readingsList)
         listAdapter = adapter

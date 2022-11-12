@@ -30,8 +30,8 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -333,7 +333,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
     }
 
-    internal fun reloadDocuments() = GlobalScope.launch {
+    internal fun reloadDocuments() = lifecycleScope.launch {
         populateMasterDocumentList(false)
     }
 
@@ -392,7 +392,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         if(!isPopulated) return
         // documents list has changed so force action mode to exit, if displayed, because selections are invalidated
         listActionModeHelper.exitActionMode()
-        GlobalScope.launch {
+        lifecycleScope.launch {
             filterMutex.withLock {
                 try {
                     // re-filter documents
@@ -509,7 +509,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             val repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY)
             sbmd.reload()
             sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey)
-            GlobalScope.launch(Dispatchers.Main) {CommonUtils.showAbout(this@DocumentSelectionBase, document) }
+            lifecycleScope.launch(Dispatchers.Main) {CommonUtils.showAbout(this@DocumentSelectionBase, document) }
         } catch (e: BookException) {
             Log.e(TAG, "Error expanding SwordBookMetaData for $document", e)
             Dialogs.showErrorMsg(R.string.error_occurred, e)

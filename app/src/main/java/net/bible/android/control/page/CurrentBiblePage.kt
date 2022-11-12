@@ -137,7 +137,7 @@ class CurrentBiblePage(
 
     override fun doSetKey(key: Key?) {
         originalKey = key
-		val verse = KeyUtil.getVerse(key)
+        val verse = KeyUtil.getVerse(key)
 		//TODO av11n should this be the verse Versification or the Module/doc's Versification
 		currentBibleVerse.setVerseSelected(versification, verse)
 	}

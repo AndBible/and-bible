@@ -184,12 +184,22 @@ class LinkControl @Inject constructor(
         return BookAndKey(key)
     }
 
-    /** user has selected a Strong's Number link so show Strong's page for key in link
-     */
+    enum class KeyType {
+        KEY,
+        ZERO_PADDED_KEY,
+        ZERO_PADDED_KEY_R,
+        CATEGORY;
+
+        companion object {
+            val ALL_TYPES = listOf(KEY, ZERO_PADDED_KEY, ZERO_PADDED_KEY_R, CATEGORY)
+        }
+    }
+
+    private val preferredKeyType = hashMapOf<String, KeyType>()
 
     @Throws(NoSuchKeyException::class)
     private fun getStrongsKey(book: Book, key: String): BookAndKey? {
-        val match = Regex("^([GH]?)(0+)([0-9]+).*").find(key)
+        val match = Regex("^([GH]?)(0*)([0-9]+).*").find(key)
         val match2 = Regex("^(0*)([0-9]+).*").find(key)
 
         val category = match?.groups?.get(1)?.value ?: if(book.isHebrewDef) "H" else if(book.isGreekDef) "G" else ""
@@ -197,20 +207,28 @@ class LinkControl @Inject constructor(
 
         val zeroPaddedKey = sanitizedKeyBase?.padStart(5, '0') ?: ""
 
-        val keyOptions = listOf(
-            key,
-            zeroPaddedKey,
-            zeroPaddedKey + "\r",
+        val keyOptions = mapOf(
+            KeyType.KEY to key,
+            KeyType.ZERO_PADDED_KEY to zeroPaddedKey,
+            KeyType.ZERO_PADDED_KEY_R to zeroPaddedKey + "\r",
 
             // MyBible dictionaries
-            category + sanitizedKeyBase
+            KeyType.CATEGORY to category + sanitizedKeyBase
         )
 
+        val preferred = preferredKeyType[book.initials] ?: KeyType.KEY
+
+        val keyTypes = mutableListOf(preferred)
+        keyTypes.addAll(KeyType.ALL_TYPES.filterNot { it === preferred })
+
         val k = run {
-            for(opt in keyOptions) {
+            for(keyType in keyTypes) {
+                val opt = keyOptions[keyType]
                 val candidate = try {book.getKey(opt)} catch (e: NoSuchKeyException) {null}
-                if(candidate != null)
+                if(candidate != null) {
+                    preferredKeyType[book.initials] = keyType
                     return@run candidate
+                }
             }
             null
         }

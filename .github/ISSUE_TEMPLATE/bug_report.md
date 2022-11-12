@@ -9,7 +9,7 @@ labels: 'Type: Bug'
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**Bug was found on And Bible version**
+**Bug was found on AndBible version**
 Build XXX.X or version X.X.
 
 **To Reproduce**

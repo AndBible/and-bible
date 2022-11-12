@@ -26,8 +26,8 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -54,13 +54,14 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
     private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
     private var isScriptureResultsCurrentlyShown = true
+    override val integrateWithHistoryManager: Boolean = true
     @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Search results view")
         binding = ListBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -72,7 +73,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         binding.closeButton.setOnClickListener {
             finish()
         }
-        GlobalScope.launch {
+        lifecycleScope.launch {
             prepareResults()
         }
     }

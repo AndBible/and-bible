@@ -18,14 +18,15 @@ package net.bible.android.view.activity.discrete
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import net.bible.android.activity.R
 import android.graphics.PorterDuff
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import net.bible.android.activity.databinding.CalculatorLayoutBinding
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.lang.Exception
@@ -34,24 +35,35 @@ import java.math.BigDecimal
 
 // Copied and adapted from https://github.com/eloyzone/android-calculator (5fb1d5e)
 
+const val TAG = "Calculator"
+
 @SuppressLint("SetTextI18n")
-class CalculatorActivity : AppCompatActivity() {
+class CalculatorActivity : ActivityBase() {
     private var openParenthesis = 0
     private var dotUsed = false
     private var equalClicked = false
     private var lastExpression = ""
+    override val doNotInitializeApp: Boolean = true
 
     private fun evaluate(formula: String): String = ExpressionBuilder(formula).build().evaluate().toString()
 
     private lateinit var calculatorBinding: CalculatorLayoutBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i(TAG, "Calculator: onCreate")
         calculatorBinding = CalculatorLayoutBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(calculatorBinding.root)
+        buildActivityComponent().inject(this)
 
         setOnClickListeners()
         setOnTouchListener()
+    }
+
+    override fun onBackPressed() {
+        Log.i(TAG, "Calculator: onBackPressed")
+        setResult(RESULT_CANCELED)
+        finish()
     }
 
     private fun setOnClickListeners() = calculatorBinding.run {
@@ -244,8 +256,9 @@ class CalculatorActivity : AppCompatActivity() {
     }
 
     private fun calculate(input: String) = calculatorBinding.run {
-        val pin = CommonUtils.settings.getString("calculator_pin", "1234")
+        val pin = CommonUtils.realSharedPreferences.getString("calculator_pin", "1234")
         if(input == pin) {
+            Log.i(TAG, "Calculator: PIN OK!")
             setResult(RESULT_OK)
             finish()
         }

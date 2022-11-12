@@ -31,13 +31,14 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
@@ -206,7 +207,7 @@ class TextToSpeechNotificationManager {
 
         ABEventBus.register(this)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !BuildVariant.Appearance.isDiscrete) {
             val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL,
                     getString(R.string.notification_channel_tts_status), NotificationManager.IMPORTANCE_LOW).apply {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
@@ -226,6 +227,7 @@ class TextToSpeechNotificationManager {
         Log.i(TAG, "Shutdown")
         currentTitle = getString(R.string.app_name_medium)
         currentText = ""
+
         // In case service was no longer foreground, we need do this here.
         if(foreground) {
             stopForeground(true)
@@ -294,9 +296,7 @@ class TextToSpeechNotificationManager {
                     action = ACTION_STOP
                 }, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
-        val contentIntent = Intent(app, MainBibleActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        }
+        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
         val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         val style = MediaStyle()
             .setShowActionsInCompactView(2)
@@ -322,7 +322,7 @@ class TextToSpeechNotificationManager {
 
         if(CommonUtils.isDiscrete) {
             builder
-                .setSmallIcon(R.drawable.ic_baseline_calculate_24)
+                .setSmallIcon(R.drawable.ic_baseline_headphones_24)
                 .setContentTitle(getString(R.string.speak))
         } else {
             builder

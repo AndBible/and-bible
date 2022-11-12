@@ -44,8 +44,8 @@ import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.MenuItemCompat
 import androidx.core.view.children
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -115,6 +115,8 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
     private val bibleRefOverlayOffset: Int = res.getDimensionPixelSize(R.dimen.bible_ref_overlay_offset)
 
+    val scope get() = mainBibleActivity.lifecycleScope
+
     private val bibleFrames: MutableList<BibleFrame> = ArrayList()
     private val hiddenAlpha get() = if(ScreenSettings.nightMode) HIDDEN_ALPHA_NIGHT else HIDDEN_ALPHA
     private val restoreButtonsList: MutableList<WindowButtonWidget> = ArrayList()
@@ -151,6 +153,9 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     private val windowRepository = windowControl.windowRepository
 
     fun destroy() {
+        // First explicitly remove the BibleFrames, to explicitly notify them to
+        // unregister from the EventBus
+        removeAllFrames()
         removeAllViews()
         ABEventBus.unregister(this)
         bibleViewFactory.clear()
@@ -413,7 +418,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) {
-        GlobalScope.launch {
+        scope.launch {
             Log.i(TAG, "on UpdateRestoreWindowButtons")
             delay(200)
             withContext(Dispatchers.Main) {
@@ -429,7 +434,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         ensureRestoreButtonVisible()
     }
 
-    private fun ensureRestoreButtonVisible() = GlobalScope.launch {
+    private fun ensureRestoreButtonVisible() = scope.launch {
         // Give time for button bar to be rendered.
         delay(200)
         withContext(Dispatchers.Main) {

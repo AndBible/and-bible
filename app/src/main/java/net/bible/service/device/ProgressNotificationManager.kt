@@ -28,6 +28,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.view.activity.download.ProgressStatus
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 
 import org.apache.commons.lang3.StringUtils
@@ -57,7 +58,7 @@ class ProgressNotificationManager {
         notificationManager = BibleApplication.application.getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
         val app = BibleApplication.application
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !BuildVariant.Appearance.isDiscrete) {
             val channel = NotificationChannel(PROGRESS_NOTIFICATION_CHANNEL,
                     app.getString(R.string.notification_channel_progress_status), NotificationManager.IMPORTANCE_LOW).apply {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
@@ -145,7 +146,7 @@ class ProgressNotificationManager {
 
         if(CommonUtils.isDiscrete) {
             builder
-                .setSmallIcon(R.drawable.ic_baseline_calculate_24)
+                .setSmallIcon(R.drawable.ic_calc_24)
                 .setContentTitle(app.getString(R.string.progress_status))
             }
 

@@ -32,14 +32,17 @@ plugins {
 val jsDir = "bibleview-js"
 
 // The flavor dimension for the appearance of the app
-val dimAppearance = "appearance"
-val discreteFlavor = "discrete"
+val dimAppearanceName = "appearance"
+val discreteFlavorName = "discrete"
 // This is the "standard" applicationId.
 // This value must remain the same as it has been since the original
 // release in 2010 for continuity of updates for existing users.
 val applicationIdStandard = "net.bible.android.activity"
 // An alternative applicationId, to be used for the "discrete" flavor.
 val applicationIdDiscrete = "com.app.calculator"
+
+// The flavor dimension for the app's distribution channel
+val dimDistributionChannelName = "distchannel"
 
 
 fun getGitHash(): String =
@@ -98,7 +101,7 @@ val vueCli by tasks.registering(Exec::class) {
     println("Task names "+gradle.startParameter.taskNames)
     val taskNames = gradle.startParameter.taskNames
     println(taskNames)
-    val isDebug = taskNames.contains(":app:assembleStandardDebug")
+    val isDebug = taskNames.any { it.endsWith("Debug") }
 
     val buildCmd: String = if(!isDebug) {
         println("Building js for production")
@@ -170,36 +173,42 @@ android {
 //			zipAlignEnabled true
         }
     }
-    flavorDimensions += listOf(dimAppearance)
+
+    flavorDimensions += listOf(dimAppearanceName, dimDistributionChannelName)
 
     productFlavors {
         create("standard") {
-            dimension = dimAppearance
+            dimension = dimAppearanceName
             isDefault = true
         }
 
-        create(discreteFlavor) {
-            dimension = dimAppearance
+        create(discreteFlavorName) {
+            dimension = dimAppearanceName
+        }
+
+        create("googleplay") {
+            dimension = dimDistributionChannelName
+            isDefault = true
         }
 
         create("fdroid") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannelName
         }
 
         create("samsung") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannelName
         }
 
         create("huawei") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannelName
         }
 
         create("amazon") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannelName
         }
 
         create("github") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannelName
         }
     }
 
@@ -255,11 +264,10 @@ android {
         jvmTarget = "1.8"
     }
     namespace = "net.bible.android.activity"
-
 }
 
 androidComponents {
-    val discreteSelector = selector().withFlavor(dimAppearance to discreteFlavor )
+    val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
     // Set the applicationId to a more discrete alternative.
     // Replace only the "standard" prefix, in order to preserve any
     // suffixes that are contributed by the build types or product flavors.
@@ -267,7 +275,16 @@ androidComponents {
         val originalAppId = variant.applicationId.get()
         val alternateAppId = originalAppId.replace(applicationIdStandard, applicationIdDiscrete)
         variant.applicationId.set(alternateAppId)
-        logger.info("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
+        println("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
+    }
+    beforeVariants(selector()
+        .withFlavor(dimAppearanceName to "discrete")
+    ) { variant ->
+        for((dimension, value) in variant.productFlavors) {
+            if(dimension == dimDistributionChannelName && !listOf("github").contains(value)) {
+                variant.enable = false
+            }
+        }
     }
 }
 
@@ -287,6 +304,7 @@ dependencies {
     implementation("androidx.media:media:1.6.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation("androidx.preference:preference:1.2.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")

@@ -24,6 +24,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils.ensureDirExists
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.isAndroid
@@ -56,7 +57,11 @@ object SwordEnvironmentInitialisation {
         try {
             if (isAndroid && !isSwordLoaded) { // ensure required module directories exist and register them with jsword
 				// This folder we can always access freely without any extra permissions.
-                val moduleDir = SharedConstants.MODULE_DIR
+                val moduleDir = if(BuildVariant.Appearance.isDiscrete)
+                    SharedConstants.INTERNAL_MODULE_DIR
+                else
+                    SharedConstants.MODULE_DIR
+
                 // main module dir
                 ensureDirExists(moduleDir)
                 // mods.d

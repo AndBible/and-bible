@@ -20,6 +20,7 @@ package net.bible.android.view.activity.page
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Instrumentation.ActivityResult
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -40,6 +41,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
@@ -54,11 +56,13 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.EmptyBinding
 import net.bible.android.activity.databinding.MainBibleViewBinding
 import net.bible.android.control.BibleContentManager
 import net.bible.android.control.backup.BackupControl
@@ -104,8 +108,10 @@ import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.SpeakTransportWidget
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.betaIntroVideo
+import net.bible.service.common.htmlToSpan
 import net.bible.service.common.windowPinningVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
@@ -131,7 +137,7 @@ import kotlin.system.exitProcess
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
-    val scope = CoroutineScope(Dispatchers.Default)
+    lateinit var empty: EmptyBinding
 
     private var mWholeAppWasInBackground = false
 
@@ -190,9 +196,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
-    private var isPaused = false
-
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
+    override val integrateWithHistoryManager: Boolean = true
 
     /**
      * Called when the activity is first created.
@@ -208,12 +213,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         ScreenSettings.refreshNightMode()
         currentNightMode = ScreenSettings.nightMode
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
 
         CommonUtils.prepareData()
 
         binding = MainBibleViewBinding.inflate(layoutInflater)
+        empty = EmptyBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if(BuildVariant.Appearance.isDiscrete ||
+            BuildVariant.DistributionChannel.isHuawei ||
+            BuildVariant.DistributionChannel.isFdroid ||
+            BuildVariant.DistributionChannel.isAmazon
+        ) {
+            binding.navigationView.menu.findItem(R.id.rateButton).isVisible = false
+        }
 
         DaggerMainBibleActivityComponent.builder()
             .applicationComponent(BibleApplication.application.applicationComponent)
@@ -221,6 +235,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             .build()
             .inject(this)
 
+        if(CommonUtils.isDiscrete) {
+            binding.bibleButton.setImageResource(R.drawable.ic_baseline_menu_book_24)
+        }
         // use context to setup backup control dirs
         BackupControl.setupDirs(this)
         BackupControl.clearBackupDir()
@@ -237,24 +254,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         setupToolbarFlingDetection()
         setSoftKeyboardMode()
 
-        if(!initialized) {
-            requestSdcardPermission()
-        }
-
-        if(!initialized) {
-            scope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            if(!initialized) {
+                requestSdcardPermission()
                 ErrorReportControl.checkCrash(this@MainBibleActivity)
                 if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
                 showBetaNotice()
                 showStableNotice()
                 showFirstTimeHelp()
-                ABEventBus.post(ToastEvent(windowRepository.name))
-            }
-            scope.launch {
+                if(!CommonUtils.isDiscrete) {
+                    ABEventBus.post(ToastEvent(windowRepository.name))
+                }
                 checkDocBackupDBInSync()
             }
+            initialized = true
         }
-        initialized = true
     }
 
     private fun setupUi() {
@@ -364,11 +378,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
                 pinningText += "<br><i><a href=\"$windowPinningVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
                 
-                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Html.fromHtml(pinningText, Html.FROM_HTML_MODE_LEGACY)
-                } else {
-                    Html.fromHtml(pinningText)
-                }
+                val spanned = htmlToSpan(pinningText)
+
                 val d = AlertDialog.Builder(this)
                     .setTitle(pinningTitle)
                     .setMessage(spanned)
@@ -405,11 +416,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             val htmlMessage = "$par1<br><br>$videoMessageLink"
 
-            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-            } else {
-                Html.fromHtml(htmlMessage)
-            }
+            val spanned = htmlToSpan(htmlMessage)
 
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.stable_notice_title))
@@ -457,11 +464,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             )
             val htmlMessage = "$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, verFull)}</i>"
 
-            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-            } else {
-                Html.fromHtml(htmlMessage)
-            }
+            val spanned = htmlToSpan(htmlMessage)
 
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.beta_notice_title))
@@ -528,7 +531,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onPause() {
         fullScreen = false;
-        isPaused = true;
+        if(CommonUtils.showCalculator) {
+            (window.decorView as ViewGroup).removeView(binding.root)
+            super.setContentView(empty.root)
+        }
         super.onPause()
     }
 
@@ -569,7 +575,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
             // been performed on the long press, so will set the cancelled flag for the following up event.
             val intent = Intent(this, History::class.java)
-            startActivityForResult(intent, 1)
+            startActivityForResult(intent, STD_REQUEST_CODE)
             return true
         }
 
@@ -619,7 +625,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             speakButton.setOnLongClickListener {
                 val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
                 val intent = Intent(this@MainBibleActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
-                startActivity(intent)
+                startActivityForResult(intent, STD_REQUEST_CODE)
                 true
             }
             searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument, this@MainBibleActivity), STD_REQUEST_CODE) }
@@ -1148,7 +1154,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     /**
-     * called if the app is re-entered after returning from another app.
+     * called if the activity is re-entered.
      * Trigger redisplay in case mobile has gone from light to dark or vice-versa
      */
     override fun onRestart() {
@@ -1483,7 +1489,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onResume() {
         super.onResume()
-        isPaused = false
+        if(CommonUtils.showCalculator && empty.root.parent != null) {
+            (window.decorView as ViewGroup).removeView(empty.root)
+            super.setContentView(binding.root)
+        }
+
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()
     }

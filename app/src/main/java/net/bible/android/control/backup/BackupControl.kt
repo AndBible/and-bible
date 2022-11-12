@@ -31,8 +31,8 @@ import android.view.View
 import android.widget.Button
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
@@ -116,8 +116,8 @@ object BackupControl {
         val targetFile =  File(internalDbBackupDir, file.name)
         if(targetFile.exists()) targetFile.delete()
         file.copyTo(targetFile)
-		val subject = callingActivity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
-		val message = callingActivity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
+        val subject = callingActivity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
+        val message = callingActivity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
         val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
 		val email = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
@@ -332,7 +332,7 @@ object BackupControl {
                     type = "application/zip"
                     putExtra(Intent.EXTRA_TITLE, fileName)
                 }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data
+                val r = callingActivity.awaitIntent(intent).resultData?.data
                 ok = if(r == null) false else backupModulesToUri(r)
             }
             BackupResult.SHARE -> {
@@ -414,11 +414,11 @@ object BackupControl {
                     type = "application/x-sqlite3"
                     putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
                 }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return
+                val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
 
                 _mainBibleActivity?.windowRepository?.saveIntoDb()
                 db.sync()
-                GlobalScope.launch(Dispatchers.IO) {
+                callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, dbFile)
                 }
             }
@@ -456,11 +456,11 @@ object BackupControl {
                     type = "application/x-sqlite3"
                     putExtra(Intent.EXTRA_TITLE, file.name)
                 }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return
+                val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
 
                 _mainBibleActivity?.windowRepository?.saveIntoDb()
                 db.sync()
-                GlobalScope.launch(Dispatchers.IO) {
+                callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, file)
                 }
             }
@@ -474,7 +474,7 @@ object BackupControl {
     suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "application/*"
-        val result = activity.awaitIntent(intent) ?: return
+        val result = activity.awaitIntent(intent)
         if (result.resultCode == Activity.RESULT_OK) {
             val result2 = Dialogs.showMsg2(activity, R.string.restore_confirmation, true)
             if(result2 != Dialogs.Result.OK) return
@@ -501,7 +501,7 @@ object BackupControl {
     suspend fun restoreModulesViaIntent(activity: ActivityBase) {
         val intent = Intent(activity, InstallZip::class.java)
         val result = activity.awaitIntent(intent)
-        if(result?.resultData?.data == null) return
+        if(result.resultData?.data == null) return
 
         _mainBibleActivity?.updateDocuments()
     }
@@ -524,7 +524,6 @@ object BackupControl {
 
 class BackupActivity: ActivityBase() {
     lateinit var binding: BackupViewBinding
-    private val backupScope = CoroutineScope(Dispatchers.Default)
 
     override fun onBackPressed() {
         updateSelectionOptions()
@@ -549,24 +548,24 @@ class BackupActivity: ActivityBase() {
         setContentView(binding.root)
         binding.apply {
             toggleBackupApplication.isChecked = CommonUtils.settings.getBoolean("backup_application", false)
-            toggleBackupDatabase.isChecked = CommonUtils.settings.getBoolean("backup_database", false)
+            toggleBackupDatabase.isChecked = CommonUtils.settings.getBoolean("backup_database", true)
             toggleBackupDocuments.isChecked = CommonUtils.settings.getBoolean("backup_documents", false)
-            toggleRestoreDatabase.isChecked = CommonUtils.settings.getBoolean("restore_database", false)
+            toggleRestoreDatabase.isChecked = CommonUtils.settings.getBoolean("restore_database", true)
             toggleRestoreDocuments.isChecked = CommonUtils.settings.getBoolean("restore_documents", false)
 
             buttonBackup.setOnClickListener {
                 updateSelectionOptions()
                 when {
-                    toggleBackupApplication.isChecked -> backupScope.launch { BackupControl.backupApp(this@BackupActivity) }
-                    toggleBackupDatabase.isChecked -> backupScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) }
-                    toggleBackupDocuments.isChecked -> backupScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) }
+                    toggleBackupApplication.isChecked -> lifecycleScope.launch { BackupControl.backupApp(this@BackupActivity) }
+                    toggleBackupDatabase.isChecked -> lifecycleScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) }
+                    toggleBackupDocuments.isChecked -> lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) }
                 }
             }
             buttonRestore.setOnClickListener {
                 updateSelectionOptions()
                 when {
-                    toggleRestoreDatabase.isChecked -> backupScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) }
-                    toggleRestoreDocuments.isChecked -> backupScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
+                    toggleRestoreDatabase.isChecked -> lifecycleScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) }
+                    toggleRestoreDocuments.isChecked -> lifecycleScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
                 }
             }
             CommonUtils.dbBackupPath.listFiles()?.forEach { f ->
@@ -574,7 +573,7 @@ class BackupActivity: ActivityBase() {
                 val s = f.name
                 b.text = s
                 b.setOnClickListener {
-                    backupScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
+                    lifecycleScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
                 }
                 backupDbButtons.addView(b)
             }

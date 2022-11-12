@@ -22,15 +22,15 @@ buildscript {
     val roomVersion by extra("2.4.3")
     val jswordVersion by extra("2.3.66")
     val jdomVersion by extra("2.0.6") // make sure this is same version as in jsword!
-    val commonsTextVersion by extra("1.9")
-    val kotlinxSerializationVersion by extra("1.4.0")
+    val commonsTextVersion by extra("1.9") // 1.10.0 crashes on Android 5.1
+    val kotlinxSerializationVersion by extra("1.4.1")
 
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.3.0")
+        classpath("com.android.tools.build:gradle:7.3.1")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
 
