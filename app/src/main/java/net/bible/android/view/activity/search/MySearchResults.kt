@@ -78,7 +78,8 @@ class BookStat(val book: String, var count: Int,
 }
 class WordStat(val word: String,
                var verseIndexes: IntArray,
-               val originalWord: String) {
+               val originalWord: String,
+               var tag: Boolean = false) {
     override fun toString(): String = "$originalWord: ${verseIndexes.count()}"
 }
 
@@ -144,6 +145,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
     private val mSearchResultsArray = ArrayList<SearchResultsData>()
     private val bookStatistics = mutableListOf<BookStat>()
     private val wordStatistics = mutableListOf<WordStat>()
+    private val keyWordStatistics = mutableListOf<WordStat>()
 
     @Inject lateinit var navigationControl: NavigationControl
     private var isScriptureResultsCurrentlyShown = true
@@ -180,7 +182,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
         sectionsPagerAdapter = SearchResultsPagerAdapter(this,
             supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent,
-            mSearchResultsArray, bookStatistics, wordStatistics
+            mSearchResultsArray, bookStatistics, wordStatistics, keyWordStatistics
         )
 
 
@@ -254,8 +256,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
         val getSearchResultVerseElementTimer = MyTimer("getSearchResultVerseElement")
         val getSearchResultVerseStringTimer = MyTimer("getSearchResultVerseString")
         val verseTextSpannableTimer = MyTimer("SearchHighlight")
-        val bookStatsTimer = MyTimer("Book Stats")
-        val wordStatsTimer = MyTimer("Word Stats")
 
         mCurrentlyDisplayedSearchResults = if (isScriptureResultsCurrentlyShown) {
             mSearchResultsHolder!!.mainSearchResults
@@ -268,6 +268,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
         mSearchResultsArray.clear()
         bookStatistics.clear()
         wordStatistics.clear()
+        keyWordStatistics.clear()
 
         var listIndex = 0
         var totalWords = 0
@@ -294,7 +295,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
             mSearchResultsArray.add(SearchResultsData(listIndex, key.osisID.toString(), key.name,searchDocument, "text", verseTextSpannable.toHtml()))
 
             // Add book to the book statistics array
-            bookStatsTimer.start()
             val mBibleBook = (key as Verse).book
             val bookOrdinal = mBibleBook.ordinal
             val bookNameLong = versification.getLongName(mBibleBook)  // key.rootName
@@ -304,10 +304,8 @@ class MySearchResults : CustomTitlebarActivityBase() {
             } else {
                 bookStatistics.first { it.book == bookNameLong }.count += 1
             }
-            bookStatsTimer.stop()
 
             // Add words in this verse to word statistics array
-            wordStatsTimer.start()
             val verseSpans: Array<StyleSpan> = verseTextSpannable.getSpans(0, verseTextSpannable.length, StyleSpan::class.java)
             for (i in verseSpans.indices) {
                 if (verseSpans[i].style == Typeface.BOLD) {
@@ -327,9 +325,43 @@ class MySearchResults : CustomTitlebarActivityBase() {
                     }
                 }
             }
-            wordStatsTimer.stop()
             listIndex += 1
         }
+        // Build keyword list
+        val tmpKeyWordStatistics = mutableListOf<WordStat>()
+
+        // Exclude short words (eg 'and', 'or', 'it' etc)
+        wordStatistics.filter{it.originalWord.length<=3 && it.originalWord != "God"}.map {it.tag = true}
+
+        // Find all single words
+        wordStatistics.filter{ !it.tag }.sortedBy { it.originalWord.length }.map {
+            if (" " !in it.originalWord) {
+                it.tag = true  // Don't process this entry again
+                tmpKeyWordStatistics.add(WordStat(it.word, it.verseIndexes, it.originalWord))
+                keyWordStatistics.add(WordStat(it.word, it.verseIndexes, it.originalWord))
+            }
+        }
+
+        // Find phrases that have a single keyword in them
+        keyWordStatistics.map { keyWord ->
+            wordStatistics.filter { !it.tag && it.originalWord.contains(keyWord.originalWord,true) }.map { multiWordStat ->
+                multiWordStat.tag = true  // Exclude the
+                keyWord.verseIndexes += multiWordStat.verseIndexes
+            }
+        }
+        // Find phrases that are in other longer phrases
+        wordStatistics.filter{ !it.tag }.sortedBy { it.originalWord.length }.map { shortPhrase ->
+            wordStatistics.filter { !it.tag && it.originalWord != shortPhrase.originalWord && it.originalWord.contains(shortPhrase.originalWord,true) }
+                .map { longPhrase ->
+                    longPhrase.tag = true
+                    shortPhrase.verseIndexes += longPhrase.verseIndexes
+                }
+        }
+        // Add all the phrases that have not been tagged (excludes single words, long phrases that appear in shorter phrases)
+        wordStatistics.filter{ !it.tag }.map {
+            keyWordStatistics.add(it)
+        }
+
         sectionsPagerAdapter.verseListFrag.arrayAdapter.notifyDataSetChanged()
         sectionsPagerAdapter.getItem(bookTabPosition)
         sectionsPagerAdapter.getItem(wordTabPosition)
@@ -345,8 +377,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
         getSearchResultVerseElementTimer.log()
         getSearchResultVerseStringTimer.log()
         verseTextSpannableTimer.log()
-        bookStatsTimer.log()
-        wordStatsTimer.log()
         totalTime.stop(true)
     }
     /**
@@ -371,7 +401,8 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
                                 intent: Intent,
                                 private val mSearchResultsArray:ArrayList<SearchResultsData>,
                                 private val bookStatistics: MutableList<BookStat>,
-                                private val wordStatistics: MutableList<WordStat>
+                                private val wordStatistics: MutableList<WordStat>,
+                                private val keyWordStatistics: MutableList<WordStat>
 ) :
     FragmentPagerAdapter(fm) {
     val searchControl = searchControl
@@ -408,6 +439,7 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
                 frag = SearchWordStatisticsFragment()
                 frag.searchResultsArray = mSearchResultsArray
                 frag.wordStatistics = wordStatistics
+                frag.keyWordStatistics = keyWordStatistics
             }
             else -> frag = PlaceholderFragment.newInstance(1)
         }

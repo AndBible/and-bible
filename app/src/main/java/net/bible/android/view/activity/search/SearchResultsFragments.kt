@@ -213,6 +213,7 @@ class SearchBookStatisticsFragment : Fragment() {
 
 class SearchWordStatisticsFragment() : Fragment() {
     var wordStatistics = mutableListOf<WordStat>()
+    var keyWordStatistics = mutableListOf<WordStat>()
     var searchResultsArray = arrayListOf<SearchResultsData>()
 
     private var _binding: SearchResultsStatisticsFragmentByBinding? = null
@@ -231,10 +232,10 @@ class SearchWordStatisticsFragment() : Fragment() {
             resultList.adapter = setResultsAdapter(filteredSearchResults, activity)
         }
     }
-    private fun constructButtonList() {
+    private fun constructButtonList(keyWordsOnly: Boolean = false) {
 
         val statisticsLayout = binding.statisticsLayout
-        val sortedWordStatistics = wordStatistics.sortedBy { it.word }
+        val sortedWordStatistics = if(keyWordsOnly) keyWordStatistics.sortedBy { it.word } else wordStatistics.sortedBy { it.word }
         val maxCount: Int = sortedWordStatistics.maxOfOrNull { it.verseIndexes.count() } ?: 0
         statisticsLayout.removeAllViews()
 
@@ -276,11 +277,11 @@ class SearchWordStatisticsFragment() : Fragment() {
     ): View? {
         inflater = theInflater
         _binding = SearchResultsStatisticsFragmentByBinding.inflate(inflater, container, false)
-        constructButtonList()
-
         var showKeyWordsCheckBox = binding.showKeyWordOnly
+
+        constructButtonList(showKeyWordsCheckBox.isChecked)
         showKeyWordsCheckBox.setOnClickListener {
-            constructButtonList()
+            constructButtonList(showKeyWordsCheckBox.isChecked)
         }
         return binding.root
     }
