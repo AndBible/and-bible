@@ -26,6 +26,8 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.databinding.SearchResultsStatisticsBinding
 import java.util.ArrayList
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.search.SearchControl
@@ -53,21 +55,6 @@ var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()  // I tried to mak
 const val verseTabPosition = 0
 private const val bookTabPosition = 1
 private const val wordTabPosition = 2
-
-class MyTimer(val name:String){
-    var startTime = System.nanoTime()
-    var totalTime:Long = 0
-
-    fun start() {startTime = System.nanoTime()}
-    fun stop(addToLog: Boolean = false) {
-        totalTime += System.nanoTime() - startTime
-        if (addToLog) log()
-    }
-    fun reset() {totalTime = 0}
-    fun log() {
-        Log.e("MyTimer", name + ": " + (totalTime/1000000) + "mS\n")
-    }
-}
 
 class BookStat(val book: String, var count: Int,
                val bookInitials: String,
@@ -153,7 +140,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
-    private val totalTime = MyTimer("Total Time")
     private val versification get() = navigationControl.versification
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -170,7 +156,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Search results view")
-        totalTime.reset()
 
         binding = SearchResultsStatisticsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -220,7 +205,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
         try { // get search string - passed in using extras so extras cannot be null
-            val fetchResultsTimer = MyTimer("fetchResultsTimer")
             val extras = intent.extras!!
             val searchText = extras.getString(SearchControl.SEARCH_TEXT)
             var searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT)
@@ -235,10 +219,9 @@ class MySearchResults : CustomTitlebarActivityBase() {
                 getString(R.string.search_result_count, mSearchResultsHolder!!.size)
             }
             withContext(Dispatchers.Main) {
-                Toast.makeText(this@MySearchResults, msg, Toast.LENGTH_SHORT).show()
+                ABEventBus.post(ToastEvent(msg))
             }
             isOk = true
-            fetchResultsTimer.stop(true)
         } catch (e: Exception) {
             Log.e(TAG, "Error processing search query", e)
             isOk = false
@@ -252,10 +235,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
      */
 
     private fun populateViewResultsAdapter() {
-        val populateViewResultsAdapterTimer = MyTimer("populateViewResultsAdapterTimer")
-        val getSearchResultVerseElementTimer = MyTimer("getSearchResultVerseElement")
-        val getSearchResultVerseStringTimer = MyTimer("getSearchResultVerseString")
-        val verseTextSpannableTimer = MyTimer("SearchHighlight")
 
         mCurrentlyDisplayedSearchResults = if (isScriptureResultsCurrentlyShown) {
             mSearchResultsHolder!!.mainSearchResults
@@ -277,17 +256,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
             // Add verse to results array
 
             var verseTextSpannable: SpannableString?
-            getSearchResultVerseElementTimer.start()
             val verseTextElement = searchControl.getSearchResultVerseElement(key)
-            getSearchResultVerseElementTimer.stop()
-
-//            getSearchResultVerseStringTimer.start()
-            // This takes 3 to 4 times longer than 'getSearchResultVerseElement' which itself takes 3 to 4 times longer than the old search which is almost instant.
-            // I have converted the code to Kotlin. But apart from that it seems the same. I would like to use 'getSearchResultVerseText' for non-Strongs searches
-            // if it is faster because the Element parsing is only necessary for Strongs searches.
-            // Perhaps the performance of 'getSearchResultVerseElement' can be improved if we can work out why 'getSearchResultVerseText' is so slow.
-//            val verseTextString = searchControl.getSearchResultVerseText(key)
-//            getSearchResultVerseStringTimer.stop()
 
             // Build a spannable verse highlighting the relevant words.
             verseTextSpannable = searchHighlight.generateSpannableFromVerseElement(verseTextElement)
@@ -372,12 +341,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
         tabHost.getTabAt(bookTabPosition)!!.text = CommonUtils.resources.getString(R.string.book_count, bookStatistics.count().toString())
         tabHost.getTabAt(wordTabPosition)!!.text = CommonUtils.resources.getString(R.string.word_count, wordStatistics.count().toString())
 
-        populateViewResultsAdapterTimer.stop()
-        populateViewResultsAdapterTimer.log()
-        getSearchResultVerseElementTimer.log()
-        getSearchResultVerseStringTimer.log()
-        verseTextSpannableTimer.log()
-        totalTime.stop(true)
     }
     /**
      * Handle scripture/Appendix toggle
