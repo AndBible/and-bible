@@ -18,6 +18,7 @@ import {bcv_parser as BcvParser} from "bible-passage-reference-parser/js/en_bcv_
 
 export function useParsers(android) {
     const enParser = new BcvParser;
+    enParser.include_apocrypha(true);
     const parsers = [enParser];
 
     let languages = null;
@@ -35,7 +36,9 @@ export function useParsers(android) {
         const content = await (await fetch(url)).text();
         const module = {}
         Function(content).call(module)
-        return new module["bcv_parser"];
+        const parser = new module["bcv_parser"];
+        parser.include_apocrypha(true);
+        return parser;
     }
 
     async function initialize() {

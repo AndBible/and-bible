@@ -33,6 +33,7 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.service.common.htmlToSpan
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -90,12 +91,7 @@ class BookmarkItemAdapter(
         if(item.notes !== null) {
             bindings.notesText.visibility = View.VISIBLE
             try {
-                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Html.fromHtml(item.notes, Html.FROM_HTML_MODE_LEGACY)
-                } else {
-                    Html.fromHtml(item.notes)
-                }
-
+                val spanned = htmlToSpan(item.notes)
                 bindings.notesText.text = spanned
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading label verse text", e)
@@ -109,11 +105,8 @@ class BookmarkItemAdapter(
         val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
         bindings.dateText.text = sDt
 
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(item.highlightedText, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(item.highlightedText)
-        }
+        val spanned = htmlToSpan(item.highlightedText)
+
         bindings.verseContentText.text = spanned
         return convertView ?: bindings.root
     }

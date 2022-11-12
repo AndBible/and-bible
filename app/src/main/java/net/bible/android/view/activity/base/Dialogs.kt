@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.service.common.htmlToSpan
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -90,11 +91,7 @@ object Dialogs {
             val activity = CurrentActivityHolder.currentActivity
             if (activity != null) {
                 activity.runOnUiThread {
-                    val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        Html.fromHtml(msg, Html.FROM_HTML_MODE_LEGACY)
-                    } else {
-                        Html.fromHtml(msg)
-                    }
+                    val spanned = htmlToSpan(msg)
 
                     val dlgBuilder = AlertDialog.Builder(activity)
                         .setMessage(spanned)
@@ -132,11 +129,7 @@ object Dialogs {
         var result = Result.ERROR
         try {
             withContext(Dispatchers.Main) {
-                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Html.fromHtml(msg, Html.FROM_HTML_MODE_LEGACY)
-                } else {
-                    Html.fromHtml(msg)
-                }
+                val spanned = htmlToSpan(msg)
 
                 result = suspendCoroutine {
                     val dlgBuilder = AlertDialog.Builder(activity)

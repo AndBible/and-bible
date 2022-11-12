@@ -23,12 +23,7 @@ import android.content.Intent
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 interface AndBibleActivity {
-    /** facilitate History List integration  */
-    fun onCreate(savedInstanceState: Bundle?, integrateWithHistoryManager: Boolean)
-    /** allow HistoryManager to know if integration is required  */
-    /** allow HistoryManager to know if integration is required  */
     var isIntegrateWithHistoryManager: Boolean
 
-    /** allow activity to enhance intent to correctly restore state  */
     val intentForHistoryList: Intent
 }

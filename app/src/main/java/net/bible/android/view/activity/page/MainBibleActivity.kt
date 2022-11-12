@@ -199,9 +199,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
-    private var isPaused = false
-
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
+    override val integrateWithHistoryManager: Boolean = true
 
     /**
      * Called when the activity is first created.
@@ -217,7 +216,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         ScreenSettings.refreshNightMode()
         currentNightMode = ScreenSettings.nightMode
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
 
         CommonUtils.prepareData()
 
@@ -266,7 +265,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 showBetaNotice()
                 showStableNotice()
                 showFirstTimeHelp()
-                ABEventBus.post(ToastEvent(windowRepository.name))
+                if(!CommonUtils.isDiscrete) {
+                    ABEventBus.post(ToastEvent(windowRepository.name))
+                }
                 checkDocBackupDBInSync()
             }
             initialized = true
@@ -380,11 +381,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
                 pinningText += "<br><i><a href=\"$windowPinningVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
                 
-                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Html.fromHtml(pinningText, Html.FROM_HTML_MODE_LEGACY)
-                } else {
-                    Html.fromHtml(pinningText)
-                }
+                val spanned = htmlToSpan(pinningText)
+
                 val d = AlertDialog.Builder(this)
                     .setTitle(pinningTitle)
                     .setMessage(spanned)
@@ -469,11 +467,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             )
             val htmlMessage = "$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, verFull)}</i>"
 
-            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-            } else {
-                Html.fromHtml(htmlMessage)
-            }
+            val spanned = htmlToSpan(htmlMessage)
 
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.beta_notice_title))
@@ -540,7 +534,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onPause() {
         fullScreen = false;
-        isPaused = true
         if(CommonUtils.showCalculator) {
             (window.decorView as ViewGroup).removeView(binding.root)
             super.setContentView(empty.root)
@@ -1190,21 +1183,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             mWholeAppWasInBackground = false
             refreshIfNightModeChange()
         }
-        if(CommonUtils.showCalculator && lastRequest == null) {
-            lifecycleScope.launch(Dispatchers.Main) {
-                val handlerIntent = Intent(this@MainBibleActivity, CalculatorActivity::class.java)
-                while(true) {
-                    when(awaitIntent(handlerIntent).resultCode) {
-                        RESULT_OK -> break
-                        RESULT_CANCELED -> {
-                            finish()
-                            break
-                        }
-                    }
-                }
-            }
-        }
-        lastRequest = null
     }
 
     /**
@@ -1314,9 +1292,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         updateActions()
     }
 
-    var lastRequest: Int? = null
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        lastRequest = requestCode
         Log.i(TAG, "Activity result:$resultCode")
         val extras = data?.extras
         if (extras != null) {
@@ -1538,7 +1514,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             super.setContentView(binding.root)
         }
 
-        isPaused = false
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()
     }

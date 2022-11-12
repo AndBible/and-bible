@@ -39,6 +39,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.applicationVersionName
@@ -230,12 +231,12 @@ object BugReport {
         }
 
     suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, useSaved: Boolean = false, source: String) {
-        val context = context_ ?: CurrentActivityHolder.currentActivity!!
-        val dir = File(context.filesDir, "/log")
+        val activity = context_ ?: CurrentActivityHolder.currentActivity!!
+        val dir = File(activity.filesDir, "/log")
         val f = File(dir, "logcat.txt.gz")
         val screenshotFile = File(dir, SCREENSHOT_FILE)
 
-        val hourglass = Hourglass(context)
+        val hourglass = Hourglass(activity)
         hourglass.show()
         withContext(Dispatchers.IO) {
             val log = StringBuilder()
@@ -268,11 +269,16 @@ object BugReport {
         hourglass.dismiss()
 
         withContext(Dispatchers.Main) {
-            val subject = context.getString(R.string.report_bug_email_subject_3, source, CommonUtils.applicationNameMedium, getSubject(exception))
-            val message = getBugReportMessage(context, exception)
+            val result = Dialogs.simpleQuestion(activity,
+                activity.getString(R.string.bug_report_email_title),
+                activity.getString(R.string.bug_report_email_text)
+            )
+            if(!result) return@withContext 
+            val subject = activity.getString(R.string.report_bug_email_subject_3, source, CommonUtils.applicationNameMedium, getSubject(exception))
+            val message = getBugReportMessage(activity, exception)
 
             val uris = ArrayList(listOf(f, screenshotFile).filter { it.canRead() }.map {
-                FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", it)
+                FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", it)
             })
             val email = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
                 putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
@@ -281,9 +287,9 @@ object BugReport {
                 putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
                 type = "text/plain"
             }
-            val chooserIntent = Intent.createChooser(email, context.getString(R.string.send_bug_report_title))
+            val chooserIntent = Intent.createChooser(email, activity.getString(R.string.send_bug_report_title))
             chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            context.awaitIntent(chooserIntent)
+            activity.awaitIntent(chooserIntent)
         }
     }
 

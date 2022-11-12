@@ -60,6 +60,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         private set
 
     private var planCodeLoaded: String? = null
+    override val integrateWithHistoryManager: Boolean = true
 
     private lateinit var readingsDto: OneDaysReadingsDto
 
@@ -78,7 +79,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
         super.buildActivityComponent().inject(this)
 
         Log.i(TAG, "Displaying one day reading plan")

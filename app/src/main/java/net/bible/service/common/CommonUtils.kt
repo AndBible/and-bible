@@ -34,17 +34,21 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
 import android.text.Html
+import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
+import android.text.style.URLSpan
 import android.util.LayoutDirection
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -69,7 +73,6 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.BuildConfig.BUILD_TYPE
 import net.bible.android.activity.BuildConfig.BuildDate
-import net.bible.android.activity.BuildConfig.FLAVOR
 import net.bible.android.activity.BuildConfig.FLAVOR_appearance
 import net.bible.android.activity.BuildConfig.FLAVOR_distchannel
 import net.bible.android.activity.BuildConfig.GitHash
@@ -89,6 +92,7 @@ import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.db.DataBaseNotReady
@@ -96,7 +100,6 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
-import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.sword.addManuallyInstalledMyBibleBooks
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.IOUtil
@@ -128,11 +131,26 @@ import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
 @Suppress("DEPRECATION")
-fun htmlToSpan(html: String): Spanned {
-    val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+fun htmlToSpan(html: String?): Spanned {
+    val spanned = SpannableString(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
     } else {
         Html.fromHtml(html)
+    })
+
+    class MyURLSpan(url: String): URLSpan(url) {
+        override fun onClick(widget: View) {
+            CommonUtils.openLink(url)
+        }
+    }
+
+    val urlSpans = spanned.getSpans(0, spanned.length, URLSpan::class.java)
+    for (s in urlSpans) {
+        val start = spanned.getSpanStart(s)
+        val end = spanned.getSpanEnd(s)
+        spanned.removeSpan(s)
+        val newSpan = MyURLSpan(s.url)
+        spanned.setSpan(newSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
     return spanned
 }
@@ -493,11 +511,13 @@ object CommonUtils : CommonUtilsBase() {
     /**
      * convert dip measurements to pixels
      */
-    fun convertDipsToPx(dips: Int): Int {
+    fun convertDipsToPx(dips: Float): Int {
         // Converts 14 dip into its equivalent px
         val scale = resources.displayMetrics.density
         return (dips * scale + 0.5f).toInt()
     }
+
+    fun convertDipsToPx(dips: Int): Int = convertDipsToPx(dips.toFloat())
 
     /**
      * convert dip measurements to pixels
@@ -815,7 +835,7 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    fun showHelp(callingActivity: Activity, filterItems: List<Int>? = null, showVersion: Boolean = false) {
+    fun showHelp(callingActivity: ActivityBase, filterItems: List<Int>? = null, showVersion: Boolean = false) {
         val app = application
         val versionMsg = app.getString(R.string.version_text, applicationVersionName)
 
@@ -851,6 +871,7 @@ object CommonUtils : CommonUtilsBase() {
             htmlMessage += "<i>$versionMsg</i>"
 
         val spanned = htmlToSpan(htmlMessage)
+
         val d = AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
             .setIcon(R.drawable.ic_logo)
@@ -860,6 +881,26 @@ object CommonUtils : CommonUtilsBase() {
 
         d.show()
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    fun openLink(link: String) {
+        val activity = CurrentActivityHolder.currentActivity!!
+        if (isDiscrete) {
+            activity.lifecycleScope.launch(Dispatchers.Main) {
+                if(Dialogs.simpleQuestion(activity,
+                        net.bible.android.view.activity.page.application.getString(R.string.external_link),
+                        net.bible.android.view.activity.page.application.getString(R.string.external_link_question, link))
+                ) {
+                    activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
+                        ActivityBase.STD_REQUEST_CODE
+                    )
+                }
+            }
+        } else {
+            activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
+                ActivityBase.STD_REQUEST_CODE
+            )
+        }
     }
 
     fun verifySignature(file: File, signatureFile: File): Boolean {
