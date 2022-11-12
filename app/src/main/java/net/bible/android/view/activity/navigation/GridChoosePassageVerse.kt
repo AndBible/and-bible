@@ -107,8 +107,8 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
             val buttonInfo = ButtonInfo()
             // this is used for preview
             buttonInfo.id = i
-            buttonInfo.name = Integer.toString(i)
-            buttonInfo.type = ButtonInfo.Companion.GridButtonTypes.VERSE
+            buttonInfo.name = i.toString()
+            buttonInfo.type = ButtonInfo.GridButtonTypes.VERSE
             if (i == currentVerse.verse && chapterNo == currentVerse.chapter && book == currentVerse.book) {
                 buttonInfo.tintColor = bookColorAndGroup.Color
                 buttonInfo.textColor = Color.DKGRAY

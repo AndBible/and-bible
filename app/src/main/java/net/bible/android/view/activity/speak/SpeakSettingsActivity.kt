@@ -33,6 +33,7 @@ import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.service.common.automaticSpeakBookmarkingVideo
+import net.bible.service.common.htmlToSpan
 
 @ActivityScope
 class SpeakSettingsActivity : AbstractSpeakActivity() {
@@ -129,11 +130,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
                 + getString(R.string.speak_help_playback_settings_example)
                 )
 
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(htmlMessage)
-        }
+        val spanned = htmlToSpan(htmlMessage)
 
         val d = AlertDialog.Builder(this)
                 .setMessage(spanned)

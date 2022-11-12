@@ -63,6 +63,7 @@ import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
+import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 
 import org.apache.commons.lang3.StringUtils
@@ -161,11 +162,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
             val msg = getString(R.string.old_webview, info.versionName, minimumVersion.toString(), getString(R.string.app_name_medium), playLink)
 
-            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Html.fromHtml(msg, Html.FROM_HTML_MODE_LEGACY)
-            } else {
-                Html.fromHtml(msg)
-            }
+            val spanned = htmlToSpan(msg)
 
             return suspendCoroutine {
                 val dlgBuilder = AlertDialog.Builder(this)

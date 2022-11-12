@@ -83,7 +83,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                     buttonInfo.GroupA = BookColorAndGroup.GroupA
                     buttonInfo.GroupB = BookColorAndGroup.GroupB
                     buttonInfo.showLongBookName = buttonGrid.isShowLongBookName
-                    buttonInfo.type = ButtonInfo.Companion.GridButtonTypes.BOOK
+                    buttonInfo.type = ButtonInfo.GridButtonTypes.BOOK
                     if (book == currentBibleBook) {
                         buttonInfo.tintColor = BookColorAndGroup.Color
                         buttonInfo.textColor = Color.DKGRAY

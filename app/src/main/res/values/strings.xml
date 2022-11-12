@@ -1078,4 +1078,6 @@
     </string>
     <string name="external_link">External link</string>
     <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
+    <string name="bug_report_email_title">Send bug report via email</string>
+    <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
 </resources>

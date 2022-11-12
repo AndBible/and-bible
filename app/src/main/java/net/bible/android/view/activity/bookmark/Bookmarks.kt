@@ -87,11 +87,12 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     // the document list
     private val bookmarkList: MutableList<Bookmark> = ArrayList()
     private var listActionModeHelper: ListActionModeHelper? = null
+    override val integrateWithHistoryManager: Boolean = true
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
         binding = BookmarksBinding.inflate(layoutInflater)
         setContentView(binding.root)
         settings.setLong("bookmarks-last-used", System.currentTimeMillis())

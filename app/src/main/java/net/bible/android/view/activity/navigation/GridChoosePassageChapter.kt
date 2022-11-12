@@ -114,7 +114,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
             buttonInfo.id = i
             buttonInfo.name = i.toString()
             buttonInfo.description = i.toString()
-            buttonInfo.type = ButtonInfo.Companion.GridButtonTypes.CHAPTER
+            buttonInfo.type = ButtonInfo.GridButtonTypes.CHAPTER
             if (currentVerse.book == book && i == currentVerse.chapter) {
                 buttonInfo.tintColor = bookColorAndGroup.Color
                 buttonInfo.textColor = Color.DKGRAY

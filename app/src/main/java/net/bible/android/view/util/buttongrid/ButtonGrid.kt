@@ -39,7 +39,11 @@ import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import net.bible.android.activity.R
 import net.bible.android.view.util.buttongrid.LayoutDesigner.RowColLayout
+import net.bible.service.common.CommonUtils
 import kotlin.math.max
+
+const val MAX_LENGTH_FOR_SMALL = 5
+const val MAX_LENGTH_FOR_EXTRA_SMALL = 9
 
 class ButtonInfo (
     var id: Int = 0,
@@ -59,11 +63,8 @@ class ButtonInfo (
     var rowNo: Int = 0,
     var colNo: Int = 0
 ) {
+    enum class GridButtonTypes {BOOK, CHAPTER, VERSE}
     lateinit var button: Button
-
-    companion object {
-        enum class GridButtonTypes {BOOK, CHAPTER, VERSE}
-    }
 }
 
 /** Show a grid of buttons to allow selection for navigation
@@ -211,60 +212,77 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     }
 
     private fun newButton(buttonInfo:ButtonInfo): Button {
-        val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp)
+        val textSize = resources.getInteger(R.integer.grid_cell_text_size_sp).toFloat()
         val trimChars = 130
         var smallTagStart = ""
         var smallTagEnd = ""
-        val button = Button(context)
-        button.text = if (buttonInfo.showLongBookName && buttonInfo.type == ButtonInfo.Companion.GridButtonTypes.BOOK) {
-            // Check the length of the words in the long description and set the <size> tag accordingly
-            val maxLengthForSmall = 5
-            val maxLengthForXSmall = 9
-            val words = buttonInfo.description?.split("\\s".toRegex())?.toTypedArray()
-            var smallCnt = 1
-            words?.map { if (it.length > maxLengthForXSmall) {smallCnt = 3} else if (it.length > maxLengthForSmall) { smallCnt=2}  }
-            for (i in 1..smallCnt){
-                smallTagStart += "<small>"
-                smallTagEnd += "</small>"
-            }
-            HtmlCompat.fromHtml("<normal><b>" + buttonInfo.name?.uppercase() + "</b></normal><br/>" + smallTagStart + buttonInfo.description?.take(trimChars) + smallTagEnd, HtmlCompat.FROM_HTML_MODE_LEGACY)
-        } else {
-            HtmlCompat.fromHtml(buttonInfo.name!!, HtmlCompat.FROM_HTML_MODE_LEGACY)
-        }
-        button.setTextColor(buttonInfo.textColor)
-        button.backgroundTintList = ColorStateList.valueOf(buttonInfo.tintColor)
-        if (buttonInfo.highlight) {
-            button.typeface = Typeface.DEFAULT_BOLD
-            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
-            button.paintFlags = button.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-            button.isPressed = true
-        } else {
-            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-        }
-        // set pad to 0 prevents text being pushed off the bottom of buttons on small screens
-        // set left and right pad to 3 prevents text from appearing off the button background
-        button.setPadding(4, 0, 4, 0)
-        button.minHeight = 0
-        button.minWidth = 0
-        button.isAllCaps = false
+        return Button(context).apply {
+            text = if (buttonInfo.showLongBookName && buttonInfo.type == ButtonInfo.GridButtonTypes.BOOK) {
+                // Check the length of the words in the long description and set the <size> tag accordingly
+                val words = buttonInfo.description?.split("\\s".toRegex())?: listOf()
+                var smallTagCount = 1
+                var longestWordLength = -1;
 
-        button.setOnKeyListener { _, keyCode, event ->
-            if(event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
-                buttonSelected(buttonInfo)
-                true
+                for(w in words) {
+                    longestWordLength =
+                        if (longestWordLength > w.length)
+                            longestWordLength
+                        else
+                            w.length
+                }
+
+                if (longestWordLength > MAX_LENGTH_FOR_EXTRA_SMALL)
+                    smallTagCount = 3
+                else if (longestWordLength > MAX_LENGTH_FOR_SMALL)
+                    smallTagCount = 2
+
+                for (i in 1..smallTagCount){
+                    smallTagStart += "<small>"
+                    smallTagEnd += "</small>"
+                }
+                HtmlCompat.fromHtml(
+                    "<normal><b>" + buttonInfo.name?.uppercase() + "</b></normal><br/>" + smallTagStart +
+                        buttonInfo.description?.take(trimChars) + smallTagEnd, HtmlCompat.FROM_HTML_MODE_LEGACY
+                )
             } else {
-                false
+                HtmlCompat.fromHtml(buttonInfo.name!!, HtmlCompat.FROM_HTML_MODE_LEGACY)
+            }
+
+            setTextColor(buttonInfo.textColor)
+            backgroundTintList = ColorStateList.valueOf(buttonInfo.tintColor)
+
+            if (buttonInfo.highlight) {
+                typeface = Typeface.DEFAULT_BOLD
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1F)
+                paintFlags = paintFlags or Paint.UNDERLINE_TEXT_FLAG
+                isPressed = true
+            } else {
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
+            }
+            // set pad to 0 prevents text being pushed off the bottom of buttons on small screens
+            // set left and right pad to small padding to prevents text from appearing off the button background
+            setPadding(CommonUtils.convertDipsToPx(1.3F), 0, CommonUtils.convertDipsToPx(1.3F), 0)
+            minHeight = 0
+            minWidth = 0
+            isAllCaps = false
+
+            setOnKeyListener { _, keyCode, event ->
+                if(event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
+                    buttonSelected(buttonInfo)
+                    true
+                } else {
+                    false
+                }
+            }
+            if (buttonInfo.highlight) {
+                typeface = Typeface.DEFAULT_BOLD
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1F)
+                paintFlags = paintFlags or Paint.UNDERLINE_TEXT_FLAG
+                isPressed = true
+            } else {
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
             }
         }
-        if (buttonInfo.highlight) {
-            button.typeface = Typeface.DEFAULT_BOLD
-            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize + 1.toFloat())
-            button.paintFlags = button.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-            button.isPressed = true
-        } else {
-            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-        }
-        return button
     }
 
     fun toggleLeftToRight() {
@@ -460,7 +478,6 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     companion object {
         private const val PREVIEW_HEIGHT_DIP = 70
         private const val TAG = "ButtonGrid"
-//        enum class GRID_BUTTON_TYPES {BOOK, CHAPTER, VERSE}
     }
 
     init {
