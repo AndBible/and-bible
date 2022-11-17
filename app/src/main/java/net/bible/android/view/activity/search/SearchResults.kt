@@ -98,6 +98,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 mKeyArrayAdapter = SearchItemAdapter(this@SearchResults, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl)
                 listAdapter = mKeyArrayAdapter as ListAdapter
                 populateViewResultsAdapter()
+                listView.setSelection(intent.getIntExtra("listPosition", 0))
             }
         }
         withContext(Dispatchers.Main) {
@@ -114,8 +115,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
         try { // get search string - passed in using extras so extras cannot be null
-            val extras = intent.extras
-            val searchText = extras!!.getString(SearchControl.SEARCH_TEXT)
+            val extras = intent.extras!!
+            val searchText = extras.getString(SearchControl.SEARCH_TEXT)
             var searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT)
             if (StringUtils.isEmpty(searchDocument)) {
                 searchDocument = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
@@ -163,6 +164,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
         try { // no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
+            intent.putExtra("listPosition", l.firstVisiblePosition)
             verseSelected(mCurrentlyDisplayedSearchResults[position])
         } catch (e: Exception) {
             Log.e(TAG, "Selection error", e)
