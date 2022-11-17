@@ -364,10 +364,7 @@ class ManageLabels : ListActivityBase() {
 
         highlightLabel?.also {
             val pos = shownLabels.indexOf(it)
-            lifecycleScope.launch(Dispatchers.Main) {
-                delay(100)
-                listView.smoothScrollToPosition(pos)
-            }
+            listView.setSelection(pos)
         }
 
         binding.run {
@@ -632,7 +629,7 @@ class ManageLabels : ListActivityBase() {
                 }
                 updateLabelList(rePopulate = true, reOrder = isNew)
                 if(isNew) {
-                    listView.smoothScrollToPosition(shownLabels.indexOf(label))
+                    listView.setSelection(shownLabels.indexOf(label))
                 }
             }
         }
