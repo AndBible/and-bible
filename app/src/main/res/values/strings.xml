@@ -21,7 +21,7 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
-    <string name="app_name_calculator">Calculator</string>
+    <string name="app_name_calculator">Simple Calculator</string>
 
     <string name="app_name_short">Bible Study</string>
     <string name="app_name_medium">Bible Study (AndBible)</string>
