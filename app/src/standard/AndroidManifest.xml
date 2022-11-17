@@ -54,6 +54,19 @@
                 <data android:mimeType="application/zip" />
             </intent-filter>
         </activity>
+        <activity-alias
+            android:targetActivity="net.bible.android.view.activity.search.SearchResults"
+            android:name="net.bible.android.view.activity.search.SearchResults"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/search_in_andbible"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <data android:mimeType="text/plain"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
         <receiver
             android:name=".SpeakWidgetManager$SmallSpeakControlWidget"
             android:exported="true"

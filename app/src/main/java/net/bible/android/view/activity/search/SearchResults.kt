@@ -18,6 +18,7 @@ package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -43,7 +44,7 @@ import net.bible.android.view.activity.search.searchresultsactionbar.SearchResul
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.internationalisation.LocaleProvider
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -118,18 +119,32 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     /** do the search query and prepare results in lists ready for display
      *
      */
-    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) Main@ {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
-        try { // get search string - passed in using extras so extras cannot be null
-            val extras = intent.extras!!
-            val searchText = extras.getString(SearchControl.SEARCH_TEXT)
-            var searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT)
-            if (StringUtils.isEmpty(searchDocument)) {
-                searchDocument = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
+        try {
+            val searchText =
+                if(intent.action == Intent.ACTION_PROCESS_TEXT) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
+                    } else ""
+                }
+                else intent.getStringExtra(SearchControl.SEARCH_TEXT)
+
+            val searchDocument = (intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?: "").run {
+                if (StringUtils.isEmpty(this))
+                    activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!.initials
+                else this
             }
+            Log.i(TAG, "Searching $searchText in $searchDocument")
 
             val doc = Books.installed().getBook(searchDocument)
+            if (doc.indexStatus != IndexStatus.DONE) {
+                withContext(Dispatchers.Main) {
+                    startActivity(Intent(this@SearchResults, SearchIndex::class.java))
+                }
+                return@Main false
+            }
 
             if(doc is SwordBook) {
                 val key = try { PassageKeyFactory.instance().getKey(doc.versification, searchText) } catch (e: NoSuchVerseException) {null}?:
@@ -146,8 +161,10 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
 
                 if (key != null) {
                     activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(doc, key)
-                    finish()
-                    return@withContext false
+                    val handlerIntent = Intent(this@SearchResults, MainBibleActivity::class.java)
+                    handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    startActivity(handlerIntent)
+                    return@Main false
                 }
             }
 
@@ -173,7 +190,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             isOk = false
             Dialogs.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
-        return@withContext isOk
+        return@Main isOk
     }
 
     /**
