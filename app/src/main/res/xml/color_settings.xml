@@ -51,7 +51,7 @@
         android:title="@string/colors_night_mode_title"
         >
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:defaultValue="@color/actionbar_background_day"
+            android:defaultValue="@color/actionbar_background_night"
             android:key="workspace_color_night"
             android:title="@string/color_workspace"
             />

@@ -168,10 +168,8 @@ class ColorSettingsFragment(val isWindow: Boolean = false): PreferenceFragmentCo
         preferenceManager.preferenceDataStore = ColorSettingsDataStore(activity)
         setPreferencesFromResource(R.xml.color_settings, rootKey)
         if(isWindow) {
-            val prefDay = findPreference<Preference>("workspace_color_day")
-            val prefNight = findPreference<Preference>("workspace_color_night")
-            prefDay?.isVisible = false
-            prefNight?.isVisible = false
+            findPreference<Preference>("workspace_color_day")?.isVisible = false
+            findPreference<Preference>("workspace_color_night")?.isVisible = false
         }
     }
 }

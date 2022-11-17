@@ -21,7 +21,7 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
-    <string name="app_name_calculator">Calculator</string>
+    <string name="app_name_calculator">Simple Calculator</string>
 
     <string name="app_name_short">Bible Study</string>
     <string name="app_name_medium">Bible Study (AndBible)</string>
@@ -36,6 +36,7 @@
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
+    <string name="search_in_andbible">Find in Bible</string>
     <string name="search_with_results">Find (%s results)</string>
     <string name="settings">Application preferences</string>
     <string name="history">History</string>
@@ -1076,4 +1077,6 @@
     <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
     <string name="bug_report_email_title">Send bug report via email</string>
     <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
+    <string name="marker_style">Show only marker</string>
+    <string name="type_text_or_bible_reference">Type text or bible reference</string>
 </resources>

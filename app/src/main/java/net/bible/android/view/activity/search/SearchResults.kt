@@ -18,6 +18,7 @@ package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -30,6 +31,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.bible.android.MyLocaleProvider
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
@@ -40,7 +42,13 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
 import org.apache.commons.lang3.StringUtils
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchVerseException
+import org.crosswire.jsword.passage.PassageKeyFactory
+import org.crosswire.jsword.versification.BookName
 import java.util.*
 import javax.inject.Inject
 
@@ -98,6 +106,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 mKeyArrayAdapter = SearchItemAdapter(this@SearchResults, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl)
                 listAdapter = mKeyArrayAdapter as ListAdapter
                 populateViewResultsAdapter()
+                listView.setSelection(intent.getIntExtra("listPosition", 0))
             }
         }
         withContext(Dispatchers.Main) {
@@ -110,16 +119,55 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     /** do the search query and prepare results in lists ready for display
      *
      */
-    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) Main@ {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
-        try { // get search string - passed in using extras so extras cannot be null
-            val extras = intent.extras
-            val searchText = extras!!.getString(SearchControl.SEARCH_TEXT)
-            var searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT)
-            if (StringUtils.isEmpty(searchDocument)) {
-                searchDocument = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
+        try {
+            val searchText =
+                if(intent.action == Intent.ACTION_PROCESS_TEXT) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
+                    } else ""
+                }
+                else intent.getStringExtra(SearchControl.SEARCH_TEXT)
+
+            val searchDocument = (intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?: "").run {
+                if (StringUtils.isEmpty(this))
+                    activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!.initials
+                else this
             }
+            Log.i(TAG, "Searching $searchText in $searchDocument")
+
+            val doc = Books.installed().getBook(searchDocument)
+            if (doc.indexStatus != IndexStatus.DONE) {
+                withContext(Dispatchers.Main) {
+                    startActivity(Intent(this@SearchResults, SearchIndex::class.java))
+                }
+                return@Main false
+            }
+
+            if(doc is SwordBook) {
+                val key = try { PassageKeyFactory.instance().getKey(doc.versification, searchText) } catch (e: NoSuchVerseException) {null}?:
+                try {
+                    if (doc.language.code != MyLocaleProvider.userLocale.language) {
+                        synchronized(BookName::class.java) {
+                            MyLocaleProvider.override = Locale(doc.language.code)
+                            val k = PassageKeyFactory.instance().getKey(doc.versification, searchText)
+                            MyLocaleProvider.override = null
+                            k
+                        }
+                    } else null
+                } catch (e: NoSuchVerseException) {null}
+
+                if (key != null) {
+                    activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(doc, key)
+                    val handlerIntent = Intent(this@SearchResults, MainBibleActivity::class.java)
+                    handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    startActivity(handlerIntent)
+                    return@Main false
+                }
+            }
+
             mSearchResultsHolder = searchControl.getSearchResults(searchDocument, searchText)
             // tell user how many results were returned
             val msg: String
@@ -142,7 +190,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             isOk = false
             Dialogs.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
-        return@withContext isOk
+        return@Main isOk
     }
 
     /**
@@ -163,6 +211,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
         try { // no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
+            intent.putExtra("listPosition", l.firstVisiblePosition)
             verseSelected(mCurrentlyDisplayedSearchResults[position])
         } catch (e: Exception) {
             Log.e(TAG, "Selection error", e)

@@ -980,11 +980,15 @@ private val MIGRATION_56_57_breaklines_in_notes = object : Migration(56, 57) {
         }
     }
 }
-private val MIGRATION_57_58_workspace_colors = object : Migration(57, 58) {
-    //TODO: ??? Techincally the workspace colors should not be in 'text_display_settings'. But I fear moving it out will make complicate things a bit.
-    //      At present all the code that manages the saving and copying and initialising of colors also works well for the new workspace colors
-    //      But if I move these settings out somewhere else i am not sure if i will then have to write code to manage that aspect a well. If we do,
-    //      I am not sure that the gain in 'purity' is worth the extra work and potential maitenance. Plus i am not sure how to do it :)
+
+private val MIGRATION_57_58_label_markerStyle = object : Migration(57, 58) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE Label ADD COLUMN markerStyle INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+private val MIGRATION_58_59_workspace_colors = object : Migration(58, 59) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
             val colDefs = "`text_display_settings_colors_dayWorkspaceColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightWorkspaceColor` INTEGER DEFAULT NULL".split(",")
@@ -1100,7 +1104,8 @@ object DatabaseContainer {
                         MIGRATION_54_55_bookmarkType,
                         MIGRATION_55_56_limitAmbiguousSize,
                         MIGRATION_56_57_breaklines_in_notes,
-                        MIGRATION_57_58_workspace_colors,
+                        MIGRATION_57_58_label_markerStyle,
+                        MIGRATION_58_59_workspace_colors,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

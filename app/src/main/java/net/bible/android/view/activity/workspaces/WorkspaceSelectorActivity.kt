@@ -95,9 +95,9 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         title.text = titleText
         summary.text = workspaceEntity.contentsText
 
-        val colors = workspaceEntity.textDisplaySettings?.colors!!
-        val workspaceColor = if (ScreenSettings.nightMode)  colors.nightWorkspaceColor else colors.dayWorkspaceColor
-        if (workspaceColor != null) dragHolder.setColorFilter(workspaceColor)
+        val colors = WorkspaceEntities.TextDisplaySettings.actual(null, workspaceEntity.textDisplaySettings!!).colors!!
+        val workspaceColor = if (ScreenSettings.nightMode) colors.nightWorkspaceColor else colors.dayWorkspaceColor
+        dragHolder.setColorFilter(workspaceColor!!)
 
         layout.setOnClickListener {
             activity.goToWorkspace(holder.itemId)
@@ -256,8 +256,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
         val dialog = AlertDialog.Builder(this@WorkspaceSelectorActivity)
             .setPositiveButton(R.string.okay) { d, _ ->
                 val windowRepository = windowControl.windowRepository
-                windowRepository.textDisplaySettings.colors!!.dayWorkspaceColor = R.color.actionbar_background_day
-                windowRepository.textDisplaySettings.colors!!.nightWorkspaceColor = R.color.actionbar_background_night
                 val newWorkspaceEntity = WorkspaceEntities.Workspace(
                     name.text.toString(), null, 0,
                     windowRepository.orderNumber,

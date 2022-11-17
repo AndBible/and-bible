@@ -218,8 +218,13 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
 }
 
 @Serializable
-data class ClientBookmarkStyle(val color: Int, val icon: String?, val noHighlight: Boolean,
-                               val underline: Boolean, val underlineWholeVerse: Boolean)
+data class ClientBookmarkStyle(
+    val color: Int,
+    val noHighlight: Boolean,
+    val isSpeak: Boolean,
+    val underline: Boolean,
+    val underlineWholeVerse: Boolean,
+)
 
 @Serializable
 data class ClientBookmarkLabel(
@@ -232,8 +237,11 @@ data class ClientBookmarkLabel(
         label.id,
         label.displayName.trim(),
         ClientBookmarkStyle(
-            label.color, if(label.isSpeakLabel) "headphones" else null, label.isSpeakLabel,
-            label.underlineStyle, label.underlineStyleWholeVerse
+            label.color,
+            label.markerStyle || label.isSpeakLabel,
+            label.isSpeakLabel,
+            label.underlineStyle,
+            label.underlineStyleWholeVerse,
         ),
         !label.isSpecialLabel && label.id > 0
     )
