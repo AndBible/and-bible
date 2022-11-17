@@ -59,7 +59,7 @@ jobs:
       if: steps.cache-test-modules.outputs.cache-hit != 'true'
       run: |
         wget ${{ secrets.DOWNLOAD_TEST_MODULES_URL }} -O ./testmods.zip.enc
-        openssl enc -in ./testmods.zip.enc -out ./testmods.zip -d -aes-256-cbc -pbkdf2 -pass 'pass:${{ secrets.TEST_MODULE_ENCRYPTION_KEY }}'
+        openssl aes-256-cbc -d -a -pbkdf2 -in testmods.zip.enc -out testmods.zip -pass 'pass:${{ secrets.TEST_MODULE_ENCRYPTION_KEY }}'
         mkdir -p $HOME/.sword
         unzip -o -d $HOME/.sword ./testmods.zip
 
