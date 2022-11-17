@@ -30,6 +30,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.bible.android.MyLocaleProvider
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
@@ -42,9 +43,11 @@ import net.bible.android.view.activity.search.searchresultsactionbar.SearchResul
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
+import org.crosswire.jsword.versification.BookName
 import java.util.*
 import javax.inject.Inject
 
@@ -129,11 +132,18 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             val doc = Books.installed().getBook(searchDocument)
 
             if(doc is SwordBook) {
-                val key = try {
-                    PassageKeyFactory.instance().getKey(doc.versification, searchText)
-                } catch (e: NoSuchVerseException) {
-                    null
-                }
+                val key = try { PassageKeyFactory.instance().getKey(doc.versification, searchText) } catch (e: NoSuchVerseException) {null}?:
+                try {
+                    if (doc.language.code != MyLocaleProvider.userLocale.language) {
+                        synchronized(BookName::class.java) {
+                            MyLocaleProvider.override = Locale(doc.language.code)
+                            val k = PassageKeyFactory.instance().getKey(doc.versification, searchText)
+                            MyLocaleProvider.override = null
+                            k
+                        }
+                    } else null
+                } catch (e: NoSuchVerseException) {null}
+
                 if (key != null) {
                     activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(doc, key)
                     finish()
