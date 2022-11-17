@@ -981,6 +981,13 @@ private val MIGRATION_56_57_breaklines_in_notes = object : Migration(56, 57) {
     }
 }
 
+private val MIGRATION_57_58_label_markerStyle = object : Migration(57, 58) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE Label ADD COLUMN markerStyle INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
 class DataBaseNotReady: Exception()
 
 object DatabaseContainer {
@@ -1086,6 +1093,7 @@ object DatabaseContainer {
                         MIGRATION_54_55_bookmarkType,
                         MIGRATION_55_56_limitAmbiguousSize,
                         MIGRATION_56_57_breaklines_in_notes,
+                        MIGRATION_57_58_label_markerStyle,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

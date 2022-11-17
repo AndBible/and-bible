@@ -268,6 +268,7 @@ class BookmarkEntities {
         var name: String = "",
         @ColumnInfo(name = "bookmarkStyle") var bookmarkStyleDeprecated: BookmarkStyle? = null,
         @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
+        @ColumnInfo(defaultValue = "0") var markerStyle: Boolean = false,
         @ColumnInfo(defaultValue = "0") var underlineStyle: Boolean = false,
         @ColumnInfo(defaultValue = "0") var underlineStyleWholeVerse: Boolean = true,
         @ColumnInfo(defaultValue = "NULL") var type: LabelType? = null,
