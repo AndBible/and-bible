@@ -246,8 +246,8 @@ class WorkspaceEntities {
                     nightTextColor = white,
                     nightNoise = 0,
                     dayNoise = 0,
-                    dayWorkspaceColor = Color.parseColor("#ff444444"),
-                    nightWorkspaceColor = Color.parseColor("#ff000000")
+                    dayWorkspaceColor = Color.parseColor("#ff444444"), // -12303292
+                    nightWorkspaceColor = Color.parseColor("#ff000000"), // -16777216
                 ),
                 marginSize = MarginSize(
                     marginLeft = 3,
