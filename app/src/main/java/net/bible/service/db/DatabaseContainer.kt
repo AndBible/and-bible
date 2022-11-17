@@ -995,9 +995,8 @@ private val MIGRATION_58_59_workspace_colors = object : Migration(58, 59) {
             colDefs.forEach {
                 execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
                 execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
-                execSQL("UPDATE `Workspace` SET text_display_settings_colors_dayWorkspaceColor = -12303292")
-                execSQL("UPDATE `Workspace` SET text_display_settings_colors_nightWorkspaceColor = -16777216")
             }
+            execSQL("UPDATE `Workspace` SET `text_display_settings_colors_dayWorkspaceColor` = -12303292, `text_display_settings_colors_nightWorkspaceColor` = -16777216")
         }
     }
 }
