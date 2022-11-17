@@ -40,7 +40,11 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
 import org.apache.commons.lang3.StringUtils
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchVerseException
+import org.crosswire.jsword.passage.PassageKeyFactory
 import java.util.*
 import javax.inject.Inject
 
@@ -120,6 +124,22 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             if (StringUtils.isEmpty(searchDocument)) {
                 searchDocument = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
             }
+
+            val doc = Books.installed().getBook(searchDocument)
+
+            if(doc is SwordBook) {
+                val key = try {
+                    PassageKeyFactory.instance().getKey(doc.versification, searchText)
+                } catch (e: NoSuchVerseException) {
+                    null
+                }
+                if (key != null) {
+                    activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(doc, key)
+                    finish()
+                    return@withContext false
+                }
+            }
+
             mSearchResultsHolder = searchControl.getSearchResults(searchDocument, searchText)
             // tell user how many results were returned
             val msg: String
