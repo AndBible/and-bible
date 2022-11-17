@@ -38,7 +38,10 @@ import net.bible.service.common.CommonUtils
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.search.SearchType
+import org.crosswire.jsword.passage.NoSuchVerseException
+import org.crosswire.jsword.passage.PassageKeyFactory
 
 import javax.inject.Inject
 
@@ -58,8 +61,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var pageControl: PageControl
 
-    private val documentToSearch: Book?
-        get() = pageControl.currentPageManager.currentPage.currentDocument
+    private val documentToSearch: SwordBook
+        get() = pageControl.currentPageManager.currentPage.currentDocument as SwordBook
 
     /** get all, any, phrase query limitation
      */
@@ -202,6 +205,18 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     fun onSearch() {
         Log.i(TAG, "CLICKED")
         var text = binding.searchText.text.toString()
+
+        val key = try {
+            PassageKeyFactory.instance().getKey(documentToSearch.versification, text)
+        } catch (e: NoSuchVerseException) {
+            null
+        }
+        if(key != null) {
+            pageControl.currentPageManager.setCurrentDocumentAndKey(documentToSearch, key)
+            finish()
+            return
+        }
+
         if (!StringUtils.isEmpty(text)) {
 
             // update current intent so search is restored if we return here via history/back
