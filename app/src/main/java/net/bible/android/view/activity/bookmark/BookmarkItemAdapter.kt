@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.bookmark
 
@@ -34,6 +33,7 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.service.common.htmlToSpan
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -91,12 +91,7 @@ class BookmarkItemAdapter(
         if(item.notes !== null) {
             bindings.notesText.visibility = View.VISIBLE
             try {
-                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Html.fromHtml(item.notes, Html.FROM_HTML_MODE_LEGACY)
-                } else {
-                    Html.fromHtml(item.notes)
-                }
-
+                val spanned = htmlToSpan(item.notes)
                 bindings.notesText.text = spanned
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading label verse text", e)
@@ -110,11 +105,8 @@ class BookmarkItemAdapter(
         val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
         bindings.dateText.text = sDt
 
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(item.highlightedText, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(item.highlightedText)
-        }
+        val spanned = htmlToSpan(item.highlightedText)
+
         bindings.verseContentText.text = spanned
         return convertView ?: bindings.root
     }

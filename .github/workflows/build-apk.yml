@@ -17,23 +17,23 @@ jobs:
     environment: And Bible Builds
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 10 # so that recent tags can be found
     - name: Set up JDK
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: '11' # later than 1.8 not working with roboelectric as of 2020-06-15
+        java-version: '11'
 
     - name: Set up Node.js environment
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
         node-version: '14'
 
     - name: Cache gradle dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           ~/.gradle/caches
@@ -44,7 +44,7 @@ jobs:
 
     - name: Cache test modules
       id: cache-test-modules
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.sword
         key: ${{ runner.os }}-test-modules # cache auto-removes if not accessed in 7 days. If data needs to refresh, change key name here (till https://github.com/actions/cache/issues/2 is addressed)
@@ -57,29 +57,37 @@ jobs:
         mkdir -p $HOME/.sword
         unzip -o -d $HOME/.sword ./testmods.zip
 
-    - name: Build with Gradle
-      run: ./gradlew --console plain assembleGithubRelease
+    - name: Check/set alpha version suffix
+      if: contains(github.ref, 'refs/tags/alpha-')
+      run: |
+        sed -i 's/\(android:versionName="[0-9]*.[0-9]*.[0-9]*\)/\1-alpha/' ./app/src/main/AndroidManifest.xml
 
-    # Test complete, create apk etc
+    - name: Check/set beta version suffix
+      if: contains(github.ref, 'refs/tags/beta-')
+      run: |
+        sed -i 's/\(android:versionName="[0-9]*.[0-9]*.[0-9]*\)/\1-beta/' ./app/src/main/AndroidManifest.xml
 
     - name: Get variables
       id: tag_name
       run: |
-        echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+        echo TAG=${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
         grep versionName ./app/src/main/AndroidManifest.xml | cut -d\" -f2 > VNAME
-        echo ::set-output name=VERSION_NAME::$(cat VNAME)
-        echo ::set-output name=RELEASE_TITLE::$( if [[ $GITHUB_REF =~ build- ]]; then git log -1 --pretty=%B; else echo "Release $(cat VNAME)"; fi )
+        echo VERSION_NAME=$(cat VNAME) >> $GITHUB_OUTPUT
+        echo RELEASE_TITLE=$( if [[ $GITHUB_REF =~ build- ]]; then git log -1 --pretty=%B; else echo "Release $(cat VNAME)"; fi ) >> $GITHUB_OUTPUT
         echo "./fastlane/metadata/android/en-US/changelogs/$(cat VNAME).txt" > CLPATH
         if [[ -f $(cat CLPATH) ]] && ! [[ $GITHUB_REF =~ build- ]]; then cp $(cat CLPATH) RELEASENOTES.txt; else cat > ./RELEASENOTES.txt; fi
 
-    - name: Sign apk
+    - name: Build with Gradle
+      run: ./gradlew --console plain assembleStandardGithubRelease assembleDiscreteGithubRelease
+
+    - name: Sign apks
       if: contains(github.ref, 'refs/tags/')
       env: 
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
-      working-directory: ./app/build/outputs/apk/github/release
       run: |
         echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > keystore.jks
-        $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-github-release-unsigned.apk
+        $ANDROID_SDK_ROOT/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app/build/outputs/apk/standardGithub/release/*-unsigned.apk
+        $ANDROID_SDK_ROOT/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/calc-$TAG_NAME.apk app/build/outputs/apk/discreteGithub/release/*-unsigned.apk
         rm -f keystore.jks
     - name: Create release
       if: contains(github.ref, 'refs/tags/')
@@ -96,7 +104,7 @@ jobs:
         body_path: ./RELEASENOTES.txt
         prerelease: true
 
-    - name: Upload Release Apk
+    - name: Upload Standard release Apk
       if: contains(github.ref, 'refs/tags/')
       uses: actions/upload-release-asset@v1
       env:
@@ -106,6 +114,17 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./andbible-${{ env.TAG_NAME }}.apk
         asset_name: andbible-${{ env.TAG_NAME }}.apk
+        asset_content_type: application/vnd.android.package-archive
+    - name: Upload Discrete release Apk
+      if: contains(github.ref, 'refs/tags/')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./calc-${{ env.TAG_NAME }}.apk
+        asset_name: calculator-${{ env.TAG_NAME }}.apk
         asset_content_type: application/vnd.android.package-archive
 
     - name: Before saving cache

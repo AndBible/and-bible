@@ -1,0 +1,67 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "AndBible: Bijbelstudie"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Lees de Bijbel, bestudeer commentaren en woordenboeken, of lees boeken offline."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: "Krachtig Bijbelstudie-hulpmiddel "
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  "{{ title }}" is een krachtige, maar toch eenvoudig te gebruiken Android app voor offline bijbelstudie. De app is niet gemaakt als een eenvoudig bijbel-leesprogramma, maar biedt vergaande mogelijkheden om de diepte in te gaan tijdens de persoonlijke bijbelstudie.
+paragraph_1_2: >
+  Deze applicatie is ontwikkeld door bijbellezers voor bijbellezers. Hij is bedoeld om je bijbelstudie makkelijk, grondig en plezierig te laten zijn. Het mooiste van dit gemeenschappelijke non-profit project is dat het open-source is, gratis, en zonder advertenties. Omdat het van het begin af voor Android is ontwikkeld, is het een kleine download, erg efficient en opmerkelijk snel.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Enkele populaire bijbel versies (van de vele beschikbare) zijn de KJV, NASB, NET. Bovendien zijn er commentaren van bijvoorbeeld Matthew Henry en John Gill
+subtitle_2: Krachtige functies voor bijbelstudie
+paragraph_2_1: >
+  De applicatie heeft veel handige, originele functies die complexe en grondige bijbelstudie makkelijker maken dan ooit. De meest opmerkelijke zijn de volgende:
+feature_01: Gesplitste vensters maken het mogelijk om vertalingen te vergelijken en commentaren te raadplegen
+feature_02: Werkbladen maken meerdere bijbelstudieconfiguraties met hun eigen instellingen mogelijk
+feature_03: Geïntegreerde Strong's codes vergemakkelijken de analyse van het Griekse en Hebreeuwse woorden
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+  Gelinkte kruisverwijzingen, voetnoten en documenten; tik simpelweg op een link om die te volgen naar kruisverwijzingen en voetnoten; bestudeer de schriften grondig door het gebruik van commentaren met hyperlinks ({{commentary_examples}}), verzamelingen kruisverwijzingen ({{cross_reference_examples}}) en andere bronnen.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry, enz. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: Geavanceerde tekst-naar-spraak met bladwijzers maken het eenvoudig om de bijbel te beluisteren
+feature_06: Flexibele zoekmogelijkheden
+feature_07: Geavanceerde functies voor het maken van bladwijzers en het markeren van tekst met persoonlijke studieaantekeningen
+feature_09: >
+  Bijbelleesplannen: stel je doelen voor het bijbellezen 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Uitgebreide bibliotheek: Bijbelvertalingen, theologische commentaren, woordenboeken, landkaarten en christelijke literatuur, samen meer dan {{total_documents}} documenten in meer dan {{total_languages}} talen, legaal verspreid door Crosswire en andere SWORD repositories. 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  De herkomst van elk document wordt onderzocht om er zeker van te zijn dat elk document legaal verspreid kan worden, en dat waar nodig toesteming is verkregen van de eigenaar van het copyright. Dat is ook de reden dat documenten als {{unavailable_documents}} niet beschikbaar zijn in deze app.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV en NKJV"
+feature_12: >
+  Offline: Internet is enkel nodig om de documenten te downloaden.
+feature_13: >
+  Studiemappen om aantekeningen en bijbelverwijzingen te organiseren tijdens het luisteren van preken.
+subtitle_3: Help mee dit de beste bijbelapp te maken!
+paragraph_3_1: >
+  And Bible is een open-source project. Dat betekent in de praktijk dat iedereen met passende vaardigheden kan en mag bijdragen (graag zelfs!) aan het project door:
+contr_1: "nieuwe functionaliteit te ontwikkelen,"
+contr_2: "nog uit-te-komen functionaliteit te testen,"
+contr_3: "de vertalingen up-to-date te houden voor de user interface, en"
+contr_4: "te helpen de bibliotheek uit te breiden door toestemming te vragen aan eigenaren van copyright, of door documenten te converteren naar het SWORD formaat."
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Als je een professionele software-ontwikkelaar bent, of -tester, overweeg dan aan het project bij te dragen. Zie {{how_to_contribute_url}} voor meer informatie."
+subtitle_4: Links
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Homepagina: {{homepage_url}}
+link_2: >
+  Vind And Bible leuk op Facebook: {{facebook_url}}
+link_3: >
+  Ons Youtube-kanaal: {{youtube_url}}
+link_4: >
+  Meest gestelde vragen: {{faq_url}}
+link_5: >
+  Project pagina op Github: {{github_url}}

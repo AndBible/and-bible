@@ -1,1 +1,1 @@
-Studium Biblii, otwartoźródłowy projekt And Bible
+AndBible: Studium Biblii

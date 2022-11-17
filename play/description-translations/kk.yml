@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "Bible Study қолданб., And Bible Open Source Proj."
+title: "AndBible: Киелі Кітап+"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Киелі кітап оқу, түсіндірмелерді немесе сөздіктерді оқу немесе офлайн кітап оқу."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Киелі кітапты зерттеудің Мықты құралы
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  And Bible Open Source Project by Bible Study қосымшасы - бұл Android үшін күшті, бірақ қолдануға оңай офлайн режимінде Киелі кітапты зерттеу қосымшасы. Қосымша тек Киелі кітапты ғана оқуды мақсат етпейді, Киелі кітапты жеке әрі терең зерттеудің жетілдірілген құралы болуына бағытталған.
+  "{{ title }}" қосымшасы - бұл Android үшін күшті, бірақ қолдануға оңай офлайн режимінде Киелі кітапты зерттеу қосымшасы. Қосымша тек Киелі кітапты ғана оқуды мақсат етпейді, Киелі кітапты жеке әрі терең зерттеудің жетілдірілген құралы болуына бағытталған.
 paragraph_1_2: >
   Бұл қосымша Киелі кітапты оқитындардан, Киелі кітапты оқитындарға арналған. Бұл сізге Киелі кітапты зерттеуді ыңғайлы, терең және қызықты етуге көмектесуге бағытталған. Бұл коммерциялық емес қоғамдастық жобаның бір жақсы жағы - бұл ашық кодты, мүлдем ақысыз және жарнамасыз. Android үшін толығымен жаңадан жасалған, жүктеу үшін өте аз, сондықтан өте тиімді және жылдам болады.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: Аудармаларды салыстыруға және түсіндірмелер арқылы кеңес алуға мүмкіндік беретін мәтіндік көріністерге бөлу
 feature_02: Қолданбаның жұмыс кеңістігі Киелі кітапты зерттеуде бірнеше реттеулерді орнатуға және олармен қолдануға мүмкіндіктер береді
 feature_03: Strong интеграциясы грек және еврей сөздерін талдауға мүмкіндік береді
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Байланыстырылған қиылысты сілтемелер, жай сілтемелер мен құжаттар; сілтемені түрту арқылы қиылысқан сілтемелер мен жай сілтемелерге өту; ({{commentary_examples}}) гиперсілтемелерде берілген түсініктемелерді, ({{cross_reference_examples}}) сілтемелер жиынтығын және басқа да ресурстарды қолдана отырып, Жазбаларды терең зерттеу
 # Examples of commentaries. You can add here also other commentaries of your language if they

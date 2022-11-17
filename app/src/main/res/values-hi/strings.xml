@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">बाइबिल अध्ययन</string>
   <string name="app_name_medium">बाइबिल अध्ययन (ऐंड बाइबिल )</string>
-  <string name="app_name_long">बाइबिल अध्ययन ऐप, ऐंड बाइबिल ओपन सोर्स प्रोजेक्ट के द्वारा</string>
+  <string name="app_name_long">AndBible: बाइबिल</string>
   <string name="project">ऐंड बाइबिल ओपन सोर्स प्रोजेक्ट</string>
   <string name="version_text">संस्करण %s</string>
   <string name="no_sdcard_error"> कृपया एसडी कार्ड डालें और ऐप पुनः आरंभ करें।</string>
@@ -207,7 +207,6 @@
   <string name="next">अगला</string>
   <!--Strongs-->
   <string name="strongs_not_installed">\"र्स्टो्न्ग\" की यहूदी और यूनानी शब्दकोश डाउनलोड करें</string>
-  <string name="no_indexed_bible_with_strongs_ref">\"र्स्टो्न्ग\" संख्या वाले बाइबिल डाउनलोड करें, फिर खोज सूचकांक डाउनलोड करें</string>
   <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\' शब्दकोश, डाउनलोड करें</string>
   <string name="go_to_downloads">डाउनलोड पर जाएं</string>
   <!--Module download-->
@@ -855,6 +854,5 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="added_to_bookmark">इस बुकमार्क को असाइन किया गया</string>
   <string name="strongs_links">लिंक</string>
   <string name="verse_tip">अधूरा या कई छंदों का चयन करने के लिए, आप बाइबिल पाठ को देर तक दबा सकते हैं</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

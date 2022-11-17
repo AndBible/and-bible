@@ -1,0 +1,602 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name_short">Bibelstudier</string>
+  <string name="app_name_medium">Bibelstudier (Och Bibeln)</string>
+  <string name="app_name_long">AndBible: Bible Study</string>
+  <string name="project">And Bible Open Source Project</string>
+  <string name="version_text">Version %s</string>
+  <string name="no_sdcard_error">Vänligen mata in ett SD-kort och starta om appen.</string>
+  <!--Main menu-->
+  <string name="menu">Meny</string>
+  <string name="chooseBook">Dokument</string>
+  <string name="selectPassage">Avsnitt</string>
+  <string name="search">Sök</string>
+  <string name="settings">Appinställningar</string>
+  <string name="history">Historik</string>
+  <string name="speak">Läs upp</string>
+  <string name="help">Hjälp</string>
+  <string name="information">Information</string>
+  <string name="other">Annat</string>
+  <string name="contact">Kontakt</string>
+  <string name="help_and_tips">Hjälp &amp;aps; tips</string>
+  <string name="administration">Administration</string>
+  <string name="rate_application">Betygsätt &amp; Omdöme</string>
+  <string name="chooce_document">Välj Dokument</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">Välj bok</string>
+  <string name="choosePassageChapterName">Välj kapitel</string>
+  <string name="choosePassageVerseName">Välj vers</string>
+  <string name="bible">Bibel</string>
+  <string name="deuterocanonical">Deuterokanonisk</string>
+  <!--Search-->
+  <string name="search_index">Sökindex</string>
+  <string name="index_creation_required">Ett register är nödvändigt för att söka.</string>
+  <string name="create_index_for">Ett register är nödvändigt för att söka. \n\nSkapa register för %s?</string>
+  <string name="rebuild_index_for">Återuppbygg register för %s?</string>
+  <string name="indexing_wait_msg">När indexeringen är färdig kommer du att tas till sökskärmen.</string>
+  <string name="index_create">Skapa</string>
+  <string name="rebuild_index">Återuppbygg register</string>
+  <string name="search_in">Hitta i %s</string>
+  <string name="do_in_background">Fortsätt i bakgrunden</string>
+  <string name="rebuild_index_button">Återuppbygg</string>
+  <!--Tasks-->
+  <string name="progress_status">Framsteg</string>
+  <string name="task_kill_warning">Dessa aktiviteter kan avbrytas om du växlar till en annan app innan de är klara.</string>
+  <string name="no_tasks_running">Det finns för närvarande inga körande aktiviteter.</string>
+  <!--Search-->
+  <string name="search_words_group_prompt">Hitta verser</string>
+  <string name="search_all_words">Alla ord</string>
+  <string name="search_any_word">Vilket ord som helst</string>
+  <string name="search_phrase">Fras</string>
+  <string name="search_result_count">%d matchningar funna</string>
+  <string name="search_showing_first">För många matchningar. Visar de %d första </string>
+  <string name="search_bible_section_group_prompt">Sök här</string>
+  <string name="search_all_bible">Hela Bibeln</string>
+  <string name="search_new_testament">Nya Testamentet</string>
+  <string name="search_old_testament">Gamla Testamentet</string>
+  <string name="search_current_book">Aktuell bok</string>
+  <string name="error_executing_search">Ogiltig sökterm</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">Kapitel &amp; vers nummer</string>
+  <string name="prefs_show_verseno_summary">Visa kapitel &amp; vers nummer</string>
+  <string name="prefs_e_ink_mode_title">Svart &amp; vitt läge</string>
+  <string name="prefs_eink_mode_summary">Använd appen i monokrom läge (inga färger), gör den mer lämplig för läsplattor.</string>
+  <string name="prefs_disable_animations_title">Inaktivera animationer</string>
+  <string name="prefs_disable_animations_summary">Inaktivera olika animationer som till exempel mjuk rullning.</string>
+  <string name="prefs_paragraph_spacing_title">Styckesavstånd (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Justera avståndet mellan styckeindelningarna.</string>
+  <string name="prefs_show_verseno_title1">Versnummer</string>
+  <string name="prefs_show_chapter_no_title">Kapitelnummer</string>
+  <string name="prefs_show_chapter_no_summary">Visa kapitelnummer</string>
+  <string name="prefs_verse_per_line_summary">Visa varje vers på en egen rad</string>
+  <string name="prefs_show_bookmarks_summary">Avbocka för att dölja alla bokmärken</string>
+  <string name="prefs_show_mynotes_summary">Visa en ikon i verser med anteckningar</string>
+  <string name="prefs_show_notes_summary">Visa fotnoter och referenser</string>
+  <string name="prefs_show_strongs_summary">Länkar till Grekiska &amp; Hebreiska definitioner</string>
+  <string name="prefs_show_morphology_summary">Visa Robinsons grekiska morfologi</string>
+  <string name="prefs_section_title_summary">Visa icke-kanoniska rubriker</string>
+  <string name="prefs_red_letter_summary">Visa ord av Jesus i röd text</string>
+  <string name="prefs_text_size_title">Typsnittinställningar</string>
+  <string name="prefs_verse_per_line_title">En vers per rad</string>
+  <string name="prefs_show_bookmarks_title">Visa bokmärken</string>
+  <string name="prefs_show_mynotes_title">Visa anteckningsikoner</string>
+  <string name="prefs_show_footnotes_title">Fotnoter</string>
+  <string name="prefs_show_xrefs_title">Korshänvisningar</string>
+  <string name="prefs_show_footnotes_summary">Visa fotnoter, om de är tillgängliga i dokumentet</string>
+  <string name="prefs_show_xrefs_summary">Visa korsreferenser, om de är tillgängliga i dokumentet</string>
+  <string name="prefs_show_notes_title">Fotnoter och referenser</string>
+  <string name="prefs_show_strongs_title">Strong\'s nummer</string>
+  <string name="prefs_show_morphology_title">Morfologiska koder</string>
+  <string name="prefs_section_title_title">Rubriker</string>
+  <string name="prefs_red_letter_title">Röd text</string>
+  <string name="prefs_tilt_to_scroll_title">Luta för att scrolla</string>
+  <string name="prefs_toolbar_button_action_title">Åtgärd för knapptryck i verktygsfältet</string>
+  <string name="prefs_toolbar_button_action_summary">Åtgärd vid tryck/långtryck på Bibel- eller Kommentarknapparna i verktygsfältet</string>
+  <string name="prefs_toolbar_button_action_default">Tryck för att öppna menyn, långtryck för dokument skärmen (standard)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Tryck för att öppna nästa dokument, långtryck för att öppna menyn</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Tryck för att öppna nästa dokument, långtryck för dokument skärmen</string>
+  <string name="prefs_night_mode_title">Byt till nattläge</string>
+  <string name="prefs_night_mode_summary">Byte till nattläge automatiskt (om enheten stöder det), manuellt eller via systeminställningen (Android 10+). Manuell växling kan göras från den 3-punktsalternativsmenyn på huvudskärmen. </string>
+  <string name="prefs_night_mode_manual">Manual</string>
+  <string name="prefs_night_mode_automatic">Automatisk</string>
+  <string name="prefs_night_mode_system">System</string>
+  <string name="options_menu_night_mode">Nattläge</string>
+  <string name="prefs_navigate_to_verse_title">Navigera till vers</string>
+  <string name="prefs_navigate_to_verse_summary">Välj både kapitel och vers vid val av stycke</string>
+  <string name="prefs_open_links_in_special_window_title">Fönster länkar</string>
+  <string name="prefs_open_links_in_special_window_summary">Öppna länkarna i special fönster, för snabbare visning av krossreferenser och Strongs</string>
+  <string name="prefs_text_size_sample_text">Exempeltext</string>
+  <string name="prefs_screen_keep_on_title">Håll skärmen igång</string>
+  <string name="prefs_screen_keep_on_summary">Förhindra skärmen från att släckas medans denna app används</string>
+  <string name="prefs_interface_locale_title">Språk i appen</string>
+  <string name="prefs_interface_locale_summary">Välj språk för användargränssnittet</string>
+  <string name="reset_fontsize">Återställ</string>
+  <string name="prefs_request_sdcard_permission_title">Manuellt installerade dokument finns</string>
+  <string name="prefs_request_sdcard_permission_summary">Aktivera användning av manuellt installerade dokument från jsword/sword mappen i den lokala lagringen</string>
+  <string name="all_text_options_window_menutitle">Alla textinställningar</string>
+  <string name="text_options_window_menutitle">Textinställningar</string>
+  <string name="auto_fullscreen">Helskärm genom skrollning</string>
+  <string name="reversed_split_mode">Omvänt delat läge</string>
+  <string name="add_ellipsis">%s...</string>
+  <string name="value_mm">%d mm</string>
+  <string name="auto_fullscreen_summary">Byt automatiskt till fullskärm vid skrollning av text. Tips: man kan alltid byta till fullskärm genom att dubbeltrycka på skärmen.</string>
+  <string name="prefs_margin_size_title">Ändra maginal storlek</string>
+  <string name="prefs_margin_size_mm_title">Marginal storlek (%d/%d/%d mm)</string>
+  <string name="prefs_advanced_settings_cat">Avancerade inställningar</string>
+  <string name="prefs_display_customization_cat">Utseende &amp;amp känsla</string>
+  <string name="prefs_behavior_customization_cat">Appbeteende</string>
+  <string name="prefs_margin_size_summary">Ändra vänster och höger marginalen i textvyn. Du kan också
+ändra maximal bredd på texten.
+</string>
+  <string name="prefs_text_colors_summary">Ändra text och bakgrundsfärg samt bruseffekt</string>
+  <string name="text_display_settings_activity_title">Textskärmsinställningar</string>
+  <string name="workspace_text_display_settings_title">Textinställningar - %s</string>
+  <string name="window_text_display_settings_title">Textinställningar - Fönster %d</string>
+  <string name="prefs_text_display_settings_title">Formatera</string>
+  <string name="prefs_text_appearance_title">Utseende</string>
+  <string name="prefs_justify_title">Rättvisjustera texten</string>
+  <string name="prefs_justify_summary">Justera text i stilen \"justify\", vilket innebär att textens vänstra och högra marginal är i linje</string>
+  <string name="pref_left_margin_label_mm">Vänster marginal (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Höger marginal (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Maximal bredd på texten (%d mm)</string>
+  <string name="prefs_line_spacing_pt">Radavstånd %1.1fx</string>
+  <string name="pref_font_family_label">font familj</string>
+  <string name="prefs_top_margin_title">Övre marginal</string>
+  <string name="prefs_top_margin_summary">Lägg till marginal (med visuell indikation) till över fönstret som innehåller Bibeldokumenten. Bibeln skrollas så att den aktiva versen börjar under marginalen.</string>
+  <string name="prefs_hyphenation_title">Bindestreck</string>
+  <string name="prefs_hyphenation_summary">Bindestrecka automatiskt ord, om språket stöder det</string>
+  <string name="prefs_line_spacing_pt_title">Radavstånd (%1.1fx)</string>
+  <string name="line_spacing_title">Radavstånd</string>
+  <string name="line_spacing_summary">Välj avståndet mellan linjerna</string>
+  <string name="select_none">Markera ingen</string>
+  <string name="reset_are_you_sure">Är du säker på att du vill återställa alla dessa värden?</string>
+  <string name="window_pinning_menutitle">Nåla fast fönster</string>
+  <string name="hide_window_buttons_title">Dölj fönsterknappar</string>
+  <string name="hide_window_buttons_summary">Fönsterknappar som visas på höger sida av Bibelvyn är dold. Fönster navigeringsfältet visas fortfarande och man kan öppna fönster popup-menyn genom att långtrycka på den.</string>
+  <string name="hide_bible_reference_overlay_title">Dölja Bibel referensöverdrag</string>
+  <string name="hide_bible_reference_overlay_summary">Visa inte halvtransparanta Bibelreferensöverdrag när appen är i fullskärmsläge</string>
+  <string name="full_screen_hide_buttons_pref_title">Dölj fönsterknappar i fullskärm</string>
+  <string name="full_screen_hide_buttons_pref_summary">Vid byte till fullskärmsläge, dölj automatiskt fönsterknapplistan som är i botten av skärmen</string>
+  <string name="prefs_dictionaries_cat">Uppslagsbok</string>
+  <string name="choose_strongs_greek_dictionary_title">Strongs Grekiska uppslagsbok</string>
+  <string name="choose_strongs_greek_dictionary_summary">Välj Strongs uppslagsbok för Grekiska orddefinitioner</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strongs Hebreiska uppslagsbok</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Välj Strongs uppslagsbok för Hebreiska orddefinitioner</string>
+  <string name="choose_strongs_greek_morphology_title">Robinsons grekiska morfologi</string>
+  <string name="choose_strongs_greek_morphology_summary">Välj uppslagsbok för Robinsons grekiska morfologi förklarningar</string>
+  <string name="prefs_top_margin_title_mm">Övre marginal (%d mm)</string>
+  <string name="font_size_title">Textstorlek</string>
+  <string name="font_size_title_pt">Textstorlek (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Ändra huvudtext fontens storlek</string>
+  <string name="pref_font_family_label_name">Fontfamilj (%s)</string>
+  <string name="prefs_font_family_summary">Ändra fontfamilj. Tips: Mer fontar kan installeras via Download Documents/Add-ons.</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">Färginställningar</string>
+  <string name="window_color_settings_title">Fönsterfärg inställningar</string>
+  <string name="workspace_color_settings_title">Arbetsytans standard färginställningar</string>
+  <string name="color_text">Textfärg</string>
+  <string name="color_background">Bakgrundsfärg</string>
+  <string name="colors_day_mode_title">Dagsläge</string>
+  <string name="colors_night_mode_title">Nattläge</string>
+  <string name="prefs_noise_title">Bakgrundsbrus</string>
+  <string name="prefs_noise_summary">Att lägga till brus i bakgrunden kan göra det mer behagligt för ögonen.</string>
+  <string name="cpv_default_title">Välj en färg</string>
+  <string name="cpv_presets">Förval</string>
+  <string name="cpv_custom">Anpassa</string>
+  <string name="cpv_select">Välj</string>
+  <string name="cpv_transparency">Transparans</string>
+  <!--Window-->
+  <string name="new_window">Nytt fönster</string>
+  <string name="windowClose">Stäng</string>
+  <string name="windowMaximise">Maximera</string>
+  <string name="windowMinimise">Minimera</string>
+  <string name="windowSynchronise">Synkronisera</string>
+  <string name="move_window">Flytta till</string>
+  <string name="move_window_to_position2">Position %d (%s:%s)</string>
+  <string name="copy_settings">Kopiera inställningarna till</string>
+  <string name="copy_settings_to_workspace">Arbetsyta</string>
+  <string name="copy_settings_to_window">Fönster %d (%s: %s)</string>
+  <string name="change_to_normal">Ändra till normalt fönster</string>
+  <string name="window_pin_mode">Nåla fast</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">Det finns inga noter i detta kapitel</string>
+  <string name="no_verse_notes">Det finns inga noter i denna vers</string>
+  <string name="previous">Föregående</string>
+  <string name="next">Nästa</string>
+  <!--Strongs-->
+  <string name="strongs_not_installed">Vänligen ladda ner Strongs hebreiska och grekiska lexikon</string>
+  <string name="morph_robinson_not_installed">Vänligen ladda ner lexikonet \'Robinson\'s Morphological Analysis Codes\'</string>
+  <string name="go_to_downloads">Gå till nerladdningar</string>
+  <!--Module download-->
+  <string name="download">Hämta böcker</string>
+  <string name="redownload">Åternerladda Dokument</string>
+  <string name="download_confirmation">Ladda ner en Bibel från Internet?</string>
+  <string name="download_source_last_updated">Dokumentet uppdaterades senast: %s.</string>
+  <string name="download_refreshing_book_list">Uppdatera listan av tillgängliga dokument från dokumentservrarna...</string>
+  <string name="download_source_message1">Dokumenten är nerladdade från följande källor:</string>
+  <string name="download_document_confirm_prefix">Ladda ner</string>
+  <string name="download_refresh_book_list_menu_item">Uppdatera</string>
+  <string name="error_downloading">Ett fel uppstod vid nerladdningen. Vänligen kontrollera internetuppkopplingen.</string>
+  <string name="error_downloading_status">Servern som innehar %s gav fel på grund av %s (%d).</string>
+  <string name="storage_space_warning">Minnet på enheten är för litet.</string>
+  <string name="too_many_jobs">För många aktiviteter körs. Vänligen vänta tills några är klara och försök igen.</string>
+  <string name="document_not_installed">Vänligen ladda ner \'%s\'</string>
+  <string name="free_text_search_documents">Sök</string>
+  <string name="chooce_language_hint">Språk</string>
+  <string name="one_more_back_press">Tryck bak igen för att stänga appen</string>
+  <string name="document_filter_results">%d dokument</string>
+  <string name="download_question_title">Vill du fortsätta med nerladdningen av dokument?</string>
+  <string name="download_question_message">Om du bor i ett förföljt land,
+kan du behöva vara försiktig med att ladda ner kristet material via Internet.
+Istället kanske du vill skaffa modulens zip-filer på ett säkrare sätt och installera dem.
+via \"Ladda Dokument Från Zip\". Är du säker på att du vill fortsätta med nedladdningen?
+Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
+  <string name="do_not_ask_again">Ja, fråga inte mer</string>
+  <string name="recommended_document">Rekommenderat!</string>
+  <string name="about_version_history">Version historik: %s</string>
+  <string name="download_errors">Nerladdningsfel</string>
+  <string name="failed_repositories_message">Kunde inte ansluta till följande dokumentserver: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">Följande filer kunde inte laddas ner:\n\n%s\n\n</string>
+  <!--Install zip file-->
+  <string name="install_zip">Lägg in bok från zip-fil</string>
+  <string name="install_zip_module">Installera Bibelmodul</string>
+  <string name="install_zip_successfull">Modulen installerades utan problem</string>
+  <string name="extracting_zip_file">Packar upp Zip filen...</string>
+  <string name="checking_zip_file">Kontrollerar angiven fil...</string>
+  <string name="invalid_module">Filen innehåller inte en giltig SWORD-modul</string>
+  <string name="install_zip_title">Var god vänta. Laddar Zip filen.</string>
+  <string name="overwrite_files">Följande filer finns redan: %s, Vill du skriva över?  </string>
+  <string name="overwrite_files_title">Skriva över filer?</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">Läsningsplan</string>
+  <string name="rdg_plan_selector_title">Välj en läsningsplan</string>
+  <string name="rdg_plan_day">Dag %s</string>
+  <string name="rdg_plan_set_start_date">Välj startdatum...</string>
+  <string name="set_current_day">Välj dagens datum...</string>
+  <string name="msg_set_current_day_reading_plan">Detta kommer sätta idag som aktuell dag i denna plan och markera alla tidigare dagar som läst. Vill du fortsätta?</string>
+  <string name="done">Färdig</string>
+  <string name="reset_plan_question">Är du säker på att du vill återställa denna plan?</string>
+  <string name="import_reading_plan">Importera läsplanering...</string>
+  <string name="import_reading_plan_error">Fel vid importering</string>
+  <string name="import_reading_plan_error_duplicate">Följande dagar är dubbletter: %s</string>
+  <string name="import_reading_plan_error_days">Följande dagar innehåller fel: %s</string>
+  <string name="import_reading_plan_anyway">Importera ändå</string>
+  <string name="overwrite_reading_plan">Vill du överskrida %s?</string>
+  <string name="delete_reading_plan">Radera denna planering</string>
+  <string name="reading_plan_deleted">Läsplanen har blivit raderad</string>
+  <string name="reading_plan_ships_with_ab">Läsplanen kommer med %s</string>
+  <string name="confirm_delete_reading_plan">
+Är du säker på att du vill radera %s samt dess läshistorik?
+Hjälp: om du behöver updatera planeringen så kan du importera den igen med samma filnamn
+och historiken kommer vara kvar
+</string>
+  <string name="plan_duplicate_user_plan">
+Det finns en användarplanering i SD-kortet
+jsword/readningplan med samma namn som en som finns internt. Den kan inte listas här.
+Var god byt namn på filen och lämna filtypen som .properties
+</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+Läs igenom Bibeln inom 1 år, med kapitell
+i GT och NT varje dag.
+</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">1 år igenom hela Bibeln</string>
+  <!--Document context menu-->
+  <string name="delete">Radera</string>
+  <string name="delete_index">Radera sökindex</string>
+  <string name="about">Om</string>
+  <string name="delete_doc">Radera %s?</string>
+  <string name="delete_search_index_doc">Radera indexet för %s?</string>
+  <!--Verse context menu-->
+  <string name="notes">Fotnoter och referenser</string>
+  <string name="share_verse">Dela...</string>
+  <string name="share_verse_subject_2">Ett bibelord har delats med dig genom %s</string>
+  <string name="compare_translations">Jämför översättningar</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Öppna länk här</string>
+  <string name="open_link_in_new_window">Öppna länk i ett nytt fönster</string>
+  <string name="open_link_in_special_window">Öppna länk i ett specialfönster</string>
+  <!--Bookmarks-->
+  <string name="bookmarks">Bokmärken</string>
+  <string name="bookmark_added">Bokmärket sparat</string>
+  <string name="assign_labels">Tilldela etiketter</string>
+  <string name="new_item">Ny</string>
+  <string name="new_label">Ny etikett</string>
+  <string name="label_name_prompt">Namn</string>
+  <string name="label_unlabelled">Ingen etikett</string>
+  <string name="add_bookmark1">Bokmärke</string>
+  <string name="add_bookmark2">Bokmärkes val</string>
+  <string name="add_bookmark_whole_verse1">Verser</string>
+  <string name="add_bookmark_whole_verse2">Fullständiga verser</string>
+  <string name="remove_bookmark">Radera</string>
+  <!--can be removed-->
+  <string name="label_color_example">Exempel</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Datumordning</string>
+  <string name="sort_by_bible_book">Biblisk ordning</string>
+  <string name="sort_by_alphabetical">Alfabetisk ordning</string>
+  <!--Dictionary-->
+  <string name="dictionary">Lexikon</string>
+  <string name="search_dictionary_hint">Sök i lexikon</string>
+  <!--General Book-->
+  <string name="general_book">Bok</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d kapitel</string>
+  <string name="some_chapters">%d kapitel</string>
+  <string name="rest_of_book">Till bokens slut</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d vers</string>
+  <string name="some_verses">%d verser</string>
+  <string name="rest_of_chapter">Till kapitlets slut</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d sida</string>
+  <string name="some_pages">%d sidor</string>
+  <!--Speak - Common-->
+  <string name="stop">Stopp</string>
+  <string name="pause">Pause</string>
+  <string name="rewind">Tillbaka</string>
+  <string name="forward">Framåt</string>
+  <string name="tts_lang_not_available">Språket är inte tillgängligt.</string>
+  <string name="speak_queue">Kö</string>
+  <string name="speak_repeat">Upprepa</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">Talhastighet</string>
+  <string name="playback_settings_title">Uppspelningsinställningar</string>
+  <string name="speak_settings_title">Generella Talinställningar</string>
+  <string name="speak_bookmarking_settings_title">Bokmärkesinställningar</string>
+  <string name="speak_bookmarks_menu_title">Tal från bokmärke</string>
+  <string name="speak_advanced_settings">Avancerade inställningar</string>
+  <string name="speak_sleep_timer_title">Sovtimer</string>
+  <string name="speak_no_books_available">Ingen bok tillgänglig för tal</string>
+  <string name="speak_general_error">Tal kunde inte starta för denna bok</string>
+  <string name="conf_speak_synchronize">Text följer tal</string>
+  <string name="conf_speak_auto_bookmark">Automatisk bokmärkning</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Spara uppspelningsinställningarna till bokmärken</string>
+  <string name="conf_change_chapter">Kapitel ändring</string>
+  <string name="conf_change_title">Titel</string>
+  <string name="conf_speak_footnotes">Fotnoter</string>
+  <string name="conf_speak_sleep_timer">Sätt sovtimer</string>
+  <string name="sleep_timer_title">Sovtimer i minuter</string>
+  <string name="speak_next">Nästa</string>
+  <string name="speak_previous">Föregående</string>
+  <string name="speak_status_stopped">Stannad</string>
+  <string name="speak_autobookmarking_disabled">Automatisk bokmärkning avaktiverad!</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Denna inställningen gäller för %s</string>
+  <string name="setting_scope_window">Detta fönster</string>
+  <string name="setting_scope_workspace">denna arbetsyta</string>
+  <!--param is bookmark icon-->
+  <!--param is auto-assign label icon-->
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <string name="workspace_text_options_help_title">Arbetsytans textinställningar</string>
+  <string name="window_text_options_help_title">Fönstertextinställningar</string>
+  <!--Parameter is actual icon-->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="reset_defaults">standardvärden</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string name="speak_book_changed">Bok ändrad.</string>
+  <string name="speak_chapter_changed">Kapitel</string>
+  <string name="speak_first">Första</string>
+  <string name="speak_second">Andra</string>
+  <string name="speak_third">Tredje</string>
+  <string name="speak_fourth">Fjärde</string>
+  <string name="speak_fifth">Femte</string>
+  <!--User Notes-->
+  <string name="mynotes">Anteckningar</string>
+  <!--Backup and restore-->
+  <string name="backup_modules">Dela eller Säkerhetskopiera dokument till...</string>
+  <string name="backup_app_database">Dela eller Säkerhetskopiera app databasen till...</string>
+  <string name="backup_app">Dela eller Säkerhetskopiera appen (.apk fil) till...</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Vill du återställa?</string>
+  <string name="restore_app_database">Återställ appdatabasen från...</string>
+  <string name="restore_database">Återställ Databasfilen</string>
+  <string name="reading_plans_plural">Läsplaner</string>
+  <string name="backup_phone_storage">Telefon laging</string>
+  <string name="backup_backup_title">Var vill du Säkerhetskopiera?</string>
+  <string name="backup_share">Dela</string>
+  <string name="restore_modules">Återställ dokumenten från...</string>
+  <string name="send_backup_file">Skicka en säkerhetskopieringsfil</string>
+  <string name="backup_modules_title">Välj vilken modul att säkerhetskopiera</string>
+  <string name="install_zip_canceled">Modulinstallation avbruten</string>
+  <!--About-->
+  <string name="module_about_copyright">Copyright: %s</string>
+  <string name="module_about_installed_version">Installerad version: %s (%s)</string>
+  <string name="module_about_latest_version">Senaste versionen: %s (%s)</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title1">Bugg rapportering</string>
+  <string name="report_bug_heading1">Instruktioner</string>
+  <string name="report_bug_heading2">Till exempel:</string>
+  <string name="report_bug_instructions1">1. Öppnad app</string>
+  <string name="report_bug_line_2">Ibland så kan manuella skärmdumpar och vara viktiga för att lösa problem.</string>
+  <string name="report_bug_line_3">Vänligen använd denna funktion för att rapportera så snart du upptäcker ett problem.</string>
+  <string name="report_bug_line_4">Du kan också använda denna funktion efter att du öppnat appen, efter en krash har skett.
+</string>
+  <string name="report_bug_heading_3">Bilaga:</string>
+  <string name="bug_report_logcat">Loggfiler som skapas med denna app innehåller ingen information om någon annan app.</string>
+  <string name="bug_report_screenshot">Skärmdump av appen när den krashade, eller när buggrapporteringen skapades.</string>
+  <string name="bug_report_attachment_line_1">Att infoga dessa filer hjälper apputvecklarna mycket i att fixa de rapporterade buggarna.</string>
+  <string name="report_bug_heading_4">Enhetsinformation: </string>
+  <!--Document types-->
+  <string name="doc_type_all">Alla typer</string>
+  <string name="doc_type_bible">Bibel</string>
+  <string name="doc_type_commentary">Kommentar</string>
+  <string name="doc_type_dictionary">Lexikon</string>
+  <string name="doc_type_book">Bok</string>
+  <string name="doc_type_map">Karta</string>
+  <string name="doc_type_addons">Tillägg</string>
+  <!--Languages-->
+  <string name="lang_default">Standard</string>
+  <!--General-->
+  <string name="okay">OK</string>
+  <string name="cancel">Avbryt</string>
+  <string name="yes">Ja</string>
+  <string name="no">Nej</string>
+  <string name="error">Fel</string>
+  <string name="delete_generic">Radera</string>
+  <string name="please_wait">Vänligen vänta...</string>
+  <string name="all">Alla</string>
+  <string name="edit">Ändra</string>
+  <string name="reset_generic">Återställ</string>
+  <string name="verse_not_found">Versen hittades inte</string>
+  <!--Errors-->
+  <string name="report_error">Skicka rapport</string>
+  <string name="error_occurred">Det har skett ett fel</string>
+  <string name="error_occurred_with_link">Ett fel har inträffat. %s</string>
+  <string name="error_no_content">Innehåll saknas för den markerade versen</string>
+  <string name="error_page_too_large">Sidan är för stor för att laddas</string>
+  <string name="error_key_not_in_document">Hittades inte i bok</string>
+  <string name="error_key_not_in_document2">%s hittades inte i dokument %s.</string>
+  <string name="empty_list">Inga poster att visa</string>
+  <string name="error_skip">Hoppa över</string>
+  <!--Notifications-->
+  <string name="notification_channel_tts_status">Text till tal</string>
+  <!--Workspaces-->
+  <string name="new_workspace">Ny</string>
+  <string name="switch_to_workspace">Arbetsytor</string>
+  <string name="delete_workspace">Radera</string>
+  <string name="new_copied_workspace">Kopiera som ny</string>
+  <string name="workspace_number">Arbetsyta %d</string>
+  <string name="rename_workspace">Byt namn</string>
+  <string name="workspace_selector_title">Välj arbetsyta</string>
+  <string name="workspace_settings">Inställningar...</string>
+  <string name="give_name_workspace">Ge ett namn till arbetsytan</string>
+  <string name="save_and_exit">Spara</string>
+  <string name="workspace_save_changes">Verkställ ändringar till arbetsytorna?</string>
+  <string name="copy_of_workspace">Kopia av %s</string>
+  <string name="copy_workspace_settings">Kopiera inställningarna...</string>
+  <string name="copy_settings_title">Vilka inställningar vill du kopiera?</string>
+  <string name="select_all">Markera alla</string>
+  <string name="copy_settings_workspaces_title">Till vilka arbetsytor vill du kopiera inställningarna?</string>
+  <string name="reset_settings">Återställ</string>
+  <string name="workspace_dismiss">Avböj</string>
+  <string name="workspace_listing_with_current">%s (nuvarande)</string>
+  <!--Beta notice-->
+  <string name="beta_notice_title">Detta är en beta version!</string>
+  <string name="beta_notice_github_issues">Github problem</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Avböj</string>
+  <string name="beta_notice_dismiss_until_update">Avböj till nästa uppdatering</string>
+  <string name="stable_notice_title">Appen har blivit uppgraderad!</string>
+  <string name="upgrade_video_message">Var god kolla på videon om de nya funktionerna i detta släpp (%s)</string>
+  <string name="stable_notice_par1">Ny version %s of %s har blivit installerad korrekt!</string>
+  <!--History-->
+  <string name="history_for">Historik (%s: Fönster %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Navigering</string>
+  <string name="help_search_title">Sök</string>
+  <string name="help_workspaces_title">Arbetsytor</string>
+  <string name="help_hidden_features_title">Dolda genvägar</string>
+  <string name="help_window_pinning_title">Nåla fast fönster</string>
+  <!--Welcome text-->
+  <string name="redownload_documents">Snabb Åternerladdning</string>
+  <!--Uncategorized-->
+  <string name="close">Stäng</string>
+  <string name="first_time_help_do_not_show_again">Jag förstår</string>
+  <string name="first_time_help_show_next_time">Visa igen nästa gång</string>
+  <string name="strongs_mode_title">Välj strongs läge</string>
+  <string name="download_dialog_message">Följande böcker kunde inte laddas ner:</string>
+  <string name="select_multiple">Välj flera</string>
+  <string name="my_notes_abbreviation">Anteckningar</string>
+  <string name="multi_abbreviation">Flera</string>
+  <string name="compare_description">Jämför översättningar</string>
+  <string name="compare_abbreviation">Jämföra</string>
+  <string name="compare">Jämföra</string>
+  <string name="http_forbidden">Förbjuden</string>
+  <string name="http_not_found">Hittades inte</string>
+  <string name="http_unknown">Annat problem</string>
+  <string name="unlocking_failed">Upplåsning misslyckades, ogiltigt lösenordsfras</string>
+  <string name="unlock_info">Krypterad modul upplåsningsinformation</string>
+  <string name="try_again_passphrase">Lösenordsfras funderade inte, försök igen?</string>
+  <string name="cant_delete_last_bible">Kan inte radera senaste Bibel dokumentet</string>
+  <string name="prefs_show_error_box_title">Visa Javascript error box</string>
+  <string name="active_window_indicator_title">Visa aktiv fönsterindekator</string>
+  <string name="app_licence_title">Öppen källkod licens</string>
+  <string name="how_to_contribute">Hur bidrar jag?</string>
+  <string name="tell_friend_title">Rekommendera till en vän</string>
+  <string name="tell_friend_message1">Jag skulle vilja rekommendera %s till dig.</string>
+  <string name="tell_friend_message2">De är kraftfull, samtidigt som den är enkel att använda, offline Bibelstudie app för android.</string>
+  <string name="tell_friend_message3">Installera den från Play Store %s, eller från F-Droid</string>
+  <string name="share_verse_ok">Dela/ Kopiera</string>
+  <string name="verse_action_copy">Kopiera</string>
+  <string name="share_verse_menu_title">Dela/ kopiera...</string>
+  <string name="show_versenumbers">Visa versnummer</string>
+  <string name="show_full_verses">Visa fullständiga verser</string>
+  <string name="advertise_app">Annonsera app</string>
+  <string name="verse_share_advertise">Dela genom %s</string>
+  <string name="version_name">Versions namn</string>
+  <string name="backup_button">Säkerhetskopia</string>
+  <string name="back_button">Bak</string>
+  <string name="upgrading_database">Upgraderar databas. Var god vänta...</string>
+  <string name="show_notes">Visa anteckningar</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Fortsätt ändå</string>
+  <string name="rate_title">Betygsätta och recensera appen</string>
+  <!--parameters are actions (file a bug, send email)-->
+  <!--param is "please report maintainers"-->
+  <!--param is "please read what you can do"-->
+  <string name="bug_report">
+Skicka en buggrapportering (från Huvudmenyn)
+</string>
+  <string name="how_to_help">
+Vänligen läs vad du kan hjälpa med
+</string>
+  <string name="send_email">
+Skicka e-post till utvecklarna
+</string>
+  <string name="proceed_google_play">
+Fortsätt till Google Play
+</string>
+  <string name="text_maintainers">
+vänligen rapportera problemen till text ansvariga
+</string>
+  <string name="does_not_exist_abbreviation">Existerar inte</string>
+  <string name="cant_change_wholeverse">Kan inte stänga av hela markeringen för detta bokmärke</string>
+  <string name="whole_verse_turned_on">Bokmärket är nu markerat för hela versen</string>
+  <string name="this_bookmark">Detta bokmärke</string>
+  <string name="this_workspace">Denna arbetsyta</string>
+  <string name="book_menu_sort_row_opt">Sortera böckerna horizontellt</string>
+  <string name="system_items1">Mer</string>
+  <string name="text_copied_to_clicpboard">Text kopierad till klippbordet</string>
+  <string name="toggle_fullscreen">Fullskärm</string>
+  <string name="exit_fullscreen">Dubbeltryck på skärmen för att avbryta fullskärmsläge</string>
+  <string name="label_red">Röd</string>
+  <string name="label_green">Grön</string>
+  <string name="label_blue">Blå</string>
+  <string name="label_underline">Understrykning</string>
+  <string name="import_menu">Importera &amp; Exportera</string>
+  <string name="export_fileformat">Exportera som %s</string>
+  <string name="import_items">Importera %s</string>
+  <string name="import_from_db">Importera från appdatabasfilen</string>
+  <string name="chooser_range">Räckvidd</string>
+  <string name="chooser_jump">Hoppa</string>
+  <string name="chooser_OT_abbrev">GT</string>
+  <string name="chooser_NT_abbrev">NT</string>
+  <string name="chooser_style_lists">Listor</string>
+  <string name="chooser_select">Välj %s</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">Instruktioner för översättare</string>
+  <string name="questions_title">Frågor?</string>
+  <string name="questions_title2">Behöver du hjälp?</string>
+  <string name="bookmark_style">Bokmärkesstil</string>
+  <string name="strongs_off">Stäng av</string>
+  <string name="strongs_links">Länkar</string>
+  <string name="strongs_text_and_links">Text och Länkar</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Rättigheter behövs</string>
+</resources>

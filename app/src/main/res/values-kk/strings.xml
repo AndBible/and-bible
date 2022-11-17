@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Киелі Кітапті Зерттеу</string>
   <string name="app_name_medium">Киелі Кітапті Зерттеу (And Bible)</string>
-  <string name="app_name_long">Киелі Кітапті Зерртеу қолданбасы, And Bible - ашық көзді жобасы арқылы болып табылады</string>
+  <string name="app_name_long">AndBible: Киелі Кітап+</string>
   <string name="project">And Bible Ашық Көзді Ақпаратты Жоба</string>
   <string name="version_text">Нұсқа %s</string>
   <string name="no_sdcard_error">SD картаны салыңыз және қолданбаны қайта іске қосыңыз.</string>
@@ -206,7 +206,6 @@
   <string name="next">Келесі</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Стронгтің Еврей мен Грек сөздігін жүктеңіз</string>
-  <string name="no_indexed_bible_with_strongs_ref">Іздеу арқылы Стронг нөмірлерін қамтитын Киелі Кітапты және оның индексін жүктеу үшін сіз жүктеуге міндеттісіз</string>
   <string name="morph_robinson_not_installed">\'Робинсонның Морфологиялық Анализ Кодтар\' сөздігін жүктеңіз</string>
   <string name="go_to_downloads">Жүктемелерге өту</string>
   <!--Module download-->
@@ -798,6 +797,5 @@ Google Play -ге өтіңіз
   <string name="strongs_links">Сілтемелер</string>
   <string name="strongs_text_and_links">Мәтін мен Сілтемелер</string>
   <string name="verse_tip">Ішінара немесе көптеген аяттарды таңдау үшін Сіз Киелі кітаптың мәтінін ұзақ басуыңызға болады</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

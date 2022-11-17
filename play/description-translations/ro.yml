@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "Biblia, de la And Bible Open Source Project"
+title: "AndBible: Biblia"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Citește Biblia, comentarii și dicționare fără conectare la internet"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: O unealtă pentru studiul Bibliei
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  Aplicația de studiu biblic de la And Bible Open Source Project este o aplicație de studiu biblic offline, dar ușor de utilizat, pentru Android. Aplicația nu își propune să fie doar pentru citit Biblia, ci se concentrează pe a fi un instrument avansat pentru a face un studiu personal aprofundat al Bibliei.
+  "{{ title }}" este o aplicație complexă de studiu biblic, dar ușor de utilizat, pentru Android. Aplicația nu își propune să fie doar pentru citit Biblia, ci se concentrează pe a fi un instrument pentru a face un studiu aprofundat al Bibliei.
 paragraph_1_2: >
   Această aplicație este realizată de cititori ai Bibliei, pentru cititorii Bibliei. Scopul ei este de a vă ajuta să vă faceți studiul biblic convenabil, profund și distractiv. Cea mai bună parte a acestui proiect comunitar non-profit este că are sursă publică, este complet gratuit și nu conține reclame. Fiind construită de la zero pentru Android, este mică și, prin urmare, foarte eficientă și remarcabil de rapidă.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: Vizualizări separate ale textului care permit compararea traducerilor și consultarea comentariilor
 feature_02: Spațiile de studiu permit organizarea mai multor studii biblice cu propriile reglări
 feature_03: Integrarea Strong permite analiza cuvintelor grecești și ebraice
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Trimiteri, note de subsol și documente; accesezi trimiterile și notele de subsol prin simpla apăsare a unei legături; efectuezi un studiu aprofundat al Scripturilor folosind comentarii cu legături hipertext ({{commentary_examples}}), colecții de trimiteri ({{cross_reference_examples}}) și alte resurse.
 # Examples of commentaries. You can add here also other commentaries of your language if they

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.device.speak
@@ -25,7 +24,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -33,19 +31,18 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
-import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.passage.Verse
 import java.util.*
 import javax.inject.Inject
 
@@ -106,6 +103,8 @@ class TextToSpeechNotificationManager {
         }
 
         override fun onDestroy() {
+            CommonUtils.prepareForDestruction()
+
             // If application is in background (no activity is active) and this service is not foreground either,
             // this service will be stopped by android some time (1 minute when I tested). App itself remains
             // running until OOM killer stops it. Because notification is bound to this service, it will be
@@ -153,19 +152,8 @@ class TextToSpeechNotificationManager {
             CommonUtils.initializeApp()
             val action = intent?.action
             Log.i(TAG, "NotificationReceiver onReceive $intent $action")
-            val bookRef = intent?.data?.host
-            val osisRef = intent?.data?.path?.removePrefix("/")
             when (action) {
-                ACTION_SPEAK_OR_PAUSE -> {
-                    if(!speakControl.isPaused && bookRef != null && osisRef!=null) {
-                        // if application has been stopped and intent has bible reference,
-                        // start playback from the correct position
-                        speakControl.speakBible(bookRef, osisRef)
-                    }
-                    else {
-                        speakControl.toggleSpeak()
-                    }
-                }
+                ACTION_SPEAK_OR_PAUSE -> speakControl.toggleSpeak(preferLast = true)
                 ACTION_FAST_FORWARD -> speakControl.forward()
                 ACTION_REWIND -> speakControl.rewind()
                 ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
@@ -181,7 +169,7 @@ class TextToSpeechNotificationManager {
     }
 
 
-    private var app = BibleApplication.application
+    private val app get() = BibleApplication.application
     private var currentTitle = getString(R.string.app_name_medium)
     private var notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var headsetReceiver  = object: BroadcastReceiver() {
@@ -189,7 +177,7 @@ class TextToSpeechNotificationManager {
                 if (intent?.getIntExtra("state", 0) == 0 && speakControl.isSpeaking) {
                     speakControl.pause()
                 } else if (intent?.getIntExtra("state", 0) == 1 && speakControl.isPaused) {
-                    speakControl.continueAfterPause()
+                    speakControl.continueLastPosition()
                 }
             }
         }
@@ -197,7 +185,7 @@ class TextToSpeechNotificationManager {
     private var currentText = ""
 
     private fun getString(id: Int): String {
-        return BibleApplication.application.getString(id)
+        return app.getString(id)
     }
 
     init {
@@ -209,17 +197,17 @@ class TextToSpeechNotificationManager {
 
         instance = this
         DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.application.applicationComponent)
+                .applicationComponent(app.applicationComponent)
                 .build().inject(this)
 
-        val powerManager = BibleApplication.application.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val powerManager = app.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
 
         app.registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
 
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !BuildVariant.Appearance.isDiscrete) {
             val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL,
                     getString(R.string.notification_channel_tts_status), NotificationManager.IMPORTANCE_LOW).apply {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
@@ -239,6 +227,7 @@ class TextToSpeechNotificationManager {
         Log.i(TAG, "Shutdown")
         currentTitle = getString(R.string.app_name_medium)
         currentText = ""
+
         // In case service was no longer foreground, we need do this here.
         if(foreground) {
             stopForeground(true)
@@ -290,15 +279,12 @@ class TextToSpeechNotificationManager {
     private val rewindAction = generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND)
     private val prevAction = generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS)
     private val pauseAction = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_SPEAK_OR_PAUSE)
-    private fun getPlayAction(book: Book?, verse: Verse?): NotificationCompat.Action {
+    private val playAction = run {
         val intent = Intent(app, NotificationReceiver::class.java).apply {
             action = ACTION_SPEAK_OR_PAUSE
-         }
-        if(book != null && verse != null) {
-            intent.data = Uri.parse("bible://${book.initials}/${verse.osisRef}")
         }
         val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-        return NotificationCompat.Action.Builder(android.R.drawable.ic_media_play, getString(R.string.speak), pendingIntent).build()
+        NotificationCompat.Action.Builder(android.R.drawable.ic_media_play, getString(R.string.speak), pendingIntent).build()
     }
     private val nextAction = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
     private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
@@ -310,40 +296,50 @@ class TextToSpeechNotificationManager {
                     action = ACTION_STOP
                 }, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
-        val contentIntent = Intent(app, MainBibleActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        }
+        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
         val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         val style = MediaStyle()
             .setShowActionsInCompactView(2)
 
+        if(!CommonUtils.isDiscrete) {
+            MediaButtonHandler.handler?.ms?.sessionToken?.apply { style.setMediaSession(this) }
+        }
+
         val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 
-        builder.setSmallIcon(R.drawable.ic_ichtys)
-                .setLargeIcon(bibleBitmap)
-                .setContentTitle(currentTitle)
-                .setSubText(speakControl.getStatusText(FLAG_SHOW_ALL))
+        builder
                 .setShowWhen(false)
                 .setDeleteIntent(deletePendingIntent)
                 .setContentIntent(contentPendingIntent)
                 .setStyle(style)
                 .addAction(rewindAction)
                 .addAction(prevAction)
-                .addAction(if(isSpeaking) pauseAction else getPlayAction(
-                        speakControl.currentlyPlayingBook, speakControl.currentlyPlayingVerse))
+                .addAction(if(isSpeaking) pauseAction else playAction)
                 .addAction(nextAction)
                 .addAction(forwardAction)
                 .setOnlyAlertOnce(true)
+
+
+        if(CommonUtils.isDiscrete) {
+            builder
+                .setSmallIcon(R.drawable.ic_baseline_headphones_24)
+                .setContentTitle(getString(R.string.speak))
+        } else {
+            builder
+                .setSmallIcon(R.drawable.ic_ichtys)
+                .setLargeIcon(bibleBitmap)
+                .setContentTitle(currentTitle)
+                .setSubText(speakControl.getStatusText(FLAG_SHOW_ALL))
+        }
 
         val sleepTime = speakControl.sleepTimerActivationTime
         if(sleepTime!=null) {
             val minutes = (sleepTime.time - Calendar.getInstance().timeInMillis) / 60000
             builder.setContentText(app.getString(R.string.sleep_timer_active_at, minutes.toString()))
         }
-        else {
+        else if(!CommonUtils.isDiscrete) {
             builder.setContentText(currentText)
         }
-
 
         val notification = builder.build()
         Log.i(TAG, "Updating notification, isSpeaking: $isSpeaking")

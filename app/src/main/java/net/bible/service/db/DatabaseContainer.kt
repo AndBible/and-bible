@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.service.db
 
@@ -51,7 +50,7 @@ import androidx.room.migration.Migration as RoomMigration
 
 
 const val DATABASE_NAME = "andBibleDatabase.db"
-const val TAG = "Migration"
+const val TAG = "DbContainer"
 
 abstract class Migration(startVersion: Int, endVersion: Int): RoomMigration(startVersion, endVersion) {
     abstract fun doMigrate(db: SupportSQLiteDatabase)
@@ -981,7 +980,15 @@ private val MIGRATION_56_57_breaklines_in_notes = object : Migration(56, 57) {
         }
     }
 }
-private val MIGRATION_57_58_workspace_colors = object : Migration(57, 58) {
+
+private val MIGRATION_57_58_label_markerStyle = object : Migration(57, 58) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE Label ADD COLUMN markerStyle INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+private val MIGRATION_58_59_workspace_colors = object : Migration(58, 59) {
     //TODO: ??? Techincally the workspace colors should not be in 'text_display_settings'. But I fear moving it out will make complicate things a bit.
     //      At present all the code that manages the saving and copying and initialising of colors also works well for the new workspace colors
     //      But if I move these settings out somewhere else i am not sure if i will then have to write code to manage that aspect a well. If we do,
@@ -1006,6 +1013,7 @@ object DatabaseContainer {
     private fun backupDatabaseIfNeeded() {
         val dbPath = BibleApplication.application.getDatabasePath(DATABASE_NAME)
         var dbVersion: Int? = null
+        Log.i(TAG, "backupDatabaseIfNeeded")
         try {
             val db = SQLiteDatabase.openDatabase(dbPath.absolutePath, null, OPEN_READONLY)
             db.use { d ->
@@ -1020,6 +1028,7 @@ object DatabaseContainer {
             Log.i(TAG, "Could not backup database. Maybe fresh install.")
         }
         if(dbVersion != null && dbVersion != DATABASE_VERSION) {
+            Log.i(TAG, "backupping database of version $dbVersion (current: $DATABASE_VERSION)")
             val backupPath = CommonUtils.dbBackupPath
             val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
             val backupFile = File(backupPath, "dbBackup-$dbVersion-$timeStamp.db")
@@ -1034,6 +1043,7 @@ object DatabaseContainer {
             return instance ?: synchronized(this) {
                 backupDatabaseIfNeeded()
 
+                Log.i(TAG, "Opening database")
                 instance ?: Room.databaseBuilder(
                     BibleApplication.application, AppDatabase::class.java, DATABASE_NAME
                 )
@@ -1098,11 +1108,15 @@ object DatabaseContainer {
                         MIGRATION_54_55_bookmarkType,
                         MIGRATION_55_56_limitAmbiguousSize,
                         MIGRATION_56_57_breaklines_in_notes,
-                        MIGRATION_57_58_workspace_colors,
+                        MIGRATION_57_58_label_markerStyle,
+                        MIGRATION_58_59_workspace_colors,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
-                    .also { instance = it }
+                    .also {
+                        instance = it
+                        Log.i(TAG, "Database opened.")
+                    }
             }
         }
     fun reset() {

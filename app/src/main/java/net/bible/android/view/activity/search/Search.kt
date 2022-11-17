@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.search
@@ -38,7 +37,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 
 import org.apache.commons.lang3.StringUtils
-import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.search.SearchType
 
 import javax.inject.Inject
@@ -54,12 +53,13 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
     private lateinit var currentBookName: String
+    override val integrateWithHistoryManager: Boolean = true
 
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var pageControl: PageControl
 
-    private val documentToSearch: Book?
-        get() = pageControl.currentPageManager.currentPage.currentDocument
+    private val documentToSearch: SwordBook
+        get() = pageControl.currentPageManager.currentPage.currentDocument as SwordBook
 
     /** get all, any, phrase query limitation
      */
@@ -97,7 +97,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Search view")
         binding = SearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -105,10 +105,10 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         buildActivityComponent().inject(this)
 
         if (!searchControl.validateIndex(documentToSearch)) {
-            Dialogs.instance.showErrorMsg(R.string.error_occurred) { finish() }
+            Dialogs.showErrorMsg(R.string.error_occurred) { finish() }
         }
 
-        title = getString(R.string.search_in, documentToSearch!!.abbreviation)
+        title = getString(R.string.search_in, documentToSearch.abbreviation)
         binding.searchText.setOnEditorActionListener {v, actionId, event ->
             return@setOnEditorActionListener when (actionId) {
                 EditorInfo.IME_ACTION_SEARCH -> {
@@ -218,7 +218,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
             val intent = Intent(this, SearchResults::class.java)
             intent.putExtra(SearchControl.SEARCH_TEXT, text)
-            val currentDocInitials = documentToSearch?.initials
+            val currentDocInitials = documentToSearch.initials
             intent.putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials)
             intent.putExtra(SearchControl.TARGET_DOCUMENT, currentDocInitials)
             startActivityForResult(intent, 1)

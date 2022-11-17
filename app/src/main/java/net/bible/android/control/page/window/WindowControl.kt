@@ -1,32 +1,30 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.page.window
 
 import android.app.AlertDialog
 import android.widget.Button
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.EventManager
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
@@ -36,6 +34,7 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
@@ -58,7 +57,6 @@ import kotlin.coroutines.suspendCoroutine
 @ApplicationScope
 open class WindowControl @Inject constructor(
         val windowRepository: WindowRepository,
-        private val eventManager: EventManager
 ) : ActiveWindowPageManagerProvider {
 
     val windowSync: WindowSync = WindowSync(windowRepository)
@@ -82,7 +80,7 @@ open class WindowControl @Inject constructor(
     val isSingleWindow get () = !windowRepository.isMultiWindow && windowRepository.minimisedWindows.isEmpty() && !windowRepository.isMaximized
 
     init {
-        eventManager.register(this)
+        ABEventBus.register(this)
     }
 
     fun isActiveWindow(window: Window): Boolean {
@@ -118,7 +116,7 @@ open class WindowControl @Inject constructor(
         linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
 
         if (!linksWindowWasVisible) {
-            eventManager.post(NumberOfWindowsChangedEvent())
+            ABEventBus.post(NumberOfWindowsChangedEvent())
         }
     }
 
@@ -145,7 +143,7 @@ open class WindowControl @Inject constructor(
             windowRepository.minimise(window)
 
             // redisplay the current page
-            eventManager.post(NumberOfWindowsChangedEvent())
+            ABEventBus.post(NumberOfWindowsChangedEvent())
         }
     }
 
@@ -159,7 +157,7 @@ open class WindowControl @Inject constructor(
             if (visibleWindows.count() == 1) visibleWindows[0].weight = 1.0F
 
             // redisplay the current page
-            eventManager.post(NumberOfWindowsChangedEvent())
+            ABEventBus.post(NumberOfWindowsChangedEvent())
             windowSync.reloadAllWindows()
         }
     }
@@ -207,7 +205,7 @@ open class WindowControl @Inject constructor(
             if (activeWindow.isSynchronised)
                 windowRepository.lastSyncWindowId = activeWindow.id
 
-            eventManager.post(NumberOfWindowsChangedEvent())
+            ABEventBus.post(NumberOfWindowsChangedEvent())
             activeWindow = window
         }
     }
@@ -219,7 +217,7 @@ open class WindowControl @Inject constructor(
     /** screen orientation has changed  */
     fun orientationChange() {
         // causes BibleViews to be created and laid out
-        eventManager.post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
@@ -239,7 +237,7 @@ open class WindowControl @Inject constructor(
         set(value) {
         field = value
         val isMoveFinished = !value
-        eventManager.post(WindowSizeChangedEvent(isMoveFinished))
+        ABEventBus.post(WindowSizeChangedEvent(isMoveFinished))
     }
 
     fun windowSizesChanged() {
@@ -265,7 +263,7 @@ open class WindowControl @Inject constructor(
         windowRepository.moveWindowToPosition(window, position)
 
         // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun setPinMode(window: Window, value: Boolean) {
@@ -275,13 +273,13 @@ open class WindowControl @Inject constructor(
         } else if(!value && window.isVisible && windowRepository.visibleWindows.filter {!it.isPinMode}.size > 1) {
             minimiseWindow(window, true)
         }
-        eventManager.post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun maximiseWindow(window: Window) {
         windowRepository.maximizedWindowId = window.id
         windowSync.reloadAllWindows()
-        eventManager.post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun unMaximise() {
@@ -289,7 +287,7 @@ open class WindowControl @Inject constructor(
         windowRepository.maximizedWindowId = null
         windowSync.synchronizeWindows(maximizedWindow, noDelay = true)
         windowSync.reloadAllWindows()
-        eventManager.post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
     fun hasMoveItems(window: Window): Boolean {
@@ -303,11 +301,13 @@ open class WindowControl @Inject constructor(
                 windowRepository.minimise(unpinnedWindows[i])
             }
         }
-        ABEventBus.getDefault().post(NumberOfWindowsChangedEvent())
+        ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
+    val scope get() = mainBibleActivity.lifecycleScope
+
     private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine<BooleanArray?> {
-        val context = CurrentActivityHolder.getInstance().currentActivity
+        val context = CurrentActivityHolder.currentActivity!!
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
             getPrefItem(SettingsBundle(windowRepository.id, windowRepository.name,
                 window.pageManager.textDisplaySettings), it).title
@@ -344,7 +344,7 @@ open class WindowControl @Inject constructor(
     }
 
 
-    fun copySettingsToWorkspace(window: Window)  = GlobalScope.launch(Dispatchers.Main) {
+    fun copySettingsToWorkspace(window: Window)  = scope.launch(Dispatchers.Main) {
         val types = WorkspaceEntities.TextDisplaySettings.Types.values()
         val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
         val target = windowRepository.textDisplaySettings
@@ -362,7 +362,7 @@ open class WindowControl @Inject constructor(
     fun copySettingsToWindow(window: Window, order: Int) {
         val secondWindow = windowRepository.visibleWindows[order]
 
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.Main) {
             val types = WorkspaceEntities.TextDisplaySettings.Types.values()
             val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
             val target = secondWindow.pageManager.textDisplaySettings

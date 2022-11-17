@@ -1,0 +1,42 @@
+Krachtig Bijbelstudie-hulpmiddel
+
+"AndBible: Bijbelstudie" is een krachtige, maar toch eenvoudig te gebruiken Android app voor offline bijbelstudie. De app is niet gemaakt als een eenvoudig bijbel-leesprogramma, maar biedt vergaande mogelijkheden om de diepte in te gaan tijdens de persoonlijke bijbelstudie.
+
+Deze applicatie is ontwikkeld door bijbellezers voor bijbellezers. Hij is bedoeld om je bijbelstudie makkelijk, grondig en plezierig te laten zijn. Het mooiste van dit gemeenschappelijke non-profit project is dat het open-source is, gratis, en zonder advertenties. Omdat het van het begin af voor Android is ontwikkeld, is het een kleine download, erg efficient en opmerkelijk snel.
+
+Enkele populaire bijbel versies (van de vele beschikbare) zijn de KJV, NASB, NET. Bovendien zijn er commentaren van bijvoorbeeld Matthew Henry en John Gill
+
+Krachtige functies voor bijbelstudie
+
+De applicatie heeft veel handige, originele functies die complexe en grondige bijbelstudie makkelijker maken dan ooit. De meest opmerkelijke zijn de volgende:
+
+ * Gesplitste vensters maken het mogelijk om vertalingen te vergelijken en commentaren te raadplegen
+ * Werkbladen maken meerdere bijbelstudieconfiguraties met hun eigen instellingen mogelijk
+ * Geïntegreerde Strong's codes vergemakkelijken de analyse van het Griekse en Hebreeuwse woorden
+ * Gelinkte kruisverwijzingen, voetnoten en documenten; tik simpelweg op een link om die te volgen naar kruisverwijzingen en voetnoten; bestudeer de schriften grondig door het gebruik van commentaren met hyperlinks (Gill, Matthew Henry, enz.), verzamelingen kruisverwijzingen (Treasure of Scripture Knowledge, TSKe) en andere bronnen.
+ * Geavanceerde tekst-naar-spraak met bladwijzers maken het eenvoudig om de bijbel te beluisteren
+ * Flexibele zoekmogelijkheden
+ * Geavanceerde functies voor het maken van bladwijzers en het markeren van tekst met persoonlijke studieaantekeningen
+ * Studiemappen om aantekeningen en bijbelverwijzingen te organiseren tijdens het luisteren van preken.
+ * Bijbelleesplannen: stel je doelen voor het bijbellezen
+ * Uitgebreide bibliotheek: Bijbelvertalingen, theologische commentaren, woordenboeken, landkaarten en christelijke literatuur, samen meer dan 1500 documenten in meer dan 700 talen, legaal verspreid door Crosswire en andere SWORD repositories.
+ * Offline: Internet is enkel nodig om de documenten te downloaden.
+
+Help mee dit de beste bijbelapp te maken!
+
+And Bible is een open-source project. Dat betekent in de praktijk dat iedereen met passende vaardigheden kan en mag bijdragen (graag zelfs!) aan het project door:
+
+ * nieuwe functionaliteit te ontwikkelen,
+ * nog uit-te-komen functionaliteit te testen,
+ * de vertalingen up-to-date te houden voor de user interface, en
+ * te helpen de bibliotheek uit te breiden door toestemming te vragen aan eigenaren van copyright, of door documenten te converteren naar het SWORD formaat.
+
+Als je een professionele software-ontwikkelaar bent, of -tester, overweeg dan aan het project bij te dragen. Zie https://git.io/JUnaj voor meer informatie.
+
+Links
+
+ * Homepagina: https://andbible.github.io
+ * Vind And Bible leuk op Facebook: https://www.facebook.com/AndBible/
+ * Ons Youtube-kanaal: https://www.youtube.com/c/AndBible
+ * Meest gestelde vragen: https://git.io/JJm8E
+ * Project pagina op Github: https://github.com/AndBible/and-bible

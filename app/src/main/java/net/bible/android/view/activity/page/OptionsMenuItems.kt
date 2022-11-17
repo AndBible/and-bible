@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page
@@ -21,8 +20,8 @@ package net.bible.android.view.activity.page
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -62,7 +61,7 @@ interface OptionsMenuItemInterface {
     val icon: Int?
 }
 
-val currentActivity: ActivityBase get() = CurrentActivityHolder.getInstance().currentActivity
+val currentActivity: ActivityBase get() = CurrentActivityHolder.currentActivity!!
 val application get() = BibleApplication.application
 val windowControl get() = CommonUtils.windowControl
 val windowRepository get() = CommonUtils.windowControl.windowRepository
@@ -409,9 +408,9 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
             selectedLabels = originalValues.toMutableSet(),
             isWindow = settings.windowId != null
         ).applyFrom(windowRepository.workspaceSettings).toJSON())
-        GlobalScope.launch (Dispatchers.Main) {
+        activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
-            if(result?.resultCode == Activity.RESULT_OK) {
+            if(result.resultCode == Activity.RESULT_OK) {
                 val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
                 if(resultData.reset) {
                     setNonSpecific()
@@ -436,9 +435,9 @@ class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSet
             ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.WORKSPACE).applyFrom(workspaceSettings).toJSON()
         )
 
-        GlobalScope.launch (Dispatchers.Main) {
+        activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
-            if(result?.resultCode == Activity.RESULT_OK) {
+            if(result.resultCode == Activity.RESULT_OK) {
                 val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
                 if (resultData.reset) {
                     workspaceSettings.autoAssignLabels = mutableSetOf()
@@ -483,7 +482,7 @@ class SplitModePreference :
     private val wsBehaviorSettings = windowRepository.workspaceSettings
     override fun handle() {
         windowControl.windowSizesChanged()
-        ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged(_mainBibleActivity!!.resources.configuration))
+        ABEventBus.post(MainBibleActivity.ConfigurationChanged(_mainBibleActivity!!.resources.configuration))
     }
 
     override var value: Any

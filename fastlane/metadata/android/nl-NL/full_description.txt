@@ -1,32 +1,42 @@
-And Bible is een open source, offline en volledig gratis bijbelapp. De app bevat geen reclame zodat iedereen, uit welk land dan ook, bijbelteksten kan lezen en bestuderen en er zelfs naar luisteren.
+<b>Krachtig Bijbelstudie-hulpmiddel</b>
 
-* Bijbels, commentaar, theologische woordenboeken, kaarten en christelijke boeken in meer dan 700 talen
-* Na een eenmalige download volledig offline, inclusief zoeken, aantekeningen, commentaar, etc.
-* Interface in multiple languages
-* Verschillende leesplannen
-* Volledig gratis - geen reclame, geen e-mails
-* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
-* 29 bijbelcommentaren
-* Uitgebreid woordenboeken en christelijke boekenverzameling
-* Alle documenten zijn legaal te verspreiden (daarom zijn documenten als het NKJV en NIV niet beschikbaar)
-* Door Strong's integratie is Griekse en Hebreeuwse woordanalyse mogelijk
-* Multiple workspaces with split screen
-* Schrijf persoonlijke aantekeningen
-* Flexibel zoeken
-* Bladwijzers
-* Kaarten van bijbelse landen
-* Documenten kunnen worden voorgelezen
-* Automatisch scrollen, automatische dag-/nachtmodus
-* Vergelijk alle bijbelvertalingen op één scherm
-* Eén van de snelste bijbelapps op Android
-* Open source - verbeter of wijzig de code, indien gewenst
-Gebruik de krachtige JSword-aandrijving van CrossWire
+"AndBible: Bijbelstudie" is een krachtige, maar toch eenvoudig te gebruiken Android app voor offline bijbelstudie. De app is niet gemaakt als een eenvoudig bijbel-leesprogramma, maar biedt vergaande mogelijkheden om de diepte in te gaan tijdens de persoonlijke bijbelstudie.
 
-We zijn een groep vrijwilligers en versturen je geen vervelende e-mails. Daarnaast is de app reclamevrij, vragen we nooit om donaties of registratie en worden er geen telefoongegevens verzameld.
+Deze applicatie is ontwikkeld door bijbellezers voor bijbellezers. Hij is bedoeld om je bijbelstudie makkelijk, grondig en plezierig te laten zijn. Het mooiste van dit gemeenschappelijke non-profit project is dat het open-source is, gratis, en zonder advertenties. Omdat het van het begin af voor Android is ontwikkeld, is het een kleine download, erg efficient en opmerkelijk snel.
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+Enkele populaire bijbel versies (van de vele beschikbare) zijn de KJV, NASB, NET. Bovendien zijn er commentaren van bijvoorbeeld Matthew Henry en John Gill
 
-<b>Aantekeningen</b>
-* Like And Bible op Facebook: https://www.facebook.com/AndBible/
-* Veelgestelde vragen vind je hier: https://github.com/AndBible/and-bible/wiki/FAQ
-* Projectpagina op GitHub: https://github.com/AndBible/and-bible
+<b>Krachtige functies voor bijbelstudie</b>
+
+De applicatie heeft veel handige, originele functies die complexe en grondige bijbelstudie makkelijker maken dan ooit. De meest opmerkelijke zijn de volgende:
+
+ * Gesplitste vensters maken het mogelijk om vertalingen te vergelijken en commentaren te raadplegen
+ * Werkbladen maken meerdere bijbelstudieconfiguraties met hun eigen instellingen mogelijk
+ * Geïntegreerde Strong's codes vergemakkelijken de analyse van het Griekse en Hebreeuwse woorden
+ * Gelinkte kruisverwijzingen, voetnoten en documenten; tik simpelweg op een link om die te volgen naar kruisverwijzingen en voetnoten; bestudeer de schriften grondig door het gebruik van commentaren met hyperlinks (Gill, Matthew Henry, enz.), verzamelingen kruisverwijzingen (Treasure of Scripture Knowledge, TSKe) en andere bronnen.
+ * Geavanceerde tekst-naar-spraak met bladwijzers maken het eenvoudig om de bijbel te beluisteren
+ * Flexibele zoekmogelijkheden
+ * Geavanceerde functies voor het maken van bladwijzers en het markeren van tekst met persoonlijke studieaantekeningen
+ * Studiemappen om aantekeningen en bijbelverwijzingen te organiseren tijdens het luisteren van preken.
+ * Bijbelleesplannen: stel je doelen voor het bijbellezen
+ * Uitgebreide bibliotheek: Bijbelvertalingen, theologische commentaren, woordenboeken, landkaarten en christelijke literatuur, samen meer dan 1500 documenten in meer dan 700 talen, legaal verspreid door Crosswire en andere SWORD repositories.
+ * Offline: Internet is enkel nodig om de documenten te downloaden.
+
+<b>Help mee dit de beste bijbelapp te maken!</b>
+
+And Bible is een open-source project. Dat betekent in de praktijk dat iedereen met passende vaardigheden kan en mag bijdragen (graag zelfs!) aan het project door:
+
+ * nieuwe functionaliteit te ontwikkelen,
+ * nog uit-te-komen functionaliteit te testen,
+ * de vertalingen up-to-date te houden voor de user interface, en
+ * te helpen de bibliotheek uit te breiden door toestemming te vragen aan eigenaren van copyright, of door documenten te converteren naar het SWORD formaat.
+
+Als je een professionele software-ontwikkelaar bent, of -tester, overweeg dan aan het project bij te dragen. Zie https://git.io/JUnaj voor meer informatie.
+
+<b>Links</b>
+
+ * Homepagina: https://andbible.github.io
+ * Vind And Bible leuk op Facebook: https://www.facebook.com/AndBible/
+ * Ons Youtube-kanaal: https://www.youtube.com/c/AndBible
+ * Meest gestelde vragen: https://git.io/JJm8E
+ * Project pagina op Github: https://github.com/AndBible/and-bible

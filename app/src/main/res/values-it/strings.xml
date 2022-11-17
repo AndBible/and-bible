@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Studi Biblici</string>
   <string name="app_name_medium">Studi Biblici (And Bible)</string>
-  <string name="app_name_long">Studi Biblici, app del progetto open source And Bible</string>
+  <string name="app_name_long">AndBible: Studi Biblici</string>
   <string name="project">And Bible progetto open source</string>
   <string name="version_text">Versione %s</string>
   <string name="no_sdcard_error">Inserisci una scheda SD e riavvia l\'applicazione.</string>
@@ -37,7 +37,7 @@
   <string name="index_create">Crea</string>
   <string name="rebuild_index">Ricostruisci indice</string>
   <string name="search_in">Trova in %s</string>
-  <string name="do_in_background">Continua in sfondo</string>
+  <string name="do_in_background">Continua in sottofondo</string>
   <string name="rebuild_index_button">Ricostruisci</string>
   <!--Tasks-->
   <string name="progress_status">Progresso</string>
@@ -170,6 +170,8 @@
   <string name="pref_font_family_label_name">Famiglia di carattere (%s)</string>
   <string name="prefs_font_family_summary">Cambia la famiglia del carattere. Suggerimento: altri caratteri possono essere installati da Download Documenti / Componenti aggiuntivi</string>
   <string name="prefs_text_bookmarks_title">Impostazioni di Segnalibri e Annotazioni</string>
+  <string name="prefs_enable_bluetooth_title">Abilita i tasti multimediali Bluetooth</string>
+  <string name="prefs_enable_bluetooth_summary">Gestisce i tasti multimediali Bluetooth per avviare/fermare la dizione.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Impostazioni colore</string>
   <string name="window_color_settings_title">Impostazioni del colore della finestra</string>
@@ -205,7 +207,7 @@
   <string name="next">Successivo</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Scarica il dizionario ebraico e greco di Strong </string>
-  <string name="no_indexed_bible_with_strongs_ref">Devi scaricare una Bibbia che contenga i numeri di Strong e scaricarne l\'indice attraverso \'Cerca\'</string>
+  <string name="no_indexed_bible_with_strongs_ref">Devi scaricare una Bibbia che contenga i numeri Strong e generarne l\'indice in Ricerca</string>
   <string name="morph_robinson_not_installed">Scarica il dizionario dei codici di analisi morfologica di Robinson</string>
   <string name="go_to_downloads">Vai ai Download</string>
   <!--Module download-->
@@ -742,7 +744,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
        segnala i problemi a chi si occupa della manutenzione dei testi
     </string>
   <string name="does_not_exist_abbreviation">Non esiste</string>
-  <string name="cant_change_wholeverse">Impossibile disattivare la selezione dell\' intero versetto per questo segnalibro</string>
+  <string name="cant_change_wholeverse">Impossibile disattivare la selezione dell\'intero versetto per questo segnalibro</string>
   <string name="whole_verse_turned_on">Segnalibro impostato per l\'intero versetto</string>
   <string name="this_bookmark">Questo segnalibro</string>
   <string name="this_workspace">Questo spazio di lavoro</string>
@@ -802,5 +804,5 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="strongs_text_and_links">Testo e collegamenti</string>
   <string name="verse_tip">Per scegliere versetti parziali o multipli, puoi tenere premuto a lungo il testo biblico</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Autorizzazione necessaria</string>
 </resources>

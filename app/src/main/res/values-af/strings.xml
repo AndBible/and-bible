@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Bybel Studie</string>
   <string name="app_name_medium">Bybel studie (And Bible)</string>
-  <string name="app_name_long">Bybelstudie-toep,deur And Bible Oop bron projek</string>
+  <string name="app_name_long">AndBible: Bybel Studie</string>
   <string name="project">And Bible Oop bron projek</string>
   <string name="version_text">Weergawe %s</string>
   <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
@@ -207,7 +207,6 @@ Woordafbreking</string>
   <string name="next">Volgende</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Laai asseblief Strong\'s Hebreeuse en Griekse woordeboeke af</string>
-  <string name="no_indexed_bible_with_strongs_ref">Jy moet \'n Bybel met die Strong\'s nommers aflaai, en dan, laai sy indeks volgens Soek funksie af</string>
   <string name="morph_robinson_not_installed">Laai asseblief \'Robinson se morfologiese analise Kodes\' woordeboek af</string>
   <string name="go_to_downloads">Gaan na Aflaaie</string>
   <!--Module download-->
@@ -823,8 +822,10 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="questions_title2">Het jy hulp nodig?</string>
   <string name="bookmark_style">Boekmerk styl</string>
   <string name="added_to_bookmark">Toegewys aan hierdie boekmerk</string>
+  <string name="strongs_off">Af</string>
   <string name="strongs_links">Skakels</string>
+  <string name="strongs_text_and_links">Teks en Skakels</string>
   <string name="verse_tip">Om gedeeltelike of baie verse te kies, kan jy Bybel teks lank druk</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Toestemming benodig</string>
 </resources>

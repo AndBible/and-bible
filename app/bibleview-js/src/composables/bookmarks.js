@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
+import {onMounted, onUnmounted, reactive, watch} from "vue";
 import {sortBy, uniqWith} from "lodash";
 import {
     addEventFunction,
@@ -24,7 +24,7 @@ import {
     findNodeAtOffsetWithNullOffset, intersection,
     rangesOverlap
 } from "@/utils";
-import {computed, ref} from "@vue/reactivity";
+import {computed, ref} from "vue";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
 import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
@@ -220,6 +220,14 @@ export function useBookmarks(documentId,
         return rangesOverlap(bOrdinalRange, ordinalRange, {addRange: true, inclusive: true})
     };
 
+    function getBookmarkStyleLabel(bookmark) {
+        return bookmarkLabels.get(bookmark.primaryLabelId || bookmark.labels[0]);
+    }
+
+    function hasSpeakLabel(bookmark) {
+        return bookmark.labels.some(l => bookmarkLabels.get(l).isSpeak);
+    }
+
     const documentBookmarks = computed(() => {
         if(!documentReady.value) return [];
         return bookmarks.value.filter(b => (noOrdinalNeeded(b) || checkOrdinal(b)))
@@ -318,7 +326,7 @@ export function useBookmarks(documentId,
     }
 
     function showHighlight(b) {
-        return b.offsetRange == null || b.bookInitials === bookInitials;
+        return (b.offsetRange == null || b.bookInitials === bookInitials) && (!getBookmarkStyleLabel(b).noHighlight || hasSpeakLabel(b));
     }
 
     const highlightBookmarks = computed(() => {
@@ -374,8 +382,8 @@ export function useBookmarks(documentId,
                 .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange));
 
             filteredBookmarks.forEach(b => {
-                const labelId = b.primaryLabelId || b.labels[0];
-                const label = bookmarkLabels.get(labelId);
+                const label = getBookmarkStyleLabel(b);
+                const labelId = label.id;
 
                 if(intersection(new Set(b.labels), hideLabels).size > 0) {
                     hiddenLabels.add(labelId);
@@ -511,8 +519,7 @@ export function useBookmarks(documentId,
         }
         if(config.showBookmarks) {
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
-                const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.icon === "headphones");
-                if (speakLabel) {
+                if (hasSpeakLabel(b)) {
                     const color = adjustedColor("red").string()
                     const iconElement = getIconElement(speakIcon, color);
 
@@ -523,16 +530,18 @@ export function useBookmarks(documentId,
                 }
             }
         }
-        if(config.showMyNotes) {
-            for (const b of bookmarks.filter(b => b.hasNote && arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
-                const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || b.labels[0]);
-                const color = adjustedColor(bookmarkLabel.color).string();
-                const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
+        if(config.showBookmarks || config.showMyNotes) {
+            for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
+                const bookmarkLabel = getBookmarkStyleLabel(b);
+                if ((config.showBookmarks && bookmarkLabel.noHighlight) || (config.showMyNotes && b.hasNote)) {
+                    const color = adjustedColor(bookmarkLabel.color).string();
+                    const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
 
-                iconElement.addEventListener("click", event => addEventFunction(event,
-                    null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
-                lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
-                undoHighlights.push(() => iconElement.remove());
+                    iconElement.addEventListener("click", event => addEventFunction(event,
+                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                    lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
+                    undoHighlights.push(() => iconElement.remove());
+                }
             }
         }
     }
@@ -544,6 +553,7 @@ export function useBookmarks(documentId,
         for (const b of markerBookmarks.value) {
             for(let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ordinal}`);
+                if(!elem) continue;
                 const func = event => {
                     addEventFunction(event, null, {bookmarkId: b.id, hidden: true, priority: EventPriorities.HIDDEN_BOOKMARK})
                 };
@@ -561,7 +571,7 @@ export function useBookmarks(documentId,
         for(const [lastOrdinal, bookmarkList] of bookmarkMap) {
             const lastElement = document.querySelector(`#doc-${documentId} #o-${lastOrdinal}`);
             const b = bookmarkList[0];
-            const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || b.labels[0]);
+            const bookmarkLabel = getBookmarkStyleLabel(b);
             const color = adjustedColor(bookmarkLabel.color).string();
             const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
             iconElement.addEventListener("click", event => {

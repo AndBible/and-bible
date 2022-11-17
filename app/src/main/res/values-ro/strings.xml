@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Biblia</string>
   <string name="app_name_medium">Biblia (And Bible)</string>
-  <string name="app_name_long">Biblia, de la And Bible Open Source Project</string>
+  <string name="app_name_long">AndBible: Biblia</string>
   <string name="project">Biblia, Proiect cu Sursă Publică</string>
   <string name="version_text">Versiunea %s</string>
   <string name="no_sdcard_error">Introdu o memorie SD și repornește aplicația.</string>
@@ -172,6 +172,8 @@
   <string name="pref_font_family_label_name">Caractere (%s)</string>
   <string name="prefs_font_family_summary">Schimbă tipul de caractere. Sfat: mai multe caractere pot fi instalate prin Descarcă documente / Extensii.</string>
   <string name="prefs_text_bookmarks_title">Semne de carte și Notițele mele</string>
+  <string name="prefs_enable_bluetooth_title">Activează butoanele media Bluetooth</string>
+  <string name="prefs_enable_bluetooth_summary">Folosește butoanele media Bluetooth pentru a începe/opri vorbirea.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Culori</string>
   <string name="window_color_settings_title">Culoarea ferestrei</string>
@@ -207,7 +209,7 @@
   <string name="next">Înainte</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Descarcă dicționarele ebraic și grecesc Strong</string>
-  <string name="no_indexed_bible_with_strongs_ref">Trebuie să descarci o Biblie care să conțină numerele Strong și să descarci și indexul acesteia</string>
+  <string name="no_indexed_bible_with_strongs_ref">Trebuie descărcată o Biblie care să conțină numerele Strong și să construiești indexul acesteia prin opțiunea „Caută”</string>
   <string name="morph_robinson_not_installed">Descarcă dicționarul de coduri de analiză morfologică al lui Robinson</string>
   <string name="go_to_downloads">Du-te la Descărcări</string>
   <!--Module download-->
@@ -865,5 +867,5 @@
   <string name="strongs_text_and_links">Text și legături</string>
   <string name="verse_tip">Pentru a alege un text din Biblie, ține degetul apăsat pe el</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Permisiune necesară</string>
 </resources>

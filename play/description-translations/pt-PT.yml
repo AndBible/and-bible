@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "App Estudo Bíblico, And Bible Open Source Project"
+title: "AndBible: Estudo Biblico"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Leia a Bíblia, estude comentários ou dicionários, ou leia livros offline."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Ferramenta poderosa de estudo da Bíblia
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  A aplicação de estudo da Bíblia por And Bible Open Source Project é um aplicativo de estudo da Bíblia off-line poderoso, mas fácil de usar, para Android. A aplicação não pretende ser simplesmente um leitor da Bíblia, mas é também uma ferramenta avançada para fazer um estudo bíblico pessoal em profundidade.
+  "{{ title }}" é um aplicativo de estudo da Bíblia off-line poderoso, mas fácil de usar, para Android. A aplicação não pretende ser simplesmente um leitor da Bíblia, mas é também uma ferramenta avançada para fazer um estudo bíblico pessoal em profundidade.
 paragraph_1_2: >
   Esta aplicação é desenvolvida por leitores da Bíblia, para leitores da Bíblia. O seu  objetivo é ajudá-lo a tornar o seu estudo da Bíblia conveniente, profundo e divertido. A melhor parte desse projeto comunitário sem fins lucrativos é que ele é de código aberto, totalmente gratuito e não contém anúncios. Tendo sido desenvolvido desde o início para o Android, é um download pequeno e, portanto, muito eficiente e incrivelmente rápido.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: Visualização em várias janelas de texto que permitem comparar traduções e consultar comentários
 feature_02: Os espaços de trabalho permitem várias configurações de estudo da Bíblia com as suas próprias configurações
 feature_03: A Integração de Strong permite análise de palavras em Grego e Hebreu
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Referências cruzadas, notas de rodapé e documentos vinculados; vá diretamente para referências cruzadas e notas de rodapé simplesmente tocando num link; faça um estudo aprofundado das Escrituras usando comentários com hiperlinks ({{commentary_examples}}), coleções de referência cruzada ({{cross_reference_examples}}) e outros recursos.
 # Examples of commentaries. You can add here also other commentaries of your language if they

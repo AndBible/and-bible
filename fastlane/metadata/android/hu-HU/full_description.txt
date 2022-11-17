@@ -1,6 +1,6 @@
 <b>Bibliatanulmányozó alkalmazás</b>
 
-Az 'And Bible' nyílt forráskódú projekt által fejlesztett 'Bible Study' app funkciógazdag, mégis egyszerűen kezelhető, folyamatos internetkapcsolatot nem igénylő bibliatanulmányozó alkalmazás Android operációs rendszerre. Az alkalmazás nem csak egy egyszerű bibliaolvasó, hanem fejlett funkciókkal támogatja a személyes bibliatanulmányozást.
+" AndBible: Biblia" funkciógazdag, mégis egyszerűen kezelhető, folyamatos internetkapcsolatot nem igénylő bibliatanulmányozó alkalmazás Android operációs rendszerre. Az alkalmazás nem csak egy egyszerű bibliaolvasó, hanem fejlett funkciókkal támogatja a személyes bibliatanulmányozást.
 
 Az alkalmazást bibliaolvasó emberek fejlesztik bibliaolvasó embereknek. A cél az, hogy a Biblia tanulmányozása egyszerű, szórakoztató, de alapos is legyen. A non-profit közösségi modell előnye, hogy az alkalmazás nyílt forráskódú, teljesen ingyenes és nem tartalmaz hirdetéseket. Az alkalmazást teljesen az alapoktól készítettük Androidra, így kifejezetten kicsi a mérete, erőforrásbarát és meglepően gyors.
 

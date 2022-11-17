@@ -1,0 +1,70 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "AndBible: బైబిల్\n"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "బైబిల్, వ్యాఖ్యానాలు, నిఘంటువులు లేదా పుస్తకాలను ఆఫ్‌లైన్‌లో అధ్యయనం చేయండి   "
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: శక్తివంతమైన బైబిల్ అధ్యయన సాధనం
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  "{{ title }}" ఉపయోగించడానికి సులభమైన ఒక శక్తివంతమైన, ఇంటర్నెట్ అవసరం లేకుండా "ఆఫ్‌లైన్లొ" పనిచేయగలిగే ఆండ్రాయిడ్ బైబిల్ అధ్యయన అప్లికేషన్. ఇ యాప్ కేవలం బైబిల్ చదువుకోవడాన్ని లక్ష్యంగా పెట్టుకొని రూపొందించలేదు కానీ లోతైన వ్యక్తిగత బైబిల్ అధ్యయనం చేయడానికి అధునాతన సాధనంగా ఉపయోగపడాలని చేయబడింది.
+paragraph_1_2: >
+  ఈ అప్లికేషన్ బైబిల్ పాఠకులచే, బైబిల్ పాఠకుల కొరకు రూపొందించబడినది. మీరు బైబిలు అధ్యయనాన్ని సౌకర్యవంతంగా, లోతుగా మరియు ఆహ్లాదంగ చేయడానికి మీకు సహాయం చేయడం దీని లక్ష్యం. ఈ లాభాపేక్షలేని కమ్యూనిటీ ప్రాజెక్ట్‌లో ఉత్తమమైన అంశం ఏమిటంటే ఇది ఓపెన్ సోర్స్, పూర్తిగా ఉచితం కాబట్టి ప్రకటనలు వుండవు. ఇది పూర్తిగా ఆండ్రాయిడ్ కోసమే నిర్మించబడినందున, ఇది ఒక చిన్నపరిమాణంలో వున్న డౌన్‌లోడ్, కాబట్టి చాలా సమర్థవంతంగా మరియు అసాధారణంమైన వేగంగా ఉంటుంది.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  అందుబాటులో ఉన్న అనేక వాటిలో కొన్ని ప్రసిద్ధ బైబిల్ అనువాదాలు (TEL2010, TelGM, TELIRV, TeluguOV,) KJV, NASB, NET మరియు మాథ్యూ హెన్రీ మరియు జాన్ గిల్ వంటి ప్రసిద్ధ వ్యాఖ్యానాలు.
+subtitle_2: ప్రత్యేకతలు
+paragraph_2_1: >
+  ఇ అప్లికేషన్ చాలా స్పష్టమైన కొన్ని ప్రత్యేకతలు కలిగి ఉంది, ఇది సంక్లిష్టమైన మరింత లోతైన బైబిల్ అధ్యయన అనుభవాన్ని గతంలో కంటే అద్బుతంగా తెస్తుంది. అత్యంత ముఖ్యమైన ప్రత్యేకతలు క్రింది విధంగా ఉన్నాయి:
+feature_01: వచన వీక్షణలను విభజించడం ద్వారా అనువాదాలను సరిపోల్చడం మరియు వ్యాఖ్యలను సంప్రదించడం సాధ్యమవుతుంది
+feature_02: కార్యస్థలములు "వర్క్ స్పేసెస్" బహుళ బైబిల్ అధ్యయనాన్ని వాటి స్వంత  "సెట్టింగ్‌లతో" మఅరికలతో అనుమతిస్తాయి
+feature_03: స్ట్రాంగ్ యొక్క అనుసంధానం గ్రీక్ మరియు హీబ్రూ పదాల విశ్లేషణను సులభం చేస్తుంది
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+  లింక్ చేయబడిన క్రాస్-రిఫరెన్స్‌లు, ఫుట్‌నోట్‌లు మరియు డాక్యుమెంట్‌లు; లింక్‌ను నొక్కడం ద్వారా క్రాస్-రిఫరెన్స్‌లు మరియు ఫుట్‌నోట్‌లకు వెళ్లండి; హైపర్‌లింక్ చేయబడిన వ్యాఖ్యానాలు ({{commentary_examples}}), క్రాస్-రిఫరెన్స్ సేకరణలు ({{cross_reference_examples}}) మరియు ఇతర వనరులను ఉపయోగించడం ద్వారా లేఖనాలను లోతుగా అధ్యయనం చేయండి.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "గిల్, మాథ్యూ హెన్రీ మొదలైనవి."
+# Examples of cross-reference collections.
+cross_reference_examples: "స్క్రిప్చర్ నాలెడ్జ్ యొక్క నిధి, TSKe"
+feature_05: "అధునాతన టెక్స్ట్ టు స్పీచ్ బుక్‌మార్క్‌లతో , సాఫీగా బైబిల్ వినే అనుభవాన్ని అందిస్తుంది"
+feature_06: సౌకర్యవంతమైన శోధన
+feature_07: అధునాతన బుక్‌మార్కింగ్ & హైలైట్ చేసే ప్రత్యేకతలు వ్యక్తిగత అధ్యయన గమనికలతో
+feature_09: >
+  పఠన ప్రణాళికలు: బైబిల్ చదవడానికి లక్ష్యాలను నిర్దేశించుకోండి 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  పత్రాలయొక్క విస్తారమైన లైబ్రరీ: బైబిల్ అనువాదాలు, వేదాంత వ్యాఖ్యానాలు, నిఘంటువులు, పటాలు మరియు క్రైస్తవ పుస్తకాలు, మొత్తం {{total_documents}} పైగా పత్రాలు {{total_languages}} భాషల్లో, చట్టబద్ధంగా క్రాస్‌వైర్ మరియు ఇతర స్వోర్డ్ రిపోజిటరీల ద్వారా పంపిణీ చేయబడ్డాయి.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  అన్నిపత్రాలు చట్టబద్ధంగా పంపిణీ చేయబడతాయని లేదా కాపీరైట్ హోల్డర్ ద్వారా అనుమతి మంజూరు చేయబడిందని నిర్ధారించడానికి అన్ని పత్రాల యొక్క ఆధారాలు పరిశోధించబడతాయి. ఈ యాప్‌లో {{unavailable_documents}} వంటి పత్రాలు ఉండకపోవడానికి కారణం కూడా ఇదే.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV మరియు NKJV"
+feature_12: >
+  ఆఫ్‌లైన్: పత్రాలను డౌన్‌లోడ్ చేయడానికి మాత్రమే మీకు ఇంటర్నెట్ అవసరం.
+feature_13: >
+  ప్రసంగాలు వింటున్నప్పుడు నోట్స్ మరియు బైబిల్ రిఫరెన్స్‌లను జోడించడానికి స్టడీ ప్యాడ్‌లు వున్నాయి.
+subtitle_3: కలిసి అత్యుత్తమ బైబిల్ యాప్‌ని తయారు చేద్దాం రండి!
+paragraph_3_1: >+
+  అండ్ బైబిల్ ఓపెన్ సోర్స్ కమ్యూనిటీ ప్రాజెక్ట్. ఆచరణలో, దీని అర్థం తగిన నైపుణ్యాలు కలిగిన ఎవరైనా ప్రాజెక్ట్‌కి సహకరించగలరు మరియు ప్రోత్సహించబడతారు:
+
+contr_1: "కొత్త ప్రత్యేకతలు అభివృద్ధి చేయడం,"
+contr_2: "ఇంకా విడుదల కాని ప్రత్యేకతలను పరీక్షించడం,"
+contr_3: వినియోగదారు ఇంటర్‌ఫేస్ అనువాదాలను తాజాగా ఉంచడం మరియు
+contr_4: కాపీరైట్ హోల్డర్ల నుండి అనుమతులను పొందడం ద్వారా లేదా పత్రాలను SWORD ఫార్మాట్ లొకి మార్చడం ద్వారా మాడ్యూల్ లైబ్రరీని విస్తరించడానికి సహాయపడగలరు.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "మీరు ప్రొఫెషనల్ సాఫ్ట్‌వేర్ ఇంజనీర్ లేదా టెస్టర్ అయితే, దయచేసి ప్రాజెక్ట్‌కు సహకరించడాన్ని పరిగణించండి. ఎలా సహకరించాలనే దానిపై మరింత సమాచారం కోసం, దయచేసి {{how_to_contribute_url}} ని చూడండి."
+subtitle_4: లింకులు
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  హోమ్‌పేజీ: {{homepage_url}}
+link_2: >+
+  ఫేస్బుక్ లో అండ్ బైబిల్ ని లైక్ చేయండి: {{facebook_url}}
+
+link_3: >
+  మా యూట్యూబ్ ఛానెల్: {{youtube_url}}
+link_4: >+
+  తరచుగా అడిగే ప్రశ్నలు: {{faq_url}}
+
+link_5: >
+  Github పై ప్రాజెక్టు పేజీ: {{github_url}}

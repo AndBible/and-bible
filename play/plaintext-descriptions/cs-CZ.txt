@@ -1,6 +1,6 @@
 Rozsáhlý nástroj pro studium Bible
 
-Aplikace Bible Study projektu otevřeného softwaru And Bible je obsáhlá a přitom snadná aplikace na offline studium Bible pro Android. Aplikace nemá za cíl jen zprostředkovat četbu Bible, ale je pokročilým nástrojem pro hluboké osobní studium Bible.
+"AndBible: Studium Bible" je obsáhlá a přitom snadná aplikace na offline studium Bible pro Android. Aplikace nemá za cíl jen zprostředkovat četbu Bible, ale je pokročilým nástrojem pro hluboké osobní studium Bible.
 
 Tuto aplikaci vyvíjí čtenáři Bible pro čtenáře Bible. Má za cíl vám studium Bible zjednodušit, prohloubit a zpříjemnit. Nejlepší na tomto neziskovém komunitním projektu je to, že jde o otevřený software zcela zdarma a neobsahuje žádné reklamy. Aplikace je postavena od základů pro Android, proto je malá, a tedy výkonná a překvapivě rychlá.
 

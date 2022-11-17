@@ -1,24 +1,24 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -27,10 +27,11 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.bible.android.MyLocaleProvider
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
@@ -41,7 +42,13 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
 import org.apache.commons.lang3.StringUtils
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchVerseException
+import org.crosswire.jsword.passage.PassageKeyFactory
+import org.crosswire.jsword.versification.BookName
 import java.util.*
 import javax.inject.Inject
 
@@ -55,13 +62,14 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
     private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
     private var isScriptureResultsCurrentlyShown = true
+    override val integrateWithHistoryManager: Boolean = true
     @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Search results view")
         binding = ListBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -73,7 +81,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         binding.closeButton.setOnClickListener {
             finish()
         }
-        GlobalScope.launch {
+        lifecycleScope.launch {
             prepareResults()
         }
     }
@@ -98,6 +106,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 mKeyArrayAdapter = SearchItemAdapter(this@SearchResults, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl)
                 listAdapter = mKeyArrayAdapter as ListAdapter
                 populateViewResultsAdapter()
+                listView.setSelection(intent.getIntExtra("listPosition", 0))
             }
         }
         withContext(Dispatchers.Main) {
@@ -110,27 +119,66 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     /** do the search query and prepare results in lists ready for display
      *
      */
-    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) Main@ {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
-        try { // get search string - passed in using extras so extras cannot be null
-            val extras = intent.extras
-            val searchText = extras!!.getString(SearchControl.SEARCH_TEXT)
-            var searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT)
-            if (StringUtils.isEmpty(searchDocument)) {
-                searchDocument = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
+        try {
+            val searchText =
+                if(intent.action == Intent.ACTION_PROCESS_TEXT) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
+                    } else ""
+                }
+                else intent.getStringExtra(SearchControl.SEARCH_TEXT)
+
+            val searchDocument = (intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?: "").run {
+                if (StringUtils.isEmpty(this))
+                    activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!.initials
+                else this
             }
+            Log.i(TAG, "Searching $searchText in $searchDocument")
+
+            val doc = Books.installed().getBook(searchDocument)
+            if (doc.indexStatus != IndexStatus.DONE) {
+                withContext(Dispatchers.Main) {
+                    startActivity(Intent(this@SearchResults, SearchIndex::class.java))
+                }
+                return@Main false
+            }
+
+            if(doc is SwordBook) {
+                val key = try { PassageKeyFactory.instance().getKey(doc.versification, searchText) } catch (e: NoSuchVerseException) {null}?:
+                try {
+                    if (doc.language.code != MyLocaleProvider.userLocale.language) {
+                        synchronized(BookName::class.java) {
+                            MyLocaleProvider.override = Locale(doc.language.code)
+                            val k = PassageKeyFactory.instance().getKey(doc.versification, searchText)
+                            MyLocaleProvider.override = null
+                            k
+                        }
+                    } else null
+                } catch (e: NoSuchVerseException) {null}
+
+                if (key != null) {
+                    activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(doc, key)
+                    val handlerIntent = Intent(this@SearchResults, MainBibleActivity::class.java)
+                    handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    startActivity(handlerIntent)
+                    return@Main false
+                }
+            }
+
             mSearchResultsHolder = searchControl.getSearchResults(searchDocument, searchText)
             // tell user how many results were returned
             val msg: String
             msg = if (mCurrentlyDisplayedSearchResults.size >= SearchControl.MAX_SEARCH_RESULTS) {
                 getString(R.string.search_showing_first, SearchControl.MAX_SEARCH_RESULTS)
             } else {
-                getString(R.string.search_result_count, mSearchResultsHolder!!.size())
+                getString(R.string.search_result_count, mSearchResultsHolder!!.size)
             }
             withContext(Dispatchers.Main) {
-                var resultAmount = mSearchResultsHolder?.size().toString()
-                if(mSearchResultsHolder?.size()?:0 > SearchControl.MAX_SEARCH_RESULTS) {
+                var resultAmount = mSearchResultsHolder?.size.toString()
+                if((mSearchResultsHolder?.size ?: 0) > SearchControl.MAX_SEARCH_RESULTS) {
                     resultAmount += "+"
                 }
                 supportActionBar?.title = getString(R.string.search_with_results, resultAmount)
@@ -140,9 +188,9 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         } catch (e: Exception) {
             Log.e(TAG, "Error processing search query", e)
             isOk = false
-            Dialogs.instance.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
+            Dialogs.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
-        return@withContext isOk
+        return@Main isOk
     }
 
     /**
@@ -163,10 +211,11 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
         try { // no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
+            intent.putExtra("listPosition", l.firstVisiblePosition)
             verseSelected(mCurrentlyDisplayedSearchResults[position])
         } catch (e: Exception) {
             Log.e(TAG, "Selection error", e)
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 
@@ -181,7 +230,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
             // this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
             val intent = Intent(this, MainBibleActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
             startActivity(intent)
         }

@@ -1,11 +1,13 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "Biblijos studijų programėlė, sukurta And Bible OSP"
+title: "AndBible: Biblija"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Skaityti Bibliją, studijuoti komentarus, žodynus, skaityti knygas įrenginyje."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Galingas Biblijos studijavimo įrankis
-paragraph_1_1: >-
-  Biblijos Studijų programėlė, sukurta And Bible atvirojo kodo projekto - tai galinga, bet tuo pačiu metu lengva naudoti „Android“ Biblijos studijų programėlė, kuri nereikalauja interneto. Ši programėlė nesiekia būti paprasta Biblijos skaitytuve, bet verčiau yra sutelkta į tai, kad būtų išplėstiniu įrankiu, kuris yra skirtas išsamiai asmeniškai nagrinėti Bibliją.
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >+
+  "{{ title }}" tai galinga, bet tuo pačiu metu lengva naudoti „Android“ Biblijos studijų programėlė, kuri nereikalauja interneto. Ši programėlė nesiekia būti paprasta Biblijos skaitytuve, bet verčiau yra sutelkta į tai, kad būtų išplėstiniu įrankiu, kuris yra skirtas išsamiai asmeniškai nagrinėti Bibliją.
+
 paragraph_1_2: >
   Šią programėlę Biblijos skaitytojams sukūrė Biblijos skaitytojai. Jos tikslas - padėti jums patogiai, išsamiai ir linksmai nagrinėti Bibliją. Geriausia, kas yra šiame nekomerciniame bendruomenės projekte yra tai, jog jis yra atvirojo kodo, visiškai nemokamas ir be jokių reklamų. Kadangi ši programėlė nuo pat pradžių buvo kuriama „Android“ sistemai, ji yra mažo dydžio ir todėl, labai efektyvi bei išskirtinai greita.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +19,7 @@ paragraph_2_1: >
 feature_01: "Padalinto teksto rodiniai, kurie leidžia palyginti vertimus ir ieškoti informacijos komentaruose"
 feature_02: Darbo sritys leidžia turėti kelias Biblijos studijų sąrankas su savo atskirais nustatymais
 feature_03: Strongo integracija leidžia nagrinėti graikiškus ir hebrajiškus žodžius
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Susijusios kryžminės nuorodos, išnašos bei dokumentai; pereikite prie kryžminių nuorodų ar išnašų, tiesiog, baksteldami ant nuorodos; atlikite nuodugnų Šventojo Rašto nagrinėjimą naudodami saitais susietus komentarus ({{commentary_examples}}), kryžminių nuorodų kolekcijas ({{cross_reference_examples}}) bei kitus išteklius.
 # Examples of commentaries. You can add here also other commentaries of your language if they

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.link
 
@@ -55,6 +54,7 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
+import java.io.FileNotFoundException
 import java.net.URLDecoder
 import java.util.regex.Pattern
 import javax.inject.Inject
@@ -140,7 +140,7 @@ class LinkControl @Inject constructor(
         } else {
             val document = swordDocumentFacade.getDocumentByInitials(initials)
             if (document == null) { // tell user to install book
-                Dialogs.instance.showErrorMsg(R.string.document_not_installed, initials)
+                Dialogs.showErrorMsg(R.string.document_not_installed, initials)
             } else if(document.bookCategory == BookCategory.BIBLE && !forceDoc) {
                 return getBibleKey(ref, versification)
             } else if(document.isGreekDef || document.isHebrewDef) {
@@ -183,18 +183,54 @@ class LinkControl @Inject constructor(
         return BookAndKey(key)
     }
 
-    /** user has selected a Strong's Number link so show Strong's page for key in link
-     */
+    enum class KeyType {
+        KEY,
+        ZERO_PADDED_KEY,
+        ZERO_PADDED_KEY_R,
+        CATEGORY;
+
+        companion object {
+            val ALL_TYPES = listOf(KEY, ZERO_PADDED_KEY, ZERO_PADDED_KEY_R, CATEGORY)
+        }
+    }
+
+    private val preferredKeyType = hashMapOf<String, KeyType>()
 
     @Throws(NoSuchKeyException::class)
     private fun getStrongsKey(book: Book, key: String): BookAndKey? {
-        val sanitizedKey = Regex("^([GH]?)([0-9]+).*").find(key)?.groups?.get(2)?.value?.padStart(5, '0')
+        val match = Regex("^([GH]?)(0*)([0-9]+).*").find(key)
+        val match2 = Regex("^(0*)([0-9]+).*").find(key)
 
-        val k = try {book.getKey(key)} catch (e: NoSuchKeyException) {null} ?:
-                if(sanitizedKey != null) {
-                    try {book.getKey(sanitizedKey)} catch (e: NoSuchKeyException) {null} ?:
-                    try {book.getKey(sanitizedKey + "\r")} catch (e: NoSuchKeyException) {null}
-                } else null
+        val category = match?.groups?.get(1)?.value ?: if(book.isHebrewDef) "H" else if(book.isGreekDef) "G" else ""
+        val sanitizedKeyBase = match?.groups?.get(3)?.value ?: match2?.groups?.get(2)?.value
+
+        val zeroPaddedKey = sanitizedKeyBase?.padStart(5, '0') ?: ""
+
+        val keyOptions = mapOf(
+            KeyType.KEY to key,
+            KeyType.ZERO_PADDED_KEY to zeroPaddedKey,
+            KeyType.ZERO_PADDED_KEY_R to zeroPaddedKey + "\r",
+
+            // MyBible dictionaries
+            KeyType.CATEGORY to category + sanitizedKeyBase
+        )
+
+        val preferred = preferredKeyType[book.initials] ?: KeyType.KEY
+
+        val keyTypes = mutableListOf(preferred)
+        keyTypes.addAll(KeyType.ALL_TYPES.filterNot { it === preferred })
+
+        val k = run {
+            for(keyType in keyTypes) {
+                val opt = keyOptions[keyType]
+                val candidate = try {book.getKey(opt)} catch (e: NoSuchKeyException) {null}
+                if(candidate != null) {
+                    preferredKeyType[book.initials] = keyType
+                    return@run candidate
+                }
+            }
+            null
+        }
 
         return if(k == null) null else BookAndKey(k, book)
     }
@@ -206,7 +242,7 @@ class LinkControl @Inject constructor(
         return BookAndKey(robinsonNumberKey, robinson)
     }
 
-    fun showAllOccurrences(ref: String, biblesection: SearchBibleSection, refPrefix: String) {
+    fun showAllOccurrences(ref: String, biblesection: SearchBibleSection) {
         val currentBible = currentPageManager.currentBible.currentDocument!!
         var strongsBible: Book? = null
         // if current bible has no Strongs refs then try to find one that has
@@ -216,25 +252,25 @@ class LinkControl @Inject constructor(
             swordDocumentFacade.defaultBibleWithStrongs
         }
         // possibly no Strong's bible or it has not been indexed
-        var needToDownloadIndex = false
+        var needToIndex = false
         if (strongsBible == null) {
-            Dialogs.instance.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
+            Dialogs.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
             return
         } else if (currentBible == strongsBible && !checkStrongs(currentBible)) {
             Log.i(TAG, "Index status is NOT DONE")
-            needToDownloadIndex = true
+            needToIndex = true
         }
         // The below uses ANY_WORDS because that does not add anything to the search string
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
-        val searchText = searchControl.decorateSearchString("strong:$refPrefix$ref", SearchType.ANY_WORDS, biblesection, null)
+        val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, biblesection, null)
         Log.i(TAG, "Search text:$searchText")
-        val activity = CurrentActivityHolder.getInstance().currentActivity
+        val activity = CurrentActivityHolder.currentActivity!!
         val searchParams = Bundle()
         searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
         searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)
         searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
         var intent: Intent? = null
-        intent = if (needToDownloadIndex) {
+        intent = if (needToIndex) {
             Intent(activity, SearchIndex::class.java)
         } else { //If an indexed Strong's module is in place then do the search - the normal situation
             Intent(activity, SearchResults::class.java)
@@ -251,6 +287,9 @@ class LinkControl @Inject constructor(
                 (bible.find("+[Gen 1:1] strong:h7225").cardinality > 0 || bible.find("+[John 1:1] strong:g746").cardinality > 0 || bible.find("+[Gen 1:1] strong:g746").cardinality > 0)
         } catch (be: BookException) {
             Log.e(TAG, "Error checking strongs numbers", be)
+            false
+        } catch (e: FileNotFoundException) {
+            Log.e(TAG, "Error checking strongs numbers", e)
             false
         }
     }

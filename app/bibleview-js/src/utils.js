@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {onBeforeUnmount, onMounted, onUnmounted, watch} from "@vue/runtime-core";
+import {onBeforeUnmount, onMounted, onUnmounted, watch} from "vue";
 import Color from "color";
 import {rybColorMixer} from "@/lib/ryb-color-mixer";
 import {get, sortBy} from "lodash";
@@ -146,19 +146,12 @@ export function rangesOverlap(bookmarkRange, testRange, {addRange = false, inclu
         [bs, be] = bookmarkRange;
     }
 
+    //https://stackoverflow.com/questions/325933/determine-whether-two-date-ranges-overlap
     if(inclusive) {
-        const ex1 = arrayLeq(rs, bs) && arrayLeq(bs, re);
-        const ex2 = arrayLeq(rs, be) && arrayLeq(be, re);
-        const ex4 = arrayLeq(bs, rs) && arrayLeq(rs, be) && arrayLeq(bs, re) && arrayLeq(re, be);
-
-        return (ex1 || ex2 || ex4)
-    } else {
         // Same condition as in kotlin side BookmarksDao.bookmarksForVerseRange
-        const ex1 = arrayLeq(rs, bs) && arrayLe(bs, re);
-        const ex2 = arrayLe(rs, be) && arrayLeq(be, re);
-        const ex4 = arrayLeq(bs, rs) && arrayLe(rs, be) && arrayLe(bs, re) && arrayLeq(re, be);
-
-        return (ex1 || ex2 || ex4)
+        return arrayLeq(rs, be) && arrayLeq(bs, re);
+    } else {
+        return arrayLe(rs, be) && arrayLe(bs, re);
     }
 }
 
@@ -523,6 +516,7 @@ export function abbreviated(str, n, useWordBoundary = true) {
         ? subString.substr(0, splitPoint)
         : subString) + "...";
 }
+
 
 export function sprintf(...args) {
     return sprintfOrig(...args);

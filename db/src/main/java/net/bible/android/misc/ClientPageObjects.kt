@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.misc
@@ -28,6 +27,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.BibleBook
 import org.jdom2.Element
 import org.jdom2.Text
 import org.jdom2.output.Format
@@ -82,9 +82,13 @@ class OsisFragment(
     val hasChapter: Boolean get() = xml.getChild("div")?.getChild("chapter") != null
 
     private val features: Map<String, String> get () {
+        val hasHebrew = book.hasFeature(FeatureType.HEBREW_DEFINITIONS)
+        val hasGreek = book.hasFeature(FeatureType.GREEK_DEFINITIONS)
+
         val type = when {
-            book.hasFeature(FeatureType.HEBREW_DEFINITIONS) -> "hebrew"
-            book.hasFeature(FeatureType.GREEK_DEFINITIONS) -> "greek"
+            hasHebrew && hasGreek -> "hebrew-and-greek"
+            hasHebrew -> "hebrew"
+            hasGreek -> "greek"
             else -> null
         }
         return if (type != null) {
@@ -103,6 +107,8 @@ class OsisFragment(
             serializer(),
             if(key is VerseRange) listOf(key.start.ordinal, key.end.ordinal) else null
         )
+        val isNewTestament = key is VerseRange && key.start.ordinal >= BibleBook.MATT.ordinal
+
         return mapOf(
             "xml" to wrapString(xmlStr),
             "key" to wrapString(keyStr),
@@ -112,6 +118,7 @@ class OsisFragment(
             "bookInitials" to wrapString(book.initials),
             "bookAbbreviation" to wrapString(book.abbreviation),
             "osisRef" to wrapString(key.osisRef),
+            "isNewTestament" to json.encodeToString(serializer(), isNewTestament),
             "features" to json.encodeToString(serializer(), features),
             "ordinalRange" to ordinalRangeStr,
             "language" to wrapString(book.language.code),

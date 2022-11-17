@@ -1,6 +1,6 @@
 Tehokas työkalu Raamatun tutkimiseen
 
-Raamattu, And Bible Open Source Projektilta, on tehokas, ja silti helppokäyttöinen sovellus Raamatun tutkimiseen Androidilla. Sovellus ei pyri olemaan ainoastaan yksinkertainen raamatunlukuohjelma, vaan pyrkii myös olemaan monipuolinen työkalu, joka mahdollistaa syvällisen henkilökohtaisen Raamatun tutkiskelun.
+"AndBible: Raamattu" on tehokas, ja silti helppokäyttöinen sovellus Raamatun tutkimiseen Androidilla. Sovellus ei pyri olemaan ainoastaan yksinkertainen raamatunlukuohjelma, vaan pyrkii myös olemaan monipuolinen työkalu, joka mahdollistaa syvällisen henkilökohtaisen Raamatun tutkiskelun.
 
 Sovelluksen kehittäjät ovat itse sovelluksen aktiivisia käyttäjiä, ts. innokkaita Raamatun lukijoita, ja sovellus pyrkii vastaamaan Raamatun lukemisen ja tutkimisen tarpeisiin. Se pyrkii auttamaan tekemään Raamatun tutkiskelustasi käytännöllistä, syvällistä ja hauskaa. Parasta tässä voittoa tavoittelemattomassa, yhteisöllisessä projektissa on se, että se on avointa lähdekoodia, ja siten täysin ilmainen, eikä sisällä mainoksia. Koska sovellus on tehty alusta alkaen Android-alustalle, se on erityisen kevyt ja huomattavan nopeakäyttöinen.
 

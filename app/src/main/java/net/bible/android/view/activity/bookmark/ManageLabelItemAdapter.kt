@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.bookmark
 
@@ -72,10 +71,6 @@ class ManageLabelItemAdapter(context: Context?,
                 if (data.showCheckboxes) {
                     checkbox.setOnCheckedChangeListener { _, isChecked ->
                         if (isChecked) {
-                            if (!manageLabels.selectMultiple) {
-                                data.selectedLabels.clear()
-                                data.bookmarkPrimaryLabel = null
-                            }
                             data.selectedLabels.add(label.id)
                             if (data.bookmarkPrimaryLabel == null) {
                                 data.bookmarkPrimaryLabel = label.id
@@ -110,7 +105,7 @@ class ManageLabelItemAdapter(context: Context?,
                 favouriteIcon.visibility = if (data.workspaceEdits) View.VISIBLE else View.GONE
 
                 if (data.primaryShown) {
-                    primaryIcon.visibility = if (data.contextSelectedItems.contains(label.id)) View.VISIBLE else View.INVISIBLE
+                    primaryIcon.visibility = if (data.contextSelectedItems.contains(label.id)) View.VISIBLE else View.GONE
                     primaryIcon.setImageResource(if (isPrimary) R.drawable.ic_baseline_bookmark_24 else R.drawable.ic_bookmark_24dp)
                     primaryIcon.setOnClickListener {
                         data.contextPrimaryLabel = label.id
@@ -122,7 +117,7 @@ class ManageLabelItemAdapter(context: Context?,
 
                 if(data.workspaceEdits && label.isUnlabeledLabel) {
                     favouriteIcon.visibility = View.INVISIBLE
-                    primaryIcon.visibility = View.INVISIBLE
+                    primaryIcon.visibility = View.GONE
                 }
 
                 if (data.workspaceEdits && !label.isUnlabeledLabel) {
@@ -178,6 +173,7 @@ class ManageLabelItemAdapter(context: Context?,
         }
         return convertView?: bindings.root
     }
+
 
     companion object {
         private const val TAG = "ManageLabelItemAdapter"

@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Piibliuurimine</string>
   <string name="app_name_medium">Piibliuurimine (And Bible)</string>
-  <string name="app_name_long">Piibliuurimise rakendus, And Bible avatud koodiga projektilt</string>
+  <string name="app_name_long">AndBible: Piibliuurimine</string>
   <string name="project">And Bible avatud koodiga projekt</string>
   <string name="version_text">Versioon %s</string>
   <string name="no_sdcard_error">Palun sisesta SD-kaart ja taaskäivita rakendus.</string>
@@ -144,6 +144,8 @@
   <string name="font_size_title_pt">Teksti suurus (%d punkti)</string>
   <string name="prefs_font_text_size_summary">Määra teksti suurus</string>
   <string name="prefs_text_bookmarks_title">Järjehoidjate ja märkmete seaded</string>
+  <string name="prefs_enable_bluetooth_title">Luba Bluetooth meedianupud</string>
+  <string name="prefs_enable_bluetooth_summary">Kasuta Bluetooth nuppe esitamise juhtimiseks.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Värvi seaded</string>
   <string name="window_color_settings_title">Akna värvi seaded</string>
@@ -179,7 +181,6 @@
   <string name="next">Järgmine</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Palun lae alla Strongi heebrea ja kreeka sõnaraamat</string>
-  <string name="no_indexed_bible_with_strongs_ref">Sa pead laadima alla Piibli, milles on Strongi numbrid ja laadima otsingu kaudu selle indeksi</string>
   <string name="morph_robinson_not_installed">Palun lae alla sõnaraamat \'Robinson\'s Morphological Analysis Codes\'</string>
   <!--Module download-->
   <string name="download">Lae dokumente alla</string>
@@ -342,6 +343,7 @@ Kas jätkame?</string>
   <!--param is heart icon-->
   <!--param is refresh icon-->
   <string name="assing_labels_help5">Vajuta %s, et värskendada järjestust vastavalt valikutele.</string>
+  <string name="workspace_text_options_help1">Need seaded määravad kõigi tööalade vaikeväärtused.</string>
   <!--Parameter is actual icon-->
   <!--Parameter is actual icon-->
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
@@ -478,6 +480,7 @@ Kas jätkame?</string>
   <string name="workspace_settings">Seaded...</string>
   <string name="give_name_workspace">Uue tööala nimi</string>
   <string name="save_and_exit">Salvesta</string>
+  <string name="workspace_save_changes">Rakenda muudatused tööaladele?</string>
   <string name="copy_workspace_settings">Kopeeri seaded...</string>
   <string name="copy_settings_title">Milliseid seadeid soovid kopeerida?</string>
   <string name="select_all">Vali kõik</string>
@@ -604,6 +607,7 @@ Kas jätkame?</string>
   <string name="questions_title">Küsimus arendajatele</string>
   <string name="bookmark_style">Järjehoidja kujundus</string>
   <string name="added_to_bookmark">Määratud käesolevale järjehoidjale</string>
+  <string name="verse_tip">Osalise värsi või mitme värsi valimiseks kasuta pikka vajutust</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Vajatakse luba</string>
 </resources>
