@@ -57,8 +57,8 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.device.ScreenSettings
 import javax.inject.Inject
-
 
 class WorkspaceViewHolder(val layout: ViewGroup): RecyclerView.ViewHolder(layout)
 
@@ -94,6 +94,10 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         }
         title.text = titleText
         summary.text = workspaceEntity.contentsText
+
+        val colors = WorkspaceEntities.TextDisplaySettings.actual(null, workspaceEntity.textDisplaySettings!!).colors!!
+        val workspaceColor = if (ScreenSettings.nightMode) colors.nightWorkspaceColor else colors.dayWorkspaceColor
+        dragHolder.setColorFilter(workspaceColor!!)
 
         layout.setOnClickListener {
             activity.goToWorkspace(holder.itemId)
@@ -464,6 +468,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
             workspaceItem.textDisplaySettings =
                 if(reset) WorkspaceEntities.TextDisplaySettings.default
                 else settings.workspaceSettings
+            workspaceAdapter.notifyItemChanged(dataSet.indexOf(workspaceItem))
             setDirty()
         }
         super.onActivityResult(requestCode, resultCode, data)

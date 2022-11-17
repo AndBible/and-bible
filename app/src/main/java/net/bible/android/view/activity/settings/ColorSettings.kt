@@ -23,6 +23,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
@@ -43,6 +44,8 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_color_night" -> colors.nightBackground = value
             "noise_day" -> colors.dayNoise = value
             "noise_night" -> colors.nightNoise = value
+            "workspace_color_day" -> colors.dayWorkspaceColor = value
+            "workspace_color_night" -> colors.nightWorkspaceColor = value
         }
         activity.setDirty()
     }
@@ -55,6 +58,8 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_color_night" -> colors.nightBackground?: defValue
             "noise_day" -> colors.dayNoise?: defValue
             "noise_night" -> colors.nightNoise?: defValue
+            "workspace_color_day" -> colors.dayWorkspaceColor?: defValue
+            "workspace_color_night" -> colors.nightWorkspaceColor?: defValue
             else -> defValue
         }
     }
@@ -126,7 +131,7 @@ class ColorSettingsActivity: ActivityBase() {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.settings_container, ColorSettingsFragment())
+            .replace(R.id.settings_container, ColorSettingsFragment(isWindow = settingsBundle.windowId != null))
             .commit()
 
         if(settingsBundle.windowId != null) {
@@ -156,11 +161,15 @@ class ColorSettingsActivity: ActivityBase() {
 }
 
 
-class ColorSettingsFragment: PreferenceFragmentCompat() {
+class ColorSettingsFragment(val isWindow: Boolean = false): PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val activity = activity as ColorSettingsActivity
 
         preferenceManager.preferenceDataStore = ColorSettingsDataStore(activity)
         setPreferencesFromResource(R.xml.color_settings, rootKey)
+        if(isWindow) {
+            findPreference<Preference>("workspace_color_day")?.isVisible = false
+            findPreference<Preference>("workspace_color_night")?.isVisible = false
+        }
     }
 }

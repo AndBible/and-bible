@@ -20,15 +20,14 @@ package net.bible.android.view.activity.page
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Instrumentation.ActivityResult
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Color
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.util.TypedValue
@@ -57,7 +56,6 @@ import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
@@ -95,7 +93,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.Bookmarks
-import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.navigation.History
@@ -1093,8 +1090,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             }
             if(windowRepository.visibleWindows.isNotEmpty()) {
+                val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings).colors!!
+
+                val toolbarColor = if (ScreenSettings.nightMode)
+                    colors.nightWorkspaceColor ?: R.color.actionbar_background_day
+                else
+                    colors.dayWorkspaceColor ?: R.color.actionbar_background_night
+                binding.toolbarLayout.setBackgroundColor(toolbarColor)
+
                 val color = if (setNavBarColor) {
-                    val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
                     val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
                     color ?: UiUtils.bibleViewDefaultBackgroundColor
                 } else {
@@ -1102,7 +1106,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
                     typedValue.data
                 }
-                window.navigationBarColor = color
+
+                // Set the status bar to the same color
+                window.run {
+                    clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                    addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                    statusBarColor = toolbarColor
+                    navigationBarColor = color
+                }
+
                 binding.speakTransport.setBackgroundColor(color)
             }
         }
