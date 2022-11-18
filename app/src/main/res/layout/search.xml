@@ -34,6 +34,7 @@
 		android:layout_alignParentTop="true"
 		android:imeOptions="actionSearch"
 		android:inputType="textCapSentences"
+		android:hint="@string/type_text_or_bible_reference"
 		android:padding="10dip"/>
 
 	<ScrollView

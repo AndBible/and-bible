@@ -220,6 +220,14 @@ export function useBookmarks(documentId,
         return rangesOverlap(bOrdinalRange, ordinalRange, {addRange: true, inclusive: true})
     };
 
+    function getBookmarkStyleLabel(bookmark) {
+        return bookmarkLabels.get(bookmark.primaryLabelId || bookmark.labels[0]);
+    }
+
+    function hasSpeakLabel(bookmark) {
+        return bookmark.labels.some(l => bookmarkLabels.get(l).isSpeak);
+    }
+
     const documentBookmarks = computed(() => {
         if(!documentReady.value) return [];
         return bookmarks.value.filter(b => (noOrdinalNeeded(b) || checkOrdinal(b)))
@@ -318,7 +326,7 @@ export function useBookmarks(documentId,
     }
 
     function showHighlight(b) {
-        return b.offsetRange == null || b.bookInitials === bookInitials;
+        return (b.offsetRange == null || b.bookInitials === bookInitials) && (!getBookmarkStyleLabel(b).noHighlight || hasSpeakLabel(b));
     }
 
     const highlightBookmarks = computed(() => {
@@ -374,8 +382,8 @@ export function useBookmarks(documentId,
                 .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange));
 
             filteredBookmarks.forEach(b => {
-                const labelId = b.primaryLabelId || b.labels[0];
-                const label = bookmarkLabels.get(labelId);
+                const label = getBookmarkStyleLabel(b);
+                const labelId = label.id;
 
                 if(intersection(new Set(b.labels), hideLabels).size > 0) {
                     hiddenLabels.add(labelId);
@@ -511,8 +519,7 @@ export function useBookmarks(documentId,
         }
         if(config.showBookmarks) {
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
-                const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.icon === "headphones");
-                if (speakLabel) {
+                if (hasSpeakLabel(b)) {
                     const color = adjustedColor("red").string()
                     const iconElement = getIconElement(speakIcon, color);
 
@@ -523,16 +530,18 @@ export function useBookmarks(documentId,
                 }
             }
         }
-        if(config.showMyNotes) {
-            for (const b of bookmarks.filter(b => b.hasNote && arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
-                const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || b.labels[0]);
-                const color = adjustedColor(bookmarkLabel.color).string();
-                const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
+        if(config.showBookmarks || config.showMyNotes) {
+            for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
+                const bookmarkLabel = getBookmarkStyleLabel(b);
+                if ((config.showBookmarks && bookmarkLabel.noHighlight) || (config.showMyNotes && b.hasNote)) {
+                    const color = adjustedColor(bookmarkLabel.color).string();
+                    const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
 
-                iconElement.addEventListener("click", event => addEventFunction(event,
-                    null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
-                lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
-                undoHighlights.push(() => iconElement.remove());
+                    iconElement.addEventListener("click", event => addEventFunction(event,
+                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                    lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
+                    undoHighlights.push(() => iconElement.remove());
+                }
             }
         }
     }
@@ -562,7 +571,7 @@ export function useBookmarks(documentId,
         for(const [lastOrdinal, bookmarkList] of bookmarkMap) {
             const lastElement = document.querySelector(`#doc-${documentId} #o-${lastOrdinal}`);
             const b = bookmarkList[0];
-            const bookmarkLabel = bookmarkLabels.get(b.primaryLabelId || b.labels[0]);
+            const bookmarkLabel = getBookmarkStyleLabel(b);
             const color = adjustedColor(bookmarkLabel.color).string();
             const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
             iconElement.addEventListener("click", event => {

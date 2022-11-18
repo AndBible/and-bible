@@ -408,8 +408,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @RequiresApi(Build.VERSION_CODES.M)
     private fun getSupportedActivities(): List<ResolveInfo> {
         val packageManager: PackageManager = context.packageManager
-        return packageManager.queryIntentActivities(createProcessTextIntent(),
-            0)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.queryIntentActivities(createProcessTextIntent(), PackageManager.ResolveInfoFlags.of(0))
+        } else {
+            packageManager.queryIntentActivities(createProcessTextIntent(), 0)
+        }.filter { it.activityInfo.name != SearchResults::class.qualifiedName }
     }
 
     private fun getLabel(resolveInfo: ResolveInfo): CharSequence {
