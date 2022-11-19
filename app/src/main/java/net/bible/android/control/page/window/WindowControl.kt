@@ -54,7 +54,9 @@ import kotlin.coroutines.suspendCoroutine
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-open class WindowControl @Inject constructor(val windowRepository: WindowRepository) {
+open class WindowControl @Inject constructor() {
+    val windowRepository = WindowRepository()
+
     private val logger = Logger(this.javaClass.name)
     val windowSync get() = windowRepository.windowSync
     val activeWindowPageManager: CurrentPageManager

@@ -22,9 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.CurrentPageManager
@@ -49,14 +47,10 @@ import kotlin.math.min
 class IncrementBusyCount
 class DecrementBusyCount
 
-@ApplicationScope
-open class WindowRepository @Inject constructor(
-        // Each window has its own currentPageManagerProvider to store the different state e.g.
-        // different current Bible module, so must create new cpm for each window
-    private val currentPageManagerProvider: Provider<CurrentPageManager>,
-    private val historyManagerProvider: Provider<HistoryManager>,
-)
-{
+open class WindowRepository {
+    @Inject lateinit var currentPageManagerProvider: Provider<CurrentPageManager>
+    @Inject lateinit var historyManagerProvider: Provider<HistoryManager>
+
     val windowSync: WindowSync = WindowSync(this)
     val scope get() = _mainBibleActivity?.lifecycleScope?: CoroutineScope(Dispatchers.Default) // null -> For tests
     var unPinnedWeight: Float? = null
@@ -105,6 +99,7 @@ open class WindowRepository @Inject constructor(
         }
 
     init {
+        CommonUtils.buildActivityComponent().inject(this)
         ABEventBus.safelyRegister(this)
     }
 

@@ -21,6 +21,7 @@ import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.page.ClientBookmark
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.Bookmarks
@@ -108,4 +109,5 @@ interface ActivityComponent {
     fun inject(clientBookmark: ClientBookmark)
     fun inject(generalPreference: GeneralPreference)
     fun inject(backupControl: BackupControl)
+    fun inject(windowRepository: WindowRepository)
 }
