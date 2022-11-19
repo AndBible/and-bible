@@ -968,7 +968,6 @@ object CommonUtils : CommonUtilsBase() {
                     val book = Books.installed().getBook(it.initials)
                     book.unlock(it.cipherKey)
                 }
-                windowControl.windowRepository.initialize()
             }
             booksInitialized = true
         }

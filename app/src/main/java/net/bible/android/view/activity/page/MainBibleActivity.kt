@@ -78,6 +78,7 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
@@ -232,14 +233,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             .build()
             .inject(this)
 
+        windowRepository = WindowRepository(lifecycleScope)
+        windowControl.windowRepository = windowRepository
+        windowRepository.initialize()
+
         if(CommonUtils.isDiscrete) {
             binding.bibleButton.setImageResource(R.drawable.ic_baseline_menu_book_24)
         }
+
         // use context to setup backup control dirs
         BackupControl.setupDirs(this)
         BackupControl.clearBackupDir()
-
-        windowRepository.initialize()
 
         resolveVariables()
         setupUi()
@@ -656,7 +660,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
 
     val workspaces get() = dao.allWorkspaces()
-    val windowRepository get() = windowControl.windowRepository
+    lateinit var windowRepository: WindowRepository
 
     private fun previousWorkspace() {
         val workspaces = workspaces
@@ -1500,6 +1504,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
    }
 
     override fun onResume() {
+        windowControl.windowRepository = windowRepository
         super.onResume()
         if(CommonUtils.showCalculator && empty.root.parent != null) {
             (window.decorView as ViewGroup).removeView(empty.root)

@@ -17,8 +17,11 @@
 
 package net.bible.android.control.page.window
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.service.common.CommonUtils
 
 
 import net.bible.test.DatabaseResetter
@@ -26,15 +29,12 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-import javax.inject.Provider
-
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers.contains
 import org.junit.Assert.assertThat
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -47,7 +47,8 @@ class WindowRepositoryTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        windowControl = WindowControl()
+        windowControl = CommonUtils.windowControl
+        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowRepository.initialize()
     }
 

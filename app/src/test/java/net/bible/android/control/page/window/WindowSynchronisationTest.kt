@@ -17,6 +17,8 @@
 
 package net.bible.android.control.page.window
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
@@ -57,7 +59,8 @@ class WindowSynchronisationTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        windowControl = WindowControl()
+        windowControl = CommonUtils.windowControl
+        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         CommonUtils.settings.setBoolean("first-time", false)
         windowRepository.initialize()
     }

@@ -17,6 +17,8 @@
 
 package net.bible.service.device.speak
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -79,6 +81,7 @@ open class SpeakIntegrationTestBase {
         bookmarkControl = appComponent.bookmarkControl()
         speakControl = appComponent.speakControl()
         windowControl = appComponent.windowControl()
+        windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository.initialize()
         speakControl.setupMockedTts()
         book = Books.installed().getBook("FinRK") as SwordBook

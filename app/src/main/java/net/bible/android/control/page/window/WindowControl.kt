@@ -55,7 +55,13 @@ import kotlin.coroutines.suspendCoroutine
  */
 @ApplicationScope
 open class WindowControl @Inject constructor() {
-    val windowRepository = WindowRepository()
+    private var _windowRepository: WindowRepository? = null
+
+    open var windowRepository: WindowRepository
+        get() = _windowRepository!!
+        set(value) {
+            _windowRepository = value
+        }
 
     private val logger = Logger(this.javaClass.name)
     val windowSync get() = windowRepository.windowSync

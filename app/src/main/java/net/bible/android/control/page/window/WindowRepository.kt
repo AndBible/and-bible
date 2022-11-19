@@ -35,6 +35,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.AppSettingsUpdated
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
@@ -47,12 +48,11 @@ import kotlin.math.min
 class IncrementBusyCount
 class DecrementBusyCount
 
-open class WindowRepository {
+open class WindowRepository(val scope: CoroutineScope) {
     @Inject lateinit var currentPageManagerProvider: Provider<CurrentPageManager>
     @Inject lateinit var historyManagerProvider: Provider<HistoryManager>
 
     val windowSync: WindowSync = WindowSync(this)
-    val scope get() = _mainBibleActivity?.lifecycleScope?: CoroutineScope(Dispatchers.Default) // null -> For tests
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)

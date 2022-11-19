@@ -17,6 +17,8 @@
 
 package net.bible.android.control.page.window
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
@@ -26,6 +28,7 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.AbstractSpeakTests
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordDocumentFacade
@@ -61,7 +64,8 @@ class WindowTest {
         mockCurrentPageManagerProvider = Provider {
             CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowControl!!)
         }
-        windowControl = WindowControl()
+        windowControl = CommonUtils.windowControl
+        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowRepository.initialize()
     }
 

@@ -19,6 +19,8 @@ package net.bible.android.control.page.window
 
 
 import android.view.Menu
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
@@ -27,6 +29,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.AbstractSpeakTests
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordDocumentFacade
@@ -64,11 +67,8 @@ class WindowControlTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        val bibleTraverser = mock(BibleTraverser::class.java)
-        val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
-        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowControl!!) }
-        windowControl = WindowControl()
+        windowControl = CommonUtils.windowControl
+        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowRepository.initialize()
         windowRepository.workspaceSettings.autoPin = true
         windowControl!!.activeWindow.isPinMode = true
