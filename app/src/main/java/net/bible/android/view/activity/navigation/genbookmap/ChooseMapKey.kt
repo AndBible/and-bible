@@ -40,7 +40,7 @@ class ChooseMapKey : ChooseKeyBase() {
     }
 
     private val currentMapPage: CurrentMapPage
-        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentMap
+        get() = windowControl.activeWindowPageManager.currentMap
 
     companion object {
         private const val TAG = "ChooseMapKey"

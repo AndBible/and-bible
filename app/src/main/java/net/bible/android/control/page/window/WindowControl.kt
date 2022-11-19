@@ -54,15 +54,13 @@ import kotlin.coroutines.suspendCoroutine
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-open class WindowControl @Inject constructor(
-        val windowRepository: WindowRepository,
-) : ActiveWindowPageManagerProvider {
+open class WindowControl @Inject constructor(val windowRepository: WindowRepository) {
 
     val windowSync: WindowSync = WindowSync(windowRepository)
 
     private val logger = Logger(this.javaClass.name)
 
-    override val activeWindowPageManager: CurrentPageManager
+    val activeWindowPageManager: CurrentPageManager
         get() = activeWindow.pageManager
 
     val isMultiWindow: Boolean

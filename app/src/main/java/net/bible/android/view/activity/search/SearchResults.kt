@@ -34,7 +34,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.link.LinkControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
@@ -73,7 +73,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var linkControl: LinkControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -141,7 +141,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
 
             val searchDocument = (intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?: "").run {
                 if (StringUtils.isEmpty(this))
-                    activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!.initials
+                    windowControl.activeWindowPageManager.currentBible.currentDocument!!.initials
                 else this
             }
             Log.i(TAG, "Searching $searchText in $searchDocument")
@@ -216,7 +216,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         Log.i(TAG, "chose:$key")
         if (key != null) {
             val targetBook = this.searchDocument
-            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
+            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
             // this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
             val intent = Intent(this, MainBibleActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP

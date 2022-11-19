@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ChooseDictionaryPageBinding
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.sword.SwordContentFacade.readOsisFragment
@@ -126,7 +126,7 @@ class ChooseDictionaryWord : ListActivityBase() {
         }
     }
     private lateinit var mMatchingKeyList: MutableList<KeyInfo>
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -136,7 +136,7 @@ class ChooseDictionaryWord : ListActivityBase() {
         buildActivityComponent().inject(this)
 
         // ensure there is actually a dictionary
-        if (activeWindowPageManagerProvider
+        if (windowControl
                 .activeWindowPageManager
                 .currentDictionary
                 .currentDocument == null) {
@@ -179,7 +179,7 @@ class ChooseDictionaryWord : ListActivityBase() {
                 //TODO need to optimise this using binary search of globalkeylist without caching
 
                 //already checked a dictionary exists
-                mDictionaryGlobalList = activeWindowPageManagerProvider
+                mDictionaryGlobalList = windowControl
                     .activeWindowPageManager
                     .currentDictionary
                     .cachedGlobalKeyList
@@ -207,7 +207,7 @@ class ChooseDictionaryWord : ListActivityBase() {
                 searchText = searchText.lowercase(Locale.getDefault())
                 val iter = mDictionaryGlobalList!!.iterator()
                 mMatchingKeyList.clear()
-                val book = activeWindowPageManagerProvider.activeWindowPageManager.currentDictionary.currentDocument!!
+                val book = windowControl.activeWindowPageManager.currentDictionary.currentDocument!!
                 while (iter.hasNext()) {
                     val key = iter.next()
                     if (key.name.lowercase(Locale.getDefault()).contains(searchText)) {
@@ -234,7 +234,7 @@ class ChooseDictionaryWord : ListActivityBase() {
         try {
             if (selectedKey != null) {
                 Log.i(TAG, "chose:$selectedKey")
-                activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(activeWindowPageManagerProvider.activeWindowPageManager.currentDictionary.currentDocument, selectedKey)
+                windowControl.activeWindowPageManager.setCurrentDocumentAndKey(windowControl.activeWindowPageManager.currentDictionary.currentDocument, selectedKey)
                 doFinish()
             }
         } catch (e: Exception) {

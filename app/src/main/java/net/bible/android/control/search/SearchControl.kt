@@ -21,7 +21,7 @@ import android.content.Intent
 import android.util.Log
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
@@ -48,7 +48,7 @@ import javax.inject.Inject
 class SearchControl @Inject constructor(
     private val swordDocumentFacade: SwordDocumentFacade,
     private val documentBibleBooksFactory: DocumentBibleBooksFactory,
-    private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    private val windowControl: WindowControl,
     )
 {
     private val isSearchShowingScripture = true
@@ -80,7 +80,7 @@ class SearchControl @Inject constructor(
     // This should never occur
     val currentBookName: String
         get() = try {
-            val currentBiblePage = activeWindowPageManagerProvider.activeWindowPageManager.currentBible
+            val currentBiblePage = windowControl.activeWindowPageManager.currentBible
             val v11n = (currentBiblePage.currentDocument as SwordBook).versification
             val book = currentBiblePage.singleKey.book
             val longName = v11n.getLongName(book)
@@ -194,7 +194,7 @@ class SearchControl @Inject constructor(
      * When navigating books and chapters there should always be a current Passage based book
      */
     private val currentPassageDocument: AbstractPassageBook
-        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentPassageDocument
+        get() = windowControl.activeWindowPageManager.currentPassageDocument
 
     fun currentDocumentContainsNonScripture(): Boolean {
         return !documentBibleBooksFactory.getDocumentBibleBooksFor(currentPassageDocument).isOnlyScripture

@@ -28,6 +28,7 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.defaultBible
 import net.bible.service.common.CommonUtils.defaultVerse
 import net.bible.service.download.FakeBookFactory
@@ -173,7 +174,7 @@ open class CurrentPageManager @Inject constructor(
                     PassageChangeMediator.onCurrentPageChanged(this.window)
                 } else {
                     // pop up a key selection screen
-                    nextPage.startKeyChooser(CurrentActivityHolder.currentActivity!!)
+                    nextPage.startKeyChooser(MainBibleActivity._mainBibleActivity!!)
                 }
             }
         } else {

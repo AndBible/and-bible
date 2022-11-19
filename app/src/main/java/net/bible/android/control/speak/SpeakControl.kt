@@ -28,7 +28,6 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.CurrentPageManager
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.AndRuntimeException
 import net.bible.service.common.CommonUtils
@@ -52,9 +51,9 @@ import java.util.*
 import javax.inject.Inject
 
 import dagger.Lazy
-import de.greenrobot.event.EventBus
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
 
@@ -63,9 +62,9 @@ import net.bible.service.device.speak.MediaButtonHandler
  */
 @ApplicationScope
 class SpeakControl @Inject constructor(
-        private val textToSpeechServiceManager: Lazy<TextToSpeechServiceManager>,
-        private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
-        private val swordDocumentFacade: SwordDocumentFacade
+    private val textToSpeechServiceManager: Lazy<TextToSpeechServiceManager>,
+    private val windowControl: WindowControl,
+    private val swordDocumentFacade: SwordDocumentFacade
 ) {
 
     @Inject lateinit var bookmarkControl: BookmarkControl
@@ -85,7 +84,7 @@ class SpeakControl @Inject constructor(
         get() {
             var pageManager = _speakPageManager
             if(pageManager == null) {
-                pageManager = activeWindowPageManagerProvider.activeWindowPageManager
+                pageManager = windowControl.activeWindowPageManager
                 _speakPageManager = pageManager
             }
             return pageManager
@@ -94,7 +93,7 @@ class SpeakControl @Inject constructor(
     val isCurrentDocSpeakAvailable: Boolean
         get() {
             return try {
-                val docLangCode = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument?.language?.code
+                val docLangCode = windowControl.activeWindowPageManager.currentPage.currentDocument?.language?.code
                 if(docLangCode == null) return true else ttsServiceManager.isLanguageAvailable(docLangCode)
             } catch (e: Exception) {
                 Log.e(TAG, "Error checking TTS lang available")
@@ -112,7 +111,7 @@ class SpeakControl @Inject constructor(
         get() = !isSpeaking && !isPaused
 
     private val currentBook: Book?
-        get() = activeWindowPageManagerProvider
+        get() = windowControl
                 .activeWindowPageManager
                 .currentPage
                 .currentDocument
@@ -159,7 +158,7 @@ class SpeakControl @Inject constructor(
     fun calculateNumPagesToSpeakDefinitions(): Array<NumPagesToSpeakDefinition> {
         val definitions: Array<NumPagesToSpeakDefinition>
 
-        val currentPage = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
+        val currentPage = windowControl.activeWindowPageManager.currentPage
         val bookCategory = currentPage.currentDocument?.bookCategory
         if (BookCategory.BIBLE == bookCategory) {
             val v11n = (currentPage.currentDocument as SwordBook).versification
@@ -194,7 +193,7 @@ class SpeakControl @Inject constructor(
     private fun resetPassageRepeatIfOutsideRange() {
         val settings = SpeakSettings.load()
         val range = settings.playbackSettings.verseRange
-        val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
+        val page = windowControl.activeWindowPageManager.currentPage
         val currentVerse = page.singleKey as Verse
 
         // If we have range playback mode set up, and user starts playback not from within the range,
@@ -241,7 +240,7 @@ class SpeakControl @Inject constructor(
             return
         }
         try {
-            val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
+            val page = windowControl.activeWindowPageManager.currentPage
             if(!page.isSpeakable) {
                 ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
                 return
@@ -292,7 +291,7 @@ class SpeakControl @Inject constructor(
 
         prepareForSpeaking()
 
-        val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
+        val page = windowControl.activeWindowPageManager.currentPage
         val fromBook = page.currentDocument
 
         try {

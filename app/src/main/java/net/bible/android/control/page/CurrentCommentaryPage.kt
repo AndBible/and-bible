@@ -26,6 +26,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
@@ -53,7 +54,7 @@ open class CurrentCommentaryPage internal constructor(
 
     override val documentCategory = DocumentCategory.COMMENTARY
 
-    override fun startKeyChooser(context: ActivityBase) =
+    override fun startKeyChooser(context: MainBibleActivity) =
         context.startActivityForResult(Intent(context, GridChoosePassageBook::class.java).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
 
     private val isSpecialDoc: Boolean get() = currentDocument == FakeBookFactory.compareDocument

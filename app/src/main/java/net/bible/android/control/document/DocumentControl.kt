@@ -20,13 +20,10 @@ package net.bible.android.control.document
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.DocumentCategory
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.db.DatabaseContainer
@@ -49,25 +46,24 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class DocumentControl @Inject constructor(
-        private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
         private val swordDocumentFacade: SwordDocumentFacade,
         private val windowControl: WindowControl)
 {
     private val documentBackupDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
-    val isNewTestament get() = activeWindowPageManagerProvider.activeWindowPageManager.currentVersePage.currentBibleVerse.currentBibleBook.ordinal >= BibleBook.MATT.ordinal
+    val isNewTestament get() = windowControl.activeWindowPageManager.currentVersePage.currentBibleVerse.currentBibleBook.ordinal >= BibleBook.MATT.ordinal
 
     /**
      * Suggest an alternative dictionary to view or return null
      */
     // very occasionally the below has thrown an Exception and I don't know why, so I wrap all this in a try/catch
-    val isStrongsInBook get() = activeWindowPageManagerProvider.activeWindowPageManager.hasStrongs
+    val isStrongsInBook get() = windowControl.activeWindowPageManager.hasStrongs
 
     /**
      * Are we currently in Bible, Commentary, Dict, or Gen Book mode
      */
     val currentCategory: DocumentCategory
-        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.documentCategory
+        get() = windowControl.activeWindowPageManager.currentPage.documentCategory
 
     /**
      * Suggest an alternative bible to view or return null
@@ -102,14 +98,14 @@ class DocumentControl @Inject constructor(
         get () = currentDocument?.bookCategory == BookCategory.COMMENTARY
 
     val currentPage: CurrentPageManager
-        get () = activeWindowPageManagerProvider.activeWindowPageManager
+        get () = windowControl.activeWindowPageManager
 
     val currentDocument: Book?
-        get () = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
+        get () = windowControl.activeWindowPageManager.currentPage.currentDocument
 
     val suggestedBible: Book?
         get() {
-            val currentPageManager = activeWindowPageManagerProvider.activeWindowPageManager
+            val currentPageManager = windowControl.activeWindowPageManager
             val currentBible = currentPageManager.currentBible.currentDocument
 
             return getSuggestedBook(swordDocumentFacade.bibles, currentBible, bookFilter, currentPageManager.isBibleShown)
@@ -123,7 +119,7 @@ class DocumentControl @Inject constructor(
     // bible so only return true if !TDavid or is Psalms
     val suggestedCommentary: Book?
         get() {
-            val currentPageManager = activeWindowPageManagerProvider.activeWindowPageManager
+            val currentPageManager = windowControl.activeWindowPageManager
             val currentCommentary = currentPageManager.currentCommentary.currentDocument
 
             return getSuggestedBook(swordDocumentFacade.getBooks(BookCategory.COMMENTARY),
@@ -134,13 +130,13 @@ class DocumentControl @Inject constructor(
      * Possible books will often not include the current verse but most will include chap 1 verse 1
      */
     private val requiredVerseForSuggestions: Verse
-        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.singleKey
+        get() = windowControl.activeWindowPageManager.currentBible.singleKey
 
     /**
      * user wants to change to a different document/module
      */
     fun changeDocument(newDocument: Book) {
-        activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocument(newDocument)
+        windowControl.activeWindowPageManager.setCurrentDocument(newDocument)
     }
 
     fun enableManualInstallFolder() {
@@ -177,7 +173,7 @@ class DocumentControl @Inject constructor(
         swordDocumentFacade.deleteDocument(document)
         if(document.bookCategory == BookCategory.AND_BIBLE) return
         documentBackupDao.deleteByOsisId(document.initials)
-        val currentPage = activeWindowPageManagerProvider.activeWindowPageManager.getBookPage(document)
+        val currentPage = windowControl.activeWindowPageManager.getBookPage(document)
         currentPage?.checkCurrentDocumenInstalled()
     }
 

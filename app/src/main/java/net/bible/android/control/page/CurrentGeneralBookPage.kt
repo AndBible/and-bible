@@ -25,13 +25,12 @@ import kotlinx.coroutines.launch
 import net.bible.android.common.toV11n
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.firstBibleDoc
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
@@ -68,18 +67,18 @@ class CurrentGeneralBookPage internal constructor(
 
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
-    override fun startKeyChooser(context: ActivityBase) {
+    override fun startKeyChooser(context: MainBibleActivity) {
         context.lifecycleScope.launch(Dispatchers.Main) {
             when (currentDocument) {
                 FakeBookFactory.journalDocument -> {
                     val result = context.awaitIntent(Intent(context, ManageLabels::class.java)
                         .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
-                            .applyFrom(_mainBibleActivity?.workspaceSettings)
+                            .applyFrom(context.workspaceSettings)
                             .toJSON())
                     )
                     if(result.resultCode == Activity.RESULT_OK) {
                         val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
-                        _mainBibleActivity?.workspaceSettings?.updateFrom(resultData)
+                        context.workspaceSettings.updateFrom(resultData)
                     }
                 }
                 FakeBookFactory.multiDocument -> {

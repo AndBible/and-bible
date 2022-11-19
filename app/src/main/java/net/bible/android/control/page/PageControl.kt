@@ -17,7 +17,7 @@
 package net.bible.android.control.page
 
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import org.crosswire.jsword.passage.Verse
 import javax.inject.Inject
 
@@ -27,14 +27,14 @@ import javax.inject.Inject
  */
 @ApplicationScope
 open class PageControl @Inject constructor(
-	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    val windowControl: WindowControl
 ) {
 
     open val currentBibleVerse: Verse
         get() = currentPageManager.currentBible.singleKey
 
     val currentPageManager: CurrentPageManager
-        get() = activeWindowPageManagerProvider.activeWindowPageManager
+        get() = windowControl.activeWindowPageManager
 
     companion object {
         private const val TAG = "PageControl"

@@ -29,6 +29,7 @@ import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.navigation.*
 import net.bible.android.view.activity.navigation.genbookmap.ChooseKeyBase
+import net.bible.android.view.activity.page.GeneralPreference
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.DailyReadingList
@@ -104,4 +105,5 @@ interface ActivityComponent {
     fun inject(searchIndexProgressStatus: SearchIndexProgressStatus)
     fun inject(progressStatus: ProgressStatus)
     fun inject(clientBookmark: ClientBookmark)
+    fun inject(generalPreference: GeneralPreference)
 }

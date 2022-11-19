@@ -30,6 +30,6 @@ import javax.inject.Inject
 @ApplicationScope
 class ReadingPlanBibleActionBarButton @Inject constructor() : ReadingPlanQuickDocumentChangeButton() {
     override fun getSuggestedDocument(): Book? {
-        return activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument
+        return windowControl.activeWindowPageManager.currentBible.currentDocument
     }
 }

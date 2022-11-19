@@ -25,6 +25,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordDocumentFacade
@@ -49,7 +50,7 @@ class CurrentBiblePage(
 
     override val documentCategory = DocumentCategory.BIBLE
 
-    override fun startKeyChooser(context: ActivityBase) = context.startActivityForResult(
+    override fun startKeyChooser(context: MainBibleActivity) = context.startActivityForResult(
         Intent(context, GridChoosePassageBook::class.java).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
 
     override fun next() {

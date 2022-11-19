@@ -706,10 +706,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository.workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
-            R.id.splitMode -> SplitModePreference()
+            R.id.splitMode -> SplitModePreference(this)
             R.id.autoPinMode -> WindowPinningPreference()
-            R.id.tiltToScroll -> TiltToScrollPreference()
-            R.id.nightMode -> NightModePreference()
+            R.id.tiltToScroll -> TiltToScrollPreference(this)
+            R.id.nightMode -> NightModePreference(this)
             R.id.fullscreen -> CommandPreference(launch = { _, _, _ ->
                 fullScreen = true
             })

@@ -16,8 +16,7 @@
  */
 package net.bible.android.control.page
 
-import android.view.Menu
-import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.MainBibleActivity
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
@@ -31,7 +30,7 @@ interface CurrentPage {
     val documentCategory: DocumentCategory
     val pageManager: CurrentPageManager
 
-    fun startKeyChooser(context: ActivityBase)
+    fun startKeyChooser(context: MainBibleActivity)
 
     operator fun next()
     fun previous()
