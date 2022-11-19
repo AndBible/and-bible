@@ -27,6 +27,7 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.save
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.common.Logger
@@ -35,7 +36,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.AppSettingsUpdated
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
@@ -50,6 +50,7 @@ class DecrementBusyCount
 open class WindowRepository(val scope: CoroutineScope) {
     @Inject lateinit var currentPageManagerProvider: Provider<CurrentPageManager>
     @Inject lateinit var historyManagerProvider: Provider<HistoryManager>
+    @Inject lateinit var speakControl: SpeakControl
 
     val windowSync: WindowSync = WindowSync(this)
     var unPinnedWeight: Float? = null
@@ -311,7 +312,7 @@ open class WindowRepository(val scope: CoroutineScope) {
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.i(TAG, "saveIntoDb")
         if(!CommonUtils.initialized) return;
-        if(stopSpeak) _mainBibleActivity?.speakControl?.stop()
+        if(stopSpeak) speakControl.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()
 

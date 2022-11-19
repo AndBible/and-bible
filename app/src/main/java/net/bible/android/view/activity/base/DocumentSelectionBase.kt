@@ -49,7 +49,6 @@ import net.bible.android.database.DocumentSearch
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Ref
 import net.bible.service.db.DatabaseContainer

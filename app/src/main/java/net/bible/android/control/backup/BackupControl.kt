@@ -47,7 +47,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.windowControl
@@ -489,9 +488,7 @@ object BackupControl {
                 } catch (e: FileNotFoundException) {null}
                 if (inputStream != null && restoreDatabaseViaIntent(inputStream)) {
                     Log.i(TAG, "Restored database successfully")
-                    withContext(Dispatchers.Main) {
-                        _mainBibleActivity?.afterRestore()
-                    }
+                    ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
                 } else {
                     Dialogs.showMsg(R.string.restore_unsuccessfull)
                 }

@@ -94,7 +94,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.db.DataBaseNotReady
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
@@ -478,12 +477,12 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     val resources: Resources get() =
-        CurrentActivityHolder?.currentActivity?.resources?: application.resources
+        CurrentActivityHolder.currentActivity?.resources?: application.resources
 
 
     fun getResourceColor(resourceId: Int): Int =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val theme = _mainBibleActivity?.theme?: resources.newTheme().apply {
+            val theme = CurrentActivityHolder.currentActivity?.theme?: resources.newTheme().apply {
                 applyStyle(R.style.AppTheme, true)
             }
 
@@ -493,7 +492,7 @@ object CommonUtils : CommonUtilsBase() {
         }
 
     private fun getResourceDrawable(resourceId: Int, context: Context? = null): Drawable? {
-        val theme = _mainBibleActivity?.theme?: resources.newTheme().apply {
+        val theme = CurrentActivityHolder.currentActivity?.theme?: resources.newTheme().apply {
             applyStyle(R.style.AppTheme, true)
         }
 

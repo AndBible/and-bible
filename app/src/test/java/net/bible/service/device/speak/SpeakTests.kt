@@ -39,7 +39,6 @@ import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.service.common.CommonUtils
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
@@ -54,7 +53,6 @@ import org.robolectric.annotation.Config
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.*
 import org.junit.After
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -135,12 +133,6 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
 
         bibleSpeakActivityController.create()
         mainActivityController.create()
-    }
-
-    @After
-    fun after() {
-        _mainBibleActivity = null
-
     }
 
     fun getVerse(verseStr: String): Verse {

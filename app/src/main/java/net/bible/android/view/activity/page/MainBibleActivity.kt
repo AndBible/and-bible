@@ -24,7 +24,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.Color
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
@@ -203,11 +202,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Creating MainBibleActivity")
-        // This is singleton so we can do this.
-        if(_mainBibleActivity != null) {
-            throw RuntimeException("MainBibleActivity was created second time!")
-        }
-        _mainBibleActivity = this
 
         ScreenSettings.refreshNightMode()
         currentNightMode = ScreenSettings.nightMode
@@ -1151,7 +1145,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         super.onDestroy()
         beforeDestroy()
         ABEventBus.unregister(this)
-        _mainBibleActivity = null
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
@@ -1274,7 +1267,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return super.onKeyUp(keyCode, event)
     }
 
-    fun afterRestore() {
+    class MainBibleAfterRestore
+
+    fun onEventMainThread(e: MainBibleAfterRestore) = afterRestore()
+
+    private fun afterRestore() {
         bookmarkControl.reset()
         documentViewManager.removeView()
         bibleViewFactory.clear()
@@ -1545,7 +1542,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     companion object {
-        var _mainBibleActivity: MainBibleActivity? = null
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
 

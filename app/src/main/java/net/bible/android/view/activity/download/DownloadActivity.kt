@@ -39,7 +39,6 @@ import net.bible.android.control.download.DocumentStatus
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.db.DatabaseContainer
