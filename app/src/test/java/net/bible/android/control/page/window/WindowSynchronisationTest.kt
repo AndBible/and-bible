@@ -51,22 +51,15 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class WindowSynchronisationTest {
 
-    private var windowRepository: WindowRepository? = null
-
     private var windowControl: WindowControl? = null
+    private val windowRepository get() = windowControl!!.windowRepository
 
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        val bibleTraverser = mock(BibleTraverser::class.java)
-
-        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
-        val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
-        windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
-        windowControl = WindowControl(windowRepository!!)
+        windowControl = WindowControl()
         CommonUtils.settings.setBoolean("first-time", false)
-        windowRepository!!.initialize()
+        windowRepository.initialize()
     }
 
     @After

@@ -50,7 +50,7 @@ import javax.inject.Provider
 class WindowTest {
     private lateinit var mockCurrentPageManagerProvider: Provider<CurrentPageManager>
     private var windowControl: WindowControl? = null
-    var windowRepository: WindowRepository? = null
+    private val windowRepository: WindowRepository get() = windowControl!!.windowRepository
 
     @Before
     @Throws(Exception::class)
@@ -59,13 +59,10 @@ class WindowTest {
 
         val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
         mockCurrentPageManagerProvider = Provider {
-            CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!)
+            CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowControl!!)
         }
-        val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
-        windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
-        windowControl = WindowControl(windowRepository!!)
-        windowRepository!!.initialize()
-        windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
+        windowControl = WindowControl()
+        windowRepository.initialize()
     }
 
     @After
@@ -90,7 +87,7 @@ class WindowTest {
                 id = 2
             ),
             pageManager,
-            windowRepository!!
+            windowRepository
         )
         window.isSynchronised = true
         window.weight = 1.23456f
@@ -105,7 +102,7 @@ class WindowTest {
 
         val newPm = mockCurrentPageManagerProvider.get()
         // recreate window from saved state
-        window = Window(entity, newPm, windowRepository!!)
+        window = Window(entity, newPm, windowRepository)
         assertThat(window.id, equalTo(2L))
         assertThat(window.windowState, equalTo(WindowState.MINIMISED))
         assertThat(window.isSynchronised, equalTo(true))
