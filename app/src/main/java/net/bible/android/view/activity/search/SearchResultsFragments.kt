@@ -260,9 +260,9 @@ class SearchWordStatisticsFragment() : Fragment() {
                 statisticsLayout, false
             )
             val button = statsRow.findViewById<Button>(R.id.searchStatisticsWordButton)
-            button.setText(it.originalWord)
+            button.text = it.originalWord
             val text = statsRow.findViewById<TextView>(R.id.searchStatisticsWordCount)
-            text.setText("${it.verseIndexes.count()}")
+            text.text = "${it.verseIndexes.count()}"
             val progressBar = statsRow.findViewById<ProgressBar>(R.id.searchStatisticsWordCountProgress)
             progressBar.max = maxCount
             progressBar.progress = it.verseIndexes.count()

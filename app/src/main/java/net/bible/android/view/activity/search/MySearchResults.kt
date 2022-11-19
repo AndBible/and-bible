@@ -63,7 +63,7 @@ class BookStat(val book: String, var count: Int,
                 val color: Int) {
     override fun toString(): String = "$book: $count"
 }
-class WordStat(val word: String,
+class WordStat(var word: String,
                var verseIndexes: IntArray,
                val originalWord: String,
                var tag: Boolean = false) {
@@ -169,7 +169,6 @@ class MySearchResults : CustomTitlebarActivityBase() {
             supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent,
             mSearchResultsArray, bookStatistics, wordStatistics, keyWordStatistics
         )
-
 
         binding.viewPager.run {
             adapter = sectionsPagerAdapter
@@ -296,38 +295,55 @@ class MySearchResults : CustomTitlebarActivityBase() {
             }
             listIndex += 1
         }
-        // Build keyword list
+        // Initialise keyword lists
         val tmpKeyWordStatistics = mutableListOf<WordStat>()
+        val tmpWordStatistics = wordStatistics.toMutableList()
+//        val wordsToExclude = listOf("and","or")
+
+//        // Cleanup original word list
+//        tmpWordStatistics.filter {"“" in it.originalWord  }.map {
+//            it.word = it.originalWord.replace("“","",true)
+//        }
 
         // Exclude short words (eg 'and', 'or', 'it' etc)
-        wordStatistics.filter{it.originalWord.length<=3 && it.originalWord != "God"}.map {it.tag = true}
+        tmpWordStatistics.filter{it.word.length<=3 && it.word != "God"}.map {it.tag = true}
+
+        // Remove short single words from the beginning of a phrase
+        tmpWordStatistics.filter{it.word.indexOf(" ") > 0 && it.word.indexOf(" ") < 4}.map {
+            it.word = it.word.substring(it.word.indexOf(" ")+1).trim()
+        }
 
         // Find all single words
-        wordStatistics.filter{ !it.tag }.sortedBy { it.originalWord.length }.map {
-            if (" " !in it.originalWord) {
-                it.tag = true  // Don't process this entry again
-                tmpKeyWordStatistics.add(WordStat(it.word, it.verseIndexes, it.originalWord))
-                keyWordStatistics.add(WordStat(it.word, it.verseIndexes, it.originalWord))
+        tmpWordStatistics.filter{ !it.tag }.sortedBy { it.originalWord.length }.map { wordStat ->
+            // TODO: I think longer single words that contain shorter single words are being excluded (correctly) but their VerseIndexes are not being included
+            // TODO: Check Greek word Thirsty G1372 
+            // TODO: This IF  should be able to be moved into the filter above
+            if (" " !in wordStat.word) {
+                wordStat.tag = true  // Don't process this entry again
+                if (!keyWordStatistics.any { wordStat.word.contains(it.word,true) }) {
+                    tmpKeyWordStatistics.add(WordStat(wordStat.word, wordStat.verseIndexes, wordStat.originalWord))
+                    keyWordStatistics.add(WordStat(wordStat.word, wordStat.verseIndexes, wordStat.word))
+                }
             }
         }
 
-        // Find phrases that have a single keyword in them
-        keyWordStatistics.map { keyWord ->
-            wordStatistics.filter { !it.tag && it.originalWord.contains(keyWord.originalWord,true) }.map { multiWordStat ->
+        // Find phrases that have a single keyword in them. Order is important to exclude words with punctuation (eg "Gather)
+        keyWordStatistics.sortedBy { it.originalWord.length }.map { keyWord ->
+            tmpWordStatistics.filter { !it.tag && it.word.contains(keyWord.word,true) }.map { multiWordStat ->
                 multiWordStat.tag = true  // Exclude the
                 keyWord.verseIndexes += multiWordStat.verseIndexes
             }
         }
         // Find phrases that are in other longer phrases
-        wordStatistics.filter{ !it.tag }.sortedBy { it.originalWord.length }.map { shortPhrase ->
-            wordStatistics.filter { !it.tag && it.originalWord != shortPhrase.originalWord && it.originalWord.contains(shortPhrase.originalWord,true) }
+        tmpWordStatistics.filter{ !it.tag }.sortedBy { it.word.length }.map { shortPhrase ->
+            tmpWordStatistics.filter { !it.tag && it.word != shortPhrase.word && it.word.contains(shortPhrase.word,true) }
                 .map { longPhrase ->
                     longPhrase.tag = true
                     shortPhrase.verseIndexes += longPhrase.verseIndexes
                 }
         }
         // Add all the phrases that have not been tagged (excludes single words, long phrases that appear in shorter phrases)
-        wordStatistics.filter{ !it.tag }.map {
+        tmpWordStatistics.filter{ !it.tag }.map {
             keyWordStatistics.add(it)
         }
 
