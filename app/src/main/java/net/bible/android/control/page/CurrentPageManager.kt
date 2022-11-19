@@ -174,7 +174,7 @@ open class CurrentPageManager @Inject constructor(
                     PassageChangeMediator.onCurrentPageChanged(this.window)
                 } else {
                     // pop up a key selection screen
-                    nextPage.startKeyChooser(MainBibleActivity._mainBibleActivity!!)
+                    nextPage.startKeyChooser(CurrentActivityHolder.currentActivity!!)
                 }
             }
         } else {

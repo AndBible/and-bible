@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import net.bible.android.common.toV11n
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
@@ -67,7 +68,8 @@ class CurrentGeneralBookPage internal constructor(
 
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
-    override fun startKeyChooser(context: MainBibleActivity) {
+    override fun startKeyChooser(context: ActivityBase) {
+        if(context !is MainBibleActivity) return
         context.lifecycleScope.launch(Dispatchers.Main) {
             when (currentDocument) {
                 FakeBookFactory.journalDocument -> {

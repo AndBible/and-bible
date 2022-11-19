@@ -40,7 +40,7 @@ class CurrentMapPage internal constructor(
 
     override val documentCategory = DocumentCategory.MAPS
 
-    override fun startKeyChooser(context: MainBibleActivity) = context.startActivityForResult(Intent(context, ChooseMapKey::class.java), STD_REQUEST_CODE)
+    override fun startKeyChooser(context: ActivityBase) = context.startActivityForResult(Intent(context, ChooseMapKey::class.java), STD_REQUEST_CODE)
 
     /** set key without notification
      *
