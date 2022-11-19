@@ -25,6 +25,7 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
+import net.bible.android.view.activity.search.SearchResultsDto
 import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
@@ -141,23 +142,6 @@ class SearchControl @Inject constructor(
         return searchResults
     }
 
-    fun getSearchResultVerseElement(key: Key?): Element {
-        // There is similar functionality in BookmarkControl
-        var xmlVerse:Element? = null
-        try {
-            val doc = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
-            val cat = doc!!.bookCategory
-            xmlVerse = if (cat == BookCategory.BIBLE || cat == BookCategory.COMMENTARY) {
-                readOsisFragment(doc, key)
-            } else {
-                val bible = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!
-                readOsisFragment(bible, key)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting verse text", e)
-        }
-        return xmlVerse!!
-    }
     /** double spaces, :, and leading or trailing space cause lucene errors
      */
     private fun cleanSearchString(search: String): String {

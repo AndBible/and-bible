@@ -21,7 +21,6 @@ import net.bible.android.control.search.SearchControl
 import android.widget.ArrayAdapter
 import android.view.ViewGroup
 import android.view.LayoutInflater
-import android.text.Html
 import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableString
@@ -30,6 +29,7 @@ import android.util.Log
 import android.view.View
 import android.widget.TwoLineListItem
 import net.bible.service.common.htmlToSpan
+import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.passage.Key
 import org.jdom2.Element
 import org.jdom2.Text
@@ -81,12 +81,11 @@ fun prepareSearchWord(searchWord_: String): String {
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class SearchItemAdapter(
-    _context: Context,
+    private val searchResultsActivity: SearchResults,
     private val resource: Int,
     _items: List<Key>,
-    private val searchControl: SearchControl
 ) : ArrayAdapter<Key>(
-    _context, resource, _items
+    searchResultsActivity, resource, _items
 ) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val item = getItem(position)
@@ -109,7 +108,7 @@ class SearchItemAdapter(
 
         // set value for the second text field
         if (view.text2 != null) {
-            val verseTextElement = searchControl.getSearchResultVerseElement(item)
+            val verseTextElement = SwordContentFacade.readOsisFragment(searchResultsActivity.searchDocument, item)
             val verseTextHtml =
                 highlightSearchText(SearchControl.originalSearchString?: "____", verseTextElement)
             view.text2.text = verseTextHtml
@@ -117,7 +116,7 @@ class SearchItemAdapter(
         return view
     }
 
-    private val elementsToExclude = Arrays.asList("note", "reference")
+    private val elementsToExclude = listOf("note", "reference")
 
     //private final List<String> elementsToInclude = Arrays.asList("w","transChange","divineName","seg","q", "p");
     private fun processElementChildren(

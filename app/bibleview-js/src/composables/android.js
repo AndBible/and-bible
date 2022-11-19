@@ -109,9 +109,10 @@ export function useAndroid({bookmarks}, config) {
     function querySelection() {
         const selection = window.getSelection();
         if (selection.rangeCount < 1 || selection.collapsed) return null;
+        const selectionOnly = selection.toString();
         const range = selection.getRangeAt(0);
         const documentElem = range.startContainer.parentElement.closest(".bible-document");
-        if(!documentElem) return null
+        if(!documentElem) return selectionOnly
 
         const bookInitials = documentElem.dataset.bookInitials;
         let startOrdinal, startOffset, endOrdinal, endOffset;
@@ -125,7 +126,7 @@ export function useAndroid({bookmarks}, config) {
 
         } catch (e) {
             if(e instanceof ReachedRootError) {
-                return null;
+                return selectionOnly
             } else {
                 throw e;
             }
@@ -147,7 +148,12 @@ export function useAndroid({bookmarks}, config) {
         const deleteBookmarks = union(filteredBookmarks.map(b => b.id));
 
         return {
-            bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks: deleteBookmarks,
+            bookInitials,
+            startOrdinal,
+            startOffset,
+            endOrdinal,
+            endOffset,
+            bookmarks: deleteBookmarks,
             text: selection.toString()
         };
     }

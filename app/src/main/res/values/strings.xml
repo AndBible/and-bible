@@ -1076,4 +1076,6 @@
     <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
     <string name="marker_style">Show only marker</string>
     <string name="type_text_or_bible_reference">Type text or bible reference</string>
+    <string name="go_to_ref">Open %s</string>
+    <string name="search_what">Find \"%s\"</string>
 </resources>
