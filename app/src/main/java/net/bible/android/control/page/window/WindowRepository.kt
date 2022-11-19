@@ -57,6 +57,7 @@ open class WindowRepository @Inject constructor(
     private val historyManagerProvider: Provider<HistoryManager>,
 )
 {
+    val windowSync: WindowSync = WindowSync(this)
     val scope get() = _mainBibleActivity?.lifecycleScope?: CoroutineScope(Dispatchers.Default) // null -> For tests
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
