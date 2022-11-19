@@ -48,6 +48,7 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.DocumentSearch
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.isRecommended
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Ref
@@ -530,7 +531,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
                             // the doc list should now change
                             reloadDocuments()
-                            _mainBibleActivity?.updateDocuments()
+                            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                         } catch (e: Exception) {
                             Log.e(TAG, "Deleting document crashed", e)
                             Dialogs.showErrorMsg(R.string.error_occurred, e)

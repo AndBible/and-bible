@@ -1283,7 +1283,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         currentWorkspaceId = 0
     }
 
-    fun updateDocuments() {
+    class UpdateMainBibleActivityDocuments
+
+    fun onEventMainThread(e: UpdateMainBibleActivityDocuments) {
+        updateDocuments()
+    }
+
+    private fun updateDocuments() {
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
     }

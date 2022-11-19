@@ -46,6 +46,7 @@ import net.bible.android.database.DATABASE_VERSION
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
@@ -504,7 +505,7 @@ object BackupControl {
         val result = activity.awaitIntent(intent)
         if(result.resultData?.data == null) return
 
-        _mainBibleActivity?.updateDocuments()
+        ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
     }
 
     suspend fun backupPopup(activity: ActivityBase) {

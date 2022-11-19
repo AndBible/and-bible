@@ -48,6 +48,7 @@ import net.bible.android.activity.databinding.ActivityInstallZipBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import java.io.InputStream
 import kotlin.coroutines.resume
@@ -273,7 +274,7 @@ class InstallZip : ActivityBase() {
                 {percent -> updateProgress(percent)},
                 {finishResult ->
                     setResult(finishResult);
-                    _mainBibleActivity?.updateDocuments()
+                    ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                     finish()
                 },
             this

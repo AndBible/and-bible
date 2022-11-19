@@ -61,8 +61,10 @@ import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.serializer
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 
 /**
@@ -374,7 +376,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
             // update screen so the icon to the left of the book changes
             notifyDataSetChanged()
-            _mainBibleActivity?.updateDocuments()
+            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to download", e)
             Toast.makeText(this@DownloadActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
@@ -458,7 +460,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                 lifecycleScope.launch (Dispatchers.Main){
                     val intent = Intent(this@DownloadActivity, InstallZip::class.java)
                     awaitIntent(intent)
-                    _mainBibleActivity?.updateDocuments()
+                    ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                 }
 
                 isHandled  = true
