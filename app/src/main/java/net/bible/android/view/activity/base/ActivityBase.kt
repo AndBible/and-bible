@@ -210,6 +210,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     override fun onPause() {
+        if(CommonUtils.initialized && CommonUtils.windowControl.windowRepository.initialized) {
+            CommonUtils.windowControl.windowRepository.saveIntoDb(true)
+        }
         super.onPause()
         Log.i(localClassName, "onPause:" + this)
         if (isScreenOn && !ScreenSettings.isScreenOn) {

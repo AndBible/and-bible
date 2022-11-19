@@ -142,7 +142,7 @@ open class WindowRepository @Inject constructor(
             _activeWindow?.bibleView?.requestFocus()
         }
 
-    private val initialized get() = _activeWindow != null
+    val initialized get() = _activeWindow != null
 
     // When in maximized mode, keep track of last used
     // window that was synchronized
