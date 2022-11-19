@@ -214,12 +214,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
 
     private fun verseSelected(key: Key?) {
         Log.i(TAG, "chose:$key")
-        if (key != null) { // which doc do we show
-            var targetDocInitials = intent.extras!!.getString(SearchControl.TARGET_DOCUMENT)
-            if (StringUtils.isEmpty(targetDocInitials)) {
-                targetDocInitials = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
-            }
-            val targetBook = swordDocumentFacade.getDocumentByInitials(targetDocInitials)
+        if (key != null) {
+            val targetBook = this.searchDocument
             activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
             // this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
             val intent = Intent(this, MainBibleActivity::class.java).apply {
