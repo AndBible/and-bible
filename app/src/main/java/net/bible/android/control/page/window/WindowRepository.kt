@@ -35,7 +35,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.AppSettingsUpdated
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString

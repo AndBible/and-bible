@@ -40,7 +40,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
-import net.bible.android.view.activity.page.windowRepository
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
