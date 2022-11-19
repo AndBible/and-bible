@@ -299,17 +299,6 @@ open class WindowRepository @Inject constructor(
         return newWindow
     }
 
-    /**
-     * If app moves to background then save current state to allow continuation after return
-     *
-     * @param appToBackgroundEvent Event info
-     */
-    fun onEvent(appToBackgroundEvent: AppToBackgroundEvent) {
-        if (appToBackgroundEvent.isMovedToBackground) {
-            saveIntoDb(false)
-        }
-    }
-
     private val contentText: String get() {
         val keyTitle = ArrayList<String>()
         synchronized(BookName::class.java) {
