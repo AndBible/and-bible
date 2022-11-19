@@ -19,10 +19,8 @@ package net.bible.android.control
 
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.MainBibleActivityScope
 
 import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
 import javax.inject.Inject
@@ -31,9 +29,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@MainBibleActivityScope
-class BibleContentManager @Inject
-constructor(private val windowControl: WindowControl) {
+class BibleContentManager @Inject constructor(private val windowControl: WindowControl) {
     init {
         PassageChangeMediator.setBibleContentManager(this)
     }

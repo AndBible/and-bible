@@ -32,8 +32,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.DaggerMainBibleActivityComponent
-import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -96,11 +94,7 @@ class BibleFrame(
     }
 
     init {
-        DaggerMainBibleActivityComponent.builder()
-            .applicationComponent(BibleApplication.application.applicationComponent)
-            .mainBibleActivityModule(MainBibleActivityModule(mainBibleActivity))
-            .build()
-            .inject(this)
+        CommonUtils.buildActivityComponent().inject(this)
     }
 
     fun updatePaddings() {

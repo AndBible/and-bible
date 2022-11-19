@@ -85,8 +85,6 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
-import net.bible.android.view.activity.DaggerMainBibleActivityComponent
-import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
@@ -140,18 +138,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     // We need to have this here in order to initialize BibleContentManager early enough.
     @Inject lateinit var bibleContentManager: BibleContentManager
-    @Inject lateinit var documentViewManager: DocumentViewManager
     @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
 
     // handle requests from main menu
-    @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var documentControl: DocumentControl
     @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var bibleViewFactory: BibleViewFactory
     @Inject lateinit var pageControl: PageControl
+
+    lateinit var documentViewManager: DocumentViewManager
+    lateinit var bibleViewFactory: BibleViewFactory
+    private lateinit var mainMenuCommandHandler: MenuCommandHandler
 
     private var navigationBarHeight = 0
     private var actionBarHeight = 0
@@ -166,8 +165,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             field = value
         }
 
-    val dao get() = DatabaseContainer.db.workspaceDao()
-    val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val dao get() = DatabaseContainer.db.workspaceDao()
+    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
     val multiWinMode
         get() =
@@ -221,15 +220,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             binding.navigationView.menu.findItem(R.id.rateButton).isVisible = false
         }
 
-        DaggerMainBibleActivityComponent.builder()
-            .applicationComponent(BibleApplication.application.applicationComponent)
-            .mainBibleActivityModule(MainBibleActivityModule(this))
-            .build()
-            .inject(this)
+        CommonUtils.buildActivityComponent().inject(this)
 
         windowRepository = WindowRepository(lifecycleScope)
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
+
+        documentViewManager = DocumentViewManager(this)
+        bibleViewFactory = BibleViewFactory(this)
+        mainMenuCommandHandler = MenuCommandHandler(this)
 
         if(CommonUtils.isDiscrete) {
             binding.bibleButton.setImageResource(R.drawable.ic_baseline_menu_book_24)

@@ -21,8 +21,6 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MenuItem
@@ -39,9 +37,7 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.BugReport
 import net.bible.android.control.search.SearchControl
-import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
@@ -68,13 +64,15 @@ const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-te
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@MainBibleActivityScope
-class MenuCommandHandler @Inject
-constructor(private val mainBibleActivity: MainBibleActivity,
-            private val searchControl: SearchControl,
-            private val windowControl: WindowControl,
-            private val downloadControl: DownloadControl,
-) {
+class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
+    @Inject lateinit var searchControl: SearchControl
+    @Inject lateinit var windowControl: WindowControl
+    @Inject lateinit var downloadControl: DownloadControl
+
+    init {
+        CommonUtils.buildActivityComponent().inject(this)
+    }
+
     private inline val isSamsung get() = BuildVariant.DistributionChannel.isSamsung
 
     /**
