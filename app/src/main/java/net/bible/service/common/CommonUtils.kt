@@ -380,7 +380,6 @@ object CommonUtils : CommonUtilsBase() {
         return bytesAvailable
     }
 
-    @JvmOverloads
     fun limitTextLength(text: String?, maxLength: Int = DEFAULT_MAX_TEXT_LENGTH, singleLine: Boolean = false): String? {
         var text = text
         if (text != null) {

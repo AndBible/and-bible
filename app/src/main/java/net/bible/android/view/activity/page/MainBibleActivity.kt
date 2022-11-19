@@ -1544,8 +1544,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         const val WORKSPACE_CHANGED = 94
 
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"
-
-        private const val TAG = "MainBibleActivity"
     }
 }
 

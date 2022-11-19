@@ -213,7 +213,6 @@ class SpeakControl @Inject constructor(
 
     /** Toggle speech - prepare to speak single page OR if speaking then stop speaking
      */
-    @JvmOverloads
     fun toggleSpeak(preferLast: Boolean = false) {
         Log.i(TAG, "Speak toggle current page")
         // Continue

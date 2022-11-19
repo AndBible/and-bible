@@ -36,14 +36,12 @@ object PassageChangeMediator {
 
     /** first time we know a page or doc will imminently change
      */
-    @JvmOverloads
     fun onBeforeCurrentPageChanged(updateHistory: Boolean = true) {
         ABEventBus.post(BeforeCurrentPageChangeEvent(updateHistory))
     }
 
     /** the document has changed so ask the view to refresh itself
      */
-    @JvmOverloads
     fun onCurrentPageChanged(window: Window? = null) {
         if (mBibleContentManager != null) {
             mBibleContentManager!!.updateText(window)

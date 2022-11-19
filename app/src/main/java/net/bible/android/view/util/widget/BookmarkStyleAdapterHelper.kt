@@ -36,7 +36,6 @@ import org.apache.commons.lang3.StringUtils
 class BookmarkStyleAdapterHelper {
     private val sampleText = getResourceString(R.string.prefs_text_size_sample_text)
 
-    @JvmOverloads
     fun styleView(
         view: TextView,
         label: BookmarkEntities.Label,
