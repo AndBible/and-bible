@@ -49,6 +49,7 @@ import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.windowControl
 import net.bible.service.common.FileManager
 import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
@@ -69,12 +70,12 @@ import java.io.InputStream
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 
 object BackupControl {
-
     /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
      */
     private suspend fun backupDatabaseToUri(activity: ActivityBase, uri: Uri, file: File)  {
@@ -416,14 +417,14 @@ object BackupControl {
                 }
                 val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
 
-                _mainBibleActivity?.windowRepository?.saveIntoDb()
+                windowControl.windowRepository.saveIntoDb()
                 db.sync()
                 callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, dbFile)
                 }
             }
             BackupResult.SHARE -> {
-                _mainBibleActivity?.windowRepository?.saveIntoDb()
+                windowControl.windowRepository.saveIntoDb()
                 db.sync()
                 backupDatabaseViaSendIntent(callingActivity, dbFile)
             }
@@ -458,7 +459,7 @@ object BackupControl {
                 }
                 val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
 
-                _mainBibleActivity?.windowRepository?.saveIntoDb()
+                windowControl.windowRepository.saveIntoDb()
                 db.sync()
                 callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, file)
