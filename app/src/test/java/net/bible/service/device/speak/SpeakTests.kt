@@ -23,7 +23,6 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
@@ -276,7 +275,6 @@ open class AbstractSpeakTests {
         val windowRepository = mock(WindowRepository::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
         val bookmarkControl = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java))
-        val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
     }
 }
 
