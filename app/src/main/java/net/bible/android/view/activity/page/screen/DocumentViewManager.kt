@@ -71,7 +71,7 @@ class DocumentViewManager @Inject constructor(
     }
 
     private fun buildWebViews(forceUpdate: Boolean): SplitBibleArea {
-        val topView = splitBibleArea?: SplitBibleArea().also {
+        val topView = splitBibleArea?: SplitBibleArea(mainBibleActivity).also {
             splitBibleArea = it
         }
         topView.update(forceUpdate)

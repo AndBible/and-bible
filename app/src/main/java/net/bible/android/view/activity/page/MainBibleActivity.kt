@@ -483,7 +483,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun setupToolbarFlingDetection() {
         val scaledMinimumDistance = CommonUtils.convertDipsToPx(40)
-        var minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
+        var minScaledVelocity = ViewConfiguration.get(this).scaledMinimumFlingVelocity
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
 
         val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
@@ -1535,7 +1535,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     companion object {
         var _mainBibleActivity: MainBibleActivity? = null
-        val mainBibleActivity get() = _mainBibleActivity!!
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
 

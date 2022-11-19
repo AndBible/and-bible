@@ -27,7 +27,6 @@ import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.page.CurrentPage
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.device.ScreenSettings
 
 import org.crosswire.jsword.book.BookCategory

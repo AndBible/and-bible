@@ -48,10 +48,10 @@ class BibleViewFactory @Inject constructor(
 ) {
 
     private val windowPageTiltScrollControlMap: MutableMap<Window, PageTiltScrollControl> = java.util.HashMap()
-    fun getPageTiltScrollControl(window: Window): PageTiltScrollControl {
+    private fun getPageTiltScrollControl(window: Window): PageTiltScrollControl {
         return windowPageTiltScrollControlMap[window] ?: synchronized(windowPageTiltScrollControlMap) {
             synchronized(windowPageTiltScrollControlMap) {
-                windowPageTiltScrollControlMap[window] ?: PageTiltScrollControl()
+                windowPageTiltScrollControlMap[window] ?: PageTiltScrollControl(mainBibleActivity)
             }.also {
                 windowPageTiltScrollControlMap[window] = it
             }

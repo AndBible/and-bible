@@ -34,7 +34,6 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
@@ -304,9 +303,9 @@ open class WindowControl @Inject constructor(
         ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
-    val scope get() = mainBibleActivity.lifecycleScope
+    val scope get() = CurrentActivityHolder.currentActivity!!.lifecycleScope
 
-    private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine<BooleanArray?> {
+    private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine {
         val context = CurrentActivityHolder.currentActivity!!
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
             getPrefItem(SettingsBundle(windowRepository.id, windowRepository.name,
