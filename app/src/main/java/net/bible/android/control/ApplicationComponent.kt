@@ -23,7 +23,6 @@ import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.PageControl
-import net.bible.android.control.page.PageTiltScrollControlFactory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
@@ -56,7 +55,6 @@ interface ApplicationComponent {
     fun windowControl(): WindowControl
     fun activeWindowPageManagerProvider(): ActiveWindowPageManagerProvider
     fun linkControl(): LinkControl
-    fun pageTiltScrollControlFactory(): PageTiltScrollControlFactory
     fun historyManager(): HistoryManager
     fun historyTraversalFactory(): HistoryTraversalFactory
 
