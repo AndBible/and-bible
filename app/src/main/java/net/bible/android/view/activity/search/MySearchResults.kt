@@ -310,11 +310,14 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
         // Remove short single words from the beginning of a phrase
         tmpWordStatistics.filter{it.word.indexOf(" ") > 0 && it.word.indexOf(" ") < 4}.map {
-            it.word = it.word.substring(it.word.indexOf(" ")+1)
+            it.word = it.word.substring(it.word.indexOf(" ")+1).trim()
         }
 
         // Find all single words
         tmpWordStatistics.filter{ !it.tag }.sortedBy { it.originalWord.length }.map { wordStat ->
+            // TODO: I think longer single words that contain shorter single words are being excluded (correctly) but their VerseIndexes are not being included
+            // TODO: Check Greek word Thirsty G1372 
+            // TODO: This IF  should be able to be moved into the filter above
             if (" " !in wordStat.word) {
                 wordStat.tag = true  // Don't process this entry again
                 if (!keyWordStatistics.any { wordStat.word.contains(it.word,true) }) {
