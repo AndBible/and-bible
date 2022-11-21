@@ -388,8 +388,9 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
+        if(event.window?.windowRepository != windowControl.windowRepository) return
         updateBibleReference()
-        if (event.window != null) updateMinimizedButtonText(event.window)
+        updateMinimizedButtonText(event.window)
     }
 
     private fun updateBibleReference() {

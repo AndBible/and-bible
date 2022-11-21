@@ -223,6 +223,7 @@ open class WindowControl @Inject constructor() {
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
+        if(event.window?.windowRepository != windowRepository) return
         windowSync.synchronizeWindows(event.window)
     }
 
