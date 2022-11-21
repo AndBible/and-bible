@@ -319,18 +319,18 @@ class LinkControl @Inject constructor(
     fun tryToOpenRef(searchRef: String, doc: SwordBook? = null): Boolean {
         val key = resolveRef(searchRef, doc)
         if (key != null) {
-            showLink(doc, key)
+            showLink(doc, key, forceOpenHere = true)
             return true
         }
         return false
     }
 
-    fun showLink(document: Book?, key: Key) { // ask window controller to open link in desired window
+    fun showLink(document: Book?, key: Key, forceOpenHere: Boolean = false) {
         val currentPageManager = currentPageManager
         val defaultDocument = currentPageManager.currentBible.currentDocument!!
         if (windowMode == WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
-        } else if (checkIfOpenLinksInDedicatedWindow()) {
+        } else if (checkIfOpenLinksInDedicatedWindow() && !forceOpenHere) {
             if (document == null) {
                 windowControl.showLinkUsingDefaultBible(key)
             } else {
