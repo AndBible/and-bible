@@ -1078,4 +1078,6 @@
     <string name="type_text_or_bible_reference">Type text or bible reference</string>
     <string name="go_to_ref">Open %s</string>
     <string name="search_what">Find \"%s\"</string>
+    <string name="app_opened_elsewhere">App opened elsewhere</string>
+    <string name="open_here">Open here</string>
 </resources>

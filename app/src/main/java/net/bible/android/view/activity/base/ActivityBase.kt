@@ -68,7 +68,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
-        CurrentActivityHolder.currentActivity = this
+        CurrentActivityHolder.activate(this)
 
         if(!doNotInitializeApp) {
             CommonUtils.initializeApp()
@@ -207,7 +207,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     override fun onResume() {
-        CurrentActivityHolder.currentActivity = this
+        CurrentActivityHolder.activate(this)
         super.onResume()
         Log.i(TAG, "onResume wasPaused:$wasPaused returningFromCalculator:$returningFromCalculator")
         if (
@@ -303,12 +303,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     override fun onStop() {
         super.onStop()
         Log.i(TAG, "onStop")
-        // screen can still be considered as current screen if put on stand-by
-        // removing this if causes speech to stop when screen is put on stand-by
-        if (isScreenOn) {
-            // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
-            CurrentActivityHolder.iAmNoLongerCurrent(this)
-        }
+        CurrentActivityHolder.deactivate(this)
     }
 
     /**
@@ -361,6 +356,10 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }
+
+    open fun freeze() {}
+
+    open fun unFreeze() {}
 
     val TAG get() = "Base-${this::class.java.simpleName}"
 

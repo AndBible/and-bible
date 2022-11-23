@@ -60,6 +60,7 @@ import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
+import net.bible.android.activity.databinding.FrozenBinding
 import net.bible.android.activity.databinding.MainBibleViewBinding
 import net.bible.android.control.BibleContentManager
 import net.bible.android.control.backup.BackupControl
@@ -133,6 +134,7 @@ import kotlin.system.exitProcess
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
     lateinit var empty: EmptyBinding
+    lateinit var frozenBinding: FrozenBinding
 
     private var mWholeAppWasInBackground = false
 
@@ -210,6 +212,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         binding = MainBibleViewBinding.inflate(layoutInflater)
         empty = EmptyBinding.inflate(layoutInflater)
+        frozenBinding = FrozenBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         if(BuildVariant.Appearance.isDiscrete ||
@@ -1538,6 +1541,32 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     val isSplitVertically: Boolean get() {
         val reverse = windowRepository.workspaceSettings.enableReverseSplitMode
         return if(reverse) !CommonUtils.isPortrait else CommonUtils.isPortrait
+    }
+
+    private var frozen = false
+
+    override fun freeze() {
+        if(CurrentActivityHolder.mainBibleActivities < 2) return
+        if(!frozen) {
+            ABEventBus.unregister(this)
+            (window.decorView as ViewGroup).removeView(binding.root)
+            super.setContentView(frozenBinding.root)
+        }
+        frozen = true
+    }
+
+    override fun unFreeze() {
+        if(frozen) {
+            windowControl.windowRepository = windowRepository
+            ABEventBus.register(this)
+            (window.decorView as ViewGroup).removeView(frozenBinding.root)
+            super.setContentView(binding.root)
+        }
+        frozen = false
+    }
+
+    fun activate(v: View) {
+        CurrentActivityHolder.activate(this)
     }
 
     companion object {
