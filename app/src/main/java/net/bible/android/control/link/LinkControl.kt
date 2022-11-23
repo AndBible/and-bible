@@ -55,6 +55,7 @@ import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BibleNames
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
@@ -300,13 +301,24 @@ class LinkControl @Inject constructor(
     }
     fun resolveRef(searchRef: String, doc: SwordBook? = null): Key? {
         val searchDoc = doc ?: windowControl.defaultBibleDoc(useLinks = true)
-
-        val key = try { PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef) } catch (e: NoSuchVerseException) {null}?:
+        val bibleNames = BibleNames.instance();
+        val key = try {
+            synchronized(bibleNames) {
+                val orig = bibleNames.enableFuzzy
+                bibleNames.enableFuzzy = false
+                val k = PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef)
+                bibleNames.enableFuzzy = orig
+                k
+            }
+        } catch (e: NoSuchVerseException) {null}?:
         try {
             if (searchDoc.language.code != MyLocaleProvider.userLocale.language) {
-                synchronized(BookName::class.java) {
+                synchronized(bibleNames) {
                     MyLocaleProvider.override = Locale(searchDoc.language.code)
+                    val orig = bibleNames.enableFuzzy
+                    bibleNames.enableFuzzy = false
                     val k = PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef)
+                    bibleNames.enableFuzzy = orig
                     MyLocaleProvider.override = null
                     k
                 }
