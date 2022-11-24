@@ -156,18 +156,26 @@
   <string name="window_pinning_menutitle">נעיצת חלון</string>
   <string name="hide_window_buttons_title">הסתרת כפתורים של החלון</string>
   <string name="hide_window_buttons_summary">כפתורי החלון שבצד שמאל מוסתרים. סרגל הניווט בתחתית המסך עדיין מוצג, ואפשר לפתוח את תפריט אפשרויות החלון בלחיצה ארוכה עליו.</string>
+  <string name="hide_bible_reference_overlay_title">הסתר שכבת מראה מקום</string>
+  <string name="hide_bible_reference_overlay_summary">אל תציג את את מראה המקום בשכבה השקופה-למחצה כשהיישום במצב מסך מלא</string>
   <string name="full_screen_hide_buttons_pref_title">להסתיר תפריט במסך מלא</string>
   <string name="full_screen_hide_buttons_pref_summary">כשעוברים לתצוגה במסך מלא, הסתר אוטומטית את שורת הכפתורים בתחתית המסך</string>
   <string name="prefs_dictionaries_cat">מילונים</string>
   <string name="choose_strongs_greek_dictionary_title">מילון היוונית של סטרונג</string>
   <string name="choose_strongs_greek_dictionary_summary">בחר מילון סטרונג לפרשנות מילים ביוונית</string>
   <string name="choose_strongs_hebrew_dictionary_title">מילון העברית של סטרונג</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">בחר מילון סטרונג לפרשנות מילים בעברית</string>
+  <string name="choose_strongs_greek_morphology_title">רובינסון - מורפולוגיה יונית</string>
+  <string name="choose_strongs_greek_morphology_summary">בחר מילון עבור מורפולוגיה יונית של רובינסון</string>
   <string name="prefs_top_margin_title_mm">שוליים עליונים (%d מ\"מ)</string>
   <string name="font_size_title">גודל גופן</string>
   <string name="font_size_title_pt">גודל גופן (%d נק)</string>
   <string name="prefs_font_text_size_summary">הגדרות שוליים, גופן וגודל</string>
   <string name="pref_font_family_label_name">סוג גופן (%s)</string>
+  <string name="prefs_font_family_summary">שינוי גופן. ניתן להתקין גופנים נוספים דרך הורדת טקסטים/תוספים.</string>
   <string name="prefs_text_bookmarks_title">הגדרות של הערות וסימניות</string>
+  <string name="prefs_enable_bluetooth_title">אפשר כפתורי מדיה בבלוטות\'</string>
+  <string name="prefs_enable_bluetooth_summary">אפשר להשתמש בכפתורי מדיה בלוטות\' כדי להתחיל או להפסיק הקראה.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">הגדרות צבע</string>
   <string name="window_color_settings_title">הגדרות צבע חלון</string>
@@ -203,6 +211,7 @@
   <string name="next">קדימה</string>
   <!--Strongs-->
   <string name="strongs_not_installed">אנא הורד מילוני Strong לעברית ויוונית</string>
+  <string name="no_indexed_bible_with_strongs_ref">יש להוריד תנ\"ך הכולל מספרי סטרונג וליצור אינדקס עבורו בעזרת \"חיפוש\"</string>
   <string name="morph_robinson_not_installed">נא להוריד את המילון \'Robinson\'s Morphological Analysis Codes\'</string>
   <string name="go_to_downloads">לך להורדות</string>
   <!--Module download-->
@@ -210,20 +219,26 @@
   <string name="redownload">הורדה חוזרת של מסמכים</string>
   <string name="download_confirmation">האם להוריד מהאינטרנט?</string>
   <string name="download_source_last_updated">רשימת המסמכים עודכנה לאחרונה: %s.</string>
+  <string name="download_refreshing_book_list">מעדכן רשימת מסמכים משרתי המסמכים...</string>
   <string name="download_source_message1">ניתן להוריד מסמכים מהמקורות הבאים:</string>
   <string name="download_document_confirm_prefix">הורדה</string>
   <string name="download_refresh_book_list_menu_item">רענון</string>
+  <string name="error_downloading">אירעה תקלה בזמן ההורדה. נא לבדוק את החיבור לאינטרנט.</string>
+  <string name="error_downloading_status">השרת שמאחסן \"%s\" החזיר הודעת שגיאה \"%s\" (שגיאה מספר %d).</string>
   <string name="storage_space_warning">אין מספיק מקום אחסון.</string>
+  <string name="too_many_jobs">יותר מדי משימות רצות כרגע. נא להמתין עד שחלקן יסתיימו ולנסות שוב.</string>
   <string name="document_not_installed">אנא הורד \'%s\'</string>
   <string name="free_text_search_documents">חיפוש</string>
   <string name="chooce_language_hint">שפה</string>
   <string name="one_more_back_press">לחץ שנית על \"אחורה\" כדי לצאת מהאפליקציה</string>
   <string name="document_filter_results">%d מסמכים</string>
   <string name="download_question_title">האם להמשיך בהורדה?</string>
+  <string name="download_question_message">אם אתה חי במדינה שיש בה רדיפה, ייתכן שיהיה עליך להיזהר בהורדת חומר נוצרי דרך האינטרנט. במקום זאת, ייתכן שתרצה להשיג מודולים - בצורת קובצי ZIP - בצורה מאובטחת יותר, ולהתקין אותם דרך \"טען מסמך מקובץ ZIP\". האם אתה בטוח שברצונך להמשיך בהורדה? כל ההורדות משרתי המודולים מוצפנות (HTTPS).</string>
   <string name="do_not_ask_again">כן, אל תשאל שוב</string>
   <string name="recommended_document">מומלץ!</string>
   <string name="about_version_history">גרסא: %s</string>
   <string name="download_errors">שגיאות הורדה</string>
+  <string name="failed_repositories_message">נכשלה ההתחברות אל שרת המסמכים הבא: \n\n%s\n\n</string>
   <string name="failed_downloads_message">לא ניתן להוריד את הקבצים:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">טען מסמך מקובץ ZIP</string>
@@ -241,6 +256,7 @@
   <string name="rdg_plan_day">יום %s</string>
   <string name="rdg_plan_set_start_date">הגדרת תאריך התחלה....</string>
   <string name="set_current_day">הגדר בתור היום הנוכחי....</string>
+  <string name="msg_set_current_day_reading_plan">להגדיר את היום בתור היום הנוכחי עבור תוכנית זו, ולסמן את כל הימים הקודמים כימים שנקראו?</string>
   <string name="done">סיום</string>
   <string name="reset_plan_question">בטוח שאתה רוצה לאפס את התוכנית?</string>
   <string name="import_reading_plan">ייבוא תוכנית קריאה...</string>
@@ -251,6 +267,9 @@
   <string name="overwrite_reading_plan">האם לדרוס את %s?</string>
   <string name="delete_reading_plan">מחיקת תוכנית זו</string>
   <string name="reading_plan_deleted">תוכנית הקריאה נמחקה</string>
+  <string name="reading_plan_ships_with_ab">תוכנית קריאה זו מופצת עם: %s</string>
+  <string name="confirm_delete_reading_plan">
+בטוח למחוק את \"%s\", כולל היסטוריית הקריאה שלה? בשביל לעדכן את התוכנית, ניתן לטעון אותה שוב עם אותו שם קובץ, והיסטוריית הקריאה תישמר.</string>
   <string name="plan_duplicate_user_plan">
         ישנה תוכנית קריאה בכרטיס הזכרון
         jsword/readingplan באותו השם כמו התחוכנית הפנימית, ולכן לא ניתן להציג אותה.
@@ -277,6 +296,8 @@
         ועד חזון יוחנן. קודם התנך ואז הברית החדשה.
     </string>
   <string name="plan_name_y1ot1nt2_mcheyne">התוכנית השנתית של מקיני, 4 פרקים ליום</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+תוכנית זו מבוססת על תוכנית הקריאה של M’Cheyne. עבור כל יום, ישנם שני קטעים מהתנ\"ך, קטע אחד מהברית החדשה, וקטע אחד מתהילים או מהבשורות. בשנה שלמה, קוראים פעם אחת את כל התנ\"ך, ופעמיים את הברית החדשה ואת תהילים.</string>
   <string name="plan_name_y1ot6nt4_profHorner">תוכנית קריאה 10 פרקים ליום של פרופ\' הורנר</string>
   <string name="plan_description_y1ot6nt4_profHorner">באדיבות פרופ\' הורנר, ניתנת הרשות </string>
   <string name="plan_name_y2ot1ntps2">תוכנית לשנתיים של התנ\"ך, ופעמיים תהלים והברית החדשה</string>
@@ -319,7 +340,11 @@
   <string name="add_bookmark_whole_verse2">פסוקים מלאים</string>
   <string name="remove_bookmark">הסרה</string>
   <string name="bookmark_settings_hide_labels_title">הסתרת תגיות ספציפיות</string>
+  <string name="bookmark_settings_hide_labels_summary">הסתר סימניות המסומנות עם התגיות המצויינות</string>
   <string name="auto_assign_labels_title">הגדרות תגיות</string>
+  <string name="auto_assign_labels">השמה אוטומטית ותגיות מועדפות</string>
+  <string name="auto_assign_labels1">הוסף את התוית באופן אוטומטי לסימניות חדשות</string>
+  <string name="auto_assign_labels_primary">הוסף באופן אוטומטי כראשית</string>
   <string name="label_color">צבע תגית</string>
   <!--can be removed-->
   <string name="label_color_example">דוגמה</string>
@@ -355,6 +380,7 @@
   <string name="speak_repeat">חזור שנית</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">מהירות הקראה</string>
+  <string name="speak_and_play_earcons_title">הקראה והשמעה של צלילים עבור</string>
   <string name="playback_settings_title">הגדרות השמעה</string>
   <string name="speak_settings_title">הגדרות הקראה כלליות</string>
   <string name="speak_bookmarking_settings_title">הגדרות סימניות</string>
@@ -388,10 +414,14 @@
   <string name="speak_status_stopped">נעצר</string>
   <string name="speak_autobookmarking_disabled">סימניות אוטומטיות לא פעיל!</string>
   <string name="system_speak_settings">פתח הגדרות מערכת TTS</string>
+  <string name="auto_assing_labels_help1">כאן ניתן להתאים אילו תויות יתוספו באופן אוטומטי לסימניות שיוצרים</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">הגדרה זו היא עבור \"%s\".</string>
   <string name="setting_scope_window">חלון זה</string>
   <string name="setting_scope_workspace">סביבת עבודה זו</string>
+  <string name="assing_labels_help1">ניתן להוסיף מספר תויות לכל סימניה.</string>
   <!--param is bookmark icon-->
+  <string name="assing_labels_help2">השתמש ב \"%s\" כדי לציין את צבע התוית המוצג.</string>
   <!--param is auto-assign label icon-->
   <!--param is heart icon-->
   <!--param is refresh icon-->
