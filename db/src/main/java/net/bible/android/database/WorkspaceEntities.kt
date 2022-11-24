@@ -111,6 +111,9 @@ class WorkspaceEntities {
 
     @Serializable
     data class Colors(
+        // Workspace colors (dayWorkspaceColor and nightWorkspaceColor) are not really a TextDisplaySetting but a
+        // WorkspaceSetting. But for convenience reason they are held here as UI-wise they need to be held in
+        // Color settings.
         @ColumnInfo(defaultValue = "NULL") var dayWorkspaceColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
