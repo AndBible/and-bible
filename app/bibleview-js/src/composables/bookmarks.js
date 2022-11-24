@@ -551,18 +551,33 @@ export function useBookmarks(documentId,
         }
         // Add bookmark marker for marker style bookmarks & My Notes symbols & to the end of bookmark
         if(config.showBookmarks || config.showMyNotes) {
+            const bookmarkList = [];
+            let hasNote = false;
+
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
                 const bookmarkLabel = getBookmarkStyleLabel(b);
                 if ((config.showBookmarks && isMarkerBookmark(b, bookmarkLabel)) || (config.showMyNotes && b.hasNote)) {
-                    const color = adjustedColor(bookmarkLabel.color).string();
-                    const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
-
-                    iconElement.addEventListener("click", event => addEventFunction(event,
-                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
-                    lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
-                    undoHighlights.push(() => iconElement.remove());
+                    bookmarkList.push(b)
+                    if(b.hasNote) {
+                        hasNote = true;
+                    }
                 }
             }
+
+            const bookmark = bookmarkList[0];
+            if(bookmark) {
+                const bookmarkLabel = getBookmarkStyleLabel(bookmark);
+                const color = adjustedColor(bookmarkLabel.color).string();
+                const iconElement = getIconElement(hasNote ? editIcon : bookmarkIcon, color);
+                iconElement.addEventListener("click", event => addEventFunction(event,
+                    null, {bookmarkId: bookmark.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
+                if (bookmarkList.length > 1) {
+                    iconElement.appendChild(document.createTextNode(`×${bookmarkList.length}`));
+                }
+                undoHighlights.push(() => iconElement.remove());
+            }
+
         }
     }
 
@@ -571,6 +586,7 @@ export function useBookmarks(documentId,
         const hideLabels = new Set(config.bookmarksHideLabels);
 
         for (const b of markerBookmarks.value) {
+            // Add event listener to all verses within bookmark range
             for(let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ordinal}`);
                 if(!elem) continue;
@@ -581,6 +597,7 @@ export function useBookmarks(documentId,
                 undoMarkers.push(() => elem.removeEventListener("click", func));
             }
 
+            // Marker will be put to the last verse, collect those to a map.
             const key = b.ordinalRange[1];
             if(intersection(new Set(b.labels), hideLabels).size === 0) {
                 const value = bookmarkMap.get(key) || [];
@@ -599,11 +616,10 @@ export function useBookmarks(documentId,
                     addEventFunction(event, null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER});
                 }
             });
-            if(bookmarkList.length>1) {
+            if (bookmarkList.length>1) {
                 iconElement.appendChild(document.createTextNode(`×${bookmarkList.length}`));
             }
             lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
-
             undoMarkers.push(() => iconElement.remove());
         }
     }
