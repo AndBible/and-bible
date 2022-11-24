@@ -21,8 +21,7 @@
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {computed} from "vue";
-import {inject} from "vue";
+import {computed, inject} from "vue";
 
 export default {
   name: "Title",
@@ -45,7 +44,7 @@ export default {
       !hideTitles && config.showSectionTitles
       && ((config.showNonCanonical && !isCanonical.value) || isCanonical)
       && !(props.type === "sub" && props.subType === "x-Chapter")
-      && !(props.type === "chapter")
+      && props.type !== "chapter"
       && props.type !== "x-gen",
     );
 

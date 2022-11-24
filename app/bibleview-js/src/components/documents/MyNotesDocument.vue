@@ -29,10 +29,9 @@
 </template>
 
 <script>
-import {inject} from "vue";
+import {inject, computed} from "vue";
 import {useCommon} from "@/composables";
 import MyNoteRow from "@/components/MyNoteRow";
-import {computed} from "vue";
 import {sortBy} from "lodash";
 import {intersection} from "@/utils";
 

@@ -18,10 +18,9 @@
 /* eslint-disable no-undef */
 import {emit} from "@/eventbus";
 import {Deferred, rangeInside, setupDocumentEventListener, sleep, stubsFor} from "@/utils";
-import {onMounted} from "vue";
+import {onMounted, reactive} from "vue";
 import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
-import {reactive} from "vue";
 import {StudyPadEntryTypes} from "@/constants";
 import {errorBox} from "@/composables/config";
 

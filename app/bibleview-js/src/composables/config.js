@@ -16,8 +16,7 @@
  */
 
 
-import {nextTick, reactive} from "vue";
-import {computed} from "vue";
+import {nextTick, reactive, computed} from "vue";
 import {DocumentTypes} from "@/constants";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {isEqual} from "lodash";

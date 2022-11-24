@@ -37,8 +37,7 @@
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
-import {computed, ref} from "vue";
-import {inject} from "vue";
+import {computed, ref, inject} from "vue";
 import {strongsModes} from "@/composables/config";
 
 export default {

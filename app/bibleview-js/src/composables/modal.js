@@ -15,8 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {onUnmounted, reactive, watch} from "vue";
-import {computed} from "vue";
+import {onUnmounted, reactive, watch, computed} from "vue";
 import {Events, setupEventBusListener} from "@/eventbus";
 
 export function useModal(android) {

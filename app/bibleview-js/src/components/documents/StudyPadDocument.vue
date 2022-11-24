@@ -63,8 +63,7 @@
 </template>
 
 <script>
-import {computed, ref} from "vue";
-import {inject, provide, nextTick, onBeforeUpdate} from "vue";
+import {computed, ref, inject, provide, nextTick, onBeforeUpdate} from "vue";
 import {useCommon} from "@/composables";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";

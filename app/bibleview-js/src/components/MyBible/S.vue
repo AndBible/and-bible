@@ -23,9 +23,8 @@
 
 <script>
 
-import {computed, ref} from "vue";
+import {computed, ref, inject} from "vue";
 import {strongsModes} from "@/composables/config";
-import {inject} from "vue";
 import {useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
 

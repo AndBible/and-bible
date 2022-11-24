@@ -34,9 +34,8 @@
 </template>
 
 <script>
-import {ref} from "vue";
+import {ref, inject, watch} from "vue";
 import TextEditor from "@/components/TextEditor";
-import {inject, watch} from "vue";
 import {useCommon} from "@/composables";
 
 let cancelOpen = () => {}
