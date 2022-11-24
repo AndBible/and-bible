@@ -366,7 +366,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             addSpace()
         }
 
-        if (!hideWindowButtons || windowControl.isSingleWindow) {
+        if (windowControl.isSingleWindow) {
             val addNewWindowButton = AddNewWindowButtonWidget(mainBibleActivity).apply {
                 setOnClickListener { v -> windowControl.addNewWindow(windowControl.activeWindow) }
             }

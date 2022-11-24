@@ -218,7 +218,7 @@ class AddNewWindowButtonWidget(
             docType.visibility = View.GONE
             pinMode.visibility = View.GONE
             unMaximiseImage.visibility = View.GONE
-            windowButton.setBackgroundResource(R.drawable.new_window_button)
+            windowButton.setBackgroundResource(R.drawable.window_button_visible)
         }
     }
 

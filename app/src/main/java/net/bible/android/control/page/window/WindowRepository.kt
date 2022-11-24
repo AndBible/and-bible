@@ -131,7 +131,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         set (newActiveWindow) {
             if (!initialized || newActiveWindow != this._activeWindow) {
                 _activeWindow = newActiveWindow
-                Log.i(TAG, "Active window: ${newActiveWindow}")
+                Log.i(TAG, "Active window: $newActiveWindow")
                 ABEventBus.post(CurrentWindowChangedEvent(newActiveWindow))
             }
             _activeWindow?.bibleView?.requestFocus()
