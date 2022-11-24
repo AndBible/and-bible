@@ -345,7 +345,6 @@ class TextDisplaySettingsActivity: ActivityBase() {
                 val reset = extras.getBoolean("reset")
                 val prefItem = getPrefItem(settingsBundle, Types.COLORS)
                 if(reset) {
-                    windowControl.windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
                     prefItem.setNonSpecific()
                     setDirty(Types.COLORS)
                     fragment.updateItems()

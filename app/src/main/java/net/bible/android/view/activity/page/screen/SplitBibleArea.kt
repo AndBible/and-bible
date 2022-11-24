@@ -785,7 +785,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             pageManagerSettings = window.pageManager.textDisplaySettings,
             workspaceId = windowControl.windowRepository.id,
             workspaceName = windowControl.windowRepository.name,
-            workspaceSettings = windowControl.windowRepository.textDisplaySettings
+            workspaceSettings = windowControl.windowRepository.textDisplaySettings,
         )
 
         val isMaximised = windowRepository.isMaximized

@@ -51,6 +51,7 @@ import net.bible.android.activity.databinding.WorkspaceSelectorBinding
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
@@ -315,8 +316,9 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 val settings = SettingsBundle(
                     workspaceId = workspaceId,
                     workspaceName = workspace.name,
-                    workspaceSettings = dataSet.find { it.id == workspaceId }!!.textDisplaySettings
-                        ?: WorkspaceEntities.TextDisplaySettings.default
+                    workspaceSettings = (workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings.default).apply {
+                        colors?.workspaceColor = workspace.workspaceSettings?.workspaceColor
+                    },
                 )
                 intent.putExtra("settingsBundle", settings.toJson())
                 startActivityForResult(intent, WORKSPACE_SETTINGS_CHANGED)
@@ -467,6 +469,11 @@ class WorkspaceSelectorActivity: ActivityBase() {
             workspaceItem.textDisplaySettings =
                 if(reset) WorkspaceEntities.TextDisplaySettings.default
                 else settings.workspaceSettings
+            if(reset) {
+                workspaceItem.workspaceSettings?.workspaceColor = defaultWorkspaceColor
+            } else {
+                workspaceItem.workspaceSettings?.workspaceColor = settings.workspaceSettings.colors?.workspaceColor?: defaultWorkspaceColor
+            }
             workspaceAdapter.notifyItemChanged(dataSet.indexOf(workspaceItem))
             setDirty()
         }

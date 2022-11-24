@@ -28,11 +28,9 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
-import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.ActivityBase
-import javax.inject.Inject
 
 class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDataStore() {
     val colors get() = activity.colors
@@ -45,7 +43,7 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_color_night" -> colors.nightBackground = value
             "noise_day" -> colors.dayNoise = value
             "noise_night" -> colors.nightNoise = value
-            "workspace_color" -> activity.workspaceSettings.workspaceColor = value
+            "workspace_color" -> colors.workspaceColor = value
         }
         activity.setDirty()
     }
@@ -58,7 +56,7 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_color_night" -> colors.nightBackground?: defValue
             "noise_day" -> colors.dayNoise?: defValue
             "noise_night" -> colors.nightNoise?: defValue
-            "workspace_color" -> activity.workspaceSettings.workspaceColor?: defValue
+            "workspace_color" -> colors.workspaceColor?: defValue
             else -> defValue
         }
     }
@@ -68,11 +66,9 @@ class ColorSettingsActivity: ActivityBase() {
     private lateinit var binding: SettingsDialogBinding
 
     private lateinit var settingsBundle: SettingsBundle
-    @Inject lateinit var windowControl: WindowControl
-
-    val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
 
     internal lateinit var colors: WorkspaceEntities.Colors
+    internal var workspaceSettings: WorkspaceEntities.WorkspaceSettings? = null
     private var dirty = false
     private var reset = false
 
@@ -122,6 +118,7 @@ class ColorSettingsActivity: ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
         colors = settingsBundle.actualSettings.colors!!
+        colors.workspaceColor = settingsBundle.workspaceSettings.colors?.workspaceColor
 
         super.onCreate(savedInstanceState)
 
@@ -157,6 +154,7 @@ class ColorSettingsActivity: ActivityBase() {
         resultIntent.putExtra("reset", reset)
         resultIntent.putExtra("windowId", settingsBundle.windowId)
         resultIntent.putExtra("colors", colors.toJson())
+        resultIntent.putExtra("workspaceColor", workspaceSettings?.workspaceColor)
 
         setResult(Activity.RESULT_OK, resultIntent)
     }

@@ -23,6 +23,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
+import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
@@ -120,8 +121,10 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var dayNoise: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightBackground: Int?,
-        @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?
+        @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?,
     ) {
+        // This is saved to database in WorkspaceSettings. Here just to get it through to activities in SettingsBundle
+        @Ignore var workspaceColor: Int? = null
         fun toJson(): String {
             return json.encodeToString(serializer(), this)
         }
@@ -310,6 +313,7 @@ class WorkspaceEntities {
     @Serializable
     data class RecentLabel(val labelId: Long, var lastAccess: Long)
 
+    @Serializable
     data class WorkspaceSettings(
         @ColumnInfo(defaultValue = "0") var enableTiltToScroll: Boolean = false,
         @ColumnInfo(defaultValue = "0") var enableReverseSplitMode: Boolean = false,
@@ -402,9 +406,11 @@ data class SettingsBundle (
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
     val windowId: Long? = null
 ) {
-    val actualSettings: WorkspaceEntities.TextDisplaySettings get() {
-        return if(windowId == null) WorkspaceEntities.TextDisplaySettings.actual(null, workspaceSettings) else WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
-    }
+    val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
+        if(windowId == null)
+            WorkspaceEntities.TextDisplaySettings.actual(null, workspaceSettings)
+        else
+            WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
 
     fun toJson(): String {
         return json.encodeToString(serializer(), this)

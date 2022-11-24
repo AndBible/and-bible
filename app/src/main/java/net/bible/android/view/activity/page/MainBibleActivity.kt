@@ -697,7 +697,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
     private fun getItemOptions(itemId: Int, order: Int = 0): OptionsMenuItemInterface {
-        val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceName = windowRepository.name, workspaceSettings = windowRepository.textDisplaySettings)
+        val settingsBundle = SettingsBundle(
+            workspaceId = windowRepository.id,
+            workspaceName = windowRepository.name,
+            workspaceSettings = windowRepository.textDisplaySettings.apply {
+                colors?.workspaceColor = windowRepository.workspaceSettings.workspaceColor
+            },
+        )
         return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
                 val intent = Intent(this, TextDisplaySettingsActivity::class.java)
@@ -1342,6 +1348,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         )
                         if(reset) {
                             windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
+                        } else {
+                            windowRepository.workspaceSettings.workspaceColor = colors!!.workspaceColor
                         }
                         windowRepository.updateAllWindowsTextDisplaySettings()
                     }
@@ -1450,6 +1458,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
             } else {
                 windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
+                windowRepository.workspaceSettings.workspaceColor = settingsBundle.workspaceSettings.colors?.workspaceColor?: defaultWorkspaceColor
             }
             if(dirtyTypes != null) {
                 windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
