@@ -18,6 +18,7 @@
 package net.bible.android.control.page.window
 
 import android.app.AlertDialog
+import android.util.Log
 import android.widget.Button
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +57,7 @@ import kotlin.coroutines.suspendCoroutine
 @ApplicationScope
 open class WindowControl @Inject constructor() {
     private var _windowRepository: WindowRepository? = null
+    val isReady get() = _windowRepository != null
 
     open var windowRepository: WindowRepository
         get() = _windowRepository!!
@@ -63,7 +65,6 @@ open class WindowControl @Inject constructor() {
             _windowRepository = value
         }
 
-    private val logger = Logger(this.javaClass.name)
     val windowSync get() = windowRepository.windowSync
     val activeWindowPageManager: CurrentPageManager
         get() = activeWindow.pageManager
@@ -152,7 +153,7 @@ open class WindowControl @Inject constructor() {
     fun closeWindow(window: Window) {
 
         if (isWindowRemovable(window)) {
-            logger.debug("Closing window " + window.id)
+            Log.i(TAG, "Closing window " + window.id)
             windowRepository.close(window)
 
             val visibleWindows = windowRepository.visibleWindows
