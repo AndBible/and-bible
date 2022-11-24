@@ -21,4 +21,5 @@
     <string name="app_name_medium">Bible Study (AndBible) *Debug*</string>
     <string name="app_name_long">AndBible: Bible Study *Debug*</string>
     <string name="install_zip_module">Install Bible Module *Debug*</string>
+    <string name="search_in_andbible">Find in Bible *Debug*</string>
 </resources>
