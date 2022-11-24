@@ -137,6 +137,7 @@ import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchIndex
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
+import org.crosswire.jsword.versification.BookName
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
@@ -463,7 +464,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(ref != null) {
                 val item = menu.findItem(R.id.open_ref)
                 item.isVisible = true
-                item.title = context.getString(R.string.go_to_ref, ref.name)
+                synchronized(BookName::class.java) {
+                    val wasFullBookName = BookName.isFullBookName()
+                    BookName.setFullBookName(false)
+                    item.title = context.getString(R.string.go_to_ref, ref.name)
+                    BookName.setFullBookName(wasFullBookName)
+                }
             }
             val text = currentSelectionText
             if(ref == null && text != null) {
