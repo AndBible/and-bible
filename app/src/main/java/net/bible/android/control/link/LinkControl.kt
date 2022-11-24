@@ -19,6 +19,7 @@ package net.bible.android.control.link
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import net.bible.android.MyLocaleProvider
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
@@ -43,19 +44,24 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.FeatureType
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BibleNames
+import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import java.io.FileNotFoundException
 import java.net.URLDecoder
+import java.util.*
 import java.util.regex.Pattern
 import javax.inject.Inject
 
@@ -293,13 +299,50 @@ class LinkControl @Inject constructor(
             false
         }
     }
+    fun resolveRef(searchRef: String, doc: SwordBook? = null): Key? {
+        val searchDoc = doc ?: windowControl.defaultBibleDoc(useLinks = true)
+        val bibleNames = BibleNames.instance();
+        val key = try {
+            synchronized(bibleNames) {
+                val orig = bibleNames.enableFuzzy
+                bibleNames.enableFuzzy = false
+                val k = PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef)
+                bibleNames.enableFuzzy = orig
+                k
+            }
+        } catch (e: NoSuchVerseException) {null}?:
+        try {
+            if (searchDoc.language.code != MyLocaleProvider.userLocale.language) {
+                synchronized(bibleNames) {
+                    MyLocaleProvider.override = Locale(searchDoc.language.code)
+                    val orig = bibleNames.enableFuzzy
+                    bibleNames.enableFuzzy = false
+                    val k = PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef)
+                    bibleNames.enableFuzzy = orig
+                    MyLocaleProvider.override = null
+                    k
+                }
+            } else null
+        } catch (e: NoSuchVerseException) {null}
 
-    private fun showLink(document: Book?, key: Key) { // ask window controller to open link in desired window
+        return key
+    }
+
+    fun tryToOpenRef(searchRef: String, doc: SwordBook? = null): Boolean {
+        val key = resolveRef(searchRef, doc)
+        if (key != null) {
+            showLink(doc, key, forceOpenHere = true)
+            return true
+        }
+        return false
+    }
+
+    fun showLink(document: Book?, key: Key, forceOpenHere: Boolean = false) {
         val currentPageManager = currentPageManager
         val defaultDocument = currentPageManager.currentBible.currentDocument!!
         if (windowMode == WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
-        } else if (checkIfOpenLinksInDedicatedWindow()) {
+        } else if (checkIfOpenLinksInDedicatedWindow() && !forceOpenHere) {
             if (document == null) {
                 windowControl.showLinkUsingDefaultBible(key)
             } else {

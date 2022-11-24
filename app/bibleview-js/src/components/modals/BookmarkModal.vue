@@ -89,9 +89,8 @@
 <script>
 import Modal from "@/components/modals/Modal";
 import {Events, setupEventBusListener} from "@/eventbus";
-import {computed, ref} from "vue";
+import {computed, ref, inject, provide, nextTick} from "vue";
 import {useCommon} from "@/composables";
-import {inject, provide, nextTick} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import EditableText from "@/components/EditableText";
 import LabelList from "@/components/LabelList";

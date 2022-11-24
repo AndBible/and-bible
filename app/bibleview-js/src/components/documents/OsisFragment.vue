@@ -22,8 +22,7 @@
 </template>
 
 <script>
-import {computed, ref} from "vue";
-import {inject, onMounted, provide, watch} from "vue";
+import {computed, ref, inject, onMounted, provide, watch} from "vue";
 import {highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment";
 import {useStrings} from "@/composables/strings";

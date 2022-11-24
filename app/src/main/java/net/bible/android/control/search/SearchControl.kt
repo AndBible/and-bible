@@ -21,16 +21,15 @@ import android.content.Intent
 import android.util.Log
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
-import net.bible.service.sword.SwordContentFacade.readOsisFragment
+import net.bible.android.view.activity.search.SearchResultsDto
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
@@ -39,7 +38,6 @@ import org.crosswire.jsword.index.lucene.LuceneIndex
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
-import org.jdom2.Element
 import javax.inject.Inject
 
 /** Support for the document search functionality
@@ -50,7 +48,7 @@ import javax.inject.Inject
 class SearchControl @Inject constructor(
     private val swordDocumentFacade: SwordDocumentFacade,
     private val documentBibleBooksFactory: DocumentBibleBooksFactory,
-    private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    private val windowControl: WindowControl,
     )
 {
     private val isSearchShowingScripture = true
@@ -82,7 +80,7 @@ class SearchControl @Inject constructor(
     // This should never occur
     val currentBookName: String
         get() = try {
-            val currentBiblePage = activeWindowPageManagerProvider.activeWindowPageManager.currentBible
+            val currentBiblePage = windowControl.activeWindowPageManager.currentBible
             val v11n = (currentBiblePage.currentDocument as SwordBook).versification
             val book = currentBiblePage.singleKey.book
             val longName = v11n.getLongName(book)
@@ -141,23 +139,6 @@ class SearchControl @Inject constructor(
         return searchResults
     }
 
-    fun getSearchResultVerseElement(key: Key?): Element {
-        // There is similar functionality in BookmarkControl
-        var xmlVerse:Element? = null
-        try {
-            val doc = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
-            val cat = doc!!.bookCategory
-            xmlVerse = if (cat == BookCategory.BIBLE || cat == BookCategory.COMMENTARY) {
-                readOsisFragment(doc, key)
-            } else {
-                val bible = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!
-                readOsisFragment(bible, key)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting verse text", e)
-        }
-        return xmlVerse!!
-    }
     /** double spaces, :, and leading or trailing space cause lucene errors
      */
     private fun cleanSearchString(search: String): String {
@@ -213,7 +194,7 @@ class SearchControl @Inject constructor(
      * When navigating books and chapters there should always be a current Passage based book
      */
     private val currentPassageDocument: AbstractPassageBook
-        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentPassageDocument
+        get() = windowControl.activeWindowPageManager.currentPassageDocument
 
     fun currentDocumentContainsNonScripture(): Boolean {
         return !documentBibleBooksFactory.getDocumentBibleBooksFor(currentPassageDocument).isOnlyScripture

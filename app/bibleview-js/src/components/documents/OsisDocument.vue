@@ -83,8 +83,8 @@ export default {
 
       for(const node of textNodes) {
         const splitText = splitString(node.textContent).map(t => xmlDoc.createTextNode(t));
-        for(let i = 0; i<splitText.length; i++) {
-          addAnchor(node, splitText[i])
+        for(const txt of splitText) {
+          addAnchor(node, txt)
         }
         node.parentNode.removeChild(node);
       }

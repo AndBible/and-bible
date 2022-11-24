@@ -18,6 +18,7 @@
 package net.bible.android.control.page.window
 
 import android.app.AlertDialog
+import android.util.Log
 import android.widget.Button
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +35,6 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
@@ -55,15 +55,18 @@ import kotlin.coroutines.suspendCoroutine
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-open class WindowControl @Inject constructor(
-        val windowRepository: WindowRepository,
-) : ActiveWindowPageManagerProvider {
+open class WindowControl @Inject constructor() {
+    private var _windowRepository: WindowRepository? = null
+    val isReady get() = _windowRepository != null
 
-    val windowSync: WindowSync = WindowSync(windowRepository)
+    open var windowRepository: WindowRepository
+        get() = _windowRepository!!
+        set(value) {
+            _windowRepository = value
+        }
 
-    private val logger = Logger(this.javaClass.name)
-
-    override val activeWindowPageManager: CurrentPageManager
+    val windowSync get() = windowRepository.windowSync
+    val activeWindowPageManager: CurrentPageManager
         get() = activeWindow.pageManager
 
     val isMultiWindow: Boolean
@@ -150,7 +153,7 @@ open class WindowControl @Inject constructor(
     fun closeWindow(window: Window) {
 
         if (isWindowRemovable(window)) {
-            logger.debug("Closing window " + window.id)
+            Log.i(TAG, "Closing window " + window.id)
             windowRepository.close(window)
 
             val visibleWindows = windowRepository.visibleWindows
@@ -221,6 +224,7 @@ open class WindowControl @Inject constructor(
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
+        if(event.window?.windowRepository != windowRepository) return
         windowSync.synchronizeWindows(event.window)
     }
 
@@ -304,9 +308,9 @@ open class WindowControl @Inject constructor(
         ABEventBus.post(NumberOfWindowsChangedEvent())
     }
 
-    val scope get() = mainBibleActivity.lifecycleScope
+    val scope get() = CurrentActivityHolder.currentActivity!!.lifecycleScope
 
-    private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine<BooleanArray?> {
+    private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine {
         val context = CurrentActivityHolder.currentActivity!!
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
             getPrefItem(SettingsBundle(windowRepository.id, windowRepository.name,

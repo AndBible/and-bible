@@ -19,9 +19,8 @@
 
 <script>
 import {useCommon} from "@/composables";
-import {inject} from "vue";
+import {inject, computed, ref} from "vue";
 import {BookCategories} from "@/constants";
-import {computed, ref} from "vue";
 
 export default {
   name: "VerseNumber",

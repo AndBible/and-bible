@@ -51,6 +51,13 @@
 			android:title="@string/search"
 			android:orderInCategory="2"
 			app:showAsAction="always"
+			android:visible="false"
+			/>
+		<item android:id="@+id/open_ref"
+			android:title="Open ref"
+			android:orderInCategory="2"
+			app:showAsAction="always"
+			android:visible="false"
 			/>
 		<item android:id="@+id/system_items"
 			android:title="@string/system_items1"

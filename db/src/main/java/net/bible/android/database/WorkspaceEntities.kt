@@ -37,6 +37,7 @@ val json = Json {
     allowStructuredMapKeys = true
     encodeDefaults = true
 }
+val defaultWorkspaceColor = Color.parseColor("#ff444444")
 
 class WorkspaceEntities {
     data class Page(
@@ -111,11 +112,12 @@ class WorkspaceEntities {
 
     @Serializable
     data class Colors(
-        @ColumnInfo(defaultValue = "NULL") var dayWorkspaceColor: Int?,
+        // Workspace colors (dayWorkspaceColor and nightWorkspaceColor) are not really a TextDisplaySetting but a
+        // WorkspaceSetting. But for convenience reason they are held here as UI-wise they need to be held in
+        // Color settings.
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayNoise: Int?,
-        @ColumnInfo(defaultValue = "NULL") var nightWorkspaceColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightBackground: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?
@@ -151,6 +153,9 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
         @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showAll") var deprecatedBookmarksShowAllLabels: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showLabels") var bookmarksHideLabels: List<Long>? = null,
+
+        @ColumnInfo(defaultValue = "NULL", name = "colors_dayWorkspaceColor") var deprecatedDayWorkspaceColor: Int? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "colors_nightWorkspaceColor") var deprecatedNightWorkspaceColor: Int? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -246,8 +251,6 @@ class WorkspaceEntities {
                     nightTextColor = white,
                     nightNoise = 0,
                     dayNoise = 0,
-                    dayWorkspaceColor = Color.parseColor("#ff444444"),
-                    nightWorkspaceColor = Color.parseColor("#ff000000")
                 ),
                 marginSize = MarginSize(
                     marginLeft = 3,
@@ -319,6 +322,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
+        @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
     ) {
         companion object {
             val default get() = WorkspaceSettings()

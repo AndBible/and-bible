@@ -22,13 +22,12 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.save
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.common.Logger
@@ -37,8 +36,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.AppSettingsUpdated
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
@@ -50,15 +47,12 @@ import kotlin.math.min
 class IncrementBusyCount
 class DecrementBusyCount
 
-@ApplicationScope
-open class WindowRepository @Inject constructor(
-        // Each window has its own currentPageManagerProvider to store the different state e.g.
-        // different current Bible module, so must create new cpm for each window
-    private val currentPageManagerProvider: Provider<CurrentPageManager>,
-    private val historyManagerProvider: Provider<HistoryManager>,
-)
-{
-    val scope get() = _mainBibleActivity?.lifecycleScope?: CoroutineScope(Dispatchers.Default) // null -> For tests
+open class WindowRepository(val scope: CoroutineScope) {
+    @Inject lateinit var currentPageManagerProvider: Provider<CurrentPageManager>
+    @Inject lateinit var historyManagerProvider: Provider<HistoryManager>
+    @Inject lateinit var speakControl: SpeakControl
+
+    val windowSync: WindowSync = WindowSync(this)
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
@@ -105,6 +99,7 @@ open class WindowRepository @Inject constructor(
         }
 
     init {
+        CommonUtils.buildActivityComponent().inject(this)
         ABEventBus.safelyRegister(this)
     }
 
@@ -142,7 +137,7 @@ open class WindowRepository @Inject constructor(
             _activeWindow?.bibleView?.requestFocus()
         }
 
-    private val initialized get() = _activeWindow != null
+    val initialized get() = _activeWindow != null
 
     // When in maximized mode, keep track of last used
     // window that was synchronized
@@ -299,17 +294,6 @@ open class WindowRepository @Inject constructor(
         return newWindow
     }
 
-    /**
-     * If app moves to background then save current state to allow continuation after return
-     *
-     * @param appToBackgroundEvent Event info
-     */
-    fun onEvent(appToBackgroundEvent: AppToBackgroundEvent) {
-        if (appToBackgroundEvent.isMovedToBackground) {
-            saveIntoDb(false)
-        }
-    }
-
     private val contentText: String get() {
         val keyTitle = ArrayList<String>()
         synchronized(BookName::class.java) {
@@ -328,7 +312,7 @@ open class WindowRepository @Inject constructor(
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.i(TAG, "saveIntoDb")
         if(!CommonUtils.initialized) return;
-        if(stopSpeak) _mainBibleActivity?.speakControl?.stop()
+        if(stopSpeak) speakControl.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()
 

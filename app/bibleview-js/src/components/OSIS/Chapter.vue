@@ -22,8 +22,7 @@
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {inject} from "vue";
-import {computed} from "vue";
+import {inject, computed} from "vue";
 
 export default {
   name: "Chapter",

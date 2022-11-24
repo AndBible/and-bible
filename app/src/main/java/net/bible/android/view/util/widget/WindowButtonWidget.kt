@@ -66,7 +66,7 @@ class WindowButtonWidget(
     }
 
     fun onEvent(event: WindowChangedEvent) {
-        if(event.window.id == window?.id) {
+        if(event.window == window) {
             updateSettings()
         }
     }

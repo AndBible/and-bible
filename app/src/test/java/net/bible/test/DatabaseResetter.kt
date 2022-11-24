@@ -36,8 +36,6 @@ object DatabaseResetter {
         val scopes = ArrayList<CoroutineScope>()
         scopes.addAll(scopes_)
         scopes.add(GlobalScope)
-        scopes.add(CommonUtils.windowControl.windowRepository.scope)
-        scopes.add(CommonUtils.windowControl.windowSync.scope)
         for(scope in scopes) {
             try {
                 scope.cancel("Time to stop! Test already ended...")

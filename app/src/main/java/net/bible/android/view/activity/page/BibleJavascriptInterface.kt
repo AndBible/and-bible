@@ -44,7 +44,6 @@ import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
@@ -66,6 +65,7 @@ class BibleJavascriptInterface(
     val bookmarkControl get() = bibleView.bookmarkControl
     val downloadControl get() = bibleView.downloadControl
 
+    val mainBibleActivity = bibleView.mainBibleActivity
     var notificationsEnabled = false
     val scope get() = mainBibleActivity.lifecycleScope
 

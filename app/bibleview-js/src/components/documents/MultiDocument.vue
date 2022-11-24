@@ -49,8 +49,7 @@
 <script>
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment";
-import {inject} from "vue";
-import {computed, ref} from "vue";
+import {inject, computed, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import FeaturesLink from "@/components/FeaturesLink";
 import {BookCategories} from "@/constants";

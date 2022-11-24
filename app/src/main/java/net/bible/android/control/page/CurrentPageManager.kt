@@ -23,7 +23,6 @@ import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -38,8 +37,6 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.BibleBook
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 
@@ -75,7 +72,7 @@ open class CurrentPageManager @Inject constructor(
     val swordDocumentFacade: SwordDocumentFacade,
     bibleTraverser: BibleTraverser,
     val bookmarkControl: BookmarkControl,
-    val windowRepository: WindowRepository,
+    val windowControl: WindowControl,
 )  {
     // use the same verse in the commentary and bible to keep them in sync
     val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
@@ -103,7 +100,7 @@ open class CurrentPageManager @Inject constructor(
     }
 
     val actualTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
-        get() = WorkspaceEntities.TextDisplaySettings.actual(textDisplaySettings, windowRepository.textDisplaySettings)
+        get() = WorkspaceEntities.TextDisplaySettings.actual(textDisplaySettings, windowControl.windowRepository.textDisplaySettings)
 
     lateinit var window: Window
 

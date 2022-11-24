@@ -117,6 +117,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         data.label.underlineStyle = underLineStyle.isChecked
         data.label.underlineStyleWholeVerse = underLineStyleWholeVerse.isChecked
         data.label.markerStyle = markerStyle.isChecked
+        data.label.markerStyleWholeVerse = markerStyleWholeVerse.isChecked
         data.isFavourite = favouriteLabelCheckBox.isChecked
         data.isAutoAssign = autoAssignCheckBox.isChecked
         data.isAutoAssignPrimary = primaryAutoAssignCheckBox.isChecked
@@ -139,9 +140,11 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         underLineStyle.isChecked = data.label.underlineStyle
         underLineStyleWholeVerse.isChecked = data.label.underlineStyleWholeVerse
         val isMarkerStyle = data.label.markerStyle
+        val isMarkerStyleWholeVerse = data.label.markerStyleWholeVerse
         markerStyle.isChecked = isMarkerStyle
+        markerStyleWholeVerse.isChecked = isMarkerStyleWholeVerse
         underLineStyle.isEnabled = !isMarkerStyle
-        underLineStyleWholeVerse.isEnabled = !isMarkerStyle
+        underLineStyleWholeVerse.isEnabled = !isMarkerStyleWholeVerse
         updateColor()
         if (data.label.isSpecialLabel) {
             labelName.isEnabled = false
@@ -209,18 +212,13 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
             titleIcon.setOnClickListener { editColor() }
 
-            autoAssignCheckBox.setOnCheckedChangeListener { _, _ ->
-                updateData()
-                updateUI()
+            for(v in listOf(autoAssignCheckBox, markerStyle, markerStyleWholeVerse, selectedLabelCheckBox)) {
+                v.setOnCheckedChangeListener { _, _ ->
+                    updateData()
+                    updateUI()
+                }
             }
-            markerStyle.setOnCheckedChangeListener { _, _ ->
-                updateData()
-                updateUI()
-            }
-            selectedLabelCheckBox.setOnCheckedChangeListener { _, _ ->
-                updateData()
-                updateUI()
-            }
+
             if(data.label.name == "") {
                 labelName.requestFocus()
             }

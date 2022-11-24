@@ -28,10 +28,11 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
+import javax.inject.Inject
 
 class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDataStore() {
     val colors get() = activity.colors
@@ -44,8 +45,7 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_color_night" -> colors.nightBackground = value
             "noise_day" -> colors.dayNoise = value
             "noise_night" -> colors.nightNoise = value
-            "workspace_color_day" -> colors.dayWorkspaceColor = value
-            "workspace_color_night" -> colors.nightWorkspaceColor = value
+            "workspace_color" -> activity.workspaceSettings.workspaceColor = value
         }
         activity.setDirty()
     }
@@ -58,18 +58,20 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_color_night" -> colors.nightBackground?: defValue
             "noise_day" -> colors.dayNoise?: defValue
             "noise_night" -> colors.nightNoise?: defValue
-            "workspace_color_day" -> colors.dayWorkspaceColor?: defValue
-            "workspace_color_night" -> colors.nightWorkspaceColor?: defValue
+            "workspace_color" -> activity.workspaceSettings.workspaceColor?: defValue
             else -> defValue
         }
     }
 }
 
-@ActivityScope
 class ColorSettingsActivity: ActivityBase() {
     private lateinit var binding: SettingsDialogBinding
 
     private lateinit var settingsBundle: SettingsBundle
+    @Inject lateinit var windowControl: WindowControl
+
+    val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
+
     internal lateinit var colors: WorkspaceEntities.Colors
     private var dirty = false
     private var reset = false
@@ -168,8 +170,7 @@ class ColorSettingsFragment(val isWindow: Boolean = false): PreferenceFragmentCo
         preferenceManager.preferenceDataStore = ColorSettingsDataStore(activity)
         setPreferencesFromResource(R.xml.color_settings, rootKey)
         if(isWindow) {
-            findPreference<Preference>("workspace_color_day")?.isVisible = false
-            findPreference<Preference>("workspace_color_night")?.isVisible = false
+            findPreference<Preference>("workspace_color")?.isVisible = false
         }
     }
 }

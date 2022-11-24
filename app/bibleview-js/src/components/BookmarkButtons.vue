@@ -89,8 +89,7 @@
 
 <script>
 import {useCommon} from "@/composables";
-import {computed, ref} from "vue";
-import {inject} from "vue";
+import {computed, ref, inject} from "vue";
 import AreYouSure from "@/components/modals/AreYouSure";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Color from "color";

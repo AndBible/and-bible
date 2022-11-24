@@ -68,7 +68,7 @@
 import Modal from "@/components/modals/Modal";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {provide, inject, ref} from "vue";
+import {provide, inject, ref, computed} from "vue";
 import {
   Deferred,
   getHighestPriorityEventFunctions,
@@ -78,8 +78,8 @@ import {
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton";
 import {emit, Events} from "@/eventbus";
-import {computed} from "vue";
 import AmbiguousActionButtons from "@/components/AmbiguousActionButtons";
+import {sortBy} from "lodash";
 
 export default {
   name: "AmbiguousSelection",
@@ -132,9 +132,9 @@ export default {
     const clickedBookmarks = computed(() => {
       if (originalSelections.value === null) return [];
 
-      return originalSelections.value
+      return sortBy(originalSelections.value
         .filter(v => v.options.bookmarkId && !v.options.hidden && bookmarkMap.has(v.options.bookmarkId))
-        .map(v => bookmarkMap.get(v.options.bookmarkId));
+        .map(v => bookmarkMap.get(v.options.bookmarkId)), v => v.text.length);
     });
 
     let deferred = null;

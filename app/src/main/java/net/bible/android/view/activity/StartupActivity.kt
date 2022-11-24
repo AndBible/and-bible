@@ -379,8 +379,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             }
             REQUEST_PICK_FILE_FOR_BACKUP_RESTORE -> {
                 // this and the one in MainActivity could potentially be merged into the same thing
+                CurrentActivityHolder.activate(this)
                 if (resultCode == Activity.RESULT_OK) {
-                    CurrentActivityHolder.currentActivity = this
                     Dialogs.showMsg(R.string.restore_confirmation, true) {
                         ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
                         val hourglass = Hourglass(this)

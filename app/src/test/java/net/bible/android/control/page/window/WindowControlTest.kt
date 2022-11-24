@@ -19,6 +19,8 @@ package net.bible.android.control.page.window
 
 
 import android.view.Menu
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
@@ -27,6 +29,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.AbstractSpeakTests
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordDocumentFacade
@@ -58,27 +61,22 @@ import javax.inject.Provider
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class WindowControlTest {
-    private var windowRepository: WindowRepository? = null
-
     private var windowControl: WindowControl? = null
+    private val windowRepository get() = windowControl!!.windowRepository
 
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        val bibleTraverser = mock(BibleTraverser::class.java)
-        val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
-        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!) }
-        windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
-        windowControl = WindowControl(windowRepository!!)
-        windowRepository!!.initialize()
-        windowRepository!!.workspaceSettings.autoPin = true
+        windowControl = CommonUtils.windowControl
+        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository.initialize()
+        windowRepository.workspaceSettings.autoPin = true
         windowControl!!.activeWindow.isPinMode = true
     }
 
     @After
     fun tearDown() {
-        DatabaseResetter.resetDatabase(windowRepository!!.scope)
+        DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
     @Test
@@ -112,27 +110,27 @@ class WindowControlTest {
     fun testShowLink() {
         windowControl!!.showLink(BOOK_KJV, PS_139_3)
 
-        val linksWindow = windowRepository!!.dedicatedLinksWindow
+        val linksWindow = windowRepository.dedicatedLinksWindow
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
         assertThat(linksWindow.pageManager.currentBible.singleKey, equalTo(PS_139_3 as Key))
         assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.SPLIT))
-        assertThat(windowRepository!!.isMultiWindow, `is`(true))
+        assertThat(windowRepository.isMultiWindow, `is`(true))
     }
 
     //@Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
     fun testShowLinkUsingDefaultBible() {
-        val window1 = windowRepository!!.activeWindow
+        val window1 = windowRepository.activeWindow
         window1.pageManager.setCurrentDocument(BOOK_KJV)
 
         windowControl!!.showLinkUsingDefaultBible(PS_139_3)
 
-        val linksWindow = windowRepository!!.dedicatedLinksWindow
+        val linksWindow = windowRepository.dedicatedLinksWindow
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
         assertThat(linksWindow.pageManager.currentBible.singleKey, equalTo(PS_139_3 as Key))
         assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.SPLIT))
-        assertThat(windowRepository!!.isMultiWindow, `is`(true))
+        assertThat(windowRepository.isMultiWindow, `is`(true))
         assertThat(windowControl!!.isActiveWindow(linksWindow), `is`(true))
 
         windowControl!!.activeWindow = window1
@@ -156,7 +154,7 @@ class WindowControlTest {
         activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(PassageTestData.ESV, PassageTestData.PS_139_2)
 
         val newWindow = windowControl!!.addNewWindow(activeWindow)
-        assertThat(windowRepository!!.windows, hasItem(newWindow))
+        assertThat(windowRepository.windows, hasItem(newWindow))
         // documents should be defaulted from active window
         val biblePage = newWindow.pageManager.currentBible
         assertThat(biblePage.currentDocument, equalTo(PassageTestData.ESV))
@@ -172,7 +170,7 @@ class WindowControlTest {
 
         // simple state - just 1 window is minimised
         windowControl!!.minimiseWindow(newWindow2)
-        assertThat(windowRepository!!.minimisedWindows, contains(newWindow2))
+        assertThat(windowRepository.minimisedWindows, contains(newWindow2))
     }
 
     @Test
@@ -181,7 +179,7 @@ class WindowControlTest {
         val newWindow = windowControl!!.addNewWindow(windowControl!!.activeWindow)
 
         windowControl!!.minimiseWindow(newWindow)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, not(hasItem(newWindow)))
+        assertThat<List<Window>>(windowRepository.visibleWindows, not(hasItem(newWindow)))
     }
 
     @Test
@@ -189,12 +187,12 @@ class WindowControlTest {
     fun testMinimiseOnlyWindowPrevented() {
         val onlyWindow = windowControl!!.activeWindow
         windowControl!!.minimiseWindow(onlyWindow)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, hasItem(onlyWindow))
+        assertThat<List<Window>>(windowRepository.visibleWindows, hasItem(onlyWindow))
 
         // test still prevented if links window is visible
-        windowRepository!!.dedicatedLinksWindow.windowState = WindowState.SPLIT
+        windowRepository.dedicatedLinksWindow.windowState = WindowState.SPLIT
         windowControl!!.minimiseWindow(onlyWindow)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, hasItem(onlyWindow))
+        assertThat<List<Window>>(windowRepository.visibleWindows, hasItem(onlyWindow))
     }
 
 
@@ -222,24 +220,24 @@ class WindowControlTest {
         val newWindow = windowControl!!.addNewWindow(windowControl!!.activeWindow)
 
         windowControl!!.closeWindow(newWindow)
-        assertThat(windowRepository!!.windows, not(hasItem(newWindow)))
+        assertThat(windowRepository.windows, not(hasItem(newWindow)))
     }
 
     @Test
     @Throws(Exception::class)
     fun testCloseOnlyWindowPrevented() {
-        val onlyWindow = windowRepository!!.activeWindow
+        val onlyWindow = windowRepository.activeWindow
         windowControl!!.closeWindow(onlyWindow)
-        assertThat(windowRepository!!.windows, hasItem(onlyWindow))
+        assertThat(windowRepository.windows, hasItem(onlyWindow))
     }
 
     @Test
     @Throws(Exception::class)
     fun testCloseWindowPreventedIfOnlyOtherIsLinks() {
-        windowRepository!!.dedicatedLinksWindow.windowState = WindowState.SPLIT
-        val onlyNormalWindow = windowRepository!!.activeWindow
+        windowRepository.dedicatedLinksWindow.windowState = WindowState.SPLIT
+        val onlyNormalWindow = windowRepository.activeWindow
         windowControl!!.closeWindow(onlyNormalWindow)
-        assertThat(windowRepository!!.windows, hasItem(onlyNormalWindow))
+        assertThat(windowRepository.windows, hasItem(onlyNormalWindow))
     }
 
     @Test
@@ -249,7 +247,7 @@ class WindowControlTest {
         val newWindow = windowControl!!.addNewWindow(activeWindow)
 
         windowControl!!.closeWindow(activeWindow)
-        assertThat(windowRepository!!.activeWindow, equalTo(newWindow))
+        assertThat(windowRepository.activeWindow, equalTo(newWindow))
     }
 
     @Test
@@ -258,10 +256,10 @@ class WindowControlTest {
         val activeWindow = windowControl!!.activeWindow
         val newWindow = windowControl!!.addNewWindow(activeWindow)
         windowControl!!.minimiseWindow(newWindow)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, contains(activeWindow))
+        assertThat<List<Window>>(windowRepository.visibleWindows, contains(activeWindow))
 
         windowControl!!.restoreWindow(newWindow)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, containsInAnyOrder(activeWindow, newWindow))
+        assertThat<List<Window>>(windowRepository.visibleWindows, containsInAnyOrder(activeWindow, newWindow))
 
     }
 
