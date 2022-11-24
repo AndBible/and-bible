@@ -1000,6 +1000,15 @@ private val MIGRATION_58_59_workspace_colors = object : Migration(58, 59) {
         }
     }
 }
+
+private val MIGRATION_59_60_label_markerStyle = object : Migration(59, 60) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE Label ADD COLUMN markerStyleWholeVerse INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+
 class DataBaseNotReady: Exception()
 
 object DatabaseContainer {
@@ -1107,6 +1116,7 @@ object DatabaseContainer {
                         MIGRATION_56_57_breaklines_in_notes,
                         MIGRATION_57_58_label_markerStyle,
                         MIGRATION_58_59_workspace_colors,
+                        MIGRATION_59_60_label_markerStyle,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

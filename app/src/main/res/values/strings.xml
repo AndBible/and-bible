@@ -1074,7 +1074,8 @@
     <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
     <string name="bug_report_email_title">Send bug report via email</string>
     <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
-    <string name="marker_style">Show only marker</string>
+    <string name="marker_style">Show only marker for selection bookmarks</string>
+    <string name="marker_style_whole_verse">Show only marker for whole verse bookmarks</string>
     <string name="type_text_or_bible_reference">Type text or bible reference</string>
     <string name="go_to_ref">Open %s</string>
     <string name="search_what">Find \"%s\"</string>
