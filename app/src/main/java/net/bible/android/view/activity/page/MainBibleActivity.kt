@@ -1098,6 +1098,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 else
                     workspaceSettings.workspaceColor ?: defaultWorkspaceColor
                 binding.toolbarLayout.setBackgroundColor(toolbarColor)
+                if (ScreenSettings.nightMode){
+                    binding.homeButton.drawable.setTint(workspaceSettings.workspaceColor ?: defaultWorkspaceColor)
+                }
 
                 val color = if (setNavBarColor) {
                     val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
