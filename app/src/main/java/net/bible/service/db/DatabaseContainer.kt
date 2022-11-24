@@ -33,6 +33,7 @@ import net.bible.android.database.DATABASE_VERSION
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.android.database.defaultWorkspaceColor
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
@@ -996,7 +997,7 @@ private val MIGRATION_58_59_workspace_colors = object : Migration(58, 59) {
                 execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
                 execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
             }
-            execSQL("UPDATE `Workspace` SET `text_display_settings_colors_dayWorkspaceColor` = -12303292, `text_display_settings_colors_nightWorkspaceColor` = -16777216")
+            execSQL("UPDATE `Workspace` SET `text_display_settings_colors_dayWorkspaceColor` = ${defaultWorkspaceColor}, `text_display_settings_colors_nightWorkspaceColor` = -16777216")
         }
     }
 }
@@ -1005,6 +1006,15 @@ private val MIGRATION_59_60_label_markerStyle = object : Migration(59, 60) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
             execSQL("ALTER TABLE Label ADD COLUMN markerStyleWholeVerse INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+
+private val MIGRATION_60_61_workspace_colors = object : Migration(60, 61) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_workspaceColor` INTEGER DEFAULT NULL")
+            execSQL("UPDATE `Workspace` SET `window_behavior_settings_workspaceColor` = `text_display_settings_colors_dayWorkspaceColor`")
         }
     }
 }
@@ -1117,6 +1127,7 @@ object DatabaseContainer {
                         MIGRATION_57_58_label_markerStyle,
                         MIGRATION_58_59_workspace_colors,
                         MIGRATION_59_60_label_markerStyle,
+                        MIGRATION_60_61_workspace_colors,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

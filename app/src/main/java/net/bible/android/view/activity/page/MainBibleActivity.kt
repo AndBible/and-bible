@@ -86,6 +86,7 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
@@ -1093,9 +1094,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings).colors!!
 
                 val toolbarColor = if (ScreenSettings.nightMode)
-                    colors.nightWorkspaceColor ?: R.color.actionbar_background_day
+                    resources.getColor(R.color.actionbar_background_night, theme)
                 else
-                    colors.dayWorkspaceColor ?: R.color.actionbar_background_night
+                    workspaceSettings.workspaceColor ?: defaultWorkspaceColor
                 binding.toolbarLayout.setBackgroundColor(toolbarColor)
 
                 val color = if (setNavBarColor) {
@@ -1336,6 +1337,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             setOf(TextDisplaySettings.Types.COLORS),
                             windowRepository.textDisplaySettings
                         )
+                        if(reset) {
+                            windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
+                        }
                         windowRepository.updateAllWindowsTextDisplaySettings()
                     }
                     resetSystemUi()
@@ -1440,6 +1444,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         } else {
             if(reset) {
                 windowRepository.textDisplaySettings = TextDisplaySettings.default
+                windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
             } else {
                 windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
             }

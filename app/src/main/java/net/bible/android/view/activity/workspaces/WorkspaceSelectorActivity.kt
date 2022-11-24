@@ -95,9 +95,8 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         title.text = titleText
         summary.text = workspaceEntity.contentsText
 
-        val colors = WorkspaceEntities.TextDisplaySettings.actual(null, workspaceEntity.textDisplaySettings!!).colors!!
-        val workspaceColor = if (ScreenSettings.nightMode) colors.nightWorkspaceColor else colors.dayWorkspaceColor
-        dragHolder.setColorFilter(workspaceColor!!)
+        val workspaceColor = (workspaceEntity.workspaceSettings?: WorkspaceEntities.WorkspaceSettings.default).workspaceColor!!
+        dragHolder.setColorFilter(workspaceColor)
 
         layout.setOnClickListener {
             activity.goToWorkspace(holder.itemId)
