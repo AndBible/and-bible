@@ -26,13 +26,12 @@ import {errorBox} from "@/composables/config";
 import {
     ABDocument,
     AsyncFunc,
-    Bookmark,
     Config,
-    JournalEntry,
     JournalEntryType,
     JSONString,
     LogEntry
 } from "@/types/common";
+import {Bookmark, JournalEntry} from "@/types/client-objects";
 
 export type AndroidInterface = {
     scrolledToOrdinal: (ordinal: number) => void,
@@ -84,7 +83,7 @@ type NotInJsSide =
     "selectionCleared"|
     "updateBookmarkToLabel"
 
-export type Android = Omit<AndroidInterface, NotInJsSide> & {
+export type UseAndroid = Omit<AndroidInterface, NotInJsSide> & {
     updateOrderNumber: (labelId: number, bookmarks: Bookmark[], journals: JournalEntry[]) => void
     updateJournalEntry: (entry: JournalEntry, changes: Partial<JournalEntry>) => void
 }
@@ -158,7 +157,7 @@ export function patchAndroidConsole() {
     }
 }
 
-export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Config): Android {
+export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Config): UseAndroid {
     const responsePromises = new Map();
 
     function response(callId: number, returnValue: any) {
@@ -338,11 +337,13 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
     }
 
     function updateOrderNumber(labelId: number, bookmarks: Bookmark[], journals: JournalEntry[]) {
-        const orderNumberPairs: (l: Bookmark | JournalEntryType) => [number, number][] =
+        const orderNumberPairs: (l: Bookmark | JournalEntry) => [number, number][] =
                 l => l.map((v: Bookmark|JournalEntry) => [v.id, v.orderNumber])
         window.android.updateOrderNumber(labelId, JSON.stringify(
-            {bookmarks: orderNumberPairs(bookmarks), journals: orderNumberPairs(journals)}
-            )
+            {
+                bookmarks: orderNumberPairs(bookmarks),
+                journals: orderNumberPairs(journals)
+            })
         );
     }
 
@@ -400,7 +401,7 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         window.android.onKeyDown(key);
     }
 
-    const exposed: Android = {
+    const exposed: UseAndroid = {
         shareHtml,
         helpBookmarks,
         setLimitAmbiguousModalSize,

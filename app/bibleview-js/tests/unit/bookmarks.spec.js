@@ -46,32 +46,32 @@ describe("verseHighlight tests", () => {
 
     it("test 1 highlight and 1 underline", () =>
         test(1, 1,
-            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
+            "linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
 
 
     it("test 2 highlight and 1 underline", () =>
         test(2, 1,
-            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 34%, hsl(240, 100%, 0.4%) 34% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
+            "linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 34%, hsl(240, 100%, 0.4%) 34% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
 
     it("test 3 highlight and 1 underline", () =>
         test(3, 1,
-            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 24%, hsl(240, 100%, 0.4%) 24% 44%, hsl(240, 100%, 0.6%) 44% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
+            "linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 24%, hsl(240, 100%, 0.4%) 24% 44%, hsl(240, 100%, 0.6%) 44% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
 
     it("test 3 highlight and 2 underline", () =>
         test(3, 2,
-            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 24%, hsl(240, 100%, 0.4%) 24% 44%, hsl(240, 100%, 0.6%) 44% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%, transparent 70% 72%, hsl(240, 100%, 0.4%) 72% 76%,transparent 0%);"));
+            "linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 24%, hsl(240, 100%, 0.4%) 24% 44%, hsl(240, 100%, 0.6%) 44% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%, transparent 70% 72%, hsl(240, 100%, 0.4%) 72% 76%,transparent 0%);"));
 
     it("test 3 highlight and 3 underline", () =>
         test(3, 2,
-            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 24%, hsl(240, 100%, 0.4%) 24% 44%, hsl(240, 100%, 0.6%) 44% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%, transparent 70% 72%, hsl(240, 100%, 0.4%) 72% 76%,transparent 0%);"));
+            "linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 24%, hsl(240, 100%, 0.4%) 24% 44%, hsl(240, 100%, 0.6%) 44% 64%,transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%, transparent 70% 72%, hsl(240, 100%, 0.4%) 72% 76%,transparent 0%);"));
 
     it("test 0 highlight and 1 underline", () =>
         test(0, 1,
-            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
+            "linear-gradient(to bottom, transparent 64% 66%, hsl(240, 100%, 0.2%) 66% 70%,transparent 0%);"));
 
     it("test 1 highlight and 0 underline", () =>
         test(1,  0,
-            "padding-bottom: 0.5em; background-image: linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 64%,transparent 0%);"));
+            "linear-gradient(to bottom, transparent 0% 4%, hsl(240, 100%, 0.2%) 4% 64%,transparent 0%);"));
 });
 
 describe("useBookmark tests", () => {

@@ -20,9 +20,9 @@ import {Deferred} from "@/utils";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {useParsers} from "@/composables/parsers";
 import {ReloadAddonsParams} from "@/types/common";
-import {Android} from "@/composables/android";
+import {UseAndroid} from "@/composables/android";
 
-export function useCustomFeatures(android: Android) {
+export function useCustomFeatures(android: UseAndroid) {
     const features = reactive(new Set())
 
     const defer = new Deferred();

@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+import Color from "color";
+
 export type ReloadAddonsParams = {
     fontModuleNames: string[],
     featureModuleNames: string[],
@@ -29,7 +31,10 @@ export type LogEntry = {
 export type JSONString = string
 export type AsyncFunc = (callId: number) => void
 export type JournalEntryType = "bookmark" | "journal" | "none"
-export type Bookmark = any
-export type JournalEntry = any
+
 export type Config = any
+export type AppSettings = any
 export type ABDocument = any
+export type ColorInt = number
+export type ColorString = string
+export type ColorParam = Color | ColorString | ArrayLike<number> | ColorInt | { [key: string]: any };

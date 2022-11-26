@@ -17,10 +17,10 @@
 
 import {InjectionKey} from "@vue/runtime-core";
 import {OsisFragment} from "@/types/client-objects";
-import {Android} from "@/composables/android";
+import {UseAndroid} from "@/composables/android";
 
 export const osisFragmentKey: InjectionKey<OsisFragment> = Symbol();
-export const androidKey: InjectionKey<Android> = Symbol();
+export const androidKey: InjectionKey<UseAndroid> = Symbol();
 
 export const DocumentTypes = {
     BIBLE_DOCUMENT: "bible",
