@@ -19,8 +19,10 @@ import {onBeforeMount, reactive, ref} from "vue";
 import {Deferred} from "@/utils";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {useParsers} from "@/composables/parsers";
+import {ReloadAddonsParams} from "@/types/common";
+import {UseAndroid} from "@/composables/android";
 
-export function useCustomFeatures(android) {
+export function useCustomFeatures(android: UseAndroid) {
     const features = reactive(new Set())
 
     const defer = new Deferred();
@@ -29,7 +31,7 @@ export function useCustomFeatures(android) {
     const {parse, initialize} = useParsers(android);
 
     // eslint-disable-next-line no-unused-vars
-    async function reloadFeatures(featureModuleNames) {
+    async function reloadFeatures(featureModuleNames: string[]) {
         features.clear();
         if(featureModuleNames.includes("RefParser")) {
             await initialize();
@@ -37,7 +39,7 @@ export function useCustomFeatures(android) {
         }
     }
 
-    setupEventBusListener(Events.RELOAD_ADDONS, ({featureModuleNames}) => {
+    setupEventBusListener(Events.RELOAD_ADDONS, ({featureModuleNames}: ReloadAddonsParams) => {
         reloadFeatures(featureModuleNames)
     })
 

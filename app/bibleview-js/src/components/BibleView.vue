@@ -44,7 +44,7 @@
 </template>
 <script>
 import Document from "@/components/documents/Document";
-import {nextTick, onMounted, onUnmounted, provide, reactive, watch, computed, ref} from "vue";
+import {nextTick, onMounted, onUnmounted, provide, reactive, watch, computed, ref, defineComponent} from "vue";
 import {testBookmarkLabels, testData} from "@/testdata";
 import {useInfiniteScroll} from "@/composables/infinite-scroll";
 import {useGlobalBookmarks} from "@/composables/bookmarks";
@@ -57,7 +57,7 @@ import BookmarkModal from "@/components/modals/BookmarkModal";
 import DevelopmentMode from "@/components/DevelopmentMode";
 import Color from "color";
 import {useStrings} from "@/composables/strings";
-import {DocumentTypes} from "@/constants";
+import {androidKey, DocumentTypes} from "@/types/constants";
 import {useKeyboard} from "@/composables/keyboard";
 import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
@@ -69,7 +69,7 @@ import {useCustomCss} from "@/composables/custom-css";
 import {useCustomFeatures} from "@/composables/features";
 import {useSharing} from "@/composables/sharing";
 
-export default {
+export default defineComponent({
   name: "BibleView",
   components: {Document, ErrorBox, BookmarkModal, DevelopmentMode},
   setup() {
@@ -188,7 +188,7 @@ export default {
     provide("calculatedConfig", calculatedConfig);
 
     provide("strings", strings);
-    provide("android", android);
+    provide(androidKey, android);
 
     const ambiguousSelection = ref(null);
 
@@ -283,7 +283,7 @@ export default {
       contentStyle, backgroundStyle, modalStyle, topStyle, calculatedConfig, appSettings,
     };
   },
-}
+})
 </script>
 <style lang="scss" scoped>
 @import "~@/common.scss";

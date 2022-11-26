@@ -27,7 +27,7 @@ import {useStrings} from "@/composables/strings";
 import {useAndroid} from "@/composables/android";
 import {useVerseHighlight} from "@/composables/verse-highlight";
 import {ref} from "vue";
-import {BookCategories, DocumentTypes} from "@/constants";
+import {BookCategories, DocumentTypes, osisFragmentKey} from "@/types/constants";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions";
 import LabelList from "@/components/LabelList";
@@ -44,7 +44,7 @@ function verifyXmlRendering(xmlTemplate, renderedHtml) {
 
     const android = useAndroid({bookmarks: null}, config);
     const provide = {
-        osisFragment,
+        [osisFragmentKey]: osisFragment,
         config,
         appSettings,
         calculatedConfig,

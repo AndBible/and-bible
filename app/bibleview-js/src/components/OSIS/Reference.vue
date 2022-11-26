@@ -23,6 +23,7 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
 import {computed, ref, inject} from "vue";
+import {osisFragmentKey} from "@/types/constants";
 
 export default {
   name: "Reference",
@@ -40,7 +41,7 @@ export default {
     const {addCustom, resetHighlights} = inject("verseHighlight");
     const referenceCollector = inject("referenceCollector", null);
     const content = ref(null);
-    const osisFragment = inject("osisFragment");
+    const osisFragment = inject(osisFragmentKey);
     const slot = ref(null);
     const slotEmpty = computed(() => {
       if(slot.value === null) return true;

@@ -61,6 +61,7 @@ import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 import Modal from "@/components/modals/Modal";
 import {setupElementEventListener} from "@/utils";
+import {androidKey} from "@/types/constants";
 
 export default {
   name: "TextEditor",
@@ -70,7 +71,7 @@ export default {
   },
   emits: ['save', "close"],
   setup(props, {emit}) {
-    const android = inject("android");
+    const android = inject(androidKey);
     const {parse, features} = inject('customFeatures')
     const hasRefParser = computed(() => features.has("RefParser"));
     const editorElement = ref(null);

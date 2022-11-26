@@ -21,13 +21,14 @@
 
 <script>
 import {useCommon} from "@/composables";
+import {defineComponent} from "vue";
 
-export default {
+export default defineComponent({
   name: "Pb",
   setup() {
     return useCommon();
   },
-}
+})
 </script>
 
 <style lang="scss" scoped>
