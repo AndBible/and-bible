@@ -15,32 +15,39 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-console.log("main.js begin");
+console.log("main.ts begin");
 
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface
 import {patchAndroidConsole} from "@/composables/android";
+
+declare global {
+    interface Window {
+        bibleView: any;
+        bibleViewDebug: any,
+    }
+}
 
 window.bibleView = {};
 window.bibleViewDebug = {};
 
 patchAndroidConsole();
 
-console.log("main.js after patching console");
+console.log("main.ts after patching console");
 
 import { createApp } from 'vue'
 
-import BibleView from "@/components/BibleView";
-import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
-import LabelList from "@/components/LabelList";
-import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions";
+import BibleView from "@/components/BibleView.vue";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
+import LabelList from "@/components/LabelList.vue";
+import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
 
-console.log("main.js After imports");
+console.log("main.ts After imports");
 
 const app = createApp(BibleView);
 app.component("AmbiguousSelection", AmbiguousSelection);
 app.component("LabelList", LabelList);
 app.component("BookmarkLabelActions", BookmarkLabelActions);
-console.log("main.js After vue bootstrap. Mounting.");
+console.log("main.ts After vue bootstrap. Mounting.");
 app.mount('#app')
-console.log("main.js After vue mount.");
+console.log("main.ts After vue mount.");
 
