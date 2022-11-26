@@ -27,6 +27,7 @@ import {highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment";
 import {useStrings} from "@/composables/strings";
 import {useCommon} from "@/composables";
+import {osisFragmentKey} from "@/constants";
 
 export default {
   name: "OsisFragment",
@@ -51,7 +52,7 @@ export default {
     }
 
     const strings = useStrings();
-    provide("osisFragment", props.fragment)
+    provide(osisFragmentKey, props.fragment)
     const {registerBook} = inject("customCss");
     registerBook(bookInitials);
 

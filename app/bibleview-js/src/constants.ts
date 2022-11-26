@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -14,6 +14,11 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+
+import {OsisFragment} from "@/types";
+import {InjectionKey} from "@vue/runtime-core";
+
+export const osisFragmentKey: InjectionKey<OsisFragment> = Symbol();
 
 export const DocumentTypes = {
     BIBLE_DOCUMENT: "bible",
